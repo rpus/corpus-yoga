@@ -1,0 +1,441 @@
+{
+  "$schema": "./documenter.schema.json",
+  "title": "Schema Design Principles for conversations.schema.json",
+  "description": "A living document of design principles, diagnostics, and manipulations for conversations.schema.json. Each principle has a machine-checkable diagnostic (a Python or jq snippet) and a human-readable rationale. This file is itself a JSON document and should be kept updated in parallel with the schema and its validation runs. Principles are organised into categories: Naming, Structure, Documentation, Empirical Grounding, Composition Patterns, API Correspondence, and Integrity Constraints.",
+  "document": {
+    "version": "1.0",
+    "schema_file": "conversations.schema.json",
+    "draft": "http://json-schema.org/draft-04/schema#",
+    "categories": [
+      {
+        "id": "naming",
+        "title": "Naming Conventions",
+        "principles": [
+          {
+            "id": "naming.upper_camel_case",
+            "title": "All definition names are UpperCamelCase",
+            "rationale": "Consistent UpperCamelCase for definition names cleanly distinguishes schema type names from data field names (which are snake_case or camelCase). This means a $ref is always visually distinct from a property key — e.g. \"uuid\": {\"$ref\": \"#/definitions/UuidV4\"} is unambiguous at a glance.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any definition name that is not UpperCamelCase.",
+              "snippet": "import json, re\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor name in schema['definitions']:\n    if not re.match(r'^[A-Z][A-Za-z0-9]*$', name):\n        print(f'Not UpperCamelCase: {name}')"
+            }
+          },
+          {
+            "id": "naming.title_matches_key",
+            "title": "Every definition's title matches its key",
+            "rationale": "The title field is the human-readable name of the schema. It should match the definition key exactly so that tooling (e.g. VS Code tooltips) shows the correct name.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any definition whose title does not match its key.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor name, defn in schema['definitions'].items():\n    if defn.get('title') != name:\n        print(f'title mismatch: key={name!r}, title={defn.get(\"title\")!r}')"
+            }
+          },
+          {
+            "id": "naming.property_keys_lowercase",
+            "title": "All property keys in data schemas are lowercase or snake_case",
+            "rationale": "Property keys mirror the actual JSON data fields, which follow snake_case. UpperCamelCase keys would indicate a wrongly-renamed property (a bug we encountered during the timestamp/flags/display_content renaming).",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any object property key that starts with an uppercase letter.",
+              "snippet": "import json, re\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'properties' in obj:\n            for k in obj['properties']:\n                if re.match(r'^[A-Z]', k):\n                    print(f'{path}: uppercase property key \"{k}\"')\n        for k, v in obj.items():\n            check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          }
+        ]
+      },
+      {
+        "id": "structure",
+        "title": "Structural Conventions",
+        "principles": [
+          {
+            "id": "structure.field_order",
+            "title": "Every definition begins with title, description, type (in that order)",
+            "rationale": "Consistent field ordering makes schemas easier to scan. title and description come first as the human-readable contract; type follows as the primary structural constraint. The only exception is the root schema, which begins with $schema.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any definition where title and description are not the first two fields in that order.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor name, defn in schema['definitions'].items():\n    keys = list(defn.keys())\n    if keys[0] != 'title':\n        print(f'{name}: first field is \"{keys[0]}\", expected \"title\"')\n    elif len(keys) < 2 or keys[1] != 'description':\n        print(f'{name}: second field is \"{keys[1] if len(keys)>1 else \"missing\"}\", expected \"description\"')"
+            }
+          },
+          {
+            "id": "structure.bfs_order",
+            "title": "Definitions are ordered in breadth-first referential encounter order",
+            "rationale": "Reading the definitions top-to-bottom should follow the same order as reading the schema by following $refs. This makes the file navigable as a solitary wave — unfolding and refolding a single schema at a time. The ToolInput* variants (unreferenced via $ref, only mentioned in descriptions) appear at the end in original order.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Verify that definitions appear in BFS encounter order starting from Conversation.",
+              "snippet": "import json\nfrom collections import deque\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndefs = schema['definitions']\ndef find_refs_ordered(obj):\n    refs, seen = [], set()\n    def walk(o):\n        if isinstance(o, dict):\n            if '$ref' in o:\n                r = o['$ref'][len('#/definitions/'):]\n                if r not in seen: seen.add(r); refs.append(r)\n            for v in o.values(): walk(v)\n        elif isinstance(o, list):\n            for v in o: walk(v)\n    walk(obj); return refs\norder, visited, queue = [], set(), deque(['Conversation'])\nwhile queue:\n    node = queue.popleft()\n    if node in visited: continue\n    visited.add(node); order.append(node)\n    for dep in find_refs_ordered(defs.get(node, {})):\n        if dep not in visited and dep in defs: queue.append(dep)\nfor k in defs:\n    if k not in visited: order.append(k)\ncurrent = list(defs.keys())\nfor i, (cur, bfs) in enumerate(zip(current, order)):\n    if cur != bfs: print(f'Position {i+1}: current={cur}, expected={bfs}')"
+            }
+          },
+          {
+            "id": "structure.definitions_at_bottom",
+            "title": "The definitions key is the last key in the root schema",
+            "rationale": "The root schema header ($schema, title, description, type, minItems, items) is read first; definitions are a reference section consulted on demand. Keeping definitions at the bottom mirrors this reading order.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Check that definitions is the last key in the root schema.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nkeys = list(schema.keys())\nif keys[-1] != 'definitions':\n    print(f'definitions is not last: it is at position {keys.index(\"definitions\")+1} of {len(keys)}')"
+            }
+          },
+          {
+            "id": "structure.required_subset_of_properties",
+            "title": "Every required field is listed in properties",
+            "rationale": "A required field not present in properties is a schema error — the validator will require a field it cannot validate.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any required field that is not in properties.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'required' in obj and 'properties' in obj:\n            props = set(obj['properties'].keys())\n            for f in obj['required']:\n                if f not in props:\n                    print(f'{path}: required field \"{f}\" not in properties')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "structure.no_redundant_additional_properties_true",
+            "title": "No explicit additionalProperties: true",
+            "rationale": "additionalProperties: true is the default in draft-4. Explicit occurrences are redundant noise. The meaningful values are false (closed schema) and absent (open schema).",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any explicit additionalProperties: true.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if obj.get('additionalProperties') is True:\n            print(f'{path}: redundant additionalProperties: true')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "structure.all_definitions_reachable",
+            "title": "Every definition is reachable from the root via $ref",
+            "rationale": "Unreachable definitions are dead code. The only legitimate exception is ToolInput* variants, which are referenced only in descriptions (not $refs) as documentation of known tool input shapes.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find definitions not reachable from the root via $ref traversal.",
+              "snippet": "import json\nfrom collections import deque\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndefs = schema['definitions']\ndef find_refs(obj):\n    refs = set()\n    def walk(o):\n        if isinstance(o, dict):\n            if '$ref' in o: refs.add(o['$ref'][len('#/definitions/'):])\n            for v in o.values(): walk(v)\n        elif isinstance(o, list):\n            for v in o: walk(v)\n    walk(obj); return refs\nvisited, queue = set(), deque(['Conversation'])\nwhile queue:\n    node = queue.popleft()\n    if node in visited: continue\n    visited.add(node)\n    for dep in find_refs(defs.get(node, {})):\n        if dep in defs: queue.append(dep)\nfor k in defs:\n    if k not in visited: print(f'Unreachable: {k}')"
+            }
+          },
+          {
+            "id": "structure.no_dangling_refs",
+            "title": "Every $ref target exists in definitions",
+            "rationale": "A $ref to a non-existent definition will cause validators to fail with a confusing error.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any $ref that does not resolve to a definition.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndefs = set(schema['definitions'].keys())\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if '$ref' in obj:\n            target = obj['$ref']\n            if target.startswith('#/definitions/'):\n                name = target[len('#/definitions/'):]\n                if name not in defs: print(f'{path}: dangling $ref to \"{name}\"')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          }
+        ]
+      },
+      {
+        "id": "documentation",
+        "title": "Documentation Conventions",
+        "principles": [
+          {
+            "id": "documentation.every_definition_has_title_and_description",
+            "title": "Every definition has both title and description",
+            "rationale": "Titles and descriptions are the primary documentation mechanism. They surface as tooltips in VS Code when the schema is used as a documenter wrapper, making the schema self-documenting at the point of data inspection.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find definitions missing title or description.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor name, defn in schema['definitions'].items():\n    if 'title' not in defn: print(f'{name}: missing title')\n    if 'description' not in defn: print(f'{name}: missing description')"
+            }
+          },
+          {
+            "id": "documentation.descriptions_end_with_full_stop",
+            "title": "All descriptions end with a full stop",
+            "rationale": "Consistent punctuation. Descriptions are prose sentences and should be punctuated as such.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find descriptions that do not end with a full stop.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'description' in obj and isinstance(obj['description'], str):\n            d = obj['description']\n            if d and not d.endswith('.'):\n                print(f'{path}: description does not end with full stop')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "documentation.api_links",
+            "title": "Definitions with API counterparts have a See: link",
+            "rationale": "Where a schema corresponds to a public Anthropic API concept, the description should include a See: URL pointing to the relevant documentation page. This grounds the schema in the authoritative source.",
+            "status": "advisory",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find definitions whose description mentions 'API' or 'Corresponds to' but contains no 'See:' link.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor name, defn in schema['definitions'].items():\n    d = defn.get('description', '')\n    if ('API' in d or 'Corresponds to' in d) and 'See:' not in d:\n        print(f'{name}: mentions API but has no See: link')"
+            }
+          },
+          {
+            "id": "documentation.null_only_fields_documented",
+            "title": "Fields typed as null note this empirical observation in their description",
+            "rationale": "A field typed as null is a strong empirical claim based on observed exports only. The description should note this explicitly so future maintainers know to relax the constraint if non-null values are observed.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find fields typed as null whose description does not mention 'null' or 'observed'.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if obj.get('type') == 'null':\n            d = obj.get('description', '')\n            if 'null' not in d.lower() and 'observed' not in d.lower():\n                print(f'{path}: type null but description does not note empirical basis')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "documentation.open_set_enums_documented",
+            "title": "Enums that are likely open sets say so in their description",
+            "rationale": "Many enums are inferred from a small number of exports and are likely incomplete. The description should explicitly note this to prevent future maintainers from treating them as exhaustive.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find enum fields whose description does not mention 'open set' or 'exhaustive'.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'enum' in obj and len(obj['enum']) > 1:\n            d = obj.get('description', '')\n            if 'open set' not in d and 'exhaustive' not in d and 'discriminator' not in d:\n                print(f'{path}: enum with no open-set caveat')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "documentation.discriminator_fields_annotated",
+            "title": "Discriminator fields are annotated with description: \"(discriminator)\"",
+            "rationale": "Fields whose sole purpose is to discriminate between union branches should be clearly marked. This aids both human readers and automated tools.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find enum fields with a single value that are not annotated as discriminators.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'enum' in obj and len(obj['enum']) == 1:\n            d = obj.get('description', '')\n            if 'discriminator' not in d.lower():\n                print(f'{path}: single-value enum not annotated as discriminator')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          }
+        ]
+      },
+      {
+        "id": "empirical",
+        "title": "Empirical Grounding",
+        "principles": [
+          {
+            "id": "empirical.validate_against_all_known_exports",
+            "title": "The schema must validate against all known exports",
+            "rationale": "The schema is reverse-engineered from real data. Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Validate all known exports using jsonschema.Draft4Validator.",
+              "snippet": "import json\nfrom jsonschema import Draft4Validator\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor export_file in ['conversations.json']:\n    with open(export_file) as f:\n        data = json.load(f)\n    errors = list(Draft4Validator(schema).iter_errors(data))\n    if errors:\n        print(f'{export_file}: {len(errors)} error(s)')\n        print(f'  First: {errors[0].message} at {list(errors[0].absolute_path)}')\n    else:\n        print(f'{export_file}: Valid')"
+            }
+          },
+          {
+            "id": "empirical.enum_values_evidenced",
+            "title": "Every enum value is evidenced in at least one known export",
+            "rationale": "Unevidenced enum values may reflect guesswork or documentation-only values. They should be flagged and either evidenced or moved to a description note.",
+            "status": "advisory",
+            "diagnostic": {
+              "language": "python",
+              "description": "Collect all enum values from the schema and check each against values observed in the export.",
+              "snippet": "# Run after collecting observed_values dict from export data\nimport json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\n# See empirical.oneOf_branches_evidenced for full collection pattern"
+            }
+          },
+          {
+            "id": "empirical.oneOf_branches_evidenced",
+            "title": "Every branch of every oneOf is evidenced in at least one known export",
+            "rationale": "An unevidenced oneOf branch may be speculative. It should be documented as such (e.g. 'Not observed in this export') rather than silently included.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Check that all oneOf branch types appear in the export data.",
+              "snippet": "import json\nwith open('conversations.json') as f:\n    data = json.load(f)\n# Collect observed content block types\ntypes = set()\nfor conv in data:\n    for msg in conv.get('chat_messages', []):\n        for block in msg.get('content', []):\n            types.add(block.get('type'))\nprint('Observed content block types:', sorted(types))"
+            }
+          },
+          {
+            "id": "empirical.tool_result_id_referential_integrity",
+            "title": "Every tool_use_id in a ToolResultBlock matches a ToolUseBlock id in the same content array",
+            "rationale": "This cross-field constraint cannot be expressed in JSON Schema draft-4. It must be verified separately. Violation would indicate a malformed export.",
+            "status": "manual",
+            "diagnostic": {
+              "language": "jq",
+              "description": "Returns the number of content arrays passing the referential integrity check (should equal total number of content arrays containing tool_result blocks). Any error() call indicates a violation.",
+              "snippet": "jq '[.[].chat_messages[].content | (map(select(.type==\"tool_use\")) | map(.id) | unique) as $ids | map(select(.type==\"tool_result\") | .tool_use_id) | map(. as $t | $ids | index($t) // error(\"unmatched tool_use_id: \"+$t))] | length' conversations.json"
+            }
+          }
+        ]
+      },
+      {
+        "id": "composition",
+        "title": "Composition Patterns",
+        "principles": [
+          {
+            "id": "composition.discriminated_union_pattern",
+            "title": "Discriminated unions follow the wrapper/base/subtype pattern",
+            "rationale": "A discriminated union is expressed as three layers: (1) a wrapper schema with title, description, type, allOf (base + Has*DiscriminatorProperty), and oneOf (subtypes); (2) a ...Base schema with additionalProperties: false and all shared fields; (3) n subtype schemas each with the discriminator field constrained to a single enum value. This pattern was developed iteratively and validated against draft-4 constraints. Key insight from proof-of-concept: allOf and oneOf sit at the wrapper level, not inside the subtypes, which avoids additionalProperties conflicts.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find oneOf wrappers that are missing allOf with a Has*DiscriminatorProperty.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'oneOf' in obj:\n            all_of_refs = [s.get('$ref','') for s in obj.get('allOf', [])]\n            has_discriminator = any(\n                'DiscriminatorProperty' in r for r in all_of_refs\n            )\n            if not has_discriminator:\n                print(f'{path}: oneOf without Has*DiscriminatorProperty in allOf')\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "composition.discriminator_values_disjoint",
+            "title": "Discriminator enum values across all branches of a oneOf are mutually disjoint",
+            "rationale": "A discriminated union requires that no value can match more than one branch. If discriminator enum values overlap across branches, oneOf will match multiple branches and validation will fail.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "For each oneOf, collect discriminator enum values from all branches and check for overlap.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndefs = schema['definitions']\ndef get_discriminator_values(ref):\n    name = ref[len('#/definitions/'):]\n    defn = defs.get(name, {})\n    for prop in defn.get('properties', {}).values():\n        if 'enum' in prop: return set(prop['enum'])\n    return set()\ndef check(obj, path=''):\n    if isinstance(obj, dict):\n        if 'oneOf' in obj:\n            seen = set()\n            for branch in obj['oneOf']:\n                ref = branch.get('$ref', '')\n                vals = get_discriminator_values(ref)\n                overlap = seen & vals\n                if overlap: print(f'{path}: overlapping discriminator values {overlap}')\n                seen |= vals\n        for k, v in obj.items(): check(v, f'{path}/{k}')\n    elif isinstance(obj, list):\n        for i, v in enumerate(obj): check(v, f'{path}[{i}]')\ncheck(schema)"
+            }
+          },
+          {
+            "id": "composition.base_schemas_closed",
+            "title": "All ...Base schemas have additionalProperties: false",
+            "rationale": "The ...Base schema is the definitive closed contract for all shared fields. additionalProperties: false ensures no unexpected fields pass validation, and that future Anthropic changes to the export format are caught immediately.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find any ...Base definition missing additionalProperties: false.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nfor name, defn in schema['definitions'].items():\n    if name.endswith('Base') and defn.get('additionalProperties') is not False:\n        print(f'{name}: missing additionalProperties: false')"
+            }
+          },
+          {
+            "id": "composition.wrapper_has_five_fields",
+            "title": "Union wrapper schemas have exactly five fields: title, description, type, allOf, oneOf",
+            "rationale": "The wrapper is a pure structural combinator. It should contain no additional constraints beyond those expressed by allOf and oneOf. Extra fields would conflate the wrapper with the base.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find union wrapper schemas that do not have exactly the five expected fields.",
+              "snippet": "import json\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\nexpected = {'title', 'description', 'type', 'allOf', 'oneOf'}\nfor name, defn in schema['definitions'].items():\n    if 'oneOf' in defn and 'allOf' in defn:\n        actual = set(defn.keys())\n        if actual != expected:\n            print(f'{name}: wrapper fields {sorted(actual)}, expected {sorted(expected)}')"
+            }
+          },
+          {
+            "id": "composition.use_refs_not_inline",
+            "title": "Repeated schemas are factored into definitions and referenced via $ref",
+            "rationale": "Inline duplication makes the schema harder to maintain and creates inconsistency risk. Any schema that appears more than once should be a named definition. This was applied to NullableString, NullableBoolean, Timestamp, Flags, DisplayContent, IntegrationName, IconName, etc.",
+            "status": "advisory",
+            "diagnostic": {
+              "language": "python",
+              "description": "Find identical inline schema objects that appear more than once (potential $ref candidates).",
+              "snippet": "import json\nfrom collections import Counter\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ncounts = Counter()\ndef walk(obj):\n    if isinstance(obj, dict) and '$ref' not in obj and 'definitions' not in obj:\n        key = json.dumps(obj, sort_keys=True)\n        if len(key) > 20: counts[key] += 1\n        for v in obj.values(): walk(v)\n    elif isinstance(obj, list):\n        for v in obj: walk(v)\nwalk(schema)\nfor k, c in counts.items():\n    if c > 1: print(f'Appears {c}x: {k[:80]}')"
+            }
+          }
+        ]
+      },
+      {
+        "id": "api_correspondence",
+        "title": "API Correspondence",
+        "principles": [
+          {
+            "id": "api.export_is_api_plus_envelope",
+            "title": "The export format is the Claude API data model plus a persistence/UI envelope",
+            "rationale": "The core ContentBlock discriminated union (text, tool_use, tool_result) is shared verbatim with the API. Envelope fields (start_timestamp, stop_timestamp, display_content, integration_*, icon_name, approval_*, is_mcp_app, mcp_server_url) are claude.ai additions. Knowing this distinction helps when new fields appear in exports: they are likely either (a) new API fields or (b) new UI envelope fields, and should be documented accordingly.",
+            "status": "informational",
+            "diagnostic": null
+          },
+          {
+            "id": "api.sender_vs_role",
+            "title": "Export uses sender: human/assistant; API uses role: user/assistant",
+            "rationale": "The export renames 'user' to 'human' for the sender field. This is a known divergence from the API. Any schema update that changes the sender enum should be aware of this.",
+            "status": "informational",
+            "diagnostic": {
+              "language": "jq",
+              "description": "Verify observed sender values in the export.",
+              "snippet": "jq '[.[].chat_messages[].sender] | unique' conversations.json"
+            }
+          },
+          {
+            "id": "api.tool_names_internal_vs_public",
+            "title": "Some tool names are claude.ai-internal with no public API documentation",
+            "rationale": "recent_chats, conversation_search, and recommend_claude_apps are claude.ai-internal tools. They appear in exports but have no public API documentation. New tool names should be investigated to determine whether they are public API tools or internal ones.",
+            "status": "informational",
+            "diagnostic": {
+              "language": "python",
+              "description": "List all distinct tool names observed in the export.",
+              "snippet": "import json\nfrom collections import Counter\nwith open('conversations.json') as f:\n    data = json.load(f)\nnames = Counter()\nfor conv in data:\n    for msg in conv.get('chat_messages', []):\n        for block in msg.get('content', []):\n            if block.get('type') in ('tool_use', 'tool_result'):\n                names[block.get('name')] += 1\nfor name, count in sorted(names.items()):\n    print(f'{count:4d}  {name}')"
+            }
+          }
+        ]
+      },
+      {
+        "id": "integrity",
+        "title": "Integrity Constraints",
+        "principles": [
+          {
+            "id": "integrity.tool_use_id_referential_integrity",
+            "title": "tool_use_id in ToolResultBlock references id of ToolUseBlock in same content array",
+            "rationale": "This is a cross-field referential integrity constraint that cannot be expressed in JSON Schema draft-4. It must be verified separately via jq or Python. Verified empirically: zero violations across all known exports.",
+            "status": "manual",
+            "diagnostic": {
+              "language": "jq",
+              "description": "Returns count of content arrays passing integrity check (checksum: 945 for the original export). Any error() indicates a violation.",
+              "snippet": "jq '[.[].chat_messages[].content | (map(select(.type==\"tool_use\")) | map(.id) | unique) as $ids | map(select(.type==\"tool_result\") | .tool_use_id) | map(. as $t | $ids | index($t) // error(\"unmatched tool_use_id: \"+$t))] | length' conversations.json"
+            }
+          },
+          {
+            "id": "integrity.message_order",
+            "title": "Messages within a conversation are ordered by created_at",
+            "rationale": "Messages use UuidV7 (time-ordered) identifiers, and created_at timestamps should be monotonically non-decreasing within a conversation. Violations would indicate export anomalies.",
+            "status": "advisory",
+            "diagnostic": {
+              "language": "python",
+              "description": "Check that messages within each conversation are ordered by created_at.",
+              "snippet": "import json\nwith open('conversations.json') as f:\n    data = json.load(f)\nfor ci, conv in enumerate(data):\n    msgs = conv.get('chat_messages', [])\n    for i in range(1, len(msgs)):\n        if msgs[i]['created_at'] < msgs[i-1]['created_at']:\n            print(f'conv[{ci}]: message {i} created_at out of order')"
+            }
+          },
+          {
+            "id": "integrity.tool_use_result_pairing",
+            "title": "Every tool_use block has a corresponding tool_result block in the same content array",
+            "rationale": "The API requires tool results to be returned for every tool use. Unpaired tool use blocks may indicate truncated exports.",
+            "status": "advisory",
+            "diagnostic": {
+              "language": "python",
+              "description": "Check that every tool_use block has a matching tool_result block.",
+              "snippet": "import json\nwith open('conversations.json') as f:\n    data = json.load(f)\nfor ci, conv in enumerate(data):\n    for mi, msg in enumerate(conv.get('chat_messages', [])):\n        content = msg.get('content', [])\n        use_ids = {b['id'] for b in content if b.get('type') == 'tool_use'}\n        result_ids = {b['tool_use_id'] for b in content if b.get('type') == 'tool_result'}\n        unpaired = use_ids - result_ids\n        if unpaired:\n            print(f'conv[{ci}].msg[{mi}]: unpaired tool_use ids: {unpaired}')"
+            }
+          },
+          {
+            "id": "integrity.uuid_format_consistency",
+            "title": "UUIDs follow their declared format (v4 or v7) at each usage site",
+            "rationale": "Different fields use different UUID versions: v4 for conversations/accounts/citations, v7 for messages. Mixing them would indicate a data anomaly.",
+            "status": "advisory",
+            "diagnostic": {
+              "language": "python",
+              "description": "Check UUID version at each usage site.",
+              "snippet": "import json, re\nwith open('conversations.json') as f:\n    data = json.load(f)\nv4 = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')\nv7 = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$')\nfor ci, conv in enumerate(data):\n    if not v4.match(conv['uuid']): print(f'conv[{ci}].uuid not v4: {conv[\"uuid\"]}')\n    for mi, msg in enumerate(conv.get('chat_messages', [])):\n        if not v7.match(msg['uuid']): print(f'conv[{ci}].msg[{mi}].uuid not v7: {msg[\"uuid\"]}')"
+            }
+          }
+        ]
+      },
+      {
+        "id": "maintenance",
+        "title": "Maintenance Workflow",
+        "principles": [
+          {
+            "id": "maintenance.new_export_workflow",
+            "title": "Workflow for incorporating a new export",
+            "rationale": "Each new export is both a test and a potential source of new schema knowledge. The workflow ensures the schema grows to cover new observations without losing existing constraints.",
+            "status": "informational",
+            "diagnostic": {
+              "language": "prose",
+              "description": "Steps to follow when a new export fails validation.",
+              "snippet": "1. Run Draft4Validator against the new export and note the first failing path and message.\n2. Inspect the failing instance in the export to understand the new structure.\n3. Determine whether this is: (a) a new field, (b) a new enum value, (c) a new oneOf branch, or (d) a nullable field that was previously always null.\n4. Update the schema minimally to accommodate the new observation.\n5. Add the new enum value/field to ToolName or the relevant definition.\n6. Re-run validation against ALL known exports to confirm no regressions.\n7. Update this principles document if the new observation motivates a new principle or diagnostic.\n8. Note new tool names: check whether they are public API tools (add doc link) or claude.ai-internal (note as such)."
+            }
+          },
+          {
+            "id": "maintenance.compress_before_upload",
+            "title": "Use a redacted/compressed export for schema development",
+            "rationale": "The full export contains personal conversation content. A compressed version (with string values replaced by '[text]') is sufficient for schema development and safe to share. The compression workflow is: (1) replace non-empty string values with '[text]' via jq walk; (2) reduce arrays to first element; (3) validate the compressed version matches the full schema.",
+            "status": "informational",
+            "diagnostic": {
+              "language": "jq",
+              "description": "Compress an export by redacting string values.",
+              "snippet": "jq 'walk(if type == \"object\" and has(\"text\") and .text != \"\" and (.text | type) == \"string\" then .text = \"[text]\" else . end)' conversations.json > compressed.json"
+            }
+          },
+          {
+            "id": "maintenance.bfs_reorder_after_edits",
+            "title": "Reapply BFS ordering after any structural edits",
+            "rationale": "Adding, removing, or reordering properties in a schema can change which $refs are encountered first, shifting the BFS order. The BFS reorder script should be run after any edit that adds new definitions or changes property order.",
+            "status": "enforced",
+            "diagnostic": {
+              "language": "python",
+              "description": "Reapply BFS ordering to definitions.",
+              "snippet": "import json\nfrom collections import deque\nwith open('conversations.schema.json') as f:\n    schema = json.load(f)\ndefs = schema['definitions']\ndef find_refs_ordered(obj):\n    refs, seen = [], set()\n    def walk(o):\n        if isinstance(o, dict):\n            if '$ref' in o:\n                r = o['$ref'][len('#/definitions/'):]\n                if r not in seen: seen.add(r); refs.append(r)\n            for v in o.values(): walk(v)\n        elif isinstance(o, list):\n            for v in o: walk(v)\n    walk(obj); return refs\norder, visited, queue = [], set(), deque(['Conversation'])\nwhile queue:\n    node = queue.popleft()\n    if node in visited: continue\n    visited.add(node); order.append(node)\n    for dep in find_refs_ordered(defs.get(node, {})):\n        if dep not in visited and dep in defs: queue.append(dep)\nfor k in defs:\n    if k not in visited: order.append(k)\nschema['definitions'] = {k: defs[k] for k in order}\ndefs_out = schema.pop('definitions')\nschema['definitions'] = defs_out\nwith open('conversations.schema.json', 'w') as f:\n    json.dump(schema, f, indent=2)\nprint(f'Reordered {len(order)} definitions')"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

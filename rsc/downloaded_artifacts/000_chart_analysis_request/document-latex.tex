@@ -1,0 +1,86 @@
+% =============================================================
+% document-latex.tex  —  LaTeX document using lx.sty
+%
+% This file contains no layout or infrastructure; it is purely
+% flags, content hooks, and body text. All machinery lives in lx.sty.
+% =============================================================
+
+% twoside/oneside must match \lxDoubleSided/\lxSingleSided below:
+\documentclass[a4paper, 10pt, twoside]{article}   % 10pt matches Plain TeX's default
+\usepackage{lx}                                    % (cf. \input lx in Plain TeX)
+
+% --- Flags ---------------------------------------------------
+\lxBindingLeft
+\lxDoubleSided    % must agree with 'twoside' documentclass option above
+\lxNotesOuter
+
+% --- Paper size (DVI/other engines only) ---------------------
+% Default: A4, auto-detected from engine. Uncomment only if you
+% need a non-A4 size AND are using a DVI/other engine.
+% \lxPaperWidth=210truemm
+% \lxPaperHeight=297truemm
+
+% --- Margin width: choose ONE of the following forms ---------
+% \lxMarginWidth=3truecm          % absolute
+\def\lxMarginWidthFraction{0.2}   % relative: 20% of \paperwidth
+
+% --- Side / top / bottom margins (optional overrides) --------
+% \setlength{\lxInnerMargin}{1truein}   % default: 1in (Plain TeX's own default)
+% \setlength{\lxOuterMargin}{1truein}
+% \setlength{\lxTopMargin}{1truein}
+% \setlength{\lxBottomMargin}{1truein}
+% \setlength{\lxMarginSep}{0.5em}
+
+% --- Commit layout -------------------------------------------
+\lxSetupPage                              % resolves \lxMarginWidth; wires fancyhdr
+\geometry{%                               % (cf. \hsize/\vsize assignments in Plain TeX)
+  top=\lxTopMargin,      bottom=\lxBottomMargin,%
+  inner=\lxInnerMargin,%
+  outer=\dimexpr\lxOuterMargin+\lxMarginWidth+\lxMarginSep\relax,%
+  marginparwidth=\lxMarginWidth, marginparsep=\lxMarginSep}
+\fancyhfoffset{0pt}                       % sync fancyhdr header width with \textwidth
+% \reversemarginpar                       % uncomment if \lxNotesInner is set
+
+% --- Head / foot content -------------------------------------
+% (lx.sty defaults reproduce LaTeX's own head/foot behaviour;
+%  override here as needed for this document.)
+%
+% All six hooks are shown; commented-out lines indicate defaults
+% that are intentionally left unchanged for this document.
+\renewcommand{\lxHeadInner}{\thepage}    % override: page number on binding side
+\renewcommand{\lxHeadMiddle}{}           % default: empty
+\renewcommand{\lxHeadOuter}{My Document} % override: document title on fore-edge
+% \renewcommand{\lxFootInner}{}          % default: empty
+\renewcommand{\lxFootMiddle}{}           % override: clear default page number (now in head)
+% \renewcommand{\lxFootOuter}{}          % default: empty
+
+% --- Note reference formatter (optional override) ------------
+% \renewcommand{\lxNoteRef}{\roman{lxNoteNo}}  % e.g. roman numerals
+
+% --- Note font (optional override) ---------------------------
+% \renewcommand{\lxNoteFont}{\scriptsize}  % e.g. smaller than default
+
+\begin{document}                          % (cf. \bye terminates Plain TeX)
+
+% --- Body text -----------------------------------------------
+% \lxMarginNote{NOTE}         — auto-incrementing (default form)
+% \lxMarginNoteRef{REF}{NOTE} — explicit reference, no increment
+% Note: line breaks will differ between Plain TeX and LaTeX due to
+% differences in hyphenation, interword spacing, and line-breaking
+% parameters. Structural and dimensional equivalence is the goal.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.%
+\lxMarginNote{This note is auto-numbered; its reference is \thelxNoteNo.}
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\smallskip
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.%
+\lxMarginNote{A second auto-numbered note.}
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+
+\smallskip
+Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit.%
+\lxMarginNoteRef{$\star$}{An explicit star reference, outside the auto sequence.}
+Ut enim ad minima veniam quis nostrum exercitationem ullam corporis.
+
+\end{document}                            % (cf. \bye in Plain TeX)

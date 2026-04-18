@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "memories",
+  "description": "The single memory for a user, from a data export",
+  "type": "array",
+  "minItems": 1,
+  "maxItems": 1,
+  "items": {
+    "type": "object",
+    "required": [
+      "conversations_memory",
+      "account_uuid"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "conversations_memory": {
+        "type": "string"
+      },
+      "account_uuid": {
+        "description": "../model.json#/UserUUID",
+        "type": "string"
+      }
+    }
+  },
+  "default": [
+    {
+      "conversations_memory": "",
+      "account_uuid": ""
+    }
+  ]
+}

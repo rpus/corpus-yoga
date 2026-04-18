@@ -1,0 +1,8 @@
+{
+  "dashboard_file":       "./index.html",
+  "data_dir":             "./gen/data/",
+  "doc_dir":              "./doc/data/",
+  "conversations":        "./conversations.json",
+  "extracted_files_dir":  "./extracted_files/",
+  "export_dir":           "../data-2026-04-07-07-52-05-batch-0000/"
+}

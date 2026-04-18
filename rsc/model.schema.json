@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "model",
+  "description": "Data model underlying the four schemas in a data export",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "required": [
+      "description",
+      "occurrences"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "description": {
+        "type": "string"
+      },
+      "occurrences": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "default": {
+    "$ref": "./model.json"
+  }
+}

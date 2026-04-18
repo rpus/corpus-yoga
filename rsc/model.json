@@ -1,0 +1,19 @@
+{
+  "UserUUID": {
+    "description": "The UUID of data export's user",
+    "occurrences": {
+      "conversations.json": [
+        "#/0/account/uuid"
+      ],
+      "memories.json": [
+        "#/0/account_uuid"
+      ],
+      "projects.json": [
+        "#/0/creator/uuid"
+      ],
+      "users.json": [
+        "#/0/uuid"
+      ]
+    }
+  }
+}

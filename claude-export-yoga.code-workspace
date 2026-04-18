@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../exported-data"
+		},
+		{
+			"path": "../claude-chat-exporter"
+		}
+	],
+	"settings": {}
+}

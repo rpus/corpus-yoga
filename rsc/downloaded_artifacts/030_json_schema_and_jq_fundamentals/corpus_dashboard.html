@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversation corpus — 35 chats, March–April 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #fff; color: #222; padding: 2rem; }
+  h2 { font-size: 13px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1rem; }
+  .section { margin-bottom: 2.5rem; }
+  #tl-wrap { font-size: 13px; }
+  #tl-header { display: flex; align-items: flex-end; margin-bottom: 4px; }
+  #tl-label-spacer { width: 220px; flex-shrink: 0; }
+  #tl-axis { flex: 1; display: flex; justify-content: space-between; font-size: 11px; color: #aaa; padding: 0 2px; }
+  #tl-grid { display: flex; flex-direction: column; gap: 2px; }
+  .tl-lane { display: flex; align-items: center; height: 16px; }
+  .tl-label { width: 220px; flex-shrink: 0; font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; text-align: right; }
+  .tl-track { position: relative; flex: 1; height: 100%; }
+  .tl-bar { position: absolute; height: 100%; border-radius: 2px; cursor: pointer; min-width: 3px; transition: opacity 0.12s; }
+  .tl-bar:hover { opacity: 0.6; }
+  .tl-dormant { position: absolute; height: 100%; border-radius: 2px; background: #B4B2A9; opacity: 0.2; pointer-events: none; }
+  #tl-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 0.75rem; padding-left: 220px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #999; }
+  .leg-swatch { width: 20px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  #clouds-header { display: flex; align-items: baseline; gap: 2rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .toggle-group { display: flex; border: 0.5px solid #ccc; border-radius: 6px; overflow: hidden; }
+  .toggle-btn { background: none; border: none; border-right: 0.5px solid #ccc; padding: 4px 12px; font-size: 12px; cursor: pointer; color: #888; transition: background 0.12s, color 0.12s; }
+  .toggle-btn:last-child { border-right: none; }
+  .toggle-btn.active { background: #222; color: #fff; }
+  .toggle-btn:hover:not(.active) { background: #f5f5f5; }
+  #clouds { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .cloud-panel { border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 1.25rem; min-height: 280px; }
+  .cloud-title { font-size: 11px; font-weight: 500; color: #aaa; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.3rem; }
+  .cloud-sub { font-size: 11px; color: #ccc; font-style: italic; margin-bottom: 1rem; }
+  .cloud { display: flex; flex-wrap: wrap; gap: 5px 9px; align-items: baseline; line-height: 1.6; }
+  .word { cursor: default; border-radius: 3px; padding: 1px 2px; transition: opacity 0.12s; }
+  .word:hover { opacity: 0.55; }
+  #tooltip { position: fixed; pointer-events: none; background: #fff; border: 0.5px solid #ccc; border-radius: 6px; padding: 8px 10px; font-size: 12px; line-height: 1.7; z-index: 9999; display: none; max-width: 270px; color: #222; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  #tooltip strong { font-weight: 500; display: block; margin-bottom: 1px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a1a; color: #ddd; }
+    h2 { color: #555; }
+    .tl-label { color: #666; }
+    #tl-axis { color: #555; }
+    .toggle-group { border-color: #444; }
+    .toggle-btn { color: #666; border-right-color: #444; }
+    .toggle-btn.active { background: #ddd; color: #111; }
+    .toggle-btn:hover:not(.active) { background: #252525; }
+    .cloud-panel { border-color: #2c2c2c; }
+    .cloud-title { color: #555; }
+    .cloud-sub { color: #444; }
+    #tooltip { background: #2a2a2a; border-color: #444; color: #ddd; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── data ───────────────────────────────────────── -->
+<!-- data-chats
+jq '[sort_by(.created_at) | to_entries[] | {
+  chat: .key, name: .value.name,
+  created_at: .value.created_at, dormant_from: .value.updated_at
+}]' conversations.json
+-->
+<script id="data-chats" type="application/json">
+{"columns":["chat", "name", "dormant_from"],"rows":[
+  [0, "Chart analysis request", "2026-03-24T22:23:20.339926Z"],
+  [1, "Ideas for AI applications", "2026-03-21T14:17:45.285091Z"],
+  [2, "Memory feature and existing conversation history", "2026-03-13T20:39:53.148586Z"],
+  [3, "AI book recommendations for implementation paradigms", "2026-03-17T16:03:44.398723Z"],
+  [4, "Exploring mathematical and physical ideas", "2026-04-03T10:39:32.685917Z"],
+  [5, "Inference games", "2026-03-21T13:25:31.283754Z"],
+  [6, "Exploring a prime number concept", "2026-03-18T16:20:51.898054Z"],
+  [7, "Reading text from JPEG screenshots", "2026-03-17T21:48:30.933250Z"],
+  [8, "Strength training workout plan", "2026-04-02T13:59:40.659328Z"],
+  [9, "Personal to-do list and progress tracking", "2026-03-16T10:23:53.485168Z"],
+  [10, "Boundaries and alternative conversations", "2026-03-19T15:56:55.359884Z"],
+  [11, "Inferring apartment details from a photo", "2026-03-18T21:50:46.420927Z"],
+  [12, "Weekly message limit inquiry", "2026-03-19T17:14:10.142732Z"],
+  [13, "Lists as infinite series and quotient forms", "2026-03-19T16:55:06.274229Z"],
+  [14, "Timestamp access and temporal awareness in AI", "2026-03-19T21:25:56.240746Z"],
+  [15, "Accessing files from previous chats", "2026-04-01T17:41:58.733482Z"],
+  [16, "Persistent memory across conversations", "2026-03-25T13:21:32.863255Z"],
+  [17, "Intellectual extrapolation challenge", "2026-03-23T20:06:11.873524Z"],
+  [18, "Mathematical conjectures with far-reaching implications", "2026-03-29T00:07:21.988814Z"],
+  [19, "Questions you'd like to ask me", "2026-03-25T21:01:24.441698Z"],
+  [20, "File review request", "2026-03-26T10:54:20.215814Z"],
+  [21, "Logico-linguistic thought exploration", "2026-03-27T15:25:46.281374Z"],
+  [22, "Film recommendations by pushout", "2026-04-01T19:16:20.382060Z"],
+  [23, "Wagner's Rheingold prelude and cosmogony", "2026-04-02T20:12:18.190808Z"],
+  [24, "Exponentiation as canonical duality", "2026-03-28T20:34:34.241174Z"],
+  [25, "Euler identity through multiple theoretical lenses", "2026-03-28T20:40:55.866310Z"],
+  [26, "Moral and ontological polarities", "2026-04-02T11:17:50.570642Z"],
+  [27, "Chaos as terminal state and social morphisms", "2026-03-28T20:57:29.359819Z"],
+  [28, "Maximizing information return in prompts", "2026-03-28T21:28:36.803383Z"],
+  [29, "Poetry competition submission", "2026-03-28T23:09:51.959735Z"],
+  [30, "JSON Schema and jq fundamentals", "2026-03-31T13:14:44.088919Z"],
+  [31, "Psychological topos and agent calculus", "2026-04-02T13:10:18.630168Z"],
+  [32, "Endo Kazutoshi: Japan's greatest sushi chef", "2026-04-02T21:17:08.547436Z"],
+  [33, "Contextual question about personal background", "2026-04-03T13:47:22.074412Z"],
+  [34, "New mode for Film Pushout app", "2026-04-03T13:52:50.953357Z"]
+]}
+</script>
+<!-- data-spans
+Step 1 — produce spans.json:
+jq '[sort_by(.created_at) | to_entries[] |
+  .key as $idx | .value.name as $name |
+  .value.chat_messages[] |
+  {chat: $idx, name: $name, sender: .sender, created_at: .created_at}
+] | sort_by(.created_at) |
+reduce .[] as $msg (
+  {spans: [], current: null};
+  if .current == null then
+    {spans: .spans, current: {chat: $msg.chat, name: $msg.name, from: $msg.created_at, to: $msg.created_at, messages: 1}}
+  elif .current.chat == $msg.chat then
+    {spans: .spans, current: (.current + {to: $msg.created_at, messages: (.current.messages + 1)})}
+  else
+    {spans: (.spans + [.current]), current: {chat: $msg.chat, name: $msg.name, from: $msg.created_at, to: $msg.created_at, messages: 1}}
+  end
+) | .spans + [.current]' conversations.json > spans.json
+
+Step 2 — aggregate to per-chat with dormant_from:
+jq '[group_by(.chat)[] | {
+  chat: .[0].chat, name: .[0].name,
+  spans: map({from: .from, to: .to, messages: .messages}),
+  dormant_from: (map(.to) | max)
+}]' spans.json > chats.json
+
+Then columnarise spans separately:
+jq '[.[] | .chat as $c | .spans[] | [$c, .from, .to, .messages]]' chats.json
+-->
+<script id="data-spans" type="application/json">
+{"columns":["chat", "from", "to", "messages"],"rows":[
+  [0, "2026-03-12T19:00:48.527145Z", "2026-03-12T19:15:07.396266Z", 14],
+  [0, "2026-03-13T21:03:31.015320Z", "2026-03-13T21:17:09.804426Z", 6],
+  [0, "2026-03-16T22:04:49.242161Z", "2026-03-16T22:58:13.277816Z", 28],
+  [0, "2026-03-18T19:59:22.192878Z", "2026-03-18T20:18:54.029977Z", 16],
+  [0, "2026-03-19T10:15:51.774850Z", "2026-03-19T13:18:24.402280Z", 72],
+  [0, "2026-03-24T19:49:53.093382Z", "2026-03-24T22:23:20.339926Z", 106],
+  [1, "2026-03-12T19:56:31.208737Z", "2026-03-12T20:41:07.127807Z", 24],
+  [1, "2026-03-21T14:13:35.743394Z", "2026-03-21T14:17:45.285091Z", 6],
+  [2, "2026-03-12T21:47:53.538378Z", "2026-03-13T20:39:53.148586Z", 30],
+  [3, "2026-03-14T09:10:36.156267Z", "2026-03-14T09:27:52.799352Z", 6],
+  [3, "2026-03-16T21:54:49.597219Z", "2026-03-16T22:00:06.411982Z", 8],
+  [3, "2026-03-17T07:44:30.344417Z", "2026-03-17T16:03:44.398723Z", 68],
+  [4, "2026-03-14T09:48:17.015186Z", "2026-03-14T17:20:55.837841Z", 76],
+  [4, "2026-03-17T20:54:52.467665Z", "2026-03-17T21:34:19.635364Z", 24],
+  [4, "2026-03-18T07:24:03.092094Z", "2026-03-18T07:24:14.443075Z", 2],
+  [4, "2026-03-18T10:02:44.881590Z", "2026-03-18T10:02:54.609317Z", 2],
+  [4, "2026-03-22T21:24:57.814833Z", "2026-03-22T21:28:03.749511Z", 4],
+  [4, "2026-03-23T20:18:33.738900Z", "2026-03-23T23:44:56.640556Z", 40],
+  [4, "2026-03-28T11:22:38.449752Z", "2026-03-28T11:52:07.696432Z", 10],
+  [4, "2026-04-02T10:37:44.285838Z", "2026-04-02T10:46:04.189262Z", 6],
+  [4, "2026-04-02T14:52:44.572129Z", "2026-04-02T16:35:03.538306Z", 14],
+  [4, "2026-04-02T18:48:35.944825Z", "2026-04-02T19:02:56.722301Z", 4],
+  [4, "2026-04-03T10:25:56.491820Z", "2026-04-03T10:39:32.685917Z", 6],
+  [5, "2026-03-14T23:08:01.286993Z", "2026-03-15T00:47:39.015331Z", 116],
+  [5, "2026-03-16T09:27:26.778295Z", "2026-03-16T10:20:10.747427Z", 18],
+  [5, "2026-03-16T12:30:26.505334Z", "2026-03-16T17:24:03.703948Z", 94],
+  [5, "2026-03-17T21:37:44.745976Z", "2026-03-17T21:37:55.965859Z", 2],
+  [5, "2026-03-18T07:26:10.931317Z", "2026-03-18T08:21:23.479724Z", 32],
+  [5, "2026-03-18T13:44:10.854776Z", "2026-03-18T14:19:35.530461Z", 14],
+  [5, "2026-03-21T12:24:13.270558Z", "2026-03-21T13:25:31.283754Z", 18],
+  [6, "2026-03-15T13:54:35.599530Z", "2026-03-15T15:19:35.049242Z", 44],
+  [6, "2026-03-16T20:39:11.860045Z", "2026-03-16T20:50:46.063142Z", 12],
+  [6, "2026-03-18T16:08:34.019498Z", "2026-03-18T16:20:51.898054Z", 8],
+  [7, "2026-03-15T15:28:09.677507Z", "2026-03-15T16:09:37.354130Z", 36],
+  [7, "2026-03-15T21:27:57.839696Z", "2026-03-15T21:28:46.418997Z", 4],
+  [7, "2026-03-16T21:32:31.972957Z", "2026-03-16T21:42:31.821002Z", 12],
+  [7, "2026-03-17T21:48:21.920230Z", "2026-03-17T21:48:30.933250Z", 2],
+  [8, "2026-03-15T17:57:09.397475Z", "2026-03-15T18:31:17.436618Z", 22],
+  [8, "2026-04-02T13:44:58.934175Z", "2026-04-02T13:59:40.659328Z", 24],
+  [9, "2026-03-16T10:23:35.957007Z", "2026-03-16T10:23:53.485168Z", 2],
+  [10, "2026-03-18T20:22:06.385530Z", "2026-03-18T21:17:05.826147Z", 26],
+  [10, "2026-03-18T22:45:58.753768Z", "2026-03-18T23:21:40.835893Z", 18],
+  [10, "2026-03-19T15:52:15.849473Z", "2026-03-19T15:56:55.359884Z", 7],
+  [11, "2026-03-18T21:27:15.602150Z", "2026-03-18T21:50:46.420927Z", 24],
+  [12, "2026-03-19T14:07:21.257316Z", "2026-03-19T14:13:55.911475Z", 12],
+  [12, "2026-03-19T17:13:57.935333Z", "2026-03-19T17:14:10.142732Z", 2],
+  [13, "2026-03-19T14:15:49.163959Z", "2026-03-19T14:20:10.468289Z", 6],
+  [13, "2026-03-19T16:27:01.778558Z", "2026-03-19T16:55:06.274229Z", 14],
+  [14, "2026-03-19T17:17:56.071626Z", "2026-03-19T21:25:56.240746Z", 24],
+  [15, "2026-03-19T21:48:46.888599Z", "2026-03-20T21:45:32.153614Z", 128],
+  [15, "2026-03-21T16:54:34.252554Z", "2026-03-22T13:04:21.461312Z", 77],
+  [15, "2026-03-31T13:10:01.600284Z", "2026-03-31T13:11:12.331785Z", 4],
+  [15, "2026-03-31T16:33:45.185623Z", "2026-04-01T08:12:49.464158Z", 42],
+  [15, "2026-04-01T13:54:35.284687Z", "2026-04-01T17:41:58.733482Z", 18],
+  [16, "2026-03-22T13:33:39.492572Z", "2026-03-22T14:08:59.375126Z", 36],
+  [16, "2026-03-24T07:57:27.570032Z", "2026-03-24T10:07:29.210928Z", 24],
+  [16, "2026-03-25T10:47:35.660824Z", "2026-03-25T10:48:35.113591Z", 6],
+  [16, "2026-03-25T13:17:08.352980Z", "2026-03-25T13:21:32.863255Z", 6],
+  [17, "2026-03-23T19:58:54.691098Z", "2026-03-23T20:06:11.873524Z", 12],
+  [18, "2026-03-25T09:37:06.083553Z", "2026-03-25T10:32:06.416935Z", 16],
+  [18, "2026-03-25T13:08:38.948970Z", "2026-03-25T13:10:38.363617Z", 2],
+  [18, "2026-03-25T13:34:06.427656Z", "2026-03-25T13:35:17.989839Z", 4],
+  [18, "2026-03-29T00:03:47.309547Z", "2026-03-29T00:07:21.988814Z", 4],
+  [19, "2026-03-25T15:11:22.586096Z", "2026-03-25T21:01:24.441698Z", 6],
+  [20, "2026-03-25T22:21:18.333382Z", "2026-03-26T10:54:20.215814Z", 32],
+  [21, "2026-03-27T13:41:07.574820Z", "2026-03-27T15:25:46.281374Z", 22],
+  [22, "2026-03-27T18:48:45.325247Z", "2026-03-28T11:16:12.893199Z", 78],
+  [22, "2026-03-28T13:28:01.122520Z", "2026-03-28T17:21:56.246039Z", 16],
+  [22, "2026-04-01T18:07:59.940733Z", "2026-04-01T19:16:20.382060Z", 18],
+  [23, "2026-03-28T18:22:45.199535Z", "2026-03-28T18:38:46.331715Z", 14],
+  [23, "2026-04-02T17:46:36.184714Z", "2026-04-02T17:46:41.063588Z", 2],
+  [23, "2026-04-02T19:07:24.712804Z", "2026-04-02T20:12:18.190808Z", 20],
+  [24, "2026-03-28T20:17:59.463083Z", "2026-03-28T20:34:34.241174Z", 12],
+  [25, "2026-03-28T20:40:21.214984Z", "2026-03-28T20:40:55.866310Z", 2],
+  [26, "2026-03-28T20:44:49.239883Z", "2026-03-28T20:51:20.539355Z", 14],
+  [26, "2026-03-28T21:03:32.725635Z", "2026-03-28T21:03:37.595217Z", 2],
+  [26, "2026-04-02T11:10:40.256522Z", "2026-04-02T11:17:50.570642Z", 8],
+  [27, "2026-03-28T20:52:14.966625Z", "2026-03-28T20:57:29.359819Z", 8],
+  [28, "2026-03-28T21:28:08.711316Z", "2026-03-28T21:28:36.803383Z", 2],
+  [29, "2026-03-28T23:05:59.054522Z", "2026-03-28T23:09:51.959735Z", 8],
+  [30, "2026-03-30T19:49:10.037347Z", "2026-03-31T12:57:01.236962Z", 46],
+  [30, "2026-03-31T13:14:37.572263Z", "2026-03-31T13:14:44.088919Z", 2],
+  [31, "2026-04-01T12:50:24.604417Z", "2026-04-01T12:59:37.059481Z", 10],
+  [31, "2026-04-02T10:00:10.970737Z", "2026-04-02T10:25:08.605370Z", 16],
+  [31, "2026-04-02T13:10:08.025612Z", "2026-04-02T13:10:18.630168Z", 2],
+  [32, "2026-04-02T21:01:27.375702Z", "2026-04-02T21:17:08.547436Z", 28],
+  [33, "2026-04-03T13:38:07.153234Z", "2026-04-03T13:47:22.074412Z", 18],
+  [34, "2026-04-03T13:50:05.353780Z", "2026-04-03T13:52:50.953357Z", 8]
+]}
+</script>
+<!-- data-categories
+Hand-authored. Hue values in HSV degrees (0-360).
+Categories: mathematics(220), physics(180), philosophy(270), meta(40),
+            tooling(25), creative(330), practical(90), social(0)
+-->
+<script id="data-categories" type="application/json">
+{"columns":["category", "hue"],"rows":[
+  ["mathematics", 220],
+  ["physics", 180],
+  ["philosophy", 270],
+  ["meta", 40],
+  ["tooling", 25],
+  ["creative", 330],
+  ["practical", 90],
+  ["social", 0]
+]}
+</script>
+<!-- data-chat-categories
+Hand-authored join table. chat index from:
+jq '[sort_by(.created_at) | to_entries[] | {chat: .key, name: .value.name}]' conversations.json
+Category assignment by Claude reading conversation summaries.
+-->
+<script id="data-chat-categories" type="application/json">
+{"columns":["chat", "category"],"rows":[
+  [0, "tooling"],
+  [1, "meta"],
+  [2, "meta"],
+  [3, "meta"],
+  [4, "mathematics"],
+  [5, "philosophy"],
+  [6, "mathematics"],
+  [7, "tooling"],
+  [8, "practical"],
+  [9, "practical"],
+  [10, "social"],
+  [11, "social"],
+  [12, "meta"],
+  [13, "mathematics"],
+  [14, "meta"],
+  [15, "tooling"],
+  [16, "meta"],
+  [17, "philosophy"],
+  [18, "mathematics"],
+  [19, "social"],
+  [20, "tooling"],
+  [21, "philosophy"],
+  [22, "creative"],
+  [23, "creative"],
+  [24, "mathematics"],
+  [25, "mathematics"],
+  [26, "philosophy"],
+  [27, "philosophy"],
+  [28, "meta"],
+  [29, "creative"],
+  [30, "tooling"],
+  [31, "philosophy"],
+  [32, "practical"],
+  [33, "meta"],
+  [34, "creative"]
+]}
+</script>
+<!-- data-literal
+python word_freq_literal.py conversations.json > literal_freq.json
+Then columnarise each sender array:
+jq '{human: {columns:["word","count"], rows:[.human[] | [.word,.count]]},
+     assistant: {columns:["word","count"], rows:[.assistant[] | [.word,.count]]},
+     both: {columns:["word","count"], rows:[.both[] | [.word,.count]]}}' literal_freq.json
+-->
+<script id="data-literal" type="application/json">
+{"human":{"columns":["word", "count"],"rows":[
+  ["please", 93],
+  ["suggest", 72],
+  ["anyway", 62],
+  ["thank", 62],
+  ["good", 59],
+  ["schema", 58],
+  ["thanks", 57],
+  ["exactly", 57],
+  ["great", 56],
+  ["nice", 55],
+  ["type", 53],
+  ["data", 49],
+  ["right", 49],
+  ["i'm", 48],
+  ["fact", 48],
+  ["order", 47],
+  ["thought", 47],
+  ["btw", 46],
+  ["it's", 46],
+  ["first", 46],
+  ["currently", 45],
+  ["because", 44],
+  ["example", 43],
+  ["note", 43],
+  ["perhaps", 42],
+  ["etc", 42],
+  ["gone", 41],
+  ["theorem", 40],
+  ["i've", 40],
+  ["that's", 39],
+  ["whether", 39],
+  ["books", 37],
+  ["indeed", 36],
+  ["tex", 36],
+  ["course", 35],
+  ["context", 35],
+  ["show", 35],
+  ["space", 34],
+  ["why", 33],
+  ["name", 33],
+  ["don't", 32],
+  ["document", 32],
+  ["description", 32],
+  ["able", 31],
+  ["thinking", 30],
+  ["json", 30],
+  ["add", 29],
+  ["another", 29],
+  ["title", 29],
+  ["full", 29],
+  ["lines", 29],
+  ["going", 28],
+  ["question", 27],
+  ["field", 27],
+  ["paragraph", 27],
+  ["though", 27],
+  ["done", 27],
+  ["https", 27],
+  ["people", 26],
+  ["point", 26],
+  ["free", 26],
+  ["shelves", 26],
+  ["min-cut", 25],
+  ["cull", 25],
+  ["entrants", 25],
+  ["file", 25],
+  ["read", 24],
+  ["excellent", 24],
+  ["check", 24],
+  ["null", 24],
+  ["schemas", 24],
+  ["fields", 23],
+  ["latex", 23],
+  ["new", 22],
+  ["chats", 22],
+  ["content", 22],
+  ["useful", 22],
+  ["final", 21],
+  ["output", 21],
+  ["human", 21],
+  ["memory", 21],
+  ["help", 20],
+  ["original", 20],
+  ["second", 20],
+  ["given", 20],
+  ["case", 20],
+  ["paper", 20],
+  ["text", 20],
+  ["agree", 20],
+  ["those", 20],
+  ["different", 20],
+  ["com", 20],
+  ["own", 20],
+  ["page", 19],
+  ["shall", 19],
+  ["certainly", 19],
+  ["particular", 19],
+  ["small", 19],
+  ["idea", 19],
+  ["information", 18],
+  ["export", 18],
+  ["anthropic", 18],
+  ["conversations", 18],
+  ["uncertainty", 18],
+  ["true", 18],
+  ["validation", 18],
+  ["nondeterminacy", 18],
+  ["least", 17],
+  ["mind", 17],
+  ["typed", 17],
+  ["far", 17],
+  ["python", 17],
+  ["valid", 17],
+  ["files", 17],
+  ["path", 17],
+  ["definitions", 17],
+  ["table", 16],
+  ["word", 16],
+  ["element", 16],
+  ["structure", 16]
+]},
+"assistant":{"columns":["word", "count"],"rows":[
+  ["it's", 511],
+  ["structure", 485],
+  ["tex", 447],
+  ["exactly", 360],
+  ["right", 335],
+  ["that's", 324],
+  ["lines", 315],
+  ["field", 311],
+  ["section", 301],
+  ["ecological", 287],
+  ["curvature", 283],
+  ["good", 271],
+  ["because", 269],
+  ["itself", 267],
+  ["paper", 267],
+  ["level", 262],
+  ["type", 241],
+  ["geometry", 234],
+  ["temperature", 231],
+  ["genuinely", 229],
+  ["text", 224],
+  ["uncertainty", 221],
+  ["point", 220],
+  ["sty", 216],
+  ["content", 208],
+  ["you're", 207],
+  ["precisely", 201],
+  ["geometric", 201],
+  ["line", 195],
+  ["causal", 195],
+  ["own", 192],
+  ["different", 189],
+  ["structural", 183],
+  ["sense", 182],
+  ["question", 180],
+  ["first", 179],
+  ["frac", 179],
+  ["connection", 175],
+  ["full", 174],
+  ["document", 169],
+  ["framework", 167],
+  ["add", 163],
+  ["natural", 162],
+  ["worth", 157],
+  ["data", 154],
+  ["quantum", 153],
+  ["plain", 151],
+  ["schema", 150],
+  ["space", 149],
+  ["universe", 149],
+  ["makes", 148],
+  ["precise", 147],
+  ["context", 147],
+  ["note", 142],
+  ["memory", 140],
+  ["new", 137],
+  ["logic", 135],
+  ["means", 133],
+  ["whether", 133],
+  ["clean", 132],
+  ["tool", 131],
+  ["observation", 130],
+  ["every", 129],
+  ["form", 129],
+  ["syntax", 126],
+  ["mathematical", 125],
+  ["theory", 124],
+  ["shall", 124],
+  ["doesn't", 123],
+  ["real", 123],
+  ["interesting", 123],
+  ["kind", 122],
+  ["set", 122],
+  ["margin", 122],
+  ["neg", 121],
+  ["principle", 119],
+  ["those", 118],
+  ["adjunction", 118],
+  ["equation", 117],
+  ["relation", 117],
+  ["particular", 116],
+  ["page", 116],
+  ["comment", 116],
+  ["object", 115],
+  ["why", 113],
+  ["cost", 111],
+  ["open", 111],
+  ["single", 111],
+  ["result", 111],
+  ["perhaps", 111],
+  ["reading", 110],
+  ["semantics", 110],
+  ["doing", 109],
+  ["who", 108],
+  ["signal", 108],
+  ["name", 107],
+  ["almost", 107],
+  ["show", 107],
+  ["state", 106],
+  ["dialogue", 106],
+  ["latex", 106],
+  ["order", 105],
+  ["theorem", 105],
+  ["system", 105],
+  ["files", 105],
+  ["json", 104],
+  ["directly", 104],
+  ["since", 103],
+  ["genuine", 102],
+  ["fix", 101],
+  ["conversations", 99],
+  ["galois", 99],
+  ["interior", 99],
+  ["standard", 98],
+  ["boundary", 98],
+  ["back", 98],
+  ["conjugate", 98],
+  ["null", 98],
+  ["physical", 97],
+  ["programme", 97]
+]},
+"both":{"columns":["word", "count"],"rows":[
+  ["it's", 557],
+  ["structure", 501],
+  ["tex", 483],
+  ["exactly", 417],
+  ["right", 384],
+  ["that's", 363],
+  ["lines", 344],
+  ["field", 338],
+  ["good", 330],
+  ["because", 313],
+  ["section", 306],
+  ["ecological", 302],
+  ["curvature", 296],
+  ["type", 294],
+  ["paper", 287],
+  ["itself", 281],
+  ["level", 267],
+  ["point", 246],
+  ["text", 244],
+  ["uncertainty", 239],
+  ["temperature", 238],
+  ["geometry", 237],
+  ["genuinely", 234],
+  ["content", 230],
+  ["first", 225],
+  ["sty", 216],
+  ["you're", 215],
+  ["own", 212],
+  ["line", 211],
+  ["different", 209],
+  ["schema", 208],
+  ["question", 207],
+  ["data", 203],
+  ["precisely", 203],
+  ["full", 203],
+  ["geometric", 203],
+  ["document", 201],
+  ["causal", 196],
+  ["sense", 195],
+  ["add", 192],
+  ["structural", 186],
+  ["note", 185],
+  ["space", 183],
+  ["context", 182],
+  ["connection", 182],
+  ["frac", 179],
+  ["natural", 173],
+  ["whether", 172],
+  ["quantum", 169],
+  ["framework", 169],
+  ["plain", 166],
+  ["worth", 165],
+  ["makes", 163],
+  ["memory", 161],
+  ["new", 159],
+  ["universe", 158],
+  ["perhaps", 153],
+  ["order", 152],
+  ["precise", 148],
+  ["why", 146],
+  ["logic", 146],
+  ["theorem", 145],
+  ["observation", 145],
+  ["tool", 144],
+  ["shall", 143],
+  ["show", 142],
+  ["every", 142],
+  ["name", 140],
+  ["mathematical", 140],
+  ["form", 138],
+  ["those", 138],
+  ["theory", 137],
+  ["means", 137],
+  ["syntax", 137],
+  ["margin", 137],
+  ["kind", 136],
+  ["page", 135],
+  ["particular", 135],
+  ["interesting", 134],
+  ["json", 134],
+  ["clean", 134],
+  ["set", 133],
+  ["object", 131],
+  ["doesn't", 130],
+  ["real", 130],
+  ["neg", 130],
+  ["please", 129],
+  ["latex", 129],
+  ["i'm", 128],
+  ["principle", 126],
+  ["open", 125],
+  ["reading", 124],
+  ["comment", 124],
+  ["semantics", 123],
+  ["equation", 122],
+  ["files", 122],
+  ["null", 122],
+  ["relation", 122],
+  ["single", 121],
+  ["dialogue", 119],
+  ["don't", 119],
+  ["done", 118],
+  ["file", 118],
+  ["adjunction", 118],
+  ["conversations", 117],
+  ["result", 117],
+  ["who", 116],
+  ["cost", 115],
+  ["doing", 114],
+  ["check", 114],
+  ["case", 113],
+  ["state", 112],
+  ["back", 112],
+  ["mode", 111],
+  ["since", 111],
+  ["signal", 111],
+  ["example", 110],
+  ["specific", 110],
+  ["read", 109],
+  ["almost", 109]
+]}}
+</script>
+<!-- data-semantic
+Hand-authored by Claude reading conversation summaries.
+Weights are inferred concept salience, not raw frequencies.
+To regenerate: extract summaries, paste to Claude, ask for weighted concept list.
+jq '[sort_by(.created_at)[].summary] | join("\n---\n")' conversations.json
+-->
+<script id="data-semantic" type="application/json">
+{"columns":["word", "count"],"rows":[
+  ["adjunction", 95],
+  ["category theory", 90],
+  ["skeleton/ecology", 85],
+  ["entropy", 80],
+  ["compression", 78],
+  ["information return", 75],
+  ["type theory", 72],
+  ["wave mechanics", 68],
+  ["Euler identity", 65],
+  ["negation", 63],
+  ["Schanuel", 60],
+  ["Cayley-Dickson", 58],
+  ["curvature", 55],
+  ["thermodynamics", 53],
+  ["epistemology", 52],
+  ["quasiparticle", 50],
+  ["Langlands", 48],
+  ["pushout", 47],
+  ["topos", 45],
+  ["renormalisation", 43],
+  ["Liar paradox", 42],
+  ["Unruh effect", 40],
+  ["free energy", 38],
+  ["morphism", 37],
+  ["black hole", 35],
+  ["LaTeX", 34],
+  ["jq", 32],
+  ["JSON Schema", 30],
+  ["film", 28],
+  ["memory architecture", 27],
+  ["fellowship", 25],
+  ["inference", 24],
+  ["haiku", 22],
+  ["air quality", 20],
+  ["SwiftUI", 18],
+  ["workout", 15]
+]}
+</script>
+
+<!-- data-files
+jq '[
+  (sort_by(.created_at) | to_entries[]) |
+  .key as $idx |
+  .value.chat_messages[].content[] |
+  select(.type == "tool_result") |
+  .content[]? |
+  select(.type == "local_resource") |
+  [$idx, (.file_path | split("/") | last)]
+] | unique' conversations.json
+-->
+<script id="data-files" type="application/json">
+{"columns":["chat","file"],"rows":[
+  [0,"document-latex.tex"],
+  [0,"document.tex"],
+  [0,"lx.sty"],
+  [0,"lx.tex"],
+  [0,"pm25_no2_charts.html"],
+  [0,"pm25_no2_scatter.html"],
+  [0,"template-plaintex.tex"],
+  [0,"template.tex"],
+  [4,"Dockerfile"],
+  [4,"README.md"],
+  [4,"build.sh"],
+  [4,"paper.pdf"],
+  [4,"paper1_v4.pdf"],
+  [4,"paper1_v5.pdf"],
+  [4,"paper1_v5.py"],
+  [4,"paper1_v6.pdf"],
+  [4,"paper1_v6.py"],
+  [4,"paper2_v1.pdf"],
+  [4,"paper2_v2.pdf"],
+  [4,"paper2_v3.pdf"],
+  [4,"paper2_v4.pdf"],
+  [4,"paper2_v4.py"],
+  [4,"paper_v2.pdf"],
+  [4,"paper_v3.pdf"],
+  [5,"dialogue.pdf"],
+  [5,"dialogue.tex"],
+  [6,"arithmetic_universes.docx"],
+  [6,"arithmetic_universes_v2.docx"],
+  [6,"arithmetic_universes_v3.docx"],
+  [6,"arithmetic_universes_v4.docx"],
+  [6,"arithmetic_universes_v5.docx"],
+  [8,"workout_log.xlsx"],
+  [13,"list_type_pearl.docx"],
+  [13,"list_type_pearl.tex"],
+  [15,"conversations.schema.json"],
+  [18,"schanuel_note.tex"],
+  [20,"pm25_no2_charts.html"],
+  [22,"AnthropicService.swift"],
+  [22,"ArrowLayer.swift"],
+  [22,"ContentView.swift"],
+  [22,"ExportSheet.swift"],
+  [22,"FilmPushoutApp.swift"],
+  [22,"HullLog.swift"],
+  [22,"NodeView.swift"],
+  [22,"PushoutViewModel.swift"],
+  [22,"README.md"],
+  [22,"VerdictCard.swift"]
+]}
+</script>
+
+<!-- ── markup ─────────────────────────────────────── -->
+<div class="section">
+  <h2>Engagement timeline</h2>
+  <div id="tl-legend"></div>
+  <div id="tl-wrap">
+    <div id="tl-header">
+      <div id="tl-label-spacer"></div>
+      <div id="tl-axis"></div>
+    </div>
+    <div id="tl-grid"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div id="clouds-header">
+    <h2 style="margin-bottom:0;">Word clouds</h2>
+    <div class="toggle-group">
+      <button class="toggle-btn active" data-mode="human">human</button>
+      <button class="toggle-btn" data-mode="assistant">assistant</button>
+      <button class="toggle-btn" data-mode="both">both</button>
+    </div>
+  </div>
+  <div id="clouds">
+    <div class="cloud-panel">
+      <div class="cloud-title">Literal</div>
+      <div class="cloud-sub" id="literal-sub">Surface word frequency from all messages</div>
+      <div class="cloud" id="literal-cloud"></div>
+    </div>
+    <div class="cloud-panel">
+      <div class="cloud-title">Semantic</div>
+      <div class="cloud-sub">Concepts inferred by Claude from conversation summaries</div>
+      <div class="cloud" id="semantic-cloud"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<!-- ── logic ──────────────────────────────────────── -->
+<script>
+function parse(id) { return JSON.parse(document.getElementById(id).textContent); }
+function unpack(t) { return t.rows.map(r => Object.fromEntries(t.columns.map((k,i) => [k,r[i]]))); }
+
+const chats          = unpack(parse('data-chats'));
+const spans          = unpack(parse('data-spans'));
+const categories     = unpack(parse('data-categories'));
+const chatCategories = unpack(parse('data-chat-categories'));
+const literalRaw     = parse('data-literal');
+const literalData    = { human: unpack(literalRaw.human), assistant: unpack(literalRaw.assistant), both: unpack(literalRaw.both) };
+const semanticWords  = unpack(parse('data-semantic'));
+const filesRaw       = unpack(parse('data-files'));
+const filesMap       = {};
+filesRaw.forEach(r => { if (!filesMap[r.chat]) filesMap[r.chat]=[]; filesMap[r.chat].push(r.file); });
+
+chats.forEach(c => { c.spans = spans.filter(s => s.chat === c.chat); });
+
+function hsvToHex(h,s,v) {
+  h/=360;
+  const i=Math.floor(h*6),f=h*6-i,p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);
+  let r,g,b;
+  switch(i%6){case 0:r=v;g=t;b=p;break;case 1:r=q;g=v;b=p;break;
+    case 2:r=p;g=v;b=t;break;case 3:r=p;g=q;b=v;break;
+    case 4:r=t;g=p;b=v;break;case 5:r=v;g=p;b=q;break;}
+  return '#'+[r,g,b].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+
+function fmt(iso) {
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+' '+
+         d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+
+const catMap     = Object.fromEntries(categories.map(c=>[c.category,c.hue]));
+const chatCatMap = Object.fromEntries(chatCategories.map(c=>[c.chat,c.category]));
+const catCounts  = {}, catIdx={}, colorMap={};
+chatCategories.forEach(c=>{ catCounts[c.category]=(catCounts[c.category]||0)+1; });
+chats.forEach(chat=>{
+  const cat=chatCatMap[chat.chat]||'meta', hue=catMap[cat]??0;
+  const idx=catIdx[cat]||0, total=catCounts[cat]||1;
+  colorMap[chat.chat]=hsvToHex(hue,0.72,0.55+0.27*idx/Math.max(total-1,1));
+  catIdx[cat]=idx+1;
+});
+
+const legEl=document.getElementById('tl-legend');
+const usedCats=[...new Set(chatCategories.map(c=>c.category))];
+categories.filter(c=>usedCats.includes(c.category)).forEach(cat=>{
+  const sw=hsvToHex(cat.hue,0.72,0.55+0.27*0.5);
+  const item=document.createElement('div'); item.className='leg';
+  item.innerHTML=`<span class="leg-swatch" style="background:${sw}"></span>${cat.category}`;
+  legEl.appendChild(item);
+});
+const dormItem=document.createElement('div'); dormItem.className='leg';
+dormItem.innerHTML='<span class="leg-swatch" style="background:#B4B2A9;opacity:0.5;"></span>dormant';
+legEl.appendChild(dormItem);
+
+const tMin=Math.min(...spans.map(s=>new Date(s.from).getTime()));
+const tMax=Math.max(...chats.map(c=>new Date(c.dormant_from).getTime()));
+const tRange=tMax-tMin;
+
+const axisEl=document.getElementById('tl-axis');
+for(let i=0;i<=7;i++){
+  const sp=document.createElement('span');
+  sp.textContent=new Date(tMin+tRange*i/7).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  axisEl.appendChild(sp);
+}
+
+const tip=document.getElementById('tooltip');
+const grid=document.getElementById('tl-grid');
+chats.forEach(chat=>{
+  const lane=document.createElement('div'); lane.className='tl-lane';
+  const label=document.createElement('div'); label.className='tl-label';
+  label.textContent='#'+chat.chat+' '+chat.name; label.title=chat.name;
+  const chatFiles = filesMap[chat.chat];
+  label.style.cursor='help';
+  label.addEventListener('mousemove',e=>{
+    tip.style.display='block';
+    tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-10)+'px';
+    tip.innerHTML='<strong>'+chat.name+'</strong>'+(chatFiles ? chatFiles.join('<br>') : '<em style="color:#aaa">(no files)</em>');
+  });
+  label.addEventListener('mouseleave',()=>{ tip.style.display='none'; });
+  const track=document.createElement('div'); track.className='tl-track';
+  const dormT=new Date(chat.dormant_from).getTime();
+  const dLeft=(dormT-tMin)/tRange*100;
+  if(100-dLeft>0.1){
+    const dorm=document.createElement('div'); dorm.className='tl-dormant';
+    dorm.style.left=dLeft+'%'; dorm.style.width=(100-dLeft)+'%';
+    track.appendChild(dorm);
+  }
+  chat.spans.forEach(s=>{
+    const bar=document.createElement('div'); bar.className='tl-bar';
+    const left=(new Date(s.from).getTime()-tMin)/tRange*100;
+    const width=Math.max((new Date(s.to).getTime()-new Date(s.from).getTime())/tRange*100,0.25);
+    bar.style.left=left+'%'; bar.style.width=width+'%';
+    bar.style.background=colorMap[chat.chat]; bar.style.opacity='0.88';
+    bar.addEventListener('mousemove',e=>{
+      tip.style.display='block';
+      tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-10)+'px';
+      tip.innerHTML=`<strong>#${chat.chat} — ${chat.name}</strong>From: ${fmt(s.from)}<br>To: ${fmt(s.to)}<br>Messages: ${s.messages}`;
+    });
+    bar.addEventListener('mouseleave',()=>{ tip.style.display='none'; });
+    track.appendChild(bar);
+  });
+  lane.appendChild(label); lane.appendChild(track); grid.appendChild(lane);
+});
+
+const subtitles={
+  both:'Surface word frequency from all messages',
+  human:'Surface word frequency from human messages only',
+  assistant:'Surface word frequency from assistant messages only',
+};
+
+function renderCloud(words,containerId,hue){
+  const el=document.getElementById(containerId); el.innerHTML='';
+  const max=Math.max(...words.map(w=>w.count)), min=Math.min(...words.map(w=>w.count));
+  [...words].sort(()=>Math.random()-0.5).forEach(({word,count})=>{
+    const t=(count-min)/Math.max(max-min,1);
+    const span=document.createElement('span'); span.className='word';
+    span.textContent=word;
+    span.style.fontSize=(11+Math.round(t*26))+'px';
+    span.style.color=`hsl(${hue},${55+Math.round(t*25)}%,${62-Math.round(t*32)}%)`;
+    span.style.fontWeight=t>0.6?'500':'400';
+    span.title=`count: ${count}`;
+    el.appendChild(span);
+  });
+}
+
+function update(mode){
+  document.getElementById('literal-sub').textContent=subtitles[mode];
+  renderCloud(literalData[mode],'literal-cloud',210);
+}
+
+document.querySelectorAll('.toggle-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); update(btn.dataset.mode);
+  });
+});
+
+renderCloud(semanticWords,'semantic-cloud',270);
+update('human');
+</script>
+</body>
+</html>
