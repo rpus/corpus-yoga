@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversation corpus</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #fff;
+      color: #222;
+      padding: 2rem;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 500;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    #tl-wrap {
+      font-size: 13px;
+    }
+
+    #tl-header {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 4px;
+    }
+
+    #tl-label-spacer {
+      width: 220px;
+      flex-shrink: 0;
+    }
+
+    #tl-axis {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #aaa;
+      padding: 0 2px;
+    }
+
+    #tl-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tl-lane {
+      display: flex;
+      align-items: center;
+      height: 16px;
+    }
+
+    .tl-label {
+      width: 220px;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #999;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 8px;
+      text-align: right;
+    }
+
+    .tl-track {
+      position: relative;
+      flex: 1;
+      height: 100%;
+    }
+
+    .tl-bar {
+      position: absolute;
+      height: 100%;
+      border-radius: 2px;
+      cursor: pointer;
+      min-width: 3px;
+      transition: opacity 0.12s;
+    }
+
+    .tl-bar:hover {
+      opacity: 0.6;
+    }
+
+    .tl-dormant {
+      position: absolute;
+      height: 100%;
+      border-radius: 2px;
+      background: #B4B2A9;
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    #tl-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-bottom: 0.75rem;
+      padding-left: 220px;
+    }
+
+    .leg {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #999;
+    }
+
+    .leg-swatch {
+      width: 20px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    #clouds-header {
+      display: flex;
+      align-items: baseline;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .toggle-group {
+      display: flex;
+      border: 0.5px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      border-right: 0.5px solid #ccc;
+      padding: 4px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #888;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .toggle-btn:last-child {
+      border-right: none;
+    }
+
+    .toggle-btn.active {
+      background: #222;
+      color: #fff;
+    }
+
+    .toggle-btn:hover:not(.active) {
+      background: #f5f5f5;
+    }
+
+    #clouds {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .cloud-panel {
+      border: 0.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 1.25rem;
+      min-height: 280px;
+    }
+
+    .cloud-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.3rem;
+    }
+
+    .cloud-sub {
+      font-size: 11px;
+      color: #ccc;
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 9px;
+      align-items: baseline;
+      line-height: 1.6;
+    }
+
+    .word {
+      cursor: default;
+      border-radius: 3px;
+      padding: 1px 2px;
+      transition: opacity 0.12s;
+    }
+
+    .word:hover {
+      opacity: 0.55;
+    }
+
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #1a1a1a;
+        color: #ddd;
+      }
+
+      h2 {
+        color: #555;
+      }
+
+      .tl-label {
+        color: #666;
+      }
+
+      #tl-axis {
+        color: #555;
+      }
+
+      .toggle-group {
+        border-color: #444;
+      }
+
+      .toggle-btn {
+        color: #666;
+        border-right-color: #444;
+      }
+
+      .toggle-btn.active {
+        background: #ddd;
+        color: #111;
+      }
+
+      .toggle-btn:hover:not(.active) {
+        background: #252525;
+      }
+
+      .cloud-panel {
+        border-color: #2c2c2c;
+      }
+
+      .cloud-title {
+        color: #555;
+      }
+
+      .cloud-sub {
+        color: #444;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── data ───────────────────────────────────────── -->
+  <!-- data-chats.json:begin -->
+  <script id="data-chats" type="application/json">
+  </script>
+  <!-- data-chats.json:end -->
+  <!-- data-spans.json:begin -->
+  <script id="data-spans" type="application/json">
+  </script>
+  <!-- data-spans.json:end -->
+  <!-- data-categories.json:begin -->
+  <script id="data-categories" type="application/json">
+  </script>
+  <!-- data-categories.json:end -->
+  <!-- data-chat-categories.json:begin -->
+  <script id="data-chat-categories" type="application/json">
+  </script>
+  <!-- data-chat-categories.json:end -->
+  <script id="data-literal" type="application/json">
+  </script>
+  <!-- data-semantic.json:begin -->
+  <script id="data-semantic" type="application/json">
+  </script>
+  <!-- data-semantic.json:end -->
+  <!-- data-files.json:begin -->
+  <script id="data-files" type="application/json">
+  </script>
+  <!-- data-files.json:end -->
+
+  <!-- ── markup ─────────────────────────────────────── -->
+  <div class="section">
+    <div id="tl-section-header" style="display:flex;align-items:baseline;gap:2rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <h2 style="margin-bottom:0;">Engagement timeline</h2>
+      <div class="toggle-group">
+        <button class="tl-filter-btn active" data-filter="both">both</button>
+        <button class="tl-filter-btn" data-filter="filesOnly">files</button>
+        <button class="tl-filter-btn" data-filter="noFiles">no files</button>
+      </div>
+    </div>
+    <div id="tl-legend"></div>
+    <div id="tl-wrap">
+      <div id="tl-header">
+        <div id="tl-label-spacer"></div>
+        <div id="tl-axis"></div>
+      </div>
+      <div id="tl-grid"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div id="clouds-header">
+      <h2 style="margin-bottom:0;">Word clouds</h2>
+      <div class="toggle-group">
+        <button class="toggle-btn active" data-mode="human">human</button>
+        <button class="toggle-btn" data-mode="assistant">assistant</button>
+        <button class="toggle-btn" data-mode="both">both</button>
+      </div>
+    </div>
+    <div id="clouds">
+      <div class="cloud-panel">
+        <div class="cloud-title">Literal</div>
+        <div class="cloud-sub" id="literal-sub">Surface word frequency from all messages</div>
+        <div class="cloud" id="literal-cloud"></div>
+      </div>
+      <div class="cloud-panel">
+        <div class="cloud-title">Semantic</div>
+        <div class="cloud-sub">Concepts inferred by Claude from conversation summaries</div>
+        <div class="cloud" id="semantic-cloud"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── external-load toggle ──────────────────────── -->
+  <div class="section" id="external-load-section" style="display:flex;align-items:center;gap:1rem;">
+    <button id="try-external-btn" style="font-size:12px;padding:4px 10px;border:1px solid #ccc;border-radius:4px;background:#fafafa;cursor:pointer;color:#555;">
+      Try loading external data files
+    </button>
+    <span id="external-load-status" style="font-size:11px;color:#aaa;"></span>
+  </div>
+
+  <!-- ── logic ──────────────────────────────────────── -->
+  <script>
+
+    // ── constants ────────────────────────────────────────
+
+    const DATA_SOURCES = [
+      { key: 'chats',          id: 'data-chats',           file: 'data-chats.json' },
+      { key: 'spans',          id: 'data-spans',           file: 'data-spans.json' },
+      { key: 'categories',     id: 'data-categories',      file: 'data-categories.json' },
+      { key: 'chatCategories', id: 'data-chat-categories', file: 'data-chat-categories.json' },
+      { key: 'literal',        id: 'data-literal',         file: 'data-literal.json' },
+      { key: 'semantic',       id: 'data-semantic',        file: 'data-semantic.json' },
+      { key: 'files',          id: 'data-files',           file: 'data-files.json' },
+    ];
+
+    const FilesFilter = { Both: 'both', FilesOnly: 'filesOnly', NoFiles: 'noFiles' };
+
+    const CLOUD_SUBTITLES = {
+      both:      'Surface word frequency from all messages',
+      human:     'Surface word frequency from human messages only',
+      assistant: 'Surface word frequency from assistant messages only',
+    };
+
+    // ── pure utilities ───────────────────────────────────
+
+    function parse(id) {
+      return JSON.parse(document.getElementById(id).textContent);
+    }
+
+    function unpack(t) {
+      return t.rows.map(r => Object.fromEntries(t.columns.map((k, i) => [k, r[i]])));
+    }
+
+    function hsvToHex(h, s, v) {
+      v = Math.min(1, Math.max(0, v));
+      h /= 360;
+      const i = Math.floor(h * 6), f = h * 6 - i,
+            p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+      let r, g, b;
+      switch (i % 6) {
+        case 0: r = v; g = t; b = p; break; case 1: r = q; g = v; b = p; break;
+        case 2: r = p; g = v; b = t; break; case 3: r = p; g = q; b = v; break;
+        case 4: r = t; g = p; b = v; break; case 5: r = v; g = p; b = q; break;
+      }
+      return '#' + [r, g, b].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join('');
+    }
+
+    function fmt(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' ' +
+             d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // ── data loading ─────────────────────────────────────
+
+    const DataSource = { InlinedScripts: 'inlinedScripts', ExternalFiles: 'externalFiles' };
+
+    function loadFromInlinedScripts() {
+      const sources = {};
+      DATA_SOURCES.forEach(({ key, id }) => { sources[key] = parse(id); });
+      return sources;
+    }
+
+    // Returns { packedTables, loaded: string[], failed: string[] }.
+    async function loadFromExternalFiles() {
+      const sources = loadFromInlinedScripts(); // baseline from inline
+      const loaded = [], failed = [];
+      await Promise.all(DATA_SOURCES.map(async ({ key, file }) => {
+        try {
+          const resp = await fetch(file);
+          if (!resp.ok) throw new Error(resp.status);
+          sources[key] = await resp.json();
+          loaded.push(file);
+        } catch {
+          failed.push(file);
+        }
+      }));
+      return { packedTables: sources, loaded, failed };
+    }
+
+    async function load(dataSource) {
+      if (dataSource === DataSource.ExternalFiles) return loadFromExternalFiles();
+      return { packedTables: loadFromInlinedScripts(), loaded: [], failed: [] };
+    }
+
+    function unpackAll(packedTables) {
+      const chats          = unpack(packedTables.chats);
+      const spans          = unpack(packedTables.spans);
+      const categories     = unpack(packedTables.categories);
+      const chatCategories = unpack(packedTables.chatCategories);
+      const literalRaw     = packedTables.literal;
+      const literalData    = {
+        human:     unpack(literalRaw.human),
+        assistant: unpack(literalRaw.assistant),
+        both:      unpack(literalRaw.both),
+      };
+      const semanticWords = unpack(packedTables.semantic);
+      const filesRaw      = unpack(packedTables.files);
+      const filesMap      = {};
+      filesRaw.forEach(r => {
+        if (!filesMap[r.chat]) filesMap[r.chat] = [];
+        filesMap[r.chat].push(r.file);
+      });
+      chats.forEach(c => { c.spans = spans.filter(s => s.chat === c.chat); });
+      return { chats, spans, categories, chatCategories, literalData, semanticWords, filesMap };
+    }
+
+    // ── render functions ─────────────────────────────────
+
+    function renderLegend(categories, chatCategories) {
+      const legEl = document.getElementById('tl-legend');
+      legEl.innerHTML = '';
+      const usedCats = [...new Set(chatCategories.map(c => c.category))];
+      categories.filter(c => usedCats.includes(c.category)).forEach(cat => {
+        const sw   = hsvToHex(cat.hue, 0.72, 0.55 + 0.27 * 0.5);
+        const item = document.createElement('div'); item.className = 'leg';
+        item.innerHTML = `<span class="leg-swatch" style="background:${sw}"></span>${cat.category}`;
+        legEl.appendChild(item);
+      });
+      const dormItem = document.createElement('div'); dormItem.className = 'leg';
+      dormItem.innerHTML = '<span class="leg-swatch" style="background:#B4B2A9;opacity:0.5;"></span>dormant';
+      legEl.appendChild(dormItem);
+    }
+
+    function renderTimeline(chats, spans, colorMap, filesMap, filesFilter) {
+      const visibleChats = filesFilter === FilesFilter.FilesOnly ? chats.filter(c => filesMap[c.chat]) :
+                           filesFilter === FilesFilter.NoFiles   ? chats.filter(c => !filesMap[c.chat]) :
+                           chats;
+      const tMin   = Math.min(...spans.map(s => new Date(s.from).getTime()));
+      const tMax   = Math.max(...chats.map(c => new Date(c.dormant_from).getTime()));
+      const tRange = tMax - tMin;
+      const axisEl = document.getElementById('tl-axis');
+      axisEl.innerHTML = '';
+      for (let i = 0; i <= 7; i++) {
+        const sp = document.createElement('span');
+        sp.textContent = new Date(tMin + tRange * i / 7)
+          .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        axisEl.appendChild(sp);
+      }
+
+      const grid = document.getElementById('tl-grid');
+      grid.innerHTML = '';
+      visibleChats.forEach(chat => {
+        const lane  = document.createElement('div'); lane.className = 'tl-lane';
+        const label = document.createElement('div'); label.className = 'tl-label';
+        label.textContent = '#' + chat.chat + ' ' + chat.name;
+        const chatFiles   = filesMap[chat.chat];
+        label.title       = chat.name + '\n' + (chatFiles ? chatFiles.join('\n') : '(no files)');
+
+        const track = document.createElement('div'); track.className = 'tl-track';
+        const dormT = new Date(chat.dormant_from).getTime();
+        const dLeft = (dormT - tMin) / tRange * 100;
+        if (100 - dLeft > 0.1) {
+          const dorm = document.createElement('div'); dorm.className = 'tl-dormant';
+          dorm.style.left  = dLeft + '%';
+          dorm.style.width = (100 - dLeft) + '%';
+          track.appendChild(dorm);
+        }
+        chat.spans.forEach(s => {
+          const bar   = document.createElement('div'); bar.className = 'tl-bar';
+          const left  = (new Date(s.from).getTime() - tMin) / tRange * 100;
+          const width = Math.max(
+            (new Date(s.to).getTime() - new Date(s.from).getTime()) / tRange * 100, 0.25);
+          bar.style.left       = left + '%';
+          bar.style.width      = width + '%';
+          bar.style.background = colorMap[chat.chat];
+          bar.style.opacity    = '0.88';
+          bar.title = `#${chat.chat} — ${chat.name}\nFrom: ${fmt(s.from)}\nTo: ${fmt(s.to)}\nMessages: ${s.messages}`;
+          track.appendChild(bar);
+        });
+        lane.appendChild(label); lane.appendChild(track); grid.appendChild(lane);
+      });
+    }
+
+    function renderCloud(words, containerId, hue) {
+      const el  = document.getElementById(containerId);
+      el.innerHTML = '';
+      const max = Math.max(...words.map(w => w.count));
+      const min = Math.min(...words.map(w => w.count));
+      [...words].sort(() => Math.random() - 0.5).forEach(({ word, count }) => {
+        const norm = (count - min) / Math.max(max - min, 1);
+        const span = document.createElement('span'); span.className = 'word';
+        span.textContent   = word;
+        span.style.fontSize   = (11 + Math.round(norm * 26)) + 'px';
+        span.style.color      = `hsl(${hue},${55 + Math.round(norm * 25)}%,${62 - Math.round(norm * 32)}%)`;
+        span.style.fontWeight = norm > 0.6 ? '500' : '400';
+        span.title = `count: ${count}`;
+        el.appendChild(span);
+      });
+    }
+
+    function updateLiteralCloud(mode, literalData) {
+      document.getElementById('literal-sub').textContent = CLOUD_SUBTITLES[mode];
+      renderCloud(literalData[mode], 'literal-cloud', 210);
+    }
+
+    // ── init ─────────────────────────────────────────────
+
+    function init(packedTables) {
+      const { chats, spans, categories, chatCategories, literalData, semanticWords, filesMap } = unpackAll(packedTables);
+
+      const catMap     = Object.fromEntries(categories.map(c => [c.category, c.hue]));
+      const chatCatMap = Object.fromEntries(chatCategories.map(c => [c.chat, c.category]));
+      const catCounts  = {}, catIdx = {}, colorMap = {};
+      chats.forEach(c => { const cat = chatCatMap[c.chat] || 'meta'; catCounts[cat] = (catCounts[cat] || 0) + 1; });
+      chats.forEach(chat => {
+        const cat  = chatCatMap[chat.chat] || 'meta', hue = catMap[cat] ?? 0;
+        const idx  = catIdx[cat] || 0, total = catCounts[cat] || 1;
+        colorMap[chat.chat] = hsvToHex(hue, 0.72, 0.55 + 0.27 * idx / Math.max(total - 1, 1));
+        catIdx[cat] = idx + 1;
+      });
+
+      renderLegend(categories, chatCategories);
+      renderTimeline(chats, spans, colorMap, filesMap, FilesFilter.Both);
+
+      // Wire timeline filter buttons (re-wired each init so they close over fresh data).
+      document.querySelectorAll('.tl-filter-btn').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true));
+      });
+      const activeFilter = document.querySelector('.tl-filter-btn.active')?.dataset.filter || FilesFilter.Both;
+      document.querySelectorAll('.tl-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tl-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderTimeline(chats, spans, colorMap, filesMap, btn.dataset.filter);
+        });
+      });
+      renderTimeline(chats, spans, colorMap, filesMap, activeFilter);
+      renderCloud(semanticWords, 'semantic-cloud', 270);
+
+      // Wire cloud toggle buttons (re-wired each init so they close over fresh literalData).
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true)); // drop stale listeners
+      });
+      const activeMode = document.querySelector('.toggle-btn.active')?.dataset.mode || 'human';
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateLiteralCloud(btn.dataset.mode, literalData);
+        });
+      });
+      updateLiteralCloud(activeMode, literalData);
+    }
+
+    // ── external load handler ────────────────────────────
+
+    async function onExternalLoad() {
+      const btn    = document.getElementById('try-external-btn');
+      const status = document.getElementById('external-load-status');
+      btn.disabled    = true;
+      btn.textContent = 'Trying…';
+      status.textContent = '';
+      const { packedTables, loaded, failed } = await load(DataSource.ExternalFiles);
+      if (loaded.length === 0) {
+        status.style.color = '#c55';
+        status.textContent = 'No external files found — using embedded data.';
+      } else if (failed.length === 0) {
+        status.style.color = '#585';
+        status.textContent = `All ${loaded.length} files loaded.`;
+      } else {
+        status.style.color = '#a70';
+        status.textContent = `${loaded.length} loaded, ${failed.length} not found ` +
+          `(${failed.join(', ')}) — falling back to embedded for those.`;
+      }
+      btn.textContent = 'Try loading external data files';
+      btn.disabled    = false;
+      init(packedTables);
+    }
+
+    // ── main ─────────────────────────────────────────────
+
+    function main() {
+      document.getElementById('try-external-btn').addEventListener('click', onExternalLoad);
+      load(DataSource.InlinedScripts).then(({ packedTables }) => init(packedTables));
+    }
+
+    main();
+  </script>
+</body>
+
+</html>

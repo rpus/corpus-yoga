@@ -73,25 +73,29 @@ validate_file() {
 validate_export() {
   local data_dir="${1%/}"
   local validation_dir="$OUTPUT_DIR/$(basename "$data_dir")/validation"
+
+  rm -rf "$validation_dir"
   mkdir -p "$validation_dir"
-  for f in "$data_dir"/*.json; do
-    local name schemas schema schema_stem
-    name="$(basename "${f%.json}")"
-    # Look for a folder named after the data file; fall back to a single .json
-    if [[ -d "$SCHEMA_DIR/$name" ]]; then
-      schemas=()
-      while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$name" -name "*.json" -type f)
-    else
-      schemas=("$SCHEMA_DIR/${name}.json")
-    fi
-    for schema in "${schemas[@]}"; do
-      [[ -e "$schema" ]] || continue
-      schema_stem="${schema#$SCHEMA_DIR/}"
-      schema_stem="${schema_stem%.json}"
-      mkdir -p "$validation_dir/$(dirname "$schema_stem")"
-      validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
+
+  {
+    for f in "$data_dir"/*.json; do
+      local name schemas schema schema_stem
+      name="$(basename "${f%.json}")"
+      if [[ -d "$SCHEMA_DIR/$name" ]]; then
+        schemas=()
+        while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$name" -name "*.json" -type f)
+      else
+        schemas=("$SCHEMA_DIR/${name}.json")
+      fi
+      for schema in "${schemas[@]}"; do
+        [[ -e "$schema" ]] || continue
+        schema_stem="${schema#$SCHEMA_DIR/}"
+        schema_stem="${schema_stem%.json}"
+        mkdir -p "$validation_dir/$(dirname "$schema_stem")"
+        validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
+      done
     done
-  done
+  } > "$validation_dir/validate.log" 2>&1
 }
 
 main() {
@@ -109,8 +113,6 @@ main() {
     echo "       $0 --data-root <path/to/exported-data>"
     exit 1
   fi
-
-  rm -rf "$OUTPUT_DIR"
 
   source ~/venvs/general/bin/activate
 

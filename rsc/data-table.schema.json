@@ -20,6 +20,9 @@
             "items": {
                 "type": "array"
             }
+        },
+        "note": {
+            "type": "string"
         }
     },
     "default": {
@@ -32,6 +35,7 @@
                 "",
                 null
             ]
-        ]
+        ],
+        "note": ""
     }
 }
