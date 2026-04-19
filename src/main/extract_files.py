@@ -84,46 +84,48 @@ def sanitise_path(raw: str) -> Optional[Path]:
 
 def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
-
-    # Sort by created_at for stable numbering
     convos_sorted = sorted(convos, key=lambda c: c.get('created_at', ''))
 
+    log_path    = out_dir / 'extract_files.log'
     total_files = 0
+    with log_path.open('w') as log:
+        for idx, convo in enumerate(convos_sorted):
+            name     = convo.get('name', 'untitled')
+            messages = convo.get('chat_messages', [])
 
-    for idx, convo in enumerate(convos_sorted):
-        name     = convo.get('name', 'untitled')
-        messages = convo.get('chat_messages', [])
+            calls = []
+            for msg in messages:
+                calls.extend(extract_create_file_calls(msg))
 
-        # Collect all create_file calls across all messages
-        calls = []
-        for msg in messages:
-            calls.extend(extract_create_file_calls(msg))
-
-        if not calls:
-            continue
-
-        # Build conversation output directory
-        convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
-
-        written = 0
-        for call in calls:
-            rel = sanitise_path(call['path'])
-            if rel is None:
-                print(f'  SKIP (unsafe path): {call["path"]}')
+            if not calls:
                 continue
-            dest = convo_dir / rel
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_text(call['file_text'])
-            written += 1
 
-        if written:
-            print(f'[{idx:03d}] {name[:60]}  →  {written} file(s)  ({convo_dir.name})')
-            total_files += written
+            convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
+            written   = 0
+            for call in calls:
+                rel = sanitise_path(call['path'])
+                if rel is None:
+                    log.write(f'  SKIP (unsafe path): {call["path"]}\n')
+                    continue
+                dest = convo_dir / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(call['file_text'])
+                written += 1
 
-    print(f'\nDone. {total_files} file(s) extracted to {out_dir}/')
+            if written:
+                log.write(f'[{idx:03d}] {name[:60]}  →  {written} file(s)  ({convo_dir.name})\n')
+                total_files += written
+
+        log.write(f'\nDone. {total_files} file(s) extracted.\n')
+
+    print(f'→ {log_path}')
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
+
+SCRIPT_DIR = Path(__file__).parent
+OUTPUT_DIR = SCRIPT_DIR.parent.parent / 'gen'
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -131,18 +133,19 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('--conversations', default=None)
+    parser.add_argument('--data-dir',      default=None)
     parser.add_argument('--out-dir',       default=None)
     parser.add_argument('--settings',      default='settings.json')
     args = parser.parse_args()
 
-    settings = load_settings(Path(args.settings))
-
-    conversations_path = Path(
-        args.conversations or settings.get('conversations', 'conversations.json')
-    )
-    out_dir = Path(
-        args.out_dir or settings.get('extracted_files_dir', 'extracted_files')
-    )
+    if args.data_dir:
+        data_dir           = Path(args.data_dir).resolve()
+        conversations_path = data_dir / 'conversations.json'
+        out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_files'
+    else:
+        settings           = load_settings(Path(args.settings))
+        conversations_path = Path(args.conversations or settings.get('conversations', 'conversations.json'))
+        out_dir            = Path(args.out_dir or settings.get('extracted_files_dir', 'extracted_files'))
 
     if not conversations_path.exists():
         sys.exit(f'conversations.json not found: {conversations_path}')

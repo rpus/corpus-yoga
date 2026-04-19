@@ -6,13 +6,19 @@ Cross-references data-files.json against extracted_files/ and
 extracted_heredocs/ to report files not yet harvested.
 
 Usage:
-    python check_harvested.py <data-files.json> <conversations.json> <gen-export-dir>
+    python check_harvested.py <data-export-name>
+
+Example:
+    python check_harvested.py data-2026-04-07-07-52-05-batch-0000
 """
 
 import json
 import re
 import sys
 from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).parent
+OUTPUT_DIR = SCRIPT_DIR.parent.parent / 'gen'
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',
@@ -36,16 +42,25 @@ def is_binary(mime_type):
 
 
 def main():
-    data_files_path = Path(sys.argv[1])
-    conv_path       = Path(sys.argv[2])
-    gen_dir         = Path(sys.argv[3])
+    if len(sys.argv) != 2:
+        sys.exit(f'Usage: {sys.argv[0]} <data-export-name>')
 
-    data_files = json.loads(data_files_path.read_text())
-    convos     = sorted(json.loads(conv_path.read_text()), key=lambda c: c.get('created_at', ''))
-    chat_slugs = {i: f'{i:03d}_{slug(c["name"])}' for i, c in enumerate(convos)}
+    name        = sys.argv[1]
+    export_dir  = OUTPUT_DIR / name
+    present_dir = export_dir / 'presentation'
 
-    extracted_files_dir    = gen_dir / 'extracted_files'
-    extracted_heredocs_dir = gen_dir / 'extracted_heredocs'
+    data_files = json.loads((present_dir / 'data-files.json').read_text())
+    data_chats = json.loads((present_dir / 'data-chats.json').read_text())
+
+    # Build chat_idx → slug from data-chats
+    ci = {c: i for i, c in enumerate(data_chats['columns'])}
+    chat_slugs = {
+        row[ci['chat']]: f'{row[ci["chat"]]:03d}_{slug(row[ci["name"]])}'
+        for row in data_chats['rows']
+    }
+
+    extracted_files_dir    = export_dir / 'extracted_files'
+    extracted_heredocs_dir = export_dir / 'extracted_heredocs'
 
     cols = {c: i for i, c in enumerate(data_files['columns'])}
     unharvested_binary, unharvested_text = [], []
@@ -53,7 +68,7 @@ def main():
     for row in data_files['rows']:
         chat_idx  = row[cols['chat']]
         filename  = row[cols['file']]
-        mime_type = row[cols.get('mime_type', -1)] if 'mime_type' in cols else ''
+        mime_type = row[cols['mime_type']] if 'mime_type' in cols else ''
         chat_slug = chat_slugs.get(chat_idx, f'{chat_idx:03d}_unknown')
 
         found = any(

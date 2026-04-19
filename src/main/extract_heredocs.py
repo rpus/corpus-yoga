@@ -73,34 +73,38 @@ def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
     convos_sorted = sorted(convos, key=lambda c: c.get('created_at', ''))
 
+    log_path = out_dir / 'extract_heredocs.log'
     total = 0
-    for idx, convo in enumerate(convos_sorted):
-        name     = convo.get('name', 'untitled')
-        messages = convo.get('chat_messages', [])
+    with log_path.open('w') as log:
+        for idx, convo in enumerate(convos_sorted):
+            name     = convo.get('name', 'untitled')
+            messages = convo.get('chat_messages', [])
 
-        extractions = []
-        for msg in messages:
-            for block in msg.get('content', []):
-                if block.get('type') != 'tool_use' or block.get('name') != 'bash_tool':
-                    continue
-                command = block.get('input', {}).get('command', '')
-                extractions.extend(extract_from_command(command))
+            extractions = []
+            for msg in messages:
+                for block in msg.get('content', []):
+                    if block.get('type') != 'tool_use' or block.get('name') != 'bash_tool':
+                        continue
+                    command = block.get('input', {}).get('command', '')
+                    extractions.extend(extract_from_command(command))
 
-        if not extractions:
-            continue
+            if not extractions:
+                continue
 
-        convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
-        written = 0
-        for e in extractions:
-            dest = convo_dir / e['bucket'] / e['rel']
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_text(e['content'])
-            written += 1
+            convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
+            written = 0
+            for e in extractions:
+                dest = convo_dir / e['bucket'] / e['rel']
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_text(e['content'])
+                written += 1
 
-        print(f'[{idx:03d}] {name[:60]}  →  {written} file(s)  ({convo_dir.name})')
-        total += written
+            log.write(f'[{idx:03d}] {name[:60]}  →  {written} file(s)  ({convo_dir.name})\n')
+            total += written
 
-    print(f'\nDone. {total} file(s) extracted to {out_dir}/')
+        log.write(f'\nDone. {total} file(s) extracted.\n')
+
+    print(f'→ {log_path}')
 
 
 SCRIPT_DIR = Path(__file__).parent

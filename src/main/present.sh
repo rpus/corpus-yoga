@@ -185,7 +185,7 @@ present_export() {
     inject "$out" "data-files" "$json"
     printf '%s\n' "$json" > "$out_dir/data-files.json"
     echo "  ✓ data-files"
-    python "$CHECK_HARVESTED_SCRIPT" "$out_dir/data-files.json" "$conv" "$OUTPUT_DIR/$name"
+    python "$CHECK_HARVESTED_SCRIPT" "$name"
 
     # data-literal: word frequency (Python) then columnarise (jq)
     if [[ -f "$WORD_FREQ_SCRIPT" ]]; then
