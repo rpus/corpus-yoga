@@ -5,6 +5,9 @@ rm -rf ./gen
 
 ./src/main/validate.sh --data-root ../exported-data
 
+./src/main/extract_files.sh --data-root ../exported-data
+./src/main/extract_heredocs.sh --data-root ../exported-data
+
 # source ~/.zprofile 
 ./src/main/infer_tables.sh --data-root ../exported-data
 
@@ -18,6 +21,9 @@ rm -rf ./gen
 - Validate the data
   - `./src/main/validate.sh --data-root ../exported-data`
   - Address any errors by updating/retesting the schemas (in `./rsc`) and tooling (in `./src`) as needed.
+- Extract files and heredocs
+  - `./src/main/extract_files.sh --data-root ../exported-data`
+  - `./src/main/extract_heredocs.sh --data-root ../exported-data`
 - Present the data
   - `source ~/.zprofile` (to get `ANTHROPIC_API_KEY` into `env` for table inference by Claude)
   - `./src/main/infer_tables.sh --data-root ../exported-data`
