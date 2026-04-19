@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Literal word frequency extraction from conversations.json.
 Run locally: python word_freq_literal.py conversations.json > literal_freq.json

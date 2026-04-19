@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 schema_occurrences.py - Given a schema file, a subschema pointer, and an instance
 document, output the path to every location in the instance where that subschema

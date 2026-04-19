@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 extract_files.py
 

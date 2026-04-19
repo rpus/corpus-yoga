@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 schema_path.py - Given a jsonschema instance error path and a schema file,
 output the JSON pointer to the subschema at the error site.

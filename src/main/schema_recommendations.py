@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 schema_recommendations.py - Given an instance document and a schema file,
 output recommendations for improving the instance's conformance to the schema.
