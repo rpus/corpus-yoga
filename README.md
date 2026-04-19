@@ -19,7 +19,7 @@ rm -rf ./gen
   - `./src/main/validate.sh --data-root ../exported-data`
   - Address any errors by updating/retesting the schemas (in `./rsc`) and tooling (in `./src`) as needed.
 - Present the data
-  - `source ~/.zprofile # to get Anthropic API key into env for table inference by Claude`
+  - `source ~/.zprofile` (to get `ANTHROPIC_API_KEY` into `env` for table inference by Claude)
   - `./src/main/infer_tables.sh --data-root ../exported-data`
   - `./src/main/present.sh --data-root ../exported-data`
 

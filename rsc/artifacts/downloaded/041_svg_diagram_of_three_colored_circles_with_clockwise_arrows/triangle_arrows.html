@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Triangle Arrows</title>
+</head>
+<body>
+<svg id="diagram" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<script>
+// ── Parameters ───────────────────────────────────────────────────────────────
+
+const R  = 100;              // circumcircle radius (vertex circles)
+const r  = 28;               // coloured-circle radius
+const stroke_width = 2.5;
+
+const color = { red: "red", green: "green", blue: "blue", arrow: "black" };
+
+// ── Colour utilities ──────────────────────────────────────────────────────────
+
+// Parse any CSS named colour or #rrggbb to {r,g,b} via a temporary canvas pixel
+function parseColor(css) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 1;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = css;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+  return { r, g, b };
+}
+
+function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  const l = (max + min) / 2;
+  if (max === min) return { h: 0, s: 0, l };
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  const h = max === r ? (g - b) / d + (g < b ? 6 : 0)
+          : max === g ? (b - r) / d + 2
+                      : (r - g) / d + 4;
+  return { h: h / 6, s, l };
+}
+
+function hslToRgb(h, s, l) {
+  if (s === 0) { const v = Math.round(l*255); return { r:v, g:v, b:v }; }
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1; if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q-p)*6*t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q-p)*(2/3-t)*6;
+    return p;
+  };
+  const q = l < 0.5 ? l*(1+s) : l+s-l*s, p = 2*l-q;
+  return {
+    r: Math.round(hue2rgb(p,q,h+1/3)*255),
+    g: Math.round(hue2rgb(p,q,h    )*255),
+    b: Math.round(hue2rgb(p,q,h-1/3)*255),
+  };
+}
+
+// Halve saturation and move lightness halfway toward 0.5 (iterate for deeper n-cell levels)
+function pastel(css) {
+  const {r,g,b} = parseColor(css);
+  const {h,s,l} = rgbToHsl(r,g,b);
+  const {r:r2,g:g2,b:b2} = hslToRgb(h, s/2, (l+1)/2);
+  return `rgb(${r2},${g2},${b2})`;
+}
+
+// Cell colours by level: cell(1) = arrow, cell(2) = pastel once, etc.
+function cellColor(level) {
+  let c = color.arrow;
+  for (let i = 1; i < level; i++) c = pastel(c);
+  return c;
+}
+
+// SVG viewport derived from parameters
+const margin = r + 10;
+const size   = 2 * (R + margin);
+const cx = size / 2, cy = size / 2;  // circumcircle centre, always safe
+
+// ── Geometry ─────────────────────────────────────────────────────────────────
+
+const PI    = Math.PI;
+const sin   = Math.sin, cos = Math.cos, asin = Math.asin, atan2 = Math.atan2;
+
+// Vertex angles (radians), SVG y-down, clockwise: red, green, blue
+const a_red   = -PI/6;      // top-right
+const a_green =  PI/2;      // bottom
+const a_blue  =  7*PI/6;    // top-left
+
+function pt(angle) {
+  return { x: cx + R*cos(angle), y: cy + R*sin(angle) };
+}
+
+const verts = { red: pt(a_red), green: pt(a_green), blue: pt(a_blue) };
+
+// Trim angle: arc on circumcircle subtended by coloured-circle radius
+const trim = asin(r / R);
+
+// Trimmed endpoints for a clockwise arc from angle a to angle b (on circle centred at cx,cy)
+function trimmedArc(centre, a_from, a_to) {
+  const {x:ox, y:oy} = centre;
+  return {
+    x1: ox + R*cos(a_from + trim),  y1: oy + R*sin(a_from + trim),
+    x2: ox + R*cos(a_to   - trim),  y2: oy + R*sin(a_to   - trim),
+  };
+}
+
+// Outer clockwise arcs on circumcircle
+const origin = {x: cx, y: cy};
+const arc_rg = trimmedArc(origin, a_red,          a_green        );
+const arc_gb = trimmedArc(origin, a_green,         a_blue         );
+const arc_br = trimmedArc(origin, a_blue,          a_red + 2*PI   );
+
+// Inner arc: blue->green on circle whose centre is reflection of origin in chord blue-green
+function reflectInLine(p, a, b) {
+  const dx = b.x-a.x, dy = b.y-a.y;
+  const ex = p.x-a.x, ey = p.y-a.y;
+  const t  = (ex*dx + ey*dy) / (dx*dx + dy*dy);
+  return { x: 2*(a.x + t*dx) - p.x, y: 2*(a.y + t*dy) - p.y };
+}
+
+const rc = reflectInLine(origin, verts.blue, verts.green);
+
+const a_blue_rc  = atan2(verts.blue.y  - rc.y, verts.blue.x  - rc.x);
+const a_green_rc = atan2(verts.green.y - rc.y, verts.green.x - rc.x);
+const arc_inner  = trimmedArc(rc, a_blue_rc, a_green_rc);
+
+// ── SVG helpers ──────────────────────────────────────────────────────────────
+
+const NS  = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("diagram");
+svg.setAttribute("width",   size);
+svg.setAttribute("height",  size);
+svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+
+function el(tag, attrs) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k,v] of Object.entries(attrs)) e.setAttribute(k, v);
+  return e;
+}
+
+function addArc(a, sweep) {
+  const d = `M ${a.x1} ${a.y1} A ${R} ${R} 0 0 ${sweep} ${a.x2} ${a.y2}`;
+  svg.appendChild(el("path", {
+    d, fill:"none", stroke: color.arrow,
+    "stroke-width": stroke_width, "marker-end":"url(#arrow)"
+  }));
+}
+
+function addCircle(p, fill) {
+  svg.appendChild(el("circle", { cx: p.x, cy: p.y, r, fill }));
+}
+
+// ── Squiggle parameters ───────────────────────────────────────────────────────
+
+const squiggle_cycles    = 3;   // number of sine cycles along the arrow
+const squiggle_amplitude = 5;   // lateral deviation (px)
+const squiggle_steps     = 60;  // polyline resolution
+const squiggle_tip       = 6;   // length of straight radial tip (for clean arrowhead)
+
+// Geometry: returns { body_pts, tip_start, tip_end } for a squiggly from a to b
+function squigglyGeom(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const len = Math.hypot(dx, dy);
+  const nx  = -dy/len, ny = dx/len;                 // unit normal
+
+  const t_end = (len - r - squiggle_tip) / len;     // squiggle stops short of tip
+
+  const body_pts = [];
+  for (let i = 0; i <= squiggle_steps; i++) {
+    const t    = t_end * i / squiggle_steps;
+    const wave = squiggle_amplitude * Math.sin(2 * PI * squiggle_cycles * t / t_end);
+    body_pts.push(`${a.x + t*dx + wave*nx},${a.y + t*dy + wave*ny}`);
+  }
+
+  return {
+    body_pts,
+    tip_start: { x: a.x + t_end      *dx, y: a.y + t_end      *dy },
+    tip_end:   { x: a.x + (len-r)/len*dx, y: a.y + (len-r)/len*dy },
+  };
+}
+
+function addSquiggly(a, b) {
+  const { body_pts, tip_start, tip_end } = squigglyGeom(a, b);
+
+  // Squiggle body (no arrowhead)
+  svg.appendChild(el("polyline", {
+    points: body_pts.join(" "),
+    fill: "none", stroke: cellColor(2), "stroke-width": stroke_width
+  }));
+
+  // Straight radial tip carrying the arrowhead
+  svg.appendChild(el("line", {
+    x1: tip_start.x, y1: tip_start.y, x2: tip_end.x, y2: tip_end.y,
+    stroke: cellColor(2), "stroke-width": stroke_width,
+    "marker-end": "url(#arrow_cell2)"
+  }));
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+
+const defs    = el("defs", {});
+
+function addMarker(id, fill) {
+  const marker = el("marker", { id, markerWidth:"10", markerHeight:"7",
+                                 refX:"9", refY:"3.5", orient:"auto" });
+  marker.appendChild(el("polygon", { points:"0 0, 10 3.5, 0 7", fill }));
+  defs.appendChild(marker);
+}
+
+addMarker("arrow",       cellColor(1));
+addMarker("arrow_cell2", cellColor(2));
+svg.appendChild(defs);
+
+addArc(arc_rg, 1);
+addArc(arc_gb, 1);
+addArc(arc_br, 1);
+addArc(arc_inner, 1);
+
+// 2-cell: squiggly arrow from centroid to sentinel (red)
+addSquiggly({x: cx, y: cy}, verts.red);
+
+addCircle(verts.red,   color.red);
+addCircle(verts.green, color.green);
+addCircle(verts.blue,  color.blue);
+</script>
+</body>
+</html>
