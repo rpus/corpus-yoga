@@ -14,8 +14,7 @@ rm -rf ./gen
 - Prepare new data
   - Ask to "Export ('All') data" from <https://claude.ai/settings/data-privacy-controls>
   - Click on 24-hour emailed "Download Data" link (like <https://claude.ai/export/0fc4c1e0-4719-4e10-997a-697bf05599af/download/cdb658167a0d6dd4a2ffe829aeea9d15>)
-  - Move downloaded folder (like `data-*`) from `Downloads` to the `exported-data` sibling directory of this (current) directory.
-  - Format (with-two-space indentation) and re-save the (four, `.json`) files in `data-*`.
+  - Move downloaded folder (like `data-*`) from `Downloads` into the `exported-data` sibling directory of this (current) directory.
 - Validate the data
   - `./src/main/validate.sh --data-root ../exported-data`
   - Address any errors by updating/retesting the schemas (in `./rsc`) and tooling (in `./src`) as needed.
