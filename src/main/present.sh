@@ -11,6 +11,7 @@ OUTPUT_DIR="$REPO_DIR/gen"
 TEMPLATE="$REPO_DIR/rsc/index.html"
 WORD_FREQ_SCRIPT="$SCRIPT_DIR/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
+CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ jq_spans() { jq '
 ' "$@"; }
 
 jq_files() { jq '{
-  columns: ["chat", "file"],
+  columns: ["chat", "file", "mime_type"],
   rows: [
     (sort_by(.created_at) | to_entries[]) |
     .key as $i |
@@ -49,7 +50,7 @@ jq_files() { jq '{
     select(.type == "tool_result") |
     .content[]? |
     select(.type == "local_resource") |
-    [$i, (.file_path | split("/") | last)]
+    [$i, (.file_path | split("/") | last), .mime_type]
   ] | unique
 }' "$@"; }
 
@@ -184,6 +185,7 @@ present_export() {
     inject "$out" "data-files" "$json"
     printf '%s\n' "$json" > "$out_dir/data-files.json"
     echo "  ✓ data-files"
+    python "$CHECK_HARVESTED_SCRIPT" "$out_dir/data-files.json" "$conv" "$OUTPUT_DIR/$name"
 
     # data-literal: word frequency (Python) then columnarise (jq)
     if [[ -f "$WORD_FREQ_SCRIPT" ]]; then

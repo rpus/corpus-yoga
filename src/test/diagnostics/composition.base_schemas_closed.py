@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """composition.base_schemas_closed — All ...Base schemas have additionalProperties: false."""
 import json, sys
 

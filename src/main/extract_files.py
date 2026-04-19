@@ -8,7 +8,7 @@ tool calls, grouped by conversation. Writes files under:
     <output_dir>/<chat_index>_<conversation_name>/<path_from_tool>
 
 Usage:
-    python3 extract_files.py [--conversations PATH] [--out-dir PATH] [--settings PATH]
+    python extract_files.py [--conversations PATH] [--out-dir PATH] [--settings PATH]
 
 Defaults:
     --conversations  conversations.json

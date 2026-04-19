@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """composition.discriminator_values_disjoint — Discriminator enum values across oneOf branches are disjoint."""
 import json, sys
 

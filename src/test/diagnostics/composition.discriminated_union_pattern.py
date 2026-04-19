@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """composition.discriminated_union_pattern — Structural oneOf unions have Has*DiscriminatorProperty in allOf."""
 import json, sys
 

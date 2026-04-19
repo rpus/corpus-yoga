@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """composition.no_additional_properties_on_subtypes — Subtypes must not combine additionalProperties:false with allOf referencing a schema with properties."""
 import json, sys
 

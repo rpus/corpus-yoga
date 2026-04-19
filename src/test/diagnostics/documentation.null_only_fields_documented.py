@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """documentation.null_only_fields_documented — null-typed fields note their empirical basis."""
 import json, sys
 

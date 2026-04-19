@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Repair structure.pattern_constraints_enforced — Move regex from description to pattern field.
 
 Usage: python src/repairs/structure.pattern_constraints_enforced.py <schema>

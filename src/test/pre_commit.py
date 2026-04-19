@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 pre_commit.py — Pre-commit checks for the Yoga repo.
 

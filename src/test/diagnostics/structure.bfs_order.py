@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """structure.bfs_order — Definitions are in breadth-first referential encounter order."""
 import json, sys
 from collections import deque

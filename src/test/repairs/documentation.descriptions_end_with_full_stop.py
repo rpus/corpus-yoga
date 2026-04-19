@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Repair documentation.descriptions_end_with_full_stop — Append period to unterminated descriptions.
 
 Usage: python src/repairs/documentation.descriptions_end_with_full_stop.py <schema>

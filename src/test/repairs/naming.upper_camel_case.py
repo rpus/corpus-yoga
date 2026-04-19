@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Repair naming.upper_camel_case — Rename non-UpperCamelCase definition keys.
 
 Usage: python src/repairs/naming.upper_camel_case.py <schema> <old_name> <new_name>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """naming.property_keys_lowercase — All property keys are lowercase or snake_case."""
 import json, re, sys
 

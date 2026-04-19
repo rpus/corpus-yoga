@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """Repair structure.bfs_order — Reorder definitions into breadth-first referential encounter order.
 
 Usage: python src/repairs/structure.bfs_order.py <schema>

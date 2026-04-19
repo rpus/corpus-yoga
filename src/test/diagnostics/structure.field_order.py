@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """structure.field_order — Every definition begins with title, description, type."""
 import json, sys
 

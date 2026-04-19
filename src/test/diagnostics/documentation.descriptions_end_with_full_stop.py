@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """documentation.descriptions_end_with_full_stop — All descriptions end with recognised terminal punctuation."""
 import json, re, sys
 

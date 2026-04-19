@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """naming.upper_camel_case — All definition names are UpperCamelCase."""
 import json, re, sys
 

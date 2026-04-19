@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """structure.all_definitions_reachable — Every definition is reachable from root via $ref."""
 import json, sys
 from collections import deque
