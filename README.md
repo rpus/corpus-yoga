@@ -27,7 +27,7 @@ rm -rf ./gen
 
 ## To be tested
 
-- Process `conversations.json` using `src/main/gen_model_candidate.py` (according to the instructions in its header comment).
+- Process `conversations.json` using `src/main/test/gen_model_candidate.py` (according to the instructions in its header comment).
   - `mkdir ./gen/data-*/model`
 - Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
   - `mkdir ./gen/data-*/redacted`
