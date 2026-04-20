@@ -1,0 +1,13 @@
+{
+  "name": "schema-json-shared",
+  "version": "0.0.1",
+  "description": "Shared keyword definitions for schema+json",
+  "main": "out/keywords.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "typescript": "5.3.3"
+  }
+}

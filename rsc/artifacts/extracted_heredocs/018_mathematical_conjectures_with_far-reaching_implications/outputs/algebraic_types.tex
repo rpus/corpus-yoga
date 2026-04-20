@@ -1,0 +1,296 @@
+% Algebraic Data Types Are Algebraic
+% K. Siddiqui and Claude Sonnet
+% LaTeX --- pearl preprint
+
+\documentclass[11pt, a4paper]{article}
+
+% --- Packages ---
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{microtype}
+\usepackage{marginnote}
+\usepackage{hyperref}
+
+% --- Page geometry ---
+\geometry{
+  a4paper,
+  top=2.5cm, bottom=2.8cm,
+  inner=2.8cm, outer=4.8cm,
+  marginparwidth=2.8cm,
+  marginparsep=0.5cm
+}
+
+% --- Theorem environments ---
+\newtheoremstyle{pearlstyle}
+  {6pt}{6pt}{\itshape}{0pt}{\bfseries}{.}{0.5em}{}
+\theoremstyle{pearlstyle}
+\newtheorem*{conjecture}{Conjecture}
+\newtheorem*{remark}{Remark}
+
+% --- Notation macros ---
+\newcommand{\bone}{\mathbb{1}}
+\newcommand{\btwo}{\mathbb{2}}
+\newcommand{\bzero}{\mathbb{0}}
+\newcommand{\bF}{\mathbb{F}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Exp}{\mathtt{exp}}
+\newcommand{\Sn}{S_n}
+\newcommand{\coloneq}{\mathrel{:\!=}}
+
+% --- Spacing ---
+\setlength{\parskip}{4pt plus 1pt}
+\setlength{\parindent}{18pt}
+
+% ======================================================
+\begin{document}
+
+\title{Algebraic Data Types Are Algebraic\\[4pt]
+  {\large --- and Transcendental Types Are Transcendental}}
+\author{Khalid Siddiqui \and Claude Sonnet}
+\date{\itshape Pearl preprint --- \today}
+\maketitle
+
+\begin{abstract}
+The word ``algebraic'' appears in two apparently unrelated contexts:
+algebraic data types in programming language theory, and algebraic numbers in
+arithmetic. We show these are not merely homonyms. The type-theoretic operations
+of sum, product, and exponentiation generate exactly the class of algebraic
+functions, and the values outside that closure --- those unreachable by any
+combination of these constructors --- are transcendental in both senses
+simultaneously. As a worked illustration, the exponential type former
+$\mathtt{exp}$, uniquely characterised as the fixed point of differentiation,
+is read as a power series and evaluated along an imaginary axis via
+Cayley--Dickson doubling. Its period is inexpressible in the language used to
+define it. This is transcendence as a syntactic phenomenon: a mild and
+pronounceable form of G\"{o}del incompleteness, visible at the level of types.
+\end{abstract}
+
+% ======================================================
+\section{A thing being is any thing}
+
+We begin with notation chosen to keep the levels honest. Write $\bone$ for the
+unit type --- the type with exactly one inhabitant --- and $\btwo$ for the type
+with exactly two. A central confusion in ordinary notation is that ``1'' and
+``2'' carry arithmetic connotations (integers, field elements, cardinals) that
+obscure what is structurally primitive. Blackboard bold signals that we mean the
+types themselves, not numbers that happen to index them.
+
+\medskip
+\noindent\textbf{A note on notation.} This paper uses typography to enforce a
+distinction that prose tends to elide. Blackboard bold ($\bone$, $\btwo$,
+$\bzero$) denotes \emph{types as types} --- structural objects, not numbers that
+happen to share a name. Typewriter font ($\Exp$) denotes \emph{type
+constructors} --- terms in a formal language, defined by their structural rules,
+not by analytic properties. Roman font is reserved for evaluated,
+interpreted, model-specific versions. The typographic discipline is the argument
+in miniature: the distinction between $\Exp$ and $e^x$ is exactly the
+distinction this paper is about. There is only one $\mathtt{exp}$onential.
+
+\medskip
+Now consider the quotient $X/X$ for a type $X$. Whatever $X$ is, the type of
+``an $X$ without any information about which $X$'' has exactly one inhabitant:
+the fact of there being an $X$ at all, without specification. So
+\[
+  X/X \;=\; \bone.
+\]
+This is not arithmetic; it is the observation that self-quotients collapse to
+the unit. A thing being is any thing.
+
+From this, $\btwo \coloneq \bone + \bone$ --- two distinct units, a binary
+choice, a coproduct. No integers have been assumed. The arithmetic will be
+derived, not imported.
+
+% ======================================================
+\section{The Taylor series is a type}
+
+We define $\Exp$ structurally, without importing any analytic machinery. The
+right starting point is not the power series but the property that characterises
+$\Exp$ uniquely: it is the fixed point of differentiation.
+
+In the setting of Joyal's combinatorial species, differentiation has a clean
+combinatorial meaning. The \emph{derivative} $F'$ of a species $F$ is the
+species of $F$-structures with one element \emph{pointed} --- singled out,
+marked, distinguished from the rest. This is the ``one-hole context''
+construction: an $F'$-structure is an $F$-structure with a distinguished site of
+attention.\marginnote{\footnotesize McBride's work on the derivative of a
+container type realises exactly this construction in dependent type theory: the
+type of one-hole contexts of a container $F$ is its derivative $F'$. The
+present observation is that $\Exp$ is the unique fixed point of that operation.}
+
+Now consider the species $\mathbf{E}$ of finite sets: an $\mathbf{E}$-structure
+on a set $S$ is simply $S$ itself, unadorned. Pointing one element of a finite
+set gives a finite set with a distinguished element --- which is again a finite
+set (the distinguished element carrying no extra structure beyond its
+singling-out). So $\mathbf{E}' = \mathbf{E}$: the species of finite sets is its
+own derivative. It is the fixed point of the pointing operator.
+
+This is the structural definition of $\Exp$:
+\[
+  D(\Exp) \;=\; \Exp, \qquad \Exp(\bzero) \;=\; \bone.
+\]
+The initial condition $\Exp(\bzero) = \bone$ --- the empty collection is the
+unit --- pins down the unique fixed point. Everything else follows.
+
+\medskip\noindent\textbf{The power series as consequence.} Expanding the fixed
+point equation around $\bzero$ forces the coefficients one by one. If
+$\Exp(X) = \sum_{n \geq 0} a_n X^n$, then $D(\Exp) = \Exp$ gives
+$a_n = a_{n-1}/n$ for all $n \geq 1$, and $a_0 = \bone$ gives $a_n = \bone/n!$.
+So
+\[
+  \Exp(X) \;=\; \sum_{n \geq 0} \frac{X^n}{n!}.
+\]
+The $n!$ denominators are not analytic conveniences; they are forced by the
+fixed point equation together with the initial condition. Their combinatorial
+meaning is immediate: $X^n/n!$ is the type of \emph{unordered} $n$-tuples, the
+quotient of the ordered product $X^n$ by the action of the symmetric group
+$\Sn$, whose groupoid cardinality is exactly
+$n!$.\marginnote{\footnotesize Groupoid cardinality: as a groupoid,
+$|\Sn| = n!/n! = 1$, so the quotient $X^n/\Sn$ has cardinality $|X|^n/n!$
+--- the $n$-th term of an exponential generating function.}
+
+So $X^2/2! = \{X,X\}$ is the unordered pair, and the full series
+\[
+  \Exp(X) \;=\; \bone \;+\; X \;+\; \{X,X\} \;+\; \{X,X,X\} \;+\; \cdots
+\]
+is the type of \emph{finite unordered collections} of $X$ --- the free
+commutative monoid on $X$, the species $\mathbf{E}$ of finite sets. This is not
+an analogy: the ``exponential'' in ``exponential generating function'' is $\Exp$,
+and the $n!$ denominators arise \emph{because} the structures are unordered.
+Type theorists have been doing transcendence theory all along, and $\Exp$ was
+always the fixed point of their own derivative.
+
+% ======================================================
+\section{The algebraic and the transcendental}
+
+The type constructors $+$, $\times$, and $(-)^{(-)}$ --- sum, product,
+exponentiation --- generate, by composition and fixed point, the class of
+\emph{algebraic} types: those whose generating functions satisfy polynomial
+equations over $\Q$. A list type $L(X) = \bone + X \times L(X)$ satisfies
+$L = 1/(1-X)$, a rational function; a binary tree type satisfies a
+quadratic.\marginnote{\footnotesize $L(X) = 1/(1-X)$, convergent for $|X|<1$.
+The fixed-point equation $L = \bone + X \cdot L$ gives $L(1-X) = \bone$,
+recovering the same rational.} The values of these generating functions at
+rational arguments are, in general, algebraic numbers.
+
+The exponential type $\Exp(X)$ is different. Its generating function $e^x$ does
+not satisfy any polynomial equation over $\Q$ --- it is transcendental as a
+function. And its values at nonzero algebraic arguments are transcendental
+numbers, by Lindemann--Weierstrass. The exponential type constructor generates
+an object that escapes the algebraic closure of the language used to build it.
+
+This is the first sense in which algebraic data types are algebraic: the
+boundary of the algebraically-generated types is precisely the boundary of
+algebraic functions, and what lies beyond is transcendental in the
+number-theoretic sense.
+
+% ======================================================
+\section{Cayley--Dickson and the imaginary axis}
+
+We have been evaluating $\Exp$ at a real variable $X$. To reach $\pi$, we must
+evaluate it on the imaginary axis, which requires extending our number system.
+
+The complex numbers $\C$ arise from $\R$ by Cayley--Dickson doubling: one
+adjoins a new element with square $-\bone$, and defines multiplication
+accordingly on pairs. This is a \emph{structural} construction --- it requires
+no geometric intuition about rotation or the complex plane. It is the minimal
+doubling of $\R$ that makes $-\bone$ a square, and the new element appears
+necessarily as the second component of a pair, not as a mysterious primitive
+imported from outside.\marginnote{\footnotesize Cayley--Dickson produces
+$\R \to \C \to \mathbb{H} \to \mathbb{O}$, doubling dimension at each step and
+losing one algebraic property: commutativity, associativity, alternativity. The
+process has no known terminal object.}
+
+Write a complex number as a pair $(x, y)$ with $x, y \in \R$, and define
+$\Exp(x, y)$ by the same power series, with powers computed via Cayley--Dickson
+multiplication. This is a \emph{pronounceable} definition: every term is a
+finite unordered collection of pairs, computed by a structural rule requiring no
+appeal to geometry or trigonometry.
+
+Evaluating on the imaginary axis --- setting $x = 0$ and letting $y$ vary ---
+the series computes:
+\[
+  \Exp(0, y) \;=\; (\cos y,\; \sin y).
+\]
+This function is periodic. Its period is the smallest positive $y$ for which
+$\Exp(0,y)$ returns to the multiplicative identity of the doubled structure:
+\[
+  \Exp(0, 2\pi) \;=\; (\bone, \bzero).
+\]
+One full period returns you to the unit. That is all Euler's identity says ---
+and stated this way, it is not an identity at all but a \emph{period theorem}:
+the exponential type constructor, evaluated at its own period, returns $\bone$.
+The period happens to be $2\pi$, and $2\pi$ is transcendental.
+
+% ======================================================
+\section{Transcendence as syntactic incompleteness}
+
+We now have the following situation. The function $\Exp(0, y)$ is defined
+entirely within the algebraic/type-theoretic framework: a power series with
+rational coefficients, evaluated in a structure obtained by a purely structural
+doubling construction. Every finite partial sum is an algebraic expression. The
+series converges, the resulting function is periodic, and its period is
+witnessed by
+\[
+  \Exp(0, 2\pi) \;=\; (\bone, \bzero).
+\]
+But $2\pi$ is \emph{inexpressible} in the language used to define it. No
+polynomial with rational (or algebraic) coefficients has $\pi$ as a root. The
+object has generated, from within itself, a value that escapes its own
+definability.
+
+The standard form $e^{i\pi} = -1$ obscures this completely. It privileges the
+half-period, smuggles in $i$ as a geometric primitive, and produces a
+relationship between three ``mysterious'' constants that looks like a
+coincidence requiring explanation. The form $\Exp(0, 2\pi) = (\bone, \bzero)$
+reveals it as a period theorem: the exponential evaluated at its own period
+returns the unit. The mystery was entirely ecological.
+
+\medskip\noindent\textbf{This is G\"{o}del's phenomenon, one level down.}
+
+\medskip\noindent
+G\"{o}del showed that a sufficiently expressive formal system generates true
+statements it cannot prove --- statements whose truth exceeds the system's
+ability to certify it from within. Here, a sufficiently expressive type
+constructor generates a periodic function whose period exceeds the system's
+ability to express it algebraically. In both cases the system is not broken; it
+is simply being asked to describe something larger than
+itself. Transcendence is the arithmetic shadow of
+incompleteness.\marginnote{\footnotesize More precisely: $\pi$ is transcendental
+(Lindemann, 1882). The equation $\Exp(0,\pi) = (-\bone, \bzero)$ together with
+Lindemann--Weierstrass gives this immediately.}
+
+This also illuminates \emph{why} polynomials with integer or rational
+coefficients form a valid ground for transcendence theory. They are exactly the
+expressions generated by the algebraic type constructors applied to $\bone$ and
+$\btwo$; they are the language of finite algebraic data. Transcendental numbers
+are those unreachable from $\bone$ by any finite composition of algebraic
+operations --- the values that no algebraic data type can name.
+
+% ======================================================
+\section{A remark on bits}
+
+We close with a small observation connecting to information theory without
+developing it fully. A \emph{bit} is $\bone/\btwo$: a choice of one from two,
+a selection of an inhabitant of $\btwo$, the minimum unit of distinction. The
+\emph{information content} of a fair binary choice is
+$\log_2(\btwo/\bone) = \log_2 2 = 1$ --- a Shannon bit. These two quantities
+are related by the $\log/\Exp$ adjunction, which is the same adjunction
+separating the algebraic from the transcendental: $\Exp$ generates the
+transcendental from the algebraic, and $\log$ inverts it.
+
+The bit is algebraic. Information --- measured in bits --- is transcendental.
+Or rather: the \emph{unit} of information is algebraic ($\bone/\btwo$), but the
+\emph{measure} requires the logarithm, the inverse of the exponential type
+constructor that generated the transcendental in the first place. There is a
+small closed universe here, and its boundary is $\Exp$.
+
+\bigskip
+\noindent\textbf{Acknowledgements.} Thanks are due to dialogue itself --- and
+in anticipation to Conor McBride, who will no doubt find the sharpest way to
+say all of this.
+
+\end{document}

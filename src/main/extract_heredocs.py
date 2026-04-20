@@ -102,7 +102,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             dest.write_text(e['content'])
             extracted += 1
             dl_dir = DOWNLOADED_DIR / convo_dir.name
-            if dl_dir.exists() and list(dl_dir.rglob(e['rel'].name)):
+            if (dl_dir / e['bucket'] / e['rel']).exists():
                 downloaded += 1
             else:
                 rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']

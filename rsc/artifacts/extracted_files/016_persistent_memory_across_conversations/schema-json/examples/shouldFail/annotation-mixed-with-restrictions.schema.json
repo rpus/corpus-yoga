@@ -1,0 +1,6 @@
+{
+  "type": "string",
+  "title": "A string",
+  "minLength": 1,
+  "description": "At least one character"
+}

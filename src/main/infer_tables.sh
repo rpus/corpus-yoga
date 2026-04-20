@@ -104,11 +104,11 @@ infer_export() {
   local out_dir="$OUTPUT_DIR/$name/inferred"
   local conv="$data_dir/conversations.json"
 
-  echo "── $name"
   rm -rf "$out_dir"
   mkdir -p "$out_dir"
 
   {
+    echo "── $name"
     infer_categories      "$conv" "$out_dir"
     infer_chat_categories "$conv" "$out_dir"
     infer_semantic        "$conv" "$out_dir"

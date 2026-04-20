@@ -50,7 +50,7 @@ jq_files() { jq '{
     select(.type == "tool_result") |
     .content[]? |
     select(.type == "local_resource") |
-    [$i, (.file_path | split("/") | last), .mime_type]
+    [$i, .file_path, .mime_type]
   ] | unique
 }' "$@"; }
 
@@ -58,7 +58,7 @@ jq_literal() { jq '{
   human:     {columns: ["word","count"], rows: [.human[]     | [.word,.count]]},
   assistant: {columns: ["word","count"], rows: [.assistant[] | [.word,.count]]},
   both:      {columns: ["word","count"], rows: [.both[]      | [.word,.count]]}
-}' "$@"; }
+}'; }
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 

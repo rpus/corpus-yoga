@@ -1,0 +1,232 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Claude Conversation Export",
+  "definitions": {
+    "uuid": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "flags": {
+      "oneOf": [{ "type": "null" }, { "type": "array" }, { "type": "object" }]
+    },
+    "DisplayContentCodeBlock": {
+      "title": "DisplayContentCodeBlock",
+      "type": "object",
+      "required": ["type", "code", "filename", "language"],
+      "additionalProperties": false,
+      "properties": {
+        "type":     { "type": "string", "enum": ["code_block"] },
+        "code":     { "type": "string" },
+        "filename": { "type": "string" },
+        "language": { "type": "string" }
+      }
+    },
+    "DisplayContentJsonBlock": {
+      "title": "DisplayContentJsonBlock",
+      "type": "object",
+      "required": ["type", "json_block"],
+      "additionalProperties": false,
+      "properties": {
+        "type":       { "type": "string", "enum": ["json_block"] },
+        "json_block": {}
+      }
+    },
+    "DisplayContentRichLink": {
+      "title": "DisplayContentRichLink",
+      "type": "object",
+      "required": ["type", "link", "is_trusted"],
+      "additionalProperties": false,
+      "properties": {
+        "type":       { "type": "string", "enum": ["rich_link"] },
+        "link":       { "type": "string" },
+        "is_trusted": { "type": "boolean" }
+      }
+    },
+    "DisplayContentTable": {
+      "title": "DisplayContentTable",
+      "type": "object",
+      "required": ["type", "table"],
+      "additionalProperties": false,
+      "properties": {
+        "type":  { "type": "string", "enum": ["table"] },
+        "table": {}
+      }
+    },
+    "DisplayContentText": {
+      "title": "DisplayContentText",
+      "type": "object",
+      "required": ["type", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "enum": ["text"] },
+        "text": { "type": "string" }
+      }
+    },
+    "display_content": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/definitions/DisplayContentCodeBlock" },
+        { "$ref": "#/definitions/DisplayContentJsonBlock" },
+        { "$ref": "#/definitions/DisplayContentRichLink" },
+        { "$ref": "#/definitions/DisplayContentTable" },
+        { "$ref": "#/definitions/DisplayContentText" }
+      ]
+    },
+    "ToolResultContentItem": {
+      "title": "ToolResultContentItem",
+      "type": "object",
+      "required": ["type", "text", "uuid"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string" },
+        "text": { "type": "string" },
+        "uuid": { "$ref": "#/definitions/uuid" }
+      }
+    },
+    "ToolResultSearchItem": {
+      "title": "ToolResultSearchItem",
+      "type": "object",
+      "required": ["type", "text", "title", "url", "is_citable", "is_missing", "metadata", "prompt_context_metadata"],
+      "additionalProperties": false,
+      "properties": {
+        "type":                    { "type": "string" },
+        "text":                    { "type": "string" },
+        "title":                   { "type": "string" },
+        "url":                     { "type": "string" },
+        "is_citable":              { "type": "boolean" },
+        "is_missing":              { "type": "boolean" },
+        "metadata":                {},
+        "prompt_context_metadata": {}
+      }
+    },
+    "TextBlock": {
+      "title": "TextBlock",
+      "type": "object",
+      "required": ["type", "text", "citations", "flags", "start_timestamp", "stop_timestamp"],
+      "additionalProperties": false,
+      "properties": {
+        "type":            { "type": "string", "enum": ["text"] },
+        "text":            { "type": "string" },
+        "citations":       { "type": "array" },
+        "flags":           { "$ref": "#/definitions/flags" },
+        "start_timestamp": { "$ref": "#/definitions/timestamp" },
+        "stop_timestamp":  { "$ref": "#/definitions/timestamp" }
+      }
+    },
+    "ToolUseBlock": {
+      "title": "ToolUseBlock",
+      "type": "object",
+      "required": ["type", "id", "name", "input", "approval_key", "approval_options", "context", "display_content", "flags", "icon_name", "integration_icon_url", "integration_name", "is_mcp_app", "message", "start_timestamp", "stop_timestamp"],
+      "additionalProperties": false,
+      "properties": {
+        "type":                 { "type": "string", "enum": ["tool_use"] },
+        "id":                   { "$ref": "#/definitions/uuid" },
+        "name":                 { "type": "string" },
+        "input":                { "type": "object" },
+        "approval_key":         { "type": "string" },
+        "approval_options":     { "oneOf": [{ "type": "null" }, { "type": "array" }, { "type": "object" }] },
+        "context":              { "oneOf": [{ "type": "null" }, { "type": "object" }] },
+        "display_content":      { "$ref": "#/definitions/display_content" },
+        "flags":                { "$ref": "#/definitions/flags" },
+        "icon_name":            { "type": "string" },
+        "integration_icon_url": { "type": "string" },
+        "integration_name":     { "type": "string" },
+        "is_mcp_app":           { "type": "boolean" },
+        "message":              { "type": "string" },
+        "start_timestamp":      { "$ref": "#/definitions/timestamp" },
+        "stop_timestamp":       { "$ref": "#/definitions/timestamp" }
+      }
+    },
+    "ToolResultBlock": {
+      "title": "ToolResultBlock",
+      "type": "object",
+      "required": ["type", "tool_use_id", "is_error", "content", "display_content", "flags", "icon_name", "integration_icon_url", "integration_name", "message", "meta", "name", "start_timestamp", "stop_timestamp", "structured_content"],
+      "additionalProperties": false,
+      "properties": {
+        "type":                 { "type": "string", "enum": ["tool_result"] },
+        "tool_use_id":          { "$ref": "#/definitions/uuid" },
+        "is_error":             { "type": "boolean" },
+        "content": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/definitions/ToolResultContentItem" },
+              { "$ref": "#/definitions/ToolResultSearchItem" }
+            ]
+          }
+        },
+        "display_content":      { "$ref": "#/definitions/display_content" },
+        "flags":                { "$ref": "#/definitions/flags" },
+        "icon_name":            { "type": "string" },
+        "integration_icon_url": { "type": "string" },
+        "integration_name":     { "type": "string" },
+        "message":              { "type": "string" },
+        "meta":                 { "oneOf": [{ "type": "null" }, { "type": "object" }] },
+        "name":                 { "type": "string" },
+        "start_timestamp":      { "$ref": "#/definitions/timestamp" },
+        "stop_timestamp":       { "$ref": "#/definitions/timestamp" },
+        "structured_content":   { "oneOf": [{ "type": "null" }, { "type": "object" }, { "type": "array" }] }
+      }
+    },
+    "ContentBlock": {
+      "title": "ContentBlock",
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/definitions/TextBlock" },
+        { "$ref": "#/definitions/ToolUseBlock" },
+        { "$ref": "#/definitions/ToolResultBlock" }
+      ]
+    },
+    "Message": {
+      "title": "Message",
+      "type": "object",
+      "required": ["uuid", "text", "content", "sender", "created_at", "updated_at", "attachments", "files"],
+      "additionalProperties": false,
+      "properties": {
+        "uuid":        { "$ref": "#/definitions/uuid" },
+        "text":        { "type": "string" },
+        "sender":      { "type": "string", "enum": ["human", "assistant"] },
+        "created_at":  { "$ref": "#/definitions/timestamp" },
+        "updated_at":  { "$ref": "#/definitions/timestamp" },
+        "attachments": { "type": "array" },
+        "files":       { "type": "array" },
+        "content": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/ContentBlock" }
+        }
+      }
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "type": "object",
+      "required": ["uuid", "name", "summary", "created_at", "updated_at", "account", "chat_messages"],
+      "additionalProperties": false,
+      "properties": {
+        "uuid":       { "$ref": "#/definitions/uuid" },
+        "name":       { "type": "string" },
+        "summary":    { "type": "string" },
+        "created_at": { "$ref": "#/definitions/timestamp" },
+        "updated_at": { "$ref": "#/definitions/timestamp" },
+        "account": {
+          "type": "object",
+          "required": ["uuid"],
+          "additionalProperties": false,
+          "properties": {
+            "uuid": { "$ref": "#/definitions/uuid" }
+          }
+        },
+        "chat_messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/Message" }
+        }
+      }
+    }
+  },
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "#/definitions/Conversation" }
+}

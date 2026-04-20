@@ -38,7 +38,22 @@ def slug(name):
 
 
 def is_binary(mime_type):
-    return any(mime_type.startswith(p) for p in BINARY_MIME_PREFIXES)
+    return mime_type is not None and any(mime_type.startswith(p) for p in BINARY_MIME_PREFIXES)
+
+
+def parse_file_path(file_path_str: str) -> tuple:
+    """Return (rel_path, bucket) from a container-absolute file path.
+
+    rel_path: path relative to the container prefix — matches extracted_files and downloaded layout.
+    bucket:   'outputs' or 'working' for the extracted_heredocs sub-directory, or None if unknown.
+    """
+    if file_path_str.startswith('/mnt/user-data/outputs/'):
+        return Path(file_path_str[len('/mnt/user-data/outputs/'):]), 'outputs'
+    if file_path_str.startswith('/home/claude/'):
+        return Path(file_path_str[len('/home/claude/'):]), 'working'
+    if file_path_str.startswith('/mnt/user-data/'):
+        return Path(file_path_str[len('/mnt/user-data/'):]), None
+    return Path(file_path_str.lstrip('/')), None
 
 
 def main():
@@ -65,6 +80,7 @@ def main():
 
     cols = {c: i for i, c in enumerate(data_files['columns'])}
     heredocs_ran = extracted_heredocs_dir.exists()
+    BUCKETS = ('outputs', 'working')
 
     unharvested_binary        = []
     unharvested_unrecoverable = []
@@ -77,21 +93,22 @@ def main():
         mime_type = row[cols['mime_type']] if 'mime_type' in cols else ''
         chat_slug = chat_slugs.get(chat_idx, f'{chat_idx:03d}_unknown')
 
-        in_gen = any(
-            (base / chat_slug).exists() and list((base / chat_slug).rglob(filename))
-            for base in [extracted_files_dir, extracted_heredocs_dir]
-        )
-        in_downloaded = bool(
-            (downloaded_dir / chat_slug).exists() and
-            list((downloaded_dir / chat_slug).rglob(filename))
-        )
+        rel_path, bucket = parse_file_path(filename)
+        in_ef = (extracted_files_dir / chat_slug / rel_path).exists()
+        if bucket is not None:
+            in_eh = (extracted_heredocs_dir / chat_slug / bucket / rel_path).exists()
+        else:
+            in_eh = any((extracted_heredocs_dir / chat_slug / b / rel_path).exists() for b in BUCKETS)
+        in_gen = in_ef or in_eh
+        in_downloaded = (downloaded_dir / chat_slug / rel_path).exists()
 
+        display = str(rel_path)
         if in_gen:
             pass
         elif in_downloaded:
-            downloaded_only.append((chat_idx, filename))
+            downloaded_only.append((chat_idx, display))
         else:
-            entry = (chat_idx, filename)
+            entry = (chat_idx, display)
             if is_binary(mime_type):
                 unharvested_binary.append(entry)
             elif heredocs_ran:
@@ -99,17 +116,23 @@ def main():
             else:
                 unharvested_heredoc.append(entry)
 
-    # Overlaps: filenames present in both extracted_files and extracted_heredocs
+    # Overlaps: same subpath in both extracted_files and extracted_heredocs
+    # (bucket prefix stripped from heredocs paths for canonical comparison)
     overlaps = []
     for chat_idx, chat_slug in sorted(chat_slugs.items()):
         ef_dir = extracted_files_dir / chat_slug
         eh_dir = extracted_heredocs_dir / chat_slug
         if not (ef_dir.exists() and eh_dir.exists()):
             continue
-        ef_names = {f.name for f in ef_dir.rglob('*') if f.is_file()}
-        eh_names = {f.name for f in eh_dir.rglob('*') if f.is_file()}
-        for fname in sorted(ef_names & eh_names):
-            overlaps.append((chat_idx, fname))
+        ef_paths = {f.relative_to(ef_dir) for f in ef_dir.rglob('*') if f.is_file()}
+        eh_paths = set()
+        for f in eh_dir.rglob('*'):
+            if f.is_file():
+                parts = f.relative_to(eh_dir).parts
+                canon = Path(*parts[1:]) if parts[0] in BUCKETS else Path(*parts)
+                eh_paths.add(canon)
+        for path in sorted(ef_paths & eh_paths):
+            overlaps.append((chat_idx, str(path)))
 
     if overlaps:
         print(f'  ↔ in both extracted_files and extracted_heredocs ({len(overlaps)} file(s)):')
@@ -122,17 +145,17 @@ def main():
             print(f'      [{chat_idx:03d}] {f}')
 
     if unharvested_binary:
-        print('  ⚠ not harvested — binary, download from app:')
+        print(f'  ⚠ not harvested — binary, download from app ({len(unharvested_binary)} file(s)):')
         for chat_idx, f in unharvested_binary:
             print(f'      [{chat_idx:03d}] {f}')
 
     if unharvested_unrecoverable:
-        print('  ⚠ not recoverable from export — produced at runtime:')
+        print(f'  ⚠ not recoverable from export — produced at runtime ({len(unharvested_unrecoverable)} file(s)):')
         for chat_idx, f in unharvested_unrecoverable:
             print(f'      [{chat_idx:03d}] {f}')
 
     if unharvested_heredoc:
-        print('  ⚠ not harvested — run extract_heredocs.sh:')
+        print(f'  ⚠ not harvested — run extract_heredocs.sh ({len(unharvested_heredoc)} file(s)):')
         for chat_idx, f in unharvested_heredoc:
             print(f'      [{chat_idx:03d}] {f}')
 
