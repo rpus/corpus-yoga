@@ -66,9 +66,10 @@ def main():
     cols = {c: i for i, c in enumerate(data_files['columns'])}
     heredocs_ran = extracted_heredocs_dir.exists()
 
-    unharvested_binary       = []
+    unharvested_binary        = []
     unharvested_unrecoverable = []
-    unharvested_heredoc      = []
+    unharvested_heredoc       = []
+    downloaded_only           = []
 
     for row in data_files['rows']:
         chat_idx  = row[cols['chat']]
@@ -76,12 +77,20 @@ def main():
         mime_type = row[cols['mime_type']] if 'mime_type' in cols else ''
         chat_slug = chat_slugs.get(chat_idx, f'{chat_idx:03d}_unknown')
 
-        found = any(
+        in_gen = any(
             (base / chat_slug).exists() and list((base / chat_slug).rglob(filename))
-            for base in [extracted_files_dir, extracted_heredocs_dir, downloaded_dir]
+            for base in [extracted_files_dir, extracted_heredocs_dir]
+        )
+        in_downloaded = bool(
+            (downloaded_dir / chat_slug).exists() and
+            list((downloaded_dir / chat_slug).rglob(filename))
         )
 
-        if not found:
+        if in_gen:
+            pass
+        elif in_downloaded:
+            downloaded_only.append((chat_idx, filename))
+        else:
             entry = (chat_idx, filename)
             if is_binary(mime_type):
                 unharvested_binary.append(entry)
@@ -89,6 +98,28 @@ def main():
                 unharvested_unrecoverable.append(entry)
             else:
                 unharvested_heredoc.append(entry)
+
+    # Overlaps: filenames present in both extracted_files and extracted_heredocs
+    overlaps = []
+    for chat_idx, chat_slug in sorted(chat_slugs.items()):
+        ef_dir = extracted_files_dir / chat_slug
+        eh_dir = extracted_heredocs_dir / chat_slug
+        if not (ef_dir.exists() and eh_dir.exists()):
+            continue
+        ef_names = {f.name for f in ef_dir.rglob('*') if f.is_file()}
+        eh_names = {f.name for f in eh_dir.rglob('*') if f.is_file()}
+        for fname in sorted(ef_names & eh_names):
+            overlaps.append((chat_idx, fname))
+
+    if overlaps:
+        print(f'  ↔ in both extracted_files and extracted_heredocs ({len(overlaps)} file(s)):')
+        for chat_idx, f in overlaps:
+            print(f'      [{chat_idx:03d}] {f}')
+
+    if downloaded_only:
+        print(f'  ↓ in rsc/downloaded only ({len(downloaded_only)} file(s), manually downloaded, not in gen):')
+        for chat_idx, f in downloaded_only:
+            print(f'      [{chat_idx:03d}] {f}')
 
     if unharvested_binary:
         print('  ⚠ not harvested — binary, download from app:')
@@ -105,7 +136,7 @@ def main():
         for chat_idx, f in unharvested_heredoc:
             print(f'      [{chat_idx:03d}] {f}')
 
-    if not any([unharvested_binary, unharvested_unrecoverable, unharvested_heredoc]):
+    if not any([overlaps, downloaded_only, unharvested_binary, unharvested_unrecoverable, unharvested_heredoc]):
         print('  ✓ data-files: all harvested')
 
 

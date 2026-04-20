@@ -136,7 +136,7 @@ for data_dir, version in sorted(EXPECTED_PASS):
     log = GEN / data_dir / 'validation' / 'conversations' / f'{version}.log'
     if not log.exists():
         run(f'validation log exists: {data_dir} × {version}', False,
-            'Run: src/main/validate.sh --data-root ../exported-data')
+            'Run: src/main/validate.sh --data-root ../data-exports')
         continue
     content = log.read_text()
     passed = 'Valid!' in content

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-# src/main/validate.sh --data-dir ../exported-data/data-2026-04-07-07-52-05-batch-0000
-# src/main/validate.sh --data-root ../exported-data
+# src/main/validate.sh --data-dir ../data-exports/data-2026-04-07-07-52-05-batch-0000
+# src/main/validate.sh --data-root ../data-exports
 
 set -euo pipefail
 
@@ -110,10 +110,11 @@ main() {
 
   if [[ -z "$data_dir" && -z "$data_root" ]]; then
     echo "Usage: $0 --data-dir <path/to/data- directory>"
-    echo "       $0 --data-root <path/to/exported-data>"
+    echo "       $0 --data-root <path/to/data-exports>"
     exit 1
   fi
 
+  # shellcheck source=/dev/null
   source ~/venvs/general/bin/activate
 
   if [[ -n "$data_dir" ]]; then

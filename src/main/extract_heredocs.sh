@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   src/main/extract_heredocs.sh --data-dir ../exported-data/data-2026-04-07-07-52-05-batch-0000
-#   src/main/extract_heredocs.sh --data-root ../exported-data
+#   src/main/extract_heredocs.sh --data-dir ../data-exports/data-2026-04-07-07-52-05-batch-0000
+#   src/main/extract_heredocs.sh --data-root ../data-exports
 
 set -euo pipefail
 
@@ -15,7 +15,6 @@ run_one() {
   local log_path="$OUTPUT_DIR/$name/extracted_heredocs/extract_heredocs.log"
   mkdir -p "$(dirname "$log_path")"
   python "$SCRIPT_DIR/extract_heredocs.py" --data-dir "$d" >> "$log_path" 2>&1
-  echo "→ $log_path"
 }
 
 main() {
@@ -32,7 +31,7 @@ main() {
 
   if [[ -z "$data_dir" && -z "$data_root" ]]; then
     echo "Usage: $0 --data-dir <path/to/data-directory>"
-    echo "       $0 --data-root <path/to/exported-data>"
+    echo "       $0 --data-root <path/to/data-exports>"
     exit 1
   fi
 

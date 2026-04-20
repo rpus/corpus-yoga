@@ -75,41 +75,56 @@ def process(conversations_path: Path, out_dir: Path) -> None:
     convos_sorted = sorted(convos, key=lambda c: c.get('created_at', ''))
 
     log_path = out_dir / 'extract_heredocs.log'
-    total = 0
+    rows: list[tuple] = []   # (idx, name, extracted, downloaded, copied)
+
+    for idx, convo in enumerate(convos_sorted):
+        name     = convo.get('name', 'untitled')
+        messages = convo.get('chat_messages', [])
+
+        # Collect heredocs; last write for each bucket/path wins
+        by_path: dict[str, dict] = {}
+        for msg in messages:
+            for block in msg.get('content', []):
+                if block.get('type') != 'tool_use' or block.get('name') != 'bash_tool':
+                    continue
+                command = block.get('input', {}).get('command', '')
+                for e in extract_from_command(command):
+                    by_path[f"{e['bucket']}/{e['rel']}"] = e
+
+        if not by_path:
+            continue
+
+        convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
+        extracted = downloaded = copied = 0
+        for e in by_path.values():
+            dest = convo_dir / e['bucket'] / e['rel']
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(e['content'])
+            extracted += 1
+            dl_dir = DOWNLOADED_DIR / convo_dir.name
+            if dl_dir.exists() and list(dl_dir.rglob(e['rel'].name)):
+                downloaded += 1
+            else:
+                rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
+                rsc_dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(dest, rsc_dest)
+                copied += 1
+
+        rows.append((idx, name[:50], extracted, downloaded, copied))
+
     with log_path.open('w') as log:
-        for idx, convo in enumerate(convos_sorted):
-            name     = convo.get('name', 'untitled')
-            messages = convo.get('chat_messages', [])
+        if rows:
+            nw = max(len(r[1]) for r in rows)
+            hdr = f'  {"":3}  {"name":<{nw}}  {"extracted":>9}  {"downloaded":>10}  {"copied":>6}\n'
+            sep = f'  {"":3}  {"-"*nw}  {"-"*9}  {"-"*10}  {"-"*6}\n'
+            log.write(hdr + sep)
+            for idx, name, extracted, downloaded, copied in rows:
+                log.write(f'  {idx:03d}  {name:<{nw}}  {extracted:>9}  {downloaded:>10}  {copied:>6}\n')
 
-            extractions = []
-            for msg in messages:
-                for block in msg.get('content', []):
-                    if block.get('type') != 'tool_use' or block.get('name') != 'bash_tool':
-                        continue
-                    command = block.get('input', {}).get('command', '')
-                    extractions.extend(extract_from_command(command))
-
-            if not extractions:
-                continue
-
-            convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
-            written = copied = 0
-            for e in extractions:
-                dest = convo_dir / e['bucket'] / e['rel']
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                dest.write_text(e['content'])
-                written += 1
-                dl_dir = DOWNLOADED_DIR / convo_dir.name
-                if not (dl_dir.exists() and list(dl_dir.rglob(e['rel'].name))):
-                    rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
-                    rsc_dest.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(dest, rsc_dest)
-                    copied += 1
-
-            log.write(f'[{idx:03d}] {name[:60]}  →  {written} file(s), {copied} copied to rsc  ({convo_dir.name})\n')
-            total += written
-
-        log.write(f'\nDone. {total} file(s) extracted.\n')
+        t_ext = sum(r[2] for r in rows)
+        t_dl  = sum(r[3] for r in rows)
+        t_cp  = sum(r[4] for r in rows)
+        log.write(f'\nDone. {t_ext} extracted, {t_dl} already downloaded, {t_cp} copied to rsc.\n')
 
 
 
