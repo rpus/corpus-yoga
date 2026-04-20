@@ -6,6 +6,17 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+OUTPUT_DIR="$REPO_DIR/gen"
+
+run_one() {
+  local d="${1%/}"
+  local name; name="$(basename "$d")"
+  local log_path="$OUTPUT_DIR/$name/extracted_heredocs/extract_heredocs.log"
+  mkdir -p "$(dirname "$log_path")"
+  python "$SCRIPT_DIR/extract_heredocs.py" --data-dir "$d" >> "$log_path" 2>&1
+  echo "→ $log_path"
+}
 
 main() {
   local data_dir="" data_root=""
@@ -25,13 +36,14 @@ main() {
     exit 1
   fi
 
+  # shellcheck source=/dev/null
   source ~/venvs/general/bin/activate
 
   if [[ -n "$data_dir" ]]; then
-    python "$SCRIPT_DIR/extract_heredocs.py" --data-dir "$(cd "$data_dir" && pwd)"
+    run_one "$(cd "$data_dir" && pwd)"
   else
     for d in "$(cd "$data_root" && pwd)"/data-*/; do
-      python "$SCRIPT_DIR/extract_heredocs.py" --data-dir "$d"
+      run_one "$d"
     done
   fi
 

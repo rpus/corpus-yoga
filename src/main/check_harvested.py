@@ -61,9 +61,14 @@ def main():
 
     extracted_files_dir    = export_dir / 'extracted_files'
     extracted_heredocs_dir = export_dir / 'extracted_heredocs'
+    downloaded_dir         = SCRIPT_DIR.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
 
     cols = {c: i for i, c in enumerate(data_files['columns'])}
-    unharvested_binary, unharvested_text = [], []
+    heredocs_ran = extracted_heredocs_dir.exists()
+
+    unharvested_binary       = []
+    unharvested_unrecoverable = []
+    unharvested_heredoc      = []
 
     for row in data_files['rows']:
         chat_idx  = row[cols['chat']]
@@ -73,27 +78,34 @@ def main():
 
         found = any(
             (base / chat_slug).exists() and list((base / chat_slug).rglob(filename))
-            for base in [extracted_files_dir, extracted_heredocs_dir]
+            for base in [extracted_files_dir, extracted_heredocs_dir, downloaded_dir]
         )
 
         if not found:
             entry = (chat_idx, filename)
             if is_binary(mime_type):
                 unharvested_binary.append(entry)
+            elif heredocs_ran:
+                unharvested_unrecoverable.append(entry)
             else:
-                unharvested_text.append(entry)
+                unharvested_heredoc.append(entry)
 
     if unharvested_binary:
         print('  ⚠ not harvested — binary, download from app:')
         for chat_idx, f in unharvested_binary:
             print(f'      [{chat_idx:03d}] {f}')
 
-    if unharvested_text:
-        print('  ⚠ not harvested — run extract_heredocs.py:')
-        for chat_idx, f in unharvested_text:
+    if unharvested_unrecoverable:
+        print('  ⚠ not recoverable from export — produced at runtime:')
+        for chat_idx, f in unharvested_unrecoverable:
             print(f'      [{chat_idx:03d}] {f}')
 
-    if not unharvested_binary and not unharvested_text:
+    if unharvested_heredoc:
+        print('  ⚠ not harvested — run extract_heredocs.sh:')
+        for chat_idx, f in unharvested_heredoc:
+            print(f'      [{chat_idx:03d}] {f}')
+
+    if not any([unharvested_binary, unharvested_unrecoverable, unharvested_heredoc]):
         print('  ✓ data-files: all harvested')
 
 

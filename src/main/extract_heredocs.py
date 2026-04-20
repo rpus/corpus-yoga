@@ -22,6 +22,7 @@ Usage:
 import argparse
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 from typing import Optional
@@ -92,23 +93,30 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                 continue
 
             convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
-            written = 0
+            written = copied = 0
             for e in extractions:
                 dest = convo_dir / e['bucket'] / e['rel']
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 dest.write_text(e['content'])
                 written += 1
+                dl_dir = DOWNLOADED_DIR / convo_dir.name
+                if not (dl_dir.exists() and list(dl_dir.rglob(e['rel'].name))):
+                    rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
+                    rsc_dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(dest, rsc_dest)
+                    copied += 1
 
-            log.write(f'[{idx:03d}] {name[:60]}  →  {written} file(s)  ({convo_dir.name})\n')
+            log.write(f'[{idx:03d}] {name[:60]}  →  {written} file(s), {copied} copied to rsc  ({convo_dir.name})\n')
             total += written
 
         log.write(f'\nDone. {total} file(s) extracted.\n')
 
-    print(f'→ {log_path}')
 
 
-SCRIPT_DIR = Path(__file__).parent
-OUTPUT_DIR = SCRIPT_DIR.parent.parent / 'gen'
+SCRIPT_DIR     = Path(__file__).parent
+OUTPUT_DIR     = SCRIPT_DIR.parent.parent / 'gen'
+DOWNLOADED_DIR = SCRIPT_DIR.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
+RSC_DIR        = SCRIPT_DIR.parent.parent / 'rsc' / 'artifacts' / 'extracted_heredocs'
 
 
 def main():

@@ -1,0 +1,247 @@
+% =============================================================
+% template.tex  —  Plain TeX
+%
+% FLAGS (set these near the top of your document):
+%
+%   \bindingleft   or \bindingright  (which physical side is the spine)
+%   \doublesided   or \singlesided   (alternating pages or not)
+%   \notesouter    or \notesinner    (which side margin notes appear on)
+%
+% MARGIN WIDTH (set \marginwidth):
+%   absolute:  \marginwidth=3cm
+%   relative:  \marginwidth=\dimexpr 0.2\pdfpagewidth \relax
+%
+% HEAD / FOOT HOOKS (token registers — set in your document):
+%   \headinner, \headmiddle, \headouter
+%   \footinner, \footmiddle, \footouter
+%
+%   In double-sided mode the output routine resolves inner/outer
+%   to left/right based on \ifodd\pageno and the \binding flag.
+%   In single-sided mode inner=left, outer=right throughout.
+%
+% MARGIN NOTES:
+%   \marginnote{REF}{NOTE TEXT}
+%   REF is any user-chosen symbol (★, †, 42, …).
+%   Deposits REF inline and REF + NOTE in the margin.
+%   Placement is approximate; REF is the binding reference.
+% =============================================================
+
+% =============================================================
+% FLAGS
+% Plain TeX has no keyword arguments, so we use \ifXXX booleans.
+% =============================================================
+
+\newif\ifbindingleft  \bindinglefttrue   % binding=left  (false = right)
+\newif\ifdoublesided  \doublesidedtrue   % sides=double  (false = single)
+\newif\ifnotesouter   \notesoutertrue    % notes=outer   (false = inner)
+
+% =============================================================
+% PAGE DIMENSIONS
+% =============================================================
+
+\pdfpagewidth=210mm
+\pdfpageheight=297mm   % A4
+
+\newdimen\marginwidth
+\marginwidth=\dimexpr 0.2\pdfpagewidth \relax  % RELATIVE — change to e.g. 3cm for absolute
+
+\newdimen\marginparsep
+\marginparsep=0.5em
+
+% Body text width: paperwidth minus both side margins minus margin column
+\newdimen\bodywidth
+\bodywidth=\dimexpr \pdfpagewidth - 5cm - \marginwidth - \marginparsep \relax
+                    % 5cm = inner(2.5cm) + outer(2.5cm) side margins
+
+\hsize=\bodywidth
+\vsize=\dimexpr \pdfpageheight - 5cm \relax
+                % 5cm = top(2.5cm) + bottom(2.5cm)
+
+% Correct for TeX's built-in 1in offsets:
+\hoffset=\dimexpr 2.5cm - 1in \relax
+\voffset=\dimexpr 2.5cm - 1in \relax
+
+% =============================================================
+% HEAD / FOOT HOOKS
+% Six token registers: inner/middle/outer for head and foot.
+% "inner" = binding side, "outer" = fore-edge side.
+% Default: page number on outer head.
+% =============================================================
+
+\newtoks\headinner  \newtoks\headmiddle  \newtoks\headouter
+\newtoks\footinner  \newtoks\footmiddle  \newtoks\footouter
+
+\headinner={}
+\headmiddle={}
+\headouter={\folio}   % \folio = page number in Plain TeX
+\footinner={}
+\footmiddle={}
+\footouter={}
+
+% =============================================================
+% OUTPUT ROUTINE HELPERS
+%
+% Resolves inner/outer to left/right at output time, based on:
+%   \ifdoublesided — whether pages alternate
+%   \ifbindingleft — which physical side is the spine
+%   \ifodd\pageno  — recto (odd) or verso (even)
+%
+% On a recto page with binding=left:  inner=left,  outer=right
+% On a verso page with binding=left:  inner=right, outer=left
+% binding=right simply swaps the above.
+%
+% \ifinnerisleft is set true whenever inner resolves to left,
+% and used by both the headline/footline and the margin note macro.
+% =============================================================
+
+\newif\ifinnerisleft
+
+\def\resolvebinding{%
+  \ifdoublesided
+    \ifodd\pageno
+      % recto page
+      \ifbindingleft \innerislefttrue \else \innerisleftfalse \fi
+    \else
+      % verso page
+      \ifbindingleft \innerisleftfalse \else \innerislefttrue \fi
+    \fi
+  \else
+    % single-sided: inner=left always
+    \innerislefttrue
+  \fi
+}
+
+% \makeline{LEFT-TOKS}{CENTRE-TOKS}{RIGHT-TOKS}
+% Builds a line with left, centred, and right content.
+\def\makeline#1#2#3{#1\hfil#2\hfil#3}
+
+% \resolvedheadline and \resolvedfootline call \resolvebinding
+% then wire inner/outer to left/right accordingly:
+\def\resolvedheadline{%
+  \resolvebinding
+  \ifinnerisleft
+    \makeline{\the\headinner}{\the\headmiddle}{\the\headouter}%
+  \else
+    \makeline{\the\headouter}{\the\headmiddle}{\the\headinner}%
+  \fi
+}
+
+\def\resolvedfootline{%
+  \resolvebinding
+  \ifinnerisleft
+    \makeline{\the\footinner}{\the\footmiddle}{\the\footouter}%
+  \else
+    \makeline{\the\footouter}{\the\footmiddle}{\the\footinner}%
+  \fi
+}
+
+\headline={\resolvedheadline}
+\footline={\resolvedfootline}
+
+% =============================================================
+% MARGIN NOTE MACRO
+%
+% \marginnote{REF}{NOTE}
+%   REF  — user-supplied reference symbol, placed inline and in margin
+%   NOTE — note text, deposited in the margin via \vadjust + \llap or \rlap
+%
+% \vadjust injects a zero-height \vbox at the current line.
+% Inside that box, \llap (or \rlap for inner-side notes) shifts
+% the note content into the margin column.
+%
+% The correct side is resolved at typesetting time via \resolvebinding,
+% so double-sided documents automatically alternate the margin note side.
+%
+% \llap  = hang left  of the current position (for outer-side notes
+%          when inner is on the left, i.e. note goes to the right —
+%          we shift right using \rlap in that case; see below)
+%
+% For a note on the RIGHT margin:
+%   \rlap{\kern\hsize\kern\marginparsep \vbox{...}}
+% For a note on the LEFT margin:
+%   \llap{\vbox{...}\kern\marginparsep}
+% =============================================================
+
+\def\marginnote#1#2{%
+  $^{#1}$%                                         % inline reference mark
+  \vadjust{%
+    \vbox to 0pt{%
+      \resolvebinding
+      % Determine whether the note goes left or right:
+      % notesside=outer and inner-is-left  => note is on the RIGHT
+      % notesside=outer and inner-is-right => note is on the LEFT
+      % notesside=inner and inner-is-left  => note is on the LEFT
+      % notesside=inner and inner-is-right => note is on the RIGHT
+      \ifnotesouter
+        \ifinnerisleft \noteonright \else \noteonleft \fi
+      \else
+        \ifinnerisleft \noteonleft \else \noteonright \fi
+      \fi
+      \vss
+    }%
+  }%
+}
+
+% Place note content in the RIGHT margin:
+\def\noteonright{%
+  \hbox{\kern\hsize\kern\marginparsep
+    \vbox{\hsize=\marginwidth \eightpoint $^{\currentref}$\,\currentnote}%
+  }%
+}
+
+% Place note content in the LEFT margin:
+\def\noteonleft{%
+  \hbox{\llap{%
+    \vbox{\hsize=\marginwidth \eightpoint $^{\currentref}$\,\currentnote}%
+    \kern\marginparsep
+  }}%
+}
+
+% We need to pass REF and NOTE through to \noteonright/\noteonleft.
+% Redefine \marginnote to store them first:
+\def\marginnote#1#2{%
+  \def\currentref{#1}%
+  \def\currentnote{#2}%
+  $^{#1}$%
+  \vadjust{%
+    \vbox to 0pt{%
+      \resolvebinding
+      \ifnotesouter
+        \ifinnerisleft \noteonright \else \noteonleft \fi
+      \else
+        \ifinnerisleft \noteonleft \else \noteonright \fi
+      \fi
+      \vss
+    }%
+  }%
+}
+
+% Smaller font for margin notes (\eightpoint is standard in plain.tex):
+% If not available, define it:
+% \def\eightpoint{\font\eightrm=cmr8 \eightrm}
+
+% =============================================================
+% DOCUMENT
+% =============================================================
+
+% --- Set flags -----------------------------------------------
+\bindinglefttrue
+\doublesidedtrue
+\notesoutertrue
+
+% --- Set head/foot content -----------------------------------
+\headinner={\folio}
+\headmiddle={}
+\headouter={My Document}
+
+% --- Body text -----------------------------------------------
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.%
+\marginnote{$\star$}{This note is keyed to the star in the body text.}
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+\smallskip
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.%
+\marginnote{\dag}{A dagger marks this second note.}
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+
+\bye

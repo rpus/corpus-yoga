@@ -1,0 +1,10 @@
+[
+  { "category": "mathematics", "hue": 220 },
+  { "category": "physics",     "hue": 180 },
+  { "category": "philosophy",  "hue": 270 },
+  { "category": "meta",        "hue": 40  },
+  { "category": "tooling",     "hue": 25  },
+  { "category": "creative",    "hue": 330 },
+  { "category": "practical",   "hue": 90  },
+  { "category": "social",      "hue": 0   }
+]

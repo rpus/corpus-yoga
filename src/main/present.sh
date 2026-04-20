@@ -232,7 +232,8 @@ present_export() {
     update_title "$out" "$conv"
     update_export_tooltip "$out" "$name"
     echo "→ $out"
-  } > "$out_dir/present.log" 2>&1
+  } 2>&1 | tee "$out_dir/present.log"
+  echo "→ $out_dir/present.log"
 }
 
 # ── entry point ───────────────────────────────────────────────────────────────
