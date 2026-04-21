@@ -2,19 +2,22 @@
 """
 pre_commit.py — Pre-commit checks for the repo.
 
-Usage:
+Usage (direct):
     source ~/venvs/general/bin/activate
-        python src/test/pre_commit.py
+    python src/test/pre_commit.py
     deactivate
 
-As a git hook:
-    cp src/test/pre_commit.py .git/hooks/pre-commit
+Usage (via wrapper, recommended):
+    src/test/pre_commit.sh
+
+As a git hook, install the wrapper:
+    cp src/test/pre_commit.sh .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
 
 Exits 0 if all checks pass, 1 if any fail.
 
-Atomic diagnostic scripts live in src/diagnostics/{principle_id}.py.
-Atomic repair scripts live in src/repairs/{principle_id}.py.
+Atomic diagnostic scripts live in src/test/diagnostics/{principle_id}.py.
+Atomic repair scripts live in src/test/repairs/{principle_id}.py.
 Each diagnostic takes a schema path as argv[1], exits 0 on pass, 1 on fail.
 """
 
@@ -28,7 +31,6 @@ REPO_ROOT  = Path(__file__).parents[2]
 SRC        = REPO_ROOT / 'src'
 RSC        = REPO_ROOT / 'rsc'
 GEN        = REPO_ROOT / 'gen'
-DOC        = REPO_ROOT / 'doc'
 DIAG_DIR   = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR = RSC / 'schema'
 CONV_DIR   = SCHEMA_DIR / 'conversations'
@@ -104,8 +106,8 @@ def call(script, *args):
 print('\n── Required files ────────────────────────────────────────────────────────')
 
 required = [
-    DOC  / 'conversations.schema.principles.md',
-    DOC  / 'conversations.schema.workflow.md',
+    CONV_DIR  / 'principles.md',
+    CONV_DIR  / 'workflow.md',
     SRC  / 'main' / 'validate.py',
     SRC  / 'main' / 'validate.sh',
     SRC  / 'test' / 'gen_model_candidate.py',
@@ -181,9 +183,9 @@ if failures:
     for name in failures:
         print(f'  ✗ {name}')
     print('\nRun failing diagnostics individually for details:')
-    print('  python src/diagnostics/<principle_id>.py rsc/schema/conversations/v4.json')
+    print('  python src/test/diagnostics/<principle_id>.py rsc/schema/conversations/v4.json')
     print('Run repairs where available:')
-    print('  python src/repairs/<principle_id>.py rsc/schema/conversations/v4.json')
+    print('  python src/test/repairs/<principle_id>.py rsc/schema/conversations/v4.json')
     sys.exit(1)
 else:
     print('\nAll checks passed. Safe to commit.')

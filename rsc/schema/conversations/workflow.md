@@ -241,7 +241,7 @@ The session's outputs should be committed to the repository:
 - Updated `conversations.schema.json` → `rsc/`
 - Updated `conversations.schema.principles.md` → `doc/`
 - Updated `conversations.schema.workflow.md` → `doc/`
-- Updated `gen/validation.txt` (from running `src/validate.py`)
+- Updated validation logs in `gen/` (from running `src/main/validate.sh`)
 
 Commit message should note what changed: new export incorporated, schema fixes applied, diagnostic refinements, or documentation updates.
 

@@ -32,7 +32,7 @@ Each principle has a **status**:
 Consistent UpperCamelCase for definition names cleanly distinguishes schema type names from data field names (which are snake_case). This means a `$ref` is always visually distinct from a property key — e.g. `"uuid": {"$ref": "#/definitions/UuidV4"}` is unambiguous at a glance.
 
 ```text
-Diagnostic: src/diagnostics/naming.upper_camel_case.py
+Diagnostic: src/test/diagnostics/naming.upper_camel_case.py
 ```
 
 ---
@@ -44,8 +44,8 @@ Diagnostic: src/diagnostics/naming.upper_camel_case.py
 The `title` field is the human-readable name of the schema. It should match the definition key exactly so that tooling (e.g. VS Code tooltips) shows the correct name.
 
 ```text
-Diagnostic: src/diagnostics/naming.title_matches_key.py
-Repair:     src/repairs/naming.title_matches_key.py
+Diagnostic: src/test/diagnostics/naming.title_matches_key.py
+Repair:     src/test/repairs/naming.title_matches_key.py
 ```
 
 ---
@@ -57,7 +57,7 @@ Repair:     src/repairs/naming.title_matches_key.py
 Each schema file is named `{stem}.json` (e.g. `conversations.json`, `users.json`) and its root `title` must match that stem exactly. This applies to all four export schemas and ensures tooling, documentation, and cross-reference annotations all use a consistent canonical name. This principle was discovered during active development when the root title was `"Claude Conversation Export"` rather than `"conversations"`.
 
 ```text
-Diagnostic: src/diagnostics/naming.root_schema_title_matches_filename.py
+Diagnostic: src/test/diagnostics/naming.root_schema_title_matches_filename.py
 ```
 
 ---
@@ -69,7 +69,7 @@ Diagnostic: src/diagnostics/naming.root_schema_title_matches_filename.py
 Property keys mirror the actual JSON data fields, which follow snake\_case. UpperCamelCase keys would indicate a wrongly-renamed property — a bug encountered during the `timestamp`/`flags`/`display_content` renaming, where the rename script accidentally capitalised property keys as well as definition keys.
 
 ```text
-Diagnostic: src/diagnostics/naming.property_keys_lowercase.py
+Diagnostic: src/test/diagnostics/naming.property_keys_lowercase.py
 ```
 
 ---
@@ -105,8 +105,8 @@ for name in schema['definitions']:
 Consistent field ordering makes schemas easier to scan. `title` and `description` come first as the human-readable contract; `type` follows as the primary structural constraint. The only exception is the root schema, which begins with `$schema`.
 
 ```text
-Diagnostic: src/diagnostics/structure.field_order.py
-Repair:     src/repairs/structure.field_order.py
+Diagnostic: src/test/diagnostics/structure.field_order.py
+Repair:     src/test/repairs/structure.field_order.py
 ```
 
 ---
@@ -118,8 +118,8 @@ Repair:     src/repairs/structure.field_order.py
 Reading the definitions top-to-bottom should follow the same order as reading the schema by following `$ref`s. This makes the file navigable as a solitary wave — unfolding and refolding a single schema at a time. Definitions unreachable via `$ref` (e.g. `ToolInput*` variants referenced only in descriptions) appear at the end in their original order. BFS order must be reapplied after any edit that adds or reorders definitions.
 
 ```text
-Diagnostic: src/diagnostics/structure.bfs_order.py
-Repair:     src/repairs/structure.bfs_order.py
+Diagnostic: src/test/diagnostics/structure.bfs_order.py
+Repair:     src/test/repairs/structure.bfs_order.py
 ```
 
 ---
@@ -131,8 +131,8 @@ Repair:     src/repairs/structure.bfs_order.py
 The root schema header (`$schema`, `title`, `description`, `type`, `minItems`, `items`) is read first; `definitions` is a reference section consulted on demand.
 
 ```text
-Diagnostic: src/diagnostics/structure.definitions_at_bottom.py
-Repair:     src/repairs/structure.definitions_at_bottom.py
+Diagnostic: src/test/diagnostics/structure.definitions_at_bottom.py
+Repair:     src/test/repairs/structure.definitions_at_bottom.py
 ```
 
 ---
@@ -144,7 +144,7 @@ Repair:     src/repairs/structure.definitions_at_bottom.py
 A required field not present in `properties` is a schema error — the validator will require a field it cannot validate.
 
 ```text
-Diagnostic: src/diagnostics/structure.required_subset_of_properties.py
+Diagnostic: src/test/diagnostics/structure.required_subset_of_properties.py
 ```
 
 ---
@@ -156,8 +156,8 @@ Diagnostic: src/diagnostics/structure.required_subset_of_properties.py
 `additionalProperties: true` is the default in draft-4. Explicit occurrences are redundant noise. The meaningful values are `false` (closed schema) and absent (open schema).
 
 ```text
-Diagnostic: src/diagnostics/structure.no_redundant_additional_properties_true.py
-Repair:     src/repairs/structure.no_redundant_additional_properties_true.py
+Diagnostic: src/test/diagnostics/structure.no_redundant_additional_properties_true.py
+Repair:     src/test/repairs/structure.no_redundant_additional_properties_true.py
 ```
 
 ---
@@ -169,7 +169,7 @@ Repair:     src/repairs/structure.no_redundant_additional_properties_true.py
 Unreachable definitions are dead code. Known exceptions: `ToolInputComputerUse`, `ToolInputTextEditor`, `ToolInputCodeExecution` — documented stubs for API tools not yet observed in any export.
 
 ```text
-Diagnostic: src/diagnostics/structure.all_definitions_reachable.py
+Diagnostic: src/test/diagnostics/structure.all_definitions_reachable.py
 ```
 
 ---
@@ -179,7 +179,7 @@ Diagnostic: src/diagnostics/structure.all_definitions_reachable.py
 **Every `$ref` target exists in `definitions`.**
 
 ```text
-Diagnostic: src/diagnostics/structure.no_dangling_refs.py
+Diagnostic: src/test/diagnostics/structure.no_dangling_refs.py
 ```
 
 ---
@@ -191,7 +191,7 @@ Diagnostic: src/diagnostics/structure.no_dangling_refs.py
 Verified for the root array, `chat_messages`, and `content` (per message). Arrays that are sometimes empty (`attachments`, `files`, `citations`) intentionally have no `minItems`.
 
 ```text
-Diagnostic: src/diagnostics/structure.minItems_on_non_empty_arrays.py
+Diagnostic: src/test/diagnostics/structure.minItems_on_non_empty_arrays.py
 ```
 
 ---
@@ -274,8 +274,8 @@ for name, counter in sorted(orders.items()):
 Titles and descriptions surface as tooltips in VS Code when the schema is used as a documenter wrapper, making the schema self-documenting at the point of data inspection.
 
 ```text
-Diagnostic: src/diagnostics/documentation.every_definition_has_title_and_description.py
-Repair:     src/repairs/documentation.every_definition_has_title_and_description.py
+Diagnostic: src/test/diagnostics/documentation.every_definition_has_title_and_description.py
+Repair:     src/test/repairs/documentation.every_definition_has_title_and_description.py
 ```
 
 ---
@@ -287,8 +287,8 @@ Repair:     src/repairs/documentation.every_definition_has_title_and_description
 Recognised terminals: `.` (sentence), `)` (discriminator annotation), `$` (regex), a URL, or `.json` (jq snippet filename).
 
 ```text
-Diagnostic: src/diagnostics/documentation.descriptions_end_with_full_stop.py
-Repair:     src/repairs/documentation.descriptions_end_with_full_stop.py
+Diagnostic: src/test/diagnostics/documentation.descriptions_end_with_full_stop.py
+Repair:     src/test/repairs/documentation.descriptions_end_with_full_stop.py
 ```
 
 ---
@@ -319,7 +319,7 @@ for name, defn in schema['definitions'].items():
 A field typed as `null` is a strong empirical claim based on observed exports only. Checked on named definitions and named properties; anonymous `oneOf` branches (`{"type": "null"}`) are exempt.
 
 ```text
-Diagnostic: src/diagnostics/documentation.null_only_fields_documented.py
+Diagnostic: src/test/diagnostics/documentation.null_only_fields_documented.py
 ```
 
 ```python
@@ -352,7 +352,7 @@ with open('rsc/schema/conversations.json', 'w') as f:
 The caveat may appear on the definition itself or on the enum property. Exempt: single-value discriminators, and known closed sets (`sender: human/assistant`, `ContentBlock.type`). The check propagates the definition-level caveat to all nested enums.
 
 ```text
-Diagnostic: src/diagnostics/documentation.open_set_enums_documented.py
+Diagnostic: src/test/diagnostics/documentation.open_set_enums_documented.py
 ```
 
 ```python
@@ -375,7 +375,7 @@ with open('rsc/schema/conversations.json', 'w') as f:
 Only checked on `type` and `name` properties of schemas referenced directly from a `oneOf`. Other single-value enums (e.g. `command: ['view']` in `ToolInputMemoryUserEdits`) are constraints, not discriminators, and are exempt.
 
 ```text
-Diagnostic: src/diagnostics/documentation.discriminator_fields_annotated.py
+Diagnostic: src/test/diagnostics/documentation.discriminator_fields_annotated.py
 ```
 
 ---
@@ -628,7 +628,7 @@ Key insight: `allOf` and `oneOf` sit at the **wrapper** level, not inside the su
 Known exception: `PromptContextMetadataSearch`/`Fetch` use key-presence discrimination rather than a type/name field, so no `Has*DiscriminatorProperty` applies.
 
 ```text
-Diagnostic: src/diagnostics/composition.discriminated_union_pattern.py
+Diagnostic: src/test/diagnostics/composition.discriminated_union_pattern.py
 ```
 
 ---
@@ -638,7 +638,7 @@ Diagnostic: src/diagnostics/composition.discriminated_union_pattern.py
 **Discriminator enum values across all branches of a `oneOf` are mutually disjoint.**
 
 ```text
-Diagnostic: src/diagnostics/composition.discriminator_values_disjoint.py
+Diagnostic: src/test/diagnostics/composition.discriminator_values_disjoint.py
 ```
 
 ---
@@ -650,7 +650,7 @@ Diagnostic: src/diagnostics/composition.discriminator_values_disjoint.py
 The `...Base` schema is the definitive closed contract for all shared fields. Future changes to the export format are caught immediately.
 
 ```text
-Diagnostic: src/diagnostics/composition.base_schemas_closed.py
+Diagnostic: src/test/diagnostics/composition.base_schemas_closed.py
 ```
 
 ---
@@ -662,7 +662,7 @@ Diagnostic: src/diagnostics/composition.base_schemas_closed.py
 The wrapper is a pure structural combinator with no additional constraints.
 
 ```text
-Diagnostic: src/diagnostics/composition.wrapper_has_five_fields.py
+Diagnostic: src/test/diagnostics/composition.wrapper_has_five_fields.py
 ```
 
 ```python
@@ -689,7 +689,7 @@ with open('rsc/schema/conversations.json', 'w') as f:
 This would cause the base's properties to be rejected as "additional". The constraint belongs exclusively on the `...Base` schema. This was the key insight from the proof-of-concept.
 
 ```text
-Diagnostic: src/diagnostics/composition.no_additional_properties_on_subtypes.py
+Diagnostic: src/test/diagnostics/composition.no_additional_properties_on_subtypes.py
 ```
 
 ```python
@@ -718,7 +718,7 @@ with open('rsc/schema/conversations.json', 'w') as f:
 The base is an implementation detail of the wrapper. Direct `oneOf` references would bypass the discriminated union pattern.
 
 ```text
-Diagnostic: src/diagnostics/composition.base_not_used_directly.py
+Diagnostic: src/test/diagnostics/composition.base_not_used_directly.py
 ```
 
 ---
@@ -935,10 +935,10 @@ The current markdown-with-frontmatter approach is human-friendly but requires pa
 See `conversations.schema.workflow.md` for the full loop. Summary:
 
 1. Validate new export against all four schemas.
-2. Run `src/pre_commit.py` to check all diagnostics.
+2. Run `src/test/pre_commit.py` to check all diagnostics.
 3. Categorise failures by root cause; refine diagnostics before fixing schema.
-4. Fix genuine schema issues using repair scripts in `src/repairs/`.
-5. Re-run `src/pre_commit.py` until all checks pass.
+4. Fix genuine schema issues using repair scripts in `src/test/repairs/`.
+5. Re-run `src/test/pre_commit.py` until all checks pass.
 6. Update this document and `conversations.schema.workflow.md` as needed.
 7. Commit.
 
@@ -969,11 +969,11 @@ jq 'walk(if type == "array" and length > 1 then [.[0]] else . end)' \
 **Reapply BFS ordering after any structural edits.**
 
 ```text
-Diagnostic: src/diagnostics/structure.bfs_order.py
-Repair:     src/repairs/structure.bfs_order.py
+Diagnostic: src/test/diagnostics/structure.bfs_order.py
+Repair:     src/test/repairs/structure.bfs_order.py
 ```
 
-Run as: `python src/repairs/structure.bfs_order.py rsc/schema/conversations.json`
+Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/conversations.json`
 
 ---
 

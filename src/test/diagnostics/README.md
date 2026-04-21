@@ -15,6 +15,8 @@ Diagnostic → repair is mostly one-to-one, with one many-to-one case: both `nam
 | [`structure.definitions_at_bottom.py`](structure.definitions_at_bottom.py) | `definitions` is the last key in the root schema | [`structure.definitions_at_bottom.py`](../repairs/structure.definitions_at_bottom.py) |
 | [`structure.required_subset_of_properties.py`](structure.required_subset_of_properties.py) | Every `required` field is listed in `properties` | [`structure.required_subset_of_properties.py`](../repairs/structure.required_subset_of_properties.py) |
 | [`structure.no_redundant_additional_properties_true.py`](structure.no_redundant_additional_properties_true.py) | No explicit `additionalProperties: true` | [`structure.no_redundant_additional_properties_true.py`](../repairs/structure.no_redundant_additional_properties_true.py) |
+| [`structure.pattern_constraints_enforced.py`](structure.pattern_constraints_enforced.py) | String fields with a regex in `description` also have a `pattern` constraint | [`structure.pattern_constraints_enforced.py`](../repairs/structure.pattern_constraints_enforced.py) |
+| [`structure.property_order_matches_data.py`](structure.property_order_matches_data.py) | Property order in key definitions matches canonical field order from observed data | Manual — update canonical order in script after re-deriving from export data |
 | [`structure.all_definitions_reachable.py`](structure.all_definitions_reachable.py) | Every definition is reachable from root via `$ref` (known stubs excepted) | Manual — remove or connect the unreachable definition |
 | [`structure.no_dangling_refs.py`](structure.no_dangling_refs.py) | Every `$ref` target exists in `definitions` | Manual — add the missing definition or fix the `$ref` |
 | [`structure.minItems_on_non_empty_arrays.py`](structure.minItems_on_non_empty_arrays.py) | Non-empty arrays have `minItems: 1` | Manual — verify against export data before adding constraint |
@@ -29,5 +31,7 @@ Diagnostic → repair is mostly one-to-one, with one many-to-one case: both `nam
 | [`composition.wrapper_has_five_fields.py`](composition.wrapper_has_five_fields.py) | Union wrapper schemas have exactly five fields: `title`, `description`, `type`, `allOf`, `oneOf` | Manual — see inline snippet in principles doc |
 | [`composition.no_additional_properties_on_subtypes.py`](composition.no_additional_properties_on_subtypes.py) | Subtype schemas do not set `additionalProperties` (delegated to base) | Manual — see inline snippet in principles doc |
 | [`composition.base_not_used_directly.py`](composition.base_not_used_directly.py) | Base schemas are not referenced directly in `oneOf` or `properties` | Manual — requires structural judgement |
+| [`empirical.oneOf_branches_evidenced.py`](empirical.oneOf_branches_evidenced.py) | No `oneOf` branch is annotated as unevidenced (`"not observed"` in description) | Manual — evidence the branch or remove it |
+| [`empirical.nullable_fields_surveyed.py`](empirical.nullable_fields_surveyed.py) | All `oneOf`-with-null constructs are named definitions with descriptions | Manual — promote to a named definition and document the nullable nature |
 
 † `naming.upper_camel_case.py` repair takes `<schema> <old> <new>` — not a batch fix.
