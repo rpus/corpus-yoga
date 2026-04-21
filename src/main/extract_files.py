@@ -3,17 +3,15 @@
 extract_files.py
 
 Walks conversations.json and extracts file contents from create_file
-tool calls, grouped by conversation. Writes files under:
+tool calls,.
 
-    <output_dir>/<chat_index>_<conversation_name>/<path_from_tool>
+Group output by conversation under:
+
+    gen/<export-name>/extracted_files/<chat_index>_<conversation_name>/<path_from_tool>
 
 Usage:
-    python extract_files.py [--conversations PATH] [--out-dir PATH] [--settings PATH]
-
-Defaults:
-    --conversations  conversations.json
-    --out-dir        extracted_files/
-    --settings       settings.json        (optional; overrides defaults)
+    python extract_files.py --data-dir <path-to-export>
+    python extract_files.py --data-dir <path> --out-dir <override-output-dir>
 """
 
 import argparse
@@ -23,14 +21,6 @@ import shutil
 import sys
 from pathlib import Path
 from typing import Optional
-
-
-# ── settings ─────────────────────────────────────────────────────────────────
-
-def load_settings(path: Path) -> dict:
-    if path.exists():
-        return json.loads(path.read_text())
-    return {}
 
 
 # ── extraction ────────────────────────────────────────────────────────────────
@@ -159,20 +149,13 @@ def main():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('--conversations', default=None)
-    parser.add_argument('--data-dir',      default=None)
-    parser.add_argument('--out-dir',       default=None)
-    parser.add_argument('--settings',      default='settings.json')
+    parser.add_argument('--data-dir', required=True)
+    parser.add_argument('--out-dir',  default=None)
     args = parser.parse_args()
 
-    if args.data_dir:
-        data_dir           = Path(args.data_dir).resolve()
-        conversations_path = data_dir / 'conversations.json'
-        out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_files'
-    else:
-        settings           = load_settings(Path(args.settings))
-        conversations_path = Path(args.conversations or settings.get('conversations', 'conversations.json'))
-        out_dir            = Path(args.out_dir or settings.get('extracted_files_dir', 'extracted_files'))
+    data_dir           = Path(args.data_dir).resolve()
+    conversations_path = data_dir / 'conversations.json'
+    out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_files'
 
     if not conversations_path.exists():
         sys.exit(f'conversations.json not found: {conversations_path}')

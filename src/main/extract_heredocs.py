@@ -11,12 +11,12 @@ bash_tool commands, i.e. patterns of the form:
 
 Groups output by conversation under:
 
-    <out_dir>/<chat_index>_<conversation_name>/outputs/<filename>   ← /mnt/user-data/outputs/
-    <out_dir>/<chat_index>_<conversation_name>/working/<filename>   ← /home/claude/
+    gen/<export-name>/extracted_heredocs/<chat_index>_<conversation_name>/outputs/<filename>   ← /mnt/user-data/outputs/
+    gen/<export-name>/extracted_heredocs/<chat_index>_<conversation_name>/working/<filename>   ← /home/claude/
 
 Usage:
-    python extract_heredocs.py --conversations conversations.json
-    python extract_heredocs.py --conversations conversations.json --out-dir extracted_heredocs/
+    python extract_heredocs.py --data-dir <path-to-export>
+    python extract_heredocs.py --data-dir <path> --out-dir <override-output-dir>
 """
 
 import argparse
@@ -139,18 +139,13 @@ def main():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('--conversations', default=None)
-    parser.add_argument('--data-dir',      default=None)
-    parser.add_argument('--out-dir',       default=None)
+    parser.add_argument('--data-dir', required=True)
+    parser.add_argument('--out-dir',  default=None)
     args = parser.parse_args()
 
-    if args.data_dir:
-        data_dir           = Path(args.data_dir).resolve()
-        conversations_path = data_dir / 'conversations.json'
-        out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_heredocs'
-    else:
-        conversations_path = Path(args.conversations or 'conversations.json')
-        out_dir            = Path(args.out_dir or 'extracted_heredocs')
+    data_dir           = Path(args.data_dir).resolve()
+    conversations_path = data_dir / 'conversations.json'
+    out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_heredocs'
 
     if not conversations_path.exists():
         sys.exit(f'Not found: {conversations_path}')
