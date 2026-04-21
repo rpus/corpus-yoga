@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """
-pre_commit.py — Pre-commit checks for the Yoga repo.
+pre_commit.py — Pre-commit checks for the repo.
 
 Usage:
     source ~/venvs/general/bin/activate
-        python src/main/pre_commit.py
+        python src/test/pre_commit.py
     deactivate
 
 As a git hook:
-    cp src/main/pre_commit.py .git/hooks/pre-commit
+    cp src/test/pre_commit.py .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
 
 Exits 0 if all checks pass, 1 if any fail.
@@ -29,7 +29,7 @@ SRC        = REPO_ROOT / 'src'
 RSC        = REPO_ROOT / 'rsc'
 GEN        = REPO_ROOT / 'gen'
 DOC        = REPO_ROOT / 'doc'
-DIAG_DIR   = SRC / 'diagnostics'
+DIAG_DIR   = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR = RSC / 'schema'
 CONV_DIR   = SCHEMA_DIR / 'conversations'
 
@@ -64,6 +64,8 @@ CONVERSATIONS_DIAGNOSTICS = [
     'structure.definitions_at_bottom',
     'structure.required_subset_of_properties',
     'structure.no_redundant_additional_properties_true',
+    'structure.pattern_constraints_enforced',
+    'structure.property_order_matches_data',
     'structure.all_definitions_reachable',
     'structure.no_dangling_refs',
     'structure.minItems_on_non_empty_arrays',
@@ -78,6 +80,8 @@ CONVERSATIONS_DIAGNOSTICS = [
     'composition.wrapper_has_five_fields',
     'composition.no_additional_properties_on_subtypes',
     'composition.base_not_used_directly',
+    'empirical.oneOf_branches_evidenced',
+    'empirical.nullable_fields_surveyed',
 ]
 
 # ── Result tracking ────────────────────────────────────────────────────────────
@@ -104,7 +108,7 @@ required = [
     DOC  / 'conversations.schema.workflow.md',
     SRC  / 'main' / 'validate.py',
     SRC  / 'main' / 'validate.sh',
-    SRC  / 'main' / 'gen_model_candidate.py',
+    SRC  / 'test' / 'gen_model_candidate.py',
     RSC  / 'model.json',
     *[CONV_DIR / f'{v}.json' for v in CONV_VERSIONS],
     *[SCHEMA_DIR / s / f'{s}.json' for s in ('memories', 'projects', 'users')],

@@ -1,5 +1,5 @@
 '''
-for f in conversations.json; do python "../Yoga/src/gen_model_candidate.py" "$f" "../Yoga/rsc/schema/${f%.json}.json" > "../Yoga/gen/model/${f%.json}.json"; done
+for f in conversations.json; do python "./src/test/gen_model_candidate.py" "$f" "./rsc/schema/${f%.json}.json" > "./gen/model/${f%.json}.json"; done
 '''
 
 import json, sys

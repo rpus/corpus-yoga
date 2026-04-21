@@ -18,5 +18,7 @@ Repair → diagnostic is one-to-many in one case: `documentation.every_definitio
 | [`structure.pattern_constraints_enforced.py`](structure.pattern_constraints_enforced.py) | Extract regex from `description` into `pattern` field | No enforced diagnostic — advisory only |
 | [`documentation.every_definition_has_title_and_description.py`](documentation.every_definition_has_title_and_description.py) | Insert `"TODO: document."` stub where `title` or `description` is missing | `documentation.every_definition_has_title_and_description` FAIL→PASS; `naming.title_matches_key` FAIL→PASS if missing title was the only violation; `documentation.descriptions_end_with_full_stop` unaffected |
 | [`documentation.descriptions_end_with_full_stop.py`](documentation.descriptions_end_with_full_stop.py) | Append `.` to descriptions missing terminal punctuation | `documentation.descriptions_end_with_full_stop` FAIL→PASS |
+| [`documentation.discriminator_fields_annotated.py`](documentation.discriminator_fields_annotated.py) | Add `"(discriminator)"` to discriminator field descriptions | `documentation.discriminator_fields_annotated` FAIL→PASS |
+| [`composition.base_schemas_closed.py`](composition.base_schemas_closed.py) | Add `additionalProperties: false` to base schemas | `composition.base_schemas_closed` FAIL→PASS |
 
-The `composition.*` and `documentation.discriminator_fields_annotated` principles have no repair scripts — failures there require structural judgement.
+The `composition.*` principles (other than `composition.base_schemas_closed`) have no repair scripts — failures there require structural judgement.

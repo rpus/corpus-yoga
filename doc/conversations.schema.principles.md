@@ -7,15 +7,15 @@ version: "1.3"
 
 # Schema Design Principles for `conversations.schema.json`
 
-A living document of design principles, diagnostics, and repairs for `conversations.schema.json`. Each enforced principle has a machine-runnable diagnostic script in `src/diagnostics/` and (where automatable) a repair script in `src/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
+A living document of design principles, diagnostics, and repairs for `conversations.schema.json`. Each enforced principle has a machine-runnable diagnostic script in `src/test/diagnostics/` and (where automatable) a repair script in `src/test/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
 
-This document should be kept updated in parallel with the schema, the atomic scripts, and validation runs. The pre-commit hook (`src/pre_commit.py`) runs all enforced diagnostics automatically.
+This document should be kept updated in parallel with the schema, the atomic scripts, and validation runs. The pre-commit hook (`src/test/pre_commit.py`) runs all enforced diagnostics automatically.
 
 Principles are organised into eight categories: [Naming](#naming), [Structure](#structure), [Documentation](#documentation), [Empirical Grounding](#empirical-grounding), [Composition Patterns](#composition-patterns), [API Correspondence](#api-correspondence), [Integrity Constraints](#integrity-constraints), and [Open Questions](#open-questions). A final [Maintenance Workflow](#maintenance-workflow) section collects operational procedures.
 
 Each principle has a **status**:
 
-- `enforced` — diagnostic script exists and must always pass; run by `src/pre_commit.py`
+- `enforced` — diagnostic script exists and must always pass; run by `src/test/pre_commit.py`
 - `advisory` — worth checking; violations may be intentional
 - `manual` — requires human judgement; no fully automatable check
 - `informational` — context only; no check
@@ -210,8 +210,12 @@ Known patterns:
 - `TimestampOffset` (+00:00 suffix, projects.json): `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+00:00$`
 - `ToolId`: `^toolu_[A-Za-z0-9]+$`
 
+```text
+Diagnostic: src/test/diagnostics/structure.pattern_constraints_enforced.py
+```
+
 ```python
-# diagnostic (advisory — no standalone script yet)
+# inline illustration
 import json, re
 with open('rsc/schema/conversations.json') as f:
     schema = json.load(f)
@@ -236,8 +240,12 @@ check(schema)
 
 Field order in JSON objects is not semantically significant, but consistent ordering between schema and data makes schemas easier to cross-reference. Field order is perfectly uniform across all instances of every object type in observed exports (sole exception: `PromptContextMetadataSearch`, where the optional `age` field is appended when present).
 
+```text
+Diagnostic: src/test/diagnostics/structure.property_order_matches_data.py
+```
+
 ```python
-# diagnostic (run against export data, not schema)
+# inline illustration (run against export data to re-derive canonical order)
 import json
 from collections import Counter, defaultdict
 with open('conversations.json') as f:
@@ -425,13 +433,13 @@ A self-referential wrapper file provides schema-aware editing and tooltip docume
 
 **The schema must validate against all known exports.**
 
-Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/validate.py` and results written to `gen/validation/{stem}.txt`. The pre-commit hook checks that all four output files exist and contain `Valid!`.
+Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/validate.py` and results written to `gen/validation/{stem}.txt`. The pre-commit hook checks that all four output files exist and contain `Valid!`.
 
 ```bash
 # run from a data-* directory
 for f in *.json; do
-    python "../Yoga/src/validate.py" "$f" "../Yoga/rsc/schema/${f%.json}.json" \
-        > "../Yoga/gen/validation/${f%.json}.txt"
+    python "./src/main/validate.py" "$f" "./rsc/schema/${f%.json}.json" \
+        > "./gen/validation/${f%.json}.txt"
 done
 ```
 
@@ -457,8 +465,12 @@ for error in Draft4Validator(schema).iter_errors(data):
 
 An unevidenced `oneOf` branch should be documented as `"Not observed in this export"` rather than silently included.
 
+```text
+Diagnostic: src/test/diagnostics/empirical.oneOf_branches_evidenced.py
+```
+
 ```python
-# diagnostic: collect observed types and tool names
+# inline illustration: collect observed types and tool names from export data
 import json
 from collections import Counter
 with open('conversations.json') as f:
@@ -504,8 +516,12 @@ jq '[.[].chat_messages[].content |
 
 Fields observed as always-null are typed as plain `"type": "null"`. Fields that are sometimes null retain `oneOf`. Anonymous `oneOf` branches are exempt from this check.
 
+```text
+Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
+```
+
 ```python
-# diagnostic: list all null-typed fields for human review
+# inline illustration: list all null-typed fields for human review
 import json
 with open('rsc/schema/conversations.json') as f:
     schema = json.load(f)

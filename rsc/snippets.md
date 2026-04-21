@@ -9,13 +9,13 @@ jq 'length' conversations.json
 ## redact non-empty "text" string fields
 
 ```bash
-jq 'walk(if type == "object" and has("text") and .text != "" and (.text | type) == "string" then .text = "[redacted]" else . end)' conversations.json > ../Yoga/gen/redacted/conversations.json
+jq 'walk(if type == "object" and has("text") and .text != "" and (.text | type) == "string" then .text = "[redacted]" else . end)' conversations.json > ./gen/redacted/conversations.json
 ```
 
 ## project out summaries, ordered by conversation creation time
 
 ```bash
-jq '[sort_by(.created_at) | to_entries[] | {key: (.key | tostring), value: .value.summary}] | from_entries' conversations.json > ../Yoga/gen/summarised/conversations.json
+jq '[sort_by(.created_at) | to_entries[] | {key: (.key | tostring), value: .value.summary}] | from_entries' conversations.json > ./gen/summarised/conversations.json
 ```
 
 ## first-class definitions without a "type" member
