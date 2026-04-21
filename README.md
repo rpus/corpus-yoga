@@ -45,10 +45,10 @@
 
 ## Notes on provenance
 
-- `doc/conversations.schema.principles.md`
+- `rsc/schema/conversations/principles.md`
   - Originated in conversation 15 ("Accessing files from previous chats"). Downloaded version is v1.2; repo is v1.3 (one minor revision ahead).
-- `doc/conversations.schema.workflow.md`
-  - Originated in conversation 15. Downloaded version is v1.0; repo is v1.3, with changelog entries recording the move of both documents into `doc/`.
+- `rsc/schema/conversations/workflow.md`
+  - Originated in conversation 15. Downloaded version is v1.0; repo is v1.3.
 - `src/main/validate.py`
   - Originated in conversation 30 ("JSON Schema and jq fundamentals"). Repo version substantially extended: added JSON Pointer fragment support (RFC 6901), `$ref` resolution via the `referencing` library, and removed the earlier custom discriminator-based `oneOf` error formatting.
 - `src/main/word_freq_literal.py`
@@ -56,4 +56,4 @@
 - `src/test/gen_model_candidate.py`
   - Originated in conversation 15. Repo version accepts the schema path as an explicit second argument rather than deriving it from the name, and uses `removesuffix` in place of manual string slicing.
 - `src/test/pre_commit.py`
-  - Originated in conversation 15. Repo version heavily extended: added versioned schema support (`v1`–`v4`), an `EXPECTED_PASS` matrix of (export, schema-version) pairs, a `DOC` path constant, and updated required-files and validation sections to match the evolved repo layout.
+  - Originated in conversation 15. Repo version heavily extended: added versioned schema support (`v1`–`v4`) and an `EXPECTED_PASS` matrix of (export, schema-version) pairs, and updated required-files and validation sections to match the evolved repo layout.

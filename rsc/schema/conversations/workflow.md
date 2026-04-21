@@ -34,10 +34,10 @@ Before any schema work begins, the following artefacts must be available in the 
 
 | Artefact | Purpose | Source |
 | --- | --- | --- |
-| `conversations.schema.json` | The schema under development | Upload from `rsc/` |
-| `conversations.schema.principles.md` | Design principles, diagnostics, repair snippets | Upload from `doc/` |
-| `conversations.schema.workflow.md` | This document | Upload from `doc/` |
-| At least one `conversations.json` export | Ground-truth validation data | Upload from `data-*/` |
+| `v*.json` | The schema under development | Upload from `rsc/schema/conversations/` |
+| `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/conversations/` |
+| `workflow.md` | This document | Upload from `rsc/schema/conversations/` |
+| At least one `conversations.json` export | Ground-truth validation data | Upload from `rsc/../../data-exports/data-*/` |
 | `conversations_redacted.json` (optional) | Safe-to-share compressed export for diagnostic work | Upload from `gen/` |
 
 **Flag if:** the session begins with schema edits before any of the above are uploaded.
