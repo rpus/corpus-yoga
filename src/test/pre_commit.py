@@ -7,9 +7,6 @@ Usage (direct):
     python src/test/pre_commit.py
     deactivate
 
-Usage (via wrapper, recommended):
-    src/test/pre_commit.sh
-
 As a git hook, install the wrapper:
     cp src/test/pre_commit.sh .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
