@@ -95,10 +95,7 @@ def main():
 
         rel_path, bucket = parse_file_path(filename)
         in_ef = (extracted_files_dir / chat_slug / rel_path).exists()
-        if bucket is not None:
-            in_eh = (extracted_heredocs_dir / chat_slug / bucket / rel_path).exists()
-        else:
-            in_eh = any((extracted_heredocs_dir / chat_slug / b / rel_path).exists() for b in BUCKETS)
+        in_eh = any((extracted_heredocs_dir / chat_slug / b / rel_path).exists() for b in BUCKETS)
         in_gen = in_ef or in_eh
         in_downloaded = (downloaded_dir / chat_slug / rel_path).exists()
 
@@ -150,7 +147,7 @@ def main():
             print(f'      [{chat_idx:03d}] {f}')
 
     if unharvested_unrecoverable:
-        print(f'  ⚠ not recoverable from export — produced at runtime ({len(unharvested_unrecoverable)} file(s)):')
+        print(f'  ⚠ not recoverable from export ({len(unharvested_unrecoverable)} file(s), produced at runtime, not in gen):')
         for chat_idx, f in unharvested_unrecoverable:
             print(f'      [{chat_idx:03d}] {f}')
 
