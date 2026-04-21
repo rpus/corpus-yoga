@@ -1,3 +1,3 @@
 # TODO
 
-See `src/main/schema_recommendations.py`
+See `src/test/schema_recommendations.py`
