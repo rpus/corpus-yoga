@@ -50,7 +50,7 @@ on_failure() {
 on_success() {
   local f="$1" schema="$2"
   echo "--- recommendations ---"
-  python "$SCRIPT_DIR/schema_recommendations.py" "$f" "$schema"
+  python "$SCRIPT_DIR/../test/schema_recommendations.py" "$f" "$schema"
 }
 
 validate_file() {

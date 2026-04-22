@@ -22,7 +22,7 @@ This repo wrangles Claude data exports.
 
 - Validate the data
   - `./src/main/validate.sh --data-root ../data-exports`
-- Address any errors by updating/retesting the schemas (in `./rsc`) and tooling (in `./src`) as needed.
+- Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
 - Extract files and heredocs
   - `./src/main/extract_files.sh --data-root ../data-exports`
   - `./src/main/extract_heredocs.sh --data-root ../data-exports`
@@ -35,7 +35,7 @@ This repo wrangles Claude data exports.
 
 ## To be tested
 
-- Process `conversations.json` using `src/main/test/gen_model_candidate.py` (according to the instructions in its header comment).
+- Process `conversations.json` using `src/test/gen_model_candidate.py` (according to the instructions in its header comment).
   - `mkdir ./gen/data-*/model`
 - Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
   - `mkdir ./gen/data-*/redacted`

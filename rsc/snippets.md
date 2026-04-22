@@ -21,13 +21,13 @@ jq '[sort_by(.created_at) | to_entries[] | {key: (.key | tostring), value: .valu
 ## first-class definitions without a "type" member
 
 ```bash
-jq '[.definitions | to_entries[] | select(.value.type == null) | .key]' ../conversations.schema.json
+jq '[.definitions | to_entries[] | select(.value.type == null) | .key]' ./schema/conversations/v4.json
 ```
 
 ## first-class definitions without a "type" member but with a "oneOf"
 
 ```bash
-jq '[.definitions | to_entries[] | select(.value.oneOf != null and .value.type == null) | .key]' ../conversations.schema.json
+jq '[.definitions | to_entries[] | select(.value.oneOf != null and .value.type == null) | .key]' ./schema/conversations/v4.json
 ```
 
 ## distinct values for "key_name" keys (at any depth in document)
@@ -56,7 +56,7 @@ jq '[.definitions | to_entries[] |
     in_required_not_props: ($req | map(select(. as $r | $props | index($r) == null)))
   } |
   select(.in_props_not_required != [] or .in_required_not_props != [])
-]' ../conversations.schema.json
+]' ./schema/conversations/v4.json
 ```
 
 ## "properties" not "required" (output to be manually completed before its use by `generate_optional_check.py`)
@@ -77,7 +77,7 @@ jq '[.definitions | to_entries[] |
     inner_filter: null,
     optional_fields: $optional
   }
-]' ../conversations.schema.json
+]' ./schema/conversations/v4.json
 ```
 
 ## verbosity
