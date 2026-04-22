@@ -50,7 +50,7 @@ jq_files() { jq '{
     select(.type == "tool_result") |
     .content[]? |
     select(.type == "local_resource") |
-    [$i, .file_path, .mime_type]
+    [$i, (.file_path | ltrimstr("/mnt/user-data/outputs/")), .mime_type]
   ] | unique
 }' "$@"; }
 
