@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft-04/schema#",
     "title": "a schema for data tables",
-    "description": "the table's columns (along with any 'notes') should be described in the `description` of the table",
+    "description": "the table's columns should be described in the `description` of the table",
     "type": "object",
     "required": [
         "columns",
@@ -28,6 +28,9 @@
             "items": {
                 "type": "array"
             }
+        },
+        "note": {
+            "type": "string"
         }
     },
     "default": {
@@ -40,6 +43,7 @@
                 "",
                 null
             ]
-        ]
+        ],
+        "note": ""
     }
 }

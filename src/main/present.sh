@@ -200,27 +200,27 @@ present_export() {
     # claude-generated tables: use inferred data if available, else inject empty stub
     for key in data-categories data-chat-categories data-semantic; do
       local inferred_file="$inferred_dir/$key.json"
+      local cols note
+      case "$key" in
+        data-categories)
+          cols='["category", "hue"]'
+          note='Claude-generated. Hue values in HSV degrees (0-360). Categories: mathematics(220), physics(180), philosophy(270), meta(40), tooling(25), creative(330), practical(90), social(0).'
+          ;;
+        data-chat-categories)
+          cols='["chat", "category"]'
+          note='Claude-generated join table. Requires data-categories to be populated first. Chat index from: jq '"'"'[sort_by(.created_at) | to_entries[] | {chat: .key, name: .value.name}]'"'"' conversations.json. Category assignment by Claude reading conversation summaries.'
+          ;;
+        data-semantic)
+          cols='["word", "count"]'
+          note='Claude-generated from conversation summaries. Weights are inferred concept salience, not raw frequencies. To regenerate: extract summaries, paste to Claude, ask for weighted concept list.'
+          ;;
+      esac
       if [[ -f "$inferred_file" ]]; then
-        json="$(cat "$inferred_file" | format_table)"
+        json="$(jq --arg note "$note" '. + {note: $note}' "$inferred_file" | format_table)"
         inject "$out" "$key" "$json"
         printf '%s\n' "$json" > "$out_dir/$key.json"
         echo "  ✓ $key (inferred)"
       else
-        local cols note
-        case "$key" in
-          data-categories)
-            cols='["category", "hue"]'
-            note='Claude-generated. Hue values in HSV degrees (0-360). Categories: mathematics(220), physics(180), philosophy(270), meta(40), tooling(25), creative(330), practical(90), social(0).'
-            ;;
-          data-chat-categories)
-            cols='["chat", "category"]'
-            note='Claude-generated join table. Requires data-categories to be populated first. Chat index from: jq '"'"'[sort_by(.created_at) | to_entries[] | {chat: .key, name: .value.name}]'"'"' conversations.json. Category assignment by Claude reading conversation summaries.'
-            ;;
-          data-semantic)
-            cols='["word", "count"]'
-            note='Claude-generated from conversation summaries. Weights are inferred concept salience, not raw frequencies. To regenerate: extract summaries, paste to Claude, ask for weighted concept list.'
-            ;;
-        esac
         json="$(jq -n --argjson cols "$cols" --arg note "$note" \
           '{"columns": $cols, "rows": [], "note": $note}' | format_table)"
         inject "$out" "$key" "$json"
