@@ -17,7 +17,7 @@
         "type": "string"
       },
       "account_uuid": {
-        "description": "../model.json#/UserUUID",
+        "description": "../../model.json#/UserUUID",
         "type": "string"
       }
     }

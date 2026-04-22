@@ -26,6 +26,6 @@
     }
   },
   "default": {
-    "$ref": "./model.json"
+    "$ref": "../model.json"
   }
 }

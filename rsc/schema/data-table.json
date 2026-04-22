@@ -1,5 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft-04/schema#",
+    "title": "a table",
     "description": "about the table",
     "type": "object",
     "required": [

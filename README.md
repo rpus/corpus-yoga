@@ -1,4 +1,12 @@
-# Instructions
+# README
+
+This repo wrangles Claude data exports.
+
+## Prerequsites
+
+- python
+
+## How to use
 
 - Prepare new data
   - Ask to "Export ('All') data" from <https://claude.ai/settings/data-privacy-controls>
