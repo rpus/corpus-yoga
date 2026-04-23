@@ -128,10 +128,13 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(hdr + sep)
             for idx, name, extracted, downloaded, copied in rows:
                 log.write(f'  {idx:03d}  {name:<{nw}}  {extracted:>9}  {downloaded:>10}  {copied:>6}\n')
-
-        t_ext = sum(r[2] for r in rows)
-        t_dl  = sum(r[3] for r in rows)
-        t_cp  = sum(r[4] for r in rows)
+            t_ext = sum(r[2] for r in rows)
+            t_dl  = sum(r[3] for r in rows)
+            t_cp  = sum(r[4] for r in rows)
+            log.write(sep)
+            log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_dl:>10}  {t_cp:>6}\n')
+        else:
+            t_ext = t_dl = t_cp = 0
         log.write(f'\nDone. {t_ext} extracted, {t_dl} already downloaded, {t_cp} copied to rsc.\n')
 
 

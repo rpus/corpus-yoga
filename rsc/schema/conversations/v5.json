@@ -154,6 +154,9 @@
           "$ref": "#/definitions/TextBlock"
         },
         {
+          "$ref": "#/definitions/ThinkingBlock"
+        },
+        {
           "$ref": "#/definitions/ToolUseBlock"
         },
         {
@@ -286,6 +289,70 @@
         "flags": {
           "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
+        }
+      }
+    },
+    "ThinkingBlock": {
+      "title": "ThinkingBlock",
+      "description": "A block containing Claude's extended thinking, emitted when extended thinking is enabled. No direct equivalent in the standard API content block union \u2014 thinking blocks appear in the export but are stripped from the API response visible to callers. See: https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
+      "type": "object",
+      "required": [
+        "type",
+        "thinking",
+        "summaries",
+        "cut_off",
+        "truncated",
+        "alternative_display_type",
+        "signature",
+        "flags",
+        "start_timestamp",
+        "stop_timestamp"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "(discriminator)",
+          "enum": [
+            "thinking"
+          ]
+        },
+        "start_timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "stop_timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "flags": {
+          "type": "null",
+          "description": "Always null in observed exports. Possibly reserved for future use."
+        },
+        "thinking": {
+          "description": "The full reasoning text produced during extended thinking.",
+          "type": "string"
+        },
+        "summaries": {
+          "description": "Claude-generated summaries of thinking segments. Always present but may be empty.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ThinkingSummary"
+          }
+        },
+        "cut_off": {
+          "description": "Whether the thinking was cut off before completion.",
+          "type": "boolean"
+        },
+        "truncated": {
+          "description": "Whether the thinking content was truncated in the export.",
+          "type": "boolean"
+        },
+        "alternative_display_type": {
+          "description": "Always null in observed exports. Possibly reserved for future use.",
+          "type": "null"
+        },
+        "signature": {
+          "description": "Cryptographic signature over the thinking content, used by the API to verify that thinking blocks have not been tampered with when passed back in subsequent turns.",
+          "type": "string"
         }
       }
     },
@@ -448,6 +515,20 @@
         },
         "details": {
           "$ref": "#/definitions/CitationDetails"
+        }
+      }
+    },
+    "ThinkingSummary": {
+      "title": "ThinkingSummary",
+      "description": "A single summary entry within a ThinkingBlock's summaries array.",
+      "type": "object",
+      "required": [
+        "summary"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "type": "string"
         }
       }
     },

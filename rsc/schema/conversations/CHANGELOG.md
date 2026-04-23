@@ -1,14 +1,26 @@
 # conversations schema changelog
 
-| Export | v1 | v2 | v3 | v4 |
-| --- | :---: | :---: | :---: | :---: |
-| `data-2026-03-19-22-47-05-batch-0000` | ✓ | ✗ | ✗ | ✗ |
-| `data-2026-04-03-14-15-13-batch-0000` | ✓ | ✓ | ✗ | ✗ |
-| `data-2026-04-05-10-33-48-batch-0000` | ✓ | ✓ | ✗ | ✗ |
-| `data-2026-03-30-14-51-46-batch-0000` | ✓ | ✓ | ✗ | ✗ |
-| `data-2026-04-07-07-52-05-batch-0000` | ✓ | ✓ | ✗ | ✗ |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000` | ✗ | ✗ | ✓ | ✓ |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000` | ✗ | ✗ | ✗ | ✓ |
+| Export | v1 | v2 | v3 | v4 | v5 |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| `data-2026-03-19-22-47-05-batch-0000` | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `data-2026-04-03-14-15-13-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `data-2026-04-05-10-33-48-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `data-2026-03-30-14-51-46-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `data-2026-04-07-07-52-05-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000` | ✗ | ✗ | ✓ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✓ |
+
+---
+
+## v5
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000`
+
+### Relaxed since v4
+
+- `ContentBlock.oneOf` — extended with `ThinkingBlock` and its supporting `ThinkingSummary` definition; exports containing extended thinking blocks now pass
 
 ---
 

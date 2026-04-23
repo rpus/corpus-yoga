@@ -10,7 +10,7 @@
   "definitions": {
     "Conversation": {
       "title": "Conversation",
-      "description": "A single conversation thread. No direct equivalent in the API, which is stateless — the full message history is supplied on every request. The name, summary, created_at, updated_at, and account fields are claude.ai persistence-layer additions.",
+      "description": "A single conversation thread. No direct equivalent in the API, which is stateless \u2014 the full message history is supplied on every request. The name, summary, created_at, updated_at, and account fields are claude.ai persistence-layer additions.",
       "type": "object",
       "required": [
         "uuid",
@@ -114,7 +114,7 @@
           "$ref": "#/definitions/Timestamp"
         },
         "updated_at": {
-          "description": "Always equal to created_at in observed exports. Messages appear to be immutable — this field exists for structural symmetry with Conversation.updated_at but carries no independent information.",
+          "description": "Always equal to created_at in observed exports. Messages appear to be immutable \u2014 this field exists for structural symmetry with Conversation.updated_at but carries no independent information.",
           "$ref": "#/definitions/Timestamp"
         },
         "attachments": {
@@ -181,7 +181,7 @@
           "type": "integer"
         },
         "file_type": {
-          "description": "Observed values: 'txt', 'text/html'. Mixed convention — extension-style and MIME-type-style values both observed. Likely an open set; do not treat as exhaustive.",
+          "description": "Observed values: 'txt', 'text/html'. Mixed convention \u2014 extension-style and MIME-type-style values both observed. Likely an open set; do not treat as exhaustive.",
           "type": "string"
         },
         "extracted_content": {
@@ -437,7 +437,7 @@
     },
     "ToolUseBlockBase": {
       "title": "ToolUseBlockBase",
-      "description": "Base schema for all tool_use content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly — use ToolUseBlock, which combines this base with the named subtypes via allOf/oneOf.",
+      "description": "Base schema for all tool_use content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly \u2014 use ToolUseBlock, which combines this base with the named subtypes via allOf/oneOf.",
       "type": "object",
       "required": [
         "type",
@@ -617,7 +617,7 @@
     },
     "MemoryUserEditsToolUseBlock": {
       "title": "MemoryUserEditsToolUseBlock",
-      "description": "Tool use block for the memory_user_edits tool. Uses ToolInputBash (coincidental structural overlap — command is a verb like view/add/remove/replace, not a shell command).",
+      "description": "Tool use block for the memory_user_edits tool. Uses ToolInputBash (coincidental structural overlap \u2014 command is a verb like view/add/remove/replace, not a shell command).",
       "type": "object",
       "properties": {
         "name": {
@@ -817,7 +817,7 @@
     },
     "ToolResultBlockBase": {
       "title": "ToolResultBlockBase",
-      "description": "Base schema for all tool_result content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly — use ToolResultBlock, which combines this base with the named subtypes via allOf/oneOf.",
+      "description": "Base schema for all tool_result content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly \u2014 use ToolResultBlock, which combines this base with the named subtypes via allOf/oneOf.",
       "type": "object",
       "required": [
         "type",
@@ -1046,7 +1046,7 @@
     },
     "RecommendClaudeAppsToolResultBlock": {
       "title": "RecommendClaudeAppsToolResultBlock",
-      "description": "Tool result block for the recommend_claude_apps tool. Content structure unobserved — likely a single ToolResultContentItem with a text confirmation.",
+      "description": "Tool result block for the recommend_claude_apps tool. Content structure unobserved \u2014 likely a single ToolResultContentItem with a text confirmation.",
       "type": "object",
       "required": [
         "name"
@@ -1169,7 +1169,7 @@
     },
     "ToolName": {
       "title": "ToolName",
-      "description": "The name of the tool invoked. Observed values listed; likely an open set — do not treat as exhaustive. Name is sufficient to imply the corresponding ToolInput* schema; see the input field description in ToolUseBlock for the full mapping. recent_chats and conversation_search are claude.ai-internal tools with no public API documentation.",
+      "description": "The name of the tool invoked. Observed values listed; likely an open set \u2014 do not treat as exhaustive. Name is sufficient to imply the corresponding ToolInput* schema; see the input field description in ToolUseBlock for the full mapping. recent_chats and conversation_search are claude.ai-internal tools with no public API documentation.",
       "type": "string",
       "enum": [
         "ask_user_input_v0",
@@ -1190,7 +1190,7 @@
     },
     "IntegrationName": {
       "title": "IntegrationName",
-      "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Observed values listed; likely an open set — do not treat as exhaustive. Null also observed.",
+      "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Observed values listed; likely an open set \u2014 do not treat as exhaustive. Null also observed.",
       "oneOf": [
         {
           "type": "null"
@@ -1221,7 +1221,7 @@
     },
     "IconName": {
       "title": "IconName",
-      "description": "Shared primitive: the icon identifier used in the claude.ai UI for a tool call. Observed values listed; likely an open set — do not treat as exhaustive. Null also observed.",
+      "description": "Shared primitive: the icon identifier used in the claude.ai UI for a tool call. Observed values listed; likely an open set \u2014 do not treat as exhaustive. Null also observed.",
       "oneOf": [
         {
           "type": "null"
@@ -1432,7 +1432,7 @@
               "claude_code_terminal",
               "claude_code_vscode"
             ],
-            "description": "Observed values: claude_code_terminal, claude_code_vscode. Likely an open set — do not treat as exhaustive."
+            "description": "Observed values: claude_code_terminal, claude_code_vscode. Likely an open set \u2014 do not treat as exhaustive."
           }
         }
       }
@@ -1614,7 +1614,7 @@
     },
     "ToolResultLocalResource": {
       "title": "ToolResultLocalResource",
-      "description": "A reference to a file generated by Claude and presented to the user via the claude.ai UI. No direct API counterpart — the file_path refers to the container filesystem used by the claude.ai computer-use environment. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
+      "description": "A reference to a file generated by Claude and presented to the user via the claude.ai UI. No direct API counterpart \u2014 the file_path refers to the container filesystem used by the claude.ai computer-use environment. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
       "type": "object",
       "required": [
         "type",
@@ -1944,7 +1944,7 @@
           "type": "string"
         },
         "source": {
-          "description": "Observed values: anthropic, claude, greenhouse, stanford. Observed values listed; likely an open set — do not treat as exhaustive.",
+          "description": "Observed values: anthropic, claude, greenhouse, stanford. Observed values listed; likely an open set \u2014 do not treat as exhaustive.",
           "type": "string"
         },
         "subtitles": {

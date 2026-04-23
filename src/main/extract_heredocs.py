@@ -20,6 +20,7 @@ Usage:
 """
 
 import argparse
+import difflib
 import json
 import re
 import shutil
@@ -75,7 +76,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
     convos_sorted = sorted(convos, key=lambda c: c.get('created_at', ''))
 
     log_path = out_dir / 'extract_heredocs.log'
-    rows: list[tuple] = []   # (idx, name, extracted, downloaded, copied)
+    rows: list[tuple] = []         # (idx, name, extracted, identical, newline_only, differs, copied)
+    diff_entries: list[tuple] = [] # (chat_slug, rel, kind, diff_text|None)
 
     for idx, convo in enumerate(convos_sorted):
         name     = convo.get('name', 'untitled')
@@ -95,36 +97,80 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             continue
 
         convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
-        extracted = downloaded = copied = 0
+        extracted = identical = newline_only = differs = copied = 0
         for e in by_path.values():
             dest = convo_dir / e['bucket'] / e['rel']
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(e['content'])
             extracted += 1
-            dl_dir = DOWNLOADED_DIR / convo_dir.name
-            if (dl_dir / e['bucket'] / e['rel']).exists():
-                downloaded += 1
-            else:
-                rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
-                rsc_dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(dest, rsc_dest)
-                copied += 1
 
-        rows.append((idx, name[:50], extracted, downloaded, copied))
+            if e['bucket'] == 'outputs':
+                dl_path = DOWNLOADED_DIR / convo_dir.name / e['rel']
+                if dl_path.exists():
+                    dl_text = dl_path.read_text()
+                    if dl_text == e['content']:
+                        identical += 1
+                    elif dl_text == e['content'] + '\n':
+                        newline_only += 1
+                        diff_entries.append((convo_dir.name, str(e['rel']), 'newline-only', 'download adds trailing newline'))
+                    elif e['content'] == dl_text + '\n':
+                        newline_only += 1
+                        diff_entries.append((convo_dir.name, str(e['rel']), 'newline-only', 'download lacks trailing newline'))
+                    else:
+                        differs += 1
+                        diff_lines = list(difflib.unified_diff(
+                            e['content'].splitlines(keepends=True),
+                            dl_text.splitlines(keepends=True),
+                            fromfile=f'heredoc/{e["rel"]}',
+                            tofile=f'downloaded/{e["rel"]}',
+                        ))
+                        diff_entries.append((convo_dir.name, str(e['rel']), 'differs', ''.join(diff_lines)))
+                else:
+                    rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
+                    rsc_dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(dest, rsc_dest)
+                    copied += 1
+            else:
+                dl_path = DOWNLOADED_DIR / convo_dir.name / e['bucket'] / e['rel']
+                if dl_path.exists():
+                    identical += 1
+                else:
+                    rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
+                    rsc_dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(dest, rsc_dest)
+                    copied += 1
+
+        rows.append((idx, name[:50], extracted, identical, newline_only, differs, copied))
 
     with log_path.open('w') as log:
         if rows:
             nw = max(len(r[1]) for r in rows)
-            hdr = f'  {"":3}  {"name":<{nw}}  {"extracted":>9}  {"downloaded":>10}  {"copied":>6}\n'
-            sep = f'  {"":3}  {"-"*nw}  {"-"*9}  {"-"*10}  {"-"*6}\n'
+            hdr = f'  {"":3}  {"name":<{nw}}  {"extracted":>9}  {"identical":>9}  {"≈newline":>8}  {"↑differs":>8}  {"copied":>6}\n'
+            sep = f'  {"":3}  {"-"*nw}  {"-"*9}  {"-"*9}  {"-"*8}  {"-"*8}  {"-"*6}\n'
             log.write(hdr + sep)
-            for idx, name, extracted, downloaded, copied in rows:
-                log.write(f'  {idx:03d}  {name:<{nw}}  {extracted:>9}  {downloaded:>10}  {copied:>6}\n')
+            for idx, name, extracted, identical, newline_only, differs, copied in rows:
+                log.write(f'  {idx:03d}  {name:<{nw}}  {extracted:>9}  {identical:>9}  {newline_only:>8}  {differs:>8}  {copied:>6}\n')
+            log.write(sep)
+            t_ext  = sum(r[2] for r in rows)
+            t_id   = sum(r[3] for r in rows)
+            t_nl   = sum(r[4] for r in rows)
+            t_diff = sum(r[5] for r in rows)
+            t_cp   = sum(r[6] for r in rows)
+            log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_id:>9}  {t_nl:>8}  {t_diff:>8}  {t_cp:>6}\n')
+        else:
+            t_ext = t_id = t_nl = t_diff = t_cp = 0
+        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} copied to rsc.\n')
 
-        t_ext = sum(r[2] for r in rows)
-        t_dl  = sum(r[3] for r in rows)
-        t_cp  = sum(r[4] for r in rows)
-        log.write(f'\nDone. {t_ext} extracted, {t_dl} already downloaded, {t_cp} copied to rsc.\n')
+        if diff_entries:
+            log.write(f'\n── outputs/ files found in downloaded ({t_nl}+{t_diff}={t_nl+t_diff} shown, not copied to rsc) ──\n')
+            for chat_slug, rel, kind, diff_text in diff_entries:
+                if kind == 'newline-only':
+                    log.write(f'  ≈ {chat_slug}/{rel}  ({diff_text} — not copied)\n')
+                else:
+                    log.write(f'  ↑ {chat_slug}/{rel}  (downloaded is ahead — not copied)\n')
+                    for line in diff_text.splitlines():
+                        log.write(f'    {line}\n')
+                    log.write('\n')
 
 
 

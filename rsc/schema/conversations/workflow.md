@@ -238,12 +238,57 @@ Update this workflow document (`conversations.schema.workflow.md`) if the loop i
 
 The session's outputs should be committed to the repository:
 
-- Updated `conversations.schema.json` → `rsc/`
-- Updated `conversations.schema.principles.md` → `doc/`
-- Updated `conversations.schema.workflow.md` → `doc/`
+- Updated schema `v{N}.json` → `rsc/schema/conversations/`
+- Updated `principles.md` → `rsc/schema/conversations/`
+- Updated `workflow.md` → `rsc/schema/conversations/`
 - Updated validation logs in `gen/` (from running `src/main/validate.sh`)
 
 Commit message should note what changed: new export incorporated, schema fixes applied, diagnostic refinements, or documentation updates.
+
+---
+
+## Creating a New Schema Version
+
+A new version is warranted whenever a schema change would cause any currently-passing export to fail — i.e. whenever the change is a **restriction**. A purely relaxed or refactored change can be made in-place on the current version (the existing EXPECTED_PASS entries remain valid).
+
+### When to version
+
+| Change type | Action |
+| --- | --- |
+| Relaxed only (new optional field, new `oneOf` branch) | Edit current `v{N}.json` in place |
+| Restricted (new `required`, narrowed enum, closed `additionalProperties`) | Create new `v{N+1}.json` |
+| Refactored (structural, no validation effect) | Edit current `v{N}.json` in place |
+
+**Flag if:** a restriction is made in-place on the current version without checking whether any passing export would fail.
+
+### Steps to create a new version
+
+1. Copy the current latest schema: `cp rsc/schema/conversations/v{N}.json rsc/schema/conversations/v{N+1}.json`
+2. Make the schema changes in `v{N+1}.json`.
+3. Run the full workflow loop (steps 1–11) against `v{N+1}.json`.
+4. Test every known export against the new version to establish which pass:
+
+   ```bash
+   source ~/venvs/general/bin/activate
+   for d in /path/to/data-exports/data-*/; do
+     result=$(python src/main/validate.py "$d/conversations.json" rsc/schema/conversations/v{N+1}.json 2>&1)
+     echo "$d: $(echo "$result" | grep -q Valid && echo ✓ || echo ✗)"
+   done
+   ```
+
+   For any export not already present in the matrix, also test it against every prior version — do not infer its earlier results from the fact that it is new.
+5. Update `CHANGELOG.md`:
+   - Add a `v{N+1}` column to the matrix; fill each row with ✓/✗ from step 4.
+   - For newly added rows (exports not previously in the matrix), fill all columns, not just the new one.
+   - Add a `## v{N+1}` section with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply.
+6. Update `src/test/pre_commit.py`:
+   - Add `'v{N+1}'` to `CONV_VERSIONS`.
+   - Add `EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
+   - Update `latest` to `CONV_DIR / 'v{N+1}.json'`.
+7. Generate validation logs for the new pairs: `src/main/validate.sh --data-root <path/to/data-exports>`
+8. Run `src/test/pre_commit.sh` and confirm all checks pass.
+
+**Flag if:** `CONV_VERSIONS`, `EXPECTED_PASS`, `latest`, and `CHANGELOG.md` are not all updated in the same session as the new version file.
 
 ---
 

@@ -32,7 +32,7 @@ DIAG_DIR   = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR = RSC / 'schema'
 CONV_DIR   = SCHEMA_DIR / 'conversations'
 
-CONV_VERSIONS = ['v1', 'v2', 'v3', 'v4']
+CONV_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5']
 
 # Expected-passing combinations from CHANGELOG matrix: (data_dir_basename, version)
 EXPECTED_PASS = {
@@ -47,7 +47,12 @@ EXPECTED_PASS = {
     ('data-2026-04-07-07-52-05-batch-0000',                                      'v2'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v3'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v4'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v5'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v4'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v5'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v4'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v5'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000', 'v5'),
 }
 
 ALL_SCHEMA_DIAGNOSTICS = [
@@ -149,7 +154,7 @@ for data_dir, version in sorted(EXPECTED_PASS):
 # ── Section 4: Conversations schema diagnostics ────────────────────────────────
 print('\n── Conversations schema diagnostics ──────────────────────────────────────')
 
-latest = CONV_DIR / 'v4.json'
+latest = CONV_DIR / 'v5.json'
 if not latest.exists():
     run('conversations schema diagnostics', False,
         f'{latest.relative_to(REPO_ROOT)} missing — skipping all')
