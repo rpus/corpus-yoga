@@ -100,6 +100,8 @@ def looks_like_repo_path(s: str) -> bool:
     s = s.strip()
     if not s or ' ' in s or s.startswith('http') or s.startswith('/'):
         return False
+    if s.startswith('~'):
+        return False  # home-relative path, outside the repo
     if '/../' in s or s.startswith('../') or s.endswith('/..'):
         return False  # escapes the repo
     # Explicit relative reference ./name.ext or ./name.ext#fragment
@@ -378,6 +380,12 @@ def extract_markdown(f: Path, rows: list) -> None:
             s = match.group(1)
             if looks_like_repo_path(s):
                 emit(rows, f, i, 'doc', s, stripped)
+        # Explicit ./path.ext references (e.g. in fenced code blocks).
+        # Negative lookbehind prevents matching the inner ./ in ./../foo.
+        for match in re.finditer(r'(?<![./\w])\./[\w./\-]+\.(?:py|sh|json|md|html|g4)', stripped):
+            s = match.group()
+            if looks_like_repo_path(s):
+                emit(rows, f, i, 'doc', s, stripped)
         # Bare path-like strings in code blocks / text (must not end with a hyphen)
         for match in re.finditer(rf'\b((?:{PREFIXES_RE})/[\w./\-]+)(?![\-])\b', stripped):
             s = match.group(1)
@@ -467,12 +475,27 @@ def main() -> None:
             seen.add(key)
             deduped.append(row)
 
-    # Full outer join: add rows for repo files never appearing as referred_file.
-    # These are candidates for orphaned/dead files.
-    referenced: set[str] = {row[3] for row in deduped}
+    # Full outer join: add rows for repo files never appearing as referred_file,
+    # and for files only referenced from themselves.
     all_files = {str(f.relative_to(REPO_ROOT)) for f in repo_files()}
-    for fp in sorted(all_files - referenced):
-        deduped.append(['', '', '', fp, 'Y', ''])
+
+    # Build a set of files that have at least one external (cross-file) referrer.
+    # Strip fragments to get base file paths for comparison.
+    externally_referenced: set[str] = set()
+    for row in deduped:
+        referring, referred = row[0], row[3]
+        if referring and referred:
+            referred_base = referred.split('#')[0]
+            if referred_base != referring:
+                externally_referenced.add(referred_base)
+
+    for fp in sorted(all_files):
+        if fp not in externally_referenced:
+            ref_type = 'self_only' if any(
+                row[0] == fp and row[3].split('#')[0] == fp
+                for row in deduped
+            ) else ''
+            deduped.append(['', '', ref_type, fp, 'Y', ''])
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -483,11 +506,12 @@ def main() -> None:
 
     stale_file    = sum(1 for r in deduped if r[0] and r[4] == 'N' and '#' not in r[3])
     stale_pointer = sum(1 for r in deduped if r[0] and r[4] == 'N' and '#' in r[3])
-    orphaned      = sum(1 for r in deduped if not r[0])
-    live          = len(deduped) - stale_file - stale_pointer - orphaned
+    self_only     = sum(1 for r in deduped if not r[0] and r[2] == 'self_only')
+    unreferenced  = sum(1 for r in deduped if not r[0] and r[2] != 'self_only')
+    live          = len(deduped) - stale_file - stale_pointer - self_only - unreferenced
     print(f'{len(deduped)} rows: {live} live, '
           f'{stale_file} missing-file, {stale_pointer} bad-pointer, '
-          f'{orphaned} unreferenced → {out.relative_to(REPO_ROOT)}')
+          f'{self_only} self-only, {unreferenced} unreferenced → {out.relative_to(REPO_ROOT)}')
 
 
 if __name__ == '__main__':
