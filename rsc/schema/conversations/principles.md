@@ -1,5 +1,5 @@
 ---
-schema_file: rsc/schema/conversations.json
+schema_file: rsc/schema/conversations/v{N}.json
 principles_file: conversations.schema.principles.md
 workflow_file: conversations.schema.workflow.md
 version: "1.3"
@@ -83,7 +83,7 @@ The tool name is converted from snake\_case to UpperCamelCase and prefixed to `T
 ```python
 # diagnostic (no standalone script — checked by naming.upper_camel_case and naming.title_matches_key)
 import json, re
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 for name in schema['definitions']:
     if name.endswith('ToolUseBlock') and name != 'ToolUseBlock':
@@ -217,7 +217,7 @@ Diagnostic: src/test/diagnostics/structure.pattern_constraints_enforced.py
 ```python
 # inline illustration
 import json, re
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 REGEX_RE = re.compile(r'Regex:|^\^.*\$$', re.MULTILINE)
 def check(obj, path=''):
@@ -302,7 +302,7 @@ Where a schema corresponds to a public Anthropic API concept, the description sh
 ```python
 # diagnostic
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 for name, defn in schema['definitions'].items():
     d = defn.get('description', '')
@@ -325,7 +325,7 @@ Diagnostic: src/test/diagnostics/documentation.null_only_fields_documented.py
 ```python
 # repair: add standard null description to properties missing one
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 defs = schema['definitions']
 def fix(obj):
@@ -339,7 +339,7 @@ def fix(obj):
     elif isinstance(obj, list):
         for v in obj: fix(v)
 fix({'definitions': defs})
-with open('rsc/schema/conversations.json', 'w') as f:
+with open('rsc/schema/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -358,11 +358,11 @@ Diagnostic: src/test/diagnostics/documentation.open_set_enums_documented.py
 ```python
 # repair: add open-set caveat to a specific enum property
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 items = schema['definitions']['ToolInputRecommendClaudeApps']['properties']['app_ids']['items']
 items['description'] = 'Observed values listed. Likely an open set — do not treat as exhaustive.'
-with open('rsc/schema/conversations.json', 'w') as f:
+with open('rsc/schema/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -389,7 +389,7 @@ Not every property needs a description. But properties with surprising behaviour
 ```python
 # diagnostic: list all properties that have no description (for human review)
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 def check(obj, path=''):
     if isinstance(obj, dict):
@@ -447,7 +447,7 @@ done
 # repair: iterate all errors to identify what needs fixing
 import json
 from jsonschema import Draft4Validator
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 with open('conversations.json') as f:
     data = json.load(f)
@@ -523,7 +523,7 @@ Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
 ```python
 # inline illustration: list all null-typed fields for human review
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 defs = schema['definitions']
 null_typed = []
@@ -605,9 +605,9 @@ jq '[.[].chat_messages[].content[] | {type, keys: keys}] | group_by(.type) |
 
 The `gen_model_candidate.py` script traverses a schema, collects every `$ref` to a named definition, records the path at which it occurs, and retrieves the description from the definition itself (not the usage site — draft-4 `$ref` objects are opaque; sibling properties are ignored by validators). The root schema is included using its `title` as the entry name. A null description in the output is a canary for a missing or non-string description in the schema, which `documentation.every_definition_has_title_and_description` would also catch.
 
-Run as: `python src/gen_model_candidate.py conversations` (stem only, no extension), from the repo root.
+Run as: `python src/test/gen_model_candidate.py conversations` (stem only, no extension), from the repo root.
 
-See `src/gen_model_candidate.py` for the full implementation.
+See `src/test/gen_model_candidate.py` for the full implementation.
 
 ---
 
@@ -668,7 +668,7 @@ Diagnostic: src/test/diagnostics/composition.wrapper_has_five_fields.py
 ```python
 # repair: remove unexpected fields from a wrapper (manual review recommended first)
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 expected = {'title', 'description', 'type', 'allOf', 'oneOf'}
 for name, defn in schema['definitions'].items():
@@ -676,7 +676,7 @@ for name, defn in schema['definitions'].items():
         for k in set(defn.keys()) - expected:
             print(f'{name}: removing extra field "{k}" = {defn[k]!r}')
             del defn[k]
-with open('rsc/schema/conversations.json', 'w') as f:
+with open('rsc/schema/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -695,7 +695,7 @@ Diagnostic: src/test/diagnostics/composition.no_additional_properties_on_subtype
 ```python
 # repair: remove additionalProperties: false from the conflicting subtype
 import json
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 defs = schema['definitions']
 for name, defn in defs.items():
@@ -705,7 +705,7 @@ for name, defn in defs.items():
             if ref and defs.get(ref, {}).get('properties'):
                 del defn['additionalProperties']
                 print(f'Fixed: {name}')
-with open('rsc/schema/conversations.json', 'w') as f:
+with open('rsc/schema/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -733,7 +733,7 @@ Any schema appearing more than once should be a named definition. Applied to `Nu
 # diagnostic: find identical inline schema objects appearing more than once
 import json
 from collections import Counter
-with open('rsc/schema/conversations.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 counts = Counter()
 def walk(obj):
@@ -973,7 +973,7 @@ Diagnostic: src/test/diagnostics/structure.bfs_order.py
 Repair:     src/test/repairs/structure.bfs_order.py
 ```
 
-Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/conversations.json`
+Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/conversations/v{N}.json`
 
 ---
 

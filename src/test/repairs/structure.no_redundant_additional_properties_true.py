@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair structure.no_redundant_additional_properties_true — Remove explicit additionalProperties: true.
 
-Usage: python src/repairs/structure.no_redundant_additional_properties_true.py <schema>
+Usage: python src/test/repairs/structure.no_redundant_additional_properties_true.py <schema>
 
 Writes back to the same file in place.
 """

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair documentation.descriptions_end_with_full_stop — Append period to unterminated descriptions.
 
-Usage: python src/repairs/documentation.descriptions_end_with_full_stop.py <schema>
+Usage: python src/test/repairs/documentation.descriptions_end_with_full_stop.py <schema>
 
 Appends '.' to any description string that doesn't end with recognised terminal
 punctuation (. ) $ or URL). Writes back to the same file in place.

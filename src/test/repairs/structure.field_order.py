@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair structure.field_order — Reorder keys so title, description come first.
 
-Usage: python src/repairs/structure.field_order.py <schema>
+Usage: python src/test/repairs/structure.field_order.py <schema>
 
 For every definition with title/description not in first two positions, rebuilds
 the key order: title, description, then remaining keys in original order.

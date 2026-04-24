@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair documentation.every_definition_has_title_and_description — Add stub title/description.
 
-Usage: python src/repairs/documentation.every_definition_has_title_and_description.py <schema>
+Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 
 Inserts placeholder title (definition name) and description ("TODO: document.")
 for any definition missing either. Writes back to the same file in place.

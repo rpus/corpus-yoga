@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair structure.pattern_constraints_enforced — Move regex from description to pattern field.
 
-Usage: python src/repairs/structure.pattern_constraints_enforced.py <schema>
+Usage: python src/test/repairs/structure.pattern_constraints_enforced.py <schema>
 
 Scans descriptions for patterns like 'matches /regex/' or 'pattern: /regex/'
 and, when found, extracts the regex into a sibling 'pattern' field.

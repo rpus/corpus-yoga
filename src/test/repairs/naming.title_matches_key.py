@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair naming.title_matches_key — Set every definition's title to match its key.
 
-Usage: python src/repairs/naming.title_matches_key.py <schema>
+Usage: python src/test/repairs/naming.title_matches_key.py <schema>
 
 Overwrites title with the definition key for every definition where they differ.
 Writes back to the same file in place.

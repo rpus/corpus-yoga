@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair structure.bfs_order — Reorder definitions into breadth-first referential encounter order.
 
-Usage: python src/repairs/structure.bfs_order.py <schema>
+Usage: python src/test/repairs/structure.bfs_order.py <schema>
 
 Traverses $refs starting from the root entry point (first definition, assumed to be
 the primary type — e.g. Conversation for conversations.json). Definitions unreachable

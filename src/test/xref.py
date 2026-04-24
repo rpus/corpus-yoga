@@ -22,14 +22,20 @@ Output columns
                        $schema     JSON Schema $schema value
                        comment     Mentioned only in a comment or docstring
                        doc         Mentioned in markdown prose or HTML comment
-    referred_file    The path string as written (repo-relative where determinable).
-    exists           Y if the referred path resolves to an existing file, N otherwise.
+    referred_file    The resolved repo-relative path, including any JSON Pointer
+                     fragment (e.g. rsc/schema/conversations/v5.json#/definitions/TextBlock).
+                     Fragments follow RFC 6901: tokens separated by /, with ~0/~1 escapes.
+    exists           Y if the referred path resolves to an existing file AND any
+                     JSON Pointer fragment navigates successfully within that file.
+                     N if the file is missing or the fragment path does not exist —
+                     both are stale reference signals.
     line_text        Stripped source line for context (truncated at 120 chars).
 
 Stale reference detection
 ─────────────────────────
-Filter on  exists = N  to find references to files that no longer exist —
-the primary signal for stale comments, outdated documentation, and dead imports.
+Filter on  exists = N  to find references to files that no longer exist or whose
+JSON Pointer fragments have become invalid — the primary signal for stale comments,
+outdated documentation, dead imports, and broken intra-schema cross-references.
 
     python src/test/xref.py && awk -F, '$5=="N"' gen/xref.csv
 """
@@ -37,6 +43,7 @@ the primary signal for stale comments, outdated documentation, and dead imports.
 import argparse
 import ast
 import csv
+import json
 import re
 import sys
 from pathlib import Path
@@ -59,13 +66,15 @@ STDLIB_MODULES = {
     'jsonschema', 'referencing', 'requests', 'yaml', 'toml', 'pytest',
 }
 
-# Repo-relative path prefixes that identify a string as a likely file reference.
-# Short bare names (like 'path', 'file') are excluded; only strings that look
-# like repo paths are matched.
-REPO_PREFIXES = (
-    'src/', 'rsc/', 'doc/', 'gen/', 'docs/',
-    'conversations/', 'diagnostics/', 'repairs/',
+# Repo-relative path prefixes derived from actual top-level directories.
+# Only directories that exist are included, so REPO_PREFIXES is never stale.
+REPO_PREFIXES = tuple(
+    f'{d.name}/'
+    for d in sorted(REPO_ROOT.iterdir())
+    if d.is_dir() and not d.name.startswith('.')
 )
+# Regex alternation of bare directory names, e.g. 'gen|rsc|src'
+PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -91,9 +100,13 @@ def looks_like_repo_path(s: str) -> bool:
     s = s.strip()
     if not s or ' ' in s or s.startswith('http') or s.startswith('/'):
         return False
-    # Explicit relative reference ./name.ext — always a file reference
-    if s.startswith('./') and re.search(r'\.(py|sh|json|md|html|g4|txt|log)$', s):
-        return True
+    if '/../' in s or s.startswith('../') or s.endswith('/..'):
+        return False  # escapes the repo
+    # Explicit relative reference ./name.ext or ./name.ext#fragment
+    if s.startswith('./') or (s.startswith('../') and '/' in s[3:]):
+        base = s.split('#')[0]  # strip JSON Pointer fragment before extension check
+        if re.search(r'\.(py|sh|json|md|html|g4|txt|log)$', base):
+            return True
     if s.startswith('./'):
         s = s[2:]
     # Must be more than a bare fragment like "gen/data-" with no filename
@@ -110,24 +123,53 @@ def looks_like_repo_path(s: str) -> bool:
 
 
 def resolve(referred: str, referring: Path) -> tuple[str, str]:
-    """Return (canonical_repo_relative_path, exists_flag)."""
+    """Return (canonical_ref_with_fragment, exists_flag).
+
+    For paths with a JSON Pointer fragment (file.json#/a/b/c), checks both
+    that the file exists and that the pointer navigates successfully within it.
+    """
     s = referred.strip()
-    # Try as repo-relative (strip leading ./ but not ../)
-    bare = s.lstrip('./')
+
+    # Split off JSON Pointer fragment
+    file_part, _, pointer = s.partition('#')
+
+    def check_pointer(f: Path) -> bool:
+        if not pointer or not f.suffix == '.json':
+            return True  # no fragment to check, or not JSON
+        try:
+            doc = json.loads(f.read_text())
+        except (OSError, json.JSONDecodeError):
+            return False
+        node = doc
+        for tok in pointer.lstrip('/').split('/'):
+            tok = tok.replace('~1', '/').replace('~0', '~')  # RFC 6901 escapes
+            try:
+                node = node[tok] if isinstance(node, dict) else node[int(tok)]
+            except (KeyError, IndexError, ValueError, TypeError):
+                return False
+        return True
+
+    def canon(f: Path) -> str:
+        rel = str(f.resolve().relative_to(REPO_ROOT))
+        return f'{rel}#{pointer}' if pointer else rel
+
+    bare = file_part.lstrip('./')
     candidate = REPO_ROOT / bare
     if candidate.exists():
         try:
-            return str(candidate.resolve().relative_to(REPO_ROOT)), 'Y'
+            exists = check_pointer(candidate)
+            return canon(candidate), 'Y' if exists else 'N'
         except ValueError:
             pass
-    # Try relative to referring file's directory (handles ../ traversal)
-    candidate2 = (referring.parent / s).resolve()
+    candidate2 = (referring.parent / file_part).resolve()
     if candidate2.exists():
         try:
-            return str(candidate2.relative_to(REPO_ROOT)), 'Y'
+            candidate2.relative_to(REPO_ROOT)
+            exists = check_pointer(candidate2)
+            return canon(candidate2), 'Y' if exists else 'N'
         except ValueError:
             pass
-    return bare or s, 'N'
+    return (bare or s), 'N'
 
 
 def emit(rows: list, referring: Path, lineno: int, ref_type: str,
@@ -180,12 +222,19 @@ def extract_python(f: Path, rows: list) -> None:
                              lines[node.lineno - 1].strip())
             elif isinstance(node, ast.Constant) and isinstance(node.value, str):
                 s = node.value
-                if looks_like_repo_path(s):
-                    lineno = getattr(node, 'lineno', 0)
-                    ltext = lines[lineno - 1].strip() if lineno else ''
-                    # Distinguish comment/docstring context from call context
-                    ref_type = 'path_str'
-                    emit(rows, f, lineno, ref_type, s, ltext)
+                lineno_base = getattr(node, 'lineno', 0)
+                if '\n' in s:
+                    # Multi-line string (docstring): scan each line for paths
+                    for j, subline in enumerate(s.splitlines()):
+                        for m in re.finditer(r'[\w./\-]+\.(?:py|sh|json|md|html|g4)',
+                                             subline):
+                            candidate = m.group()
+                            if looks_like_repo_path(candidate):
+                                emit(rows, f, lineno_base + j, 'comment',
+                                     candidate, subline.strip())
+                elif looks_like_repo_path(s):
+                    ltext = lines[lineno_base - 1].strip() if lineno_base else ''
+                    emit(rows, f, lineno_base, 'path_str', s, ltext)
 
     # Line pass: comments and subprocess/exec calls
     for i, line in enumerate(lines, 1):
@@ -283,7 +332,7 @@ def extract_shell(f: Path, rows: list) -> None:
                                   r"|'(\$\w+[^']*)'", line):
             raw = match.group(1) or match.group(2)
             s = substitute(raw)
-            if not looks_like_repo_path(s):
+            if '$' in s or not looks_like_repo_path(s):
                 continue
             at_start = line.strip().startswith(match.group(0))
             ref_type = 'call' if (is_call_line or at_start) else 'path_str'
@@ -306,7 +355,7 @@ def extract_json(f: Path, rows: list) -> None:
                 continue
             emit(rows, f, i, ref_type, val, stripped)
         # Other string values that look like repo paths
-        for match in re.finditer(r'"((?:src|rsc|doc)/[^"]+)"', stripped):
+        for match in re.finditer(rf'"((?:{PREFIXES_RE})/[^"]+)"', stripped):
             emit(rows, f, i, 'path_str', match.group(1), stripped)
 
 
@@ -329,8 +378,8 @@ def extract_markdown(f: Path, rows: list) -> None:
             s = match.group(1)
             if looks_like_repo_path(s):
                 emit(rows, f, i, 'doc', s, stripped)
-        # Bare path-like strings in code blocks / text
-        for match in re.finditer(r'\b((?:src|rsc|doc|gen)/[\w./\-]+)', stripped):
+        # Bare path-like strings in code blocks / text (must not end with a hyphen)
+        for match in re.finditer(rf'\b((?:{PREFIXES_RE})/[\w./\-]+)(?![\-])\b', stripped):
             s = match.group(1)
             if looks_like_repo_path(s):
                 emit(rows, f, i, 'doc', s, stripped)
@@ -350,10 +399,23 @@ def extract_html(f: Path, rows: list) -> None:
                 if looks_like_repo_path(s):
                     emit(rows, f, i, 'comment', s, stripped)
         # JS string literals referencing repo files
-        for match in re.finditer(r"['\"]([^'\"]*(?:src|rsc)/[^'\"]*)['\"]", stripped):
+        for match in re.finditer(rf"['\"]([^'\"]*(?:{PREFIXES_RE})/[^'\"]*)['\"]", stripped):
             s = match.group(1)
             if looks_like_repo_path(s):
                 emit(rows, f, i, 'path_str', s, stripped)
+
+
+def extract_csv(f: Path, rows: list) -> None:
+    try:
+        reader = csv.reader(f.open())
+        header = next(reader, [])
+        for i, record in enumerate(reader, 2):  # 1-based, row 1 is header
+            for cell in record:
+                cell = cell.strip()
+                if looks_like_repo_path(cell):
+                    emit(rows, f, i, 'path_str', cell, ','.join(record)[:120])
+    except OSError:
+        return
 
 
 def extract_g4(f: Path, rows: list) -> None:
@@ -379,6 +441,7 @@ EXTRACTORS = {
     '.md':   extract_markdown,
     '.html': extract_html,
     '.g4':   extract_g4,
+    '.csv':  extract_csv,
 }
 
 
@@ -418,10 +481,13 @@ def main() -> None:
         w.writerow(['referring_file', 'line', 'ref_type', 'referred_file', 'exists', 'line_text'])
         w.writerows(deduped)
 
-    stale    = sum(1 for r in deduped if r[0] and r[4] == 'N')
-    orphaned = sum(1 for r in deduped if not r[0])
-    print(f'{len(deduped)} rows: {len(deduped)-stale-orphaned} live refs, '
-          f'{stale} stale, {orphaned} unreferenced files → {out.relative_to(REPO_ROOT)}')
+    stale_file    = sum(1 for r in deduped if r[0] and r[4] == 'N' and '#' not in r[3])
+    stale_pointer = sum(1 for r in deduped if r[0] and r[4] == 'N' and '#' in r[3])
+    orphaned      = sum(1 for r in deduped if not r[0])
+    live          = len(deduped) - stale_file - stale_pointer - orphaned
+    print(f'{len(deduped)} rows: {live} live, '
+          f'{stale_file} missing-file, {stale_pointer} bad-pointer, '
+          f'{orphaned} unreferenced → {out.relative_to(REPO_ROOT)}')
 
 
 if __name__ == '__main__':
