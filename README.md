@@ -16,6 +16,7 @@ This repo wrangles Claude data exports.
 
 ```bash
 ./RUNME.sh
+./src/test/xref.sh
 ```
 
 ## What that does

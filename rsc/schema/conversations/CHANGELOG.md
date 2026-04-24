@@ -1,6 +1,6 @@
 # conversations schema changelog
 
-| Export | v1 | v2 | v3 | v4 | v5 |
+| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) |
 | --- | :---: | :---: | :---: | :---: | :---: |
 | `data-2026-03-19-22-47-05-batch-0000` | ✓ | ✗ | ✗ | ✗ | ✗ |
 | `data-2026-04-03-14-15-13-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
