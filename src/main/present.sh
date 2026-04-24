@@ -12,6 +12,8 @@ TEMPLATE="$REPO_DIR/rsc/index.html"
 WORD_FREQ_SCRIPT="$SCRIPT_DIR/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
+FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
+DOWNLOADED_DIR="$REPO_DIR/rsc/artifacts/downloaded"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
@@ -41,7 +43,16 @@ jq_spans() { jq '
   }
 ' "$@"; }
 
-jq_files() { jq '{
+# Tooltip: files sourced from rsc/artifacts/downloaded/ — pre-curated and
+# path-consistent. local_resource paths (what Claude reported) are unreliable.
+files_from_downloaded() {
+  python "$FILES_FROM_DOWNLOADED_SCRIPT" "$DOWNLOADED_DIR"
+}
+
+# Harvest input: local_resource records from conversations.json with mime_type.
+# Not used for the tooltip, but passed to check_harvested.py so it can classify
+# binary files and report what was returned to the user but not yet extracted.
+jq_local_resources() { jq '{
   columns: ["chat", "file", "mime_type"],
   rows: [
     (sort_by(.created_at) | to_entries[]) |
@@ -180,11 +191,17 @@ present_export() {
     printf '%s\n' "$json" > "$out_dir/data-spans.json"
     echo "  ✓ data-spans"
 
-    # data-files
-    json="$(jq_files "$conv" | format_table)"
+    # data-files (tooltip): sourced from rsc/artifacts/downloaded/
+    json="$(files_from_downloaded | format_table)"
     inject "$out" "data-files" "$json"
     printf '%s\n' "$json" > "$out_dir/data-files.json"
     echo "  ✓ data-files"
+
+    # data-local-resources: local_resource records from conversations.json,
+    # with mime_type. Not in the tooltip; used by check_harvested for harvest
+    # reporting and binary file classification.
+    json="$(jq_local_resources "$conv" | format_table)"
+    printf '%s\n' "$json" > "$out_dir/data-local-resources.json"
     python "$CHECK_HARVESTED_SCRIPT" "$name"
 
     # data-literal: word frequency (Python) then columnarise (jq)

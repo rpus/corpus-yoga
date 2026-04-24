@@ -64,7 +64,7 @@ def main():
     export_dir  = OUTPUT_DIR / name
     present_dir = export_dir / 'presentation'
 
-    data_files = json.loads((present_dir / 'data-files.json').read_text())
+    data_files = json.loads((present_dir / 'data-local-resources.json').read_text())
     data_chats = json.loads((present_dir / 'data-chats.json').read_text())
 
     # Build chat_idx → slug from data-chats
