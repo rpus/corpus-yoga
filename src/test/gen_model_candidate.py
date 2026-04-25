@@ -1,6 +1,19 @@
-'''
-for f in conversations.json; do python "./src/test/gen_model_candidate.py" "$f" "./rsc/schema/${f%.json}.json" > "./gen/model/${f%.json}.json"; done
-'''
+"""
+gen_model_candidate.py — Generate a per-schema definition catalogue.
+
+For each definition in a JSON Schema file, records its description and every
+JSON Pointer path at which it is referenced. The output is a candidate for
+informing rsc/model.json — review it and curate rsc/model.json by hand.
+
+Usage:
+    python src/test/gen_model_candidate.py <schema-stem> <schema-file>
+
+Examples:
+    python src/test/gen_model_candidate.py conversations rsc/schema/conversations/v6.json
+    python src/test/gen_model_candidate.py memories      rsc/schema/memories/memories.json
+
+Output: JSON to stdout. Redirect to gen/model/<schema-stem>.json for review.
+"""
 
 import json, sys
 from collections import defaultdict

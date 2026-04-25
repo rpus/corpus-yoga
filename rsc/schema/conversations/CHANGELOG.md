@@ -46,10 +46,10 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-bat
 
 Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000`
 
-### Restricted since v3
+### Restricted since v3 (non-material — no known export uses the restricted values)
 
-- `Attachment.file_type` — narrowed from open `string` to enum; instances with unlisted values now fail
-- `ToolInputWebSearch.source` — narrowed from open `string` to enum; instances with unlisted values now fail
+- `Attachment.file_type` — narrowed from open `string` to enum
+- `ToolInputWebSearch.source` — narrowed from open `string` to enum
 
 ### Relaxed since v3
 

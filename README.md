@@ -37,10 +37,18 @@ git clean -fdX; git clean -fdxn
 
 ---
 
+## Schema maintenance
+
+When the conversations schema changes, regenerate the model candidates and review `rsc/model.json`:
+
+```bash
+./src/test/gen_model.sh
+```
+
+---
+
 ## To be tested
 
-- Process `conversations.json` using `src/test/gen_model_candidate.py` (according to the instructions in its header comment).
-  - `mkdir ./gen/data-*/model`
 - Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
   - `mkdir ./gen/data-*/redacted`
 - Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.

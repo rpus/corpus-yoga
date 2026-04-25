@@ -250,21 +250,34 @@ Commit message should note what changed: new export incorporated, schema fixes a
 
 ## Creating a New Schema Version
 
-A new version is warranted whenever a schema change would cause any currently-passing export to fail — i.e. whenever the change is a **restriction**. A purely relaxed or refactored change can be made in-place on the current version (the existing EXPECTED_PASS entries remain valid).
+Schema versions follow **semantic versioning** (see <https://semver.org>) from v6 onward. Versions v1–v6 are legacy integer versions; their naming is retained as-is.
 
-### When to version
+```
+MAJOR.MINOR.PATCH   e.g. v6.1.0, v7.0.0
+```
 
-| Change type | Action |
-| --- | --- |
-| Relaxed only (new optional field, new `oneOf` branch) | Edit current `v{N}.json` in place |
-| Restricted (new `required`, narrowed enum, closed `additionalProperties`) | Create new `v{N+1}.json` |
-| Refactored (structural, no validation effect) | Edit current `v{N}.json` in place |
+| Component | Meaning | Trigger |
+| --- | --- | --- |
+| **MAJOR** | Breaking | A **material restriction**: a change that causes at least one currently-passing export to fail |
+| **MINOR** | Non-breaking extension | A **relaxation** or **non-material restriction**: more exports pass, none fail |
+| **PATCH** | No validation effect | **Refactored** only: structural changes, description updates, repairs |
 
-**Flag if:** a restriction is made in-place on the current version without checking whether any passing export would fail.
+File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointer in `pre_commit.py` always points to the highest version.
+
+### When to bump
+
+| Change type | Bump | Action |
+| --- | --- | --- |
+| Relaxed (new optional field, new `oneOf` branch) | MINOR | Copy to new MINOR file |
+| Restricted — material (causes a passing export to fail) | MAJOR | Copy to new MAJOR file |
+| Restricted — non-material (no known export uses the value) | MINOR | Copy to new MINOR file; note as non-material in CHANGELOG |
+| Refactored (no validation effect) | PATCH | Copy to new PATCH file, or edit in place if PATCH = 0 |
+
+**Flag if:** a restriction is applied without first verifying whether it is material (run all passing exports through the new schema before deciding the bump level).
 
 ### Steps to create a new version
 
-1. Copy the current latest schema: `cp rsc/schema/conversations/v{N}.json rsc/schema/conversations/v{N+1}.json`
+1. Determine the correct bump level (MAJOR/MINOR/PATCH) from the table above, then copy: `cp rsc/schema/conversations/v{current}.json rsc/schema/conversations/v{new}.json`
 2. Make the schema changes in `v{N+1}.json`. Every new definition must have `title` and `description` from the outset — the diagnostic suite will fail on these immediately and noisily if they are absent, obscuring other failures.
 3. Run the full workflow loop (steps 1–11) against `v{N+1}.json`.
 4. Test every known export against the new version to establish which pass:
@@ -296,9 +309,10 @@ A new version is warranted whenever a schema change would cause any currently-pa
    - For any definition added that has a meaningful MCP counterpart (or a noteworthy absence of one), add rows describing the relationship.
    - For any definition removed that has rows in the table, delete those rows.
    - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
-9. Generate validation logs for the new pairs: `src/main/validate.sh --data-root <path/to/data-exports>`
-   Note: step 10 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
-10. Run `src/test/pre_commit.sh` and confirm all checks pass.
+9. Run `src/test/gen_model.sh` and review `gen/model/conversations.json` — update `rsc/model.json` if any cross-schema identifiers changed.
+10. Generate validation logs for the new pairs: `src/main/validate.sh --data-root <path/to/data-exports>`
+    Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
+11. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
 **Flag if:** `CONV_VERSIONS`, `EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 

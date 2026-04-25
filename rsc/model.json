@@ -2,9 +2,6 @@
   "UserUUID": {
     "description": "The UUID of data export's user",
     "occurrences": {
-      "./schema/conversations/v5.json": [
-        "#/0/account/uuid"
-      ],
       "./schema/memories/memories.json": [
         "#/0/account_uuid"
       ],
@@ -13,6 +10,9 @@
       ],
       "./schema/users/users.json": [
         "#/0/uuid"
+      ],
+      "./schema/conversations/v6.json": [
+        "#/0/account/uuid"
       ]
     }
   }
