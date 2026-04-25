@@ -357,9 +357,11 @@ def extract_json(f: Path, rows: list) -> None:
             if val.startswith('#') or val.startswith('http'):
                 continue
             emit(rows, f, i, ref_type, val, stripped)
-        # Other string values that look like repo paths
-        for match in re.finditer(rf'"((?:{PREFIXES_RE})/[^"]+)"', stripped):
-            emit(rows, f, i, 'path_str', match.group(1), stripped)
+        # Any quoted string (key or value) that looks like a repo path
+        for match in re.finditer(r'"([^"]+)"', stripped):
+            s = match.group(1)
+            if looks_like_repo_path(s):
+                emit(rows, f, i, 'path_str', s, stripped)
 
 
 def extract_markdown(f: Path, rows: list) -> None:
@@ -367,8 +369,23 @@ def extract_markdown(f: Path, rows: list) -> None:
         lines = f.read_text(errors='replace').splitlines()
     except OSError:
         return
+    in_frontmatter = False
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
+        if i == 1 and stripped == '---':
+            in_frontmatter = True
+            continue
+        if in_frontmatter:
+            if stripped == '---':
+                in_frontmatter = False
+                continue
+            # YAML key: value — treat value as a path if it has a known extension
+            m = re.match(r'^\w[\w_]*:\s+(\S+)$', stripped)
+            if m:
+                val = m.group(1).strip('"\'')
+                if re.search(r'\.(json|md|py|sh|html|g4|txt|csv)$', val):
+                    emit(rows, f, i, 'doc', val, stripped)
+            continue
         # Markdown links [text](path)
         for match in re.finditer(r'\[([^\]]*)\]\(([^)]+)\)', stripped):
             target = match.group(2)

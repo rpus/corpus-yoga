@@ -2,9 +2,10 @@
 """documentation.open_set_enums_documented — Likely open-set enums say so in their description."""
 import json, sys
 
+# Enum value sets that are genuinely closed (exhaustive by design).
+# Each entry is annotated with the schema version from which it applies.
 KNOWN_CLOSED = {
-    frozenset(['human', 'assistant']),
-    frozenset(['text', 'tool_use', 'tool_result']),
+    frozenset(['human', 'assistant']),  # v1+: Message.sender
 }
 
 with open(sys.argv[1]) as f:

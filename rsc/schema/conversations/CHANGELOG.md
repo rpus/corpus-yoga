@@ -1,16 +1,34 @@
 # conversations schema changelog
 
-| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) |
-| --- | :---: | :---: | :---: | :---: | :---: |
-| `data-2026-03-19-22-47-05-batch-0000` | ✓ | ✗ | ✗ | ✗ | ✗ |
-| `data-2026-04-03-14-15-13-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
-| `data-2026-04-05-10-33-48-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
-| `data-2026-03-30-14-51-46-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
-| `data-2026-04-07-07-52-05-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000` | ✗ | ✗ | ✓ | ✓ | ✓ |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✓ |
+| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: |
+| `data-2026-03-19-22-47-05-batch-0000` | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ |
+| `data-2026-04-03-14-15-13-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `data-2026-04-05-10-33-48-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `data-2026-03-30-14-51-46-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `data-2026-04-07-07-52-05-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000` | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
+
+---
+
+## v6
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000`
+
+### Relaxed since v5
+
+- `Message.uuid` — widened from `UuidV7` to new `UuidV4orV7`; exports where some message UUIDs are v4 now pass
+- `Message.parent_message_uuid` — widened from `ParentMessageUuid` (v5: `oneOf: [UuidV7, NoParentMessageUuidV4]`) to `UuidV4orV7`; exports where some parent message UUIDs are v4 now pass
+
+### Refactored since v5
+
+- `MessageFile.file_uuid` — changed from inline `oneOf: [UuidV4, UuidV7]` to `{$ref: UuidV4orV7}`; semantically equivalent, no validation effect
+- `UuidV4` description — updated to document the zero v4 UUID convention
+- `UuidV7` description — simplified
 
 ---
 

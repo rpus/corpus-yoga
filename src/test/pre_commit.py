@@ -32,7 +32,7 @@ DIAG_DIR   = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR = RSC / 'schema'
 CONV_DIR   = SCHEMA_DIR / 'conversations'
 
-CONV_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5']
+CONV_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6']
 
 # Expected-passing combinations from CHANGELOG matrix: (data_dir_basename, version)
 EXPECTED_PASS = {
@@ -48,11 +48,16 @@ EXPECTED_PASS = {
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v3'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v4'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v5'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v6'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v4'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v5'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v6'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v4'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v5'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v6'),
     ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000', 'v5'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000', 'v6'),
+    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000', 'v6'),
 }
 
 ALL_SCHEMA_DIAGNOSTICS = [
@@ -179,7 +184,7 @@ for data_dir in sorted(d.name for d in GEN.iterdir() if d.is_dir() and d.name.st
 # ── Section 4: Conversations schema diagnostics ────────────────────────────────
 print('\n── Conversations schema diagnostics ──────────────────────────────────────')
 
-latest = CONV_DIR / 'v5.json'
+latest = CONV_DIR / 'v6.json'
 if not latest.exists():
     run('conversations schema diagnostics', False,
         f'{latest.relative_to(REPO_ROOT)} missing — skipping all')

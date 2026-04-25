@@ -1,7 +1,7 @@
 ---
-schema_file: rsc/schema/conversations/v{N}.json
-principles_file: conversations.schema.principles.md
-workflow_file: conversations.schema.workflow.md
+schema_file: rsc/schema/conversations/v5.json
+principles_file: rsc/schema/conversations/principles.md
+workflow_file: rsc/schema/conversations/workflow.md
 version: "1.3"
 ---
 
@@ -621,7 +621,7 @@ A discriminated union is expressed as three layers:
 
 Key insight: `allOf` and `oneOf` sit at the **wrapper** level, not inside the subtypes, which avoids `additionalProperties` conflicts. The `Has*DiscriminatorProperty` schema asserts the discriminator field is `required` and typed as a string.
 
-Known exception: `PromptContextMetadataSearch`/`Fetch` use key-presence discrimination rather than a type/name field, so no `Has*DiscriminatorProperty` applies.
+Known exceptions are maintained in `KNOWN_NON_DISCRIMINATED_UNIONS` in the diagnostic script, with a `# v{N}+` version annotation and rationale for each. Consult the script directly for the current list — do not duplicate it here.
 
 ```text
 Diagnostic: src/test/diagnostics/composition.discriminated_union_pattern.py

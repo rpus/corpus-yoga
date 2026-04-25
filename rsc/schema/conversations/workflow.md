@@ -1,6 +1,7 @@
 ---
-schema_file: conversations.schema.json
-principles_file: conversations.schema.principles.md
+schema_file: rsc/schema/conversations/v5.json
+principles_file: rsc/schema/conversations/principles.md
+workflow_file: rsc/schema/conversations/workflow.md
 version: "1.3"
 ---
 
@@ -264,7 +265,7 @@ A new version is warranted whenever a schema change would cause any currently-pa
 ### Steps to create a new version
 
 1. Copy the current latest schema: `cp rsc/schema/conversations/v{N}.json rsc/schema/conversations/v{N+1}.json`
-2. Make the schema changes in `v{N+1}.json`.
+2. Make the schema changes in `v{N+1}.json`. Every new definition must have `title` and `description` from the outset — the diagnostic suite will fail on these immediately and noisily if they are absent, obscuring other failures.
 3. Run the full workflow loop (steps 1–11) against `v{N+1}.json`.
 4. Test every known export against the new version to establish which pass:
 
@@ -285,10 +286,21 @@ A new version is warranted whenever a schema change would cause any currently-pa
    - Add `'v{N+1}'` to `CONV_VERSIONS`.
    - Add `EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
    - Update `latest` to `CONV_DIR / 'v{N+1}.json'`.
-7. Generate validation logs for the new pairs: `src/main/validate.sh --data-root <path/to/data-exports>`
-8. Run `src/test/pre_commit.sh` and confirm all checks pass.
+7. Review diagnostic exception sets in `src/test/diagnostics/`:
+   - `KNOWN_NON_DISCRIMINATED_UNIONS` in `composition.discriminated_union_pattern.py` — add any new `oneOf` unions that are non-discriminated (primitive or key-presence); remove entries for definitions that no longer exist.
+   - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
+   - `KNOWN_CLOSED` in `documentation.open_set_enums_documented.py` — add any newly confirmed closed enum sets; remove entries that no longer appear in the schema.
+   - Every entry must include a `# v{N}+` version annotation stating when it was added.
+8. Review `rsc/schema/conversations/mcp_join.csv`:
+   - The table covers only definitions with notable MCP correspondences — not every definition needs a row.
+   - For any definition added that has a meaningful MCP counterpart (or a noteworthy absence of one), add rows describing the relationship.
+   - For any definition removed that has rows in the table, delete those rows.
+   - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
+9. Generate validation logs for the new pairs: `src/main/validate.sh --data-root <path/to/data-exports>`
+   Note: step 10 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
+10. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
-**Flag if:** `CONV_VERSIONS`, `EXPECTED_PASS`, `latest`, and `CHANGELOG.md` are not all updated in the same session as the new version file.
+**Flag if:** `CONV_VERSIONS`, `EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 
 ---
 

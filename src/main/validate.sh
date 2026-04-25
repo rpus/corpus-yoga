@@ -40,6 +40,7 @@ on_failure() {
   python "$SCRIPT_DIR/schema_fragment.py" "$schema_ptr" "$schema"
   echo "--- schema occurrences ---"
   python "$SCRIPT_DIR/schema_occurences.py" "$schema_ptr" "$schema" "$f" | sed 's/^/  /'
+  # shellcheck disable=SC2016  # $p is a jq variable, not a shell expansion
   jq_filter='[inputs as $p | {key: ($p|tostring), value: ($inst[0]|getpath($p))}] | from_entries'
   echo "--- fetch occurrences command ---"
   echo "python \"$(rel_path "$SCRIPT_DIR/schema_occurences.py")\" \"$schema_ptr\" \"$(rel_path "$schema")\" \"$(rel_path "$f")\" \\"
@@ -89,7 +90,7 @@ validate_export() {
     fi
     for schema in "${schemas[@]}"; do
       [[ -e "$schema" ]] || continue
-      schema_stem="${schema#$SCHEMA_DIR/}"
+      schema_stem="${schema#"$SCHEMA_DIR/"}"
       schema_stem="${schema_stem%.json}"
       mkdir -p "$validation_dir/$(dirname "$schema_stem")"
       validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
@@ -115,7 +116,7 @@ main() {
   done
 
   if [[ -z "$data_dir" && -z "$data_root" ]]; then
-    echo "Usage: $0 --data-dir <path/to/data- directory>"
+    echo "Usage: $0 --data-dir <path/to/data-directory>"
     echo "       $0 --data-root <path/to/data-exports>"
     echo "       Pass --help for more information."
     exit 1

@@ -3,10 +3,13 @@
 import json, sys
 from collections import deque
 
+# Definitions intentionally unreachable via $ref — documented stubs for API
+# tool types not yet observed in any export.
+# Each entry is annotated with the schema version from which it applies.
 KNOWN_UNREACHABLE = {
-    'ToolInputComputerUse',   # documented stub, no observed instances
-    'ToolInputTextEditor',    # documented stub, no observed instances
-    'ToolInputCodeExecution', # documented stub, no observed instances
+    'ToolInputComputerUse',   # v1+: API tool, not yet surfaced in exports
+    'ToolInputTextEditor',    # v1+: API tool, not yet surfaced in exports
+    'ToolInputCodeExecution', # v1+: API tool, not yet surfaced in exports
 }
 
 with open(sys.argv[1]) as f:
