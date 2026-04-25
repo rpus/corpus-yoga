@@ -212,7 +212,7 @@ for export_file in [
 
 ### Step 9 · Reissue the schema
 
-Present the updated schema file for download. Note the line count and byte count in the session (matching the format used in `gen/validation.txt`).
+Present the updated schema file for download. Note the line count and byte count in the session (matching the format used in `gen/<export>/validation/conversations/v{N}.log`).
 
 **Flag if:** the schema is modified after this point without restarting the loop from step 1.
 

@@ -411,15 +411,15 @@ check({'definitions': schema['definitions']})
 
 **The `documenter.schema.json` pattern enables VS Code tooltips on data files.**
 
-A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `conversations.schema.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
+A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `rsc/schema/conversations/v5.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
 
 ```json
 {
-  "$schema": "./documenter.schema.json",
+  "$schema": "./documenter.json",
   "title": "...",
   "description": "...",
   "properties": {
-    "document": { "$ref": "./conversations.json" }
+    "document": { "$ref": "./conversations/v5.json" }
   },
   "document": null
 }
@@ -433,14 +433,10 @@ A self-referential wrapper file provides schema-aware editing and tooltip docume
 
 **The schema must validate against all known exports.**
 
-Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/validate.py` and results written to `gen/validation/{stem}.txt`. The pre-commit hook checks that all four output files exist and contain `Valid!`.
+Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/validate.sh` and results written to `gen/<export>/validation/conversations/v{N}.log`. The pre-commit hook checks all `EXPECTED_PASS` (export, version) pairs and confirms each log contains `Valid!`.
 
 ```bash
-# run from a data-* directory
-for f in *.json; do
-    python "./src/main/validate.py" "$f" "./rsc/schema/${f%.json}.json" \
-        > "./gen/validation/${f%.json}.txt"
-done
+src/main/validate.sh --data-root ../data-exports
 ```
 
 ```python

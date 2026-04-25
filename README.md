@@ -16,7 +16,10 @@ This repo wrangles Claude data exports.
 
 ```bash
 ./RUNME.sh
+./src/test/audit_files.sh
 ./src/test/xref.sh
+
+git clean -fdX; git clean -fdxn
 ```
 
 ## What that does

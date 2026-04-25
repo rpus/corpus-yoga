@@ -51,11 +51,12 @@ Downloaded path conventions
 
 Usage
 ─────
-    python src/test/audit_files.py <export-name>
+    python src/test/audit_files.py --data-dir  <path-to-export>
+    python src/test/audit_files.py --data-root <path-to-exports>
 
     Example:
-        python src/test/audit_files.py \\
-            data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000
+        python src/test/audit_files.py --data-dir \\
+            ../data-exports/data-0fc4c1e0-...-batch-0000
 
 SQL queries
 ───────────
@@ -66,6 +67,7 @@ reports) are defined in src/test/query_files.py and can be run with:
     python src/test/query_files.py <export-name>
 """
 
+import argparse
 import csv
 import json
 import re
@@ -100,11 +102,7 @@ def compare(src_path, dl_path):
     return 'differs'
 
 
-def main():
-    if len(sys.argv) != 2:
-        sys.exit(f'Usage: {sys.argv[0]} <export-name>')
-
-    name       = sys.argv[1]
+def run_one(name: str) -> None:
     exp_dir    = GEN_DIR / name
     pres       = exp_dir / 'presentation'
     ef_root    = exp_dir / 'extracted_files'
@@ -112,6 +110,7 @@ def main():
     out_dir    = exp_dir / 'audit_queries'
     out_dir.mkdir(exist_ok=True)
     out_path   = out_dir / 'files_audit.csv'
+    log        = (out_dir / 'audit_files.log').open('w')
 
     files_j = json.loads((pres / 'data-files.json').read_text())
     chats_j = json.loads((pres / 'data-chats.json').read_text())
@@ -195,7 +194,7 @@ def main():
         w.writerow(['chat', 'chat_name', 'source', 'path',
                     'in_dl', 'dl_compare', 'in_rsc'])
         w.writerows(rows)
-    print(f'{len(rows)} rows → {out_path.relative_to(REPO_ROOT)}')
+    log.write(f'{len(rows)} rows → {out_path.relative_to(REPO_ROOT)}\n')
 
     # ── Write joined table ────────────────────────────────────────────────────
     # One row per (chat, filename) with the actual path as it appears in each
@@ -228,7 +227,23 @@ def main():
                 ' | '.join(sorted(paths['eh_wrk'])),
                 ' | '.join(sorted(paths['dl'])),
             ])
-    print(f'{len(by_name)} rows → {joined_path.relative_to(REPO_ROOT)}')
+    log.write(f'{len(by_name)} rows → {joined_path.relative_to(REPO_ROOT)}\n')
+    log.close()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--data-dir',  help='Path to a single export directory')
+    group.add_argument('--data-root', help='Path to a directory containing multiple exports')
+    args = parser.parse_args()
+
+    if args.data_dir:
+        run_one(Path(args.data_dir).resolve().name)
+    else:
+        for d in sorted(Path(args.data_root).glob('data-*/')):
+            run_one(d.name)
 
 
 if __name__ == '__main__':

@@ -79,6 +79,7 @@ PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 def repo_files() -> list[Path]:
+    """Return all scannable source files in the repo."""
     result = []
     for f in REPO_ROOT.rglob('*'):
         if not f.is_file():
@@ -457,6 +458,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--out', default=str(REPO_ROOT / 'gen' / 'xref.csv'))
+    parser.add_argument('--data-root', required=True,
+                        help='Path to a directory of exports (scan is always repo-wide)')
     args = parser.parse_args()
 
     rows: list[list] = []

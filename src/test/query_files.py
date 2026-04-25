@@ -7,7 +7,8 @@ database and runs each of the five documented queries, writing results to
 gen/<export>/audit_queries/.
 
 Usage:
-    python src/test/query_files.py <export-name>
+    python src/test/query_files.py --data-dir  <path-to-export>
+    python src/test/query_files.py --data-root <path-to-exports>
 
 Output files
 ────────────
@@ -22,6 +23,7 @@ Output files
 The SQL for each query is defined in the QUERIES list below.
 """
 
+import argparse
 import csv
 import sqlite3
 import sys
@@ -107,17 +109,15 @@ QUERIES: list[tuple[str, str, str]] = [
 ]
 
 
-def main() -> None:
-    if len(sys.argv) != 2:
-        sys.exit(f'Usage: {sys.argv[0]} <export-name>')
-
-    name     = sys.argv[1]
+def run_one(name: str) -> None:
     csv_path = GEN_DIR / name / 'audit_queries' / 'files_audit.csv'
     out_dir  = GEN_DIR / name / 'audit_queries'
     out_dir.mkdir(exist_ok=True)
 
     if not csv_path.exists():
         sys.exit(f'Not found: {csv_path}\nRun audit_files.py first.')
+
+    log = (out_dir / 'audit_files.log').open('a')
 
     con = sqlite3.connect(':memory:')
     con.row_factory = sqlite3.Row
@@ -148,9 +148,26 @@ def main() -> None:
             if rows:
                 w.writerow(rows[0].keys())
                 w.writerows(rows)
-        print(f'{len(rows):4d} rows  {stem}.csv  ({description})')
+        log.write(f'{len(rows):4d} rows  {stem}.csv  ({description})\n')
 
     con.close()
+    log.close()
+    print(f'  ✓ {name} → {out_dir.relative_to(GEN_DIR.parent)}')
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--data-dir',  help='Path to a single export directory')
+    group.add_argument('--data-root', help='Path to a directory containing multiple exports')
+    args = parser.parse_args()
+
+    if args.data_dir:
+        run_one(Path(args.data_dir).resolve().name)
+    else:
+        for d in sorted(Path(args.data_root).glob('data-*/')):
+            run_one(d.name)
 
 
 if __name__ == '__main__':

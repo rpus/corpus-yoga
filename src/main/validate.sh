@@ -97,19 +97,27 @@ validate_export() {
   done
 }
 
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  grep "^# " "$0" | sed "s/^# //" | head -10
+  exit 0
+fi
+
 main() {
   local data_dir="" data_root=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --data-dir)  data_dir="$2";  shift 2 ;;
       --data-root) data_root="$2"; shift 2 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 --data-dir <path> | --data-root <path>"; exit 1 ;;
+      *) echo "Unknown argument: $1"
+         echo "Usage: $0 --data-dir <path> | --data-root <path>"
+         echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
   if [[ -z "$data_dir" && -z "$data_root" ]]; then
     echo "Usage: $0 --data-dir <path/to/data- directory>"
     echo "       $0 --data-root <path/to/data-exports>"
+    echo "       Pass --help for more information."
     exit 1
   fi
 

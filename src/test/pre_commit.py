@@ -59,6 +59,17 @@ ALL_SCHEMA_DIAGNOSTICS = [
     'naming.root_schema_title_matches_filename',
 ]
 
+# Schemas (other than the versioned conversations schemas) against which
+# ALL_SCHEMA_DIAGNOSTICS are run. Excludes external schemas (mcp.json,
+# json-schema_draft-04.json) and special-purpose schemas (documenter.json,
+# data-table.json) whose titles are prose rather than matching their stem.
+ALL_SCHEMA_TARGETS = [
+    SCHEMA_DIR / 'memories'  / 'memories.json',
+    SCHEMA_DIR / 'projects'  / 'projects.json',
+    SCHEMA_DIR / 'users'     / 'users.json',
+    SCHEMA_DIR / 'model.json',
+]
+
 CONVERSATIONS_DIAGNOSTICS = [
     'naming.upper_camel_case',
     'naming.title_matches_key',
@@ -151,6 +162,20 @@ for data_dir, version in sorted(EXPECTED_PASS):
     detail = next((l for l in content.splitlines() if l.startswith('Validation error:')), None)
     run(f'validation passing: {data_dir} × {version}', passed, detail)
 
+# Check the closed-world complement: every (export, version) pair that is NOT in
+# EXPECTED_PASS must not be passing. A surprise pass signals either a regression
+# (the schema was accidentally relaxed) or a missing EXPECTED_PASS entry.
+for data_dir in sorted(d.name for d in GEN.iterdir() if d.is_dir() and d.name.startswith('data-')):
+    for version in CONV_VERSIONS:
+        if (data_dir, version) in EXPECTED_PASS:
+            continue
+        log = GEN / data_dir / 'validation' / 'conversations' / f'{version}.log'
+        if not log.exists():
+            continue  # never validated — no claim either way
+        if 'Valid!' in log.read_text():
+            run(f'unexpected pass (not in EXPECTED_PASS): {data_dir} × {version}', False,
+                'Add to EXPECTED_PASS or investigate regression')
+
 # ── Section 4: Conversations schema diagnostics ────────────────────────────────
 print('\n── Conversations schema diagnostics ──────────────────────────────────────')
 
@@ -171,6 +196,76 @@ else:
         else:
             detail = None
         run(diag, passed, detail)
+
+# ── Section 5: All-schema diagnostics ─────────────────────────────────────────
+print('\n── All-schema diagnostics ────────────────────────────────────────────────')
+
+for schema_path in ALL_SCHEMA_TARGETS:
+    if not schema_path.exists():
+        run(f'exists: {schema_path.relative_to(REPO_ROOT)}', False)
+        continue
+    for diag in ALL_SCHEMA_DIAGNOSTICS:
+        script = DIAG_DIR / f'{diag}.py'
+        if not script.exists():
+            run(f'{diag}: {schema_path.name}', False,
+                f'Diagnostic script missing: {script.relative_to(REPO_ROOT)}')
+            continue
+        passed, output = call(script, str(schema_path))
+        if not passed:
+            lines = output.splitlines()
+            detail = '\n    '.join(lines[1:]) if len(lines) > 1 else (lines[0] if lines else None)
+        else:
+            detail = None
+        run(f'{diag}: {schema_path.relative_to(SCHEMA_DIR)}', passed, detail)
+
+# ── Section 6: mcp_join.csv pointer validation ────────────────────────────────
+print('\n── mcp_join.csv pointer validation ──────────────────────────────────────')
+
+import csv as _csv
+
+MCP_JOIN = CONV_DIR / 'mcp_join.csv'
+if not MCP_JOIN.exists():
+    run('mcp_join.csv exists', False)
+else:
+    def _walk_pointer(doc: object, pointer: str) -> bool:
+        from typing import Any
+        node: Any = doc
+        for tok in pointer.lstrip('/').split('/'):
+            tok = tok.replace('~1', '/').replace('~0', '~')
+            try:
+                if isinstance(node, dict):
+                    node = node[tok]
+                elif isinstance(node, list):
+                    node = node[int(tok)]
+                else:
+                    return False
+            except (KeyError, IndexError, ValueError):
+                return False
+        return True
+
+    join_fails: list[str] = []
+    with MCP_JOIN.open() as fh:
+        for i, row in enumerate(_csv.DictReader(fh), 2):
+            for col in ('conv_path', 'mcp_path'):
+                ref = row[col].strip()
+                if not ref:
+                    continue
+                file_part, _, pointer = ref.partition('#')
+                f = (CONV_DIR / file_part).resolve()
+                if not f.exists():
+                    join_fails.append(f'row {i} {col}: file not found: {file_part}')
+                    continue
+                if pointer and f.suffix == '.json':
+                    try:
+                        doc = json.loads(f.read_text())
+                    except json.JSONDecodeError:
+                        join_fails.append(f'row {i} {col}: invalid JSON: {file_part}')
+                        continue
+                    if not _walk_pointer(doc, pointer):
+                        join_fails.append(f'row {i} {col}: bad pointer: {ref}')
+
+    detail_str = '\n    '.join(join_fails[:5]) if join_fails else None
+    run('mcp_join.csv: all pointers valid', not join_fails, detail_str)
 
 # ── Summary ────────────────────────────────────────────────────────────────────
 print()

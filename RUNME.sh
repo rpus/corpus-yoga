@@ -26,6 +26,11 @@ run_one() {
   "$SCRIPT_DIR/src/main/present.sh" --data-dir "$data_dir"
 }
 
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  grep "^# " "$0" | sed "s/^# //" | head -10
+  exit 0
+fi
+
 main() {
   local data_dir="" data_root="" pay_for_inference="0"
 
@@ -37,7 +42,7 @@ main() {
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 --data-dir <path> | --data-root <path> [--pay-for-inference]"
-        exit 1 ;;
+        echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
@@ -47,6 +52,7 @@ main() {
     echo
     echo "Options:"
     echo "  --pay-for-inference   also run infer_tables.sh (requires ANTHROPIC_API_KEY in env)"
+    echo "       Pass --help for more information."
     exit 1
   fi
 
