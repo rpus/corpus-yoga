@@ -51,7 +51,7 @@ on_failure() {
 on_success() {
   local f="$1" schema="$2"
   echo "--- recommendations ---"
-  python "$REPO_DIR/src/test/conversation-exports/schema_recommendations.py" "$f" "$schema"
+  python "$REPO_DIR/src/test/schema_recommendations.py" "$f" "$schema"
 }
 
 validate_file() {
