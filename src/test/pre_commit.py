@@ -90,7 +90,7 @@ CLI_SESSIONS_DIAGNOSTICS_SKIP = {
     'composition.base_schemas_closed',
 }
 
-# Expected-passing (project, session, schema-version) triples for code-sessions.
+# Expected-passing (project, session, schema-version) triples for the sessions schema.
 # Parallel to EXPECTED_PASS for conversations.
 # Project name is the ~/.claude/projects/ slug: absolute path with / replaced by -.
 # Derived from REPO_SLUG so no username is hardcoded here.

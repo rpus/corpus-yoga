@@ -60,9 +60,9 @@ python src/test/pre_commit.py
 ## To be tested
 
 - Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
-  - `mkdir ./gen/data-*/redacted`
+  - `mkdir ./gen/conversation-exports/data-*/redacted`
 - Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
-  - `mkdir ./gen/data-*/summarised`
+  - `mkdir ./gen/conversation-exports/data-*/summarised`
 
 ## To be implemented
 
