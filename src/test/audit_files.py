@@ -76,7 +76,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
 REPO_ROOT  = SCRIPT_DIR.parents[1]
-GEN_DIR    = REPO_ROOT / 'gen'
+GEN_DIR    = REPO_ROOT / 'gen' / 'data-exports'
 DL_ROOT    = REPO_ROOT / 'rsc' / 'artifacts' / 'downloaded'
 RSC_EF     = REPO_ROOT / 'rsc' / 'artifacts' / 'extracted_files'
 RSC_EH     = REPO_ROOT / 'rsc' / 'artifacts' / 'extracted_heredocs'

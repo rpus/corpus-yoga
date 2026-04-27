@@ -7,6 +7,9 @@
 			"path": "../data-exports"
 		},
 		{
+			"path": "../code-sessions"
+		},
+		{
 			"path": "../claude-chat-exporter"
 		}
 	],

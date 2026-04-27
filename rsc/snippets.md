@@ -1,5 +1,15 @@
 # Snippets
 
+## convert JSONL to JSON array (incremental / streaming)
+
+```bash
+# jq — reads one object at a time, O(1) memory
+jq -n '[inputs]' session.jsonl > session.json
+
+# Python — same semantics, validates each line
+python src/main/jsonl_to_json.py session.jsonl session.json
+```
+
 ## number of (Conversation) elements in root array
 
 ```bash

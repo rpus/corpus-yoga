@@ -5,7 +5,9 @@ import json, sys
 # Enum value sets that are genuinely closed (exhaustive by design).
 # Each entry is annotated with the schema version from which it applies.
 KNOWN_CLOSED = {
-    frozenset(['human', 'assistant']),  # v1+: Message.sender
+    frozenset(['human', 'assistant']),                             # conversations v1+: Message.sender
+    frozenset(['enqueue', 'dequeue', 'popAll', 'remove']),         # claude-code-sessions v1+: QueueOperationName
+    frozenset(['cli', 'claude-vscode']),                           # claude-code-sessions v1+: Entrypoint
 }
 
 with open(sys.argv[1]) as f:

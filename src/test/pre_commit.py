@@ -27,10 +27,12 @@ from pathlib import Path
 REPO_ROOT  = Path(__file__).parents[2]
 SRC        = REPO_ROOT / 'src'
 RSC        = REPO_ROOT / 'rsc'
-GEN        = REPO_ROOT / 'gen'
+GEN        = REPO_ROOT / 'gen' / 'data-exports'
+GEN_CLI    = REPO_ROOT / 'gen' / 'code-sessions'
 DIAG_DIR   = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR = RSC / 'schema'
 CONV_DIR   = SCHEMA_DIR / 'conversations'
+CLI_DIR    = SCHEMA_DIR / 'claude-code-sessions'
 
 CONV_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6']
 
@@ -74,6 +76,21 @@ ALL_SCHEMA_TARGETS = [
     SCHEMA_DIR / 'users'     / 'users.json',
     SCHEMA_DIR / 'model.json',
 ]
+
+# All CONVERSATIONS_DIAGNOSTICS apply to the CLI sessions schema except:
+#   composition.base_schemas_closed — justified deviation (TurnBase; see principles.md)
+#   naming.root_schema_title_matches_filename — not in CONVERSATIONS_DIAGNOSTICS (handled
+#     via ALL_SCHEMA_DIAGNOSTICS for non-versioned schemas; versioned schemas are exempt)
+CLI_SESSIONS_DIAGNOSTICS_SKIP = {
+    'composition.base_schemas_closed',
+}
+
+# Expected-passing (project, session, schema-version) triples for code-sessions.
+# Parallel to EXPECTED_PASS for conversations.
+CLI_EXPECTED_PASS = {
+    ('claude-export-yoga', '60c07575-359d-4484-aaa1-6068f03d5297', 'v1'),
+    ('claude-export-yoga', 'a40a0813-8a53-4503-a2ca-0b52b95e6406', 'v1'),
+}
 
 CONVERSATIONS_DIAGNOSTICS = [
     'naming.upper_camel_case',
@@ -126,6 +143,9 @@ print('\n── Required files ────────────────�
 required = [
     CONV_DIR  / 'principles.md',
     CONV_DIR  / 'workflow.md',
+    CLI_DIR   / 'v1.json',
+    CLI_DIR   / 'principles.md',
+    CLI_DIR   / 'workflow.md',
     SRC  / 'main' / 'validate.py',
     SRC  / 'main' / 'validate.sh',
     SRC  / 'test' / 'gen_model_candidate.py',
@@ -170,7 +190,7 @@ for data_dir, version in sorted(EXPECTED_PASS):
 # Check the closed-world complement: every (export, version) pair that is NOT in
 # EXPECTED_PASS must not be passing. A surprise pass signals either a regression
 # (the schema was accidentally relaxed) or a missing EXPECTED_PASS entry.
-for data_dir in sorted(d.name for d in GEN.iterdir() if d.is_dir() and d.name.startswith('data-')):
+for data_dir in sorted(d.name for d in GEN.iterdir() if d.is_dir() and d.name.startswith('data-')) if GEN.exists() else []:
     for version in CONV_VERSIONS:
         if (data_dir, version) in EXPECTED_PASS:
             continue
@@ -184,7 +204,11 @@ for data_dir in sorted(d.name for d in GEN.iterdir() if d.is_dir() and d.name.st
 # ── Section 4: Conversations schema diagnostics ────────────────────────────────
 print('\n── Conversations schema diagnostics ──────────────────────────────────────')
 
-latest = CONV_DIR / 'v6.json'
+import re as _re
+latest = max(
+    CONV_DIR.glob('v*.json'),
+    key=lambda f: [int(x) for x in _re.findall(r'\d+', f.stem)]
+)
 if not latest.exists():
     run('conversations schema diagnostics', False,
         f'{latest.relative_to(REPO_ROOT)} missing — skipping all')
@@ -202,7 +226,45 @@ else:
             detail = None
         run(diag, passed, detail)
 
-# ── Section 5: All-schema diagnostics ─────────────────────────────────────────
+# ── Section 5: CLI sessions schema diagnostics ────────────────────────────────
+print('\n── CLI sessions schema diagnostics ──────────────────────────────────────')
+
+cli_schema = CLI_DIR / 'v1.json'
+if not cli_schema.exists():
+    run('cli-sessions schema diagnostics', False,
+        f'{cli_schema.relative_to(REPO_ROOT)} missing — skipping all')
+else:
+    for diag in CONVERSATIONS_DIAGNOSTICS:
+        if diag in CLI_SESSIONS_DIAGNOSTICS_SKIP:
+            continue
+        script = DIAG_DIR / f'{diag}.py'
+        if not script.exists():
+            run(f'cli-sessions: {diag}', False,
+                f'Diagnostic script missing: {script.relative_to(REPO_ROOT)}')
+            continue
+        passed, output = call(script, str(cli_schema))
+        if not passed:
+            lines = output.splitlines()
+            detail = '\n    '.join(lines[1:]) if len(lines) > 1 else (lines[0] if lines else None)
+        else:
+            detail = None
+        run(f'cli-sessions: {diag}', passed, detail)
+
+# ── Section 6: CLI sessions validation outputs ────────────────────────────────
+print('\n── CLI sessions validation outputs ──────────────────────────────────────')
+
+for project, session, version in sorted(CLI_EXPECTED_PASS):
+    log = GEN_CLI / project / session / 'validation' / 'claude-code-sessions' / f'{version}.log'
+    if not log.exists():
+        run(f'cli validation log exists: {project}/{session[:8]}… × {version}', False,
+            'Run: RUNME-code-sessions.sh')
+        continue
+    content = log.read_text()
+    passed = 'Valid!' in content
+    detail = next((l for l in content.splitlines() if l.startswith('Validation error:')), None)
+    run(f'cli validation passing: {project}/{session[:8]}… × {version}', passed, detail)
+
+# ── Section 7: All-schema diagnostics ─────────────────────────────────────────
 print('\n── All-schema diagnostics ────────────────────────────────────────────────')
 
 for schema_path in ALL_SCHEMA_TARGETS:
@@ -223,7 +285,7 @@ for schema_path in ALL_SCHEMA_TARGETS:
             detail = None
         run(f'{diag}: {schema_path.relative_to(SCHEMA_DIR)}', passed, detail)
 
-# ── Section 6: mcp_join.csv pointer validation ────────────────────────────────
+# ── Section 8: mcp_join.csv pointer validation ────────────────────────────────
 print('\n── mcp_join.csv pointer validation ──────────────────────────────────────')
 
 import csv as _csv
@@ -271,6 +333,40 @@ else:
 
     detail_str = '\n    '.join(join_fails[:5]) if join_fails else None
     run('mcp_join.csv: all pointers valid', not join_fails, detail_str)
+
+# ── Section 9: cli_join.csv pointer validation ────────────────────────────────
+print('\n── cli_join.csv pointer validation ──────────────────────────────────────')
+
+CLI_SESSIONS_DIR = SCHEMA_DIR / 'claude-code-sessions'
+CLI_JOIN = CLI_SESSIONS_DIR / 'cli_join.csv'
+if not CLI_JOIN.exists():
+    run('cli_join.csv exists', False)
+else:
+    cli_join_fails: list[str] = []
+    with CLI_JOIN.open() as fh:
+        for i, row in enumerate(_csv.DictReader(fh), 2):
+            for col in ('cli_path', 'conv_path', 'mcp_path'):
+                ref = row[col].strip()
+                if not ref:
+                    continue
+                file_part, _, pointer = ref.partition('#')
+                # cli_path is relative to CLI_SESSIONS_DIR; conv/mcp paths to CONV_DIR
+                base = CLI_SESSIONS_DIR if col == 'cli_path' else CONV_DIR
+                f = (base / file_part).resolve()
+                if not f.exists():
+                    cli_join_fails.append(f'row {i} {col}: file not found: {file_part}')
+                    continue
+                if pointer and f.suffix == '.json':
+                    try:
+                        doc = json.loads(f.read_text())
+                    except json.JSONDecodeError:
+                        cli_join_fails.append(f'row {i} {col}: invalid JSON: {file_part}')
+                        continue
+                    if not _walk_pointer(doc, pointer):
+                        cli_join_fails.append(f'row {i} {col}: bad pointer: {ref}')
+
+    detail_str = '\n    '.join(cli_join_fails[:5]) if cli_join_fails else None
+    run('cli_join.csv: all pointers valid', not cli_join_fails, detail_str)
 
 # ── Summary ────────────────────────────────────────────────────────────────────
 print()

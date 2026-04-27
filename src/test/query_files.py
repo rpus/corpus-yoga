@@ -31,7 +31,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
 REPO_ROOT  = SCRIPT_DIR.parents[1]
-GEN_DIR    = REPO_ROOT / 'gen'
+GEN_DIR    = REPO_ROOT / 'gen' / 'data-exports'
 
 QUERIES: list[tuple[str, str, str]] = [
     (

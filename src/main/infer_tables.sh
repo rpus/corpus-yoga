@@ -7,7 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-OUTPUT_DIR="$REPO_DIR/gen"
+OUTPUT_DIR="$REPO_DIR/gen/data-exports"
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
 API_URL="https://api.anthropic.com/v1/messages"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"

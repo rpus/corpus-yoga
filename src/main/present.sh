@@ -7,7 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-OUTPUT_DIR="$REPO_DIR/gen"
+OUTPUT_DIR="$REPO_DIR/gen/data-exports"
 TEMPLATE="$REPO_DIR/rsc/index.html"
 WORD_FREQ_SCRIPT="$SCRIPT_DIR/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"

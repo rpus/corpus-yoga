@@ -252,7 +252,7 @@ Commit message should note what changed: new export incorporated, schema fixes a
 
 Schema versions follow **semantic versioning** (see <https://semver.org>) from v6 onward. Versions v1–v6 are legacy integer versions; their naming is retained as-is.
 
-```
+```text
 MAJOR.MINOR.PATCH   e.g. v6.1.0, v7.0.0
 ```
 
@@ -309,7 +309,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
    - For any definition added that has a meaningful MCP counterpart (or a noteworthy absence of one), add rows describing the relationship.
    - For any definition removed that has rows in the table, delete those rows.
    - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
-9. Run `src/test/gen_model.sh` and review `gen/model/conversations.json` — update `rsc/model.json` if any cross-schema identifiers changed.
+9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/model.json` if any cross-schema identifiers changed.
 10. Generate validation logs for the new pairs: `src/main/validate.sh --data-root <path/to/data-exports>`
     Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
 11. Run `src/test/pre_commit.sh` and confirm all checks pass.

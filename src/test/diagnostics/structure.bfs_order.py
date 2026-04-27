@@ -19,7 +19,8 @@ def find_refs_ordered(obj):
             for v in o: walk(v)
     walk(obj); return refs
 
-order, visited, queue = [], set(), deque(['Conversation'])
+root = next(iter(defs))  # first definition is the BFS root
+order, visited, queue = [], set(), deque([root])
 while queue:
     node = queue.popleft()
     if node in visited: continue

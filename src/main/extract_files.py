@@ -142,7 +142,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).parent
-OUTPUT_DIR     = SCRIPT_DIR.parent.parent / 'gen'
+OUTPUT_DIR     = SCRIPT_DIR.parent.parent / 'gen' / 'data-exports'
 DOWNLOADED_DIR = SCRIPT_DIR.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
 RSC_DIR        = SCRIPT_DIR.parent.parent / 'rsc' / 'artifacts' / 'extracted_files'
 

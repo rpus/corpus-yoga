@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
-OUTPUT_DIR = SCRIPT_DIR.parent.parent / 'gen'
+OUTPUT_DIR = SCRIPT_DIR.parent.parent / 'gen' / 'data-exports'
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',

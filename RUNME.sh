@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="$SCRIPT_DIR/gen"
+OUTPUT_DIR="$SCRIPT_DIR/gen/data-exports"
 
 run_one() {
   local data_dir="${1%/}"

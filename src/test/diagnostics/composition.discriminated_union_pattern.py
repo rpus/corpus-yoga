@@ -7,9 +7,10 @@ import json, sys
 # than object unions with a type/name field discriminator.
 # Each entry is annotated with the schema version from which it applies.
 KNOWN_NON_DISCRIMINATED_UNIONS = {
-    '/definitions/ToolResultSearchItem/properties/prompt_context_metadata',  # v1+: key-presence (search vs fetch)
-    '/definitions/MessageFile/properties/file_uuid',                          # v3+: key-presence (with vs without uuid)
-    '/definitions/UuidV4orV7',                                                # v6+: primitive union UuidV4|UuidV7
+    '/definitions/ToolResultSearchItem/properties/prompt_context_metadata',  # conversations v1+: key-presence (search vs fetch)
+    '/definitions/MessageFile/properties/file_uuid',                          # conversations v3+: key-presence (with vs without uuid)
+    '/definitions/UuidV4orV7',                                                # conversations v6+: primitive union UuidV4|UuidV7
+    '/definitions/TurnBase/properties/parentUuid',                            # claude-code-sessions v1+: nullable primitive (null|UuidV4)
 }
 
 with open(sys.argv[1]) as f:

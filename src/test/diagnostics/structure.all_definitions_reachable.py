@@ -26,7 +26,8 @@ def find_refs(obj):
             for v in o: walk(v)
     walk(obj); return refs
 
-visited, queue = set(), deque(['Conversation'])
+root = next(iter(defs))  # first definition is the reachability root
+visited, queue = set(), deque([root])
 while queue:
     node = queue.popleft()
     if node in visited: continue
