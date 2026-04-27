@@ -15,11 +15,11 @@ This repo wrangles Claude data exports.
   - `source ~/.zprofile` (to get `ANTHROPIC_API_KEY` into `env` for table inference by Claude)
 
 ```bash
-./src/main/conversation-exports/RUNME.sh
-./src/test/conversation-exports/audit_files.sh
-./src/main/code-projects/RUNME.sh
+./src/main/conversation-exports/RUNME.sh --conversation-exports ../conversation-exports
+./src/test/conversation-exports/audit_files.sh --conversation-exports ../conversation-exports
+./src/main/code-projects/RUNME.sh --code-projects ../code-projects
 ./src/test/xref.sh
-# ./src/test/pre_commit.sh
+./src/test/pre_commit.sh
 git clean -fdX; git clean -fdxn
 ```
 
