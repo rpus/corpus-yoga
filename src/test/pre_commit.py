@@ -158,6 +158,7 @@ required = [
     SRC  / 'main' / 'validate.py',
     SRC  / 'main' / 'conversation-exports' / 'validate.sh',
     SRC  / 'test' / 'gen_model_candidate.py',
+    SRC  / 'test' / 'schema_recommendations.py',
     SRC  / 'test' / 'gen_model.py',
     SRC  / 'run_python_script.sh',
     RSC  / 'model.json',
