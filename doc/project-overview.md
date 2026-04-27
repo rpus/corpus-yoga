@@ -10,7 +10,7 @@ The root `README.md` covers usage; this document covers architecture.
 
 ## Inputs
 
-### Claude.ai exports (`../data-exports/`)
+### Claude.ai exports (`../conversation-exports/`)
 
 Requested from Settings → Privacy → Export Data on claude.ai. Each export is a
 directory named by account UUID and timestamp:
@@ -23,32 +23,45 @@ data-{account-uuid}-{unix-timestamp}-{hash}-batch-0000/
 └── users.json            ← account info
 ```
 
-These live in `../data-exports/` (a sibling directory, not in this repo). The `CHANGELOG.md`
+These live in `../conversation-exports/` (a sibling directory, not in this repo). The `CHANGELOG.md`
 in `rsc/schema/conversations/` tracks which exports have been processed and which schema
 version each passes.
 
 Earlier exports used a simpler date-only naming: `data-2026-03-19-22-47-05-batch-0000`.
 
-### Claude Code CLI sessions (`../code-sessions/`)
+### Claude Code CLI sessions (`../code-projects/`)
 
 Session transcripts written by Claude Code to `~/.claude/projects/{project}/{session}.jsonl`.
-The `../code-sessions/` sibling directory contains named symlinks into `~/.claude/projects/`
-so the pipeline can reference them without knowing the opaque path naming convention.
+`../code-projects/` is a single symlink directly to `~/.claude/projects/`, so every
+project Claude Code has run in is immediately accessible. One-time setup:
 
 ```bash
-# To add sessions for another repo:
-ln -sfn ~/.claude/projects/-Users-{user}-{path...} ../code-sessions/my-project-name
+ln -sfn ~/.claude/projects ../code-projects
 ```
 
-See `doc/code-sessions-research.md` for the full setup procedure and format documentation.
+Project subdirectory names are the absolute path with `/` replaced by `-`; derive the
+slug for any project with `pwd | tr '/' '-'`.
+
+See `doc/code-projects/research.md` for the full setup procedure and format documentation.
+
+---
+
+## Source layout
+
+`src/main/` and `src/test/` are each split into pipeline subdirectories
+(`conversation-exports/`, `code-projects/`) plus a top level. The rule: a script lives
+in the pipeline subdirectory whose callers are exclusively within that pipeline; scripts
+called from multiple pipelines (or from tooling/tests that span both) live at the top
+level. `src/main/validate.py` and `src/test/pre_commit.py` are the main examples of
+genuinely shared scripts. `src/run_python_script.sh` is a shared infrastructure script — a thin venv wrapper callable by any shell script that needs to run a single Python file.
 
 ---
 
 ## Pipeline
 
-`RUNME.sh` orchestrates four stages in order. Each stage can also be run independently.
+`src/main/conversation-exports/RUNME.sh` orchestrates four stages in order. Each stage can also be run independently.
 
-### 1. `src/main/validate.sh` → `validate.py`
+### 1. `src/main/conversation-exports/validate.sh` → `validate.py`
 
 Validates `conversations.json` against the versioned JSON Schema in
 `rsc/schema/conversations/` (currently `rsc/schema/conversations/v6.json`). On failure,
@@ -59,9 +72,9 @@ value in the export, and a suggested remediation command. On success, runs
 When the export fails validation, the schema is updated (following the workflow in
 `rsc/schema/conversations/workflow.md`) until it passes.
 
-Output: `gen/data-exports/{export-name}/validation/conversations/` — one `.log` per schema version
+Output: `gen/conversation-exports/{export-name}/validation/conversations/` — one `.log` per schema version
 
-### 2. `src/main/extract_files.sh` → `extract_files.py`
+### 2. `src/main/conversation-exports/extract_files.sh` → `extract_files.py`
 
 Extracts files that Claude wrote via `create_file` tool calls. These are explicit JSON
 records in the conversation — structured and reliable.
@@ -71,9 +84,9 @@ records in the conversation — structured and reliable.
 - Last write wins when Claude revised a file multiple times
 - Cross-references with `rsc/artifacts/downloaded/` and copies new finds there
 
-Output: `gen/data-exports/{export-name}/extracted_files/` — one subdirectory per conversation
+Output: `gen/conversation-exports/{export-name}/extracted_files/` — one subdirectory per conversation
 
-### 3. `src/main/extract_heredocs.sh` → `extract_heredocs.py`
+### 3. `src/main/conversation-exports/extract_heredocs.sh` → `extract_heredocs.py`
 
 Extracts files that Claude wrote via bash heredocs — `cat > /path << 'EOF' ... EOF`
 patterns inside `bash_tool` commands. These require regex reconstruction from raw text.
@@ -88,9 +101,9 @@ Classifies by destination prefix:
 Produces unified diffs for files that diverge from the downloaded version. Files with
 only whitespace differences are noted but not treated as changes.
 
-Output: `gen/data-exports/{export-name}/extracted_heredocs/` — one subdirectory per conversation, each with `outputs/` and `working/` buckets
+Output: `gen/conversation-exports/{export-name}/extracted_heredocs/` — one subdirectory per conversation, each with `outputs/` and `working/` buckets
 
-### 4. `src/main/infer_tables.sh` *(optional — requires `ANTHROPIC_API_KEY`, costs money)*
+### 4. `src/main/conversation-exports/infer_tables.sh` *(optional — requires `ANTHROPIC_API_KEY`, costs money)*
 
 Calls the Claude API three times to infer semantic structure:
 
@@ -99,11 +112,11 @@ Calls the Claude API three times to infer semantic structure:
 3. **data-semantic** — weighted key concepts (salience, not raw frequency)
 
 Uses `claude-sonnet-4-6` with `max_tokens: 1024`. Skipped if `--pay-for-inference` is not
-passed to `RUNME.sh`.
+passed to `src/main/conversation-exports/RUNME.sh`.
 
-Output: three `.json` tables under `gen/data-exports/{export-name}/inferred/`
+Output: three `.json` tables under `gen/conversation-exports/{export-name}/inferred/`
 
-### 5. `src/main/present.sh`
+### 5. `src/main/conversation-exports/present.sh`
 
 Assembles all data sources into the interactive HTML dashboard. Runs several transforms:
 
@@ -118,7 +131,7 @@ Assembles all data sources into the interactive HTML dashboard. Runs several tra
 Injects all datasets into the `rsc/index.html` template via `<!-- key.json:begin/end -->`
 markers or `<script id="key">` tags, producing a self-contained HTML file.
 
-Output: a self-contained `index.html` dashboard plus `data-*.json` datasets under `gen/data-exports/{export-name}/presentation/`
+Output: a self-contained `index.html` dashboard plus `data-*.json` datasets under `gen/conversation-exports/{export-name}/presentation/`
 
 ---
 
@@ -144,7 +157,10 @@ files referenced in tool results that were not recovered by either extraction pa
 
 ## Schemas
 
-Four JSON Schemas (draft-4) in `rsc/schema/`, one per export file type:
+Four JSON Schemas (draft-4) in `rsc/schema/`, one per export file type. Schema
+directories are named after the data format they validate (matching the JSON filename
+stem), not after the pipeline that processes them — so the name stays stable if pipeline
+terminology changes.
 
 | Schema | Validates |
 | --- | --- |
@@ -152,21 +168,21 @@ Four JSON Schemas (draft-4) in `rsc/schema/`, one per export file type:
 | `rsc/schema/memories/memories.json` | `memories.json` — stored user memories |
 | `rsc/schema/projects/projects.json` | `projects.json` — project metadata |
 | `rsc/schema/users/users.json` | `users.json` — account information |
-| `rsc/schema/claude-code-sessions/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
+| `rsc/schema/sessions/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
 
 Supporting files:
 
 | File | Purpose |
 | --- | --- |
-| `mcp.json` | MCP protocol type definitions; used by `mcp_join.csv` for field-level comparison |
-| `data-table.json` | Generic columnar table format; used by inferred and computed datasets |
-| `documenter.json` | VS Code tooltip wrapper; enables schema-aware editing of data files |
-| `model.json` | Cross-schema type reference table |
-| `json-schema_draft-04.json` | The JSON Schema meta-schema itself |
+| `rsc/schema/mcp.json` | MCP protocol type definitions; used by `mcp_join.csv` for field-level comparison |
+| `rsc/schema/data-table.json` | Generic columnar table format; used by inferred and computed datasets |
+| `rsc/schema/documenter.json` | VS Code tooltip wrapper; enables schema-aware editing of data files |
+| `rsc/schema/model.json` | Cross-schema type reference table |
+| `rsc/schema/json-schema_draft-04.json` | The JSON Schema meta-schema itself |
 
 The conversations schema has the most elaborate maintenance apparatus (versioned files,
 `principles.md`, `workflow.md`, diagnostic suite). See
-[`doc/conversations-schema.md`](conversations-schema.md) for details.
+[`doc/conversation-exports/conversations-schema.md`](conversation-exports/conversations-schema.md) for details.
 
 ---
 
@@ -174,12 +190,12 @@ The conversations schema has the most elaborate maintenance apparatus (versioned
 
 All generated output lives under `gen/`, which is gitignored.
 
-### Data exports (`gen/data-exports/`)
+### Data exports (`gen/conversation-exports/`)
 
 For each processed claude.ai export:
 
 ```text
-gen/data-exports/<export>/
+gen/conversation-exports/<export>/
 ├── validation/
 │   └── conversations/v{N}.log
 ├── extracted_files/
@@ -204,10 +220,10 @@ gen/data-exports/<export>/
     └── data-semantic.json
 ```
 
-### Code sessions (gen/code-sessions/)
+### Code sessions (gen/code-projects/)
 
 For each processed CLI session project (currently a placeholder — pipeline not yet
-implemented), output would go under gen/code-sessions/{project-name}/validation/.
+implemented), output would go under gen/code-projects/{project-name}/validation/.
 
 The dashboard `index.html` is self-contained and can be opened directly in a browser.
 
@@ -222,10 +238,10 @@ Several scripts in this repo originated in conversations visible in the exports 
 | --- | --- |
 | `rsc/schema/conversations/principles.md` | Conversation 15 ("Accessing files from previous chats"), v1.2 → extended to v1.3 in repo |
 | `rsc/schema/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |
-| `src/main/validate.py` | Conversation 30 ("JSON Schema and jq fundamentals"), extended with JSON Pointer / `$ref` resolution |
-| `src/main/word_freq_literal.py` | Conversation 30, identical except shebang |
-| `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes |
-| `src/test/pre_commit.py` | Conversation 15, heavily extended for multi-version schema support |
+| `src/main/validate.py` | Conversation 30 ("JSON Schema and jq fundamentals"), extended with JSON Pointer / `$ref` resolution via the `referencing` library and removal of custom discriminator-based `oneOf` error formatting |
+| `src/main/conversation-exports/word_freq_literal.py` | Conversation 30, identical except shebang |
+| `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesuffix` replacing manual string slicing |
+| `src/test/pre_commit.py` | Conversation 15, heavily extended: versioned schema support, `EXPECTED_PASS` matrix of (export, schema-version) pairs, updated required-files and validation sections |
 
 The `rsc/artifacts/downloaded/` directory contains files downloaded from those same
 conversations.

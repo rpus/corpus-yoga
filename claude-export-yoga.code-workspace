@@ -4,10 +4,10 @@
 			"path": "."
 		},
 		{
-			"path": "../data-exports"
+			"path": "../code-projects"
 		},
 		{
-			"path": "../code-sessions"
+			"path": "../conversation-exports"
 		},
 		{
 			"path": "../claude-chat-exporter"

@@ -411,7 +411,7 @@ check({'definitions': schema['definitions']})
 
 **The `documenter.schema.json` pattern enables VS Code tooltips on data files.**
 
-A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `rsc/schema/conversations/v5.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
+A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `rsc/schema/conversations/v{N}.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
 
 ```json
 {
@@ -419,7 +419,7 @@ A self-referential wrapper file provides schema-aware editing and tooltip docume
   "title": "...",
   "description": "...",
   "properties": {
-    "document": { "$ref": "./conversations/v5.json" }
+    "document": { "$ref": "./conversations/v{N}.json" }
   },
   "document": null
 }
@@ -433,10 +433,10 @@ A self-referential wrapper file provides schema-aware editing and tooltip docume
 
 **The schema must validate against all known exports.**
 
-Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/validate.sh` and results written to `gen/<export>/validation/conversations/v{N}.log`. The pre-commit hook checks all `EXPECTED_PASS` (export, version) pairs and confirms each log contains `Valid!`.
+Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/conversation-exports/validate.sh` and results written to `gen/<export>/validation/conversations/v{N}.log`. The pre-commit hook checks all `EXPECTED_PASS` (export, version) pairs and confirms each log contains `Valid!`.
 
 ```bash
-src/main/validate.sh --data-root ../data-exports
+src/main/conversation-exports/validate.sh --conversation-exports ../conversation-exports
 ```
 
 ```python

@@ -7,7 +7,7 @@
 jq -n '[inputs]' session.jsonl > session.json
 
 # Python — same semantics, validates each line
-python src/main/jsonl_to_json.py session.jsonl session.json
+python src/main/code-projects/jsonl_to_json.py session.jsonl session.json
 ```
 
 ## number of (Conversation) elements in root array

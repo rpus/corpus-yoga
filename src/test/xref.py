@@ -45,15 +45,12 @@ import ast
 import csv
 import json
 import re
-import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
 
 # Directories/files to skip entirely
-SKIP_DIRS = {'.git', 'gen', 'rsc/artifacts', '__pycache__', '.claude'}
-# Root-level generated/deployed files that are not source
-SKIP_FILES = {'index.html'}
+SKIP_DIRS = {'.git', 'gen', 'tmp', 'rsc/artifacts', '__pycache__', '.claude'}
 
 # Python stdlib and known third-party modules — not repo files
 STDLIB_MODULES = {
@@ -90,8 +87,6 @@ def repo_files() -> list[Path]:
             continue
         if any(str(rel).startswith(d) for d in ('rsc/artifacts',)):
             continue
-        if f.name in SKIP_FILES and f.parent == REPO_ROOT:
-            continue
         result.append(f)
     return sorted(result)
 
@@ -103,6 +98,8 @@ def looks_like_repo_path(s: str) -> bool:
         return False
     if s.startswith('~'):
         return False  # home-relative path, outside the repo
+    if any(s.startswith(d + '/') for d in SKIP_DIRS):
+        return False  # reference into a skipped directory
     if '/../' in s or s.startswith('../') or s.endswith('/..'):
         return False  # escapes the repo
     # Explicit relative reference ./name.ext or ./name.ext#fragment
@@ -133,8 +130,9 @@ def resolve(referred: str, referring: Path) -> tuple[str, str]:
     """
     s = referred.strip()
 
-    # Split off JSON Pointer fragment
+    # Split off JSON Pointer fragment; strip trailing slash from path
     file_part, _, pointer = s.partition('#')
+    file_part = file_part.rstrip('/')
 
     def check_pointer(f: Path) -> bool:
         if not pointer or not f.suffix == '.json':
@@ -475,8 +473,6 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--out', default=str(REPO_ROOT / 'gen' / 'xref.csv'))
-    parser.add_argument('--data-root', required=True,
-                        help='Path to a directory of exports (scan is always repo-wide)')
     args = parser.parse_args()
 
     rows: list[list] = []

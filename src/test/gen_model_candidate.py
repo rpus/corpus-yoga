@@ -15,41 +15,45 @@ Examples:
 Output: JSON to stdout. Redirect to gen/model/<schema-stem>.json for review.
 """
 
-import json, sys
+import json
+import sys
 from collections import defaultdict
 
-SCHEMA_NAME = sys.argv[1].removesuffix('.json')
 
-with open(sys.argv[2]) as f:
-    schema = json.load(f)
+def generate(schema_name: str, schema_path: str) -> str:
+    with open(schema_path) as f:
+        schema = json.load(f)
 
-candidates = defaultdict(lambda: {'description': None, 'occurrences': {f'{SCHEMA_NAME}.json': []}})
+    candidates = defaultdict(lambda: {'description': None, 'occurrences': {f'{schema_name}.json': []}})
 
-root_name = schema.get('title') or SCHEMA_NAME
-candidates[root_name]['description'] = schema.get('description') or None
-candidates[root_name]['occurrences'][f'{SCHEMA_NAME}.json'].append('#')
+    root_name = schema.get('title') or schema_name
+    candidates[root_name]['description'] = schema.get('description') or None
+    candidates[root_name]['occurrences'][f'{schema_name}.json'].append('#')
 
-def walk(obj, path='#'):
-    if isinstance(obj, dict):
-        if '$ref' in obj:
-            target = obj['$ref']
-            if target.startswith('#/definitions/'):
-                name = target[len('#/definitions/'):]
-                candidates[name]['occurrences'][f'{SCHEMA_NAME}.json'].append(path)
-                # Pick up description from the definition itself
-                defn = schema.get('definitions', {}).get(name, {})
-                d = defn.get('description')
-                if isinstance(d, str):
-                    candidates[name]['description'] = d
-        for k, v in obj.items():
-            walk(v, f'{path}/{k}')
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            walk(v, f'{path}[{i}]')
+    def walk(obj, path='#'):
+        if isinstance(obj, dict):
+            if '$ref' in obj:
+                target = obj['$ref']
+                if target.startswith('#/definitions/'):
+                    name = target[len('#/definitions/'):]
+                    candidates[name]['occurrences'][f'{schema_name}.json'].append(path)
+                    defn = schema.get('definitions', {}).get(name, {})
+                    d = defn.get('description')
+                    if isinstance(d, str):
+                        candidates[name]['description'] = d
+            for k, v in obj.items():
+                walk(v, f'{path}/{k}')
+        elif isinstance(obj, list):
+            for i, v in enumerate(obj):
+                walk(v, f'{path}[{i}]')
 
-walk(schema)
+    walk(schema)
 
-for name, entry in candidates.items():
-    entry['occurrences'][f'{SCHEMA_NAME}.json'] = sorted(set(entry['occurrences'][f'{SCHEMA_NAME}.json']))
+    for name, entry in candidates.items():
+        entry['occurrences'][f'{schema_name}.json'] = sorted(set(entry['occurrences'][f'{schema_name}.json']))
 
-print(json.dumps(dict(candidates), indent=2))
+    return json.dumps(dict(candidates), indent=2)
+
+
+if __name__ == '__main__':
+    print(generate(sys.argv[1].removesuffix('.json'), sys.argv[2]))

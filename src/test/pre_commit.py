@@ -24,17 +24,22 @@ import sys
 from pathlib import Path
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
-REPO_ROOT  = Path(__file__).parents[2]
+REPO_ROOT  = Path(__file__).resolve().parents[2]
 SRC        = REPO_ROOT / 'src'
 RSC        = REPO_ROOT / 'rsc'
-GEN        = REPO_ROOT / 'gen' / 'data-exports'
-GEN_CLI    = REPO_ROOT / 'gen' / 'code-sessions'
+GEN        = REPO_ROOT / 'gen' / 'conversation-exports'
+GEN_CLI    = REPO_ROOT / 'gen' / 'code-projects'
 DIAG_DIR   = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR = RSC / 'schema'
 CONV_DIR   = SCHEMA_DIR / 'conversations'
-CLI_DIR    = SCHEMA_DIR / 'claude-code-sessions'
+CLI_DIR    = SCHEMA_DIR / 'sessions'
 
 CONV_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6']
+
+# Slug for this repo: absolute path with / replaced by - (matches ~/.claude/projects/ naming).
+REPO_SLUG  = str(REPO_ROOT).replace('/', '-')
+# Slug for the sibling Yoga project, derived from the same HOME to avoid hardcoding a username.
+YOGA_SLUG  = str(REPO_ROOT.parent / 'Yoga').replace('/', '-')
 
 # Expected-passing combinations from CHANGELOG matrix: (data_dir_basename, version)
 EXPECTED_PASS = {
@@ -87,9 +92,13 @@ CLI_SESSIONS_DIAGNOSTICS_SKIP = {
 
 # Expected-passing (project, session, schema-version) triples for code-sessions.
 # Parallel to EXPECTED_PASS for conversations.
+# Project name is the ~/.claude/projects/ slug: absolute path with / replaced by -.
+# Derived from REPO_SLUG so no username is hardcoded here.
 CLI_EXPECTED_PASS = {
-    ('claude-export-yoga', '60c07575-359d-4484-aaa1-6068f03d5297', 'v1'),
-    ('claude-export-yoga', 'a40a0813-8a53-4503-a2ca-0b52b95e6406', 'v1'),
+    (YOGA_SLUG, '816816d2-799b-441a-9aeb-5b7222418f1d', 'v1'),
+    (REPO_SLUG, '60c07575-359d-4484-aaa1-6068f03d5297', 'v1'),
+    (REPO_SLUG, 'a40a0813-8a53-4503-a2ca-0b52b95e6406', 'v1'),
+    (REPO_SLUG, '7d59d8ef-0ccb-4ffa-8bd5-12c157ec9492', 'v1'),
 }
 
 CONVERSATIONS_DIAGNOSTICS = [
@@ -147,8 +156,10 @@ required = [
     CLI_DIR   / 'principles.md',
     CLI_DIR   / 'workflow.md',
     SRC  / 'main' / 'validate.py',
-    SRC  / 'main' / 'validate.sh',
+    SRC  / 'main' / 'conversation-exports' / 'validate.sh',
     SRC  / 'test' / 'gen_model_candidate.py',
+    SRC  / 'test' / 'gen_model.py',
+    SRC  / 'run_python_script.sh',
     RSC  / 'model.json',
     *[CONV_DIR / f'{v}.json' for v in CONV_VERSIONS],
     *[SCHEMA_DIR / s / f'{s}.json' for s in ('memories', 'projects', 'users')],
@@ -180,7 +191,7 @@ for data_dir, version in sorted(EXPECTED_PASS):
     log = GEN / data_dir / 'validation' / 'conversations' / f'{version}.log'
     if not log.exists():
         run(f'validation log exists: {data_dir} × {version}', False,
-            'Run: src/main/validate.sh --data-root ../data-exports')
+            'Run: src/main/conversation-exports/validate.sh --conversation-exports ../conversation-exports')
         continue
     content = log.read_text()
     passed = 'Valid!' in content
@@ -254,10 +265,10 @@ else:
 print('\n── CLI sessions validation outputs ──────────────────────────────────────')
 
 for project, session, version in sorted(CLI_EXPECTED_PASS):
-    log = GEN_CLI / project / session / 'validation' / 'claude-code-sessions' / f'{version}.log'
+    log = GEN_CLI / project / session / 'validation' / 'sessions' / f'{version}.log'
     if not log.exists():
         run(f'cli validation log exists: {project}/{session[:8]}… × {version}', False,
-            'Run: RUNME-code-sessions.sh')
+            'Run: src/main/code-projects/RUNME.sh')
         continue
     content = log.read_text()
     passed = 'Valid!' in content
@@ -337,7 +348,7 @@ else:
 # ── Section 9: cli_join.csv pointer validation ────────────────────────────────
 print('\n── cli_join.csv pointer validation ──────────────────────────────────────')
 
-CLI_SESSIONS_DIR = SCHEMA_DIR / 'claude-code-sessions'
+CLI_SESSIONS_DIR = SCHEMA_DIR / 'sessions'
 CLI_JOIN = CLI_SESSIONS_DIR / 'cli_join.csv'
 if not CLI_JOIN.exists():
     run('cli_join.csv exists', False)
@@ -381,9 +392,9 @@ if failures:
     for name in failures:
         print(f'  ✗ {name}')
     print('\nRun failing diagnostics individually for details:')
-    print('  python src/test/diagnostics/<principle_id>.py rsc/schema/conversations/v4.json')
+    print(f'  python src/test/diagnostics/<principle_id>.py {latest.relative_to(REPO_ROOT)}')
     print('Run repairs where available:')
-    print('  python src/test/repairs/<principle_id>.py rsc/schema/conversations/v4.json')
+    print(f'  python src/test/repairs/<principle_id>.py {latest.relative_to(REPO_ROOT)}')
     sys.exit(1)
 else:
     print('\nAll checks passed. Safe to commit.')

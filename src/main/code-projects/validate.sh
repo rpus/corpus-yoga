@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Convert and validate all .jsonl sessions in one Claude Code project directory.
+#
+# Usage:
+#   src/main/code-projects/validate.sh --project-dir <path>
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+SCHEMA="$REPO_DIR/rsc/schema/sessions/v1.json"
+OUTPUT_DIR="$REPO_DIR/gen/code-projects"
+TMP_DIR="$REPO_DIR/tmp"
+JSONL_TO_JSON="$SCRIPT_DIR/jsonl_to_json.sh"
+
+validate_session() {
+  local jsonl="$1" project_name="$2"
+  local session; session="$(basename "${jsonl%.jsonl}")"
+  local out_dir="$OUTPUT_DIR/$project_name/$session"
+  local log_out="$out_dir/validation/sessions/v1.log"
+  mkdir -p "$TMP_DIR" "$(dirname "$log_out")"
+
+  local json_tmp
+  json_tmp="$(mktemp "$TMP_DIR/session_XXXXXX.json")"
+
+  "$JSONL_TO_JSON" "$jsonl" "$json_tmp"
+
+  {
+    date -Iseconds
+    echo "$jsonl: $(wc -l < "$jsonl" | xargs) lines, $(wc -c < "$jsonl" | xargs) bytes"
+    echo "$SCHEMA: $(wc -c < "$SCHEMA" | xargs) bytes"
+    python "$REPO_DIR/src/main/validate.py" "$json_tmp" "$SCHEMA"
+  } > "$log_out"
+
+  rm -f "$json_tmp"
+
+  local status; status="$(grep -E '^Valid!|^Validation error' "$log_out" | head -1)"
+  echo "  $session: $status"
+}
+
+validate_project() {
+  local project_dir="${1%/}"
+  local project_name; project_name="$(basename "$project_dir")"
+
+  local found=0
+  for jsonl in "$project_dir"/*.jsonl; do
+    [ -f "$jsonl" ] || continue
+    found=1
+    validate_session "$jsonl" "$project_name"
+  done
+
+  if [[ "$found" -eq 0 ]]; then
+    echo "  (no .jsonl files found)"
+  fi
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  grep "^# " "$0" | sed "s/^# //"
+  exit 0
+fi
+
+main() {
+  local project_dir=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --project-dir) project_dir="$2"; shift 2 ;;
+      *)
+        echo "Unknown argument: $1"
+        echo "Usage: $0 --project-dir <path>"
+        echo "       Pass --help for more information."; exit 1 ;;
+    esac
+  done
+
+  if [[ -z "$project_dir" ]]; then
+    echo "Usage: $0 --project-dir <path/to/project-directory>"
+    echo "       Pass --help for more information."
+    exit 1
+  fi
+
+  # shellcheck source=/dev/null
+  source ~/venvs/general/bin/activate
+
+  validate_project "$(cd "$project_dir" && pwd)"
+
+  deactivate
+}
+
+main "$@"
