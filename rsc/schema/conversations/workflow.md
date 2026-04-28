@@ -1,11 +1,11 @@
 ---
-schema_file: rsc/schema/conversations/v5.json
+schema_file: rsc/schema/conversations/v6.json
 principles_file: rsc/schema/conversations/principles.md
 workflow_file: rsc/schema/conversations/workflow.md
 version: "1.3"
 ---
 
-# Schema Development Workflow for `conversations.schema.json`
+# Schema Development Workflow for `rsc/schema/conversations/v{N}.json`
 
 A living document describing the correct procedure for schema development sessions. This workflow should be followed by both human and agent participants. Deviations should be flagged, not silently accommodated.
 
@@ -35,10 +35,10 @@ Before any schema work begins, the following artefacts must be available in the 
 
 | Artefact | Purpose | Source |
 | --- | --- | --- |
-| `v*.json` | The schema under development | Upload from `rsc/schema/conversations/` |
+| `v{N}.json` | The schema under development | Upload from `rsc/schema/conversations/` |
 | `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/conversations/` |
 | `workflow.md` | This document | Upload from `rsc/schema/conversations/` |
-| At least one `conversations.json` export | Ground-truth validation data | Upload from `rsc/../../chat-exports/data-*/` |
+| At least one `conversations.json` export | Ground-truth validation data | Upload from `../chat-exports/data-*/` |
 | `conversations_redacted.json` (optional) | Safe-to-share compressed export for diagnostic work | Upload from `gen/` |
 
 **Flag if:** the session begins with schema edits before any of the above are uploaded.
@@ -74,7 +74,7 @@ Run `Draft4Validator` against the new export. If it passes, the schema already c
 ```python
 import json
 from jsonschema import Draft4Validator
-with open('conversations.schema.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 with open('conversations.json') as f:
     data = json.load(f)
@@ -94,12 +94,12 @@ else:
 
 ### Step 1 · Run all enforced diagnostics
 
-Run every diagnostic marked `enforced` in `conversations.schema.principles.md`. Use the consolidated runner below. Record all failures.
+Run every diagnostic marked `enforced` in `rsc/schema/conversations/principles.md`. Use the consolidated runner below. Record all failures.
 
 ```python
 # Run from the consolidated diagnostics runner
 # (paste the full runner from the principles doc, or run it as a script)
-# Expected output: N/22 PASS
+# Expected output: N/27 PASS
 ```
 
 **Flag if:** schema edits are made before this step is complete.
@@ -151,7 +151,7 @@ Common causes of (A):
 
 ### Step 4 · Fix diagnostic refinements
 
-For each (A) failure, refine the diagnostic in `conversations.schema.principles.md`. Re-run the affected diagnostic after each refinement to confirm it now passes (or at least no longer fires spuriously).
+For each (A) failure, refine the diagnostic in `rsc/schema/conversations/principles.md`. Re-run the affected diagnostic after each refinement to confirm it now passes (or at least no longer fires spuriously).
 
 Document the refinement rationale in the principles document alongside the diagnostic snippet. If a `KNOWN_EXCEPTIONS` set is introduced, list each exception with its justification.
 
@@ -175,7 +175,7 @@ After all diagnostic refinements, re-run the full suite. Confirm that:
 
 ### Step 6 · Fix genuine schema issues
 
-Fix each (B) failure using the repair snippets in `conversations.schema.principles.md`. Work through root causes in order of fundamentality — structural issues (missing definitions, wrong types) before documentation issues (missing descriptions, wrong descriptions).
+Fix each (B) failure using the repair snippets in `rsc/schema/conversations/principles.md`. Work through root causes in order of fundamentality — structural issues (missing definitions, wrong types) before documentation issues (missing descriptions, wrong descriptions).
 
 For each fix:
 
@@ -208,7 +208,7 @@ Run `Draft4Validator` against every known export. All must pass. A newly failing
 ```python
 import json
 from jsonschema import Draft4Validator
-with open('conversations.schema.json') as f:
+with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 for export_file in [
     'conversations.json',           # latest export
@@ -237,7 +237,7 @@ Present the updated schema file for download. Note the line count and byte count
 
 ### Step 10 · Update documentation
 
-Update `conversations.schema.principles.md` if any of the following occurred:
+Update `rsc/schema/conversations/principles.md` if any of the following occurred:
 
 - A diagnostic was refined (update the snippet and add exception rationale).
 - A new principle was identified (add a new entry in the appropriate category).
@@ -245,7 +245,7 @@ Update `conversations.schema.principles.md` if any of the following occurred:
 - A repair snippet was used and found to need improvement (update the snippet).
 - An open question was resolved (move it to an appropriate principle, remove from Open Questions).
 
-Update this workflow document (`conversations.schema.workflow.md`) if the loop itself was found to be incomplete or incorrect.
+Update this workflow document (`rsc/schema/conversations/workflow.md`) if the loop itself was found to be incomplete or incorrect.
 
 **Flag if:** principles or workflow documents are left out of sync with actual practice.
 
@@ -312,9 +312,9 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
    - For newly added rows (exports not previously in the matrix), fill all columns, not just the new one.
    - Add a `## v{N+1}` section with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply.
 6. Update `src/test/pre_commit.py`:
-   - Add `'v{N+1}'` to `CONV_VERSIONS`.
+   - Add `'v{N+1}'` to `CONVERSATIONS_VERSIONS`.
    - Add `CONVERSATIONS_EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
-   - Update `latest` to `CONV_DIR / 'v{N+1}.json'`.
+   - Update `latest` to `CONVERSATIONS_DIR / 'v{N+1}.json'`.
 7. Review diagnostic exception sets in `src/test/diagnostics/`:
    - `KNOWN_NON_DISCRIMINATED_UNIONS` in `composition.discriminated_union_pattern.py` — add any new `oneOf` unions that are non-discriminated (primitive or key-presence); remove entries for definitions that no longer exist.
    - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
@@ -330,7 +330,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
     Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
 11. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
-**Flag if:** `CONV_VERSIONS`, `CONVERSATIONS_EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
+**Flag if:** `CONVERSATIONS_VERSIONS`, `CONVERSATIONS_EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 
 ---
 
@@ -364,7 +364,7 @@ Flagging is not refusal — it is a checkpoint. The user may have a good reason 
 
 ### Principles and workflow must stay in sync
 
-If a new principle is added to `conversations.schema.principles.md`, check whether it requires a new diagnostic step in this workflow. If the workflow loop is modified, check whether any principles need updating. The two documents are a unit.
+If a new principle is added to `rsc/schema/conversations/principles.md`, check whether it requires a new diagnostic step in this workflow. If the workflow loop is modified, check whether any principles need updating. The two documents are a unit.
 
 ### The principles document is the authority
 
@@ -374,12 +374,12 @@ If a diagnostic in the principles document conflicts with an intuition about wha
 
 ## Worked Example
 
-The following is a condensed trace of a correctly executed workflow loop, as a reference for future sessions.
+The following is a condensed example trace of a correctly executed workflow loop, as a reference for future sessions.
 
 ```text
-Upload: conversations.schema.json (1,965 lines), conversations.json (115,509 lines)
+Upload: rsc/schema/conversations/v{N}.json (1,965 lines), conversations.json (115,509 lines)
 
-Step 1: Run all enforced diagnostics → 11/22 PASS
+Step 1: Run all enforced diagnostics → 11/27 PASS
 
 Step 2: Categorise failures:
   Root cause A1 (diagnostic): all_definitions_reachable fires on known stubs
@@ -396,14 +396,14 @@ Step 2: Categorise failures:
 
 Step 3: Triage → A1–A7 are diagnostic issues, B1–B4 are schema issues
 
-Steps 4–5: Refine diagnostics A1–A7, re-run → 16/22 PASS (only B1–B4 remaining)
+Steps 4–5: Refine diagnostics A1–A7, re-run → 16/27 PASS (only B1–B4 remaining)
 
 Step 6: Fix B1 (title/description/field-order) → reissue schema
          Fix B2 (BFS reorder) → reissue schema
          Fix B3 (null property descriptions) → verify empirically first → reissue schema
          Fix B4 (open-set caveat) → reissue schema
 
-Step 7: Re-run all diagnostics → 22/22 PASS
+Step 7: Re-run all diagnostics → 22/27 PASS
 
 Step 8: Validate against all exports → Valid
 

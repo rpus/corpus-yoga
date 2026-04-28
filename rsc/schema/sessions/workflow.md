@@ -167,11 +167,11 @@ After a successful run:
    add a new row; for an existing session, update the counts.
 
 2. Add each new passing `(project-slug, session-uuid, version)` triple to
-   `CLI_EXPECTED_PASS` in `src/test/pre_commit.py`. The project slug is the absolute
+   `SESSIONS_EXPECTED_PASS` in `src/test/pre_commit.py`. The project slug is the absolute
    project path with `/` replaced by `-`; derive it without hardcoding a username via
    `REPO_SLUG` or `REPO_ROOT.parent / '<name>'` (see existing entries for the pattern).
 
-**Flag if:** the CHANGELOG matrix or `CLI_EXPECTED_PASS` is not updated after a validation run that adds new passing sessions.
+**Flag if:** the CHANGELOG matrix or `SESSIONS_EXPECTED_PASS` is not updated after a validation run that adds new passing sessions.
 
 ---
 

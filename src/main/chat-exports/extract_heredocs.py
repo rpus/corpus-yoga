@@ -131,6 +131,9 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                     shutil.copy2(dest, rsc_dest)
                     copied += 1
             else:
+                # working/ files (/home/claude/) are internal to the Claude sandbox and cannot
+                # be downloaded from the claude.ai UI, so there is no user-downloaded version
+                # to diff against. Existence check only.
                 dl_path = DOWNLOADED_DIR / convo_dir.name / e['bucket'] / e['rel']
                 if dl_path.exists():
                     identical += 1
@@ -171,7 +174,6 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                     for line in diff_text.splitlines():
                         log.write(f'    {line}\n')
                     log.write('\n')
-
 
 
 SCRIPT_DIR     = Path(__file__).parent

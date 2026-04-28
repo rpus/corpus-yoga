@@ -28,11 +28,11 @@ from typing import Any
 REPO_ROOT         = Path(__file__).resolve().parents[2]
 SRC               = REPO_ROOT / 'src'
 RSC               = REPO_ROOT / 'rsc'
-GEN_CHAT_EXPORTS = REPO_ROOT / 'gen' / 'chat-exports'
+GEN_CHAT_EXPORTS  = REPO_ROOT / 'gen' / 'chat-exports'
 GEN_CODE_PROJECTS = REPO_ROOT / 'gen' / 'code-projects'
 DIAG_DIR          = SRC / 'test' / 'diagnostics'
 SCHEMA_DIR        = RSC / 'schema'
-CONVERSATIONS_DIR          = SCHEMA_DIR / 'conversations'
+CONVERSATIONS_DIR = SCHEMA_DIR / 'conversations'
 SESSIONS_DIR      = SCHEMA_DIR / 'sessions'
 
 CONVERSATIONS_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6']

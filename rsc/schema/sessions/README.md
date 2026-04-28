@@ -52,7 +52,7 @@ Relationship values mirror `mcp_join.csv`: `identical`, `subset`, `snake_cased`,
 
 ## Relationship to the conversations schema
 
-This format and the claude.ai export format (`conversations/v*.json`) both wrap the same
+This format and the claude.ai export format (`conversations/v{N}.json`) both wrap the same
 Anthropic API content block model. Key differences:
 
 | | CLI sessions | claude.ai export |

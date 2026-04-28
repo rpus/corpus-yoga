@@ -46,6 +46,9 @@ def parse_file_path(file_path_str: str) -> tuple:
 
     rel_path: path relative to the container prefix — matches extracted_files and downloaded layout.
     bucket:   'outputs' or 'working' for the extracted_heredocs sub-directory, or None if unknown.
+
+    The caller does not use bucket to filter harvesting checks — in_ef and in_eh search all
+    extraction locations exhaustively, so bucket=None does not cause misclassification.
     """
     if file_path_str.startswith('/mnt/user-data/outputs/'):
         return Path(file_path_str[len('/mnt/user-data/outputs/'):]), 'outputs'

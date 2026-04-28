@@ -103,7 +103,7 @@ python src/test/pre_commit.py
 | [`rsc/schema/sessions/workflow.md`](rsc/schema/sessions/workflow.md) | Validation loop, `cli_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
 | [`rsc/schema/sessions/CHANGELOG.md`](rsc/schema/sessions/CHANGELOG.md) | Version history and session coverage matrix |
 | [`rsc/schema/sessions/cli_join.csv`](rsc/schema/sessions/cli_join.csv) | Field-level correspondence table: CLI sessions ↔ conversations export ↔ MCP protocol |
-| [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All 26 diagnostic scripts: what each checks, which have a paired repair script |
+| [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which have a paired repair script |
 | [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |
 
 ### Reference

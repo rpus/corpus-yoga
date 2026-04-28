@@ -53,7 +53,7 @@ main() {
   if [[ -n "$code_project" ]]; then
     run_one "$(cd "$code_project" && pwd)"
   else
-    for d in "$(cd "$code_projects" && pwd)"/*/; do
+    for d in "$(cd "$code_projects" && pwd)"/-Users-*/; do
       [ -d "$d" ] || continue
       run_one "$d"
     done

@@ -35,7 +35,7 @@ Task: $task
 $data
 
 Return a JSON object with exactly two keys: \"columns\" (the schema array above) and \"rows\" (array of arrays). No markdown, no prose, no code fences. Start with { and end with }." \
-    '{model: $model, max_tokens: 1024,
+    '{model: $model, max_tokens: 4096,
       system: "You are a data analyst. Return only valid JSON.",
       messages: [{role: "user", content: $user}]}')"
   response="$(curl -sf "$API_URL" \
@@ -153,7 +153,7 @@ main() {
   if [[ -n "$chat_export" ]]; then
     infer_export "$(cd "$chat_export" && pwd)"
   else
-    for d in "$(cd "$chat_exports" && pwd)"/*/; do
+    for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
       infer_export "$d"
     done
   fi

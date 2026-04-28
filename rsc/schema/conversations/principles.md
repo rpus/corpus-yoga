@@ -1,13 +1,13 @@
 ---
-schema_file: rsc/schema/conversations/v5.json
+schema_file: rsc/schema/conversations/v6.json
 principles_file: rsc/schema/conversations/principles.md
 workflow_file: rsc/schema/conversations/workflow.md
 version: "1.3"
 ---
 
-# Schema Design Principles for `conversations.schema.json`
+# Schema Design Principles for `rsc/schema/conversations/v{N}.json`
 
-A living document of design principles, diagnostics, and repairs for `conversations.schema.json`. Each enforced principle has a machine-runnable diagnostic script in `src/test/diagnostics/` and (where automatable) a repair script in `src/test/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
+A living document of design principles, diagnostics, and repairs for `rsc/schema/conversations/v{N}.json`. Each enforced principle has a machine-runnable diagnostic script in `src/test/diagnostics/` and (where automatable) a repair script in `src/test/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
 
 This document should be kept updated in parallel with the schema, the atomic scripts, and validation runs. The pre-commit hook (`src/test/pre_commit.py`) runs all enforced diagnostics automatically.
 
@@ -54,7 +54,7 @@ Repair:     src/test/repairs/naming.title_matches_key.py
 
 **The root schema's `title` matches the schema filename stem (without extension).**
 
-Each schema file is named `{stem}.json` (e.g. `conversations.json`, `users.json`) and its root `title` must match that stem exactly. This applies to all four export schemas and ensures tooling, documentation, and cross-reference annotations all use a consistent canonical name. This principle was discovered during active development when the root title was `"Claude Conversation Export"` rather than `"conversations"`.
+Each schema file is named `{stem}.json` (e.g. `conversations.json`, `users.json`) and its root `title` must match that stem exactly. This applies to all export schemas and ensures tooling, documentation, and cross-reference annotations all use a consistent canonical name. This principle was discovered during active development when the root title was `"Claude Conversation Export"` rather than `"conversations"`.
 
 ```text
 Diagnostic: src/test/diagnostics/naming.root_schema_title_matches_filename.py
@@ -74,15 +74,16 @@ Diagnostic: src/test/diagnostics/naming.property_keys_lowercase.py
 
 ---
 
-### `naming.subtype_naming_convention` · *enforced*
+### `naming.subtype_naming_convention` · *advisory*
 
 **Tool block subtypes are named `{ToolName}ToolUseBlock` / `{ToolName}ToolResultBlock`.**
 
 The tool name is converted from snake\_case to UpperCamelCase and prefixed to `ToolUseBlock` or `ToolResultBlock`. The deliberate choice was made *not* to rename `ToolResultContentItem`, `ToolResultSearchItem`, or `ToolResultLocalResource` to match their `type` field values, because (a) `text` would clash with `TextBlock`, and (b) the `type` values in that union are not obviously a closed set acting as discriminators in the same way as tool names.
 
+No standalone diagnostic script. Full enforcement would require cross-referencing each subtype's definition name prefix against its `name` discriminator const (e.g. `BashToolUseBlock` → prefix `Bash` → tool name `bash`), which depends on schema structure and an empirically-determined tool name set. `naming.upper_camel_case` catches capitalisation violations. `naming.title_matches_key` is not relevant here — it checks `title == key`, which is a formatting rule and provides no coverage for the suffix pattern. The correct suffix (`ToolUseBlock` vs `ToolResultBlock`) and non-empty prefix can be verified manually with:
+
 ```python
-# diagnostic (no standalone script — checked by naming.upper_camel_case and naming.title_matches_key)
-import json, re
+import json
 with open('rsc/schema/conversations/v{N}.json') as f:
     schema = json.load(f)
 for name in schema['definitions']:
@@ -928,14 +929,14 @@ The current markdown-with-frontmatter approach is human-friendly but requires pa
 
 **Workflow for incorporating a new export.**
 
-See `conversations.schema.workflow.md` for the full loop. Summary:
+See `rsc/schema/conversations/workflow.md` for the full loop. Summary:
 
-1. Validate new export against all four schemas.
+1. Validate new export against all schemas.
 2. Run `src/test/pre_commit.py` to check all diagnostics.
 3. Categorise failures by root cause; refine diagnostics before fixing schema.
 4. Fix genuine schema issues using repair scripts in `src/test/repairs/`.
 5. Re-run `src/test/pre_commit.py` until all checks pass.
-6. Update this document and `conversations.schema.workflow.md` as needed.
+6. Update this document and `rsc/schema/conversations/workflow.md` as needed.
 7. Commit.
 
 ---
@@ -983,4 +984,4 @@ The pre-commit hook enforces what it can mechanically, but it cannot substitute 
 
 ---
 
-*This document was developed iteratively alongside `conversations.schema.json` over multiple sessions. The schema was reverse-engineered from Claude.ai bulk data exports; all constraints are empirically grounded unless explicitly noted otherwise. The Open Questions section is intentionally incomplete — it should grow as new questions arise and shrink as decisions are made.*
+*This document was developed iteratively alongside `rsc/schema/conversations/v{N}.json` over multiple sessions. The schema was reverse-engineered from Claude.ai bulk data exports; all constraints are empirically grounded unless explicitly noted otherwise. The Open Questions section is intentionally incomplete — it should grow as new questions arise and shrink as decisions are made.*

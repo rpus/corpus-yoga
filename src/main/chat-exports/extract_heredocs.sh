@@ -14,7 +14,7 @@ run_one() {
   local name; name="$(basename "$d")"
   local log_path="$OUTPUT_DIR/$name/extracted_heredocs/extract_heredocs.log"
   mkdir -p "$(dirname "$log_path")"
-  python "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" >> "$log_path" 2>&1
+  python "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1
 }
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then

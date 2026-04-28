@@ -60,7 +60,8 @@ main() {
   if [[ -n "$chat_export" ]]; then
     run_one "$(cd "$chat_export" && pwd)"
   else
-    for d in "$(cd "$chat_exports" && pwd)"/*/; do
+    for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
+      [ -d "$d" ] || continue
       run_one "$d"
     done
   fi
