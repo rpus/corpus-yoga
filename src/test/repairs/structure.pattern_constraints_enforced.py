@@ -8,7 +8,9 @@ and, when found, extracts the regex into a sibling 'pattern' field.
 Only acts when no 'pattern' field already exists.
 Writes back to the same file in place.
 """
-import json, re, sys
+import json
+import re
+import sys
 from pathlib import Path
 
 # Matches: matches /^foo$/, pattern: /^foo$/, regex /^foo$/

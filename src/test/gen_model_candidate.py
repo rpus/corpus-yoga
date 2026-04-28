@@ -18,13 +18,15 @@ Output: JSON to stdout. Redirect to gen/model/<schema-stem>.json for review.
 import json
 import sys
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
 
 
-def generate(schema_name: str, schema_path: str) -> str:
+def generate(schema_name: str, schema_path: str | Path) -> str:
     with open(schema_path) as f:
         schema = json.load(f)
 
-    candidates = defaultdict(lambda: {'description': None, 'occurrences': {f'{schema_name}.json': []}})
+    candidates: dict[str, Any] = defaultdict(lambda: {'description': None, 'occurrences': {f'{schema_name}.json': []}})
 
     root_name = schema.get('title') or schema_name
     candidates[root_name]['description'] = schema.get('description') or None

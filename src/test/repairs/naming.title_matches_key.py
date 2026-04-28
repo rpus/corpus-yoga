@@ -6,7 +6,8 @@ Usage: python src/test/repairs/naming.title_matches_key.py <schema>
 Overwrites title with the definition key for every definition where they differ.
 Writes back to the same file in place.
 """
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 schema_path = sys.argv[1]

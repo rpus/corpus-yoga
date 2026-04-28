@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Repair composition.base_schemas_closed — add additionalProperties:false to all ...Base schemas."""
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 schema_path = sys.argv[1]

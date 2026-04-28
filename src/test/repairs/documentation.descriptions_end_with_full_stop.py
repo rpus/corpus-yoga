@@ -6,7 +6,9 @@ Usage: python src/test/repairs/documentation.descriptions_end_with_full_stop.py 
 Appends '.' to any description string that doesn't end with recognised terminal
 punctuation (. ) $ or URL). Writes back to the same file in place.
 """
-import json, re, sys
+import json
+import re
+import sys
 from pathlib import Path
 
 URL_RE = re.compile(r'https?://\S+$')

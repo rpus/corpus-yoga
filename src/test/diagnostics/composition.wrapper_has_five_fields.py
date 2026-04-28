@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """composition.wrapper_has_five_fields — Union wrapper schemas have exactly title, description, type, allOf, oneOf."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)
@@ -12,6 +13,7 @@ fails = [f'{n}: {sorted(set(d.keys()))}'
 
 if fails:
     print('FAIL composition.wrapper_has_five_fields:')
-    for f in fails: print(f'  {f}')
+    for f in fails:
+        print(f'  {f}')
     sys.exit(1)
 print('PASS composition.wrapper_has_five_fields')

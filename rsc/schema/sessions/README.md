@@ -6,6 +6,14 @@ to `~/.claude/projects/{project}/{session}.jsonl` during a Claude Code session.
 **Input:** each `.jsonl` converted to a JSON array (one line → one element).  
 **Schema:** `v1.json` — see `CHANGELOG.md` for coverage and open questions.
 
+From the v1.json root description:
+
+> Schema for Claude Code CLI session transcripts, as produced at
+> `~/.claude/projects/{project}/{session}.jsonl` and converted to a JSON array. The format
+> is Claude Code's internal session log, distinct from the claude.ai export format
+> (`conversations.json`). The core content block model is shared with the Anthropic API;
+> the session envelope is Claude Code CLI-specific.
+
 For full context see [`doc/code-projects/sessions-schema.md`](../../../doc/code-projects/sessions-schema.md)
 and [`doc/project-overview.md`](../../../doc/project-overview.md).
 
@@ -38,6 +46,8 @@ and carry a `message` object containing an array of **content blocks**:
 | `tool_result` | `ToolResultContent` | `tool_use_id`/`is_error` are snake_cased equivalents of `toolUseId`/`isError` |
 | `thinking` | — | No MCP counterpart; mirrors `ThinkingBlock` in conversations schema |
 
+---
+
 ## `cli_join.csv`
 
 A field-level correspondence table mapping CLI session schema definitions to their
@@ -55,7 +65,7 @@ Relationship values mirror `mcp_join.csv`: `identical`, `subset`, `snake_cased`,
 This format and the claude.ai export format (`conversations/v{N}.json`) both wrap the same
 Anthropic API content block model. Key differences:
 
-| | CLI sessions | claude.ai export |
+| | `~/.claude/projects/{session}.jsonl` (this schema) | `conversations.json` |
 | --- | --- | --- |
 | Sender convention | `role: user/assistant` | `sender: human/assistant` |
 | Envelope | Session mgmt (`parentUuid`, `isSidechain`, `cwd`, `gitBranch`, ...) | UI persistence (`display_content`, `integration_*`, `approval_*`, ...) |

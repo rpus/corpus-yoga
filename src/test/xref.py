@@ -432,7 +432,7 @@ def extract_html(f: Path, rows: list) -> None:
 def extract_csv(f: Path, rows: list) -> None:
     try:
         reader = csv.reader(f.open())
-        header = next(reader, [])
+        next(reader, [])  # skip header row
         for i, record in enumerate(reader, 2):  # 1-based, row 1 is header
             for cell in record:
                 cell = cell.strip()

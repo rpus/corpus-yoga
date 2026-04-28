@@ -5,7 +5,8 @@ Usage: python src/test/repairs/structure.definitions_at_bottom.py <schema>
 
 Writes back to the same file in place.
 """
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 schema_path = sys.argv[1]

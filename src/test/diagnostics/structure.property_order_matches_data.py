@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """structure.property_order_matches_data — Property order in schema matches observed field order in data."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

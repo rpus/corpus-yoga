@@ -5,7 +5,7 @@ workflow_file: rsc/schema/sessions/workflow.md
 version: "1.0"
 ---
 
-# Schema Design Principles for `sessions`
+# Schema Design Principles for `rsc/schema/sessions/v{N}.json`
 
 The general schema design principles in `rsc/schema/conversations/principles.md` apply
 to this schema in full. Read that document first. This document records only the
@@ -31,7 +31,7 @@ For empirical investigation and debugging:
 
 - Use `src/test/code-projects/survey_code_session.py` before schema changes
 - Use `src/test/code-projects/debug_code_session_record.py` to diagnose validation failures
-- Run `src/test/pre_commit.py` to validate `cli_join.csv` pointer integrity
+- Run `src/test/pre_commit.sh` to validate `cli_join.csv` pointer integrity
 
 ### Correspondence via cli_join.csv
 

@@ -8,7 +8,8 @@ the primary type — e.g. Conversation for conversations.json). Definitions unre
 via $ref are appended at the end in their original relative order.
 Writes back to the same file in place.
 """
-import json, sys
+import json
+import sys
 from collections import deque
 from pathlib import Path
 

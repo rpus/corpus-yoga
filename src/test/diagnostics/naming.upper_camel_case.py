@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """naming.upper_camel_case — All definition names are UpperCamelCase."""
-import json, re, sys
+import json
+import re
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

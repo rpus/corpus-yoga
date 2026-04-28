@@ -278,7 +278,7 @@ MAJOR.MINOR.PATCH   e.g. v6.1.0, v7.0.0
 | **MINOR** | Non-breaking extension | A **relaxation** or **non-material restriction**: more exports pass, none fail |
 | **PATCH** | No validation effect | **Refactored** only: structural changes, description updates, repairs |
 
-File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointer in `pre_commit.py` always points to the highest version.
+File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` detects the highest version automatically via glob.
 
 ### When to bump
 
@@ -314,7 +314,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
 6. Update `src/test/pre_commit.py`:
    - Add `'v{N+1}'` to `CONVERSATIONS_VERSIONS`.
    - Add `CONVERSATIONS_EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
-   - Update `latest` to `CONVERSATIONS_DIR / 'v{N+1}.json'`.
+   - `pre_commit.py` detects the latest version automatically; no code change needed for this.
 7. Review diagnostic exception sets in `src/test/diagnostics/`:
    - `KNOWN_NON_DISCRIMINATED_UNIONS` in `composition.discriminated_union_pattern.py` — add any new `oneOf` unions that are non-discriminated (primitive or key-presence); remove entries for definitions that no longer exist.
    - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
@@ -330,7 +330,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
     Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
 11. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
-**Flag if:** `CONVERSATIONS_VERSIONS`, `CONVERSATIONS_EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
+**Flag if:** `CONVERSATIONS_VERSIONS`, `CONVERSATIONS_EXPECTED_PASS`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 
 ---
 

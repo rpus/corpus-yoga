@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """structure.field_order — Every definition begins with title, description, type."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)
@@ -15,6 +16,7 @@ for name, defn in schema.get('definitions', {}).items():
 
 if fails:
     print('FAIL structure.field_order:')
-    for f in fails: print(f'  {f}')
+    for f in fails:
+        print(f'  {f}')
     sys.exit(1)
 print('PASS structure.field_order')

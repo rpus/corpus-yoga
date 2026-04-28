@@ -1,10 +1,11 @@
 ---
 schema_file: rsc/schema/sessions/v1.json
+principles_file: rsc/schema/sessions/principles.md
 workflow_file: rsc/schema/sessions/workflow.md
 version: "1.0"
 ---
 
-# Schema Development Workflow for `sessions`
+# Schema Development Workflow for `rsc/schema/sessions/v{N}.json`
 
 A living document describing how to maintain and extend the CLI sessions schema.
 Follows the same philosophy as `rsc/schema/conversations/workflow.md` but adapted
@@ -78,11 +79,11 @@ For each session, this converts the `.jsonl` to a JSON array and validates it ag
 ### Step 2 · Run diagnostics
 
 ```bash
-python src/test/pre_commit.py
+src/test/pre_commit.sh
 ```
 
-This runs all 25 schema diagnostics against `v1.json` (the same suite as the
-conversations schema, minus `composition.base_schemas_closed` — see `principles.md`).
+This runs all schema diagnostics against the latest sessions schema (the same suite as
+the conversations schema, minus `composition.base_schemas_closed` — see `principles.md`).
 All should pass; failures indicate structural issues in the schema independent of any
 specific session data.
 
@@ -141,7 +142,7 @@ Review `cli_join.csv` for any new fields added in step 3:
 - If a field was removed or renamed, delete or update its rows
 - Not every field needs a row — only those with notable correspondences or notable absences
 
-Run `python src/test/pre_commit.py` to verify all pointers in the updated table.
+Run `src/test/pre_commit.sh` to verify all pointers in the updated table.
 
 **Flag if:** `v1.json` changes but `cli_join.csv` is not reviewed.
 
@@ -173,16 +174,21 @@ After a successful run:
 
 **Flag if:** the CHANGELOG matrix or `SESSIONS_EXPECTED_PASS` is not updated after a validation run that adds new passing sessions.
 
+`pre_commit.py` enforces this with a closed-world complement: any session log found in
+`gen/code-projects/` that is absent from `SESSIONS_EXPECTED_PASS` raises a failure —
+whether the session passes (unregistered) or fails (undetected). This catches sessions
+from projects added automatically to `../code-projects/` that were never explicitly
+recorded.
+
 ---
 
-### Step 6 · Run pre_commit.py
+### Step 6 · Run pre_commit.sh
 
 ```bash
 src/test/pre_commit.sh
 ```
 
-Confirms `cli_join.csv` pointers are valid and the conversations schema diagnostics
-still pass. Expect the existing PASS count plus the new `cli_join.csv` check.
+Confirms all checks pass, including `cli_join.csv` pointer validity and the sessions schema diagnostics.
 
 ---
 
@@ -224,7 +230,7 @@ Schema versions use **semantic versioning** from v1 onward:
 6. Update `CHANGELOG.md`: add the new version row to the matrix, fill ✓/✗ for all
    sessions, add a section describing what changed.
 7. Update `cli_join.csv` `cli_path` pointers to reference `v{N+1}.json`.
-8. Run `pre_commit.py` to confirm all checks pass.
+8. Run `src/test/pre_commit.sh` to confirm all checks pass.
 
 ---
 

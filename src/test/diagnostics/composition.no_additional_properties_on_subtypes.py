@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """composition.no_additional_properties_on_subtypes — Subtypes must not combine additionalProperties:false with allOf referencing a schema with properties."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)
@@ -16,6 +17,7 @@ for name, defn in defs.items():
 
 if fails:
     print('FAIL composition.no_additional_properties_on_subtypes:')
-    for f in fails: print(f'  {f}')
+    for f in fails:
+        print(f'  {f}')
     sys.exit(1)
 print('PASS composition.no_additional_properties_on_subtypes')

@@ -6,7 +6,9 @@ Usage: python src/test/repairs/naming.upper_camel_case.py <schema> <old_name> <n
 Renames the definition key and updates all $ref strings throughout the schema.
 Writes back to the same file in place.
 """
-import json, re, sys
+import json
+import re
+import sys
 from pathlib import Path
 
 schema_path, old, new = sys.argv[1], sys.argv[2], sys.argv[3]

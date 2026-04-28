@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """documentation.open_set_enums_documented — Likely open-set enums say so in their description."""
-import json, sys
+import json
+import sys
 
 # Enum value sets that are genuinely closed (exhaustive by design).
 # Each entry is annotated with the schema version from which it applies.
@@ -27,13 +28,16 @@ for defn_name, defn in defs.items():
                             or 'discriminator' in local_desc)
                 if vals not in KNOWN_CLOSED and not defn_open and not local_ok:
                     fails.append(f'{defn_name}{path}')
-            for k, v in obj.items(): check(v, f'/{k}')
+            for k, v in obj.items():
+                check(v, f'/{k}')
         elif isinstance(obj, list):
-            for i, v in enumerate(obj): check(v, f'[{i}]')
+            for i, v in enumerate(obj):
+                check(v, f'[{i}]')
     check(defn)
 
 if fails:
     print('FAIL documentation.open_set_enums_documented:')
-    for f in fails: print(f'  {f}')
+    for f in fails:
+        print(f'  {f}')
     sys.exit(1)
 print('PASS documentation.open_set_enums_documented')

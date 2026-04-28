@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Repair documentation.discriminator_fields_annotated — annotate discriminator fields with (discriminator)."""
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 schema_path = sys.argv[1]
@@ -13,10 +14,13 @@ def collect(obj):
     if isinstance(obj, dict):
         if 'oneOf' in obj:
             for b in obj['oneOf']:
-                if '$ref' in b: oneof_refs.add(b['$ref'][len('#/definitions/'):])
-        for v in obj.values(): collect(v)
+                if '$ref' in b:
+                    oneof_refs.add(b['$ref'][len('#/definitions/'):])
+        for v in obj.values():
+            collect(v)
     elif isinstance(obj, list):
-        for v in obj: collect(v)
+        for v in obj:
+            collect(v)
 collect(schema)
 
 count = 0

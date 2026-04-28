@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """structure.minItems_on_non_empty_arrays — Non-empty arrays have minItems: 1."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

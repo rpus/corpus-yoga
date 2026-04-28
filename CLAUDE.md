@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 This file is the authoritative source for the project memory stored at
-`~/.claude/projects/-Users-*-claude-export-yoga/memory/project_overview.md`. If the memory diverges
+`~/.claude/projects/-Users-*-claude-export-yoga/memory/MEMORY.md`. If the memory diverges
 from this file, flag it and suggest updating the memory to match — not the other way around.
 
 ---
@@ -62,3 +62,14 @@ manually. Dependencies: `requirements.txt`.
 
 Named after the data format they validate, not the pipeline:
 `rsc/schema/conversations/` (currently v1–v6), `rsc/schema/sessions/` (currently v1).
+
+---
+
+## Design principle: look the same if and only if the same
+
+Things that are functionally equivalent should look structurally identical; things that differ should
+look different. Unexplained asymmetry is always a signal — either the asymmetry is
+meaningful (document it) or it is accidental (fix it). This applies at every level:
+schema definitions, function names, section headers, variable names, file layout,
+flag names, and documentation structure.
+Structural symmetry, meanwhile, allows for easy factoring of commonality.

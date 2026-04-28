@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """documentation.descriptions_end_with_full_stop — All descriptions end with recognised terminal punctuation."""
-import json, re, sys
+import json
+import re
+import sys
 
 URL_RE = re.compile(r'https?://\S+$')
 
@@ -19,13 +21,16 @@ def check(obj, path=''):
             d = obj['description']
             if d and not valid_end(d):
                 fails.append(f'{path}: ...{d[-40:]!r}')
-        for k, v in obj.items(): check(v, f'{path}/{k}')
+        for k, v in obj.items():
+            check(v, f'{path}/{k}')
     elif isinstance(obj, list):
-        for i, v in enumerate(obj): check(v, f'{path}[{i}]')
+        for i, v in enumerate(obj):
+            check(v, f'{path}[{i}]')
 check(schema)
 
 if fails:
     print('FAIL documentation.descriptions_end_with_full_stop:')
-    for f in fails: print(f'  {f}')
+    for f in fails:
+        print(f'  {f}')
     sys.exit(1)
 print('PASS documentation.descriptions_end_with_full_stop')

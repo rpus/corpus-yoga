@@ -128,7 +128,7 @@ def main():
             diagnose_record(validator, schema, record, i)
     else:
         i, record = failures[0]
-        print(f'Showing first failure (use --all for all, --index N for a specific one).')
+        print('Showing first failure (use --all for all, --index N for a specific one).')
         diagnose_record(validator, schema, record, i)
 
 

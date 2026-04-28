@@ -7,7 +7,8 @@ For every definition with title/description not in first two positions, rebuilds
 the key order: title, description, then remaining keys in original order.
 Writes back to the same file in place.
 """
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 schema_path = sys.argv[1]

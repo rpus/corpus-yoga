@@ -1,0 +1,6 @@
+{
+  "include": ["src"],
+  "typeCheckingMode": "standard",
+  "venvPath": "../../../venvs",
+  "venv": "general"
+}

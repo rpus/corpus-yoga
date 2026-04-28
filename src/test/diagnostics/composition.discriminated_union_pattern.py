@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """composition.discriminated_union_pattern — Structural oneOf unions have Has*DiscriminatorProperty in allOf."""
-import json, sys
+import json
+import sys
 
 # oneOf unions that are correct but do not follow the discriminated-union pattern
 # because they discriminate on key-presence or are primitive-type unions rather
@@ -25,13 +26,16 @@ def check(obj, path=''):
             all_of_refs = [s.get('$ref', '') for s in obj.get('allOf', [])]
             if not any('DiscriminatorProperty' in r for r in all_of_refs):
                 fails.append(path)
-        for k, v in obj.items(): check(v, f'{path}/{k}')
+        for k, v in obj.items():
+            check(v, f'{path}/{k}')
     elif isinstance(obj, list):
-        for i, v in enumerate(obj): check(v, f'{path}[{i}]')
+        for i, v in enumerate(obj):
+            check(v, f'{path}[{i}]')
 check(schema)
 
 if fails:
     print('FAIL composition.discriminated_union_pattern:')
-    for f in fails: print(f'  {f}')
+    for f in fails:
+        print(f'  {f}')
     sys.exit(1)
 print('PASS composition.discriminated_union_pattern')

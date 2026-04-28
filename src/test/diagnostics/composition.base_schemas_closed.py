@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """composition.base_schemas_closed — All ...Base schemas have additionalProperties: false."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

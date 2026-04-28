@@ -6,7 +6,9 @@ Run locally: python word_freq_literal.py conversations.json > literal_freq.json
 Produces JSON with three arrays: human, assistant, both.
 Each array: [{"word": "...", "count": N}, ...] sorted by count descending, top 120.
 """
-import sys, json, re
+import sys
+import json
+import re
 from collections import Counter
 
 STOPS = {

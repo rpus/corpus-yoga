@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Reads JSON from a file (argv[1]) or stdin, writes aligned table JSON to stdout.
-import json, sys
+import json
+import sys
 
 def fmt_aligned(header, rows, depth):
     pad = '  ' * depth

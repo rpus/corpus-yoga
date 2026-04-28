@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """empirical.nullable_fields_surveyed — All oneOf-with-null constructs are named definitions with descriptions."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)

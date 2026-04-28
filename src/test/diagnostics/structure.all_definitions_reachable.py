@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """structure.all_definitions_reachable — Every definition is reachable from root via $ref."""
-import json, sys
+import json
+import sys
 from collections import deque
 
 # Definitions intentionally unreachable via $ref — documented stubs for API
@@ -20,20 +21,26 @@ def find_refs(obj):
     refs = set()
     def walk(o):
         if isinstance(o, dict):
-            if '$ref' in o: refs.add(o['$ref'][len('#/definitions/'):])
-            for v in o.values(): walk(v)
+            if '$ref' in o:
+                refs.add(o['$ref'][len('#/definitions/'):])
+            for v in o.values():
+                walk(v)
         elif isinstance(o, list):
-            for v in o: walk(v)
-    walk(obj); return refs
+            for v in o:
+                walk(v)
+    walk(obj)
+    return refs
 
 root = next(iter(defs))  # first definition is the reachability root
 visited, queue = set(), deque([root])
 while queue:
     node = queue.popleft()
-    if node in visited: continue
+    if node in visited:
+        continue
     visited.add(node)
     for dep in find_refs(defs.get(node, {})):
-        if dep in defs: queue.append(dep)
+        if dep in defs:
+            queue.append(dep)
 
 unreachable = [k for k in defs if k not in visited and k not in KNOWN_UNREACHABLE]
 if unreachable:

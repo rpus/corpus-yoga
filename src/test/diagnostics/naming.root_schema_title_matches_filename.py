@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """naming.root_schema_title_matches_filename — Root schema title matches filename stem."""
-import json, sys
+import json
+import sys
 from pathlib import Path
 
 path = Path(sys.argv[1])

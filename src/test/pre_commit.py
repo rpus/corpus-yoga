@@ -25,15 +25,15 @@ from pathlib import Path
 from typing import Any
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
-REPO_ROOT         = Path(__file__).resolve().parents[2]
-SRC               = REPO_ROOT / 'src'
-RSC               = REPO_ROOT / 'rsc'
-GEN_CHAT_EXPORTS  = REPO_ROOT / 'gen' / 'chat-exports'
-GEN_CODE_PROJECTS = REPO_ROOT / 'gen' / 'code-projects'
-DIAG_DIR          = SRC / 'test' / 'diagnostics'
-SCHEMA_DIR        = RSC / 'schema'
-CONVERSATIONS_DIR = SCHEMA_DIR / 'conversations'
-SESSIONS_DIR      = SCHEMA_DIR / 'sessions'
+REPO_ROOT                = Path(__file__).resolve().parents[2]
+SRC                      = REPO_ROOT / 'src'
+RSC                      = REPO_ROOT / 'rsc'
+GEN_CHAT_EXPORTS         = REPO_ROOT / 'gen' / 'chat-exports'
+GEN_CODE_PROJECTS        = REPO_ROOT / 'gen' / 'code-projects'
+SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
+RSC_SCHEMA               = RSC / 'schema'
+RSC_SCHEMA_CONVERSATIONS = RSC_SCHEMA / 'conversations'
+RSC_SCHEMA_SESSIONS      = RSC_SCHEMA / 'sessions'
 
 CONVERSATIONS_VERSIONS = ['v1', 'v2', 'v3', 'v4', 'v5', 'v6']
 
@@ -77,13 +77,13 @@ NON_VERSIONED_SCHEMA_DIAGNOSTICS = {
 # json-schema_draft-04.json) and special-purpose schemas (documenter.json,
 # data-table.json) whose titles are prose rather than matching their stem.
 NON_VERSIONED_SCHEMA_TARGETS = [
-    SCHEMA_DIR / 'memories' / 'memories.json',
-    SCHEMA_DIR / 'projects' / 'projects.json',
-    SCHEMA_DIR / 'users'    / 'users.json',
-    SCHEMA_DIR / 'model.json',
+    RSC_SCHEMA / 'memories' / 'memories.json',
+    RSC_SCHEMA / 'projects' / 'projects.json',
+    RSC_SCHEMA / 'users'    / 'users.json',
+    RSC_SCHEMA / 'model.json',
 ]
 
-# Diagnostics in DIAG_DIR skipped for the sessions schema.
+# Diagnostics in SRC_TEST_DIAGNOSTICS skipped for the sessions schema.
 # composition.base_schemas_closed — justified deviation (TurnBase; see principles.md)
 # NON_VERSIONED_SCHEMA_DIAGNOSTICS are also excluded — they apply only to non-versioned schemas.
 SESSIONS_DIAGNOSTICS_SKIP = {
@@ -99,6 +99,9 @@ SESSIONS_EXPECTED_PASS = {
     (REPO_SLUG, '60c07575-359d-4484-aaa1-6068f03d5297', 'v1'),
     (REPO_SLUG, 'a40a0813-8a53-4503-a2ca-0b52b95e6406', 'v1'),
     (REPO_SLUG, '7d59d8ef-0ccb-4ffa-8bd5-12c157ec9492', 'v1'),
+    (REPO_SLUG, 'd58db402-6597-4f96-a2c7-ba3da7ac5bf5', 'v1'),
+    (REPO_SLUG, '1bc20fc3-edf2-46fd-89db-b5481f112ef0', 'v1'),
+    (REPO_SLUG, 'a2605476-5569-4640-8386-cf7f466578ae', 'v1'),
 }
 
 
@@ -136,16 +139,39 @@ def _diag_detail(output):
     return lines[0] if lines else None
 
 
+def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: list) -> None:
+    """Validate JSON Pointer fragments in a join CSV. base_for maps column name → base dir."""
+    with csv_path.open() as fh:
+        for i, row in enumerate(csv.DictReader(fh), 2):
+            for col in columns:
+                ref = row[col].strip()
+                if not ref:
+                    continue
+                file_part, _, pointer = ref.partition('#')
+                f = (base_for.get(col, RSC_SCHEMA_CONVERSATIONS) / file_part).resolve()
+                if not f.exists():
+                    fails.append(f'row {i} {col}: file not found: {file_part}')
+                    continue
+                if pointer and f.suffix == '.json':
+                    try:
+                        doc = json.loads(f.read_text())
+                    except json.JSONDecodeError:
+                        fails.append(f'row {i} {col}: invalid JSON: {file_part}')
+                        continue
+                    if not _walk_pointer(doc, pointer):
+                        fails.append(f'row {i} {col}: bad pointer: {ref}')
+
+
 # ── Checks ────────────────────────────────────────────────────────────────────
 
 def check_required_files(run):
     print('\n── Required files ────────────────────────────────────────────────────────')
     required = [
-        CONVERSATIONS_DIR     / 'principles.md',
-        CONVERSATIONS_DIR     / 'workflow.md',
-        SESSIONS_DIR / 'v1.json',
-        SESSIONS_DIR / 'principles.md',
-        SESSIONS_DIR / 'workflow.md',
+        RSC_SCHEMA_CONVERSATIONS / 'principles.md',
+        RSC_SCHEMA_CONVERSATIONS / 'workflow.md',
+        RSC_SCHEMA_SESSIONS      / 'v1.json',
+        RSC_SCHEMA_SESSIONS      / 'principles.md',
+        RSC_SCHEMA_SESSIONS      / 'workflow.md',
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'chat-exports' / 'validate.sh',
         SRC  / 'test' / 'gen_model_candidate.py',
@@ -153,43 +179,76 @@ def check_required_files(run):
         SRC  / 'test' / 'gen_model.py',
         SRC  / 'run_python_script.sh',
         RSC  / 'model.json',
-        *[CONVERSATIONS_DIR / f'{v}.json' for v in CONVERSATIONS_VERSIONS],
-        *[SCHEMA_DIR / s / f'{s}.json' for s in ('memories', 'projects', 'users')],
-        *[DIAG_DIR / f'{d}.py' for d in NON_VERSIONED_SCHEMA_DIAGNOSTICS],
+        *[RSC_SCHEMA_CONVERSATIONS / f'{v}.json' for v in CONVERSATIONS_VERSIONS],
+        *[RSC_SCHEMA / s / f'{s}.json' for s in ('memories', 'projects', 'users')],
+        *[SRC_TEST_DIAGNOSTICS / f'{d}.py' for d in NON_VERSIONED_SCHEMA_DIAGNOSTICS],
     ]
     for path in required:
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists())
 
 
-def check_conversations_schema_validity(run):
-    print('\n── Schema validity ───────────────────────────────────────────────────────')
+def check_chat_exports_validity(run):
+    print('\n── Chat-exports schema validity ──────────────────────────────────────────')
+    # Versioned conversations schemas
     for v in CONVERSATIONS_VERSIONS:
-        path = CONVERSATIONS_DIR / f'{v}.json'
+        path = RSC_SCHEMA_CONVERSATIONS / f'{v}.json'
         if not path.exists():
-            run(f'valid JSON: conversations/{v}', False, 'File missing')
+            run(f'conversations: valid JSON: {v}', False, 'File missing')
             continue
         try:
             schema = json.loads(path.read_text())
-            run(f'valid JSON + $schema: conversations/{v}', '$schema' in schema,
+            run(f'conversations: valid JSON + $schema: {v}', '$schema' in schema,
                 'Missing $schema field' if '$schema' not in schema else None)
         except json.JSONDecodeError as e:
-            run(f'valid JSON: conversations/{v}', False, str(e))
+            run(f'conversations: valid JSON: {v}', False, str(e))
+    # Non-versioned sidecar schemas (memories, projects, users, model)
+    for schema_path in NON_VERSIONED_SCHEMA_TARGETS:
+        if not schema_path.exists():
+            run(f'exists: {schema_path.relative_to(REPO_ROOT)}', False)
+            continue
+        for diag in NON_VERSIONED_SCHEMA_DIAGNOSTICS:
+            script = SRC_TEST_DIAGNOSTICS / f'{diag}.py'
+            if not script.exists():
+                run(f'{diag}: {schema_path.name}', False,
+                    f'Diagnostic script missing: {script.relative_to(REPO_ROOT)}')
+                continue
+            passed, output = _call(script, str(schema_path))
+            run(f'{diag}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
+                _diag_detail(output) if not passed else None)
 
 
-def check_chat_validation_outputs(run):
-    print('\n── Validation outputs ────────────────────────────────────────────────────')
+def check_code_projects_validity(run):
+    print('\n── Code-projects schema validity ─────────────────────────────────────────')
+    candidates = list(RSC_SCHEMA_SESSIONS.glob('v*.json'))
+    if not candidates:
+        run('sessions: valid JSON', False, f'{RSC_SCHEMA_SESSIONS.relative_to(REPO_ROOT)} has no v*.json files')
+        return
+    for path in sorted(candidates, key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)]):
+        v = path.stem
+        try:
+            schema = json.loads(path.read_text())
+            run(f'sessions: valid JSON + $schema: {v}', '$schema' in schema,
+                'Missing $schema field' if '$schema' not in schema else None)
+        except json.JSONDecodeError as e:
+            run(f'sessions: valid JSON: {v}', False, str(e))
+
+
+def check_chat_exports_validation_outputs(run):
+    print('\n── Chat-exports validation outputs ───────────────────────────────────────')
     for data_dir, version in sorted(CONVERSATIONS_EXPECTED_PASS):
         log = GEN_CHAT_EXPORTS / data_dir / 'validation' / 'conversations' / f'{version}.log'
         if not log.exists():
-            run(f'validation log exists: {data_dir} × {version}', False,
+            run(f'chat: validation log exists: {data_dir} × {version}', False,
                 'Run: src/main/chat-exports/validate.sh --chat-exports ../chat-exports')
             continue
         content = log.read_text()
         passed = 'Valid!' in content
-        detail = next((l for l in content.splitlines() if l.startswith('Validation error:')), None)
-        run(f'validation passing: {data_dir} × {version}', passed, detail)
+        detail = next((line for line in content.splitlines() if line.startswith('Validation error:')), None)
+        run(f'chat: validation passing: {data_dir} × {version}', passed, detail)
 
     # Closed-world complement: a surprise pass signals a regression or missing CONVERSATIONS_EXPECTED_PASS entry.
+    # Only passes are flagged here (not failures) because chat exports are added manually and
+    # intentionally — an unexpected failure is impossible by construction.
     for data_dir in sorted(d.name for d in GEN_CHAT_EXPORTS.iterdir() if d.is_dir() and d.name.startswith('data-')) if GEN_CHAT_EXPORTS.exists() else []:
         for version in CONVERSATIONS_VERSIONS:
             if (data_dir, version) in CONVERSATIONS_EXPECTED_PASS:
@@ -198,132 +257,105 @@ def check_chat_validation_outputs(run):
             if not log.exists():
                 continue
             if 'Valid!' in log.read_text():
-                run(f'unexpected pass (not in CONVERSATIONS_EXPECTED_PASS): {data_dir} × {version}', False,
+                run(f'chat: unexpected pass (not in CONVERSATIONS_EXPECTED_PASS): {data_dir} × {version}', False,
                     'Add to CONVERSATIONS_EXPECTED_PASS or investigate regression')
 
 
-def check_conversations_diagnostics(run):
-    print('\n── Conversations schema diagnostics ──────────────────────────────────────')
-    candidates = list(CONVERSATIONS_DIR.glob('v*.json'))
+def check_code_projects_validation_outputs(run):
+    print('\n── Code-projects validation outputs ──────────────────────────────────────────')
+    for project, session, version in sorted(SESSIONS_EXPECTED_PASS):
+        log = GEN_CODE_PROJECTS / project / session / 'validation' / 'sessions' / f'{version}.log'
+        if not log.exists():
+            run(f'sessions: validation log exists: {project}/{session[:8]}… × {version}', False,
+                'Run: src/main/code-projects/RUNME.sh --code-projects ../code-projects')
+            continue
+        content = log.read_text()
+        passed = 'Valid!' in content
+        detail = next((line for line in content.splitlines() if line.startswith('Validation error:')), None)
+        run(f'sessions: validation passing: {project}/{session[:8]}… × {version}', passed, detail)
+
+    # Closed-world complement: scan gen/code-projects/ for logs not in SESSIONS_EXPECTED_PASS.
+    # Unregistered failures must be investigated; unregistered passes must be added.
+    if not GEN_CODE_PROJECTS.exists():
+        return
+    for project_dir in sorted(GEN_CODE_PROJECTS.iterdir()):
+        if not project_dir.is_dir():
+            continue
+        for session_dir in sorted(project_dir.iterdir()):
+            if not session_dir.is_dir():
+                continue
+            log = session_dir / 'validation' / 'sessions' / 'v1.log'
+            if not log.exists():
+                continue
+            key = (project_dir.name, session_dir.name, 'v1')
+            if key in SESSIONS_EXPECTED_PASS:
+                continue
+            content = log.read_text()
+            label = f'sessions: unregistered: {project_dir.name}/{session_dir.name[:8]}…'
+            if 'Validation error' in content:
+                run(label, False, 'Session fails validation and is absent from SESSIONS_EXPECTED_PASS — investigate')
+            elif 'Valid!' in content:
+                run(label, False, 'Session passes but is absent from SESSIONS_EXPECTED_PASS — add it')
+
+
+def check_chat_exports_diagnostics(run):
+    print('\n── Chat-exports schema diagnostics ──────────────────────────────────────')
+    candidates = list(RSC_SCHEMA_CONVERSATIONS.glob('v*.json'))
     if not candidates:
-        run('conversations schema diagnostics', False,
-            f'{CONVERSATIONS_DIR.relative_to(REPO_ROOT)} has no v*.json files')
+        run('chat: conversations schema diagnostics', False,
+            f'{RSC_SCHEMA_CONVERSATIONS.relative_to(REPO_ROOT)} has no v*.json files')
         return None
     latest = max(candidates, key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
-    for script in sorted(DIAG_DIR.glob('*.py')):
+    for script in sorted(SRC_TEST_DIAGNOSTICS.glob('*.py')):
         diag = script.stem
         if diag in NON_VERSIONED_SCHEMA_DIAGNOSTICS:
             continue
         passed, output = _call(script, str(latest))
-        run(diag, passed, _diag_detail(output) if not passed else None)
+        run(f'chat: {diag}', passed, _diag_detail(output) if not passed else None)
     return latest
 
 
-def check_sessions_diagnostics(run):
-    print('\n── Sessions schema diagnostics ──────────────────────────────────────────')
-    sessions_schema = SESSIONS_DIR / 'v1.json'
-    if not sessions_schema.exists():
-        run('sessions schema diagnostics', False,
-            f'{sessions_schema.relative_to(REPO_ROOT)} missing — skipping all')
-        return
-    for script in sorted(DIAG_DIR.glob('*.py')):
+def check_code_projects_diagnostics(run):
+    print('\n── Code-projects schema diagnostics ──────────────────────────────────────────')
+    candidates = list(RSC_SCHEMA_SESSIONS.glob('v*.json'))
+    if not candidates:
+        run('sessions: schema diagnostics', False,
+            f'{RSC_SCHEMA_SESSIONS.relative_to(REPO_ROOT)} has no v*.json files')
+        return None
+    latest = max(candidates, key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
+    for script in sorted(SRC_TEST_DIAGNOSTICS.glob('*.py')):
         diag = script.stem
         if diag in NON_VERSIONED_SCHEMA_DIAGNOSTICS or diag in SESSIONS_DIAGNOSTICS_SKIP:
             continue
-        passed, output = _call(script, str(sessions_schema))
+        passed, output = _call(script, str(latest))
         run(f'sessions: {diag}', passed, _diag_detail(output) if not passed else None)
+    return latest
 
 
-def check_sessions_validation_outputs(run):
-    print('\n── Sessions validation outputs ──────────────────────────────────────────')
-    for project, session, version in sorted(SESSIONS_EXPECTED_PASS):
-        log = GEN_CODE_PROJECTS / project / session / 'validation' / 'sessions' / f'{version}.log'
-        if not log.exists():
-            run(f'sessions validation log exists: {project}/{session[:8]}… × {version}', False,
-                'Run: src/main/code-projects/RUNME.sh')
-            continue
-        content = log.read_text()
-        passed = 'Valid!' in content
-        detail = next((l for l in content.splitlines() if l.startswith('Validation error:')), None)
-        run(f'sessions validation passing: {project}/{session[:8]}… × {version}', passed, detail)
-
-
-def check_non_versioned_schema_diagnostics(run):
-    print('\n── Non-versioned schema diagnostics ─────────────────────────────────────')
-    for schema_path in NON_VERSIONED_SCHEMA_TARGETS:
-        if not schema_path.exists():
-            run(f'exists: {schema_path.relative_to(REPO_ROOT)}', False)
-            continue
-        for diag in NON_VERSIONED_SCHEMA_DIAGNOSTICS:
-            script = DIAG_DIR / f'{diag}.py'
-            if not script.exists():
-                run(f'{diag}: {schema_path.name}', False,
-                    f'Diagnostic script missing: {script.relative_to(REPO_ROOT)}')
-                continue
-            passed, output = _call(script, str(schema_path))
-            run(f'{diag}: {schema_path.relative_to(SCHEMA_DIR)}', passed,
-                _diag_detail(output) if not passed else None)
-
-
-def check_mcp_join_csv(run):
+def check_chat_exports_join_csv(run):
     print('\n── mcp_join.csv pointer validation ──────────────────────────────────────')
-    mcp_join = CONVERSATIONS_DIR / 'mcp_join.csv'
+    mcp_join = RSC_SCHEMA_CONVERSATIONS / 'mcp_join.csv'
     if not mcp_join.exists():
-        run('mcp_join.csv exists', False)
+        run('chat: mcp_join.csv exists', False)
         return
     fails: list[str] = []
-    with mcp_join.open() as fh:
-        for i, row in enumerate(csv.DictReader(fh), 2):
-            for col in ('conv_path', 'mcp_path'):
-                ref = row[col].strip()
-                if not ref:
-                    continue
-                file_part, _, pointer = ref.partition('#')
-                f = (CONVERSATIONS_DIR / file_part).resolve()
-                if not f.exists():
-                    fails.append(f'row {i} {col}: file not found: {file_part}')
-                    continue
-                if pointer and f.suffix == '.json':
-                    try:
-                        doc = json.loads(f.read_text())
-                    except json.JSONDecodeError:
-                        fails.append(f'row {i} {col}: invalid JSON: {file_part}')
-                        continue
-                    if not _walk_pointer(doc, pointer):
-                        fails.append(f'row {i} {col}: bad pointer: {ref}')
-    run('mcp_join.csv: all pointers valid', not fails,
+    _check_csv_pointers(mcp_join, ('conv_path', 'mcp_path'),
+                        {'conv_path': RSC_SCHEMA_CONVERSATIONS, 'mcp_path': RSC_SCHEMA_CONVERSATIONS}, fails)
+    run('chat: mcp_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
 
 
-def check_sessions_join_csv(run):
+def check_code_projects_join_csv(run):
     print('\n── cli_join.csv pointer validation ──────────────────────────────────────')
-    cli_join = SESSIONS_DIR / 'cli_join.csv'
+    cli_join = RSC_SCHEMA_SESSIONS / 'cli_join.csv'
     if not cli_join.exists():
-        run('cli_join.csv exists', False)
+        run('sessions: cli_join.csv exists', False)
         return
     fails: list[str] = []
-    with cli_join.open() as fh:
-        for i, row in enumerate(csv.DictReader(fh), 2):
-            for col in ('cli_path', 'conv_path', 'mcp_path'):
-                ref = row[col].strip()
-                if not ref:
-                    continue
-                file_part, _, pointer = ref.partition('#')
-                # cli_path is relative to SESSIONS_DIR; conv/mcp paths to CONVERSATIONS_DIR
-                base = SESSIONS_DIR if col == 'cli_path' else CONVERSATIONS_DIR
-                f = (base / file_part).resolve()
-                if not f.exists():
-                    fails.append(f'row {i} {col}: file not found: {file_part}')
-                    continue
-                if pointer and f.suffix == '.json':
-                    try:
-                        doc = json.loads(f.read_text())
-                    except json.JSONDecodeError:
-                        fails.append(f'row {i} {col}: invalid JSON: {file_part}')
-                        continue
-                    if not _walk_pointer(doc, pointer):
-                        fails.append(f'row {i} {col}: bad pointer: {ref}')
-    run('cli_join.csv: all pointers valid', not fails,
+    _check_csv_pointers(cli_join, ('cli_path', 'conv_path', 'mcp_path'),
+                        {'cli_path': RSC_SCHEMA_SESSIONS, 'conv_path': RSC_SCHEMA_CONVERSATIONS, 'mcp_path': RSC_SCHEMA_CONVERSATIONS},
+                        fails)
+    run('sessions: cli_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
 
 
@@ -338,14 +370,18 @@ def main():
         print(f'{mark} {label}' + (f'\n    {detail}' if not passed and detail else ''))
 
     check_required_files(run)
-    check_conversations_schema_validity(run)
-    check_chat_validation_outputs(run)
-    latest = check_conversations_diagnostics(run)
-    check_sessions_diagnostics(run)
-    check_sessions_validation_outputs(run)
-    check_non_versioned_schema_diagnostics(run)
-    check_mcp_join_csv(run)
-    check_sessions_join_csv(run)
+
+    check_chat_exports_validity(run)
+    check_code_projects_validity(run)
+
+    check_chat_exports_validation_outputs(run)
+    check_code_projects_validation_outputs(run)
+
+    latest_chat_exports  = check_chat_exports_diagnostics(run)
+    latest_code_projects = check_code_projects_diagnostics(run)
+
+    check_chat_exports_join_csv(run)
+    check_code_projects_join_csv(run)
 
     print()
     passes   = sum(1 for _, p in results if p)
@@ -358,10 +394,13 @@ def main():
         for name in failures:
             print(f'  ✗ {name}')
         print('\nRun failing diagnostics individually for details:')
-        schema_hint = latest.relative_to(REPO_ROOT) if latest else '<schema.json>'
-        print(f'  python src/test/diagnostics/<principle_id>.py {schema_hint}')
+        for latest in filter(None, [latest_chat_exports, latest_code_projects]):
+            hint = latest.relative_to(REPO_ROOT)
+            print(f'  python src/test/diagnostics/<principle_id>.py {hint}')
         print('Run repairs where available:')
-        print(f'  python src/test/repairs/<principle_id>.py {schema_hint}')
+        for latest in filter(None, [latest_chat_exports, latest_code_projects]):
+            hint = latest.relative_to(REPO_ROOT)
+            print(f'  python src/test/repairs/<principle_id>.py {hint}')
         sys.exit(1)
     else:
         print('\nAll checks passed. Safe to commit.')

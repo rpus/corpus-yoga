@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """structure.definitions_at_bottom — definitions is the last key in the root schema."""
-import json, sys
+import json
+import sys
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)
