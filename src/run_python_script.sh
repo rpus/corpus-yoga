@@ -3,9 +3,7 @@
 # Usage: src/run_python_script.sh <script.py> [args...]
 
 set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
-source ~/venvs/general/bin/activate
+source "$SCRIPT_DIR/activate_venv.sh"
 python "$@"
-exit_code=$?
-deactivate
-exit $exit_code

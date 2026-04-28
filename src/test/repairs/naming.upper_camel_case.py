@@ -7,6 +7,7 @@ Renames the definition key and updates all $ref strings throughout the schema.
 Writes back to the same file in place.
 """
 import json, re, sys
+from pathlib import Path
 
 schema_path, old, new = sys.argv[1], sys.argv[2], sys.argv[3]
 
@@ -41,8 +42,10 @@ ordered = {(new if k == old else k): v for k, v in
 schema['definitions'] = {new if k == old else k: defs.get(new if k == old else k, defs.get(k))
                           for k in list(defs.keys())}
 
-with open(schema_path, 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 
 print(f'Renamed "{old}" → "{new}" and updated all $refs in {schema_path}')

@@ -6,6 +6,7 @@ Usage: python src/test/repairs/structure.no_redundant_additional_properties_true
 Writes back to the same file in place.
 """
 import json, sys
+from pathlib import Path
 
 schema_path = sys.argv[1]
 with open(schema_path) as f:
@@ -30,7 +31,9 @@ if count == 0:
     print('Nothing to fix.')
     sys.exit(0)
 
-with open(schema_path, 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 print(f'Removed {count} instance(s) in {schema_path}')

@@ -4,19 +4,21 @@ This repo wrangles Claude data exports.
 
 ## Prerequisites
 
-- python
+- `python` (e.g. `brew install python`)
+- `python3 -m venv ~/venvs/general && pip install -r requirements.txt`
 
 ## How to use
 
 - Prepare new data
   - Ask to "Export ('All') data" from <https://claude.ai/settings/data-privacy-controls>
   - Click on 24-hour emailed "Download Data" link (like <https://claude.ai/export/0fc4c1e0-4719-4e10-997a-697bf05599af/download/cdb658167a0d6dd4a2ffe829aeea9d15>)
-  - Move downloaded folder (like `data-*`) from `Downloads` into the `conversation-exports` sibling directory of this (current) directory.
+  - Move downloaded folder (like `data-*`) from `Downloads` into the `chat-exports` sibling directory of this (current) directory.
   - `source ~/.zprofile` (to get `ANTHROPIC_API_KEY` into `env` for table inference by Claude)
 
 ```bash
-./src/main/conversation-exports/RUNME.sh --conversation-exports ../conversation-exports
-./src/test/conversation-exports/audit_files.sh --conversation-exports ../conversation-exports
+./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
+\ --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
+./src/test/chat-exports/audit_files.sh --chat-exports ../chat-exports
 ./src/main/code-projects/RUNME.sh --code-projects ../code-projects
 ./src/test/xref.sh
 ./src/test/pre_commit.sh
@@ -26,15 +28,15 @@ git clean -fdX; git clean -fdxn
 ## What that does
 
 - Validate the data
-  - `./src/main/conversation-exports/validate.sh --conversation-exports ../conversation-exports`
+  - `./src/main/chat-exports/validate.sh --chat-exports ../chat-exports`
 - Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
 - Extract files and heredocs
-  - `./src/main/conversation-exports/extract_files.sh --conversation-exports ../conversation-exports`
-  - `./src/main/conversation-exports/extract_heredocs.sh --conversation-exports ../conversation-exports`
+  - `./src/main/chat-exports/extract_files.sh --chat-exports ../chat-exports`
+  - `./src/main/chat-exports/extract_heredocs.sh --chat-exports ../chat-exports`
 - Present the data
-  - `./src/main/conversation-exports/infer_tables.sh --conversation-exports ../conversation-exports`
+  - `./src/main/chat-exports/infer_tables.sh --chat-exports ../chat-exports`
   - NB the above call requires an Anthropic API key and costs money.
-  - `./src/main/conversation-exports/present.sh --conversation-exports ../conversation-exports`
+  - `./src/main/chat-exports/present.sh --chat-exports ../chat-exports`
 
 ---
 
@@ -60,9 +62,9 @@ python src/test/pre_commit.py
 ## To be tested
 
 - Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
-  - `mkdir ./gen/conversation-exports/data-*/redacted`
+  - `mkdir ./gen/chat-exports/data-*/redacted`
 - Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
-  - `mkdir ./gen/conversation-exports/data-*/summarised`
+  - `mkdir ./gen/chat-exports/data-*/summarised`
 
 ## To be implemented
 
@@ -81,7 +83,7 @@ python src/test/pre_commit.py
 | --- | --- |
 | [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
 | [`doc/project-overview.md`](doc/project-overview.md) | Architecture: pipeline stages, artifact recovery, all schemas, output structure, provenance |
-| [`doc/conversation-exports/conversations-schema.md`](doc/conversation-exports/conversations-schema.md) | Deep-dive on `rsc/schema/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
+| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
 | [`doc/code-projects/sessions-schema.md`](doc/code-projects/sessions-schema.md) | Reference for `rsc/schema/sessions/`: the nine record types, turn envelope, content blocks, MCP mapping |
 | [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; `../code-projects/` setup procedure |
 | [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session transcripts against the sessions schema |

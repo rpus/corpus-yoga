@@ -23,7 +23,9 @@ schema['title'] = stem
 # Ensure title is still the first key
 schema = {'title': stem, **{k: v for k, v in schema.items() if k != 'title'}}
 
-with open(schema_path, 'w') as f:
+tmp = schema_path.with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 print(f'Fixed root title: {old!r} → {stem!r} in {schema_path}')

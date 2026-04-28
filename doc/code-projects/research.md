@@ -170,5 +170,5 @@ pwd | tr '/' '-'
 ./src/main/code-projects/RUNME.sh --code-project "../code-projects/$(pwd | tr '/' '-')"
 ```
 
-The `../code-projects/` directory is outside the repo (a peer to `../conversation-exports/`),
+The `../code-projects/` directory is outside the repo (a peer to `../chat-exports/`),
 but the workspace file references it and `src/main/code-projects/RUNME.sh` reads from it.

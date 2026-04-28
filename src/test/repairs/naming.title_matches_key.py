@@ -7,6 +7,7 @@ Overwrites title with the definition key for every definition where they differ.
 Writes back to the same file in place.
 """
 import json, sys
+from pathlib import Path
 
 schema_path = sys.argv[1]
 with open(schema_path) as f:
@@ -23,7 +24,9 @@ if fixed == 0:
     print('Nothing to fix.')
     sys.exit(0)
 
-with open(schema_path, 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 print(f'Fixed {fixed} definition(s) in {schema_path}')

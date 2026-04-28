@@ -9,6 +9,7 @@ Only acts when no 'pattern' field already exists.
 Writes back to the same file in place.
 """
 import json, re, sys
+from pathlib import Path
 
 # Matches: matches /^foo$/, pattern: /^foo$/, regex /^foo$/
 PATTERN_RE = re.compile(r'(?:matches|pattern[:\s]|regex)\s+/([^/]+)/', re.IGNORECASE)
@@ -38,7 +39,9 @@ if count == 0:
     print('Nothing to fix (or patterns already enforced).')
     sys.exit(0)
 
-with open(schema_path, 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 print(f'Extracted {count} pattern(s) in {schema_path}')

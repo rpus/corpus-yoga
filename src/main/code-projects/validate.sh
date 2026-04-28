@@ -79,11 +79,9 @@ main() {
   fi
 
   # shellcheck source=/dev/null
-  source ~/venvs/general/bin/activate
+  source "$REPO_DIR/src/activate_venv.sh"
 
   validate_project "$(cd "$project_dir" && pwd)"
-
-  deactivate
 }
 
 main "$@"

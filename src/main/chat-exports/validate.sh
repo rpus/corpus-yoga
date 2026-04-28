@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-# src/main/conversation-exports/validate.sh --conversation-export ../conversation-exports/data-2026-04-07-07-52-05-batch-0000
-# src/main/conversation-exports/validate.sh --conversation-exports ../conversation-exports
+# src/main/chat-exports/validate.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
+# src/main/chat-exports/validate.sh --chat-exports ../chat-exports
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema"
-OUTPUT_DIR="$REPO_DIR/gen/conversation-exports"
+OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 
 rel_path() {
   python -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$REPO_DIR"
@@ -72,14 +72,14 @@ validate_file() {
 }
 
 validate_export() {
-  local conversation_export="${1%/}"
+  local chat_export="${1%/}"
   local validation_dir
-  validation_dir="$OUTPUT_DIR/$(basename "$conversation_export")/validation"
+  validation_dir="$OUTPUT_DIR/$(basename "$chat_export")/validation"
 
   rm -rf "$validation_dir"
   mkdir -p "$validation_dir"
 
-  for f in "$conversation_export"/*.json; do
+  for f in "$chat_export"/*.json; do
     local name schemas schema schema_stem
     name="$(basename "${f%.json}")"
     if [[ -d "$SCHEMA_DIR/$name" ]]; then
@@ -104,36 +104,34 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 fi
 
 main() {
-  local conversation_export="" conversation_exports=""
+  local chat_export="" chat_exports=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --conversation-export)  conversation_export="$2";  shift 2 ;;
-      --conversation-exports) conversation_exports="$2"; shift 2 ;;
+      --chat-export)  chat_export="$2";  shift 2 ;;
+      --chat-exports) chat_exports="$2"; shift 2 ;;
       *) echo "Unknown argument: $1"
-         echo "Usage: $0 --conversation-export <path> | --conversation-exports <path>"
+         echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
          echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
-  if [[ -z "$conversation_export" && -z "$conversation_exports" ]]; then
-    echo "Usage: $0 --conversation-export <path/to/data-directory>"
-    echo "       $0 --conversation-exports <path/to/conversation-exports>"
+  if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
+    echo "Usage: $0 --chat-export <path/to/data-directory>"
+    echo "       $0 --chat-exports <path/to/chat-exports>"
     echo "       Pass --help for more information."
     exit 1
   fi
 
   # shellcheck source=/dev/null
-  source ~/venvs/general/bin/activate
+  source "$REPO_DIR/src/activate_venv.sh"
 
-  if [[ -n "$conversation_export" ]]; then
-    validate_export "$(cd "$conversation_export" && pwd)"
+  if [[ -n "$chat_export" ]]; then
+    validate_export "$(cd "$chat_export" && pwd)"
   else
-    for d in "$(cd "$conversation_exports" && pwd)"/data-*/; do
+    for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
       validate_export "$d"
     done
   fi
-
-  deactivate
 }
 
 main "$@"

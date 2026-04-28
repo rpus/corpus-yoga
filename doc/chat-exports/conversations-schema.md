@@ -150,10 +150,10 @@ to generate HTML usage reports — exactly the kind of structural analysis this 
 for claude.ai exports. They are sister tools at different layers: one for CLI sessions, one
 for web-app exports.
 
-**Ground truth data.** The `../conversation-exports/` sibling directory contains the actual
+**Ground truth data.** The `../chat-exports/` sibling directory contains the actual
 `conversations.json` export files that the schema is validated against. Those files are not
 in this repo — they contain personal conversation content — but the schema development
-workflow references them directly via `src/main/conversation-exports/validate.sh`.
+workflow references them directly via `src/main/chat-exports/validate.sh`.
 
 ---
 

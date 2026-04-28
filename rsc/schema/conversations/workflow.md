@@ -38,7 +38,7 @@ Before any schema work begins, the following artefacts must be available in the 
 | `v*.json` | The schema under development | Upload from `rsc/schema/conversations/` |
 | `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/conversations/` |
 | `workflow.md` | This document | Upload from `rsc/schema/conversations/` |
-| At least one `conversations.json` export | Ground-truth validation data | Upload from `rsc/../../conversation-exports/data-*/` |
+| At least one `conversations.json` export | Ground-truth validation data | Upload from `rsc/../../chat-exports/data-*/` |
 | `conversations_redacted.json` (optional) | Safe-to-share compressed export for diagnostic work | Upload from `gen/` |
 
 **Flag if:** the session begins with schema edits before any of the above are uploaded.
@@ -51,11 +51,11 @@ Before any schema work begins, the following artefacts must be available in the 
 
 When a new export validates against the current schema without modification:
 
-1. Run: `src/main/conversation-exports/RUNME.sh --conversation-export <path>`
-2. Confirm all logs under `gen/conversation-exports/<export>/validation/conversations/` contain `Valid!`.
+1. Run: `src/main/chat-exports/RUNME.sh --chat-export <path>`
+2. Confirm all logs under `gen/chat-exports/<export>/validation/conversations/` contain `Valid!`.
 3. Test the new export against **every** schema version, not just the latest — validate it against v1 through v{N} to fill every cell in the CHANGELOG matrix row.
 4. Add a new row to `rsc/schema/conversations/CHANGELOG.md` with ✓/✗ per version.
-5. Add each passing `(export-name, version)` pair to `EXPECTED_PASS` in `src/test/pre_commit.py`.
+5. Add each passing `(export-name, version)` pair to `CONVERSATIONS_EXPECTED_PASS` in `src/test/pre_commit.py`.
 6. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
 7. Commit.
 
@@ -258,7 +258,7 @@ The session's outputs should be committed to the repository:
 - Updated schema `v{N}.json` → `rsc/schema/conversations/`
 - Updated `principles.md` → `rsc/schema/conversations/`
 - Updated `workflow.md` → `rsc/schema/conversations/`
-- Updated validation logs in `gen/` (from running `src/main/conversation-exports/validate.sh`)
+- Updated validation logs in `gen/` (from running `src/main/chat-exports/validate.sh`)
 
 Commit message should note what changed: new export incorporated, schema fixes applied, diagnostic refinements, or documentation updates.
 
@@ -299,8 +299,8 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
 4. Test every known export against the new version to establish which pass:
 
    ```bash
-   source ~/venvs/general/bin/activate
-   for d in /path/to/conversation-exports/data-*/; do
+   source src/activate_venv.sh
+   for d in /path/to/chat-exports/data-*/; do
      result=$(python src/main/validate.py "$d/conversations.json" rsc/schema/conversations/v{N+1}.json 2>&1)
      echo "$d: $(echo "$result" | grep -q Valid && echo ✓ || echo ✗)"
    done
@@ -313,7 +313,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
    - Add a `## v{N+1}` section with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply.
 6. Update `src/test/pre_commit.py`:
    - Add `'v{N+1}'` to `CONV_VERSIONS`.
-   - Add `EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
+   - Add `CONVERSATIONS_EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
    - Update `latest` to `CONV_DIR / 'v{N+1}.json'`.
 7. Review diagnostic exception sets in `src/test/diagnostics/`:
    - `KNOWN_NON_DISCRIMINATED_UNIONS` in `composition.discriminated_union_pattern.py` — add any new `oneOf` unions that are non-discriminated (primitive or key-presence); remove entries for definitions that no longer exist.
@@ -326,11 +326,11 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. The `latest` pointe
    - For any definition removed that has rows in the table, delete those rows.
    - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
 9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/model.json` if any cross-schema identifiers changed.
-10. Generate validation logs for the new pairs: `src/main/conversation-exports/validate.sh --conversation-exports <path/to/conversation-exports>`
+10. Generate validation logs for the new pairs: `src/main/chat-exports/validate.sh --chat-exports <path/to/chat-exports>`
     Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
 11. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
-**Flag if:** `CONV_VERSIONS`, `EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
+**Flag if:** `CONV_VERSIONS`, `CONVERSATIONS_EXPECTED_PASS`, `latest`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 
 ---
 

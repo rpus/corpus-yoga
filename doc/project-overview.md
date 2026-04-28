@@ -10,7 +10,7 @@ The root `README.md` covers usage; this document covers architecture.
 
 ## Inputs
 
-### Claude.ai exports (`../conversation-exports/`)
+### Claude.ai exports (`../chat-exports/`)
 
 Requested from Settings → Privacy → Export Data on claude.ai. Each export is a
 directory named by account UUID and timestamp:
@@ -23,7 +23,7 @@ data-{account-uuid}-{unix-timestamp}-{hash}-batch-0000/
 └── users.json            ← account info
 ```
 
-These live in `../conversation-exports/` (a sibling directory, not in this repo). The `CHANGELOG.md`
+These live in `../chat-exports/` (a sibling directory, not in this repo). The `CHANGELOG.md`
 in `rsc/schema/conversations/` tracks which exports have been processed and which schema
 version each passes.
 
@@ -49,7 +49,7 @@ See `doc/code-projects/research.md` for the full setup procedure and format docu
 ## Source layout
 
 `src/main/` and `src/test/` are each split into pipeline subdirectories
-(`conversation-exports/`, `code-projects/`) plus a top level. The rule: a script lives
+(`chat-exports/`, `code-projects/`) plus a top level. The rule: a script lives
 in the pipeline subdirectory whose callers are exclusively within that pipeline; scripts
 called from multiple pipelines (or from tooling/tests that span both) live at the top
 level. `src/main/validate.py` and `src/test/pre_commit.py` are the main examples of
@@ -59,9 +59,9 @@ genuinely shared scripts. `src/run_python_script.sh` is a shared infrastructure 
 
 ## Pipeline
 
-`src/main/conversation-exports/RUNME.sh` orchestrates four stages in order. Each stage can also be run independently.
+`src/main/chat-exports/RUNME.sh` orchestrates four stages in order. Each stage can also be run independently.
 
-### 1. `src/main/conversation-exports/validate.sh` → `validate.py`
+### 1. `src/main/chat-exports/validate.sh` → `validate.py`
 
 Validates `conversations.json` against the versioned JSON Schema in
 `rsc/schema/conversations/` (currently `rsc/schema/conversations/v6.json`). On failure,
@@ -72,9 +72,9 @@ value in the export, and a suggested remediation command. On success, runs
 When the export fails validation, the schema is updated (following the workflow in
 `rsc/schema/conversations/workflow.md`) until it passes.
 
-Output: `gen/conversation-exports/{export-name}/validation/conversations/` — one `.log` per schema version
+Output: `gen/chat-exports/{export-name}/validation/conversations/` — one `.log` per schema version
 
-### 2. `src/main/conversation-exports/extract_files.sh` → `extract_files.py`
+### 2. `src/main/chat-exports/extract_files.sh` → `extract_files.py`
 
 Extracts files that Claude wrote via `create_file` tool calls. These are explicit JSON
 records in the conversation — structured and reliable.
@@ -84,9 +84,9 @@ records in the conversation — structured and reliable.
 - Last write wins when Claude revised a file multiple times
 - Cross-references with `rsc/artifacts/downloaded/` and copies new finds there
 
-Output: `gen/conversation-exports/{export-name}/extracted_files/` — one subdirectory per conversation
+Output: `gen/chat-exports/{export-name}/extracted_files/` — one subdirectory per conversation
 
-### 3. `src/main/conversation-exports/extract_heredocs.sh` → `extract_heredocs.py`
+### 3. `src/main/chat-exports/extract_heredocs.sh` → `extract_heredocs.py`
 
 Extracts files that Claude wrote via bash heredocs — `cat > /path << 'EOF' ... EOF`
 patterns inside `bash_tool` commands. These require regex reconstruction from raw text.
@@ -101,9 +101,9 @@ Classifies by destination prefix:
 Produces unified diffs for files that diverge from the downloaded version. Files with
 only whitespace differences are noted but not treated as changes.
 
-Output: `gen/conversation-exports/{export-name}/extracted_heredocs/` — one subdirectory per conversation, each with `outputs/` and `working/` buckets
+Output: `gen/chat-exports/{export-name}/extracted_heredocs/` — one subdirectory per conversation, each with `outputs/` and `working/` buckets
 
-### 4. `src/main/conversation-exports/infer_tables.sh` *(optional — requires `ANTHROPIC_API_KEY`, costs money)*
+### 4. `src/main/chat-exports/infer_tables.sh` *(optional — requires `ANTHROPIC_API_KEY`, costs money)*
 
 Calls the Claude API three times to infer semantic structure:
 
@@ -112,11 +112,11 @@ Calls the Claude API three times to infer semantic structure:
 3. **data-semantic** — weighted key concepts (salience, not raw frequency)
 
 Uses `claude-sonnet-4-6` with `max_tokens: 1024`. Skipped if `--pay-for-inference` is not
-passed to `src/main/conversation-exports/RUNME.sh`.
+passed to `src/main/chat-exports/RUNME.sh`.
 
-Output: three `.json` tables under `gen/conversation-exports/{export-name}/inferred/`
+Output: three `.json` tables under `gen/chat-exports/{export-name}/inferred/`
 
-### 5. `src/main/conversation-exports/present.sh`
+### 5. `src/main/chat-exports/present.sh`
 
 Assembles all data sources into the interactive HTML dashboard. Runs several transforms:
 
@@ -131,7 +131,7 @@ Assembles all data sources into the interactive HTML dashboard. Runs several tra
 Injects all datasets into the `rsc/index.html` template via `<!-- key.json:begin/end -->`
 markers or `<script id="key">` tags, producing a self-contained HTML file.
 
-Output: a self-contained `index.html` dashboard plus `data-*.json` datasets under `gen/conversation-exports/{export-name}/presentation/`
+Output: a self-contained `index.html` dashboard plus `data-*.json` datasets under `gen/chat-exports/{export-name}/presentation/`
 
 ---
 
@@ -182,7 +182,7 @@ Supporting files:
 
 The conversations schema has the most elaborate maintenance apparatus (versioned files,
 `principles.md`, `workflow.md`, diagnostic suite). See
-[`doc/conversation-exports/conversations-schema.md`](conversation-exports/conversations-schema.md) for details.
+[`doc/chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) for details.
 
 ---
 
@@ -190,12 +190,12 @@ The conversations schema has the most elaborate maintenance apparatus (versioned
 
 All generated output lives under `gen/`, which is gitignored.
 
-### Data exports (`gen/conversation-exports/`)
+### Data exports (`gen/chat-exports/`)
 
 For each processed claude.ai export:
 
 ```text
-gen/conversation-exports/<export>/
+gen/chat-exports/<export>/
 ├── validation/
 │   └── conversations/v{N}.log
 ├── extracted_files/
@@ -239,7 +239,7 @@ Several scripts in this repo originated in conversations visible in the exports 
 | `rsc/schema/conversations/principles.md` | Conversation 15 ("Accessing files from previous chats"), v1.2 → extended to v1.3 in repo |
 | `rsc/schema/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |
 | `src/main/validate.py` | Conversation 30 ("JSON Schema and jq fundamentals"), extended with JSON Pointer / `$ref` resolution via the `referencing` library and removal of custom discriminator-based `oneOf` error formatting |
-| `src/main/conversation-exports/word_freq_literal.py` | Conversation 30, identical except shebang |
+| `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |
 | `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesuffix` replacing manual string slicing |
 | `src/test/pre_commit.py` | Conversation 15, heavily extended: versioned schema support, `EXPECTED_PASS` matrix of (export, schema-version) pairs, updated required-files and validation sections |
 

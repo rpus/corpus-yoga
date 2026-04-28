@@ -3,8 +3,8 @@
 # (audit_files.py), then run all SQL queries against them (query_files.py).
 #
 # Usage:
-#   src/test/conversation-exports/audit_files.sh --conversation-export  <path-to-export>
-#   src/test/conversation-exports/audit_files.sh --conversation-exports <path-to-exports>
+#   src/test/chat-exports/audit_files.sh --chat-export  <path-to-export>
+#   src/test/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 #
 # Output: gen/<export>/audit_queries/
 
@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $0 --conversation-export <path> | --conversation-exports <path>"
+  echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
   echo "       Pass --help for more information."
   exit 1
 fi

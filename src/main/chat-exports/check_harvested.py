@@ -6,7 +6,7 @@ Cross-references data-files.json against extracted_files/ and
 extracted_heredocs/ to report files not yet harvested.
 
 Usage:
-    python check_harvested.py <conversation-export-name>
+    python check_harvested.py <chat-export-name>
 
 Example:
     python check_harvested.py data-2026-04-07-07-52-05-batch-0000
@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
-OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / 'gen' / 'conversation-exports'
+OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',
@@ -58,7 +58,7 @@ def parse_file_path(file_path_str: str) -> tuple:
 
 def main():
     if len(sys.argv) != 2:
-        sys.exit(f'Usage: {sys.argv[0]} <conversation-export-name>')
+        sys.exit(f'Usage: {sys.argv[0]} <chat-export-name>')
 
     name        = sys.argv[1]
     export_dir  = OUTPUT_DIR / name

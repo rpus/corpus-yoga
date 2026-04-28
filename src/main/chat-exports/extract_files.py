@@ -10,8 +10,8 @@ Group output by conversation under:
     gen/<export-name>/extracted_files/<chat_index>_<conversation_name>/<path_from_tool>
 
 Usage:
-    python extract_files.py --conversation-export <path-to-export>
-    python extract_files.py --conversation-export <path> --out-dir <override-output-dir>
+    python extract_files.py --chat-export <path-to-export>
+    python extract_files.py --chat-export <path> --out-dir <override-output-dir>
 """
 
 import argparse
@@ -142,7 +142,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).parent
-OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'conversation-exports'
+OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
 DOWNLOADED_DIR = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
 RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'extracted_files'
 
@@ -152,11 +152,11 @@ def main():
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('--conversation-export', required=True)
+    parser.add_argument('--chat-export', required=True)
     parser.add_argument('--out-dir',  default=None)
     args = parser.parse_args()
 
-    data_dir           = Path(args.conversation_export).resolve()
+    data_dir           = Path(args.chat_export).resolve()
     conversations_path = data_dir / 'conversations.json'
     out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_files'
 

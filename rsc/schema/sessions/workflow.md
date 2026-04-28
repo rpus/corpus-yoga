@@ -178,7 +178,7 @@ After a successful run:
 ### Step 6 · Run pre_commit.py
 
 ```bash
-source ~/venvs/general/bin/activate && python src/test/pre_commit.py
+src/test/pre_commit.sh
 ```
 
 Confirms `cli_join.csv` pointers are valid and the conversations schema diagnostics

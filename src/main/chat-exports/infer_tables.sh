@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   src/main/conversation-exports/infer_tables.sh --conversation-export ../conversation-exports/data-2026-04-07-07-52-05-batch-0000
-#   src/main/conversation-exports/infer_tables.sh --conversation-exports ../conversation-exports
+#   src/main/chat-exports/infer_tables.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
+#   src/main/chat-exports/infer_tables.sh --chat-exports ../chat-exports
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-OUTPUT_DIR="$REPO_DIR/gen/conversation-exports"
+OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
 API_URL="https://api.anthropic.com/v1/messages"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
@@ -99,10 +99,10 @@ $(chat_list "$conv")" \
 # ── per-export logic ──────────────────────────────────────────────────────────
 
 infer_export() {
-  local conversation_export="${1%/}"
-  local name; name="$(basename "$conversation_export")"
+  local chat_export="${1%/}"
+  local name; name="$(basename "$chat_export")"
   local out_dir="$OUTPUT_DIR/$name/inferred"
-  local conv="$conversation_export/conversations.json"
+  local conv="$chat_export/conversations.json"
 
   rm -rf "$out_dir"
   mkdir -p "$out_dir"
@@ -124,20 +124,20 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 fi
 
 main() {
-  local conversation_export="" conversation_exports=""
+  local chat_export="" chat_exports=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --conversation-export)  conversation_export="$2";  shift 2 ;;
-      --conversation-exports) conversation_exports="$2"; shift 2 ;;
+      --chat-export)  chat_export="$2";  shift 2 ;;
+      --chat-exports) chat_exports="$2"; shift 2 ;;
       *) echo "Unknown argument: $1"
-         echo "Usage: $0 --conversation-export <path> | --conversation-exports <path>"
+         echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
          echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
-  if [[ -z "$conversation_export" && -z "$conversation_exports" ]]; then
-    echo "Usage: $0 --conversation-export <path/to/data-directory>"
-    echo "       $0 --conversation-exports <path/to/conversation-exports>"
+  if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
+    echo "Usage: $0 --chat-export <path/to/data-directory>"
+    echo "       $0 --chat-exports <path/to/chat-exports>"
     echo "       Pass --help for more information."
     exit 1
   fi
@@ -148,17 +148,15 @@ main() {
   fi
 
   # shellcheck source=/dev/null
-  source ~/venvs/general/bin/activate
+  source "$REPO_DIR/src/activate_venv.sh"
 
-  if [[ -n "$conversation_export" ]]; then
-    infer_export "$(cd "$conversation_export" && pwd)"
+  if [[ -n "$chat_export" ]]; then
+    infer_export "$(cd "$chat_export" && pwd)"
   else
-    for d in "$(cd "$conversation_exports" && pwd)"/*/; do
+    for d in "$(cd "$chat_exports" && pwd)"/*/; do
       infer_export "$d"
     done
   fi
-
-  deactivate
 }
 
 main "$@"

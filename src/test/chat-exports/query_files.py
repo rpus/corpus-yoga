@@ -7,8 +7,8 @@ database and runs each of the five documented queries, writing results to
 gen/<export>/audit_queries/.
 
 Usage:
-    python src/test/conversation-exports/query_files.py --conversation-export  <path-to-export>
-    python src/test/conversation-exports/query_files.py --conversation-exports <path-to-exports>
+    python src/test/chat-exports/query_files.py --chat-export  <path-to-export>
+    python src/test/chat-exports/query_files.py --chat-exports <path-to-exports>
 
 Output files
 ────────────
@@ -31,7 +31,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-GEN_DIR    = REPO_ROOT / 'gen' / 'conversation-exports'
+GEN_DIR    = REPO_ROOT / 'gen' / 'chat-exports'
 
 QUERIES: list[tuple[str, str, str]] = [
     (
@@ -159,14 +159,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--conversation-export',  help='Path to a single export directory')
-    group.add_argument('--conversation-exports', help='Path to a directory containing multiple exports')
+    group.add_argument('--chat-export',  help='Path to a single export directory')
+    group.add_argument('--chat-exports', help='Path to a directory containing multiple exports')
     args = parser.parse_args()
 
-    if args.conversation_export:
-        run_one(Path(args.conversation_export).resolve().name)
+    if args.chat_export:
+        run_one(Path(args.chat_export).resolve().name)
     else:
-        for d in sorted(Path(args.conversation_exports).glob('data-*/')):
+        for d in sorted(Path(args.chat_exports).glob('data-*/')):
             run_one(d.name)
 
 

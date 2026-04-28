@@ -433,10 +433,10 @@ A self-referential wrapper file provides schema-aware editing and tooltip docume
 
 **The schema must validate against all known exports.**
 
-Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/conversation-exports/validate.sh` and results written to `gen/<export>/validation/conversations/v{N}.log`. The pre-commit hook checks all `EXPECTED_PASS` (export, version) pairs and confirms each log contains `Valid!`.
+Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/chat-exports/validate.sh` and results written to `gen/<export>/validation/conversations/v{N}.log`. The pre-commit hook checks all `EXPECTED_PASS` (export, version) pairs and confirms each log contains `Valid!`.
 
 ```bash
-src/main/conversation-exports/validate.sh --conversation-exports ../conversation-exports
+src/main/chat-exports/validate.sh --chat-exports ../chat-exports
 ```
 
 ```python

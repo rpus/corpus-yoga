@@ -11,12 +11,12 @@ sources:
     tooltip  Paths from data-files.json, which is derived from
              rsc/artifacts/downloaded/ by files_from_downloaded.py.
              This is what the index.html tooltip shows.
-    ef       Files written to gen/<export>/extracted_files/ by src/main/conversation-exports/extract_files.py
+    ef       Files written to gen/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
              (from create_file tool calls).
     eh_out   Files written to gen/<export>/extracted_heredocs/<chat>/outputs/
-             by src/main/conversation-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
+             by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
     eh_wrk   Files written to gen/<export>/extracted_heredocs/<chat>/working/
-             by src/main/conversation-exports/extract_heredocs.py (heredoc target was /home/claude/).
+             by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
     dl       Files in rsc/artifacts/downloaded/<chat>/ (manually downloaded
              from the claude.ai UI).
 
@@ -51,20 +51,20 @@ Downloaded path conventions
 
 Usage
 ─────
-    python src/test/conversation-exports/audit_files.py --conversation-export  <path-to-export>
-    python src/test/conversation-exports/audit_files.py --conversation-exports <path-to-exports>
+    python src/test/chat-exports/audit_files.py --chat-export  <path-to-export>
+    python src/test/chat-exports/audit_files.py --chat-exports <path-to-exports>
 
     Example:
-        python src/test/conversation-exports/audit_files.py --conversation-export \\
-            ../conversation-exports/data-0fc4c1e0-...-batch-0000
+        python src/test/chat-exports/audit_files.py --chat-export \\
+            ../chat-exports/data-0fc4c1e0-...-batch-0000
 
 SQL queries
 ───────────
 The CSV can be loaded into any SQL engine (e.g. sqlite3, DuckDB) or pandas.
 The standard queries (reproducing both extract logs, tooltip lists, and mismatch
-reports) are defined in src/test/conversation-exports/query_files.py and can be run with:
+reports) are defined in src/test/chat-exports/query_files.py and can be run with:
 
-    python src/test/conversation-exports/query_files.py <export-name>
+    python src/test/chat-exports/query_files.py <export-name>
 """
 
 import argparse
@@ -75,7 +75,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-GEN_DIR    = REPO_ROOT / 'gen' / 'conversation-exports'
+GEN_DIR    = REPO_ROOT / 'gen' / 'chat-exports'
 DL_ROOT    = REPO_ROOT / 'rsc' / 'artifacts' / 'downloaded'
 RSC_EF     = REPO_ROOT / 'rsc' / 'artifacts' / 'extracted_files'
 RSC_EH     = REPO_ROOT / 'rsc' / 'artifacts' / 'extracted_heredocs'
@@ -133,7 +133,7 @@ def run_one(name: str) -> None:
             rows.append([chat_idx, cname, 'tooltip', p, '', '', ''])
 
         # ── extracted_files ───────────────────────────────────────────────────
-        # Written by src/main/conversation-exports/extract_files.py from create_file tool calls.
+        # Written by src/main/chat-exports/extract_files.py from create_file tool calls.
         # Downloaded counterpart is at dl/<chat_slug>/<path> (no bucket prefix).
         ef_dir = ef_root / cs
         if ef_dir.exists():
@@ -148,7 +148,7 @@ def run_one(name: str) -> None:
                              'Y' if dl_p.exists() else 'N', cmp, in_rsc])
 
         # ── extracted_heredocs / outputs ──────────────────────────────────────
-        # Written by src/main/conversation-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
+        # Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
         # Downloaded counterpart is at dl/<chat_slug>/<path> (no bucket prefix).
         eh_out = eh_root / cs / 'outputs'
         if eh_out.exists():
@@ -163,7 +163,7 @@ def run_one(name: str) -> None:
                              'Y' if dl_p.exists() else 'N', cmp, in_rsc])
 
         # ── extracted_heredocs / working ──────────────────────────────────────
-        # Written by src/main/conversation-exports/extract_heredocs.py; heredoc target was /home/claude/.
+        # Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
         # Downloaded counterpart is at dl/<chat_slug>/working/<path>
         # (the working/ bucket prefix is preserved in the downloaded tree).
         eh_wrk = eh_root / cs / 'working'
@@ -234,14 +234,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--conversation-export',  help='Path to a single export directory')
-    group.add_argument('--conversation-exports', help='Path to a directory containing multiple exports')
+    group.add_argument('--chat-export',  help='Path to a single export directory')
+    group.add_argument('--chat-exports', help='Path to a directory containing multiple exports')
     args = parser.parse_args()
 
-    if args.conversation_export:
-        run_one(Path(args.conversation_export).resolve().name)
+    if args.chat_export:
+        run_one(Path(args.chat_export).resolve().name)
     else:
-        for d in sorted(Path(args.conversation_exports).glob('data-*/')):
+        for d in sorted(Path(args.chat_exports).glob('data-*/')):
             run_one(d.name)
 
 

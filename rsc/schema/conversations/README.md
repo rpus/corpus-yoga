@@ -10,7 +10,7 @@ From the v6.json root description:
 > via Settings → Privacy → Export Data.
 
 For a full explanation of the schema directory — versioning, supporting files, development
-workflow, and MCP correspondence — see [`doc/conversation-exports/conversations-schema.md`](../../../doc/conversation-exports/conversations-schema.md).
+workflow, and MCP correspondence — see [`doc/chat-exports/conversations-schema.md`](../../../doc/chat-exports/conversations-schema.md).
 For the broader project (pipeline, artifact recovery, all four schemas) see
 [`doc/project-overview.md`](../../../doc/project-overview.md).
 
@@ -46,5 +46,5 @@ snapshotted there.
 generate HTML usage reports — the same kind of structural analysis that these schemas do for
 claude.ai exports, but at the CLI layer rather than the web-app layer.
 
-**Ground-truth data.** The `../../conversation-exports/` sibling directory (outside this repo)
+**Ground-truth data.** The `../../chat-exports/` sibling directory (outside this repo)
 contains the actual `conversations.json` export files that the schemas are validated against.

@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 """Repair documentation.discriminator_fields_annotated — annotate discriminator fields with (discriminator)."""
 import json, sys
+from pathlib import Path
 
-with open(sys.argv[1]) as f:
+schema_path = sys.argv[1]
+with open(schema_path) as f:
     schema = json.load(f)
 defs = schema.get('definitions', {})
 
@@ -28,6 +30,9 @@ for name in oneof_refs:
                 print(f'Fixed: {name}/{prop_name}')
                 count += 1
 
-with open(sys.argv[1], 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
+    f.write('\n')
+tmp.replace(schema_path)
 print(f'Repaired documentation.discriminator_fields_annotated: {count} fixed')

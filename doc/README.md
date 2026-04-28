@@ -12,11 +12,11 @@ structure, provenance. Read this first.
 
 ---
 
-## [`conversation-exports/`](conversation-exports/)
+## [`chat-exports/`](chat-exports/)
 
 Docs specific to the claude.ai export pipeline.
 
-### [`conversation-exports/conversations-schema.md`](conversation-exports/conversations-schema.md) — Conversations schema reference
+### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) — Conversations schema reference
 
 Deep-dive on `rsc/schema/conversations/`: versioned JSON Schemas, two-format distinction,
 schema development workflow, MCP field-level correspondence table.

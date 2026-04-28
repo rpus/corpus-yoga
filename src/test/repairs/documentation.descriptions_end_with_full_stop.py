@@ -7,6 +7,7 @@ Appends '.' to any description string that doesn't end with recognised terminal
 punctuation (. ) $ or URL). Writes back to the same file in place.
 """
 import json, re, sys
+from pathlib import Path
 
 URL_RE = re.compile(r'https?://\S+$')
 
@@ -40,7 +41,9 @@ if count == 0:
     print('Nothing to fix.')
     sys.exit(0)
 
-with open(schema_path, 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 print(f'Fixed {count} description(s) in {schema_path}')

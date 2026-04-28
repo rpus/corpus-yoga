@@ -10,6 +10,7 @@ Writes back to the same file in place.
 """
 import json, sys
 from collections import deque
+from pathlib import Path
 
 def find_refs_ordered(obj):
     """Return $ref targets in first-encounter order, depth-first within a node."""
@@ -73,8 +74,10 @@ for i, (cur, bfs) in enumerate(zip(original, order)):
 
 schema['definitions'] = {k: defs[k] for k in order}
 
-with open(schema_path, 'w') as f:
+tmp = Path(schema_path).with_suffix('.tmp')
+with open(tmp, 'w') as f:
     json.dump(schema, f, indent=2)
     f.write('\n')
+tmp.replace(schema_path)
 
 print(f'Reordered {len(order)} definitions into BFS order in {schema_path}')
