@@ -31,6 +31,9 @@ def find_refs(obj):
     walk(obj)
     return refs
 
+if not defs:
+    print('PASS structure.all_definitions_reachable (no definitions)')
+    sys.exit(0)
 root = next(iter(defs))  # first definition is the reachability root
 visited, queue = set(), deque([root])
 while queue:

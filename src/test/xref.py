@@ -6,7 +6,7 @@ Scans every non-generated file and extracts references to other repo files,
 writing a CSV with one row per reference.
 
 Usage:
-    python src/test/xref.py [--out <path>]
+    src/test/xref.sh [--out <path>]
 
     Default output: gen/xref.csv
 
@@ -37,7 +37,7 @@ Filter on  exists = N  to find references to files that no longer exist or whose
 JSON Pointer fragments have become invalid — the primary signal for stale comments,
 outdated documentation, dead imports, and broken intra-schema cross-references.
 
-    python src/test/xref.py && awk -F, '$5=="N"' gen/xref.csv
+    src/test/xref.sh && awk -F, '$5=="N"' gen/xref.csv
 """
 
 import argparse

@@ -51,11 +51,11 @@ Downloaded path conventions
 
 Usage
 ─────
-    python src/test/chat-exports/audit_files.py --chat-export  <path-to-export>
-    python src/test/chat-exports/audit_files.py --chat-exports <path-to-exports>
+    src/test/chat-exports/audit_files.sh --chat-export  <path-to-export>
+    src/test/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 
     Example:
-        python src/test/chat-exports/audit_files.py --chat-export \\
+        src/test/chat-exports/audit_files.sh --chat-export \\
             ../chat-exports/data-0fc4c1e0-...-batch-0000
 
 SQL queries

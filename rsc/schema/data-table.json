@@ -1,49 +1,49 @@
 {
-    "$schema": "https://json-schema.org/draft-04/schema#",
-    "title": "a schema for data tables",
-    "description": "the table's columns should be described in the `description` of the table",
-    "type": "object",
-    "required": [
-        "columns",
-        "rows"
-    ],
-    "additionalProperties": false,
-    "properties": {
-        "title": {
-            "type": "string",
-            "default": "table name"
-        },
-        "description": {
-            "type": "string",
-            "default": "about the table"
-        },
-        "columns": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-        "rows": {
-            "type": "array",
-            "items": {
-                "type": "array"
-            }
-        },
-        "note": {
-            "type": "string"
-        }
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "data-table",
+  "description": "the table's columns should be described in the `description` of the table",
+  "type": "object",
+  "required": [
+    "columns",
+    "rows"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "default": "table name"
     },
-    "default": {
-        "columns": [
-            "key",
-            "value"
-        ],
-        "rows": [
-            [
-                "",
-                null
-            ]
-        ],
-        "note": ""
+    "description": {
+      "type": "string",
+      "default": "about the table"
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "array"
+      }
+    },
+    "note": {
+      "type": "string"
     }
+  },
+  "default": {
+    "columns": [
+      "key",
+      "value"
+    ],
+    "rows": [
+      [
+        "",
+        null
+      ]
+    ],
+    "note": ""
+  }
 }

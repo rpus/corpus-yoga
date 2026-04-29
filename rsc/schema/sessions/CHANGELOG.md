@@ -9,6 +9,7 @@
 | `~-dev-Anthropic-claude-export-yoga` / `d58db402` | ✓ | 801 | 2,106,833 |
 | `~-dev-Anthropic-claude-export-yoga` / `1bc20fc3` | ✓ | 292 | 1,041,899 |
 | `~-dev-Anthropic-claude-export-yoga` / `a2605476` | ✓ | 402 | 963,806 |
+| `~-dev-Anthropic-claude-export-yoga` / `73f51bc1` | ✓ | 275 | 727,009 |
 
 JSONL byte size is the validation fingerprint — since Claude Code only appends to session
 files, the byte count records exactly how much of each session was validated. Lines = records

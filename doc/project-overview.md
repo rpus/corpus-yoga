@@ -165,20 +165,20 @@ terminology changes.
 | Schema | Validates |
 | --- | --- |
 | `rsc/schema/conversations/v6.json` | `conversations.json` — full conversation history (claude.ai export; versioned) |
-| `rsc/schema/memories/memories.json` | `memories.json` — stored user memories |
-| `rsc/schema/projects/projects.json` | `projects.json` — project metadata |
-| `rsc/schema/users/users.json` | `users.json` — account information |
+| `rsc/schema/memories/v1.json` | `memories.json` — stored user memories |
+| `rsc/schema/projects/v1.json` | `projects.json` — project metadata |
+| `rsc/schema/users/v1.json` | `users.json` — account information |
 | `rsc/schema/sessions/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
 
 Supporting files:
 
 | File | Purpose |
 | --- | --- |
-| `rsc/schema/mcp.json` | MCP protocol type definitions; used by `mcp_join.csv` for field-level comparison |
+| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `mcp_join.csv` for field-level comparison |
 | `rsc/schema/data-table.json` | Generic columnar table format; used by inferred and computed datasets |
 | `rsc/schema/documenter.json` | VS Code tooltip wrapper; enables schema-aware editing of data files |
 | `rsc/schema/model.json` | Cross-schema type reference table |
-| `rsc/schema/json-schema_draft-04.json` | The JSON Schema meta-schema itself |
+| `rsc/schema/_reference/json-schema_draft-04.json` | The JSON Schema meta-schema itself |
 
 The conversations schema has the most elaborate maintenance apparatus (versioned files,
 `principles.md`, `workflow.md`, diagnostic suite). See

@@ -124,7 +124,7 @@ to flag violations of this ordering rather than silently accommodate them.
 ### `mcp_join.csv`
 
 A field-by-field join table mapping schema definitions to their counterparts in the MCP
-protocol spec (`../mcp.json`). Columns: `conv_path`, `mcp_path`, `relationship`, `note`.
+protocol spec (`../_reference/mcp.json`). Columns: `conv_path`, `mcp_path`, `relationship`, `note`.
 
 Relationship values: `identical`, `subset`, `snake_cased`, `structurally_similar`,
 `name_collision`, `envelope` (no MCP counterpart), `export_only`, `null_in_export`.

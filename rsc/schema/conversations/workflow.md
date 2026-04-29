@@ -383,7 +383,6 @@ Step 1: Run all enforced diagnostics → 11/27 PASS
 
 Step 2: Categorise failures:
   Root cause A1 (diagnostic): all_definitions_reachable fires on known stubs
-  Root cause A2 (diagnostic): descriptions_end_with_full_stop fires on URLs/regexes
   Root cause A3 (diagnostic): null_only_fields_documented fires on anonymous oneOf branches
   Root cause A4 (diagnostic): open_set_enums_documented fires on known closed sets
   Root cause A5 (diagnostic): discriminator_fields_annotated fires on non-discriminator enums

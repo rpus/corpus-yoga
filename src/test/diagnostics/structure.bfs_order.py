@@ -25,6 +25,9 @@ def find_refs_ordered(obj):
     walk(obj)
     return refs
 
+if not defs:
+    print('PASS structure.bfs_order (no definitions)')
+    sys.exit(0)
 root = next(iter(defs))  # first definition is the BFS root
 order, visited, queue = [], set(), deque([root])
 while queue:

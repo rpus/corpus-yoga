@@ -125,7 +125,7 @@ python src/test/pre_commit.py   # section "CLI sessions schema diagnostics"
 A field-level correspondence table — the CLI sessions equivalent of the conversations
 schema's `mcp_join.csv`. Maps each CLI schema definition to its counterpart in both
 the conversations export schema (`rsc/schema/conversations/v6.json`) and the MCP protocol schema
-(`mcp.json`). Columns: `cli_path`, `conv_path`, `mcp_path`, `relationship`, `note`.
+(`_reference/mcp.json`). Columns: `cli_path`, `conv_path`, `mcp_path`, `relationship`, `note`.
 Pointer validity is enforced by `pre_commit.py`.
 
 Key findings from the table:

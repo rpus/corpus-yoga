@@ -281,18 +281,6 @@ Repair:     src/test/repairs/documentation.every_definition_has_title_and_descri
 
 ---
 
-### `documentation.descriptions_end_with_full_stop` · *enforced*
-
-**All descriptions end with a full stop (or other recognised terminal punctuation).**
-
-Recognised terminals: `.` (sentence), `)` (discriminator annotation), `$` (regex), a URL, or `.json` (jq snippet filename).
-
-```text
-Diagnostic: src/test/diagnostics/documentation.descriptions_end_with_full_stop.py
-Repair:     src/test/repairs/documentation.descriptions_end_with_full_stop.py
-```
-
----
 
 ### `documentation.api_links` · *advisory*
 

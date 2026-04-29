@@ -6,13 +6,14 @@ JSON Pointer path at which it is referenced. The output is a candidate for
 informing rsc/model.json — review it and curate rsc/model.json by hand.
 
 Usage:
-    python src/test/gen_model_candidate.py <schema-stem> <schema-file>
+    python src/test/gen_model_candidate.py <schema-type> <schema-file>
 
 Examples:
     python src/test/gen_model_candidate.py conversations rsc/schema/conversations/v6.json
-    python src/test/gen_model_candidate.py memories      rsc/schema/memories/memories.json
+    python src/test/gen_model_candidate.py memories      rsc/schema/memories/v1.json
 
-Output: JSON to stdout. Redirect to gen/model/<schema-stem>.json for review.
+Output: JSON to stdout. Redirect to gen/model/<schema-type>/<version>.json for review.
+Normally invoked via src/test/gen_model.sh which handles all schemas automatically.
 """
 
 import json

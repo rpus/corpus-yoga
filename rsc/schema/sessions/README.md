@@ -52,7 +52,7 @@ and carry a `message` object containing an array of **content blocks**:
 
 A field-level correspondence table mapping CLI session schema definitions to their
 counterparts in the conversations export schema (`../conversations/v6.json`) and the
-MCP protocol schema (`../mcp.json`). Columns: `cli_path`, `conv_path`, `mcp_path`,
+MCP protocol schema (`../_reference/mcp.json`). Columns: `cli_path`, `conv_path`, `mcp_path`,
 `relationship`, `note`. Pointer validity is checked by `src/test/pre_commit.py`.
 
 Relationship values mirror `mcp_join.csv`: `identical`, `subset`, `snake_cased`,

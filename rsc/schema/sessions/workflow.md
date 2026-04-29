@@ -137,7 +137,7 @@ After all sessions validate, record what changed:
 
 Review `cli_join.csv` for any new fields added in step 3:
 
-- If a new field has a counterpart in `rsc/schema/conversations/v6.json` or `mcp.json`, add a row
+- If a new field has a counterpart in `rsc/schema/conversations/v6.json` or `_reference/mcp.json`, add a row
 - If a new field is CLI-only, add a row with `cli_only` relationship and empty `conv_path`/`mcp_path`
 - If a field was removed or renamed, delete or update its rows
 - Not every field needs a row — only those with notable correspondences or notable absences

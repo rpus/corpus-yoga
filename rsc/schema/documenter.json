@@ -1,6 +1,6 @@
 {
   "$schema": "./documenter.json",
-  "title": "Schematic documenter for a JSON document",
+  "title": "documenter",
   "description": "This file is its own JSON Schema, and a documenting wrapper for any example JSON document (inlined at `#/document`) to be validated against the schema referenced at `#/properties/document/$ref`.",
   "properties": {
     "document": {
