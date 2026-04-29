@@ -405,9 +405,6 @@ def main():
 
     # ── TAIL ──────────────────────────────────────────────────────────────────
     if failures:
-        failed_sections = list(dict.fromkeys(
-            section_of[i] for i, (_, p, _) in enumerate(results) if not p
-        ))
         print(f'Failed sections ({len(failed_sections)}):')
         for s in failed_sections:
             print(f'  {s}')
