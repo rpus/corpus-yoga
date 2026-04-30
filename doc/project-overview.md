@@ -222,8 +222,13 @@ gen/chat-exports/<export>/
 
 ### Code sessions (gen/code-projects/)
 
-For each processed CLI session project (currently a placeholder — pipeline not yet
-implemented), output would go under gen/code-projects/{project-name}/validation/.
+For each CLI session, output goes under `gen/code-projects/{project}/{session}/`:
+
+```text
+gen/code-projects/{project}/{session}/
+  session.json                   # JSONL converted to a JSON array
+  validation/sessions/v1.log     # validation result against sessions/v1.json
+```
 
 The dashboard `index.html` is self-contained and can be opened directly in a browser.
 

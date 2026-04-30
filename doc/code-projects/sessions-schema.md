@@ -115,7 +115,7 @@ hardcoding `Conversation`. All diagnostics pass except `composition.base_schemas
 (justified deviation for `TurnBase`; see `principles.md`). Run via `pre_commit.py`:
 
 ```bash
-python src/test/pre_commit.py   # section "CLI sessions schema diagnostics"
+python src/test/pre_commit.py   # section "check_code_projects_diagnostics"
 ```
 
 ---

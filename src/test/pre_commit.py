@@ -185,7 +185,7 @@ def check_required_files(run):
         SRC  / 'test' / 'gen_model.py',
         SRC  / 'run_python_script.sh',
         RSC  / 'model.json',
-        GEN  / 'xref.log',
+        GEN  / 'xref.csv',
     ]
     for path in required:
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists())
@@ -407,7 +407,7 @@ def main():
 
     # ── HEAD ──────────────────────────────────────────────────────────────────
     if failures:
-        print(f'pre_commit.py: {passes}/{total} ({len(failures)} checks failed in {len(failed_sections)} sections)')
+        print(f'`src/test/pre_commit.py`: {passes}/{total} (failures in {len(failed_sections)} sections)')
     else:
         print(f'pre_commit.py: {total}/{total}')
 

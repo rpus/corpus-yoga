@@ -44,7 +44,7 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 ## Key invariants
 
-- Run `src/test/pre_commit.sh` before and after any change. Score must not drop (currently 111/111).
+- Run `src/test/pre_commit.sh` before and after any change. Score must not drop (currently 191/191).
 - Run `src/test/xref.sh` after structural changes to catch stale references.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
 
