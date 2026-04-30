@@ -21,8 +21,8 @@ This repo wrangles Claude data exports.
 ./src/test/chat-exports/audit_files.sh --chat-exports ../chat-exports
 ./src/main/code-projects/RUNME.sh --code-projects ../code-projects
 ./src/test/xref.sh
-./src/test/pre_commit.sh
-git clean -fdX; git clean -fdxn
+# ./src/test/pre_commit.sh
+# git clean -fdX; git clean -fdxn
 ```
 
 ## What that does
