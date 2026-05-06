@@ -28,7 +28,7 @@ def find_refs_ordered(obj):
 if not defs:
     print('PASS structure.bfs_order (no definitions)')
     sys.exit(0)
-root = next(iter(defs))  # first definition is the BFS root
+root = next(iter(r for r in find_refs_ordered(schema) if r in defs), next(iter(defs)))
 order, visited, queue = [], set(), deque([root])
 while queue:
     node = queue.popleft()

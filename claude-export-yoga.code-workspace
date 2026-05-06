@@ -4,13 +4,13 @@
 			"path": "."
 		},
 		{
+			"path": "../browser-captures"
+		},
+		{
 			"path": "../chat-exports"
 		},
 		{
 			"path": "../code-projects"
-		},
-		{
-			"path": "../claude-chat-exporter"
 		}
 	],
 	"settings": {}

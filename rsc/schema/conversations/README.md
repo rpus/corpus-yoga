@@ -30,8 +30,8 @@ For the broader project (pipeline, artifact recovery, all four schemas) see
 | MCP | Full tool call lifecycle | `McpToolUseBlock` / `McpToolResultBlock` (added in schema v4) |
 
 Both wrap the same Anthropic API content block model (`text`, `tool_use`, `tool_result`).
-`mcp_join.csv` maps the exact field-level correspondences between this schema and the MCP
-protocol spec.
+`rsc/schema/model_join.csv` maps the exact field-level correspondences across all pipeline
+schemas and the MCP protocol spec.
 
 ---
 

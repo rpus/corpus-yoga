@@ -39,8 +39,8 @@ metadata. They share the same underlying **Anthropic API content block model** (
 | MCP tool calls | Full lifecycle: inputs, outputs, subagent orchestration | `McpToolUseBlock` / `McpToolResultBlock` (added in schema v4) |
 
 The core content block types (`TextBlock`, `ToolUseBlock`, `ToolResultBlock`) are structurally
-shared — both formats inherit from the same API model. The `mcp_join.csv` file maps
-field-by-field correspondences between this schema and the MCP protocol spec.
+shared — both formats inherit from the same API model. `rsc/schema/model_join.csv` maps
+field-by-field correspondences across all pipeline schemas and the MCP protocol spec.
 
 ---
 
@@ -121,13 +121,14 @@ The workflow enforces a strict ordering: *diagnostics before fixes, categorise b
 validate after every change*. The document explicitly instructs collaborators (human or agent)
 to flag violations of this ordering rather than silently accommodate them.
 
-### `mcp_join.csv`
+### `rsc/schema/model_join.csv`
 
-A field-by-field join table mapping schema definitions to their counterparts in the MCP
-protocol spec (`../_reference/mcp.json`). Columns: `conv_path`, `mcp_path`, `relationship`, `note`.
+A unified four-way field correspondence table (conversations ↔ session ↔ apiConversation ↔ MCP).
+Columns: `conv_path`, `session_path`, `api_path`, `mcp_path`, `relationship`, `note`.
+One row per concept; empty cells where a schema has no counterpart (full outer join semantics).
 
 Relationship values: `identical`, `subset`, `snake_cased`, `structurally_similar`,
-`name_collision`, `envelope` (no MCP counterpart), `export_only`, `null_in_export`.
+`name_collision`, `envelope`, `export_only`, `api_only`, `session_only`, `cli_only`, `null_in_export`.
 
 The key finding: `ContentBlock` is a **name collision** — both schemas use the name but
 cover entirely different type sets. The export's `ContentBlock` discriminates on

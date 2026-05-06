@@ -168,13 +168,13 @@ terminology changes.
 | `rsc/schema/memories/v1.json` | `memories.json` — stored user memories |
 | `rsc/schema/projects/v1.json` | `projects.json` — project metadata |
 | `rsc/schema/users/v1.json` | `users.json` — account information |
-| `rsc/schema/sessions/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
+| `rsc/schema/session/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
 
 Supporting files:
 
 | File | Purpose |
 | --- | --- |
-| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `mcp_join.csv` for field-level comparison |
+| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `rsc/schema/model_join.csv` for field-level comparison |
 | `rsc/schema/data-table.json` | Generic columnar table format; used by inferred and computed datasets |
 | `rsc/schema/documenter.json` | VS Code tooltip wrapper; enables schema-aware editing of data files |
 | `rsc/schema/model.json` | Cross-schema type reference table |

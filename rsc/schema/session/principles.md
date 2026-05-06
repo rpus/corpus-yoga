@@ -1,11 +1,11 @@
 ---
-schema_file: rsc/schema/sessions/v1.json
-principles_file: rsc/schema/sessions/principles.md
-workflow_file: rsc/schema/sessions/workflow.md
+schema_file: rsc/schema/session/v1.json
+principles_file: rsc/schema/session/principles.md
+workflow_file: rsc/schema/session/workflow.md
 version: "1.0"
 ---
 
-# Schema Design Principles for `rsc/schema/sessions/v{N}.json`
+# Schema Design Principles for `rsc/schema/session/v{N}.json`
 
 The general schema design principles in `rsc/schema/conversations/principles.md` apply
 to this schema in full. Read that document first. This document records only the
@@ -31,14 +31,14 @@ For empirical investigation and debugging:
 
 - Use `src/test/code-projects/survey_code_session.py` before schema changes
 - Use `src/test/code-projects/debug_code_session_record.py` to diagnose validation failures
-- Run `src/test/pre_commit.sh` to validate `cli_join.csv` pointer integrity
+- Run `src/test/pre_commit.sh` to validate `model_join.csv` pointer integrity
 
-### Correspondence via cli_join.csv
+### Correspondence via model_join.csv
 
-The conversations schema uses an API Correspondence section in `principles.md` and
-a `mcp_join.csv` for field-level MCP mapping. The CLI sessions schema uses
-`cli_join.csv` instead, which is a three-way table (CLI ↔ conversations export ↔ MCP).
-Update `cli_join.csv` whenever `v1.json` changes — see `workflow.md` for the trigger
+`rsc/schema/model_join.csv` is a unified four-way correspondence table covering all
+pipeline schemas (conversations, session, apiConversation) and the MCP protocol.
+One row per concept, one column per schema — full outer join semantics.
+Update `model_join.csv` whenever `v1.json` changes — see `workflow.md` for the trigger
 conditions.
 
 ---

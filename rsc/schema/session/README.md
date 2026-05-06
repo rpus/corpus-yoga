@@ -1,4 +1,4 @@
-# `rsc/schema/sessions/`
+# `rsc/schema/session/`
 
 JSON Schema (draft-4) for Claude Code CLI session transcripts — the `.jsonl` files written
 to `~/.claude/projects/{project}/{session}.jsonl` during a Claude Code session.
@@ -14,7 +14,7 @@ From the v1.json root description:
 > (`conversations.json`). The core content block model is shared with the Anthropic API;
 > the session envelope is Claude Code CLI-specific.
 
-For full context see [`doc/code-projects/sessions-schema.md`](../../../doc/code-projects/sessions-schema.md)
+For full context see [`doc/code-projects/session-schema.md`](../../../doc/code-projects/session-schema.md)
 and [`doc/project-overview.md`](../../../doc/project-overview.md).
 
 ---
@@ -48,15 +48,15 @@ and carry a `message` object containing an array of **content blocks**:
 
 ---
 
-## `cli_join.csv`
+## `rsc/schema/model_join.csv`
 
-A field-level correspondence table mapping CLI session schema definitions to their
-counterparts in the conversations export schema (`../conversations/v6.json`) and the
-MCP protocol schema (`../_reference/mcp.json`). Columns: `cli_path`, `conv_path`, `mcp_path`,
-`relationship`, `note`. Pointer validity is checked by `src/test/pre_commit.py`.
+A unified four-way field correspondence table (session ↔ conversations ↔ apiConversation ↔ MCP).
+Columns: `session_path`, `conv_path`, `api_path`, `mcp_path`, `relationship`, `note`.
+One row per concept; empty cells where a schema has no counterpart. Pointer validity is
+checked by `src/test/pre_commit.py`.
 
-Relationship values mirror `mcp_join.csv`: `identical`, `subset`, `snake_cased`,
-`structurally_similar`, `name_collision`, `envelope`, `cli_only`.
+Relationship values: `identical`, `subset`, `snake_cased`, `structurally_similar`,
+`name_collision`, `envelope`, `session_only`, `api_only`, `export_only`.
 
 ---
 

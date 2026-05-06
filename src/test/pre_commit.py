@@ -26,73 +26,38 @@ from typing import Any
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
 REPO_ROOT                = Path(__file__).resolve().parents[2]
+REPO_PARENT              = REPO_ROOT.parent
 GEN                      = REPO_ROOT / 'gen'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
-GEN_CHAT_EXPORTS         = GEN / 'chat-exports'
-GEN_CODE_PROJECTS        = GEN / 'code-projects'
+BROWSER_CAPTURES         = 'browser-captures'
+CHAT_EXPORTS             = 'chat-exports'
+CODE_PROJECTS            = 'code-projects'
 RSC_SCHEMA               = RSC / 'schema'
-RSC_SCHEMA_CONVERSATIONS = RSC_SCHEMA / 'conversations'
-RSC_SCHEMA_SESSIONS      = RSC_SCHEMA / 'sessions'
+APICONVERSATION          = 'apiConversation'
+CONVERSATIONS            = 'conversations'
+MEMORIES                 = 'memories'
+PROJECTS                 = 'projects'
+USERS                    = 'users'
+SESSION                  = 'session'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
 
-# Slug for this repo: absolute path with / replaced by - (matches ~/.claude/projects/ naming).
-REPO_SLUG = str(REPO_ROOT).replace('/', '-')
-# Slug for the sibling Yoga project, derived from the same HOME to avoid hardcoding a username.
-YOGA_SLUG = str(REPO_ROOT.parent / 'Yoga').replace('/', '-')
-
-# Expected-passing combinations from CHANGELOG matrix: (data_dir_basename, version)
-CONVERSATIONS_EXPECTED_PASS = {
-    ('data-2026-03-19-22-47-05-batch-0000',                                      'v1'),
-    ('data-2026-03-30-14-51-46-batch-0000',                                      'v1'),
-    ('data-2026-03-30-14-51-46-batch-0000',                                      'v2'),
-    ('data-2026-04-03-14-15-13-batch-0000',                                      'v1'),
-    ('data-2026-04-03-14-15-13-batch-0000',                                      'v2'),
-    ('data-2026-04-05-10-33-48-batch-0000',                                      'v1'),
-    ('data-2026-04-05-10-33-48-batch-0000',                                      'v2'),
-    ('data-2026-04-07-07-52-05-batch-0000',                                      'v1'),
-    ('data-2026-04-07-07-52-05-batch-0000',                                      'v2'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v3'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v4'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v5'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000', 'v6'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v4'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v5'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000', 'v6'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v4'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v5'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000', 'v6'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000', 'v5'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000', 'v6'),
-    ('data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000', 'v6'),
+# All versioned schema directories, each with the diagnostics to skip.
+# naming.root_schema_title_matches_filename — universal: versioned files are named v*.json, not by title.
+# composition.base_schemas_closed — session deviation: TurnBase is intentionally open (see principles.md).
+_SKIP_BASE = {'naming.root_schema_title_matches_filename'}
+VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = {
+    APICONVERSATION: _SKIP_BASE,
+    CONVERSATIONS:   _SKIP_BASE,
+    MEMORIES:        _SKIP_BASE,
+    PROJECTS:        _SKIP_BASE,
+    USERS:           _SKIP_BASE,
+    SESSION:         _SKIP_BASE | {'composition.base_schemas_closed'},
 }
 
-# Diagnostics skipped for the conversations schema (versioned; stem != title by design).
-CONVERSATIONS_DIAGNOSTICS_SKIP = {
-    'naming.root_schema_title_matches_filename',
-}
-
-# Diagnostics skipped for the sessions schema.
-# composition.base_schemas_closed — justified deviation (TurnBase; see principles.md)
-SESSIONS_DIAGNOSTICS_SKIP = {
-    'composition.base_schemas_closed',
-    'naming.root_schema_title_matches_filename',
-}
-
-# Expected-passing (project, session, schema-version) triples for the sessions schema.
-# Parallel to CONVERSATIONS_EXPECTED_PASS for conversations.
-# Project name is the ~/.claude/projects/ slug: absolute path with / replaced by -.
-# Derived from REPO_SLUG so no username is hardcoded here.
-SESSIONS_EXPECTED_PASS = {
-    (YOGA_SLUG, '816816d2-799b-441a-9aeb-5b7222418f1d', 'v1'),
-    (REPO_SLUG, '60c07575-359d-4484-aaa1-6068f03d5297', 'v1'),
-    (REPO_SLUG, 'a40a0813-8a53-4503-a2ca-0b52b95e6406', 'v1'),
-    (REPO_SLUG, '7d59d8ef-0ccb-4ffa-8bd5-12c157ec9492', 'v1'),
-    (REPO_SLUG, 'd58db402-6597-4f96-a2c7-ba3da7ac5bf5', 'v1'),
-    (REPO_SLUG, '1bc20fc3-edf2-46fd-89db-b5481f112ef0', 'v1'),
-    (REPO_SLUG, 'a2605476-5569-4640-8386-cf7f466578ae', 'v1'),
-    (REPO_SLUG, '73f51bc1-229b-413f-9907-8376b4e6e9c2', 'v1'),
-}
+# Prefix for converting bare project names to ~/.claude/projects/ slugs and back.
+# slug = _PROJECT_PREFIX + name;  name = slug.removeprefix(_PROJECT_PREFIX)
+_PROJECT_PREFIX = str(REPO_PARENT).replace('/', '-') + '-'
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -129,6 +94,35 @@ def _diag_detail(output):
     return lines[0] if lines else None
 
 
+def _parse_changelog_matrix(changelog: Path) -> dict[tuple[str, str], bool]:
+    """Parse the pass/fail matrix from a schema changelog markdown table.
+    Returns {(subject, version): True=pass, False=fail}."""
+    matrix: dict[tuple[str, str], bool] = {}
+    version_cols: list[tuple[int, str]] = []
+    for line in changelog.read_text().splitlines():
+        if not line.startswith('|'):
+            continue
+        cells = [c.strip() for c in line.strip('|').split('|')]
+        if not version_cols:
+            cols = [(i, m.group(1)) for i, c in enumerate(cells)
+                    if (m := re.match(r'\[(v\d+)\]', c))]
+            if cols:
+                version_cols = cols
+            continue
+        if all(re.match(r'[-: ]+$', c) for c in cells if c):
+            continue
+        subject = cells[0].replace('`', '').strip()
+        if not subject:
+            continue
+        for col_i, version in version_cols:
+            if col_i < len(cells):
+                if '✓' in cells[col_i]:
+                    matrix[(subject, version)] = True
+                elif '✗' in cells[col_i]:
+                    matrix[(subject, version)] = False
+    return matrix
+
+
 def _sorted_versions(schema_dir: Path) -> list[Path]:
     """Return all v*.json in schema_dir sorted by version number ascending."""
     return sorted(
@@ -136,11 +130,6 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
         key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)]
     )
 
-
-def _latest_version(schema_dir: Path) -> Path | None:
-    """Return the highest v*.json in schema_dir, or None if none exist."""
-    vs = _sorted_versions(schema_dir)
-    return vs[-1] if vs else None
 
 
 def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: list) -> None:
@@ -152,7 +141,7 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
                 if not ref:
                     continue
                 file_part, _, pointer = ref.partition('#')
-                f = (base_for.get(col, RSC_SCHEMA_CONVERSATIONS) / file_part).resolve()
+                f = (base_for.get(col, RSC_SCHEMA / CONVERSATIONS) / file_part).resolve()
                 if not f.exists():
                     fails.append(f'row {i} {col}: file not found: {file_part}')
                     continue
@@ -173,13 +162,14 @@ def check_required_files(run):
                        if d.is_dir() and not d.name.startswith('_')
                        for v in _sorted_versions(d)]
     required = [
-        RSC_SCHEMA_CONVERSATIONS / 'principles.md',
-        RSC_SCHEMA_CONVERSATIONS / 'workflow.md',
-        RSC_SCHEMA_SESSIONS      / 'principles.md',
-        RSC_SCHEMA_SESSIONS      / 'workflow.md',
+        RSC_SCHEMA / CONVERSATIONS / 'principles.md',
+        RSC_SCHEMA / CONVERSATIONS / 'workflow.md',
+        RSC_SCHEMA / SESSION       / 'principles.md',
+        RSC_SCHEMA / SESSION       / 'workflow.md',
         *schema_versions,
         SRC  / 'main' / 'validate.py',
-        SRC  / 'main' / 'chat-exports' / 'validate.sh',
+        SRC  / 'main' / CHAT_EXPORTS    / 'validate.sh',
+        SRC  / 'main' / BROWSER_CAPTURES / 'validate.sh',
         SRC  / 'test' / 'gen_model_candidate.py',
         SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'test' / 'gen_model.py',
@@ -191,11 +181,36 @@ def check_required_files(run):
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists())
 
 
-def check_chat_exports_validity(run):
-    schema_dirs  = (d for d in sorted(RSC_SCHEMA.iterdir())
-                    if d.is_dir() and not d.name.startswith('_') and d != RSC_SCHEMA_SESSIONS)
+def check_root_schema_diagnostics(run):
     root_schemas = sorted(RSC_SCHEMA.glob('*.json'))
     diagnostics  = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
+
+    for schema_path in root_schemas:
+        for script in diagnostics:
+            diag = script.stem
+            passed, output = _call(script, str(schema_path))
+            run(f'{diag}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
+                _diag_detail(output) if not passed else None)
+
+
+def check_browser_captures_validity(run):
+    versions = _sorted_versions(RSC_SCHEMA / APICONVERSATION)
+
+    if not versions:
+        run(f'{APICONVERSATION}: valid JSON', False, f'{(RSC_SCHEMA / APICONVERSATION).relative_to(REPO_ROOT)} has no v*.json files')
+        return
+    for path in versions:
+        v = path.stem
+        try:
+            schema = json.loads(path.read_text())
+            run(f'{APICONVERSATION}: valid JSON + $schema: {v}', '$schema' in schema,
+                'Missing $schema field' if '$schema' not in schema else None)
+        except json.JSONDecodeError as e:
+            run(f'{APICONVERSATION}: valid JSON: {v}', False, str(e))
+
+
+def check_chat_exports_validity(run):
+    schema_dirs = (RSC_SCHEMA / name for name in [CONVERSATIONS, MEMORIES, PROJECTS, USERS])
 
     for d in schema_dirs:
         versions = _sorted_versions(d)
@@ -211,150 +226,231 @@ def check_chat_exports_validity(run):
             except json.JSONDecodeError as e:
                 run(f'{d.name}: valid JSON: {v}', False, str(e))
 
-    for schema_path in root_schemas:
-        for script in diagnostics:
-            diag = script.stem
-            passed, output = _call(script, str(schema_path))
-            run(f'{diag}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
-                _diag_detail(output) if not passed else None)
-
 
 def check_code_projects_validity(run):
-    versions = _sorted_versions(RSC_SCHEMA_SESSIONS)
+    versions = _sorted_versions(RSC_SCHEMA / SESSION)
 
     if not versions:
-        run('sessions: valid JSON', False, f'{RSC_SCHEMA_SESSIONS.relative_to(REPO_ROOT)} has no v*.json files')
+        run(f'{SESSION}: valid JSON', False, f'{(RSC_SCHEMA / SESSION).relative_to(REPO_ROOT)} has no v*.json files')
         return
     for path in versions:
         v = path.stem
         try:
             schema = json.loads(path.read_text())
-            run(f'sessions: valid JSON + $schema: {v}', '$schema' in schema,
+            run(f'{SESSION}: valid JSON + $schema: {v}', '$schema' in schema,
                 'Missing $schema field' if '$schema' not in schema else None)
         except json.JSONDecodeError as e:
-            run(f'sessions: valid JSON: {v}', False, str(e))
+            run(f'{SESSION}: valid JSON: {v}', False, str(e))
 
 
 def check_chat_exports_validation_outputs(run):
-    expected        = sorted(CONVERSATIONS_EXPECTED_PASS)
-    gen_data_dirs   = sorted(d.name for d in GEN_CHAT_EXPORTS.iterdir()
+    matrix          = _parse_changelog_matrix(RSC_SCHEMA / CONVERSATIONS / 'CHANGELOG.md')
+    gen_data_dirs   = sorted(d.name for d in (GEN / CHAT_EXPORTS).iterdir()
                              if d.is_dir() and d.name.startswith('data-')) \
-                      if GEN_CHAT_EXPORTS.exists() else []
-    conv_versions   = [v.stem for v in _sorted_versions(RSC_SCHEMA_CONVERSATIONS)]
+                      if (GEN / CHAT_EXPORTS).exists() else []
+    input_data_dirs = sorted(d.name for d in (REPO_PARENT / CHAT_EXPORTS).iterdir()
+                             if d.is_dir() and d.name.startswith('data-')) \
+                      if (REPO_PARENT / CHAT_EXPORTS).exists() else []
 
-    for data_dir, version in expected:
-        log = GEN_CHAT_EXPORTS / data_dir / 'validation' / 'conversations' / f'{version}.log'
+    for (data_dir, version), expected_pass in sorted(matrix.items()):
+        log = GEN / CHAT_EXPORTS / data_dir / 'validation' / CONVERSATIONS / f'{version}.log'
         if not log.exists():
-            run(f'chat: validation log exists: {data_dir} × {version}', False,
-                'Run: src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports')
+            run(f'{CONVERSATIONS}: validation log exists: {data_dir} × {version}', False,
+                f'Run: src/main/{CHAT_EXPORTS}/RUNME.sh --{CHAT_EXPORTS} ../{CHAT_EXPORTS}')
             continue
-        content = log.read_text()
-        passed = 'Valid!' in content
-        detail = next((line for line in content.splitlines() if line.startswith('Validation error:')), None)
-        run(f'chat: validation passing: {data_dir} × {version}', passed, detail)
+        content     = log.read_text()
+        actual_pass = 'Valid!' in content
+        label       = f'{CONVERSATIONS}: validation {"passing" if expected_pass else "failing"}: {data_dir} × {version}'
+        if actual_pass == expected_pass:
+            run(label, True)
+        else:
+            run(label, False,
+                f'expected {"pass" if expected_pass else "fail"}, got {"pass" if actual_pass else "fail"}')
 
-    # Closed-world complement: a surprise pass signals a regression or missing CONVERSATIONS_EXPECTED_PASS entry.
-    # Only passes are flagged here (not failures) because chat exports are added manually and
-    # intentionally — an unexpected failure is impossible by construction.
+    # Closed-world complement: flag any (data_dir, version) with a log but no matrix entry.
     for data_dir in gen_data_dirs:
-        for version in conv_versions:
-            if (data_dir, version) in CONVERSATIONS_EXPECTED_PASS:
+        log_dir = GEN / CHAT_EXPORTS / data_dir / 'validation' / CONVERSATIONS
+        if not log_dir.exists():
+            continue
+        for log in sorted(log_dir.glob('v*.log')):
+            version = log.stem
+            if (data_dir, version) in matrix:
                 continue
-            log = GEN_CHAT_EXPORTS / data_dir / 'validation' / 'conversations' / f'{version}.log'
-            if not log.exists():
+            content = log.read_text()
+            result  = 'Valid!' if 'Valid!' in content else 'Validation error' if 'Validation error' in content else 'unknown'
+            run(f'{CONVERSATIONS}: unregistered: {data_dir} × {version} — {result}', False,
+                str(log.relative_to(REPO_ROOT)))
+
+    # Input scan: flag data dirs in ../chat-exports/ with no matrix entry at all.
+    registered_dirs = {data_dir for data_dir, _ in matrix}
+    for data_dir in input_data_dirs:
+        if data_dir not in registered_dirs:
+            run(f'{CONVERSATIONS}: unregistered: {data_dir}', False,
+                f'Run: src/main/{CHAT_EXPORTS}/RUNME.sh --{CHAT_EXPORTS} ../{CHAT_EXPORTS}, then update CHANGELOG.md')
+
+
+def check_browser_captures_validation_outputs(run):
+    matrix      = _parse_changelog_matrix(RSC_SCHEMA / APICONVERSATION / 'CHANGELOG.md')
+    gen_batches = sorted(b for b in (GEN / BROWSER_CAPTURES).iterdir() if b.is_dir()) \
+                  if (GEN / BROWSER_CAPTURES).exists() else []
+    input_convs = [(b.name, u.name)
+                   for b in sorted((REPO_PARENT / BROWSER_CAPTURES).glob('data-*/')) if b.is_dir()
+                   for u in sorted(b.iterdir()) if u.is_dir()] \
+                  if (REPO_PARENT / BROWSER_CAPTURES).exists() else []
+
+    registered: dict[str, list[tuple[str, str]]] = {}  # batch → [(uuid_prefix, subject), ...]
+    for (subject, _) in matrix:
+        batch, _, prefix = subject.partition(' / ')
+        batch, prefix = batch.strip(), prefix.strip()
+        registered.setdefault(batch, []).append((prefix, subject))
+
+    for (subject, version), expected_pass in sorted(matrix.items()):
+        batch, _, uuid_prefix = subject.partition(' / ')
+        batch, uuid_prefix = batch.strip(), uuid_prefix.strip()
+        gen_batch = GEN / BROWSER_CAPTURES / batch
+        matches = [u for u in (sorted(gen_batch.iterdir()) if gen_batch.exists() else [])
+                   if u.is_dir() and u.name.startswith(uuid_prefix)]
+        if not matches:
+            run(f'{APICONVERSATION}: validation log exists: {batch[:8]}…/{uuid_prefix}… × {version}', False,
+                f'Run: src/main/{BROWSER_CAPTURES}/validate.sh --batches ../{BROWSER_CAPTURES}')
+            continue
+        log = matches[0] / 'validation' / APICONVERSATION / f'{version}.log'
+        if not log.exists():
+            run(f'{APICONVERSATION}: validation log exists: {batch[:8]}…/{uuid_prefix}… × {version}', False,
+                f'Run: src/main/{BROWSER_CAPTURES}/validate.sh --batches ../{BROWSER_CAPTURES}')
+            continue
+        content     = log.read_text()
+        actual_pass = 'Valid!' in content
+        label       = f'{APICONVERSATION}: validation {"passing" if expected_pass else "failing"}: {batch[:8]}…/{uuid_prefix}… × {version}'
+        if actual_pass == expected_pass:
+            run(label, True)
+        else:
+            run(label, False,
+                f'expected {"pass" if expected_pass else "fail"}, got {"pass" if actual_pass else "fail"}')
+
+    # Closed-world complement: scan gen/ for (batch, uuid, version) with no CHANGELOG entry.
+    for gen_batch in gen_batches:
+        batch = gen_batch.name
+        ps = registered.get(batch, [])
+        for uuid_dir in sorted(u for u in gen_batch.iterdir() if u.is_dir()):
+            log_dir = uuid_dir / 'validation' / APICONVERSATION
+            if not log_dir.exists():
                 continue
-            if 'Valid!' in log.read_text():
-                run(f'chat: unexpected pass (not in CONVERSATIONS_EXPECTED_PASS): {data_dir} × {version}', False,
-                    'Add to CONVERSATIONS_EXPECTED_PASS or investigate regression')
+            match = next(((p, s) for p, s in ps if uuid_dir.name.startswith(p)), (None, None))
+            prefix, subject = match
+            for log in sorted(log_dir.glob('v*.log')):
+                version = log.stem
+                if prefix and (subject, version) in matrix:
+                    continue
+                content = log.read_text()
+                result  = 'Valid!' if 'Valid!' in content else 'Validation error' if 'Validation error' in content else 'unknown'
+                run(f'{APICONVERSATION}: unregistered: {batch[:8]}…/{uuid_dir.name[:8]}… × {version} — {result}', False)
+
+    # Input scan: flag (batch, uuid) pairs in ../browser-captures/ with no CHANGELOG entry.
+    for batch, uuid in input_convs:
+        ps = registered.get(batch, [])
+        if not any(uuid.startswith(p) for p, _ in ps):
+            run(f'{APICONVERSATION}: unregistered: {batch[:8]}…/{uuid[:8]}…', False,
+                f'Run: src/main/{BROWSER_CAPTURES}/validate.sh --batches ../{BROWSER_CAPTURES}, then update CHANGELOG.md')
 
 
 def check_code_projects_validation_outputs(run):
-    expected     = sorted(SESSIONS_EXPECTED_PASS)
-    project_dirs = sorted(p for p in GEN_CODE_PROJECTS.iterdir() if p.is_dir()) \
-                   if GEN_CODE_PROJECTS.exists() else []
+    matrix         = _parse_changelog_matrix(RSC_SCHEMA / SESSION / 'CHANGELOG.md')
+    project_dirs   = sorted(p for p in (GEN / CODE_PROJECTS).iterdir() if p.is_dir()) \
+                     if (GEN / CODE_PROJECTS).exists() else []
+    input_sessions = [(f.parent.name.removeprefix(_PROJECT_PREFIX), f.stem)
+                      for f in sorted((REPO_PARENT / CODE_PROJECTS).glob('-Users-*/*.jsonl'))] \
+                     if (REPO_PARENT / CODE_PROJECTS).exists() else []
 
-    for project, session, version in expected:
-        log = GEN_CODE_PROJECTS / project / session / 'validation' / 'sessions' / f'{version}.log'
-        if not log.exists():
-            run(f'sessions: validation log exists: {project}/{session[:8]}… × {version}', False,
-                'Run: src/main/code-projects/RUNME.sh --code-projects ../code-projects')
+    # matrix keys: ('project / uuid_prefix', version)
+    registered: dict[str, list[tuple[str, str]]] = {}  # project → [(uuid_prefix, subject), ...]
+    for (subject, _) in matrix:
+        project, _, prefix = subject.partition(' / ')
+        project, prefix = project.strip(), prefix.strip()
+        registered.setdefault(project, []).append((prefix, subject))
+
+    for (subject, version), expected_pass in sorted(matrix.items()):
+        project, _, uuid_prefix = subject.partition(' / ')
+        project, uuid_prefix = project.strip(), uuid_prefix.strip()
+        slug = _PROJECT_PREFIX + project
+        gen_project = GEN / CODE_PROJECTS / slug
+        matches = [s for s in (sorted(gen_project.iterdir()) if gen_project.exists() else [])
+                   if s.is_dir() and s.name.startswith(uuid_prefix)]
+        if not matches:
+            run(f'{SESSION}: validation log exists: {project}/{uuid_prefix}… × {version}', False,
+                f'Run: src/main/{CODE_PROJECTS}/RUNME.sh --{CODE_PROJECTS} ../{CODE_PROJECTS}')
             continue
-        content = log.read_text()
-        passed = 'Valid!' in content
-        detail = next((line for line in content.splitlines() if line.startswith('Validation error:')), None)
-        run(f'sessions: validation passing: {project}/{session[:8]}… × {version}', passed, detail)
+        log = matches[0] / 'validation' / SESSION / f'{version}.log'
+        if not log.exists():
+            run(f'{SESSION}: validation log exists: {project}/{uuid_prefix}… × {version}', False,
+                f'Run: src/main/{CODE_PROJECTS}/RUNME.sh --{CODE_PROJECTS} ../{CODE_PROJECTS}')
+            continue
+        content     = log.read_text()
+        actual_pass = 'Valid!' in content
+        label       = f'{SESSION}: validation {"passing" if expected_pass else "failing"}: {project}/{uuid_prefix}… × {version}'
+        if actual_pass == expected_pass:
+            run(label, True)
+        else:
+            run(label, False,
+                f'expected {"pass" if expected_pass else "fail"}, got {"pass" if actual_pass else "fail"}')
 
-    # Closed-world complement: scan gen/code-projects/ for logs not in SESSIONS_EXPECTED_PASS.
-    # Unregistered failures must be investigated; unregistered passes must be added.
+    # Closed-world complement: scan gen/ for (session, version) pairs with no CHANGELOG entry.
     for project_dir in project_dirs:
-        session_dirs = sorted(s for s in project_dir.iterdir() if s.is_dir())
-        for session_dir in session_dirs:
-            log = session_dir / 'validation' / 'sessions' / 'v1.log'
-            if not log.exists():
+        project  = project_dir.name.removeprefix(_PROJECT_PREFIX)
+        ps = registered.get(project, [])
+        for session_dir in sorted(s for s in project_dir.iterdir() if s.is_dir()):
+            log_dir = session_dir / 'validation' / SESSION
+            if not log_dir.exists():
                 continue
-            key = (project_dir.name, session_dir.name, 'v1')
-            if key in SESSIONS_EXPECTED_PASS:
-                continue
-            content = log.read_text()
-            label = f'sessions: unregistered: {project_dir.name}/{session_dir.name[:8]}…'
-            if 'Validation error' in content:
-                run(label, False, 'Session fails validation and is absent from SESSIONS_EXPECTED_PASS — investigate')
-            elif 'Valid!' in content:
-                run(label, False, 'Session passes but is absent from SESSIONS_EXPECTED_PASS — add it')
+            match = next(((p, s) for p, s in ps if session_dir.name.startswith(p)), (None, None))
+            prefix, subject = match
+            for log in sorted(log_dir.glob('v*.log')):
+                version = log.stem
+                if prefix and (subject, version) in matrix:
+                    continue
+                content = log.read_text()
+                result  = 'Valid!' if 'Valid!' in content else 'Validation error' if 'Validation error' in content else 'unknown'
+                run(f'{SESSION}: unregistered: {project}/{session_dir.name[:8]}… × {version} — {result}', False)
+
+    # Input scan: flag sessions in ../code-projects/ with no CHANGELOG entry.
+    for project, session in input_sessions:
+        ps = registered.get(project, [])
+        if not any(session.startswith(p) for p, _ in ps):
+            run(f'{SESSION}: unregistered: {project}/{session[:8]}…', False,
+                f'Run: src/main/{CODE_PROJECTS}/RUNME.sh --{CODE_PROJECTS} ../{CODE_PROJECTS}, then update CHANGELOG.md')
 
 
-def check_chat_exports_diagnostics(run):
-    latest      = _latest_version(RSC_SCHEMA_CONVERSATIONS)
-    diagnostics = [s for s in sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-                   if s.stem not in CONVERSATIONS_DIAGNOSTICS_SKIP]
+def check_versioned_schema_diagnostics(run):
+    all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
 
-    if latest is None:
-        run('chat: conversations schema diagnostics', False,
-            f'{RSC_SCHEMA_CONVERSATIONS.relative_to(REPO_ROOT)} has no v*.json files')
-        return None
-    for script in diagnostics:
-        passed, output = _call(script, str(latest))
-        run(f'chat: {script.stem}', passed, _diag_detail(output) if not passed else None)
-    return latest
-
-
-def check_code_projects_diagnostics(run):
-    latest      = _latest_version(RSC_SCHEMA_SESSIONS)
-    diagnostics = [s for s in sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-                   if s.stem not in SESSIONS_DIAGNOSTICS_SKIP]
-
-    if latest is None:
-        run('sessions: schema diagnostics', False,
-            f'{RSC_SCHEMA_SESSIONS.relative_to(REPO_ROOT)} has no v*.json files')
-        return None
-    for script in diagnostics:
-        passed, output = _call(script, str(latest))
-        run(f'sessions: {script.stem}', passed, _diag_detail(output) if not passed else None)
-    return latest
+    for schema_name, skip in sorted(VERSIONED_SCHEMA_DIAGNOSTICS_SKIP.items()):
+        versions    = _sorted_versions(RSC_SCHEMA / schema_name)
+        diagnostics = [s for s in all_diagnostics if s.stem not in skip]
+        if not versions:
+            run(f'{schema_name}: no versions', False,
+                f'{(RSC_SCHEMA / schema_name).relative_to(REPO_ROOT)} has no v*.json files')
+            continue
+        for version in versions:
+            for script in diagnostics:
+                passed, output = _call(script, str(version))
+                run(f'{schema_name}: {script.stem}: {version.stem}', passed,
+                    _diag_detail(output) if not passed else None)
 
 
-def check_chat_exports_join_csv(run):
-    mcp_join = RSC_SCHEMA_CONVERSATIONS / 'mcp_join.csv'
-    if not mcp_join.exists():
-        run('chat: mcp_join.csv exists', False)
+def check_schema_join(run):
+    join = RSC_SCHEMA / 'model_join.csv'
+    if not join.exists():
+        run('schema model_join.csv exists', False)
         return
     fails: list[str] = []
-    _check_csv_pointers(mcp_join, ('conv_path', 'mcp_path'),
-                        {'conv_path': RSC_SCHEMA_CONVERSATIONS, 'mcp_path': RSC_SCHEMA_CONVERSATIONS}, fails)
-    run('chat: mcp_join.csv: all pointers valid', not fails,
-        '\n    '.join(fails[:5]) if fails else None)
-
-
-def check_code_projects_join_csv(run):
-    cli_join = RSC_SCHEMA_SESSIONS / 'cli_join.csv'
-    if not cli_join.exists():
-        run('sessions: cli_join.csv exists', False)
-        return
-    fails: list[str] = []
-    _check_csv_pointers(cli_join, ('cli_path', 'conv_path', 'mcp_path'),
-                        {'cli_path': RSC_SCHEMA_SESSIONS, 'conv_path': RSC_SCHEMA_CONVERSATIONS, 'mcp_path': RSC_SCHEMA_CONVERSATIONS},
+    _check_csv_pointers(join,
+                        ('conv_path', 'session_path', 'api_path', 'mcp_path'),
+                        {'conv_path':    RSC_SCHEMA,
+                         'session_path': RSC_SCHEMA / SESSION,
+                         'api_path':     RSC_SCHEMA,
+                         'mcp_path':     RSC_SCHEMA},
                         fails)
-    run('sessions: cli_join.csv: all pointers valid', not fails,
+    run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
 
 
@@ -382,18 +478,19 @@ def main():
     sys.stdout = buf
     try:
         run_section(check_required_files)
+        run_section(check_root_schema_diagnostics)
 
+        run_section(check_browser_captures_validity)
         run_section(check_chat_exports_validity)
         run_section(check_code_projects_validity)
 
+        run_section(check_browser_captures_validation_outputs)
         run_section(check_chat_exports_validation_outputs)
         run_section(check_code_projects_validation_outputs)
 
-        latest_chat_exports  = run_section(check_chat_exports_diagnostics)
-        latest_code_projects = run_section(check_code_projects_diagnostics)
+        run_section(check_versioned_schema_diagnostics)
 
-        run_section(check_chat_exports_join_csv)
-        run_section(check_code_projects_join_csv)
+        run_section(check_schema_join)
     finally:
         sys.stdout = sys.__stdout__
 
@@ -417,9 +514,11 @@ def main():
 
     # ── TAIL ──────────────────────────────────────────────────────────────────
     if failures:
+        failure_counts = {s: sum(1 for i, (_, p, _) in enumerate(results) if not p and section_of[i] == s)
+                         for s in failed_sections}
         print(f'Failed sections ({len(failed_sections)}):')
         for s in failed_sections:
-            print(f'  {s}')
+            print(f'  {s} ({failure_counts[s]})')
         print()
 
         fix_commands: list[str] = []
@@ -433,20 +532,24 @@ def main():
         for name, detail in failures:
             if detail and detail.startswith('Run: '):
                 _add(detail[len('Run: '):])
-            elif name.startswith('chat: ') and latest_chat_exports:
-                diag = name[len('chat: '):]
-                if re.match(r'[a-z_]+\.[a-z_]+', diag):
-                    _add(f'python src/test/diagnostics/{diag}.py {latest_chat_exports.relative_to(REPO_ROOT)}')
-            elif name.startswith('sessions: ') and latest_code_projects:
-                diag = name[len('sessions: '):]
-                if re.match(r'[a-z_]+\.[a-z_]+', diag):
-                    _add(f'python src/test/diagnostics/{diag}.py {latest_code_projects.relative_to(REPO_ROOT)}')
-            elif ': ' in name:
-                diag, _, filename = name.partition(': ')
-                if re.match(r'[a-z_]+\.[a-z_]+', diag):
-                    path = RSC_SCHEMA / filename
-                    if path.exists():
-                        _add(f'python src/test/diagnostics/{diag}.py {path.relative_to(REPO_ROOT)}')
+            else:
+                parts = name.split(': ')
+                if len(parts) == 3 and re.match(r'[a-z_]+\.[a-z_]+', parts[1]):
+                    diag, schema_path = parts[1], RSC_SCHEMA / parts[0] / f'{parts[2]}.json'
+                    repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
+                    diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
+                    if repair.exists() and schema_path.exists():
+                        _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    elif diagnostic.exists() and schema_path.exists():
+                        _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
+                    diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
+                    repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
+                    diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
+                    if repair.exists() and schema_path.exists():
+                        _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    elif diagnostic.exists() and schema_path.exists():
+                        _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 
         if fix_commands:
             print()

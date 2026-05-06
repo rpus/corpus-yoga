@@ -320,17 +320,17 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
    - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
    - `KNOWN_CLOSED` in `documentation.open_set_enums_documented.py` — add any newly confirmed closed enum sets; remove entries that no longer appear in the schema.
    - Every entry must include a `# v{N}+` version annotation stating when it was added.
-8. Review `rsc/schema/conversations/mcp_join.csv`:
-   - The table covers only definitions with notable MCP correspondences — not every definition needs a row.
-   - For any definition added that has a meaningful MCP counterpart (or a noteworthy absence of one), add rows describing the relationship.
-   - For any definition removed that has rows in the table, delete those rows.
+8. Review `rsc/schema/model_join.csv`:
+   - The unified four-way table covers definitions with notable correspondences across conversations, session, apiConversation, and MCP — not every definition needs a row.
+   - For any definition added that has a meaningful counterpart in another schema (or a noteworthy absence), add rows describing the relationship.
+   - For any definition removed that has rows in the table, delete or update those rows.
    - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
 9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/model.json` if any cross-schema identifiers changed.
 10. Generate validation logs for the new pairs: `src/main/chat-exports/validate.sh --chat-exports <path/to/chat-exports>`
     Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
 11. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
-**Flag if:** `CONVERSATIONS_VERSIONS`, `CONVERSATIONS_EXPECTED_PASS`, `CHANGELOG.md`, `mcp_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
+**Flag if:** `CHANGELOG.md`, `model_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 
 ---
 

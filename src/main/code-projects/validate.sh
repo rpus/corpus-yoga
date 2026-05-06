@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SCHEMA="$REPO_DIR/rsc/schema/sessions/v1.json"
+SCHEMA="$REPO_DIR/rsc/schema/session/v1.json"
 OUTPUT_DIR="$REPO_DIR/gen/code-projects"
 JSONL_TO_JSON="$SCRIPT_DIR/jsonl_to_json.sh"
 
@@ -17,7 +17,7 @@ validate_session() {
   local session; session="$(basename "${jsonl%.jsonl}")"
   local out_dir="$OUTPUT_DIR/$project_name/$session"
   local json_out="$out_dir/session.json"
-  local log_out="$out_dir/validation/sessions/v1.log"
+  local log_out="$out_dir/validation/session/v1.log"
   mkdir -p "$out_dir" "$(dirname "$log_out")"
 
   "$JSONL_TO_JSON" "$jsonl" "$json_out"

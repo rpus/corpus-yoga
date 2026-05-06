@@ -27,9 +27,9 @@ schema development workflow, MCP field-level correspondence table.
 
 Docs specific to the Claude Code CLI sessions pipeline.
 
-### [`code-projects/sessions-schema.md`](code-projects/sessions-schema.md) — CLI sessions schema reference
+### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI sessions schema reference
 
-Reference for `rsc/schema/sessions/`: nine record types, turn envelope fields,
+Reference for `rsc/schema/session/`: nine record types, turn envelope fields,
 content block types, MCP field mapping, open questions.
 
 ### [`code-projects/research.md`](code-projects/research.md) — Research workflow

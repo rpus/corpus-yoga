@@ -24,7 +24,6 @@ Diagnostic → repair is mostly one-to-one, with one many-to-one case: both `nam
 | [`documentation.null_only_fields_documented.py`](./documentation.null_only_fields_documented.py) | `null`-typed fields note their empirical basis in their description | Manual — see inline snippet in principles doc |
 | [`documentation.open_set_enums_documented.py`](./documentation.open_set_enums_documented.py) | Likely open-set enums say so in their description | Manual — see inline snippet in principles doc |
 | [`documentation.discriminator_fields_annotated.py`](./documentation.discriminator_fields_annotated.py) | Discriminator fields are annotated with `(discriminator)` | Manual — verify which field is the discriminator before annotating |
-| [`composition.discriminated_union_pattern.py`](./composition.discriminated_union_pattern.py) | Structural `oneOf` unions have a `Has*DiscriminatorProperty` in `allOf` | Manual — requires structural judgement |
 | [`composition.discriminator_values_disjoint.py`](./composition.discriminator_values_disjoint.py) | Discriminator enum values across `oneOf` branches are disjoint | Manual — requires structural judgement |
 | [`composition.base_schemas_closed.py`](./composition.base_schemas_closed.py) | Base schemas have `additionalProperties: false` | Manual — verify all base fields are accounted for first |
 | [`composition.wrapper_has_five_fields.py`](./composition.wrapper_has_five_fields.py) | Union wrapper schemas have exactly five fields: `title`, `description`, `type`, `allOf`, `oneOf` | Manual — see inline snippet in principles doc |

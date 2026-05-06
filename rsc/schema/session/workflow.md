@@ -1,11 +1,11 @@
 ---
-schema_file: rsc/schema/sessions/v1.json
-principles_file: rsc/schema/sessions/principles.md
-workflow_file: rsc/schema/sessions/workflow.md
+schema_file: rsc/schema/session/v1.json
+principles_file: rsc/schema/session/principles.md
+workflow_file: rsc/schema/session/workflow.md
 version: "1.0"
 ---
 
-# Schema Development Workflow for `rsc/schema/sessions/v{N}.json`
+# Schema Development Workflow for `rsc/schema/session/v{N}.json`
 
 A living document describing how to maintain and extend the CLI sessions schema.
 Follows the same philosophy as `rsc/schema/conversations/workflow.md` but adapted
@@ -22,7 +22,7 @@ deviations. The same four workflow principles apply here:
 1. **Try to follow these instructions.** Follow the workflow even when it feels like overhead.
 2. **Flag if anything seems wrong.** An anomaly is information; don't paper over it.
 3. **Flag if the user does something wrong.** Flagging is a checkpoint, not refusal.
-4. **Suggest improvements.** The schema, `cli_join.csv`, and this document are all living.
+4. **Suggest improvements.** The schema, `model_join.csv`, and this document are all living.
 
 ---
 
@@ -133,18 +133,19 @@ After all sessions validate, record what changed:
 
 ---
 
-### Step 5 · Update cli_join.csv
+### Step 5 · Update model_join.csv
 
-Review `cli_join.csv` for any new fields added in step 3:
+Review `rsc/schema/model_join.csv` for any new fields added in step 3.
+`model_join.csv` is the unified four-way table (session ↔ conversations ↔ apiConversation ↔ MCP):
 
-- If a new field has a counterpart in `rsc/schema/conversations/v6.json` or `_reference/mcp.json`, add a row
-- If a new field is CLI-only, add a row with `cli_only` relationship and empty `conv_path`/`mcp_path`
+- If a new field has a counterpart in another schema, add a row with the matching `session_path`, `conv_path`, `api_path`, and/or `mcp_path`
+- If a new field is session-only, add a row with `session_only` relationship and empty other columns
 - If a field was removed or renamed, delete or update its rows
 - Not every field needs a row — only those with notable correspondences or notable absences
 
 Run `src/test/pre_commit.sh` to verify all pointers in the updated table.
 
-**Flag if:** `v1.json` changes but `cli_join.csv` is not reviewed.
+**Flag if:** `v1.json` changes but `model_join.csv` is not reviewed.
 
 ---
 
@@ -155,7 +156,7 @@ Each validation log records the JSONL byte size at the time of validation:
 ```text
 2026-04-26T17:06:54+01:00
 .../60c07575....jsonl: 7248 lines, 18899859 bytes
-.../rsc/schema/sessions/v1.json: 27568 bytes
+.../rsc/schema/session/v1.json: 27568 bytes
 Valid!
 ```
 
@@ -188,20 +189,21 @@ recorded.
 src/test/pre_commit.sh
 ```
 
-Confirms all checks pass, including `cli_join.csv` pointer validity and the sessions schema diagnostics.
+Confirms all checks pass, including `model_join.csv` pointer validity and the sessions schema diagnostics.
 
 ---
 
-## cli_join.csv Maintenance
+## model_join.csv Maintenance
 
-`cli_join.csv` is a field-level correspondence table — CLI sessions ↔ conversations
-export ↔ MCP protocol. It does not update automatically. Review it whenever:
+`rsc/schema/model_join.csv` is the unified four-way field-level correspondence table
+(session ↔ conversations ↔ apiConversation ↔ MCP). It does not update automatically.
+Review it whenever:
 
 | Trigger | Action |
 | --- | --- |
-| `v1.json` gains a new field | Add rows for any counterparts; `cli_only` if none |
-| A new schema version is cut | Update `cli_path` pointers to the new version file |
-| `conversations/v{N}.json` updates | Check if new conv fields have CLI equivalents |
+| `v1.json` gains a new field | Add rows for any counterparts; `session_only` if none |
+| A new schema version is cut | Update `session_path` pointers to the new version file |
+| Any other schema updates | Check if new fields have session equivalents |
 | An open question in CHANGELOG is resolved | Update the corresponding `note` cell |
 
 The `pre_commit.py` pointer check ensures existing rows stay valid as schemas evolve,
@@ -218,7 +220,7 @@ Schema versions use **semantic versioning** from v1 onward:
 | --- | --- | --- |
 | **MAJOR** | Breaking | A material restriction: a currently-passing session now fails |
 | **MINOR** | Non-breaking extension | A relaxation or non-material restriction: more sessions pass |
-| **PATCH** | No validation effect | Refactor, description update, `cli_join.csv` update only |
+| **PATCH** | No validation effect | Refactor, description update, `model_join.csv` update only |
 
 ### Steps
 
@@ -229,7 +231,7 @@ Schema versions use **semantic versioning** from v1 onward:
 5. Test every known session against the new version.
 6. Update `CHANGELOG.md`: add the new version row to the matrix, fill ✓/✗ for all
    sessions, add a section describing what changed.
-7. Update `cli_join.csv` `cli_path` pointers to reference `v{N+1}.json`.
+7. Update `model_join.csv` `cli_path` pointers to reference `v{N+1}.json`.
 8. Run `src/test/pre_commit.sh` to confirm all checks pass.
 
 ---

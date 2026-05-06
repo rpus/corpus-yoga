@@ -610,11 +610,8 @@ A discriminated union is expressed as three layers:
 
 Key insight: `allOf` and `oneOf` sit at the **wrapper** level, not inside the subtypes, which avoids `additionalProperties` conflicts. The `Has*DiscriminatorProperty` schema asserts the discriminator field is `required` and typed as a string.
 
-Known exceptions are maintained in `KNOWN_NON_DISCRIMINATED_UNIONS` in the diagnostic script, with a `# v{N}+` version annotation and rationale for each. Consult the script directly for the current list — do not duplicate it here.
-
-```text
-Diagnostic: src/test/diagnostics/composition.discriminated_union_pattern.py
-```
+Key-presence and primitive-type unions are not flagged — no diagnostic enforces this rule;
+structural judgement at review time is sufficient.
 
 ---
 

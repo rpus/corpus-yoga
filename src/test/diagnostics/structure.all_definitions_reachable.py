@@ -31,10 +31,27 @@ def find_refs(obj):
     walk(obj)
     return refs
 
+def find_refs_ordered(obj):
+    refs, seen = [], set()
+    def walk(o):
+        if isinstance(o, dict):
+            if '$ref' in o:
+                r = o['$ref'][len('#/definitions/'):]
+                if r not in seen:
+                    seen.add(r)
+                    refs.append(r)
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for v in o:
+                walk(v)
+    walk(obj)
+    return refs
+
 if not defs:
     print('PASS structure.all_definitions_reachable (no definitions)')
     sys.exit(0)
-root = next(iter(defs))  # first definition is the reachability root
+root = next(iter(r for r in find_refs_ordered(schema) if r in defs), next(iter(defs)))
 visited, queue = set(), deque([root])
 while queue:
     node = queue.popleft()

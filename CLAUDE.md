@@ -4,6 +4,10 @@ This file is the authoritative source for the project memory stored at
 `~/.claude/projects/-Users-*-claude-export-yoga/memory/MEMORY.md`. If the memory diverges
 from this file, flag it and suggest updating the memory to match — not the other way around.
 
+For the full human-facing how-to, prerequisites, and documentation index see
+[`README.md`](README.md). The `doc/` directory contains deep-dives on each pipeline
+and schema.
+
 ---
 
 ## What this repo does
@@ -30,6 +34,7 @@ These are kept strictly distinct throughout. Do not conflate them.
 
 - `../chat-exports/` — claude.ai bulk exports (contains `conversations.json` etc.)
 - `../code-projects/` — symlink to `~/.claude/projects/` for CLI `.jsonl` sessions
+- `../browser-captures/` — per-conversation browser captures (markdown + API JSON)
 
 ---
 
@@ -61,7 +66,41 @@ manually. Dependencies: `requirements.txt`.
 ## Schema directories
 
 Named after the data format they validate, not the pipeline:
-`rsc/schema/conversations/` (currently v1–v6), `rsc/schema/sessions/` (currently v1).
+`rsc/schema/conversations/` (currently v1–v6), `rsc/schema/session/` (currently v1),
+`rsc/schema/apiConversation/` (currently v1).
+
+`rsc/schema/apiConversation/v1.json` validates live claude.ai API responses (`ApiConversation`
+and related subtypes). No existing `conversations/` definitions modified.
+`ApiConversation` validated against 55 live API responses (all pass).
+
+---
+
+## Browser captures (pre-processing)
+
+Before running the main pipeline, individual conversations can be captured as markdown
+via the browser using:
+
+```bash
+src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
+```
+
+Requires Safari open and logged into claude.ai. Output goes to
+`../browser-captures/<export-name>/<uuid>/`. The browser script is
+`src/main/browser-captures/browser-chat-capture.js`.
+
+To also fetch the live API JSON for each conversation:
+
+```bash
+src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+```
+
+Saves `{title}.json` alongside each `.md` and `.log`.
+
+To validate the captured API JSON against `rsc/schema/apiConversation/v1.json`:
+
+```bash
+src/main/browser-captures/validate.sh --batch ../browser-captures/data-<...>
+```
 
 ---
 

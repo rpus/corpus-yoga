@@ -1,23 +1,23 @@
-# `rsc/schema/sessions/` — Schema Reference
+# `rsc/schema/session/` — Schema Reference
 
 Schema for Claude Code CLI session transcripts. See
 [`doc/project-overview.md`](../project-overview.md) for pipeline context,
 [`doc/code-projects/research.md`](research.md) for how the format
 was reverse-engineered, and
-[`rsc/schema/sessions/workflow.md`](../rsc/schema/sessions/workflow.md)
+[`rsc/schema/session/workflow.md`](../rsc/schema/session/workflow.md)
 for the validation loop and maintenance lifecycle.
 
 ---
 
 ## What this schema validates
 
-`rsc/schema/sessions/v1.json` validates a **JSON array** produced by
+`rsc/schema/session/v1.json` validates a **JSON array** produced by
 converting a `~/.claude/projects/{project}/{session}.jsonl` file: each line becomes one
 array element.
 
 This format is **not** the same as the claude.ai export format (`conversations.json`).
 Both wrap the Anthropic API content block model, but with different envelopes.
-See `rsc/schema/sessions/README.md` for the side-by-side comparison.
+See `rsc/schema/session/README.md` for the side-by-side comparison.
 
 ---
 
@@ -120,12 +120,11 @@ python src/test/pre_commit.py   # section "check_code_projects_diagnostics"
 
 ---
 
-## `cli_join.csv`
+## `rsc/schema/model_join.csv`
 
-A field-level correspondence table — the CLI sessions equivalent of the conversations
-schema's `mcp_join.csv`. Maps each CLI schema definition to its counterpart in both
-the conversations export schema (`rsc/schema/conversations/v6.json`) and the MCP protocol schema
-(`_reference/mcp.json`). Columns: `cli_path`, `conv_path`, `mcp_path`, `relationship`, `note`.
+A unified four-way field correspondence table (session ↔ conversations ↔ apiConversation ↔ MCP).
+Columns: `session_path`, `conv_path`, `api_path`, `mcp_path`, `relationship`, `note`.
+One row per concept; empty cells where a schema has no counterpart (full outer join semantics).
 Pointer validity is enforced by `pre_commit.py`.
 
 Key findings from the table:

@@ -42,10 +42,7 @@ if not defs:
     print('No definitions found.')
     sys.exit(0)
 
-# Root entry point: first definition key
-root = next(iter(defs))
-
-# BFS
+root = next(iter(r for r in find_refs_ordered(schema) if r in defs), next(iter(defs)))
 order, visited, queue = [], set(), deque([root])
 while queue:
     node = queue.popleft()

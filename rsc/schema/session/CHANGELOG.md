@@ -1,20 +1,22 @@
-# sessions schema changelog
+# session schema changelog
 
 | Session | [v1](./v1.json) | Lines | Bytes (JSONL) |
 | --- | :---: | ---: | ---: |
-| `~-dev-Anthropic-Yoga` / `816816d2` | ✓ | 21 | 25,789 |
-| `~-dev-Anthropic-claude-export-yoga` / `a40a0813` | ✓ | 1326 | 4,267,673 |
-| `~-dev-Anthropic-claude-export-yoga` / `60c07575` | ✓ | 7508 | 19,531,159 |
-| `~-dev-Anthropic-claude-export-yoga` / `7d59d8ef` | ✓ | 1168 | 3,165,979 |
-| `~-dev-Anthropic-claude-export-yoga` / `d58db402` | ✓ | 801 | 2,106,833 |
-| `~-dev-Anthropic-claude-export-yoga` / `1bc20fc3` | ✓ | 292 | 1,041,899 |
-| `~-dev-Anthropic-claude-export-yoga` / `a2605476` | ✓ | 402 | 963,806 |
-| `~-dev-Anthropic-claude-export-yoga` / `73f51bc1` | ✓ | 275 | 727,009 |
+| `Yoga`                / `816816d2` | ✓ | 21 | 25,789 |
+| `claude-export-yoga`  / `a40a0813` | ✓ | 1,326 | 4,267,673 |
+| `claude-export-yoga`  / `60c07575` | ✓ | 7,508 | 19,531,159 |
+| `claude-export-yoga`  / `7d59d8ef` | ✓ | 1,168 | 3,165,979 |
+| `claude-export-yoga`  / `d58db402` | ✓ | 801 | 2,106,833 |
+| `claude-export-yoga`  / `1bc20fc3` | ✓ | 292 | 1,041,899 |
+| `claude-export-yoga`  / `a2605476` | ✓ | 402 | 963,806 |
+| `claude-export-yoga`  / `73f51bc1` | ✓ | 275 | 727,009 |
+| `claude-export-yoga`  / `46fcb702` | ✓ | 2,438 | 5,206,945 |
+| `claude-export-yoga`  / `b0c38f0b` | ✓ | 4,103 | 8,821,333 |
+| `nutrition`           / `83737fec` | ✓ | 2,293 | 4,703,282 |
 
 JSONL byte size is the validation fingerprint — since Claude Code only appends to session
 files, the byte count records exactly how much of each session was validated. Lines = records
-(one JSON object per line). Project slug is the absolute path with `/` replaced by `-`; `~`
-substitutes for `$HOME`. Schema at validation: `v1.json` at 27,568 bytes.
+(one JSON object per line). Project is the bare project name (last path component of `~/.claude/projects/` slug). Schema at validation: `v1.json` at 27,568 bytes.
 
 ---
 

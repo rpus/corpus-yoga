@@ -14,6 +14,13 @@ This repo wrangles Claude data exports.
   - Click on 24-hour emailed "Download Data" link (like <https://claude.ai/export/0fc4c1e0-4719-4e10-997a-697bf05599af/download/cdb658167a0d6dd4a2ffe829aeea9d15>)
   - Move downloaded folder (like `data-*`) from `Downloads` into the `chat-exports` sibling directory of this (current) directory.
   - `source ~/.zprofile` (to get `ANTHROPIC_API_KEY` into `env` for table inference by Claude)
+- Capture markdown exports for each conversation via Safari (optional pre-processing step):
+  - Open Safari, log in to claude.ai
+  - `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
+  - Output goes to `../browser-captures/<export-name>/<uuid>/`
+- Fetch live API JSON for each conversation (for apiConversation schema validation):
+  - `./src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>`
+  - Saves `{title}.json` alongside each capture
 
 ```bash
 ./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
@@ -48,7 +55,7 @@ When the conversations schema changes, regenerate the model candidates and revie
 ./src/test/gen_model.sh
 ```
 
-When a new Claude Code session appears in `../code-projects/` or `rsc/schema/sessions/v1.json` changes, follow the validation loop in `rsc/schema/sessions/workflow.md`. In brief:
+When a new Claude Code session appears in `../code-projects/` or `rsc/schema/session/v1.json` changes, follow the validation loop in `rsc/schema/session/workflow.md`. In brief:
 
 ```bash
 ./src/main/code-projects/RUNME.sh
@@ -69,7 +76,7 @@ python src/test/pre_commit.py
 ## To be implemented
 
 - Make a `chat_links.json` file to hold public viewing links for each chat.
-- Make a `summaries.md` file (using claude-chat-exporter).
+- Make a `summaries.md` file (from browser-captures output).
 - Make a `memory.md`.
 - Make an output/files directory.
 
@@ -84,7 +91,9 @@ python src/test/pre_commit.py
 | [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
 | [`doc/project-overview.md`](doc/project-overview.md) | Architecture: pipeline stages, artifact recovery, all schemas, output structure, provenance |
 | [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
-| [`doc/code-projects/sessions-schema.md`](doc/code-projects/sessions-schema.md) | Reference for `rsc/schema/sessions/`: the nine record types, turn envelope, content blocks, MCP mapping |
+| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `rsc/schema/apiConversation/`: structure, differences from bulk export, tool blocks |
+| [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and captured; capture setup and output structure |
+| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/session/`: the nine record types, turn envelope, content blocks, MCP mapping |
 | [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; `../code-projects/` setup procedure |
 | [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session transcripts against the sessions schema |
 | [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types and field structure of session files (used during schema development) |
@@ -98,11 +107,11 @@ python src/test/pre_commit.py
 | [`rsc/schema/conversations/workflow.md`](rsc/schema/conversations/workflow.md) | 11-step loop for incorporating new exports and making schema changes |
 | [`rsc/schema/conversations/CHANGELOG.md`](rsc/schema/conversations/CHANGELOG.md) | Version history and export compatibility matrix |
 | [`rsc/schema/conversations/README.md`](rsc/schema/conversations/README.md) | Format comparison: CLI `.jsonl` vs claude.ai export |
-| [`rsc/schema/sessions/README.md`](rsc/schema/sessions/README.md) | CLI sessions schema at a glance: record types, content blocks, MCP mapping table |
-| [`rsc/schema/sessions/principles.md`](rsc/schema/sessions/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
-| [`rsc/schema/sessions/workflow.md`](rsc/schema/sessions/workflow.md) | Validation loop, `cli_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
-| [`rsc/schema/sessions/CHANGELOG.md`](rsc/schema/sessions/CHANGELOG.md) | Version history and session coverage matrix |
-| [`rsc/schema/sessions/cli_join.csv`](rsc/schema/sessions/cli_join.csv) | Field-level correspondence table: CLI sessions ↔ conversations export ↔ MCP protocol |
+| [`rsc/schema/session/README.md`](rsc/schema/session/README.md) | CLI sessions schema at a glance: record types, content blocks, MCP mapping table |
+| [`rsc/schema/session/principles.md`](rsc/schema/session/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
+| [`rsc/schema/session/workflow.md`](rsc/schema/session/workflow.md) | Validation loop, `model_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
+| [`rsc/schema/session/CHANGELOG.md`](rsc/schema/session/CHANGELOG.md) | Version history and session coverage matrix |
+| [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations ↔ session ↔ apiConversation ↔ MCP |
 | [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which have a paired repair script |
 | [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |
 
@@ -121,3 +130,23 @@ These document `~/.claude/` — the Claude Code local state — rather than the 
 | --- | --- |
 | [`doc/tool-context/claude-home-directory.md`](doc/tool-context/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
 | [`doc/tool-context/investigation-methodology.md`](doc/tool-context/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |
+
+### Pipeline-schema metamodel
+
+```json
+{
+  "browser-captures": {
+    "export": {
+      "conversation": ["apiConversation"]
+    }
+  },
+  "chat-exports": {
+    "export": ["conversations", "memories", "projects", "users"]
+  },
+  "code-projects": {
+    "project": {
+      "session": ["session"]
+    }
+  }
+}
+```
