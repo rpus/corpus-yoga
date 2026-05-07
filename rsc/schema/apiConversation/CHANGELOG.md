@@ -1,5 +1,6 @@
 # apiConversation schema changelog
 
+<!-- matrix -->
 | Export / Conversation | [v1](./v1.json) | Bytes (JSON) |
 | --- | :---: | ---: |
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` / `0e537a54` | ✓ | 85,662 |

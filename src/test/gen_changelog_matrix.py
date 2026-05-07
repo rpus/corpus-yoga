@@ -55,29 +55,28 @@ def _subject(row: str) -> str:
 
 
 def write_changelog(path: Path, new_table_lines: list[str]) -> None:
-    """Update the CHANGELOG table: preserve existing row order, update counts, append new rows.
+    """Update the CHANGELOG matrix table in place.
 
-    The matrix table is identified by its version-header row (contains [v\\d+] links),
-    so preamble tables or notes before the matrix are left untouched.
+    The matrix is located by the <!-- matrix --> comment marker immediately before it.
+    Everything before the marker and after the table is preserved unchanged.
     """
     text = path.read_text().splitlines()
     pre, existing_table, post = [], [], []
     in_table = past_table = False
     for line in text:
-        if not past_table and not in_table and line.startswith('|') and re.search(r'\[v\d+\]', line):
-            in_table = True          # version-header row: matrix starts here
-        elif not past_table and not in_table and line.startswith('|'):
-            pre.append(line)         # a | row before the matrix — leave in pre
-            continue
-        elif in_table and not line.startswith('|'):
+        if not past_table and not in_table and line.strip() == '<!-- matrix -->':
+            pre.append(line)         # keep the marker in pre
+            in_table = True          # next | lines are the matrix
+        elif in_table and line.startswith('|'):
+            existing_table.append(line)
+        elif in_table:
             in_table = False
             past_table = True
-        if not in_table and not past_table:
-            pre.append(line)
-        elif in_table:
-            existing_table.append(line)
+            post.append(line)
         elif past_table:
             post.append(line)
+        else:
+            pre.append(line)
 
     new_header  = new_table_lines[:2]
     new_by_subj = {_subject(r): r for r in new_table_lines[2:]}

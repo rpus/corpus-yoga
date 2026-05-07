@@ -1,5 +1,6 @@
 # session schema changelog
 
+<!-- matrix -->
 | Session | [v1](./v1.json) | Lines | Bytes (JSONL) |
 | --- | :---: | ---: | ---: |
 | `Yoga` / `816816d2` | ✓ | 21 | 25,789 |
