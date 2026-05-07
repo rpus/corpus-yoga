@@ -2,17 +2,18 @@
 
 | Session | [v1](./v1.json) | Lines | Bytes (JSONL) |
 | --- | :---: | ---: | ---: |
-| `Yoga`                / `816816d2` | ✓ | 21 | 25,789 |
-| `claude-export-yoga`  / `a40a0813` | ✓ | 1,326 | 4,267,673 |
-| `claude-export-yoga`  / `60c07575` | ✓ | 7,508 | 19,531,159 |
-| `claude-export-yoga`  / `7d59d8ef` | ✓ | 1,168 | 3,165,979 |
-| `claude-export-yoga`  / `d58db402` | ✓ | 801 | 2,106,833 |
-| `claude-export-yoga`  / `1bc20fc3` | ✓ | 292 | 1,041,899 |
-| `claude-export-yoga`  / `a2605476` | ✓ | 402 | 963,806 |
-| `claude-export-yoga`  / `73f51bc1` | ✓ | 275 | 727,009 |
-| `claude-export-yoga`  / `46fcb702` | ✓ | 2,438 | 5,206,945 |
-| `claude-export-yoga`  / `b0c38f0b` | ✓ | 4,103 | 8,821,333 |
-| `nutrition`           / `83737fec` | ✓ | 2,293 | 4,703,282 |
+| `Yoga` / `816816d2` | ✓ | 21 | 25,789 |
+| `claude-export-yoga` / `a40a0813` | ✓ | 1,409 | 4,555,132 |
+| `claude-export-yoga` / `60c07575` | ✓ | 7,522 | 19,585,790 |
+| `claude-export-yoga` / `7d59d8ef` | ✓ | 4,850 | 12,387,483 |
+| `claude-export-yoga` / `d58db402` | ✓ | 930 | 2,577,519 |
+| `claude-export-yoga` / `1bc20fc3` | ✓ | 292 | 1,041,899 |
+| `claude-export-yoga` / `a2605476` | ✓ | 402 | 963,806 |
+| `claude-export-yoga` / `73f51bc1` | ✓ | 3,323 | 7,031,992 |
+| `claude-export-yoga` / `46fcb702` | ✓ | 2,622 | 5,433,869 |
+| `claude-export-yoga` / `b0c38f0b` | ✓ | 4,346 | 9,256,629 |
+| `nutrition` / `83737fec` | ✓ | 2,843 | 6,489,702 |
+| `claude-export-yoga` / `0c66d620` | ✓ | 15 | 78,093 |
 
 JSONL byte size is the validation fingerprint — since Claude Code only appends to session
 files, the byte count records exactly how much of each session was validated. Lines = records

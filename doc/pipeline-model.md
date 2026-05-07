@@ -19,7 +19,7 @@ what that structure would need to capture.
 | **Validate script** | `src/main/chat-exports/validate.sh` | `src/main/code-projects/RUNME.sh` | `src/main/browser-captures/validate.sh` |
 | **Subject depth** | 1 — `data_dir` | 2 — `project / session` | 2 — `batch / conversation` |
 | **Subject match** | exact | prefix (8-char UUID) | prefix (8-char UUID) |
-| **Input glob** | `data-*/` | `-Users-*/*.jsonl` | `data-*/*/ ` |
+| **Input glob** | `data-*/` | `-Users-*/*.jsonl` | `data-*/*/` |
 | **Log path** | `{data_dir}/validation/{schema}/{version}.log` | `{project}/{session}/validation/{schema}/{version}.log` | `{batch}/{conversation}/validation/{schema}/{version}.log` |
 | **CHANGELOG** | `rsc/schema/conversations/CHANGELOG.md` | `rsc/schema/session/CHANGELOG.md` | `rsc/schema/apiConversation/CHANGELOG.md` |
 | **Schema(s)** | conversations, memories, projects, users | session | apiConversation |
@@ -37,8 +37,9 @@ what that structure would need to capture.
 | `session` | code-projects | v1 | ✓ | `naming.root_schema_title_matches_filename`, `composition.base_schemas_closed` |
 | `apiConversation` | browser-captures | v1 | ✓ | `naming.root_schema_title_matches_filename` |
 
-Non-versioned root schemas (`data-table.json`, `documenter.json`, `model.json`) are
-checked by `check_root_schema_diagnostics` — they belong to no pipeline.
+Non-versioned root schemas ([`data-table.json`](../rsc/schema/data-table.json),
+[`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json))
+are checked by `check_root_schema_diagnostics` — they belong to no pipeline.
 
 ---
 
@@ -63,10 +64,10 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
 ## Adding a new pipeline
 
 1. **Add string constants** to the `# ── Repo layout ──` block in `pre_commit.py`:
-   - Pipeline name: e.g. `NEW_PIPELINE = 'new-pipeline'`
+   - Pipeline name: e.g. `NEW_PIPELINE = '{new-pipeline}'`
    - Schema name(s): e.g. `NEW_SCHEMA = 'newSchema'`
 
-2. **Create the schema directory**: `rsc/schema/{new_schema}/`
+2. **Create the schema directory**: `rsc/schema/{newSchema}/`
    - Add `v1.json` with `$schema`, `title`, `description`, `definitions`
    - Add `principles.md`, `workflow.md`, `CHANGELOG.md`, `README.md`
    - Follow the structure of `rsc/schema/session/` as a template
@@ -77,9 +78,9 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
    NEW_SCHEMA: _SKIP_BASE,
    ```
 
-4. **Create the validate script**: `src/main/new-pipeline/validate.sh`
-   - Reads input from `../new-pipeline/`
-   - Writes logs to `gen/new-pipeline/{subject}/validation/{schema}/{version}.log`
+4. **Create the validate script**: `src/main/{new-pipeline}/validate.sh`
+   - Reads input from `../{new-pipeline}/`
+   - Writes logs to `gen/{new-pipeline}/{subject}/validation/{newSchema}/{version}.log`
    - Follow `src/main/browser-captures/validate.sh` or `src/main/code-projects/validate.sh` as template
 
 5. **Add a validity check function** in `pre_commit.py`:
@@ -93,28 +94,30 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
 6. **Run the validate script** to populate `gen/`:
 
    ```bash
-   src/main/new-pipeline/validate.sh --batches ../new-pipeline
+   src/main/{new-pipeline}/validate.sh --batches ../{new-pipeline}
    ```
 
-7. **Populate the CHANGELOG** in `rsc/schema/{new_schema}/CHANGELOG.md`:
+7. **Populate the CHANGELOG** in `rsc/schema/{newSchema}/CHANGELOG.md`:
 
    ```bash
-   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline new-pipeline
+   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write
    ```
-
-   Paste the output as the matrix table. `pre_commit.py` reads this automatically.
 
 8. **Add a validation output check function** in `pre_commit.py`:
    - Parse the CHANGELOG with `_parse_changelog_matrix`
    - Check registered entries have logs and pass/fail as expected
    - Add closed-world complement (gen/ scan for unregistered entries)
-   - Add input scan (`../new-pipeline/` scan for unregistered subjects)
+   - Add input scan (`../{new-pipeline}/` scan for unregistered subjects)
    - Follow `check_browser_captures_validation_outputs` as the current template
 
 9. **Wire into `main()`**: add `run_section(check_new_pipeline_validity)` and
    `run_section(check_new_pipeline_validation_outputs)` in definition order.
 
-10. **Run `src/test/pre_commit.sh`** and confirm all checks pass.
+10. **Run `src/test/pre_commit.sh`**: confirm all checks pass. If the score changed,
+    update it in `CLAUDE.md` (Key invariants line).
+
+11. **Run `src/test/xref.sh`**: confirm no new bad-pointer or missing-file entries
+    beyond the known non-issues. If the count changed, update it in `CLAUDE.md` (Key invariants line).
 
 ---
 

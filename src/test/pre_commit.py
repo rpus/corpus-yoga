@@ -175,7 +175,6 @@ def check_required_files(run):
         SRC  / 'test' / 'gen_model.py',
         SRC  / 'run_python_script.sh',
         RSC  / 'model.json',
-        GEN  / 'xref.csv',
     ]
     for path in required:
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists())
@@ -286,7 +285,7 @@ def check_chat_exports_validation_outputs(run):
     for data_dir in input_data_dirs:
         if data_dir not in registered_dirs:
             run(f'{CONVERSATIONS}: unregistered: {data_dir}', False,
-                f'Run: src/main/{CHAT_EXPORTS}/RUNME.sh --{CHAT_EXPORTS} ../{CHAT_EXPORTS}, then update CHANGELOG.md')
+                f'Run: src/main/{CHAT_EXPORTS}/RUNME.sh --{CHAT_EXPORTS} ../{CHAT_EXPORTS}, then: src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {CHAT_EXPORTS} --write')
 
 
 def check_browser_captures_validation_outputs(run):
@@ -351,7 +350,7 @@ def check_browser_captures_validation_outputs(run):
         ps = registered.get(batch, [])
         if not any(uuid.startswith(p) for p, _ in ps):
             run(f'{APICONVERSATION}: unregistered: {batch[:8]}…/{uuid[:8]}…', False,
-                f'Run: src/main/{BROWSER_CAPTURES}/validate.sh --batches ../{BROWSER_CAPTURES}, then update CHANGELOG.md')
+                f'Run: src/main/{BROWSER_CAPTURES}/validate.sh --batches ../{BROWSER_CAPTURES}, then: src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {BROWSER_CAPTURES} --write')
 
 
 def check_code_projects_validation_outputs(run):
@@ -417,7 +416,7 @@ def check_code_projects_validation_outputs(run):
         ps = registered.get(project, [])
         if not any(session.startswith(p) for p, _ in ps):
             run(f'{SESSION}: unregistered: {project}/{session[:8]}…', False,
-                f'Run: src/main/{CODE_PROJECTS}/RUNME.sh --{CODE_PROJECTS} ../{CODE_PROJECTS}, then update CHANGELOG.md')
+                f'Run: src/main/{CODE_PROJECTS}/RUNME.sh --{CODE_PROJECTS} ../{CODE_PROJECTS}, then: src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {CODE_PROJECTS} --write')
 
 
 def check_versioned_schema_diagnostics(run):
@@ -452,6 +451,17 @@ def check_schema_join(run):
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
+
+
+def check_xref(run):
+    _, output = _call(SRC / 'test' / 'xref.py')
+    summary = output.splitlines()[-1] if output else ''
+    m_bad  = re.search(r'(\d+) bad-pointer',   summary)
+    m_miss = re.search(r'(\d+) missing-file',  summary)
+    bad    = int(m_bad.group(1))  if m_bad  else 0
+    miss   = int(m_miss.group(1)) if m_miss else 0
+    run('xref: no bad pointers',        bad  == 0, summary if bad  else None)
+    run(f'xref: {miss} missing-file references', True)
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -491,6 +501,7 @@ def main():
         run_section(check_versioned_schema_diagnostics)
 
         run_section(check_schema_join)
+        run_section(check_xref)
     finally:
         sys.stdout = sys.__stdout__
 

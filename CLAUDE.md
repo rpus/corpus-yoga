@@ -49,8 +49,8 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 ## Key invariants
 
-- Run `src/test/pre_commit.sh` before and after any change. Score must not drop (currently 191/191).
-- Run `src/test/xref.sh` after structural changes to catch stale references.
+- Run `src/test/pre_commit.sh` before and after any change. Score must not drop (currently 508/508). If new checks are added and all pass, update the score here and in the Project section below.
+- Run `src/test/xref.sh` after structural changes to catch stale references. Currently 14 known non-issues (template placeholders, false positives); if this count changes, investigate before updating it here.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
 
 ---
@@ -121,7 +121,7 @@ Key points:
 
 - `conversations` = data format/schema; `chat-exports` = pipeline. Never conflate.
 - Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`
-- Invariants: pre_commit 506/506, xref clean (15 known non-issues), `git clean -fdX; git clean -fdxn`
+- Invariants: see Key invariants section above; `git clean -fdX; git clean -fdxn`
 - Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation
 - Schemas: `rsc/schema/conversations/` (v1–v6), `rsc/schema/session/` (v1, singular!), `rsc/schema/apiConversation/` (v1)
 - `rsc/schema/model_join.csv` — unified 4-way join: conversations ↔ session ↔ apiConversation ↔ MCP
