@@ -90,6 +90,7 @@ python src/test/pre_commit.py
 | --- | --- |
 | [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
 | [`doc/project-overview.md`](doc/project-overview.md) | Architecture: pipeline stages, artifact recovery, all schemas, output structure, provenance |
+| [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding a new pipeline |
 | [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
 | [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `rsc/schema/apiConversation/`: structure, differences from bulk export, tool blocks |
 | [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and captured; capture setup and output structure |
@@ -133,20 +134,37 @@ These document `~/.claude/` — the Claude Code local state — rather than the 
 
 ### Pipeline-schema metamodel
 
+See [`doc/pipeline-model.md`](doc/pipeline-model.md) for the full reference and new-pipeline guide.
+
 ```json
 {
+  ,
   "browser-captures": {
-    "export": {
-      "conversation": ["apiConversation"]
-    }
+    "schemas":       ["apiConversation"],
+    "changelog":     "rsc/schema/apiConversation/CHANGELOG.md",
+    "gen":           "gen/browser-captures/",
+    "input":         "../browser-captures/",
+    "input_glob":    "data-*/*/",
+    "subject_depth": 2,
+    "validate_cmd":  "src/main/browser-captures/validate.sh --batches"
   },
   "chat-exports": {
-    "export": ["conversations", "memories", "projects", "users"]
+    "schemas":       ["conversations", "memories", "projects", "users"],
+    "changelog":     "rsc/schema/conversations/CHANGELOG.md",
+    "gen":           "gen/chat-exports/",
+    "input":         "../chat-exports/",
+    "input_glob":    "data-*/",
+    "subject_depth": 1,
+    "validate_cmd":  "src/main/chat-exports/validate.sh --chat-exports"
   },
   "code-projects": {
-    "project": {
-      "session": ["session"]
-    }
+    "schemas":       ["session"],
+    "changelog":     "rsc/schema/session/CHANGELOG.md",
+    "gen":           "gen/code-projects/",
+    "input":         "../code-projects/",
+    "input_glob":    "-Users-*/*.jsonl",
+    "subject_depth": 2,
+    "validate_cmd":  "src/main/code-projects/RUNME.sh --code-projects"
   }
 }
 ```

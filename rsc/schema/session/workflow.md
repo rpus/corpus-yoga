@@ -168,15 +168,14 @@ After a successful run:
    means more of the session was covered. For a **new** session (first time in the matrix),
    add a new row; for an existing session, update the counts.
 
-2. Add each new passing `(project-slug, session-uuid, version)` triple to
-   `SESSIONS_EXPECTED_PASS` in `src/test/pre_commit.py`. The project slug is the absolute
-   project path with `/` replaced by `-`; derive it without hardcoding a username via
-   `REPO_SLUG` or `REPO_ROOT.parent / '<name>'` (see existing entries for the pattern).
+2. Add each new row to `rsc/schema/session/CHANGELOG.md` using bare project name and
+   8-character UUID prefix (e.g. `claude-export-yoga / 46fcb702`).
+   `pre_commit.py` reads the matrix directly — no separate constant to update.
 
-**Flag if:** the CHANGELOG matrix or `SESSIONS_EXPECTED_PASS` is not updated after a validation run that adds new passing sessions.
+**Flag if:** the CHANGELOG matrix is not updated after a validation run that adds new passing sessions.
 
 `pre_commit.py` enforces this with a closed-world complement: any session log found in
-`gen/code-projects/` that is absent from `SESSIONS_EXPECTED_PASS` raises a failure —
+`gen/code-projects/` that is absent from the CHANGELOG matrix raises a failure —
 whether the session passes (unregistered) or fails (undetected). This catches sessions
 from projects added automatically to `../code-projects/` that were never explicitly
 recorded.

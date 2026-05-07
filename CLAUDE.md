@@ -112,3 +112,18 @@ meaningful (document it) or it is accidental (fix it). This applies at every lev
 schema definitions, function names, section headers, variable names, file layout,
 flag names, and documentation structure.
 Structural symmetry, meanwhile, allows for easy factoring of commonality.
+
+---
+
+## Project
+
+Key points:
+
+- `conversations` = data format/schema; `chat-exports` = pipeline. Never conflate.
+- Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`
+- Invariants: pre_commit 506/506, xref clean (15 known non-issues), `git clean -fdX; git clean -fdxn`
+- Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation
+- Schemas: `rsc/schema/conversations/` (v1–v6), `rsc/schema/session/` (v1, singular!), `rsc/schema/apiConversation/` (v1)
+- `rsc/schema/model_join.csv` — unified 4-way join: conversations ↔ session ↔ apiConversation ↔ MCP
+- `src/test/gen_changelog_matrix.py` — generates CHANGELOG rows from gen/ logs for any pipeline
+- Validation matrix driven by CHANGELOG.md files (not hardcoded constants) via `_parse_changelog_matrix()`

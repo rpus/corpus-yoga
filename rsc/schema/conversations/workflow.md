@@ -55,8 +55,9 @@ When a new export validates against the current schema without modification:
 2. Confirm all logs under `gen/chat-exports/<export>/validation/conversations/` contain `Valid!`.
 3. Test the new export against **every** schema version, not just the latest — validate it against v1 through v{N} to fill every cell in the CHANGELOG matrix row.
 4. Add a new row to `rsc/schema/conversations/CHANGELOG.md` with ✓/✗ per version.
-5. Add each passing `(export-name, version)` pair to `CONVERSATIONS_EXPECTED_PASS` in `src/test/pre_commit.py`.
-6. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
+   `pre_commit.py` reads this matrix directly — no separate constant to update.
+5. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
+6. Commit.
 7. Commit.
 
 If the export fails any version, enter the Workflow Loop below.
@@ -311,12 +312,9 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
    - Add a `v{N+1}` column to the matrix; fill each row with ✓/✗ from step 4.
    - For newly added rows (exports not previously in the matrix), fill all columns, not just the new one.
    - Add a `## v{N+1}` section with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply.
-6. Update `src/test/pre_commit.py`:
-   - Add `'v{N+1}'` to `CONVERSATIONS_VERSIONS`.
-   - Add `CONVERSATIONS_EXPECTED_PASS` entries for every (export, `v{N+1}`) pair that passes.
-   - `pre_commit.py` detects the latest version automatically; no code change needed for this.
+6. Update `rsc/schema/conversations/CHANGELOG.md` with the new version column.
+   `pre_commit.py` reads the matrix directly — no constants to update.
 7. Review diagnostic exception sets in `src/test/diagnostics/`:
-   - `KNOWN_NON_DISCRIMINATED_UNIONS` in `composition.discriminated_union_pattern.py` — add any new `oneOf` unions that are non-discriminated (primitive or key-presence); remove entries for definitions that no longer exist.
    - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
    - `KNOWN_CLOSED` in `documentation.open_set_enums_documented.py` — add any newly confirmed closed enum sets; remove entries that no longer appear in the schema.
    - Every entry must include a `# v{N}+` version annotation stating when it was added.

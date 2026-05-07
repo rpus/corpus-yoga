@@ -99,7 +99,7 @@ Key enforced principles:
 | `structure.all_definitions_reachable` | No dead definitions |
 | `empirical.validate_against_all_known_exports` | Schema must pass every known export |
 | `empirical.oneOf_branches_evidenced` | Every `oneOf` branch seen in at least one export |
-| `composition.discriminated_union_pattern` | Unions follow wrapper / base / subtype pattern |
+| `composition.discriminated_union_pattern` | Unions follow wrapper / base / subtype pattern *(manual — no diagnostic)* |
 
 ### `workflow.md`
 

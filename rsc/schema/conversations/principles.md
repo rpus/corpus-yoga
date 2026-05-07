@@ -598,7 +598,7 @@ See `src/test/gen_model_candidate.py` for the full implementation.
 
 ## Composition Patterns
 
-### `composition.discriminated_union_pattern` · *enforced*
+### `composition.discriminated_union_pattern` · *manual*
 
 **Discriminated unions follow the wrapper / base / subtype pattern.**
 
