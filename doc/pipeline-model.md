@@ -69,8 +69,9 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
 
 2. **Create the schema directory**: `rsc/schema/{newSchema}/`
    - Add `v1.json` with `$schema`, `title`, `description`, `definitions`
-   - Add `principles.md`, `workflow.md`, `CHANGELOG.md`, `README.md`
+   - Add `principles.md`, `workflow.md`, `README.md`
    - Follow the structure of `rsc/schema/session/` as a template
+   - (`CHANGELOG.md` is created automatically by step 7)
 
 3. **Add to `VERSIONED_SCHEMA_DIAGNOSTICS_SKIP`** in `pre_commit.py`:
 

@@ -60,6 +60,13 @@ def write_changelog(path: Path, new_table_lines: list[str]) -> None:
     The matrix is located by the <!-- matrix --> comment marker immediately before it.
     Everything before the marker and after the table is preserved unchanged.
     """
+    if not path.exists() or '<!-- matrix -->' not in path.read_text():
+        # No existing file or no marker — create a minimal skeleton and write fresh.
+        schema = path.parent.name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f'# {schema} schema changelog\n\n<!-- matrix -->\n\n---\n\n## v1\n\nInitial schema.\n')
+        print(f'Created {path.relative_to(REPO_ROOT)}')
+
     text = path.read_text().splitlines()
     pre, existing_table, post = [], [], []
     in_table = past_table = False
