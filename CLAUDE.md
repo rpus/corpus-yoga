@@ -49,7 +49,7 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 ## Key invariants
 
-- Run `src/test/pre_commit.sh` before and after any change. Score must not drop (currently 508/508). If new checks are added and all pass, update the score here and in the Project section below.
+- Run `src/test/pre_commit.sh` before and after any change. Score must not drop (currently 509/509). If new checks are added and all pass, update the score here and in the Project section below.
 - Run `src/test/xref.sh` after structural changes to catch stale references. Currently 14 known non-issues (template placeholders, false positives); if this count changes, investigate before updating it here.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
 
@@ -77,18 +77,31 @@ and related subtypes). No existing `conversations/` definitions modified.
 
 ## Browser captures (pre-processing)
 
-Before running the main pipeline, individual conversations can be captured as markdown
-via the browser using:
+Two modes — same JS ([`browser-chat-capture.js`](src/main/browser-captures/browser-chat-capture.js)), different scope and destination.
+See [`src/main/browser-captures/README.md`](src/main/browser-captures/README.md) for setup and troubleshooting.
+
+**Shortcut mode** (standalone, no pipeline knowledge needed):
+
+```bash
+# Shortcuts app action — works on claude.ai/chat/* (single) or claude.ai/recents (all):
+caffeinate -dim osascript "$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-captures/export.applescript"
+```
+
+Output goes to `~/Downloads/` as `{name}.md` + `{name}.log` + `{uuid}.json` per conversation.
+Entry points: [`export.applescript`](src/main/browser-captures/export.applescript) (dispatcher),
+[`export-conversation.applescript`](src/main/browser-captures/export-conversation.applescript),
+[`export-all-conversations.applescript`](src/main/browser-captures/export-all-conversations.applescript).
+
+**Pipeline mode** (scope-constrained to a bulk export):
 
 ```bash
 src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
 ```
 
 Requires Safari open and logged into claude.ai. Output goes to
-`../browser-captures/<export-name>/<uuid>/`. The browser script is
-`src/main/browser-captures/browser-chat-capture.js`.
+`../browser-captures/<export-name>/<uuid>/`.
 
-To also fetch the live API JSON for each conversation:
+To fetch live API JSON for existing captures that don't have it:
 
 ```bash
 src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
