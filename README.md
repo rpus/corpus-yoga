@@ -142,7 +142,6 @@ See [`doc/pipeline-model.md`](doc/pipeline-model.md) for the full reference and 
 
 ```json
 {
-  ,
   "browser-captures": {
     "schemas":       ["apiConversation"],
     "changelog":     "rsc/schema/apiConversation/CHANGELOG.md",
