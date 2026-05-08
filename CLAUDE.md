@@ -49,7 +49,7 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 ## Key invariants
 
-- Run `src/test/pre_commit.sh` before and after any change. Score must not drop below perfection (currently 510/510). If new checks are added and all pass, update the score here and in the Project section below.
+- Run `src/test/pre_commit.sh` before and after any change. Score must not drop below perfection. Expected score is tracked in [`src/test/pre_commit_expected_score`](src/test/pre_commit_expected_score) and checked automatically — update that file when new checks are added.
 - Run `src/test/xref.sh` after structural changes to catch stale references. Currently 14 known non-issues (template placeholders, false positives); if this count changes, investigate before updating it here.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
 

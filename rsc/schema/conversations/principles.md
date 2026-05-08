@@ -404,7 +404,7 @@ A self-referential wrapper file provides schema-aware editing and tooltip docume
 
 ```json
 {
-  "$schema": "./documenter.json",
+  "$schema": "rsc/schema/documenter.json",
   "title": "...",
   "description": "...",
   "properties": {

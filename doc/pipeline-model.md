@@ -116,7 +116,7 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
    ```
 
 8. **Run `src/test/pre_commit.sh`**: confirm all checks pass. If the score changed,
-   update it in `CLAUDE.md` (Key invariants line).
+   `check_score` will fail and tell you to update `src/test/pre_commit_expected_score`.
 
 9. **Run `src/test/xref.sh`**: confirm no new bad-pointer or missing-file entries
    beyond the known non-issues. If the count changed, update it in `CLAUDE.md` (Key invariants line).

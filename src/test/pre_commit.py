@@ -38,27 +38,21 @@ SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
 # slug = _PROJECT_PREFIX + name;  name = slug.removeprefix(_PROJECT_PREFIX)
 _PROJECT_PREFIX = str(REPO_PARENT).replace('/', '-') + '-'
 
-# naming.root_schema_title_matches_filename — universal: versioned files named v*.json, not by title.
-# composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
-_SKIP_BASE = frozenset({'naming.root_schema_title_matches_filename'})
-
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
 @dataclass
 class Pipeline:
-    schemas:        list[str]
-    changelog:      Path
-    gen:            Path
-    input:          Path
-    input_glob:     str
-    subject_depth:  int
-    validate_cmd:   str
-    diagnostic_skip:dict[str, frozenset[str]] | None = None  # schema → diagnostic ids to skip; None = _SKIP_BASE for all schemas
-    gen_key_prefix: str = ''
-
-    def __post_init__(self):
-        if self.diagnostic_skip is None:
-            self.diagnostic_skip = {s: _SKIP_BASE for s in self.schemas}
+    schemas:         list[str]
+    changelog:       Path
+    gen:             Path
+    input:           Path
+    input_glob:      str
+    subject_depth:   int
+    validate_cmd:    str
+    # Extra diagnostics to skip beyond the universal versioned-schema skip set.
+    # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
+    diagnostic_skip: frozenset[str] = frozenset()
+    gen_key_prefix:  str = ''
 
 PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
@@ -87,15 +81,9 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob     = '-Users-*/*.jsonl',
         subject_depth  = 2,
         validate_cmd   = 'src/main/code-projects/RUNME.sh --code-projects',
-        diagnostic_skip= {'session': _SKIP_BASE | {'composition.base_schemas_closed'}},
+        diagnostic_skip= frozenset({'composition.base_schemas_closed'}),
         gen_key_prefix = _PROJECT_PREFIX,
     ),
-}
-
-VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = {
-    schema: skip
-    for pipeline in PIPELINES.values()
-    for schema, skip in (pipeline.diagnostic_skip or {}).items()
 }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -225,12 +213,14 @@ def check_required_files(run):
         RSC_SCHEMA / 'session'       / 'principles.md',
         RSC_SCHEMA / 'session'       / 'workflow.md',
         *schema_versions,
-        SRC  / 'main' / 'validate.py',
-        SRC  / 'main' / 'chat-exports'    / 'validate.sh',
         SRC  / 'main' / 'browser-captures' / 'validate.sh',
+        SRC  / 'main' / 'chat-exports'    / 'validate.sh',
+        SRC  / 'main' / 'code-projects' / 'validate.sh',
+        SRC  / 'main' / 'validate.py',
         SRC  / 'test' / 'gen_model_candidate.py',
-        SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'test' / 'gen_model.py',
+        SRC  / 'test' / 'pre_commit_expected_score',
+        SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
         RSC  / 'model.json',
     ]
@@ -370,10 +360,14 @@ def _check_validation_outputs_depth2(run, name, pipeline, schema, matrix, run_cm
                 f'Run: {pipeline.validate_cmd} ../{name}, then: {run_cmd}')
 
 
+_VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
+    schema_skips    = {s: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas}
 
-    for schema_name, skip in sorted(VERSIONED_SCHEMA_DIAGNOSTICS_SKIP.items()):
+    for schema_name in sorted(schema_skips):
+        skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips[schema_name]
         versions    = _sorted_versions(RSC_SCHEMA / schema_name)
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
@@ -420,24 +414,24 @@ def check_xref(run):
 
 def main():
     results = []
-    buf = io.StringIO()
+    stdout_buffer = io.StringIO()
 
     def run(label, passed, detail=None):
         results.append((label, passed, detail))
         mark = '✓' if passed else '✗'
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
 
-    section_of: list[str] = []
+    sections: list[str] = []
 
     def run_section(fn, label=None):
         name = label or fn.__name__
         print(f'\n── {name} {"─" * (74 - len(name))}')
         before = len(results)
         ret = fn(run)
-        section_of.extend([name] * (len(results) - before))
+        sections.extend([name] * (len(results) - before))
         return ret
 
-    sys.stdout = buf
+    sys.stdout = stdout_buffer
     try:
         run_section(check_required_files)
         run_section(check_root_schema_diagnostics)
@@ -462,24 +456,54 @@ def main():
     passes   = sum(1 for _, p, _ in results if p)
     failures = [(n, d) for n, p, d in results if not p]
     total    = len(results)
+    score    = f'{passes}/{total}'
+
+    # Score check — appended after all checks so it can use the final passes/total.
+    score_file = SRC / 'test' / 'pre_commit_expected_score'
+    expected   = score_file.read_text().strip()
+
+    perfection_achieved = passes == total
+    expectation_met     = expected == score
+    score_ok            = perfection_achieved and expectation_met
+
+    score_detail = (
+        f'Fix failures in other sections first'
+        if not perfection_achieved else
+        f'Consider updating {score_file.relative_to(REPO_ROOT)} to {score}'
+        if not expectation_met else None
+    )
+    score_label  = f'score: {score}; expected: {expected}'
+
+    results.append((score_label, score_ok, score_detail))
+    sections.append('check_score')
+    if not score_ok:
+        failures.append((score_label, score_detail))
 
     failed_sections = list(dict.fromkeys(
-        section_of[i] for i, (_, p, _) in enumerate(results) if not p
+        sections[i] for i, (_, p, _) in enumerate(results) if not p
     ))
 
     # ── HEAD ──────────────────────────────────────────────────────────────────
     if failures:
-        print(f'`src/test/pre_commit.py`: {passes}/{total} (failures in {len(failed_sections)} sections)')
+        if not expectation_met:
+            print(f'`src/test/pre_commit.py`: {score} (expected {expected}; failures in {len(failed_sections)} sections)')
+        else:
+            print(f'`src/test/pre_commit.py`: {score} (failures in {len(failed_sections)} sections)')
     else:
-        print(f'pre_commit.py: {total}/{total}')
+        print(f'pre_commit.py: {score}')
 
     # ── BODY ──────────────────────────────────────────────────────────────────
     print()
-    print(buf.getvalue(), end='')
+    print(stdout_buffer.getvalue(), end='')
+
+    name = 'check_score'
+    print(f'\n── {name} {"─" * (74 - len(name))}')
+    print(f'  {"✓" if score_ok else "✗"} {score_label}' +
+          (f'\n      {score_detail}' if not score_ok and score_detail else ''))
 
     # ── TAIL ──────────────────────────────────────────────────────────────────
     if failures:
-        failure_counts = {s: sum(1 for i, (_, p, _) in enumerate(results) if not p and section_of[i] == s)
+        failure_counts = {s: sum(1 for i, (_, p, _) in enumerate(results) if not p and sections[i] == s)
                          for s in failed_sections}
         print(f'Failed sections ({len(failed_sections)}):')
         for s in failed_sections:

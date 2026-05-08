@@ -135,39 +135,3 @@ These document `~/.claude/` — the Claude Code local state — rather than the 
 | --- | --- |
 | [`doc/tool-context/claude-home-directory.md`](doc/tool-context/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
 | [`doc/tool-context/investigation-methodology.md`](doc/tool-context/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |
-
-### Pipeline-schema metamodel
-
-See [`doc/pipeline-model.md`](doc/pipeline-model.md) for the full reference and new-pipeline guide.
-
-```json
-{
-  "browser-captures": {
-    "schemas":       ["apiConversation"],
-    "changelog":     "rsc/schema/apiConversation/CHANGELOG.md",
-    "gen":           "gen/browser-captures/",
-    "input":         "../browser-captures/",
-    "input_glob":    "data-*/*/",
-    "subject_depth": 2,
-    "validate_cmd":  "src/main/browser-captures/validate.sh --batches"
-  },
-  "chat-exports": {
-    "schemas":       ["conversations", "memories", "projects", "users"],
-    "changelog":     "rsc/schema/conversations/CHANGELOG.md",
-    "gen":           "gen/chat-exports/",
-    "input":         "../chat-exports/",
-    "input_glob":    "data-*/",
-    "subject_depth": 1,
-    "validate_cmd":  "src/main/chat-exports/validate.sh --chat-exports"
-  },
-  "code-projects": {
-    "schemas":       ["session"],
-    "changelog":     "rsc/schema/session/CHANGELOG.md",
-    "gen":           "gen/code-projects/",
-    "input":         "../code-projects/",
-    "input_glob":    "-Users-*/*.jsonl",
-    "subject_depth": 2,
-    "validate_cmd":  "src/main/code-projects/RUNME.sh --code-projects"
-  }
-}
-```
