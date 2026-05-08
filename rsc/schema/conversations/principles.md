@@ -50,15 +50,18 @@ Repair:     src/test/repairs/naming.title_matches_key.py
 
 ---
 
-### `naming.root_schema_title_matches_filename` · *enforced*
+### `naming.root_schema_title_matches_filename` · *not applicable to versioned schemas*
 
 **The root schema's `title` matches the schema filename stem (without extension).**
 
-Each schema file is named `{stem}.json` (e.g. `conversations.json`, `users.json`) and its root `title` must match that stem exactly. This applies to all export schemas and ensures tooling, documentation, and cross-reference annotations all use a consistent canonical name. This principle was discovered during active development when the root title was `"Claude Conversation Export"` rather than `"conversations"`.
+For non-versioned schemas (e.g. `data-table.json`, `model.json`) this is enforced by
+`check_root_schema_diagnostics`. For versioned schemas the files are named `v1.json`,
+`v2.json`, etc. — the filename stem is a version number, not the schema title — so the
+diagnostic is universally skipped for all versioned schemas via `_UNIVERSAL_DIAG_SKIP`
+in `src/test/pre_commit.py`. The title `"conversations"` is maintained by convention.
 
-```text
-Diagnostic: src/test/diagnostics/naming.root_schema_title_matches_filename.py
-```
+This principle was discovered during active development when the root title was
+`"Claude Conversation Export"` rather than `"conversations"`.
 
 ---
 

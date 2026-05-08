@@ -208,14 +208,11 @@ def check_required_files(run):
                        if d.is_dir() and not d.name.startswith('_')
                        for v in _sorted_versions(d)]
     required = [
-        RSC_SCHEMA / 'conversations' / 'principles.md',
-        RSC_SCHEMA / 'conversations' / 'workflow.md',
-        RSC_SCHEMA / 'session'       / 'principles.md',
-        RSC_SCHEMA / 'session'       / 'workflow.md',
+        *[p.changelog.parent / doc
+          for p in PIPELINES.values()
+          for doc in ('principles.md', 'workflow.md')],
         *schema_versions,
-        SRC  / 'main' / 'browser-captures' / 'validate.sh',
-        SRC  / 'main' / 'chat-exports'    / 'validate.sh',
-        SRC  / 'main' / 'code-projects' / 'validate.sh',
+        *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES],
         SRC  / 'main' / 'validate.py',
         SRC  / 'test' / 'gen_model_candidate.py',
         SRC  / 'test' / 'gen_model.py',

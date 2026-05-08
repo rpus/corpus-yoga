@@ -24,7 +24,7 @@ root, so they are not hardcoded to `Conversation`.
 All diagnostics pass except:
 
 - `naming.root_schema_title_matches_filename` — expected by design (versioned filename
-  vs `sessions` title, same as the conversations schema versioned files)
+  vs `session` title, same as the conversations schema versioned files)
 - `composition.base_schemas_closed` — known deviation; see below
 
 For empirical investigation and debugging:
