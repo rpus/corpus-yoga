@@ -1,4 +1,4 @@
-pre_commit.py: 514/514
+pre_commit.py: 516/516
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -25,6 +25,8 @@ pre_commit.py: 514/514
   ✓ exists: src/main/validate.py
   ✓ exists: src/test/gen_model_candidate.py
   ✓ exists: src/test/gen_model.py
+  ✓ exists: src/test/pre_commit_expected_score
+  ✓ exists: src/test/xref_expected_score
   ✓ exists: src/test/schema_recommendations.py
   ✓ exists: src/run_python_script.sh
   ✓ exists: rsc/model.json
@@ -535,4 +537,7 @@ pre_commit.py: 514/514
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ 591 rows: 568 live, 15 missing-file, 0 bad-pointer, 0 self-only, 8 unreferenced
+  ✓ xref: 15 missing-file, 0 bad-pointer, 8 unreferenced
+
+── check_score ───────────────────────────────────────────────────────────────
+  ✓ score: 516/516; expected: 516/516

@@ -4,10 +4,12 @@ CLAUDE.md,23,doc,rsc/schema/chat-exports/conversations,Y,`rsc/schema/chat-export
 CLAUDE.md,26,doc,src/main/chat-exports,Y,"(`src/main/chat-exports/`, `../chat-exports/`)."
 CLAUDE.md,43,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh  --chat-exports  ../chat-exports
 CLAUDE.md,44,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh --code-projects ../code-projects
-CLAUDE.md,51,doc,src/test/pre_commit.log,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Output is logged to [`src/test/pre_com
-CLAUDE.md,51,doc,src/test/pre_commit.sh,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Output is logged to [`src/test/pre_com
-CLAUDE.md,52,doc,src/test/xref.csv,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Output is [`src/test/xref.csv`](src/test/xr
-CLAUDE.md,52,doc,src/test/xref.sh,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Output is [`src/test/xref.csv`](src/test/xr
+CLAUDE.md,51,doc,src/test/pre_commit_expected_score,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/tes
+CLAUDE.md,51,doc,src/test/pre_commit.log,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/tes
+CLAUDE.md,51,doc,src/test/pre_commit.sh,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/tes
+CLAUDE.md,52,doc,src/test/xref_expected_score,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Expected counts are tracked in [`src/test/x
+CLAUDE.md,52,doc,src/test/xref.csv,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Expected counts are tracked in [`src/test/x
+CLAUDE.md,52,doc,src/test/xref.sh,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Expected counts are tracked in [`src/test/x
 CLAUDE.md,54,doc,rsc/artifacts,Y,- `rsc/artifacts/downloaded/` is ground truth — never edit files in place. It is already excluded from `xref.py` scannin
 CLAUDE.md,60,doc,src/activate_venv.sh,Y,`src/activate_venv.sh` is the single canonical activator. Path: `~/venvs/general`
 CLAUDE.md,69,doc,rsc/schema/chat-exports/conversations,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v6), `rsc/schema/code-projects/session/` (currently v1),"
@@ -543,10 +545,10 @@ src/test/gen_model_candidate.py,13,comment,src/test/gen_model_candidate.py,Y,pyt
 src/test/gen_model_candidate.py,13,comment,rsc/schema/chat-exports/memories/v1.json,Y,python src/test/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
 src/test/gen_model_candidate.py,16,comment,src/test/gen_model.sh,Y,Normally invoked via src/test/gen_model.sh which handles all schemas automatically.
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-src/test/pre_commit.py,506,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,508,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,514,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,516,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,548,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,550,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,556,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,558,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,8,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/pre_commit.sh,8,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/pre_commit.sh,8,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""

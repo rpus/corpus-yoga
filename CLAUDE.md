@@ -48,8 +48,8 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 ## Key invariants
 
-- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Output is logged to [`src/test/pre_commit.log`](src/test/pre_commit.log) — review `git diff src/test/pre_commit.log` to confirm only expected changes, then commit it alongside the change.
-- Run `src/test/xref.sh` after structural changes to catch stale references. Output is [`src/test/xref.csv`](src/test/xref.csv) — review `git diff src/test/xref.csv` to confirm only expected reference changes, then commit it. Bad pointers are enforced; missing-file and unreferenced counts are visible via the diff.
+- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/test/pre_commit_expected_score`](src/test/pre_commit_expected_score) — update it when check counts change. Output is logged to [`src/test/pre_commit.log`](src/test/pre_commit.log) — commit it so diffs show what shifted.
+- Run `src/test/xref.sh` after structural changes to catch stale references. Expected counts are tracked in [`src/test/xref_expected_score`](src/test/xref_expected_score) — update it when reference counts change. Output is [`src/test/xref.csv`](src/test/xref.csv) — commit it so diffs show what references changed.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
 - `rsc/artifacts/downloaded/` is ground truth — never edit files in place. It is already excluded from `xref.py` scanning (`rsc/artifacts/` is in `SKIP_DIRS` and `repo_files()` has an explicit additional check); bulk operations (`find`/`sed`/etc.) must exclude it too, alongside `gen/` and `.git/`.
 
