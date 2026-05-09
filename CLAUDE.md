@@ -48,8 +48,8 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 ## Key invariants
 
-- Run `src/test/pre_commit.sh` before and after any change. Score must not drop below perfection. Expected score is tracked in [`src/test/pre_commit_expected_score`](src/test/pre_commit_expected_score) and checked automatically — update that file when new checks are added.
-- Run `src/test/xref.sh` after structural changes to catch stale references. Currently 14 known non-issues (template placeholders, false positives); if this count changes, investigate before updating it here.
+- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Output is logged to [`src/test/pre_commit.log`](src/test/pre_commit.log) — review `git diff src/test/pre_commit.log` to confirm only expected changes, then commit it alongside the change.
+- Run `src/test/xref.sh` after structural changes to catch stale references. Output is [`src/test/xref.csv`](src/test/xref.csv) — review `git diff src/test/xref.csv` to confirm only expected reference changes, then commit it. Bad pointers are enforced; missing-file and unreferenced counts are visible via the diff.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
 
 ---
@@ -111,7 +111,7 @@ Saves `{title}.json` alongside each `.md` and `.log`.
 To validate the captured API JSON against `rsc/schema/apiConversation/v1.json`:
 
 ```bash
-src/main/browser-captures/validate.sh --batch ../browser-captures/data-<...>
+src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
 ```
 
 ---

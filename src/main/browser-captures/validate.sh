@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# Validate captured API JSON files against the apiConversation schema.
+# Validate a single browser-capture batch against the apiConversation schema.
 #
 # Usage:
-#   src/main/browser-captures/validate.sh --batch <path>
-#   src/main/browser-captures/validate.sh --batches <path>
+#   src/main/browser-captures/validate.sh --browser-capture <path/to/batch-directory>
 
 set -euo pipefail
 
@@ -56,35 +55,27 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 fi
 
 main() {
-  local batch="" batches=""
+  local browser_capture=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --batch)   batch="$2";   shift 2 ;;
-      --batches) batches="$2"; shift 2 ;;
+      --browser-capture) browser_capture="$2"; shift 2 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --batch <path> | --batches <path>"
-        exit 1 ;;
+        echo "Usage: $0 --browser-capture <path>"
+        echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
-  if [[ -z "$batch" && -z "$batches" ]]; then
-    echo "Usage: $0 --batch <path/to/batch-directory>"
-    echo "       $0 --batches <path/to/browser-captures>"
+  if [[ -z "$browser_capture" ]]; then
+    echo "Usage: $0 --browser-capture <path/to/batch-directory>"
+    echo "       Pass --help for more information."
     exit 1
   fi
 
   # shellcheck source=/dev/null
   source "$REPO_DIR/src/activate_venv.sh"
 
-  if [[ -n "$batch" ]]; then
-    validate_batch "$(cd "$batch" && pwd)"
-  else
-    for d in "$(cd "$batches" && pwd)"/data-*/; do
-      [ -d "$d" ] || continue
-      validate_batch "$d"
-    done
-  fi
+  validate_batch "$(cd "$browser_capture" && pwd)"
 }
 
 main "$@"

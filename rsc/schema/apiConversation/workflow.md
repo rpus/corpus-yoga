@@ -31,7 +31,7 @@ new API response shapes.
 2. Validate against the current schema:
 
    ```bash
-   src/main/browser-captures/validate.sh --batches ../browser-captures
+   src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
    ```
 
 3. If any captures fail, update `v1.json` to accommodate the new shape (following

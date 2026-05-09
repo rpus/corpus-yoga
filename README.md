@@ -40,7 +40,7 @@ This repo wrangles Claude data exports.
 ## What that does
 
 - Validate the data
-  - `./src/main/chat-exports/validate.sh --chat-exports ../chat-exports`
+  - `./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports` (or `validate.sh --chat-export <one-export>`)
 - Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
 - Extract files and heredocs
   - `./src/main/chat-exports/extract_files.sh --chat-exports ../chat-exports`
@@ -101,6 +101,8 @@ python src/test/pre_commit.py
 | [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and captured; capture setup and output structure |
 | [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/session/`: the nine record types, turn envelope, content blocks, MCP mapping |
 | [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; `../code-projects/` setup procedure |
+| [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
+| [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |
 | [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session transcripts against the sessions schema |
 | [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types and field structure of session files (used during schema development) |
 | [`src/test/code-projects/debug_code_session_record.py`](src/test/code-projects/debug_code_session_record.py) | Diagnose why a specific record fails validation: tests each `Record.oneOf` branch and drills into the matching subtype |
@@ -117,6 +119,10 @@ python src/test/pre_commit.py
 | [`rsc/schema/session/principles.md`](rsc/schema/session/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
 | [`rsc/schema/session/workflow.md`](rsc/schema/session/workflow.md) | Validation loop, `model_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
 | [`rsc/schema/session/CHANGELOG.md`](rsc/schema/session/CHANGELOG.md) | Version history and session coverage matrix |
+| [`rsc/schema/apiConversation/principles.md`](rsc/schema/apiConversation/principles.md) | Schema design principles: defers to conversations/principles.md; documents apiConversation-specific deviations |
+| [`rsc/schema/apiConversation/workflow.md`](rsc/schema/apiConversation/workflow.md) | Validation loop and maintenance workflow for the live API conversation schema |
+| [`rsc/schema/apiConversation/CHANGELOG.md`](rsc/schema/apiConversation/CHANGELOG.md) | Version history and capture coverage matrix |
+| [`rsc/schema/apiConversation/README.md`](rsc/schema/apiConversation/README.md) | API conversation schema at a glance: root type, message/content structure, comparison with bulk-export format |
 | [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations ↔ session ↔ apiConversation ↔ MCP |
 | [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which have a paired repair script |
 | [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |
@@ -127,12 +133,3 @@ python src/test/pre_commit.py
 | --- | --- |
 | [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |
 | [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags missing targets and unreferenced files |
-
-### Tool context
-
-These document `~/.claude/` — the Claude Code local state — rather than the project itself.
-
-| Document | Description |
-| --- | --- |
-| [`doc/tool-context/claude-home-directory.md`](doc/tool-context/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
-| [`doc/tool-context/investigation-methodology.md`](doc/tool-context/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |

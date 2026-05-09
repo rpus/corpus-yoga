@@ -16,7 +16,7 @@ requires only a new `PIPELINES` entry; no new functions.
 | --- | --- | --- | --- |
 | **Input dir** | `../chat-exports/` | `../code-projects/` | `../browser-captures/` |
 | **Gen dir** | `gen/chat-exports/` | `gen/code-projects/` | `gen/browser-captures/` |
-| **Validate script** | `src/main/chat-exports/validate.sh` | `src/main/code-projects/RUNME.sh` | `src/main/browser-captures/validate.sh` |
+| **Validate script** | `src/main/chat-exports/validate.sh` | `src/main/code-projects/RUNME.sh` | `src/main/browser-captures/RUNME.sh` |
 | **Subject depth** | 1 — `data_dir` | 2 — `project / session` | 2 — `batch / conversation` |
 | **Subject match** | exact | prefix (8-char UUID) | prefix (8-char UUID) |
 | **Input glob** | `data-*/` | `-Users-*/*.jsonl` | `data-*/*/` |
@@ -95,7 +95,7 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
        input         = REPO_PARENT / NEW_PIPELINE,
        input_glob    = '...',        # pattern matching input subjects
        subject_depth = 1,            # or 2 — see Pipelines table above
-       validate_cmd  = f'src/main/{NEW_PIPELINE}/validate.sh --batches',
+       validate_cmd  = f'src/main/{NEW_PIPELINE}/RUNME.sh --{new-pipeline}',
    ),
    ```
 
@@ -106,7 +106,7 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
 6. **Run the validate script** to populate `gen/`:
 
    ```bash
-   src/main/{new-pipeline}/validate.sh --batches ../{new-pipeline}
+   src/main/{new-pipeline}/RUNME.sh --{new-pipeline} ../{new-pipeline}
    ```
 
 7. **Populate the CHANGELOG** in `rsc/schema/{newSchema}/CHANGELOG.md`:
@@ -115,11 +115,11 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
    src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write
    ```
 
-8. **Run `src/test/pre_commit.sh`**: confirm all checks pass. If the score changed,
-   `check_score` will fail and tell you to update `src/test/pre_commit_expected_score`.
+8. **Run `src/test/pre_commit.sh`**: confirm all checks pass. Commit the updated
+   `src/test/pre_commit.log` so the diff shows what changed.
 
-9. **Run `src/test/xref.sh`**: confirm no new bad-pointer or missing-file entries
-   beyond the known non-issues. If the count changed, update it in `CLAUDE.md` (Key invariants line).
+9. **Run `src/test/xref.sh`**: confirm no bad-pointer entries. Commit the updated
+   `src/test/xref.csv` so the diff shows what references changed.
 
 ---
 

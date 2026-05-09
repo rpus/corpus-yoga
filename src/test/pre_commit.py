@@ -62,7 +62,7 @@ PIPELINES: dict[str, Pipeline] = {
         input          = REPO_PARENT / 'browser-captures',
         input_glob     = 'data-*/*/',
         subject_depth  = 2,
-        validate_cmd   = 'src/main/browser-captures/validate.sh --batches',
+        validate_cmd   = 'src/main/browser-captures/RUNME.sh --browser-captures',
     ),
     'chat-exports': Pipeline(
         schemas        = ['conversations', 'memories', 'projects', 'users'],
@@ -216,7 +216,6 @@ def check_required_files(run):
         SRC  / 'main' / 'validate.py',
         SRC  / 'test' / 'gen_model_candidate.py',
         SRC  / 'test' / 'gen_model.py',
-        SRC  / 'test' / 'pre_commit_expected_score',
         SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
         RSC  / 'model.json',
@@ -398,12 +397,10 @@ def check_schema_join(run):
 def check_xref(run):
     _, output = _call(SRC / 'test' / 'xref.py')
     summary = output.splitlines()[-1] if output else ''
-    m_bad  = re.search(r'(\d+) bad-pointer',   summary)
-    m_miss = re.search(r'(\d+) missing-file',  summary)
-    bad    = int(m_bad.group(1))  if m_bad  else 0
-    miss   = int(m_miss.group(1)) if m_miss else 0
-    run('xref: no bad pointers',        bad  == 0, summary if bad  else None)
-    run(f'xref: {miss} missing-file references', True)
+    m_bad = re.search(r'(\d+) bad-pointer', summary)
+    bad   = int(m_bad.group(1)) if m_bad else 0
+    run('xref: no bad pointers', bad == 0, summary if bad else None)
+    run(summary.split(' → ')[0] if summary else 'xref: (no output)', True)
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -455,48 +452,19 @@ def main():
     total    = len(results)
     score    = f'{passes}/{total}'
 
-    # Score check — appended after all checks so it can use the final passes/total.
-    score_file = SRC / 'test' / 'pre_commit_expected_score'
-    expected   = score_file.read_text().strip()
-
-    perfection_achieved = passes == total
-    expectation_met     = expected == score
-    score_ok            = perfection_achieved and expectation_met
-
-    score_detail = (
-        f'Fix failures in other sections first'
-        if not perfection_achieved else
-        f'Consider updating {score_file.relative_to(REPO_ROOT)} to {score}'
-        if not expectation_met else None
-    )
-    score_label  = f'score: {score}; expected: {expected}'
-
-    results.append((score_label, score_ok, score_detail))
-    sections.append('check_score')
-    if not score_ok:
-        failures.append((score_label, score_detail))
-
     failed_sections = list(dict.fromkeys(
         sections[i] for i, (_, p, _) in enumerate(results) if not p
     ))
 
     # ── HEAD ──────────────────────────────────────────────────────────────────
     if failures:
-        if not expectation_met:
-            print(f'`src/test/pre_commit.py`: {score} (expected {expected}; failures in {len(failed_sections)} sections)')
-        else:
-            print(f'`src/test/pre_commit.py`: {score} (failures in {len(failed_sections)} sections)')
+        print(f'`src/test/pre_commit.py`: {score} (failures in {len(failed_sections)} sections)')
     else:
         print(f'pre_commit.py: {score}')
 
     # ── BODY ──────────────────────────────────────────────────────────────────
     print()
     print(stdout_buffer.getvalue(), end='')
-
-    name = 'check_score'
-    print(f'\n── {name} {"─" * (74 - len(name))}')
-    print(f'  {"✓" if score_ok else "✗"} {score_label}' +
-          (f'\n      {score_detail}' if not score_ok and score_detail else ''))
 
     # ── TAIL ──────────────────────────────────────────────────────────────────
     if failures:

@@ -19,7 +19,7 @@ Code CLI session format.
 
 ## Phase 1: Discovering the files exist
 
-Initial exploration of `~/.claude/` (see `doc/tool-context/investigation-methodology.md`) revealed
+Initial exploration of `~/.claude/` (see `investigation-methodology.md`) revealed
 `~/.claude/projects/` contains per-project subdirectories. Each subdirectory contains:
 
 - `{session-uuid}.jsonl` — the session transcript

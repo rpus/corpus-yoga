@@ -227,7 +227,7 @@ For each CLI session, output goes under `gen/code-projects/{project}/{session}/`
 ```text
 gen/code-projects/{project}/{session}/
   session.json                   # JSONL converted to a JSON array
-  validation/sessions/v1.log     # validation result against sessions/v1.json
+  validation/session/v1.log     # validation result against sessions/v1.json
 ```
 
 The dashboard `index.html` is self-contained and can be opened directly in a browser.

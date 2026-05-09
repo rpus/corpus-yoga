@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Run from the repo root, e.g.:
-# src/main/chat-exports/validate.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
-# src/main/chat-exports/validate.sh --chat-exports ../chat-exports
+# Validate a single chat export against the conversations schema.
+#
+# Usage:
+#   src/main/chat-exports/validate.sh --chat-export <path/to/data-directory>
 
 set -euo pipefail
 
@@ -104,20 +105,19 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 fi
 
 main() {
-  local chat_export="" chat_exports=""
+  local chat_export=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --chat-export)  chat_export="$2";  shift 2 ;;
-      --chat-exports) chat_exports="$2"; shift 2 ;;
-      *) echo "Unknown argument: $1"
-         echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
-         echo "       Pass --help for more information."; exit 1 ;;
+      --chat-export) chat_export="$2"; shift 2 ;;
+      *)
+        echo "Unknown argument: $1"
+        echo "Usage: $0 --chat-export <path>"
+        echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
-  if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
+  if [[ -z "$chat_export" ]]; then
     echo "Usage: $0 --chat-export <path/to/data-directory>"
-    echo "       $0 --chat-exports <path/to/chat-exports>"
     echo "       Pass --help for more information."
     exit 1
   fi
@@ -125,13 +125,7 @@ main() {
   # shellcheck source=/dev/null
   source "$REPO_DIR/src/activate_venv.sh"
 
-  if [[ -n "$chat_export" ]]; then
-    validate_export "$(cd "$chat_export" && pwd)"
-  else
-    for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
-      validate_export "$d"
-    done
-  fi
+  validate_export "$(cd "$chat_export" && pwd)"
 }
 
 main "$@"

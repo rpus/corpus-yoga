@@ -101,5 +101,5 @@ Validated against 55 live API responses (all pass). Coverage matrix in
 Run via:
 
 ```bash
-src/main/browser-captures/validate.sh --batches ../browser-captures
+src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
 ```

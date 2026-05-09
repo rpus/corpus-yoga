@@ -1,7 +1,7 @@
 # `rsc/schema/conversations/` — Schema Reference
 
 This document explains the conversation schema directory: what it validates, how it relates to
-the `~/.claude/` local state documented in `doc/tool-context/claude-home-directory.md`, and how the schema
+the `~/.claude/` local state documented in `doc/code-projects/claude-home-directory.md`, and how the schema
 development process works.
 
 For the broader project context (pipeline, artifact recovery, all four schemas, output

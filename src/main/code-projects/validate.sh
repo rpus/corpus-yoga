@@ -2,7 +2,7 @@
 # Convert and validate all .jsonl sessions in one Claude Code project directory.
 #
 # Usage:
-#   src/main/code-projects/validate.sh --project-dir <path>
+#   src/main/code-projects/validate.sh --code-project <path/to/project-directory>
 
 set -euo pipefail
 
@@ -55,20 +55,20 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
 fi
 
 main() {
-  local project_dir=""
+  local code_project=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --project-dir) project_dir="$2"; shift 2 ;;
+      --code-project) code_project="$2"; shift 2 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --project-dir <path>"
+        echo "Usage: $0 --code-project <path>"
         echo "       Pass --help for more information."; exit 1 ;;
     esac
   done
 
-  if [[ -z "$project_dir" ]]; then
-    echo "Usage: $0 --project-dir <path/to/project-directory>"
+  if [[ -z "$code_project" ]]; then
+    echo "Usage: $0 --code-project <path/to/project-directory>"
     echo "       Pass --help for more information."
     exit 1
   fi
@@ -76,7 +76,7 @@ main() {
   # shellcheck source=/dev/null
   source "$REPO_DIR/src/activate_venv.sh"
 
-  validate_project "$(cd "$project_dir" && pwd)"
+  validate_project "$(cd "$code_project" && pwd)"
 }
 
 main "$@"

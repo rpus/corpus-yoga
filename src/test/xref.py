@@ -8,7 +8,7 @@ writing a CSV with one row per reference.
 Usage:
     src/test/xref.sh [--out <path>]
 
-    Default output: gen/xref.csv
+    Default output: src/test/xref.csv
 
 Output columns
 ──────────────
@@ -37,7 +37,7 @@ Filter on  exists = N  to find references to files that no longer exist or whose
 JSON Pointer fragments have become invalid — the primary signal for stale comments,
 outdated documentation, dead imports, and broken intra-schema cross-references.
 
-    src/test/xref.sh && awk -F, '$5=="N"' gen/xref.csv
+    src/test/xref.sh && awk -F, '$5=="N"' src/test/xref.csv
 """
 
 import argparse
@@ -50,7 +50,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 
 # Directories/files to skip entirely
-SKIP_DIRS = {'.git', 'gen', 'tmp', 'rsc/artifacts', '__pycache__', '.claude'}
+SKIP_DIRS  = {'.git', 'gen', 'tmp', 'rsc/artifacts', '__pycache__', '.claude'}
+# Generated output files that live in src/test/ — skip to avoid scanning their contents
+SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}
 
 # Python stdlib and known third-party modules — not repo files
 STDLIB_MODULES = {
@@ -82,6 +84,8 @@ def repo_files() -> list[Path]:
         if not f.is_file():
             continue
         rel = f.relative_to(REPO_ROOT)
+        if str(rel) in SKIP_FILES:
+            continue
         parts = rel.parts
         if any(part in SKIP_DIRS or part.startswith('.') for part in parts):
             continue
@@ -472,7 +476,7 @@ EXTRACTORS = {
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--out', default=str(REPO_ROOT / 'gen' / 'xref.csv'))
+    parser.add_argument('--out', default=str(REPO_ROOT / 'src' / 'test' / 'xref.csv'))
     args = parser.parse_args()
 
     rows: list[list] = []

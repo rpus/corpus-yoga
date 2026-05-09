@@ -18,7 +18,7 @@ run_one() {
 
   rm -rf "${OUTPUT_DIR:?}/$name"
 
-  "$SCRIPT_DIR/validate.sh" --project-dir "$project_dir"
+  "$SCRIPT_DIR/validate.sh" --code-project "$project_dir"
 }
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
