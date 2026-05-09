@@ -535,4 +535,4 @@ pre_commit.py: 514/514
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ 590 rows: 567 live, 15 missing-file, 0 bad-pointer, 0 self-only, 8 unreferenced
+  ✓ 591 rows: 568 live, 15 missing-file, 0 bad-pointer, 0 self-only, 8 unreferenced
