@@ -24,7 +24,7 @@ data-{account-uuid}-{unix-timestamp}-{hash}-batch-0000/
 ```
 
 These live in `../chat-exports/` (a sibling directory, not in this repo). The `CHANGELOG.md`
-in `rsc/schema/conversations/` tracks which exports have been processed and which schema
+in `rsc/schema/chat-exports/conversations/` tracks which exports have been processed and which schema
 version each passes.
 
 Earlier exports used a simpler date-only naming: `data-2026-03-19-22-47-05-batch-0000`.
@@ -64,13 +64,13 @@ genuinely shared scripts. `src/run_python_script.sh` is a shared infrastructure 
 ### 1. `src/main/chat-exports/validate.sh` → `validate.py`
 
 Validates `conversations.json` against the versioned JSON Schema in
-`rsc/schema/conversations/` (currently `rsc/schema/conversations/v6.json`). On failure,
+`rsc/schema/chat-exports/conversations/` (currently `rsc/schema/chat-exports/conversations/v6.json`). On failure,
 prints the failing path, the relevant schema fragment, every instance of the offending
 value in the export, and a suggested remediation command. On success, runs
 `schema_recommendations.py` to suggest possible schema improvements.
 
 When the export fails validation, the schema is updated (following the workflow in
-`rsc/schema/conversations/workflow.md`) until it passes.
+`rsc/schema/chat-exports/conversations/workflow.md`) until it passes.
 
 Output: `gen/chat-exports/{export-name}/validation/conversations/` — one `.log` per schema version
 
@@ -164,11 +164,11 @@ terminology changes.
 
 | Schema | Validates |
 | --- | --- |
-| `rsc/schema/conversations/v6.json` | `conversations.json` — full conversation history (claude.ai export; versioned) |
-| `rsc/schema/memories/v1.json` | `memories.json` — stored user memories |
-| `rsc/schema/projects/v1.json` | `projects.json` — project metadata |
-| `rsc/schema/users/v1.json` | `users.json` — account information |
-| `rsc/schema/session/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
+| `rsc/schema/chat-exports/conversations/v6.json` | `conversations.json` — full conversation history (claude.ai export; versioned) |
+| `rsc/schema/chat-exports/memories/v1.json` | `memories.json` — stored user memories |
+| `rsc/schema/chat-exports/projects/v1.json` | `projects.json` — project metadata |
+| `rsc/schema/chat-exports/users/v1.json` | `users.json` — account information |
+| `rsc/schema/code-projects/session/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
 
 Supporting files:
 
@@ -241,8 +241,8 @@ Several scripts in this repo originated in conversations visible in the exports 
 
 | File | Origin |
 | --- | --- |
-| `rsc/schema/conversations/principles.md` | Conversation 15 ("Accessing files from previous chats"), v1.2 → extended to v1.3 in repo |
-| `rsc/schema/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |
+| `rsc/schema/chat-exports/conversations/principles.md` | Conversation 15 ("Accessing files from previous chats"), v1.2 → extended to v1.3 in repo |
+| `rsc/schema/chat-exports/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |
 | `src/main/validate.py` | Conversation 30 ("JSON Schema and jq fundamentals"), extended with JSON Pointer / `$ref` resolution via the `referencing` library and removal of custom discriminator-based `oneOf` error formatting |
 | `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |
 | `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesuffix` replacing manual string slicing |

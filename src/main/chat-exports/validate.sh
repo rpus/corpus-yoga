@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SCHEMA_DIR="$REPO_DIR/rsc/schema"
+SCHEMA_DIR="$REPO_DIR/rsc/schema/chat-exports"
 OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 
 rel_path() {

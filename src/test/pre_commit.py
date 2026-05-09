@@ -57,7 +57,7 @@ class Pipeline:
 PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
         schemas        = ['apiConversation'],
-        changelog      = RSC_SCHEMA / 'apiConversation' / 'CHANGELOG.md',
+        changelog      = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
         gen            = GEN / 'browser-captures',
         input          = REPO_PARENT / 'browser-captures',
         input_glob     = 'data-*/*/',
@@ -66,7 +66,7 @@ PIPELINES: dict[str, Pipeline] = {
     ),
     'chat-exports': Pipeline(
         schemas        = ['conversations', 'memories', 'projects', 'users'],
-        changelog      = RSC_SCHEMA / 'conversations' / 'CHANGELOG.md',
+        changelog      = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
         gen            = GEN / 'chat-exports',
         input          = REPO_PARENT / 'chat-exports',
         input_glob     = 'data-*/',
@@ -75,7 +75,7 @@ PIPELINES: dict[str, Pipeline] = {
     ),
     'code-projects': Pipeline(
         schemas        = ['session'],
-        changelog      = RSC_SCHEMA / 'session' / 'CHANGELOG.md',
+        changelog      = RSC_SCHEMA / 'code-projects' / 'session' / 'CHANGELOG.md',
         gen            = GEN / 'code-projects',
         input          = REPO_PARENT / 'code-projects',
         input_glob     = '-Users-*/*.jsonl',
@@ -84,6 +84,13 @@ PIPELINES: dict[str, Pipeline] = {
         diagnostic_skip= frozenset({'composition.base_schemas_closed'}),
         gen_key_prefix = _PROJECT_PREFIX,
     ),
+}
+
+# Map schema name → its directory, derived from PIPELINES.
+SCHEMA_DIR: dict[str, Path] = {
+    schema: RSC_SCHEMA / name / schema
+    for name, pipeline in PIPELINES.items()
+    for schema in pipeline.schemas
 }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -204,9 +211,12 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 # ── Checks ────────────────────────────────────────────────────────────────────
 
 def check_required_files(run):
-    schema_versions = [v for d in sorted(RSC_SCHEMA.iterdir())
+    schema_versions = [v
+                       for d in sorted(RSC_SCHEMA.iterdir())
                        if d.is_dir() and not d.name.startswith('_')
-                       for v in _sorted_versions(d)]
+                       for schema_d in sorted(d.iterdir())
+                       if schema_d.is_dir()
+                       for v in _sorted_versions(schema_d)]
     required = [
         *[p.changelog.parent / doc
           for p in PIPELINES.values()
@@ -238,10 +248,10 @@ def check_root_schema_diagnostics(run):
 
 def check_pipeline_validity(run, pipeline: Pipeline) -> None:
     for schema_name in pipeline.schemas:
-        versions = _sorted_versions(RSC_SCHEMA / schema_name)
+        versions = _sorted_versions(SCHEMA_DIR[schema_name])
         if not versions:
             run(f'{schema_name}: valid JSON', False,
-                f'{(RSC_SCHEMA / schema_name).relative_to(REPO_ROOT)} has no v*.json files')
+                f'{SCHEMA_DIR[schema_name].relative_to(REPO_ROOT)} has no v*.json files')
             continue
         for path in versions:
             v = path.stem
@@ -364,11 +374,11 @@ def check_versioned_schema_diagnostics(run):
 
     for schema_name in sorted(schema_skips):
         skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips[schema_name]
-        versions    = _sorted_versions(RSC_SCHEMA / schema_name)
+        versions    = _sorted_versions(SCHEMA_DIR[schema_name])
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
             run(f'{schema_name}: no versions', False,
-                f'{(RSC_SCHEMA / schema_name).relative_to(REPO_ROOT)} has no v*.json files')
+                f'{SCHEMA_DIR[schema_name].relative_to(REPO_ROOT)} has no v*.json files')
             continue
         for version in versions:
             for script in diagnostics:
@@ -385,9 +395,9 @@ def check_schema_join(run):
     fails: list[str] = []
     _check_csv_pointers(join,
                         ('conv_path', 'session_path', 'api_path', 'mcp_path'),
-                        {'conv_path':    RSC_SCHEMA,
-                         'session_path': RSC_SCHEMA / 'session',
-                         'api_path':     RSC_SCHEMA,
+                        {'conv_path':    SCHEMA_DIR['conversations'].parent,
+                         'session_path': SCHEMA_DIR['session'],
+                         'api_path':     SCHEMA_DIR['apiConversation'].parent,
                          'mcp_path':     RSC_SCHEMA},
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,

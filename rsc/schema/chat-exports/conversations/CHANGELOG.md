@@ -15,8 +15,8 @@
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ |
 
-The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/apiConversation/v1.json`](../apiConversation/v1.json)
-and have their own versioning. See [`rsc/schema/apiConversation/`](../apiConversation/) for that schema's history.
+The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../browser-captures/apiConversation/v1.json)
+and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversation/) for that schema's history.
 
 ---
 

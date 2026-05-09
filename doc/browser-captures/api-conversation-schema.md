@@ -1,4 +1,4 @@
-# `rsc/schema/apiConversation/` — Schema Reference
+# `rsc/schema/browser-captures/apiConversation/` — Schema Reference
 
 Schema for the live claude.ai API conversation format, as returned by the internal
 `GET /api/organizations/{org}/chat_conversations/{uuid}?tree=true&rendering_mode=messages&render_all_tools=true`
@@ -9,7 +9,7 @@ endpoint. See [`doc/project-overview.md`](../project-overview.md) for pipeline c
 
 ## What this schema validates
 
-`rsc/schema/apiConversation/v1.json` validates a single JSON file captured from the
+`rsc/schema/browser-captures/apiConversation/v1.json` validates a single JSON file captured from the
 live claude.ai API for one conversation. Each file is saved by
 `src/main/browser-captures/safari_fetch_api_json.sh` into:
 
@@ -96,7 +96,7 @@ Named variants cover every tool Claude Code and claude.ai expose:
 ## Validation
 
 Validated against 55 live API responses (all pass). Coverage matrix in
-[`rsc/schema/apiConversation/CHANGELOG.md`](../../rsc/schema/apiConversation/CHANGELOG.md).
+[`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](../../rsc/schema/browser-captures/apiConversation/CHANGELOG.md).
 
 Run via:
 

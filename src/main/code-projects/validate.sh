@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SCHEMA="$REPO_DIR/rsc/schema/session/v1.json"
+SCHEMA="$REPO_DIR/rsc/schema/code-projects/session/v1.json"
 OUTPUT_DIR="$REPO_DIR/gen/code-projects"
 JSONL_TO_JSON="$SCRIPT_DIR/jsonl_to_json.sh"
 

@@ -1,13 +1,13 @@
 ---
-schema_file: rsc/schema/apiConversation/v1.json
-principles_file: rsc/schema/apiConversation/principles.md
-workflow_file: rsc/schema/apiConversation/workflow.md
+schema_file: rsc/schema/browser-captures/apiConversation/v1.json
+principles_file: rsc/schema/browser-captures/apiConversation/principles.md
+workflow_file: rsc/schema/browser-captures/apiConversation/workflow.md
 version: "1.0"
 ---
 
-# Schema Design Principles for `rsc/schema/apiConversation/v{N}.json`
+# Schema Design Principles for `rsc/schema/browser-captures/apiConversation/v{N}.json`
 
-The general schema design principles in `rsc/schema/conversations/principles.md` apply
+The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
 to this schema in full. Read that document first. This document records only the
 adaptations specific to the live API conversation schema.
 

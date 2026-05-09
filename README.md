@@ -60,7 +60,7 @@ When the conversations schema changes, regenerate the model candidates and revie
 ./src/test/gen_model.sh
 ```
 
-When a new Claude Code session appears in `../code-projects/` or `rsc/schema/session/v1.json` changes, follow the validation loop in `rsc/schema/session/workflow.md`. In brief:
+When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, follow the validation loop in `rsc/schema/code-projects/session/workflow.md`. In brief:
 
 ```bash
 ./src/main/code-projects/RUNME.sh
@@ -96,10 +96,10 @@ python src/test/pre_commit.py
 | [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
 | [`doc/project-overview.md`](doc/project-overview.md) | Architecture: pipeline stages, artifact recovery, all schemas, output structure, provenance |
 | [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding a new pipeline |
-| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
-| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `rsc/schema/apiConversation/`: structure, differences from bulk export, tool blocks |
+| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat-exports/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
+| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `rsc/schema/browser-captures/apiConversation/`: structure, differences from bulk export, tool blocks |
 | [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and captured; capture setup and output structure |
-| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/session/`: the nine record types, turn envelope, content blocks, MCP mapping |
+| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects/session/`: the nine record types, turn envelope, content blocks, MCP mapping |
 | [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; `../code-projects/` setup procedure |
 | [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
 | [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |
@@ -111,18 +111,18 @@ python src/test/pre_commit.py
 
 | Document | Description |
 | --- | --- |
-| [`rsc/schema/conversations/principles.md`](rsc/schema/conversations/principles.md) | Every design rule for the conversations schema, with diagnostic/repair scripts and inline snippets |
-| [`rsc/schema/conversations/workflow.md`](rsc/schema/conversations/workflow.md) | 11-step loop for incorporating new exports and making schema changes |
-| [`rsc/schema/conversations/CHANGELOG.md`](rsc/schema/conversations/CHANGELOG.md) | Version history and export compatibility matrix |
-| [`rsc/schema/conversations/README.md`](rsc/schema/conversations/README.md) | Format comparison: CLI `.jsonl` vs claude.ai export |
-| [`rsc/schema/session/README.md`](rsc/schema/session/README.md) | CLI sessions schema at a glance: record types, content blocks, MCP mapping table |
-| [`rsc/schema/session/principles.md`](rsc/schema/session/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
-| [`rsc/schema/session/workflow.md`](rsc/schema/session/workflow.md) | Validation loop, `model_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
-| [`rsc/schema/session/CHANGELOG.md`](rsc/schema/session/CHANGELOG.md) | Version history and session coverage matrix |
-| [`rsc/schema/apiConversation/principles.md`](rsc/schema/apiConversation/principles.md) | Schema design principles: defers to conversations/principles.md; documents apiConversation-specific deviations |
-| [`rsc/schema/apiConversation/workflow.md`](rsc/schema/apiConversation/workflow.md) | Validation loop and maintenance workflow for the live API conversation schema |
-| [`rsc/schema/apiConversation/CHANGELOG.md`](rsc/schema/apiConversation/CHANGELOG.md) | Version history and capture coverage matrix |
-| [`rsc/schema/apiConversation/README.md`](rsc/schema/apiConversation/README.md) | API conversation schema at a glance: root type, message/content structure, comparison with bulk-export format |
+| [`rsc/schema/chat-exports/conversations/principles.md`](rsc/schema/chat-exports/conversations/principles.md) | Every design rule for the conversations schema, with diagnostic/repair scripts and inline snippets |
+| [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loop for incorporating new exports and making schema changes |
+| [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version history and export compatibility matrix |
+| [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparison: CLI `.jsonl` vs claude.ai export |
+| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI sessions schema at a glance: record types, content blocks, MCP mapping table |
+| [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
+| [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `model_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
+| [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and session coverage matrix |
+| [`rsc/schema/browser-captures/apiConversation/principles.md`](rsc/schema/browser-captures/apiConversation/principles.md) | Schema design principles: defers to conversations/principles.md; documents apiConversation-specific deviations |
+| [`rsc/schema/browser-captures/apiConversation/workflow.md`](rsc/schema/browser-captures/apiConversation/workflow.md) | Validation loop and maintenance workflow for the live API conversation schema |
+| [`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](rsc/schema/browser-captures/apiConversation/CHANGELOG.md) | Version history and capture coverage matrix |
+| [`rsc/schema/browser-captures/apiConversation/README.md`](rsc/schema/browser-captures/apiConversation/README.md) | API conversation schema at a glance: root type, message/content structure, comparison with bulk-export format |
 | [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations ↔ session ↔ apiConversation ↔ MCP |
 | [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which have a paired repair script |
 | [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |

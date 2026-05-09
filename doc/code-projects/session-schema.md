@@ -1,23 +1,23 @@
-# `rsc/schema/session/` — Schema Reference
+# `rsc/schema/code-projects/session/` — Schema Reference
 
 Schema for Claude Code CLI session transcripts. See
 [`doc/project-overview.md`](../project-overview.md) for pipeline context,
 [`doc/code-projects/research.md`](research.md) for how the format
 was reverse-engineered, and
-[`rsc/schema/session/workflow.md`](../rsc/schema/session/workflow.md)
+[`rsc/schema/code-projects/session/workflow.md`](../../rsc/schema/code-projects/session/workflow.md)
 for the validation loop and maintenance lifecycle.
 
 ---
 
 ## What this schema validates
 
-`rsc/schema/session/v1.json` validates a **JSON array** produced by
+`rsc/schema/code-projects/session/v1.json` validates a **JSON array** produced by
 converting a `~/.claude/projects/{project}/{session}.jsonl` file: each line becomes one
 array element.
 
 This format is **not** the same as the claude.ai export format (`conversations.json`).
 Both wrap the Anthropic API content block model, but with different envelopes.
-See `rsc/schema/session/README.md` for the side-by-side comparison.
+See `rsc/schema/code-projects/session/README.md` for the side-by-side comparison.
 
 ---
 

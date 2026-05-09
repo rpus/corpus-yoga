@@ -1,13 +1,13 @@
 ---
-schema_file: rsc/schema/conversations/v6.json
-principles_file: rsc/schema/conversations/principles.md
-workflow_file: rsc/schema/conversations/workflow.md
+schema_file: rsc/schema/chat-exports/conversations/v6.json
+principles_file: rsc/schema/chat-exports/conversations/principles.md
+workflow_file: rsc/schema/chat-exports/conversations/workflow.md
 version: "1.3"
 ---
 
-# Schema Design Principles for `rsc/schema/conversations/v{N}.json`
+# Schema Design Principles for `rsc/schema/chat-exports/conversations/v{N}.json`
 
-A living document of design principles, diagnostics, and repairs for `rsc/schema/conversations/v{N}.json`. Each enforced principle has a machine-runnable diagnostic script in `src/test/diagnostics/` and (where automatable) a repair script in `src/test/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
+A living document of design principles, diagnostics, and repairs for `rsc/schema/chat-exports/conversations/v{N}.json`. Each enforced principle has a machine-runnable diagnostic script in `src/test/diagnostics/` and (where automatable) a repair script in `src/test/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
 
 This document should be kept updated in parallel with the schema, the atomic scripts, and validation runs. The pre-commit hook (`src/test/pre_commit.py`) runs all enforced diagnostics automatically.
 
@@ -87,7 +87,7 @@ No standalone diagnostic script. Full enforcement would require cross-referencin
 
 ```python
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 for name in schema['definitions']:
     if name.endswith('ToolUseBlock') and name != 'ToolUseBlock':
@@ -221,7 +221,7 @@ Diagnostic: src/test/diagnostics/structure.pattern_constraints_enforced.py
 ```python
 # inline illustration
 import json, re
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 REGEX_RE = re.compile(r'Regex:|^\^.*\$$', re.MULTILINE)
 def check(obj, path=''):
@@ -294,7 +294,7 @@ Where a schema corresponds to a public Anthropic API concept, the description sh
 ```python
 # diagnostic
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 for name, defn in schema['definitions'].items():
     d = defn.get('description', '')
@@ -317,7 +317,7 @@ Diagnostic: src/test/diagnostics/documentation.null_only_fields_documented.py
 ```python
 # repair: add standard null description to properties missing one
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 defs = schema['definitions']
 def fix(obj):
@@ -331,7 +331,7 @@ def fix(obj):
     elif isinstance(obj, list):
         for v in obj: fix(v)
 fix({'definitions': defs})
-with open('rsc/schema/conversations/v{N}.json', 'w') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -350,11 +350,11 @@ Diagnostic: src/test/diagnostics/documentation.open_set_enums_documented.py
 ```python
 # repair: add open-set caveat to a specific enum property
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 items = schema['definitions']['ToolInputRecommendClaudeApps']['properties']['app_ids']['items']
 items['description'] = 'Observed values listed. Likely an open set — do not treat as exhaustive.'
-with open('rsc/schema/conversations/v{N}.json', 'w') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -381,7 +381,7 @@ Not every property needs a description. But properties with surprising behaviour
 ```python
 # diagnostic: list all properties that have no description (for human review)
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 def check(obj, path=''):
     if isinstance(obj, dict):
@@ -403,7 +403,7 @@ check({'definitions': schema['definitions']})
 
 **The `documenter.schema.json` pattern enables VS Code tooltips on data files.**
 
-A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `rsc/schema/conversations/v{N}.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
+A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `rsc/schema/chat-exports/conversations/v{N}.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
 
 ```json
 {
@@ -435,7 +435,7 @@ src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
 # repair: iterate all errors to identify what needs fixing
 import json
 from jsonschema import Draft4Validator
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 with open('conversations.json') as f:
     data = json.load(f)
@@ -511,7 +511,7 @@ Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
 ```python
 # inline illustration: list all null-typed fields for human review
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 defs = schema['definitions']
 null_typed = []
@@ -653,7 +653,7 @@ Diagnostic: src/test/diagnostics/composition.wrapper_has_five_fields.py
 ```python
 # repair: remove unexpected fields from a wrapper (manual review recommended first)
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 expected = {'title', 'description', 'type', 'allOf', 'oneOf'}
 for name, defn in schema['definitions'].items():
@@ -661,7 +661,7 @@ for name, defn in schema['definitions'].items():
         for k in set(defn.keys()) - expected:
             print(f'{name}: removing extra field "{k}" = {defn[k]!r}')
             del defn[k]
-with open('rsc/schema/conversations/v{N}.json', 'w') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -680,7 +680,7 @@ Diagnostic: src/test/diagnostics/composition.no_additional_properties_on_subtype
 ```python
 # repair: remove additionalProperties: false from the conflicting subtype
 import json
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 defs = schema['definitions']
 for name, defn in defs.items():
@@ -690,7 +690,7 @@ for name, defn in defs.items():
             if ref and defs.get(ref, {}).get('properties'):
                 del defn['additionalProperties']
                 print(f'Fixed: {name}')
-with open('rsc/schema/conversations/v{N}.json', 'w') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
     json.dump(schema, f, indent=2)
 ```
 
@@ -718,7 +718,7 @@ Any schema appearing more than once should be a named definition. Applied to `Nu
 # diagnostic: find identical inline schema objects appearing more than once
 import json
 from collections import Counter
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 counts = Counter()
 def walk(obj):
@@ -917,14 +917,14 @@ The current markdown-with-frontmatter approach is human-friendly but requires pa
 
 **Workflow for incorporating a new export.**
 
-See `rsc/schema/conversations/workflow.md` for the full loop. Summary:
+See `rsc/schema/chat-exports/conversations/workflow.md` for the full loop. Summary:
 
 1. Validate new export against all schemas.
 2. Run `src/test/pre_commit.py` to check all diagnostics.
 3. Categorise failures by root cause; refine diagnostics before fixing schema.
 4. Fix genuine schema issues using repair scripts in `src/test/repairs/`.
 5. Re-run `src/test/pre_commit.py` until all checks pass.
-6. Update this document and `rsc/schema/conversations/workflow.md` as needed.
+6. Update this document and `rsc/schema/chat-exports/conversations/workflow.md` as needed.
 7. Commit.
 
 ---
@@ -958,7 +958,7 @@ Diagnostic: src/test/diagnostics/structure.bfs_order.py
 Repair:     src/test/repairs/structure.bfs_order.py
 ```
 
-Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/conversations/v{N}.json`
+Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/chat-exports/conversations/v{N}.json`
 
 ---
 
@@ -972,4 +972,4 @@ The pre-commit hook enforces what it can mechanically, but it cannot substitute 
 
 ---
 
-*This document was developed iteratively alongside `rsc/schema/conversations/v{N}.json` over multiple sessions. The schema was reverse-engineered from Claude.ai bulk data exports; all constraints are empirically grounded unless explicitly noted otherwise. The Open Questions section is intentionally incomplete — it should grow as new questions arise and shrink as decisions are made.*
+*This document was developed iteratively alongside `rsc/schema/chat-exports/conversations/v{N}.json` over multiple sessions. The schema was reverse-engineered from Claude.ai bulk data exports; all constraints are empirically grounded unless explicitly noted otherwise. The Open Questions section is intentionally incomplete — it should grow as new questions arise and shrink as decisions are made.*

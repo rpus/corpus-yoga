@@ -21,7 +21,7 @@ requires only a new `PIPELINES` entry; no new functions.
 | **Subject match** | exact | prefix (8-char UUID) | prefix (8-char UUID) |
 | **Input glob** | `data-*/` | `-Users-*/*.jsonl` | `data-*/*/` |
 | **Log path** | `{data_dir}/validation/{schema}/{version}.log` | `{project}/{session}/validation/{schema}/{version}.log` | `{batch}/{conversation}/validation/{schema}/{version}.log` |
-| **CHANGELOG** | `rsc/schema/conversations/CHANGELOG.md` | `rsc/schema/session/CHANGELOG.md` | `rsc/schema/apiConversation/CHANGELOG.md` |
+| **CHANGELOG** | `rsc/schema/chat-exports/conversations/CHANGELOG.md` | `rsc/schema/code-projects/session/CHANGELOG.md` | `rsc/schema/browser-captures/apiConversation/CHANGELOG.md` |
 | **Schema(s)** | conversations, memories, projects, users | session | apiConversation |
 | **Diag skips (extra)** | — | `composition.base_schemas_closed` | — |
 
@@ -68,10 +68,10 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
    - Pipeline name: e.g. `NEW_PIPELINE = '{new-pipeline}'`
    - Schema name(s): e.g. `NEW_SCHEMA = 'newSchema'`
 
-2. **Create the schema directory**: `rsc/schema/{newSchema}/`
+2. **Create the schema directory**: `rsc/schema/{new-pipeline}/{newSchema}/`
    - Add `v1.json` with `$schema`, `title`, `description`, `definitions`
    - Add `principles.md`, `workflow.md`, `README.md`
-   - Follow the structure of `rsc/schema/session/` as a template
+   - Follow the structure of `rsc/schema/code-projects/session/` as a template
    - (`CHANGELOG.md` is created automatically by step 7)
 
 3. **Add to `VERSIONED_SCHEMA_DIAGNOSTICS_SKIP`** in `pre_commit.py`:
@@ -90,7 +90,7 @@ gen/browser-captures/data-0fc4c1e0-…-ed936fdf-batch-0000/0e537a54-…/validati
    ```python
    '{new-pipeline}': Pipeline(
        schemas       = [NEW_SCHEMA],
-       changelog     = RSC_SCHEMA / NEW_SCHEMA / 'CHANGELOG.md',
+       changelog     = RSC_SCHEMA / NEW_PIPELINE / NEW_SCHEMA / 'CHANGELOG.md',
        gen           = GEN / NEW_PIPELINE,
        input         = REPO_PARENT / NEW_PIPELINE,
        input_glob    = '...',        # pattern matching input subjects

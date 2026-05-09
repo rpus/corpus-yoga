@@ -1,4 +1,4 @@
-# `rsc/schema/conversations/` — Schema Reference
+# `rsc/schema/chat-exports/conversations/` — Schema Reference
 
 This document explains the conversation schema directory: what it validates, how it relates to
 the `~/.claude/` local state documented in `doc/code-projects/claude-home-directory.md`, and how the schema
@@ -11,7 +11,7 @@ structure) see [`project-overview.md`](../project-overview.md).
 
 ## What this schema is
 
-`rsc/schema/conversations/v6.json` (currently v6) is a JSON Schema (draft-4) that validates
+`rsc/schema/chat-exports/conversations/v6.json` (currently v6) is a JSON Schema (draft-4) that validates
 the **claude.ai bulk conversation export format** — the `conversations.json` file you get from:
 
 > Settings → Privacy → Export Data (on claude.ai)

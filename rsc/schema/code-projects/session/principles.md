@@ -1,13 +1,13 @@
 ---
-schema_file: rsc/schema/session/v1.json
-principles_file: rsc/schema/session/principles.md
-workflow_file: rsc/schema/session/workflow.md
+schema_file: rsc/schema/code-projects/session/v1.json
+principles_file: rsc/schema/code-projects/session/principles.md
+workflow_file: rsc/schema/code-projects/session/workflow.md
 version: "1.0"
 ---
 
-# Schema Design Principles for `rsc/schema/session/v{N}.json`
+# Schema Design Principles for `rsc/schema/code-projects/session/v{N}.json`
 
-The general schema design principles in `rsc/schema/conversations/principles.md` apply
+The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
 to this schema in full. Read that document first. This document records only the
 adaptations and known deviations that are specific to the CLI sessions schema.
 

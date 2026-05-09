@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 debug_code_session_record.py — Diagnose why a specific record in a session fails
-validation against rsc/schema/session/v1.json.
+validation against rsc/schema/code-projects/session/v1.json.
 
 For each branch of Record.oneOf, reports whether it passes or fails and — for the
 branch matching the record's type — drills into the sub-schema to find the leaf-level

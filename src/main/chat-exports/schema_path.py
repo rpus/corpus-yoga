@@ -4,7 +4,7 @@ schema_path.py - Given a jsonschema instance error path and a schema file,
 output the JSON pointer to the subschema at the error site.
 
 Usage:
-    python src/main/chat-exports/schema_path.py "[4, 'chat_messages', 8, 'files', 0]" rsc/schema/conversations/v{N}.json
+    python src/main/chat-exports/schema_path.py "[4, 'chat_messages', 8, 'files', 0]" rsc/schema/chat-exports/conversations/v{N}.json
 
 Output:
     JSON pointer string, e.g. #/definitions/MessageFile/properties/file_uuid

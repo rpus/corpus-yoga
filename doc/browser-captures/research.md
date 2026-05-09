@@ -13,7 +13,7 @@ GET /api/organizations/{org-uuid}/chat_conversations/{conversation-uuid}
     ?tree=true&rendering_mode=messages&render_all_tools=true
 ```
 
-The response is a JSON object conforming to `rsc/schema/apiConversation/v1.json`. This is the
+The response is a JSON object conforming to `rsc/schema/browser-captures/apiConversation/v1.json`. This is the
 same data the UI renders, but with the client-side envelope fields stripped — it is
 significantly leaner than the bulk export format.
 
@@ -120,7 +120,7 @@ The schema was developed iteratively:
 1. Captured 55 conversations from a single export batch
 2. Ran `src/main/validate.py` against each with a draft schema
 3. Expanded definitions to cover observed fields and tool types
-4. Validated all 55 pass — results recorded in `rsc/schema/apiConversation/CHANGELOG.md`
+4. Validated all 55 pass — results recorded in `rsc/schema/browser-captures/apiConversation/CHANGELOG.md`
 
 The `NamespacedToolName` constraint (`not: {$ref: ToolName}`) ensures MCP-namespaced
 tool names (`integration:tool`) are distinguished from built-in tool names even though

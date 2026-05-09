@@ -1,4 +1,4 @@
-# `rsc/schema/session/`
+# `rsc/schema/code-projects/session/`
 
 JSON Schema (draft-4) for Claude Code CLI session transcripts — the `.jsonl` files written
 to `~/.claude/projects/{project}/{session}.jsonl` during a Claude Code session.
@@ -14,8 +14,8 @@ From the v1.json root description:
 > (`conversations.json`). The core content block model is shared with the Anthropic API;
 > the session envelope is Claude Code CLI-specific.
 
-For full context see [`doc/code-projects/session-schema.md`](../../../doc/code-projects/session-schema.md)
-and [`doc/project-overview.md`](../../../doc/project-overview.md).
+For full context see [`doc/code-projects/session-schema.md`](../../../../doc/code-projects/session-schema.md)
+and [`doc/project-overview.md`](../../../../doc/project-overview.md).
 
 ---
 

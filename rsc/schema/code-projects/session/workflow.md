@@ -1,21 +1,21 @@
 ---
-schema_file: rsc/schema/session/v1.json
-principles_file: rsc/schema/session/principles.md
-workflow_file: rsc/schema/session/workflow.md
+schema_file: rsc/schema/code-projects/session/v1.json
+principles_file: rsc/schema/code-projects/session/principles.md
+workflow_file: rsc/schema/code-projects/session/workflow.md
 version: "1.0"
 ---
 
-# Schema Development Workflow for `rsc/schema/session/v{N}.json`
+# Schema Development Workflow for `rsc/schema/code-projects/session/v{N}.json`
 
 A living document describing how to maintain and extend the CLI sessions schema.
-Follows the same philosophy as `rsc/schema/conversations/workflow.md` but adapted
+Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md` but adapted
 to the different lifecycle of CLI session data.
 
 ---
 
 ## Base Principles
 
-The general schema design principles in `rsc/schema/conversations/principles.md` apply to this
+The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply to this
 schema. `principles.md` in this directory documents the adaptations and known
 deviations. The same four workflow principles apply here:
 
@@ -156,7 +156,7 @@ Each validation log records the JSONL byte size at the time of validation:
 ```text
 2026-04-26T17:06:54+01:00
 .../60c07575....jsonl: 7248 lines, 18899859 bytes
-.../rsc/schema/session/v1.json: 27568 bytes
+.../rsc/schema/code-projects/session/v1.json: 27568 bytes
 Valid!
 ```
 
@@ -168,7 +168,7 @@ After a successful run:
    means more of the session was covered. For a **new** session (first time in the matrix),
    add a new row; for an existing session, update the counts.
 
-2. Add each new row to `rsc/schema/session/CHANGELOG.md` using bare project name and
+2. Add each new row to `rsc/schema/code-projects/session/CHANGELOG.md` using bare project name and
    8-character UUID prefix (e.g. `claude-export-yoga / 46fcb702`).
    `pre_commit.py` reads the matrix directly — no separate constant to update.
 

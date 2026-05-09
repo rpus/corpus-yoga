@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "ApiConversation",
-  "description": "Schema for a single claude.ai conversation as returned by the internal chat API (GET /api/organizations/{org}/chat_conversations/{id}). v1 validated against 55 live API responses (all pass). See rsc/schema/conversations/ for the bulk-export format.",
+  "description": "Schema for a single claude.ai conversation as returned by the internal chat API (GET /api/organizations/{org}/chat_conversations/{id}). v1 validated against 55 live API responses (all pass). See rsc/schema/chat-exports/conversations/ for the bulk-export format.",
   "allOf": [
     {
       "$ref": "#/definitions/ApiConversation"

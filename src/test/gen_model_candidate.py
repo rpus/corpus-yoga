@@ -9,8 +9,8 @@ Usage:
     python src/test/gen_model_candidate.py <schema-type> <schema-file>
 
 Examples:
-    python src/test/gen_model_candidate.py conversations rsc/schema/conversations/v6.json
-    python src/test/gen_model_candidate.py memories      rsc/schema/memories/v1.json
+    python src/test/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
+    python src/test/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
 
 Output: JSON to stdout. Redirect to gen/model/<schema-type>/<version>.json for review.
 Normally invoked via src/test/gen_model.sh which handles all schemas automatically.

@@ -20,7 +20,7 @@ and renders an interactive HTML dashboard.
 ## Critical naming convention
 
 **`conversations`** = the data format and schema name (`conversations.json`,
-`rsc/schema/conversations/`).
+`rsc/schema/chat-exports/conversations/`).
 
 **`chat-exports`** = the pipeline that processes claude.ai exports
 (`src/main/chat-exports/`, `../chat-exports/`).
@@ -51,6 +51,7 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 - Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Output is logged to [`src/test/pre_commit.log`](src/test/pre_commit.log) — review `git diff src/test/pre_commit.log` to confirm only expected changes, then commit it alongside the change.
 - Run `src/test/xref.sh` after structural changes to catch stale references. Output is [`src/test/xref.csv`](src/test/xref.csv) — review `git diff src/test/xref.csv` to confirm only expected reference changes, then commit it. Bad pointers are enforced; missing-file and unreferenced counts are visible via the diff.
 - `git clean -fdX; git clean -fdxn` after a full run — the output should be fully accounted for.
+- `rsc/artifacts/downloaded/` is ground truth — never edit files in place. It is already excluded from `xref.py` scanning (`rsc/artifacts/` is in `SKIP_DIRS` and `repo_files()` has an explicit additional check); bulk operations (`find`/`sed`/etc.) must exclude it too, alongside `gen/` and `.git/`.
 
 ---
 
@@ -64,11 +65,11 @@ manually. Dependencies: `requirements.txt`.
 
 ## Schema directories
 
-Named after the data format they validate, not the pipeline:
-`rsc/schema/conversations/` (currently v1–v6), `rsc/schema/session/` (currently v1),
-`rsc/schema/apiConversation/` (currently v1).
+Grouped by pipeline, named after the data format within each:
+`rsc/schema/chat-exports/conversations/` (currently v1–v6), `rsc/schema/code-projects/session/` (currently v1),
+`rsc/schema/browser-captures/apiConversation/` (currently v1).
 
-`rsc/schema/apiConversation/v1.json` validates live claude.ai API responses (`ApiConversation`
+`rsc/schema/browser-captures/apiConversation/v1.json` validates live claude.ai API responses (`ApiConversation`
 and related subtypes). No existing `conversations/` definitions modified.
 `ApiConversation` validated against 55 live API responses (all pass).
 
@@ -108,7 +109,7 @@ src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-capture
 
 Saves `{title}.json` alongside each `.md` and `.log`.
 
-To validate the captured API JSON against `rsc/schema/apiConversation/v1.json`:
+To validate the captured API JSON against `rsc/schema/browser-captures/apiConversation/v1.json`:
 
 ```bash
 src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
@@ -135,7 +136,7 @@ Key points:
 - Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`
 - Invariants: see Key invariants section above; `git clean -fdX; git clean -fdxn`
 - Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation
-- Schemas: `rsc/schema/conversations/` (v1–v6), `rsc/schema/session/` (v1, singular!), `rsc/schema/apiConversation/` (v1)
+- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v6), `rsc/schema/code-projects/session/` (v1, singular!), `rsc/schema/browser-captures/apiConversation/` (v1)
 - `rsc/schema/model_join.csv` — unified 4-way join: conversations ↔ session ↔ apiConversation ↔ MCP
 - `src/test/gen_changelog_matrix.py` — generates CHANGELOG rows from gen/ logs for any pipeline
 - Validation matrix driven by CHANGELOG.md files (not hardcoded constants) via `_parse_changelog_matrix()`

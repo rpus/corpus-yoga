@@ -1,4 +1,4 @@
-# `rsc/schema/apiConversation/`
+# `rsc/schema/browser-captures/apiConversation/`
 
 JSON Schema (draft-4) for the live claude.ai API conversation format, as returned by
 the internal `GET /api/organizations/{org}/chat_conversations/{uuid}` endpoint.
@@ -11,10 +11,10 @@ From the v1.json root description:
 
 > Schema for a single claude.ai conversation as returned by the internal chat API
 > (GET /api/organizations/{org}/chat_conversations/{id}). v1 validated against 55 live
-> API responses (all pass). See rsc/schema/conversations/ for the bulk-export format.
+> API responses (all pass). See rsc/schema/chat-exports/conversations/ for the bulk-export format.
 
-For full context see [`doc/browser-captures/api-conversation-schema.md`](../../../doc/browser-captures/api-conversation-schema.md)
-and [`doc/browser-captures/research.md`](../../../doc/browser-captures/research.md).
+For full context see [`doc/browser-captures/api-conversation-schema.md`](../../../../doc/browser-captures/api-conversation-schema.md)
+and [`doc/browser-captures/research.md`](../../../../doc/browser-captures/research.md).
 
 ---
 

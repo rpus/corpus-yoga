@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SCHEMA="$REPO_DIR/rsc/schema/apiConversation/v1.json"
+SCHEMA="$REPO_DIR/rsc/schema/browser-captures/apiConversation/v1.json"
 OUTPUT_DIR="$REPO_DIR/gen/browser-captures"
 
 validate_conversation() {

@@ -23,7 +23,7 @@ Output columns
                        comment     Mentioned only in a comment or docstring
                        doc         Mentioned in markdown prose or HTML comment
     referred_file    The resolved repo-relative path, including any JSON Pointer
-                     fragment (e.g. rsc/schema/conversations/v5.json#/definitions/TextBlock).
+                     fragment (e.g. rsc/schema/chat-exports/conversations/v5.json#/definitions/TextBlock).
                      Fragments follow RFC 6901: tokens separated by /, with ~0/~1 escapes.
     exists           Y if the referred path resolves to an existing file AND any
                      JSON Pointer fragment navigates successfully within that file.

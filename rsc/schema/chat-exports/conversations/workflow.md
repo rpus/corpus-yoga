@@ -1,11 +1,11 @@
 ---
-schema_file: rsc/schema/conversations/v6.json
-principles_file: rsc/schema/conversations/principles.md
-workflow_file: rsc/schema/conversations/workflow.md
+schema_file: rsc/schema/chat-exports/conversations/v6.json
+principles_file: rsc/schema/chat-exports/conversations/principles.md
+workflow_file: rsc/schema/chat-exports/conversations/workflow.md
 version: "1.3"
 ---
 
-# Schema Development Workflow for `rsc/schema/conversations/v{N}.json`
+# Schema Development Workflow for `rsc/schema/chat-exports/conversations/v{N}.json`
 
 A living document describing the correct procedure for schema development sessions. This workflow should be followed by both human and agent participants. Deviations should be flagged, not silently accommodated.
 
@@ -35,9 +35,9 @@ Before any schema work begins, the following artefacts must be available in the 
 
 | Artefact | Purpose | Source |
 | --- | --- | --- |
-| `v{N}.json` | The schema under development | Upload from `rsc/schema/conversations/` |
-| `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/conversations/` |
-| `workflow.md` | This document | Upload from `rsc/schema/conversations/` |
+| `v{N}.json` | The schema under development | Upload from `rsc/schema/chat-exports/conversations/` |
+| `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/chat-exports/conversations/` |
+| `workflow.md` | This document | Upload from `rsc/schema/chat-exports/conversations/` |
 | At least one `conversations.json` export | Ground-truth validation data | Upload from `../chat-exports/data-*/` |
 | `conversations_redacted.json` (optional) | Safe-to-share compressed export for diagnostic work | Upload from `gen/` |
 
@@ -54,7 +54,7 @@ When a new export validates against the current schema without modification:
 1. Run: `src/main/chat-exports/RUNME.sh --chat-export <path>`
 2. Confirm all logs under `gen/chat-exports/<export>/validation/conversations/` contain `Valid!`.
 3. Test the new export against **every** schema version, not just the latest — validate it against v1 through v{N} to fill every cell in the CHANGELOG matrix row.
-4. Add a new row to `rsc/schema/conversations/CHANGELOG.md` with ✓/✗ per version.
+4. Add a new row to `rsc/schema/chat-exports/conversations/CHANGELOG.md` with ✓/✗ per version.
    `pre_commit.py` reads this matrix directly — no separate constant to update.
 5. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
 6. Commit.
@@ -75,7 +75,7 @@ Run `Draft4Validator` against the new export. If it passes, the schema already c
 ```python
 import json
 from jsonschema import Draft4Validator
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 with open('conversations.json') as f:
     data = json.load(f)
@@ -95,7 +95,7 @@ else:
 
 ### Step 1 · Run all enforced diagnostics
 
-Run every diagnostic marked `enforced` in `rsc/schema/conversations/principles.md`. Use the consolidated runner below. Record all failures.
+Run every diagnostic marked `enforced` in `rsc/schema/chat-exports/conversations/principles.md`. Use the consolidated runner below. Record all failures.
 
 ```python
 # Run from the consolidated diagnostics runner
@@ -152,7 +152,7 @@ Common causes of (A):
 
 ### Step 4 · Fix diagnostic refinements
 
-For each (A) failure, refine the diagnostic in `rsc/schema/conversations/principles.md`. Re-run the affected diagnostic after each refinement to confirm it now passes (or at least no longer fires spuriously).
+For each (A) failure, refine the diagnostic in `rsc/schema/chat-exports/conversations/principles.md`. Re-run the affected diagnostic after each refinement to confirm it now passes (or at least no longer fires spuriously).
 
 Document the refinement rationale in the principles document alongside the diagnostic snippet. If a `KNOWN_EXCEPTIONS` set is introduced, list each exception with its justification.
 
@@ -176,7 +176,7 @@ After all diagnostic refinements, re-run the full suite. Confirm that:
 
 ### Step 6 · Fix genuine schema issues
 
-Fix each (B) failure using the repair snippets in `rsc/schema/conversations/principles.md`. Work through root causes in order of fundamentality — structural issues (missing definitions, wrong types) before documentation issues (missing descriptions, wrong descriptions).
+Fix each (B) failure using the repair snippets in `rsc/schema/chat-exports/conversations/principles.md`. Work through root causes in order of fundamentality — structural issues (missing definitions, wrong types) before documentation issues (missing descriptions, wrong descriptions).
 
 For each fix:
 
@@ -209,7 +209,7 @@ Run `Draft4Validator` against every known export. All must pass. A newly failing
 ```python
 import json
 from jsonschema import Draft4Validator
-with open('rsc/schema/conversations/v{N}.json') as f:
+with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
 for export_file in [
     'conversations.json',           # latest export
@@ -238,7 +238,7 @@ Present the updated schema file for download. Note the line count and byte count
 
 ### Step 10 · Update documentation
 
-Update `rsc/schema/conversations/principles.md` if any of the following occurred:
+Update `rsc/schema/chat-exports/conversations/principles.md` if any of the following occurred:
 
 - A diagnostic was refined (update the snippet and add exception rationale).
 - A new principle was identified (add a new entry in the appropriate category).
@@ -246,7 +246,7 @@ Update `rsc/schema/conversations/principles.md` if any of the following occurred
 - A repair snippet was used and found to need improvement (update the snippet).
 - An open question was resolved (move it to an appropriate principle, remove from Open Questions).
 
-Update this workflow document (`rsc/schema/conversations/workflow.md`) if the loop itself was found to be incomplete or incorrect.
+Update this workflow document (`rsc/schema/chat-exports/conversations/workflow.md`) if the loop itself was found to be incomplete or incorrect.
 
 **Flag if:** principles or workflow documents are left out of sync with actual practice.
 
@@ -256,9 +256,9 @@ Update this workflow document (`rsc/schema/conversations/workflow.md`) if the lo
 
 The session's outputs should be committed to the repository:
 
-- Updated schema `v{N}.json` → `rsc/schema/conversations/`
-- Updated `principles.md` → `rsc/schema/conversations/`
-- Updated `workflow.md` → `rsc/schema/conversations/`
+- Updated schema `v{N}.json` → `rsc/schema/chat-exports/conversations/`
+- Updated `principles.md` → `rsc/schema/chat-exports/conversations/`
+- Updated `workflow.md` → `rsc/schema/chat-exports/conversations/`
 - Updated validation logs in `gen/` (from running `src/main/chat-exports/validate.sh`)
 
 Commit message should note what changed: new export incorporated, schema fixes applied, diagnostic refinements, or documentation updates.
@@ -294,7 +294,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
 
 ### Steps to create a new version
 
-1. Determine the correct bump level (MAJOR/MINOR/PATCH) from the table above, then copy: `cp rsc/schema/conversations/v{current}.json rsc/schema/conversations/v{new}.json`
+1. Determine the correct bump level (MAJOR/MINOR/PATCH) from the table above, then copy: `cp rsc/schema/chat-exports/conversations/v{current}.json rsc/schema/chat-exports/conversations/v{new}.json`
 2. Make the schema changes in `v{N+1}.json`. Every new definition must have `title` and `description` from the outset — the diagnostic suite will fail on these immediately and noisily if they are absent, obscuring other failures.
 3. Run the full workflow loop (steps 1–11) against `v{N+1}.json`.
 4. Test every known export against the new version to establish which pass:
@@ -302,7 +302,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
    ```bash
    source src/activate_venv.sh
    for d in /path/to/chat-exports/data-*/; do
-     result=$(python src/main/validate.py "$d/conversations.json" rsc/schema/conversations/v{N+1}.json 2>&1)
+     result=$(python src/main/validate.py "$d/conversations.json" rsc/schema/chat-exports/conversations/v{N+1}.json 2>&1)
      echo "$d: $(echo "$result" | grep -q Valid && echo ✓ || echo ✗)"
    done
    ```
@@ -312,7 +312,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
    - Add a `v{N+1}` column to the matrix; fill each row with ✓/✗ from step 4.
    - For newly added rows (exports not previously in the matrix), fill all columns, not just the new one.
    - Add a `## v{N+1}` section with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply.
-6. Update `rsc/schema/conversations/CHANGELOG.md` with the new version column.
+6. Update `rsc/schema/chat-exports/conversations/CHANGELOG.md` with the new version column.
    `pre_commit.py` reads the matrix directly — no constants to update.
 7. Review diagnostic exception sets in `src/test/diagnostics/`:
    - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
@@ -362,7 +362,7 @@ Flagging is not refusal — it is a checkpoint. The user may have a good reason 
 
 ### Principles and workflow must stay in sync
 
-If a new principle is added to `rsc/schema/conversations/principles.md`, check whether it requires a new diagnostic step in this workflow. If the workflow loop is modified, check whether any principles need updating. The two documents are a unit.
+If a new principle is added to `rsc/schema/chat-exports/conversations/principles.md`, check whether it requires a new diagnostic step in this workflow. If the workflow loop is modified, check whether any principles need updating. The two documents are a unit.
 
 ### The principles document is the authority
 
@@ -375,7 +375,7 @@ If a diagnostic in the principles document conflicts with an intuition about wha
 The following is a condensed example trace of a correctly executed workflow loop, as a reference for future sessions.
 
 ```text
-Upload: rsc/schema/conversations/v{N}.json (1,965 lines), conversations.json (115,509 lines)
+Upload: rsc/schema/chat-exports/conversations/v{N}.json (1,965 lines), conversations.json (115,509 lines)
 
 Step 1: Run all enforced diagnostics → 11/27 PASS
 

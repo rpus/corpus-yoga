@@ -2,23 +2,23 @@ pre_commit.py: 514/514
 
 
 ── check_required_files ──────────────────────────────────────────────────────
-  ✓ exists: rsc/schema/apiConversation/principles.md
-  ✓ exists: rsc/schema/apiConversation/workflow.md
-  ✓ exists: rsc/schema/conversations/principles.md
-  ✓ exists: rsc/schema/conversations/workflow.md
-  ✓ exists: rsc/schema/session/principles.md
-  ✓ exists: rsc/schema/session/workflow.md
-  ✓ exists: rsc/schema/apiConversation/v1.json
-  ✓ exists: rsc/schema/conversations/v1.json
-  ✓ exists: rsc/schema/conversations/v2.json
-  ✓ exists: rsc/schema/conversations/v3.json
-  ✓ exists: rsc/schema/conversations/v4.json
-  ✓ exists: rsc/schema/conversations/v5.json
-  ✓ exists: rsc/schema/conversations/v6.json
-  ✓ exists: rsc/schema/memories/v1.json
-  ✓ exists: rsc/schema/projects/v1.json
-  ✓ exists: rsc/schema/session/v1.json
-  ✓ exists: rsc/schema/users/v1.json
+  ✓ exists: rsc/schema/browser-captures/apiConversation/principles.md
+  ✓ exists: rsc/schema/browser-captures/apiConversation/workflow.md
+  ✓ exists: rsc/schema/chat-exports/conversations/principles.md
+  ✓ exists: rsc/schema/chat-exports/conversations/workflow.md
+  ✓ exists: rsc/schema/code-projects/session/principles.md
+  ✓ exists: rsc/schema/code-projects/session/workflow.md
+  ✓ exists: rsc/schema/browser-captures/apiConversation/v1.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v1.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v2.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v3.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v4.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v5.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v6.json
+  ✓ exists: rsc/schema/chat-exports/memories/v1.json
+  ✓ exists: rsc/schema/chat-exports/projects/v1.json
+  ✓ exists: rsc/schema/chat-exports/users/v1.json
+  ✓ exists: rsc/schema/code-projects/session/v1.json
   ✓ exists: src/main/browser-captures/validate.sh
   ✓ exists: src/main/chat-exports/validate.sh
   ✓ exists: src/main/code-projects/validate.sh

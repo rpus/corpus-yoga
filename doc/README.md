@@ -18,7 +18,7 @@ Docs specific to the claude.ai export pipeline.
 
 ### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) — Conversations schema reference
 
-Deep-dive on `rsc/schema/conversations/`: versioned JSON Schemas, two-format distinction,
+Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction,
 schema development workflow, MCP field-level correspondence table.
 
 ---
@@ -29,7 +29,7 @@ Docs specific to the Claude Code CLI sessions pipeline.
 
 ### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI sessions schema reference
 
-Reference for `rsc/schema/session/`: nine record types, turn envelope fields,
+Reference for `rsc/schema/code-projects/session/`: nine record types, turn envelope fields,
 content block types, MCP field mapping, open questions.
 
 ### [`code-projects/research.md`](code-projects/research.md) — Research workflow

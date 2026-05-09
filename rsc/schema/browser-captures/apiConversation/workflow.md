@@ -1,14 +1,14 @@
 ---
-schema_file: rsc/schema/apiConversation/v1.json
-principles_file: rsc/schema/apiConversation/principles.md
-workflow_file: rsc/schema/apiConversation/workflow.md
+schema_file: rsc/schema/browser-captures/apiConversation/v1.json
+principles_file: rsc/schema/browser-captures/apiConversation/principles.md
+workflow_file: rsc/schema/browser-captures/apiConversation/workflow.md
 version: "1.0"
 ---
 
-# Schema Development Workflow for `rsc/schema/apiConversation/v{N}.json`
+# Schema Development Workflow for `rsc/schema/browser-captures/apiConversation/v{N}.json`
 
 A living document describing how to maintain and extend the live API conversation schema.
-Follows the same philosophy as `rsc/schema/conversations/workflow.md`.
+Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md`.
 
 ---
 
@@ -35,7 +35,7 @@ new API response shapes.
    ```
 
 3. If any captures fail, update `v1.json` to accommodate the new shape (following
-   the principles in `principles.md` and `rsc/schema/conversations/principles.md`).
+   the principles in `principles.md` and `rsc/schema/chat-exports/conversations/principles.md`).
 4. Update `CHANGELOG.md`:
 
    ```bash
@@ -48,7 +48,7 @@ new API response shapes.
 
 ## Creating a new schema version
 
-Schema versions follow the same semantic versioning rules as `rsc/schema/conversations/`:
+Schema versions follow the same semantic versioning rules as `rsc/schema/chat-exports/conversations/`:
 
 | Component | Trigger |
 | --- | --- |

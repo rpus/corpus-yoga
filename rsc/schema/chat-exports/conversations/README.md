@@ -1,4 +1,4 @@
-# `rsc/schema/conversations/`
+# `rsc/schema/chat-exports/conversations/`
 
 These schemas validate the **claude.ai web-app export format**, not the
 `~/.claude/projects/*.jsonl` Claude Code CLI format. Both represent Claude conversations
