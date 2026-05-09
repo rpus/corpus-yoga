@@ -10,16 +10,17 @@ This repo wrangles Claude data exports.
 ## How to use
 
 - Prepare new data
+  - Open Safari, log in to <https://claude.ai>
   - Ask to "Export ('All') data" from <https://claude.ai/settings/data-privacy-controls>
   - Click on 24-hour emailed "Download Data" link (like <https://claude.ai/export/0fc4c1e0-4719-4e10-997a-697bf05599af/download/cdb658167a0d6dd4a2ffe829aeea9d15>)
   - Move downloaded folder (like `data-*`) from `Downloads` into the `chat-exports` sibling directory of this (current) directory.
   - `source ~/.zprofile` (to get `ANTHROPIC_API_KEY` into `env` for table inference by Claude)
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
-  - Open Safari, log in to claude.ai
+  - Open Safari, log in to <https://claude.ai>
   - **Shortcut mode** (standalone, outputs `.md` + `.log` + `{uuid}.json` to `~/Downloads/`):
     - Set up a Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-captures/export.applescript"`
-    - With front tab on `claude.ai/chat/*`: exports that conversation
-    - With front tab on `claude.ai/recents`: exports all conversations
+    - With front tab on <https://claude.ai/recents>: exports all conversations
+    - With front tab on `https://claude.ai/chat/{uuid}`: exports that conversation
   - **Pipeline mode** (scope-constrained to a bulk export, outputs to `../browser-captures/<export-name>/<uuid>/`):
     - `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
 - Fetch live API JSON for existing captures without it (for apiConversation schema validation):
