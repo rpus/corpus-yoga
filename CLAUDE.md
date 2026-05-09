@@ -1,8 +1,7 @@
 # CLAUDE.md
 
-This file is the authoritative source for the project memory stored at
-`~/.claude/projects/-Users-*-claude-export-yoga/memory/MEMORY.md`. If the memory diverges
-from this file, flag it and suggest updating the memory to match — not the other way around.
+This file is the authoritative substitute for the project memory stored at
+`~/.claude/projects/-Users-*-claude-export-yoga/memory/MEMORY.md`. Do not modify that file or directory; edit this file instead as needed.
 
 For the full human-facing how-to, prerequisites, and documentation index see
 [`README.md`](README.md). The `doc/` directory contains deep-dives on each pipeline
