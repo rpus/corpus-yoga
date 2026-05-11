@@ -178,7 +178,6 @@ Supporting files:
 | `rsc/schema/data-table.json` | Generic columnar table format; used by inferred and computed datasets |
 | [`rsc/schema/documenter.json`](../rsc/schema/documenter.json) | VS Code tooltip wrapper; enables schema-aware editing of data files |
 | `rsc/schema/model.json` | Cross-schema type reference table |
-| `rsc/schema/_reference/json-schema_draft-04.json` | The JSON Schema meta-schema itself |
 
 The conversations schema has the most elaborate maintenance apparatus (versioned files,
 `principles.md`, `workflow.md`, diagnostic suite). See

@@ -54,7 +54,7 @@ This repo wrangles Claude data exports.
 
 ## Schema maintenance
 
-When the conversations schema changes, regenerate the model candidates and review `rsc/model.json`:
+When any pipeline schema changes, regenerate the model candidates and review `rsc/schema/model.json`:
 
 ```bash
 ./src/test/gen_model.sh

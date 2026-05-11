@@ -1,4 +1,4 @@
-pre_commit.py: 516/516
+pre_commit.py: 515/515
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -29,7 +29,6 @@ pre_commit.py: 516/516
   ✓ exists: src/test/xref_expected_score
   ✓ exists: src/test/schema_recommendations.py
   ✓ exists: src/run_python_script.sh
-  ✓ exists: rsc/model.json
 
 ── check_root_schema_diagnostics ─────────────────────────────────────────────
   ✓ composition.base_not_used_directly: data-table.json
@@ -537,7 +536,7 @@ pre_commit.py: 516/516
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 15 missing-file, 0 bad-pointer, 8 unreferenced
+  ✓ xref: 15 missing-file, 0 bad-pointer, 6 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 516/516; expected: 516/516
+  ✓ score: 515/515; expected: 515/515

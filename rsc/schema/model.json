@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-04/schema#",
   "title": "model",
-  "description": "Data model underlying the four schemas in a data export",
+  "description": "Cross-pipeline type reference: named types, their descriptions, and occurrence paths across all schemas.",
   "type": "object",
   "additionalProperties": {
     "type": "object",
@@ -26,6 +26,22 @@
     }
   },
   "default": {
-    "$ref": "../model.json"
+    "UserUUID": {
+      "description": "The UUID of data export's user",
+      "occurrences": {
+        "./chat-exports/memories/v1.json": [
+          "#/0/account_uuid"
+        ],
+        "./chat-exports/projects/v1.json": [
+          "#/0/creator/uuid"
+        ],
+        "./chat-exports/users/v1.json": [
+          "#/0/uuid"
+        ],
+        "./chat-exports/conversations/v6.json": [
+          "#/0/account/uuid"
+        ]
+      }
+    }
   }
 }

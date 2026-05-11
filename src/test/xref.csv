@@ -48,7 +48,7 @@ README.md,46,doc,src/main/chat-exports/extract_files.sh,Y,- `./src/main/chat-exp
 README.md,47,doc,src/main/chat-exports/extract_heredocs.sh,Y,- `./src/main/chat-exports/extract_heredocs.sh --chat-exports ../chat-exports`
 README.md,49,doc,src/main/chat-exports/infer_tables.sh,Y,- `./src/main/chat-exports/infer_tables.sh --chat-exports ../chat-exports`
 README.md,51,doc,src/main/chat-exports/present.sh,Y,- `./src/main/chat-exports/present.sh --chat-exports ../chat-exports`
-README.md,57,doc,rsc/model.json,Y,"When the conversations schema changes, regenerate the model candidates and review `rsc/model.json`:"
+README.md,57,doc,rsc/schema/model.json,Y,"When any pipeline schema changes, regenerate the model candidates and review `rsc/schema/model.json`:"
 README.md,60,doc,src/test/gen_model.sh,Y,./src/test/gen_model.sh
 README.md,63,doc,rsc/schema/code-projects/session/v1.json,Y,"When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fol"
 README.md,63,doc,rsc/schema/code-projects/session/workflow.md,Y,"When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fol"
@@ -93,7 +93,6 @@ README.md,134,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq
 README.md,135,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
 TODO.md,5,doc,src/test/schema_recommendations.py,Y,- `src/test/schema_recommendations.py`
 TODO.md,6,doc,rsc/schema/_reference,Y,- `rsc/schema/_reference/`
-TODO.md,7,doc,rsc/grammar,Y,- `rsc/grammar/`
 doc/README.md,19,doc,doc/chat-exports/conversations-schema.md,Y,### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) — Conversations schema reference
 doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,"Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction,"
 doc/README.md,30,doc,doc/code-projects/session-schema.md,Y,### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI sessions schema reference
@@ -192,18 +191,13 @@ doc/project-overview.md,177,doc,rsc/schema/model_join.csv,Y,| `rsc/schema/_refer
 doc/project-overview.md,178,doc,rsc/schema/data-table.json,Y,| `rsc/schema/data-table.json` | Generic columnar table format; used by inferred and computed datasets |
 doc/project-overview.md,179,doc,rsc/schema/documenter.json,Y,| [`rsc/schema/documenter.json`](../rsc/schema/documenter.json) | VS Code tooltip wrapper; enables schema-aware editing 
 doc/project-overview.md,180,doc,rsc/schema/model.json,Y,| `rsc/schema/model.json` | Cross-schema type reference table |
-doc/project-overview.md,181,doc,rsc/schema/_reference/json-schema_draft-04.json,Y,| `rsc/schema/_reference/json-schema_draft-04.json` | The JSON Schema meta-schema itself |
-doc/project-overview.md,185,doc,doc/chat-exports/conversations-schema.md,Y,[`doc/chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) for details.
-doc/project-overview.md,244,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"| `rsc/schema/chat-exports/conversations/principles.md` | Conversation 15 (""Accessing files from previous chats""), v1.2 "
-doc/project-overview.md,245,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,"| `rsc/schema/chat-exports/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |"
-doc/project-overview.md,246,doc,src/main/validate.py,Y,"| `src/main/validate.py` | Conversation 30 (""JSON Schema and jq fundamentals""), extended with JSON Pointer / `$ref` reso"
-doc/project-overview.md,247,doc,src/main/chat-exports/word_freq_literal.py,Y,"| `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |"
-doc/project-overview.md,248,doc,src/test/gen_model_candidate.py,Y,"| `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesu"
-doc/project-overview.md,249,doc,src/test/pre_commit.py,Y,"| `src/test/pre_commit.py` | Conversation 15, heavily extended: versioned schema support, `EXPECTED_PASS` matrix of (exp"
-rsc/model.json,5,path_str,rsc/schema/chat-exports/memories/v1.json,Y,"""./schema/chat-exports/memories/v1.json"": ["
-rsc/model.json,8,path_str,rsc/schema/chat-exports/projects/v1.json,Y,"""./schema/chat-exports/projects/v1.json"": ["
-rsc/model.json,11,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./schema/chat-exports/users/v1.json"": ["
-rsc/model.json,14,path_str,rsc/schema/chat-exports/conversations/v6.json,Y,"""./schema/chat-exports/conversations/v6.json"": ["
+doc/project-overview.md,184,doc,doc/chat-exports/conversations-schema.md,Y,[`doc/chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) for details.
+doc/project-overview.md,243,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"| `rsc/schema/chat-exports/conversations/principles.md` | Conversation 15 (""Accessing files from previous chats""), v1.2 "
+doc/project-overview.md,244,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,"| `rsc/schema/chat-exports/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |"
+doc/project-overview.md,245,doc,src/main/validate.py,Y,"| `src/main/validate.py` | Conversation 30 (""JSON Schema and jq fundamentals""), extended with JSON Pointer / `$ref` reso"
+doc/project-overview.md,246,doc,src/main/chat-exports/word_freq_literal.py,Y,"| `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |"
+doc/project-overview.md,247,doc,src/test/gen_model_candidate.py,Y,"| `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesu"
+doc/project-overview.md,248,doc,src/test/pre_commit.py,Y,"| `src/test/pre_commit.py` | Conversation 15, heavily extended: versioned schema support, `EXPECTED_PASS` matrix of (exp"
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Export / Conversation | [v1](./v1.json) | Bytes (JSON) |
 rsc/schema/browser-captures/apiConversation/README.md,1,doc,rsc/schema/browser-captures/apiConversation,Y,# `rsc/schema/browser-captures/apiConversation/`
 rsc/schema/browser-captures/apiConversation/README.md,7,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,`src/main/browser-captures/safari_fetch_api_json.sh` — one file per conversation.
@@ -322,8 +316,8 @@ rsc/schema/chat-exports/conversations/workflow.md,315,doc,rsc/schema/chat-export
 rsc/schema/chat-exports/conversations/workflow.md,317,doc,src/test/diagnostics,Y,7. Review diagnostic exception sets in `src/test/diagnostics/`:
 rsc/schema/chat-exports/conversations/workflow.md,321,doc,rsc/schema/model_join.csv,Y,8. Review `rsc/schema/model_join.csv`:
 rsc/schema/chat-exports/conversations/workflow.md,325,doc,src/test/pre_commit.sh,Y,- `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a
-rsc/schema/chat-exports/conversations/workflow.md,326,doc,src/test/gen_model.sh,Y,9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/model.json` if any cross-schema ident
-rsc/schema/chat-exports/conversations/workflow.md,326,doc,rsc/model.json,Y,9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/model.json` if any cross-schema ident
+rsc/schema/chat-exports/conversations/workflow.md,326,doc,src/test/gen_model.sh,Y,9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross-schem
+rsc/schema/chat-exports/conversations/workflow.md,326,doc,rsc/schema/model.json,Y,9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross-schem
 rsc/schema/chat-exports/conversations/workflow.md,327,doc,src/main/chat-exports/RUNME.sh,Y,10. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
 rsc/schema/chat-exports/conversations/workflow.md,329,doc,src/test/pre_commit.sh,Y,11. Run `src/test/pre_commit.sh` and confirm all checks pass.
 rsc/schema/chat-exports/conversations/workflow.md,365,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"If a new principle is added to `rsc/schema/chat-exports/conversations/principles.md`, check whether it requires a new di"
@@ -373,7 +367,10 @@ rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": 
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
 rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
-rsc/schema/model.json,29,$ref,rsc/model.json,Y,"""$ref"": ""../model.json"""
+rsc/schema/model.json,32,path_str,rsc/schema/chat-exports/memories/v1.json,Y,"""./chat-exports/memories/v1.json"": ["
+rsc/schema/model.json,35,path_str,rsc/schema/chat-exports/projects/v1.json,Y,"""./chat-exports/projects/v1.json"": ["
+rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./chat-exports/users/v1.json"": ["
+rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v6.json,Y,"""./chat-exports/conversations/v6.json"": ["
 rsc/snippets.md,10,doc,src/main/code-projects/jsonl_to_json.py,Y,python src/main/code-projects/jsonl_to_json.py session.jsonl session.json
 rsc/snippets.md,22,doc,gen/redacted/conversations.json,N,"jq 'walk(if type == ""object"" and has(""text"") and .text != """" and (.text | type) == ""string"" then .text = ""[redacted]"" el"
 rsc/snippets.md,28,doc,gen/summarised/conversations.json,N,"jq '[sort_by(.created_at) | to_entries[] | {key: (.key | tostring), value: .value.summary}] | from_entries' conversation"
@@ -531,24 +528,28 @@ src/test/gen_changelog_matrix.py,10,comment,src/run_python_script.sh,Y,src/run_p
 src/test/gen_changelog_matrix.py,10,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects
 src/test/gen_changelog_matrix.py,11,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures
 src/test/gen_changelog_matrix.py,11,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures
-src/test/gen_model.py,2,comment,rsc/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/model.json.
-src/test/gen_model.py,4,comment,rsc/model.json,Y,rsc/model.json is hand-curated from these.
+src/test/gen_model.py,2,comment,rsc/schema/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
+src/test/gen_model.py,4,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
 src/test/gen_model.py,7,comment,src/test/gen_model.sh,Y,src/test/gen_model.sh
-src/test/gen_model.sh,2,comment,rsc/model.json,Y,# Generate per-schema definition catalogues as candidates for rsc/model.json.
+src/test/gen_model.sh,2,comment,rsc/schema/model.json,Y,# Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
 src/test/gen_model.sh,3,comment,src/test/gen_model.sh,Y,# Usage: src/test/gen_model.sh
 src/test/gen_model.sh,6,call,src/test/gen_model.py,Y,"""$SCRIPT_DIR/../run_python_script.sh"" ""$SCRIPT_DIR/gen_model.py"""
-src/test/gen_model_candidate.py,6,comment,rsc/model.json,Y,informing rsc/model.json — review it and curate rsc/model.json by hand.
+src/test/gen_model_candidate.py,6,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/test/gen_model_candidate.py,9,comment,src/test/gen_model_candidate.py,Y,python src/test/gen_model_candidate.py <schema-type> <schema-file>
 src/test/gen_model_candidate.py,12,comment,src/test/gen_model_candidate.py,Y,python src/test/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
 src/test/gen_model_candidate.py,12,comment,rsc/schema/chat-exports/conversations/v6.json,Y,python src/test/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
 src/test/gen_model_candidate.py,13,comment,src/test/gen_model_candidate.py,Y,python src/test/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
 src/test/gen_model_candidate.py,13,comment,rsc/schema/chat-exports/memories/v1.json,Y,python src/test/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
-src/test/gen_model_candidate.py,16,comment,src/test/gen_model.sh,Y,Normally invoked via src/test/gen_model.sh which handles all schemas automatically.
+src/test/gen_model_candidate.py,14,comment,src/test/gen_model_candidate.py,Y,python src/test/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
+src/test/gen_model_candidate.py,14,comment,rsc/schema/code-projects/session/v1.json,Y,python src/test/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
+src/test/gen_model_candidate.py,15,comment,src/test/gen_model_candidate.py,Y,python src/test/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+src/test/gen_model_candidate.py,15,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/test/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+src/test/gen_model_candidate.py,18,comment,src/test/gen_model.sh,Y,Normally invoked via src/test/gen_model.sh which handles all schemas automatically.
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-src/test/pre_commit.py,548,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,550,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,556,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,558,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,547,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,549,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,555,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,557,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,8,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/pre_commit.sh,8,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/pre_commit.sh,8,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
@@ -590,5 +591,3 @@ src/test/xref.sh,10,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,requirements.txt,Y,
-,,,rsc/grammar/JSON.g4,Y,
-,,,rsc/grammar/JSONSchema.g4,Y,

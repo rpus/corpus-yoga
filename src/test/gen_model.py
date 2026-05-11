@@ -1,7 +1,7 @@
 """
-gen_model.py — Generate per-schema definition catalogues as candidates for rsc/model.json.
-Output mirrors rsc/schema/: gen/model/{type}/v{N}.json for each versioned schema.
-rsc/model.json is hand-curated from these.
+gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
+Output: gen/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring rsc/schema/{pipeline}/{schema}/).
+rsc/schema/model.json is hand-curated from these.
 
 Usage:
     src/test/gen_model.sh
@@ -26,20 +26,23 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
 
 
 def main():
-    for schema_dir in sorted(SCHEMA_DIR.iterdir()):
-        if not schema_dir.is_dir() or schema_dir.name.startswith("_"):
+    for pipeline_dir in sorted(SCHEMA_DIR.iterdir()):
+        if not pipeline_dir.is_dir() or pipeline_dir.name.startswith('_'):
             continue
-        versions = _sorted_versions(schema_dir)
-        if not versions:
-            continue
-        name = schema_dir.name
-        out_dir = OUT_DIR / name
-        out_dir.mkdir(parents=True, exist_ok=True)
-        for schema in versions:
-            (out_dir / schema.name).write_text(generate(name, schema))
-            print(f'  ✓ gen/model/{name}/{schema.name}')
+        for schema_dir in sorted(pipeline_dir.iterdir()):
+            if not schema_dir.is_dir():
+                continue
+            versions = _sorted_versions(schema_dir)
+            if not versions:
+                continue
+            name = schema_dir.name
+            out_dir = OUT_DIR / name
+            out_dir.mkdir(parents=True, exist_ok=True)
+            for schema in versions:
+                (out_dir / schema.name).write_text(generate(name, schema))
+                print(f'  ✓ gen/model/{name}/{schema.name}')
 
-    print('Review gen/model/ and update rsc/model.json as needed.')
+    print('Review gen/model/ and update rsc/schema/model.json as needed.')
 
 
 if __name__ == '__main__':

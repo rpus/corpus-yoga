@@ -3,7 +3,7 @@ gen_model_candidate.py — Generate a per-schema definition catalogue.
 
 For each definition in a JSON Schema file, records its description and every
 JSON Pointer path at which it is referenced. The output is a candidate for
-informing rsc/model.json — review it and curate rsc/model.json by hand.
+informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 
 Usage:
     python src/test/gen_model_candidate.py <schema-type> <schema-file>
@@ -11,6 +11,8 @@ Usage:
 Examples:
     python src/test/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
     python src/test/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
+    python src/test/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
+    python src/test/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 
 Output: JSON to stdout. Redirect to gen/model/<schema-type>/<version>.json for review.
 Normally invoked via src/test/gen_model.sh which handles all schemas automatically.
@@ -52,7 +54,7 @@ def generate(schema_name: str, schema_path: str | Path) -> str:
 
     walk(schema)
 
-    for name, entry in candidates.items():
+    for _, entry in candidates.items():
         entry['occurrences'][f'{schema_name}.json'] = sorted(set(entry['occurrences'][f'{schema_name}.json']))
 
     return json.dumps(dict(candidates), indent=2)

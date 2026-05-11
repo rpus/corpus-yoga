@@ -230,7 +230,6 @@ def check_required_files(run):
         SRC  / 'test' / 'xref_expected_score',
         SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
-        RSC  / 'model.json',
     ]
     for path in required:
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists())
