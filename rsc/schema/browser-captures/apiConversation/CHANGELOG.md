@@ -1,7 +1,7 @@
 # apiConversation schema changelog
 
 <!-- matrix -->
-| Export / Conversation | [v1](./v1.json) | Bytes (JSON) |
+| Export / Conversation | [v1](./v1.json) | Bytes |
 | --- | :---: | ---: |
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` / `0e537a54` | ✓ | 85,662 |
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` / `14ac5a6b` | ✓ | 10,059 |
@@ -59,7 +59,7 @@
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` / `f8ddb405` | ✓ | 1,442,925 |
 | `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` / `fcee9cff` | ✓ | 311,126 |
 
-JSON byte size is the validation fingerprint — since conversations grow over time, the byte count records exactly how much content was validated. Conversation UUID is abbreviated to 8 characters. Schema at validation: `v1.json` at 63,737 bytes.
+Export / Conversation: batch name / first 8 chars of conversation UUID. Bytes: size of the captured JSON file at validation time.
 
 ---
 

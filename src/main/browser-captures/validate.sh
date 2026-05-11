@@ -8,25 +8,18 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SCHEMA="$REPO_DIR/rsc/schema/browser-captures/apiConversation/v1.json"
+SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
 OUTPUT_DIR="$REPO_DIR/gen/browser-captures"
+
+# shellcheck source=/dev/null
+source "$REPO_DIR/src/main/validate_versions.sh"
 
 validate_conversation() {
   local json="$1" batch_name="$2"
   local uuid; uuid="$(basename "$(dirname "$json")")"
   local out_dir="$OUTPUT_DIR/$batch_name/$uuid"
-  local log_out="$out_dir/validation/apiConversation/v1.log"
-  mkdir -p "$out_dir" "$(dirname "$log_out")"
 
-  {
-    date -Iseconds
-    echo "$json: $(wc -c < "$json" | xargs) bytes"
-    echo "$SCHEMA: $(wc -c < "$SCHEMA" | xargs) bytes"
-    python "$REPO_DIR/src/main/validate.py" "$json" "$SCHEMA"
-  } > "$log_out"
-
-  local status; status="$(grep -E '^Valid!|^Validation error' "$log_out" | head -1)"
-  echo "  $uuid: $status"
+  validate_versions "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid"
 }
 
 validate_batch() {

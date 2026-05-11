@@ -51,38 +51,49 @@ class Pipeline:
     validate_cmd:    str
     # Extra diagnostics to skip beyond the universal versioned-schema skip set.
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
-    diagnostic_skip: frozenset[str] = frozenset()
-    gen_key_prefix:  str = ''
+    diagnostic_skip:    frozenset[str] = frozenset()
+    gen_key_prefix:     str = ''
+    subject_header:     str = ''
+    changelog_footer:   str = ''
 
 PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
-        schemas        = ['apiConversation'],
-        changelog      = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
-        gen            = GEN / 'browser-captures',
-        input          = REPO_PARENT / 'browser-captures',
-        input_glob     = 'data-*/*/',
-        subject_depth  = 2,
-        validate_cmd   = 'src/main/browser-captures/RUNME.sh --browser-captures',
+        schemas           = ['apiConversation'],
+        changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
+        gen               = GEN / 'browser-captures',
+        input             = REPO_PARENT / 'browser-captures',
+        input_glob        = 'data-*/*/',
+        subject_depth     = 2,
+        validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',
+        subject_header    = 'Export / Conversation',
+        changelog_footer  = ('Export / Conversation: batch name / first 8 chars of conversation UUID. '
+                             'Bytes: size of the captured JSON file at validation time.'),
     ),
     'chat-exports': Pipeline(
-        schemas        = ['conversations', 'memories', 'projects', 'users'],
-        changelog      = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
-        gen            = GEN / 'chat-exports',
-        input          = REPO_PARENT / 'chat-exports',
-        input_glob     = 'data-*/',
-        subject_depth  = 1,
-        validate_cmd   = 'src/main/chat-exports/RUNME.sh --chat-exports',
+        schemas           = ['conversations', 'memories', 'projects', 'users'],
+        changelog         = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
+        gen               = GEN / 'chat-exports',
+        input             = REPO_PARENT / 'chat-exports',
+        input_glob        = 'data-*/',
+        subject_depth     = 1,
+        validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',
+        subject_header    = 'Export',
+        changelog_footer  = 'Bytes: size of `conversations.json` at validation time.',
     ),
     'code-projects': Pipeline(
-        schemas        = ['session'],
-        changelog      = RSC_SCHEMA / 'code-projects' / 'session' / 'CHANGELOG.md',
-        gen            = GEN / 'code-projects',
-        input          = REPO_PARENT / 'code-projects',
-        input_glob     = '-Users-*/*.jsonl',
-        subject_depth  = 2,
-        validate_cmd   = 'src/main/code-projects/RUNME.sh --code-projects',
-        diagnostic_skip= frozenset({'composition.base_schemas_closed'}),
-        gen_key_prefix = _PROJECT_PREFIX,
+        schemas           = ['session'],
+        changelog         = RSC_SCHEMA / 'code-projects' / 'session' / 'CHANGELOG.md',
+        gen               = GEN / 'code-projects',
+        input             = REPO_PARENT / 'code-projects',
+        input_glob        = '-Users-*/*.jsonl',
+        subject_depth     = 2,
+        validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',
+        diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
+        gen_key_prefix    = _PROJECT_PREFIX,
+        subject_header    = 'Session',
+        changelog_footer  = ('Session: bare project name from the `~/.claude/projects/` slug / '
+                             'first 8 chars of session UUID. '
+                             'Bytes: size of the `.jsonl` file at validation time.'),
     ),
 }
 
@@ -268,6 +279,28 @@ def check_pipeline_validation_outputs(run, name: str, pipeline: Pipeline) -> Non
     schema   = pipeline.changelog.parent.name
     matrix   = _parse_changelog_matrix(pipeline.changelog)
     run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+
+    registered_versions = {version for _, version in matrix}
+    changelog_text = pipeline.changelog.read_text() if pipeline.changelog.exists() else ''
+    wf = (pipeline.changelog.parent / 'workflow.md').relative_to(REPO_ROOT)
+    for path in _sorted_versions(SCHEMA_DIR[schema]):
+        v = path.stem
+        run(f'{schema}: workflow.changelog_entry: {v}',
+            v in registered_versions,
+            f'Run: {pipeline.validate_cmd} ../{name}, then: {run_cmd}'
+            if v not in registered_versions else None)
+        run(f'{schema}: workflow.changelog_narrative: {v}',
+            f'## {v}' in changelog_text,
+            f'Add a ## {v} section to {pipeline.changelog.relative_to(REPO_ROOT)} '
+            f'(see {wf}#changelog-narrative)'
+            if f'## {v}' not in changelog_text else None)
+        schema_text = path.read_text()
+        run(f'{schema}: workflow.no_todo: {v}',
+            '"TODO' not in schema_text,
+            f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)} '
+            f'(see {wf}#no-todo)'
+            if '"TODO' in schema_text else None)
+
     if pipeline.subject_depth == 1:
         _check_validation_outputs_depth1(run, name, pipeline, schema, matrix, run_cmd)
     else:
@@ -540,13 +573,17 @@ def main():
             else:
                 parts = name.split(': ')
                 if len(parts) == 3 and re.match(r'[a-z_]+\.[a-z_]+', parts[1]):
-                    diag, schema_path = parts[1], RSC_SCHEMA / parts[0] / f'{parts[2]}.json'
+                    diag = parts[1]
+                    _d = SCHEMA_DIR.get(parts[0])
+                    schema_path = (_d if _d is not None else RSC_SCHEMA / parts[0]) / f'{parts[2]}.json'
                     repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
                     diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
                     if repair.exists() and schema_path.exists():
                         _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
                     elif diagnostic.exists() and schema_path.exists():
                         _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    elif detail:
+                        _add(detail)
                 elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
                     diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
                     repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
@@ -555,12 +592,18 @@ def main():
                         _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
                     elif diagnostic.exists() and schema_path.exists():
                         _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    elif detail:
+                        _add(detail)
 
         if fix_commands:
             print()
             print('To fix:')
             for cmd in fix_commands:
-                print(f'  {cmd}')
+                parts = cmd.split(', then: ')
+                print(f'  {parts[0]}')
+                for step in parts[1:]:
+                    print('then:')
+                    print(f'  {step}')
 
         sys.exit(1)
     else:

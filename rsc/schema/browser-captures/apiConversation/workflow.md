@@ -56,11 +56,26 @@ Schema versions follow the same semantic versioning rules as `rsc/schema/chat-ex
 | **MINOR** | New API shapes supported; more captures pass |
 | **PATCH** | Refactoring; no validation effect |
 
-When cutting a new version:
+When creating a new version:
 
-1. Copy `v1.json` to `v{N}.json` and make the required changes.
+### No todo
+
+1. Copy `v1.json` to `v{N}.json` and make the required changes. Fill in all `description` fields — no TODO placeholders.
 2. Validate all captures against both the old and new version.
-3. Add a new `## v{N}` section to `CHANGELOG.md` with **Relaxed**, **Restricted**,
+
+### Changelog narrative
+
+1. Add a new `## v{N}` section to `CHANGELOG.md` with **Relaxed**, **Restricted**,
    and/or **Refactored** subsections as appropriate.
-4. Update the matrix table via `gen_changelog_matrix.py --write`.
-5. Run `src/test/pre_commit.sh`.
+2. Review `rsc/schema/model_join.csv` for any new or changed fields; update `api_path`
+   pointers to the new version file.
+
+### Changelog entry
+
+1. Update the CHANGELOG matrix:
+
+   ```bash
+   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
+   ```
+
+6. Run `src/test/pre_commit.sh`.

@@ -1,27 +1,33 @@
 # session schema changelog
 
 <!-- matrix -->
-| Session | [v1](./v1.json) | Lines | Bytes (JSONL) |
-| --- | :---: | ---: | ---: |
-| `Yoga` / `816816d2` | ✓ | 21 | 25,789 |
-| `claude-export-yoga` / `a40a0813` | ✓ | 1,409 | 4,555,132 |
-| `claude-export-yoga` / `60c07575` | ✓ | 7,522 | 19,585,790 |
-| `claude-export-yoga` / `7d59d8ef` | ✓ | 4,850 | 12,387,483 |
-| `claude-export-yoga` / `d58db402` | ✓ | 930 | 2,577,519 |
-| `claude-export-yoga` / `1bc20fc3` | ✓ | 292 | 1,041,899 |
-| `claude-export-yoga` / `a2605476` | ✓ | 402 | 963,806 |
-| `claude-export-yoga` / `73f51bc1` | ✓ | 4,249 | 9,071,509 |
-| `claude-export-yoga` / `46fcb702` | ✓ | 2,622 | 5,433,869 |
-| `claude-export-yoga` / `b0c38f0b` | ✓ | 4,346 | 9,256,629 |
-| `nutrition` / `83737fec` | ✓ | 2,843 | 6,489,702 |
-| `claude-export-yoga` / `0c66d620` | ✓ | 72 | 277,542 |
-| `claude-export-yoga` / `46d179e3` | ✓ | 708 | 1,609,873 |
-| `claude-export-yoga` / `a1fe23f6` | ✓ | 256 | 801,133 |
-| `claude-export-yoga` / `32bd7448` | ✓ | 286 | 915,448 |
+| Session | [v1](./v1.json) | [v2](./v2.json) | Bytes |
+| --- | :---: | :---: | ---: |
+| `Yoga` / `816816d2` | ✓ | ✓ | 25,789 |
+| `claude-export-yoga` / `a40a0813` | ✓ | ✓ | 4,555,132 |
+| `claude-export-yoga` / `60c07575` | ✓ | ✓ | 19,585,790 |
+| `claude-export-yoga` / `7d59d8ef` | ✓ | ✓ | 12,387,483 |
+| `claude-export-yoga` / `d58db402` | ✓ | ✓ | 2,577,519 |
+| `claude-export-yoga` / `1bc20fc3` | ✓ | ✓ | 1,041,899 |
+| `claude-export-yoga` / `a2605476` | ✓ | ✓ | 963,806 |
+| `claude-export-yoga` / `73f51bc1` | ✓ | ✓ | 9,071,509 |
+| `claude-export-yoga` / `46fcb702` | ✓ | ✓ | 5,433,869 |
+| `claude-export-yoga` / `b0c38f0b` | ✓ | ✓ | 9,256,629 |
+| `nutrition` / `83737fec` | ✓ | ✓ | 6,489,702 |
+| `claude-export-yoga` / `0c66d620` | ✓ | ✓ | 277,542 |
+| `claude-export-yoga` / `46d179e3` | ✓ | ✓ | 1,609,873 |
+| `claude-export-yoga` / `a1fe23f6` | ✓ | ✓ | 801,133 |
+| `claude-export-yoga` / `32bd7448` | ✓ | ✓ | 3,829,693 |
 
-JSONL byte size is the validation fingerprint — since Claude Code only appends to session
-files, the byte count records exactly how much of each session was validated. Lines = records
-(one JSON object per line). Project is the bare project name (last path component of `~/.claude/projects/` slug). Schema at validation: `v1.json` at 27,568 bytes.
+Session: bare project name from the `~/.claude/projects/` slug / first 8 chars of session UUID. Bytes: size of the `.jsonl` file at validation time.
+
+---
+
+## v2
+
+### Refactored
+
+- Extracted the root array type into a `Session` definition (`"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/Record"}`), making the root consistent with every other top-level type in the schema (which use the `allOf` + `$ref` wrapper pattern). No change to validation behaviour — all sessions that pass v1 pass v2 and vice versa.
 
 ---
 

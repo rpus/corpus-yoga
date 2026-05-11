@@ -54,11 +54,14 @@ When a new export validates against the current schema without modification:
 1. Run: `src/main/chat-exports/RUNME.sh --chat-export <path>`
 2. Confirm all logs under `gen/chat-exports/<export>/validation/conversations/` contain `Valid!`.
 3. Test the new export against **every** schema version, not just the latest — validate it against v1 through v{N} to fill every cell in the CHANGELOG matrix row.
-4. Add a new row to `rsc/schema/chat-exports/conversations/CHANGELOG.md` with ✓/✗ per version.
-   `pre_commit.py` reads this matrix directly — no separate constant to update.
+4. Update the CHANGELOG matrix:
+
+   ```bash
+   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
+   ```
+
 5. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
 6. Commit.
-7. Commit.
 
 If the export fails any version, enter the Workflow Loop below.
 
@@ -295,9 +298,12 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
 ### Steps to create a new version
 
 1. Determine the correct bump level (MAJOR/MINOR/PATCH) from the table above, then copy: `cp rsc/schema/chat-exports/conversations/v{current}.json rsc/schema/chat-exports/conversations/v{new}.json`
-2. Make the schema changes in `v{N+1}.json`. Every new definition must have `title` and `description` from the outset — the diagnostic suite will fail on these immediately and noisily if they are absent, obscuring other failures.
-3. Run the full workflow loop (steps 1–11) against `v{N+1}.json`.
-4. Test every known export against the new version to establish which pass:
+
+### No todo
+
+1. Make the schema changes in `v{N+1}.json`. Every new definition must have `title` and `description` from the outset — the diagnostic suite will fail on these immediately and noisily if they are absent, obscuring other failures. No TODO placeholders.
+2. Run the full workflow loop (steps 1–11) against `v{N+1}.json`.
+3. Test every known export against the new version to establish which pass:
 
    ```bash
    source src/activate_venv.sh
@@ -308,25 +314,36 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
    ```
 
    For any export not already present in the matrix, also test it against every prior version — do not infer its earlier results from the fact that it is new.
-5. Update `CHANGELOG.md`:
-   - Add a `v{N+1}` column to the matrix; fill each row with ✓/✗ from step 4.
-   - For newly added rows (exports not previously in the matrix), fill all columns, not just the new one.
-   - Add a `## v{N+1}` section with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply.
-6. Update `rsc/schema/chat-exports/conversations/CHANGELOG.md` with the new version column.
-   `pre_commit.py` reads the matrix directly — no constants to update.
-7. Review diagnostic exception sets in `src/test/diagnostics/`:
+
+### Changelog narrative
+
+1. Add a `## v{N+1}` section to `CHANGELOG.md` with **Relaxed**, **Restricted**, and/or **Refactored** subsections as appropriate. Only include categories that apply. Also update the matrix ✓/✗ column for all exports.
+
+### Changelog entry
+
+1. Update the CHANGELOG matrix:
+
+   ```bash
+   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
+   ```
+
+   `pre_commit.py` reads this matrix directly — no constants to update.
+
+### Finishing up
+
+1. Review diagnostic exception sets in `src/test/diagnostics/`:
    - `KNOWN_UNREACHABLE` in `structure.all_definitions_reachable.py` — add any new intentional stubs; remove entries for definitions that have become reachable or been removed.
    - `KNOWN_CLOSED` in `documentation.open_set_enums_documented.py` — add any newly confirmed closed enum sets; remove entries that no longer appear in the schema.
    - Every entry must include a `# v{N}+` version annotation stating when it was added.
-8. Review `rsc/schema/model_join.csv`:
+2. Review `rsc/schema/model_join.csv`:
    - The unified four-way table covers definitions with notable correspondences across conversations, session, apiConversation, and MCP — not every definition needs a row.
    - For any definition added that has a meaningful counterpart in another schema (or a noteworthy absence), add rows describing the relationship.
    - For any definition removed that has rows in the table, delete or update those rows.
    - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
-9. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross-schema identifiers changed.
-10. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
-    Note: step 11 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
-11. Run `src/test/pre_commit.sh` and confirm all checks pass.
+3. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross-schema identifiers changed.
+4. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
+   Note: step 5 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
+5. Run `src/test/pre_commit.sh` and confirm all checks pass.
 
 **Flag if:** `CHANGELOG.md`, `model_join.csv`, and the diagnostic exception sets are not all reviewed in the same session as the new version file.
 

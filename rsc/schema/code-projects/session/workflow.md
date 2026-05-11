@@ -162,14 +162,12 @@ Valid!
 
 After a successful run:
 
-1. Update the CHANGELOG.md matrix with the current line and byte counts from the log.
-   Since JSONL files are append-only, the byte count is a precise fingerprint: it records
-   exactly how much of the session was validated. A later run with a larger byte count
-   means more of the session was covered. For a **new** session (first time in the matrix),
-   add a new row; for an existing session, update the counts.
+1. Update the CHANGELOG matrix:
 
-2. Add each new row to `rsc/schema/code-projects/session/CHANGELOG.md` using bare project name and
-   8-character UUID prefix (e.g. `claude-export-yoga / 46fcb702`).
+   ```bash
+   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
+   ```
+
    `pre_commit.py` reads the matrix directly — no separate constant to update.
 
 **Flag if:** the CHANGELOG matrix is not updated after a validation run that adds new passing sessions.
@@ -225,13 +223,24 @@ Schema versions use **semantic versioning** from v1 onward:
 
 1. Determine the correct bump level from the table above.
 2. Copy the current version: `cp v1.json v{N+1}.json`
-3. Make the schema changes in `v{N+1}.json`.
+
+### No todo
+
+3. Make the schema changes in `v{N+1}.json`. Fill in all `description` fields — no TODO placeholders.
 4. Run the validation loop (steps 1–6 above) against `v{N+1}.json`.
 5. Test every known session against the new version.
-6. Update `CHANGELOG.md`: add the new version row to the matrix, fill ✓/✗ for all
-   sessions, add a section describing what changed.
-7. Update `model_join.csv` `cli_path` pointers to reference `v{N+1}.json`.
-8. Run `src/test/pre_commit.sh` to confirm all checks pass.
+
+### Changelog narrative
+
+6. Add a `## v{N+1}` section to `CHANGELOG.md` describing what changed (Relaxed/Restricted/Refactored).
+
+### Changelog entry
+
+7. Update the CHANGELOG matrix, `model_join.csv` pointers, and run `src/test/pre_commit.sh`:
+
+   ```bash
+   src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
+   ```
 
 ---
 

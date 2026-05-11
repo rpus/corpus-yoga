@@ -1,16 +1,16 @@
 conv_path,session_path,api_path,mcp_path,relationship,note
-conversations/v6.json#/definitions/ContentBlock,v1.json#/definitions/ContentBlock,,_reference/mcp.json#/definitions/ContentBlock,name_collision,both discriminate on type but the CLI covers text/tool_use/tool_result/thinking/image; the export also covers these but wraps them in a UI envelope; MCP ContentBlock covers a different set (text/image/audio/resource_link/resource)
-conversations/v6.json#/definitions/TextBlock/properties/type,v1.json#/definitions/TextBlock/properties/type,,_reference/mcp.json#/definitions/TextContent/properties/type,identical,
-conversations/v6.json#/definitions/TextBlock/properties/text,v1.json#/definitions/TextBlock/properties/text,,_reference/mcp.json#/definitions/TextContent/properties/text,identical,
+conversations/v6.json#/definitions/ContentBlock,v2.json#/definitions/ContentBlock,,_reference/mcp.json#/definitions/ContentBlock,name_collision,both discriminate on type but the CLI covers text/tool_use/tool_result/thinking/image; the export also covers these but wraps them in a UI envelope; MCP ContentBlock covers a different set (text/image/audio/resource_link/resource)
+conversations/v6.json#/definitions/TextBlock/properties/type,v2.json#/definitions/TextBlock/properties/type,,_reference/mcp.json#/definitions/TextContent/properties/type,identical,
+conversations/v6.json#/definitions/TextBlock/properties/text,v2.json#/definitions/TextBlock/properties/text,,_reference/mcp.json#/definitions/TextContent/properties/text,identical,
 conversations/v6.json#/definitions/TextBlock/properties/start_timestamp,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/TextBlock/properties/stop_timestamp,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/TextBlock/properties/citations,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/TextBlock/properties/flags,,,,envelope,always null in observed exports
 conversations/v6.json#/definitions/ToolUseBlock,,,_reference/mcp.json#/definitions/ToolUseContent,subset,MCP adds _meta/annotations; export adds envelope fields
-conversations/v6.json#/definitions/ToolUseBlockBase/properties/type,v1.json#/definitions/ToolUseBlock/properties/type,,_reference/mcp.json#/definitions/ToolUseContent/properties/type,identical,
-conversations/v6.json#/definitions/ToolUseBlockBase/properties/id,v1.json#/definitions/ToolUseBlock/properties/id,,_reference/mcp.json#/definitions/ToolUseContent/properties/id,identical,
-conversations/v6.json#/definitions/ToolUseBlockBase/properties/name,v1.json#/definitions/ToolUseBlock/properties/name,,_reference/mcp.json#/definitions/ToolUseContent/properties/name,identical,MCP and CLI use plain string; conv v4+ widened from enum to string to admit MCP-namespaced names
-conversations/v6.json#/definitions/ToolUseBlockBase/properties/input,v1.json#/definitions/ToolUseBlock/properties/input,,_reference/mcp.json#/definitions/ToolUseContent/properties/input,identical,distinct from MCP CallToolRequestParams.arguments (RPC layer); ToolUseContent.input and both export formats use input
+conversations/v6.json#/definitions/ToolUseBlockBase/properties/type,v2.json#/definitions/ToolUseBlock/properties/type,,_reference/mcp.json#/definitions/ToolUseContent/properties/type,identical,
+conversations/v6.json#/definitions/ToolUseBlockBase/properties/id,v2.json#/definitions/ToolUseBlock/properties/id,,_reference/mcp.json#/definitions/ToolUseContent/properties/id,identical,
+conversations/v6.json#/definitions/ToolUseBlockBase/properties/name,v2.json#/definitions/ToolUseBlock/properties/name,,_reference/mcp.json#/definitions/ToolUseContent/properties/name,identical,MCP and CLI use plain string; conv v4+ widened from enum to string to admit MCP-namespaced names
+conversations/v6.json#/definitions/ToolUseBlockBase/properties/input,v2.json#/definitions/ToolUseBlock/properties/input,,_reference/mcp.json#/definitions/ToolUseContent/properties/input,identical,distinct from MCP CallToolRequestParams.arguments (RPC layer); ToolUseContent.input and both export formats use input
 conversations/v6.json#/definitions/ToolUseBlockBase/properties/start_timestamp,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/ToolUseBlockBase/properties/stop_timestamp,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/ToolUseBlockBase/properties/flags,,,,envelope,always null in observed exports
@@ -25,10 +25,10 @@ conversations/v6.json#/definitions/ToolUseBlockBase/properties/is_mcp_app,,,,env
 conversations/v6.json#/definitions/ToolUseBlockBase/properties/mcp_server_url,,,,envelope,always null in observed exports; MCP server origin tracking
 conversations/v6.json#/definitions/ToolUseBlockBase/properties/display_content,,,,envelope,no MCP counterpart; claude.ai UI rendering hint
 conversations/v6.json#/definitions/ToolResultBlock,,,_reference/mcp.json#/definitions/ToolResultContent,subset,MCP adds _meta; export adds envelope fields; tool_use_id/is_error/structured_content snake_cased
-conversations/v6.json#/definitions/ToolResultBlockBase/properties/type,v1.json#/definitions/ToolResultBlock/properties/type,,_reference/mcp.json#/definitions/ToolResultContent/properties/type,identical,
-conversations/v6.json#/definitions/ToolResultBlockBase/properties/tool_use_id,v1.json#/definitions/ToolResultBlock/properties/tool_use_id,,_reference/mcp.json#/definitions/ToolResultContent/properties/toolUseId,snake_cased,CLI and conv use tool_use_id; MCP uses toolUseId
+conversations/v6.json#/definitions/ToolResultBlockBase/properties/type,v2.json#/definitions/ToolResultBlock/properties/type,,_reference/mcp.json#/definitions/ToolResultContent/properties/type,identical,
+conversations/v6.json#/definitions/ToolResultBlockBase/properties/tool_use_id,v2.json#/definitions/ToolResultBlock/properties/tool_use_id,,_reference/mcp.json#/definitions/ToolResultContent/properties/toolUseId,snake_cased,CLI and conv use tool_use_id; MCP uses toolUseId
 conversations/v6.json#/definitions/ToolResultBlockBase/properties/content,,,_reference/mcp.json#/definitions/ToolResultContent/properties/content,structurally_similar,both are arrays of content items; MCP items via ContentBlock (union not expressed in our mcp.json); export uses ToolResultContentItem/ToolResultSearchItem/ToolResultLocalResource
-conversations/v6.json#/definitions/ToolResultBlockBase/properties/is_error,v1.json#/definitions/ToolResultBlock/properties/is_error,,_reference/mcp.json#/definitions/ToolResultContent/properties/isError,snake_cased,CLI and conv use is_error; MCP uses isError
+conversations/v6.json#/definitions/ToolResultBlockBase/properties/is_error,v2.json#/definitions/ToolResultBlock/properties/is_error,,_reference/mcp.json#/definitions/ToolResultContent/properties/isError,snake_cased,CLI and conv use is_error; MCP uses isError
 conversations/v6.json#/definitions/ToolResultBlockBase/properties/structured_content,,,_reference/mcp.json#/definitions/ToolResultContent/properties/structuredContent,null_in_export,always null; structured output not yet surfaced in claude.ai export
 conversations/v6.json#/definitions/ToolResultBlockBase/properties/start_timestamp,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/ToolResultBlockBase/properties/stop_timestamp,,,,envelope,no MCP counterpart
@@ -42,22 +42,22 @@ conversations/v6.json#/definitions/ToolResultBlockBase/properties/integration_ic
 conversations/v6.json#/definitions/ToolResultBlockBase/properties/icon_name,,,,envelope,no MCP counterpart
 conversations/v6.json#/definitions/ToolResultBlockBase/properties/display_content,,,,envelope,no MCP counterpart; claude.ai UI rendering hint
 conversations/v6.json#/definitions/ToolResultContentItem,,,_reference/mcp.json#/definitions/TextContent,structurally_similar,export adds uuid; MCP adds _meta/annotations; neither is a strict subset of the other
-conversations/v6.json#/definitions/ThinkingBlock/properties/thinking,v1.json#/definitions/ThinkingBlock/properties/thinking,,,export_only,
+conversations/v6.json#/definitions/ThinkingBlock/properties/thinking,v2.json#/definitions/ThinkingBlock/properties/thinking,,,export_only,
 conversations/v6.json#/definitions/ThinkingBlock/properties/summaries,,,,export_only,
-conversations/v6.json#/definitions/ThinkingBlock/properties/signature,v1.json#/definitions/ThinkingBlock/properties/signature,,,export_only,cryptographic signature for thinking block integrity
+conversations/v6.json#/definitions/ThinkingBlock/properties/signature,v2.json#/definitions/ThinkingBlock/properties/signature,,,export_only,cryptographic signature for thinking block integrity
 conversations/v6.json#/definitions/ThinkingBlock/properties/cut_off,,,,export_only,
 conversations/v6.json#/definitions/ThinkingBlock/properties/truncated,,,,export_only,
 conversations/v6.json#/definitions/ThinkingBlock/properties/alternative_display_type,,,,export_only,
 conversations/v6.json#/definitions/ThinkingBlock/properties/start_timestamp,,,,export_only,
 conversations/v6.json#/definitions/ThinkingBlock/properties/stop_timestamp,,,,export_only,
 conversations/v6.json#/definitions/ThinkingBlock/properties/flags,,,,export_only,always null in observed exports
-conversations/v6.json#/definitions/TextBlock,v1.json#/definitions/TextBlock,apiConversation/v1.json#/definitions/ApiTextBlock,_reference/mcp.json#/definitions/TextContent,subset,"CLI: {type, text}. ApiTextBlock adds citations/timestamps; omits flags (bulk-export-only null). MCP adds _meta/annotations. CLI is closest to MCP core."
+conversations/v6.json#/definitions/TextBlock,v2.json#/definitions/TextBlock,apiConversation/v1.json#/definitions/ApiTextBlock,_reference/mcp.json#/definitions/TextContent,subset,"CLI: {type, text}. ApiTextBlock adds citations/timestamps; omits flags (bulk-export-only null). MCP adds _meta/annotations. CLI is closest to MCP core."
 ,,apiConversation/v1.json#/definitions/ApiTextBlock/properties/type,_reference/mcp.json#/definitions/TextContent/properties/type,identical,
 ,,apiConversation/v1.json#/definitions/ApiTextBlock/properties/text,_reference/mcp.json#/definitions/TextContent/properties/text,identical,
 ,,apiConversation/v1.json#/definitions/ApiTextBlock/properties/citations,,api_only,absent from MCP; API exposes citation granularity stripped from bulk export
 ,,apiConversation/v1.json#/definitions/ApiTextBlock/properties/start_timestamp,,envelope,no MCP counterpart
 ,,apiConversation/v1.json#/definitions/ApiTextBlock/properties/stop_timestamp,,envelope,no MCP counterpart
-conversations/v6.json#/definitions/ToolUseBlockBase,v1.json#/definitions/ToolUseBlock,apiConversation/v1.json#/definitions/ApiToolUseBlockBase,_reference/mcp.json#/definitions/ToolUseContent,subset,"CLI: {type, id, name, input, caller}. Conv adds start_timestamp/stop_timestamp/flags/message/integration_*/icon_name/context/approval_*/is_mcp_app/mcp_server_url/display_content. MCP adds _meta/annotations. CLI uniquely adds caller (no MCP/conv counterpart)."
+conversations/v6.json#/definitions/ToolUseBlockBase,v2.json#/definitions/ToolUseBlock,apiConversation/v1.json#/definitions/ApiToolUseBlockBase,_reference/mcp.json#/definitions/ToolUseContent,subset,"CLI: {type, id, name, input, caller}. Conv adds start_timestamp/stop_timestamp/flags/message/integration_*/icon_name/context/approval_*/is_mcp_app/mcp_server_url/display_content. MCP adds _meta/annotations. CLI uniquely adds caller (no MCP/conv counterpart)."
 ,,apiConversation/v1.json#/definitions/ApiToolUseBlockBase/properties/type,_reference/mcp.json#/definitions/ToolUseContent/properties/type,identical,
 ,,apiConversation/v1.json#/definitions/ApiToolUseBlockBase/properties/id,_reference/mcp.json#/definitions/ToolUseContent/properties/id,identical,
 ,,apiConversation/v1.json#/definitions/ApiToolUseBlockBase/properties/name,_reference/mcp.json#/definitions/ToolUseContent/properties/name,identical,
@@ -75,7 +75,7 @@ conversations/v6.json#/definitions/ToolUseBlockBase,v1.json#/definitions/ToolUse
 ,,apiConversation/v1.json#/definitions/ApiToolUseBlockBase/properties/approval_options,,api_null,present in bulk export (required
 ,,apiConversation/v1.json#/definitions/ApiToolUseBlockBase/properties/approval_key,,api_null,present in bulk export (required
 ,,apiConversation/v1.json#/definitions/ApiToolUseBlockBase/properties/flags,,api_null,present in bulk export (required
-conversations/v6.json#/definitions/ToolResultBlockBase,v1.json#/definitions/ToolResultBlock,apiConversation/v1.json#/definitions/ApiToolResultBlockBase,_reference/mcp.json#/definitions/ToolResultContent,subset,"CLI: {type, tool_use_id, content, is_error}. Conv adds start_timestamp/stop_timestamp/flags/name/meta/message/integration_*/mcp_server_url/icon_name/display_content/structured_content. MCP adds _meta. CLI content is [string, array]; MCP content is array of content items."
+conversations/v6.json#/definitions/ToolResultBlockBase,v2.json#/definitions/ToolResultBlock,apiConversation/v1.json#/definitions/ApiToolResultBlockBase,_reference/mcp.json#/definitions/ToolResultContent,subset,"CLI: {type, tool_use_id, content, is_error}. Conv adds start_timestamp/stop_timestamp/flags/name/meta/message/integration_*/mcp_server_url/icon_name/display_content/structured_content. MCP adds _meta. CLI content is [string, array]; MCP content is array of content items."
 ,,apiConversation/v1.json#/definitions/ApiToolResultBlockBase/properties/type,_reference/mcp.json#/definitions/ToolResultContent/properties/type,identical,
 ,,apiConversation/v1.json#/definitions/ApiToolResultBlockBase/properties/tool_use_id,_reference/mcp.json#/definitions/ToolResultContent/properties/toolUseId,snake_cased,
 ,,apiConversation/v1.json#/definitions/ApiToolResultBlockBase/properties/content,_reference/mcp.json#/definitions/ToolResultContent/properties/content,structurally_similar,both arrays of content items
@@ -85,27 +85,27 @@ conversations/v6.json#/definitions/ToolResultBlockBase,v1.json#/definitions/Tool
 ,,apiConversation/v1.json#/definitions/ApiToolResultBlockBase/properties/display_content,,envelope,no MCP counterpart; claude.ai UI rendering hint
 ,,apiConversation/v1.json#/definitions/ApiToolResultBlockBase/properties/integration_name,,envelope,no MCP counterpart
 ,,apiConversation/v1.json#/definitions/ApiToolResultBlockBase/properties/icon_name,,envelope,no MCP counterpart
-conversations/v6.json#/definitions/ThinkingBlock,v1.json#/definitions/ThinkingBlock,apiConversation/v1.json#/definitions/ApiThinkingBlock,,export_only,"CLI: {type, thinking, signature}. Conv adds summaries/cut_off/truncated/alternative_display_type/start_timestamp/stop_timestamp/flags. No MCP counterpart — extended thinking is not exposed via MCP."
+conversations/v6.json#/definitions/ThinkingBlock,v2.json#/definitions/ThinkingBlock,apiConversation/v1.json#/definitions/ApiThinkingBlock,,export_only,"CLI: {type, thinking, signature}. Conv adds summaries/cut_off/truncated/alternative_display_type/start_timestamp/stop_timestamp/flags. No MCP counterpart — extended thinking is not exposed via MCP."
 ,,apiConversation/v1.json#/definitions/ApiMessageBase/properties/index,,api_only,zero-based message position in conversation; no CLI or MCP counterpart
 ,,apiConversation/v1.json#/definitions/ApiMessageBase/properties/truncated,,api_only,content truncation flag; no CLI or MCP counterpart
 ,,apiConversation/v1.json#/definitions/ApiMessageBase/properties/sync_sources,,api_only,always empty in observed responses; no CLI or MCP counterpart
-,v1.json#/definitions/AssistantMessage/properties/stop_reason,apiConversation/v1.json#/definitions/ApiMessageBase/properties/stop_reason,,api_only,Both in live API responses; optional in API conv format (absent ~1% of assistant messages). Absent from bulk export. No MCP counterpart.
+,v2.json#/definitions/AssistantMessage/properties/stop_reason,apiConversation/v1.json#/definitions/ApiMessageBase/properties/stop_reason,,api_only,Both in live API responses; optional in API conv format (absent ~1% of assistant messages). Absent from bulk export. No MCP counterpart.
 ,,apiConversation/v1.json#/definitions/ApiMessageBase/properties/input_mode,,api_only,claude.ai-specific input modality; no CLI or MCP counterpart
 ,,apiConversation/v1.json#/definitions/ApiMessageBase/properties/chat_feedback,,api_only,user thumbs-up/down on assistant message; no MCP counterpart
 ,,apiConversation/v1.json#/definitions/ApiCitation,,api_only,"API exposes citation detail (uuid, title, url, metadata, sources); absent from CLI sessions and MCP"
-,v1.json#/definitions/ToolUseBlock/properties/caller,,,cli_only,Component that invoked the tool (e.g. {type: direct}). No MCP or conversations export counterpart.
-,v1.json#/definitions/ToolResultBlock/properties/content,,_reference/mcp.json#/definitions/ToolResultContent/properties/content,structurally_similar,CLI: string or array. MCP: array of content items. Conv: structured via ToolResultContentItem/ToolResultSearchItem/ToolResultLocalResource.
-conversations/v6.json#/definitions/ThinkingBlock/properties/type,v1.json#/definitions/ThinkingBlock/properties/type,,,identical,
-,v1.json#/definitions/ImageBlock,,_reference/mcp.json#/definitions/ImageContent,structurally_similar,"Both carry base64 image data but with different structure: CLI wraps in a source object {type, media_type, data}; MCP has top-level data and mimeType fields. No conversations export counterpart — images are not preserved in claude.ai exports."
-,v1.json#/definitions/ImageBlock/properties/type,,_reference/mcp.json#/definitions/ImageContent/properties/type,identical,
-,v1.json#/definitions/ImageBlock/properties/source,,,cli_only,"Nested source object {type: base64, media_type, data}. MCP uses top-level data + mimeType instead."
-conversations/v6.json#/definitions/Message/properties/sender,v1.json#/definitions/UserMessage/properties/role,,,name_collision,CLI uses role: user (API convention); conv uses sender: human (UI convention). Both identify the human turn.
-conversations/v6.json#/definitions/Message/properties/sender,v1.json#/definitions/AssistantMessage/properties/role,,,name_collision,CLI uses role: assistant (API convention); conv uses sender: assistant. Same value.
-,v1.json#/definitions/AssistantMessage/properties/usage,,,cli_only,Full API usage object including cache metrics. Stripped from claude.ai export. No MCP counterpart.
-,v1.json#/definitions/TurnBase/properties/cwd,,,cli_only,Working directory at turn time. Session management envelope with no MCP or conversations export counterpart.
-,v1.json#/definitions/TurnBase/properties/gitBranch,,,cli_only,Git branch at turn time. Session management envelope with no MCP or conversations export counterpart.
-conversations/v6.json#/definitions/Message/properties/parent_message_uuid,v1.json#/definitions/TurnBase/properties/parentUuid,,,structurally_similar,Both thread conversations as a linked list. CLI uses parentUuid (UuidV4); conv uses parent_message_uuid (UuidV4 sentinel or UuidV7). No MCP counterpart — MCP is stateless.
-,v1.json#/definitions/TurnBase/properties/isSidechain,,,cli_only,Subagent conversation flag. No MCP or conversations export counterpart.
-conversations/v6.json#/definitions/Message/properties/uuid,v1.json#/definitions/TurnBase/properties/uuid,,,structurally_similar,Both assign a UUID to each message. CLI uses UuidV4; conv uses UuidV7.
-,v1.json#/definitions/TurnBase/properties/sessionId,,,cli_only,Identifies the local CLI session. No MCP or conversations export counterpart (conversations export uses conversation uuid at the Conversation level).
-conversations/v6.json#/definitions/Message/properties/content,v1.json#/definitions/MessageContent,,,structurally_similar,CLI: string or array of ContentBlock. Conv: array only (always structured). The string shorthand is CLI-specific for short user prompts.
+,v2.json#/definitions/ToolUseBlock/properties/caller,,,cli_only,Component that invoked the tool (e.g. {type: direct}). No MCP or conversations export counterpart.
+,v2.json#/definitions/ToolResultBlock/properties/content,,_reference/mcp.json#/definitions/ToolResultContent/properties/content,structurally_similar,CLI: string or array. MCP: array of content items. Conv: structured via ToolResultContentItem/ToolResultSearchItem/ToolResultLocalResource.
+conversations/v6.json#/definitions/ThinkingBlock/properties/type,v2.json#/definitions/ThinkingBlock/properties/type,,,identical,
+,v2.json#/definitions/ImageBlock,,_reference/mcp.json#/definitions/ImageContent,structurally_similar,"Both carry base64 image data but with different structure: CLI wraps in a source object {type, media_type, data}; MCP has top-level data and mimeType fields. No conversations export counterpart — images are not preserved in claude.ai exports."
+,v2.json#/definitions/ImageBlock/properties/type,,_reference/mcp.json#/definitions/ImageContent/properties/type,identical,
+,v2.json#/definitions/ImageBlock/properties/source,,,cli_only,"Nested source object {type: base64, media_type, data}. MCP uses top-level data + mimeType instead."
+conversations/v6.json#/definitions/Message/properties/sender,v2.json#/definitions/UserMessage/properties/role,,,name_collision,CLI uses role: user (API convention); conv uses sender: human (UI convention). Both identify the human turn.
+conversations/v6.json#/definitions/Message/properties/sender,v2.json#/definitions/AssistantMessage/properties/role,,,name_collision,CLI uses role: assistant (API convention); conv uses sender: assistant. Same value.
+,v2.json#/definitions/AssistantMessage/properties/usage,,,cli_only,Full API usage object including cache metrics. Stripped from claude.ai export. No MCP counterpart.
+,v2.json#/definitions/TurnBase/properties/cwd,,,cli_only,Working directory at turn time. Session management envelope with no MCP or conversations export counterpart.
+,v2.json#/definitions/TurnBase/properties/gitBranch,,,cli_only,Git branch at turn time. Session management envelope with no MCP or conversations export counterpart.
+conversations/v6.json#/definitions/Message/properties/parent_message_uuid,v2.json#/definitions/TurnBase/properties/parentUuid,,,structurally_similar,Both thread conversations as a linked list. CLI uses parentUuid (UuidV4); conv uses parent_message_uuid (UuidV4 sentinel or UuidV7). No MCP counterpart — MCP is stateless.
+,v2.json#/definitions/TurnBase/properties/isSidechain,,,cli_only,Subagent conversation flag. No MCP or conversations export counterpart.
+conversations/v6.json#/definitions/Message/properties/uuid,v2.json#/definitions/TurnBase/properties/uuid,,,structurally_similar,Both assign a UUID to each message. CLI uses UuidV4; conv uses UuidV7.
+,v2.json#/definitions/TurnBase/properties/sessionId,,,cli_only,Identifies the local CLI session. No MCP or conversations export counterpart (conversations export uses conversation uuid at the Conversation level).
+conversations/v6.json#/definitions/Message/properties/content,v2.json#/definitions/MessageContent,,,structurally_similar,CLI: string or array of ContentBlock. Conv: array only (always structured). The string shorthand is CLI-specific for short user prompts.

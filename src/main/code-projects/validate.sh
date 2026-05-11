@@ -8,29 +8,23 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SCHEMA="$REPO_DIR/rsc/schema/code-projects/session/v1.json"
+SCHEMA_DIR="$REPO_DIR/rsc/schema/code-projects/session"
 OUTPUT_DIR="$REPO_DIR/gen/code-projects"
 JSONL_TO_JSON="$SCRIPT_DIR/jsonl_to_json.sh"
+
+# shellcheck source=/dev/null
+source "$REPO_DIR/src/main/validate_versions.sh"
 
 validate_session() {
   local jsonl="$1" project_name="$2"
   local session; session="$(basename "${jsonl%.jsonl}")"
   local out_dir="$OUTPUT_DIR/$project_name/$session"
   local json_out="$out_dir/session.json"
-  local log_out="$out_dir/validation/session/v1.log"
-  mkdir -p "$out_dir" "$(dirname "$log_out")"
+  mkdir -p "$out_dir"
 
   "$JSONL_TO_JSON" "$jsonl" "$json_out"
 
-  {
-    date -Iseconds
-    echo "$jsonl: $(wc -l < "$jsonl" | xargs) lines, $(wc -c < "$jsonl" | xargs) bytes"
-    echo "$SCHEMA: $(wc -c < "$SCHEMA" | xargs) bytes"
-    python "$REPO_DIR/src/main/validate.py" "$json_out" "$SCHEMA"
-  } > "$log_out"
-
-  local status; status="$(grep -E '^Valid!|^Validation error' "$log_out" | head -1)"
-  echo "  $session: $status"
+  validate_versions "$json_out" "$SCHEMA_DIR" "$out_dir/validation/session" "$session"
 }
 
 validate_project() {
