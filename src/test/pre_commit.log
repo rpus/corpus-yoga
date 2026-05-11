@@ -25,11 +25,11 @@ pre_commit.py: 622/622
   ✓ exists: src/main/chat-exports/validate.sh
   ✓ exists: src/main/code-projects/validate.sh
   ✓ exists: src/main/validate.py
-  ✓ exists: src/test/gen_model_candidate.py
-  ✓ exists: src/test/gen_model.py
+  ✓ exists: src/main/model/gen_model_candidate.py
+  ✓ exists: src/main/model/gen_model.py
   ✓ exists: src/test/pre_commit_expected_score
   ✓ exists: src/test/xref_expected_score
-  ✓ exists: src/test/schema_recommendations.py
+  ✓ exists: src/main/schema_recommendations.py
   ✓ exists: src/run_python_script.sh
 
 ── check_root_schema_diagnostics ─────────────────────────────────────────────

@@ -28,13 +28,13 @@ This repo wrangles Claude data exports.
   - Saves `{title}.json` alongside each capture
 
 ```bash
+# git clean -fdX; git clean -fdxn
+./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
 ./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
 \ --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
-./src/test/chat-exports/audit_files.sh --chat-exports ../chat-exports
 ./src/main/code-projects/RUNME.sh --code-projects ../code-projects
-./src/test/xref.sh
+./src/main/model/gen_model.sh
 # ./src/test/pre_commit.sh
-# git clean -fdX; git clean -fdxn
 ```
 
 ## What that does
@@ -57,7 +57,7 @@ This repo wrangles Claude data exports.
 When any pipeline schema changes, regenerate the model candidates and review `rsc/schema/model.json`:
 
 ```bash
-./src/test/gen_model.sh
+./src/main/model/gen_model.sh
 ```
 
 When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, follow the validation loop in `rsc/schema/code-projects/session/workflow.md`. In brief:

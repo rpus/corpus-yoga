@@ -7,8 +7,8 @@ database and runs each of the five documented queries, writing results to
 gen/<export>/audit_queries/.
 
 Usage:
-    python src/test/chat-exports/query_files.py --chat-export  <path-to-export>
-    python src/test/chat-exports/query_files.py --chat-exports <path-to-exports>
+    python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
+    python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 
 Output files
 ────────────

@@ -19,6 +19,7 @@ run_one() {
   "$SCRIPT_DIR/validate.sh"       --chat-export "$export_dir"
   "$SCRIPT_DIR/extract_files.sh"  --chat-export "$export_dir"
   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$export_dir"
+  "$SCRIPT_DIR/audit_files.sh"    --chat-export "$export_dir"
 
   if [[ "$pay_for_inference" == "1" ]]; then
     "$SCRIPT_DIR/infer_tables.sh" --chat-export "$export_dir"

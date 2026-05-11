@@ -4,7 +4,7 @@ Output: gen/model/{schema}/v{N}.json for each versioned schema (flat, not mirror
 rsc/schema/model.json is hand-curated from these.
 
 Usage:
-    src/test/gen_model.sh
+    src/main/model/gen_model.sh
 """
 
 import re
@@ -13,7 +13,7 @@ from pathlib import Path
 from gen_model_candidate import generate
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT  = SCRIPT_DIR.parents[1]
+REPO_ROOT  = SCRIPT_DIR.parents[2]
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
 OUT_DIR    = REPO_ROOT / 'gen' / 'model'
 

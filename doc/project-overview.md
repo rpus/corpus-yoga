@@ -244,7 +244,7 @@ Several scripts in this repo originated in conversations visible in the exports 
 | `rsc/schema/chat-exports/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |
 | `src/main/validate.py` | Conversation 30 ("JSON Schema and jq fundamentals"), extended with JSON Pointer / `$ref` resolution via the `referencing` library and removal of custom discriminator-based `oneOf` error formatting |
 | `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |
-| `src/test/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesuffix` replacing manual string slicing |
+| `src/main/model/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `removesuffix` replacing manual string slicing |
 | `src/test/pre_commit.py` | Conversation 15, heavily extended: versioned schema support, `EXPECTED_PASS` matrix of (export, schema-version) pairs, updated required-files and validation sections |
 
 The `rsc/artifacts/downloaded/` directory contains files downloaded from those same

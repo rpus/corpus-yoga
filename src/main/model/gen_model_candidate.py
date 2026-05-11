@@ -6,16 +6,16 @@ JSON Pointer path at which it is referenced. The output is a candidate for
 informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 
 Usage:
-    python src/test/gen_model_candidate.py <schema-type> <schema-file>
+    python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 
 Examples:
-    python src/test/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
-    python src/test/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
-    python src/test/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
-    python src/test/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+    python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
+    python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
+    python src/main/model/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
+    python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 
 Output: JSON to stdout. Redirect to gen/model/<schema-type>/<version>.json for review.
-Normally invoked via src/test/gen_model.sh which handles all schemas automatically.
+Normally invoked via src/main/model/gen_model.sh which handles all schemas automatically.
 """
 
 import json

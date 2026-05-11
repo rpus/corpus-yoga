@@ -2,7 +2,7 @@
 """
 audit_files.py — Full-outer-join file audit for one export.
 
-Writes a CSV to gen/<export>/presentation/files_audit.csv with one row per
+Writes a CSV to gen/chat-exports/<export>/audit_queries/files_audit.csv with one row per
 (source, file-path) covering every file known about for the export across five
 sources:
 
@@ -51,20 +51,20 @@ Downloaded path conventions
 
 Usage
 ─────
-    src/test/chat-exports/audit_files.sh --chat-export  <path-to-export>
-    src/test/chat-exports/audit_files.sh --chat-exports <path-to-exports>
+    src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
+    src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 
     Example:
-        src/test/chat-exports/audit_files.sh --chat-export \\
+        src/main/chat-exports/audit_files.sh --chat-export \\
             ../chat-exports/data-0fc4c1e0-...-batch-0000
 
 SQL queries
 ───────────
 The CSV can be loaded into any SQL engine (e.g. sqlite3, DuckDB) or pandas.
 The standard queries (reproducing both extract logs, tooltip lists, and mismatch
-reports) are defined in src/test/chat-exports/query_files.py and can be run with:
+reports) are defined in src/main/chat-exports/query_files.py and can be run with:
 
-    python src/test/chat-exports/query_files.py <export-name>
+    python src/main/chat-exports/query_files.py <export-name>
 """
 
 import argparse

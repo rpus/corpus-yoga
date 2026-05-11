@@ -340,7 +340,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
    - For any definition added that has a meaningful counterpart in another schema (or a noteworthy absence), add rows describing the relationship.
    - For any definition removed that has rows in the table, delete or update those rows.
    - `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a definition that no longer exists in the schema.
-3. Run `src/test/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross-schema identifiers changed.
+3. Run `src/main/model/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross-schema identifiers changed.
 4. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
    Note: step 5 depends on these logs existing — `pre_commit.sh` will fail on missing logs, not on schema errors, which is misleading. Always run `validate.sh` before `pre_commit.sh`.
 5. Run `src/test/pre_commit.sh` and confirm all checks pass.

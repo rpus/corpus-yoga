@@ -235,11 +235,11 @@ def check_required_files(run):
         *schema_versions,
         *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES],
         SRC  / 'main' / 'validate.py',
-        SRC  / 'test' / 'gen_model_candidate.py',
-        SRC  / 'test' / 'gen_model.py',
+        SRC  / 'main' / 'model' / 'gen_model_candidate.py',
+        SRC  / 'main' / 'model' / 'gen_model.py',
         SRC  / 'test' / 'pre_commit_expected_score',
         SRC  / 'test' / 'xref_expected_score',
-        SRC  / 'test' / 'schema_recommendations.py',
+        SRC  / 'main' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
     ]
     for path in required:

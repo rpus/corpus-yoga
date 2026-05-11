@@ -593,9 +593,9 @@ jq '[.[].chat_messages[].content[] | {type, keys: keys}] | group_by(.type) |
 
 The `gen_model_candidate.py` script traverses a schema, collects every `$ref` to a named definition, records the path at which it occurs, and retrieves the description from the definition itself (not the usage site — draft-4 `$ref` objects are opaque; sibling properties are ignored by validators). The root schema is included using its `title` as the entry name. A null description in the output is a canary for a missing or non-string description in the schema, which `documentation.every_definition_has_title_and_description` would also catch.
 
-Run as: `python src/test/gen_model_candidate.py conversations` (stem only, no extension), from the repo root.
+Run as: `python src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from the repo root.
 
-See `src/test/gen_model_candidate.py` for the full implementation.
+See `src/main/model/gen_model_candidate.py` for the full implementation.
 
 ---
 

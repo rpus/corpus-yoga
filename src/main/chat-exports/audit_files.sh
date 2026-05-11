@@ -3,10 +3,10 @@
 # (audit_files.py), then run all SQL queries against them (query_files.py).
 #
 # Usage:
-#   src/test/chat-exports/audit_files.sh --chat-export  <path-to-export>
-#   src/test/chat-exports/audit_files.sh --chat-exports <path-to-exports>
+#   src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
+#   src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 #
-# Output: gen/<export>/audit_queries/
+# Output: gen/chat-exports/<export>/audit_queries/
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
