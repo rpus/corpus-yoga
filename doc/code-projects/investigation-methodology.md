@@ -137,8 +137,10 @@ A few things remained ambiguous after the investigation:
   nothing. This could be a not-yet-activated feature or content that gets cleaned up
   after sessions end.
 
-- **`sessions/` was empty** — transcripts may be stored in a different location,
-  may be pruned aggressively, or may be stored on the server rather than locally.
+- **`sessions/` was empty at investigation time** — now resolved: it is a live session
+  registry, one `{pid}.json` per running Claude Code process, containing session UUID, cwd,
+  start time, version, and entrypoint. The directory is empty between sessions. Transcripts
+  live in `projects/` as always.
 
 - **The exact hash function** for `file-history` filenames was not confirmed — the output
   is consistent with xxHash or a truncated SHA but was not verified by running the hash

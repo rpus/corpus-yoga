@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SCHEMA_PATH = REPO_ROOT / 'rsc' / 'schema' / 'sessions' / 'v1.json'
+SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-projects/session/v1.json'
 
 
 def load(session_path: Path, schema_path: Path):

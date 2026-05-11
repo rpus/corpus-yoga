@@ -238,7 +238,7 @@ lines are conversation turns:
 {"parentUuid":null,"isSidechain":false,"promptId":"...","type":"user","message":{"role":"user","content":[]}}
 ```
 
-This is why `sessions/` is empty — transcripts live here, not there.
+Transcripts live here, not in `sessions/` (which holds live session metadata, not history).
 
 **Important distinction:** this is the **Claude Code CLI session format**, not the same as
 the `conversations.json` format produced by claude.ai's Settings > Export Data feature.
@@ -274,9 +274,25 @@ feature may not be fully activated.
 
 ## `sessions/`
 
-Empty in practice. Conversation transcripts are stored as `.jsonl` files inside `projects/`
-(see above), not here. Purpose of this directory is unknown — may be vestigial or reserved
-for future use.
+Live session registry — one JSON file per active Claude Code process, named `{pid}.json`.
+
+```json
+{
+  "pid": 65590,
+  "sessionId": "32bd7448-…",
+  "cwd": "/path/to/project",
+  "startedAt": 1778506938964,
+  "procStart": "Mon May 11 13:42:18 2026",
+  "version": "2.1.138",
+  "peerProtocol": 1,
+  "kind": "interactive",
+  "entrypoint": "claude-vscode"
+}
+```
+
+Analogous to `ide/{pid}.json` for IDE extension connections. The `sessionId` here matches
+the `.jsonl` transcript filename in `projects/`. The directory appears empty between sessions
+and was previously misidentified as vestigial.
 
 ---
 

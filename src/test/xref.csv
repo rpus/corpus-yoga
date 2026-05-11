@@ -78,7 +78,7 @@ README.md,114,doc,rsc/schema/chat-exports/conversations/principles.md,Y,| [`rsc/
 README.md,115,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,| [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loo
 README.md,116,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,| [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version h
 README.md,117,doc,rsc/schema/chat-exports/conversations/README.md,Y,| [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparis
-README.md,118,doc,rsc/schema/code-projects/session/README.md,Y,| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI sessions schema at a 
+README.md,118,doc,rsc/schema/code-projects/session/README.md,Y,| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI session schema at a g
 README.md,119,doc,rsc/schema/code-projects/session/principles.md,Y,| [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design pri
 README.md,120,doc,rsc/schema/code-projects/session/workflow.md,Y,"| [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `mod"
 README.md,121,doc,rsc/schema/code-projects/session/CHANGELOG.md,Y,| [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and
@@ -95,7 +95,7 @@ TODO.md,5,doc,src/test/schema_recommendations.py,Y,- `src/test/schema_recommenda
 TODO.md,6,doc,rsc/schema/_reference,Y,- `rsc/schema/_reference/`
 doc/README.md,19,doc,doc/chat-exports/conversations-schema.md,Y,### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) — Conversations schema reference
 doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,"Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction,"
-doc/README.md,30,doc,doc/code-projects/session-schema.md,Y,### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI sessions schema reference
+doc/README.md,30,doc,doc/code-projects/session-schema.md,Y,### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI session schema reference
 doc/README.md,32,doc,rsc/schema/code-projects/session,Y,"Reference for `rsc/schema/code-projects/session/`: nine record types, turn envelope fields,"
 doc/README.md,35,doc,doc/code-projects/research.md,Y,### [`code-projects/research.md`](code-projects/research.md) — Research workflow
 doc/README.md,40,doc,doc/code-projects/claude-home-directory.md,Y,### [`code-projects/claude-home-directory.md`](code-projects/claude-home-directory.md) — `~/.claude/` reference
@@ -123,6 +123,7 @@ doc/chat-exports/conversations-schema.md,42,doc,rsc/schema/model_join.csv,Y,shar
 doc/chat-exports/conversations-schema.md,124,doc,rsc/schema/model_join.csv,Y,### `rsc/schema/model_join.csv`
 doc/chat-exports/conversations-schema.md,157,doc,src/main/chat-exports/validate.sh,Y,workflow references them directly via `src/main/chat-exports/validate.sh`.
 doc/code-projects/claude-home-directory.md,248,doc,doc/chat-exports/conversations-schema.md,Y,"envelope (`display_content`, `integration_*`, etc.). See `doc/chat-exports/conversations-schema.md` for"
+doc/code-projects/claude-home-directory.md,293,doc,ide/{pid}.json,N,Analogous to `ide/{pid}.json` for IDE extension connections. The `sessionId` here matches
 doc/code-projects/research.md,170,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
 doc/code-projects/research.md,174,doc,src/main/code-projects/RUNME.sh,Y,but the workspace file references it and `src/main/code-projects/RUNME.sh` reads from it.
 doc/code-projects/session-schema.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/` — Schema Reference
@@ -132,7 +133,7 @@ doc/code-projects/session-schema.md,7,doc,rsc/schema/code-projects/session/workf
 doc/code-projects/session-schema.md,14,doc,rsc/schema/code-projects/session/v1.json,Y,`rsc/schema/code-projects/session/v1.json` validates a **JSON array** produced by
 doc/code-projects/session-schema.md,20,doc,rsc/schema/code-projects/session/README.md,Y,See `rsc/schema/code-projects/session/README.md` for the side-by-side comparison.
 doc/code-projects/session-schema.md,112,doc,src/test/diagnostics,Y,The full diagnostic suite from `src/test/diagnostics/` applies to `v1.json` directly —
-doc/code-projects/session-schema.md,118,doc,src/test/pre_commit.py,Y,"python src/test/pre_commit.py   # section ""check_code_projects_diagnostics"""
+doc/code-projects/session-schema.md,118,doc,src/test/pre_commit.py,Y,"python src/test/pre_commit.py   # section ""check_versioned_schema_diagnostics"""
 doc/code-projects/session-schema.md,123,doc,rsc/schema/model_join.csv,Y,## `rsc/schema/model_join.csv`
 doc/pipeline-model.md,7,doc,src/test/pre_commit.py,Y,`src/test/pre_commit.py` derives its checks from a `PIPELINES` data structure — a
 doc/pipeline-model.md,19,doc,src/main/chat-exports/validate.sh,Y,| **Validate script** | `src/main/chat-exports/validate.sh` | `src/main/code-projects/RUNME.sh` | `src/main/browser-capt
@@ -495,6 +496,7 @@ src/test/code-projects/debug_code_session_record.py,4,comment,rsc/schema/code-pr
 src/test/code-projects/debug_code_session_record.py,15,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl
 src/test/code-projects/debug_code_session_record.py,18,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl --index 42
 src/test/code-projects/debug_code_session_record.py,21,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl --all
+src/test/code-projects/debug_code_session_record.py,30,path_str,rsc/schema/code-projects/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-projects/session/v1.json'
 src/test/code-projects/survey_code_session.py,10,comment,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
 src/test/code-projects/survey_code_session.py,11,comment,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
 src/test/diagnostics/README.md,9,doc,src/test/diagnostics/naming.upper_camel_case.py,Y,| [`naming.upper_camel_case.py`](./naming.upper_camel_case.py) | All definition names are UpperCamelCase | [`naming.uppe

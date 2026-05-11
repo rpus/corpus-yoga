@@ -103,7 +103,7 @@ python src/test/pre_commit.py
 | [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; `../code-projects/` setup procedure |
 | [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
 | [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |
-| [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session transcripts against the sessions schema |
+| [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session transcripts against the session schema |
 | [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types and field structure of session files (used during schema development) |
 | [`src/test/code-projects/debug_code_session_record.py`](src/test/code-projects/debug_code_session_record.py) | Diagnose why a specific record fails validation: tests each `Record.oneOf` branch and drills into the matching subtype |
 
@@ -115,7 +115,7 @@ python src/test/pre_commit.py
 | [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loop for incorporating new exports and making schema changes |
 | [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version history and export compatibility matrix |
 | [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparison: CLI `.jsonl` vs claude.ai export |
-| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI sessions schema at a glance: record types, content blocks, MCP mapping table |
+| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI session schema at a glance: record types, content blocks, MCP mapping table |
 | [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
 | [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `model_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
 | [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and session coverage matrix |

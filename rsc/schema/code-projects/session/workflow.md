@@ -7,7 +7,7 @@ version: "1.0"
 
 # Schema Development Workflow for `rsc/schema/code-projects/session/v{N}.json`
 
-A living document describing how to maintain and extend the CLI sessions schema.
+A living document describing how to maintain and extend the CLI session schema.
 Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md` but adapted
 to the different lifecycle of CLI session data.
 
@@ -28,7 +28,7 @@ deviations. The same four workflow principles apply here:
 
 ## Overview: Two Lifecycles
 
-The CLI sessions schema has two distinct update triggers with different cadences:
+The CLI session schema has two distinct update triggers with different cadences:
 
 **Session data updates continuously.** `../code-projects/` is a symlink directly to
 `~/.claude/projects/`. Claude Code writes to `.jsonl` files in real time during every
@@ -188,7 +188,7 @@ recorded.
 src/test/pre_commit.sh
 ```
 
-Confirms all checks pass, including `model_join.csv` pointer validity and the sessions schema diagnostics.
+Confirms all checks pass, including `model_join.csv` pointer validity and the session schema diagnostics.
 
 ---
 

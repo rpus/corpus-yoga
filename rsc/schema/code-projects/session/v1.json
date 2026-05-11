@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "sessions",
+  "title": "session",
   "description": "Schema for Claude Code CLI session transcripts, as produced at ~/.claude/projects/{project}/{session}.jsonl and converted to a JSON array (one object per line becomes one array element). The format is Claude Code's internal session log, distinct from the claude.ai export format (conversations.json). The core content block model (text, tool_use, tool_result, thinking) is shared with the Anthropic API; the session envelope (parentUuid, isSidechain, cwd, gitBranch, entrypoint, permissionMode, etc.) is Claude Code CLI-specific.",
   "type": "array",
   "minItems": 1,

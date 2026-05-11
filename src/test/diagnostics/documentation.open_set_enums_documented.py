@@ -7,8 +7,8 @@ import sys
 # Each entry is annotated with the schema version from which it applies.
 KNOWN_CLOSED = {
     frozenset(['human', 'assistant']),                             # conversations v1+: Message.sender
-    frozenset(['enqueue', 'dequeue', 'popAll', 'remove']),         # sessions v1+: QueueOperationName
-    frozenset(['cli', 'claude-vscode']),                           # sessions v1+: Entrypoint
+    frozenset(['enqueue', 'dequeue', 'popAll', 'remove']),         # session v1+: QueueOperationName
+    frozenset(['cli', 'claude-vscode']),                           # session v1+: Entrypoint
 }
 
 with open(sys.argv[1]) as f:

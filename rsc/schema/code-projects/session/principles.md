@@ -9,7 +9,7 @@ version: "1.0"
 
 The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
 to this schema in full. Read that document first. This document records only the
-adaptations and known deviations that are specific to the CLI sessions schema.
+adaptations and known deviations that are specific to the CLI session schema.
 
 ---
 
@@ -66,7 +66,7 @@ defined in `UserTurnType` — because draft-4 does not merge `properties` across
 before evaluating `additionalProperties`.
 
 The conversations schema avoids this by putting ALL properties (shared and
-type-specific) into the `...Base` schema. For the CLI sessions schema, the turn
+type-specific) into the `...Base` schema. For the CLI session schema, the turn
 types have enough distinct optional fields that a single comprehensive base would
 be unwieldy. The envelope is documented in `TurnBase`; the type-specific fields
 are in the subtype schemas; `additionalProperties: false` is deliberately absent
@@ -80,7 +80,7 @@ from `TurnBase`.
 
 ## Empirical Grounding Notes
 
-The CLI sessions schema was derived from two sessions of one project. The
+The CLI session schema was derived from two sessions of one project. The
 `empirical.validate_against_all_known_exports` principle applies — the schema must
 validate all sessions in `../code-projects/` — but the corpus is small and likely
 to surface new fields as more projects and Claude Code versions are observed.
