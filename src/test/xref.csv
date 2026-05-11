@@ -91,7 +91,6 @@ README.md,127,doc,src/test/diagnostics/README.md,Y,"| [`src/test/diagnostics/REA
 README.md,128,doc,src/test/repairs/README.md,Y,"| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |"
 README.md,134,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |"
 README.md,135,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
-TODO.md,5,doc,rsc/schema/_reference,Y,- `rsc/schema/_reference/`
 doc/README.md,19,doc,doc/chat-exports/conversations-schema.md,Y,### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) — Conversations schema reference
 doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,"Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction,"
 doc/README.md,30,doc,doc/code-projects/session-schema.md,Y,### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI session schema reference
