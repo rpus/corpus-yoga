@@ -16,16 +16,16 @@ run_one() {
 
   rm -rf "${OUTPUT_DIR:?}/$name"
 
-  "$SCRIPT_DIR/validate.sh"       --chat-export "$export_dir"
-  "$SCRIPT_DIR/extract_files.sh"  --chat-export "$export_dir"
+  "$SCRIPT_DIR/validate.sh"         --chat-export "$export_dir"
+  "$SCRIPT_DIR/extract_files.sh"    --chat-export "$export_dir"
   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$export_dir"
-  "$SCRIPT_DIR/audit_files.sh"    --chat-export "$export_dir"
 
   if [[ "$pay_for_inference" == "1" ]]; then
-    "$SCRIPT_DIR/infer_tables.sh" --chat-export "$export_dir"
+    "$SCRIPT_DIR/infer_tables.sh"   --chat-export "$export_dir"
   fi
 
-  "$SCRIPT_DIR/present.sh" --chat-export "$export_dir"
+  "$SCRIPT_DIR/present.sh"          --chat-export "$export_dir"
+  "$SCRIPT_DIR/audit_files.sh"      --chat-export "$export_dir"
 }
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then

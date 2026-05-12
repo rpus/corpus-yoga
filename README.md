@@ -26,12 +26,15 @@ This repo wrangles Claude data exports.
 - Fetch live API JSON for existing captures without it (for apiConversation schema validation):
   - `./src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>`
   - Saves `{title}.json` alongside each capture
+- Browse and read captures as rendered markdown + LaTeX:
+  - `src/main/model/search_proxy.sh --daemon` then open <http://localhost:8182>
+  - `src/main/model/search_proxy.sh stop` to shut down
 
 ```bash
 # git clean -fdX; git clean -fdxn
 ./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
-./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
-\ --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
+./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports \
+  --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
 ./src/main/code-projects/RUNME.sh --code-projects ../code-projects
 ./src/main/model/gen_model.sh
 # ./src/test/pre_commit.sh
