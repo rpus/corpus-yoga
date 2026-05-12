@@ -54,7 +54,7 @@ Repair:     src/test/repairs/naming.title_matches_key.py
 
 **The root schema's `title` matches the schema filename stem (without extension).**
 
-For non-versioned schemas (e.g. `data-table.json`, `model.json`) this is enforced by
+For non-versioned schemas (e.g. `model.json`) this is enforced by
 `check_root_schema_diagnostics`. For versioned schemas the files are named `v1.json`,
 `v2.json`, etc. — the filename stem is a version number, not the schema title — so the
 diagnostic is universally skipped for all versioned schemas via `_UNIVERSAL_DIAG_SKIP`

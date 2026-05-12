@@ -57,51 +57,88 @@ README.md,68,doc,src/test/code-projects/debug_code_session_record.py,Y,python sr
 README.md,69,doc,src/test/pre_commit.py,Y,python src/test/pre_commit.py
 README.md,76,doc,rsc/snippets.md,Y,- Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
 README.md,78,doc,rsc/snippets.md,Y,- Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
-README.md,96,doc,doc/README.md,Y,| [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
-README.md,96,doc,doc,Y,| [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
-README.md,97,doc,doc/project-overview.md,Y,"| [`doc/project-overview.md`](doc/project-overview.md) | Architecture: pipeline stages, artifact recovery, all schemas, "
-README.md,98,doc,doc/pipeline-model.md,Y,| [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding 
-README.md,99,doc,doc/chat-exports/conversations-schema.md,Y,| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat
-README.md,99,doc,rsc/schema/chat-exports/conversations,Y,| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat
-README.md,100,doc,doc/browser-captures/api-conversation-schema.md,Y,| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `
-README.md,100,doc,rsc/schema/browser-captures/apiConversation,Y,| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `
-README.md,101,doc,doc/browser-captures/research.md,Y,| [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and 
-README.md,102,doc,doc/code-projects/session-schema.md,Y,| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects
-README.md,102,doc,rsc/schema/code-projects/session,Y,| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects
-README.md,103,doc,doc/code-projects/research.md,Y,| [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; 
-README.md,104,doc,doc/code-projects/claude-home-directory.md,Y,| [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory re
-README.md,105,doc,doc/code-projects/investigation-methodology.md,Y,| [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-en
-README.md,106,doc,src/main/code-projects/RUNME.sh,Y,| [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session t
-README.md,107,doc,src/test/code-projects/survey_code_session.py,Y,| [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types
-README.md,108,doc,src/test/code-projects/debug_code_session_record.py,Y,| [`src/test/code-projects/debug_code_session_record.py`](src/test/code-projects/debug_code_session_record.py) | Diagnos
-README.md,114,doc,rsc/schema/chat-exports/conversations/principles.md,Y,| [`rsc/schema/chat-exports/conversations/principles.md`](rsc/schema/chat-exports/conversations/principles.md) | Every d
-README.md,115,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,| [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loo
-README.md,116,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,| [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version h
-README.md,117,doc,rsc/schema/chat-exports/conversations/README.md,Y,| [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparis
-README.md,118,doc,rsc/schema/code-projects/session/README.md,Y,| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI session schema at a g
-README.md,119,doc,rsc/schema/code-projects/session/principles.md,Y,| [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design pri
-README.md,120,doc,rsc/schema/code-projects/session/workflow.md,Y,"| [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `mod"
-README.md,121,doc,rsc/schema/code-projects/session/CHANGELOG.md,Y,| [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and
-README.md,122,doc,rsc/schema/browser-captures/apiConversation/principles.md,Y,| [`rsc/schema/browser-captures/apiConversation/principles.md`](rsc/schema/browser-captures/apiConversation/principles.m
-README.md,123,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,| [`rsc/schema/browser-captures/apiConversation/workflow.md`](rsc/schema/browser-captures/apiConversation/workflow.md) |
-README.md,124,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,| [`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](rsc/schema/browser-captures/apiConversation/CHANGELOG.md)
-README.md,125,doc,rsc/schema/browser-captures/apiConversation/README.md,Y,| [`rsc/schema/browser-captures/apiConversation/README.md`](rsc/schema/browser-captures/apiConversation/README.md) | API
-README.md,126,doc,rsc/schema/model_join.csv,Y,| [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations 
-README.md,127,doc,src/test/diagnostics/README.md,Y,"| [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which h"
-README.md,128,doc,src/test/repairs/README.md,Y,"| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |"
-README.md,134,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |"
-README.md,135,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
-doc/README.md,19,doc,doc/chat-exports/conversations-schema.md,Y,### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) — Conversations schema reference
-doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,"Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction,"
-doc/README.md,30,doc,doc/code-projects/session-schema.md,Y,### [`code-projects/session-schema.md`](code-projects/session-schema.md) — CLI session schema reference
-doc/README.md,32,doc,rsc/schema/code-projects/session,Y,"Reference for `rsc/schema/code-projects/session/`: nine record types, turn envelope fields,"
-doc/README.md,35,doc,doc/code-projects/research.md,Y,### [`code-projects/research.md`](code-projects/research.md) — Research workflow
-doc/README.md,40,doc,doc/code-projects/claude-home-directory.md,Y,### [`code-projects/claude-home-directory.md`](code-projects/claude-home-directory.md) — `~/.claude/` reference
-doc/README.md,46,doc,doc/code-projects/investigation-methodology.md,Y,### [`code-projects/investigation-methodology.md`](code-projects/investigation-methodology.md) — Investigation how-to
-doc/README.md,56,doc,doc/code-projects/claude-home-directory.md,Y,"2. Claude ran the investigation live, then wrote `code-projects/claude-home-directory.md`"
-doc/README.md,57,doc,doc/code-projects/investigation-methodology.md,Y,3. User asked Claude to document the methodology → `code-projects/investigation-methodology.md`
+README.md,96,doc,doc/README.md,Y,"| [`doc/README.md`](doc/README.md) | Architecture overview: inputs, pipelines, schemas, output structure, provenance; in"
+README.md,97,doc,doc/pipeline-model.md,Y,| [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding 
+README.md,98,doc,doc/chat-exports/conversations-schema.md,Y,| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat
+README.md,98,doc,rsc/schema/chat-exports/conversations,Y,| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat
+README.md,99,doc,doc/browser-captures/api-conversation-schema.md,Y,| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `
+README.md,99,doc,rsc/schema/browser-captures/apiConversation,Y,| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `
+README.md,100,doc,doc/browser-captures/research.md,Y,| [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and 
+README.md,101,doc,doc/code-projects/session-schema.md,Y,| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects
+README.md,101,doc,rsc/schema/code-projects/session,Y,| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects
+README.md,102,doc,doc/code-projects/research.md,Y,| [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; 
+README.md,103,doc,doc/code-projects/claude-home-directory.md,Y,| [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory re
+README.md,104,doc,doc/code-projects/investigation-methodology.md,Y,| [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-en
+README.md,105,doc,src/main/code-projects/RUNME.sh,Y,| [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session t
+README.md,106,doc,src/test/code-projects/survey_code_session.py,Y,| [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types
+README.md,107,doc,src/test/code-projects/debug_code_session_record.py,Y,| [`src/test/code-projects/debug_code_session_record.py`](src/test/code-projects/debug_code_session_record.py) | Diagnos
+README.md,113,doc,rsc/schema/chat-exports/conversations/principles.md,Y,| [`rsc/schema/chat-exports/conversations/principles.md`](rsc/schema/chat-exports/conversations/principles.md) | Every d
+README.md,114,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,| [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loo
+README.md,115,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,| [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version h
+README.md,116,doc,rsc/schema/chat-exports/conversations/README.md,Y,| [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparis
+README.md,117,doc,rsc/schema/code-projects/session/README.md,Y,| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI session schema at a g
+README.md,118,doc,rsc/schema/code-projects/session/principles.md,Y,| [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design pri
+README.md,119,doc,rsc/schema/code-projects/session/workflow.md,Y,"| [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `mod"
+README.md,120,doc,rsc/schema/code-projects/session/CHANGELOG.md,Y,| [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and
+README.md,121,doc,rsc/schema/browser-captures/apiConversation/principles.md,Y,| [`rsc/schema/browser-captures/apiConversation/principles.md`](rsc/schema/browser-captures/apiConversation/principles.m
+README.md,122,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,| [`rsc/schema/browser-captures/apiConversation/workflow.md`](rsc/schema/browser-captures/apiConversation/workflow.md) |
+README.md,123,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,| [`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](rsc/schema/browser-captures/apiConversation/CHANGELOG.md)
+README.md,124,doc,rsc/schema/browser-captures/apiConversation/README.md,Y,| [`rsc/schema/browser-captures/apiConversation/README.md`](rsc/schema/browser-captures/apiConversation/README.md) | API
+README.md,125,doc,rsc/schema/model_join.csv,Y,| [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations 
+README.md,126,doc,src/test/diagnostics/README.md,Y,"| [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which h"
+README.md,127,doc,src/test/repairs/README.md,Y,"| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |"
+README.md,133,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |"
+README.md,134,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
+doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,The `CHANGELOG.md` in `rsc/schema/chat-exports/conversations/` tracks which exports have been processed and which schema
+doc/README.md,32,doc,doc/code-projects/research.md,Y,See `doc/code-projects/research.md` for setup and format documentation.
+doc/README.md,36,doc,doc/browser-captures/research.md,Y,Per-conversation API JSON files captured from the live claude.ai API via Safari automation. See `doc/browser-captures/re
+doc/README.md,42,doc,src/main,Y,`src/main/` mirrors `gen/` — each subdirectory corresponds to a pipeline or shared utility:
+doc/README.md,46,doc,src/main/chat-exports,Y,| `src/main/chat-exports/` | Chat-exports pipeline scripts |
+doc/README.md,47,doc,src/main/code-projects,Y,| `src/main/code-projects/` | Code-projects pipeline scripts |
+doc/README.md,48,doc,src/main/browser-captures,Y,| `src/main/browser-captures/` | Browser-captures pipeline scripts |
+doc/README.md,49,doc,src/main/model,Y,| `src/main/model/` | Cross-pipeline schema model generation |
+doc/README.md,50,doc,src/main/validate.py,Y,| `src/main/validate.py` | Shared JSON Schema validator |
+doc/README.md,51,doc,src/main/validate_versions.sh,Y,| `src/main/validate_versions.sh` | Shared per-version validation loop |
+doc/README.md,52,doc,src/main/schema_recommendations.py,Y,| `src/main/schema_recommendations.py` | Shared post-validation schema quality hints |
+doc/README.md,54,doc,src/test,Y,"`src/test/` contains the pre-commit suite, xref tool, diagnostic and repair scripts, and pipeline-specific debug tools."
+doc/README.md,62,doc,src/main/chat-exports/RUNME.sh,Y,`src/main/chat-exports/RUNME.sh` orchestrates six stages in order. Each can also be run independently.
+doc/README.md,64,doc,rsc/schema/chat-exports,Y,1. **`validate.sh`** — validates each `.json` against all schema versions in `rsc/schema/chat-exports/`. On failure prin
+doc/README.md,73,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` converts each `.jsonl` session to a JSON array and validates it against all versions o
+doc/README.md,73,doc,rsc/schema/code-projects/session,Y,`src/main/code-projects/RUNME.sh` converts each `.jsonl` session to a JSON array and validates it against all versions o
+doc/README.md,77,doc,src/main/browser-captures/RUNME.sh,Y,`src/main/browser-captures/RUNME.sh` validates each captured API JSON file against all versions of `rsc/schema/browser-c
+doc/README.md,77,doc,rsc/schema/browser-captures/apiConversation,Y,`src/main/browser-captures/RUNME.sh` validates each captured API JSON file against all versions of `rsc/schema/browser-c
+doc/README.md,86,doc,rsc/artifacts,Y,rsc/artifacts/
+doc/README.md,100,doc,rsc/schema,Y,"Six JSON Schemas (draft-4) in `rsc/schema/`, grouped by pipeline:"
+doc/README.md,104,doc,rsc/schema/chat-exports/conversations/v7.json,Y,| `rsc/schema/chat-exports/conversations/v7.json` | `conversations.json` — full conversation history (versioned) |
+doc/README.md,105,doc,rsc/schema/chat-exports/memories/v1.json,Y,| `rsc/schema/chat-exports/memories/v1.json` | `memories.json` — stored user memories |
+doc/README.md,106,doc,rsc/schema/chat-exports/projects/v1.json,Y,| `rsc/schema/chat-exports/projects/v1.json` | `projects.json` — project metadata |
+doc/README.md,107,doc,rsc/schema/chat-exports/users/v1.json,Y,| `rsc/schema/chat-exports/users/v1.json` | `users.json` — account information |
+doc/README.md,108,doc,rsc/schema/code-projects/session/v2.json,Y,| `rsc/schema/code-projects/session/v2.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
+doc/README.md,109,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| `rsc/schema/browser-captures/apiConversation/v1.json` | `{uuid}.json` — live claude.ai API conversation response |
+doc/README.md,111,doc,rsc/schema,Y,"Supporting files (cross-pipeline, at `rsc/schema/` root):"
+doc/README.md,115,doc,rsc/schema/_reference/mcp.json,Y,| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `rsc/schema/model_join.csv` for field-level 
+doc/README.md,115,doc,rsc/schema/model_join.csv,Y,| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `rsc/schema/model_join.csv` for field-level 
+doc/README.md,116,doc,rsc/schema/documenter.json,Y,| [`rsc/schema/documenter.json`](../rsc/schema/documenter.json) | VS Code tooltip wrapper; enables schema-aware editing 
+doc/README.md,117,doc,rsc/schema/model.json,Y,| `rsc/schema/model.json` | JSON Schema for the cross-pipeline type reference; the reference data is inlined in its `def
+doc/README.md,118,doc,rsc/schema/model_join.csv,Y,| `rsc/schema/model_join.csv` | Unified four-way field correspondence table: conversations ↔ session ↔ apiConversation ↔
+doc/README.md,165,doc,rsc/schema/model.json,Y,└── v{N}.json   # candidate definition catalogue for rsc/schema/model.json
+doc/README.md,176,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"| `rsc/schema/chat-exports/conversations/principles.md` | Conversation 15 (""Accessing files from previous chats""), v1.2 "
+doc/README.md,177,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,"| `rsc/schema/chat-exports/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |"
+doc/README.md,178,doc,src/main/validate.py,Y,"| `src/main/validate.py` | Conversation 30 (""JSON Schema and jq fundamentals""), extended with JSON Pointer / `$ref` reso"
+doc/README.md,179,doc,src/main/chat-exports/word_freq_literal.py,Y,"| `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |"
+doc/README.md,180,doc,src/main/model/gen_model_candidate.py,Y,"| `src/main/model/gen_model_candidate.py` | Conversation 15, minor interface changes |"
+doc/README.md,188,doc,doc/chat-exports/conversations-schema.md,Y,#### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md)
+doc/README.md,190,doc,rsc/schema/chat-exports/conversations,Y,"Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction, schema developmen"
+doc/README.md,196,doc,doc/browser-captures/api-conversation-schema.md,Y,#### [`browser-captures/api-conversation-schema.md`](browser-captures/api-conversation-schema.md)
+doc/README.md,198,doc,rsc/schema/browser-captures/apiConversation,Y,"Reference for `rsc/schema/browser-captures/apiConversation/`: structure, differences from bulk export, tool blocks."
+doc/README.md,200,doc,doc/browser-captures/research.md,Y,#### [`browser-captures/research.md`](browser-captures/research.md)
+doc/README.md,208,doc,doc/code-projects/session-schema.md,Y,#### [`code-projects/session-schema.md`](code-projects/session-schema.md)
+doc/README.md,210,doc,rsc/schema/code-projects/session,Y,"Reference for `rsc/schema/code-projects/session/`: nine record types, turn envelope fields, content block types, MCP fie"
+doc/README.md,212,doc,doc/code-projects/research.md,Y,#### [`code-projects/research.md`](code-projects/research.md)
+doc/README.md,216,doc,doc/code-projects/claude-home-directory.md,Y,#### [`code-projects/claude-home-directory.md`](code-projects/claude-home-directory.md)
+doc/README.md,220,doc,doc/code-projects/investigation-methodology.md,Y,#### [`code-projects/investigation-methodology.md`](code-projects/investigation-methodology.md)
 doc/browser-captures/api-conversation-schema.md,1,doc,rsc/schema/browser-captures/apiConversation,Y,# `rsc/schema/browser-captures/apiConversation/` — Schema Reference
-doc/browser-captures/api-conversation-schema.md,5,doc,doc/project-overview.md,Y,endpoint. See [`doc/project-overview.md`](../project-overview.md) for pipeline context and
+doc/browser-captures/api-conversation-schema.md,5,doc,doc/README.md,Y,endpoint. See [`doc/README.md`](../README.md) for pipeline context and
 doc/browser-captures/api-conversation-schema.md,6,doc,doc/browser-captures/research.md,Y,[`doc/browser-captures/research.md`](research.md) for how the endpoint was discovered and captured.
 doc/browser-captures/api-conversation-schema.md,12,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,`rsc/schema/browser-captures/apiConversation/v1.json` validates a single JSON file captured from the
 doc/browser-captures/api-conversation-schema.md,14,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,`src/main/browser-captures/safari_fetch_api_json.sh` into:
@@ -125,7 +162,7 @@ doc/code-projects/claude-home-directory.md,293,doc,ide/{pid}.json,N,Analogous to
 doc/code-projects/research.md,170,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
 doc/code-projects/research.md,174,doc,src/main/code-projects/RUNME.sh,Y,but the workspace file references it and `src/main/code-projects/RUNME.sh` reads from it.
 doc/code-projects/session-schema.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/` — Schema Reference
-doc/code-projects/session-schema.md,4,doc,doc/project-overview.md,Y,"[`doc/project-overview.md`](../project-overview.md) for pipeline context,"
+doc/code-projects/session-schema.md,4,doc,doc/README.md,Y,"[`doc/README.md`](../README.md) for pipeline context,"
 doc/code-projects/session-schema.md,5,doc,doc/code-projects/research.md,Y,[`doc/code-projects/research.md`](research.md) for how the format
 doc/code-projects/session-schema.md,7,doc,rsc/schema/code-projects/session/workflow.md,Y,[`rsc/schema/code-projects/session/workflow.md`](../../rsc/schema/code-projects/session/workflow.md)
 doc/code-projects/session-schema.md,14,doc,rsc/schema/code-projects/session/v1.json,Y,`rsc/schema/code-projects/session/v1.json` validates a **JSON array** produced by
@@ -140,63 +177,25 @@ doc/pipeline-model.md,19,doc,src/main/browser-captures/RUNME.sh,Y,| **Validate s
 doc/pipeline-model.md,24,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,| **CHANGELOG** | `rsc/schema/chat-exports/conversations/CHANGELOG.md` | `rsc/schema/code-projects/session/CHANGELOG.md`
 doc/pipeline-model.md,24,doc,rsc/schema/code-projects/session/CHANGELOG.md,Y,| **CHANGELOG** | `rsc/schema/chat-exports/conversations/CHANGELOG.md` | `rsc/schema/code-projects/session/CHANGELOG.md`
 doc/pipeline-model.md,24,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,| **CHANGELOG** | `rsc/schema/chat-exports/conversations/CHANGELOG.md` | `rsc/schema/code-projects/session/CHANGELOG.md`
-doc/pipeline-model.md,41,doc,rsc/schema/data-table.json,Y,"Non-versioned root schemas ([`data-table.json`](../rsc/schema/data-table.json),"
-doc/pipeline-model.md,42,doc,rsc/schema/documenter.json,Y,"[`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json))"
-doc/pipeline-model.md,42,doc,rsc/schema/model.json,Y,"[`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json))"
-doc/pipeline-model.md,71,doc,rsc/schema/{new-pipeline}/{newSchema},N,2. **Create the schema directory**: `rsc/schema/{new-pipeline}/{newSchema}/`
-doc/pipeline-model.md,71,doc,rsc/schema,Y,2. **Create the schema directory**: `rsc/schema/{new-pipeline}/{newSchema}/`
-doc/pipeline-model.md,74,doc,rsc/schema/code-projects/session,Y,- Follow the structure of `rsc/schema/code-projects/session/` as a template
-doc/pipeline-model.md,83,doc,src/main/{new-pipeline}/validate.sh,N,4. **Create the validate script**: `src/main/{new-pipeline}/validate.sh`
-doc/pipeline-model.md,83,doc,src/main,Y,4. **Create the validate script**: `src/main/{new-pipeline}/validate.sh`
-doc/pipeline-model.md,86,doc,src/main/browser-captures/validate.sh,Y,- Follow `src/main/browser-captures/validate.sh` or `src/main/code-projects/validate.sh` as template
-doc/pipeline-model.md,86,doc,src/main/code-projects/validate.sh,Y,- Follow `src/main/browser-captures/validate.sh` or `src/main/code-projects/validate.sh` as template
-doc/pipeline-model.md,98,doc,src/main,Y,"validate_cmd  = f'src/main/{NEW_PIPELINE}/RUNME.sh --{new-pipeline}',"
-doc/pipeline-model.md,109,doc,src/main,Y,src/main/{new-pipeline}/RUNME.sh --{new-pipeline} ../{new-pipeline}
-doc/pipeline-model.md,112,doc,rsc/schema/{newSchema}/CHANGELOG.md,N,7. **Populate the CHANGELOG** in `rsc/schema/{newSchema}/CHANGELOG.md`:
-doc/pipeline-model.md,112,doc,rsc/schema,Y,7. **Populate the CHANGELOG** in `rsc/schema/{newSchema}/CHANGELOG.md`:
-doc/pipeline-model.md,115,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write
-doc/pipeline-model.md,115,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write
-doc/pipeline-model.md,118,doc,src/test/pre_commit.sh,Y,8. **Run `src/test/pre_commit.sh`**: confirm all checks pass. Commit the updated
-doc/pipeline-model.md,119,doc,src/test/pre_commit.log,Y,`src/test/pre_commit.log` so the diff shows what changed.
-doc/pipeline-model.md,121,doc,src/test/xref.sh,Y,9. **Run `src/test/xref.sh`**: confirm no bad-pointer entries. Commit the updated
-doc/pipeline-model.md,122,doc,src/test/xref.csv,Y,`src/test/xref.csv` so the diff shows what references changed.
-doc/project-overview.md,27,doc,rsc/schema/chat-exports/conversations,Y,in `rsc/schema/chat-exports/conversations/` tracks which exports have been processed and which schema
-doc/project-overview.md,45,doc,doc/code-projects/research.md,Y,See `doc/code-projects/research.md` for the full setup procedure and format documentation.
-doc/project-overview.md,51,doc,src/main,Y,`src/main/` and `src/test/` are each split into pipeline subdirectories
-doc/project-overview.md,51,doc,src/test,Y,`src/main/` and `src/test/` are each split into pipeline subdirectories
-doc/project-overview.md,55,doc,src/main/validate.py,Y,level. `src/main/validate.py` and `src/test/pre_commit.py` are the main examples of
-doc/project-overview.md,55,doc,src/test/pre_commit.py,Y,level. `src/main/validate.py` and `src/test/pre_commit.py` are the main examples of
-doc/project-overview.md,56,doc,src/run_python_script.sh,Y,genuinely shared scripts. `src/run_python_script.sh` is a shared infrastructure script — a thin venv wrapper callable by
-doc/project-overview.md,62,doc,src/main/chat-exports/RUNME.sh,Y,`src/main/chat-exports/RUNME.sh` orchestrates four stages in order. Each stage can also be run independently.
-doc/project-overview.md,64,doc,src/main/chat-exports/validate.sh,Y,### 1. `src/main/chat-exports/validate.sh` → `validate.py`
-doc/project-overview.md,67,doc,rsc/schema/chat-exports/conversations,Y,"`rsc/schema/chat-exports/conversations/` (currently `rsc/schema/chat-exports/conversations/v6.json`). On failure,"
-doc/project-overview.md,67,doc,rsc/schema/chat-exports/conversations/v6.json,Y,"`rsc/schema/chat-exports/conversations/` (currently `rsc/schema/chat-exports/conversations/v6.json`). On failure,"
-doc/project-overview.md,73,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,`rsc/schema/chat-exports/conversations/workflow.md`) until it passes.
-doc/project-overview.md,77,doc,src/main/chat-exports/extract_files.sh,Y,### 2. `src/main/chat-exports/extract_files.sh` → `extract_files.py`
-doc/project-overview.md,89,doc,src/main/chat-exports/extract_heredocs.sh,Y,### 3. `src/main/chat-exports/extract_heredocs.sh` → `extract_heredocs.py`
-doc/project-overview.md,106,doc,src/main/chat-exports/infer_tables.sh,Y,"### 4. `src/main/chat-exports/infer_tables.sh` *(optional — requires `ANTHROPIC_API_KEY`, costs money)*"
-doc/project-overview.md,115,doc,src/main/chat-exports/RUNME.sh,Y,passed to `src/main/chat-exports/RUNME.sh`.
-doc/project-overview.md,119,doc,src/main/chat-exports/present.sh,Y,### 5. `src/main/chat-exports/present.sh`
-doc/project-overview.md,131,doc,rsc/index.html,Y,Injects all datasets into the `rsc/index.html` template via `<!-- key.json:begin/end -->`
-doc/project-overview.md,144,doc,rsc/artifacts,Y,rsc/artifacts/
-doc/project-overview.md,160,doc,rsc/schema,Y,"Four JSON Schemas (draft-4) in `rsc/schema/`, one per export file type. Schema"
-doc/project-overview.md,167,doc,rsc/schema/chat-exports/conversations/v6.json,Y,| `rsc/schema/chat-exports/conversations/v6.json` | `conversations.json` — full conversation history (claude.ai export; 
-doc/project-overview.md,168,doc,rsc/schema/chat-exports/memories/v1.json,Y,| `rsc/schema/chat-exports/memories/v1.json` | `memories.json` — stored user memories |
-doc/project-overview.md,169,doc,rsc/schema/chat-exports/projects/v1.json,Y,| `rsc/schema/chat-exports/projects/v1.json` | `projects.json` — project metadata |
-doc/project-overview.md,170,doc,rsc/schema/chat-exports/users/v1.json,Y,| `rsc/schema/chat-exports/users/v1.json` | `users.json` — account information |
-doc/project-overview.md,171,doc,rsc/schema/code-projects/session/v1.json,Y,| `rsc/schema/code-projects/session/v1.json` | `{session}.jsonl` → JSON array — Claude Code CLI sessions |
-doc/project-overview.md,177,doc,rsc/schema/_reference/mcp.json,Y,| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `rsc/schema/model_join.csv` for field-level 
-doc/project-overview.md,177,doc,rsc/schema/model_join.csv,Y,| `rsc/schema/_reference/mcp.json` | MCP protocol type definitions; used by `rsc/schema/model_join.csv` for field-level 
-doc/project-overview.md,178,doc,rsc/schema/data-table.json,Y,| `rsc/schema/data-table.json` | Generic columnar table format; used by inferred and computed datasets |
-doc/project-overview.md,179,doc,rsc/schema/documenter.json,Y,| [`rsc/schema/documenter.json`](../rsc/schema/documenter.json) | VS Code tooltip wrapper; enables schema-aware editing 
-doc/project-overview.md,180,doc,rsc/schema/model.json,Y,| `rsc/schema/model.json` | Cross-schema type reference table |
-doc/project-overview.md,184,doc,doc/chat-exports/conversations-schema.md,Y,[`doc/chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md) for details.
-doc/project-overview.md,243,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"| `rsc/schema/chat-exports/conversations/principles.md` | Conversation 15 (""Accessing files from previous chats""), v1.2 "
-doc/project-overview.md,244,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,"| `rsc/schema/chat-exports/conversations/workflow.md` | Conversation 15, v1.0 → extended to v1.3 in repo |"
-doc/project-overview.md,245,doc,src/main/validate.py,Y,"| `src/main/validate.py` | Conversation 30 (""JSON Schema and jq fundamentals""), extended with JSON Pointer / `$ref` reso"
-doc/project-overview.md,246,doc,src/main/chat-exports/word_freq_literal.py,Y,"| `src/main/chat-exports/word_freq_literal.py` | Conversation 30, identical except shebang |"
-doc/project-overview.md,247,doc,src/main/model/gen_model_candidate.py,Y,"| `src/main/model/gen_model_candidate.py` | Conversation 15, minor interface changes: explicit schema path argument; `re"
-doc/project-overview.md,248,doc,src/test/pre_commit.py,Y,"| `src/test/pre_commit.py` | Conversation 15, heavily extended: versioned schema support, `EXPECTED_PASS` matrix of (exp"
+doc/pipeline-model.md,41,doc,rsc/schema/documenter.json,Y,"Non-versioned root schemas ([`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json)"
+doc/pipeline-model.md,41,doc,rsc/schema/model.json,Y,"Non-versioned root schemas ([`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json)"
+doc/pipeline-model.md,70,doc,rsc/schema/{new-pipeline}/{newSchema},N,2. **Create the schema directory**: `rsc/schema/{new-pipeline}/{newSchema}/`
+doc/pipeline-model.md,70,doc,rsc/schema,Y,2. **Create the schema directory**: `rsc/schema/{new-pipeline}/{newSchema}/`
+doc/pipeline-model.md,73,doc,rsc/schema/code-projects/session,Y,- Follow the structure of `rsc/schema/code-projects/session/` as a template
+doc/pipeline-model.md,82,doc,src/main/{new-pipeline}/validate.sh,N,4. **Create the validate script**: `src/main/{new-pipeline}/validate.sh`
+doc/pipeline-model.md,82,doc,src/main,Y,4. **Create the validate script**: `src/main/{new-pipeline}/validate.sh`
+doc/pipeline-model.md,85,doc,src/main/browser-captures/validate.sh,Y,- Follow `src/main/browser-captures/validate.sh` or `src/main/code-projects/validate.sh` as template
+doc/pipeline-model.md,85,doc,src/main/code-projects/validate.sh,Y,- Follow `src/main/browser-captures/validate.sh` or `src/main/code-projects/validate.sh` as template
+doc/pipeline-model.md,97,doc,src/main,Y,"validate_cmd  = f'src/main/{NEW_PIPELINE}/RUNME.sh --{new-pipeline}',"
+doc/pipeline-model.md,108,doc,src/main,Y,src/main/{new-pipeline}/RUNME.sh --{new-pipeline} ../{new-pipeline}
+doc/pipeline-model.md,111,doc,rsc/schema/{newSchema}/CHANGELOG.md,N,7. **Populate the CHANGELOG** in `rsc/schema/{newSchema}/CHANGELOG.md`:
+doc/pipeline-model.md,111,doc,rsc/schema,Y,7. **Populate the CHANGELOG** in `rsc/schema/{newSchema}/CHANGELOG.md`:
+doc/pipeline-model.md,114,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write
+doc/pipeline-model.md,114,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write
+doc/pipeline-model.md,117,doc,src/test/pre_commit.sh,Y,8. **Run `src/test/pre_commit.sh`**: confirm all checks pass. Commit the updated
+doc/pipeline-model.md,118,doc,src/test/pre_commit.log,Y,`src/test/pre_commit.log` so the diff shows what changed.
+doc/pipeline-model.md,120,doc,src/test/xref.sh,Y,9. **Run `src/test/xref.sh`**: confirm no bad-pointer entries. Commit the updated
+doc/pipeline-model.md,121,doc,src/test/xref.csv,Y,`src/test/xref.csv` so the diff shows what references changed.
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Export / Conversation | [v1](./v1.json) | Bytes |
 rsc/schema/browser-captures/apiConversation/README.md,1,doc,rsc/schema/browser-captures/apiConversation,Y,# `rsc/schema/browser-captures/apiConversation/`
 rsc/schema/browser-captures/apiConversation/README.md,7,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,`src/main/browser-captures/safari_fetch_api_json.sh` — one file per conversation.
@@ -237,7 +236,7 @@ rsc/schema/chat-exports/conversations/CHANGELOG.md,22,doc,rsc/schema/browser-cap
 rsc/schema/chat-exports/conversations/CHANGELOG.md,23,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
 rsc/schema/chat-exports/conversations/README.md,1,doc,rsc/schema/chat-exports/conversations,Y,# `rsc/schema/chat-exports/conversations/`
 rsc/schema/chat-exports/conversations/README.md,13,doc,doc/chat-exports/conversations-schema.md,Y,"workflow, and MCP correspondence — see [`doc/chat-exports/conversations-schema.md`](../../../doc/chat-exports/conversati"
-rsc/schema/chat-exports/conversations/README.md,15,doc,doc/project-overview.md,Y,[`doc/project-overview.md`](../../../doc/project-overview.md).
+rsc/schema/chat-exports/conversations/README.md,15,doc,doc/README.md,Y,[`doc/README.md`](../../../doc/README.md).
 rsc/schema/chat-exports/conversations/README.md,33,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` maps the exact field-level correspondences across all pipeline
 rsc/schema/chat-exports/conversations/principles.md,2,doc,rsc/schema/chat-exports/conversations/v6.json,Y,schema_file: rsc/schema/chat-exports/conversations/v6.json
 rsc/schema/chat-exports/conversations/principles.md,3,doc,rsc/schema/chat-exports/conversations/principles.md,Y,principles_file: rsc/schema/chat-exports/conversations/principles.md
@@ -331,7 +330,7 @@ rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/ses
 rsc/schema/code-projects/session/CHANGELOG.md,72,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/code-projects/session/README.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/`
 rsc/schema/code-projects/session/README.md,17,doc,doc/code-projects/session-schema.md,Y,For full context see [`doc/code-projects/session-schema.md`](../../../../doc/code-projects/session-schema.md)
-rsc/schema/code-projects/session/README.md,18,doc,doc/project-overview.md,Y,and [`doc/project-overview.md`](../../../../doc/project-overview.md).
+rsc/schema/code-projects/session/README.md,18,doc,doc/README.md,Y,and [`doc/README.md`](../../../../doc/README.md).
 rsc/schema/code-projects/session/README.md,51,doc,rsc/schema/model_join.csv,Y,## `rsc/schema/model_join.csv`
 rsc/schema/code-projects/session/README.md,56,doc,src/test/pre_commit.py,Y,checked by `src/test/pre_commit.py`.
 rsc/schema/code-projects/session/README.md,65,doc,conversations/v{N}.json,N,This format and the claude.ai export format (`conversations/v{N}.json`) both wrap the same

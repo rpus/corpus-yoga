@@ -93,8 +93,7 @@ python src/test/pre_commit.py
 
 | Document | Description |
 | --- | --- |
-| [`doc/README.md`](doc/README.md) | Index and orientation guide for the `doc/` directory |
-| [`doc/project-overview.md`](doc/project-overview.md) | Architecture: pipeline stages, artifact recovery, all schemas, output structure, provenance |
+| [`doc/README.md`](doc/README.md) | Architecture overview: inputs, pipelines, schemas, output structure, provenance; index of all sub-documents |
 | [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding a new pipeline |
 | [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat-exports/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
 | [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `rsc/schema/browser-captures/apiConversation/`: structure, differences from bulk export, tool blocks |

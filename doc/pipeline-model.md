@@ -38,8 +38,7 @@ requires only a new `PIPELINES` entry; no new functions.
 | `session` | code-projects | v1 | ✓ | `naming.root_schema_title_matches_filename`, `composition.base_schemas_closed` |
 | `apiConversation` | browser-captures | v1 | ✓ | `naming.root_schema_title_matches_filename` |
 
-Non-versioned root schemas ([`data-table.json`](../rsc/schema/data-table.json),
-[`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json))
+Non-versioned root schemas ([`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json))
 are checked by `check_root_schema_diagnostics` — they belong to no pipeline.
 
 ---

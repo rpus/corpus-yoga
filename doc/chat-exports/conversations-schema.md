@@ -5,7 +5,7 @@ the `~/.claude/` local state documented in `doc/code-projects/claude-home-direct
 development process works.
 
 For the broader project context (pipeline, artifact recovery, all four schemas, output
-structure) see [`project-overview.md`](../project-overview.md).
+structure) see [`project-overview.md`](../README.md).
 
 ---
 

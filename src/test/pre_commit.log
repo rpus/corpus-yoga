@@ -1,4 +1,4 @@
-pre_commit.py: 622/622
+pre_commit.py: 597/597
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -33,31 +33,6 @@ pre_commit.py: 622/622
   ✓ exists: src/run_python_script.sh
 
 ── check_root_schema_diagnostics ─────────────────────────────────────────────
-  ✓ composition.base_not_used_directly: data-table.json
-  ✓ composition.base_schemas_closed: data-table.json
-  ✓ composition.discriminator_values_disjoint: data-table.json
-  ✓ composition.no_additional_properties_on_subtypes: data-table.json
-  ✓ composition.wrapper_has_five_fields: data-table.json
-  ✓ documentation.discriminator_fields_annotated: data-table.json
-  ✓ documentation.every_definition_has_title_and_description: data-table.json
-  ✓ documentation.null_only_fields_documented: data-table.json
-  ✓ documentation.open_set_enums_documented: data-table.json
-  ✓ empirical.nullable_fields_surveyed: data-table.json
-  ✓ empirical.oneOf_branches_evidenced: data-table.json
-  ✓ naming.property_keys_lowercase: data-table.json
-  ✓ naming.root_schema_title_matches_filename: data-table.json
-  ✓ naming.title_matches_key: data-table.json
-  ✓ naming.upper_camel_case: data-table.json
-  ✓ structure.all_definitions_reachable: data-table.json
-  ✓ structure.bfs_order: data-table.json
-  ✓ structure.definitions_at_bottom: data-table.json
-  ✓ structure.field_order: data-table.json
-  ✓ structure.minItems_on_non_empty_arrays: data-table.json
-  ✓ structure.no_dangling_refs: data-table.json
-  ✓ structure.no_redundant_additional_properties_true: data-table.json
-  ✓ structure.pattern_constraints_enforced: data-table.json
-  ✓ structure.property_order_matches_data: data-table.json
-  ✓ structure.required_subset_of_properties: data-table.json
   ✓ composition.base_not_used_directly: documenter.json
   ✓ composition.base_schemas_closed: documenter.json
   ✓ composition.discriminator_values_disjoint: documenter.json
@@ -646,4 +621,4 @@ pre_commit.py: 622/622
   ✓ xref: 16 missing-file, 0 bad-pointer, 6 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 622/622; expected: 622/622
+  ✓ score: 597/597; expected: 597/597

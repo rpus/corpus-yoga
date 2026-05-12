@@ -15,7 +15,7 @@ From the v1.json root description:
 > the session envelope is Claude Code CLI-specific.
 
 For full context see [`doc/code-projects/session-schema.md`](../../../../doc/code-projects/session-schema.md)
-and [`doc/project-overview.md`](../../../../doc/project-overview.md).
+and [`doc/README.md`](../../../../doc/README.md).
 
 ---
 

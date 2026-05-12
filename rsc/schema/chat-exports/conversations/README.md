@@ -12,7 +12,7 @@ From the v6.json root description:
 For a full explanation of the schema directory — versioning, supporting files, development
 workflow, and MCP correspondence — see [`doc/chat-exports/conversations-schema.md`](../../../doc/chat-exports/conversations-schema.md).
 For the broader project (pipeline, artifact recovery, all four schemas) see
-[`doc/project-overview.md`](../../../doc/project-overview.md).
+[`doc/README.md`](../../../doc/README.md).
 
 ---
 
