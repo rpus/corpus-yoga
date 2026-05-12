@@ -1,14 +1,15 @@
-# browser-captures — Safari automation
+# browser-captures
 
-AppleScript automation for running `browser-chat-capture.js` in Safari without opening the developer console.
+Safari automation for exporting Claude.ai conversations as markdown and live API JSON.
 
-## Files
+Two modes — same JS ([`browser-chat-capture.js`](browser-chat-capture.js)), different scope:
 
-- `export.applescript` — dispatcher: delegates to the right script based on the front tab URL
-- `export-conversation.applescript` — exports the conversation in the current Safari tab
-- `export-all-conversations.applescript` — exports every conversation, one tab at a time
-- `browser-chat-capture.js` — injected into each tab; captures messages via clipboard interception and downloads `{name}.md` + `{name}.log`
-- `safari_capture.sh` / `safari_capture.py` — pipeline entry point: iterates a bulk export's `conversations.json`, calls `export-conversation.applescript` per UUID, moves output to `../browser-captures/`
+| Mode | Entry point | Output |
+| --- | --- | --- |
+| **Shortcut** | `export.applescript` | `~/Downloads/` |
+| **Pipeline** | `safari_capture.sh` | `../browser-captures/<batch>/<uuid>/` |
+
+---
 
 ## One-time setup
 
@@ -18,87 +19,74 @@ Safari › Develop › Allow JavaScript from Apple Events
 
 If the Develop menu is not visible: Safari › Settings › Advanced › Show features for web developers
 
-## Usage
+---
 
-### Export the current conversation
+## Shortcut mode
 
-1. Open the Claude.ai conversation you want to export in Safari (front tab)
-2. Run `export.applescript` (or `export-conversation.applescript` directly)
+Standalone — no pipeline or data export needed.
 
-The front tab must be on a `https://claude.ai/chat/` URL; the script alerts and exits if not.
-Output goes to `~/Downloads/` as `{name}.md` and `{name}.log`.
+**Scope:** `claude.ai/chat/*` (single conversation) or `claude.ai/recents` (all) — `export.applescript` detects the front tab and delegates to `export-conversation.applescript` or `export-all-conversations.applescript` accordingly. Both inject `browser-chat-capture.js` into the page, which intercepts clipboard writes to capture each message and assembles the markdown.
 
-### Export all conversations (shortcut mode)
-
-1. Open `https://claude.ai/recents` in Safari (front tab)
-2. Run `export.applescript` (or `export-all-conversations.applescript` directly)
-3. Confirm the count in the dialog
-4. Safari opens each conversation in a new tab, downloads `.md` and `.log` to `~/Downloads/`, and closes the tab
-
-Both scripts read `browser-chat-capture.js` from the same directory at run time, so changes to the JS are picked up automatically.
-
-### Running the scripts
-
-- Open in Script Editor and click Run
-- Save as an Application (File › Export › File Format: Application) and double-click
-- Trigger via the Shortcuts app (see below)
-
-#### Shortcuts app (recommended for keyboard shortcut)
-
-Add a "Run Shell Script" action. Use `export.applescript` for a single shortcut that works on both pages:
+**Command:**
 
 ```bash
-caffeinate -dim osascript "$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-captures/export.applescript"
+caffeinate -dim osascript "$HOME/dev/Anthropic/claude-export-yoga/export.applescript"
 ```
 
-Then assign a keyboard shortcut in the shortcut's Details panel. `caffeinate -dim` prevents display, idle, and disk sleep during long batch runs.
+`caffeinate -dim` prevents display, idle, and disk sleep during long batch runs.
+To add a keyboard shortcut: create a Shortcuts app action with the above command.
 
-### Stopping a batch run
+**Output:** `{name}.md` + `{name}.log` + `{uuid}.json` per conversation, in `~/Downloads/`.
 
-To stop `export-all-conversations.applescript` mid-run:
+**Stopping:** `pkill -f "export-all-conversations"`, or close the current Safari tab — the script errors and halts.
 
-```bash
-pkill -f "export-all-conversations"
-```
+---
 
-Or close the currently open Safari tab — the script will error and halt on the next iteration.
+## Pipeline mode
 
-## What each script does
+Requires a downloaded bulk chat export in `../chat-exports/`. Safari must be open and logged in for steps 1–2.
 
-### `export.applescript`
+**Scope:** a single export batch or all batches; each step accepts **ONE OF**:
 
-Checks the front tab URL and delegates:
+1. **Capture** conversations as markdown (`safari_capture.sh` — iterates the export's `conversations.json`, navigates Safari to each conversation, and injects `browser-chat-capture.js` to capture and download the markdown):
+    - `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
+    - `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
 
-- `https://claude.ai/chat/*` → `export-conversation.applescript`
-- `https://claude.ai/recents` → `export-all-conversations.applescript`
-- Anything else → alert
+2. **Fetch** live API JSON for each capture (`safari_fetch_api_json.sh`):
+    - `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
+    - `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
 
-### `export-conversation.applescript`
+3. **Validate** API JSON against the `apiConversation` schema (`RUNME.sh`):
+    - `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
+    - `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
 
-1. Checks the front tab URL starts with `https://claude.ai/chat/`
-2. Reads and injects `browser-chat-capture.js` into the tab
-3. The JS captures each message by clicking copy buttons and intercepting the clipboard, builds markdown, and downloads `{name}.md` and `{name}.log` to `~/Downloads/`
+**Output:** `{name}.md` + `{name}.log` + `{name}.json` per conversation, in `../browser-captures/<batch>/<uuid>/`.
 
-### `export-all-conversations.applescript`
+**Stopping:** each step runs to completion; to abort `safari_capture.sh` or `safari_fetch_api_json.sh` mid-run, close the current Safari tab.
 
-1. Checks the front tab URL starts with `https://claude.ai/recents`
-2. Clicks "Show more" until all conversations are loaded into the DOM
-3. Extracts all unique conversation UUIDs and names from the chat links
-4. Shows a confirmation dialog with the count
-5. For each conversation: opens `https://claude.ai/chat/{uuid}` in a new tab, waits for React to render, runs `export-conversation.applescript`, polls the status div for completion (bails after 30s stall), logs the result, then closes the tab
+---
 
-Output goes to `~/Downloads/` as flat files. Log is appended to `claude-export.log` in the same directory as the scripts.
+## Files
 
-Log format:
+### Pipeline scripts
 
-```text
-2026-05-04 14:23:45 === 55 conversations ===
-2026-05-04 14:23:46    1/55 | <uuid> | <name>
-2026-05-04 14:23:46    opening
-2026-05-04 14:23:52    running export
-2026-05-04 14:24:07    ✅ Downloaded: filename.md
-2026-05-04 14:24:07    json: filename.json
-```
+| File | What it does |
+| --- | --- |
+| `safari_capture.sh` / `safari_capture.py` | Iterates a bulk export's conversations, captures each via Safari, writes `{name}.md` + `{name}.log` + `{name}.json` to `../browser-captures/<batch>/<uuid>/` |
+| `safari_fetch_api_json.sh` / `safari_fetch_api_json.py` | For each capture, fetches the live API JSON from `/api/organizations/{org}/chat_conversations/{uuid}` and saves it alongside the markdown |
+| `validate.sh` | Validates each `{name}.json` against `rsc/schema/browser-captures/apiConversation/` |
+| `RUNME.sh` | Runs `validate.sh` for a batch or all batches |
+
+### Shortcut mode scripts
+
+| File | What it does |
+| --- | --- |
+| `export.applescript` | Dispatcher: delegates based on front tab URL |
+| `export-conversation.applescript` | Exports the conversation in the current tab |
+| `export-all-conversations.applescript` | Exports every conversation from `/recents` |
+| `browser-chat-capture.js` | Injected into each tab; captures messages via clipboard |
+
+---
 
 ## Troubleshooting
 

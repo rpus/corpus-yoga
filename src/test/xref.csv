@@ -23,7 +23,7 @@ CLAUDE.md,91,doc,src/main/browser-captures/export.applescript,Y,"Entry points: [
 CLAUDE.md,92,doc,src/main/browser-captures/export-conversation.applescript,Y,"[`export-conversation.applescript`](src/main/browser-captures/export-conversation.applescript),"
 CLAUDE.md,93,doc,src/main/browser-captures/export-all-conversations.applescript,Y,[`export-all-conversations.applescript`](src/main/browser-captures/export-all-conversations.applescript).
 CLAUDE.md,98,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
-CLAUDE.md,107,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+CLAUDE.md,107,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 CLAUDE.md,112,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,To validate the captured API JSON against `rsc/schema/browser-captures/apiConversation/v1.json`:
 CLAUDE.md,115,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
 CLAUDE.md,136,doc,doc/pipeline-model.md,Y,"- Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`"
@@ -35,7 +35,7 @@ CLAUDE.md,140,doc,rsc/schema/model_join.csv,Y,- `rsc/schema/model_join.csv` — 
 CLAUDE.md,141,doc,src/test/gen_changelog_matrix.py,Y,- `src/test/gen_changelog_matrix.py` — generates CHANGELOG rows from gen/ logs for any pipeline
 README.md,21,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
 README.md,25,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
-README.md,27,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>`
+README.md,27,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>`
 README.md,30,doc,src/main/model/search_proxy.sh,Y,- `src/main/model/search_proxy.sh --daemon` then open <http://localhost:8182>
 README.md,31,doc,src/main/model/search_proxy.sh,Y,- `src/main/model/search_proxy.sh stop` to shut down
 README.md,35,doc,src/main/browser-captures/RUNME.sh,Y,./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
@@ -149,7 +149,7 @@ doc/browser-captures/api-conversation-schema.md,99,doc,rsc/schema/browser-captur
 doc/browser-captures/api-conversation-schema.md,104,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
 doc/browser-captures/research.md,16,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The response is a JSON object conforming to `rsc/schema/browser-captures/apiConversation/v1.json`. This is the
 doc/browser-captures/research.md,46,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
-doc/browser-captures/research.md,59,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+doc/browser-captures/research.md,59,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 doc/browser-captures/research.md,112,doc,rsc/schema/model_join.csv,Y,See `rsc/schema/model_join.csv` for the full field-level comparison.
 doc/browser-captures/research.md,121,doc,src/main/validate.py,Y,2. Ran `src/main/validate.py` against each with a draft schema
 doc/browser-captures/research.md,123,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,4. Validated all 55 pass — results recorded in `rsc/schema/browser-captures/apiConversation/CHANGELOG.md`
@@ -216,7 +216,7 @@ rsc/schema/browser-captures/apiConversation/workflow.md,3,doc,rsc/schema/browser
 rsc/schema/browser-captures/apiConversation/workflow.md,4,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,workflow_file: rsc/schema/browser-captures/apiConversation/workflow.md
 rsc/schema/browser-captures/apiConversation/workflow.md,8,doc,rsc/schema/browser-captures/apiConversation/v{N}.json,N,# Schema Development Workflow for `rsc/schema/browser-captures/apiConversation/v{N}.json`
 rsc/schema/browser-captures/apiConversation/workflow.md,11,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md`.
-rsc/schema/browser-captures/apiConversation/workflow.md,28,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+rsc/schema/browser-captures/apiConversation/workflow.md,28,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 rsc/schema/browser-captures/apiConversation/workflow.md,34,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
 rsc/schema/browser-captures/apiConversation/workflow.md,38,doc,rsc/schema/chat-exports/conversations/principles.md,Y,the principles in `principles.md` and `rsc/schema/chat-exports/conversations/principles.md`).
 rsc/schema/browser-captures/apiConversation/workflow.md,42,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
@@ -389,15 +389,21 @@ rsc/snippets.md,40,doc,rsc/schema/chat-exports/conversations/v4.json,Y,jq '[.def
 rsc/snippets.md,69,doc,rsc/schema/chat-exports/conversations/v4.json,Y,]' ./schema/chat-exports/conversations/v4.json
 rsc/snippets.md,90,doc,rsc/schema/chat-exports/conversations/v4.json,Y,]' ./schema/chat-exports/conversations/v4.json
 src/activate_venv.sh,4,comment,src/activate_venv.sh,Y,# Override the path: VENV=/other/path source src/activate_venv.sh
-src/main/browser-captures/README.md,51,doc,src/main/browser-captures/export.applescript,Y,"caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-captures/export.applescript"""
+src/main/browser-captures/README.md,52,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
+src/main/browser-captures/README.md,53,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
+src/main/browser-captures/README.md,56,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
+src/main/browser-captures/README.md,57,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
+src/main/browser-captures/README.md,60,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
+src/main/browser-captures/README.md,61,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
+src/main/browser-captures/README.md,77,doc,rsc/schema/browser-captures/apiConversation,Y,| `validate.sh` | Validates each `{name}.json` against `rsc/schema/browser-captures/apiConversation/` |
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
 src/main/browser-captures/RUNME.sh,14,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$batch_dir"""
 src/main/browser-captures/safari_capture.sh,6,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>
 src/main/browser-captures/safari_capture.sh,7,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports
 src/main/browser-captures/safari_capture.sh,17,path_str,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim python3 ""$SCRIPT_DIR/safari_capture.py"" ""$@"""
-src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --captures     ../browser-captures/data-<...>
-src/main/browser-captures/safari_fetch_api_json.sh,7,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --captures-root ../browser-captures
+src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+src/main/browser-captures/safari_fetch_api_json.sh,7,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures
 src/main/browser-captures/safari_fetch_api_json.sh,15,path_str,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim python3 ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"""
 src/main/browser-captures/validate.sh,5,comment,src/main/browser-captures/validate.sh,Y,#   src/main/browser-captures/validate.sh --browser-capture <path/to/batch-directory>
 src/main/browser-captures/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""

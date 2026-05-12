@@ -117,18 +117,18 @@ def run_one(captures_root):
 def main():
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument('--captures',
+    g.add_argument('--browser-capture',
                    help='Path to a single browser-captures/<batch>/ directory')
-    g.add_argument('--captures-root',
+    g.add_argument('--browser-captures',
                    help='Path to gen/browser-captures/ — iterates over all batch directories')
     args = ap.parse_args()
 
     safari_focus()
 
-    if args.captures:
-        run_one(Path(args.captures).resolve())
+    if args.browser_capture:
+        run_one(Path(args.browser_capture).resolve())
     else:
-        for d in sorted(Path(args.captures_root).resolve().iterdir()):
+        for d in sorted(Path(args.browser_captures).resolve().iterdir()):
             if d.is_dir():
                 run_one(d)
 

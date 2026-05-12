@@ -104,7 +104,7 @@ Requires Safari open and logged into claude.ai. Output goes to
 To fetch live API JSON for existing captures that don't have it:
 
 ```bash
-src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 ```
 
 Saves `{title}.json` alongside each `.md` and `.log`.

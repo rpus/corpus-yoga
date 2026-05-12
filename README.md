@@ -24,7 +24,7 @@ This repo wrangles Claude data exports.
   - **Pipeline mode** (scope-constrained to a bulk export, outputs to `../browser-captures/<export-name>/<uuid>/`):
     - `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
 - Fetch live API JSON for existing captures without it (for apiConversation schema validation):
-  - `./src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>`
+  - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>`
   - Saves `{title}.json` alongside each capture
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/search_proxy.sh --daemon` then open <http://localhost:8182>

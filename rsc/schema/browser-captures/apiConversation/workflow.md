@@ -25,7 +25,7 @@ new API response shapes.
 1. Fetch API JSON for the batch:
 
    ```bash
-   src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+   src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
    ```
 
 2. Validate against the current schema:

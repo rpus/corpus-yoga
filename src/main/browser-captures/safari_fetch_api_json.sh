@@ -3,8 +3,8 @@
 # Requires Safari open and logged into claude.ai.
 #
 # Usage:
-#   ./src/main/browser-captures/safari_fetch_api_json.sh --captures     ../browser-captures/data-<...>
-#   ./src/main/browser-captures/safari_fetch_api_json.sh --captures-root ../browser-captures
+#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures
 
 set -euo pipefail
 

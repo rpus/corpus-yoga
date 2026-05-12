@@ -56,7 +56,7 @@ Requires: Safari open and logged into claude.ai, `caffeinate` keeps the session 
 ### `safari_fetch_api_json.sh` — API JSON capture
 
 ```bash
-src/main/browser-captures/safari_fetch_api_json.sh --captures ../browser-captures/data-<...>
+src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 ```
 
 For each UUID directory that has a markdown capture but no JSON file, navigates Safari
