@@ -1,5 +1,13 @@
 # TODO
 
+## pre-commit hook leaves xref.csv and pre_commit.log dirty after commit
+
+The pre-commit hook runs `pre_commit.sh`, which regenerates `xref.csv` and
+`pre_commit.log` — but does not stage them. After every commit they are left dirty in
+the working tree. The hook should either auto-stage these generated files before the
+commit proceeds, or the workflow should require them to be staged manually before
+committing.
+
 ## gen_changelog_matrix --write can silently encode failures as expected
 
 The fix hint emitted by pre_commit (`gen_changelog_matrix --write`) writes whatever
@@ -31,15 +39,6 @@ staleness (version numbers drift), dilution (critical rules like pre_commit inva
 buried among lower-priority content), and cognitive overload (too much to read means
 nothing gets read). Audit all doc/ files, schema principles.md and workflow.md files,
 README.md, CLAUDE.md for redundancy and consolidation opportunities.
-
-## Bug in debug_code_session_record.py: validates against root schema not Record definition
-
-`validator.iter_errors(record)` is called with a validator built from the root schema
-(which expects a `Session` array). Every individual record fails this check because an
-object is not an array — so the failing-record count and "first failing record" are
-always wrong. The drill-down works correctly because it uses `validator.descend` against
-branch definitions directly. Fix: validate each record against
-`schema['definitions']['Record']` instead of the root schema.
 
 ## Surface ai-title names alongside UUID prefixes
 

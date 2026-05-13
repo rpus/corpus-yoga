@@ -46,7 +46,7 @@ def load(session_path: Path, schema_path: Path):
 
 def diagnose_record(validator, schema, record, index: int) -> bool:
     """Return True if record is valid, False if it fails (with diagnostics printed)."""
-    root_errs = list(validator.iter_errors(record))
+    root_errs = list(validator.descend(record, schema['definitions']['Record']))
     if not root_errs:
         return True
 
@@ -115,7 +115,7 @@ def main():
         return
 
     failures = [(i, r) for i, r in enumerate(data)
-                if list(validator.iter_errors(r))]
+                if list(validator.descend(r, schema['definitions']['Record']))]
 
     if not failures:
         print('\nAll records valid.')
