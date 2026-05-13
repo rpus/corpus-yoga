@@ -13,15 +13,6 @@ only tail output will miss failures. pre_commit already surfaces pass/fail corre
 consider whether RUNME.sh should emit a compact summary line per session in addition
 to the full error output, so failures are visible without scrolling.
 
-## Merge CONTRIBUTING.md and README.md; use TODO as the live capture mechanism
-
-CONTRIBUTING.md and README.md serve the same audience and are diverging from each other and
-from reality. Merge into one document that is the stable structural reference. Instead
-of updating documentation in-place when something is discovered or changes, write it
-to TODO. The human maintainer audits TODO (and commits) and decides what gets promoted
-into the permanent doc, what gets acted on, and what gets discarded. Documentation
-that isn't actively maintained becomes misinformation.
-
 ## Reduce documentation volume
 
 The repo has too much documentation, spread across too many files. This causes:
