@@ -389,13 +389,13 @@ rsc/snippets.md,40,doc,rsc/schema/chat-exports/conversations/v4.json,Y,jq '[.def
 rsc/snippets.md,69,doc,rsc/schema/chat-exports/conversations/v4.json,Y,]' ./schema/chat-exports/conversations/v4.json
 rsc/snippets.md,90,doc,rsc/schema/chat-exports/conversations/v4.json,Y,]' ./schema/chat-exports/conversations/v4.json
 src/activate_venv.sh,4,comment,src/activate_venv.sh,Y,# Override the path: VENV=/other/path source src/activate_venv.sh
-src/main/browser-captures/README.md,52,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
-src/main/browser-captures/README.md,53,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
-src/main/browser-captures/README.md,56,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
-src/main/browser-captures/README.md,57,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
-src/main/browser-captures/README.md,60,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
-src/main/browser-captures/README.md,61,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
-src/main/browser-captures/README.md,77,doc,rsc/schema/browser-captures/apiConversation,Y,| `validate.sh` | Validates each `{name}.json` against `rsc/schema/browser-captures/apiConversation/` |
+src/main/browser-captures/README.md,50,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
+src/main/browser-captures/README.md,51,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
+src/main/browser-captures/README.md,54,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
+src/main/browser-captures/README.md,55,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
+src/main/browser-captures/README.md,58,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
+src/main/browser-captures/README.md,59,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
+src/main/browser-captures/README.md,75,doc,rsc/schema/browser-captures/apiConversation,Y,| `validate.sh` | Validates each `{name}.json` against `rsc/schema/browser-captures/apiConversation/` |
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
 src/main/browser-captures/RUNME.sh,14,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$batch_dir"""
