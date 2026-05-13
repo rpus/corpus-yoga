@@ -330,7 +330,7 @@ rsc/schema/chat-exports/conversations/workflow.md,382,doc,rsc/schema/chat-export
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
-rsc/schema/code-projects/session/CHANGELOG.md,85,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,87,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/code-projects/session/README.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/`
 rsc/schema/code-projects/session/README.md,17,doc,doc/code-projects/session-schema.md,Y,For full context see [`doc/code-projects/session-schema.md`](../../../../doc/code-projects/session-schema.md)
 rsc/schema/code-projects/session/README.md,18,doc,doc/README.md,Y,and [`doc/README.md`](../../../../doc/README.md).
