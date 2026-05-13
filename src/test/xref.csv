@@ -503,8 +503,8 @@ src/main/code-projects/validate.sh,12,path_str,gen/code-projects,Y,"OUTPUT_DIR="
 src/main/code-projects/validate.sh,13,call,src/main/code-projects/jsonl_to_json.sh,Y,"JSONL_TO_JSON=""$SCRIPT_DIR/jsonl_to_json.sh"""
 src/main/code-projects/validate.sh,16,call,src/main/validate_versions.sh,Y,"source ""$REPO_DIR/src/main/validate_versions.sh"""
 src/main/code-projects/validate.sh,25,call,src/main/code-projects/jsonl_to_json.sh,Y,"""$JSONL_TO_JSON"" ""$jsonl"" ""$json_out"""
-src/main/code-projects/validate.sh,27,path_str,rsc/schema/code-projects/session,Y,"validate_versions ""$json_out"" ""$SCHEMA_DIR"" ""$out_dir/validation/session"" ""$session"""
-src/main/code-projects/validate.sh,71,call,src/activate_venv.sh,Y,"source ""$REPO_DIR/src/activate_venv.sh"""
+src/main/code-projects/validate.sh,38,path_str,rsc/schema/code-projects/session,Y,"validate_versions ""$json_out"" ""$SCHEMA_DIR"" ""$out_dir/validation/session"" ""$session"""
+src/main/code-projects/validate.sh,82,call,src/activate_venv.sh,Y,"source ""$REPO_DIR/src/activate_venv.sh"""
 src/main/model/gen_model.py,2,comment,rsc/schema/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
 src/main/model/gen_model.py,4,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
 src/main/model/gen_model.py,7,comment,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh

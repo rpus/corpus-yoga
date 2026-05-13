@@ -30,3 +30,32 @@ Session `.jsonl` files contain `ai-title` records with a human-readable session 
 The CHANGELOG and pre_commit output currently identify sessions only by 8-char UUID
 prefix (e.g. `32bd7448…`). Surfacing the ai-title name alongside would make it much
 easier to identify which session is which without cross-referencing the VS Code plugin.
+
+### Survey results (2026-05-13)
+
+**Within-session: 9 of 16 sessions have conflicting titles.** Claude Code re-titles
+mid-session and sometimes changes the wording. Examples:
+
+- `73f51bc1`: `'Fix staged changes commit issue'` vs `'Troubleshoot git commit failure'`
+- `b0c38f0b`: `'Determine Claude model version in code session'` vs `'Determine Claude model version in session'`
+- `e87e0735`: `'Review and analyze repository structure'` vs `'Thorough repository code review'`
+
+**Cross-session: no duplicates** — each settled title is unique across sessions.
+
+The within-session conflict means `ai-title` is not a stable per-session identifier as-is.
+The VS Code UI also allows the user to rename a session manually, which writes another
+`ai-title` record — indistinguishable from auto-generated ones. This means the last
+`ai-title` record always reflects the user's final intent, making **last-wins** the
+correct policy. This also gives the field a sane name: `currentSessionTitle` (the current,
+user-visible title of the session).
+
+### Schema implications
+
+- `AiTitleRecord` — our name, can be renamed to `CurrentTitleRecord` (description-only
+  change in schema terms, no validation effect).
+- `aiTitle` — the actual field name written by Claude Code; cannot be renamed without
+  breaking validation of real data. Update its description to reflect true semantics:
+  the current user-visible session title, set by Claude Code (initially and on retitle)
+  or by the user via the VS Code UI.
+- `type: "ai-title"` — the discriminator value written by Claude Code; fixed.
+- Considered a PATCH version bump (description-only, no validation change).

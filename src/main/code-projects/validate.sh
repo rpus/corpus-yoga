@@ -24,6 +24,17 @@ validate_session() {
 
   "$JSONL_TO_JSON" "$jsonl" "$json_out"
 
+  # Create a human-readable symlink using the current session title.
+  local title_file="$json_out.title"
+  if [[ -f "$title_file" ]]; then
+    local raw_title; raw_title="$(cat "$title_file")"
+    if [[ -n "$raw_title" ]]; then
+      local slug; slug="$(echo "$raw_title" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/-*$//')"
+      local link="$out_dir/${slug}.json"
+      ln -sfn session.json "$link"
+    fi
+  fi
+
   validate_versions "$json_out" "$SCHEMA_DIR" "$out_dir/validation/session" "$session"
 }
 
