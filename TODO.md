@@ -1,20 +1,16 @@
 # TODO
 
-## pre-commit hook leaves xref.csv and pre_commit.log dirty after commit
+## pre-commit hook: run, stage, run; pass if and only if no changes
 
-The pre-commit hook runs `pre_commit.sh`, which regenerates `xref.csv` and
-`pre_commit.log` — but does not stage them. After every commit they are left dirty in
-the working tree. The hook should either auto-stage these generated files before the
-commit proceeds, or the workflow should require them to be staged manually before
-committing.
+The hook should enforce idempotency: run pre_commit.sh (generating pre_commit.log and
+xref.csv), stage both, run pre_commit.sh again, and pass only if the second run
+produces no further changes. Any divergence between runs means the committed state is
+inconsistent and the commit should be blocked.
 
-## gen_changelog_matrix --write can silently encode failures as expected
+### Depends on gen_changelog_matrix fix above
 
-The fix hint emitted by pre_commit (`gen_changelog_matrix --write`) writes whatever
-the current validation logs say — including failures. If run before understanding why
-a session is failing, it registers the failure as expected and masks it from future
-pre_commit runs. The hint should either warn when it is about to encode a ✗, or the
-workflow doc should make this risk explicit.
+Until that is fixed, the idempotency check can pass while masking a real regression
+encoded as an expected ✗.
 
 ## RUNME.sh output too large to scan for failures
 

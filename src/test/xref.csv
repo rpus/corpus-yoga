@@ -91,7 +91,7 @@ README.md,129,doc,src/test/diagnostics/README.md,Y,"| [`src/test/diagnostics/REA
 README.md,130,doc,src/test/repairs/README.md,Y,"| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |"
 README.md,136,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |"
 README.md,137,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
-TODO.md,61,doc,src/test/pre_commit.log,Y,pre_commit.log is committed so that `git diff src/test/pre_commit.log` shows exactly
+TODO.md,58,doc,src/test/pre_commit.log,Y,pre_commit.log is committed so that `git diff src/test/pre_commit.log` shows exactly
 doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,The `CHANGELOG.md` in `rsc/schema/chat-exports/conversations/` tracks which exports have been processed and which schema
 doc/README.md,32,doc,doc/code-projects/research.md,Y,See `doc/code-projects/research.md` for setup and format documentation.
 doc/README.md,36,doc,doc/browser-captures/research.md,Y,Per-conversation API JSON files captured from the live claude.ai API via Safari automation. See `doc/browser-captures/re

@@ -89,6 +89,12 @@ def _subject(row: str) -> str:
     return re.sub(r'\s+', ' ', row.split('|')[1].strip())
 
 
+def _result_cells(row: str) -> list[str]:
+    """Extract the ✓/✗/? cells from a table row, excluding subject (first) and bytes (last)."""
+    cells = [c.strip() for c in row.strip('|').split('|')]
+    return cells[1:-1]
+
+
 def write_changelog(path: Path, new_table_lines: list[str], footer: str = '') -> None:
     """Update the generated block (matrix table + footer) in place.
 
@@ -123,14 +129,26 @@ def write_changelog(path: Path, new_table_lines: list[str], footer: str = '') ->
     new_header  = new_table_lines[:2]
     new_by_subj = {_subject(r): r for r in new_table_lines[2:]}
     seen: set[str] = set()
+    rewrites: list[tuple[str, str, str]] = []
     out = new_header[:]
     for row in existing_table[2:]:
         subj = _subject(row)
+        if subj in new_by_subj and _result_cells(new_by_subj[subj]) != _result_cells(row):
+            rewrites.append((subj, row.strip(), new_by_subj[subj].strip()))
         out.append(new_by_subj[subj] if subj in new_by_subj else row)
         seen.add(subj)
     for subj, row in sorted(new_by_subj.items()):
         if subj not in seen:
             out.append(row)
+
+    if rewrites:
+        print('ERROR: gen_changelog_matrix --write would rewrite existing history:', file=sys.stderr)
+        for subj, old, new in rewrites:
+            print(f'  {subj}', file=sys.stderr)
+            print(f'    was: {old}', file=sys.stderr)
+            print(f'    now: {new}', file=sys.stderr)
+        print('Investigate the validation change before updating the CHANGELOG manually.', file=sys.stderr)
+        sys.exit(1)
 
     if footer:
         out += ['', footer]
