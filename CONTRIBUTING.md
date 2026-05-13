@@ -1,4 +1,4 @@
-# CLAUDE.md
+# CONTRIBUTING.md
 
 This file is the authoritative substitute for the project memory stored at
 `~/.claude/projects/-Users-*-claude-export-yoga/memory/MEMORY.md`. Do not modify that file or directory; edit this file instead as needed.
