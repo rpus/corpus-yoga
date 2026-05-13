@@ -44,19 +44,17 @@ To add a keyboard shortcut: create a Shortcuts app action with the above command
 
 ## Pipeline mode
 
-Requires a downloaded bulk chat export in `../chat-exports/`. Safari must be open and logged in for steps 1–2.
+Each step accepts a single batch or all batches (**ONE OF**):
 
-**Scope:** a single export batch or all batches; each step accepts **ONE OF**:
-
-1. **Capture** conversations as markdown (`safari_capture.sh` — iterates the export's `conversations.json`, navigates Safari to each conversation, and injects `browser-chat-capture.js` to capture and download the markdown):
+1. **Capture** conversations as markdown — *requires: data export in `../chat-exports/`, Safari open and logged in* (`safari_capture.sh` iterates the export's `conversations.json`, navigates Safari to each conversation, and injects `browser-chat-capture.js` to capture and download the markdown):
     - `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
     - `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
 
-2. **Fetch** live API JSON for each capture (`safari_fetch_api_json.sh`):
+2. **Fetch** live API JSON for each capture — *requires: Safari open and logged in* (`safari_fetch_api_json.sh`):
     - `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
     - `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
 
-3. **Validate** API JSON against the `apiConversation` schema (`RUNME.sh`):
+3. **Validate** API JSON against the `apiConversation` schema — *no external requirements* (`RUNME.sh`):
     - `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
     - `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
 
