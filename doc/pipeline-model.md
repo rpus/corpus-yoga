@@ -31,11 +31,11 @@ requires only a new `PIPELINES` entry; no new functions.
 
 | Schema | Pipeline | Versions | CHANGELOG | Diagnostic skips |
 | --- | --- | --- | --- | --- |
-| `conversations` | chat-exports | v1–v6 | ✓ | `naming.root_schema_title_matches_filename` |
+| `conversations` | chat-exports | v1–v7 | ✓ | `naming.root_schema_title_matches_filename` |
 | `memories` | chat-exports | v1 | — | `naming.root_schema_title_matches_filename` |
 | `projects` | chat-exports | v1 | — | `naming.root_schema_title_matches_filename` |
 | `users` | chat-exports | v1 | — | `naming.root_schema_title_matches_filename` |
-| `session` | code-projects | v1 | ✓ | `naming.root_schema_title_matches_filename`, `composition.base_schemas_closed` |
+| `session` | code-projects | v1–v3 | ✓ | `naming.root_schema_title_matches_filename`, `composition.base_schemas_closed` |
 | `apiConversation` | browser-captures | v1 | ✓ | `naming.root_schema_title_matches_filename` |
 
 Non-versioned root schemas ([`documenter.json`](../rsc/schema/documenter.json), [`model.json`](../rsc/schema/model.json))

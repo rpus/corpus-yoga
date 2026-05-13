@@ -66,7 +66,7 @@ manually. Dependencies: `requirements.txt`.
 ## Schema directories
 
 Grouped by pipeline, named after the data format within each:
-`rsc/schema/chat-exports/conversations/` (currently v1–v6), `rsc/schema/code-projects/session/` (currently v1),
+`rsc/schema/chat-exports/conversations/` (currently v1–v7), `rsc/schema/code-projects/session/` (currently v1–v3),
 `rsc/schema/browser-captures/apiConversation/` (currently v1).
 
 `rsc/schema/browser-captures/apiConversation/v1.json` validates live claude.ai API responses (`ApiConversation`
@@ -136,7 +136,7 @@ Key points:
 - Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`
 - Invariants: see Key invariants section above; `git clean -fdX; git clean -fdxn`
 - Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation
-- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v6), `rsc/schema/code-projects/session/` (v1, singular!), `rsc/schema/browser-captures/apiConversation/` (v1)
+- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/browser-captures/apiConversation/` (v1)
 - `rsc/schema/model_join.csv` — unified 4-way join: conversations ↔ session ↔ apiConversation ↔ MCP
 - `src/test/gen_changelog_matrix.py` — generates CHANGELOG rows from gen/ logs for any pipeline
 - Validation matrix driven by CHANGELOG.md files (not hardcoded constants) via `_parse_changelog_matrix()`

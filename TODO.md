@@ -1,11 +1,5 @@
 # TODO
 
-## CLAUDE.md / doc version references
-
-CLAUDE.md (lines 69, 139) and doc/pipeline-model.md (lines 34, 38) still say
-conversations is v1–v6 and session is v1. Both are now at v7 and v3 respectively.
-Simple text update — but must run pre_commit before and after.
-
 ## gen_changelog_matrix --write can silently encode failures as expected
 
 The fix hint emitted by pre_commit (`gen_changelog_matrix --write`) writes whatever

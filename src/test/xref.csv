@@ -12,8 +12,8 @@ CLAUDE.md,52,doc,src/test/xref.csv,Y,- Run `src/test/xref.sh` after structural c
 CLAUDE.md,52,doc,src/test/xref.sh,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Expected counts are tracked in [`src/test/x
 CLAUDE.md,54,doc,rsc/artifacts,Y,- `rsc/artifacts/downloaded/` is ground truth — never edit files in place. It is already excluded from `xref.py` scannin
 CLAUDE.md,60,doc,src/activate_venv.sh,Y,`src/activate_venv.sh` is the single canonical activator. Path: `~/venvs/general`
-CLAUDE.md,69,doc,rsc/schema/chat-exports/conversations,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v6), `rsc/schema/code-projects/session/` (currently v1),"
-CLAUDE.md,69,doc,rsc/schema/code-projects/session,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v6), `rsc/schema/code-projects/session/` (currently v1),"
+CLAUDE.md,69,doc,rsc/schema/chat-exports/conversations,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v7), `rsc/schema/code-projects/session/` (currently v1–v3),"
+CLAUDE.md,69,doc,rsc/schema/code-projects/session,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v7), `rsc/schema/code-projects/session/` (currently v1–v3),"
 CLAUDE.md,70,doc,rsc/schema/browser-captures/apiConversation,Y,`rsc/schema/browser-captures/apiConversation/` (currently v1).
 CLAUDE.md,72,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,`rsc/schema/browser-captures/apiConversation/v1.json` validates live claude.ai API responses (`ApiConversation`
 CLAUDE.md,80,doc,src/main/browser-captures/browser-chat-capture.js,Y,"Two modes — same JS ([`browser-chat-capture.js`](src/main/browser-captures/browser-chat-capture.js)), different scope an"
@@ -28,9 +28,9 @@ CLAUDE.md,112,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,To valid
 CLAUDE.md,115,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
 CLAUDE.md,136,doc,doc/pipeline-model.md,Y,"- Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`"
 CLAUDE.md,138,doc,src/activate_venv.sh,Y,"- Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation"
-CLAUDE.md,139,doc,rsc/schema/chat-exports/conversations,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v6), `rsc/schema/code-projects/session/` (v1, singular!), `rsc/s"
-CLAUDE.md,139,doc,rsc/schema/code-projects/session,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v6), `rsc/schema/code-projects/session/` (v1, singular!), `rsc/s"
-CLAUDE.md,139,doc,rsc/schema/browser-captures/apiConversation,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v6), `rsc/schema/code-projects/session/` (v1, singular!), `rsc/s"
+CLAUDE.md,139,doc,rsc/schema/chat-exports/conversations,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/br"
+CLAUDE.md,139,doc,rsc/schema/code-projects/session,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/br"
+CLAUDE.md,139,doc,rsc/schema/browser-captures/apiConversation,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/br"
 CLAUDE.md,140,doc,rsc/schema/model_join.csv,Y,- `rsc/schema/model_join.csv` — unified 4-way join: conversations ↔ session ↔ apiConversation ↔ MCP
 CLAUDE.md,141,doc,src/test/gen_changelog_matrix.py,Y,- `src/test/gen_changelog_matrix.py` — generates CHANGELOG rows from gen/ logs for any pipeline
 README.md,21,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
