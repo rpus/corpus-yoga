@@ -30,10 +30,3 @@ Session `.jsonl` files contain `ai-title` records with a human-readable session 
 The CHANGELOG and pre_commit output currently identify sessions only by 8-char UUID
 prefix (e.g. `32bd7448…`). Surfacing the ai-title name alongside would make it much
 easier to identify which session is which without cross-referencing the VS Code plugin.
-
-## Use git diff on pre_commit.log, not tail/grep on live output
-
-pre_commit.log is committed so that `git diff src/test/pre_commit.log` shows exactly
-what changed — pass→fail, fail→pass, new checks, removed checks — without
-filtering. Running tail or grep on live pre_commit.sh output is error-prone and
-unnecessary. The workflow should always be: run pre_commit.sh, then read the diff.
