@@ -1,1 +1,62 @@
 # TODO
+
+## CLAUDE.md / doc version references
+
+CLAUDE.md (lines 69, 139) and doc/pipeline-model.md (lines 34, 38) still say
+conversations is v1–v6 and session is v1. Both are now at v7 and v3 respectively.
+Simple text update — but must run pre_commit before and after.
+
+## gen_changelog_matrix --write can silently encode failures as expected
+
+The fix hint emitted by pre_commit (`gen_changelog_matrix --write`) writes whatever
+the current validation logs say — including failures. If run before understanding why
+a session is failing, it registers the failure as expected and masks it from future
+pre_commit runs. The hint should either warn when it is about to encode a ✗, or the
+workflow doc should make this risk explicit.
+
+## RUNME.sh output too large to scan for failures
+
+Validation errors produce enormous output (400KB+). Running RUNME.sh and checking
+only tail output will miss failures. pre_commit already surfaces pass/fail correctly;
+consider whether RUNME.sh should emit a compact summary line per session in addition
+to the full error output, so failures are visible without scrolling.
+
+## Merge CLAUDE.md and README.md; use TODO as the live capture mechanism
+
+CLAUDE.md and README.md serve the same audience and are diverging from each other and
+from reality. Merge into one document that is the stable structural reference. Instead
+of updating documentation in-place when something is discovered or changes, write it
+to TODO. The human maintainer audits TODO (and commits) and decides what gets promoted
+into the permanent doc, what gets acted on, and what gets discarded. Documentation
+that isn't actively maintained becomes misinformation.
+
+## Reduce documentation volume
+
+The repo has too much documentation, spread across too many files. This causes:
+staleness (version numbers drift), dilution (critical rules like pre_commit invariant
+buried among lower-priority content), and cognitive overload (too much to read means
+nothing gets read). Audit all doc/ files, schema principles.md and workflow.md files,
+README.md, CLAUDE.md for redundancy and consolidation opportunities.
+
+## Bug in debug_code_session_record.py: validates against root schema not Record definition
+
+`validator.iter_errors(record)` is called with a validator built from the root schema
+(which expects a `Session` array). Every individual record fails this check because an
+object is not an array — so the failing-record count and "first failing record" are
+always wrong. The drill-down works correctly because it uses `validator.descend` against
+branch definitions directly. Fix: validate each record against
+`schema['definitions']['Record']` instead of the root schema.
+
+## Surface ai-title names alongside UUID prefixes
+
+Session `.jsonl` files contain `ai-title` records with a human-readable session name.
+The CHANGELOG and pre_commit output currently identify sessions only by 8-char UUID
+prefix (e.g. `32bd7448…`). Surfacing the ai-title name alongside would make it much
+easier to identify which session is which without cross-referencing the VS Code plugin.
+
+## Use git diff on pre_commit.log, not tail/grep on live output
+
+pre_commit.log is committed so that `git diff src/test/pre_commit.log` shows exactly
+what changed — pass→fail, fail→pass, new checks, removed checks — without
+filtering. Running tail or grep on live pre_commit.sh output is error-prone and
+unnecessary. The workflow should always be: run pre_commit.sh, then read the diff.

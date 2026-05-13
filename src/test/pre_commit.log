@@ -1,4 +1,4 @@
-pre_commit.py: 597/597
+pre_commit.py: 643/643
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -21,6 +21,7 @@ pre_commit.py: 597/597
   ✓ exists: rsc/schema/chat-exports/users/v1.json
   ✓ exists: rsc/schema/code-projects/session/v1.json
   ✓ exists: rsc/schema/code-projects/session/v2.json
+  ✓ exists: rsc/schema/code-projects/session/v3.json
   ✓ exists: src/main/browser-captures/validate.sh
   ✓ exists: src/main/chat-exports/validate.sh
   ✓ exists: src/main/code-projects/validate.sh
@@ -102,6 +103,7 @@ pre_commit.py: 597/597
 ── check_code_projects_validity ──────────────────────────────────────────────
   ✓ session: valid JSON + $schema: v1
   ✓ session: valid JSON + $schema: v2
+  ✓ session: valid JSON + $schema: v3
 
 ── check_browser_captures_validation_outputs ─────────────────────────────────
   ✓ apiConversation: workflow.changelog_entry: v1
@@ -270,36 +272,57 @@ pre_commit.py: 597/597
   ✓ session: workflow.changelog_entry: v2
   ✓ session: workflow.changelog_narrative: v2
   ✓ session: workflow.no_todo: v2
+  ✓ session: workflow.changelog_entry: v3
+  ✓ session: workflow.changelog_narrative: v3
+  ✓ session: workflow.no_todo: v3
   ✓ session: validation passing: Yoga/816816d2… × v1
   ✓ session: validation passing: Yoga/816816d2… × v2
+  ✓ session: validation passing: Yoga/816816d2… × v3
   ✓ session: validation passing: claude-e…/0c66d620… × v1
   ✓ session: validation passing: claude-e…/0c66d620… × v2
+  ✓ session: validation passing: claude-e…/0c66d620… × v3
   ✓ session: validation passing: claude-e…/1bc20fc3… × v1
   ✓ session: validation passing: claude-e…/1bc20fc3… × v2
-  ✓ session: validation passing: claude-e…/32bd7448… × v1
-  ✓ session: validation passing: claude-e…/32bd7448… × v2
+  ✓ session: validation passing: claude-e…/1bc20fc3… × v3
+  ✓ session: validation failing: claude-e…/32bd7448… × v1
+  ✓ session: validation failing: claude-e…/32bd7448… × v2
+  ✓ session: validation passing: claude-e…/32bd7448… × v3
   ✓ session: validation passing: claude-e…/46d179e3… × v1
   ✓ session: validation passing: claude-e…/46d179e3… × v2
+  ✓ session: validation passing: claude-e…/46d179e3… × v3
   ✓ session: validation passing: claude-e…/46fcb702… × v1
   ✓ session: validation passing: claude-e…/46fcb702… × v2
+  ✓ session: validation passing: claude-e…/46fcb702… × v3
   ✓ session: validation passing: claude-e…/60c07575… × v1
   ✓ session: validation passing: claude-e…/60c07575… × v2
+  ✓ session: validation passing: claude-e…/60c07575… × v3
   ✓ session: validation passing: claude-e…/73f51bc1… × v1
   ✓ session: validation passing: claude-e…/73f51bc1… × v2
+  ✓ session: validation passing: claude-e…/73f51bc1… × v3
   ✓ session: validation passing: claude-e…/7d59d8ef… × v1
   ✓ session: validation passing: claude-e…/7d59d8ef… × v2
+  ✓ session: validation passing: claude-e…/7d59d8ef… × v3
   ✓ session: validation passing: claude-e…/a1fe23f6… × v1
   ✓ session: validation passing: claude-e…/a1fe23f6… × v2
+  ✓ session: validation passing: claude-e…/a1fe23f6… × v3
   ✓ session: validation passing: claude-e…/a2605476… × v1
   ✓ session: validation passing: claude-e…/a2605476… × v2
+  ✓ session: validation passing: claude-e…/a2605476… × v3
   ✓ session: validation passing: claude-e…/a40a0813… × v1
   ✓ session: validation passing: claude-e…/a40a0813… × v2
+  ✓ session: validation passing: claude-e…/a40a0813… × v3
   ✓ session: validation passing: claude-e…/b0c38f0b… × v1
   ✓ session: validation passing: claude-e…/b0c38f0b… × v2
+  ✓ session: validation passing: claude-e…/b0c38f0b… × v3
   ✓ session: validation passing: claude-e…/d58db402… × v1
   ✓ session: validation passing: claude-e…/d58db402… × v2
+  ✓ session: validation passing: claude-e…/d58db402… × v3
+  ✓ session: validation passing: claude-e…/e87e0735… × v1
+  ✓ session: validation passing: claude-e…/e87e0735… × v2
+  ✓ session: validation passing: claude-e…/e87e0735… × v3
   ✓ session: validation passing: nutritio…/83737fec… × v1
   ✓ session: validation passing: nutritio…/83737fec… × v2
+  ✓ session: validation passing: nutritio…/83737fec… × v3
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ apiConversation: composition.base_not_used_directly: v1
@@ -588,6 +611,29 @@ pre_commit.py: 597/597
   ✓ session: structure.pattern_constraints_enforced: v2
   ✓ session: structure.property_order_matches_data: v2
   ✓ session: structure.required_subset_of_properties: v2
+  ✓ session: composition.base_not_used_directly: v3
+  ✓ session: composition.discriminator_values_disjoint: v3
+  ✓ session: composition.no_additional_properties_on_subtypes: v3
+  ✓ session: composition.wrapper_has_five_fields: v3
+  ✓ session: documentation.discriminator_fields_annotated: v3
+  ✓ session: documentation.every_definition_has_title_and_description: v3
+  ✓ session: documentation.null_only_fields_documented: v3
+  ✓ session: documentation.open_set_enums_documented: v3
+  ✓ session: empirical.nullable_fields_surveyed: v3
+  ✓ session: empirical.oneOf_branches_evidenced: v3
+  ✓ session: naming.property_keys_lowercase: v3
+  ✓ session: naming.title_matches_key: v3
+  ✓ session: naming.upper_camel_case: v3
+  ✓ session: structure.all_definitions_reachable: v3
+  ✓ session: structure.bfs_order: v3
+  ✓ session: structure.definitions_at_bottom: v3
+  ✓ session: structure.field_order: v3
+  ✓ session: structure.minItems_on_non_empty_arrays: v3
+  ✓ session: structure.no_dangling_refs: v3
+  ✓ session: structure.no_redundant_additional_properties_true: v3
+  ✓ session: structure.pattern_constraints_enforced: v3
+  ✓ session: structure.property_order_matches_data: v3
+  ✓ session: structure.required_subset_of_properties: v3
   ✓ users: composition.base_not_used_directly: v1
   ✓ users: composition.base_schemas_closed: v1
   ✓ users: composition.discriminator_values_disjoint: v1
@@ -621,4 +667,4 @@ pre_commit.py: 597/597
   ✓ xref: 16 missing-file, 0 bad-pointer, 6 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 597/597; expected: 597/597
+  ✓ score: 643/643; expected: 643/643

@@ -1,25 +1,38 @@
 # session schema changelog
 
 <!-- matrix -->
-| Session | [v1](./v1.json) | [v2](./v2.json) | Bytes |
-| --- | :---: | :---: | ---: |
-| `Yoga` / `816816d2` | ✓ | ✓ | 25,789 |
-| `claude-export-yoga` / `a40a0813` | ✓ | ✓ | 4,555,132 |
-| `claude-export-yoga` / `60c07575` | ✓ | ✓ | 19,585,790 |
-| `claude-export-yoga` / `7d59d8ef` | ✓ | ✓ | 12,387,483 |
-| `claude-export-yoga` / `d58db402` | ✓ | ✓ | 2,577,519 |
-| `claude-export-yoga` / `1bc20fc3` | ✓ | ✓ | 1,041,899 |
-| `claude-export-yoga` / `a2605476` | ✓ | ✓ | 963,806 |
-| `claude-export-yoga` / `73f51bc1` | ✓ | ✓ | 9,071,509 |
-| `claude-export-yoga` / `46fcb702` | ✓ | ✓ | 5,433,869 |
-| `claude-export-yoga` / `b0c38f0b` | ✓ | ✓ | 9,256,629 |
-| `nutrition` / `83737fec` | ✓ | ✓ | 6,489,702 |
-| `claude-export-yoga` / `0c66d620` | ✓ | ✓ | 277,542 |
-| `claude-export-yoga` / `46d179e3` | ✓ | ✓ | 1,609,873 |
-| `claude-export-yoga` / `a1fe23f6` | ✓ | ✓ | 801,133 |
-| `claude-export-yoga` / `32bd7448` | ✓ | ✓ | 3,829,693 |
+| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
+| --- | :---: | :---: | :---: | ---: |
+| `Yoga` / `816816d2` | ✓ | ✓ | ✓ | 25,813 |
+| `claude-export-yoga` / `a40a0813` | ✓ | ✓ | ✓ | 4,556,544 |
+| `claude-export-yoga` / `60c07575` | ✓ | ✓ | ✓ | 19,593,315 |
+| `claude-export-yoga` / `7d59d8ef` | ✓ | ✓ | ✓ | 12,392,336 |
+| `claude-export-yoga` / `d58db402` | ✓ | ✓ | ✓ | 2,578,452 |
+| `claude-export-yoga` / `1bc20fc3` | ✓ | ✓ | ✓ | 1,042,194 |
+| `claude-export-yoga` / `a2605476` | ✓ | ✓ | ✓ | 964,211 |
+| `claude-export-yoga` / `73f51bc1` | ✓ | ✓ | ✓ | 9,075,761 |
+| `claude-export-yoga` / `46fcb702` | ✓ | ✓ | ✓ | 5,436,494 |
+| `claude-export-yoga` / `b0c38f0b` | ✓ | ✓ | ✓ | 9,260,978 |
+| `nutrition` / `83737fec` | ✓ | ✓ | ✓ | 6,492,548 |
+| `claude-export-yoga` / `0c66d620` | ✓ | ✓ | ✓ | 277,617 |
+| `claude-export-yoga` / `46d179e3` | ✓ | ✓ | ✓ | 1,610,584 |
+| `claude-export-yoga` / `a1fe23f6` | ✓ | ✓ | ✓ | 801,392 |
+| `claude-export-yoga` / `32bd7448` | ✗ | ✗ | ✓ | 12,065,984 |
+| `claude-export-yoga` / `e87e0735` | ✓ | ✓ | ✓ | 1,219,496 |
 
 Session: bare project name from the `~/.claude/projects/` slug / first 8 chars of session UUID. Bytes: size of the `.jsonl` file at validation time.
+
+---
+
+## v3
+
+### Relaxed
+
+- Added `DocumentBlock` content block type (`type: "document"`) to `ContentBlock.oneOf`. Observed when Claude Code passes a file as context to the model. Block shape: `{type, source: {type, media_type, data}, title}`. All observed instances have `source.type: "text"` and `source.media_type: "text/plain"`. Session `32bd7448` now passes; it fails v1 and v2.
+
+### Refactored (description only)
+
+- `AiTitleRecord.description`: corrected "Written once early in the session" to reflect observed behaviour — written repeatedly throughout the session (~299 times in a 4868-record session), appearing to be a heartbeat rather than a one-time write. No validation change.
 
 ---
 
