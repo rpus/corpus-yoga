@@ -1,5 +1,5 @@
 referring_file,line,ref_type,referred_file,exists,line_text
-CONTRIBUTING.md,7,doc,doc,Y,[`README.md`](README.md). The `doc/` directory contains deep-dives on each pipeline
+CONTRIBUTING.md,7,doc,doc,Y,[`README.md`](README.md) (for the as-is state) and [`TODO.md`](TODO.md) (for the to-be state). The `doc/` directory cont
 CONTRIBUTING.md,23,doc,rsc/schema/chat-exports/conversations,Y,`rsc/schema/chat-exports/conversations/`).
 CONTRIBUTING.md,26,doc,src/main/chat-exports,Y,"(`src/main/chat-exports/`, `../chat-exports/`)."
 CONTRIBUTING.md,43,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh  --chat-exports  ../chat-exports

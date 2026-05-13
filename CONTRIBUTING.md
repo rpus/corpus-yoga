@@ -1,10 +1,10 @@
-# CONTRIBUTING.md
+# CONTRIBUTING
 
 This file is the authoritative substitute for the project memory stored at
 `~/.claude/projects/-Users-*-claude-export-yoga/memory/MEMORY.md`. Do not modify that file or directory; edit this file instead as needed.
 
 For the full human-facing how-to, prerequisites, and documentation index see
-[`README.md`](README.md). The `doc/` directory contains deep-dives on each pipeline
+[`README.md`](README.md) (for the as-is state) and [`TODO.md`](TODO.md) (for the to-be state). The `doc/` directory contains deep-dives on each pipeline
 and schema.
 
 ---
