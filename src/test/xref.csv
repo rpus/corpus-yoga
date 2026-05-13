@@ -91,7 +91,7 @@ README.md,129,doc,src/test/diagnostics/README.md,Y,"| [`src/test/diagnostics/REA
 README.md,130,doc,src/test/repairs/README.md,Y,"| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |"
 README.md,136,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |"
 README.md,137,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
-TODO.md,58,doc,src/test/pre_commit.log,Y,pre_commit.log is committed so that `git diff src/test/pre_commit.log` shows exactly
+TODO.md,36,doc,src/test/pre_commit.log,Y,pre_commit.log is committed so that `git diff src/test/pre_commit.log` shows exactly
 doc/README.md,21,doc,rsc/schema/chat-exports/conversations,Y,The `CHANGELOG.md` in `rsc/schema/chat-exports/conversations/` tracks which exports have been processed and which schema
 doc/README.md,32,doc,doc/code-projects/research.md,Y,See `doc/code-projects/research.md` for setup and format documentation.
 doc/README.md,36,doc,doc/browser-captures/research.md,Y,Per-conversation API JSON files captured from the live claude.ai API via Safari automation. See `doc/browser-captures/re
@@ -576,9 +576,12 @@ src/test/pre_commit.py,582,path_str,src/run_python_script.sh,Y,_add(f'src/run_py
 src/test/pre_commit.py,584,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.py,592,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.py,594,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.sh,8,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,8,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,8,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,10,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,10,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,10,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,16,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,16,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,16,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/repairs/README.md,10,doc,src/test/repairs/naming.upper_camel_case.py,Y,| [`naming.upper_camel_case.py`](./naming.upper_camel_case.py) † | Rename a definition key and all `$ref`s; takes `<sche
 src/test/repairs/README.md,11,doc,src/test/repairs/naming.title_matches_key.py,Y,| [`naming.title_matches_key.py`](./naming.title_matches_key.py) | Set every `title` to its definition key | `naming.tit
 src/test/repairs/README.md,12,doc,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,| [`naming.root_schema_title_matches_filename.py`](./naming.root_schema_title_matches_filename.py) | Set root `title` to

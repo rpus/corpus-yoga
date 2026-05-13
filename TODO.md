@@ -1,17 +1,5 @@
 # TODO
 
-## pre-commit hook: run, stage, run; pass if and only if no changes
-
-The hook should enforce idempotency: run pre_commit.sh (generating pre_commit.log and
-xref.csv), stage both, run pre_commit.sh again, and pass only if the second run
-produces no further changes. Any divergence between runs means the committed state is
-inconsistent and the commit should be blocked.
-
-### Depends on gen_changelog_matrix fix above
-
-Until that is fixed, the idempotency check can pass while masking a real regression
-encoded as an expected ✗.
-
 ## RUNME.sh output too large to scan for failures
 
 Validation errors produce enormous output (400KB+). Running RUNME.sh and checking
