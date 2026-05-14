@@ -6,13 +6,6 @@ discarded. Documentation updated in-place without going through TODO rots silent
 
 ---
 
-## RUNME.sh output too large to scan for failures
-
-Validation errors produce enormous output (400KB+). Running RUNME.sh and checking
-only tail output will miss failures. pre_commit already surfaces pass/fail correctly;
-consider whether RUNME.sh should emit a compact summary line per session in addition
-to the full error output, so failures are visible without scrolling.
-
 ## Reduce documentation volume
 
 The repo has too much documentation, spread across too many files. This causes:

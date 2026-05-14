@@ -19,6 +19,11 @@ validate_versions() {
       python "$REPO_DIR/src/main/validate.py" "$input_file" "$schema"
     } > "$log_out"
     local status; status="$(grep -E '^Valid!|^Validation error' "$log_out" | head -1)"
-    echo "  $label ($version): $status"
+    if [[ ${#status} -gt 80 ]]; then
+      echo "  $label ($version): ${status:0:80}…"
+      echo "    → $log_out"
+    else
+      echo "  $label ($version): $status"
+    fi
   done
 }
