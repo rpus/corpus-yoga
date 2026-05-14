@@ -90,48 +90,70 @@ python src/test/pre_commit.py
 
 ---
 
-## Documentation
+## Repo layout
 
-### Project
-
-| Document | Description |
-| --- | --- |
-| [`doc/README.md`](doc/README.md) | Architecture overview: inputs, pipelines, schemas, output structure, provenance; index of all sub-documents |
-| [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding a new pipeline |
-| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat-exports/conversations/`: versioning, format comparison, workflow summary, MCP correspondence |
-| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `rsc/schema/browser-captures/apiConversation/`: structure, differences from bulk export, tool blocks |
-| [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and captured; capture setup and output structure |
-| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects/session/`: the nine record types, turn envelope, content blocks, MCP mapping |
-| [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; `../code-projects/` setup procedure |
-| [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory reference for `~/.claude/` and `~/.claude.json` |
-| [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-engineer an undocumented directory; reusable beyond this project |
-| [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session transcripts against the session schema |
-| [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types and field structure of session files (used during schema development) |
-| [`src/test/code-projects/debug_code_session_record.py`](src/test/code-projects/debug_code_session_record.py) | Diagnose why a specific record fails validation: tests each `Record.oneOf` branch and drills into the matching subtype |
-
-### Schema
-
-| Document | Description |
-| --- | --- |
-| [`rsc/schema/chat-exports/conversations/principles.md`](rsc/schema/chat-exports/conversations/principles.md) | Every design rule for the conversations schema, with diagnostic/repair scripts and inline snippets |
-| [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loop for incorporating new exports and making schema changes |
-| [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version history and export compatibility matrix |
-| [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparison: CLI `.jsonl` vs claude.ai export |
-| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI session schema at a glance: record types, content blocks, MCP mapping table |
-| [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design principles: defers to conversations/principles.md; documents justified deviations |
-| [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `model_join.csv` maintenance, versioning, real-time vs snapshot lifecycle |
-| [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and session coverage matrix |
-| [`rsc/schema/browser-captures/apiConversation/principles.md`](rsc/schema/browser-captures/apiConversation/principles.md) | Schema design principles: defers to conversations/principles.md; documents apiConversation-specific deviations |
-| [`rsc/schema/browser-captures/apiConversation/workflow.md`](rsc/schema/browser-captures/apiConversation/workflow.md) | Validation loop and maintenance workflow for the live API conversation schema |
-| [`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](rsc/schema/browser-captures/apiConversation/CHANGELOG.md) | Version history and capture coverage matrix |
-| [`rsc/schema/browser-captures/apiConversation/README.md`](rsc/schema/browser-captures/apiConversation/README.md) | API conversation schema at a glance: root type, message/content structure, comparison with bulk-export format |
-| [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations ↔ session ↔ apiConversation ↔ MCP |
-| [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which have a paired repair script |
-| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |
-
-### Reference
-
-| Document | Description |
-| --- | --- |
-| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |
-| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags missing targets and unreferenced files |
+```text
+claude-export-yoga/
+├── RUNME.sh                                    # run all three pipelines
+├── README.md                                   # usage, prerequisites, how-to (this file)
+├── CONTRIBUTING.md                             # project rules for contributors and Claude
+├── TODO.md                                     # live capture: discoveries and pending work
+│
+├── src/
+│   ├── main/
+│   │   ├── browser-captures/
+│   │   │   ├── RUNME.sh                        # validate all browser-captured API JSON
+│   │   │   ├── validate.sh                     # per-batch validation
+│   │   │   ├── export.applescript              # Safari automation dispatcher (shortcut mode)
+│   │   │   ├── safari_capture.sh               # pipeline-mode bulk capture
+│   │   │   └── safari_fetch_api_json.sh        # fetch live API JSON for existing captures
+│   │   ├── chat-exports/
+│   │   │   ├── RUNME.sh                        # validate + extract + present
+│   │   │   ├── validate.sh                     # JSON Schema validation
+│   │   │   ├── extract_files.sh                # recover files from create_file tool calls
+│   │   │   ├── extract_heredocs.sh             # recover files from bash heredocs
+│   │   │   ├── audit_files.sh                  # cross-reference all file sources
+│   │   │   ├── infer_tables.sh                 # Claude API: categories + semantic tags (costs money)
+│   │   │   └── present.sh                      # assemble self-contained HTML dashboard
+│   │   ├── code-projects/
+│   │   │   ├── RUNME.sh                        # convert .jsonl → JSON + validate all sessions
+│   │   │   ├── validate.sh                     # per-project/session validation + titled symlink
+│   │   │   └── jsonl_to_json.py                # JSONL → JSON array; writes session.json.title
+│   │   ├── model/
+│   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
+│   │   │   └── search_proxy.sh                 # local markdown/LaTeX browser (port 8182)
+│   │   ├── validate.py                         # shared JSON Schema validator
+│   │   ├── validate_versions.sh                # validate one file against all v*.json
+│   │   └── schema_recommendations.py           # post-validation schema quality hints
+│   │
+│   └── test/
+│       ├── pre_commit.sh                       # pre-commit hook: run, stage, run; idempotency check
+│       ├── pre_commit.py                       # full check suite; score in pre_commit_expected_score
+│       ├── pre_commit.log                      # committed output — read changes via git diff
+│       ├── xref.sh / xref.py / xref.csv        # cross-reference audit — read changes via git diff
+│       ├── gen_changelog_matrix.py             # update CHANGELOG matrix from gen/ logs (append-only)
+│       ├── diagnostics/                        # 25 atomic schema quality checks (one per principle)
+│       ├── repairs/                            # paired auto-repair scripts for fixable diagnostics
+│       └── code-projects/
+│           ├── debug_code_session_record.py    # diagnose why a record fails validation
+│           └── survey_code_session.py          # survey record types in a session file
+│
+├── rsc/
+│   ├── schema/
+│   │   ├── browser-captures/apiConversation/   # v1.json · principles · workflow · CHANGELOG · README
+│   │   ├── chat-exports/conversations/         # v1–v7   · principles · workflow · CHANGELOG · README
+│   │   ├── chat-exports/{memories,projects,users}/  # v1.json each
+│   │   ├── code-projects/session/              # v1–v3   · principles · workflow · CHANGELOG · README
+│   │   ├── model_join.csv                      # four-way field map: conversations ↔ session ↔ apiConversation ↔ MCP
+│   │   ├── documenter.json                     # VS Code tooltip wrapper for data files
+│   │   └── model.json                          # cross-pipeline type reference
+│   ├── artifacts/downloaded/                   # ground-truth recovered files (never edit in place)
+│   └── snippets.md                             # jq recipes: redaction, summarisation, inspection
+│
+├── doc/                                        # deep-dives on schemas, pipelines, research
+│
+└── gen/                                        # all generated output (gitignored)
+    ├── browser-captures/{batch}/{uuid}/        # validation logs
+    ├── chat-exports/{export}/                  # validation + extraction + presentation
+    └── code-projects/{project}/{session}/      # session.json · titled symlink · validation logs
+```

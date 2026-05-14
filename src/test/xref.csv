@@ -59,38 +59,7 @@ README.md,71,doc,src/test/code-projects/debug_code_session_record.py,Y,python sr
 README.md,72,doc,src/test/pre_commit.py,Y,python src/test/pre_commit.py
 README.md,79,doc,rsc/snippets.md,Y,- Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
 README.md,81,doc,rsc/snippets.md,Y,- Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
-README.md,99,doc,doc/README.md,Y,"| [`doc/README.md`](doc/README.md) | Architecture overview: inputs, pipelines, schemas, output structure, provenance; in"
-README.md,100,doc,doc/pipeline-model.md,Y,| [`doc/pipeline-model.md`](doc/pipeline-model.md) | All pipelines and schemas as a comparative table; guide for adding 
-README.md,101,doc,doc/chat-exports/conversations-schema.md,Y,| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat
-README.md,101,doc,rsc/schema/chat-exports/conversations,Y,| [`doc/chat-exports/conversations-schema.md`](doc/chat-exports/conversations-schema.md) | Deep-dive on `rsc/schema/chat
-README.md,102,doc,doc/browser-captures/api-conversation-schema.md,Y,| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `
-README.md,102,doc,rsc/schema/browser-captures/apiConversation,Y,| [`doc/browser-captures/api-conversation-schema.md`](doc/browser-captures/api-conversation-schema.md) | Reference for `
-README.md,103,doc,doc/browser-captures/research.md,Y,| [`doc/browser-captures/research.md`](doc/browser-captures/research.md) | How the live API endpoint was discovered and 
-README.md,104,doc,doc/code-projects/session-schema.md,Y,| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects
-README.md,104,doc,rsc/schema/code-projects/session,Y,| [`doc/code-projects/session-schema.md`](doc/code-projects/session-schema.md) | Reference for `rsc/schema/code-projects
-README.md,105,doc,doc/code-projects/research.md,Y,| [`doc/code-projects/research.md`](doc/code-projects/research.md) | How the CLI session format was reverse-engineered; 
-README.md,106,doc,doc/code-projects/claude-home-directory.md,Y,| [`doc/code-projects/claude-home-directory.md`](doc/code-projects/claude-home-directory.md) | Directory-by-directory re
-README.md,107,doc,doc/code-projects/investigation-methodology.md,Y,| [`doc/code-projects/investigation-methodology.md`](doc/code-projects/investigation-methodology.md) | How to reverse-en
-README.md,108,doc,src/main/code-projects/RUNME.sh,Y,| [`src/main/code-projects/RUNME.sh`](src/main/code-projects/RUNME.sh) | Entry point: validate Claude Code CLI session t
-README.md,109,doc,src/test/code-projects/survey_code_session.py,Y,| [`src/test/code-projects/survey_code_session.py`](src/test/code-projects/survey_code_session.py) | Survey record types
-README.md,110,doc,src/test/code-projects/debug_code_session_record.py,Y,| [`src/test/code-projects/debug_code_session_record.py`](src/test/code-projects/debug_code_session_record.py) | Diagnos
-README.md,116,doc,rsc/schema/chat-exports/conversations/principles.md,Y,| [`rsc/schema/chat-exports/conversations/principles.md`](rsc/schema/chat-exports/conversations/principles.md) | Every d
-README.md,117,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,| [`rsc/schema/chat-exports/conversations/workflow.md`](rsc/schema/chat-exports/conversations/workflow.md) | 11-step loo
-README.md,118,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,| [`rsc/schema/chat-exports/conversations/CHANGELOG.md`](rsc/schema/chat-exports/conversations/CHANGELOG.md) | Version h
-README.md,119,doc,rsc/schema/chat-exports/conversations/README.md,Y,| [`rsc/schema/chat-exports/conversations/README.md`](rsc/schema/chat-exports/conversations/README.md) | Format comparis
-README.md,120,doc,rsc/schema/code-projects/session/README.md,Y,| [`rsc/schema/code-projects/session/README.md`](rsc/schema/code-projects/session/README.md) | CLI session schema at a g
-README.md,121,doc,rsc/schema/code-projects/session/principles.md,Y,| [`rsc/schema/code-projects/session/principles.md`](rsc/schema/code-projects/session/principles.md) | Schema design pri
-README.md,122,doc,rsc/schema/code-projects/session/workflow.md,Y,"| [`rsc/schema/code-projects/session/workflow.md`](rsc/schema/code-projects/session/workflow.md) | Validation loop, `mod"
-README.md,123,doc,rsc/schema/code-projects/session/CHANGELOG.md,Y,| [`rsc/schema/code-projects/session/CHANGELOG.md`](rsc/schema/code-projects/session/CHANGELOG.md) | Version history and
-README.md,124,doc,rsc/schema/browser-captures/apiConversation/principles.md,Y,| [`rsc/schema/browser-captures/apiConversation/principles.md`](rsc/schema/browser-captures/apiConversation/principles.m
-README.md,125,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,| [`rsc/schema/browser-captures/apiConversation/workflow.md`](rsc/schema/browser-captures/apiConversation/workflow.md) |
-README.md,126,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,| [`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](rsc/schema/browser-captures/apiConversation/CHANGELOG.md)
-README.md,127,doc,rsc/schema/browser-captures/apiConversation/README.md,Y,| [`rsc/schema/browser-captures/apiConversation/README.md`](rsc/schema/browser-captures/apiConversation/README.md) | API
-README.md,128,doc,rsc/schema/model_join.csv,Y,| [`rsc/schema/model_join.csv`](rsc/schema/model_join.csv) | Unified four-way field correspondence table: conversations 
-README.md,129,doc,src/test/diagnostics/README.md,Y,"| [`src/test/diagnostics/README.md`](src/test/diagnostics/README.md) | All diagnostic scripts: what each checks, which h"
-README.md,130,doc,src/test/repairs/README.md,Y,"| [`src/test/repairs/README.md`](src/test/repairs/README.md) | All 14 repair scripts: what each fixes, usage notes |"
-README.md,136,doc,rsc/snippets.md,Y,"| [`rsc/snippets.md`](rsc/snippets.md) | jq recipes: redaction, summarisation, frequency analysis, export inspection |"
-README.md,137,doc,src/test/xref.sh,Y,"| [`src/test/xref.sh`](src/test/xref.sh) | Cross-reference audit: scans all source files for inter-file links, flags mis"
+README.md,123,doc,rsc/schema/model.json,Y,│   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                        # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference    # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,18,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
@@ -625,3 +594,7 @@ src/test/xref.sh,10,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,requirements.txt,Y,
+,,,rsc/schema/browser-captures/apiConversation/README.md,Y,
+,,,rsc/schema/chat-exports/conversations/README.md,Y,
+,,,src/test/diagnostics/README.md,Y,
+,,,src/test/repairs/README.md,Y,
