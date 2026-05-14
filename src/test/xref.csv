@@ -139,8 +139,9 @@ rsc/schema/browser-captures/apiConversation/principles.md,2,doc,rsc/schema/brows
 rsc/schema/browser-captures/apiConversation/principles.md,3,doc,rsc/schema/browser-captures/apiConversation/principles.md,Y,principles_file: rsc/schema/browser-captures/apiConversation/principles.md
 rsc/schema/browser-captures/apiConversation/principles.md,4,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,workflow_file: rsc/schema/browser-captures/apiConversation/workflow.md
 rsc/schema/browser-captures/apiConversation/principles.md,8,doc,rsc/schema/browser-captures/apiConversation/v{N}.json,N,# Schema Design Principles for `rsc/schema/browser-captures/apiConversation/v{N}.json`
-rsc/schema/browser-captures/apiConversation/principles.md,10,doc,rsc/schema/chat-exports/conversations/principles.md,Y,The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
+rsc/schema/browser-captures/apiConversation/principles.md,10,doc,rsc/schema/principles.md,Y,The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
 rsc/schema/browser-captures/apiConversation/principles.md,26,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` is a unified four-way correspondence table covering all
+rsc/schema/browser-captures/apiConversation/principles.md,33,doc,rsc/schema/principles.md,Y,bare `$ref` — see `api.draft4_limitations` in [`rsc/schema/principles.md`](../../principles.md).
 rsc/schema/browser-captures/apiConversation/research.md,16,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The response is a JSON object conforming to `rsc/schema/browser-captures/apiConversation/v1.json`. This is the
 rsc/schema/browser-captures/apiConversation/research.md,46,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
 rsc/schema/browser-captures/apiConversation/research.md,59,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
@@ -151,18 +152,19 @@ rsc/schema/browser-captures/apiConversation/workflow.md,2,doc,rsc/schema/browser
 rsc/schema/browser-captures/apiConversation/workflow.md,3,doc,rsc/schema/browser-captures/apiConversation/principles.md,Y,principles_file: rsc/schema/browser-captures/apiConversation/principles.md
 rsc/schema/browser-captures/apiConversation/workflow.md,4,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,workflow_file: rsc/schema/browser-captures/apiConversation/workflow.md
 rsc/schema/browser-captures/apiConversation/workflow.md,8,doc,rsc/schema/browser-captures/apiConversation/v{N}.json,N,# Schema Development Workflow for `rsc/schema/browser-captures/apiConversation/v{N}.json`
-rsc/schema/browser-captures/apiConversation/workflow.md,11,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md`.
-rsc/schema/browser-captures/apiConversation/workflow.md,28,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
-rsc/schema/browser-captures/apiConversation/workflow.md,34,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
-rsc/schema/browser-captures/apiConversation/workflow.md,38,doc,rsc/schema/chat-exports/conversations/principles.md,Y,the principles in `principles.md` and `rsc/schema/chat-exports/conversations/principles.md`).
-rsc/schema/browser-captures/apiConversation/workflow.md,42,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
-rsc/schema/browser-captures/apiConversation/workflow.md,42,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
-rsc/schema/browser-captures/apiConversation/workflow.md,45,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` and confirm all checks pass.
-rsc/schema/browser-captures/apiConversation/workflow.md,51,doc,rsc/schema/chat-exports/conversations,Y,Schema versions follow the same semantic versioning rules as `rsc/schema/chat-exports/conversations/`:
-rsc/schema/browser-captures/apiConversation/workflow.md,70,doc,rsc/schema/model_join.csv,Y,2. Review `rsc/schema/model_join.csv` for any new or changed fields; update `api_path`
-rsc/schema/browser-captures/apiConversation/workflow.md,78,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
-rsc/schema/browser-captures/apiConversation/workflow.md,78,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
-rsc/schema/browser-captures/apiConversation/workflow.md,81,doc,src/test/pre_commit.sh,Y,6. Run `src/test/pre_commit.sh`.
+rsc/schema/browser-captures/apiConversation/workflow.md,11,doc,rsc/schema/workflow.md,Y,"Base principles, semantic versioning, and meta-rules are in [`rsc/schema/workflow.md`](../../workflow.md)."
+rsc/schema/browser-captures/apiConversation/workflow.md,12,doc,rsc/schema/principles.md,Y,Design principles are in [`rsc/schema/principles.md`](../../principles.md) and [`principles.md`](principles.md).
+rsc/schema/browser-captures/apiConversation/workflow.md,29,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+rsc/schema/browser-captures/apiConversation/workflow.md,35,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+rsc/schema/browser-captures/apiConversation/workflow.md,39,doc,rsc/schema/chat-exports/conversations/principles.md,Y,the principles in `principles.md` and `rsc/schema/chat-exports/conversations/principles.md`).
+rsc/schema/browser-captures/apiConversation/workflow.md,43,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
+rsc/schema/browser-captures/apiConversation/workflow.md,43,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
+rsc/schema/browser-captures/apiConversation/workflow.md,46,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` and confirm all checks pass.
+rsc/schema/browser-captures/apiConversation/workflow.md,52,doc,rsc/schema/chat-exports/conversations,Y,Schema versions follow the same semantic versioning rules as `rsc/schema/chat-exports/conversations/`:
+rsc/schema/browser-captures/apiConversation/workflow.md,71,doc,rsc/schema/model_join.csv,Y,2. Review `rsc/schema/model_join.csv` for any new or changed fields; update `api_path`
+rsc/schema/browser-captures/apiConversation/workflow.md,79,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
+rsc/schema/browser-captures/apiConversation/workflow.md,79,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
+rsc/schema/browser-captures/apiConversation/workflow.md,82,doc,src/test/pre_commit.sh,Y,2. Run `src/test/pre_commit.sh`.
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v1.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v2.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v3.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
@@ -184,89 +186,53 @@ rsc/schema/chat-exports/conversations/principles.md,2,doc,rsc/schema/chat-export
 rsc/schema/chat-exports/conversations/principles.md,3,doc,rsc/schema/chat-exports/conversations/principles.md,Y,principles_file: rsc/schema/chat-exports/conversations/principles.md
 rsc/schema/chat-exports/conversations/principles.md,4,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,workflow_file: rsc/schema/chat-exports/conversations/workflow.md
 rsc/schema/chat-exports/conversations/principles.md,8,doc,rsc/schema/chat-exports/conversations/v{N}.json,N,# Schema Design Principles for `rsc/schema/chat-exports/conversations/v{N}.json`
-rsc/schema/chat-exports/conversations/principles.md,10,doc,rsc/schema/chat-exports/conversations/v{N}.json,N,"A living document of design principles, diagnostics, and repairs for `rsc/schema/chat-exports/conversations/v{N}.json`. "
-rsc/schema/chat-exports/conversations/principles.md,10,doc,src/test/diagnostics,Y,"A living document of design principles, diagnostics, and repairs for `rsc/schema/chat-exports/conversations/v{N}.json`. "
-rsc/schema/chat-exports/conversations/principles.md,10,doc,src/test/repairs,Y,"A living document of design principles, diagnostics, and repairs for `rsc/schema/chat-exports/conversations/v{N}.json`. "
-rsc/schema/chat-exports/conversations/principles.md,12,doc,src/test/pre_commit.py,Y,"This document should be kept updated in parallel with the schema, the atomic scripts, and validation runs. The pre-commi"
-rsc/schema/chat-exports/conversations/principles.md,18,doc,src/test/pre_commit.py,Y,- `enforced` — diagnostic script exists and must always pass; run by `src/test/pre_commit.py`
-rsc/schema/chat-exports/conversations/principles.md,35,doc,src/test/diagnostics/naming.upper_camel_case.py,Y,Diagnostic: src/test/diagnostics/naming.upper_camel_case.py
-rsc/schema/chat-exports/conversations/principles.md,47,doc,src/test/diagnostics/naming.title_matches_key.py,Y,Diagnostic: src/test/diagnostics/naming.title_matches_key.py
-rsc/schema/chat-exports/conversations/principles.md,48,doc,src/test/repairs/naming.title_matches_key.py,Y,Repair:     src/test/repairs/naming.title_matches_key.py
-rsc/schema/chat-exports/conversations/principles.md,61,doc,src/test/pre_commit.py,Y,"in `src/test/pre_commit.py`. The title `""conversations""` is maintained by convention."
-rsc/schema/chat-exports/conversations/principles.md,75,doc,src/test/diagnostics/naming.property_keys_lowercase.py,Y,Diagnostic: src/test/diagnostics/naming.property_keys_lowercase.py
-rsc/schema/chat-exports/conversations/principles.md,112,doc,src/test/diagnostics/structure.field_order.py,Y,Diagnostic: src/test/diagnostics/structure.field_order.py
-rsc/schema/chat-exports/conversations/principles.md,113,doc,src/test/repairs/structure.field_order.py,Y,Repair:     src/test/repairs/structure.field_order.py
-rsc/schema/chat-exports/conversations/principles.md,125,doc,src/test/diagnostics/structure.bfs_order.py,Y,Diagnostic: src/test/diagnostics/structure.bfs_order.py
-rsc/schema/chat-exports/conversations/principles.md,126,doc,src/test/repairs/structure.bfs_order.py,Y,Repair:     src/test/repairs/structure.bfs_order.py
-rsc/schema/chat-exports/conversations/principles.md,138,doc,src/test/diagnostics/structure.definitions_at_bottom.py,Y,Diagnostic: src/test/diagnostics/structure.definitions_at_bottom.py
-rsc/schema/chat-exports/conversations/principles.md,139,doc,src/test/repairs/structure.definitions_at_bottom.py,Y,Repair:     src/test/repairs/structure.definitions_at_bottom.py
-rsc/schema/chat-exports/conversations/principles.md,151,doc,src/test/diagnostics/structure.required_subset_of_properties.py,Y,Diagnostic: src/test/diagnostics/structure.required_subset_of_properties.py
-rsc/schema/chat-exports/conversations/principles.md,163,doc,src/test/diagnostics/structure.no_redundant_additional_properties_true.py,Y,Diagnostic: src/test/diagnostics/structure.no_redundant_additional_properties_true.py
-rsc/schema/chat-exports/conversations/principles.md,164,doc,src/test/repairs/structure.no_redundant_additional_properties_true.py,Y,Repair:     src/test/repairs/structure.no_redundant_additional_properties_true.py
-rsc/schema/chat-exports/conversations/principles.md,176,doc,src/test/diagnostics/structure.all_definitions_reachable.py,Y,Diagnostic: src/test/diagnostics/structure.all_definitions_reachable.py
-rsc/schema/chat-exports/conversations/principles.md,186,doc,src/test/diagnostics/structure.no_dangling_refs.py,Y,Diagnostic: src/test/diagnostics/structure.no_dangling_refs.py
-rsc/schema/chat-exports/conversations/principles.md,198,doc,src/test/diagnostics/structure.minItems_on_non_empty_arrays.py,Y,Diagnostic: src/test/diagnostics/structure.minItems_on_non_empty_arrays.py
-rsc/schema/chat-exports/conversations/principles.md,218,doc,src/test/diagnostics/structure.pattern_constraints_enforced.py,Y,Diagnostic: src/test/diagnostics/structure.pattern_constraints_enforced.py
-rsc/schema/chat-exports/conversations/principles.md,248,doc,src/test/diagnostics/structure.property_order_matches_data.py,Y,Diagnostic: src/test/diagnostics/structure.property_order_matches_data.py
-rsc/schema/chat-exports/conversations/principles.md,281,doc,src/test/diagnostics/documentation.every_definition_has_title_and_description.py,Y,Diagnostic: src/test/diagnostics/documentation.every_definition_has_title_and_description.py
-rsc/schema/chat-exports/conversations/principles.md,282,doc,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Repair:     src/test/repairs/documentation.every_definition_has_title_and_description.py
-rsc/schema/chat-exports/conversations/principles.md,314,doc,src/test/diagnostics/documentation.null_only_fields_documented.py,Y,Diagnostic: src/test/diagnostics/documentation.null_only_fields_documented.py
-rsc/schema/chat-exports/conversations/principles.md,347,doc,src/test/diagnostics/documentation.open_set_enums_documented.py,Y,Diagnostic: src/test/diagnostics/documentation.open_set_enums_documented.py
-rsc/schema/chat-exports/conversations/principles.md,370,doc,src/test/diagnostics/documentation.discriminator_fields_annotated.py,Y,Diagnostic: src/test/diagnostics/documentation.discriminator_fields_annotated.py
-rsc/schema/chat-exports/conversations/principles.md,406,doc,rsc/schema/chat-exports/conversations/v{N}.json,N,A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without em
-rsc/schema/chat-exports/conversations/principles.md,410,doc,rsc/schema/documenter.json,Y,"""$schema"": ""rsc/schema/documenter.json"","
-rsc/schema/chat-exports/conversations/principles.md,428,doc,src/main/chat-exports/validate.sh,Y,"Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports sho"
-rsc/schema/chat-exports/conversations/principles.md,431,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
-rsc/schema/chat-exports/conversations/principles.md,457,doc,src/test/diagnostics/empirical.oneOf_branches_evidenced.py,Y,Diagnostic: src/test/diagnostics/empirical.oneOf_branches_evidenced.py
-rsc/schema/chat-exports/conversations/principles.md,508,doc,src/test/diagnostics/empirical.nullable_fields_surveyed.py,Y,Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
-rsc/schema/chat-exports/conversations/principles.md,596,doc,src/main/model/gen_model_candidate.py,Y,"Run as: `python src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from the repo root."
-rsc/schema/chat-exports/conversations/principles.md,598,doc,src/main/model/gen_model_candidate.py,Y,See `src/main/model/gen_model_candidate.py` for the full implementation.
-rsc/schema/chat-exports/conversations/principles.md,626,doc,src/test/diagnostics/composition.discriminator_values_disjoint.py,Y,Diagnostic: src/test/diagnostics/composition.discriminator_values_disjoint.py
-rsc/schema/chat-exports/conversations/principles.md,638,doc,src/test/diagnostics/composition.base_schemas_closed.py,Y,Diagnostic: src/test/diagnostics/composition.base_schemas_closed.py
-rsc/schema/chat-exports/conversations/principles.md,650,doc,src/test/diagnostics/composition.wrapper_has_five_fields.py,Y,Diagnostic: src/test/diagnostics/composition.wrapper_has_five_fields.py
-rsc/schema/chat-exports/conversations/principles.md,677,doc,src/test/diagnostics/composition.no_additional_properties_on_subtypes.py,Y,Diagnostic: src/test/diagnostics/composition.no_additional_properties_on_subtypes.py
-rsc/schema/chat-exports/conversations/principles.md,706,doc,src/test/diagnostics/composition.base_not_used_directly.py,Y,Diagnostic: src/test/diagnostics/composition.base_not_used_directly.py
-rsc/schema/chat-exports/conversations/principles.md,920,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,See `rsc/schema/chat-exports/conversations/workflow.md` for the full loop. Summary:
-rsc/schema/chat-exports/conversations/principles.md,923,doc,src/test/pre_commit.py,Y,2. Run `src/test/pre_commit.py` to check all diagnostics.
-rsc/schema/chat-exports/conversations/principles.md,925,doc,src/test/repairs,Y,4. Fix genuine schema issues using repair scripts in `src/test/repairs/`.
-rsc/schema/chat-exports/conversations/principles.md,926,doc,src/test/pre_commit.py,Y,5. Re-run `src/test/pre_commit.py` until all checks pass.
-rsc/schema/chat-exports/conversations/principles.md,927,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,6. Update this document and `rsc/schema/chat-exports/conversations/workflow.md` as needed.
-rsc/schema/chat-exports/conversations/principles.md,957,doc,src/test/diagnostics/structure.bfs_order.py,Y,Diagnostic: src/test/diagnostics/structure.bfs_order.py
-rsc/schema/chat-exports/conversations/principles.md,958,doc,src/test/repairs/structure.bfs_order.py,Y,Repair:     src/test/repairs/structure.bfs_order.py
-rsc/schema/chat-exports/conversations/principles.md,961,doc,src/test/repairs/structure.bfs_order.py,Y,Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/chat-exports/conversations/v{N}.json`
-rsc/schema/chat-exports/conversations/principles.md,975,doc,rsc/schema/chat-exports/conversations/v{N}.json,N,*This document was developed iteratively alongside `rsc/schema/chat-exports/conversations/v{N}.json` over multiple sessi
+rsc/schema/chat-exports/conversations/principles.md,10,doc,rsc/schema/principles.md,Y,The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
+rsc/schema/chat-exports/conversations/principles.md,85,doc,rsc/schema/documenter.json,Y,"""$schema"": ""rsc/schema/documenter.json"","
+rsc/schema/chat-exports/conversations/principles.md,101,doc,src/main/chat-exports/validate.sh,Y,"Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports sho"
+rsc/schema/chat-exports/conversations/principles.md,104,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
+rsc/schema/chat-exports/conversations/principles.md,130,doc,src/test/diagnostics/empirical.oneOf_branches_evidenced.py,Y,Diagnostic: src/test/diagnostics/empirical.oneOf_branches_evidenced.py
+rsc/schema/chat-exports/conversations/principles.md,181,doc,src/test/diagnostics/empirical.nullable_fields_surveyed.py,Y,Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
+rsc/schema/chat-exports/conversations/principles.md,269,doc,src/main/model/gen_model_candidate.py,Y,"Run as: `python src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from the repo root."
+rsc/schema/chat-exports/conversations/principles.md,271,doc,src/main/model/gen_model_candidate.py,Y,See `src/main/model/gen_model_candidate.py` for the full implementation.
+rsc/schema/chat-exports/conversations/principles.md,444,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,See `rsc/schema/chat-exports/conversations/workflow.md` for the full loop. Summary:
+rsc/schema/chat-exports/conversations/principles.md,447,doc,src/test/pre_commit.py,Y,2. Run `src/test/pre_commit.py` to check all diagnostics.
+rsc/schema/chat-exports/conversations/principles.md,449,doc,src/test/repairs,Y,4. Fix genuine schema issues using repair scripts in `src/test/repairs/`.
+rsc/schema/chat-exports/conversations/principles.md,450,doc,src/test/pre_commit.py,Y,5. Re-run `src/test/pre_commit.py` until all checks pass.
+rsc/schema/chat-exports/conversations/principles.md,451,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,6. Update this document and `rsc/schema/chat-exports/conversations/workflow.md` as needed.
+rsc/schema/chat-exports/conversations/principles.md,476,doc,rsc/schema/chat-exports/conversations/v{N}.json,N,*This document was developed iteratively alongside `rsc/schema/chat-exports/conversations/v{N}.json` over multiple sessi
 rsc/schema/chat-exports/conversations/workflow.md,2,doc,rsc/schema/chat-exports/conversations/v6.json,Y,schema_file: rsc/schema/chat-exports/conversations/v6.json
 rsc/schema/chat-exports/conversations/workflow.md,3,doc,rsc/schema/chat-exports/conversations/principles.md,Y,principles_file: rsc/schema/chat-exports/conversations/principles.md
 rsc/schema/chat-exports/conversations/workflow.md,4,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,workflow_file: rsc/schema/chat-exports/conversations/workflow.md
 rsc/schema/chat-exports/conversations/workflow.md,8,doc,rsc/schema/chat-exports/conversations/v{N}.json,N,# Schema Development Workflow for `rsc/schema/chat-exports/conversations/v{N}.json`
-rsc/schema/chat-exports/conversations/workflow.md,38,doc,rsc/schema/chat-exports/conversations,Y,| `v{N}.json` | The schema under development | Upload from `rsc/schema/chat-exports/conversations/` |
-rsc/schema/chat-exports/conversations/workflow.md,39,doc,rsc/schema/chat-exports/conversations,Y,"| `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/chat-exports/conversations"
-rsc/schema/chat-exports/conversations/workflow.md,40,doc,rsc/schema/chat-exports/conversations,Y,| `workflow.md` | This document | Upload from `rsc/schema/chat-exports/conversations/` |
-rsc/schema/chat-exports/conversations/workflow.md,54,doc,src/main/chat-exports/RUNME.sh,Y,1. Run: `src/main/chat-exports/RUNME.sh --chat-export <path>`
-rsc/schema/chat-exports/conversations/workflow.md,60,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
-rsc/schema/chat-exports/conversations/workflow.md,60,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
-rsc/schema/chat-exports/conversations/workflow.md,63,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
-rsc/schema/chat-exports/conversations/workflow.md,101,doc,rsc/schema/chat-exports/conversations/principles.md,Y,Run every diagnostic marked `enforced` in `rsc/schema/chat-exports/conversations/principles.md`. Use the consolidated ru
-rsc/schema/chat-exports/conversations/workflow.md,158,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"For each (A) failure, refine the diagnostic in `rsc/schema/chat-exports/conversations/principles.md`. Re-run the affecte"
-rsc/schema/chat-exports/conversations/workflow.md,182,doc,rsc/schema/chat-exports/conversations/principles.md,Y,Fix each (B) failure using the repair snippets in `rsc/schema/chat-exports/conversations/principles.md`. Work through ro
-rsc/schema/chat-exports/conversations/workflow.md,244,doc,rsc/schema/chat-exports/conversations/principles.md,Y,Update `rsc/schema/chat-exports/conversations/principles.md` if any of the following occurred:
-rsc/schema/chat-exports/conversations/workflow.md,252,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,Update this workflow document (`rsc/schema/chat-exports/conversations/workflow.md`) if the loop itself was found to be i
-rsc/schema/chat-exports/conversations/workflow.md,262,doc,rsc/schema/chat-exports/conversations,Y,- Updated schema `v{N}.json` → `rsc/schema/chat-exports/conversations/`
-rsc/schema/chat-exports/conversations/workflow.md,263,doc,rsc/schema/chat-exports/conversations,Y,- Updated `principles.md` → `rsc/schema/chat-exports/conversations/`
-rsc/schema/chat-exports/conversations/workflow.md,264,doc,rsc/schema/chat-exports/conversations,Y,- Updated `workflow.md` → `rsc/schema/chat-exports/conversations/`
-rsc/schema/chat-exports/conversations/workflow.md,265,doc,src/main/chat-exports/validate.sh,Y,- Updated validation logs in `gen/` (from running `src/main/chat-exports/validate.sh`)
-rsc/schema/chat-exports/conversations/workflow.md,309,doc,src/activate_venv.sh,Y,source src/activate_venv.sh
-rsc/schema/chat-exports/conversations/workflow.md,311,doc,src/main/validate.py,Y,"result=$(python src/main/validate.py ""$d/conversations.json"" rsc/schema/chat-exports/conversations/v{N+1}.json 2>&1)"
-rsc/schema/chat-exports/conversations/workflow.md,327,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
-rsc/schema/chat-exports/conversations/workflow.md,327,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
-rsc/schema/chat-exports/conversations/workflow.md,334,doc,src/test/diagnostics,Y,1. Review diagnostic exception sets in `src/test/diagnostics/`:
-rsc/schema/chat-exports/conversations/workflow.md,338,doc,rsc/schema/model_join.csv,Y,2. Review `rsc/schema/model_join.csv`:
-rsc/schema/chat-exports/conversations/workflow.md,342,doc,src/test/pre_commit.sh,Y,- `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a
-rsc/schema/chat-exports/conversations/workflow.md,343,doc,src/main/model/gen_model.sh,Y,3. Run `src/main/model/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross
-rsc/schema/chat-exports/conversations/workflow.md,343,doc,rsc/schema/model.json,Y,3. Run `src/main/model/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross
-rsc/schema/chat-exports/conversations/workflow.md,344,doc,src/main/chat-exports/RUNME.sh,Y,4. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
-rsc/schema/chat-exports/conversations/workflow.md,346,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` and confirm all checks pass.
-rsc/schema/chat-exports/conversations/workflow.md,382,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"If a new principle is added to `rsc/schema/chat-exports/conversations/principles.md`, check whether it requires a new di"
+rsc/schema/chat-exports/conversations/workflow.md,18,doc,rsc/schema/workflow.md,Y,"See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rule"
+rsc/schema/chat-exports/conversations/workflow.md,30,doc,rsc/schema/chat-exports/conversations,Y,| `v{N}.json` | The schema under development | Upload from `rsc/schema/chat-exports/conversations/` |
+rsc/schema/chat-exports/conversations/workflow.md,31,doc,rsc/schema/chat-exports/conversations,Y,"| `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/chat-exports/conversations"
+rsc/schema/chat-exports/conversations/workflow.md,32,doc,rsc/schema/chat-exports/conversations,Y,| `workflow.md` | This document | Upload from `rsc/schema/chat-exports/conversations/` |
+rsc/schema/chat-exports/conversations/workflow.md,46,doc,src/main/chat-exports/RUNME.sh,Y,1. Run: `src/main/chat-exports/RUNME.sh --chat-export <path>`
+rsc/schema/chat-exports/conversations/workflow.md,52,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
+rsc/schema/chat-exports/conversations/workflow.md,52,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
+rsc/schema/chat-exports/conversations/workflow.md,55,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` to confirm all new pairs are green.
+rsc/schema/chat-exports/conversations/workflow.md,93,doc,rsc/schema/chat-exports/conversations/principles.md,Y,Run every diagnostic marked `enforced` in `rsc/schema/chat-exports/conversations/principles.md`. Use the consolidated ru
+rsc/schema/chat-exports/conversations/workflow.md,150,doc,rsc/schema/chat-exports/conversations/principles.md,Y,"For each (A) failure, refine the diagnostic in `rsc/schema/chat-exports/conversations/principles.md`. Re-run the affecte"
+rsc/schema/chat-exports/conversations/workflow.md,174,doc,rsc/schema/chat-exports/conversations/principles.md,Y,Fix each (B) failure using the repair snippets in `rsc/schema/chat-exports/conversations/principles.md`. Work through ro
+rsc/schema/chat-exports/conversations/workflow.md,236,doc,rsc/schema/chat-exports/conversations/principles.md,Y,Update `rsc/schema/chat-exports/conversations/principles.md` if any of the following occurred:
+rsc/schema/chat-exports/conversations/workflow.md,244,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,Update this workflow document (`rsc/schema/chat-exports/conversations/workflow.md`) if the loop itself was found to be i
+rsc/schema/chat-exports/conversations/workflow.md,254,doc,rsc/schema/chat-exports/conversations,Y,- Updated schema `v{N}.json` → `rsc/schema/chat-exports/conversations/`
+rsc/schema/chat-exports/conversations/workflow.md,255,doc,rsc/schema/chat-exports/conversations,Y,- Updated `principles.md` → `rsc/schema/chat-exports/conversations/`
+rsc/schema/chat-exports/conversations/workflow.md,256,doc,rsc/schema/chat-exports/conversations,Y,- Updated `workflow.md` → `rsc/schema/chat-exports/conversations/`
+rsc/schema/chat-exports/conversations/workflow.md,257,doc,src/main/chat-exports/validate.sh,Y,- Updated validation logs in `gen/` (from running `src/main/chat-exports/validate.sh`)
+rsc/schema/chat-exports/conversations/workflow.md,301,doc,src/activate_venv.sh,Y,source src/activate_venv.sh
+rsc/schema/chat-exports/conversations/workflow.md,303,doc,src/main/validate.py,Y,"result=$(python src/main/validate.py ""$d/conversations.json"" rsc/schema/chat-exports/conversations/v{N+1}.json 2>&1)"
+rsc/schema/chat-exports/conversations/workflow.md,319,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
+rsc/schema/chat-exports/conversations/workflow.md,319,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline chat-exports --write
+rsc/schema/chat-exports/conversations/workflow.md,326,doc,src/test/diagnostics,Y,1. Review diagnostic exception sets in `src/test/diagnostics/`:
+rsc/schema/chat-exports/conversations/workflow.md,330,doc,rsc/schema/model_join.csv,Y,2. Review `rsc/schema/model_join.csv`:
+rsc/schema/chat-exports/conversations/workflow.md,334,doc,src/test/pre_commit.sh,Y,- `src/test/pre_commit.sh` validates all JSON Pointer fragments in the file — a failing pointer means a row references a
+rsc/schema/chat-exports/conversations/workflow.md,335,doc,src/main/model/gen_model.sh,Y,3. Run `src/main/model/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross
+rsc/schema/chat-exports/conversations/workflow.md,335,doc,rsc/schema/model.json,Y,3. Run `src/main/model/gen_model.sh` and review the output in `gen/model/` — update `rsc/schema/model.json` if any cross
+rsc/schema/chat-exports/conversations/workflow.md,336,doc,src/main/chat-exports/RUNME.sh,Y,4. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
+rsc/schema/chat-exports/conversations/workflow.md,338,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` and confirm all checks pass.
+rsc/schema/chat-exports/conversations/workflow.md,346,doc,rsc/schema/workflow.md,Y,See [`rsc/schema/workflow.md`](../../workflow.md) for the full meta-rules shared across all pipelines.
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
@@ -281,13 +247,14 @@ rsc/schema/code-projects/session/principles.md,2,doc,rsc/schema/code-projects/se
 rsc/schema/code-projects/session/principles.md,3,doc,rsc/schema/code-projects/session/principles.md,Y,principles_file: rsc/schema/code-projects/session/principles.md
 rsc/schema/code-projects/session/principles.md,4,doc,rsc/schema/code-projects/session/workflow.md,Y,workflow_file: rsc/schema/code-projects/session/workflow.md
 rsc/schema/code-projects/session/principles.md,8,doc,rsc/schema/code-projects/session/v{N}.json,N,# Schema Design Principles for `rsc/schema/code-projects/session/v{N}.json`
-rsc/schema/code-projects/session/principles.md,10,doc,rsc/schema/chat-exports/conversations/principles.md,Y,The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
+rsc/schema/code-projects/session/principles.md,10,doc,rsc/schema/principles.md,Y,The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
 rsc/schema/code-projects/session/principles.md,20,doc,src/test/diagnostics,Y,The diagnostic scripts in `src/test/diagnostics/` can be applied to this schema
 rsc/schema/code-projects/session/principles.md,32,doc,src/test/code-projects/survey_code_session.py,Y,- Use `src/test/code-projects/survey_code_session.py` before schema changes
 rsc/schema/code-projects/session/principles.md,33,doc,src/test/code-projects/debug_code_session_record.py,Y,- Use `src/test/code-projects/debug_code_session_record.py` to diagnose validation failures
 rsc/schema/code-projects/session/principles.md,34,doc,src/test/pre_commit.sh,Y,- Run `src/test/pre_commit.sh` to validate `model_join.csv` pointer integrity
 rsc/schema/code-projects/session/principles.md,38,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` is a unified four-way correspondence table covering all
-rsc/schema/code-projects/session/principles.md,90,doc,src/test/code-projects/survey_code_session.py,Y,by surveying additional sessions with `src/test/code-projects/survey_code_session.py`.
+rsc/schema/code-projects/session/principles.md,41,doc,rsc/schema/principles.md,Y,Update `model_join.csv` whenever `v1.json` changes — see [`rsc/schema/principles.md`](../../principles.md#maintenance) a
+rsc/schema/code-projects/session/principles.md,89,doc,src/test/code-projects/survey_code_session.py,Y,by surveying additional sessions with `src/test/code-projects/survey_code_session.py`.
 rsc/schema/code-projects/session/research.md,170,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
 rsc/schema/code-projects/session/research.md,174,doc,src/main/code-projects/RUNME.sh,Y,but the workspace file references it and `src/main/code-projects/RUNME.sh` reads from it.
 rsc/schema/code-projects/session/session-schema.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/` — Schema Reference
@@ -301,27 +268,28 @@ rsc/schema/code-projects/session/workflow.md,3,doc,rsc/schema/code-projects/sess
 rsc/schema/code-projects/session/workflow.md,4,doc,rsc/schema/code-projects/session/workflow.md,Y,workflow_file: rsc/schema/code-projects/session/workflow.md
 rsc/schema/code-projects/session/workflow.md,8,doc,rsc/schema/code-projects/session/v{N}.json,N,# Schema Development Workflow for `rsc/schema/code-projects/session/v{N}.json`
 rsc/schema/code-projects/session/workflow.md,11,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md` but adapted
-rsc/schema/code-projects/session/workflow.md,18,doc,rsc/schema/chat-exports/conversations/principles.md,Y,The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply to this
-rsc/schema/code-projects/session/workflow.md,36,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` produces a snapshot in `gen/code-projects/` from whatever is
-rsc/schema/code-projects/session/workflow.md,55,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
-rsc/schema/code-projects/session/workflow.md,66,doc,src/main/code-projects/RUNME.sh,Y,### Step 1 · Run src/main/code-projects/RUNME.sh
-rsc/schema/code-projects/session/workflow.md,69,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
-rsc/schema/code-projects/session/workflow.md,82,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/code-projects/session/workflow.md,93,doc,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py \
-rsc/schema/code-projects/session/workflow.md,121,doc,src/main/code-projects/RUNME.sh,Y,Fix one root cause at a time. Re-run `src/main/code-projects/RUNME.sh` after each fix to confirm
-rsc/schema/code-projects/session/workflow.md,138,doc,rsc/schema/model_join.csv,Y,Review `rsc/schema/model_join.csv` for any new fields added in step 3.
-rsc/schema/code-projects/session/workflow.md,146,doc,src/test/pre_commit.sh,Y,Run `src/test/pre_commit.sh` to verify all pointers in the updated table.
-rsc/schema/code-projects/session/workflow.md,159,doc,rsc/schema/code-projects/session/v1.json,Y,.../rsc/schema/code-projects/session/v1.json: 27568 bytes
-rsc/schema/code-projects/session/workflow.md,168,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
-rsc/schema/code-projects/session/workflow.md,168,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
-rsc/schema/code-projects/session/workflow.md,186,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/code-projects/session/workflow.md,195,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` is the unified four-way field-level correspondence table
-rsc/schema/code-projects/session/workflow.md,239,doc,src/test/pre_commit.sh,Y,"7. Update the CHANGELOG matrix, `model_join.csv` pointers, and run `src/test/pre_commit.sh`:"
-rsc/schema/code-projects/session/workflow.md,242,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
-rsc/schema/code-projects/session/workflow.md,242,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
-rsc/schema/code-projects/session/workflow.md,251,doc,src/main/code-projects/RUNME.sh,Y,"| **Updated** | Continuously, by Claude Code | Only when `src/main/code-projects/RUNME.sh` is run |"
-rsc/schema/code-projects/session/workflow.md,256,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` mid-session will validate a longer transcript than the previous
-rsc/schema/code-projects/session/workflow.md,268,doc,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+rsc/schema/code-projects/session/workflow.md,18,doc,rsc/schema/workflow.md,Y,"See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rule"
+rsc/schema/code-projects/session/workflow.md,18,doc,rsc/schema/principles.md,Y,"See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rule"
+rsc/schema/code-projects/session/workflow.md,29,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` produces a snapshot in `gen/code-projects/` from whatever is
+rsc/schema/code-projects/session/workflow.md,48,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
+rsc/schema/code-projects/session/workflow.md,59,doc,src/main/code-projects/RUNME.sh,Y,### Step 1 · Run src/main/code-projects/RUNME.sh
+rsc/schema/code-projects/session/workflow.md,62,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
+rsc/schema/code-projects/session/workflow.md,75,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+rsc/schema/code-projects/session/workflow.md,86,doc,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py \
+rsc/schema/code-projects/session/workflow.md,114,doc,src/main/code-projects/RUNME.sh,Y,Fix one root cause at a time. Re-run `src/main/code-projects/RUNME.sh` after each fix to confirm
+rsc/schema/code-projects/session/workflow.md,131,doc,rsc/schema/model_join.csv,Y,Review `rsc/schema/model_join.csv` for any new fields added in step 3.
+rsc/schema/code-projects/session/workflow.md,139,doc,src/test/pre_commit.sh,Y,Run `src/test/pre_commit.sh` to verify all pointers in the updated table.
+rsc/schema/code-projects/session/workflow.md,152,doc,rsc/schema/code-projects/session/v1.json,Y,.../rsc/schema/code-projects/session/v1.json: 27568 bytes
+rsc/schema/code-projects/session/workflow.md,161,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
+rsc/schema/code-projects/session/workflow.md,161,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
+rsc/schema/code-projects/session/workflow.md,179,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+rsc/schema/code-projects/session/workflow.md,188,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` is the unified four-way field-level correspondence table
+rsc/schema/code-projects/session/workflow.md,232,doc,src/test/pre_commit.sh,Y,"7. Update the CHANGELOG matrix, `model_join.csv` pointers, and run `src/test/pre_commit.sh`:"
+rsc/schema/code-projects/session/workflow.md,235,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
+rsc/schema/code-projects/session/workflow.md,235,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
+rsc/schema/code-projects/session/workflow.md,244,doc,src/main/code-projects/RUNME.sh,Y,"| **Updated** | Continuously, by Claude Code | Only when `src/main/code-projects/RUNME.sh` is run |"
+rsc/schema/code-projects/session/workflow.md,249,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` mid-session will validate a longer transcript than the previous
+rsc/schema/code-projects/session/workflow.md,261,doc,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
@@ -330,6 +298,47 @@ rsc/schema/model.json,32,path_str,rsc/schema/chat-exports/memories/v1.json,Y,"""
 rsc/schema/model.json,35,path_str,rsc/schema/chat-exports/projects/v1.json,Y,"""./chat-exports/projects/v1.json"": ["
 rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./chat-exports/users/v1.json"": ["
 rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v6.json,Y,"""./chat-exports/conversations/v6.json"": ["
+rsc/schema/principles.md,3,doc,rsc/schema,Y,Generic design principles for all schemas in `rsc/schema/`. Each per-pipeline
+rsc/schema/principles.md,8,doc,src/test/pre_commit.py,Y,- `enforced` — diagnostic script exists and must always pass; run by `src/test/pre_commit.py`
+rsc/schema/principles.md,28,doc,src/test/diagnostics/naming.upper_camel_case.py,Y,Diagnostic: src/test/diagnostics/naming.upper_camel_case.py
+rsc/schema/principles.md,41,doc,src/test/diagnostics/naming.title_matches_key.py,Y,Diagnostic: src/test/diagnostics/naming.title_matches_key.py
+rsc/schema/principles.md,42,doc,src/test/repairs/naming.title_matches_key.py,Y,Repair:     src/test/repairs/naming.title_matches_key.py
+rsc/schema/principles.md,55,doc,src/test/pre_commit.py,Y,in `src/test/pre_commit.py`.
+rsc/schema/principles.md,67,doc,src/test/diagnostics/naming.property_keys_lowercase.py,Y,Diagnostic: src/test/diagnostics/naming.property_keys_lowercase.py
+rsc/schema/principles.md,82,doc,src/test/diagnostics/structure.field_order.py,Y,Diagnostic: src/test/diagnostics/structure.field_order.py
+rsc/schema/principles.md,83,doc,src/test/repairs/structure.field_order.py,Y,Repair:     src/test/repairs/structure.field_order.py
+rsc/schema/principles.md,97,doc,src/test/diagnostics/structure.bfs_order.py,Y,Diagnostic: src/test/diagnostics/structure.bfs_order.py
+rsc/schema/principles.md,98,doc,src/test/repairs/structure.bfs_order.py,Y,Repair:     src/test/repairs/structure.bfs_order.py
+rsc/schema/principles.md,110,doc,src/test/diagnostics/structure.definitions_at_bottom.py,Y,Diagnostic: src/test/diagnostics/structure.definitions_at_bottom.py
+rsc/schema/principles.md,111,doc,src/test/repairs/structure.definitions_at_bottom.py,Y,Repair:     src/test/repairs/structure.definitions_at_bottom.py
+rsc/schema/principles.md,123,doc,src/test/diagnostics/structure.required_subset_of_properties.py,Y,Diagnostic: src/test/diagnostics/structure.required_subset_of_properties.py
+rsc/schema/principles.md,136,doc,src/test/diagnostics/structure.no_redundant_additional_properties_true.py,Y,Diagnostic: src/test/diagnostics/structure.no_redundant_additional_properties_true.py
+rsc/schema/principles.md,137,doc,src/test/repairs/structure.no_redundant_additional_properties_true.py,Y,Repair:     src/test/repairs/structure.no_redundant_additional_properties_true.py
+rsc/schema/principles.md,149,doc,src/test/diagnostics/structure.all_definitions_reachable.py,Y,Diagnostic: src/test/diagnostics/structure.all_definitions_reachable.py
+rsc/schema/principles.md,159,doc,src/test/diagnostics/structure.no_dangling_refs.py,Y,Diagnostic: src/test/diagnostics/structure.no_dangling_refs.py
+rsc/schema/principles.md,169,doc,src/test/diagnostics/structure.minItems_on_non_empty_arrays.py,Y,Diagnostic: src/test/diagnostics/structure.minItems_on_non_empty_arrays.py
+rsc/schema/principles.md,183,doc,src/test/diagnostics/structure.pattern_constraints_enforced.py,Y,Diagnostic: src/test/diagnostics/structure.pattern_constraints_enforced.py
+rsc/schema/principles.md,193,doc,src/test/diagnostics/structure.property_order_matches_data.py,Y,Diagnostic: src/test/diagnostics/structure.property_order_matches_data.py
+rsc/schema/principles.md,204,doc,rsc/schema/documenter.json,Y,Titles and descriptions surface as VS Code tooltips via `rsc/schema/documenter.json`.
+rsc/schema/principles.md,207,doc,src/test/diagnostics/documentation.every_definition_has_title_and_description.py,Y,Diagnostic: src/test/diagnostics/documentation.every_definition_has_title_and_description.py
+rsc/schema/principles.md,208,doc,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Repair:     src/test/repairs/documentation.every_definition_has_title_and_description.py
+rsc/schema/principles.md,220,doc,src/test/diagnostics/documentation.null_only_fields_documented.py,Y,Diagnostic: src/test/diagnostics/documentation.null_only_fields_documented.py
+rsc/schema/principles.md,232,doc,src/test/diagnostics/documentation.open_set_enums_documented.py,Y,Diagnostic: src/test/diagnostics/documentation.open_set_enums_documented.py
+rsc/schema/principles.md,244,doc,src/test/diagnostics/documentation.discriminator_fields_annotated.py,Y,Diagnostic: src/test/diagnostics/documentation.discriminator_fields_annotated.py
+rsc/schema/principles.md,273,doc,src/test/diagnostics/composition.discriminator_values_disjoint.py,Y,Diagnostic: src/test/diagnostics/composition.discriminator_values_disjoint.py
+rsc/schema/principles.md,285,doc,src/test/diagnostics/composition.base_schemas_closed.py,Y,Diagnostic: src/test/diagnostics/composition.base_schemas_closed.py
+rsc/schema/principles.md,295,doc,src/test/diagnostics/composition.wrapper_has_five_fields.py,Y,Diagnostic: src/test/diagnostics/composition.wrapper_has_five_fields.py
+rsc/schema/principles.md,309,doc,src/test/diagnostics/composition.no_additional_properties_on_subtypes.py,Y,Diagnostic: src/test/diagnostics/composition.no_additional_properties_on_subtypes.py
+rsc/schema/principles.md,321,doc,src/test/diagnostics/composition.base_not_used_directly.py,Y,Diagnostic: src/test/diagnostics/composition.base_not_used_directly.py
+rsc/schema/principles.md,352,doc,src/test/repairs/structure.bfs_order.py,Y,Repair: src/test/repairs/structure.bfs_order.py
+rsc/schema/principles.md,372,doc,rsc/schema/model_join.csv,Y,**Review `rsc/schema/model_join.csv` whenever any schema changes.**
+rsc/schema/principles.md,376,doc,src/test/pre_commit.sh,Y,definition with a notable counterpart in another schema. `src/test/pre_commit.sh`
+rsc/schema/workflow.md,3,doc,rsc/schema,Y,Shared workflow foundations for all schemas in `rsc/schema/`. Each per-pipeline
+rsc/schema/workflow.md,56,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
+rsc/schema/workflow.md,56,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
+rsc/schema/workflow.md,59,doc,rsc/schema/model_join.csv,Y,7. Review `rsc/schema/model_join.csv` for new or changed fields.
+rsc/schema/workflow.md,60,doc,src/test/pre_commit.sh,Y,8. Run `src/test/pre_commit.sh` — commit the updated `pre_commit.log`.
+rsc/schema/workflow.md,61,doc,src/test/xref.sh,Y,9. Run `src/test/xref.sh` — commit the updated `xref.csv`.
 rsc/snippets.md,10,doc,src/main/code-projects/jsonl_to_json.py,Y,python src/main/code-projects/jsonl_to_json.py session.jsonl session.json
 rsc/snippets.md,22,doc,gen/redacted/conversations.json,N,"jq 'walk(if type == ""object"" and has(""text"") and .text != """" and (.text | type) == ""string"" then .text = ""[redacted]"" el"
 rsc/snippets.md,28,doc,gen/summarised/conversations.json,N,"jq '[sort_by(.created_at) | to_entries[] | {key: (.key | tostring), value: .value.summary}] | from_entries' conversation"

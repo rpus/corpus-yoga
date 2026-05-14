@@ -7,83 +7,23 @@ version: "1.3"
 
 # Schema Design Principles for `rsc/schema/chat-exports/conversations/v{N}.json`
 
-A living document of design principles, diagnostics, and repairs for `rsc/schema/chat-exports/conversations/v{N}.json`. Each enforced principle has a machine-runnable diagnostic script in `src/test/diagnostics/` and (where automatable) a repair script in `src/test/repairs/`. Inline snippets are provided for advisory and manual principles, and for context where the script alone is not self-explanatory.
-
-This document should be kept updated in parallel with the schema, the atomic scripts, and validation runs. The pre-commit hook (`src/test/pre_commit.py`) runs all enforced diagnostics automatically.
-
-Principles are organised into eight categories: [Naming](#naming), [Structure](#structure), [Documentation](#documentation), [Empirical Grounding](#empirical-grounding), [Composition Patterns](#composition-patterns), [API Correspondence](#api-correspondence), [Integrity Constraints](#integrity-constraints), and [Open Questions](#open-questions). A final [Maintenance Workflow](#maintenance-workflow) section collects operational procedures.
-
-Each principle has a **status**:
-
-- `enforced` — diagnostic script exists and must always pass; run by `src/test/pre_commit.py`
-- `advisory` — worth checking; violations may be intentional
-- `manual` — requires human judgement; no fully automatable check
-- `informational` — context only; no check
-- `open` — genuinely undecided; no principle yet established; here for awareness and future discussion
+The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
+to this schema in full. Read that document first. This document records only the
+conversations-specific empirical content, API correspondence, integrity constraints,
+open questions, and maintenance notes.
 
 ---
 
-## Naming
-
-### `naming.upper_camel_case` · *enforced*
-
-**All definition names are UpperCamelCase.**
-
-Consistent UpperCamelCase for definition names cleanly distinguishes schema type names from data field names (which are snake_case). This means a `$ref` is always visually distinct from a property key — e.g. `"uuid": {"$ref": "#/definitions/UuidV4"}` is unambiguous at a glance.
-
-```text
-Diagnostic: src/test/diagnostics/naming.upper_camel_case.py
-```
-
----
-
-### `naming.title_matches_key` · *enforced*
-
-**Every definition's `title` matches its key.**
-
-The `title` field is the human-readable name of the schema. It should match the definition key exactly so that tooling (e.g. VS Code tooltips) shows the correct name.
-
-```text
-Diagnostic: src/test/diagnostics/naming.title_matches_key.py
-Repair:     src/test/repairs/naming.title_matches_key.py
-```
-
----
-
-### `naming.root_schema_title_matches_filename` · *not applicable to versioned schemas*
-
-**The root schema's `title` matches the schema filename stem (without extension).**
-
-For non-versioned schemas (e.g. `model.json`) this is enforced by
-`check_root_schema_diagnostics`. For versioned schemas the files are named `v1.json`,
-`v2.json`, etc. — the filename stem is a version number, not the schema title — so the
-diagnostic is universally skipped for all versioned schemas via `_UNIVERSAL_DIAG_SKIP`
-in `src/test/pre_commit.py`. The title `"conversations"` is maintained by convention.
-
-This principle was discovered during active development when the root title was
-`"Claude Conversation Export"` rather than `"conversations"`.
-
----
-
-### `naming.property_keys_lowercase` · *enforced*
-
-**All property keys in data schemas are lowercase or snake\_case.**
-
-Property keys mirror the actual JSON data fields, which follow snake\_case. UpperCamelCase keys would indicate a wrongly-renamed property — a bug encountered during the `timestamp`/`flags`/`display_content` renaming, where the rename script accidentally capitalised property keys as well as definition keys.
-
-```text
-Diagnostic: src/test/diagnostics/naming.property_keys_lowercase.py
-```
-
----
+## Conversations-Specific Naming
 
 ### `naming.subtype_naming_convention` · *advisory*
 
 **Tool block subtypes are named `{ToolName}ToolUseBlock` / `{ToolName}ToolResultBlock`.**
 
-The tool name is converted from snake\_case to UpperCamelCase and prefixed to `ToolUseBlock` or `ToolResultBlock`. The deliberate choice was made *not* to rename `ToolResultContentItem`, `ToolResultSearchItem`, or `ToolResultLocalResource` to match their `type` field values, because (a) `text` would clash with `TextBlock`, and (b) the `type` values in that union are not obviously a closed set acting as discriminators in the same way as tool names.
-
-No standalone diagnostic script. Full enforcement would require cross-referencing each subtype's definition name prefix against its `name` discriminator const (e.g. `BashToolUseBlock` → prefix `Bash` → tool name `bash`), which depends on schema structure and an empirically-determined tool name set. `naming.upper_camel_case` catches capitalisation violations. `naming.title_matches_key` is not relevant here — it checks `title == key`, which is a formatting rule and provides no coverage for the suffix pattern. The correct suffix (`ToolUseBlock` vs `ToolResultBlock`) and non-empty prefix can be verified manually with:
+The tool name is converted from snake\_case to UpperCamelCase and prefixed to `ToolUseBlock`
+or `ToolResultBlock`. Not renamed: `ToolResultContentItem`, `ToolResultSearchItem`,
+`ToolResultLocalResource` — (a) `text` would clash with `TextBlock`, and (b) the `type`
+values in that union are not a closed discriminator set in the same way as tool names.
 
 ```python
 import json
@@ -100,113 +40,9 @@ for name in schema['definitions']:
 
 ---
 
-## Structure
+## Conversations-Specific Structure
 
-### `structure.field_order` · *enforced*
-
-**Every definition begins with `title`, `description`, `type` (in that order).**
-
-Consistent field ordering makes schemas easier to scan. `title` and `description` come first as the human-readable contract; `type` follows as the primary structural constraint. The only exception is the root schema, which begins with `$schema`.
-
-```text
-Diagnostic: src/test/diagnostics/structure.field_order.py
-Repair:     src/test/repairs/structure.field_order.py
-```
-
----
-
-### `structure.bfs_order` · *enforced*
-
-**Definitions are ordered in breadth-first referential encounter order.**
-
-Reading the definitions top-to-bottom should follow the same order as reading the schema by following `$ref`s. This makes the file navigable as a solitary wave — unfolding and refolding a single schema at a time. Definitions unreachable via `$ref` (e.g. `ToolInput*` variants referenced only in descriptions) appear at the end in their original order. BFS order must be reapplied after any edit that adds or reorders definitions.
-
-```text
-Diagnostic: src/test/diagnostics/structure.bfs_order.py
-Repair:     src/test/repairs/structure.bfs_order.py
-```
-
----
-
-### `structure.definitions_at_bottom` · *enforced*
-
-**The `definitions` key is the last key in the root schema.**
-
-The root schema header (`$schema`, `title`, `description`, `type`, `minItems`, `items`) is read first; `definitions` is a reference section consulted on demand.
-
-```text
-Diagnostic: src/test/diagnostics/structure.definitions_at_bottom.py
-Repair:     src/test/repairs/structure.definitions_at_bottom.py
-```
-
----
-
-### `structure.required_subset_of_properties` · *enforced*
-
-**Every `required` field is listed in `properties`.**
-
-A required field not present in `properties` is a schema error — the validator will require a field it cannot validate.
-
-```text
-Diagnostic: src/test/diagnostics/structure.required_subset_of_properties.py
-```
-
----
-
-### `structure.no_redundant_additional_properties_true` · *enforced*
-
-**No explicit `additionalProperties: true`.**
-
-`additionalProperties: true` is the default in draft-4. Explicit occurrences are redundant noise. The meaningful values are `false` (closed schema) and absent (open schema).
-
-```text
-Diagnostic: src/test/diagnostics/structure.no_redundant_additional_properties_true.py
-Repair:     src/test/repairs/structure.no_redundant_additional_properties_true.py
-```
-
----
-
-### `structure.all_definitions_reachable` · *enforced*
-
-**Every definition is reachable from the root via `$ref`.**
-
-Unreachable definitions are dead code. Known exceptions: `ToolInputComputerUse`, `ToolInputTextEditor`, `ToolInputCodeExecution` — documented stubs for API tools not yet observed in any export.
-
-```text
-Diagnostic: src/test/diagnostics/structure.all_definitions_reachable.py
-```
-
----
-
-### `structure.no_dangling_refs` · *enforced*
-
-**Every `$ref` target exists in `definitions`.**
-
-```text
-Diagnostic: src/test/diagnostics/structure.no_dangling_refs.py
-```
-
----
-
-### `structure.minItems_on_non_empty_arrays` · *enforced*
-
-**Arrays that are never empty in observed exports have `minItems: 1`.**
-
-Verified for the root array, `chat_messages`, and `content` (per message). Arrays that are sometimes empty (`attachments`, `files`, `citations`) intentionally have no `minItems`.
-
-```text
-Diagnostic: src/test/diagnostics/structure.minItems_on_non_empty_arrays.py
-```
-
----
-
-### `structure.pattern_constraints_enforced` · *enforced*
-
-**String fields with known formats use `pattern` rather than documenting the regex only in `description`.**
-
-Draft-4 `"pattern"` is enforced by `jsonschema.Draft4Validator`. Regex patterns that were previously documentation-only (in `description`) should be promoted to `"pattern"` so they are validated. This applies to `UuidV4`, `UuidV7`, `Timestamp`, `ToolId`, and any timestamp fields in other schemas. The `description` may retain a human-readable summary of the pattern but the regex itself belongs in `"pattern"`.
-
-Known patterns:
+Known pattern constraints:
 
 - `UuidV4`: `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`
 - `UuidV7`: `^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$`
@@ -214,85 +50,21 @@ Known patterns:
 - `TimestampOffset` (+00:00 suffix, projects.json): `^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+00:00$`
 - `ToolId`: `^toolu_[A-Za-z0-9]+$`
 
-```text
-Diagnostic: src/test/diagnostics/structure.pattern_constraints_enforced.py
-```
+Known unreachable stubs: `ToolInputComputerUse`, `ToolInputTextEditor`,
+`ToolInputCodeExecution` — documented for API tools not yet observed in any export.
 
-```python
-# inline illustration
-import json, re
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-REGEX_RE = re.compile(r'Regex:|^\^.*\$$', re.MULTILINE)
-def check(obj, path=''):
-    if isinstance(obj, dict):
-        if obj.get('type') == 'string':
-            d = obj.get('description', '') or ''
-            if REGEX_RE.search(d) and 'pattern' not in obj:
-                print(f'{path}: has regex in description but no pattern constraint')
-        for k, v in obj.items(): check(v, f'{path}/{k}')
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj): check(v, f'{path}[{i}]')
-check(schema)
-```
+`PromptContextMetadataSearch` is the sole exception to uniform field order: the optional
+`age` field is appended only when present.
 
 ---
 
-### `structure.property_order_matches_data` · *enforced*
-
-**Properties within each schema appear in the same order as fields in the actual JSON data.**
-
-Field order in JSON objects is not semantically significant, but consistent ordering between schema and data makes schemas easier to cross-reference. Field order is perfectly uniform across all instances of every object type in observed exports (sole exception: `PromptContextMetadataSearch`, where the optional `age` field is appended when present).
-
-```text
-Diagnostic: src/test/diagnostics/structure.property_order_matches_data.py
-```
-
-```python
-# inline illustration (run against export data to re-derive canonical order)
-import json
-from collections import Counter, defaultdict
-with open('conversations.json') as f:
-    data = json.load(f)
-orders = defaultdict(Counter)
-for conv in data:
-    orders['Conversation'][tuple(conv.keys())] += 1
-    for msg in conv.get('chat_messages', []):
-        orders['Message'][tuple(msg.keys())] += 1
-        for block in msg.get('content', []):
-            t = block.get('type')
-            orders[f'ContentBlock({t})'][tuple(block.keys())] += 1
-for name, counter in sorted(orders.items()):
-    if len(counter) > 1:
-        print(f'{name}: {len(counter)} distinct field orderings')
-```
-
----
-
-## Documentation
-
-### `documentation.every_definition_has_title_and_description` · *enforced*
-
-**Every definition has both `title` and `description`.**
-
-Titles and descriptions surface as tooltips in VS Code when the schema is used as a documenter wrapper, making the schema self-documenting at the point of data inspection.
-
-```text
-Diagnostic: src/test/diagnostics/documentation.every_definition_has_title_and_description.py
-Repair:     src/test/repairs/documentation.every_definition_has_title_and_description.py
-```
-
----
-
+## Conversations-Specific Documentation
 
 ### `documentation.api_links` · *advisory*
 
 **Definitions with API counterparts have a `See:` link.**
 
-Where a schema corresponds to a public Anthropic API concept, the description should include a `See: URL` pointing to the relevant documentation page.
-
 ```python
-# diagnostic
 import json
 with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
     schema = json.load(f)
@@ -304,115 +76,16 @@ for name, defn in schema['definitions'].items():
 
 ---
 
-### `documentation.null_only_fields_documented` · *enforced*
-
-**Fields typed as `null` note this empirical observation in their description.**
-
-A field typed as `null` is a strong empirical claim based on observed exports only. Checked on named definitions and named properties; anonymous `oneOf` branches (`{"type": "null"}`) are exempt.
-
-```text
-Diagnostic: src/test/diagnostics/documentation.null_only_fields_documented.py
-```
-
-```python
-# repair: add standard null description to properties missing one
-import json
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-defs = schema['definitions']
-def fix(obj):
-    if isinstance(obj, dict):
-        if 'properties' in obj:
-            for k, v in obj['properties'].items():
-                if isinstance(v, dict) and v.get('type') == 'null' and 'description' not in v:
-                    v['description'] = 'Always null in observed exports. Possibly reserved for future use.'
-                    print(f'Fixed: {k}')
-        for val in obj.values(): fix(val)
-    elif isinstance(obj, list):
-        for v in obj: fix(v)
-fix({'definitions': defs})
-with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
-    json.dump(schema, f, indent=2)
-```
-
----
-
-### `documentation.open_set_enums_documented` · *enforced*
-
-**Enums that are likely open sets say so in their description.**
-
-The caveat may appear on the definition itself or on the enum property. Exempt: single-value discriminators, and known closed sets (`sender: human/assistant`, `ContentBlock.type`). The check propagates the definition-level caveat to all nested enums.
-
-```text
-Diagnostic: src/test/diagnostics/documentation.open_set_enums_documented.py
-```
-
-```python
-# repair: add open-set caveat to a specific enum property
-import json
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-items = schema['definitions']['ToolInputRecommendClaudeApps']['properties']['app_ids']['items']
-items['description'] = 'Observed values listed. Likely an open set — do not treat as exhaustive.'
-with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
-    json.dump(schema, f, indent=2)
-```
-
----
-
-### `documentation.discriminator_fields_annotated` · *enforced*
-
-**Discriminator fields are annotated with `description: "(discriminator)"`.**
-
-Only checked on `type` and `name` properties of schemas referenced directly from a `oneOf`. Other single-value enums (e.g. `command: ['view']` in `ToolInputMemoryUserEdits`) are constraints, not discriminators, and are exempt.
-
-```text
-Diagnostic: src/test/diagnostics/documentation.discriminator_fields_annotated.py
-```
-
----
-
-### `documentation.inlined_property_descriptions` · *advisory*
-
-**Individual properties with non-obvious semantics carry their own `description`.**
-
-Not every property needs a description. But properties with surprising behaviour, empirical caveats, or cross-field relationships should have inline descriptions. Examples: `Conversation.summary` (may be empty string), `Message.updated_at` (always equals `created_at`), `Citation.start_index` (character offset).
-
-```python
-# diagnostic: list all properties that have no description (for human review)
-import json
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-def check(obj, path=''):
-    if isinstance(obj, dict):
-        if 'properties' in obj:
-            for k, v in obj['properties'].items():
-                if isinstance(v, dict) and '$ref' not in v and 'description' not in v:
-                    print(f'{path}/{k}: no description')
-        for k, v in obj.items():
-            check(v, f'{path}/{k}')
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            check(v, f'{path}[{i}]')
-check({'definitions': schema['definitions']})
-```
-
----
-
 ### `documentation.documenter_wrapper_pattern` · *informational*
 
 **The `documenter.schema.json` pattern enables VS Code tooltips on data files.**
-
-A self-referential wrapper file provides schema-aware editing and tooltip documentation on any JSON data file without embedding a `$schema` pointer in the data file itself. The `document` field references the actual schema, so when the `null` placeholder is replaced with a real data export, VS Code validates and documents it using `rsc/schema/chat-exports/conversations/v{N}.json`. Every `description` field in the schema surfaces as a tooltip at the corresponding location in the data.
 
 ```json
 {
   "$schema": "rsc/schema/documenter.json",
   "title": "...",
   "description": "...",
-  "properties": {
-    "document": { "$ref": "./conversations/v{N}.json" }
-  },
+  "properties": { "document": { "$ref": "./conversations/v{N}.json" } },
   "document": null
 }
 ```
@@ -599,142 +272,6 @@ See `src/main/model/gen_model_candidate.py` for the full implementation.
 
 ---
 
-## Composition Patterns
-
-### `composition.discriminated_union_pattern` · *manual*
-
-**Discriminated unions follow the wrapper / base / subtype pattern.**
-
-A discriminated union is expressed as three layers:
-
-1. A **wrapper** schema with exactly five fields: `title`, `description`, `type`, `allOf` (base ref + `Has*DiscriminatorProperty` ref), `oneOf` (subtype refs).
-2. A **`...Base`** schema with `additionalProperties: false` and all shared fields, where the discriminator field is present but its value is unconstrained.
-3. **n subtype** schemas, each specifying only the discriminator field (constrained to a single `enum` value) and any per-subtype fields.
-
-Key insight: `allOf` and `oneOf` sit at the **wrapper** level, not inside the subtypes, which avoids `additionalProperties` conflicts. The `Has*DiscriminatorProperty` schema asserts the discriminator field is `required` and typed as a string.
-
-Key-presence and primitive-type unions are not flagged — no diagnostic enforces this rule;
-structural judgement at review time is sufficient.
-
----
-
-### `composition.discriminator_values_disjoint` · *enforced*
-
-**Discriminator enum values across all branches of a `oneOf` are mutually disjoint.**
-
-```text
-Diagnostic: src/test/diagnostics/composition.discriminator_values_disjoint.py
-```
-
----
-
-### `composition.base_schemas_closed` · *enforced*
-
-**All `...Base` schemas have `additionalProperties: false`.**
-
-The `...Base` schema is the definitive closed contract for all shared fields. Future changes to the export format are caught immediately.
-
-```text
-Diagnostic: src/test/diagnostics/composition.base_schemas_closed.py
-```
-
----
-
-### `composition.wrapper_has_five_fields` · *enforced*
-
-**Union wrapper schemas have exactly five fields: `title`, `description`, `type`, `allOf`, `oneOf`.**
-
-The wrapper is a pure structural combinator with no additional constraints.
-
-```text
-Diagnostic: src/test/diagnostics/composition.wrapper_has_five_fields.py
-```
-
-```python
-# repair: remove unexpected fields from a wrapper (manual review recommended first)
-import json
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-expected = {'title', 'description', 'type', 'allOf', 'oneOf'}
-for name, defn in schema['definitions'].items():
-    if 'oneOf' in defn and 'allOf' in defn:
-        for k in set(defn.keys()) - expected:
-            print(f'{name}: removing extra field "{k}" = {defn[k]!r}')
-            del defn[k]
-with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
-    json.dump(schema, f, indent=2)
-```
-
----
-
-### `composition.no_additional_properties_on_subtypes` · *enforced*
-
-**Subtype schemas must not combine `additionalProperties: false` with `allOf` referencing a schema that has `properties`.**
-
-This would cause the base's properties to be rejected as "additional". The constraint belongs exclusively on the `...Base` schema. This was the key insight from the proof-of-concept.
-
-```text
-Diagnostic: src/test/diagnostics/composition.no_additional_properties_on_subtypes.py
-```
-
-```python
-# repair: remove additionalProperties: false from the conflicting subtype
-import json
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-defs = schema['definitions']
-for name, defn in defs.items():
-    if defn.get('additionalProperties') is False and 'allOf' in defn:
-        for ref_obj in defn.get('allOf', []):
-            ref = ref_obj.get('$ref', '')[len('#/definitions/'):]
-            if ref and defs.get(ref, {}).get('properties'):
-                del defn['additionalProperties']
-                print(f'Fixed: {name}')
-with open('rsc/schema/chat-exports/conversations/v{N}.json', 'w') as f:
-    json.dump(schema, f, indent=2)
-```
-
----
-
-### `composition.base_not_used_directly` · *enforced*
-
-**`...Base` schemas are never referenced directly from `oneOf` lists.**
-
-The base is an implementation detail of the wrapper. Direct `oneOf` references would bypass the discriminated union pattern.
-
-```text
-Diagnostic: src/test/diagnostics/composition.base_not_used_directly.py
-```
-
----
-
-### `composition.use_refs_not_inline` · *advisory*
-
-**Repeated schemas are factored into definitions and referenced via `$ref`.**
-
-Any schema appearing more than once should be a named definition. Applied to `NullableString`, `NullableBoolean`, `Timestamp`, `Flags`, `DisplayContent`, `IntegrationName`, `IconName`, etc.
-
-```python
-# diagnostic: find identical inline schema objects appearing more than once
-import json
-from collections import Counter
-with open('rsc/schema/chat-exports/conversations/v{N}.json') as f:
-    schema = json.load(f)
-counts = Counter()
-def walk(obj):
-    if isinstance(obj, dict) and '$ref' not in obj and 'definitions' not in obj:
-        key = json.dumps(obj, sort_keys=True)
-        if len(key) > 20: counts[key] += 1
-        for v in obj.values(): walk(v)
-    elif isinstance(obj, list):
-        for v in obj: walk(v)
-walk(schema)
-for k, c in counts.items():
-    if c > 1: print(f'Appears {c}x: {k[:80]}')
-```
-
----
-
 ## API Correspondence
 
 ### `api.export_is_api_plus_envelope` · *informational*
@@ -778,19 +315,6 @@ for conv in data:
 for name, count in sorted(names.items()):
     print(f'{count:4d}  {name}')
 ```
-
----
-
-### `api.draft4_limitations` · *informational*
-
-**Known draft-4 limitations and our workarounds.**
-
-- **No `if`/`then`/`else`**: discriminated unions use the `allOf`/`oneOf` wrapper/base/subtype pattern instead.
-- **`$ref` siblings are ignored**: move sibling documentation into the referenced definition's `description`.
-- **No `nullable` shorthand**: use `oneOf: [{type: null}, ...]` or a named `NullableString` definition.
-- **No `$comment`**: use `description` for all documentation including internal notes.
-- **No cross-field constraints**: document in `description` with a verification snippet.
-- **No `format` enforcement**: `format: date-time` is advisory only; use `pattern` instead.
 
 ---
 
@@ -946,29 +470,6 @@ jq 'walk(if type == "object" and has("text") and .text != ""
 jq 'walk(if type == "array" and length > 1 then [.[0]] else . end)' \
    compressed.json > skeleton.json
 ```
-
----
-
-### `maintenance.bfs_reorder_after_edits` · *enforced*
-
-**Reapply BFS ordering after any structural edits.**
-
-```text
-Diagnostic: src/test/diagnostics/structure.bfs_order.py
-Repair:     src/test/repairs/structure.bfs_order.py
-```
-
-Run as: `python src/test/repairs/structure.bfs_order.py rsc/schema/chat-exports/conversations/v{N}.json`
-
----
-
-### `maintenance.verify_before_commit` · *manual*
-
-**No change is committed until it has been tested and the result verified.**
-
-For schema changes: validation outputs must be current and passing. For script changes: the script must have been run against real data and its output inspected. For documentation changes: the document must have been read through after the last edit.
-
-The pre-commit hook enforces what it can mechanically, but it cannot substitute for human verification that a change does what it claims.
 
 ---
 

@@ -15,15 +15,7 @@ This document has three sections: [Session Setup](#session-setup), [The Workflow
 
 ## Base Principles
 
-Everything in this document is a specialisation of four base principles. When in doubt, return to these.
-
-1. **Try to follow these instructions.** The workflow exists for good reasons. Follow it even when it feels like overhead, especially when it feels like overhead. Shortcuts taken under time pressure are where mistakes happen.
-
-2. **Flag if anything seems wrong.** If a step produces an unexpected result, if a principle seems to conflict with the schema, if a diagnostic fires in a surprising way — flag it before proceeding. Do not silently paper over anomalies. An anomaly is information.
-
-3. **Flag if the user does something wrong.** If the user skips a step, makes changes out of order, or requests something that violates a principle, say so explicitly before complying. Flagging is not refusal — it is a checkpoint that keeps both parties aligned. The user may have a good reason to deviate; the flag ensures the deviation is conscious and recorded.
-
-4. **Suggest improvements.** This is the most generative principle. When a diagnostic could be more precise, when a repair snippet could be cleaner, when a new principle seems to be emerging from practice, when an open question seems closer to resolution — say so. The schema, principles, and workflow documents are all living; they improve through use. A collaborator who only executes instructions is less valuable than one who also notices what the instructions miss.
+See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rules shared across all pipelines.
 
 ---
 
@@ -351,39 +343,7 @@ File naming mirrors this: `v6.1.0.json`, `v7.0.0.json`, etc. `pre_commit.py` det
 
 ## Meta-Rules
 
-These rules apply throughout the session and take precedence over convenience or efficiency.
-
-### Diagnostics before fixes
-
-Never modify the schema to satisfy a diagnostic before confirming the diagnostic is correctly calibrated. A passing diagnostic suite against a miscalibrated set of checks is worse than a failing suite against correct checks — it creates false confidence.
-
-### One root cause at a time
-
-Fix one root cause per step, re-running diagnostics between each. This makes regressions immediately visible and keeps the commit history meaningful.
-
-### Validate after every schema change
-
-Every schema change, however small, must be followed by a validation run against all known exports before the schema is considered correct. Diagnostics and validation are complementary — diagnostics check structural principles, validation checks empirical correctness.
-
-### Categorise before fixing
-
-Always present the categorised root causes to the user before beginning fixes. This gives the user the opportunity to reprioritise or identify additional context that affects how fixes should be applied.
-
-### Flag, don't silently accommodate
-
-If the user skips a step, makes changes out of order, or requests something that violates a meta-rule, flag it explicitly before complying. Example:
-
-> "Before making schema changes, we should run the full diagnostic suite (step 1) and categorise any failures (step 2). Shall I do that first?"
-
-Flagging is not refusal — it is a checkpoint. The user may have a good reason to deviate; the flag ensures the deviation is conscious.
-
-### Principles and workflow must stay in sync
-
-If a new principle is added to `rsc/schema/chat-exports/conversations/principles.md`, check whether it requires a new diagnostic step in this workflow. If the workflow loop is modified, check whether any principles need updating. The two documents are a unit.
-
-### The principles document is the authority
-
-If a diagnostic in the principles document conflicts with an intuition about what the schema should look like, the diagnostic wins until the principles document is explicitly updated. Ad hoc exceptions made during a session that are not reflected in the principles document are technical debt.
+See [`rsc/schema/workflow.md`](../../workflow.md) for the full meta-rules shared across all pipelines.
 
 ---
 

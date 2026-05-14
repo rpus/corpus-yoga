@@ -15,14 +15,7 @@ to the different lifecycle of CLI session data.
 
 ## Base Principles
 
-The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply to this
-schema. `principles.md` in this directory documents the adaptations and known
-deviations. The same four workflow principles apply here:
-
-1. **Try to follow these instructions.** Follow the workflow even when it feels like overhead.
-2. **Flag if anything seems wrong.** An anomaly is information; don't paper over it.
-3. **Flag if the user does something wrong.** Flagging is a checkpoint, not refusal.
-4. **Suggest improvements.** The schema, `model_join.csv`, and this document are all living.
+See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rules shared across all pipelines. The generic design principles in [`rsc/schema/principles.md`](../../principles.md) apply to this schema; [`principles.md`](principles.md) in this directory documents the adaptations and known deviations.
 
 ---
 

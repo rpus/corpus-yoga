@@ -148,6 +148,8 @@ claude-export-yoga/
 │   │   ├── chat-exports/{memories,projects,users}/  # v1.json each
 │   │   ├── code-projects/session/              # v1–v3   · principles · workflow · CHANGELOG · README
 │   │   │                                       #   + session-schema.md · research.md · claude-home-directory.md
+│   │   ├── principles.md                       # shared design principles for all schemas
+│   │   ├── workflow.md                         # shared base: four principles · versioning · meta-rules
 │   │   ├── model_join.csv                      # four-way field map: conversations ↔ session ↔ apiConversation ↔ MCP
 │   │   ├── documenter.json                     # VS Code tooltip wrapper for data files
 │   │   └── model.json                          # cross-pipeline type reference

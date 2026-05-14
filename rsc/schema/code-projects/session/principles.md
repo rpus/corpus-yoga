@@ -7,7 +7,7 @@ version: "1.0"
 
 # Schema Design Principles for `rsc/schema/code-projects/session/v{N}.json`
 
-The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
+The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
 to this schema in full. Read that document first. This document records only the
 adaptations and known deviations that are specific to the CLI session schema.
 
@@ -38,8 +38,7 @@ For empirical investigation and debugging:
 `rsc/schema/model_join.csv` is a unified four-way correspondence table covering all
 pipeline schemas (conversations, session, apiConversation) and the MCP protocol.
 One row per concept, one column per schema — full outer join semantics.
-Update `model_join.csv` whenever `v1.json` changes — see `workflow.md` for the trigger
-conditions.
+Update `model_join.csv` whenever `v1.json` changes — see [`rsc/schema/principles.md`](../../principles.md#maintenance) and `workflow.md` for trigger conditions.
 
 ---
 

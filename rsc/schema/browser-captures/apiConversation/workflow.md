@@ -8,7 +8,8 @@ version: "1.0"
 # Schema Development Workflow for `rsc/schema/browser-captures/apiConversation/v{N}.json`
 
 A living document describing how to maintain and extend the live API conversation schema.
-Follows the same philosophy as `rsc/schema/chat-exports/conversations/workflow.md`.
+Base principles, semantic versioning, and meta-rules are in [`rsc/schema/workflow.md`](../../workflow.md).
+Design principles are in [`rsc/schema/principles.md`](../../principles.md) and [`principles.md`](principles.md).
 
 ---
 
@@ -78,4 +79,4 @@ When creating a new version:
    src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
    ```
 
-6. Run `src/test/pre_commit.sh`.
+2. Run `src/test/pre_commit.sh`.

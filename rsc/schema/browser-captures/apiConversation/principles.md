@@ -7,7 +7,7 @@ version: "1.0"
 
 # Schema Design Principles for `rsc/schema/browser-captures/apiConversation/v{N}.json`
 
-The general schema design principles in `rsc/schema/chat-exports/conversations/principles.md` apply
+The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
 to this schema in full. Read that document first. This document records only the
 adaptations specific to the live API conversation schema.
 
@@ -29,7 +29,5 @@ One row per concept, one column per schema — full outer join semantics.
 
 ### `allOf` at root
 
-The root schema uses `allOf: [{$ref: "#/definitions/ApiConversation"}]` rather than
-a bare `$ref`. In JSON Schema draft-4, a bare `$ref` causes all sibling keywords
-(`title`, `description`, `definitions`) to be silently ignored; `allOf` wrapping
-avoids this.
+All schemas use `allOf: [{$ref: "#/definitions/RootType"}]` at root rather than a
+bare `$ref` — see `api.draft4_limitations` in [`rsc/schema/principles.md`](../../principles.md).
