@@ -2,8 +2,7 @@
 
 Schema for the live claude.ai API conversation format, as returned by the internal
 `GET /api/organizations/{org}/chat_conversations/{uuid}?tree=true&rendering_mode=messages&render_all_tools=true`
-endpoint. See [`doc/README.md`](../README.md) for pipeline context and
-[`doc/browser-captures/research.md`](research.md) for how the endpoint was discovered and captured.
+endpoint. See [`research.md`](research.md) for how the endpoint was discovered and captured.
 
 ---
 

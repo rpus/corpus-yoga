@@ -96,6 +96,7 @@ python src/test/pre_commit.py
 claude-export-yoga/
 ├── RUNME.sh                                    # run all three pipelines
 ├── README.md                                   # usage, prerequisites, how-to (this file)
+├── ABOUT.md                                    # architecture overview: inputs, pipelines, schemas, output
 ├── CONTRIBUTING.md                             # project rules for contributors and Claude
 ├── TODO.md                                     # live capture: discoveries and pending work
 │
@@ -141,16 +142,17 @@ claude-export-yoga/
 ├── rsc/
 │   ├── schema/
 │   │   ├── browser-captures/apiConversation/   # v1.json · principles · workflow · CHANGELOG · README
+│   │   │                                       #   + api-conversation-schema.md · research.md
 │   │   ├── chat-exports/conversations/         # v1–v7   · principles · workflow · CHANGELOG · README
+│   │   │                                       #   + conversations-schema.md
 │   │   ├── chat-exports/{memories,projects,users}/  # v1.json each
 │   │   ├── code-projects/session/              # v1–v3   · principles · workflow · CHANGELOG · README
+│   │   │                                       #   + session-schema.md · research.md · claude-home-directory.md
 │   │   ├── model_join.csv                      # four-way field map: conversations ↔ session ↔ apiConversation ↔ MCP
 │   │   ├── documenter.json                     # VS Code tooltip wrapper for data files
 │   │   └── model.json                          # cross-pipeline type reference
 │   ├── artifacts/downloaded/                   # ground-truth recovered files (never edit in place)
 │   └── snippets.md                             # jq recipes: redaction, summarisation, inspection
-│
-├── doc/                                        # deep-dives on schemas, pipelines, research
 │
 └── gen/                                        # all generated output (gitignored)
     ├── browser-captures/{batch}/{uuid}/        # validation logs

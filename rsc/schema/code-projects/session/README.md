@@ -14,8 +14,7 @@ From the v1.json root description:
 > (`conversations.json`). The core content block model is shared with the Anthropic API;
 > the session envelope is Claude Code CLI-specific.
 
-For full context see [`doc/code-projects/session-schema.md`](../../../../doc/code-projects/session-schema.md)
-and [`doc/README.md`](../../../../doc/README.md).
+For full context see [`session-schema.md`](session-schema.md).
 
 ---
 

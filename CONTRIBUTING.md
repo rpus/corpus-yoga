@@ -133,10 +133,57 @@ Structural symmetry, meanwhile, allows for easy factoring of commonality.
 Key points:
 
 - `conversations` = data format/schema; `chat-exports` = pipeline. Never conflate.
-- Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see `doc/pipeline-model.md`
+- Three pipelines: `chat-exports`, `code-projects`, `browser-captures` — see repo layout tree in README.md
 - Invariants: see Key invariants section above; `git clean -fdX; git clean -fdxn`
 - Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation
 - Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/browser-captures/apiConversation/` (v1)
 - `rsc/schema/model_join.csv` — unified 4-way join: conversations ↔ session ↔ apiConversation ↔ MCP
 - `src/test/gen_changelog_matrix.py` — generates CHANGELOG rows from gen/ logs for any pipeline
 - Validation matrix driven by CHANGELOG.md files (not hardcoded constants) via `_parse_changelog_matrix()`
+
+---
+
+## Pipeline reference
+
+| Property | `chat-exports` | `code-projects` | `browser-captures` |
+| --- | --- | --- | --- |
+| **Input dir** | `../chat-exports/` | `../code-projects/` | `../browser-captures/` |
+| **Gen dir** | `gen/chat-exports/` | `gen/code-projects/` | `gen/browser-captures/` |
+| **Subject depth** | 1 — export dir | 2 — project / session | 2 — batch / conversation |
+| **Schema(s)** | conversations, memories, projects, users | session | apiConversation |
+| **CHANGELOG** | `rsc/schema/chat-exports/conversations/CHANGELOG.md` | `rsc/schema/code-projects/session/CHANGELOG.md` | `rsc/schema/browser-captures/apiConversation/CHANGELOG.md` |
+
+| Schema | Pipeline | Versions | Diagnostic skips |
+| --- | --- | --- | --- |
+| `conversations` | chat-exports | v1–v7 | `naming.root_schema_title_matches_filename` |
+| `memories` | chat-exports | v1 | `naming.root_schema_title_matches_filename` |
+| `projects` | chat-exports | v1 | `naming.root_schema_title_matches_filename` |
+| `users` | chat-exports | v1 | `naming.root_schema_title_matches_filename` |
+| `session` | code-projects | v1–v3 | `naming.root_schema_title_matches_filename`, `composition.base_schemas_closed` |
+| `apiConversation` | browser-captures | v1 | `naming.root_schema_title_matches_filename` |
+
+---
+
+## Adding a new pipeline
+
+`pre_commit.py` uses a `PIPELINES` dict — adding a pipeline needs only a new entry and a schema directory; no new functions.
+
+1. **Add string constants** to the `# ── Repo layout ──` block in `pre_commit.py`.
+
+2. **Create the schema directory**: `rsc/schema/{new-pipeline}/{newSchema}/`
+   - Add `v1.json`, `principles.md`, `workflow.md`, `README.md`
+   - Follow `rsc/schema/code-projects/session/` as template
+
+3. **Add to `VERSIONED_SCHEMA_DIAGNOSTICS_SKIP`** in `pre_commit.py`.
+
+4. **Create `src/main/{new-pipeline}/validate.sh`** — follow `src/main/code-projects/validate.sh` as template.
+
+5. **Add a `PIPELINES` entry** in `pre_commit.py` with `schemas`, `changelog`, `gen`, `input`, `input_glob`, `subject_depth`, `validate_cmd`.
+
+6. **Run the validate script** to populate `gen/`.
+
+7. **Populate the CHANGELOG**: `src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --write`
+
+8. **Run `src/test/pre_commit.sh`** — commit the updated `pre_commit.log`.
+
+9. **Run `src/test/xref.sh`** — commit the updated `xref.csv`.

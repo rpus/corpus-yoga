@@ -245,7 +245,7 @@ the `conversations.json` format produced by claude.ai's Settings > Export Data f
 Both represent Claude conversations but differ in structure: the CLI format adds
 `parentUuid`, `isSidechain`, `promptId`, and queue-operation framing; the claude.ai export
 format uses `sender: human/assistant`, UUIDs at the conversation level, and a persistence
-envelope (`display_content`, `integration_*`, etc.). See `doc/chat-exports/conversations-schema.md` for
+envelope (`display_content`, `integration_*`, etc.). See `rsc/schema/chat-exports/conversations/conversations-schema.md` for
 a full comparison.
 
 ### `tool-results/`

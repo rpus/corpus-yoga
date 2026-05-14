@@ -6,10 +6,8 @@ discarded. Documentation updated in-place without going through TODO rots silent
 
 ---
 
-## Reduce documentation volume
+## Reduce documentation volume further
 
-The repo has too much documentation, spread across too many files. This causes:
-staleness (version numbers drift), dilution (critical rules like pre_commit invariant
-buried among lower-priority content), and cognitive overload (too much to read means
-nothing gets read). Audit all doc/ files, schema principles.md and workflow.md files,
-README.md, CONTRIBUTING.md for redundancy and consolidation opportunities.
+`doc/` has been eliminated — files moved to sit alongside what they describe. Remaining
+opportunity: audit the schema `principles.md` and `workflow.md` files for redundancy
+and consolidation with the now-colocated reference docs.

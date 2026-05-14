@@ -1,11 +1,8 @@
 # `rsc/schema/code-projects/session/` — Schema Reference
 
 Schema for Claude Code CLI session transcripts. See
-[`doc/README.md`](../README.md) for pipeline context,
-[`doc/code-projects/research.md`](research.md) for how the format
-was reverse-engineered, and
-[`rsc/schema/code-projects/session/workflow.md`](../../rsc/schema/code-projects/session/workflow.md)
-for the validation loop and maintenance lifecycle.
+[`research.md`](research.md) for how the format was reverse-engineered, and
+[`workflow.md`](workflow.md) for the validation loop and maintenance lifecycle.
 
 ---
 

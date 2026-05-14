@@ -29,11 +29,11 @@ Session transcripts written by Claude Code to `~/.claude/projects/{project}/{ses
 ln -sfn ~/.claude/projects ../code-projects
 ```
 
-See `doc/code-projects/research.md` for setup and format documentation.
+See `rsc/schema/code-projects/session/research.md` for setup and format documentation.
 
 ### Browser captures (`../browser-captures/`)
 
-Per-conversation API JSON files captured from the live claude.ai API via Safari automation. See `doc/browser-captures/research.md` for how the endpoint was discovered and how captures are taken.
+Per-conversation API JSON files captured from the live claude.ai API via Safari automation. See `rsc/schema/browser-captures/apiConversation/research.md` for how the endpoint was discovered and how captures are taken.
 
 ---
 
@@ -183,40 +183,36 @@ Several scripts originated in conversations visible in the exports themselves:
 
 ## Sub-documents
 
-### [`chat-exports/`](chat-exports/)
+### chat-exports docs
 
-#### [`chat-exports/conversations-schema.md`](chat-exports/conversations-schema.md)
+#### [`rsc/schema/chat-exports/conversations/conversations-schema.md`](rsc/schema/chat-exports/conversations/conversations-schema.md)
 
 Deep-dive on `rsc/schema/chat-exports/conversations/`: versioned JSON Schemas, two-format distinction, schema development workflow, MCP field-level correspondence table.
 
 ---
 
-### [`browser-captures/`](browser-captures/)
+### browser-captures docs
 
-#### [`browser-captures/api-conversation-schema.md`](browser-captures/api-conversation-schema.md)
+#### [`rsc/schema/browser-captures/apiConversation/api-conversation-schema.md`](rsc/schema/browser-captures/apiConversation/api-conversation-schema.md)
 
 Reference for `rsc/schema/browser-captures/apiConversation/`: structure, differences from bulk export, tool blocks.
 
-#### [`browser-captures/research.md`](browser-captures/research.md)
+#### [`rsc/schema/browser-captures/apiConversation/research.md`](rsc/schema/browser-captures/apiConversation/research.md)
 
 How the live API endpoint was discovered and captured; capture setup and output structure.
 
 ---
 
-### [`code-projects/`](code-projects/)
+### code-projects docs
 
-#### [`code-projects/session-schema.md`](code-projects/session-schema.md)
+#### [`rsc/schema/code-projects/session/session-schema.md`](rsc/schema/code-projects/session/session-schema.md)
 
 Reference for `rsc/schema/code-projects/session/`: nine record types, turn envelope fields, content block types, MCP field mapping.
 
-#### [`code-projects/research.md`](code-projects/research.md)
+#### [`rsc/schema/code-projects/session/research.md`](rsc/schema/code-projects/session/research.md)
 
 How the CLI session format was reverse-engineered; `../code-projects/` setup procedure.
 
-#### [`code-projects/claude-home-directory.md`](code-projects/claude-home-directory.md)
+#### [`rsc/schema/code-projects/session/claude-home-directory.md`](rsc/schema/code-projects/session/claude-home-directory.md)
 
 Directory-by-directory reference for `~/.claude/` and `~/.claude.json`.
-
-#### [`code-projects/investigation-methodology.md`](code-projects/investigation-methodology.md)
-
-How the `~/.claude/` reference was produced. Reusable for investigating any unknown directory.

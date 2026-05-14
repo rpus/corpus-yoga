@@ -10,9 +10,7 @@ From the v6.json root description:
 > via Settings → Privacy → Export Data.
 
 For a full explanation of the schema directory — versioning, supporting files, development
-workflow, and MCP correspondence — see [`doc/chat-exports/conversations-schema.md`](../../../doc/chat-exports/conversations-schema.md).
-For the broader project (pipeline, artifact recovery, all four schemas) see
-[`doc/README.md`](../../../doc/README.md).
+workflow, and MCP correspondence — see [`conversations-schema.md`](conversations-schema.md).
 
 ---
 

@@ -13,8 +13,8 @@ From the v1.json root description:
 > (GET /api/organizations/{org}/chat_conversations/{id}). v1 validated against 55 live
 > API responses (all pass). See rsc/schema/chat-exports/conversations/ for the bulk-export format.
 
-For full context see [`doc/browser-captures/api-conversation-schema.md`](../../../../doc/browser-captures/api-conversation-schema.md)
-and [`doc/browser-captures/research.md`](../../../../doc/browser-captures/research.md).
+For full context see [`api-conversation-schema.md`](api-conversation-schema.md)
+and [`research.md`](research.md).
 
 ---
 
