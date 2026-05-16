@@ -11,15 +11,12 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
 OUTPUT_DIR="$REPO_DIR/gen/browser-captures"
 
-# shellcheck source=/dev/null
-source "$REPO_DIR/src/main/validate_versions.sh"
-
 validate_conversation() {
   local json="$1" batch_name="$2"
   local uuid; uuid="$(basename "$(dirname "$json")")"
   local out_dir="$OUTPUT_DIR/$batch_name/$uuid"
 
-  validate_versions "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid"
 }
 
 validate_batch() {
@@ -64,9 +61,6 @@ main() {
     echo "       Pass --help for more information."
     exit 1
   fi
-
-  # shellcheck source=/dev/null
-  source "$REPO_DIR/src/activate_venv.sh"
 
   validate_batch "$(cd "$browser_capture" && pwd)"
 }

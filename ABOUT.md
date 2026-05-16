@@ -48,7 +48,7 @@ Per-conversation API JSON files captured from the live claude.ai API via Safari 
 | `src/main/browser-captures/` | Browser-captures pipeline scripts |
 | `src/main/model/` | Cross-pipeline schema model generation |
 | `src/main/validate.py` | Shared JSON Schema validator |
-| `src/main/validate_versions.sh` | Shared per-version validation loop |
+| `src/main/validate_versions.py` | Shared per-version validation loop |
 | `src/main/schema_recommendations.py` | Shared post-validation schema quality hints |
 
 `src/test/` contains the pre-commit suite, xref tool, diagnostic and repair scripts, and pipeline-specific debug tools.

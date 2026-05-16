@@ -12,9 +12,6 @@ SCHEMA_DIR="$REPO_DIR/rsc/schema/code-projects/session"
 OUTPUT_DIR="$REPO_DIR/gen/code-projects"
 JSONL_TO_JSON="$SCRIPT_DIR/jsonl_to_json.sh"
 
-# shellcheck source=/dev/null
-source "$REPO_DIR/src/main/validate_versions.sh"
-
 validate_session() {
   local jsonl="$1" project_name="$2"
   local session; session="$(basename "${jsonl%.jsonl}")"
@@ -35,7 +32,7 @@ validate_session() {
     fi
   fi
 
-  validate_versions "$json_out" "$SCHEMA_DIR" "$out_dir/validation/session" "$session"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" "$json_out" "$SCHEMA_DIR" "$out_dir/validation/session" "$session"
 }
 
 validate_project() {
@@ -77,9 +74,6 @@ main() {
     echo "       Pass --help for more information."
     exit 1
   fi
-
-  # shellcheck source=/dev/null
-  source "$REPO_DIR/src/activate_venv.sh"
 
   validate_project "$(cd "$code_project" && pwd)"
 }

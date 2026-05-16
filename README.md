@@ -124,7 +124,7 @@ claude-export-yoga/
 │   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
 │   │   │   └── search_proxy.sh                 # local markdown/LaTeX browser (port 8182)
 │   │   ├── validate.py                         # shared JSON Schema validator
-│   │   ├── validate_versions.sh                # validate one file against all v*.json
+│   │   ├── validate_versions.py                # validate one file against all v*.json
 │   │   └── schema_recommendations.py           # post-validation schema quality hints
 │   │
 │   └── test/
