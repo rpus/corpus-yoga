@@ -108,17 +108,7 @@ README.md,49,doc,src/main/chat-exports/extract_files.sh,Y,- `./src/main/chat-exp
 README.md,50,doc,src/main/chat-exports/extract_heredocs.sh,Y,- `./src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports`
 README.md,52,doc,src/main/chat-exports/infer_tables.sh,Y,- `./src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports`
 README.md,54,doc,src/main/chat-exports/present.sh,Y,- `./src/main/chat-exports/present.sh --chat-exports ext/chat-exports`
-README.md,60,doc,rsc/schema/model.json,Y,"When any pipeline schema changes, regenerate the model candidates and review `rsc/schema/model.json`:"
-README.md,63,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
-README.md,66,doc,rsc/schema/code-projects/session/v1.json,Y,"When a new Claude Code session appears in `ext/code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fo"
-README.md,66,doc,rsc/schema/code-projects/session/workflow.md,Y,"When a new Claude Code session appears in `ext/code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fo"
-README.md,69,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
-README.md,71,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{session}.
-README.md,71,doc,src/test/code-projects/debug_code_session_record.py,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{session}.
-README.md,72,doc,src/test/pre_commit.sh,Y,./src/test/pre_commit.sh
-README.md,79,doc,rsc/snippets.md,Y,- Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
-README.md,81,doc,rsc/snippets.md,Y,- Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
-README.md,124,doc,rsc/schema/model.json,Y,│   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
+README.md,89,doc,rsc/schema/model.json,Y,│   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                        # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference    # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,18,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
@@ -585,5 +575,6 @@ src/test/xref.sh,19,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,rsc/schema/browser-captures/apiConversation/README.md,Y,
 ,,,rsc/schema/chat-exports/conversations/README.md,Y,
+,,,rsc/snippets.md,Y,
 ,,,src/test/diagnostics/README.md,Y,
 ,,,src/test/repairs/README.md,Y,
