@@ -27,8 +27,8 @@ This repo wrangles Claude data exports.
   - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
   - Saves `{title}.json` alongside each capture
 - Browse and read captures as rendered markdown + LaTeX:
-  - `src/main/model/search_proxy.sh --daemon` then open <http://localhost:8182>
-  - `src/main/model/search_proxy.sh stop` to shut down
+  - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
+  - `src/main/model/serve_markdown.sh stop` to shut down
 
 ```bash
 # git clean -fdX; git clean -fdxn
@@ -87,7 +87,7 @@ claude-export-yoga/
 │   │   │   └── jsonl_to_json.py                # JSONL → JSON array; writes session.json.title
 │   │   ├── model/
 │   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
-│   │   │   └── search_proxy.sh                 # local markdown/LaTeX browser (port 8182)
+│   │   │   └── serve_markdown.sh                 # local markdown/LaTeX browser (port 8182)
 │   │   ├── validate.py                         # shared JSON Schema validator
 │   │   ├── validate_versions.py                # validate one file against all v*.json
 │   │   └── schema_recommendations.py           # post-validation schema quality hints

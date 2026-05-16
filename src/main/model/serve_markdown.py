@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 """
-Local markdown viewer for Claude conversation browser captures.
+Local HTTP server for browsing and searching markdown files.
 
 Usage:
-    src/main/model/search_proxy.sh [--port 8182]
-    src/main/model/search_proxy.sh --daemon [--port 8182]
-    src/main/model/search_proxy.sh stop
+    src/main/model/serve_markdown.sh --browser-captures <path> [--port 8182]
+    src/main/model/serve_markdown.sh --browser-captures <path> --daemon [--port 8182]
+    src/main/model/serve_markdown.sh stop
 """
 import argparse
 import json
@@ -16,9 +16,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-REPO_ROOT    = Path(__file__).resolve().parents[3]
-CAPTURES_DIR = REPO_ROOT.parent / 'browser-captures'
-STATIC_DIR   = REPO_ROOT / 'gen' / 'search-static'
+REPO_ROOT  = Path(__file__).resolve().parents[3]
+STATIC_DIR = REPO_ROOT / 'lib' / 'search-static'
 
 ASSETS = {
     'marked.min.js':      'https://cdn.jsdelivr.net/npm/marked@9/marked.min.js',
@@ -52,10 +51,11 @@ def ensure_assets() -> None:
             except Exception: pass
 
 
-def conversations() -> list[dict]:
+def conversations(captures_dir: Path) -> list[dict]:
     """All .md files sorted newest first."""
     result = []
-    for md in sorted(CAPTURES_DIR.rglob('*.md'),
+    for md in sorted((p for p in captures_dir.rglob('*.md')
+                      if p.with_suffix('.json').exists()),
                      key=lambda p: p.stat().st_mtime, reverse=True):
         title = md.stem.replace('_', ' ').title()
         try:
@@ -64,15 +64,15 @@ def conversations() -> list[dict]:
                     title = line[2:].strip(); break
         except Exception:
             pass
-        result.append({'title': title, 'path': str(md.relative_to(REPO_ROOT.parent))})
+        result.append({'title': title, 'path': str(md.relative_to(REPO_ROOT))})
     return result
 
 
-def search(query: str) -> list[dict]:
+def search(query: str, captures_dir: Path) -> list[dict]:
     """Case-insensitive full-text grep across all captures."""
     try:
         files = subprocess.run(
-            ['grep', '-rli', '--include=*.md', query, str(CAPTURES_DIR)],
+            ['grep', '-rli', '--include=*.md', query, str(captures_dir)],
             capture_output=True, text=True, timeout=10
         ).stdout.strip().splitlines()
     except Exception:
@@ -94,7 +94,7 @@ def search(query: str) -> list[dict]:
             ).stdout.strip()
         except Exception:
             snippet = ''
-        results.append({'title': title, 'path': str(p.relative_to(REPO_ROOT.parent)), 'snippet': snippet})
+        results.append({'title': title, 'path': str(p.relative_to(REPO_ROOT)), 'snippet': snippet})
     return results
 
 
@@ -181,7 +181,7 @@ function esc(s){{return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}}
 </script></body></html>'''
 
 
-def make_handler() -> type:
+def make_handler(captures_dir: Path) -> type:
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, format, *args):  # noqa: A002
             print(format % args)
@@ -191,7 +191,7 @@ def make_handler() -> type:
             path   = parsed.path.lstrip('/')
 
             if path == '' or path == 'index.html':
-                convs = conversations()
+                convs = conversations(captures_dir)
                 items = ''.join(
                     f'<div class="item"><a href="/file/{c["path"]}">{c["title"]}</a></div>'
                     for c in convs
@@ -205,7 +205,7 @@ def make_handler() -> type:
 
             elif path == 'search':
                 q = parse_qs(parsed.query).get('q', [''])[0]
-                self._send(200, 'application/json', json.dumps(search(q)).encode())
+                self._send(200, 'application/json', json.dumps(search(q, captures_dir)).encode())
 
             elif path.startswith('static/'):
                 asset = STATIC_DIR / path[len('static/'):]
@@ -223,10 +223,10 @@ def make_handler() -> type:
 
             elif path.startswith('file/'):
                 rel   = path[len('file/'):]
-                fpath = REPO_ROOT.parent / rel
+                fpath = REPO_ROOT / rel
                 if not fpath.exists() and '/' in rel:
                     parent, name = rel.rsplit('/', 1)
-                    fpath = REPO_ROOT.parent / parent / name.replace('-', '_')
+                    fpath = REPO_ROOT / parent / name.replace('-', '_')
                 if fpath.exists() and fpath.is_file():
                     raw  = fpath.read_text(errors='replace')
                     body = VIEWER_TEMPLATE.format(
@@ -251,20 +251,23 @@ def make_handler() -> type:
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument('--browser-captures', required=True, metavar='PATH',
+                   help='Directory of markdown files to serve')
     p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
     args = p.parse_args()
+
+    captures_dir = Path(args.browser_captures).resolve()
 
     ensure_assets()
 
     print(f'Browse: http://localhost:{args.port}', flush=True)
-    print(f'Stop:   src/main/model/search_proxy.sh stop')
 
     try:
-        HTTPServer(('', args.port), make_handler()).serve_forever()
+        HTTPServer(('', args.port), make_handler(captures_dir)).serve_forever()
     except OSError as e:
         if e.errno == 48:
             print(f'Port {args.port} already in use.', flush=True)
             print(f'To fix: lsof -ti :{args.port} | xargs kill', flush=True)
-            print(f'     or: src/main/model/search_proxy.sh stop', flush=True)
+            print(f'     or: src/main/model/serve_markdown.sh stop', flush=True)
             sys.exit(1)
         raise

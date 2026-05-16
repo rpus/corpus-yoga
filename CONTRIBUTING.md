@@ -152,6 +152,7 @@ Key points:
 | **Subject depth** | 1 — export dir | 2 — project / session | 2 — batch / conversation |
 | **Schema(s)** | conversations, memories, projects, users | session | apiConversation |
 | **CHANGELOG** | `rsc/schema/chat-exports/conversations/CHANGELOG.md` | `rsc/schema/code-projects/session/CHANGELOG.md` | `rsc/schema/browser-captures/apiConversation/CHANGELOG.md` |
+| **README** | [`src/main/chat-exports/README.md`](src/main/chat-exports/README.md) | [`src/main/code-projects/README.md`](src/main/code-projects/README.md) | [`src/main/browser-captures/README.md`](src/main/browser-captures/README.md) |
 
 | Schema | Pipeline | Versions | Diagnostic skips |
 | --- | --- | --- | --- |

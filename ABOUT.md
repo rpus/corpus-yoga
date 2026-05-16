@@ -43,10 +43,10 @@ Per-conversation API JSON files captured from the live claude.ai API via Safari 
 
 | Directory | Role |
 | --- | --- |
-| `src/main/chat-exports/` | Chat-exports pipeline scripts |
-| `src/main/code-projects/` | Code-projects pipeline scripts |
-| `src/main/browser-captures/` | Browser-captures pipeline scripts |
-| `src/main/model/` | Cross-pipeline schema model generation |
+| [`src/main/chat-exports/`](src/main/chat-exports/README.md) | Chat-exports pipeline scripts |
+| [`src/main/code-projects/`](src/main/code-projects/README.md) | Code-projects pipeline scripts |
+| [`src/main/browser-captures/`](src/main/browser-captures/README.md) | Browser-captures pipeline scripts |
+| [`src/main/model/`](src/main/model/README.md) | Cross-pipeline schema model generation and markdown viewer |
 | `src/main/validate.py` | Shared JSON Schema validator |
 | `src/main/validate_versions.py` | Shared per-version validation loop |
 | `src/main/schema_recommendations.py` | Shared post-validation schema quality hints |

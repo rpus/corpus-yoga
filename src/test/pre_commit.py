@@ -28,6 +28,7 @@ from typing import Any
 # ── Repo layout ───────────────────────────────────────────────────────────────
 REPO_ROOT                = Path(__file__).resolve().parents[2]
 REPO_PARENT              = REPO_ROOT.parent
+EXT                      = REPO_ROOT / 'ext'
 GEN                      = REPO_ROOT / 'gen'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
@@ -35,6 +36,8 @@ RSC_SCHEMA               = RSC / 'schema'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
 
 # Prefix for converting bare project names to ~/.claude/projects/ slugs and back.
+# Claude Code slugs encode the absolute project path: /a/b/c → -a-b-c.
+# REPO_PARENT is used as a string only — it is not a data directory.
 # slug = _PROJECT_PREFIX + name;  name = slug.removeprefix(_PROJECT_PREFIX)
 _PROJECT_PREFIX = str(REPO_PARENT).replace('/', '-') + '-'
 
@@ -61,7 +64,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['apiConversation'],
         changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
         gen               = GEN / 'browser-captures',
-        input             = REPO_PARENT / 'browser-captures',
+        input             = EXT / 'browser-captures',
         input_glob        = 'data-*/*/',
         subject_depth     = 2,
         validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',
@@ -73,7 +76,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['conversations', 'memories', 'projects', 'users'],
         changelog         = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
         gen               = GEN / 'chat-exports',
-        input             = REPO_PARENT / 'chat-exports',
+        input             = EXT / 'chat-exports',
         input_glob        = 'data-*/',
         subject_depth     = 1,
         validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',
@@ -84,7 +87,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['session'],
         changelog         = RSC_SCHEMA / 'code-projects' / 'session' / 'CHANGELOG.md',
         gen               = GEN / 'code-projects',
-        input             = REPO_PARENT / 'code-projects',
+        input             = EXT / 'code-projects',
         input_glob        = '-Users-*/*.jsonl',
         subject_depth     = 2,
         validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',

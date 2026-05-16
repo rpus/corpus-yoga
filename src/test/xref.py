@@ -100,7 +100,8 @@ def looks_like_repo_path(s: str) -> bool:
         return False
     if s.startswith('~'):
         return False  # home-relative path, outside the repo
-    if any(s.startswith(d + '/') for d in SKIP_DIRS):
+    bare = s.lstrip('./')
+    if any(bare.startswith(d + '/') or bare == d for d in SKIP_DIRS):
         return False  # reference into a skipped directory
     if '/../' in s or s.startswith('../') or s.endswith('/..'):
         return False  # escapes the repo
