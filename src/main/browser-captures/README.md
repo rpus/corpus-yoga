@@ -7,7 +7,7 @@ Two modes — same JS ([`browser-chat-capture.js`](browser-chat-capture.js)), di
 | Mode | Entry point | Output |
 | --- | --- | --- |
 | **Shortcut** | `export.applescript` | `~/Downloads/` |
-| **Pipeline** | `safari_capture.sh` | `../browser-captures/<batch>/<uuid>/` |
+| **Pipeline** | `safari_capture.sh` | `ext/browser-captures/<batch>/<uuid>/` |
 
 ---
 
@@ -46,19 +46,19 @@ To add a keyboard shortcut: create a Shortcuts app action with the above command
 
 Each step accepts a single batch or all batches (**ONE OF**):
 
-1. **Capture** conversations as markdown — *requires: data export in `../chat-exports/`, Safari open and logged in* (`safari_capture.sh` iterates the export's `conversations.json`, navigates Safari to each conversation, and injects `browser-chat-capture.js` to capture and download the markdown):
-    - `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
-    - `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
+1. **Capture** conversations as markdown — *requires: data export in `ext/chat-exports/`, Safari open and logged in* (`safari_capture.sh` iterates the export's `conversations.json`, navigates Safari to each conversation, and injects `browser-chat-capture.js` to capture and download the markdown):
+    - `src/main/browser-captures/safari_capture.sh --chat-export  ext/chat-exports/data-<...>`
+    - `src/main/browser-captures/safari_capture.sh --chat-exports ext/chat-exports`
 
 2. **Fetch** live API JSON for each capture — *requires: Safari open and logged in* (`safari_fetch_api_json.sh`):
-    - `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
-    - `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
+    - `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ext/browser-captures/data-<...>`
+    - `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
 
 3. **Validate** API JSON against the `apiConversation` schema — *no external requirements* (`RUNME.sh`):
-    - `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
-    - `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
+    - `src/main/browser-captures/RUNME.sh --browser-capture  ext/browser-captures/data-<...>`
+    - `src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures`
 
-**Output:** `{name}.md` + `{name}.log` + `{name}.json` per conversation, in `../browser-captures/<batch>/<uuid>/`.
+**Output:** `{name}.md` + `{name}.log` + `{name}.json` per conversation, in `ext/browser-captures/<batch>/<uuid>/`.
 
 **Stopping:** each step runs to completion; to abort `safari_capture.sh` or `safari_fetch_api_json.sh` mid-run, close the current Safari tab.
 
@@ -70,7 +70,7 @@ Each step accepts a single batch or all batches (**ONE OF**):
 
 | File | What it does |
 | --- | --- |
-| `safari_capture.sh` / `safari_capture.py` | Iterates a bulk export's conversations, captures each via Safari, writes `{name}.md` + `{name}.log` + `{name}.json` to `../browser-captures/<batch>/<uuid>/` |
+| `safari_capture.sh` / `safari_capture.py` | Iterates a bulk export's conversations, captures each via Safari, writes `{name}.md` + `{name}.log` + `{name}.json` to `ext/browser-captures/<batch>/<uuid>/` |
 | `safari_fetch_api_json.sh` / `safari_fetch_api_json.py` | For each capture, fetches the live API JSON from `/api/organizations/{org}/chat_conversations/{uuid}` and saves it alongside the markdown |
 | `validate.sh` | Validates each `{name}.json` against `rsc/schema/browser-captures/apiConversation/` |
 | `RUNME.sh` | Runs `validate.sh` for a batch or all batches |

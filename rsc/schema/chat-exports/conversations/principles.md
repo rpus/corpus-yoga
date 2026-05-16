@@ -101,7 +101,7 @@ for name, defn in schema['definitions'].items():
 Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports should be validated immediately and any failures investigated before the export is considered incorporated. Validation is run by `src/main/chat-exports/validate.sh` and results written to `gen/<export>/validation/conversations/v{N}.log`. The pre-commit hook checks all `EXPECTED_PASS` (export, version) pairs and confirms each log contains `Valid!`.
 
 ```bash
-src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
+src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
 ```
 
 ```python

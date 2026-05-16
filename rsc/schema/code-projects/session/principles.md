@@ -81,7 +81,7 @@ from `TurnBase`.
 
 The CLI session schema was derived from two sessions of one project. The
 `empirical.validate_against_all_known_exports` principle applies — the schema must
-validate all sessions in `../code-projects/` — but the corpus is small and likely
+validate all sessions in `ext/code-projects/` — but the corpus is small and likely
 to surface new fields as more projects and Claude Code versions are observed.
 
 Fields typed as `["null", "object"]` or `["string", "object"]` where only one form

@@ -2,7 +2,7 @@
 
 This document records the archaeological process used to discover and understand the
 Claude Code CLI session format — the `.jsonl` files in `~/.claude/projects/`. It also
-covers the `../code-projects/` directory setup.
+covers the `ext/code-projects/` directory setup.
 
 ---
 
@@ -147,15 +147,15 @@ in `CHANGELOG.md` and inline in the schema descriptions.
 
 ---
 
-## Setting up `../code-projects/`
+## Setting up `ext/code-projects/`
 
-`../code-projects/` is a single symlink directly to `~/.claude/projects/`. Because
+`ext/code-projects/` is a single symlink directly to `~/.claude/projects/`. Because
 Claude Code creates a subdirectory there for every project it has ever run in, all
 projects are immediately available with no per-project configuration:
 
 ```bash
 # One-time setup (run from the repo root):
-ln -sfn ~/.claude/projects ../code-projects
+ln -sfn ~/.claude/projects ext/code-projects
 ```
 
 `~/.claude/projects/` subdirectory names are the absolute project path with every `/`
@@ -167,8 +167,8 @@ pwd | tr '/' '-'
 # e.g. -Users-alice-dev-Anthropic-claude-export-yoga
 
 # Run for this repo only:
-./src/main/code-projects/RUNME.sh --code-project "../code-projects/$(pwd | tr '/' '-')"
+./src/main/code-projects/RUNME.sh --code-project "ext/code-projects/$(pwd | tr '/' '-')"
 ```
 
-The `../code-projects/` directory is outside the repo (a peer to `../chat-exports/`),
+The `ext/code-projects/` directory is outside the repo (a peer to `ext/chat-exports/`),
 but the workspace file references it and `src/main/code-projects/RUNME.sh` reads from it.

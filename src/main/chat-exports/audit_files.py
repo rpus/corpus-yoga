@@ -56,7 +56,7 @@ Usage
 
     Example:
         src/main/chat-exports/audit_files.sh --chat-export \\
-            ../chat-exports/data-0fc4c1e0-...-batch-0000
+            ext/chat-exports/data-0fc4c1e0-...-batch-0000
 
 SQL queries
 ───────────

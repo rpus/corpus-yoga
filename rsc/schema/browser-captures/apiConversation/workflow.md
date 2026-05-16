@@ -26,13 +26,13 @@ new API response shapes.
 1. Fetch API JSON for the batch:
 
    ```bash
-   src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+   src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
    ```
 
 2. Validate against the current schema:
 
    ```bash
-   src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+   src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
    ```
 
 3. If any captures fail, update `v1.json` to accommodate the new shape (following

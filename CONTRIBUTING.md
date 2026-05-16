@@ -23,7 +23,7 @@ and renders an interactive HTML dashboard.
 `rsc/schema/chat-exports/conversations/`).
 
 **`chat-exports`** = the pipeline that processes claude.ai exports
-(`src/main/chat-exports/`, `../chat-exports/`).
+(`src/main/chat-exports/`, `ext/chat-exports/`).
 
 These are kept strictly distinct throughout. Do not conflate them.
 
@@ -31,17 +31,17 @@ These are kept strictly distinct throughout. Do not conflate them.
 
 ## Inputs (in workspace, but not in repo)
 
-- `../chat-exports/` — claude.ai bulk exports (contains `conversations.json` etc.)
-- `../code-projects/` — symlink to `~/.claude/projects/` for CLI `.jsonl` sessions
-- `../browser-captures/` — per-conversation browser captures (markdown + API JSON)
+- `ext/chat-exports/` — claude.ai bulk exports (contains `conversations.json` etc.)
+- `ext/code-projects/` — symlink to `~/.claude/projects/` for CLI `.jsonl` sessions
+- `ext/browser-captures/` — per-conversation browser captures (markdown + API JSON)
 
 ---
 
 ## Pipelines
 
 ```bash
-src/main/chat-exports/RUNME.sh  --chat-exports  ../chat-exports
-src/main/code-projects/RUNME.sh --code-projects ../code-projects
+src/main/chat-exports/RUNME.sh  --chat-exports  ext/chat-exports
+src/main/code-projects/RUNME.sh --code-projects ext/code-projects
 ```
 
 ---
@@ -95,16 +95,16 @@ Entry points: [`export.applescript`](src/main/browser-captures/export.applescrip
 **Pipeline mode** (scope-constrained to a bulk export):
 
 ```bash
-src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
+src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>
 ```
 
 Requires Safari open and logged into claude.ai. Output goes to
-`../browser-captures/<export-name>/<uuid>/`.
+`ext/browser-captures/<export-name>/<uuid>/`.
 
 To fetch live API JSON for existing captures that don't have it:
 
 ```bash
-src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
 ```
 
 Saves `{title}.json` alongside each `.md` and `.log`.
@@ -112,7 +112,7 @@ Saves `{title}.json` alongside each `.md` and `.log`.
 To validate the captured API JSON against `rsc/schema/browser-captures/apiConversation/v1.json`:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
+src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/data-<...>
 ```
 
 ---
@@ -147,7 +147,7 @@ Key points:
 
 | Property | `chat-exports` | `code-projects` | `browser-captures` |
 | --- | --- | --- | --- |
-| **Input dir** | `../chat-exports/` | `../code-projects/` | `../browser-captures/` |
+| **Input dir** | `ext/chat-exports/` | `ext/code-projects/` | `ext/browser-captures/` |
 | **Gen dir** | `gen/chat-exports/` | `gen/code-projects/` | `gen/browser-captures/` |
 | **Subject depth** | 1 — export dir | 2 — project / session | 2 — batch / conversation |
 | **Schema(s)** | conversations, memories, projects, users | session | apiConversation |

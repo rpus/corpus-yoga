@@ -44,5 +44,5 @@ snapshotted there.
 generate HTML usage reports — the same kind of structural analysis that these schemas do for
 claude.ai exports, but at the CLI layer rather than the web-app layer.
 
-**Ground-truth data.** The `../../chat-exports/` sibling directory (outside this repo)
+**Ground-truth data.** The `../ext/chat-exports/` sibling directory (outside this repo)
 contains the actual `conversations.json` export files that the schemas are validated against.

@@ -50,7 +50,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 
 # Directories/files to skip entirely
-SKIP_DIRS  = {'.git', 'gen', 'tmp', 'rsc/artifacts', '__pycache__', '.claude'}
+SKIP_DIRS  = {'ext', 'gen', 'tmp', 'rsc/artifacts', '__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
 SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}
 

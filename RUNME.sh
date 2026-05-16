@@ -3,9 +3,9 @@
 #
 # Runs three pipelines against their sibling input directories:
 #
-#   chat-exports     ../chat-exports/      claude.ai bulk exports (conversations.json etc.)
-#   code-projects    ../code-projects/     Claude Code CLI sessions (~/.claude/projects/ symlink)
-#   browser-captures ../browser-captures/  Per-conversation live API JSON captures
+#   chat-exports     ext/chat-exports/      claude.ai bulk exports (conversations.json etc.)
+#   code-projects    ext/code-projects/     Claude Code CLI sessions (~/.claude/projects/ symlink)
+#   browser-captures ext/browser-captures/  Per-conversation live API JSON captures
 #
 # Each pipeline validates its inputs against all schema versions, then (for chat-exports)
 # extracts files, infers tables, and renders a dashboard.
@@ -33,19 +33,19 @@ done
 
 echo "── browser-captures ──────────────────────────────────────────────────────────"
 "$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" \
-  --browser-captures "$SCRIPT_DIR/../browser-captures"
+  --browser-captures "$SCRIPT_DIR/ext/browser-captures"
 
 echo ""
 echo "── chat-exports ──────────────────────────────────────────────────────────────"
 # shellcheck disable=SC2086
 "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" \
-  --chat-exports "$SCRIPT_DIR/../chat-exports" \
+  --chat-exports "$SCRIPT_DIR/ext/chat-exports" \
   $pay_for_inference
 
 echo ""
 echo "── code-projects ─────────────────────────────────────────────────────────────"
 "$SCRIPT_DIR/src/main/code-projects/RUNME.sh" \
-  --code-projects "$SCRIPT_DIR/../code-projects"
+  --code-projects "$SCRIPT_DIR/ext/code-projects"
 
 echo ""
 echo "── done ──────────────────────────────────────────────────────────────────────"

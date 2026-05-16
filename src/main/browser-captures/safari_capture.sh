@@ -3,9 +3,9 @@
 # Requires Safari open, focused, and logged into claude.ai throughout.
 #
 # Usage:
-#   ./src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>
-#   ./src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports
-# Output goes to ../browser-captures/<export-name>/<uuid>/
+#   ./src/main/browser-captures/safari_capture.sh --chat-export  ext/chat-exports/data-<...>
+#   ./src/main/browser-captures/safari_capture.sh --chat-exports ext/chat-exports
+# Output goes to ext/browser-captures/<export-name>/<uuid>/
 
 set -euo pipefail
 

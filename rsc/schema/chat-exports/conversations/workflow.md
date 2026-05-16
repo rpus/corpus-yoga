@@ -30,7 +30,7 @@ Before any schema work begins, the following artefacts must be available in the 
 | `v{N}.json` | The schema under development | Upload from `rsc/schema/chat-exports/conversations/` |
 | `principles.md` | Design principles, diagnostics, repair snippets | Upload from `rsc/schema/chat-exports/conversations/` |
 | `workflow.md` | This document | Upload from `rsc/schema/chat-exports/conversations/` |
-| At least one `conversations.json` export | Ground-truth validation data | Upload from `../chat-exports/data-*/` |
+| At least one `conversations.json` export | Ground-truth validation data | Upload from `ext/chat-exports/data-*/` |
 | `conversations_redacted.json` (optional) | Safe-to-share compressed export for diagnostic work | Upload from `gen/` |
 
 **Flag if:** the session begins with schema edits before any of the above are uploaded.

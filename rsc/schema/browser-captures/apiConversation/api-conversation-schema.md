@@ -13,7 +13,7 @@ live claude.ai API for one conversation. Each file is saved by
 `src/main/browser-captures/safari_fetch_api_json.sh` into:
 
 ```text
-../browser-captures/{export-batch}/{conversation-uuid}/{title}.json
+ext/browser-captures/{export-batch}/{conversation-uuid}/{title}.json
 ```
 
 This format is **not** the same as the bulk-export format (`conversations.json`).
@@ -100,5 +100,5 @@ Validated against 55 live API responses (all pass). Coverage matrix in
 Run via:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
 ```

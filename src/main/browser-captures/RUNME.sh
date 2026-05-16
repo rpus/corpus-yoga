@@ -2,8 +2,8 @@
 # Validate browser-captured API JSON files against the apiConversation schema.
 #
 # Usage:
-#   ./src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
-#   ./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/data-<...>
+#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
 
 set -euo pipefail
 

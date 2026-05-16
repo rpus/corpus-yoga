@@ -23,7 +23,7 @@ See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, 
 
 The CLI session schema has two distinct update triggers with different cadences:
 
-**Session data updates continuously.** `../code-projects/` is a symlink directly to
+**Session data updates continuously.** `ext/code-projects/` is a symlink directly to
 `~/.claude/projects/`. Claude Code writes to `.jsonl` files in real time during every
 session. Reading through the symlink is always current — no caching layer. Running
 `src/main/code-projects/RUNME.sh` produces a snapshot in `gen/code-projects/` from whatever is
@@ -38,14 +38,14 @@ relaxations must be justified by actual data.
 
 ## Adding a New Project
 
-`../code-projects/` is a symlink directly to `~/.claude/projects/`, so any project
+`ext/code-projects/` is a symlink directly to `~/.claude/projects/`, so any project
 Claude Code has ever run in is already present — no manual setup required.
 
-To run for a specific project, pass its path inside `../code-projects/`:
+To run for a specific project, pass its path inside `ext/code-projects/`:
 
 ```bash
 # From within the target repo:
-./src/main/code-projects/RUNME.sh --code-project "../code-projects/$(pwd | tr '/' '-')"
+./src/main/code-projects/RUNME.sh --code-project "ext/code-projects/$(pwd | tr '/' '-')"
 ```
 
 Then follow the validation loop below if any sessions fail.
@@ -84,7 +84,7 @@ If sessions fail validation (step 1), use the debug script to identify the recor
 
 ```bash
 src/run_python_script.sh src/test/code-projects/debug_code_session_record.py \
-  ../code-projects/{project-slug}/{session}.jsonl
+  ext/code-projects/{project-slug}/{session}.jsonl
 ```
 
 This tests each branch of `Record.oneOf` against the failing record and drills into
@@ -168,7 +168,7 @@ After a successful run:
 `pre_commit.py` enforces this with a closed-world complement: any session log found in
 `gen/code-projects/` that is absent from the CHANGELOG matrix raises a failure —
 whether the session passes (unregistered) or fails (undetected). This catches sessions
-from projects added automatically to `../code-projects/` that were never explicitly
+from projects added automatically to `ext/code-projects/` that were never explicitly
 recorded.
 
 ---
@@ -239,7 +239,7 @@ Schema versions use **semantic versioning** from v1 onward:
 
 ## Real-time vs Snapshot
 
-| | `../code-projects/{project-slug}/*.jsonl` | `gen/code-projects/{project-slug}/{session}/` |
+| | `ext/code-projects/{project-slug}/*.jsonl` | `gen/code-projects/{project-slug}/{session}/` |
 | --- | --- | --- |
 | **Updated** | Continuously, by Claude Code | Only when `src/main/code-projects/RUNME.sh` is run |
 | **Contents** | Live session data | Snapshot: converted JSON + validation log |
@@ -258,7 +258,7 @@ When encountering sessions from a new project or Claude Code version, run the su
 script first to understand the data before attempting validation:
 
 ```bash
-src/run_python_script.sh src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+src/run_python_script.sh src/test/code-projects/survey_code_session.py ext/code-projects/{project-slug}/*.jsonl
 ```
 
 This reports all record types, field keys, discriminator values, content block types,

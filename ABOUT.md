@@ -6,7 +6,7 @@ Architecture reference for this repo. The root `README.md` covers usage; this do
 
 ## Inputs
 
-### Claude.ai exports (`../chat-exports/`)
+### Claude.ai exports (`ext/chat-exports/`)
 
 Requested from Settings → Privacy → Export Data on claude.ai. Each export is a directory named by account UUID and timestamp:
 
@@ -20,18 +20,18 @@ data-{account-uuid}-{unix-timestamp}-{hash}-batch-0000/
 
 The `CHANGELOG.md` in `rsc/schema/chat-exports/conversations/` tracks which exports have been processed and which schema version each passes.
 
-### Claude Code CLI sessions (`../code-projects/`)
+### Claude Code CLI sessions (`ext/code-projects/`)
 
 Session transcripts written by Claude Code to `~/.claude/projects/{project}/{session}.jsonl`.
-`../code-projects/` is a symlink directly to `~/.claude/projects/`. One-time setup:
+`ext/code-projects/` is a symlink directly to `~/.claude/projects/`. One-time setup:
 
 ```bash
-ln -sfn ~/.claude/projects ../code-projects
+ln -sfn ~/.claude/projects ext/code-projects
 ```
 
 See `rsc/schema/code-projects/session/research.md` for setup and format documentation.
 
-### Browser captures (`../browser-captures/`)
+### Browser captures (`ext/browser-captures/`)
 
 Per-conversation API JSON files captured from the live claude.ai API via Safari automation. See `rsc/schema/browser-captures/apiConversation/research.md` for how the endpoint was discovered and how captures are taken.
 
@@ -211,7 +211,7 @@ Reference for `rsc/schema/code-projects/session/`: nine record types, turn envel
 
 #### [`rsc/schema/code-projects/session/research.md`](rsc/schema/code-projects/session/research.md)
 
-How the CLI session format was reverse-engineered; `../code-projects/` setup procedure.
+How the CLI session format was reverse-engineered; `ext/code-projects/` setup procedure.
 
 #### [`rsc/schema/code-projects/session/claude-home-directory.md`](rsc/schema/code-projects/session/claude-home-directory.md)
 

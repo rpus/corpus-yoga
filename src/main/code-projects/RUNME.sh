@@ -44,8 +44,8 @@ main() {
     echo "Usage: $0 --code-project <path/to/project-directory>"
     echo "       $0 --code-projects <path/to/code-projects-root>"
     echo
-    echo "  project-directory: a subdirectory of ../code-projects/, e.g.:"
-    echo "    ../code-projects/\$(pwd | tr '/' '-')"
+    echo "  project-directory: a subdirectory of ext/code-projects/, e.g.:"
+    echo "    ext/code-projects/\$(pwd | tr '/' '-')"
     echo "       Pass --help for more information."
     exit 1
   fi

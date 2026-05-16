@@ -47,9 +47,9 @@ ABOUT.md,210,doc,rsc/schema/code-projects/session,Y,"Reference for `rsc/schema/c
 ABOUT.md,212,doc,rsc/schema/code-projects/session/research.md,Y,#### [`rsc/schema/code-projects/session/research.md`](rsc/schema/code-projects/session/research.md)
 ABOUT.md,216,doc,rsc/schema/code-projects/session/claude-home-directory.md,Y,#### [`rsc/schema/code-projects/session/claude-home-directory.md`](rsc/schema/code-projects/session/claude-home-director
 CONTRIBUTING.md,23,doc,rsc/schema/chat-exports/conversations,Y,`rsc/schema/chat-exports/conversations/`).
-CONTRIBUTING.md,26,doc,src/main/chat-exports,Y,"(`src/main/chat-exports/`, `../chat-exports/`)."
-CONTRIBUTING.md,43,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh  --chat-exports  ../chat-exports
-CONTRIBUTING.md,44,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh --code-projects ../code-projects
+CONTRIBUTING.md,26,doc,src/main/chat-exports,Y,"(`src/main/chat-exports/`, `ext/chat-exports/`)."
+CONTRIBUTING.md,43,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh  --chat-exports  ext/chat-exports
+CONTRIBUTING.md,44,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh --code-projects ext/code-projects
 CONTRIBUTING.md,51,doc,src/test/pre_commit_expected_score,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/tes
 CONTRIBUTING.md,51,doc,src/test/pre_commit.log,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/tes
 CONTRIBUTING.md,51,doc,src/test/pre_commit.sh,Y,- Run `src/test/pre_commit.sh` before and after any change. All checks must pass. Expected score is tracked in [`src/tes
@@ -69,10 +69,10 @@ CONTRIBUTING.md,87,doc,src/main/browser-captures/export.applescript,Y,"caffeinat
 CONTRIBUTING.md,91,doc,src/main/browser-captures/export.applescript,Y,"Entry points: [`export.applescript`](src/main/browser-captures/export.applescript) (dispatcher),"
 CONTRIBUTING.md,92,doc,src/main/browser-captures/export-conversation.applescript,Y,"[`export-conversation.applescript`](src/main/browser-captures/export-conversation.applescript),"
 CONTRIBUTING.md,93,doc,src/main/browser-captures/export-all-conversations.applescript,Y,[`export-all-conversations.applescript`](src/main/browser-captures/export-all-conversations.applescript).
-CONTRIBUTING.md,98,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
-CONTRIBUTING.md,107,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+CONTRIBUTING.md,98,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>
+CONTRIBUTING.md,107,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
 CONTRIBUTING.md,112,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,To validate the captured API JSON against `rsc/schema/browser-captures/apiConversation/v1.json`:
-CONTRIBUTING.md,115,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
+CONTRIBUTING.md,115,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/data-<...>
 CONTRIBUTING.md,138,doc,src/activate_venv.sh,Y,"- Venv: `src/activate_venv.sh`, overridable via `$VENV`, trap handles deactivation"
 CONTRIBUTING.md,139,doc,rsc/schema/chat-exports/conversations,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/br"
 CONTRIBUTING.md,139,doc,rsc/schema/code-projects/session,Y,"- Schemas: `rsc/schema/chat-exports/conversations/` (v1–v7), `rsc/schema/code-projects/session/` (v1–v3), `rsc/schema/br"
@@ -94,29 +94,29 @@ CONTRIBUTING.md,187,doc,src/test/pre_commit.sh,Y,8. **Run `src/test/pre_commit.s
 CONTRIBUTING.md,189,doc,src/test/xref.sh,Y,9. **Run `src/test/xref.sh`** — commit the updated `xref.csv`.
 README.md,8,doc,src/requirements.txt,Y,- `python3 -m venv ~/venvs/general && pip install -r src/requirements.txt`
 README.md,21,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
-README.md,25,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
-README.md,27,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>`
+README.md,25,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>`
+README.md,27,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
 README.md,30,doc,src/main/model/search_proxy.sh,Y,- `src/main/model/search_proxy.sh --daemon` then open <http://localhost:8182>
 README.md,31,doc,src/main/model/search_proxy.sh,Y,- `src/main/model/search_proxy.sh stop` to shut down
-README.md,35,doc,src/main/browser-captures/RUNME.sh,Y,./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
-README.md,36,doc,src/main/chat-exports/RUNME.sh,Y,./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports \
-README.md,38,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh --code-projects ../code-projects
+README.md,35,doc,src/main/browser-captures/RUNME.sh,Y,./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
+README.md,36,doc,src/main/chat-exports/RUNME.sh,Y,./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports \
+README.md,38,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh --code-projects ext/code-projects
 README.md,39,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
 README.md,40,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
-README.md,46,doc,src/main/chat-exports/RUNME.sh,Y,- `./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports` (or `validate.sh --chat-export <one-export>`)
+README.md,46,doc,src/main/chat-exports/RUNME.sh,Y,- `./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports` (or `validate.sh --chat-export <one-export>`)
 README.md,47,doc,rsc/schema,Y,- Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
 README.md,47,doc,src/main,Y,- Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
-README.md,49,doc,src/main/chat-exports/extract_files.sh,Y,- `./src/main/chat-exports/extract_files.sh --chat-exports ../chat-exports`
-README.md,50,doc,src/main/chat-exports/extract_heredocs.sh,Y,- `./src/main/chat-exports/extract_heredocs.sh --chat-exports ../chat-exports`
-README.md,52,doc,src/main/chat-exports/infer_tables.sh,Y,- `./src/main/chat-exports/infer_tables.sh --chat-exports ../chat-exports`
-README.md,54,doc,src/main/chat-exports/present.sh,Y,- `./src/main/chat-exports/present.sh --chat-exports ../chat-exports`
+README.md,49,doc,src/main/chat-exports/extract_files.sh,Y,- `./src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports`
+README.md,50,doc,src/main/chat-exports/extract_heredocs.sh,Y,- `./src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports`
+README.md,52,doc,src/main/chat-exports/infer_tables.sh,Y,- `./src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports`
+README.md,54,doc,src/main/chat-exports/present.sh,Y,- `./src/main/chat-exports/present.sh --chat-exports ext/chat-exports`
 README.md,60,doc,rsc/schema/model.json,Y,"When any pipeline schema changes, regenerate the model candidates and review `rsc/schema/model.json`:"
 README.md,63,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
-README.md,66,doc,rsc/schema/code-projects/session/v1.json,Y,"When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fol"
-README.md,66,doc,rsc/schema/code-projects/session/workflow.md,Y,"When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fol"
+README.md,66,doc,rsc/schema/code-projects/session/v1.json,Y,"When a new Claude Code session appears in `ext/code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fo"
+README.md,66,doc,rsc/schema/code-projects/session/workflow.md,Y,"When a new Claude Code session appears in `ext/code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fo"
 README.md,69,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
-README.md,71,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.j
-README.md,71,doc,src/test/code-projects/debug_code_session_record.py,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.j
+README.md,71,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{session}.
+README.md,71,doc,src/test/code-projects/debug_code_session_record.py,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{session}.
 README.md,72,doc,src/test/pre_commit.sh,Y,./src/test/pre_commit.sh
 README.md,79,doc,rsc/snippets.md,Y,- Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
 README.md,81,doc,rsc/snippets.md,Y,- Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
@@ -125,8 +125,11 @@ RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                        # all pipel
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference    # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,18,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
 RUNME.sh,35,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" \"
+RUNME.sh,36,path_str,ext/browser-captures,Y,"--browser-captures ""$SCRIPT_DIR/ext/browser-captures"""
 RUNME.sh,41,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" \"
+RUNME.sh,42,path_str,ext/chat-exports,Y,"--chat-exports ""$SCRIPT_DIR/ext/chat-exports"" \"
 RUNME.sh,47,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" \"
+RUNME.sh,48,path_str,ext/code-projects,N,"--code-projects ""$SCRIPT_DIR/ext/code-projects"""
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Export / Conversation | [v1](./v1.json) | Bytes |
 rsc/schema/browser-captures/apiConversation/README.md,1,doc,rsc/schema/browser-captures/apiConversation,Y,# `rsc/schema/browser-captures/apiConversation/`
 rsc/schema/browser-captures/apiConversation/README.md,7,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,`src/main/browser-captures/safari_fetch_api_json.sh` — one file per conversation.
@@ -137,7 +140,7 @@ rsc/schema/browser-captures/apiConversation/api-conversation-schema.md,11,doc,rs
 rsc/schema/browser-captures/apiConversation/api-conversation-schema.md,13,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,`src/main/browser-captures/safari_fetch_api_json.sh` into:
 rsc/schema/browser-captures/apiConversation/api-conversation-schema.md,20,doc,rsc/schema/model_join.csv,Y,See [`rsc/schema/model_join.csv`](../model_join.csv) for the field-level comparison.
 rsc/schema/browser-captures/apiConversation/api-conversation-schema.md,98,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,[`rsc/schema/browser-captures/apiConversation/CHANGELOG.md`](../../rsc/schema/browser-captures/apiConversation/CHANGELOG
-rsc/schema/browser-captures/apiConversation/api-conversation-schema.md,103,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+rsc/schema/browser-captures/apiConversation/api-conversation-schema.md,103,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
 rsc/schema/browser-captures/apiConversation/principles.md,2,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,schema_file: rsc/schema/browser-captures/apiConversation/v1.json
 rsc/schema/browser-captures/apiConversation/principles.md,3,doc,rsc/schema/browser-captures/apiConversation/principles.md,Y,principles_file: rsc/schema/browser-captures/apiConversation/principles.md
 rsc/schema/browser-captures/apiConversation/principles.md,4,doc,rsc/schema/browser-captures/apiConversation/workflow.md,Y,workflow_file: rsc/schema/browser-captures/apiConversation/workflow.md
@@ -146,8 +149,8 @@ rsc/schema/browser-captures/apiConversation/principles.md,10,doc,rsc/schema/prin
 rsc/schema/browser-captures/apiConversation/principles.md,26,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` is a unified four-way correspondence table covering all
 rsc/schema/browser-captures/apiConversation/principles.md,33,doc,rsc/schema/principles.md,Y,bare `$ref` — see `api.draft4_limitations` in [`rsc/schema/principles.md`](../../principles.md).
 rsc/schema/browser-captures/apiConversation/research.md,16,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The response is a JSON object conforming to `rsc/schema/browser-captures/apiConversation/v1.json`. This is the
-rsc/schema/browser-captures/apiConversation/research.md,46,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
-rsc/schema/browser-captures/apiConversation/research.md,59,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+rsc/schema/browser-captures/apiConversation/research.md,46,doc,src/main/browser-captures/safari_capture.sh,Y,src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>
+rsc/schema/browser-captures/apiConversation/research.md,59,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
 rsc/schema/browser-captures/apiConversation/research.md,112,doc,rsc/schema/model_join.csv,Y,See `rsc/schema/model_join.csv` for the full field-level comparison.
 rsc/schema/browser-captures/apiConversation/research.md,121,doc,src/main/validate.py,Y,2. Ran `src/main/validate.py` against each with a draft schema
 rsc/schema/browser-captures/apiConversation/research.md,123,doc,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,4. Validated all 55 pass — results recorded in `rsc/schema/browser-captures/apiConversation/CHANGELOG.md`
@@ -157,8 +160,8 @@ rsc/schema/browser-captures/apiConversation/workflow.md,4,doc,rsc/schema/browser
 rsc/schema/browser-captures/apiConversation/workflow.md,8,doc,rsc/schema/browser-captures/apiConversation/v{N}.json,N,# Schema Development Workflow for `rsc/schema/browser-captures/apiConversation/v{N}.json`
 rsc/schema/browser-captures/apiConversation/workflow.md,11,doc,rsc/schema/workflow.md,Y,"Base principles, semantic versioning, and meta-rules are in [`rsc/schema/workflow.md`](../../workflow.md)."
 rsc/schema/browser-captures/apiConversation/workflow.md,12,doc,rsc/schema/principles.md,Y,Design principles are in [`rsc/schema/principles.md`](../../principles.md) and [`principles.md`](principles.md).
-rsc/schema/browser-captures/apiConversation/workflow.md,29,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
-rsc/schema/browser-captures/apiConversation/workflow.md,35,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+rsc/schema/browser-captures/apiConversation/workflow.md,29,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
+rsc/schema/browser-captures/apiConversation/workflow.md,35,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
 rsc/schema/browser-captures/apiConversation/workflow.md,39,doc,rsc/schema/chat-exports/conversations/principles.md,Y,the principles in `principles.md` and `rsc/schema/chat-exports/conversations/principles.md`).
 rsc/schema/browser-captures/apiConversation/workflow.md,43,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
 rsc/schema/browser-captures/apiConversation/workflow.md,43,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline browser-captures --write
@@ -175,8 +178,8 @@ rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v5.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v6.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v7.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
-rsc/schema/chat-exports/conversations/CHANGELOG.md,22,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../b
-rsc/schema/chat-exports/conversations/CHANGELOG.md,23,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
+rsc/schema/chat-exports/conversations/CHANGELOG.md,22,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../ext/
+rsc/schema/chat-exports/conversations/CHANGELOG.md,23,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../ext/browser-captures/apiConversat
 rsc/schema/chat-exports/conversations/README.md,1,doc,rsc/schema/chat-exports/conversations,Y,# `rsc/schema/chat-exports/conversations/`
 rsc/schema/chat-exports/conversations/README.md,31,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` maps the exact field-level correspondences across all pipeline
 rsc/schema/chat-exports/conversations/conversations-schema.md,1,doc,rsc/schema/chat-exports/conversations,Y,# `rsc/schema/chat-exports/conversations/` — Schema Reference
@@ -192,7 +195,7 @@ rsc/schema/chat-exports/conversations/principles.md,8,doc,rsc/schema/chat-export
 rsc/schema/chat-exports/conversations/principles.md,10,doc,rsc/schema/principles.md,Y,The generic schema design principles in [`rsc/schema/principles.md`](../../principles.md) apply
 rsc/schema/chat-exports/conversations/principles.md,85,doc,rsc/schema/documenter.json,Y,"""$schema"": ""rsc/schema/documenter.json"","
 rsc/schema/chat-exports/conversations/principles.md,101,doc,src/main/chat-exports/validate.sh,Y,"Every known export is a ground-truth test case. A failing export is always a schema bug, not a data bug. New exports sho"
-rsc/schema/chat-exports/conversations/principles.md,104,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
+rsc/schema/chat-exports/conversations/principles.md,104,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
 rsc/schema/chat-exports/conversations/principles.md,130,doc,src/test/diagnostics/empirical.oneOf_branches_evidenced.py,Y,Diagnostic: src/test/diagnostics/empirical.oneOf_branches_evidenced.py
 rsc/schema/chat-exports/conversations/principles.md,181,doc,src/test/diagnostics/empirical.nullable_fields_surveyed.py,Y,Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
 rsc/schema/chat-exports/conversations/principles.md,269,doc,src/run_python_script.sh,Y,"Run as: `src/run_python_script.sh src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from t"
@@ -259,7 +262,7 @@ rsc/schema/code-projects/session/principles.md,34,doc,src/test/pre_commit.sh,Y,-
 rsc/schema/code-projects/session/principles.md,38,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` is a unified four-way correspondence table covering all
 rsc/schema/code-projects/session/principles.md,41,doc,rsc/schema/principles.md,Y,Update `model_join.csv` whenever `v1.json` changes — see [`rsc/schema/principles.md`](../../principles.md#maintenance) a
 rsc/schema/code-projects/session/principles.md,89,doc,src/test/code-projects/survey_code_session.py,Y,by surveying additional sessions with `src/test/code-projects/survey_code_session.py`.
-rsc/schema/code-projects/session/research.md,170,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
+rsc/schema/code-projects/session/research.md,170,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""ext/code-projects/$(pwd | tr '/' '-')"""
 rsc/schema/code-projects/session/research.md,174,doc,src/main/code-projects/RUNME.sh,Y,but the workspace file references it and `src/main/code-projects/RUNME.sh` reads from it.
 rsc/schema/code-projects/session/session-schema.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/` — Schema Reference
 rsc/schema/code-projects/session/session-schema.md,11,doc,rsc/schema/code-projects/session/v1.json,Y,`rsc/schema/code-projects/session/v1.json` validates a **JSON array** produced by
@@ -276,7 +279,7 @@ rsc/schema/code-projects/session/workflow.md,11,doc,rsc/schema/chat-exports/conv
 rsc/schema/code-projects/session/workflow.md,18,doc,rsc/schema/workflow.md,Y,"See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rule"
 rsc/schema/code-projects/session/workflow.md,18,doc,rsc/schema/principles.md,Y,"See [`rsc/schema/workflow.md`](../../workflow.md) for the four base principles, semantic versioning rules, and meta-rule"
 rsc/schema/code-projects/session/workflow.md,29,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` produces a snapshot in `gen/code-projects/` from whatever is
-rsc/schema/code-projects/session/workflow.md,48,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""../code-projects/$(pwd | tr '/' '-')"""
+rsc/schema/code-projects/session/workflow.md,48,doc,src/main/code-projects/RUNME.sh,Y,"./src/main/code-projects/RUNME.sh --code-project ""ext/code-projects/$(pwd | tr '/' '-')"""
 rsc/schema/code-projects/session/workflow.md,59,doc,src/main/code-projects/RUNME.sh,Y,### Step 1 · Run src/main/code-projects/RUNME.sh
 rsc/schema/code-projects/session/workflow.md,62,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
 rsc/schema/code-projects/session/workflow.md,75,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
@@ -295,8 +298,8 @@ rsc/schema/code-projects/session/workflow.md,235,doc,src/run_python_script.sh,Y,
 rsc/schema/code-projects/session/workflow.md,235,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
 rsc/schema/code-projects/session/workflow.md,244,doc,src/main/code-projects/RUNME.sh,Y,"| **Updated** | Continuously, by Claude Code | Only when `src/main/code-projects/RUNME.sh` is run |"
 rsc/schema/code-projects/session/workflow.md,249,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` mid-session will validate a longer transcript than the previous
-rsc/schema/code-projects/session/workflow.md,261,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
-rsc/schema/code-projects/session/workflow.md,261,doc,src/test/code-projects/survey_code_session.py,Y,src/run_python_script.sh src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+rsc/schema/code-projects/session/workflow.md,261,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/survey_code_session.py ext/code-projects/{project-slug}/*.jsonl
+rsc/schema/code-projects/session/workflow.md,261,doc,src/test/code-projects/survey_code_session.py,Y,src/run_python_script.sh src/test/code-projects/survey_code_session.py ext/code-projects/{project-slug}/*.jsonl
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
@@ -355,21 +358,21 @@ rsc/snippets.md,40,doc,rsc/schema/chat-exports/conversations/v4.json,Y,jq '[.def
 rsc/snippets.md,69,doc,rsc/schema/chat-exports/conversations/v4.json,Y,]' ./schema/chat-exports/conversations/v4.json
 rsc/snippets.md,90,doc,rsc/schema/chat-exports/conversations/v4.json,Y,]' ./schema/chat-exports/conversations/v4.json
 src/activate_venv.sh,4,comment,src/activate_venv.sh,Y,# Override the path: VENV=/other/path source src/activate_venv.sh
-src/main/browser-captures/README.md,50,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>`
-src/main/browser-captures/README.md,51,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports`
-src/main/browser-captures/README.md,54,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ../browser-captures/data-<...>`
-src/main/browser-captures/README.md,55,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures`
-src/main/browser-captures/README.md,58,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-capture  ../browser-captures/data-<...>`
-src/main/browser-captures/README.md,59,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures`
+src/main/browser-captures/README.md,50,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-export  ext/chat-exports/data-<...>`
+src/main/browser-captures/README.md,51,doc,src/main/browser-captures/safari_capture.sh,Y,- `src/main/browser-captures/safari_capture.sh --chat-exports ext/chat-exports`
+src/main/browser-captures/README.md,54,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-capture  ext/browser-captures/data-<...>`
+src/main/browser-captures/README.md,55,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
+src/main/browser-captures/README.md,58,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-capture  ext/browser-captures/data-<...>`
+src/main/browser-captures/README.md,59,doc,src/main/browser-captures/RUNME.sh,Y,- `src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures`
 src/main/browser-captures/README.md,75,doc,rsc/schema/browser-captures/apiConversation,Y,| `validate.sh` | Validates each `{name}.json` against `rsc/schema/browser-captures/apiConversation/` |
-src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ../browser-captures/data-<...>
-src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
+src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/data-<...>
+src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
 src/main/browser-captures/RUNME.sh,14,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$batch_dir"""
-src/main/browser-captures/safari_capture.sh,6,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>
-src/main/browser-captures/safari_capture.sh,7,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports
+src/main/browser-captures/safari_capture.sh,6,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-export  ext/chat-exports/data-<...>
+src/main/browser-captures/safari_capture.sh,7,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-exports ext/chat-exports
 src/main/browser-captures/safari_capture.sh,23,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_capture.py"" ""$@"""
-src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
-src/main/browser-captures/safari_fetch_api_json.sh,7,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures
+src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
+src/main/browser-captures/safari_fetch_api_json.sh,7,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures
 src/main/browser-captures/safari_fetch_api_json.sh,22,call,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"""
 src/main/browser-captures/validate.sh,5,comment,src/main/browser-captures/validate.sh,Y,#   src/main/browser-captures/validate.sh --browser-capture <path/to/batch-directory>
 src/main/browser-captures/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
@@ -377,9 +380,9 @@ src/main/browser-captures/validate.sh,12,path_str,gen/browser-captures,Y,"OUTPUT
 src/main/browser-captures/validate.sh,19,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" ""$json"" ""$SCHEMA_DIR"" ""$out_dir/validatio"
 src/main/browser-captures/validate.sh,19,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" ""$json"" ""$SCHEMA_DIR"" ""$out_dir/validatio"
 src/main/browser-captures/validate.sh,19,call,rsc/schema/browser-captures/apiConversation,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" ""$json"" ""$SCHEMA_DIR"" ""$out_dir/validatio"
-src/main/chat-exports/RUNME.sh,3,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
-src/main/chat-exports/RUNME.sh,4,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export ../chat-exports/data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-
-src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports --pay-for-inference
+src/main/chat-exports/RUNME.sh,3,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
+src/main/chat-exports/RUNME.sh,4,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export ext/chat-exports/data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128
+src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports --pay-for-inference
 src/main/chat-exports/RUNME.sh,11,path_str,gen/chat-exports,Y,"OUTPUT_DIR=""$REPO_DIR/gen/chat-exports"""
 src/main/chat-exports/RUNME.sh,19,call,src/main/chat-exports/validate.sh,Y,"""$SCRIPT_DIR/validate.sh""         --chat-export ""$export_dir"""
 src/main/chat-exports/RUNME.sh,20,call,src/main/chat-exports/extract_files.sh,Y,"""$SCRIPT_DIR/extract_files.sh""    --chat-export ""$export_dir"""
@@ -404,26 +407,26 @@ src/main/chat-exports/audit_files.sh,21,call,src/run_python_script.sh,Y,"""$REPO
 src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
-src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports ../chat-exports
+src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
+src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports
 src/main/chat-exports/extract_files.sh,10,path_str,gen/chat-exports,Y,"OUTPUT_DIR=""$REPO_DIR/gen/chat-exports"""
 src/main/chat-exports/extract_files.sh,17,call,src/main/chat-exports/extract_files.py,Y,"python ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/extract_files.sh,45,call,src/activate_venv.sh,Y,"source ""$REPO_DIR/src/activate_venv.sh"""
-src/main/chat-exports/extract_heredocs.sh,3,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/extract_heredocs.sh,4,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-exports ../chat-exports
+src/main/chat-exports/extract_heredocs.sh,3,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
+src/main/chat-exports/extract_heredocs.sh,4,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports
 src/main/chat-exports/extract_heredocs.sh,10,path_str,gen/chat-exports,Y,"OUTPUT_DIR=""$REPO_DIR/gen/chat-exports"""
 src/main/chat-exports/extract_heredocs.sh,17,call,src/main/chat-exports/extract_heredocs.py,Y,"python ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/extract_heredocs.sh,45,call,src/activate_venv.sh,Y,"source ""$REPO_DIR/src/activate_venv.sh"""
-src/main/chat-exports/infer_tables.sh,3,comment,src/main/chat-exports/infer_tables.sh,Y,#   src/main/chat-exports/infer_tables.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/infer_tables.sh,4,comment,src/main/chat-exports/infer_tables.sh,Y,#   src/main/chat-exports/infer_tables.sh --chat-exports ../chat-exports
+src/main/chat-exports/infer_tables.sh,3,comment,src/main/chat-exports/infer_tables.sh,Y,#   src/main/chat-exports/infer_tables.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
+src/main/chat-exports/infer_tables.sh,4,comment,src/main/chat-exports/infer_tables.sh,Y,#   src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports
 src/main/chat-exports/infer_tables.sh,10,path_str,gen/chat-exports,Y,"OUTPUT_DIR=""$REPO_DIR/gen/chat-exports"""
 src/main/chat-exports/infer_tables.sh,13,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
 src/main/chat-exports/infer_tables.sh,61,call,src/main/chat-exports/format_table.py,Y,"| python ""$FORMAT_TABLE_SCRIPT"" \"
 src/main/chat-exports/infer_tables.sh,79,call,src/main/chat-exports/format_table.py,Y,"| python ""$FORMAT_TABLE_SCRIPT"" \"
 src/main/chat-exports/infer_tables.sh,94,call,src/main/chat-exports/format_table.py,Y,"| python ""$FORMAT_TABLE_SCRIPT"" \"
 src/main/chat-exports/infer_tables.sh,151,call,src/activate_venv.sh,Y,"source ""$REPO_DIR/src/activate_venv.sh"""
-src/main/chat-exports/present.sh,3,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/present.sh,4,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ../chat-exports
+src/main/chat-exports/present.sh,3,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
+src/main/chat-exports/present.sh,4,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ext/chat-exports
 src/main/chat-exports/present.sh,10,path_str,gen/chat-exports,Y,"OUTPUT_DIR=""$REPO_DIR/gen/chat-exports"""
 src/main/chat-exports/present.sh,11,path_str,rsc/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/index.html"""
 src/main/chat-exports/present.sh,12,path_str,src/main/chat-exports/word_freq_literal.py,Y,"WORD_FREQ_SCRIPT=""$SCRIPT_DIR/word_freq_literal.py"""
@@ -502,12 +505,12 @@ src/main/validate.py,5,comment,src/main/validate.py,Y,python src/main/validate.p
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/run_python_script.sh,18,call,src/activate_venv.sh,Y,"source ""$SCRIPT_DIR/activate_venv.sh"""
 src/test/code-projects/debug_code_session_record.py,4,comment,rsc/schema/code-projects/session/v1.json,Y,validation against rsc/schema/code-projects/session/v1.json.
-src/test/code-projects/debug_code_session_record.py,15,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl
-src/test/code-projects/debug_code_session_record.py,18,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl --index 42
-src/test/code-projects/debug_code_session_record.py,21,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl --all
+src/test/code-projects/debug_code_session_record.py,15,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl
+src/test/code-projects/debug_code_session_record.py,18,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl --index 42
+src/test/code-projects/debug_code_session_record.py,21,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl --all
 src/test/code-projects/debug_code_session_record.py,30,path_str,rsc/schema/code-projects/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-projects/session/v1.json'
 src/test/code-projects/survey_code_session.py,10,comment,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-src/test/code-projects/survey_code_session.py,11,comment,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+src/test/code-projects/survey_code_session.py,11,comment,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ext/code-projects/{project-slug}/*.jsonl
 src/test/diagnostics/README.md,9,doc,src/test/diagnostics/naming.upper_camel_case.py,Y,| [`naming.upper_camel_case.py`](./naming.upper_camel_case.py) | All definition names are UpperCamelCase | [`naming.uppe
 src/test/diagnostics/README.md,10,doc,src/test/diagnostics/naming.title_matches_key.py,Y,| [`naming.title_matches_key.py`](./naming.title_matches_key.py) | Every definition's `title` matches its key | [`naming
 src/test/diagnostics/README.md,11,doc,src/test/diagnostics/naming.root_schema_title_matches_filename.py,Y,| [`naming.root_schema_title_matches_filename.py`](./naming.root_schema_title_matches_filename.py) | Root schema `title`
@@ -571,7 +574,7 @@ src/test/repairs/structure.required_subset_of_properties.py,4,comment,src/test/r
 src/test/xref.py,9,comment,src/test/xref.sh,Y,src/test/xref.sh [--out <path>]
 src/test/xref.py,26,comment,rsc/schema/chat-exports/conversations/v5.json,Y,fragment (e.g. rsc/schema/chat-exports/conversations/v5.json#/definitions/TextBlock).
 src/test/xref.py,40,comment,src/test/xref.sh,Y,"src/test/xref.sh && awk -F, '$5==""N""' src/test/xref.csv"
-src/test/xref.py,53,path_str,rsc/artifacts,Y,"SKIP_DIRS  = {'.git', 'gen', 'tmp', 'rsc/artifacts', '__pycache__', '.claude'}"
+src/test/xref.py,53,path_str,rsc/artifacts,Y,"SKIP_DIRS  = {'ext', 'gen', 'tmp', 'rsc/artifacts', '__pycache__'}"
 src/test/xref.py,55,path_str,src/test/pre_commit.log,Y,"SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}"
 src/test/xref.py,55,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}"
 src/test/xref.py,92,path_str,rsc/artifacts,Y,"if any(str(rel).startswith(d) for d in ('rsc/artifacts',)):"

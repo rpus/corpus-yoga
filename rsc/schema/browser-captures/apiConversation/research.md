@@ -43,12 +43,12 @@ Two scripts handle capture:
 ### `safari_capture.sh` — markdown capture
 
 ```bash
-src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>
+src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>
 ```
 
 Iterates all conversation UUIDs in a chat-export batch, navigates Safari to each
 conversation on claude.ai, and injects `browser-chat-capture.js` to render and
-download a markdown transcript. Output: `../browser-captures/{batch}/{uuid}/{title}.md`
+download a markdown transcript. Output: `ext/browser-captures/{batch}/{uuid}/{title}.md`
 and `{title}.log`.
 
 Requires: Safari open and logged into claude.ai, `caffeinate` keeps the session alive.
@@ -56,7 +56,7 @@ Requires: Safari open and logged into claude.ai, `caffeinate` keeps the session 
 ### `safari_fetch_api_json.sh` — API JSON capture
 
 ```bash
-src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
+src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>
 ```
 
 For each UUID directory that has a markdown capture but no JSON file, navigates Safari
@@ -75,7 +75,7 @@ renamed to `{title}.json`.
 ## Output structure
 
 ```text
-../browser-captures/
+ext/browser-captures/
 └── {export-batch}/                          ← same name as the chat-export batch
     └── {conversation-uuid}/
         ├── {title}.md                       ← markdown transcript

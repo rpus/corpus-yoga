@@ -1,16 +1,8 @@
 {
 	"folders": [
 		{
+			"name": "claude-export-yoga",
 			"path": "."
-		},
-		{
-			"path": "../browser-captures"
-		},
-		{
-			"path": "../chat-exports"
-		},
-		{
-			"path": "../code-projects"
 		}
 	],
 	"settings": {

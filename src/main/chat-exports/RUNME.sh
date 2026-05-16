@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   ./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
-#   ./src/main/chat-exports/RUNME.sh --chat-export ../chat-exports/data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000
-#   ./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports --pay-for-inference
+#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
+#   ./src/main/chat-exports/RUNME.sh --chat-export ext/chat-exports/data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000
+#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports --pay-for-inference
 
 set -euo pipefail
 

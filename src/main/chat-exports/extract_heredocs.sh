@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   src/main/chat-exports/extract_heredocs.sh --chat-export ../chat-exports/data-2026-04-07-07-52-05-batch-0000
-#   src/main/chat-exports/extract_heredocs.sh --chat-exports ../chat-exports
+#   src/main/chat-exports/extract_heredocs.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
+#   src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports
 
 set -euo pipefail
 

@@ -21,10 +21,10 @@ This repo wrangles Claude data exports.
     - Set up a Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-captures/export.applescript"`
     - With front tab on <https://claude.ai/recents>: exports all conversations
     - With front tab on `https://claude.ai/chat/{uuid}`: exports that conversation
-  - **Pipeline mode** (scope-constrained to a bulk export, outputs to `../browser-captures/<export-name>/<uuid>/`):
-    - `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
+  - **Pipeline mode** (scope-constrained to a bulk export, outputs to `ext/browser-captures/<export-name>/<uuid>/`):
+    - `./src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>`
 - Fetch live API JSON for existing captures without it (for apiConversation schema validation):
-  - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>`
+  - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
   - Saves `{title}.json` alongside each capture
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/search_proxy.sh --daemon` then open <http://localhost:8182>
@@ -32,10 +32,10 @@ This repo wrangles Claude data exports.
 
 ```bash
 # git clean -fdX; git clean -fdxn
-./src/main/browser-captures/RUNME.sh --browser-captures ../browser-captures
-./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports \
+./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
+./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports \
   --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
-./src/main/code-projects/RUNME.sh --code-projects ../code-projects
+./src/main/code-projects/RUNME.sh --code-projects ext/code-projects
 ./src/main/model/gen_model.sh
 # ./src/test/pre_commit.sh
 ```
@@ -43,15 +43,15 @@ This repo wrangles Claude data exports.
 ## What that does
 
 - Validate the data
-  - `./src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports` (or `validate.sh --chat-export <one-export>`)
+  - `./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports` (or `validate.sh --chat-export <one-export>`)
 - Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
 - Extract files and heredocs
-  - `./src/main/chat-exports/extract_files.sh --chat-exports ../chat-exports`
-  - `./src/main/chat-exports/extract_heredocs.sh --chat-exports ../chat-exports`
+  - `./src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports`
+  - `./src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports`
 - Present the data
-  - `./src/main/chat-exports/infer_tables.sh --chat-exports ../chat-exports`
+  - `./src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports`
   - NB the above call requires an Anthropic API key and costs money.
-  - `./src/main/chat-exports/present.sh --chat-exports ../chat-exports`
+  - `./src/main/chat-exports/present.sh --chat-exports ext/chat-exports`
 
 ---
 
@@ -63,12 +63,12 @@ When any pipeline schema changes, regenerate the model candidates and review `rs
 ./src/main/model/gen_model.sh
 ```
 
-When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, follow the validation loop in `rsc/schema/code-projects/session/workflow.md`. In brief:
+When a new Claude Code session appears in `ext/code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, follow the validation loop in `rsc/schema/code-projects/session/workflow.md`. In brief:
 
 ```bash
 ./src/main/code-projects/RUNME.sh
 # if a record fails:
-src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.jsonl
+src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{session}.jsonl
 ./src/test/pre_commit.sh
 ```
 

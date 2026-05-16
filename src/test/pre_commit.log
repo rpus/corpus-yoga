@@ -667,7 +667,7 @@ pre_commit.py: 646/646
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 13 missing-file, 0 bad-pointer, 9 unreferenced
+  ✓ xref: 14 missing-file, 0 bad-pointer, 9 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
   ✓ score: 646/646; expected: 646/646
