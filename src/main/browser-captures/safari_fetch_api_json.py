@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Fetch the live API JSON for each conversation and save it alongside the
 safari-capture outputs for schema validation.

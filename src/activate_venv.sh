@@ -7,7 +7,7 @@
 
 if [[ ! -f "$VENV/bin/activate" ]]; then
     echo "error: venv not found at $VENV" >&2
-    echo "       python3 -m venv \$VENV && pip install -r requirements.txt" >&2
+    echo "       python3 -m venv \$VENV && pip install -r src/requirements.txt" >&2
     exit 1
 fi
 

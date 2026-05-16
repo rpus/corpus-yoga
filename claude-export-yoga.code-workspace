@@ -13,5 +13,9 @@
 			"path": "../code-projects"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"python.analysis.include": ["src"],
+		"python.analysis.typeCheckingMode": "standard",
+		"python.defaultInterpreterPath": "~/venvs/general/bin/python"
+	}
 }

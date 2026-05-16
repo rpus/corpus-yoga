@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
 Output: gen/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring rsc/schema/{pipeline}/{schema}/).

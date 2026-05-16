@@ -18,7 +18,8 @@
 | `claude-export-yoga` / `46d179e3` | ✓ | ✓ | ✓ | 1,610,584 |
 | `claude-export-yoga` / `a1fe23f6` | ✓ | ✓ | ✓ | 801,392 |
 | `claude-export-yoga` / `32bd7448` | ✗ | ✗ | ✓ | 12,065,984 |
-| `claude-export-yoga` / `e87e0735` | ✓ | ✓ | ✓ | 1,219,496 |
+| `claude-export-yoga` / `e87e0735` | ✓ | ✓ | ✓ | 5,265,747 |
+| `claude-export-yoga` / `68ae3555` | ✓ | ✓ | ✓ | 563,655 |
 
 Session: bare project name from the `~/.claude/projects/` slug / first 8 chars of session UUID. Bytes: size of the `.jsonl` file at validation time.
 

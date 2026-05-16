@@ -12,4 +12,4 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "$SCRIPT_DIR/../../activate_venv.sh"
 
-caffeinate -dim python3 "$SCRIPT_DIR/safari_fetch_api_json.py" "$@"
+caffeinate -dim python "$SCRIPT_DIR/safari_fetch_api_json.py" "$@"

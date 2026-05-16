@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-# Reads JSON from a file (argv[1]) or stdin, writes aligned table JSON to stdout.
+"""
+Reads JSON from a file (argv[1]) or stdin, writes aligned table JSON to stdout.
+"""
 import json
 import sys
 

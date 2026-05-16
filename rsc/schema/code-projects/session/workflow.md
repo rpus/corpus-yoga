@@ -83,7 +83,7 @@ specific session data.
 If sessions fail validation (step 1), use the debug script to identify the record-level cause:
 
 ```bash
-python src/test/code-projects/debug_code_session_record.py \
+src/run_python_script.sh src/test/code-projects/debug_code_session_record.py \
   ../code-projects/{project-slug}/{session}.jsonl
 ```
 
@@ -258,7 +258,7 @@ When encountering sessions from a new project or Claude Code version, run the su
 script first to understand the data before attempting validation:
 
 ```bash
-python src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+src/run_python_script.sh src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
 ```
 
 This reports all record types, field keys, discriminator values, content block types,

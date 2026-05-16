@@ -4,8 +4,8 @@ This repo wrangles Claude data exports.
 
 ## Prerequisites
 
-- `python` (e.g. `brew install python`)
-- `python3 -m venv ~/venvs/general && pip install -r requirements.txt`
+- `python3` (e.g. `brew install python`)
+- `python3 -m venv ~/venvs/general && pip install -r src/requirements.txt`
 
 ## How to use
 
@@ -68,8 +68,8 @@ When a new Claude Code session appears in `../code-projects/` or `rsc/schema/cod
 ```bash
 ./src/main/code-projects/RUNME.sh
 # if a record fails:
-python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.jsonl
-python src/test/pre_commit.py
+src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.jsonl
+./src/test/pre_commit.sh
 ```
 
 ---

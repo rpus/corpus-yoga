@@ -14,4 +14,4 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../../activate_venv.sh"
 
 # caffeinate -dim: prevent display sleep (-d), idle sleep (-i), and disk sleep (-m)
-caffeinate -dim python3 "$SCRIPT_DIR/safari_capture.py" "$@"
+caffeinate -dim python "$SCRIPT_DIR/safari_capture.py" "$@"

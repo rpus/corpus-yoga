@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Run claude-chat-exporter.js against every conversation in a bulk export,
 sequentially, via Safari automation.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Local markdown viewer for Claude conversation browser captures.
 

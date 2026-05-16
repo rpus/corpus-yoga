@@ -58,6 +58,7 @@ CONTRIBUTING.md,52,doc,src/test/xref.csv,Y,- Run `src/test/xref.sh` after struct
 CONTRIBUTING.md,52,doc,src/test/xref.sh,Y,- Run `src/test/xref.sh` after structural changes to catch stale references. Expected counts are tracked in [`src/test/x
 CONTRIBUTING.md,54,doc,rsc/artifacts,Y,- `rsc/artifacts/downloaded/` is ground truth — never edit files in place. It is already excluded from `xref.py` scannin
 CONTRIBUTING.md,60,doc,src/activate_venv.sh,Y,`src/activate_venv.sh` is the single canonical activator. Path: `~/venvs/general`
+CONTRIBUTING.md,62,doc,src/requirements.txt,Y,manually. Dependencies: `src/requirements.txt`.
 CONTRIBUTING.md,69,doc,rsc/schema/chat-exports/conversations,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v7), `rsc/schema/code-projects/session/` (currently v1–v3),"
 CONTRIBUTING.md,69,doc,rsc/schema/code-projects/session,Y,"`rsc/schema/chat-exports/conversations/` (currently v1–v7), `rsc/schema/code-projects/session/` (currently v1–v3),"
 CONTRIBUTING.md,70,doc,rsc/schema/browser-captures/apiConversation,Y,`rsc/schema/browser-captures/apiConversation/` (currently v1).
@@ -91,6 +92,7 @@ CONTRIBUTING.md,185,doc,src/run_python_script.sh,Y,7. **Populate the CHANGELOG**
 CONTRIBUTING.md,185,doc,src/test/gen_changelog_matrix.py,Y,7. **Populate the CHANGELOG**: `src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {new-pipeline} --wr
 CONTRIBUTING.md,187,doc,src/test/pre_commit.sh,Y,8. **Run `src/test/pre_commit.sh`** — commit the updated `pre_commit.log`.
 CONTRIBUTING.md,189,doc,src/test/xref.sh,Y,9. **Run `src/test/xref.sh`** — commit the updated `xref.csv`.
+README.md,8,doc,src/requirements.txt,Y,- `python3 -m venv ~/venvs/general && pip install -r src/requirements.txt`
 README.md,21,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
 README.md,25,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ../chat-exports/data-<...>`
 README.md,27,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>`
@@ -113,8 +115,9 @@ README.md,63,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
 README.md,66,doc,rsc/schema/code-projects/session/v1.json,Y,"When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fol"
 README.md,66,doc,rsc/schema/code-projects/session/workflow.md,Y,"When a new Claude Code session appears in `../code-projects/` or `rsc/schema/code-projects/session/v1.json` changes, fol"
 README.md,69,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
-README.md,71,doc,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.jsonl
-README.md,72,doc,src/test/pre_commit.py,Y,python src/test/pre_commit.py
+README.md,71,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.j
+README.md,71,doc,src/test/code-projects/debug_code_session_record.py,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{session}.j
+README.md,72,doc,src/test/pre_commit.sh,Y,./src/test/pre_commit.sh
 README.md,79,doc,rsc/snippets.md,Y,- Process `conversations.json` using the redaction snippet in `rsc/snippets.md`.
 README.md,81,doc,rsc/snippets.md,Y,- Process `conversations.json` using the summarisation snippet in `rsc/snippets.md`.
 README.md,124,doc,rsc/schema/model.json,Y,│   │   │   ├── gen_model.sh                    # regenerate rsc/schema/model.json
@@ -192,7 +195,8 @@ rsc/schema/chat-exports/conversations/principles.md,101,doc,src/main/chat-export
 rsc/schema/chat-exports/conversations/principles.md,104,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh --chat-exports ../chat-exports
 rsc/schema/chat-exports/conversations/principles.md,130,doc,src/test/diagnostics/empirical.oneOf_branches_evidenced.py,Y,Diagnostic: src/test/diagnostics/empirical.oneOf_branches_evidenced.py
 rsc/schema/chat-exports/conversations/principles.md,181,doc,src/test/diagnostics/empirical.nullable_fields_surveyed.py,Y,Diagnostic: src/test/diagnostics/empirical.nullable_fields_surveyed.py
-rsc/schema/chat-exports/conversations/principles.md,269,doc,src/main/model/gen_model_candidate.py,Y,"Run as: `python src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from the repo root."
+rsc/schema/chat-exports/conversations/principles.md,269,doc,src/run_python_script.sh,Y,"Run as: `src/run_python_script.sh src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from t"
+rsc/schema/chat-exports/conversations/principles.md,269,doc,src/main/model/gen_model_candidate.py,Y,"Run as: `src/run_python_script.sh src/main/model/gen_model_candidate.py conversations` (stem only, no extension), from t"
 rsc/schema/chat-exports/conversations/principles.md,271,doc,src/main/model/gen_model_candidate.py,Y,See `src/main/model/gen_model_candidate.py` for the full implementation.
 rsc/schema/chat-exports/conversations/principles.md,444,doc,rsc/schema/chat-exports/conversations/workflow.md,Y,See `rsc/schema/chat-exports/conversations/workflow.md` for the full loop. Summary:
 rsc/schema/chat-exports/conversations/principles.md,447,doc,src/test/pre_commit.py,Y,2. Run `src/test/pre_commit.py` to check all diagnostics.
@@ -236,7 +240,7 @@ rsc/schema/chat-exports/conversations/workflow.md,346,doc,rsc/schema/workflow.md
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
-rsc/schema/code-projects/session/CHANGELOG.md,87,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,88,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/code-projects/session/README.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/`
 rsc/schema/code-projects/session/README.md,50,doc,rsc/schema/model_join.csv,Y,## `rsc/schema/model_join.csv`
 rsc/schema/code-projects/session/README.md,55,doc,src/test/pre_commit.py,Y,checked by `src/test/pre_commit.py`.
@@ -261,7 +265,8 @@ rsc/schema/code-projects/session/session-schema.md,1,doc,rsc/schema/code-project
 rsc/schema/code-projects/session/session-schema.md,11,doc,rsc/schema/code-projects/session/v1.json,Y,`rsc/schema/code-projects/session/v1.json` validates a **JSON array** produced by
 rsc/schema/code-projects/session/session-schema.md,17,doc,rsc/schema/code-projects/session/README.md,Y,See `rsc/schema/code-projects/session/README.md` for the side-by-side comparison.
 rsc/schema/code-projects/session/session-schema.md,109,doc,src/test/diagnostics,Y,The full diagnostic suite from `src/test/diagnostics/` applies to `v1.json` directly —
-rsc/schema/code-projects/session/session-schema.md,115,doc,src/test/pre_commit.py,Y,"python src/test/pre_commit.py   # section ""check_versioned_schema_diagnostics"""
+rsc/schema/code-projects/session/session-schema.md,115,doc,src/run_python_script.sh,Y,"src/run_python_script.sh src/test/pre_commit.py   # section ""check_versioned_schema_diagnostics"""
+rsc/schema/code-projects/session/session-schema.md,115,doc,src/test/pre_commit.py,Y,"src/run_python_script.sh src/test/pre_commit.py   # section ""check_versioned_schema_diagnostics"""
 rsc/schema/code-projects/session/session-schema.md,120,doc,rsc/schema/model_join.csv,Y,## `rsc/schema/model_join.csv`
 rsc/schema/code-projects/session/workflow.md,2,doc,rsc/schema/code-projects/session/v1.json,Y,schema_file: rsc/schema/code-projects/session/v1.json
 rsc/schema/code-projects/session/workflow.md,3,doc,rsc/schema/code-projects/session/principles.md,Y,principles_file: rsc/schema/code-projects/session/principles.md
@@ -275,7 +280,8 @@ rsc/schema/code-projects/session/workflow.md,48,doc,src/main/code-projects/RUNME
 rsc/schema/code-projects/session/workflow.md,59,doc,src/main/code-projects/RUNME.sh,Y,### Step 1 · Run src/main/code-projects/RUNME.sh
 rsc/schema/code-projects/session/workflow.md,62,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh
 rsc/schema/code-projects/session/workflow.md,75,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/code-projects/session/workflow.md,86,doc,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py \
+rsc/schema/code-projects/session/workflow.md,86,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py \
+rsc/schema/code-projects/session/workflow.md,86,doc,src/test/code-projects/debug_code_session_record.py,Y,src/run_python_script.sh src/test/code-projects/debug_code_session_record.py \
 rsc/schema/code-projects/session/workflow.md,114,doc,src/main/code-projects/RUNME.sh,Y,Fix one root cause at a time. Re-run `src/main/code-projects/RUNME.sh` after each fix to confirm
 rsc/schema/code-projects/session/workflow.md,131,doc,rsc/schema/model_join.csv,Y,Review `rsc/schema/model_join.csv` for any new fields added in step 3.
 rsc/schema/code-projects/session/workflow.md,139,doc,src/test/pre_commit.sh,Y,Run `src/test/pre_commit.sh` to verify all pointers in the updated table.
@@ -289,7 +295,8 @@ rsc/schema/code-projects/session/workflow.md,235,doc,src/run_python_script.sh,Y,
 rsc/schema/code-projects/session/workflow.md,235,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline code-projects --write
 rsc/schema/code-projects/session/workflow.md,244,doc,src/main/code-projects/RUNME.sh,Y,"| **Updated** | Continuously, by Claude Code | Only when `src/main/code-projects/RUNME.sh` is run |"
 rsc/schema/code-projects/session/workflow.md,249,doc,src/main/code-projects/RUNME.sh,Y,`src/main/code-projects/RUNME.sh` mid-session will validate a longer transcript than the previous
-rsc/schema/code-projects/session/workflow.md,261,doc,src/test/code-projects/survey_code_session.py,Y,python src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+rsc/schema/code-projects/session/workflow.md,261,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
+rsc/schema/code-projects/session/workflow.md,261,doc,src/test/code-projects/survey_code_session.py,Y,src/run_python_script.sh src/test/code-projects/survey_code_session.py ../code-projects/{project-slug}/*.jsonl
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
@@ -339,7 +346,8 @@ rsc/schema/workflow.md,56,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_
 rsc/schema/workflow.md,59,doc,rsc/schema/model_join.csv,Y,7. Review `rsc/schema/model_join.csv` for new or changed fields.
 rsc/schema/workflow.md,60,doc,src/test/pre_commit.sh,Y,8. Run `src/test/pre_commit.sh` — commit the updated `pre_commit.log`.
 rsc/schema/workflow.md,61,doc,src/test/xref.sh,Y,9. Run `src/test/xref.sh` — commit the updated `xref.csv`.
-rsc/snippets.md,10,doc,src/main/code-projects/jsonl_to_json.py,Y,python src/main/code-projects/jsonl_to_json.py session.jsonl session.json
+rsc/snippets.md,10,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-projects/jsonl_to_json.py session.jsonl session.json
+rsc/snippets.md,10,doc,src/main/code-projects/jsonl_to_json.py,Y,src/run_python_script.sh src/main/code-projects/jsonl_to_json.py session.jsonl session.json
 rsc/snippets.md,22,doc,gen/redacted/conversations.json,N,"jq 'walk(if type == ""object"" and has(""text"") and .text != """" and (.text | type) == ""string"" then .text = ""[redacted]"" el"
 rsc/snippets.md,28,doc,gen/summarised/conversations.json,N,"jq '[sort_by(.created_at) | to_entries[] | {key: (.key | tostring), value: .value.summary}] | from_entries' conversation"
 rsc/snippets.md,34,doc,rsc/schema/chat-exports/conversations/v4.json,Y,jq '[.definitions | to_entries[] | select(.value.type == null) | .key]' ./schema/chat-exports/conversations/v4.json
@@ -359,10 +367,10 @@ src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,
 src/main/browser-captures/RUNME.sh,14,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$batch_dir"""
 src/main/browser-captures/safari_capture.sh,6,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>
 src/main/browser-captures/safari_capture.sh,7,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports
-src/main/browser-captures/safari_capture.sh,17,path_str,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim python3 ""$SCRIPT_DIR/safari_capture.py"" ""$@"""
+src/main/browser-captures/safari_capture.sh,17,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_capture.py"" ""$@"""
 src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 src/main/browser-captures/safari_fetch_api_json.sh,7,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures
-src/main/browser-captures/safari_fetch_api_json.sh,15,path_str,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim python3 ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"""
+src/main/browser-captures/safari_fetch_api_json.sh,15,call,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"""
 src/main/browser-captures/validate.sh,5,comment,src/main/browser-captures/validate.sh,Y,#   src/main/browser-captures/validate.sh --browser-capture <path/to/batch-directory>
 src/main/browser-captures/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
 src/main/browser-captures/validate.sh,12,path_str,gen/browser-captures,Y,"OUTPUT_DIR=""$REPO_DIR/gen/browser-captures"""
@@ -462,23 +470,23 @@ src/main/code-projects/validate.sh,16,call,src/main/validate_versions.sh,Y,"sour
 src/main/code-projects/validate.sh,25,call,src/main/code-projects/jsonl_to_json.sh,Y,"""$JSONL_TO_JSON"" ""$jsonl"" ""$json_out"""
 src/main/code-projects/validate.sh,38,path_str,rsc/schema/code-projects/session,Y,"validate_versions ""$json_out"" ""$SCHEMA_DIR"" ""$out_dir/validation/session"" ""$session"""
 src/main/code-projects/validate.sh,82,call,src/activate_venv.sh,Y,"source ""$REPO_DIR/src/activate_venv.sh"""
-src/main/model/gen_model.py,2,comment,rsc/schema/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
-src/main/model/gen_model.py,4,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
-src/main/model/gen_model.py,7,comment,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
+src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
+src/main/model/gen_model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
+src/main/model/gen_model.py,8,comment,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
 src/main/model/gen_model.sh,2,comment,rsc/schema/model.json,Y,# Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
 src/main/model/gen_model.sh,3,comment,src/main/model/gen_model.sh,Y,# Usage: src/main/model/gen_model.sh
 src/main/model/gen_model.sh,6,call,src/main/model/gen_model.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/gen_model.py"""
-src/main/model/gen_model_candidate.py,6,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
-src/main/model/gen_model_candidate.py,9,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
-src/main/model/gen_model_candidate.py,12,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
-src/main/model/gen_model_candidate.py,12,comment,rsc/schema/chat-exports/conversations/v6.json,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
-src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
-src/main/model/gen_model_candidate.py,13,comment,rsc/schema/chat-exports/memories/v1.json,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
-src/main/model/gen_model_candidate.py,14,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
-src/main/model/gen_model_candidate.py,14,comment,rsc/schema/code-projects/session/v1.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
-src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
-src/main/model/gen_model_candidate.py,15,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
-src/main/model/gen_model_candidate.py,18,comment,src/main/model/gen_model.sh,Y,Normally invoked via src/main/model/gen_model.sh which handles all schemas automatically.
+src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
+src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
+src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
+src/main/model/gen_model_candidate.py,13,comment,rsc/schema/chat-exports/conversations/v6.json,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
+src/main/model/gen_model_candidate.py,14,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
+src/main/model/gen_model_candidate.py,14,comment,rsc/schema/chat-exports/memories/v1.json,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
+src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
+src/main/model/gen_model_candidate.py,15,comment,rsc/schema/code-projects/session/v1.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-projects/session/v1.json
+src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+src/main/model/gen_model_candidate.py,19,comment,src/main/model/gen_model.sh,Y,Normally invoked via src/main/model/gen_model.sh which handles all schemas automatically.
 src/main/model/search_proxy.py,6,comment,src/main/model/search_proxy.sh,Y,src/main/model/search_proxy.sh [--port 8182]
 src/main/model/search_proxy.py,7,comment,src/main/model/search_proxy.sh,Y,src/main/model/search_proxy.sh --daemon [--port 8182]
 src/main/model/search_proxy.py,8,comment,src/main/model/search_proxy.sh,Y,src/main/model/search_proxy.sh stop
@@ -489,8 +497,8 @@ src/main/model/search_proxy.sh,12,path_str,gen/search_proxy.log,Y,"LOG_FILE=""$R
 src/main/model/search_proxy.sh,36,call,src/main/model/search_proxy.py,Y,"nohup ""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/search_proxy.py"" ${ARGS[@]+""${ARGS[@]}""} \"
 src/main/model/search_proxy.sh,42,call,src/main/model/search_proxy.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/search_proxy.py"" ${ARGS[@]+""${ARGS[@]}""}"
 src/main/schema_recommendations.py,7,comment,src/main/schema_recommendations.py,Y,python src/main/schema_recommendations.py <instance-file> <schema-file>
-src/main/validate.py,7,comment,src/main/validate.py,Y,python src/main/validate.py <data.json> <schema.json>
-src/main/validate.py,8,comment,src/main/validate.py,Y,python src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
+src/main/validate.py,4,comment,src/main/validate.py,Y,python src/main/validate.py <data.json> <schema.json>
+src/main/validate.py,5,comment,src/main/validate.py,Y,python src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/run_python_script.sh,3,comment,src/run_python_script.sh,Y,# Usage: src/run_python_script.sh <script.py> [args...]
 src/run_python_script.sh,8,call,src/activate_venv.sh,Y,"source ""$SCRIPT_DIR/activate_venv.sh"""
 src/test/code-projects/debug_code_session_record.py,4,comment,rsc/schema/code-projects/session/v1.json,Y,validation against rsc/schema/code-projects/session/v1.json.
@@ -575,8 +583,6 @@ src/test/xref.sh,10,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,self_only,RUNME.sh,Y,
 ,,,TODO.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
-,,,pyrightconfig.json,Y,
-,,,requirements.txt,Y,
 ,,,rsc/schema/browser-captures/apiConversation/README.md,Y,
 ,,,rsc/schema/chat-exports/conversations/README.md,Y,
 ,,,src/test/diagnostics/README.md,Y,

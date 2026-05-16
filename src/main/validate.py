@@ -1,14 +1,11 @@
 #!/usr/bin/env python
-# brew install python
-# python3 -m venv ~/venvs/general && pip install -r requirements.txt
-
-'''
+"""
 Usage:
   python src/main/validate.py <data.json> <schema.json>
   python src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 
 Fragment identifiers are JSON Pointers (RFC 6901); % encoding is supported.
-'''
+"""
 
 import os
 import sys

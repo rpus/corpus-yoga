@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 gen_model_candidate.py — Generate a per-schema definition catalogue.
 

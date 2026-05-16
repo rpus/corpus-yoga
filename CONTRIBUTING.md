@@ -59,7 +59,7 @@ src/main/code-projects/RUNME.sh --code-projects ../code-projects
 
 `src/activate_venv.sh` is the single canonical activator. Path: `~/venvs/general`
 (overridable via `$VENV`). Sets `trap deactivate EXIT` — callers never deactivate
-manually. Dependencies: `requirements.txt`.
+manually. Dependencies: `src/requirements.txt`.
 
 ---
 
