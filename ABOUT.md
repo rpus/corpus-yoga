@@ -83,7 +83,7 @@ Per-conversation API JSON files captured from the live claude.ai API via Safari 
 Files Claude creates during conversations are recovered via two complementary paths:
 
 ```text
-rsc/artifacts/
+lib/artifacts/
 ├── downloaded/          ← manually curated; ground truth
 │   └── <chat>_<slug>/
 │       └── <path>
@@ -91,7 +91,7 @@ rsc/artifacts/
 └── extracted_heredocs/  ← auto-recovered via bash heredocs
 ```
 
-`rsc/artifacts/downloaded/` is the source of truth. `audit_files.sh` cross-references all sources and reports gaps. `check_harvested.py` (called from `present.sh`) reports tool-result references that were not recovered by either extraction path.
+`lib/artifacts/downloaded/` is the source of truth. `audit_files.sh` cross-references all sources and reports gaps. `check_harvested.py` (called from `present.sh`) reports tool-result references that were not recovered by either extraction path.
 
 ---
 

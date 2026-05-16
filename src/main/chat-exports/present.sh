@@ -13,7 +13,7 @@ WORD_FREQ_SCRIPT="$SCRIPT_DIR/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
-DOWNLOADED_DIR="$REPO_DIR/rsc/artifacts/downloaded"
+DOWNLOADED_DIR="$REPO_DIR/lib/artifacts/downloaded"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ jq_spans() { jq '
   }
 ' "$@"; }
 
-# Tooltip: files sourced from rsc/artifacts/downloaded/ — pre-curated and
+# Tooltip: files sourced from lib/artifacts/downloaded/ — pre-curated and
 # path-consistent. local_resource paths (what Claude reported) are unreliable.
 files_from_downloaded() {
   python "$FILES_FROM_DOWNLOADED_SCRIPT" "$DOWNLOADED_DIR"
@@ -191,7 +191,7 @@ present_export() {
     printf '%s\n' "$json" > "$out_dir/data-spans.json"
     echo "  ✓ data-spans"
 
-    # data-files (tooltip): sourced from rsc/artifacts/downloaded/
+    # data-files (tooltip): sourced from lib/artifacts/downloaded/
     json="$(files_from_downloaded | format_table)"
     inject "$out" "data-files" "$json"
     printf '%s\n' "$json" > "$out_dir/data-files.json"

@@ -50,7 +50,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 
 # Directories/files to skip entirely
-SKIP_DIRS  = {'ext', 'gen', 'tmp', 'rsc/artifacts', '__pycache__'}
+SKIP_DIRS  = {'ext', 'gen', 'lib', 'tmp', '__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
 SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}
 
@@ -88,8 +88,6 @@ def repo_files() -> list[Path]:
             continue
         parts = rel.parts
         if any(part in SKIP_DIRS or part.startswith('.') for part in parts):
-            continue
-        if any(str(rel).startswith(d) for d in ('rsc/artifacts',)):
             continue
         result.append(f)
     return sorted(result)

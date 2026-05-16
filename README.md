@@ -153,8 +153,9 @@ claude-export-yoga/
 │   │   ├── model_join.csv                      # four-way field map: conversations ↔ session ↔ apiConversation ↔ MCP
 │   │   ├── documenter.json                     # VS Code tooltip wrapper for data files
 │   │   └── model.json                          # cross-pipeline type reference
-│   ├── artifacts/downloaded/                   # ground-truth recovered files (never edit in place)
 │   └── snippets.md                             # jq recipes: redaction, summarisation, inspection
+│
+├── lib/artifacts/downloaded/                   # ground-truth recovered files (never edit in place)
 │
 └── gen/                                        # all generated output (gitignored)
     ├── browser-captures/{batch}/{uuid}/        # validation logs

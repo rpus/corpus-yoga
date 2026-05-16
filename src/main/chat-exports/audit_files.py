@@ -9,7 +9,7 @@ sources:
     source   description
     ───────  ─────────────────────────────────────────────────────────────────
     tooltip  Paths from data-files.json, which is derived from
-             rsc/artifacts/downloaded/ by files_from_downloaded.py.
+             lib/artifacts/downloaded/ by files_from_downloaded.py.
              This is what the index.html tooltip shows.
     ef       Files written to gen/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
              (from create_file tool calls).
@@ -17,7 +17,7 @@ sources:
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
     eh_wrk   Files written to gen/<export>/extracted_heredocs/<chat>/working/
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
-    dl       Files in rsc/artifacts/downloaded/<chat>/ (manually downloaded
+    dl       Files in lib/artifacts/downloaded/<chat>/ (manually downloaded
              from the claude.ai UI).
 
 Columns
@@ -28,7 +28,7 @@ Columns
     path          Path as it appears in this source (relative to the chat/bucket
                   root; no container prefix).
     in_dl         For ef/eh_out/eh_wrk rows: Y if a counterpart exists in
-                  rsc/artifacts/downloaded at the expected path; N otherwise.
+                  lib/artifacts/downloaded at the expected path; N otherwise.
                   Empty for tooltip and dl rows.
     dl_compare    For ef/eh_out/eh_wrk rows: comparison result against the
                   downloaded counterpart —
@@ -38,16 +38,16 @@ Columns
                     not_present   no counterpart in downloaded
                   Empty for tooltip and dl rows.
     in_rsc        For ef/eh_out/eh_wrk rows: Y if this file was copied to
-                  rsc/artifacts/extracted_files/ or rsc/artifacts/extracted_heredocs/
+                  lib/artifacts/extracted_files/ or lib/artifacts/extracted_heredocs/
                   (i.e. it had no downloaded counterpart and was preserved there);
                   N if it was not copied (counterpart existed in downloaded).
                   Empty for tooltip and dl rows.
 
 Downloaded path conventions
 ────────────────────────────
-    ef      rsc/artifacts/downloaded/<chat_slug>/<path>          (no bucket)
-    eh_out  rsc/artifacts/downloaded/<chat_slug>/<path>          (no bucket)
-    eh_wrk  rsc/artifacts/downloaded/<chat_slug>/working/<path>  (bucket preserved)
+    ef      lib/artifacts/downloaded/<chat_slug>/<path>          (no bucket)
+    eh_out  lib/artifacts/downloaded/<chat_slug>/<path>          (no bucket)
+    eh_wrk  lib/artifacts/downloaded/<chat_slug>/working/<path>  (bucket preserved)
 
 Usage
 ─────
@@ -179,7 +179,7 @@ def run_one(name: str) -> None:
                              'Y' if dl_p.exists() else 'N', cmp, in_rsc])
 
         # ── downloaded ────────────────────────────────────────────────────────
-        # Everything in rsc/artifacts/downloaded/<chat_slug>/.
+        # Everything in lib/artifacts/downloaded/<chat_slug>/.
         dl_dir = DL_ROOT / cs
         if dl_dir.exists():
             for f in sorted(dl_dir.rglob('*')):
