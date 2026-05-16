@@ -11,7 +11,16 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/../../activate_venv.sh"
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  grep "^# " "$0" | sed "s/^# //"
+  exit 0
+fi
 
-# caffeinate -dim: prevent display sleep (-d), idle sleep (-i), and disk sleep (-m)
-caffeinate -dim python "$SCRIPT_DIR/safari_capture.py" "$@"
+main() {
+  # shellcheck source=/dev/null
+  source "$SCRIPT_DIR/../../activate_venv.sh"
+  # caffeinate -dim: prevent display sleep (-d), idle sleep (-i), and disk sleep (-m)
+  caffeinate -dim python "$SCRIPT_DIR/safari_capture.py" "$@"
+}
+
+main "$@"

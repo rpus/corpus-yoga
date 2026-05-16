@@ -14,9 +14,12 @@ if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   exit 0
 fi
 
-if [[ $# -ne 2 ]]; then
-  echo "Usage: $0 <input.jsonl> <output.json>"
-  exit 1
-fi
+main() {
+  if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <input.jsonl> <output.json>"
+    exit 1
+  fi
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/jsonl_to_json.py" "$1" "$2"
+}
 
-"$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/jsonl_to_json.py" "$1" "$2"
+main "$@"

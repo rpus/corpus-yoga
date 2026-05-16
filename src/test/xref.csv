@@ -367,10 +367,10 @@ src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,
 src/main/browser-captures/RUNME.sh,14,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$batch_dir"""
 src/main/browser-captures/safari_capture.sh,6,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-export  ../chat-exports/data-<...>
 src/main/browser-captures/safari_capture.sh,7,comment,src/main/browser-captures/safari_capture.sh,Y,#   ./src/main/browser-captures/safari_capture.sh --chat-exports ../chat-exports
-src/main/browser-captures/safari_capture.sh,17,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_capture.py"" ""$@"""
+src/main/browser-captures/safari_capture.sh,23,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_capture.py"" ""$@"""
 src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ../browser-captures/data-<...>
 src/main/browser-captures/safari_fetch_api_json.sh,7,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   ./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ../browser-captures
-src/main/browser-captures/safari_fetch_api_json.sh,15,call,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"""
+src/main/browser-captures/safari_fetch_api_json.sh,22,call,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim python ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"""
 src/main/browser-captures/validate.sh,5,comment,src/main/browser-captures/validate.sh,Y,#   src/main/browser-captures/validate.sh --browser-capture <path/to/batch-directory>
 src/main/browser-captures/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
 src/main/browser-captures/validate.sh,12,path_str,gen/browser-captures,Y,"OUTPUT_DIR=""$REPO_DIR/gen/browser-captures"""
@@ -474,8 +474,8 @@ src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,gen_model.py — G
 src/main/model/gen_model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
 src/main/model/gen_model.py,8,comment,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
 src/main/model/gen_model.sh,2,comment,rsc/schema/model.json,Y,# Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
-src/main/model/gen_model.sh,3,comment,src/main/model/gen_model.sh,Y,# Usage: src/main/model/gen_model.sh
-src/main/model/gen_model.sh,6,call,src/main/model/gen_model.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/gen_model.py"""
+src/main/model/gen_model.sh,5,comment,src/main/model/gen_model.sh,Y,#   src/main/model/gen_model.sh
+src/main/model/gen_model.sh,17,call,src/main/model/gen_model.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/gen_model.py"""
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
@@ -493,14 +493,14 @@ src/main/model/search_proxy.py,8,comment,src/main/model/search_proxy.sh,Y,src/ma
 src/main/model/search_proxy.sh,5,comment,src/main/model/search_proxy.sh,Y,#   src/main/model/search_proxy.sh [--port 8182]
 src/main/model/search_proxy.sh,6,comment,src/main/model/search_proxy.sh,Y,#   src/main/model/search_proxy.sh --daemon [--port 8182]
 src/main/model/search_proxy.sh,7,comment,src/main/model/search_proxy.sh,Y,#   src/main/model/search_proxy.sh stop
-src/main/model/search_proxy.sh,12,path_str,gen/search_proxy.log,Y,"LOG_FILE=""$REPO_DIR/gen/search_proxy.log"""
-src/main/model/search_proxy.sh,36,call,src/main/model/search_proxy.py,Y,"nohup ""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/search_proxy.py"" ${ARGS[@]+""${ARGS[@]}""} \"
-src/main/model/search_proxy.sh,42,call,src/main/model/search_proxy.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/search_proxy.py"" ${ARGS[@]+""${ARGS[@]}""}"
+src/main/model/search_proxy.sh,13,path_str,gen/search_proxy.log,Y,"LOG_FILE=""$REPO_DIR/gen/search_proxy.log"""
+src/main/model/search_proxy.sh,43,call,src/main/model/search_proxy.py,Y,"nohup ""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/search_proxy.py"" ${args[@]+""${args[@]}""} \"
+src/main/model/search_proxy.sh,49,call,src/main/model/search_proxy.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/search_proxy.py"" ${args[@]+""${args[@]}""}"
 src/main/schema_recommendations.py,7,comment,src/main/schema_recommendations.py,Y,python src/main/schema_recommendations.py <instance-file> <schema-file>
 src/main/validate.py,4,comment,src/main/validate.py,Y,python src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/main/validate.py,Y,python src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
-src/run_python_script.sh,3,comment,src/run_python_script.sh,Y,# Usage: src/run_python_script.sh <script.py> [args...]
-src/run_python_script.sh,8,call,src/activate_venv.sh,Y,"source ""$SCRIPT_DIR/activate_venv.sh"""
+src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
+src/run_python_script.sh,18,call,src/activate_venv.sh,Y,"source ""$SCRIPT_DIR/activate_venv.sh"""
 src/test/code-projects/debug_code_session_record.py,4,comment,rsc/schema/code-projects/session/v1.json,Y,validation against rsc/schema/code-projects/session/v1.json.
 src/test/code-projects/debug_code_session_record.py,15,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl
 src/test/code-projects/debug_code_session_record.py,18,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ../code-projects/{project-slug}/{uuid}.jsonl --index 42
@@ -540,12 +540,13 @@ src/test/pre_commit.py,582,path_str,src/run_python_script.sh,Y,_add(f'src/run_py
 src/test/pre_commit.py,584,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.py,592,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.py,594,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.sh,10,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,10,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,10,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,16,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,16,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,16,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
+src/test/pre_commit.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,22,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,22,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,28,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,28,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/repairs/README.md,10,doc,src/test/repairs/naming.upper_camel_case.py,Y,| [`naming.upper_camel_case.py`](./naming.upper_camel_case.py) † | Rename a definition key and all `$ref`s; takes `<sche
 src/test/repairs/README.md,11,doc,src/test/repairs/naming.title_matches_key.py,Y,| [`naming.title_matches_key.py`](./naming.title_matches_key.py) | Set every `title` to its definition key | `naming.tit
 src/test/repairs/README.md,12,doc,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,| [`naming.root_schema_title_matches_filename.py`](./naming.root_schema_title_matches_filename.py) | Set root `title` to
@@ -576,7 +577,7 @@ src/test/xref.py,55,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_co
 src/test/xref.py,92,path_str,rsc/artifacts,Y,"if any(str(rel).startswith(d) for d in ('rsc/artifacts',)):"
 src/test/xref.sh,6,comment,src/test/xref.sh,Y,#   src/test/xref.sh
 src/test/xref.sh,7,comment,src/test/xref.sh,Y,#   src/test/xref.sh --out <path>    # override output path (default: src/test/xref.csv)
-src/test/xref.sh,10,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"""
+src/test/xref.sh,19,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"""
 ,,,ABOUT.md,Y,
 ,,,CONTRIBUTING.md,Y,
 ,,,README.md,Y,
