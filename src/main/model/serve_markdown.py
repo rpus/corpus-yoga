@@ -48,7 +48,7 @@ def ensure_assets() -> None:
         dest = fonts_dir / f
         if not dest.exists():
             try: urllib.request.urlretrieve(base + f, dest)
-            except Exception: pass
+            except Exception as e: print(f'Warning: could not download {f}: {e}', flush=True)
 
 
 def conversations(captures_dir: Path) -> list[dict]:

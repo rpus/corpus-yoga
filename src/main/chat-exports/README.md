@@ -53,4 +53,7 @@ src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
 | `check_harvested.py` | Reports tool-result file references not recovered by extraction |
 | `word_freq_literal.py` | Literal word frequency counts from `conversations.json` |
 | `format_table.py` | Reads JSON, writes column-aligned table JSON |
+| `inject.py` | Replaces an inlined JSON block in the HTML dashboard (by key marker or `<script>` tag) |
+| `update_export_tooltip.py` | Adds the export name as a tooltip to the engagement timeline heading |
+| `update_title.py` | Updates the dashboard `<title>` to reflect conversation count and date range |
 | `schema_path.py` / `schema_fragment.py` / `schema_occurrences.py` | Validation failure diagnostics: schema path lookup, fragment extraction, occurrence search |

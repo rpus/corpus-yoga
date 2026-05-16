@@ -8,6 +8,6 @@
 	"settings": {
 		"python.analysis.include": ["src"],
 		"python.analysis.typeCheckingMode": "standard",
-		"python.defaultInterpreterPath": "~/venvs/general/bin/python" // default from src/activate_venv.sh; override via $VENV
+		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python" // default from src/activate_venv.sh; override via $VENV
 	}
 }

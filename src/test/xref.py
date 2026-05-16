@@ -106,11 +106,10 @@ def looks_like_repo_path(s: str) -> bool:
     if '/../' in s or s.startswith('../') or s.endswith('/..'):
         return False  # escapes the repo
     # Explicit relative reference ./name.ext or ./name.ext#fragment
-    if s.startswith('./') or (s.startswith('../') and '/' in s[3:]):
+    if s.startswith('./'):
         base = s.split('#')[0]  # strip JSON Pointer fragment before extension check
         if re.search(r'\.(py|sh|json|md|html|g4|txt|log)$', base):
             return True
-    if s.startswith('./'):
         s = s[2:]
     # Must be more than a bare fragment like "gen/data-" with no filename
     if not Path(s).suffix and not any(s.rstrip('/') == p.rstrip('/') for p in REPO_PREFIXES):

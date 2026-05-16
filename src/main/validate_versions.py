@@ -14,11 +14,16 @@ from validate import validate
 
 def validate_versions(input_file, schema_dir, log_dir, label):
     os.makedirs(log_dir, exist_ok=True)
-    for schema_path in sorted(glob.glob(os.path.join(schema_dir, 'v*.json'))):
+    schemas = sorted(glob.glob(os.path.join(schema_dir, 'v*.json')))
+    if not schemas:
+        print(f'  {label}: no versioned schemas found in {schema_dir}', file=sys.stderr)
+        return
+    for schema_path in schemas:
         version = os.path.splitext(os.path.basename(schema_path))[0]
         log_out = os.path.join(log_dir, f'{version}.log')
 
-        input_lines = open(input_file).read().count('\n')
+        with open(input_file) as fh:
+            input_lines = fh.read().count('\n')
         input_bytes = os.path.getsize(input_file)
         schema_bytes = os.path.getsize(schema_path)
 

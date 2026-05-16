@@ -91,73 +91,18 @@ inject() {
   local tmp
   tmp=$(mktemp)
   printf '%s' "$json" > "$tmp"
-  python - "$file" "$key" "$tmp" <<'PY'
-import re, sys
-
-path, key, json_path = sys.argv[1], sys.argv[2], sys.argv[3]
-content = open(json_path).read()
-html    = open(path).read()
-begin   = f'  <!-- {key}.json:begin -->'
-end     = f'  <!-- {key}.json:end -->'
-
-if begin in html:
-    def repl(m):
-        return (f'  <!-- {key}.json:begin -->\n'
-                f'  <script id="{key}" type="application/json">\n'
-                + content +
-                f'\n  </script>\n'
-                f'  <!-- {key}.json:end -->')
-    result = re.sub(re.escape(begin) + r'.*?' + re.escape(end), repl, html, flags=re.DOTALL)
-else:
-    pattern = r'(<script id="' + re.escape(key) + r'"[^>]*>).*?(</script>)'
-    def repl(m):
-        return m.group(1) + '\n' + content + '\n  ' + m.group(2)
-    result = re.sub(pattern, repl, html, flags=re.DOTALL)
-
-open(path, 'w').write(result)
-PY
+  python "$SCRIPT_DIR/inject.py" "$file" "$key" "$tmp"
   rm -f "$tmp"
 }
 
 # update_export_tooltip <html_file> <export_name>
 update_export_tooltip() {
-  local file="$1" export_name="$2"
-  python - "$file" "$export_name" <<'PY'
-import re, sys
-path, name = sys.argv[1], sys.argv[2]
-html = open(path).read()
-result = re.sub(
-    r'(<h2\b[^>]*)>(Engagement timeline</h2>)',
-    lambda m: f'{m.group(1)} title="{name}">{m.group(2)}',
-    html
-)
-open(path, 'w').write(result)
-PY
+  python "$SCRIPT_DIR/update_export_tooltip.py" "$1" "$2"
 }
 
 # update_title <html_file> <conversations_json>
 update_title() {
-  local file="$1" conv="$2"
-  python - "$file" "$conv" <<'PY'
-import json, re, sys
-from datetime import datetime
-
-path, conv_path = sys.argv[1], sys.argv[2]
-with open(conv_path) as f:
-    data = json.load(f)
-dates = sorted(c['created_at'] for c in data)
-t0, t1 = (datetime.fromisoformat(d.replace('Z', '+00:00')) for d in (dates[0], dates[-1]))
-count  = len(data)
-if t0.year == t1.year:
-    date_range = (t0.strftime('%B %Y') if t0.month == t1.month
-                  else f"{t0.strftime('%B')}–{t1.strftime('%B %Y')}")
-else:
-    date_range = f"{t0.strftime('%B %Y')}–{t1.strftime('%B %Y')}"
-title  = f'Conversation corpus — {count} chats, {date_range}'
-result = re.sub(r'<title>.*?</title>', f'<title>{title}</title>', open(path).read())
-open(path, 'w').write(result)
-print(f'  title: {title}')
-PY
+  python "$SCRIPT_DIR/update_title.py" "$1" "$2"
 }
 
 # ── per-export logic ──────────────────────────────────────────────────────────
