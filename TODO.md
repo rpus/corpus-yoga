@@ -9,4 +9,4 @@ discarded. Documentation updated in-place without going through TODO rots silent
 ## Pre-public checklist
 
 - [ ] Add a LICENSE file before making the repo public.
-- [ ] `schema_recommendations.py` — all 9 checks are stubbed; either implement or remove the call from `validate.sh`.
+- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed. Script is pipeline-agnostic (correct location). Once implemented, call it from all three pipeline `validate.sh` scripts on validation success.

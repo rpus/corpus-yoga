@@ -50,6 +50,9 @@ Per-conversation API JSON files captured from the live claude.ai API via Safari 
 | `src/main/validate.py` | Shared JSON Schema validator |
 | `src/main/validate_versions.py` | Shared per-version validation loop |
 | `src/main/schema_recommendations.py` | Shared post-validation schema quality hints |
+| `src/main/schema_path.py` | Shared diagnostic: instance error path → schema pointer |
+| `src/main/schema_fragment.py` | Shared diagnostic: extract schema fragment at a pointer |
+| `src/main/schema_occurrences.py` | Shared diagnostic: find all instance occurrences of a schema node |
 
 `src/test/` contains the pre-commit suite, xref tool, diagnostic and repair scripts, and pipeline-specific debug tools.
 

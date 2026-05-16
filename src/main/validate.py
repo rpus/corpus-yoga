@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
 Usage:
-  python src/main/validate.py <data.json> <schema.json>
-  python src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
+  src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
+  src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 
 Fragment identifiers are JSON Pointers (RFC 6901); % encoding is supported.
 """

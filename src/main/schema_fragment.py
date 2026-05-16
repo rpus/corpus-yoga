@@ -4,7 +4,7 @@ schema_fragment.py - Given a JSON pointer and a schema file, output the
 literal subschema at that pointer.
 
 Usage:
-    python src/main/chat-exports/schema_fragment.py "#/definitions/MessageFile" rsc/schema/chat-exports/conversations/v{N}.json
+    src/run_python_script.sh src/main/schema_fragment.py "#/definitions/MessageFile" rsc/schema/chat-exports/conversations/v{N}.json
 
 Output:
     Pretty-printed JSON of the subschema.
