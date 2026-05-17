@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-LOG_FILE="$REPO_DIR/gen/serve_markdown.log"
+LOG_FILE="$REPO_DIR/gen/model/serve_markdown.log"
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   grep "^# " "$0" | sed "s/^# //"
@@ -36,7 +36,7 @@ main() {
     esac
   done
 
-  mkdir -p "$REPO_DIR/gen"
+  mkdir -p "$(dirname "$LOG_FILE")"
   export PYTHONUNBUFFERED=1
 
   if [[ "$daemon" -eq 1 ]]; then

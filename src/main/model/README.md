@@ -30,7 +30,7 @@ src/main/model/serve_markdown.sh --browser-captures ext/browser-captures   # for
 
 Then open `http://localhost:8182` in your web browser. You will see a list of all `.md` files in `ext/browser-captures/` sorted newest first, with a search box. Clicking a file renders it as markdown with LaTeX math.
 
-On first run, downloads rendering assets (marked.js, KaTeX) to `lib/search-static/`.
+On first run, downloads rendering assets (marked.js, KaTeX) to `lib/serve_markdown/`.
 
 ---
 

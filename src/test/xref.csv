@@ -126,7 +126,7 @@ RUNME.sh,35,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/br
 RUNME.sh,41,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" \"
 RUNME.sh,47,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" \"
 TODO.md,12,doc,src/main/schema_recommendations.py,Y,- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed. Script is pipeline-agnostic (correct location). O
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Export / Conversation | [v1](./v1.json) | Bytes |
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Batch dir | [v1](./v1.json) | Bytes | Conversation UUID |
 rsc/schema/browser-captures/apiConversation/README.md,1,doc,rsc/schema/browser-captures/apiConversation,Y,# `rsc/schema/browser-captures/apiConversation/`
 rsc/schema/browser-captures/apiConversation/README.md,7,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,`src/main/browser-captures/safari_fetch_api_json.sh` — one file per conversation.
 rsc/schema/browser-captures/apiConversation/README.md,14,doc,rsc/schema/chat-exports/conversations,Y,> API responses (all pass). See rsc/schema/chat-exports/conversations/ for the bulk-export format.
@@ -236,10 +236,10 @@ rsc/schema/chat-exports/conversations/workflow.md,335,doc,rsc/schema/model.json,
 rsc/schema/chat-exports/conversations/workflow.md,336,doc,src/main/chat-exports/RUNME.sh,Y,4. Generate validation logs for the new pairs: `src/main/chat-exports/RUNME.sh --chat-exports <path/to/chat-exports>`
 rsc/schema/chat-exports/conversations/workflow.md,338,doc,src/test/pre_commit.sh,Y,5. Run `src/test/pre_commit.sh` and confirm all checks pass.
 rsc/schema/chat-exports/conversations/workflow.md,346,doc,rsc/schema/workflow.md,Y,See [`rsc/schema/workflow.md`](../../workflow.md) for the full meta-rules shared across all pipelines.
-rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
-rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
-rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
-rsc/schema/code-projects/session/CHANGELOG.md,88,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,89,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/code-projects/session/README.md,1,doc,rsc/schema/code-projects/session,Y,# `rsc/schema/code-projects/session/`
 rsc/schema/code-projects/session/README.md,50,doc,rsc/schema/model_join.csv,Y,## `rsc/schema/model_join.csv`
 rsc/schema/code-projects/session/README.md,55,doc,src/test/pre_commit.py,Y,checked by `src/test/pre_commit.py`.
@@ -546,10 +546,10 @@ src/test/diagnostics/README.md,33,doc,src/test/diagnostics/empirical.nullable_fi
 src/test/gen_changelog_matrix.py,9,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/gen_changelog_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-src/test/pre_commit.py,585,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,587,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,595,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,597,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,624,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,626,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,634,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,636,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/pre_commit.sh,22,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""

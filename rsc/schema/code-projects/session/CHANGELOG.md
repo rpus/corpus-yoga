@@ -1,27 +1,28 @@
 # session schema changelog
 
 <!-- matrix -->
-| Session | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
-| --- | :---: | :---: | :---: | ---: |
-| `Yoga` / `816816d2` | ✓ | ✓ | ✓ | 25,813 |
-| `claude-export-yoga` / `a40a0813` | ✓ | ✓ | ✓ | 4,556,544 |
-| `claude-export-yoga` / `60c07575` | ✓ | ✓ | ✓ | 19,593,315 |
-| `claude-export-yoga` / `7d59d8ef` | ✓ | ✓ | ✓ | 12,392,336 |
-| `claude-export-yoga` / `d58db402` | ✓ | ✓ | ✓ | 2,578,452 |
-| `claude-export-yoga` / `1bc20fc3` | ✓ | ✓ | ✓ | 1,042,194 |
-| `claude-export-yoga` / `a2605476` | ✓ | ✓ | ✓ | 964,211 |
-| `claude-export-yoga` / `73f51bc1` | ✓ | ✓ | ✓ | 9,075,761 |
-| `claude-export-yoga` / `46fcb702` | ✓ | ✓ | ✓ | 5,436,494 |
-| `claude-export-yoga` / `b0c38f0b` | ✓ | ✓ | ✓ | 9,260,978 |
-| `nutrition` / `83737fec` | ✓ | ✓ | ✓ | 6,492,548 |
-| `claude-export-yoga` / `0c66d620` | ✓ | ✓ | ✓ | 277,617 |
-| `claude-export-yoga` / `46d179e3` | ✓ | ✓ | ✓ | 1,610,584 |
-| `claude-export-yoga` / `a1fe23f6` | ✓ | ✓ | ✓ | 801,392 |
-| `claude-export-yoga` / `32bd7448` | ✗ | ✗ | ✓ | 12,065,984 |
-| `claude-export-yoga` / `e87e0735` | ✓ | ✓ | ✓ | 5,265,747 |
-| `claude-export-yoga` / `68ae3555` | ✓ | ✓ | ✓ | 563,655 |
+| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
+| --- | :---: | :---: | :---: | ---: | --- |
+| `-dev-Anthropic-Yoga` | ✓ | ✓ | ✓ | 25,813 | `816816d2-799b-441a-9aeb-5b7222418f1d` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 4,556,544 | `a40a0813-8a53-4503-a2ca-0b52b95e6406` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 19,593,315 | `60c07575-359d-4484-aaa1-6068f03d5297` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 12,392,336 | `7d59d8ef-0ccb-4ffa-8bd5-12c157ec9492` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 2,578,452 | `d58db402-6597-4f96-a2c7-ba3da7ac5bf5` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 1,042,194 | `1bc20fc3-edf2-46fd-89db-b5481f112ef0` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 964,211 | `a2605476-5569-4640-8386-cf7f466578ae` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 9,075,761 | `73f51bc1-229b-413f-9907-8376b4e6e9c2` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 5,436,494 | `46fcb702-d196-4bc2-a67c-2efc3febac11` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 9,260,978 | `b0c38f0b-0ae9-4134-bedb-56b03ce63407` |
+| `-dev-Anthropic-nutrition` | ✓ | ✓ | ✓ | 6,492,548 | `83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 277,617 | `0c66d620-7e5f-40d6-a387-0731d9aaab0a` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 1,610,584 | `46d179e3-bdc5-4633-b5d0-81c1328c4f3d` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 801,392 | `a1fe23f6-c5ea-425d-b503-775edb797bc3` |
+| `-dev-Anthropic-claude-export-yoga` | ✗ | ✗ | ✓ | 12,065,984 | `32bd7448-f34b-4576-bbf8-a28a88275b73` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 5,265,747 | `e87e0735-5bf3-484c-b60d-8761ea8decab` |
+| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | 4,451,058 | `68ae3555-cf35-4e4f-926d-a390d03589e9` |
+| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 1,989,023 | `d91fa43e-e7a0-4cb9-b24f-6163ef7bba96` |
 
-Session: bare project name from the `~/.claude/projects/` slug / first 8 chars of session UUID. Bytes: size of the `.jsonl` file at validation time.
+Code project: `~/.claude/projects/` slug with the home directory prefix removed. Session UUID: full session `.jsonl` filename stem. Bytes: size of the `.jsonl` file at validation time.
 
 ---
 

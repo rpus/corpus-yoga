@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 REPO_ROOT  = Path(__file__).resolve().parents[3]
-STATIC_DIR = REPO_ROOT / 'lib' / 'search-static'
+STATIC_DIR = REPO_ROOT / 'lib' / 'serve_markdown'
 
 ASSETS = {
     'marked.min.js':      'https://cdn.jsdelivr.net/npm/marked@9/marked.min.js',

@@ -27,19 +27,12 @@ from typing import Any
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
 REPO_ROOT                = Path(__file__).resolve().parents[2]
-REPO_PARENT              = REPO_ROOT.parent
 EXT                      = REPO_ROOT / 'ext'
 GEN                      = REPO_ROOT / 'gen'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
-
-# Prefix for converting bare project names to ~/.claude/projects/ slugs and back.
-# Claude Code slugs encode the absolute project path: /a/b/c → -a-b-c.
-# REPO_PARENT is used as a string only — it is not a data directory.
-# slug = _PROJECT_PREFIX + name;  name = slug.removeprefix(_PROJECT_PREFIX)
-_PROJECT_PREFIX = str(REPO_PARENT).replace('/', '-') + '-'
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
@@ -56,7 +49,10 @@ class Pipeline:
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
     diagnostic_skip:    frozenset[str] = frozenset()
     gen_key_prefix:     str = ''
+    slug_prefix:        str = ''
     subject_header:     str = ''
+    dir_col:            str = ''
+    uuid_col:           str = ''
     changelog_footer:   str = ''
 
 PIPELINES: dict[str, Pipeline] = {
@@ -68,8 +64,11 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob        = 'data-*/*/',
         subject_depth     = 2,
         validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',
-        subject_header    = 'Export / Conversation',
-        changelog_footer  = ('Export / Conversation: batch name / first 8 chars of conversation UUID. '
+        subject_header    = 'Export',
+        dir_col           = 'Batch dir',
+        uuid_col          = 'Conversation UUID',
+        changelog_footer  = ('Export: batch directory name. Batch dir: same. '
+                             'Conversation UUID: full conversation UUID. '
                              'Bytes: size of the captured JSON file at validation time.'),
     ),
     'chat-exports': Pipeline(
@@ -92,10 +91,13 @@ PIPELINES: dict[str, Pipeline] = {
         subject_depth     = 2,
         validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
-        gen_key_prefix    = _PROJECT_PREFIX,
-        subject_header    = 'Session',
-        changelog_footer  = ('Session: bare project name from the `~/.claude/projects/` slug / '
-                             'first 8 chars of session UUID. '
+        slug_prefix       = str(Path.home()).replace('/', '-'),
+        subject_header    = 'Repo',
+        dir_col           = 'Code project',
+        uuid_col          = 'Session UUID',
+        changelog_footer  = ('Repo: last component of the `~/.claude/projects/` slug. '
+                             'Code project: full slug from `~/.claude/projects/`. '
+                             'Session UUID: full session `.jsonl` filename stem. '
                              'Bytes: size of the `.jsonl` file at validation time.'),
     ),
 }
@@ -141,12 +143,20 @@ def _diag_detail(output):
     return lines[0] if lines else None
 
 
-def _parse_changelog_matrix(changelog: Path) -> dict[tuple[str, str], bool]:
+def _parse_changelog_matrix(pipeline: 'Pipeline') -> dict[tuple[str, str], bool]:
     """Parse the pass/fail matrix from a schema changelog markdown table.
-    Returns {(subject, version): True=pass, False=fail}."""
+    Returns {(subject, version): True=pass, False=fail}.
+
+    When pipeline.dir_col and pipeline.uuid_col are set, those columns supply the
+    subject as '{dir} / {uuid}'. Rows missing either value are skipped.
+    Otherwise subject is cells[0].
+    """
+    use_path_cols = bool(pipeline.dir_col and pipeline.uuid_col)
     matrix: dict[tuple[str, str], bool] = {}
-    version_cols: list[tuple[int, str]] = []
-    for line in changelog.read_text().splitlines():
+    version_cols:    list[tuple[int, str]] = []
+    dir_col_idx:     int | None = None
+    uuid_col_idx:    int | None = None
+    for line in pipeline.changelog.read_text().splitlines():
         if not line.startswith('|'):
             continue
         cells = [c.strip() for c in line.strip('|').split('|')]
@@ -155,10 +165,26 @@ def _parse_changelog_matrix(changelog: Path) -> dict[tuple[str, str], bool]:
                     if (m := re.match(r'\[(v\d+)\]', c))]
             if cols:
                 version_cols = cols
+                if use_path_cols:
+                    for i, c in enumerate(cells):
+                        label = c.replace('`', '').strip()
+                        if label == pipeline.dir_col:
+                            dir_col_idx = i
+                        elif label == pipeline.uuid_col:
+                            uuid_col_idx = i
             continue
         if all(re.match(r'[-: ]+$', c) for c in cells if c):
             continue
-        subject = cells[0].replace('`', '').strip()
+        if use_path_cols and dir_col_idx is not None and uuid_col_idx is not None:
+            cp  = cells[dir_col_idx].replace('`', '').strip()  if dir_col_idx  < len(cells) else ''
+            uid = cells[uuid_col_idx].replace('`', '').strip() if uuid_col_idx < len(cells) else ''
+            if not cp or not uid:
+                continue
+            if pipeline.slug_prefix and not cp.startswith(pipeline.slug_prefix):
+                cp = pipeline.slug_prefix + cp
+            subject = f'{cp} / {uid}'
+        else:
+            subject = cells[0].replace('`', '').strip()
         if not subject:
             continue
         for col_i, version in version_cols:
@@ -178,9 +204,6 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
     )
 
 
-
-def _abbrev(s: str, n: int = 8) -> str:
-    return s[:n] + '…' if len(s) > n else s
 
 
 def _input_subjects(pipeline: Pipeline) -> list:
@@ -278,20 +301,20 @@ def check_pipeline_validity(run, pipeline: Pipeline) -> None:
                 run(f'{schema_name}: valid JSON: {v}', False, str(e))
 
 
-def check_pipeline_validation_outputs(run, name: str, pipeline: Pipeline) -> None:
-    schema   = pipeline.changelog.parent.name
-    matrix   = _parse_changelog_matrix(pipeline.changelog)
-    run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
+    schema  = pipeline.changelog.parent.name
+    matrix  = _parse_changelog_matrix(pipeline)
+    run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 
     registered_versions = {version for _, version in matrix}
     changelog_text = pipeline.changelog.read_text() if pipeline.changelog.exists() else ''
     wf = (pipeline.changelog.parent / 'workflow.md').relative_to(REPO_ROOT)
     for path in _sorted_versions(SCHEMA_DIR[schema]):
         v = path.stem
-        run(f'{schema}: workflow.changelog_entry: {v}',
-            v in registered_versions,
-            f'Run: {pipeline.validate_cmd} ../{name}, then: {run_cmd}'
-            if v not in registered_versions else None)
+        if v not in registered_versions:
+            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            fix(f'then: {run_cmd}')
+        run(f'{schema}: workflow.changelog_entry: {v}', v in registered_versions)
         run(f'{schema}: workflow.changelog_narrative: {v}',
             f'## {v}' in changelog_text,
             f'Add a ## {v} section to {pipeline.changelog.relative_to(REPO_ROOT)} '
@@ -304,21 +327,31 @@ def check_pipeline_validation_outputs(run, name: str, pipeline: Pipeline) -> Non
             f'(see {wf}#no-todo)'
             if '"TODO' in schema_text else None)
 
+
+def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -> None:
+    schema  = pipeline.changelog.parent.name
+    matrix  = _parse_changelog_matrix(pipeline)
+    run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+
     if pipeline.subject_depth == 1:
-        _check_validation_outputs_depth1(run, name, pipeline, schema, matrix, run_cmd)
+        _check_validation_outputs_depth1(run, fix, pipeline, schema, matrix, run_cmd)
     else:
-        _check_validation_outputs_depth2(run, name, pipeline, schema, matrix, run_cmd)
+        _check_validation_outputs_depth2(run, fix, pipeline, schema, matrix, run_cmd)
 
 
-def _check_validation_outputs_depth1(run, name, pipeline, schema, matrix, run_cmd):
-    gen_dirs = sorted(d.name for d in pipeline.gen.iterdir() if d.is_dir()) \
-               if pipeline.gen.exists() else []
+def _check_validation_outputs_depth1(run, fix, pipeline, schema, matrix, run_cmd):
+    gen_dirs    = sorted(d.name for d in pipeline.gen.iterdir() if d.is_dir()) \
+                  if pipeline.gen.exists() else []
+    gen_rel     = pipeline.gen.relative_to(REPO_ROOT)
+    input_rel   = pipeline.input.relative_to(REPO_ROOT)
+    chlog_rel   = pipeline.changelog.relative_to(REPO_ROOT)
 
+    print(f'\n  looking for {gen_rel}/<subject>/validation/{schema}/vN.log — one per entry in {chlog_rel}')
     for (subject, version), expected_pass in sorted(matrix.items()):
         log = pipeline.gen / subject / 'validation' / schema / f'{version}.log'
         if not log.exists():
-            run(f'{schema}: validation log exists: {subject} × {version}', False,
-                f'Run: {pipeline.validate_cmd} ../{name}')
+            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            run(f'{schema}: {subject} × {version}', False, str(log.relative_to(REPO_ROOT)))
             continue
         content     = log.read_text()
         actual_pass = 'Valid!' in content
@@ -328,6 +361,7 @@ def _check_validation_outputs_depth1(run, name, pipeline, schema, matrix, run_cm
             if actual_pass != expected_pass else None)
 
     registered = {subj for subj, _ in matrix}
+    print(f'\n  every {schema} log in {gen_rel}/ should be registered in {chlog_rel}')
     for subject in gen_dirs:
         log_dir = pipeline.gen / subject / 'validation' / schema
         if not log_dir.exists():
@@ -341,66 +375,61 @@ def _check_validation_outputs_depth1(run, name, pipeline, schema, matrix, run_cm
             run(f'{schema}: unregistered: {subject} × {version} — {result}', False,
                 str(log.relative_to(REPO_ROOT)))
 
+    print(f'\n  every {input_rel}/{pipeline.input_glob} entry should be registered in {chlog_rel}')
     for subject in _input_subjects(pipeline):
         if subject not in registered:
-            run(f'{schema}: unregistered: {subject}', False,
-                f'Run: {pipeline.validate_cmd} ../{name}, then: {run_cmd}')
+            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            fix(f'then: {run_cmd}')
+            run(f'{schema}: unregistered: {subject}', False)
 
 
-def _check_validation_outputs_depth2(run, name, pipeline, schema, matrix, run_cmd):
-    registered: dict[str, list[tuple[str, str]]] = {}  # part1 → [(prefix, subject), ...]
-    for (subject, _) in matrix:
-        part1, _, prefix = subject.partition(' / ')
-        registered.setdefault(part1.strip(), []).append((prefix.strip(), subject))
+def _check_validation_outputs_depth2(run, fix, pipeline, schema, matrix, run_cmd):
+    registered: set[str] = {subject for subject, _ in matrix}
 
     gen_level1_dirs = sorted(d for d in pipeline.gen.iterdir() if d.is_dir()) \
                       if pipeline.gen.exists() else []
+    gen_rel   = pipeline.gen.relative_to(REPO_ROOT)
+    input_rel = pipeline.input.relative_to(REPO_ROOT)
+    chlog_rel = pipeline.changelog.relative_to(REPO_ROOT)
 
+    print(f'\n  looking for {gen_rel}/<code-project>/<uuid>/validation/{schema}/vN.log — one per entry in {chlog_rel}')
     for (subject, version), expected_pass in sorted(matrix.items()):
-        part1, _, part2_prefix = subject.partition(' / ')
-        part1, part2_prefix = part1.strip(), part2_prefix.strip()
-        gen_level1 = pipeline.gen / (pipeline.gen_key_prefix + part1)
-        matches = [u for u in (sorted(gen_level1.iterdir()) if gen_level1.exists() else [])
-                   if u.is_dir() and u.name.startswith(part2_prefix)]
-        lp = f'{_abbrev(part1)}/{part2_prefix}…'
-        if not matches:
-            run(f'{schema}: validation log exists: {lp} × {version}', False,
-                f'Run: {pipeline.validate_cmd} ../{name}')
-            continue
-        log = matches[0] / 'validation' / schema / f'{version}.log'
+        code_project, _, uuid = subject.partition(' / ')
+        log = pipeline.gen / code_project / uuid / 'validation' / schema / f'{version}.log'
         if not log.exists():
-            run(f'{schema}: validation log exists: {lp} × {version}', False,
-                f'Run: {pipeline.validate_cmd} ../{name}')
+            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            run(f'{schema}: {subject} × {version}', False, str(log.relative_to(REPO_ROOT)))
             continue
         content     = log.read_text()
         actual_pass = 'Valid!' in content
-        label       = f'{schema}: validation {"passing" if expected_pass else "failing"}: {lp} × {version}'
+        label       = f'{schema}: validation {"passing" if expected_pass else "failing"}: {subject} × {version}'
         run(label, actual_pass == expected_pass,
             f'expected {"pass" if expected_pass else "fail"}, got {"pass" if actual_pass else "fail"}'
             if actual_pass != expected_pass else None)
 
+    print(f'\n  every {schema} log in {gen_rel}/ should be registered in {chlog_rel}')
     for gen_level1 in gen_level1_dirs:
-        part1 = gen_level1.name.removeprefix(pipeline.gen_key_prefix)
-        ps    = registered.get(part1, [])
+        code_project = gen_level1.name
         for uuid_dir in sorted(u for u in gen_level1.iterdir() if u.is_dir()):
             log_dir = uuid_dir / 'validation' / schema
             if not log_dir.exists():
                 continue
-            match          = next(((p, s) for p, s in ps if uuid_dir.name.startswith(p)), (None, None))
-            prefix, subject = match
+            subject = f'{code_project} / {uuid_dir.name}'
             for log in sorted(log_dir.glob('v*.log')):
                 version = log.stem
-                if prefix and (subject, version) in matrix:
+                if (subject, version) in matrix:
                     continue
                 content = log.read_text()
                 result  = 'Valid!' if 'Valid!' in content else 'Validation error' if 'Validation error' in content else 'unknown'
-                run(f'{schema}: unregistered: {_abbrev(part1)}/{uuid_dir.name[:8]}… × {version} — {result}', False)
+                run(f'{schema}: unregistered: {subject} × {version} — {result}', False)
 
-    for part1, part2 in _input_subjects(pipeline):
-        ps = registered.get(part1, [])
-        if not any(part2.startswith(p) for p, _ in ps):
-            run(f'{schema}: unregistered: {_abbrev(part1)}/{part2[:8]}…', False,
-                f'Run: {pipeline.validate_cmd} ../{name}, then: {run_cmd}')
+    print(f'\n  every {input_rel}/{pipeline.input_glob} entry should be registered in {chlog_rel}')
+    for code_project, uuid in _input_subjects(pipeline):
+        subject = f'{code_project} / {uuid}'
+        if subject not in registered:
+            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            fix(f'then: {run_cmd}')
+            run(f'{schema}: unregistered: {subject}', False)
 
 
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
@@ -473,6 +502,14 @@ def main():
         mark = '✓' if passed else '✗'
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
 
+    fix_hints: list[str] = []
+    fix_seen:  set[str]  = set()
+
+    def fix(hint: str) -> None:
+        if hint not in fix_seen:
+            fix_hints.append(hint)
+            fix_seen.add(hint)
+
     sections: list[str] = []
 
     def run_section(fn, label=None):
@@ -495,7 +532,12 @@ def main():
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline: check_pipeline_validation_outputs(run, n, p),
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_workflow(run, _fix, n, p),
+                        label=f'check_{_slug}_workflow')
+
+        for _name, _pipeline in PIPELINES.items():
+            _slug = _name.replace('-', '_')
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_validation_outputs(run, _fix, n, p),
                         label=f'check_{_slug}_validation_outputs')
 
         run_section(check_versioned_schema_diagnostics)
@@ -562,8 +604,8 @@ def main():
             print(f'  {s} ({failure_counts[s]})')
         print()
 
-        fix_commands: list[str] = []
-        seen: set[str] = set()
+        fix_commands: list[str] = list(fix_hints)
+        seen: set[str] = set(fix_hints)
 
         def _add(cmd: str) -> None:
             if cmd not in seen:
@@ -571,42 +613,39 @@ def main():
                 seen.add(cmd)
 
         for name, detail in failures:
-            if detail and detail.startswith('Run: '):
-                _add(detail[len('Run: '):])
-            else:
-                parts = name.split(': ')
-                if len(parts) == 3 and re.match(r'[a-z_]+\.[a-z_]+', parts[1]):
-                    diag = parts[1]
-                    _d = SCHEMA_DIR.get(parts[0])
-                    schema_path = (_d if _d is not None else RSC_SCHEMA / parts[0]) / f'{parts[2]}.json'
-                    repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
-                    diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
-                    if repair.exists() and schema_path.exists():
-                        _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-                    elif diagnostic.exists() and schema_path.exists():
-                        _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-                    elif detail:
-                        _add(detail)
-                elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
-                    diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
-                    repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
-                    diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
-                    if repair.exists() and schema_path.exists():
-                        _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-                    elif diagnostic.exists() and schema_path.exists():
-                        _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-                    elif detail:
-                        _add(detail)
+            parts = name.split(': ')
+            if len(parts) == 3 and re.match(r'[a-z_]+\.[a-z_]+', parts[1]):
+                diag = parts[1]
+                _d = SCHEMA_DIR.get(parts[0])
+                schema_path = (_d if _d is not None else RSC_SCHEMA / parts[0]) / f'{parts[2]}.json'
+                repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
+                diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
+                if repair.exists() and schema_path.exists():
+                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                elif diagnostic.exists() and schema_path.exists():
+                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                elif detail:
+                    _add(detail)
+            elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
+                diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
+                repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
+                diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
+                if repair.exists() and schema_path.exists():
+                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                elif diagnostic.exists() and schema_path.exists():
+                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                elif detail:
+                    _add(detail)
 
         if fix_commands:
             print()
             print('To fix:')
             for cmd in fix_commands:
-                parts = cmd.split(', then: ')
-                print(f'  {parts[0]}')
-                for step in parts[1:]:
+                if cmd.startswith('then: '):
                     print('then:')
-                    print(f'  {step}')
+                    print(f'  {cmd[len("then: "):]}')
+                else:
+                    print(f'  {cmd}')
 
         sys.exit(1)
     else:
