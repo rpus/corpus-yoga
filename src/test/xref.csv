@@ -1,6 +1,6 @@
 referring_file,line,ref_type,referred_file,exists,line_text
 PREP.sh,11,comment,PREP.sh,Y,#   ./PREP.sh
-PREP.sh,63,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
+PREP.sh,59,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
 README.md,16,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
 README.md,20,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
 README.md,22,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`

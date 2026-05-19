@@ -32,10 +32,6 @@ require_cmd() {
   fi
 }
 
-ensure_ext() {
-  mkdir -p "$SCRIPT_DIR/ext"
-}
-
 find_python3() {
   if command -v python3 &>/dev/null; then
     echo "python3"; return 0
@@ -68,10 +64,11 @@ main() {
   basename "$0"
 
   require_cmd jq "install via: brew install jq"
-  ensure_ext
   local python; python="$(find_python3)"
   ensure_venv "$python"
   install_deps
+
+  mkdir -p "$SCRIPT_DIR/ext"
 }
 
 main "$@"
