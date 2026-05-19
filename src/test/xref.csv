@@ -1,18 +1,17 @@
 referring_file,line,ref_type,referred_file,exists,line_text
-PREP.sh,11,comment,PREP.sh,Y,#   ./PREP.sh
-PREP.sh,59,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-README.md,16,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
-README.md,20,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
-README.md,22,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
-README.md,25,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
-README.md,26,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,30,doc,RUNME.sh,Y,./RUNME.sh \
-README.md,32,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
-README.md,33,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
+README.md,7,doc,RUNME.sh,Y,./RUNME.sh \
+README.md,9,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
+README.md,10,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
+README.md,24,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
+README.md,28,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
+README.md,30,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
+README.md,33,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
+README.md,34,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
 README.md,41,doc,src/main/schema_recommendations.py,Y,- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed. Script is pipeline-agnostic (correct location). O
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                        # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference    # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,18,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
+RUNME.sh,67,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Batch dir | [v1](./v1.json) | Bytes | Conversation UUID |
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v1.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v2.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
@@ -203,10 +202,10 @@ src/test/pre_commit.py,328,path_str,src/run_python_script.sh,Y,run_cmd = f'src/r
 src/test/pre_commit.py,66,path_str,src/main/browser-captures/RUNME.sh,Y,"validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',"
 src/test/pre_commit.py,81,path_str,src/main/chat-exports/RUNME.sh,Y,"validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',"
 src/test/pre_commit.py,92,path_str,src/main/code-projects/RUNME.sh,Y,"validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',"
-src/test/pre_commit.py,618,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,620,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,628,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,630,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,615,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,617,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,625,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,627,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,25,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/pre_commit.sh,25,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
@@ -232,7 +231,6 @@ src/test/xref.py,55,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_co
 src/test/xref.sh,6,comment,src/test/xref.sh,Y,#   src/test/xref.sh
 src/test/xref.sh,7,comment,src/test/xref.sh,Y,#   src/test/xref.sh --out <path>    # override output path (default: src/test/xref.csv)
 src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"""
-,,self_only,PREP.sh,Y,
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,rsc/schema/_reference/mcp.json,Y,

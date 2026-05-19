@@ -2,6 +2,14 @@
 
 This repo wrangles Claude data exports.
 
+```bash
+# git clean -fdX; git clean -fdxn
+./RUNME.sh \
+  --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
+./src/main/model/gen_model.sh
+# ./src/test/pre_commit.sh
+```
+
 ## How to use
 
 - Prepare new data
@@ -24,14 +32,6 @@ This repo wrangles Claude data exports.
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
   - `src/main/model/serve_markdown.sh stop` to shut down
-
-```bash
-# git clean -fdX; git clean -fdxn
-./RUNME.sh \
-  --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
-./src/main/model/gen_model.sh
-# ./src/test/pre_commit.sh
-```
 
 ---
 

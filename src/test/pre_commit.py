@@ -467,16 +467,13 @@ def check_schema_join(run):
 def check_xref(run):
     _, output = _call(SRC / 'test' / 'xref.py')
     summary = output.splitlines()[-1] if output else ''
-    m_bad   = re.search(r'(\d+) bad-pointer',  summary)
-    m_miss  = re.search(r'(\d+) missing-file', summary)
-    m_unref = re.search(r'(\d+) unreferenced', summary)
-    bad   = int(m_bad.group(1))   if m_bad   else 0
-    miss  = int(m_miss.group(1))  if m_miss  else 0
-    unref = int(m_unref.group(1)) if m_unref else 0
+    m = re.search(r'(\d+ missing-file, \d+ bad-pointer, \d+ self-only, \d+ unreferenced)', summary)
+    actual = m.group(1) if m else ''
+    m_bad  = re.search(r'(\d+) bad-pointer', actual)
+    bad    = int(m_bad.group(1)) if m_bad else 0
 
     score_file = SRC / 'test' / 'xref_expected_score'
     expected   = score_file.read_text().strip()
-    actual     = f'{miss} missing-file, {bad} bad-pointer, {unref} unreferenced'
 
     run('xref: no bad pointers', bad == 0, summary if bad else None)
     run(f'xref: {actual}', actual == expected,
