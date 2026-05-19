@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Seed ext/browser-captures/ by capturing all conversations in ext/chat-exports/.
+# Seed ext/browser-captures/ by re-capturing all existing UUID subdirectories.
 # Requires Safari open, focused, and logged into claude.ai throughout.
 #
 # Usage:
@@ -23,6 +23,7 @@ main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
+  mkdir -p "$REPO_DIR/ext/browser-captures"
   "$SCRIPT_DIR/safari_capture.sh" --browser-captures "$REPO_DIR/ext/browser-captures"
 }
 

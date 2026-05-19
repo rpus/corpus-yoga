@@ -26,10 +26,14 @@ parse_args() {
 
 require_cmd() {
   local cmd="$1" hint="$2"
-  if ! command --version "$cmd" &>/dev/null; then
+  if ! command -v "$cmd" &>/dev/null; then
     echo "error: $cmd not found — $hint" >&2
     exit 1
   fi
+}
+
+ensure_ext() {
+  mkdir -p "$SCRIPT_DIR/ext"
 }
 
 find_python3() {
@@ -64,6 +68,7 @@ main() {
   basename "$0"
 
   require_cmd jq "install via: brew install jq"
+  ensure_ext
   local python; python="$(find_python3)"
   ensure_venv "$python"
   install_deps
