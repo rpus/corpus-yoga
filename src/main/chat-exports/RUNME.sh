@@ -61,6 +61,7 @@ run_one() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
   if [[ -n "$chat_export" ]]; then
     run_one "$(cd "$chat_export" && pwd)"
   else

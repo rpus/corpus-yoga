@@ -22,6 +22,7 @@ parse_args() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
   "$SCRIPT_DIR/safari_capture.sh" --browser-captures "$REPO_DIR/ext/browser-captures"
 }
 

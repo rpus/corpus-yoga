@@ -45,7 +45,7 @@ rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./c
 rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v6.json,Y,"""./chat-exports/conversations/v6.json"": ["
 src/activate_venv.sh,4,comment,src/activate_venv.sh,Y,# Override the path: VENV=/other/path source src/activate_venv.sh
 src/main/browser-captures/PREP.sh,6,comment,src/main/browser-captures/PREP.sh,Y,#   src/main/browser-captures/PREP.sh
-src/main/browser-captures/PREP.sh,25,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --browser-captures ""$REPO_DIR/ext/browser-captures"""
+src/main/browser-captures/PREP.sh,26,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --browser-captures ""$REPO_DIR/ext/browser-captures"""
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/<uuid>
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
 src/main/browser-captures/RUNME.sh,37,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$input_dir"""

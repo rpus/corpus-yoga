@@ -39,6 +39,7 @@ check_exports() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
   check_exports
 }
 

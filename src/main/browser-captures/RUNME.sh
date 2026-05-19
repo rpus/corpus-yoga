@@ -40,6 +40,7 @@ run_one() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
   if [[ -n "$browser_capture" ]]; then
     run_one "$(cd "$browser_capture" && pwd)"
   else

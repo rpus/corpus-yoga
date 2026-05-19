@@ -25,6 +25,7 @@ link_projects() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
   link_projects
 }
 

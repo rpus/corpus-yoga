@@ -48,12 +48,16 @@ run_pipeline() {
 main() {
   parse_args "$@"
   basename "$0"
+
   prep_pipeline browser-captures
   run_pipeline browser-captures
+
   prep_pipeline chat-exports
   run_pipeline chat-exports ${pay_for_inference:+"$pay_for_inference"}
+
   prep_pipeline code-projects
   run_pipeline code-projects
+
   echo "── done ──────────────────────────────────────────────────────────────────────"
   echo "Run src/test/pre_commit.sh, then: git diff src/test/pre_commit.log"
 }
