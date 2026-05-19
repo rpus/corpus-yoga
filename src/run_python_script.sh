@@ -6,17 +6,22 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+: "${VENV:=$HOME/venvs/general}"
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //"
-  exit 0
-fi
+parse_args() {
+  case "${1:-}" in
+    --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+  esac
+}
 
 main() {
-  # shellcheck source=/dev/null
-  source "$SCRIPT_DIR/activate_venv.sh"
-  python "$@"
+  parse_args "$@"
+
+  if [[ ! -f "$VENV/bin/python" ]]; then
+    echo "error: venv not found at $VENV — run ./PREP.sh" >&2
+    exit 1
+  fi
+  "$VENV/bin/python" "$@"
 }
 
 main "$@"

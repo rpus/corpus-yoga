@@ -58,7 +58,7 @@ hue: HSV hue in degrees (0-360), perceptually distinct across categories' \
     'Propose 6-10 semantic categories that cover the conversations well.' \
     "Conversations:
 $(chat_list "$conv")" \
-    | python "$FORMAT_TABLE_SCRIPT" \
+    | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_dir/data-categories.json"
   echo "  ✓ data-categories"
 }
@@ -76,7 +76,7 @@ category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
 $(chat_list "$conv")" \
-    | python "$FORMAT_TABLE_SCRIPT" \
+    | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_dir/data-chat-categories.json"
   echo "  ✓ data-chat-categories"
 }
@@ -91,7 +91,7 @@ count: salience weight (not raw frequency); scale so the top concept = 100' \
     'Generate a weighted list of 20-50 key concepts and themes across all conversations.' \
     "Conversations:
 $(chat_list "$conv")" \
-    | python "$FORMAT_TABLE_SCRIPT" \
+    | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_dir/data-semantic.json"
   echo "  ✓ data-semantic"
 }
@@ -118,37 +118,35 @@ infer_export() {
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //" | head -10
-  exit 0
-fi
-
-main() {
-  local chat_export="" chat_exports=""
+parse_args() {
+  chat_export=""
+  chat_exports=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --chat-export)  chat_export="$2";  shift 2 ;;
       --chat-exports) chat_exports="$2"; shift 2 ;;
-      *) echo "Unknown argument: $1"
-         echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
-         echo "       Pass --help for more information."; exit 1 ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      *)
+        echo "Unknown argument: $1"
+        echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
+        echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-
   if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
     echo "Usage: $0 --chat-export <path/to/data-directory>"
     echo "       $0 --chat-exports <path/to/chat-exports>"
-    echo "       Pass --help for more information."
+    echo "Pass --help for more information."
     exit 1
   fi
-
   if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-    echo "Error: ANTHROPIC_API_KEY is not set"
+    echo "error: ANTHROPIC_API_KEY is not set"
     exit 1
   fi
+}
 
-  # shellcheck source=/dev/null
-  source "$REPO_DIR/src/activate_venv.sh"
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
   if [[ -n "$chat_export" ]]; then
     infer_export "$(cd "$chat_export" && pwd)"

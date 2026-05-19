@@ -10,12 +10,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //"
-  exit 0
-fi
+parse_args() {
+  case "${1:-}" in
+    --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+  esac
+}
 
 main() {
+  parse_args "$@"
+
   mkdir -p "$REPO_DIR/gen"
 
   # Run once — generates pre_commit.log and xref.csv.

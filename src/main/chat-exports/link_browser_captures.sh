@@ -31,7 +31,7 @@ link_captures() {
     mkdir -p "$links_dir"
     ln -sfn "$capture_dir" "$links_dir/$uuid"
     (( linked++ )) || true
-  done < <(python3 -c "import json,sys; [print(c['uuid']) for c in json.load(open(sys.argv[1]))]" "$conversations_json")
+  done < <(jq -r '.[].uuid' "$conversations_json")
 
   echo "  linked $linked browser captures"
 }
@@ -58,6 +58,7 @@ parse_args() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
   link_captures "$(cd "$chat_export" && pwd)"
 }
 

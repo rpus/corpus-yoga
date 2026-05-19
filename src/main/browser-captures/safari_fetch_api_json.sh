@@ -22,9 +22,8 @@ parse_args() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  # shellcheck source=/dev/null
-  source "$SCRIPT_DIR/../../activate_venv.sh"
-  caffeinate -dim python "$SCRIPT_DIR/safari_fetch_api_json.py" "$@"
+
+  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_fetch_api_json.py" "$@"
 }
 
 main "$@"

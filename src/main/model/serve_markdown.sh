@@ -12,13 +12,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 LOG_FILE="$REPO_DIR/gen/model/serve_markdown.log"
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //"
-  exit 0
-fi
+parse_args() {
+  daemon=0
+  args=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --daemon)  daemon=1; shift ;;
+      *)         args+=("$1"); shift ;;
+    esac
+  done
+}
 
 main() {
-  if [[ "${1:-}" == "stop" ]]; then
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+
+  if [[ "${args[0]:-}" == "stop" ]]; then
     if pkill -f 'serve_markdown.py' 2>/dev/null; then
       echo "Stopped"
     else
@@ -26,15 +36,6 @@ main() {
     fi
     return
   fi
-
-  local daemon=0
-  local -a args=()
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --daemon) daemon=1; shift ;;
-      *)        args+=("$1"); shift ;;
-    esac
-  done
 
   mkdir -p "$(dirname "$LOG_FILE")"
   export PYTHONUNBUFFERED=1

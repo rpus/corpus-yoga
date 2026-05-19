@@ -46,7 +46,7 @@ jq_spans() { jq '
 # Tooltip: files sourced from lib/artifacts/downloaded/ — pre-curated and
 # path-consistent. local_resource paths (what Claude reported) are unreliable.
 files_from_downloaded() {
-  python "$FILES_FROM_DOWNLOADED_SCRIPT" "$DOWNLOADED_DIR"
+  "$REPO_DIR/src/run_python_script.sh" "$FILES_FROM_DOWNLOADED_SCRIPT" "$DOWNLOADED_DIR"
 }
 
 # Harvest input: local_resource records from conversations.json with mime_type.
@@ -78,7 +78,7 @@ format_table() {
   local tmp
   tmp=$(mktemp)
   cat > "$tmp"
-  python "$FORMAT_TABLE_SCRIPT" "$tmp"
+  "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" "$tmp"
   rm -f "$tmp"
 }
 
@@ -91,18 +91,18 @@ inject() {
   local tmp
   tmp=$(mktemp)
   printf '%s' "$json" > "$tmp"
-  python "$SCRIPT_DIR/inject.py" "$file" "$key" "$tmp"
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/inject.py" "$file" "$key" "$tmp"
   rm -f "$tmp"
 }
 
 # update_export_tooltip <html_file> <export_name>
 update_export_tooltip() {
-  python "$SCRIPT_DIR/update_export_tooltip.py" "$1" "$2"
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/update_export_tooltip.py" "$1" "$2"
 }
 
 # update_title <html_file> <conversations_json>
 update_title() {
-  python "$SCRIPT_DIR/update_title.py" "$1" "$2"
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/update_title.py" "$1" "$2"
 }
 
 # ── per-export logic ──────────────────────────────────────────────────────────
@@ -147,11 +147,11 @@ present_export() {
     # reporting and binary file classification.
     json="$(jq_local_resources "$conv" | format_table)"
     printf '%s\n' "$json" > "$out_dir/data-local-resources.json"
-    python "$CHECK_HARVESTED_SCRIPT" "$name"
+    "$REPO_DIR/src/run_python_script.sh" "$CHECK_HARVESTED_SCRIPT" "$name"
 
     # data-literal: word frequency (Python) then columnarise (jq)
     if [[ -f "$WORD_FREQ_SCRIPT" ]]; then
-      json="$(python "$WORD_FREQ_SCRIPT" "$conv" | jq_literal | format_table)"
+      json="$("$REPO_DIR/src/run_python_script.sh" "$WORD_FREQ_SCRIPT" "$conv" | jq_literal | format_table)"
       inject "$out" "data-literal" "$json"
       printf '%s\n' "$json" > "$out_dir/data-literal.json"
       echo "  ✓ data-literal"
@@ -199,32 +199,31 @@ present_export() {
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //" | head -10
-  exit 0
-fi
-
-main() {
-  local chat_export="" chat_exports=""
+parse_args() {
+  chat_export=""
+  chat_exports=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --chat-export)  chat_export="$2";  shift 2 ;;
       --chat-exports) chat_exports="$2"; shift 2 ;;
-      *) echo "Unknown argument: $1"
-         echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
-         echo "       Pass --help for more information."; exit 1 ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      *)
+        echo "Unknown argument: $1"
+        echo "Usage: $0 --chat-export <path> | --chat-exports <path>"
+        echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-
   if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
     echo "Usage: $0 --chat-export <path/to/data-directory>"
     echo "       $0 --chat-exports <path/to/chat-exports>"
-    echo "       Pass --help for more information."
+    echo "Pass --help for more information."
     exit 1
   fi
+}
 
-  # shellcheck source=/dev/null
-  source "$REPO_DIR/src/activate_venv.sh"
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
   if [[ -n "$chat_export" ]]; then
     present_export "$(cd "$chat_export" && pwd)"

@@ -12,7 +12,7 @@ SCHEMA_DIR="$REPO_DIR/rsc/schema/chat-exports"
 OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 
 rel_path() {
-  python -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$REPO_DIR"
+  "$REPO_DIR/src/run_python_script.sh" -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$REPO_DIR"
 }
 
 file_info() {
@@ -31,20 +31,20 @@ on_failure() {
   path_json="$(echo "$path_raw" | tr "'" '"')"
   echo "--- jq inspection ---"
   jq "getpath($path_json)" "$f"
-  instance_ptr="$(python -c "import ast,sys; p=ast.literal_eval(sys.argv[1]); print('/'+'/'.join(str(x) for x in p))" "$path_raw")"
-  schema_ptr="$(python "$REPO_DIR/src/main/schema_path.py" "$path_raw" "$schema")"
+  instance_ptr="$("$REPO_DIR/src/run_python_script.sh" -c "import ast,sys; p=ast.literal_eval(sys.argv[1]); print('/'+'/'.join(str(x) for x in p))" "$path_raw")"
+  schema_ptr="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/schema_path.py" "$path_raw" "$schema")"
   echo "--- instance path ---"
   echo "$(rel_path "$f")#${instance_ptr}"
   echo "--- schema path ---"
   echo "$(rel_path "$schema")${schema_ptr}"
   echo "--- schema fragment ---"
-  python "$REPO_DIR/src/main/schema_fragment.py" "$schema_ptr" "$schema"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/schema_fragment.py" "$schema_ptr" "$schema"
   echo "--- schema occurrences ---"
-  python "$REPO_DIR/src/main/schema_occurrences.py" "$schema_ptr" "$schema" "$f" | sed 's/^/  /'
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/schema_occurrences.py" "$schema_ptr" "$schema" "$f" | sed 's/^/  /'
   # shellcheck disable=SC2016  # $p is a jq variable, not a shell expansion
   jq_filter='[inputs as $p | {key: ($p|tostring), value: ($inst[0]|getpath($p))}] | from_entries'
   echo "--- fetch occurrences command ---"
-  echo "python \"$(rel_path "$REPO_DIR/src/main/schema_occurrences.py")\" \"$schema_ptr\" \"$(rel_path "$schema")\" \"$(rel_path "$f")\" \\"
+  echo "src/run_python_script.sh \"$(rel_path "$REPO_DIR/src/main/schema_occurrences.py")\" \"$schema_ptr\" \"$(rel_path "$schema")\" \"$(rel_path "$f")\" \\"
   echo "  | jq -n --slurpfile inst \"$(rel_path "$f")\" \\"
   echo "    '$jq_filter'"
 }
@@ -56,7 +56,7 @@ validate_file() {
     file_info "$f"
     file_info "$schema"
     local python_out
-    python_out="$(python "$REPO_DIR/src/main/validate.py" "$f" "$schema")"
+    python_out="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$f" "$schema")"
     echo "$python_out"
     if ! echo "$python_out" | grep -qx "Valid!"; then
       on_failure "$f" "$schema" "$python_out"
@@ -113,8 +113,7 @@ parse_args() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  # shellcheck source=/dev/null
-  source "$REPO_DIR/src/activate_venv.sh"
+
   validate_export "$(cd "$chat_export" && pwd)"
 }
 
