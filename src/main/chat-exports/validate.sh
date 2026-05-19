@@ -91,32 +91,30 @@ validate_export() {
   done
 }
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //" | head -10
-  exit 0
-fi
-
-main() {
-  local chat_export=""
+parse_args() {
+  chat_export=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --chat-export) chat_export="$2"; shift 2 ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 --chat-export <path>"
-        echo "       Pass --help for more information."; exit 1 ;;
+        echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-
   if [[ -z "$chat_export" ]]; then
     echo "Usage: $0 --chat-export <path/to/data-directory>"
-    echo "       Pass --help for more information."
+    echo "Pass --help for more information."
     exit 1
   fi
+}
 
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   # shellcheck source=/dev/null
   source "$REPO_DIR/src/activate_venv.sh"
-
   validate_export "$(cd "$chat_export" && pwd)"
 }
 

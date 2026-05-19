@@ -255,9 +255,6 @@ def check_required_files(run):
                        if schema_d.is_dir()
                        for v in _sorted_versions(schema_d)]
     required = [
-        *[p.changelog.parent / doc
-          for p in PIPELINES.values()
-          for doc in ('principles.md', 'workflow.md')],
         *schema_versions,
         *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES],
         SRC  / 'main' / 'validate.py',
@@ -308,7 +305,6 @@ def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
 
     registered_versions = {version for _, version in matrix}
     changelog_text = pipeline.changelog.read_text() if pipeline.changelog.exists() else ''
-    wf = (pipeline.changelog.parent / 'workflow.md').relative_to(REPO_ROOT)
     for path in _sorted_versions(SCHEMA_DIR[schema]):
         v = path.stem
         if v not in registered_versions:
@@ -317,14 +313,12 @@ def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
         run(f'{schema}: workflow.changelog_entry: {v}', v in registered_versions)
         run(f'{schema}: workflow.changelog_narrative: {v}',
             f'## {v}' in changelog_text,
-            f'Add a ## {v} section to {pipeline.changelog.relative_to(REPO_ROOT)} '
-            f'(see {wf}#changelog-narrative)'
+            f'Add a ## {v} section to {pipeline.changelog.relative_to(REPO_ROOT)}'
             if f'## {v}' not in changelog_text else None)
         schema_text = path.read_text()
         run(f'{schema}: workflow.no_todo: {v}',
             '"TODO' not in schema_text,
-            f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)} '
-            f'(see {wf}#no-todo)'
+            f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)}'
             if '"TODO' in schema_text else None)
 
 

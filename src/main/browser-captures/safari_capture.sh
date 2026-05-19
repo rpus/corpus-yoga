@@ -1,25 +1,29 @@
 #!/usr/bin/env bash
-# Export every conversation in a bulk export to markdown via Safari automation.
+# Re-capture all conversations in ext/browser-captures/ as markdown and live API JSON.
 # Requires Safari open, focused, and logged into claude.ai throughout.
 #
 # Usage:
-#   ./src/main/browser-captures/safari_capture.sh --chat-export  ext/chat-exports/data-<...>
-#   ./src/main/browser-captures/safari_capture.sh --chat-exports ext/chat-exports
-# Output goes to ext/browser-captures/<export-name>/<uuid>/
+#   src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //"
-  exit 0
-fi
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      *) break ;;
+    esac
+  done
+}
 
 main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   # shellcheck source=/dev/null
   source "$SCRIPT_DIR/../../activate_venv.sh"
-  # caffeinate -dim: prevent display sleep (-d), idle sleep (-i), and disk sleep (-m)
   caffeinate -dim python "$SCRIPT_DIR/safari_capture.py" "$@"
 }
 

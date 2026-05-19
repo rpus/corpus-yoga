@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Run from the repo root, e.g.:
+# Run the chat-exports pipeline against one or all exports.
+#
+# Usage:
+#   ./src/main/chat-exports/RUNME.sh --chat-export  ext/chat-exports/data-<...>
 #   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
-#   ./src/main/chat-exports/RUNME.sh --chat-export ext/chat-exports/data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000
 #   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports --pay-for-inference
 
 set -euo pipefail
@@ -10,59 +12,60 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 
-run_one() {
-  local export_dir="${1%/}"
-  local name; name="$(basename "$export_dir")"
-
-  rm -rf "${OUTPUT_DIR:?}/$name"
-
-  "$SCRIPT_DIR/validate.sh"         --chat-export "$export_dir"
-  "$SCRIPT_DIR/extract_files.sh"    --chat-export "$export_dir"
-  "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$export_dir"
-
-  if [[ "$pay_for_inference" == "1" ]]; then
-    "$SCRIPT_DIR/infer_tables.sh"   --chat-export "$export_dir"
-  fi
-
-  "$SCRIPT_DIR/present.sh"          --chat-export "$export_dir"
-  "$SCRIPT_DIR/audit_files.sh"      --chat-export "$export_dir"
-}
-
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //" | head -10
-  exit 0
-fi
-
-main() {
-  local chat_export="" chat_exports="" pay_for_inference="0"
-
+parse_args() {
+  chat_export=""
+  chat_exports=""
+  pay_for_inference="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --chat-export)        chat_export="$2";      shift 2 ;;
-      --chat-exports)       chat_exports="$2";     shift 2 ;;
-      --pay-for-inference)  pay_for_inference="1"; shift   ;;
+      --chat-export)       chat_export="$2";      shift 2 ;;
+      --chat-exports)      chat_exports="$2";     shift 2 ;;
+      --pay-for-inference) pay_for_inference="1"; shift   ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 --chat-export <path> | --chat-exports <path> [--pay-for-inference]"
-        echo "       Pass --help for more information."; exit 1 ;;
+        echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-
   if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
     echo "Usage: $0 --chat-export <path/to/single-export>"
     echo "       $0 --chat-exports <path/to/chat-exports>"
     echo
     echo "Options:"
     echo "  --pay-for-inference   also run infer_tables.sh (requires ANTHROPIC_API_KEY in env)"
-    echo "       Pass --help for more information."
+    echo "Pass --help for more information."
     exit 1
   fi
+}
 
+run_one() {
+  local input_dir="${1%/}"
+  local name; name="$(basename "$input_dir")"
+
+  rm -rf "${OUTPUT_DIR:?}/$name"
+
+  "$SCRIPT_DIR/validate.sh"         --chat-export "$input_dir"
+  "$SCRIPT_DIR/extract_files.sh"    --chat-export "$input_dir"
+  "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$input_dir"
+
+  if [[ "$pay_for_inference" == "1" ]]; then
+    "$SCRIPT_DIR/infer_tables.sh" --chat-export "$input_dir"
+  fi
+
+  "$SCRIPT_DIR/present.sh"               --chat-export "$input_dir"
+  "$SCRIPT_DIR/audit_files.sh"           --chat-export "$input_dir"
+  "$SCRIPT_DIR/link_browser_captures.sh" --chat-export "$input_dir"
+}
+
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   if [[ -n "$chat_export" ]]; then
     run_one "$(cd "$chat_export" && pwd)"
   else
     for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
-      [ -d "$d" ] || continue
+      [[ -d "$d" ]] || continue
       run_one "$d"
     done
   fi

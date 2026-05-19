@@ -1,81 +1,40 @@
 #!/usr/bin/env bash
-# Convert and validate all .jsonl sessions in one Claude Code project directory.
+# Validate a single converted Claude Code CLI session against all schema versions.
 #
 # Usage:
-#   src/main/code-projects/validate.sh --code-project <path/to/project-directory>
+#   src/main/code-projects/validate.sh --code-project-session <path/to/session-dir>
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/code-projects/session"
-OUTPUT_DIR="$REPO_DIR/gen/code-projects"
-JSONL_TO_JSON="$SCRIPT_DIR/jsonl_to_json.sh"
 
-validate_session() {
-  local jsonl="$1" project_name="$2"
-  local session; session="$(basename "${jsonl%.jsonl}")"
-  local out_dir="$OUTPUT_DIR/$project_name/$session"
-  local json_out="$out_dir/session.json"
-  mkdir -p "$out_dir"
-
-  "$JSONL_TO_JSON" "$jsonl" "$json_out"
-
-  # Create a human-readable symlink using the current session title.
-  local title_file="$json_out.title"
-  if [[ -f "$title_file" ]]; then
-    local raw_title; raw_title="$(cat "$title_file")"
-    if [[ -n "$raw_title" ]]; then
-      local slug; slug="$(echo "$raw_title" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/-*$//')"
-      local link="$out_dir/${slug}.json"
-      ln -sfn session.json "$link"
-    fi
-  fi
-
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" "$json_out" "$SCHEMA_DIR" "$out_dir/validation/session" "$session"
-}
-
-validate_project() {
-  local project_dir="${1%/}"
-  local project_name; project_name="$(basename "$project_dir")"
-
-  local found=0
-  for jsonl in "$project_dir"/*.jsonl; do
-    [ -f "$jsonl" ] || continue
-    found=1
-    validate_session "$jsonl" "$project_name"
-  done
-
-  if [[ "$found" -eq 0 ]]; then
-    echo "  (no .jsonl files found)"
-  fi
-}
-
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //"
-  exit 0
-fi
-
-main() {
-  local code_project=""
-
+parse_args() {
+  session_dir=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --code-project) code_project="$2"; shift 2 ;;
+      --code-project-session) session_dir="$2"; shift 2 ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --code-project <path>"
-        echo "       Pass --help for more information."; exit 1 ;;
+        echo "Usage: $0 --code-project-session <path>"
+        echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-
-  if [[ -z "$code_project" ]]; then
-    echo "Usage: $0 --code-project <path/to/project-directory>"
-    echo "       Pass --help for more information."
+  if [[ -z "$session_dir" ]]; then
+    echo "Usage: $0 --code-project-session <path/to/session-directory>"
+    echo "Pass --help for more information."
     exit 1
   fi
+}
 
-  validate_project "$(cd "$code_project" && pwd)"
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+  local session; session="$(basename "$session_dir")"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
+    "$session_dir/session.json" "$SCHEMA_DIR" "$session_dir/validation/session" "$session"
 }
 
 main "$@"

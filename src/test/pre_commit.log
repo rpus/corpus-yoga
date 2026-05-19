@@ -1,13 +1,7 @@
-pre_commit.py: 649/649
+pre_commit.py: 643/643
 
 
 ── check_required_files ──────────────────────────────────────────────────────
-  ✓ exists: rsc/schema/browser-captures/apiConversation/principles.md
-  ✓ exists: rsc/schema/browser-captures/apiConversation/workflow.md
-  ✓ exists: rsc/schema/chat-exports/conversations/principles.md
-  ✓ exists: rsc/schema/chat-exports/conversations/workflow.md
-  ✓ exists: rsc/schema/code-projects/session/principles.md
-  ✓ exists: rsc/schema/code-projects/session/workflow.md
   ✓ exists: rsc/schema/browser-captures/apiConversation/v1.json
   ✓ exists: rsc/schema/chat-exports/conversations/v1.json
   ✓ exists: rsc/schema/chat-exports/conversations/v2.json
@@ -694,7 +688,7 @@ pre_commit.py: 649/649
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 11 missing-file, 0 bad-pointer, 10 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 40 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 649/649; expected: 649/649
+  ✓ score: 643/643; expected: 643/643

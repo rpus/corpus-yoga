@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Validate a single browser-capture batch against the apiConversation schema.
+# Validate a single browser-capture conversation against the apiConversation schema.
 #
 # Usage:
-#   src/main/browser-captures/validate.sh --browser-capture <path/to/batch-directory>
+#   src/main/browser-captures/validate.sh --browser-capture <path/to/uuid-directory>
 
 set -euo pipefail
 
@@ -12,26 +12,16 @@ SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
 OUTPUT_DIR="$REPO_DIR/gen/browser-captures"
 
 validate_conversation() {
-  local json="$1" batch_name="$2"
-  local uuid; uuid="$(basename "$(dirname "$json")")"
-  local out_dir="$OUTPUT_DIR/$batch_name/$uuid"
-
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid"
-}
-
-validate_batch() {
-  local batch_dir="${1%/}"
-  local batch_name; batch_name="$(basename "$batch_dir")"
-  echo "$batch_name"
+  local uuid_dir="${1%/}"
+  local uuid; uuid="$(basename "$uuid_dir")"
+  local out_dir="$OUTPUT_DIR/$uuid"
 
   local found=0
-  for uuid_dir in "$batch_dir"/*/; do
-    [ -d "$uuid_dir" ] || continue
-    for json in "$uuid_dir"/*.json; do
-      [ -f "$json" ] || continue
-      found=1
-      validate_conversation "$json" "$batch_name"
-    done
+  for json in "$uuid_dir"/*.json; do
+    [[ -f "$json" ]] || continue
+    found=1
+    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
+      "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid"
   done
 
   if [[ "$found" -eq 0 ]]; then
@@ -39,30 +29,29 @@ validate_batch() {
   fi
 }
 
-if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-  grep "^# " "$0" | sed "s/^# //"
-  exit 0
-fi
-
-main() {
-  local browser_capture=""
+parse_args() {
+  browser_capture=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --browser-capture) browser_capture="$2"; shift 2 ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 --browser-capture <path>"
-        echo "       Pass --help for more information."; exit 1 ;;
+        echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-
   if [[ -z "$browser_capture" ]]; then
-    echo "Usage: $0 --browser-capture <path/to/batch-directory>"
-    echo "       Pass --help for more information."
+    echo "Usage: $0 --browser-capture <path/to/uuid-directory>"
+    echo "Pass --help for more information."
     exit 1
   fi
+}
 
-  validate_batch "$(cd "$browser_capture" && pwd)"
+main() {
+  parse_args "$@"
+  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
+  validate_conversation "$(cd "$browser_capture" && pwd)"
 }
 
 main "$@"

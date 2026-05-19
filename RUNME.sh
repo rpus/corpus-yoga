@@ -20,33 +20,42 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-pay_for_inference=""
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
-    --help|-h)
-      grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-    *)
-      echo "Unknown argument: $1"; echo "Usage: $0 [--pay-for-inference]"; exit 1 ;;
-  esac
-done
+parse_args() {
+  pay_for_inference=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
+      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
+    esac
+  done
+}
 
-echo "── browser-captures ──────────────────────────────────────────────────────────"
-"$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" \
-  --browser-captures "$SCRIPT_DIR/ext/browser-captures"
+prep_pipeline() {
+  local name="$1"; shift
+  echo "── prep: ${name} ────────────────────────────────────────────────────────────"
+  "$SCRIPT_DIR/src/main/${name}/PREP.sh" "$@"
+  echo ""
+}
 
-echo ""
-echo "── chat-exports ──────────────────────────────────────────────────────────────"
-# shellcheck disable=SC2086
-"$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" \
-  --chat-exports "$SCRIPT_DIR/ext/chat-exports" \
-  $pay_for_inference
+run_pipeline() {
+  local name="$1"; shift
+  echo "── ${name} ──────────────────────────────────────────────────────────────────"
+  "$SCRIPT_DIR/src/main/${name}/RUNME.sh" "--${name}" "$SCRIPT_DIR/ext/${name}" "$@"
+  echo ""
+}
 
-echo ""
-echo "── code-projects ─────────────────────────────────────────────────────────────"
-"$SCRIPT_DIR/src/main/code-projects/RUNME.sh" \
-  --code-projects "$SCRIPT_DIR/ext/code-projects"
+main() {
+  parse_args "$@"
+  basename "$0"
+  prep_pipeline browser-captures
+  run_pipeline browser-captures
+  prep_pipeline chat-exports
+  run_pipeline chat-exports ${pay_for_inference:+"$pay_for_inference"}
+  prep_pipeline code-projects
+  run_pipeline code-projects
+  echo "── done ──────────────────────────────────────────────────────────────────────"
+  echo "Run src/test/pre_commit.sh, then: git diff src/test/pre_commit.log"
+}
 
-echo ""
-echo "── done ──────────────────────────────────────────────────────────────────────"
-echo "Run src/test/pre_commit.sh, then: git diff src/test/pre_commit.log"
+main "$@"
