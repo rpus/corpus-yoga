@@ -1,25 +1,15 @@
 referring_file,line,ref_type,referred_file,exists,line_text
 PREP.sh,11,comment,PREP.sh,Y,#   ./PREP.sh
 PREP.sh,59,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-README.md,8,doc,src/requirements.txt,Y,- `python3 -m venv ~/venvs/general && pip install -r src/requirements.txt`
-README.md,21,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
-README.md,25,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>`
-README.md,27,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
-README.md,30,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
-README.md,31,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,35,doc,src/main/browser-captures/RUNME.sh,Y,./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
-README.md,36,doc,src/main/chat-exports/RUNME.sh,Y,./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports \
-README.md,38,doc,src/main/code-projects/RUNME.sh,Y,./src/main/code-projects/RUNME.sh --code-projects ext/code-projects
-README.md,39,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
-README.md,40,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
-README.md,46,doc,src/main/chat-exports/RUNME.sh,Y,- `./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports` (or `validate.sh --chat-export <one-export>`)
-README.md,47,doc,rsc/schema,Y,- Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
-README.md,47,doc,src/main,Y,- Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
-README.md,49,doc,src/main/chat-exports/extract_files.sh,Y,- `./src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports`
-README.md,50,doc,src/main/chat-exports/extract_heredocs.sh,Y,- `./src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports`
-README.md,52,doc,src/main/chat-exports/infer_tables.sh,Y,- `./src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports`
-README.md,54,doc,src/main/chat-exports/present.sh,Y,- `./src/main/chat-exports/present.sh --chat-exports ext/chat-exports`
-README.md,61,doc,src/main/schema_recommendations.py,Y,- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed. Script is pipeline-agnostic (correct location). O
+README.md,16,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
+README.md,20,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>`
+README.md,22,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
+README.md,25,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
+README.md,26,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,30,doc,RUNME.sh,Y,./RUNME.sh \
+README.md,32,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
+README.md,33,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
+README.md,41,doc,src/main/schema_recommendations.py,Y,- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed. Script is pipeline-agnostic (correct location). O
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                        # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference    # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,18,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
@@ -208,6 +198,11 @@ src/test/code-projects/survey_code_session.py,11,comment,src/test/code-projects/
 src/test/gen_changelog_matrix.py,9,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/gen_changelog_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+src/test/pre_commit.py,304,path_str,src/run_python_script.sh,Y,run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,328,path_str,src/run_python_script.sh,Y,run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,66,path_str,src/main/browser-captures/RUNME.sh,Y,"validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',"
+src/test/pre_commit.py,81,path_str,src/main/chat-exports/RUNME.sh,Y,"validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',"
+src/test/pre_commit.py,92,path_str,src/main/code-projects/RUNME.sh,Y,"validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',"
 src/test/pre_commit.py,618,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.py,620,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.py,628,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
@@ -239,7 +234,6 @@ src/test/xref.sh,7,comment,src/test/xref.sh,Y,#   src/test/xref.sh --out <path> 
 src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"""
 ,,self_only,PREP.sh,Y,
 ,,,README.md,Y,
-,,self_only,RUNME.sh,Y,
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,rsc/schema/_reference/mcp.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,

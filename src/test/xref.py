@@ -238,6 +238,10 @@ def extract_python(f: Path, rows: list) -> None:
                 elif looks_like_repo_path(s):
                     ltext = lines[lineno_base - 1].strip() if lineno_base else ''
                     emit(rows, f, lineno_base, 'path_str', s, ltext)
+                elif ' ' in s and s.split() and looks_like_repo_path(s.split()[0]):
+                    # String starting with a repo path followed by flags, e.g. validate_cmd values
+                    ltext = lines[lineno_base - 1].strip() if lineno_base else ''
+                    emit(rows, f, lineno_base, 'path_str', s.split()[0], ltext)
 
     # Line pass: comments and subprocess/exec calls
     for i, line in enumerate(lines, 1):

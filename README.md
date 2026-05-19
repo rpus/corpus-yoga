@@ -2,11 +2,6 @@
 
 This repo wrangles Claude data exports.
 
-## Prerequisites
-
-- `python3` (e.g. `brew install python`)
-- `python3 -m venv ~/venvs/general && pip install -r src/requirements.txt`
-
 ## How to use
 
 - Prepare new data
@@ -32,26 +27,11 @@ This repo wrangles Claude data exports.
 
 ```bash
 # git clean -fdX; git clean -fdxn
-./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
-./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports \
+./RUNME.sh \
   --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
-./src/main/code-projects/RUNME.sh --code-projects ext/code-projects
 ./src/main/model/gen_model.sh
 # ./src/test/pre_commit.sh
 ```
-
-## What that does
-
-- Validate the data
-  - `./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports` (or `validate.sh --chat-export <one-export>`)
-- Address any errors by updating/retesting the schemas (in `./rsc/schema`) and tooling (in `./src/main`) as needed.
-- Extract files and heredocs
-  - `./src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports`
-  - `./src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports`
-- Present the data
-  - `./src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports`
-  - NB the above call requires an Anthropic API key and costs money.
-  - `./src/main/chat-exports/present.sh --chat-exports ext/chat-exports`
 
 ---
 
