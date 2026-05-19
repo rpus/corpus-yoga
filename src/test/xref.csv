@@ -1,9 +1,9 @@
 referring_file,line,ref_type,referred_file,exists,line_text
 PREP.sh,11,comment,PREP.sh,Y,#   ./PREP.sh
 PREP.sh,59,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-README.md,16,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-c"
-README.md,20,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>`
-README.md,22,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
+README.md,16,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
+README.md,20,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
+README.md,22,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
 README.md,25,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
 README.md,26,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
 README.md,30,doc,RUNME.sh,Y,./RUNME.sh \

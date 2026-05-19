@@ -13,13 +13,13 @@ This repo wrangles Claude data exports.
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
   - Open Safari, log in to <https://claude.ai>
   - **Shortcut mode** (standalone, outputs `.md` + `.log` + `{uuid}.json` to `~/Downloads/`):
-    - Set up a Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/dev/Anthropic/claude-export-yoga/src/main/browser-captures/export.applescript"`
+    - Set up a Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.applescript"`
     - With front tab on <https://claude.ai/recents>: exports all conversations
     - With front tab on `https://claude.ai/chat/{uuid}`: exports that conversation
-  - **Pipeline mode** (scope-constrained to a bulk export, outputs to `ext/browser-captures/<export-name>/<uuid>/`):
-    - `./src/main/browser-captures/safari_capture.sh --chat-export ext/chat-exports/data-<...>`
+  - **Pipeline mode** (re-captures all conversations in `ext/browser-captures/`):
+    - `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
 - Fetch live API JSON for existing captures without it (for apiConversation schema validation):
-  - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-capture ext/browser-captures/data-<...>`
+  - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
   - Saves `{title}.json` alongside each capture
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
