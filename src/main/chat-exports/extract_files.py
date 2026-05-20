@@ -113,6 +113,9 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                 rsc_dest = RSC_DIR / convo_dir.name / rel
                 rsc_dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(dest, rsc_dest)
+                dl_dest = dl_dir / rel
+                dl_dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(dest, dl_dest)
                 copied += 1
 
         rows.append((idx, name[:50], extracted, downloaded, copied))
@@ -135,15 +138,15 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_dl:>10}  {t_cp:>6}\n')
         else:
             t_ext = t_dl = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted, {t_dl} already downloaded, {t_cp} copied to rsc.\n')
+        log.write(f'\nDone. {t_ext} extracted, {t_dl} already in downloaded, {t_cp} new (copied to rsc and downloaded).\n')
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).parent
 OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
-DOWNLOADED_DIR = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
-RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'extracted_files'
+DOWNLOADED_DIR = SCRIPT_DIR.parent.parent.parent / 'lib' / 'artifacts' / 'downloaded'
+RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'gen' / 'artifacts' / 'extracted_files'
 
 
 def main():

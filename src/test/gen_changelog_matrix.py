@@ -7,10 +7,13 @@ Run after validate.sh whenever a new batch or session has been validated.
 
 Usage:
     src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
+    src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
+    src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --prune
 
 Where <pipeline> is any key from PIPELINES in pre_commit.py.
 
 Without --write, prints the new table to stdout instead of updating the file.
+--prune removes changelog entries whose validation logs no longer exist in gen/.
 """
 
 import argparse
@@ -19,7 +22,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from pre_commit import Pipeline, PIPELINES, REPO_ROOT
+from pre_commit import Pipeline, PIPELINES, REPO_ROOT, RSC_SCHEMA, _schema_title
 
 
 
@@ -55,8 +58,15 @@ def gen_matrix(pipeline: Pipeline, name: str) -> list[str]:
     if not gen.exists():
         sys.exit(f'{gen.relative_to(REPO_ROOT)} not found — run {pipeline.validate_cmd} ../{name} first')
 
-    glob = (f'*/validation/{schema}/v*.log' if pipeline.subject_depth == 1
-            else f'*/*/validation/{schema}/v*.log')
+    vld = pipeline.validation_log_depth
+    if pipeline.subject_depth == 1 and vld == 0:
+        glob = f'*/validation/{schema}/v*.log'
+    elif pipeline.subject_depth == 2 and vld == 0:
+        glob = f'*/*/validation/{schema}/v*.log'
+    elif pipeline.subject_depth == 2 and vld == 1:
+        glob = f'*/validation/{schema}/*/v*.log'
+    else:
+        sys.exit(f'Unsupported subject_depth={pipeline.subject_depth}/validation_log_depth={vld}')
 
     # (subject, dir_name, uuid, version, symbol, bytes)
     rows: list[tuple[str, str, str, str, str, int]] = []
@@ -65,8 +75,14 @@ def gen_matrix(pipeline: Pipeline, name: str) -> list[str]:
         version = log.stem
         text    = log.read_text()
         _, nbytes = parse_size(text)
-        if pipeline.subject_depth == 1:
+        if pipeline.subject_depth == 1 and vld == 0:
             rows.append((f'`{parts[0]}`', '', '', version, result_symbol(text), nbytes or 0))
+        elif pipeline.subject_depth == 2 and vld == 1:
+            # parts = (outer, 'validation', schema, inner, vN.log)
+            outer = parts[0]
+            inner = parts[3]
+            abbrev = outer.removeprefix(pipeline.slug_prefix)
+            rows.append((f'`{abbrev}`', abbrev, inner, version, result_symbol(text), nbytes or 0))
         elif new_format:
             dir_name = parts[0]
             uuid     = parts[1]
@@ -191,7 +207,9 @@ def write_changelog(path: Path, new_table_lines: list[str], footer: str = '') ->
             if old_uuid_col is not None and new_cells[0] != old_cells[0]:
                 new_cells[0] = old_cells[0]
                 new_row = '| ' + ' | '.join(new_cells) + ' |'
-            if _result_cells(new_row) != _result_cells(row):
+            old_results = _result_cells(row)
+            new_results = _result_cells(new_row)
+            if new_results[:len(old_results)] != old_results:
                 rewrites.append((key, row.strip(), new_row.strip()))
         out.append(new_row if new_row is not None else row)
         seen.add(key)
@@ -215,6 +233,81 @@ def write_changelog(path: Path, new_table_lines: list[str], footer: str = '') ->
     print(f'Updated {path.relative_to(REPO_ROOT)}')
 
 
+def prune_changelog(pipeline: Pipeline) -> None:
+    """Remove matrix rows whose validation logs no longer exist in gen/."""
+    path   = pipeline.changelog
+    schema = path.parent.name
+    vld  = pipeline.validation_log_depth
+    if pipeline.subject_depth == 1 and vld == 0:
+        glob = f'*/validation/{schema}/v*.log'
+    elif pipeline.subject_depth == 2 and vld == 0:
+        glob = f'*/*/validation/{schema}/v*.log'
+    else:
+        glob = f'*/validation/{schema}/*/v*.log'
+
+    live_subjects: set[str] = set()
+    for log in pipeline.gen.glob(glob):
+        parts = log.relative_to(pipeline.gen).parts
+        if pipeline.subject_depth == 1 and vld == 0:
+            live_subjects.add(parts[0])
+        elif pipeline.subject_depth == 2 and vld == 1:
+            live_subjects.add(parts[3])  # inner subject (uuid)
+        else:
+            live_subjects.add(parts[1])
+
+    if not path.exists() or '<!-- matrix -->' not in path.read_text():
+        print(f'No matrix found in {path.relative_to(REPO_ROOT)}')
+        return
+
+    text = path.read_text().splitlines()
+    pre, table_rows, post = [], [], []
+    in_block = past_block = False
+    for line in text:
+        if not past_block and not in_block and line.strip() == '<!-- matrix -->':
+            pre.append(line)
+            in_block = True
+        elif in_block and line.startswith('---'):
+            in_block = False
+            past_block = True
+            post.append(line)
+        elif in_block:
+            if line.startswith('|'):
+                table_rows.append(line)
+        elif past_block:
+            post.append(line)
+        else:
+            pre.append(line)
+
+    if not table_rows:
+        print('No matrix rows found.')
+        return
+
+    header = table_rows[:2]
+    uuid_col = _uuid_col_index(table_rows[0]) if table_rows else None
+
+    kept, pruned = [], []
+    for row in table_rows[2:]:
+        uuid = _uuid_from_row(row, uuid_col)
+        subj = (uuid if uuid else re.sub(r'\s+', ' ', _cells(row)[0])).replace('`', '')
+        if subj in live_subjects:
+            kept.append(row)
+        else:
+            pruned.append(subj)
+
+    if not pruned:
+        print('Nothing to prune.')
+        return
+
+    out = header + kept
+    if pipeline.changelog_footer:
+        out += ['', pipeline.changelog_footer]
+
+    path.write_text('\n'.join(pre + out + [''] + post) + '\n')
+    print(f'Pruned {len(pruned)} entr{"y" if len(pruned) == 1 else "ies"} from {path.relative_to(REPO_ROOT)}:')
+    for s in pruned:
+        print(f'  {s}')
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 def main():
@@ -223,18 +316,48 @@ def main():
                    choices=list(PIPELINES))
     p.add_argument('--write', action='store_true',
                    help='Update the CHANGELOG.md in place (default: print to stdout)')
+    p.add_argument('--prune', action='store_true',
+                   help='Remove entries whose validation logs no longer exist in gen/')
     args = p.parse_args()
 
     pipeline = PIPELINES[args.pipeline]
-    lines    = gen_matrix(pipeline, args.pipeline)
 
-    if args.write:
-        write_changelog(CHANGELOGS[args.pipeline], lines, pipeline.changelog_footer)
-    else:
-        print('\n'.join(lines))
-        if pipeline.changelog_footer:
-            print()
-            print(pipeline.changelog_footer)
+    pipeline_dir = pipeline.changelog.parent.parent.name
+
+    def _pipeline_for_schema(schema: str, log_depth: int) -> tuple:
+        changelog = RSC_SCHEMA / pipeline_dir / schema / 'CHANGELOG.md'
+        footer    = f'Bytes: size of the {schema} JSON file at validation time.'
+        sub = pipeline.__class__(
+            **{**pipeline.__dict__,
+               'changelog':            changelog,
+               'validation_log_depth': log_depth,
+               'subject_depth':        2 if log_depth > 0 else pipeline.subject_depth,
+               'dir_col':              'Export' if log_depth > 0 else pipeline.dir_col,
+               'uuid_col':             f'{_schema_title(schema)} UUID' if log_depth > 0 else pipeline.uuid_col,
+            }
+        )
+        return sub, changelog, footer
+
+    targets = []
+    for schema in pipeline.schemas:
+        depth = pipeline.schema_log_depths.get(schema, 0)
+        sub, chlog, footer = _pipeline_for_schema(schema, depth)
+        targets.append((sub, chlog, footer))
+
+    if args.prune:
+        for sub, _, _ in targets:
+            prune_changelog(sub)
+        return
+
+    for sub, chlog, footer in targets:
+        lines = gen_matrix(sub, args.pipeline)
+        if args.write:
+            write_changelog(chlog, lines, footer)
+        else:
+            print('\n'.join(lines))
+            if footer:
+                print()
+                print(footer)
 
 
 if __name__ == '__main__':

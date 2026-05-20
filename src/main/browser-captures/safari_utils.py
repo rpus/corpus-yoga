@@ -4,6 +4,7 @@ Called by safari_capture.py and safari_fetch_api_json.py — do not invoke direc
 """
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -46,12 +47,26 @@ def safari_navigate(url):
     osascript(f'tell application "Safari" to set URL of front document to "{url}"')
 
 
-def safari_run_js_file(js_path, applescript_tmp):
-    Path(applescript_tmp).write_text(
+
+
+def safari_run_js_file(js_path):
+    code = (
         f'set jsCode to read POSIX file "{js_path}" as «class utf8»\n'
-        'tell application "Safari" to do JavaScript jsCode in front document\n'
+        'tell application "Safari" to do JavaScript jsCode in front document'
     )
-    subprocess.run(['osascript', str(applescript_tmp)], capture_output=True)
+    subprocess.run(['osascript', '-e', code], capture_output=True)
+
+
+def safari_eval_js(js_code):
+    """Evaluate a JS string in Safari's front document and return the result."""
+    escaped = js_code.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ')
+    r = subprocess.run(
+        ['osascript', '-e', f'tell application "Safari" to do JavaScript "{escaped}" in front document'],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        print(f'osascript error: {r.stderr.strip()}', file=sys.stderr)
+    return r.stdout.strip()
 
 
 def safari_fetch_api_json(uuid, timeout=DOWNLOAD_TIMEOUT):

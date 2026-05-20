@@ -89,6 +89,26 @@ validate_export() {
       validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
     done
   done
+
+  for d in "$chat_export"/*/; do
+    [[ -d "$d" ]] || continue
+    local dname
+    dname="$(basename "$d")"
+    [[ -d "$SCHEMA_DIR/$dname" ]] || continue
+    for f in "$d"*.json; do
+      [[ -f "$f" ]] || continue
+      local item_name schemas schema schema_stem
+      item_name="$(basename "${f%.json}")"
+      schemas=()
+      while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$dname" -name "*.json" -type f)
+      for schema in "${schemas[@]}"; do
+        schema_stem="${schema#"$SCHEMA_DIR/"}"
+        schema_stem="${schema_stem%.json}"
+        mkdir -p "$validation_dir/${dname}/${item_name}"
+        validate_file "$f" "$schema" "$validation_dir/${dname}/${item_name}/$(basename "$schema_stem").log"
+      done
+    done
+  done
 }
 
 parse_args() {

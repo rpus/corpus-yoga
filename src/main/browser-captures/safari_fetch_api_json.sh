@@ -23,7 +23,11 @@ main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
-  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_fetch_api_json.py" "$@"
+  local log
+  log="$REPO_DIR/logs/${SCRIPT_DIR#"$REPO_DIR/"}/safari_fetch_api_json/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+  mkdir -p "$(dirname "$log")"
+  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_fetch_api_json.py" "$@" \
+    | tee "$log"
 }
 
 main "$@"

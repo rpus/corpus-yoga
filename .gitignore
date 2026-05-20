@@ -1,6 +1,7 @@
 /ext/
 /gen/
 /lib/
+/logs/
 
 **/.DS_Store
 **/__pycache__

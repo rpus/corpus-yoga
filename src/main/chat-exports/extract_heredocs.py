@@ -20,7 +20,6 @@ Usage:
 """
 
 import argparse
-import difflib
 import json
 import re
 import shutil
@@ -118,17 +117,14 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                         diff_entries.append((convo_dir.name, str(e['rel']), 'newline-only', 'download lacks trailing newline'))
                     else:
                         differs += 1
-                        diff_lines = list(difflib.unified_diff(
-                            e['content'].splitlines(keepends=True),
-                            dl_text.splitlines(keepends=True),
-                            fromfile=f'heredoc/{e["rel"]}',
-                            tofile=f'downloaded/{e["rel"]}',
-                        ))
-                        diff_entries.append((convo_dir.name, str(e['rel']), 'differs', ''.join(diff_lines)))
+                        diff_entries.append((convo_dir.name, str(e['rel']), 'differs',
+                                             dest, dl_path))
                 else:
                     rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
                     rsc_dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(dest, rsc_dest)
+                    dl_path.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(dest, dl_path)
                     copied += 1
             else:
                 # working/ files (/home/claude/) are internal to the Claude sandbox and cannot
@@ -141,6 +137,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                     rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
                     rsc_dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(dest, rsc_dest)
+                    dl_path.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(dest, dl_path)
                     copied += 1
 
         rows.append((idx, name[:50], extracted, identical, newline_only, differs, copied))
@@ -162,24 +160,24 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_id:>9}  {t_nl:>8}  {t_diff:>8}  {t_cp:>6}\n')
         else:
             t_ext = t_id = t_nl = t_diff = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} copied to rsc.\n')
+        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to rsc and downloaded).\n')
 
         if diff_entries:
             log.write(f'\n── outputs/ files found in downloaded ({t_nl}+{t_diff}={t_nl+t_diff} shown, not copied to rsc) ──\n')
-            for chat_slug, rel, kind, diff_text in diff_entries:
+            for entry in diff_entries:
+                chat_slug, rel, kind = entry[0], entry[1], entry[2]
                 if kind == 'newline-only':
-                    log.write(f'  ≈ {chat_slug}/{rel}  ({diff_text} — not copied)\n')
+                    log.write(f'  ≈ {chat_slug}/{rel}  ({entry[3]} — not copied)\n')
                 else:
+                    extracted_path, dl_path_arg = entry[3], entry[4]
                     log.write(f'  ↑ {chat_slug}/{rel}  (downloaded is ahead — not copied)\n')
-                    for line in diff_text.splitlines():
-                        log.write(f'    {line}\n')
-                    log.write('\n')
+                    log.write(f'    diff {extracted_path} {dl_path_arg}\n')
 
 
 SCRIPT_DIR     = Path(__file__).parent
 OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
-DOWNLOADED_DIR = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
-RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'extracted_heredocs'
+DOWNLOADED_DIR = SCRIPT_DIR.parent.parent.parent / 'lib' / 'artifacts' / 'downloaded'
+RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'gen' / 'artifacts' / 'extracted_heredocs'
 
 
 def main():

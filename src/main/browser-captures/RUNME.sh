@@ -44,10 +44,14 @@ main() {
   if [[ -n "$browser_capture" ]]; then
     run_one "$(cd "$browser_capture" && pwd)"
   else
-    for d in "$(cd "$browser_captures" && pwd)"/*/; do
+    local root; root="$(cd "$browser_captures" && pwd)"
+    local found=0
+    for d in "$root"/*/; do
       [[ -d "$d" ]] || continue
+      found=1
       run_one "$d"
     done
+    [[ $found -eq 0 ]] && echo "no captures in $root"
   fi
 }
 

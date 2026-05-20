@@ -12,7 +12,7 @@ Usage:
     python safari_fetch_api_json.py --browser-captures ext/browser-captures
 """
 
-import argparse, shutil, sys, time
+import argparse, shutil, time
 from pathlib import Path
 
 from safari_utils import safari_focus, safari_navigate, safari_fetch_api_json
@@ -51,9 +51,6 @@ def main():
     captures_root = Path(args.browser_captures).resolve()
     uuid_dirs = sorted(d for d in captures_root.iterdir() if d.is_dir())
 
-    log_fh = open(captures_root / 'fetch_api_json.log', 'a', buffering=1)
-    sys.stdout = sys.stderr = log_fh
-
     print(f'--- run started {time.strftime("%Y-%m-%dT%H:%M:%S")} ---')
     print(f'backfilling API JSON for {len(uuid_dirs)} conversations')
 
@@ -63,7 +60,6 @@ def main():
         fetch_one(uuid_dir)
 
     print(f'--- run finished {time.strftime("%Y-%m-%dT%H:%M:%S")} ---')
-    log_fh.close()
 
 
 if __name__ == '__main__':

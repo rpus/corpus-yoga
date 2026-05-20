@@ -8,7 +8,10 @@
 set scriptPath to POSIX path of (path to me)
 set scriptDir to do shell script "dirname " & quoted form of scriptPath
 set singleScript to POSIX file (scriptDir & "/export-conversation.applescript")
-set logFile to scriptDir & "/claude-export.log"
+set repoDir to do shell script "cd " & quoted form of scriptDir & "/../../../ && pwd"
+set logDir to repoDir & "/logs/src/main/browser-captures/export-all-conversations"
+do shell script "mkdir -p " & quoted form of logDir
+set logFile to logDir & "/" & (do shell script "date -u '+%Y-%m-%dT%H:%M:%SZ'") & ".log"
 set downloadsDir to (do shell script "echo $HOME") & "/Downloads/"
 
 on logHeader(logFile, msg)
@@ -31,12 +34,14 @@ tell application "Safari"
 		return
 	end if
 
-	-- Click "Show more" until all conversations are loaded
+	-- Scroll to bottom until count stabilises (infinite scroll)
+	set prevCount to 0
 	repeat
-		set hasMore to do JavaScript "!!Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Show more')" in front document
-		if hasMore is false then exit repeat
-		do JavaScript "Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Show more').click()" in front document
-		delay 1
+		do JavaScript "window.scrollTo(0, document.body.scrollHeight)" in front document
+		delay 2
+		set currCount to do JavaScript "document.querySelectorAll('a[href*=\"/chat/\"]').length" in front document
+		if currCount = prevCount then exit repeat
+		set prevCount to currCount
 	end repeat
 
 	-- Extract unique conversation UUIDs (in DOM order, first occurrence wins)

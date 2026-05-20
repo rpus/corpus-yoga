@@ -1,32 +1,46 @@
 #!/usr/bin/env python
 """
-Capture markdown and live API JSON for all conversations in ext/browser-captures/.
+Capture markdown and live API JSON for Claude.ai conversations via Safari.
 
-For each UUID directory, navigates Safari to the conversation, injects
-browser-chat-capture.js to export as markdown, and fetches the live API JSON.
+Two modes:
+  --recapture   Re-capture all UUID directories already in ext/browser-captures/.
+                Safe for routine use — only updates known conversations.
+  --discover    Navigate to claude.ai/recents, find all conversation UUIDs,
+                and capture all of them.
+
 Always overwrites previous captures — conversations grow over time.
 
 Requires Safari open, focused, and logged into claude.ai throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --browser-captures ext/browser-captures
+    python safari_capture.py --recapture  --browser-captures ext/browser-captures
+    python safari_capture.py --discover   --browser-captures ext/browser-captures
 """
 
 import argparse, shutil, sys, time
 from pathlib import Path
 
 from safari_utils import (
-    safari_focus, safari_navigate, safari_run_js_file,
+    safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_fetch_api_json, wait_for_log, collect_md_and_log,
     PAGE_LOAD_WAIT,
 )
 
-REPO_DIR       = Path(__file__).resolve().parents[3]
-JS_SCRIPT      = Path(__file__).parent / 'browser-chat-capture.js'
-APPLESCRIPT    = Path('/tmp/claude-safari-capture.applescript')
-EXPORT_TIMEOUT = 900
-SETTLE_PAUSE   = 2
+REPO_DIR  = Path(__file__).resolve().parents[3]
+JS_SCRIPT = Path(__file__).parent / 'browser-chat-capture.js'
+
+DISCOVER_JS = """\
+(function () {
+  const seen = new Set(), r = [];
+  document.querySelectorAll('a[href*="/chat/"]').forEach(function (a) {
+    const u = a.pathname.split('/').pop();
+    if (u && !seen.has(u)) { seen.add(u); r.push(u); }
+  });
+  return r.join('\\n');
+})()"""
+EXPORT_TIMEOUT    = 900
+SETTLE_PAUSE      = 2
 
 
 def capture_one(uuid, out_dir):
@@ -35,7 +49,7 @@ def capture_one(uuid, out_dir):
     time.sleep(PAGE_LOAD_WAIT)
 
     start = time.time()
-    safari_run_js_file(JS_SCRIPT, APPLESCRIPT)
+    safari_run_js_file(JS_SCRIPT)
     print(f'  script injected, waiting...')
 
     log = wait_for_log(start, EXPORT_TIMEOUT)
@@ -58,10 +72,60 @@ def capture_one(uuid, out_dir):
     print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')
 
 
+def uuids_from_filesystem(captures_root):
+    print(f'scanning {captures_root}')
+    uuids = [d.name for d in sorted(captures_root.iterdir()) if d.is_dir()]
+    print(f'found {len(uuids)} existing captures')
+    return uuids
+
+
+def uuids_from_safari():
+    safari_focus()
+    print('navigating to claude.ai/recents')
+    safari_navigate('https://claude.ai/recents')
+    time.sleep(PAGE_LOAD_WAIT)
+    print('loading all conversations...')
+    prev = 0
+    while True:
+        safari_eval_js('window.scrollTo(0, document.body.scrollHeight)')
+        time.sleep(2)
+        count = safari_eval_js("document.querySelectorAll('a[href*=\"/chat/\"]').length")
+        try:
+            count = int(count)
+        except (ValueError, TypeError):
+            break
+        if count == prev:
+            break
+        prev = count
+    print('extracting UUIDs')
+    raw = safari_eval_js(DISCOVER_JS)
+    uuids = [u for u in raw.splitlines() if u]
+    print(f'found {len(uuids)} conversations')
+    return uuids
+
+
+def run(uuids, captures_root, label):
+    if not uuids:
+        print(f'{label}: nothing to do')
+        return
+    print(f'--- {label} started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
+    print(f'capturing {len(uuids)} conversations')
+    safari_focus()
+    for i, uuid in enumerate(uuids):
+        print(f'[{i+1}/{len(uuids)}] {uuid}')
+        capture_one(uuid, captures_root / uuid)
+    print(f'--- {label} finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--browser-captures', required=True,
-                    help='Path to ext/browser-captures/ — re-captures all UUID subdirectories')
+                    help='Path to ext/browser-captures/')
+    g = ap.add_mutually_exclusive_group(required=True)
+    g.add_argument('--recapture', action='store_true',
+                   help='Re-capture all UUID directories already present')
+    g.add_argument('--discover', action='store_true',
+                   help='Discover from Recents and capture new conversations only')
     args = ap.parse_args()
 
     if not JS_SCRIPT.exists():
@@ -69,22 +133,12 @@ def main():
         raise SystemExit(1)
 
     captures_root = Path(args.browser_captures).resolve()
-    uuid_dirs = sorted(d for d in captures_root.iterdir() if d.is_dir())
+    captures_root.mkdir(parents=True, exist_ok=True)
 
-    log_fh = open(captures_root / 'run.log', 'a', buffering=1)
-    sys.stdout = sys.stderr = log_fh
-
-    print(f'--- run started {time.strftime("%Y-%m-%dT%H:%M:%S")} ---')
-    print(f'capturing {len(uuid_dirs)} conversations')
-
-    safari_focus()
-    for i, uuid_dir in enumerate(uuid_dirs):
-        uuid = uuid_dir.name
-        print(f'[{i+1}/{len(uuid_dirs)}] {uuid}')
-        capture_one(uuid, uuid_dir)
-
-    print(f'--- run finished {time.strftime("%Y-%m-%dT%H:%M:%S")} ---')
-    log_fh.close()
+    if args.recapture:
+        run(uuids_from_filesystem(captures_root), captures_root, 'recapture')
+    else:
+        run(uuids_from_safari(), captures_root, 'discover')
 
 
 if __name__ == '__main__':

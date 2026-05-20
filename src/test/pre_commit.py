@@ -21,7 +21,7 @@ import json
 import re
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -44,7 +44,8 @@ class Pipeline:
     input:           Path
     input_glob:      str
     subject_depth:   int
-    validate_cmd:    str
+    validate_cmd:      str
+    validate_item_cmd: str
     # Extra diagnostics to skip beyond the universal versioned-schema skip set.
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
     diagnostic_skip:    frozenset[str] = frozenset()
@@ -53,7 +54,9 @@ class Pipeline:
     subject_header:     str = ''
     dir_col:            str = ''
     uuid_col:           str = ''
-    changelog_footer:   str = ''
+    changelog_footer:        str = ''
+    validation_log_depth:    int = 0  # extra path levels inside validation/<schema>/ before the log file
+    schema_log_depths:       dict = field(default_factory=dict)  # schema → int, for non-standard nesting
 
 PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
@@ -61,15 +64,12 @@ PIPELINES: dict[str, Pipeline] = {
         changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
         gen               = GEN / 'browser-captures',
         input             = EXT / 'browser-captures',
-        input_glob        = 'data-*/*/',
-        subject_depth     = 2,
+        input_glob        = '*/',
+        subject_depth     = 1,
         validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',
-        subject_header    = 'Export',
-        dir_col           = 'Batch dir',
-        uuid_col          = 'Conversation UUID',
-        changelog_footer  = ('Export: batch directory name. Batch dir: same. '
-                             'Conversation UUID: full conversation UUID. '
-                             'Bytes: size of the captured JSON file at validation time.'),
+        validate_item_cmd = 'src/main/browser-captures/validate.sh --browser-capture',
+        subject_header    = 'Conversation UUID',
+        changelog_footer  = 'Bytes: size of the captured JSON file at validation time.',
     ),
     'chat-exports': Pipeline(
         schemas           = ['conversations', 'memories', 'projects', 'users'],
@@ -79,8 +79,10 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob        = 'data-*/',
         subject_depth     = 1,
         validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',
+        validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',
         subject_header    = 'Export',
         changelog_footer  = 'Bytes: size of `conversations.json` at validation time.',
+        schema_log_depths = {'projects': 1},
     ),
     'code-projects': Pipeline(
         schemas           = ['session'],
@@ -90,6 +92,7 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob        = '-Users-*/*.jsonl',
         subject_depth     = 2,
         validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',
+        validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
         slug_prefix       = str(Path.home()).replace('/', '-'),
         subject_header    = 'Repo',
@@ -218,7 +221,13 @@ def _input_subjects(pipeline: Pipeline) -> list:
         if item.is_dir() and dirs_only:
             result.append((item.parent.name, item.name))
         elif not item.is_dir() and not dirs_only:
-            result.append((item.parent.name.removeprefix(pipeline.gen_key_prefix), item.stem))
+            # For multi-level globs (e.g. data-*/projects/*.json), walk up enough
+            # levels to find the first wildcard segment (the outer subject).
+            outer_depth = len(glob.rsplit('/', 1)[0].split('/'))
+            outer = item
+            for _ in range(outer_depth):
+                outer = outer.parent
+            result.append((outer.name.removeprefix(pipeline.gen_key_prefix), item.stem))
     return result
 
 
@@ -322,29 +331,80 @@ def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
             if '"TODO' in schema_text else None)
 
 
+def _schema_title(schema: str) -> str:
+    """Return the title from the latest version of a schema, falling back to schema name."""
+    versions = _sorted_versions(SCHEMA_DIR.get(schema, Path('nonexistent')))
+    if versions:
+        title = json.loads(versions[-1].read_text()).get('title', schema)
+        return title.title()
+    return schema.title()
+
+
 def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -> None:
-    schema  = pipeline.changelog.parent.name
-    matrix  = _parse_changelog_matrix(pipeline)
-    run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+    def _check_schema(schema: str, changelog: Path, log_depth: int) -> None:
+        overrides: dict = {
+            'changelog':            changelog,
+            'validation_log_depth': log_depth,
+        }
+        if log_depth > 0:
+            overrides.update({
+                'subject_depth': 2,
+                'dir_col':       'Export',
+                'uuid_col':      f'{_schema_title(schema)} UUID',
+                'input_glob':    f'data-*/{schema}/*.json',
+            })
+        p = pipeline.__class__(**{**pipeline.__dict__, **overrides})
+        matrix    = _parse_changelog_matrix(p)
+        run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+        prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
+        _check_validation_outputs_impl(run, fix, p, schema, matrix, run_cmd, prune_cmd)
 
-    if pipeline.subject_depth == 1:
-        _check_validation_outputs_depth1(run, fix, pipeline, schema, matrix, run_cmd)
-    else:
-        _check_validation_outputs_depth2(run, fix, pipeline, schema, matrix, run_cmd)
+    for schema in pipeline.schemas:
+        changelog = RSC_SCHEMA / pipeline.changelog.parent.parent.name / schema / 'CHANGELOG.md'
+        log_depth = pipeline.schema_log_depths.get(schema, 0)
+        if changelog.exists():
+            _check_schema(schema, changelog, log_depth)
 
 
-def _check_validation_outputs_depth1(run, fix, pipeline, schema, matrix, run_cmd):
-    gen_dirs    = sorted(d.name for d in pipeline.gen.iterdir() if d.is_dir()) \
-                  if pipeline.gen.exists() else []
-    gen_rel     = pipeline.gen.relative_to(REPO_ROOT)
-    input_rel   = pipeline.input.relative_to(REPO_ROOT)
-    chlog_rel   = pipeline.changelog.relative_to(REPO_ROOT)
+def _gen_subject_dirs(gen_dir, depth, schema='', validation_log_depth=0):
+    """Yield (subject, leaf_dir) for each subject directory in gen_dir."""
+    if not gen_dir.exists():
+        return
+    for d1 in sorted(gen_dir.iterdir()):
+        if not d1.is_dir():
+            continue
+        if depth == 1 and validation_log_depth == 0:
+            yield d1.name, d1
+        elif depth == 2 and validation_log_depth == 0:
+            for d2 in sorted(d1.iterdir()):
+                if d2.is_dir():
+                    yield f'{d1.name} / {d2.name}', d2
+        elif depth == 2 and validation_log_depth == 1:
+            inner_dir = d1 / 'validation' / schema
+            if inner_dir.exists():
+                for d2 in sorted(inner_dir.iterdir()):
+                    if d2.is_dir():
+                        yield f'{d1.name} / {d2.name}', d2
+
+
+def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, prune_cmd):
+    gen_rel   = pipeline.gen.relative_to(REPO_ROOT)
+    input_rel = pipeline.input.relative_to(REPO_ROOT)
+    chlog_rel = pipeline.changelog.relative_to(REPO_ROOT)
 
     print(f'\n  looking for {gen_rel}/<subject>/validation/{schema}/vN.log — one per entry in {chlog_rel}')
     for (subject, version), expected_pass in sorted(matrix.items()):
-        log = pipeline.gen / subject / 'validation' / schema / f'{version}.log'
+        parts = subject.split(' / ')
+        if pipeline.validation_log_depth == 0:
+            log = pipeline.gen.joinpath(*parts) / 'validation' / schema / f'{version}.log'
+        else:
+            outer, inner = parts[:-pipeline.validation_log_depth], parts[-pipeline.validation_log_depth:]
+            log = pipeline.gen.joinpath(*outer) / 'validation' / schema / Path(*inner) / f'{version}.log'
         if not log.exists():
-            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            if not (pipeline.input / parts[0]).exists():
+                fix(prune_cmd)
+            else:
+                fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
             run(f'{schema}: {subject} × {version}', False, str(log.relative_to(REPO_ROOT)))
             continue
         content     = log.read_text()
@@ -356,8 +416,8 @@ def _check_validation_outputs_depth1(run, fix, pipeline, schema, matrix, run_cmd
 
     registered = {subj for subj, _ in matrix}
     print(f'\n  every {schema} log in {gen_rel}/ should be registered in {chlog_rel}')
-    for subject in gen_dirs:
-        log_dir = pipeline.gen / subject / 'validation' / schema
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
+        log_dir = leaf_dir / 'validation' / schema
         if not log_dir.exists():
             continue
         for log in sorted(log_dir.glob('v*.log')):
@@ -370,56 +430,9 @@ def _check_validation_outputs_depth1(run, fix, pipeline, schema, matrix, run_cmd
                 str(log.relative_to(REPO_ROOT)))
 
     print(f'\n  every {input_rel}/{pipeline.input_glob} entry should be registered in {chlog_rel}')
-    for subject in _input_subjects(pipeline):
-        if subject not in registered:
-            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
-            fix(f'then: {run_cmd}')
-            run(f'{schema}: unregistered: {subject}', False)
-
-
-def _check_validation_outputs_depth2(run, fix, pipeline, schema, matrix, run_cmd):
-    registered: set[str] = {subject for subject, _ in matrix}
-
-    gen_level1_dirs = sorted(d for d in pipeline.gen.iterdir() if d.is_dir()) \
-                      if pipeline.gen.exists() else []
-    gen_rel   = pipeline.gen.relative_to(REPO_ROOT)
-    input_rel = pipeline.input.relative_to(REPO_ROOT)
-    chlog_rel = pipeline.changelog.relative_to(REPO_ROOT)
-
-    print(f'\n  looking for {gen_rel}/<code-project>/<uuid>/validation/{schema}/vN.log — one per entry in {chlog_rel}')
-    for (subject, version), expected_pass in sorted(matrix.items()):
-        code_project, _, uuid = subject.partition(' / ')
-        log = pipeline.gen / code_project / uuid / 'validation' / schema / f'{version}.log'
-        if not log.exists():
-            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
-            run(f'{schema}: {subject} × {version}', False, str(log.relative_to(REPO_ROOT)))
-            continue
-        content     = log.read_text()
-        actual_pass = 'Valid!' in content
-        label       = f'{schema}: validation {"passing" if expected_pass else "failing"}: {subject} × {version}'
-        run(label, actual_pass == expected_pass,
-            f'expected {"pass" if expected_pass else "fail"}, got {"pass" if actual_pass else "fail"}'
-            if actual_pass != expected_pass else None)
-
-    print(f'\n  every {schema} log in {gen_rel}/ should be registered in {chlog_rel}')
-    for gen_level1 in gen_level1_dirs:
-        code_project = gen_level1.name
-        for uuid_dir in sorted(u for u in gen_level1.iterdir() if u.is_dir()):
-            log_dir = uuid_dir / 'validation' / schema
-            if not log_dir.exists():
-                continue
-            subject = f'{code_project} / {uuid_dir.name}'
-            for log in sorted(log_dir.glob('v*.log')):
-                version = log.stem
-                if (subject, version) in matrix:
-                    continue
-                content = log.read_text()
-                result  = 'Valid!' if 'Valid!' in content else 'Validation error' if 'Validation error' in content else 'unknown'
-                run(f'{schema}: unregistered: {subject} × {version} — {result}', False)
-
-    print(f'\n  every {input_rel}/{pipeline.input_glob} entry should be registered in {chlog_rel}')
-    for code_project, uuid in _input_subjects(pipeline):
-        subject = f'{code_project} / {uuid}'
+    raw = _input_subjects(pipeline)
+    subjects = raw if pipeline.subject_depth == 1 else [f'{p1} / {p2}' for p1, p2 in raw]
+    for subject in subjects:
         if subject not in registered:
             fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
             fix(f'then: {run_cmd}')
@@ -462,6 +475,26 @@ def check_schema_join(run):
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
+
+
+def check_pipeline_latest_passing(run, fix, name: str, pipeline: Pipeline) -> None:
+    """Every entry must pass validation against the latest schema version."""
+    schema   = pipeline.changelog.parent.name
+    versions = _sorted_versions(SCHEMA_DIR[schema])
+    if not versions:
+        return
+    latest = versions[-1].stem
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
+        log = leaf_dir / 'validation' / schema / f'{latest}.log'
+        if not log.exists():
+            continue
+        content = log.read_text()
+        if 'Valid!' not in content:
+            parts     = subject.split(' / ')
+            item_path = pipeline.input.joinpath(*parts).relative_to(REPO_ROOT)
+            fix(f'{pipeline.validate_item_cmd} {item_path}')
+            run(f'{schema}: fails latest ({latest}): {subject}', False,
+                str(log.relative_to(REPO_ROOT)))
 
 
 def check_xref(run):
@@ -530,6 +563,11 @@ def main():
             _slug = _name.replace('-', '_')
             run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_validation_outputs(run, _fix, n, p),
                         label=f'check_{_slug}_validation_outputs')
+
+        for _name, _pipeline in PIPELINES.items():
+            _slug = _name.replace('-', '_')
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_latest_passing(run, _fix, n, p),
+                        label=f'check_{_slug}_latest_passing')
 
         run_section(check_versioned_schema_diagnostics)
 

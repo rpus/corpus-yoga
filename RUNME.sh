@@ -11,8 +11,10 @@
 # extracts files, infers tables, and renders a dashboard.
 #
 # Usage:
-#   ./RUNME.sh                        # all pipelines
-#   ./RUNME.sh --pay-for-inference    # also run infer_tables.sh for chat-exports (costs money)
+#   ./RUNME.sh                                      # all pipelines
+#   ./RUNME.sh --browser-captures                   # also capture/update via Safari (slow)
+#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
+#   ./RUNME.sh --browser-captures --pay-for-inference
 #
 # After running, check results with:
 #   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
@@ -23,11 +25,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 parse_args() {
   pay_for_inference=""
+  browser_captures=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
+      --browser-captures) browser_captures="--discover";            shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--browser-captures] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done
 }
@@ -64,6 +68,8 @@ ensure_venv() {
 install_deps() {
   # shellcheck source=/dev/null
   source "$VENV/bin/activate"
+  echo "checking for pip upgrade"
+  pip install --upgrade pip
   pip install -q -r "$SCRIPT_DIR/src/requirements.txt"
 }
 
@@ -81,9 +87,27 @@ run_pipeline() {
   echo ""
 }
 
+run_pipeline_safe() {
+  local name="$1"; shift
+  if ! run_pipeline "$name" "$@"; then
+    pipeline_failures+=("$name")
+  fi
+}
+
+prep_pipeline_safe() {
+  local name="$1"; shift
+  if ! prep_pipeline "$name" "$@"; then
+    pipeline_failures+=("$name (prep)")
+  fi
+}
+
+LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+
 main() {
   parse_args "$@"
-  basename "$0"
+  mkdir -p "$(dirname "$LOG_FILE")"
+  exec > >(tee "$LOG_FILE") 2>&1
+  echo "$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
   require_cmd jq "install via: brew install jq"
   local python; python="$(find_python3)"
@@ -92,17 +116,36 @@ main() {
 
   mkdir -p "$SCRIPT_DIR/ext"
 
-  prep_pipeline browser-captures
-  run_pipeline browser-captures
+  local -a pipeline_failures=()
 
-  prep_pipeline chat-exports
-  run_pipeline chat-exports ${pay_for_inference:+"$pay_for_inference"}
+  prep_pipeline_safe browser-captures ${browser_captures:+"$browser_captures"}
+  run_pipeline_safe  browser-captures
 
-  prep_pipeline code-projects
-  run_pipeline code-projects
+  prep_pipeline_safe chat-exports
+  run_pipeline_safe  chat-exports ${pay_for_inference:+"$pay_for_inference"}
 
-  echo "── done ──────────────────────────────────────────────────────────────────────"
+  prep_pipeline_safe code-projects
+  run_pipeline_safe  code-projects
+
+  echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
+  if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
+    echo "All pipelines completed successfully."
+  else
+    echo "Failed pipelines:"
+    for f in "${pipeline_failures[@]}"; do
+      echo "  $f"
+      case "$f" in
+        browser-captures)        echo "    → check gen/browser-captures/*/validation/apiConversation/*.log" ;;
+        "browser-captures (prep)") echo "    → check ext/browser-captures/ and Safari setup" ;;
+        chat-exports)            echo "    → check gen/chat-exports/*/validation/*.log" ;;
+        "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see PREP.sh --help)" ;;
+        code-projects)           echo "    → check gen/code-projects/*/validation/*.log" ;;
+        "code-projects (prep)")  echo "    → check ext/code-projects/ symlink setup" ;;
+      esac
+    done
+  fi
   echo "Run src/test/pre_commit.sh, then: git diff src/test/pre_commit.log"
+  echo "Log: $LOG_FILE"
 }
 
 main "$@"

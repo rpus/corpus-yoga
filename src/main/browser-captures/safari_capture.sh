@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
-# Re-capture all conversations in ext/browser-captures/ as markdown and live API JSON.
-# Requires Safari open, focused, and logged into claude.ai throughout.
+# Capture Claude.ai conversations via Safari automation.
+#
+# Two modes:
+#   --recapture   Re-capture all UUID directories already in ext/browser-captures/.
+#   --discover    Navigate to claude.ai/recents, capture new conversations only.
 #
 # Usage:
-#   src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures
+#   src/main/browser-captures/safari_capture.sh --recapture --browser-captures ext/browser-captures
+#   src/main/browser-captures/safari_capture.sh --discover  --browser-captures ext/browser-captures
 
 set -euo pipefail
 
@@ -22,8 +26,11 @@ parse_args() {
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-
-  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" "$@"
+  local log
+  log="$REPO_DIR/logs/${SCRIPT_DIR#"$REPO_DIR/"}/safari_capture/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+  mkdir -p "$(dirname "$log")"
+  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" "$@" \
+    | tee "$log"
 }
 
 main "$@"

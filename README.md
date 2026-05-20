@@ -3,10 +3,13 @@
 This repo wrangles Claude data exports.
 
 ```bash
-# git clean -fdX; git clean -fdxn
+# git clean -fdXn; git clean -fdxn
+
 ./RUNME.sh \
   --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
+
 ./src/main/model/gen_model.sh
+
 # ./src/test/pre_commit.sh
 ```
 
@@ -16,7 +19,7 @@ This repo wrangles Claude data exports.
   - Open Safari, log in to <https://claude.ai>
   - Ask to "Export ('All') data" from <https://claude.ai/settings/data-privacy-controls>
   - Click on 24-hour emailed "Download Data" link (like <https://claude.ai/export/0fc4c1e0-4719-4e10-997a-697bf05599af/download/cdb658167a0d6dd4a2ffe829aeea9d15>)
-  - Move downloaded folder (like `data-*`) from `Downloads` into the `chat-exports` sibling directory of this (current) directory.
+  - Move downloaded folder/zip (like `data-*`) from `Downloads` into the `ext/chat-exports` in this (cloned) repo, and unzip it if needed.
   - `export ANTHROPIC_API_KEY=<your-key>` (required for table inference by Claude)
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
   - Open Safari, log in to <https://claude.ai>
@@ -37,5 +40,6 @@ This repo wrangles Claude data exports.
 
 ## Pre-public checklist
 
-- [ ] Add a LICENSE file before making the repo public.
-- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed. Script is pipeline-agnostic (correct location). Once implemented, call it from all three pipeline `validate.sh` scripts on validation success.
+- [ ] Create a new repo (to get clean/sage git history).
+- [ ] Add a LICENSE file.
+- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `validate.sh` scripts on validation success

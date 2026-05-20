@@ -1,8 +1,9 @@
-pre_commit.py: 643/643
+pre_commit.py: 726/726
 
 
 ── check_required_files ──────────────────────────────────────────────────────
   ✓ exists: rsc/schema/browser-captures/apiConversation/v1.json
+  ✓ exists: rsc/schema/browser-captures/apiConversation/v2.json
   ✓ exists: rsc/schema/chat-exports/conversations/v1.json
   ✓ exists: rsc/schema/chat-exports/conversations/v2.json
   ✓ exists: rsc/schema/chat-exports/conversations/v3.json
@@ -10,8 +11,10 @@ pre_commit.py: 643/643
   ✓ exists: rsc/schema/chat-exports/conversations/v5.json
   ✓ exists: rsc/schema/chat-exports/conversations/v6.json
   ✓ exists: rsc/schema/chat-exports/conversations/v7.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v8.json
   ✓ exists: rsc/schema/chat-exports/memories/v1.json
   ✓ exists: rsc/schema/chat-exports/projects/v1.json
+  ✓ exists: rsc/schema/chat-exports/projects/v2.json
   ✓ exists: rsc/schema/chat-exports/users/v1.json
   ✓ exists: rsc/schema/code-projects/session/v1.json
   ✓ exists: rsc/schema/code-projects/session/v2.json
@@ -81,6 +84,7 @@ pre_commit.py: 643/643
 
 ── check_browser_captures_validity ───────────────────────────────────────────
   ✓ apiConversation: valid JSON + $schema: v1
+  ✓ apiConversation: valid JSON + $schema: v2
 
 ── check_chat_exports_validity ───────────────────────────────────────────────
   ✓ conversations: valid JSON + $schema: v1
@@ -90,8 +94,10 @@ pre_commit.py: 643/643
   ✓ conversations: valid JSON + $schema: v5
   ✓ conversations: valid JSON + $schema: v6
   ✓ conversations: valid JSON + $schema: v7
+  ✓ conversations: valid JSON + $schema: v8
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
+  ✓ projects: valid JSON + $schema: v2
   ✓ users: valid JSON + $schema: v1
 
 ── check_code_projects_validity ──────────────────────────────────────────────
@@ -103,6 +109,9 @@ pre_commit.py: 643/643
   ✓ apiConversation: workflow.changelog_entry: v1
   ✓ apiConversation: workflow.changelog_narrative: v1
   ✓ apiConversation: workflow.no_todo: v1
+  ✓ apiConversation: workflow.changelog_entry: v2
+  ✓ apiConversation: workflow.changelog_narrative: v2
+  ✓ apiConversation: workflow.no_todo: v2
 
 ── check_chat_exports_workflow ───────────────────────────────────────────────
   ✓ conversations: workflow.changelog_entry: v1
@@ -126,6 +135,9 @@ pre_commit.py: 643/643
   ✓ conversations: workflow.changelog_entry: v7
   ✓ conversations: workflow.changelog_narrative: v7
   ✓ conversations: workflow.no_todo: v7
+  ✓ conversations: workflow.changelog_entry: v8
+  ✓ conversations: workflow.changelog_narrative: v8
+  ✓ conversations: workflow.no_todo: v8
 
 ── check_code_projects_workflow ──────────────────────────────────────────────
   ✓ session: workflow.changelog_entry: v1
@@ -140,158 +152,169 @@ pre_commit.py: 643/643
 
 ── check_browser_captures_validation_outputs ─────────────────────────────────
 
-  looking for gen/browser-captures/<code-project>/<uuid>/validation/apiConversation/vN.log — one per entry in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 0e537a54-5db8-4164-9a49-06155980b978 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 14ac5a6b-22c8-468b-b46f-11c130056d52 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 19c0cb0b-0b88-45b4-9757-5572e859c70e × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 1a557fcf-578f-4487-a5cd-4644f5e4475f × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 1b5157dd-3056-455e-8ca6-51d7dcb612c4 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 22c09570-351d-4bb0-9a66-330c2e269ba3 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 23416947-1483-4697-bb69-395d9e5c962e × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 2814d51a-aa22-4df4-846b-c5f8ba727406 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 28ac88dc-3de3-471a-8891-34991c61519c × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 2ca9e30c-3d9a-463d-8d30-7f70944f9ab6 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 2dbbf32c-ce41-45ff-b6a5-3be520577323 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 30378a34-01a4-48cd-9c21-80ee878b296a × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 38d19b49-e64e-4c14-896a-82285b33a1f6 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 393ec024-a6fb-476e-b803-744bfa014e25 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 3ec23b43-5ee6-46b1-af35-5aae291167a5 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 41cb322f-6968-4d31-baab-5322d349418d × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 43b987ed-e42d-4bd1-b47c-0f81f5eeb231 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 4701b15c-6a9e-4e4c-9b5a-da01fb9d8221 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 4c99d9bb-138f-4f41-9230-2c567f265c30 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 50818324-e474-49ac-af06-92ecff76a0cf × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 51521abb-0b37-4063-a31c-8793dc9508d2 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 53feec5e-db02-4a4b-8bef-d9db67233196 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 5830bce0-1b1a-4e64-ace5-1ea81656fec0 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 5a8194ea-1126-4b13-86e2-554b38c3a3ef × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 60f3e099-e5c3-4fee-962e-97441f7e474b × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 61fec424-d336-446c-98fd-f150f095512f × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 640e8a47-adf4-4343-b138-875f8f9ce6ba × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 6a8c3fde-8f7e-4268-8b08-ab93c8931f8d × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 6ad1c2de-12ec-4a12-89cb-a1e8890edc3f × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 6de41fe2-9763-47d4-9cde-4b1f6bff1d43 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 6f79bacb-046f-48fe-81db-b7e1ead92f55 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 81456135-a738-46c6-b4bb-5f8e973c62ce × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 8e170a58-2c96-4ae5-bcfd-ed55891cd7ed × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 97819e20-429c-4f40-976d-e39d188eed31 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / 9a680e8c-b7c2-48d8-9b57-9831163fda11 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / a4c93d29-12c3-4789-86e7-08310584f11a × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / a5403ba3-c93a-49c2-8cfc-a88f321be7d0 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / a55e1ece-0f99-46b4-a376-8417cc7ec428 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / aabc3183-e627-407e-abed-8c776bc33159 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / ab24b1ce-12ba-44b6-a586-33f7fa74111f × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / b4cf63cd-2561-4822-aae2-e34cb06b6ce1 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / b7516761-a483-4cbd-a4b2-750b74aa1cb2 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / c233a466-0414-459a-89d6-6949b41b7ab6 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / c4ad731f-5e9f-49d5-88c6-c2c8551d76cf × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / d31607fd-1a05-4464-a5bc-14a0dac8c763 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / d3409e0a-2578-4582-92d9-ac90cb346f8d × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / d68e6f3f-b668-4a44-8ca0-c8a2e346d07c × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / d8b161c6-e808-4f25-b957-2c78ad5f4460 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / dab27496-7ef8-4f59-86a3-35cc07c224ee × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / e777813d-1fae-4535-9e28-8485ac4fce9a × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / f4e35a75-190d-47df-aac5-056e76b4157a × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / f8bc33b2-eb90-40b1-9eee-2c633d156081 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / f8ddb405-888f-449a-8bf8-9ff1d81947c3 × v1
-  ✓ apiConversation: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 / fcee9cff-ab80-48a0-b44b-9e8fa50f31cc × v1
+  looking for gen/browser-captures/<subject>/validation/apiConversation/vN.log — one per entry in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
+  ✓ apiConversation: validation passing: 0e537a54-5db8-4164-9a49-06155980b978 × v1
+  ✓ apiConversation: validation passing: 0e537a54-5db8-4164-9a49-06155980b978 × v2
+  ✓ apiConversation: validation passing: 14ac5a6b-22c8-468b-b46f-11c130056d52 × v1
+  ✓ apiConversation: validation passing: 14ac5a6b-22c8-468b-b46f-11c130056d52 × v2
+  ✓ apiConversation: validation passing: 19c0cb0b-0b88-45b4-9757-5572e859c70e × v1
+  ✓ apiConversation: validation passing: 19c0cb0b-0b88-45b4-9757-5572e859c70e × v2
+  ✓ apiConversation: validation passing: 1a557fcf-578f-4487-a5cd-4644f5e4475f × v1
+  ✓ apiConversation: validation passing: 1a557fcf-578f-4487-a5cd-4644f5e4475f × v2
+  ✓ apiConversation: validation passing: 1b5157dd-3056-455e-8ca6-51d7dcb612c4 × v1
+  ✓ apiConversation: validation passing: 1b5157dd-3056-455e-8ca6-51d7dcb612c4 × v2
+  ✓ apiConversation: validation passing: 22c09570-351d-4bb0-9a66-330c2e269ba3 × v1
+  ✓ apiConversation: validation passing: 22c09570-351d-4bb0-9a66-330c2e269ba3 × v2
+  ✓ apiConversation: validation passing: 23416947-1483-4697-bb69-395d9e5c962e × v1
+  ✓ apiConversation: validation passing: 23416947-1483-4697-bb69-395d9e5c962e × v2
+  ✓ apiConversation: validation passing: 2814d51a-aa22-4df4-846b-c5f8ba727406 × v1
+  ✓ apiConversation: validation passing: 2814d51a-aa22-4df4-846b-c5f8ba727406 × v2
+  ✓ apiConversation: validation passing: 28ac88dc-3de3-471a-8891-34991c61519c × v1
+  ✓ apiConversation: validation passing: 28ac88dc-3de3-471a-8891-34991c61519c × v2
+  ✓ apiConversation: validation passing: 2ca9e30c-3d9a-463d-8d30-7f70944f9ab6 × v1
+  ✓ apiConversation: validation passing: 2ca9e30c-3d9a-463d-8d30-7f70944f9ab6 × v2
+  ✓ apiConversation: validation passing: 2dbbf32c-ce41-45ff-b6a5-3be520577323 × v1
+  ✓ apiConversation: validation passing: 2dbbf32c-ce41-45ff-b6a5-3be520577323 × v2
+  ✓ apiConversation: validation passing: 30378a34-01a4-48cd-9c21-80ee878b296a × v1
+  ✓ apiConversation: validation passing: 30378a34-01a4-48cd-9c21-80ee878b296a × v2
+  ✓ apiConversation: validation passing: 38d19b49-e64e-4c14-896a-82285b33a1f6 × v1
+  ✓ apiConversation: validation passing: 38d19b49-e64e-4c14-896a-82285b33a1f6 × v2
+  ✓ apiConversation: validation passing: 393ec024-a6fb-476e-b803-744bfa014e25 × v1
+  ✓ apiConversation: validation passing: 393ec024-a6fb-476e-b803-744bfa014e25 × v2
+  ✓ apiConversation: validation passing: 3ec23b43-5ee6-46b1-af35-5aae291167a5 × v1
+  ✓ apiConversation: validation passing: 3ec23b43-5ee6-46b1-af35-5aae291167a5 × v2
+  ✓ apiConversation: validation passing: 41cb322f-6968-4d31-baab-5322d349418d × v1
+  ✓ apiConversation: validation passing: 41cb322f-6968-4d31-baab-5322d349418d × v2
+  ✓ apiConversation: validation passing: 43b987ed-e42d-4bd1-b47c-0f81f5eeb231 × v1
+  ✓ apiConversation: validation passing: 43b987ed-e42d-4bd1-b47c-0f81f5eeb231 × v2
+  ✓ apiConversation: validation passing: 4701b15c-6a9e-4e4c-9b5a-da01fb9d8221 × v1
+  ✓ apiConversation: validation passing: 4701b15c-6a9e-4e4c-9b5a-da01fb9d8221 × v2
+  ✓ apiConversation: validation passing: 4c99d9bb-138f-4f41-9230-2c567f265c30 × v1
+  ✓ apiConversation: validation passing: 4c99d9bb-138f-4f41-9230-2c567f265c30 × v2
+  ✓ apiConversation: validation passing: 50818324-e474-49ac-af06-92ecff76a0cf × v1
+  ✓ apiConversation: validation passing: 50818324-e474-49ac-af06-92ecff76a0cf × v2
+  ✓ apiConversation: validation passing: 51521abb-0b37-4063-a31c-8793dc9508d2 × v1
+  ✓ apiConversation: validation passing: 51521abb-0b37-4063-a31c-8793dc9508d2 × v2
+  ✓ apiConversation: validation passing: 53feec5e-db02-4a4b-8bef-d9db67233196 × v1
+  ✓ apiConversation: validation passing: 53feec5e-db02-4a4b-8bef-d9db67233196 × v2
+  ✓ apiConversation: validation passing: 5830bce0-1b1a-4e64-ace5-1ea81656fec0 × v1
+  ✓ apiConversation: validation passing: 5830bce0-1b1a-4e64-ace5-1ea81656fec0 × v2
+  ✓ apiConversation: validation passing: 5a8194ea-1126-4b13-86e2-554b38c3a3ef × v1
+  ✓ apiConversation: validation passing: 5a8194ea-1126-4b13-86e2-554b38c3a3ef × v2
+  ✓ apiConversation: validation passing: 60f3e099-e5c3-4fee-962e-97441f7e474b × v1
+  ✓ apiConversation: validation passing: 60f3e099-e5c3-4fee-962e-97441f7e474b × v2
+  ✓ apiConversation: validation passing: 61fec424-d336-446c-98fd-f150f095512f × v1
+  ✓ apiConversation: validation passing: 61fec424-d336-446c-98fd-f150f095512f × v2
+  ✓ apiConversation: validation passing: 640e8a47-adf4-4343-b138-875f8f9ce6ba × v1
+  ✓ apiConversation: validation passing: 640e8a47-adf4-4343-b138-875f8f9ce6ba × v2
+  ✓ apiConversation: validation passing: 6a8c3fde-8f7e-4268-8b08-ab93c8931f8d × v1
+  ✓ apiConversation: validation passing: 6a8c3fde-8f7e-4268-8b08-ab93c8931f8d × v2
+  ✓ apiConversation: validation passing: 6ad1c2de-12ec-4a12-89cb-a1e8890edc3f × v1
+  ✓ apiConversation: validation passing: 6ad1c2de-12ec-4a12-89cb-a1e8890edc3f × v2
+  ✓ apiConversation: validation passing: 6de41fe2-9763-47d4-9cde-4b1f6bff1d43 × v1
+  ✓ apiConversation: validation passing: 6de41fe2-9763-47d4-9cde-4b1f6bff1d43 × v2
+  ✓ apiConversation: validation passing: 6f79bacb-046f-48fe-81db-b7e1ead92f55 × v1
+  ✓ apiConversation: validation passing: 6f79bacb-046f-48fe-81db-b7e1ead92f55 × v2
+  ✓ apiConversation: validation passing: 81456135-a738-46c6-b4bb-5f8e973c62ce × v1
+  ✓ apiConversation: validation passing: 81456135-a738-46c6-b4bb-5f8e973c62ce × v2
+  ✓ apiConversation: validation passing: 8e170a58-2c96-4ae5-bcfd-ed55891cd7ed × v1
+  ✓ apiConversation: validation passing: 8e170a58-2c96-4ae5-bcfd-ed55891cd7ed × v2
+  ✓ apiConversation: validation passing: 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c × v1
+  ✓ apiConversation: validation passing: 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c × v2
+  ✓ apiConversation: validation passing: 97819e20-429c-4f40-976d-e39d188eed31 × v1
+  ✓ apiConversation: validation passing: 97819e20-429c-4f40-976d-e39d188eed31 × v2
+  ✓ apiConversation: validation passing: 9a680e8c-b7c2-48d8-9b57-9831163fda11 × v1
+  ✓ apiConversation: validation passing: 9a680e8c-b7c2-48d8-9b57-9831163fda11 × v2
+  ✓ apiConversation: validation failing: 9d7817e9-9417-4d86-897b-a828f1d00181 × v1
+  ✓ apiConversation: validation passing: 9d7817e9-9417-4d86-897b-a828f1d00181 × v2
+  ✓ apiConversation: validation passing: a4c93d29-12c3-4789-86e7-08310584f11a × v1
+  ✓ apiConversation: validation passing: a4c93d29-12c3-4789-86e7-08310584f11a × v2
+  ✓ apiConversation: validation passing: a5403ba3-c93a-49c2-8cfc-a88f321be7d0 × v1
+  ✓ apiConversation: validation passing: a5403ba3-c93a-49c2-8cfc-a88f321be7d0 × v2
+  ✓ apiConversation: validation passing: a55e1ece-0f99-46b4-a376-8417cc7ec428 × v1
+  ✓ apiConversation: validation passing: a55e1ece-0f99-46b4-a376-8417cc7ec428 × v2
+  ✓ apiConversation: validation passing: aabc3183-e627-407e-abed-8c776bc33159 × v1
+  ✓ apiConversation: validation passing: aabc3183-e627-407e-abed-8c776bc33159 × v2
+  ✓ apiConversation: validation passing: ab24b1ce-12ba-44b6-a586-33f7fa74111f × v1
+  ✓ apiConversation: validation passing: ab24b1ce-12ba-44b6-a586-33f7fa74111f × v2
+  ✓ apiConversation: validation failing: b1398a0e-d179-419b-be13-f29412c2b7d2 × v1
+  ✓ apiConversation: validation passing: b1398a0e-d179-419b-be13-f29412c2b7d2 × v2
+  ✓ apiConversation: validation passing: b4cf63cd-2561-4822-aae2-e34cb06b6ce1 × v1
+  ✓ apiConversation: validation passing: b4cf63cd-2561-4822-aae2-e34cb06b6ce1 × v2
+  ✓ apiConversation: validation passing: b7516761-a483-4cbd-a4b2-750b74aa1cb2 × v1
+  ✓ apiConversation: validation passing: b7516761-a483-4cbd-a4b2-750b74aa1cb2 × v2
+  ✓ apiConversation: validation failing: c233a466-0414-459a-89d6-6949b41b7ab6 × v1
+  ✓ apiConversation: validation passing: c233a466-0414-459a-89d6-6949b41b7ab6 × v2
+  ✓ apiConversation: validation passing: c4ad731f-5e9f-49d5-88c6-c2c8551d76cf × v1
+  ✓ apiConversation: validation passing: c4ad731f-5e9f-49d5-88c6-c2c8551d76cf × v2
+  ✓ apiConversation: validation passing: d31607fd-1a05-4464-a5bc-14a0dac8c763 × v1
+  ✓ apiConversation: validation passing: d31607fd-1a05-4464-a5bc-14a0dac8c763 × v2
+  ✓ apiConversation: validation passing: d3409e0a-2578-4582-92d9-ac90cb346f8d × v1
+  ✓ apiConversation: validation passing: d3409e0a-2578-4582-92d9-ac90cb346f8d × v2
+  ✓ apiConversation: validation passing: d68e6f3f-b668-4a44-8ca0-c8a2e346d07c × v1
+  ✓ apiConversation: validation passing: d68e6f3f-b668-4a44-8ca0-c8a2e346d07c × v2
+  ✓ apiConversation: validation passing: d8b161c6-e808-4f25-b957-2c78ad5f4460 × v1
+  ✓ apiConversation: validation passing: d8b161c6-e808-4f25-b957-2c78ad5f4460 × v2
+  ✓ apiConversation: validation passing: dab27496-7ef8-4f59-86a3-35cc07c224ee × v1
+  ✓ apiConversation: validation passing: dab27496-7ef8-4f59-86a3-35cc07c224ee × v2
+  ✓ apiConversation: validation passing: e777813d-1fae-4535-9e28-8485ac4fce9a × v1
+  ✓ apiConversation: validation passing: e777813d-1fae-4535-9e28-8485ac4fce9a × v2
+  ✓ apiConversation: validation passing: ee05c7b3-54e6-4b1f-a483-ef33c843011b × v1
+  ✓ apiConversation: validation passing: ee05c7b3-54e6-4b1f-a483-ef33c843011b × v2
+  ✓ apiConversation: validation passing: f4e35a75-190d-47df-aac5-056e76b4157a × v1
+  ✓ apiConversation: validation passing: f4e35a75-190d-47df-aac5-056e76b4157a × v2
+  ✓ apiConversation: validation passing: f8bc33b2-eb90-40b1-9eee-2c633d156081 × v1
+  ✓ apiConversation: validation passing: f8bc33b2-eb90-40b1-9eee-2c633d156081 × v2
+  ✓ apiConversation: validation passing: f8ddb405-888f-449a-8bf8-9ff1d81947c3 × v1
+  ✓ apiConversation: validation passing: f8ddb405-888f-449a-8bf8-9ff1d81947c3 × v2
+  ✓ apiConversation: validation passing: fcee9cff-ab80-48a0-b44b-9e8fa50f31cc × v1
+  ✓ apiConversation: validation passing: fcee9cff-ab80-48a0-b44b-9e8fa50f31cc × v2
 
   every apiConversation log in gen/browser-captures/ should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
 
-  every ext/browser-captures/data-*/*/ entry should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
+  every ext/browser-captures/*/ entry should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
 
 ── check_chat_exports_validation_outputs ─────────────────────────────────────
 
   looking for gen/chat-exports/<subject>/validation/conversations/vN.log — one per entry in rsc/schema/chat-exports/conversations/CHANGELOG.md
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v2
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v3
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v4
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v5
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v6
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000 × v7
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v3
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v4
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v5
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v6
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000 × v7
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v3
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v4
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v5
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v6
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000 × v7
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v4
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v5
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v6
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000 × v7
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v4
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v5
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v6
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000 × v7
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v4
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v5
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v6
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000 × v7
-  ✓ conversations: validation passing: data-2026-03-19-22-47-05-batch-0000 × v1
-  ✓ conversations: validation failing: data-2026-03-19-22-47-05-batch-0000 × v2
-  ✓ conversations: validation failing: data-2026-03-19-22-47-05-batch-0000 × v3
-  ✓ conversations: validation failing: data-2026-03-19-22-47-05-batch-0000 × v4
-  ✓ conversations: validation failing: data-2026-03-19-22-47-05-batch-0000 × v5
-  ✓ conversations: validation failing: data-2026-03-19-22-47-05-batch-0000 × v6
-  ✓ conversations: validation failing: data-2026-03-19-22-47-05-batch-0000 × v7
-  ✓ conversations: validation passing: data-2026-03-30-14-51-46-batch-0000 × v1
-  ✓ conversations: validation passing: data-2026-03-30-14-51-46-batch-0000 × v2
-  ✓ conversations: validation failing: data-2026-03-30-14-51-46-batch-0000 × v3
-  ✓ conversations: validation failing: data-2026-03-30-14-51-46-batch-0000 × v4
-  ✓ conversations: validation failing: data-2026-03-30-14-51-46-batch-0000 × v5
-  ✓ conversations: validation failing: data-2026-03-30-14-51-46-batch-0000 × v6
-  ✓ conversations: validation failing: data-2026-03-30-14-51-46-batch-0000 × v7
-  ✓ conversations: validation passing: data-2026-04-03-14-15-13-batch-0000 × v1
-  ✓ conversations: validation passing: data-2026-04-03-14-15-13-batch-0000 × v2
-  ✓ conversations: validation failing: data-2026-04-03-14-15-13-batch-0000 × v3
-  ✓ conversations: validation failing: data-2026-04-03-14-15-13-batch-0000 × v4
-  ✓ conversations: validation failing: data-2026-04-03-14-15-13-batch-0000 × v5
-  ✓ conversations: validation failing: data-2026-04-03-14-15-13-batch-0000 × v6
-  ✓ conversations: validation failing: data-2026-04-03-14-15-13-batch-0000 × v7
-  ✓ conversations: validation passing: data-2026-04-05-10-33-48-batch-0000 × v1
-  ✓ conversations: validation passing: data-2026-04-05-10-33-48-batch-0000 × v2
-  ✓ conversations: validation failing: data-2026-04-05-10-33-48-batch-0000 × v3
-  ✓ conversations: validation failing: data-2026-04-05-10-33-48-batch-0000 × v4
-  ✓ conversations: validation failing: data-2026-04-05-10-33-48-batch-0000 × v5
-  ✓ conversations: validation failing: data-2026-04-05-10-33-48-batch-0000 × v6
-  ✓ conversations: validation failing: data-2026-04-05-10-33-48-batch-0000 × v7
-  ✓ conversations: validation passing: data-2026-04-07-07-52-05-batch-0000 × v1
-  ✓ conversations: validation passing: data-2026-04-07-07-52-05-batch-0000 × v2
-  ✓ conversations: validation failing: data-2026-04-07-07-52-05-batch-0000 × v3
-  ✓ conversations: validation failing: data-2026-04-07-07-52-05-batch-0000 × v4
-  ✓ conversations: validation failing: data-2026-04-07-07-52-05-batch-0000 × v5
-  ✓ conversations: validation failing: data-2026-04-07-07-52-05-batch-0000 × v6
-  ✓ conversations: validation failing: data-2026-04-07-07-52-05-batch-0000 × v7
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v2
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v3
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v4
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v5
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v6
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v7
+  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v8
 
   every conversations log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/conversations/CHANGELOG.md
 
   every ext/chat-exports/data-*/ entry should be registered in rsc/schema/chat-exports/conversations/CHANGELOG.md
 
+  looking for gen/chat-exports/<subject>/validation/memories/vN.log — one per entry in rsc/schema/chat-exports/memories/CHANGELOG.md
+  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
+
+  every memories log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/memories/CHANGELOG.md
+
+  every ext/chat-exports/data-*/ entry should be registered in rsc/schema/chat-exports/memories/CHANGELOG.md
+
+  looking for gen/chat-exports/<subject>/validation/projects/vN.log — one per entry in rsc/schema/chat-exports/projects/CHANGELOG.md
+  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
+  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
+
+  every projects log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/projects/CHANGELOG.md
+
+  every ext/chat-exports/data-*/projects/*.json entry should be registered in rsc/schema/chat-exports/projects/CHANGELOG.md
+
+  looking for gen/chat-exports/<subject>/validation/users/vN.log — one per entry in rsc/schema/chat-exports/users/CHANGELOG.md
+  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
+
+  every users log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/users/CHANGELOG.md
+
+  every ext/chat-exports/data-*/ entry should be registered in rsc/schema/chat-exports/users/CHANGELOG.md
+
 ── check_code_projects_validation_outputs ────────────────────────────────────
 
-  looking for gen/code-projects/<code-project>/<uuid>/validation/session/vN.log — one per entry in rsc/schema/code-projects/session/CHANGELOG.md
-  ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-Yoga / 816816d2-799b-441a-9aeb-5b7222418f1d × v1
-  ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-Yoga / 816816d2-799b-441a-9aeb-5b7222418f1d × v2
-  ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-Yoga / 816816d2-799b-441a-9aeb-5b7222418f1d × v3
+  looking for gen/code-projects/<subject>/validation/session/vN.log — one per entry in rsc/schema/code-projects/session/CHANGELOG.md
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-claude-export-yoga / 0c66d620-7e5f-40d6-a387-0731d9aaab0a × v1
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-claude-export-yoga / 0c66d620-7e5f-40d6-a387-0731d9aaab0a × v2
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-claude-export-yoga / 0c66d620-7e5f-40d6-a387-0731d9aaab0a × v3
@@ -340,6 +363,12 @@ pre_commit.py: 643/643
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2 × v1
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2 × v2
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2 × v3
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / c7639338-2b81-47fb-9136-2fd879eaec04 × v1
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / c7639338-2b81-47fb-9136-2fd879eaec04 × v2
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / c7639338-2b81-47fb-9136-2fd879eaec04 × v3
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / d8234533-ad49-42e7-967f-db33a0373a51 × v1
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / d8234533-ad49-42e7-967f-db33a0373a51 × v2
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / d8234533-ad49-42e7-967f-db33a0373a51 × v3
   ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / d91fa43e-e7a0-4cb9-b24f-6163ef7bba96 × v1
   ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / d91fa43e-e7a0-4cb9-b24f-6163ef7bba96 × v2
   ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / d91fa43e-e7a0-4cb9-b24f-6163ef7bba96 × v3
@@ -347,6 +376,12 @@ pre_commit.py: 643/643
   every session log in gen/code-projects/ should be registered in rsc/schema/code-projects/session/CHANGELOG.md
 
   every ext/code-projects/-Users-*/*.jsonl entry should be registered in rsc/schema/code-projects/session/CHANGELOG.md
+
+── check_browser_captures_latest_passing ─────────────────────────────────────
+
+── check_chat_exports_latest_passing ─────────────────────────────────────────
+
+── check_code_projects_latest_passing ────────────────────────────────────────
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ apiConversation: composition.base_not_used_directly: v1
@@ -373,6 +408,30 @@ pre_commit.py: 643/643
   ✓ apiConversation: structure.pattern_constraints_enforced: v1
   ✓ apiConversation: structure.property_order_matches_data: v1
   ✓ apiConversation: structure.required_subset_of_properties: v1
+  ✓ apiConversation: composition.base_not_used_directly: v2
+  ✓ apiConversation: composition.base_schemas_closed: v2
+  ✓ apiConversation: composition.discriminator_values_disjoint: v2
+  ✓ apiConversation: composition.no_additional_properties_on_subtypes: v2
+  ✓ apiConversation: composition.wrapper_has_five_fields: v2
+  ✓ apiConversation: documentation.discriminator_fields_annotated: v2
+  ✓ apiConversation: documentation.every_definition_has_title_and_description: v2
+  ✓ apiConversation: documentation.null_only_fields_documented: v2
+  ✓ apiConversation: documentation.open_set_enums_documented: v2
+  ✓ apiConversation: empirical.nullable_fields_surveyed: v2
+  ✓ apiConversation: empirical.oneOf_branches_evidenced: v2
+  ✓ apiConversation: naming.property_keys_lowercase: v2
+  ✓ apiConversation: naming.title_matches_key: v2
+  ✓ apiConversation: naming.upper_camel_case: v2
+  ✓ apiConversation: structure.all_definitions_reachable: v2
+  ✓ apiConversation: structure.bfs_order: v2
+  ✓ apiConversation: structure.definitions_at_bottom: v2
+  ✓ apiConversation: structure.field_order: v2
+  ✓ apiConversation: structure.minItems_on_non_empty_arrays: v2
+  ✓ apiConversation: structure.no_dangling_refs: v2
+  ✓ apiConversation: structure.no_redundant_additional_properties_true: v2
+  ✓ apiConversation: structure.pattern_constraints_enforced: v2
+  ✓ apiConversation: structure.property_order_matches_data: v2
+  ✓ apiConversation: structure.required_subset_of_properties: v2
   ✓ conversations: composition.base_not_used_directly: v1
   ✓ conversations: composition.base_schemas_closed: v1
   ✓ conversations: composition.discriminator_values_disjoint: v1
@@ -541,6 +600,30 @@ pre_commit.py: 643/643
   ✓ conversations: structure.pattern_constraints_enforced: v7
   ✓ conversations: structure.property_order_matches_data: v7
   ✓ conversations: structure.required_subset_of_properties: v7
+  ✓ conversations: composition.base_not_used_directly: v8
+  ✓ conversations: composition.base_schemas_closed: v8
+  ✓ conversations: composition.discriminator_values_disjoint: v8
+  ✓ conversations: composition.no_additional_properties_on_subtypes: v8
+  ✓ conversations: composition.wrapper_has_five_fields: v8
+  ✓ conversations: documentation.discriminator_fields_annotated: v8
+  ✓ conversations: documentation.every_definition_has_title_and_description: v8
+  ✓ conversations: documentation.null_only_fields_documented: v8
+  ✓ conversations: documentation.open_set_enums_documented: v8
+  ✓ conversations: empirical.nullable_fields_surveyed: v8
+  ✓ conversations: empirical.oneOf_branches_evidenced: v8
+  ✓ conversations: naming.property_keys_lowercase: v8
+  ✓ conversations: naming.title_matches_key: v8
+  ✓ conversations: naming.upper_camel_case: v8
+  ✓ conversations: structure.all_definitions_reachable: v8
+  ✓ conversations: structure.bfs_order: v8
+  ✓ conversations: structure.definitions_at_bottom: v8
+  ✓ conversations: structure.field_order: v8
+  ✓ conversations: structure.minItems_on_non_empty_arrays: v8
+  ✓ conversations: structure.no_dangling_refs: v8
+  ✓ conversations: structure.no_redundant_additional_properties_true: v8
+  ✓ conversations: structure.pattern_constraints_enforced: v8
+  ✓ conversations: structure.property_order_matches_data: v8
+  ✓ conversations: structure.required_subset_of_properties: v8
   ✓ memories: composition.base_not_used_directly: v1
   ✓ memories: composition.base_schemas_closed: v1
   ✓ memories: composition.discriminator_values_disjoint: v1
@@ -589,6 +672,30 @@ pre_commit.py: 643/643
   ✓ projects: structure.pattern_constraints_enforced: v1
   ✓ projects: structure.property_order_matches_data: v1
   ✓ projects: structure.required_subset_of_properties: v1
+  ✓ projects: composition.base_not_used_directly: v2
+  ✓ projects: composition.base_schemas_closed: v2
+  ✓ projects: composition.discriminator_values_disjoint: v2
+  ✓ projects: composition.no_additional_properties_on_subtypes: v2
+  ✓ projects: composition.wrapper_has_five_fields: v2
+  ✓ projects: documentation.discriminator_fields_annotated: v2
+  ✓ projects: documentation.every_definition_has_title_and_description: v2
+  ✓ projects: documentation.null_only_fields_documented: v2
+  ✓ projects: documentation.open_set_enums_documented: v2
+  ✓ projects: empirical.nullable_fields_surveyed: v2
+  ✓ projects: empirical.oneOf_branches_evidenced: v2
+  ✓ projects: naming.property_keys_lowercase: v2
+  ✓ projects: naming.title_matches_key: v2
+  ✓ projects: naming.upper_camel_case: v2
+  ✓ projects: structure.all_definitions_reachable: v2
+  ✓ projects: structure.bfs_order: v2
+  ✓ projects: structure.definitions_at_bottom: v2
+  ✓ projects: structure.field_order: v2
+  ✓ projects: structure.minItems_on_non_empty_arrays: v2
+  ✓ projects: structure.no_dangling_refs: v2
+  ✓ projects: structure.no_redundant_additional_properties_true: v2
+  ✓ projects: structure.pattern_constraints_enforced: v2
+  ✓ projects: structure.property_order_matches_data: v2
+  ✓ projects: structure.required_subset_of_properties: v2
   ✓ session: composition.base_not_used_directly: v1
   ✓ session: composition.discriminator_values_disjoint: v1
   ✓ session: composition.no_additional_properties_on_subtypes: v1
@@ -688,7 +795,7 @@ pre_commit.py: 643/643
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 18 self-only, 40 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 41 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 643/643; expected: 643/643
+  ✓ score: 726/726; expected: 726/726

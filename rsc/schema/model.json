@@ -38,7 +38,7 @@
         "./chat-exports/users/v1.json": [
           "#/0/uuid"
         ],
-        "./chat-exports/conversations/v6.json": [
+        "./chat-exports/conversations/v8.json": [
           "#/0/account/uuid"
         ]
       }

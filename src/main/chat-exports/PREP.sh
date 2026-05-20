@@ -32,14 +32,14 @@ check_exports() {
   for d in "$ext_dir"/data-*/; do
     [[ -d "$d" ]] && return 0
   done
-  grep "^# " "$0" | sed "s/^# //"
-  exit 1
+  echo "skipping chat-exports (no bulk export in ext/chat-exports/ — download from https://claude.ai/settings/data-privacy-controls)"
 }
 
 main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
+  mkdir -p "$REPO_DIR/ext/chat-exports"
   check_exports
 }
 

@@ -1,26 +1,33 @@
 # conversations schema changelog
 
 <!-- matrix -->
-| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [v7](./v7.json) | Bytes |
-| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | ---: |
-| `data-2026-03-19-22-47-05-batch-0000` | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | 4,589,963 |
-| `data-2026-04-03-14-15-13-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | 11,150,028 |
-| `data-2026-04-05-10-33-48-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | 13,568,206 |
-| `data-2026-03-30-14-51-46-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | 9,462,646 |
-| `data-2026-04-07-07-52-05-batch-0000` | ✓ | ✓ | ✗ | ✗ | ✗ | ✗ | ✗ | 15,812,616 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-batch-0000` | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | 19,375,233 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | 21,680,326 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776550128-b9e6a9cd-batch-0000` | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | 22,675,889 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | 22,731,256 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | 23,012,498 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777987561-ed936fdf-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | 23,416,567 |
+| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [v7](./v7.json) | [v8](./v8.json) | Bytes |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | ---: |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | 24,648,484 |
 
-Bytes: size of `conversations.json` at validation time.
+Bytes: size of the conversations JSON file at validation time.
 
 ---
 
 The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../ext/browser-captures/apiConversation/v1.json)
 and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../ext/browser-captures/apiConversation/) for that schema's history.
+
+---
+
+## v8
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000`.
+
+### Relaxed since v7
+
+- `IntegrationName` — opened from closed enum to `string | null`; MCP connector names (e.g. `"GitHub remote MCP server"`) now pass
+- `ToolUseBlockBase.approval_key` — widened from `null` to `string | null`; observed non-null in MCP tool calls requiring user approval
+- `ToolUseBlockBase.approval_options` — widened from `null` to `array<string> | null`; observed non-null in MCP tool calls
+- `ToolUseBlockBase.mcp_server_url` — widened from `null` to `string | null`; observed non-null for connected MCP servers
+- `ToolResultBlockBase.mcp_server_url` — widened from `null` to `string | null`
+- `ToolUseBlock.oneOf` and `ToolResultBlock.oneOf` — extended with `SearchMcpRegistryToolUseBlock` and `SearchMcpRegistryToolResultBlock`; instances using `search_mcp_registry` now pass
+- `ToolResultSearchItem.is_citable` and `ToolResultSearchItem.prompt_context_metadata` — removed from required; absent in some web search results
+- `ToolResultSearchItem` — added optional `links: null` field
 
 ---
 
