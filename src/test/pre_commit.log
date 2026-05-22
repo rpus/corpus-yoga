@@ -1,4 +1,4 @@
-pre_commit.py: 726/726
+pre_commit.py: 755/755
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -177,6 +177,8 @@ pre_commit.py: 726/726
   ✓ apiConversation: validation passing: 2dbbf32c-ce41-45ff-b6a5-3be520577323 × v2
   ✓ apiConversation: validation passing: 30378a34-01a4-48cd-9c21-80ee878b296a × v1
   ✓ apiConversation: validation passing: 30378a34-01a4-48cd-9c21-80ee878b296a × v2
+  ✓ apiConversation: validation passing: 368c8bfe-46b3-442e-840a-591f1b6e33bc × v1
+  ✓ apiConversation: validation passing: 368c8bfe-46b3-442e-840a-591f1b6e33bc × v2
   ✓ apiConversation: validation passing: 38d19b49-e64e-4c14-896a-82285b33a1f6 × v1
   ✓ apiConversation: validation passing: 38d19b49-e64e-4c14-896a-82285b33a1f6 × v2
   ✓ apiConversation: validation passing: 393ec024-a6fb-476e-b803-744bfa014e25 × v1
@@ -285,6 +287,22 @@ pre_commit.py: 726/726
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v6
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v7
   ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v8
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v1
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v2
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v3
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v4
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v5
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v6
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v7
+  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v8
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v1
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v2
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v3
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v4
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v5
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v6
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v7
+  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v8
 
   every conversations log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/conversations/CHANGELOG.md
 
@@ -292,6 +310,8 @@ pre_commit.py: 726/726
 
   looking for gen/chat-exports/<subject>/validation/memories/vN.log — one per entry in rsc/schema/chat-exports/memories/CHANGELOG.md
   ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
+  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v1
+  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v1
 
   every memories log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/memories/CHANGELOG.md
 
@@ -300,6 +320,10 @@ pre_commit.py: 726/726
   looking for gen/chat-exports/<subject>/validation/projects/vN.log — one per entry in rsc/schema/chat-exports/projects/CHANGELOG.md
   ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
   ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
+  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
+  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
+  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
+  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
 
   every projects log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/projects/CHANGELOG.md
 
@@ -307,6 +331,8 @@ pre_commit.py: 726/726
 
   looking for gen/chat-exports/<subject>/validation/users/vN.log — one per entry in rsc/schema/chat-exports/users/CHANGELOG.md
   ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
+  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v1
+  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v1
 
   every users log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/users/CHANGELOG.md
 
@@ -363,6 +389,9 @@ pre_commit.py: 726/726
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2 × v1
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2 × v2
   ✓ session: validation passing: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2 × v3
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / 06e4c42d-edff-46d9-b698-c186b8c5723f × v1
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / 06e4c42d-edff-46d9-b698-c186b8c5723f × v2
+  ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / 06e4c42d-edff-46d9-b698-c186b8c5723f × v3
   ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / c7639338-2b81-47fb-9136-2fd879eaec04 × v1
   ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / c7639338-2b81-47fb-9136-2fd879eaec04 × v2
   ✓ session: validation passing: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / c7639338-2b81-47fb-9136-2fd879eaec04 × v3
@@ -798,4 +827,4 @@ pre_commit.py: 726/726
   ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 41 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 726/726; expected: 726/726
+  ✓ score: 755/755; expected: 755/755

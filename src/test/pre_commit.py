@@ -669,12 +669,19 @@ def main():
         if fix_commands:
             print()
             print('To fix:')
+            lines = []
             for cmd in fix_commands:
                 if cmd.startswith('then: '):
-                    print('then:')
-                    print(f'  {cmd[len("then: "):]}')
+                    actual = cmd[len('then: '):]
+                    if lines:
+                        lines[-1] += f' && {actual}'
+                    else:
+                        lines.append(actual)
                 else:
-                    print(f'  {cmd}')
+                    actual = cmd[len('Run: '):] if cmd.startswith('Run: ') else cmd
+                    lines.append(actual)
+            for line in lines:
+                print(f'  {line}')
 
         sys.exit(1)
     else:

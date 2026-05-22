@@ -201,12 +201,13 @@ def write_changelog(path: Path, new_table_lines: list[str], footer: str = '') ->
         key = _key(row, old_uuid_col)
         new_row = new_by_key.get(key)
         if new_row is not None:
-            # Preserve existing col 1 (human label) if the new row used the full dir name
             new_cells = _cells(new_row)
             old_cells = _cells(row)
             if old_uuid_col is not None and new_cells[0] != old_cells[0]:
-                new_cells[0] = old_cells[0]
-                new_row = '| ' + ' | '.join(new_cells) + ' |'
+                # UUID matches but outer subject changed (e.g. new export batch with same
+                # project UUID). Keep existing row and append the new entry separately.
+                out.append(row)
+                continue
             old_results = _result_cells(row)
             new_results = _result_cells(new_row)
             if new_results[:len(old_results)] != old_results:

@@ -3,7 +3,9 @@
 <!-- matrix -->
 | Export | [v1](./v1.json) | [v2](./v2.json) | Bytes | Project UUID |
 | --- | :---: | :---: | ---: | --- |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000` | ✗ | ✓ | 19,484 | `019d1cb4-57a4-77a8-941c-9cf6078d4c31` |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000` | ✗ | ✓ | 19,412 | `019d1cb4-57a4-77a8-941c-9cf6078d4c31` |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000` | ✗ | ✓ | 19,412 | `019d1cb4-57a4-77a8-941c-9cf6078d4c31` |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000` | ✗ | ✓ | 19,412 | `019d1cb4-57a4-77a8-941c-9cf6078d4c31` |
 
 Bytes: size of the projects JSON file at validation time.
 

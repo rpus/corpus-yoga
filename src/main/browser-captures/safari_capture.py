@@ -87,7 +87,16 @@ def uuids_from_safari():
     print('loading all conversations...')
     prev = 0
     while True:
-        safari_eval_js('window.scrollTo(0, document.body.scrollHeight)')
+        safari_eval_js(
+            '(function(){'
+            'var a=document.querySelector(\'a[href*="/chat/"]\');'
+            'while(a){var s=getComputedStyle(a);'
+            'if((s.overflowY==="scroll"||s.overflowY==="auto")&&a.scrollHeight>a.clientHeight)'
+            '{a.scrollTo(0,a.scrollHeight);return;}'
+            'a=a.parentElement;}'
+            'window.scrollTo(0,document.body.scrollHeight);'
+            '})()'
+        )
         time.sleep(2)
         count = safari_eval_js("document.querySelectorAll('a[href*=\"/chat/\"]').length")
         try:
