@@ -160,10 +160,10 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_id:>9}  {t_nl:>8}  {t_diff:>8}  {t_cp:>6}\n')
         else:
             t_ext = t_id = t_nl = t_diff = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to rsc and downloaded).\n')
+        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to {RSC_DIR.relative_to(SCRIPT_DIR.parents[2])} and {DOWNLOADED_DIR.relative_to(SCRIPT_DIR.parents[2])}).\n')
 
         if diff_entries:
-            log.write(f'\n── outputs/ files found in downloaded ({t_nl}+{t_diff}={t_nl+t_diff} shown, not copied to rsc) ──\n')
+            log.write(f'\n── outputs/ files found in downloaded ({t_nl}+{t_diff}={t_nl+t_diff} shown, not copied to {RSC_DIR.relative_to(SCRIPT_DIR.parents[2])}) ──\n')
             for entry in diff_entries:
                 chat_slug, rel, kind = entry[0], entry[1], entry[2]
                 if kind == 'newline-only':
