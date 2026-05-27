@@ -4,6 +4,7 @@ pre_commit.py — Pre-commit checks for the repo.
 
 Usage (direct):
     src/test/pre_commit.sh
+    src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u
 
 As a git hook, install the wrapper:
     ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
@@ -518,6 +519,12 @@ def check_xref(run):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--fix', action='store_true',
+                    help='Run all fix commands and stage results with git add -u')
+    args = ap.parse_args()
+
     results = []
     stdout_buffer = io.StringIO()
 
@@ -667,8 +674,6 @@ def main():
                     _add(detail)
 
         if fix_commands:
-            print()
-            print('To fix:')
             lines = []
             for cmd in fix_commands:
                 if cmd.startswith('then: '):
@@ -680,8 +685,22 @@ def main():
                 else:
                     actual = cmd[len('Run: '):] if cmd.startswith('Run: ') else cmd
                     lines.append(actual)
-            for line in lines:
-                print(f'  {line}')
+            if args.fix:
+                print()
+                print('Running fixes:')
+                for line in lines:
+                    print(f'  {line}')
+                    subprocess.run(line, shell=True, cwd=REPO_ROOT)
+                print()
+                subprocess.run(['git', 'add', '-u'], cwd=REPO_ROOT)
+                print('Staged with git add -u — re-run pre_commit.sh to verify.')
+            else:
+                print()
+                print('To fix:')
+                for line in lines:
+                    print(f'  {line}')
+                print()
+                print('  (or run with --fix to apply and stage automatically)')
 
         sys.exit(1)
     else:

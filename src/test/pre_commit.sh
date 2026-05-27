@@ -4,6 +4,7 @@
 #
 # Usage:
 #   src/test/pre_commit.sh
+#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 
 set -euo pipefail
 
@@ -22,7 +23,7 @@ main() {
   mkdir -p "$REPO_DIR/gen"
 
   # Run once — generates pre_commit.log and xref.csv.
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" 2>&1 | tee "$REPO_DIR/src/test/pre_commit.log"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@" 2>&1 | tee "$REPO_DIR/src/test/pre_commit.log"
 
   # Stage the generated artifacts so the second run sees a clean baseline.
   git -C "$REPO_DIR" add src/test/pre_commit.log src/test/xref.csv

@@ -238,26 +238,28 @@ src/test/gen_changelog_matrix.py,10,comment,src/test/gen_changelog_matrix.py,Y,s
 src/test/gen_changelog_matrix.py,11,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --prune
 src/test/gen_changelog_matrix.py,11,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --prune
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-src/test/pre_commit.py,313,path_str,src/run_python_script.sh,Y,run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-src/test/pre_commit.py,69,path_str,src/main/browser-captures/RUNME.sh,Y,"validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',"
-src/test/pre_commit.py,70,path_str,src/main/browser-captures/validate.sh,Y,"validate_item_cmd = 'src/main/browser-captures/validate.sh --browser-capture',"
-src/test/pre_commit.py,81,path_str,src/main/chat-exports/RUNME.sh,Y,"validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',"
-src/test/pre_commit.py,82,path_str,src/main/chat-exports/validate.sh,Y,"validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',"
-src/test/pre_commit.py,94,path_str,src/main/code-projects/RUNME.sh,Y,"validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',"
-src/test/pre_commit.py,95,path_str,src/main/code-projects/validate.sh,Y,"validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',"
-src/test/pre_commit.py,358,path_str,src/run_python_script.sh,Y,run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-src/test/pre_commit.py,359,path_str,src/run_python_script.sh,Y,prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
-src/test/pre_commit.py,653,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,655,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,663,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,665,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,"src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u"
+src/test/pre_commit.py,314,path_str,src/run_python_script.sh,Y,run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,70,path_str,src/main/browser-captures/RUNME.sh,Y,"validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',"
+src/test/pre_commit.py,71,path_str,src/main/browser-captures/validate.sh,Y,"validate_item_cmd = 'src/main/browser-captures/validate.sh --browser-capture',"
+src/test/pre_commit.py,82,path_str,src/main/chat-exports/RUNME.sh,Y,"validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',"
+src/test/pre_commit.py,83,path_str,src/main/chat-exports/validate.sh,Y,"validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',"
+src/test/pre_commit.py,95,path_str,src/main/code-projects/RUNME.sh,Y,"validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',"
+src/test/pre_commit.py,96,path_str,src/main/code-projects/validate.sh,Y,"validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',"
+src/test/pre_commit.py,359,path_str,src/run_python_script.sh,Y,run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,360,path_str,src/run_python_script.sh,Y,prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
+src/test/pre_commit.py,660,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,662,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,670,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,672,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
-src/test/pre_commit.sh,25,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,25,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,25,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,31,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,31,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
-src/test/pre_commit.sh,31,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
+src/test/pre_commit.sh,26,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.l"
+src/test/pre_commit.sh,26,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.l"
+src/test/pre_commit.sh,26,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.l"
+src/test/pre_commit.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,32,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
+src/test/pre_commit.sh,32,call,src/test/pre_commit.log,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.log"""
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
 src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.title_matches_key.py,Y,Usage: python src/test/repairs/naming.title_matches_key.py <schema>
