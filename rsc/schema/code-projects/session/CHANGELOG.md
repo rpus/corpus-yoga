@@ -22,7 +22,8 @@
 | `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 8,039,412 | `d91fa43e-e7a0-4cb9-b24f-6163ef7bba96` |
 | `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 7,538,867 | `c7639338-2b81-47fb-9136-2fd879eaec04` |
 | `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 663,370 | `d8234533-ad49-42e7-967f-db33a0373a51` |
-| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 761,681 | `06e4c42d-edff-46d9-b698-c186b8c5723f` |
+| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 1,407,975 | `06e4c42d-edff-46d9-b698-c186b8c5723f` |
+| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | 562,689 | `57289774-f418-4916-9678-e8befde97613` |
 
 Bytes: size of the session JSON file at validation time.
 
