@@ -62,8 +62,8 @@ def capture_one(uuid, out_dir):
 
     json_file = safari_fetch_api_json(uuid)
     if json_file:
-        md_files = list(out_dir.glob('*.md'))
-        stem = md_files[0].stem if md_files else uuid
+        new_md = [f for f in files if f.endswith('.md')]
+        stem = Path(new_md[0]).stem if new_md else uuid
         shutil.move(str(json_file), out_dir / f'{stem}.json')
         files.append(f'{stem}.json')
     else:

@@ -393,6 +393,12 @@ def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, 
     input_rel = pipeline.input.relative_to(REPO_ROOT)
     chlog_rel = pipeline.changelog.relative_to(REPO_ROOT)
 
+    raw_input = _input_subjects(pipeline)
+    current_subjects = set(
+        raw_input if pipeline.subject_depth == 1
+        else [f'{p1} / {p2}' for p1, p2 in raw_input]
+    )
+
     print(f'\n  looking for {gen_rel}/<subject>/validation/{schema}/vN.log — one per entry in {chlog_rel}')
     for (subject, version), expected_pass in sorted(matrix.items()):
         parts = subject.split(' / ')
@@ -402,7 +408,7 @@ def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, 
             outer, inner = parts[:-pipeline.validation_log_depth], parts[-pipeline.validation_log_depth:]
             log = pipeline.gen.joinpath(*outer) / 'validation' / schema / Path(*inner) / f'{version}.log'
         if not log.exists():
-            if not (pipeline.input / parts[0]).exists():
+            if subject not in current_subjects:
                 fix(prune_cmd)
             else:
                 fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
@@ -431,8 +437,7 @@ def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, 
                 str(log.relative_to(REPO_ROOT)))
 
     print(f'\n  every {input_rel}/{pipeline.input_glob} entry should be registered in {chlog_rel}')
-    raw = _input_subjects(pipeline)
-    subjects = raw if pipeline.subject_depth == 1 else [f'{p1} / {p2}' for p1, p2 in raw]
+    subjects = sorted(current_subjects)
     for subject in subjects:
         if subject not in registered:
             fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')

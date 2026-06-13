@@ -10,7 +10,7 @@ defs = schema.get('definitions', {})
 checks = [
     ('root array', schema),
     ('chat_messages', defs.get('Conversation', {}).get('properties', {}).get('chat_messages', {})),
-    ('content',      defs.get('Message', {}).get('properties', {}).get('content', {})),
+    # content intentionally omitted: observed empty content arrays in batch-0000 (v9+), so minItems: 1 was dropped
 ]
 fails = [label for label, obj in checks
          if obj.get('type') == 'array' and obj.get('minItems', 0) < 1]

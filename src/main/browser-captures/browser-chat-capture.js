@@ -17,7 +17,6 @@ function setupClaudeExporter() {
   // DOM Selectors - easily modifiable if Claude's UI changes
   const SELECTORS = {
     copyButton: 'button[data-testid="action-bar-copy"]',
-    conversationTitle: '[data-testid="chat-title-button"] .truncate, button[data-testid="chat-title-button"] div.truncate',
     messageActionsGroup: '[role="group"][aria-label="Message actions"]',
     feedbackButton: 'button[aria-label="Give positive feedback"]',
     messageContainer: '.mb-1.mt-6.group',
@@ -48,8 +47,7 @@ function setupClaudeExporter() {
   }
 
   function getConversationTitle() {
-    const titleElement = document.querySelector(SELECTORS.conversationTitle);
-    const title = titleElement?.textContent?.trim();
+    const title = document.title.replace(/ - Claude$/, '').trim();
 
     if (!title || title === 'Claude' || title.includes('New conversation')) {
       return 'claude_conversation';
@@ -233,8 +231,8 @@ function setupClaudeExporter() {
       return;
     }
 
-    const rawTitle = document.querySelector(SELECTORS.conversationTitle)?.textContent?.trim();
-    const filename = `${getConversationTitle()}.md`;
+    const rawTitle = getConversationTitle();
+    const filename = `${rawTitle}.md`;
     downloadBlob(buildMarkdown(rawTitle || 'Conversation with Claude'), filename, 'text/markdown');
 
     statusDiv.textContent = `✅ Downloaded: ${filename}`;

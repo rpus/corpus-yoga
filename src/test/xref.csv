@@ -1,13 +1,14 @@
 referring_file,line,ref_type,referred_file,exists,line_text
-README.md,8,doc,RUNME.sh,Y,./RUNME.sh \ # --browser-captures
-README.md,11,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
-README.md,13,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
-README.md,27,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
-README.md,31,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
-README.md,33,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
-README.md,36,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
-README.md,37,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,45,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,8,doc,RUNME.sh,Y,./RUNME.sh --browser-captures \
+README.md,11,doc,src/main/browser-captures-gemini/gemini_capture.sh,Y,./src/main/browser-captures-gemini/gemini_capture.sh --browser-captures ext/browser-captures-gemini --discover
+README.md,13,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
+README.md,15,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
+README.md,29,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
+README.md,33,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
+README.md,35,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
+README.md,38,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
+README.md,39,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,47,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                                      # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --browser-captures                   # also capture/update via Safari (slow)
 RUNME.sh,16,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
@@ -37,8 +38,9 @@ rsc/schema/WORKFLOW.md,142,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_
 rsc/schema/WORKFLOW.md,152,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 rsc/schema/WORKFLOW.md,153,doc,src/test/pre_commit.log,Y,git diff src/test/pre_commit.log
 rsc/schema/WORKFLOW.md,157,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if the total count changed.
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | Bytes |
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v2.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | Bytes |
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v2.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v3.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes |
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v1.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v2.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v3.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
@@ -47,16 +49,18 @@ rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v6.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v7.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v8.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
-rsc/schema/chat-exports/conversations/CHANGELOG.md,14,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../ext/
-rsc/schema/chat-exports/conversations/CHANGELOG.md,15,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../ext/browser-captures/apiConversat
+rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v9.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
+rsc/schema/chat-exports/conversations/CHANGELOG.md,15,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../ext/
+rsc/schema/chat-exports/conversations/CHANGELOG.md,16,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../ext/browser-captures/apiConversat
 rsc/schema/chat-exports/memories/CHANGELOG.md,4,doc,rsc/schema/chat-exports/memories/v1.json,Y,| Export | [v1](./v1.json) | Bytes |
 rsc/schema/chat-exports/projects/CHANGELOG.md,4,doc,rsc/schema/chat-exports/projects/v1.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | Bytes | Project UUID |
 rsc/schema/chat-exports/projects/CHANGELOG.md,4,doc,rsc/schema/chat-exports/projects/v2.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | Bytes | Project UUID |
 rsc/schema/chat-exports/users/CHANGELOG.md,4,doc,rsc/schema/chat-exports/users/v1.json,Y,| Export | [v1](./v1.json) | Bytes |
-rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
-rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
-rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | Bytes | Session UUID |
-rsc/schema/code-projects/session/CHANGELOG.md,92,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v1.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v2.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v3.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,4,doc,rsc/schema/code-projects/session/v4.json,Y,| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | Bytes | Session UUID |
+rsc/schema/code-projects/session/CHANGELOG.md,87,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
@@ -248,10 +252,10 @@ src/test/pre_commit.py,95,path_str,src/main/code-projects/RUNME.sh,Y,"validate_c
 src/test/pre_commit.py,96,path_str,src/main/code-projects/validate.sh,Y,"validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',"
 src/test/pre_commit.py,359,path_str,src/run_python_script.sh,Y,run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,360,path_str,src/run_python_script.sh,Y,prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
-src/test/pre_commit.py,660,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,662,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,670,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,672,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,665,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,667,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,675,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,677,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,26,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.l"
@@ -289,7 +293,6 @@ src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,rsc/schema/code-projects/session/CHANGELOG.md,Y,
 ,,self_only,rsc/schema/documenter.json,Y,
 ,,,src/main/browser-captures-gemini/browser-chat-capture-gemini.js,Y,
-,,self_only,src/main/browser-captures-gemini/gemini_capture.sh,Y,
 ,,self_only,src/main/browser-captures/PREP.sh,Y,
 ,,,src/main/browser-captures/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/export-all-conversations.applescript,Y,

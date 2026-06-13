@@ -105,9 +105,7 @@ LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 
 main() {
   parse_args "$@"
-  mkdir -p "$(dirname "$LOG_FILE")"
-  exec > >(tee "$LOG_FILE") 2>&1
-  echo "$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
   require_cmd jq "install via: brew install jq"
   local python; python="$(find_python3)"
@@ -148,4 +146,5 @@ main() {
   echo "Log: $LOG_FILE"
 }
 
-main "$@"
+mkdir -p "$(dirname "$LOG_FILE")"
+main "$@" 2>&1 | tee "$LOG_FILE"

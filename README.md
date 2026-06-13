@@ -5,8 +5,10 @@ This repo wrangles Claude data exports.
 ```bash
 # git clean -fdXn; git clean -fdxn
 
-./RUNME.sh \ # --browser-captures
+./RUNME.sh --browser-captures \
   --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
+
+./src/main/browser-captures-gemini/gemini_capture.sh --browser-captures ext/browser-captures-gemini --discover
 
 ./src/main/model/gen_model.sh
 

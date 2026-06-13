@@ -1,11 +1,12 @@
 # conversations schema changelog
 
 <!-- matrix -->
-| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [v7](./v7.json) | [v8](./v8.json) | Bytes |
-| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | ---: |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | 22,313,343 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | 22,313,343 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | 22,490,530 |
+| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [v7](./v7.json) | [v8](./v8.json) | [v9](./v9.json) | Bytes |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | ---: |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | 22,313,343 |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | 22,313,343 |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | 22,490,530 |
+| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | 23,743,426 |
 
 Bytes: size of the conversations JSON file at validation time.
 
@@ -13,6 +14,18 @@ Bytes: size of the conversations JSON file at validation time.
 
 The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../ext/browser-captures/apiConversation/v1.json)
 and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../ext/browser-captures/apiConversation/) for that schema's history.
+
+---
+
+## v9
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000`.
+
+### Relaxed since v8
+
+- `TextBlock` — added optional `citations_grouping_mode: string` field; observed value `"combine"`, new claude.ai feature
+- `ToolResultBlockBase.meta` — widened from `null` to `null | {output_format_category: string}`; observed values `"md"`, `"none"`, `"other"`
+- `Message.content` — removed `minItems: 1`; empty content arrays observed in human messages with no text
 
 ---
 
