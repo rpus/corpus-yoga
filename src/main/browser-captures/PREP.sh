@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Capture all conversations from claude.ai/recents into ext/browser-captures/.
-# Requires Safari open, focused, and logged into claude.ai throughout.
+# Capture all conversations from claude.ai and gemini.google.com into ext/browser-captures/.
+# Requires Safari open, focused, and logged into both sites throughout.
 #
 # Usage:
 #   src/main/browser-captures/PREP.sh
@@ -25,9 +25,11 @@ main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
-  mkdir -p "$REPO_DIR/ext/browser-captures"
+  mkdir -p "$REPO_DIR/ext/browser-captures/claude"
+  mkdir -p "$REPO_DIR/ext/browser-captures/gemini"
   if [[ -n "$discover" ]]; then
-    "$SCRIPT_DIR/safari_capture.sh" --discover --browser-captures "$REPO_DIR/ext/browser-captures"
+    "$SCRIPT_DIR/claude/safari_capture.sh" --discover
+    "$SCRIPT_DIR/gemini/safari_capture.sh" --discover
   else
     echo "skipping capture (--browser-captures not passed to RUNME.sh)"
   fi

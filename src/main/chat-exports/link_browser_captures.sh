@@ -14,7 +14,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
-CAPTURES_DIR="$REPO_DIR/ext/browser-captures"
+CAPTURES_DIR="$REPO_DIR/ext/browser-captures/claude"
 
 link_captures() {
   local chat_export="${1%/}"

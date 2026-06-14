@@ -2,17 +2,17 @@
 # Capture Claude.ai conversations via Safari automation.
 #
 # Two modes:
-#   --recapture   Re-capture all UUID directories already in ext/browser-captures/.
+#   --recapture   Re-capture all UUID directories already in ext/browser-captures/claude/.
 #   --discover    Navigate to claude.ai/recents, capture new conversations only.
 #
 # Usage:
-#   src/main/browser-captures/safari_capture.sh --recapture --browser-captures ext/browser-captures
-#   src/main/browser-captures/safari_capture.sh --discover  --browser-captures ext/browser-captures
+#   src/main/browser-captures/claude/safari_capture.sh --recapture
+#   src/main/browser-captures/claude/safari_capture.sh --discover
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
 parse_args() {
   while [[ $# -gt 0 ]]; do

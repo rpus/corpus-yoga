@@ -1,21 +1,21 @@
 referring_file,line,ref_type,referred_file,exists,line_text
-README.md,8,doc,RUNME.sh,Y,./RUNME.sh --browser-captures \
-README.md,11,doc,src/main/browser-captures-gemini/gemini_capture.sh,Y,./src/main/browser-captures-gemini/gemini_capture.sh --browser-captures ext/browser-captures-gemini --discover
+README.md,10,doc,RUNME.sh,Y,./RUNME.sh --browser-captures \
 README.md,13,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
 README.md,15,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
 README.md,29,doc,src/main/browser-captures/export.applescript,Y,"- Set up a Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/b"
-README.md,33,doc,src/main/browser-captures/safari_capture.sh,Y,- `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
-README.md,35,doc,src/main/browser-captures/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
-README.md,38,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
-README.md,39,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,47,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,33,doc,src/main/browser-captures/claude/safari_capture.sh,Y,- `./src/main/browser-captures/claude/safari_capture.sh --discover`
+README.md,34,doc,src/main/browser-captures/gemini/safari_capture.sh,Y,- `./src/main/browser-captures/gemini/safari_capture.sh --discover`
+README.md,36,doc,src/main/browser-captures/claude/safari_fetch_api_json.sh,Y,- `./src/main/browser-captures/claude/safari_fetch_api_json.sh`
+README.md,39,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
+README.md,40,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,48,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                                      # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --browser-captures                   # also capture/update via Safari (slow)
 RUNME.sh,16,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,17,comment,RUNME.sh,Y,#   ./RUNME.sh --browser-captures --pay-for-inference
 RUNME.sh,20,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
 RUNME.sh,73,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/validate.sh,Y,src/main/browser-captures/validate.sh --browser-capture ext/browser-captures/<uuid>
+rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
 rsc/schema/WORKFLOW.md,32,doc,src/main/code-projects/validate.sh,Y,src/main/code-projects/validate.sh     --code-project-session ext/code-projects/<project>/<uuid>
 rsc/schema/WORKFLOW.md,40,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
@@ -23,7 +23,7 @@ rsc/schema/WORKFLOW.md,47,doc,src/run_python_script.sh,Y,src/run_python_script.s
 rsc/schema/WORKFLOW.md,47,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,47,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,53,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,61,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
+rsc/schema/WORKFLOW.md,61,doc,src/main/browser-captures/claude/RUNME.sh,Y,src/main/browser-captures/claude/RUNME.sh --browser-captures ext/browser-captures/claude
 rsc/schema/WORKFLOW.md,62,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
 rsc/schema/WORKFLOW.md,63,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
 rsc/schema/WORKFLOW.md,69,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
@@ -70,26 +70,27 @@ rsc/schema/model.json,35,path_str,rsc/schema/chat-exports/projects/v1.json,Y,"""
 rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./chat-exports/users/v1.json"": ["
 rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v8.json,Y,"""./chat-exports/conversations/v8.json"": ["
 src/main/browser-captures/PREP.sh,6,comment,src/main/browser-captures/PREP.sh,Y,#   src/main/browser-captures/PREP.sh
-src/main/browser-captures/PREP.sh,30,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --discover --browser-captures ""$REPO_DIR/ext/browser-captures"""
-src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/<uuid>
-src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
-src/main/browser-captures/RUNME.sh,37,call,src/main/browser-captures/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --recapture --browser-captures ext/browser-captures
-src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --discover  --browser-captures ext/browser-captures
-src/main/browser-captures/safari_capture.sh,32,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
-src/main/browser-captures/safari_capture.sh,32,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
-src/main/browser-captures/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/safari_fetch_api_json.sh,Y,#   src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures
-src/main/browser-captures/safari_fetch_api_json.sh,29,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"" \"
-src/main/browser-captures/safari_fetch_api_json.sh,29,call,src/main/browser-captures/safari_fetch_api_json.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"" \"
-src/main/browser-captures/validate.sh,5,comment,src/main/browser-captures/validate.sh,Y,#   src/main/browser-captures/validate.sh --browser-capture <path/to/uuid-directory>
-src/main/browser-captures/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
-src/main/browser-captures/validate.sh,23,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
-src/main/browser-captures/validate.sh,23,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
-src/main/browser-captures/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
-src/main/browser-captures-gemini/gemini_capture.sh,9,comment,src/main/browser-captures-gemini/gemini_capture.sh,Y,#   src/main/browser-captures-gemini/gemini_capture.sh --recapture --browser-captures ext/browser-captures-gemini
-src/main/browser-captures-gemini/gemini_capture.sh,10,comment,src/main/browser-captures-gemini/gemini_capture.sh,Y,#   src/main/browser-captures-gemini/gemini_capture.sh --discover  --browser-captures ext/browser-captures-gemini
-src/main/browser-captures-gemini/gemini_capture.sh,32,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/gemini_capture.py"" ""$@"" \"
-src/main/browser-captures-gemini/gemini_capture.sh,32,call,src/main/browser-captures-gemini/gemini_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/gemini_capture.py"" ""$@"" \"
+src/main/browser-captures/PREP.sh,31,call,src/main/browser-captures/claude/safari_capture.sh,Y,"""$SCRIPT_DIR/claude/safari_capture.sh"" --discover"
+src/main/browser-captures/PREP.sh,32,call,src/main/browser-captures/gemini/safari_capture.sh,Y,"""$SCRIPT_DIR/gemini/safari_capture.sh"" --discover"
+src/main/browser-captures/claude/RUNME.sh,5,comment,src/main/browser-captures/claude/RUNME.sh,Y,#   ./src/main/browser-captures/claude/RUNME.sh --browser-capture ext/browser-captures/claude/<uuid>
+src/main/browser-captures/claude/RUNME.sh,6,comment,src/main/browser-captures/claude/RUNME.sh,Y,#   ./src/main/browser-captures/claude/RUNME.sh --browser-captures ext/browser-captures/claude
+src/main/browser-captures/claude/RUNME.sh,37,call,src/main/browser-captures/claude/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --browser-capture ""$input_dir"""
+src/main/browser-captures/claude/safari_capture.sh,9,comment,src/main/browser-captures/claude/safari_capture.sh,Y,#   src/main/browser-captures/claude/safari_capture.sh --recapture
+src/main/browser-captures/claude/safari_capture.sh,10,comment,src/main/browser-captures/claude/safari_capture.sh,Y,#   src/main/browser-captures/claude/safari_capture.sh --discover
+src/main/browser-captures/claude/safari_capture.sh,32,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
+src/main/browser-captures/claude/safari_capture.sh,32,call,src/main/browser-captures/claude/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
+src/main/browser-captures/claude/safari_fetch_api_json.sh,6,comment,src/main/browser-captures/claude/safari_fetch_api_json.sh,Y,#   src/main/browser-captures/claude/safari_fetch_api_json.sh
+src/main/browser-captures/claude/safari_fetch_api_json.sh,29,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"" \"
+src/main/browser-captures/claude/safari_fetch_api_json.sh,29,call,src/main/browser-captures/claude/safari_fetch_api_json.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_fetch_api_json.py"" ""$@"" \"
+src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
+src/main/browser-captures/claude/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
+src/main/browser-captures/claude/validate.sh,23,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/browser-captures/claude/validate.sh,23,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
+src/main/browser-captures/gemini/safari_capture.sh,9,comment,src/main/browser-captures/gemini/safari_capture.sh,Y,#   src/main/browser-captures/gemini/safari_capture.sh --recapture
+src/main/browser-captures/gemini/safari_capture.sh,10,comment,src/main/browser-captures/gemini/safari_capture.sh,Y,#   src/main/browser-captures/gemini/safari_capture.sh --discover
+src/main/browser-captures/gemini/safari_capture.sh,32,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
+src/main/browser-captures/gemini/safari_capture.sh,32,call,src/main/browser-captures/gemini/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
 src/main/chat-exports/PREP.sh,14,comment,src/main/chat-exports/PREP.sh,Y,#   src/main/chat-exports/PREP.sh
 src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export  ext/chat-exports/data-<...>
 src/main/chat-exports/RUNME.sh,6,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
@@ -243,19 +244,19 @@ src/test/gen_changelog_matrix.py,11,comment,src/run_python_script.sh,Y,src/run_p
 src/test/gen_changelog_matrix.py,11,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --prune
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,"src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u"
-src/test/pre_commit.py,314,path_str,src/run_python_script.sh,Y,run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-src/test/pre_commit.py,70,path_str,src/main/browser-captures/RUNME.sh,Y,"validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',"
-src/test/pre_commit.py,71,path_str,src/main/browser-captures/validate.sh,Y,"validate_item_cmd = 'src/main/browser-captures/validate.sh --browser-capture',"
+src/test/pre_commit.py,315,path_str,src/run_python_script.sh,Y,run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,70,path_str,src/main/browser-captures/claude/RUNME.sh,Y,"validate_cmd      = 'src/main/browser-captures/claude/RUNME.sh --browser-captures',"
+src/test/pre_commit.py,71,path_str,src/main/browser-captures/claude/validate.sh,Y,"validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,82,path_str,src/main/chat-exports/RUNME.sh,Y,"validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',"
 src/test/pre_commit.py,83,path_str,src/main/chat-exports/validate.sh,Y,"validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,95,path_str,src/main/code-projects/RUNME.sh,Y,"validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',"
 src/test/pre_commit.py,96,path_str,src/main/code-projects/validate.sh,Y,"validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',"
-src/test/pre_commit.py,359,path_str,src/run_python_script.sh,Y,run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-src/test/pre_commit.py,360,path_str,src/run_python_script.sh,Y,prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
-src/test/pre_commit.py,665,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,667,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,675,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,677,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,360,path_str,src/run_python_script.sh,Y,run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,361,path_str,src/run_python_script.sh,Y,prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
+src/test/pre_commit.py,666,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,668,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,676,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,678,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,26,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.l"
@@ -292,11 +293,11 @@ src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,rsc/schema/chat-exports/users/CHANGELOG.md,Y,
 ,,,rsc/schema/code-projects/session/CHANGELOG.md,Y,
 ,,self_only,rsc/schema/documenter.json,Y,
-,,,src/main/browser-captures-gemini/browser-chat-capture-gemini.js,Y,
 ,,self_only,src/main/browser-captures/PREP.sh,Y,
-,,,src/main/browser-captures/browser-chat-capture.js,Y,
+,,,src/main/browser-captures/claude/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/export-all-conversations.applescript,Y,
 ,,,src/main/browser-captures/export-conversation.applescript,Y,
+,,,src/main/browser-captures/gemini/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/safari_utils.py,Y,
 ,,self_only,src/main/chat-exports/PREP.sh,Y,
 ,,self_only,src/main/code-projects/PREP.sh,Y,

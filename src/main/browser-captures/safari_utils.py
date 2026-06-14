@@ -96,7 +96,12 @@ def collect_md_and_log(after_time, dest_dir):
     dest_dir.mkdir(parents=True, exist_ok=True)
     moved = []
     for f in DOWNLOADS.iterdir():
-        if f.stat().st_mtime > after_time and f.suffix in ('.md', '.log'):
+        if f.stat().st_mtime <= after_time:
+            continue
+        if f.suffix == '.log':
+            print(f.read_text(), end='')
+            f.unlink()
+        elif f.suffix == '.md':
             shutil.move(str(f), dest_dir / f.name)
             moved.append(f.name)
     return moved

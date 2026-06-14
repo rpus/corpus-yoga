@@ -170,7 +170,7 @@ function setupClaudeExporter() {
   }
 
   function buildMarkdown(title) {
-    let markdown = `# ${title}\n\n`;
+    let markdown = `# ${title}\n\n<${window.location.href}>\n\n`;
     const maxLength = Math.max(humanMessages.length, capturedResponses.length);
 
     for (let i = 0; i < maxLength; i++) {

@@ -1,14 +1,14 @@
 # README
 
-This repo wrangles Claude data exports.
+This repo wrangles AI conversations, from Gemini (via browser capture only) and Claude (via browser capture, bulk export, and local coding sessions).
+
+---
 
 ```bash
 # git clean -fdXn; git clean -fdxn
 
 ./RUNME.sh --browser-captures \
   --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
-
-./src/main/browser-captures-gemini/gemini_capture.sh --browser-captures ext/browser-captures-gemini --discover
 
 ./src/main/model/gen_model.sh
 
@@ -24,24 +24,25 @@ This repo wrangles Claude data exports.
   - Move downloaded folder/zip (like `data-*`) from `Downloads` into the `ext/chat-exports` in this (cloned) repo, and unzip it if needed.
   - `export ANTHROPIC_API_KEY=<your-key>` (required for table inference by Claude)
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
-  - Open Safari, log in to <https://claude.ai>
-  - **Shortcut mode** (standalone, outputs `.md` + `.log` + `{uuid}.json` to `~/Downloads/`):
+  - Open Safari, log in to <https://claude.ai> or <https://gemini.google.com>
+  - **Shortcut mode** (moves captures directly into `ext/`, same as script mode; `.log` files stay in `~/Downloads/`):
     - Set up a Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.applescript"`
-    - With front tab on <https://claude.ai/recents>: exports all conversations
-    - With front tab on `https://claude.ai/chat/{uuid}`: exports that conversation
-  - **Pipeline mode** (re-captures all conversations in `ext/browser-captures/`):
-    - `./src/main/browser-captures/safari_capture.sh --browser-captures ext/browser-captures`
+    - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: exports all conversations
+    - With front tab on a specific conversation: exports that conversation
+  - **Script mode** (moves captures directly into `ext/`; `--discover` finds all from recents, `--recapture` re-runs known UUIDs only):
+    - `./src/main/browser-captures/claude/safari_capture.sh --discover`
+    - `./src/main/browser-captures/gemini/safari_capture.sh --discover`
 - Fetch live API JSON for existing captures without it (for apiConversation schema validation):
-  - `./src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures`
+  - `./src/main/browser-captures/claude/safari_fetch_api_json.sh`
   - Saves `{title}.json` alongside each capture
 - Browse and read captures as rendered markdown + LaTeX:
-  - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures --daemon` then open <http://localhost:8182>
+  - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost:8182>
   - `src/main/model/serve_markdown.sh stop` to shut down
 
 ---
 
 ## Pre-public checklist
 
-- [ ] Create a new repo (to get clean/sage git history).
+- [ ] Create a new repo (to get clean/sane git history).
 - [ ] Add a LICENSE file.
 - [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `validate.sh` scripts on validation success

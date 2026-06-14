@@ -9,15 +9,16 @@ Requires Safari open, focused, and logged into claude.ai throughout.
 Called by safari_fetch_api_json.sh — do not invoke directly.
 
 Usage:
-    python safari_fetch_api_json.py --browser-captures ext/browser-captures
+    python safari_fetch_api_json.py --browser-captures ext/browser-captures/claude
 """
 
-import argparse, shutil, time
+import argparse, shutil, sys, time
 from pathlib import Path
 
-from safari_utils import safari_focus, safari_navigate, safari_fetch_api_json
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from safari_utils import safari_focus, safari_navigate, safari_fetch_api_json  # type: ignore[import-not-found]
 
-REPO_DIR = Path(__file__).resolve().parents[3]
+REPO_DIR = Path(__file__).resolve().parents[4]
 
 
 def fetch_one(uuid_dir):
@@ -44,8 +45,9 @@ def fetch_one(uuid_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', required=True,
-                    help='Path to ext/browser-captures/ — backfills JSON for all UUID subdirectories')
+    ap.add_argument('--browser-captures',
+                    default=str(REPO_DIR / 'ext' / 'browser-captures' / 'claude'),
+                    help='Path to ext/browser-captures/claude/ — backfills JSON for all UUID subdirectories (default: repo-relative)')
     args = ap.parse_args()
 
     captures_root = Path(args.browser_captures).resolve()

@@ -2,14 +2,14 @@
 # Validate a single browser-capture conversation against the apiConversation schema.
 #
 # Usage:
-#   src/main/browser-captures/validate.sh --browser-capture <path/to/uuid-directory>
+#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
-OUTPUT_DIR="$REPO_DIR/gen/browser-captures"
+OUTPUT_DIR="$REPO_DIR/gen/browser-captures/claude"
 
 validate_conversation() {
   local uuid_dir="${1%/}"

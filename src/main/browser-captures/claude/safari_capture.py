@@ -3,7 +3,7 @@
 Capture markdown and live API JSON for Claude.ai conversations via Safari.
 
 Two modes:
-  --recapture   Re-capture all UUID directories already in ext/browser-captures/.
+  --recapture   Re-capture all UUID directories already in ext/browser-captures/claude/.
                 Safe for routine use — only updates known conversations.
   --discover    Navigate to claude.ai/recents, find all conversation UUIDs,
                 and capture all of them.
@@ -14,20 +14,21 @@ Requires Safari open, focused, and logged into claude.ai throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --recapture  --browser-captures ext/browser-captures
-    python safari_capture.py --discover   --browser-captures ext/browser-captures
+    python safari_capture.py --recapture  --browser-captures ext/browser-captures/claude
+    python safari_capture.py --discover   --browser-captures ext/browser-captures/claude
 """
 
 import argparse, shutil, sys, time
 from pathlib import Path
 
-from safari_utils import (
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from safari_utils import (  # type: ignore[import-not-found]
     safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_fetch_api_json, wait_for_log, collect_md_and_log,
     PAGE_LOAD_WAIT,
 )
 
-REPO_DIR  = Path(__file__).resolve().parents[3]
+REPO_DIR  = Path(__file__).resolve().parents[4]
 JS_SCRIPT = Path(__file__).parent / 'browser-chat-capture.js'
 
 DISCOVER_JS = """\
@@ -128,8 +129,9 @@ def run(uuids, captures_root, label):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', required=True,
-                    help='Path to ext/browser-captures/')
+    ap.add_argument('--browser-captures',
+                    default=str(REPO_DIR / 'ext' / 'browser-captures' / 'claude'),
+                    help='Path to ext/browser-captures/claude/ (default: repo-relative)')
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument('--recapture', action='store_true',
                    help='Re-capture all UUID directories already present')

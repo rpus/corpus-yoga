@@ -27,7 +27,7 @@ hints to see the exact error before changing the schema.
 ### 1. Identify the failure
 
 ```bash
-src/main/browser-captures/validate.sh --browser-capture ext/browser-captures/<uuid>
+src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
 src/main/code-projects/validate.sh     --code-project-session ext/code-projects/<project>/<uuid>
 ```
@@ -58,7 +58,7 @@ src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_sche
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
+src/main/browser-captures/claude/RUNME.sh --browser-captures ext/browser-captures/claude
 src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
 src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
 ```

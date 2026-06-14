@@ -2,13 +2,13 @@
 # Validate browser-captured API JSON files against the apiConversation schema.
 #
 # Usage:
-#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/<uuid>
-#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures
+#   ./src/main/browser-captures/claude/RUNME.sh --browser-capture ext/browser-captures/claude/<uuid>
+#   ./src/main/browser-captures/claude/RUNME.sh --browser-captures ext/browser-captures/claude
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
 parse_args() {
   browser_capture=""

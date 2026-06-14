@@ -3,7 +3,7 @@
 Capture markdown for Gemini conversations via Safari.
 
 Two modes:
-  --recapture   Re-capture all ID directories already in ext/browser-captures-gemini/.
+  --recapture   Re-capture all ID directories already in ext/browser-captures/gemini/.
                 Safe for routine use — only updates known conversations.
   --discover    Navigate to gemini.google.com/app, find all conversation IDs,
                 and capture all of them.
@@ -11,25 +11,25 @@ Two modes:
 Always overwrites previous captures — conversations grow over time.
 
 Requires Safari open, focused, and logged into gemini.google.com throughout.
-Called by gemini_capture.sh — do not invoke directly.
+Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python gemini_capture.py --recapture  --browser-captures ext/browser-captures-gemini
-    python gemini_capture.py --discover   --browser-captures ext/browser-captures-gemini
+    python safari_capture.py --recapture  --browser-captures ext/browser-captures/gemini
+    python safari_capture.py --discover   --browser-captures ext/browser-captures/gemini
 """
 
 import argparse, sys, time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'browser-captures'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from safari_utils import (  # type: ignore[import-not-found]
     safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     wait_for_log, collect_md_and_log,
     PAGE_LOAD_WAIT,
 )
 
-REPO_DIR  = Path(__file__).resolve().parents[3]
-JS_SCRIPT = Path(__file__).parent / 'browser-chat-capture-gemini.js'
+REPO_DIR  = Path(__file__).resolve().parents[4]
+JS_SCRIPT = Path(__file__).parent / 'browser-chat-capture.js'
 
 DISCOVER_JS = """\
 (function () {
@@ -119,8 +119,9 @@ def run(ids, captures_root, label):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', required=True,
-                    help='Path to ext/browser-captures-gemini/')
+    ap.add_argument('--browser-captures',
+                    default=str(REPO_DIR / 'ext' / 'browser-captures' / 'gemini'),
+                    help='Path to ext/browser-captures/gemini/ (default: repo-relative)')
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument('--recapture', action='store_true',
                    help='Re-capture all ID directories already present')

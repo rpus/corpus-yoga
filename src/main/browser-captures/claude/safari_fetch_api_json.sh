@@ -3,12 +3,12 @@
 # Requires Safari open, focused, and logged into claude.ai throughout.
 #
 # Usage:
-#   src/main/browser-captures/safari_fetch_api_json.sh --browser-captures ext/browser-captures
+#   src/main/browser-captures/claude/safari_fetch_api_json.sh
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
 parse_args() {
   while [[ $# -gt 0 ]]; do

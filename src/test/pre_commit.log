@@ -1,4 +1,4 @@
-pre_commit.py: 933/933
+pre_commit.py: 936/936
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -22,9 +22,9 @@ pre_commit.py: 933/933
   ✓ exists: rsc/schema/code-projects/session/v2.json
   ✓ exists: rsc/schema/code-projects/session/v3.json
   ✓ exists: rsc/schema/code-projects/session/v4.json
-  ✓ exists: src/main/browser-captures/validate.sh
   ✓ exists: src/main/chat-exports/validate.sh
   ✓ exists: src/main/code-projects/validate.sh
+  ✓ exists: src/main/browser-captures/claude/validate.sh
   ✓ exists: src/main/validate.py
   ✓ exists: src/main/model/gen_model_candidate.py
   ✓ exists: src/main/model/gen_model.py
@@ -167,7 +167,7 @@ pre_commit.py: 933/933
 
 ── check_browser_captures_validation_outputs ─────────────────────────────────
 
-  looking for gen/browser-captures/<subject>/validation/apiConversation/vN.log — one per entry in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
+  looking for gen/browser-captures/claude/<subject>/validation/apiConversation/vN.log — one per entry in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
   ✓ apiConversation: validation passing: 0402e131-d6c4-48be-80d2-66ca0a18d46e × v1
   ✓ apiConversation: validation passing: 0402e131-d6c4-48be-80d2-66ca0a18d46e × v2
   ✓ apiConversation: validation passing: 0402e131-d6c4-48be-80d2-66ca0a18d46e × v3
@@ -297,6 +297,9 @@ pre_commit.py: 933/933
   ✓ apiConversation: validation passing: 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c × v1
   ✓ apiConversation: validation passing: 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c × v2
   ✓ apiConversation: validation passing: 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c × v3
+  ✓ apiConversation: validation passing: 958eaaee-ce1a-42fe-9426-33def96cf134 × v1
+  ✓ apiConversation: validation passing: 958eaaee-ce1a-42fe-9426-33def96cf134 × v2
+  ✓ apiConversation: validation passing: 958eaaee-ce1a-42fe-9426-33def96cf134 × v3
   ✓ apiConversation: validation passing: 97819e20-429c-4f40-976d-e39d188eed31 × v1
   ✓ apiConversation: validation passing: 97819e20-429c-4f40-976d-e39d188eed31 × v2
   ✓ apiConversation: validation passing: 97819e20-429c-4f40-976d-e39d188eed31 × v3
@@ -391,9 +394,9 @@ pre_commit.py: 933/933
   ✓ apiConversation: validation passing: fcee9cff-ab80-48a0-b44b-9e8fa50f31cc × v2
   ✓ apiConversation: validation passing: fcee9cff-ab80-48a0-b44b-9e8fa50f31cc × v3
 
-  every apiConversation log in gen/browser-captures/ should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
+  every apiConversation log in gen/browser-captures/claude/ should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
 
-  every ext/browser-captures/*/ entry should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
+  every ext/browser-captures/claude/*/ entry should be registered in rsc/schema/browser-captures/apiConversation/CHANGELOG.md
 
 ── check_chat_exports_validation_outputs ─────────────────────────────────────
 
@@ -1005,4 +1008,4 @@ pre_commit.py: 933/933
   ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 42 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 933/933; expected: 933/933
+  ✓ score: 936/936; expected: 936/936

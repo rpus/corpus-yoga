@@ -73,6 +73,19 @@ install_deps() {
   pip install -q -r "$SCRIPT_DIR/src/requirements.txt"
 }
 
+pipeline_runme_sh() {
+  case "$1" in
+    browser-captures) echo "src/main/browser-captures/claude/RUNME.sh" ;;
+    *)                echo "src/main/$1/RUNME.sh" ;;
+  esac
+}
+pipeline_ext_dir() {
+  case "$1" in
+    browser-captures) echo "ext/browser-captures/claude" ;;
+    *)                echo "ext/$1" ;;
+  esac
+}
+
 prep_pipeline() {
   local name="$1"; shift
   echo "── prep: ${name} ────────────────────────────────────────────────────────────"
@@ -81,9 +94,9 @@ prep_pipeline() {
 }
 
 run_pipeline() {
-  local name="$1"; shift
+  local name="$1"; local script; script="$(pipeline_runme_sh "$name")"; local ext; ext="$(pipeline_ext_dir "$name")"; shift
   echo "── ${name} ──────────────────────────────────────────────────────────────────"
-  "$SCRIPT_DIR/src/main/${name}/RUNME.sh" "--${name}" "$SCRIPT_DIR/ext/${name}" "$@"
+  "$SCRIPT_DIR/$script" "--${name}" "$SCRIPT_DIR/$ext" "$@"
   echo ""
 }
 
@@ -133,8 +146,8 @@ main() {
     for f in "${pipeline_failures[@]}"; do
       echo "  $f"
       case "$f" in
-        browser-captures)        echo "    → check gen/browser-captures/*/validation/apiConversation/*.log" ;;
-        "browser-captures (prep)") echo "    → check ext/browser-captures/ and Safari setup" ;;
+        browser-captures)        echo "    → check gen/browser-captures/claude/*/validation/apiConversation/*.log" ;;
+        "browser-captures (prep)") echo "    → check ext/browser-captures/claude/ and Safari setup" ;;
         chat-exports)            echo "    → check gen/chat-exports/*/validation/*.log" ;;
         "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see PREP.sh --help)" ;;
         code-projects)           echo "    → check gen/code-projects/*/validation/*.log" ;;

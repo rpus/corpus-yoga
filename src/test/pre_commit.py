@@ -63,12 +63,12 @@ PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
         schemas           = ['apiConversation'],
         changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
-        gen               = GEN / 'browser-captures',
-        input             = EXT / 'browser-captures',
+        gen               = GEN / 'browser-captures' / 'claude',
+        input             = EXT / 'browser-captures' / 'claude',
         input_glob        = '*/',
         subject_depth     = 1,
-        validate_cmd      = 'src/main/browser-captures/RUNME.sh --browser-captures',
-        validate_item_cmd = 'src/main/browser-captures/validate.sh --browser-capture',
+        validate_cmd      = 'src/main/browser-captures/claude/RUNME.sh --browser-captures',
+        validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',
         subject_header    = 'Conversation UUID',
         changelog_footer  = 'Bytes: size of the captured JSON file at validation time.',
     ),
@@ -266,7 +266,8 @@ def check_required_files(run):
                        for v in _sorted_versions(schema_d)]
     required = [
         *schema_versions,
-        *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES],
+        *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES if name != 'browser-captures'],
+        SRC / 'main' / 'browser-captures' / 'claude' / 'validate.sh',
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
         SRC  / 'main' / 'model' / 'gen_model.py',
@@ -684,7 +685,7 @@ def main():
                 if cmd.startswith('then: '):
                     actual = cmd[len('then: '):]
                     if lines:
-                        lines[-1] += f' && {actual}'
+                        lines[-1] += f'; {actual}'
                     else:
                         lines.append(actual)
                 else:
