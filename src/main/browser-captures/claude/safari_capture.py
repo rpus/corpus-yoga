@@ -3,16 +3,16 @@
 Capture markdown and live API JSON for Claude.ai conversations via Safari.
 
 Two modes:
-  (no args)     Navigate to claude.ai/recents, find all conversation UUIDs,
-                and capture all of them. Always overwrites previous captures.
-  --uuid <uuid> Capture a single conversation by UUID (used by the macOS Shortcut).
+  (no args)   Navigate to claude.ai/recents, find all conversation UUIDs,
+              and capture all of them. Always overwrites previous captures.
+  --id <id>   Capture a single conversation by UUID (used by the macOS Shortcut).
 
 Requires Safari open, focused, and logged into claude.ai throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py                 --browser-captures ext/browser-captures/claude
-    python safari_capture.py --uuid <uuid>   --browser-captures ext/browser-captures/claude
+    python safari_capture.py              --browser-captures ext/browser-captures/claude
+    python safari_capture.py --id <id>   --browser-captures ext/browser-captures/claude
 """
 
 import argparse, shutil, sys, time
@@ -37,15 +37,15 @@ DISCOVER_JS = """\
   });
   return r.join('\\n');
 })()"""
-EXPORT_TIMEOUT    = 900
-SETTLE_PAUSE      = 2
+EXPORT_TIMEOUT = 900
+SETTLE_PAUSE   = 2
 
 
-def fetch_json(uuid, out_dir, files):
-    json_file = safari_fetch_api_json(uuid)
+def fetch_json(conv_id, out_dir, files):
+    json_file = safari_fetch_api_json(conv_id)
     if json_file:
         new_md = [f for f in files if f.endswith('.md')]
-        stem = Path(new_md[0]).stem if new_md else uuid
+        stem = Path(new_md[0]).stem if new_md else conv_id
         shutil.move(str(json_file), out_dir / f'{stem}.json')
         files.append(f'{stem}.json')
     else:
@@ -65,7 +65,7 @@ def capture_one(out_dir):
     return start, collect_md_and_log(start, out_dir)
 
 
-def uuids_from_safari():
+def ids_from_safari():
     safari_focus()
     print('navigating to claude.ai/recents')
     safari_navigate('https://claude.ai/recents')
@@ -92,38 +92,38 @@ def uuids_from_safari():
         if count == prev:
             break
         prev = count
-    print('extracting UUIDs')
+    print('extracting conversation IDs')
     raw = safari_eval_js(DISCOVER_JS)
-    uuids = [u for u in raw.splitlines() if u]
-    print(f'found {len(uuids)} conversations')
-    return uuids
+    ids = [u for u in raw.splitlines() if u]
+    print(f'found {len(ids)} conversations')
+    return ids
 
 
-def capture_all(uuids, captures_root, label):
-    if not uuids:
+def capture_all(ids, captures_root, label):
+    if not ids:
         print(f'{label}: nothing to do')
         return
     print(f'--- {label} started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
-    print(f'capturing {len(uuids)} conversations')
+    print(f'capturing {len(ids)} conversations')
     safari_focus()
-    for i, uuid in enumerate(uuids):
-        print(f'[{i+1}/{len(uuids)}] {uuid}')
-        safari_navigate(f'https://claude.ai/chat/{uuid}')
+    for i, conv_id in enumerate(ids):
+        print(f'[{i+1}/{len(ids)}] {conv_id}')
+        safari_navigate(f'https://claude.ai/chat/{conv_id}')
         time.sleep(PAGE_LOAD_WAIT)
-        result = capture_one(captures_root / uuid)
+        result = capture_one(captures_root / conv_id)
         if result is not None:
             start, files = result
-            fetch_json(uuid, captures_root / uuid, files)
+            fetch_json(conv_id, captures_root / conv_id, files)
             print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')
     print(f'--- {label} finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures',
-                    default=str(REPO_DIR / 'ext' / 'browser-captures' / 'claude'),
-                    help='Path to ext/browser-captures/claude/ (default: repo-relative)')
-    ap.add_argument('--uuid', metavar='UUID',
+    ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
+    ap.add_argument('--browser-captures', default=None,
+                    help='Path to ext/browser-captures/<agent>/ (default: repo-relative)')
+    ap.add_argument('--id', metavar='ID',
                     help='Capture a single conversation; default is discover mode')
     args = ap.parse_args()
 
@@ -131,22 +131,22 @@ def main():
         print(f'Error: {JS_SCRIPT} not found', file=sys.stderr)
         raise SystemExit(1)
 
-    captures_root = Path(args.browser_captures).resolve()
+    captures_root = Path(args.browser_captures or REPO_DIR / 'ext' / 'browser-captures' / args.agent).resolve()
     captures_root.mkdir(parents=True, exist_ok=True)
 
-    if args.uuid:
+    if args.id:
         safari_focus()
         print(f'--- capture started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
-        print(f'[1/1] {args.uuid}')
-        out_dir = captures_root / args.uuid
+        print(f'[1/1] {args.id}')
+        out_dir = captures_root / args.id
         result = capture_one(out_dir)
         if result is not None:
             start, files = result
-            fetch_json(args.uuid, out_dir, files)
+            fetch_json(args.id, out_dir, files)
             print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')
         print(f'--- capture finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
     else:
-        capture_all(uuids_from_safari(), captures_root, 'discover')
+        capture_all(ids_from_safari(), captures_root, 'discover')
 
 
 if __name__ == '__main__':

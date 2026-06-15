@@ -1,12 +1,13 @@
-function setupGeminiExporter() {
+function setupExporter() {
+  const AGENT = 'Gemini';
   const originalWriteText = navigator.clipboard.writeText;
-  const originalWrite     = navigator.clipboard.write.bind(navigator.clipboard);
+  const originalWrite = navigator.clipboard.write.bind(navigator.clipboard);
   const capturedResponses = [];
   const humanMessages = [];
   let currentCapture = null;
   let interceptorActive = false;
   let humanTotal = 0;
-  let geminiTotal = 0;
+  let agentTotal = 0;
 
   const _consoleLogs = [];
   const log = (level, ...args) => {
@@ -17,14 +18,14 @@ function setupGeminiExporter() {
 
   // DOM Selectors — Gemini uses custom Angular elements as stable anchors
   const SELECTORS = {
-    humanElement:      'user-query',
-    geminiElement:     'model-response',
-    humanCopyButton:   'button[aria-label="Copy prompt"]',
-    geminiCopyButton:  'button[aria-label="Copy"]',
+    humanElement: 'user-query',
+    agentElement: 'model-response',
+    humanCopyButton: 'button[aria-label="Copy prompt"]',
+    agentCopyButton: 'button[aria-label="Copy"]',
   };
 
   const DELAYS = {
-    copy:    300,
+    copy: 300,
     startup: 1000,
     cleanup: 3000,
   };
@@ -46,7 +47,9 @@ function setupGeminiExporter() {
 
   function getConversationTitle() {
     const title = document.title.replace(/ - Google Gemini$/, '').trim();
-    if (!title || title === 'Gemini') return 'gemini_conversation';
+    if (!title || title === AGENT) {
+      return `${AGENT.toLowerCase()}_conversation`;
+    }
     return title
       .replace(/[<>:"/\\|?*]/g, '_')
       .replace(/\s+/g, '_')
@@ -67,7 +70,7 @@ function setupGeminiExporter() {
   // which the browser blocks (NotAllowedError) outside a user-gesture context. We intercept
   // the call before it reaches the browser, extract text/plain from the ClipboardItem, and
   // suppress the actual write so Gemini's code doesn't throw.
-  navigator.clipboard.write = function(items) {
+  navigator.clipboard.write = function (items) {
     if (interceptorActive && currentCapture) {
       Promise.all(items.map(item =>
         item.types.includes('text/plain')
@@ -93,8 +96,8 @@ function setupGeminiExporter() {
 
   function updateStatus() {
     const h = humanTotal ? `${humanMessages.length}/${humanTotal}` : humanMessages.length;
-    const g = geminiTotal ? `${capturedResponses.length}/${geminiTotal}` : capturedResponses.length;
-    statusDiv.textContent = `Human: ${h} | Gemini: ${g}`;
+    const a = agentTotal ? `${capturedResponses.length}/${agentTotal}` : capturedResponses.length;
+    statusDiv.textContent = `Human: ${h} | ${AGENT}: ${a}`;
   }
 
   function getCopyButtonsFromElements(elements, ariaLabel) {
@@ -138,42 +141,46 @@ function setupGeminiExporter() {
   function buildMarkdown(title) {
     let markdown = `# ${title}\n\n<${window.location.href}>\n\n`;
     const maxLength = Math.max(humanMessages.length, capturedResponses.length);
+
     for (let i = 0; i < maxLength; i++) {
       if (i < humanMessages.length && humanMessages[i].content) {
         markdown += `## Human (${i+1})\n\n${humanMessages[i].content}\n\n---\n\n`;
       }
       if (i < capturedResponses.length && capturedResponses[i].content) {
-        markdown += `## Gemini (${i+1})\n\n${capturedResponses[i].content}\n\n---\n\n`;
+        markdown += `## ${AGENT} (${i+1})\n\n${capturedResponses[i].content}\n\n---\n\n`;
       }
     }
+
     return markdown;
   }
 
   async function startExport() {
     try {
-      const humanElements  = [...document.querySelectorAll(SELECTORS.humanElement)];
-      const geminiElements = [...document.querySelectorAll(SELECTORS.geminiElement)];
-      const humanButtons   = getCopyButtonsFromElements(humanElements,  'Copy prompt');
-      const geminiButtons  = getCopyButtonsFromElements(geminiElements, 'Copy');
+      const humanElements = [...document.querySelectorAll(SELECTORS.humanElement)];
+      const agentElements = [...document.querySelectorAll(SELECTORS.agentElement)];
+      const humanButtons = getCopyButtonsFromElements(humanElements, 'Copy prompt');
+      const agentButtons = getCopyButtonsFromElements(agentElements, 'Copy');
 
-      if (humanButtons.length === 0 && geminiButtons.length === 0) {
+      if (humanButtons.length === 0 && agentButtons.length === 0) {
         throw new Error('No copy buttons found!');
       }
 
-      humanTotal  = humanButtons.length;
-      geminiTotal = geminiButtons.length;
-      log('LOG', `🔍 Copy buttons found: ${humanButtons.length} human, ${geminiButtons.length} gemini`);
+      humanTotal = humanButtons.length;
+      agentTotal = agentButtons.length;
+      log('LOG', `🔍 Copy buttons found: ${humanButtons.length} human, ${agentButtons.length} ${AGENT.toLowerCase()}`);
 
+      // Phase 1: Human messages
       statusDiv.textContent = 'Copying human messages...';
       currentCapture = humanMessages;
       interceptorActive = true;
-      const { captured: hc, placeholders: hp } = await triggerCopyButtons(humanButtons, 'human');
-      log('LOG', `📊 Phase 1: ${hc} captured, ${hp} placeholders — ${hc + hp}/${humanButtons.length} human messages accounted for`);
+      const { captured: humanCaptured, placeholders: humanPlaceholders } = await triggerCopyButtons(humanButtons, 'human');
+      log('LOG', `📊 Phase 1: ${humanCaptured} captured, ${humanPlaceholders} placeholders — ${humanCaptured + humanPlaceholders}/${humanButtons.length} human messages accounted for`);
 
-      statusDiv.textContent = 'Copying Gemini responses...';
+      // Phase 2: Agent responses
+      statusDiv.textContent = `Copying ${AGENT} responses...`;
       currentCapture = capturedResponses;
-      const { captured: gc, placeholders: gp } = await triggerCopyButtons(geminiButtons, 'gemini');
-      log('LOG', `📊 Phase 2: ${gc} captured, ${gp} placeholders — ${gc + gp}/${geminiButtons.length} gemini responses accounted for`);
+      const { captured: agentCaptured, placeholders: agentPlaceholders } = await triggerCopyButtons(agentButtons, AGENT.toLowerCase());
+      log('LOG', `📊 Phase 2: ${agentCaptured} captured, ${agentPlaceholders} placeholders — ${agentCaptured + agentPlaceholders}/${agentButtons.length} ${AGENT.toLowerCase()} responses accounted for`);
 
       completeExport();
 
@@ -197,7 +204,7 @@ function setupGeminiExporter() {
 
     const rawTitle = document.title.replace(/ - Google Gemini$/, '').trim();
     const filename = `${getConversationTitle()}.md`;
-    downloadBlob(buildMarkdown(rawTitle || 'Conversation with Gemini'), filename, 'text/markdown');
+    downloadBlob(buildMarkdown(rawTitle || `Conversation with ${AGENT}`), filename, 'text/markdown');
 
     statusDiv.textContent = `✅ Downloaded: ${filename}`;
     statusDiv.style.background = '#2e7d32';
@@ -207,7 +214,7 @@ function setupGeminiExporter() {
 
   function cleanup() {
     navigator.clipboard.writeText = originalWriteText;
-    navigator.clipboard.write     = originalWrite;
+    navigator.clipboard.write = originalWrite;
     document.removeEventListener('visibilitychange', onVisibilityChange);
     downloadBlob(_consoleLogs.join('\n'), `${getConversationTitle()}.log`, 'text/plain');
     if (document.body.contains(statusDiv)) {
@@ -227,8 +234,10 @@ function setupGeminiExporter() {
   }
   document.addEventListener('visibilitychange', onVisibilityChange);
 
+  // Initialize
   updateStatus();
   setTimeout(startExport, DELAYS.startup);
 }
 
-setupGeminiExporter();
+// Run the exporter
+setupExporter();

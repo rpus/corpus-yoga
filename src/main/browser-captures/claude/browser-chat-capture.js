@@ -1,11 +1,12 @@
-function setupClaudeExporter() {
+function setupExporter() {
+  const AGENT = 'Claude';
   const originalWriteText = navigator.clipboard.writeText;
   const capturedResponses = [];
   const humanMessages = [];
   let currentCapture = null;
   let interceptorActive = false;
   let humanTotal = 0;
-  let claudeTotal = 0;
+  let agentTotal = 0;
 
   const _consoleLogs = [];
   const log = (level, ...args) => {
@@ -20,7 +21,7 @@ function setupClaudeExporter() {
     messageActionsGroup: '[role="group"][aria-label="Message actions"]',
     feedbackButton: 'button[aria-label="Give positive feedback"]',
     messageContainer: '.mb-1.mt-6.group',
-    claudeMessageContainer: '.group',
+    agentContainer: '.group',
     messageText: 'p.whitespace-pre-wrap',
     responseText: 'p.font-claude-response-body',
   };
@@ -48,11 +49,9 @@ function setupClaudeExporter() {
 
   function getConversationTitle() {
     const title = document.title.replace(/ - Claude$/, '').trim();
-
-    if (!title || title === 'Claude' || title.includes('New conversation')) {
-      return 'claude_conversation';
+    if (!title || title === AGENT || title.includes('New conversation')) {
+      return `${AGENT.toLowerCase()}_conversation`;
     }
-
     return title
       .replace(/[<>:"/\\|?*]/g, '_')
       .replace(/\s+/g, '_')
@@ -63,7 +62,7 @@ function setupClaudeExporter() {
   }
 
   function readFromDOM(btn) {
-    const msgContainer = btn.closest(SELECTORS.messageContainer) || btn.closest(SELECTORS.claudeMessageContainer);
+    const msgContainer = btn.closest(SELECTORS.messageContainer) || btn.closest(SELECTORS.agentContainer);
     if (!msgContainer) return null;
     const els = msgContainer.querySelectorAll(SELECTORS.responseText);
     if (els.length) return Array.from(els).map(e => e.innerText.trim()).filter(t => t).join('\n\n');
@@ -71,7 +70,7 @@ function setupClaudeExporter() {
   }
 
   function describeButton(btn) {
-    const msgContainer = btn.closest(SELECTORS.messageContainer) || btn.closest(SELECTORS.claudeMessageContainer);
+    const msgContainer = btn.closest(SELECTORS.messageContainer) || btn.closest(SELECTORS.agentContainer);
     if (!msgContainer) return '(no container)';
 
     // Plain text message
@@ -112,19 +111,19 @@ function setupClaudeExporter() {
 
   function updateStatus() {
     const h = humanTotal ? `${humanMessages.length}/${humanTotal}` : humanMessages.length;
-    const c = claudeTotal ? `${capturedResponses.length}/${claudeTotal}` : capturedResponses.length;
-    statusDiv.textContent = `Human: ${h} | Claude: ${c}`;
+    const a = agentTotal ? `${capturedResponses.length}/${agentTotal}` : capturedResponses.length;
+    statusDiv.textContent = `Human: ${h} | ${AGENT}: ${a}`;
   }
 
   // Returns copy buttons from action bars filtered by message type.
-  // claudeOnly=true  → action bars WITH a feedback button (Claude responses)
-  // claudeOnly=false → action bars WITHOUT a feedback button (human messages)
-  function getCopyButtons(claudeOnly) {
+  // agentOnly=true  → action bars WITH a feedback button (Claude responses)
+  // agentOnly=false → action bars WITHOUT a feedback button (human messages)
+  function getCopyButtons(agentOnly) {
     const actionGroups = document.querySelectorAll(SELECTORS.messageActionsGroup);
     const buttons = [];
     actionGroups.forEach(group => {
       const hasFeedback = !!group.querySelector(SELECTORS.feedbackButton);
-      if (hasFeedback === claudeOnly) {
+      if (hasFeedback === agentOnly) {
         const copyBtn = group.querySelector(SELECTORS.copyButton);
         if (copyBtn) buttons.push(copyBtn);
       }
@@ -178,7 +177,7 @@ function setupClaudeExporter() {
         markdown += `## Human (${i+1})\n\n${humanMessages[i].content}\n\n---\n\n`;
       }
       if (i < capturedResponses.length && capturedResponses[i].content) {
-        markdown += `## Claude (${i+1})\n\n${capturedResponses[i].content}\n\n---\n\n`;
+        markdown += `## ${AGENT} (${i+1})\n\n${capturedResponses[i].content}\n\n---\n\n`;
       }
     }
 
@@ -188,15 +187,15 @@ function setupClaudeExporter() {
   async function startExport() {
     try {
       const humanButtons = getCopyButtons(false);
-      const claudeButtons = getCopyButtons(true);
+      const agentButtons = getCopyButtons(true);
 
-      if (humanButtons.length === 0 && claudeButtons.length === 0) {
+      if (humanButtons.length === 0 && agentButtons.length === 0) {
         throw new Error('No copy buttons found!');
       }
 
       humanTotal = humanButtons.length;
-      claudeTotal = claudeButtons.length;
-      log('LOG', `🔍 Copy buttons found: ${humanButtons.length} human, ${claudeButtons.length} claude`);
+      agentTotal = agentButtons.length;
+      log('LOG', `🔍 Copy buttons found: ${humanButtons.length} human, ${agentButtons.length} ${AGENT.toLowerCase()}`);
 
       // Phase 1: Human messages
       statusDiv.textContent = 'Copying human messages...';
@@ -205,11 +204,11 @@ function setupClaudeExporter() {
       const { captured: humanCaptured, placeholders: humanPlaceholders } = await triggerCopyButtons(humanButtons, 'human');
       log('LOG', `📊 Phase 1: ${humanCaptured} captured, ${humanPlaceholders} placeholders — ${humanCaptured + humanPlaceholders}/${humanButtons.length} human messages accounted for`);
 
-      // Phase 2: Claude responses
-      statusDiv.textContent = 'Copying Claude responses...';
+      // Phase 2: Agent responses
+      statusDiv.textContent = `Copying ${AGENT} responses...`;
       currentCapture = capturedResponses;
-      const { captured: claudeCaptured, placeholders: claudePlaceholders } = await triggerCopyButtons(claudeButtons, 'claude');
-      log('LOG', `📊 Phase 2: ${claudeCaptured} captured, ${claudePlaceholders} placeholders — ${claudeCaptured + claudePlaceholders}/${claudeButtons.length} claude responses accounted for`);
+      const { captured: agentCaptured, placeholders: agentPlaceholders } = await triggerCopyButtons(agentButtons, AGENT.toLowerCase());
+      log('LOG', `📊 Phase 2: ${agentCaptured} captured, ${agentPlaceholders} placeholders — ${agentCaptured + agentPlaceholders}/${agentButtons.length} ${AGENT.toLowerCase()} responses accounted for`);
 
       completeExport();
 
@@ -233,7 +232,7 @@ function setupClaudeExporter() {
 
     const rawTitle = getConversationTitle();
     const filename = `${rawTitle}.md`;
-    downloadBlob(buildMarkdown(rawTitle || 'Conversation with Claude'), filename, 'text/markdown');
+    downloadBlob(buildMarkdown(rawTitle || `Conversation with ${AGENT}`), filename, 'text/markdown');
 
     statusDiv.textContent = `✅ Downloaded: ${filename}`;
     statusDiv.style.background = '#4CAF50';
@@ -268,4 +267,4 @@ function setupClaudeExporter() {
 }
 
 // Run the exporter
-setupClaudeExporter();
+setupExporter();

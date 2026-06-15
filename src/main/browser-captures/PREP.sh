@@ -21,8 +21,8 @@ main() {
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   mkdir -p "$REPO_DIR/ext/browser-captures/claude"
   mkdir -p "$REPO_DIR/ext/browser-captures/gemini"
-  "$SCRIPT_DIR/claude/safari_capture.sh"
-  "$SCRIPT_DIR/gemini/safari_capture.sh"
+  "$SCRIPT_DIR/safari_capture.sh" --agent claude
+  "$SCRIPT_DIR/safari_capture.sh" --agent gemini
 }
 
 main "$@"

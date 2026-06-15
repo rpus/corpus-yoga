@@ -46,7 +46,6 @@ def capture_one(out_dir):
     start = time.time()
     safari_run_js_file(JS_SCRIPT)
     print(f'  script injected, waiting...')
-
     log = wait_for_log(start, EXPORT_TIMEOUT)
     if log is None:
         print(f'  TIMEOUT after {EXPORT_TIMEOUT}s — skipping')
@@ -84,7 +83,7 @@ def ids_from_safari():
         prev = count
     print('extracting conversation IDs')
     raw = safari_eval_js(DISCOVER_JS)
-    ids = [i for i in raw.splitlines() if i]
+    ids = [u for u in raw.splitlines() if u]
     print(f'found {len(ids)} conversations')
     return ids
 
@@ -109,9 +108,9 @@ def capture_all(ids, captures_root, label):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures',
-                    default=str(REPO_DIR / 'ext' / 'browser-captures' / 'gemini'),
-                    help='Path to ext/browser-captures/gemini/ (default: repo-relative)')
+    ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
+    ap.add_argument('--browser-captures', default=None,
+                    help='Path to ext/browser-captures/<agent>/ (default: repo-relative)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture a single conversation; default is discover mode')
     args = ap.parse_args()
@@ -120,14 +119,15 @@ def main():
         print(f'Error: {JS_SCRIPT} not found', file=sys.stderr)
         raise SystemExit(1)
 
-    captures_root = Path(args.browser_captures).resolve()
+    captures_root = Path(args.browser_captures or REPO_DIR / 'ext' / 'browser-captures' / args.agent).resolve()
     captures_root.mkdir(parents=True, exist_ok=True)
 
     if args.id:
         safari_focus()
         print(f'--- capture started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
         print(f'[1/1] {args.id}')
-        result = capture_one(captures_root / args.id)
+        out_dir = captures_root / args.id
+        result = capture_one(out_dir)
         if result is not None:
             start, files = result
             print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')

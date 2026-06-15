@@ -1,5 +1,5 @@
 -- Capture the current Claude or Gemini conversation into ext/browser-captures/.
--- Delegates to safari_capture.sh --uuid / --id, which handles JS injection,
+-- Delegates to safari_capture.sh --agent <claude|gemini> --id, which handles JS injection,
 -- file moving, API JSON fetch, and logging.
 --
 -- Prerequisite (one-time): Safari > Develop > Allow JavaScript from Apple Events
@@ -15,12 +15,11 @@ tell application "Safari"
 
 	set currentURL to URL of front document
 
+	set captureScript to scriptDir & "/safari_capture.sh"
 	if currentURL starts with "https://claude.ai/chat/" then
-		set captureScript to scriptDir & "/claude/safari_capture.sh"
-		set convFlag to "--uuid"
+		set agentFlag to "--agent claude"
 	else if currentURL starts with "https://gemini.google.com/app/" and currentURL is not "https://gemini.google.com/app/" then
-		set captureScript to scriptDir & "/gemini/safari_capture.sh"
-		set convFlag to "--id"
+		set agentFlag to "--agent gemini"
 	else
 		display alert "Navigate to a specific conversation first." & return & return & "For bulk capture, use PREP.sh or run export-all-conversations.applescript from the recents page." buttons {"OK"} default button "OK"
 		return
@@ -32,4 +31,4 @@ tell application "Safari"
 	set AppleScript's text item delimiters to oldDelimiters
 end tell
 
-do shell script quoted form of captureScript & " " & convFlag & " " & quoted form of convId
+do shell script quoted form of captureScript & " " & agentFlag & " --id " & quoted form of convId

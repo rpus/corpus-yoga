@@ -69,25 +69,22 @@ rsc/schema/model.json,35,path_str,rsc/schema/chat-exports/projects/v1.json,Y,"""
 rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./chat-exports/users/v1.json"": ["
 rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v8.json,Y,"""./chat-exports/conversations/v8.json"": ["
 src/main/browser-captures/PREP.sh,6,comment,src/main/browser-captures/PREP.sh,Y,#   src/main/browser-captures/PREP.sh
-src/main/browser-captures/PREP.sh,24,call,src/main/browser-captures/claude/safari_capture.sh,Y,"""$SCRIPT_DIR/claude/safari_capture.sh"""
-src/main/browser-captures/PREP.sh,25,call,src/main/browser-captures/gemini/safari_capture.sh,Y,"""$SCRIPT_DIR/gemini/safari_capture.sh"""
+src/main/browser-captures/PREP.sh,24,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent claude"
+src/main/browser-captures/PREP.sh,25,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent gemini"
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
 src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/claude/<uuid>
 src/main/browser-captures/RUNME.sh,32,call,src/main/browser-captures/claude/validate.sh,Y,"""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/claude/safari_capture.sh,9,comment,src/main/browser-captures/claude/safari_capture.sh,Y,#   src/main/browser-captures/claude/safari_capture.sh
-src/main/browser-captures/claude/safari_capture.sh,10,comment,src/main/browser-captures/claude/safari_capture.sh,Y,#   src/main/browser-captures/claude/safari_capture.sh --uuid <uuid>
-src/main/browser-captures/claude/safari_capture.sh,32,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
-src/main/browser-captures/claude/safari_capture.sh,32,call,src/main/browser-captures/claude/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 src/main/browser-captures/claude/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
 src/main/browser-captures/claude/validate.sh,23,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,23,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
-src/main/browser-captures/gemini/safari_capture.sh,9,comment,src/main/browser-captures/gemini/safari_capture.sh,Y,#   src/main/browser-captures/gemini/safari_capture.sh
-src/main/browser-captures/gemini/safari_capture.sh,10,comment,src/main/browser-captures/gemini/safari_capture.sh,Y,#   src/main/browser-captures/gemini/safari_capture.sh --id <id>
-src/main/browser-captures/gemini/safari_capture.sh,32,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
-src/main/browser-captures/gemini/safari_capture.sh,32,call,src/main/browser-captures/gemini/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" ""$@"" \"
+src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude
+src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude --id <uuid>
+src/main/browser-captures/safari_capture.sh,11,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent gemini
+src/main/browser-captures/safari_capture.sh,12,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent gemini --id <id>
+src/main/browser-captures/safari_capture.sh,33,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/$agent/safari_capture.py"" --agent ""$agent"" ""$@"" \"
 src/main/chat-exports/PREP.sh,14,comment,src/main/chat-exports/PREP.sh,Y,#   src/main/chat-exports/PREP.sh
 src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export  ext/chat-exports/data-<...>
 src/main/chat-exports/RUNME.sh,6,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
@@ -288,9 +285,11 @@ src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,rsc/schema/code-projects/session/CHANGELOG.md,Y,
 ,,self_only,rsc/schema/documenter.json,Y,
 ,,,src/main/browser-captures/claude/browser-chat-capture.js,Y,
+,,,src/main/browser-captures/claude/safari_capture.py,Y,
 ,,,src/main/browser-captures/export-all-conversations.applescript,Y,
 ,,,src/main/browser-captures/export-conversation.applescript,Y,
 ,,,src/main/browser-captures/gemini/browser-chat-capture.js,Y,
+,,,src/main/browser-captures/gemini/safari_capture.py,Y,
 ,,,src/main/browser-captures/safari_utils.py,Y,
 ,,self_only,src/main/chat-exports/PREP.sh,Y,
 ,,self_only,src/main/code-projects/PREP.sh,Y,
