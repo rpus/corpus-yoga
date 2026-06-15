@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-04/schema#",
   "title": "mcp",
-  "description": "A draft-04 version of https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/refs/heads/main/schema/2025-11-25/schema.json (as at https://github.com/modelcontextprotocol/modelcontextprotocol/commit/357adac47ab2654b64799f994e6db8d3df4ee19d)",
+  "description": "A draft-04 version of https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/refs/heads/main/schema/2025-11-25/schema.json (as at https://github.com/modelcontextprotocol/modelcontextprotocol/commit/357adac47ab2654b64799f994e6db8d3df4ee19d; upstream SHA256: 7b2d96fd95efd2216aa953606b83f5a740ddeaa5ebd3a5d27b45a8296545a118)",
   "definitions": {
     "Annotations": {
       "description": "Optional annotations for the client. The client can use annotations to inform how objects are used or displayed",

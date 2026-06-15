@@ -56,7 +56,7 @@ def gen_matrix(pipeline: Pipeline, name: str) -> list[str]:
     gen        = pipeline.gen
     new_format = bool(pipeline.dir_col and pipeline.uuid_col)
     if not gen.exists():
-        sys.exit(f'{gen.relative_to(REPO_ROOT)} not found — run {pipeline.validate_cmd} ../{name} first')
+        sys.exit(f'{gen.relative_to(REPO_ROOT)} not found — run src/main/{name}/RUNME.sh --{name} ../{name} first')
 
     vld = pipeline.validation_log_depth
     if pipeline.subject_depth == 1 and vld == 0:

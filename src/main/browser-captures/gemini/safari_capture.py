@@ -3,19 +3,16 @@
 Capture markdown for Gemini conversations via Safari.
 
 Two modes:
-  --recapture   Re-capture all ID directories already in ext/browser-captures/gemini/.
-                Safe for routine use — only updates known conversations.
-  --discover    Navigate to gemini.google.com/app, find all conversation IDs,
-                and capture all of them.
-
-Always overwrites previous captures — conversations grow over time.
+  (no args)   Navigate to gemini.google.com/app, find all conversation IDs,
+              and capture all of them. Always overwrites previous captures.
+  --id <id>   Capture a single conversation by ID (used by the macOS Shortcut).
 
 Requires Safari open, focused, and logged into gemini.google.com throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --recapture  --browser-captures ext/browser-captures/gemini
-    python safari_capture.py --discover   --browser-captures ext/browser-captures/gemini
+    python safari_capture.py              --browser-captures ext/browser-captures/gemini
+    python safari_capture.py --id <id>   --browser-captures ext/browser-captures/gemini
 """
 
 import argparse, sys, time
@@ -44,11 +41,8 @@ EXPORT_TIMEOUT = 900
 SETTLE_PAUSE   = 2
 
 
-def capture_one(conv_id, out_dir):
+def capture_one(out_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
-    safari_navigate(f'https://gemini.google.com/app/{conv_id}')
-    time.sleep(PAGE_LOAD_WAIT)
-
     start = time.time()
     safari_run_js_file(JS_SCRIPT)
     print(f'  script injected, waiting...')
@@ -56,18 +50,9 @@ def capture_one(conv_id, out_dir):
     log = wait_for_log(start, EXPORT_TIMEOUT)
     if log is None:
         print(f'  TIMEOUT after {EXPORT_TIMEOUT}s — skipping')
-        return
-
+        return None
     time.sleep(SETTLE_PAUSE)
-    files = collect_md_and_log(start, out_dir)
-    print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')
-
-
-def ids_from_filesystem(captures_root):
-    print(f'scanning {captures_root}')
-    ids = [d.name for d in sorted(captures_root.iterdir()) if d.is_dir()]
-    print(f'found {len(ids)} existing captures')
-    return ids
+    return start, collect_md_and_log(start, out_dir)
 
 
 def ids_from_safari():
@@ -104,7 +89,7 @@ def ids_from_safari():
     return ids
 
 
-def run(ids, captures_root, label):
+def capture_all(ids, captures_root, label):
     if not ids:
         print(f'{label}: nothing to do')
         return
@@ -113,7 +98,12 @@ def run(ids, captures_root, label):
     safari_focus()
     for i, conv_id in enumerate(ids):
         print(f'[{i+1}/{len(ids)}] {conv_id}')
-        capture_one(conv_id, captures_root / conv_id)
+        safari_navigate(f'https://gemini.google.com/app/{conv_id}')
+        time.sleep(PAGE_LOAD_WAIT)
+        result = capture_one(captures_root / conv_id)
+        if result is not None:
+            start, files = result
+            print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')
     print(f'--- {label} finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
 
 
@@ -122,11 +112,8 @@ def main():
     ap.add_argument('--browser-captures',
                     default=str(REPO_DIR / 'ext' / 'browser-captures' / 'gemini'),
                     help='Path to ext/browser-captures/gemini/ (default: repo-relative)')
-    g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument('--recapture', action='store_true',
-                   help='Re-capture all ID directories already present')
-    g.add_argument('--discover', action='store_true',
-                   help='Discover from Gemini app page and capture all conversations')
+    ap.add_argument('--id', metavar='ID',
+                    help='Capture a single conversation; default is discover mode')
     args = ap.parse_args()
 
     if not JS_SCRIPT.exists():
@@ -136,10 +123,17 @@ def main():
     captures_root = Path(args.browser_captures).resolve()
     captures_root.mkdir(parents=True, exist_ok=True)
 
-    if args.recapture:
-        run(ids_from_filesystem(captures_root), captures_root, 'recapture')
+    if args.id:
+        safari_focus()
+        print(f'--- capture started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
+        print(f'[1/1] {args.id}')
+        result = capture_one(captures_root / args.id)
+        if result is not None:
+            start, files = result
+            print(f'  done in {time.time() - start:.0f}s — {", ".join(files)}')
+        print(f'--- capture finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
     else:
-        run(ids_from_safari(), captures_root, 'discover')
+        capture_all(ids_from_safari(), captures_root, 'discover')
 
 
 if __name__ == '__main__':

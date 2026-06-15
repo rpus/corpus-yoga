@@ -2,12 +2,12 @@
 # Capture Claude.ai conversations via Safari automation.
 #
 # Two modes:
-#   --recapture   Re-capture all UUID directories already in ext/browser-captures/claude/.
-#   --discover    Navigate to claude.ai/recents, capture new conversations only.
+#   (no args)     Navigate to claude.ai/recents and capture all conversations.
+#   --uuid <uuid> Capture a single conversation (called by the macOS Shortcut).
 #
 # Usage:
-#   src/main/browser-captures/claude/safari_capture.sh --recapture
-#   src/main/browser-captures/claude/safari_capture.sh --discover
+#   src/main/browser-captures/claude/safari_capture.sh
+#   src/main/browser-captures/claude/safari_capture.sh --uuid <uuid>
 
 set -euo pipefail
 

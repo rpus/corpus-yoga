@@ -58,7 +58,7 @@ src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_sche
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/claude/RUNME.sh --browser-captures ext/browser-captures/claude
+src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
 src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
 src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
 ```
@@ -102,10 +102,11 @@ Open `rsc/schema/model_join.csv` and:
    New tool types (`SearchMcpRegistryToolUseBlock`) and new message fields
    (`compaction_summary`) are examples.
 
-5. **Verify pointers** by running:
+5. **Verify pointers and version currency** by running:
 
    ```bash
-   src/test/pre_commit.sh   # check_schema_join validates all JSON Pointer fragments
+   src/test/pre_commit.sh   # check_schema_join: pointer validity
+                            # check_model_join_versions: stale version refs
    ```
 
 ### 5. Check _reference/mcp.json
@@ -114,24 +115,20 @@ Open `rsc/schema/model_join.csv` and:
 `mcp_path` reference column in `model_join.csv`. It has no changelog or pipeline — it
 is updated manually when the MCP protocol itself evolves.
 
-The file's `description` field records the source URL and the exact commit it was taken from:
+The file's `description` field records the source URL, the commit it was taken from, and a
+SHA256 of the upstream file at that point:
 
 ```text
-https://github.com/modelcontextprotocol/modelcontextprotocol/commit/<hash>
+... (as at https://github.com/.../commit/<hash>; upstream SHA256: <hex>)
 ```
 
-To check for newer versions:
+`pre_commit` checks currency automatically (`check_mcp_schema`) by fetching the raw schema
+URL from the description and comparing its SHA256 to the stored value. If the upstream file
+has changed, the check fails.
 
-```bash
-# Compare current commit against latest on main
-open https://github.com/modelcontextprotocol/modelcontextprotocol/commits/main/schema/2025-11-25/schema.json
-```
-
-If a newer commit exists, download the updated schema, convert it to Draft-04 if needed,
-update the `description` field with the new source commit, and re-run `check_schema_join`
+If `check_mcp_schema` fails: download the updated schema, convert it to Draft-04 if needed,
+update the `description` field with the new commit URL and SHA256, then re-run `pre_commit`
 to verify all `model_join.csv` pointers still resolve.
-
-As of 2026-05-20, the snapshot is current (commit `357adac`).
 
 ### 6. Update model.json if needed
 

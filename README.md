@@ -7,7 +7,7 @@ This repo wrangles AI conversations, from Gemini (via browser capture only) and 
 ```bash
 # git clean -fdXn; git clean -fdxn
 
-./RUNME.sh --browser-captures \
+./RUNME.sh --capture-from-browser \
   --pay-for-inference # (requires `ANTHROPIC_API_KEY` in `env`)
 
 ./src/main/model/gen_model.sh
@@ -25,16 +25,12 @@ This repo wrangles AI conversations, from Gemini (via browser capture only) and 
   - `export ANTHROPIC_API_KEY=<your-key>` (required for table inference by Claude)
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
   - Open Safari, log in to <https://claude.ai> or <https://gemini.google.com>
-  - **Shortcut mode** (moves captures directly into `ext/`, same as script mode; `.log` files stay in `~/Downloads/`):
-    - Set up a Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.applescript"`
-    - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: exports all conversations
-    - With front tab on a specific conversation: exports that conversation
-  - **Script mode** (moves captures directly into `ext/`; `--discover` finds all from recents, `--recapture` re-runs known UUIDs only):
-    - `./src/main/browser-captures/claude/safari_capture.sh --discover`
-    - `./src/main/browser-captures/gemini/safari_capture.sh --discover`
-- Fetch live API JSON for existing captures without it (for apiConversation schema validation):
-  - `./src/main/browser-captures/claude/safari_fetch_api_json.sh`
-  - Saves `{title}.json` alongside each capture
+  - **Shortcut mode** — triggered on the current browser page; no programmatic navigation:
+    - Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.applescript"`
+    - With front tab on a specific conversation: captures that conversation (page already loaded)
+    - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures all conversations (AppleScript iterates the listing)
+  - **Script mode** — Python navigates to every conversation automatically via `capture_all()`:
+    - `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost:8182>
   - `src/main/model/serve_markdown.sh stop` to shut down

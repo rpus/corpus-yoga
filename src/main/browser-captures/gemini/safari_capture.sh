@@ -2,12 +2,12 @@
 # Capture Gemini conversations via Safari automation.
 #
 # Two modes:
-#   --recapture   Re-capture all ID directories already in ext/browser-captures/gemini/.
-#   --discover    Navigate to gemini.google.com/app, capture all conversations.
+#   (no args)   Navigate to gemini.google.com/app and capture all conversations.
+#   --id <id>   Capture a single conversation (called by the macOS Shortcut).
 #
 # Usage:
-#   src/main/browser-captures/gemini/safari_capture.sh --recapture
-#   src/main/browser-captures/gemini/safari_capture.sh --discover
+#   src/main/browser-captures/gemini/safari_capture.sh
+#   src/main/browser-captures/gemini/safari_capture.sh --id <id>
 
 set -euo pipefail
 

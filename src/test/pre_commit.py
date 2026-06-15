@@ -45,7 +45,6 @@ class Pipeline:
     input:           Path
     input_glob:      str
     subject_depth:   int
-    validate_cmd:      str
     validate_item_cmd: str
     # Extra diagnostics to skip beyond the universal versioned-schema skip set.
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
@@ -67,7 +66,6 @@ PIPELINES: dict[str, Pipeline] = {
         input             = EXT / 'browser-captures' / 'claude',
         input_glob        = '*/',
         subject_depth     = 1,
-        validate_cmd      = 'src/main/browser-captures/claude/RUNME.sh --browser-captures',
         validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',
         subject_header    = 'Conversation UUID',
         changelog_footer  = 'Bytes: size of the captured JSON file at validation time.',
@@ -79,7 +77,6 @@ PIPELINES: dict[str, Pipeline] = {
         input             = EXT / 'chat-exports',
         input_glob        = 'data-*/',
         subject_depth     = 1,
-        validate_cmd      = 'src/main/chat-exports/RUNME.sh --chat-exports',
         validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',
         subject_header    = 'Export',
         changelog_footer  = 'Bytes: size of `conversations.json` at validation time.',
@@ -92,7 +89,6 @@ PIPELINES: dict[str, Pipeline] = {
         input             = EXT / 'code-projects',
         input_glob        = '-Users-*/*.jsonl',
         subject_depth     = 2,
-        validate_cmd      = 'src/main/code-projects/RUNME.sh --code-projects',
         validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
         slug_prefix       = str(Path.home()).replace('/', '-'),
@@ -319,7 +315,7 @@ def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
     for path in _sorted_versions(SCHEMA_DIR[schema]):
         v = path.stem
         if v not in registered_versions:
-            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            fix(f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}')
             fix(f'then: {run_cmd}')
         run(f'{schema}: workflow.changelog_entry: {v}', v in registered_versions)
         run(f'{schema}: workflow.changelog_narrative: {v}',
@@ -359,7 +355,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
         matrix    = _parse_changelog_matrix(p)
         run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
         prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
-        _check_validation_outputs_impl(run, fix, p, schema, matrix, run_cmd, prune_cmd)
+        _check_validation_outputs_impl(run, fix, name, p, schema, matrix, run_cmd, prune_cmd)
 
     for schema in pipeline.schemas:
         changelog = RSC_SCHEMA / pipeline.changelog.parent.parent.name / schema / 'CHANGELOG.md'
@@ -389,7 +385,7 @@ def _gen_subject_dirs(gen_dir, depth, schema='', validation_log_depth=0):
                         yield f'{d1.name} / {d2.name}', d2
 
 
-def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, prune_cmd):
+def _check_validation_outputs_impl(run, fix, name, pipeline, schema, matrix, run_cmd, prune_cmd):
     gen_rel   = pipeline.gen.relative_to(REPO_ROOT)
     input_rel = pipeline.input.relative_to(REPO_ROOT)
     chlog_rel = pipeline.changelog.relative_to(REPO_ROOT)
@@ -412,7 +408,7 @@ def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, 
             if subject not in current_subjects:
                 fix(prune_cmd)
             else:
-                fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+                fix(f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}')
             run(f'{schema}: {subject} × {version}', False, str(log.relative_to(REPO_ROOT)))
             continue
         content     = log.read_text()
@@ -441,7 +437,7 @@ def _check_validation_outputs_impl(run, fix, pipeline, schema, matrix, run_cmd, 
     subjects = sorted(current_subjects)
     for subject in subjects:
         if subject not in registered:
-            fix(f'Run: {pipeline.validate_cmd} {pipeline.input.relative_to(REPO_ROOT)}')
+            fix(f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}')
             fix(f'then: {run_cmd}')
             run(f'{schema}: unregistered: {subject}', False)
 
@@ -482,6 +478,66 @@ def check_schema_join(run):
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
+
+
+def check_model_join_versions(run):
+    """Every versioned schema referenced in model_join.csv must be the latest version."""
+    join = RSC_SCHEMA / 'model_join.csv'
+    if not join.exists():
+        return
+    base_for = {
+        'conv_path':    SCHEMA_DIR['conversations'].parent,
+        'session_path': SCHEMA_DIR['session'],
+        'api_path':     SCHEMA_DIR['apiConversation'].parent,
+    }
+    seen_dirs: dict[Path, str] = {}  # schema_dir → stem of version referenced
+    with join.open() as fh:
+        for row in csv.DictReader(fh):
+            for col, base in base_for.items():
+                ref = row.get(col, '').strip()
+                if not ref:
+                    continue
+                file_part = ref.partition('#')[0]
+                f = (base / file_part).resolve()
+                if not re.match(r'v\d+', f.stem):
+                    continue
+                if f.parent not in seen_dirs:
+                    seen_dirs[f.parent] = f.stem
+    for schema_dir, used_stem in sorted(seen_dirs.items()):
+        versions = _sorted_versions(schema_dir)
+        if not versions:
+            continue
+        latest_stem = versions[-1].stem
+        rel = schema_dir.relative_to(RSC_SCHEMA)
+        run(f'model_join: {rel}: {used_stem}',
+            used_stem == latest_stem,
+            f'Update {used_stem}.json refs to {latest_stem}.json in {join.relative_to(REPO_ROOT)}' if used_stem != latest_stem else None)
+
+
+def check_mcp_schema(run):
+    """_reference/mcp.json must match the upstream schema at the raw URL in its description."""
+    import hashlib, urllib.request
+    mcp_path = RSC_SCHEMA / '_reference' / 'mcp.json'
+    if not mcp_path.exists():
+        run('mcp schema: _reference/mcp.json exists', False)
+        return
+    desc = json.loads(mcp_path.read_text()).get('description', '')
+    m_url  = re.search(r'(https://raw\.githubusercontent\.com/\S+)', desc)
+    m_hash = re.search(r'upstream SHA256:\s*([0-9a-f]{64})', desc)
+    if not m_url or not m_hash:
+        run('mcp schema: description has raw URL and upstream SHA256', False,
+            'Add raw URL and "upstream SHA256: <hex>" to the description field in _reference/mcp.json')
+        return
+    raw_url     = m_url.group(1)
+    stored_hash = m_hash.group(1)
+    try:
+        with urllib.request.urlopen(raw_url, timeout=15) as resp:
+            live_hash = hashlib.sha256(resp.read()).hexdigest()
+        run('mcp schema: up to date',
+            stored_hash == live_hash,
+            f'upstream changed — re-fetch {raw_url} and update upstream SHA256 in _reference/mcp.json')
+    except Exception as e:
+        run('mcp schema: upstream reachable', False, f'{e}')
 
 
 def check_pipeline_latest_passing(run, fix, name: str, pipeline: Pipeline) -> None:
@@ -585,6 +641,8 @@ def main():
         run_section(check_versioned_schema_diagnostics)
 
         run_section(check_schema_join)
+        run_section(check_model_join_versions)
+        run_section(check_mcp_schema)
         run_section(check_xref)
     finally:
         sys.stdout = sys.__stdout__

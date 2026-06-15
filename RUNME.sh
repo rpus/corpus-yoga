@@ -12,9 +12,9 @@
 #
 # Usage:
 #   ./RUNME.sh                                      # all pipelines
-#   ./RUNME.sh --browser-captures                   # also capture/update via Safari (slow)
+#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 #   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
-#   ./RUNME.sh --browser-captures --pay-for-inference
+#   ./RUNME.sh --capture-from-browser --pay-for-inference
 #
 # After running, check results with:
 #   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
@@ -29,9 +29,9 @@ parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
-      --browser-captures) browser_captures="--discover";            shift ;;
+      --capture-from-browser) browser_captures="1";                   shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--browser-captures] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done
 }
@@ -73,19 +73,6 @@ install_deps() {
   pip install -q -r "$SCRIPT_DIR/src/requirements.txt"
 }
 
-pipeline_runme_sh() {
-  case "$1" in
-    browser-captures) echo "src/main/browser-captures/claude/RUNME.sh" ;;
-    *)                echo "src/main/$1/RUNME.sh" ;;
-  esac
-}
-pipeline_ext_dir() {
-  case "$1" in
-    browser-captures) echo "ext/browser-captures/claude" ;;
-    *)                echo "ext/$1" ;;
-  esac
-}
-
 prep_pipeline() {
   local name="$1"; shift
   echo "── prep: ${name} ────────────────────────────────────────────────────────────"
@@ -94,9 +81,9 @@ prep_pipeline() {
 }
 
 run_pipeline() {
-  local name="$1"; local script; script="$(pipeline_runme_sh "$name")"; local ext; ext="$(pipeline_ext_dir "$name")"; shift
+  local name="$1"; shift
   echo "── ${name} ──────────────────────────────────────────────────────────────────"
-  "$SCRIPT_DIR/$script" "--${name}" "$SCRIPT_DIR/$ext" "$@"
+  "$SCRIPT_DIR/src/main/$name/RUNME.sh" "--${name}" "$@"
   echo ""
 }
 
@@ -129,14 +116,14 @@ main() {
 
   local -a pipeline_failures=()
 
-  prep_pipeline_safe browser-captures ${browser_captures:+"$browser_captures"}
+  [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures
   run_pipeline_safe  browser-captures
 
   prep_pipeline_safe chat-exports
-  run_pipeline_safe  chat-exports ${pay_for_inference:+"$pay_for_inference"}
+  run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports" ${pay_for_inference:+"$pay_for_inference"}
 
   prep_pipeline_safe code-projects
-  run_pipeline_safe  code-projects
+  run_pipeline_safe  code-projects "$SCRIPT_DIR/ext/code-projects"
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then

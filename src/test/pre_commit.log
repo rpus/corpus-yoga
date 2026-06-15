@@ -1,4 +1,4 @@
-pre_commit.py: 936/936
+pre_commit.py: 940/940
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -1003,9 +1003,17 @@ pre_commit.py: 936/936
 ── check_schema_join ─────────────────────────────────────────────────────────
   ✓ schema model_join.csv: all pointers valid
 
+── check_model_join_versions ─────────────────────────────────────────────────
+  ✓ model_join: browser-captures/apiConversation: v3
+  ✓ model_join: chat-exports/conversations: v9
+  ✓ model_join: code-projects/session: v4
+
+── check_mcp_schema ──────────────────────────────────────────────────────────
+  ✓ mcp schema: up to date
+
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 42 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 15 self-only, 42 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 936/936; expected: 936/936
+  ✓ score: 940/940; expected: 940/940
