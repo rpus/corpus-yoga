@@ -4,13 +4,9 @@
 | Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | Bytes | Session UUID |
 | --- | :---: | :---: | :---: | :---: | ---: | --- |
 | `-dev-Anthropic-nutrition` | ✗ | ✗ | ✗ | ✓ | 13,530,692 | `83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2` |
-| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 5,265,747 | `e87e0735-5bf3-484c-b60d-8761ea8decab` |
-| `-dev-Anthropic-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 4,451,058 | `68ae3555-cf35-4e4f-926d-a390d03589e9` |
-| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 8,039,412 | `d91fa43e-e7a0-4cb9-b24f-6163ef7bba96` |
-| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 7,538,867 | `c7639338-2b81-47fb-9136-2fd879eaec04` |
-| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 663,370 | `d8234533-ad49-42e7-967f-db33a0373a51` |
-| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 1,407,975 | `06e4c42d-edff-46d9-b698-c186b8c5723f` |
-| `-dev-github-rpus-claude-export-yoga` | ✗ | ✗ | ✗ | ✓ | 2,568,748 | `57289774-f418-4916-9678-e8befde97613` |
+| `-dev-github-rpus-claude-export-yoga` | ✗ | ✗ | ✗ | ✓ | 11,401,211 | `57289774-f418-4916-9678-e8befde97613` |
+| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 13,496 | `89515719-99fa-4db6-89ca-2b9862473e3c` |
+| `-dev-github-rpus-claude-export-yoga` | ✓ | ✓ | ✓ | ✓ | 473,172 | `df71fdce-b178-4acc-a8c6-d231d5ba56c8` |
 
 Bytes: size of the session JSON file at validation time.
 

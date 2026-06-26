@@ -556,6 +556,7 @@ def check_pipeline_latest_passing(run, fix, name: str, pipeline: Pipeline) -> No
             parts     = subject.split(' / ')
             item_path = pipeline.input.joinpath(*parts).relative_to(REPO_ROOT)
             fix(f'{pipeline.validate_item_cmd} {item_path}')
+            fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
             run(f'{schema}: fails latest ({latest}): {subject}', False,
                 str(log.relative_to(REPO_ROOT)))
 

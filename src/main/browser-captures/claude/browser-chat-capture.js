@@ -18,9 +18,8 @@ function setupExporter() {
   // DOM Selectors - easily modifiable if Claude's UI changes
   const SELECTORS = {
     copyButton: 'button[data-testid="action-bar-copy"]',
-    messageActionsGroup: '[role="group"][aria-label="Message actions"]',
     feedbackButton: 'button[aria-label="Give positive feedback"]',
-    messageContainer: '.mb-1.mt-6.group',
+    messageContainer: '.mb-1.group',
     agentContainer: '.group',
     messageText: 'p.whitespace-pre-wrap',
     responseText: 'p.font-claude-response-body',
@@ -115,20 +114,23 @@ function setupExporter() {
     statusDiv.textContent = `Human: ${h} | ${AGENT}: ${a}`;
   }
 
-  // Returns copy buttons from action bars filtered by message type.
-  // agentOnly=true  → action bars WITH a feedback button (Claude responses)
-  // agentOnly=false → action bars WITHOUT a feedback button (human messages)
+  // A copy button's action bar = the largest ancestor still containing exactly
+  // that one copy button. We derive it from the leaf buttons (stable testids)
+  // rather than a labeled wrapper, which is prone to drift.
+  function actionBarOf(btn) {
+    let bar = btn, el = btn.parentElement;
+    while (el && el.querySelectorAll(SELECTORS.copyButton).length === 1) {
+      bar = el;
+      el = el.parentElement;
+    }
+    return bar;
+  }
+
+  // agentOnly=true  → Claude responses  (action bar contains a feedback button)
+  // agentOnly=false → human messages    (no feedback button in the action bar)
   function getCopyButtons(agentOnly) {
-    const actionGroups = document.querySelectorAll(SELECTORS.messageActionsGroup);
-    const buttons = [];
-    actionGroups.forEach(group => {
-      const hasFeedback = !!group.querySelector(SELECTORS.feedbackButton);
-      if (hasFeedback === agentOnly) {
-        const copyBtn = group.querySelector(SELECTORS.copyButton);
-        if (copyBtn) buttons.push(copyBtn);
-      }
-    });
-    return buttons;
+    return Array.from(document.querySelectorAll(SELECTORS.copyButton))
+      .filter(btn => !!actionBarOf(btn).querySelector(SELECTORS.feedbackButton) === agentOnly);
   }
 
   async function triggerCopyButtons(buttons, label) {
@@ -190,12 +192,21 @@ function setupExporter() {
       const agentButtons = getCopyButtons(true);
 
       if (humanButtons.length === 0 && agentButtons.length === 0) {
-        throw new Error('No copy buttons found!');
+        const rawCopy     = document.querySelectorAll(SELECTORS.copyButton).length;
+        const rawFeedback = document.querySelectorAll(SELECTORS.feedbackButton).length;
+        throw new Error(
+          rawCopy === 0
+            ? `No copy buttons in DOM (feedback: ${rawFeedback}). Page not loaded, wrong page, or copy-button selector "${SELECTORS.copyButton}" drifted.`
+            : `Found ${rawCopy} copy button(s) and ${rawFeedback} feedback button(s), but paired 0 into messages — the pairing logic drifted, not the buttons.`
+        );
       }
 
       humanTotal = humanButtons.length;
       agentTotal = agentButtons.length;
       log('LOG', `🔍 Copy buttons found: ${humanButtons.length} human, ${agentButtons.length} ${AGENT.toLowerCase()}`);
+      if (Math.abs(humanButtons.length - agentButtons.length) > 1) {
+        log('WARN', `⚠️ Unbalanced counts (${humanButtons.length} human vs ${agentButtons.length} ${AGENT.toLowerCase()}) — possible misclassification from selector drift`);
+      }
 
       // Phase 1: Human messages
       statusDiv.textContent = 'Copying human messages...';

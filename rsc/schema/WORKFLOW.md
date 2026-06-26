@@ -143,7 +143,7 @@ Review `gen/model/` for new or changed definitions and update `model.json` if an
 cross-pipeline types need documenting. Also bump any stale version references in the
 `default` section of `model.json`.
 
-### 6. Run pre_commit
+### 7. Run pre_commit
 
 ```bash
 src/test/pre_commit.sh

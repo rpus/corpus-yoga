@@ -5,7 +5,7 @@
 #
 #   chat-exports     ext/chat-exports/      claude.ai bulk exports (conversations.json etc.)
 #   code-projects    ext/code-projects/     Claude Code CLI sessions (~/.claude/projects/ symlink)
-#   browser-captures ext/browser-captures/  Per-conversation live API JSON captures
+#   browser-captures ext/browser-captures/  Per-conversation live API JSON captures (~/Documents/dev/ symlink)
 #
 # Each pipeline validates its inputs against all schema versions, then (for chat-exports)
 # extracts files, infers tables, and renders a dashboard.
@@ -76,15 +76,19 @@ install_deps() {
 prep_pipeline() {
   local name="$1"; shift
   echo "── prep: ${name} ────────────────────────────────────────────────────────────"
-  "$SCRIPT_DIR/src/main/${name}/PREP.sh" "$@"
+  local rc=0
+  "$SCRIPT_DIR/src/main/${name}/PREP.sh" "$@" || rc=$?
   echo ""
+  return $rc
 }
 
 run_pipeline() {
   local name="$1"; shift
   echo "── ${name} ──────────────────────────────────────────────────────────────────"
-  "$SCRIPT_DIR/src/main/$name/RUNME.sh" "--${name}" "$@"
+  local rc=0
+  "$SCRIPT_DIR/src/main/$name/RUNME.sh" "--${name}" "$@" || rc=$?
   echo ""
+  return $rc
 }
 
 run_pipeline_safe() {
