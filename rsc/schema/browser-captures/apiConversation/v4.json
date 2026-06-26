@@ -68,10 +68,11 @@
           "type": "object"
         },
         "is_wiggle_enabled": {
+          "description": "Observed always true across the captured corpus (no false seen).",
           "type": "boolean"
         },
         "effective_thinking_mode": {
-          "description": "Effective extended-thinking mode for the conversation. Example: \"off\".",
+          "description": "Extended-thinking mode. Observed values: \"off\", \"auto\", \"extended\" (open set, kept as string since claude.ai may add modes).",
           "type": "string"
         },
         "chat_messages": {

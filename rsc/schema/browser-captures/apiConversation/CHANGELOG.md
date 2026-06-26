@@ -100,7 +100,14 @@ Validates the current corpus, in which the claude.ai API now emits two root fiel
 
 Unlike v1–v3 (each a relaxation, accepting a superset of the prior version), v4 *narrows* the accepted set — a v3 document lacking these fields fails v4. This is justified because the live API now includes them on every response, so every modern capture has them.
 
-- `ApiConversation` — now requires `is_wiggle_enabled: boolean` and `effective_thinking_mode: string` (observed `"off"`); two root fields the claude.ai API began emitting after v3
+- `ApiConversation` — now requires `is_wiggle_enabled: boolean` and `effective_thinking_mode: string`; two root fields the claude.ai API began emitting after v3
+
+### Refactored since v3
+
+Recorded the observed value sets for the two new fields, surveyed across all 84 captures:
+
+- `is_wiggle_enabled` — always `true` (no `false` observed); description noted
+- `effective_thinking_mode` — `"off"` (70), `"auto"` (12), `"extended"` (2); kept as open `string` rather than a closed enum, since claude.ai has a history of adding values (cf. `IntegrationName`)
 
 ---
 
