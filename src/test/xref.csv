@@ -320,7 +320,6 @@ src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,src/test/diagnostics/structure.no_dangling_refs.py,Y,
 ,,,src/test/diagnostics/structure.no_redundant_additional_properties_true.py,Y,
 ,,,src/test/diagnostics/structure.pattern_constraints_enforced.py,Y,
-,,,src/test/diagnostics/structure.property_order_matches_data.py,Y,
 ,,,src/test/diagnostics/structure.required_subset_of_properties.py,Y,
 ,,,src/test/repairs/composition.base_schemas_closed.py,Y,
 ,,,src/test/repairs/documentation.discriminator_fields_annotated.py,Y,
