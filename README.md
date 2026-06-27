@@ -35,6 +35,7 @@ This repo wrangles AI conversations, from Gemini (via browser capture only) and 
   - `src/run_python_script.sh src/main/browser-captures/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/browser-captures/markdown`
   - Projects each capture to the lean `markdownConversation` shape, validates it, and writes a flat directory of `<title>.md` with sane titles.
   - Verify the projection reproduces (or improves on) the legacy scrape — the safety net before retiring it: `src/run_python_script.sh src/main/browser-captures/compare_markdown.py --browser-captures ext/browser-captures/claude` (add `--diff` for full per-conversation diffs).
+  - The same tool atomises a bulk export (one big `conversations.json` array) into per-conversation markdown: `src/run_python_script.sh src/main/browser-captures/project_markdown.py --bulk-export ext/chat-exports/<batch>/conversations.json --out gen/chat-exports/markdown`.
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost:8182>
   - `src/main/model/serve_markdown.sh stop` to shut down
