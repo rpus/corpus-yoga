@@ -1,4 +1,4 @@
-pre_commit.py: 1041/1041
+pre_commit.py: 1031/1031
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -15,6 +15,7 @@ pre_commit.py: 1041/1041
   ✓ exists: rsc/schema/chat-exports/conversations/v7.json
   ✓ exists: rsc/schema/chat-exports/conversations/v8.json
   ✓ exists: rsc/schema/chat-exports/conversations/v9.json
+  ✓ exists: rsc/schema/chat-exports/conversations/v10.json
   ✓ exists: rsc/schema/chat-exports/memories/v1.json
   ✓ exists: rsc/schema/chat-exports/projects/v1.json
   ✓ exists: rsc/schema/chat-exports/projects/v2.json
@@ -100,6 +101,7 @@ pre_commit.py: 1041/1041
   ✓ conversations: valid JSON + $schema: v7
   ✓ conversations: valid JSON + $schema: v8
   ✓ conversations: valid JSON + $schema: v9
+  ✓ conversations: valid JSON + $schema: v10
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
@@ -153,6 +155,9 @@ pre_commit.py: 1041/1041
   ✓ conversations: workflow.changelog_entry: v9
   ✓ conversations: workflow.changelog_narrative: v9
   ✓ conversations: workflow.no_todo: v9
+  ✓ conversations: workflow.changelog_entry: v10
+  ✓ conversations: workflow.changelog_narrative: v10
+  ✓ conversations: workflow.no_todo: v10
 
 ── check_code_projects_workflow ──────────────────────────────────────────────
   ✓ session: workflow.changelog_entry: v1
@@ -515,76 +520,38 @@ pre_commit.py: 1041/1041
 ── check_chat_exports_validation_outputs ─────────────────────────────────────
 
   looking for gen/chat-exports/<subject>/validation/conversations/vN.log — one per entry in rsc/schema/chat-exports/conversations/CHANGELOG.md
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v4
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v5
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v6
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v7
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v8
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v9
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v4
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v5
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v6
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v7
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v8
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v9
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v4
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v5
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v6
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v7
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v8
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v9
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v1
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v2
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v3
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v4
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v5
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v6
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v7
-  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v8
-  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v9
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v1
+  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v10
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v2
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v3
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v4
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v5
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v6
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v7
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v8
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v9
 
   every conversations log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/conversations/CHANGELOG.md
 
   every ext/chat-exports/data-*/ entry should be registered in rsc/schema/chat-exports/conversations/CHANGELOG.md
 
   looking for gen/chat-exports/<subject>/validation/memories/vN.log — one per entry in rsc/schema/chat-exports/memories/CHANGELOG.md
-  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
-  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v1
-  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v1
-  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v1
+  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v1
 
   every memories log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/memories/CHANGELOG.md
 
   every ext/chat-exports/data-*/ entry should be registered in rsc/schema/chat-exports/memories/CHANGELOG.md
 
   looking for gen/chat-exports/<subject>/validation/projects/vN.log — one per entry in rsc/schema/chat-exports/projects/CHANGELOG.md
-  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
-  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
-  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
-  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
-  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
-  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
-  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
-  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
+  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
+  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
 
   every projects log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/projects/CHANGELOG.md
 
   every ext/chat-exports/data-*/projects/*.json entry should be registered in rsc/schema/chat-exports/projects/CHANGELOG.md
 
   looking for gen/chat-exports/<subject>/validation/users/vN.log — one per entry in rsc/schema/chat-exports/users/CHANGELOG.md
-  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000 × v1
-  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779291657-a368b9b0-batch-0000 × v1
-  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779488913-9f58b7be-batch-0000 × v1
-  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-batch-0000 × v1
+  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v1
 
   every users log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/users/CHANGELOG.md
 
@@ -920,6 +887,29 @@ pre_commit.py: 1041/1041
   ✓ conversations: structure.no_redundant_additional_properties_true: v9
   ✓ conversations: structure.pattern_constraints_enforced: v9
   ✓ conversations: structure.required_subset_of_properties: v9
+  ✓ conversations: composition.base_not_used_directly: v10
+  ✓ conversations: composition.base_schemas_closed: v10
+  ✓ conversations: composition.discriminator_values_disjoint: v10
+  ✓ conversations: composition.no_additional_properties_on_subtypes: v10
+  ✓ conversations: composition.wrapper_has_five_fields: v10
+  ✓ conversations: documentation.discriminator_fields_annotated: v10
+  ✓ conversations: documentation.every_definition_has_title_and_description: v10
+  ✓ conversations: documentation.null_only_fields_documented: v10
+  ✓ conversations: documentation.open_set_enums_documented: v10
+  ✓ conversations: empirical.nullable_fields_surveyed: v10
+  ✓ conversations: empirical.oneOf_branches_evidenced: v10
+  ✓ conversations: naming.property_keys_lowercase: v10
+  ✓ conversations: naming.title_matches_key: v10
+  ✓ conversations: naming.upper_camel_case: v10
+  ✓ conversations: structure.all_definitions_reachable: v10
+  ✓ conversations: structure.bfs_order: v10
+  ✓ conversations: structure.definitions_at_bottom: v10
+  ✓ conversations: structure.field_order: v10
+  ✓ conversations: structure.minItems_on_non_empty_arrays: v10
+  ✓ conversations: structure.no_dangling_refs: v10
+  ✓ conversations: structure.no_redundant_additional_properties_true: v10
+  ✓ conversations: structure.pattern_constraints_enforced: v10
+  ✓ conversations: structure.required_subset_of_properties: v10
   ✓ memories: composition.base_not_used_directly: v1
   ✓ memories: composition.base_schemas_closed: v1
   ✓ memories: composition.discriminator_values_disjoint: v1
@@ -1106,7 +1096,7 @@ pre_commit.py: 1041/1041
 
 ── check_model_join_versions ─────────────────────────────────────────────────
   ✓ model_join: browser-captures/apiConversation: v4
-  ✓ model_join: chat-exports/conversations: v9
+  ✓ model_join: chat-exports/conversations: v10
   ✓ model_join: code-projects/session: v4
 
 ── check_mcp_schema ──────────────────────────────────────────────────────────
@@ -1117,4 +1107,4 @@ pre_commit.py: 1041/1041
   ✓ xref: 0 missing-file, 0 bad-pointer, 15 self-only, 43 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 1041/1041; expected: 1041/1041
+  ✓ score: 1031/1031; expected: 1031/1031

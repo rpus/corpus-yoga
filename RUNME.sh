@@ -3,7 +3,7 @@
 #
 # Runs three pipelines against their sibling input directories:
 #
-#   chat-exports     ext/chat-exports/      claude.ai bulk exports (conversations.json etc.)
+#   chat-exports     ext/chat-exports/      claude.ai bulk exports, conversations.json etc. (~/Documents/dev/ symlink)
 #   code-projects    ext/code-projects/     Claude Code CLI sessions (~/.claude/projects/ symlink)
 #   browser-captures ext/browser-captures/  Per-conversation live API JSON captures (~/Documents/dev/ symlink)
 #
