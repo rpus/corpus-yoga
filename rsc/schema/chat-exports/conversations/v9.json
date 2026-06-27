@@ -652,6 +652,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "ask_user_input_v0"
           ]
@@ -672,6 +673,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "bash_tool"
           ]
@@ -692,6 +694,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "conversation_search"
           ]
@@ -712,6 +715,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "create_file"
           ]
@@ -749,6 +753,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "memory_user_edits"
           ]
@@ -769,6 +774,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "present_files"
           ]
@@ -789,6 +795,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "visualize:read_me"
           ]
@@ -809,6 +816,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "recent_chats"
           ]
@@ -833,6 +841,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "recommend_claude_apps"
           ]
@@ -853,6 +862,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "search_mcp_registry"
           ]
@@ -869,6 +879,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "str_replace"
           ]
@@ -893,6 +904,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "tool_search"
           ]
@@ -909,6 +921,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "view"
           ]
@@ -929,6 +942,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "visualize:show_widget"
           ]
@@ -949,6 +963,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "web_fetch"
           ]
@@ -969,6 +984,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "web_search"
           ]
@@ -1102,6 +1118,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "ask_user_input_v0"
           ]
@@ -1118,6 +1135,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "bash_tool"
           ]
@@ -1134,6 +1152,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "conversation_search"
           ]
@@ -1150,6 +1169,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "create_file"
           ]
@@ -1179,6 +1199,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "memory_user_edits"
           ]
@@ -1195,6 +1216,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "present_files"
           ]
@@ -1211,6 +1233,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "visualize:read_me"
           ]
@@ -1227,6 +1250,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "recent_chats"
           ]
@@ -1246,6 +1270,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "recommend_claude_apps"
           ]
@@ -1262,6 +1287,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "search_mcp_registry"
           ]
@@ -1275,6 +1301,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "str_replace"
           ]
@@ -1294,6 +1321,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "tool_search"
           ]
@@ -1307,6 +1335,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "view"
           ]
@@ -1323,6 +1352,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "visualize:show_widget"
           ]
@@ -1339,6 +1369,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "web_fetch"
           ]
@@ -1355,6 +1386,7 @@
       "properties": {
         "name": {
           "description": "(discriminator)",
+          "type": "string",
           "enum": [
             "web_search"
           ]

@@ -282,6 +282,7 @@ src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.t
 src/test/repairs/naming.upper_camel_case.py,4,comment,src/test/repairs/naming.upper_camel_case.py,Y,Usage: python src/test/repairs/naming.upper_camel_case.py <schema> <old_name> <new_name>
 src/test/repairs/structure.bfs_order.py,4,comment,src/test/repairs/structure.bfs_order.py,Y,Usage: python src/test/repairs/structure.bfs_order.py <schema>
 src/test/repairs/structure.definitions_at_bottom.py,4,comment,src/test/repairs/structure.definitions_at_bottom.py,Y,Usage: python src/test/repairs/structure.definitions_at_bottom.py <schema>
+src/test/repairs/structure.enum_refines_explicit_type.py,9,comment,src/test/repairs/structure.enum_refines_explicit_type.py,Y,Usage: python src/test/repairs/structure.enum_refines_explicit_type.py <schema>
 src/test/repairs/structure.field_order.py,4,comment,src/test/repairs/structure.field_order.py,Y,Usage: python src/test/repairs/structure.field_order.py <schema>
 src/test/repairs/structure.no_redundant_additional_properties_true.py,4,comment,src/test/repairs/structure.no_redundant_additional_properties_true.py,Y,Usage: python src/test/repairs/structure.no_redundant_additional_properties_true.py <schema>
 src/test/repairs/structure.pattern_constraints_enforced.py,4,comment,src/test/repairs/structure.pattern_constraints_enforced.py,Y,Usage: python src/test/repairs/structure.pattern_constraints_enforced.py <schema>
@@ -334,6 +335,7 @@ src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,,src/test/diagnostics/structure.all_definitions_reachable.py,Y,
 ,,,src/test/diagnostics/structure.bfs_order.py,Y,
 ,,,src/test/diagnostics/structure.definitions_at_bottom.py,Y,
+,,,src/test/diagnostics/structure.enum_refines_explicit_type.py,Y,
 ,,,src/test/diagnostics/structure.field_order.py,Y,
 ,,,src/test/diagnostics/structure.minItems_on_non_empty_arrays.py,Y,
 ,,,src/test/diagnostics/structure.no_dangling_refs.py,Y,
@@ -347,6 +349,7 @@ src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.
 ,,self_only,src/test/repairs/naming.title_matches_key.py,Y,
 ,,self_only,src/test/repairs/naming.upper_camel_case.py,Y,
 ,,self_only,src/test/repairs/structure.definitions_at_bottom.py,Y,
+,,self_only,src/test/repairs/structure.enum_refines_explicit_type.py,Y,
 ,,self_only,src/test/repairs/structure.field_order.py,Y,
 ,,self_only,src/test/repairs/structure.no_redundant_additional_properties_true.py,Y,
 ,,self_only,src/test/repairs/structure.pattern_constraints_enforced.py,Y,

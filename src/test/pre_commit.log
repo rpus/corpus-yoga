@@ -1,4 +1,4 @@
-pre_commit.py: 1033/1033
+pre_commit.py: 1057/1057
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -56,6 +56,7 @@ pre_commit.py: 1033/1033
   ✓ structure.all_definitions_reachable: documenter.json
   ✓ structure.bfs_order: documenter.json
   ✓ structure.definitions_at_bottom: documenter.json
+  ✓ structure.enum_refines_explicit_type: documenter.json
   ✓ structure.field_order: documenter.json
   ✓ structure.minItems_on_non_empty_arrays: documenter.json
   ✓ structure.no_dangling_refs: documenter.json
@@ -80,6 +81,7 @@ pre_commit.py: 1033/1033
   ✓ structure.all_definitions_reachable: model.json
   ✓ structure.bfs_order: model.json
   ✓ structure.definitions_at_bottom: model.json
+  ✓ structure.enum_refines_explicit_type: model.json
   ✓ structure.field_order: model.json
   ✓ structure.minItems_on_non_empty_arrays: model.json
   ✓ structure.no_dangling_refs: model.json
@@ -607,6 +609,7 @@ pre_commit.py: 1033/1033
   ✓ apiConversation: structure.all_definitions_reachable: v1
   ✓ apiConversation: structure.bfs_order: v1
   ✓ apiConversation: structure.definitions_at_bottom: v1
+  ✓ apiConversation: structure.enum_refines_explicit_type: v1
   ✓ apiConversation: structure.field_order: v1
   ✓ apiConversation: structure.minItems_on_non_empty_arrays: v1
   ✓ apiConversation: structure.no_dangling_refs: v1
@@ -630,6 +633,7 @@ pre_commit.py: 1033/1033
   ✓ apiConversation: structure.all_definitions_reachable: v2
   ✓ apiConversation: structure.bfs_order: v2
   ✓ apiConversation: structure.definitions_at_bottom: v2
+  ✓ apiConversation: structure.enum_refines_explicit_type: v2
   ✓ apiConversation: structure.field_order: v2
   ✓ apiConversation: structure.minItems_on_non_empty_arrays: v2
   ✓ apiConversation: structure.no_dangling_refs: v2
@@ -653,6 +657,7 @@ pre_commit.py: 1033/1033
   ✓ apiConversation: structure.all_definitions_reachable: v3
   ✓ apiConversation: structure.bfs_order: v3
   ✓ apiConversation: structure.definitions_at_bottom: v3
+  ✓ apiConversation: structure.enum_refines_explicit_type: v3
   ✓ apiConversation: structure.field_order: v3
   ✓ apiConversation: structure.minItems_on_non_empty_arrays: v3
   ✓ apiConversation: structure.no_dangling_refs: v3
@@ -676,6 +681,7 @@ pre_commit.py: 1033/1033
   ✓ apiConversation: structure.all_definitions_reachable: v4
   ✓ apiConversation: structure.bfs_order: v4
   ✓ apiConversation: structure.definitions_at_bottom: v4
+  ✓ apiConversation: structure.enum_refines_explicit_type: v4
   ✓ apiConversation: structure.field_order: v4
   ✓ apiConversation: structure.minItems_on_non_empty_arrays: v4
   ✓ apiConversation: structure.no_dangling_refs: v4
@@ -699,6 +705,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v1
   ✓ conversations: structure.bfs_order: v1
   ✓ conversations: structure.definitions_at_bottom: v1
+  ✓ conversations: structure.enum_refines_explicit_type: v1
   ✓ conversations: structure.field_order: v1
   ✓ conversations: structure.minItems_on_non_empty_arrays: v1
   ✓ conversations: structure.no_dangling_refs: v1
@@ -722,6 +729,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v2
   ✓ conversations: structure.bfs_order: v2
   ✓ conversations: structure.definitions_at_bottom: v2
+  ✓ conversations: structure.enum_refines_explicit_type: v2
   ✓ conversations: structure.field_order: v2
   ✓ conversations: structure.minItems_on_non_empty_arrays: v2
   ✓ conversations: structure.no_dangling_refs: v2
@@ -745,6 +753,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v3
   ✓ conversations: structure.bfs_order: v3
   ✓ conversations: structure.definitions_at_bottom: v3
+  ✓ conversations: structure.enum_refines_explicit_type: v3
   ✓ conversations: structure.field_order: v3
   ✓ conversations: structure.minItems_on_non_empty_arrays: v3
   ✓ conversations: structure.no_dangling_refs: v3
@@ -768,6 +777,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v4
   ✓ conversations: structure.bfs_order: v4
   ✓ conversations: structure.definitions_at_bottom: v4
+  ✓ conversations: structure.enum_refines_explicit_type: v4
   ✓ conversations: structure.field_order: v4
   ✓ conversations: structure.minItems_on_non_empty_arrays: v4
   ✓ conversations: structure.no_dangling_refs: v4
@@ -791,6 +801,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v5
   ✓ conversations: structure.bfs_order: v5
   ✓ conversations: structure.definitions_at_bottom: v5
+  ✓ conversations: structure.enum_refines_explicit_type: v5
   ✓ conversations: structure.field_order: v5
   ✓ conversations: structure.minItems_on_non_empty_arrays: v5
   ✓ conversations: structure.no_dangling_refs: v5
@@ -814,6 +825,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v6
   ✓ conversations: structure.bfs_order: v6
   ✓ conversations: structure.definitions_at_bottom: v6
+  ✓ conversations: structure.enum_refines_explicit_type: v6
   ✓ conversations: structure.field_order: v6
   ✓ conversations: structure.minItems_on_non_empty_arrays: v6
   ✓ conversations: structure.no_dangling_refs: v6
@@ -837,6 +849,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v7
   ✓ conversations: structure.bfs_order: v7
   ✓ conversations: structure.definitions_at_bottom: v7
+  ✓ conversations: structure.enum_refines_explicit_type: v7
   ✓ conversations: structure.field_order: v7
   ✓ conversations: structure.minItems_on_non_empty_arrays: v7
   ✓ conversations: structure.no_dangling_refs: v7
@@ -860,6 +873,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v8
   ✓ conversations: structure.bfs_order: v8
   ✓ conversations: structure.definitions_at_bottom: v8
+  ✓ conversations: structure.enum_refines_explicit_type: v8
   ✓ conversations: structure.field_order: v8
   ✓ conversations: structure.minItems_on_non_empty_arrays: v8
   ✓ conversations: structure.no_dangling_refs: v8
@@ -883,6 +897,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v9
   ✓ conversations: structure.bfs_order: v9
   ✓ conversations: structure.definitions_at_bottom: v9
+  ✓ conversations: structure.enum_refines_explicit_type: v9
   ✓ conversations: structure.field_order: v9
   ✓ conversations: structure.minItems_on_non_empty_arrays: v9
   ✓ conversations: structure.no_dangling_refs: v9
@@ -906,6 +921,7 @@ pre_commit.py: 1033/1033
   ✓ conversations: structure.all_definitions_reachable: v10
   ✓ conversations: structure.bfs_order: v10
   ✓ conversations: structure.definitions_at_bottom: v10
+  ✓ conversations: structure.enum_refines_explicit_type: v10
   ✓ conversations: structure.field_order: v10
   ✓ conversations: structure.minItems_on_non_empty_arrays: v10
   ✓ conversations: structure.no_dangling_refs: v10
@@ -929,6 +945,7 @@ pre_commit.py: 1033/1033
   ✓ memories: structure.all_definitions_reachable: v1
   ✓ memories: structure.bfs_order: v1
   ✓ memories: structure.definitions_at_bottom: v1
+  ✓ memories: structure.enum_refines_explicit_type: v1
   ✓ memories: structure.field_order: v1
   ✓ memories: structure.minItems_on_non_empty_arrays: v1
   ✓ memories: structure.no_dangling_refs: v1
@@ -952,6 +969,7 @@ pre_commit.py: 1033/1033
   ✓ projects: structure.all_definitions_reachable: v1
   ✓ projects: structure.bfs_order: v1
   ✓ projects: structure.definitions_at_bottom: v1
+  ✓ projects: structure.enum_refines_explicit_type: v1
   ✓ projects: structure.field_order: v1
   ✓ projects: structure.minItems_on_non_empty_arrays: v1
   ✓ projects: structure.no_dangling_refs: v1
@@ -975,6 +993,7 @@ pre_commit.py: 1033/1033
   ✓ projects: structure.all_definitions_reachable: v2
   ✓ projects: structure.bfs_order: v2
   ✓ projects: structure.definitions_at_bottom: v2
+  ✓ projects: structure.enum_refines_explicit_type: v2
   ✓ projects: structure.field_order: v2
   ✓ projects: structure.minItems_on_non_empty_arrays: v2
   ✓ projects: structure.no_dangling_refs: v2
@@ -997,6 +1016,7 @@ pre_commit.py: 1033/1033
   ✓ session: structure.all_definitions_reachable: v1
   ✓ session: structure.bfs_order: v1
   ✓ session: structure.definitions_at_bottom: v1
+  ✓ session: structure.enum_refines_explicit_type: v1
   ✓ session: structure.field_order: v1
   ✓ session: structure.minItems_on_non_empty_arrays: v1
   ✓ session: structure.no_dangling_refs: v1
@@ -1019,6 +1039,7 @@ pre_commit.py: 1033/1033
   ✓ session: structure.all_definitions_reachable: v2
   ✓ session: structure.bfs_order: v2
   ✓ session: structure.definitions_at_bottom: v2
+  ✓ session: structure.enum_refines_explicit_type: v2
   ✓ session: structure.field_order: v2
   ✓ session: structure.minItems_on_non_empty_arrays: v2
   ✓ session: structure.no_dangling_refs: v2
@@ -1041,6 +1062,7 @@ pre_commit.py: 1033/1033
   ✓ session: structure.all_definitions_reachable: v3
   ✓ session: structure.bfs_order: v3
   ✓ session: structure.definitions_at_bottom: v3
+  ✓ session: structure.enum_refines_explicit_type: v3
   ✓ session: structure.field_order: v3
   ✓ session: structure.minItems_on_non_empty_arrays: v3
   ✓ session: structure.no_dangling_refs: v3
@@ -1063,6 +1085,7 @@ pre_commit.py: 1033/1033
   ✓ session: structure.all_definitions_reachable: v4
   ✓ session: structure.bfs_order: v4
   ✓ session: structure.definitions_at_bottom: v4
+  ✓ session: structure.enum_refines_explicit_type: v4
   ✓ session: structure.field_order: v4
   ✓ session: structure.minItems_on_non_empty_arrays: v4
   ✓ session: structure.no_dangling_refs: v4
@@ -1086,6 +1109,7 @@ pre_commit.py: 1033/1033
   ✓ users: structure.all_definitions_reachable: v1
   ✓ users: structure.bfs_order: v1
   ✓ users: structure.definitions_at_bottom: v1
+  ✓ users: structure.enum_refines_explicit_type: v1
   ✓ users: structure.field_order: v1
   ✓ users: structure.minItems_on_non_empty_arrays: v1
   ✓ users: structure.no_dangling_refs: v1
@@ -1106,7 +1130,7 @@ pre_commit.py: 1033/1033
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 15 self-only, 43 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 44 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 1033/1033; expected: 1033/1033
+  ✓ score: 1057/1057; expected: 1057/1057
