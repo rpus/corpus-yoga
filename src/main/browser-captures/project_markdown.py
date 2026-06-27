@@ -11,10 +11,10 @@ For browser captures this replaces the brittle DOM/clipboard scrape (the markdow
 pure function of the reliable API JSON). For the bulk export it also ATOMISES the single
 conversations.json array into one markdown file per conversation.
 
-Browser captures fetch the full tree (?tree=true), so project() walks the linear ACTIVE
-PATH (current_leaf_message_uuid back to root), excluding edited/regenerated branches. Bulk
-exports are already linear, so project_bulk() takes chat_messages as-is. The per-message
-projection (shared) in jq is:
+Both sources carry the full edit/regeneration tree, so each walks one linear ACTIVE PATH
+to root: project() uses the explicit current_leaf_message_uuid; the bulk export omits that
+pointer, so project_bulk() takes the most-recently-created message as the leaf (validated to
+reconstruct the API active path exactly). The per-message projection (shared) in jq is:
   {role: .sender,
    content: ([.content[] | select(.type == "text") | (.text | gsub("^\\s+|\\s+$"; ""))]
              | map(select(. != "")) | join("\n\n"))}
@@ -46,17 +46,21 @@ def turn_text(msg):
     return '\n\n'.join(b for b in blocks if b)
 
 
-def active_path(api):
-    """The linear conversation actually shown: walk current_leaf_message_uuid back to root
-    via parent_message_uuid. The capture fetches the full tree (?tree=true), so chat_messages
-    also contains edited/regenerated branches that the markdown must NOT include."""
-    by_uuid = {m['uuid']: m for m in api['chat_messages']}
-    chain, cur, seen = [], api.get('current_leaf_message_uuid'), set()
+def _path_to_root(messages, leaf_uuid):
+    """The linear path from a leaf back to root via parent_message_uuid (excludes all other
+    branches). Both sources hold the full edit/regeneration tree; this picks one path."""
+    by_uuid = {m['uuid']: m for m in messages}
+    chain, cur, seen = [], leaf_uuid, set()
     while cur in by_uuid and cur not in seen:
         seen.add(cur)
         chain.append(by_uuid[cur])
         cur = by_uuid[cur].get('parent_message_uuid')
     return list(reversed(chain))
+
+
+def active_path(api):
+    """Browser-capture active conversation: the leaf is explicit (current_leaf_message_uuid)."""
+    return _path_to_root(api['chat_messages'], api.get('current_leaf_message_uuid'))
 
 
 def _lean(name, uuid, messages):
@@ -75,9 +79,13 @@ def project(api):
 
 
 def project_bulk(conv):
-    """Bulk-export Conversation -> lean dict. Already linear (no branches, no leaf pointer),
-    so chat_messages is the conversation in order -- this also atomises the bulk array."""
-    return _lean(conv['name'], conv['uuid'], conv['chat_messages'])
+    """Bulk-export Conversation -> lean dict. The bulk also carries the full tree but OMITS the
+    leaf pointer; the active branch's tip is the most recently created message (editing/
+    regenerating appends recent-timestamped messages). Validated to reconstruct the API active
+    path exactly for every branched conversation. Also atomises the bulk array."""
+    msgs = conv['chat_messages']
+    leaf = max(msgs, key=lambda m: m['created_at'])['uuid'] if msgs else None
+    return _lean(conv['name'], conv['uuid'], _path_to_root(msgs, leaf))
 
 
 def render(conv):
