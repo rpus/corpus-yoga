@@ -19,6 +19,9 @@ projection (shared) in jq is:
    content: ([.content[] | select(.type == "text") | (.text | gsub("^\\s+|\\s+$"; ""))]
              | map(select(. != "")) | join("\n\n"))}
 
+Conversations matching the EmptyConversation type (rsc/schema/browser-captures/emptyConversation/v1.json)
+-- abandoned/blank stubs whose messages are all content-free -- are skipped, not rendered.
+
 Usage:
   src/run_python_script.sh src/main/browser-captures/project_markdown.py \
     --browser-captures ext/browser-captures/claude --out gen/browser-captures/markdown
@@ -31,8 +34,9 @@ import re
 import sys
 from pathlib import Path
 
-REPO   = Path(__file__).resolve().parents[3]
-SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v1.json'
+REPO         = Path(__file__).resolve().parents[3]
+SCHEMA       = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v1.json'
+EMPTY_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'emptyConversation' / 'v1.json'
 
 
 def turn_text(msg):
@@ -104,16 +108,22 @@ def find_api_json(d):
 
 
 def write_markdown(convs, out_dir):
-    """Validate each lean conv against markdownConversation and render to <title>.md in
-    out_dir, disambiguating same-named conversations by uuid. Returns (n_ok, n_bad)."""
+    """Validate each lean conv against markdownConversation and render to <title>.md in out_dir,
+    disambiguating same-named conversations by uuid. Conversations matching the EmptyConversation
+    type (every message content-free -- abandoned/blank stubs) are skipped rather than rendered
+    to a content-free file. Returns (n_ok, n_empty, n_bad)."""
     import jsonschema
-    validator = jsonschema.Draft4Validator(json.loads(SCHEMA.read_text()))
+    valid    = jsonschema.Draft4Validator(json.loads(SCHEMA.read_text()))
+    is_empty = jsonschema.Draft4Validator(json.loads(EMPTY_SCHEMA.read_text())).is_valid
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    n_ok = n_bad = 0
+    n_ok = n_empty = n_bad = 0
     seen = set()
     for conv in convs:
-        errors = sorted(validator.iter_errors(conv), key=lambda e: list(e.path))
+        if is_empty(conv):  # content-free stub (matches the EmptyConversation type) -> skip
+            n_empty += 1
+            continue
+        errors = sorted(valid.iter_errors(conv), key=lambda e: list(e.path))
         if errors:
             n_bad += 1
             print(f"  INVALID {conv.get('title', '?')}: {errors[0].message}", file=sys.stderr)
@@ -125,7 +135,7 @@ def write_markdown(convs, out_dir):
         seen.add(name)
         (out / f"{name}.md").write_text(render(conv))
         n_ok += 1
-    return n_ok, n_bad
+    return n_ok, n_empty, n_bad
 
 
 def main():
@@ -142,8 +152,8 @@ def main():
     else:
         convs = [project_bulk(c) for c in json.loads(Path(args.bulk_export).read_text())]
 
-    n_ok, n_bad = write_markdown(convs, args.out)
-    print(f"projected {n_ok} conversations to {args.out} ({n_bad} invalid)")
+    n_ok, n_empty, n_bad = write_markdown(convs, args.out)
+    print(f"projected {n_ok} conversations to {args.out} ({n_empty} empty skipped, {n_bad} invalid)")
 
 
 if __name__ == '__main__':

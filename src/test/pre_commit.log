@@ -1,4 +1,4 @@
-pre_commit.py: 1032/1032
+pre_commit.py: 1033/1033
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -6,6 +6,7 @@ pre_commit.py: 1032/1032
   ✓ exists: rsc/schema/browser-captures/apiConversation/v2.json
   ✓ exists: rsc/schema/browser-captures/apiConversation/v3.json
   ✓ exists: rsc/schema/browser-captures/apiConversation/v4.json
+  ✓ exists: rsc/schema/browser-captures/emptyConversation/v1.json
   ✓ exists: rsc/schema/browser-captures/markdownConversation/v1.json
   ✓ exists: rsc/schema/chat-exports/conversations/v1.json
   ✓ exists: rsc/schema/chat-exports/conversations/v2.json
@@ -1108,4 +1109,4 @@ pre_commit.py: 1032/1032
   ✓ xref: 0 missing-file, 0 bad-pointer, 15 self-only, 43 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 1032/1032; expected: 1032/1032
+  ✓ score: 1033/1033; expected: 1033/1033

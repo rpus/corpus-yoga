@@ -91,10 +91,11 @@ src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-capt
 src/main/browser-captures/compare_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --browser-captures ext/browser-captures/claud
 src/main/browser-captures/compare_markdown.py,19,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --browser-captures ext/browser-captures/claud
 src/main/browser-captures/project_markdown.py,8,comment,rsc/schema/browser-captures/markdownConversation/v1.json,Y,rsc/schema/browser-captures/markdownConversation/v1.json)
-src/main/browser-captures/project_markdown.py,25,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
-src/main/browser-captures/project_markdown.py,25,comment,src/main/browser-captures/project_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
-src/main/browser-captures/project_markdown.py,26,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --bulk-export ext/chat-exports/<batch>/conver
-src/main/browser-captures/project_markdown.py,26,comment,src/main/browser-captures/project_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --bulk-export ext/chat-exports/<batch>/conver
+src/main/browser-captures/project_markdown.py,24,comment,rsc/schema/browser-captures/emptyConversation/v1.json,Y,Conversations matching the EmptyConversation type (rsc/schema/browser-captures/emptyConversation/v1.json)
+src/main/browser-captures/project_markdown.py,28,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
+src/main/browser-captures/project_markdown.py,28,comment,src/main/browser-captures/project_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
+src/main/browser-captures/project_markdown.py,29,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --bulk-export ext/chat-exports/<batch>/conver
+src/main/browser-captures/project_markdown.py,29,comment,src/main/browser-captures/project_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --bulk-export ext/chat-exports/<batch>/conver
 src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude
 src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude --id <uuid>
 src/main/browser-captures/safari_capture.sh,11,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent gemini
