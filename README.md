@@ -31,6 +31,10 @@ This repo wrangles AI conversations, from Gemini (via browser capture only) and 
     - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures all conversations (AppleScript iterates the listing)
   - **Script mode** — Python navigates to every conversation automatically via `capture_all()`:
     - `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
+- Render clean markdown straight from the captured API JSON — no browser, no DOM scrape (preferred over the Safari markdown capture above; it only needs the `apiConversation` JSON each capture already fetches):
+  - `src/run_python_script.sh src/main/browser-captures/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/browser-captures/markdown`
+  - Projects each capture to the lean `markdownConversation` shape, validates it, and writes a flat directory of `<title>.md` with sane titles.
+  - Verify the projection reproduces (or improves on) the legacy scrape — the safety net before retiring it: `src/run_python_script.sh src/main/browser-captures/compare_markdown.py --browser-captures ext/browser-captures/claude` (add `--diff` for full per-conversation diffs).
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost:8182>
   - `src/main/model/serve_markdown.sh stop` to shut down

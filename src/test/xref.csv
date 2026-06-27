@@ -5,9 +5,13 @@ README.md,15,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
 README.md,29,doc,src/main/browser-captures/export.applescript,Y,"- Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/"
 README.md,33,doc,src/main/browser-captures/PREP.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
 README.md,33,doc,RUNME.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
-README.md,35,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
-README.md,36,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,44,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,35,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/browser-captures/project_markdown.py --browser-captures ext/browser-captures/claude
+README.md,35,doc,src/main/browser-captures/project_markdown.py,Y,- `src/run_python_script.sh src/main/browser-captures/project_markdown.py --browser-captures ext/browser-captures/claude
+README.md,37,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy scrape — the safety net before retiring it: `src/run_pyth
+README.md,37,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy scrape — the safety net before retiring it: `src/run_pyth
+README.md,39,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
+README.md,40,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,48,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                                      # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 RUNME.sh,16,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
@@ -82,6 +86,11 @@ src/main/browser-captures/claude/validate.sh,11,path_str,rsc/schema/browser-capt
 src/main/browser-captures/claude/validate.sh,23,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,23,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
+src/main/browser-captures/compare_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --browser-captures ext/browser-captures/claud
+src/main/browser-captures/compare_markdown.py,19,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --browser-captures ext/browser-captures/claud
+src/main/browser-captures/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v1.json,Y,(validated against rsc/schema/browser-captures/markdownConversation/v1.json)
+src/main/browser-captures/project_markdown.py,22,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
+src/main/browser-captures/project_markdown.py,22,comment,src/main/browser-captures/project_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
 src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude
 src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude --id <uuid>
 src/main/browser-captures/safari_capture.sh,11,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent gemini
