@@ -11,9 +11,11 @@ README.md,37,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (
 README.md,37,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy scrape — the safety net before retiring it: `src/run_pyth
 README.md,38,doc,src/run_python_script.sh,Y,- The same tool atomises a bulk export (one big `conversations.json` array) into per-conversation markdown: `src/run_pyt
 README.md,38,doc,src/main/browser-captures/project_markdown.py,Y,- The same tool atomises a bulk export (one big `conversations.json` array) into per-conversation markdown: `src/run_pyt
-README.md,40,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
-README.md,41,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,49,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,39,doc,src/run_python_script.sh,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
+README.md,39,doc,src/main/browser-captures/compare_sources.py,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
+README.md,41,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
+README.md,42,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,50,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,14,comment,RUNME.sh,Y,#   ./RUNME.sh                                      # all pipelines
 RUNME.sh,15,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 RUNME.sh,16,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
@@ -90,6 +92,8 @@ src/main/browser-captures/claude/validate.sh,23,call,src/main/validate_versions.
 src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
 src/main/browser-captures/compare_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --browser-captures ext/browser-captures/claud
 src/main/browser-captures/compare_markdown.py,19,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --browser-captures ext/browser-captures/claud
+src/main/browser-captures/compare_sources.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_sources.py     --browser-captures ext/browser-captures/claude
+src/main/browser-captures/compare_sources.py,18,comment,src/main/browser-captures/compare_sources.py,Y,src/run_python_script.sh src/main/browser-captures/compare_sources.py     --browser-captures ext/browser-captures/claude
 src/main/browser-captures/project_markdown.py,8,comment,rsc/schema/browser-captures/markdownConversation/v1.json,Y,rsc/schema/browser-captures/markdownConversation/v1.json)
 src/main/browser-captures/project_markdown.py,24,comment,rsc/schema/browser-captures/emptyConversation/v1.json,Y,Conversations matching the EmptyConversation type (rsc/schema/browser-captures/emptyConversation/v1.json)
 src/main/browser-captures/project_markdown.py,28,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/project_markdown.py     --browser-captures ext/browser-captures/claud
