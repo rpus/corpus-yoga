@@ -254,14 +254,10 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 # ── Checks ────────────────────────────────────────────────────────────────────
 
 def check_required_files(run):
-    schema_versions = [v
-                       for d in sorted(RSC_SCHEMA.iterdir())
-                       if d.is_dir() and not d.name.startswith('_')
-                       for schema_d in sorted(d.iterdir())
-                       if schema_d.is_dir()
-                       for v in _sorted_versions(schema_d)]
+    # Only files named independently of the live tree -- walking rsc/schema/ for v*.json and then
+    # asserting those same paths exist is tautological (it requires whatever is present); a missing
+    # schema dir is caught by check_pipeline_validity ("has no v*.json files") instead.
     required = [
-        *schema_versions,
         *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES if name != 'browser-captures'],
         SRC / 'main' / 'browser-captures' / 'claude' / 'validate.sh',
         SRC  / 'main' / 'validate.py',

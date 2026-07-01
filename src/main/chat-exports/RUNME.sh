@@ -53,9 +53,14 @@ run_one() {
     "$SCRIPT_DIR/infer_tables.sh" --chat-export "$input_dir"
   fi
 
-  "$SCRIPT_DIR/present.sh"               --chat-export "$input_dir"
-  "$SCRIPT_DIR/audit_files.sh"           --chat-export "$input_dir"
-  "$SCRIPT_DIR/link_browser_captures.sh" --chat-export "$input_dir"
+  "$SCRIPT_DIR/present.sh"     --chat-export "$input_dir"
+  "$SCRIPT_DIR/audit_files.sh" --chat-export "$input_dir"
+  # split the bulk array into verbatim per-conversation json/ pieces (validated vs the Conversation
+  # definition), then render them to markdown/, beside this batch's validation/ output.
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/atomise_bulk.py" \
+    --bulk-export "$input_dir"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
+    --bulk-export "$input_dir"
 }
 
 main() {

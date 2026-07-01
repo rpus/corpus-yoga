@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+"""
+atomise_bulk.py — Split a bulk export's conversations.json (one big array) into verbatim
+per-conversation JSON files, one per Conversation, each validated against the Conversation
+definition in the latest conversations schema (inner-ref; no separate/duplicated schema).
+
+  ext/chat-exports/<batch>/conversations.json  -->  gen/chat-exports/<batch>/json/<slug>.json
+
+This is the ONLY reader of the 24 MB array. Everything downstream consumes the per-conversation
+pieces instead: project_markdown.py renders them to markdown/, compare_sources.py cross-checks
+them against the live captures. Nothing is skipped -- invalid conversations are written and
+flagged, so failures show up in the filesystem. Filenames (slug, uuid-disambiguated) are what the
+markdown/ files inherit, so json/<name>.json and markdown/<name>.md correspond.
+
+Usage (output defaults per batch; --out overrides):
+  src/run_python_script.sh src/main/chat-exports/atomise_bulk.py \
+    --bulk-export ext/chat-exports/<batch>            # -> gen/chat-exports/<batch>/json/
+"""
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import REPO, assign_name
+CONV_SCHEMAS = REPO / 'rsc' / 'schema' / 'chat-exports' / 'conversations'
+
+
+def conversation_validator():
+    """Validate a single Conversation against the latest conversations schema's Conversation
+    definition -- inner-ref (root array -> single), no separate/duplicated schema."""
+    import jsonschema
+    latest = max(CONV_SCHEMAS.glob('v*.json'), key=lambda p: int(re.findall(r'\d+', p.stem)[0]))
+    schema = {**json.loads(latest.read_text()), 'allOf': [{'$ref': '#/definitions/Conversation'}]}
+    return jsonschema.Draft4Validator(schema)
+
+
+def atomise(batch_dir, out_dir):
+    """Split <batch_dir>/conversations.json into verbatim per-conversation files in out_dir."""
+    conv_valid = conversation_validator()
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    seen = set()
+    total = bad = 0
+    for raw in json.loads((Path(batch_dir) / 'conversations.json').read_text()):
+        total += 1
+        name = assign_name(raw['name'], raw['uuid'], seen)
+        (out_dir / f"{name}.json").write_text(json.dumps(raw, indent=2, ensure_ascii=False) + '\n')
+        if not conv_valid.is_valid(raw):
+            bad += 1
+            err = sorted(conv_valid.iter_errors(raw), key=lambda e: list(e.path))[0]
+            loc = '/'.join(str(p) for p in err.path)
+            print(f"  INVALID {name} @ {loc} ({err.validator})", file=sys.stderr)
+    print(f"atomised {total} conversations to {out_dir} ({bad} invalid vs Conversation)")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--bulk-export', required=True, help='a bulk-export batch dir (containing conversations.json)')
+    ap.add_argument('--out', help='output dir (default: gen/chat-exports/<batch>/json)')
+    args = ap.parse_args()
+    batch = Path(args.bulk_export)
+    out = Path(args.out) if args.out else REPO / 'gen' / 'chat-exports' / batch.name / 'json'
+    atomise(batch, out)
+
+
+if __name__ == '__main__':
+    main()

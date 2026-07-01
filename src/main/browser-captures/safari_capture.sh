@@ -30,8 +30,8 @@ main() {
   local log
   log="$REPO_DIR/logs/src/main/browser-captures/safari_capture/$agent/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
   mkdir -p "$(dirname "$log")"
-  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$agent/safari_capture.py" --agent "$agent" "$@" \
-    | tee "$log"
+  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" --agent "$agent" "$@" \
+    2>&1 | tee "$log"
 }
 
 main "$@"

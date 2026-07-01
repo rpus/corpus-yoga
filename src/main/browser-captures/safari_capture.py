@@ -1,0 +1,295 @@
+#!/usr/bin/env python
+"""
+safari_capture.py — Capture conversations from claude.ai or gemini.google.com via Safari.
+
+One script, dispatched on --agent. Each agent declares what it can capture:
+  claude : api=True  (fetch the apiConversation JSON — the reliable source), scrape opt-in
+  gemini : api=False, scrape=True (no API; the DOM scrape is the only source)
+--scrape additionally runs the DOM scrape for an api agent (Claude), saving markdown alongside the
+JSON so compare_markdown can check the projection against it. Claude's scrape is otherwise retired
+(slow, brittle, redundant — markdown is derived from the JSON by project_markdown).
+
+Discovery (the conversation-id listing) is shared: navigate to the agent's listing URL and scroll.
+
+Two modes:
+  (no args)   Discover every conversation from the listing and capture all of them.
+  --id <id>   Capture a single conversation (current tab; macOS Shortcut).
+
+Requires Safari open, focused, and logged into the site throughout.
+Called by safari_capture.sh — do not invoke directly.
+
+Usage:
+    python safari_capture.py --agent claude            --browser-captures ext/browser-captures/claude
+    python safari_capture.py --agent claude --scrape   --browser-captures ext/browser-captures/claude
+    python safari_capture.py --agent gemini --id <id>  --browser-captures ext/browser-captures/gemini
+"""
+import argparse
+import json
+import shutil
+import sys
+import time
+from pathlib import Path
+
+from safari_utils import (  # type: ignore[import-not-found]
+    safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
+    safari_fetch_api_json, collect_md_and_log,
+    PAGE_LOAD_WAIT,
+)
+
+REPO_DIR       = Path(__file__).resolve().parents[3]
+SCRIPT_DIR     = Path(__file__).resolve().parent
+SETTLE_PAUSE   = 2
+READY_TIMEOUT  = 15   # max wait for a conversation to render / its URL to commit, before capturing
+SCRAPE_START_TIMEOUT = 5    # the scrape JS must signal window.__scrape within this, else it never ran
+SCRAPE_STALL_TIMEOUT = 20   # max time with no newly-captured message before giving up on a scrape
+SCROLL_PAUSE   = 2    # wait between scroll-to-bottom ticks while loading the conversation list
+SCROLL_STABLE  = 3    # consecutive no-growth ticks before the list is deemed fully loaded
+MAX_SCROLLS    = 80   # safety cap on scroll iterations
+
+
+AGENTS = {
+    'claude': {
+        'api':          True,
+        'scrape':       False,   # opt-in via --scrape; otherwise api-only
+        'chat_url':     'https://claude.ai/chat/{id}',
+        'discover_url': 'https://claude.ai/recents',
+        'link_sel':     'a[href*="/chat/"]',
+        'id_re':        None,
+        'ready_sel':    'button[data-testid="action-bar-copy"]',
+    },
+    'gemini': {
+        'api':          False,
+        'scrape':       True,
+        'chat_url':     'https://gemini.google.com/app/{id}',
+        'discover_url': 'https://gemini.google.com/app',
+        'link_sel':     'a[href*="/app/"]',
+        'id_re':        r'^[0-9a-f]{8,}$',
+        'ready_sel':    'button[aria-label="Copy"]',
+    },
+}
+
+
+def outcome(do_api, do_scrape, files, had_md):
+    """Per-conversation success/failure. The apiConversation JSON is the reliable artifact; when
+    both are captured a missing scrape .md is only a note. For a scrape-only agent (Gemini) a
+    missing .md is the failure."""
+    has_json = any(f.endswith('.json') for f in files)
+    has_md = any(f.endswith('.md') for f in files)
+    if do_api and not has_json:
+        return 'apiConversation JSON fetch failed — see the run log', None
+    if do_scrape and not has_md:
+        why = 'no markdown — see the .log'
+        if had_md:
+            why += ' (previous .md retained, now STALE)'
+        return (None, why) if do_api else (why, None)
+    return None, None
+
+
+def discover_js(cfg):
+    """Build the conversation-id discovery snippet for this agent's link selector / id filter."""
+    sel = cfg['link_sel']
+    test = f'/{cfg["id_re"]}/.test(id) && ' if cfg['id_re'] else ''
+    return (
+        "(function(){var seen=new Set(),r=[];"
+        "document.querySelectorAll('" + sel + "').forEach(function(a){"
+        "var id=a.pathname.split('/').pop();"
+        "if(id && " + test + "!seen.has(id)){seen.add(id);r.push(id);}"
+        "});return r.join('\\n');})()"
+    )
+
+
+def wait_for_ready(selector, timeout=READY_TIMEOUT):
+    """Poll until the conversation has rendered (>=1 `selector`, e.g. a copy button) or timeout --
+    so slow (citation/LaTeX-heavy) conversations aren't scraped before their DOM exists."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            if int(safari_eval_js(f"String(document.querySelectorAll('{selector}').length)") or 0) > 0:
+                return True
+        except (ValueError, TypeError):
+            pass
+        time.sleep(0.5)
+    return False
+
+
+def wait_for_url(conv_id, timeout=READY_TIMEOUT):
+    """Wait until the front tab's URL is this conversation, so the API fetch reads the right uuid
+    from window.location."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if (safari_eval_js('location.pathname') or '').rstrip('/').endswith(conv_id):
+            return True
+        time.sleep(0.3)
+    return False
+
+
+def fetch_api(conv_id, out_dir):
+    """Fetch the apiConversation JSON; returns the saved filename, or None on failure."""
+    f = safari_fetch_api_json(conv_id)
+    if f is None:
+        return None
+    shutil.move(str(f), out_dir / f'{conv_id}.json')
+    return f'{conv_id}.json'
+
+
+def scrape_state():
+    """Read the in-page scrape liveness/progress flag (window.__scrape), or None if not set yet."""
+    raw = safari_eval_js('JSON.stringify(window.__scrape || null)')
+    if not raw or raw == 'null':
+        return None
+    try:
+        return json.loads(raw)
+    except (ValueError, TypeError):
+        return None
+
+
+def scrape_one(out_dir, js_script):
+    """Inject the DOM scraper and WATCH its in-page flag rather than waiting out a timeout: abort
+    fast if it never starts (page wedged) or stalls (no new message), finish the moment it signals
+    done. Returns the collected md filenames, or None if the scrape produced no markdown."""
+    start = time.time()
+    safari_run_js_file(js_script)
+    print('  scrape injected, watching...')
+    last_n, last_change = -1, time.time()
+    while True:
+        st = scrape_state()
+        now = time.time()
+        if st is None:
+            if now - start > SCRAPE_START_TIMEOUT:
+                print('  scrape never started (page wedged?) — skipping')
+                return None
+        elif st.get('done'):
+            if st.get('error'):
+                print(f"  scrape failed: {st['error']}")
+            break
+        else:
+            n = st.get('captured', 0)
+            if n != last_n:
+                last_n, last_change = n, now
+            elif now - last_change > SCRAPE_STALL_TIMEOUT:
+                print(f'  scrape stalled at {n} message(s) — skipping')
+                return None
+        time.sleep(0.5)
+    time.sleep(SETTLE_PAUSE)   # let the .md/.log downloads land
+    return collect_md_and_log(start, out_dir)
+
+
+def ids_from_safari(cfg):
+    safari_focus()
+    print(f'navigating to {cfg["discover_url"]}')
+    safari_navigate(cfg['discover_url'])
+    time.sleep(PAGE_LOAD_WAIT)
+    print('loading all conversations...')
+    sel = cfg['link_sel']
+    prev = stable = 0
+    for _ in range(MAX_SCROLLS):
+        safari_eval_js(
+            "(function(){"
+            "var a=document.querySelector('" + sel + "');"
+            "while(a){var s=getComputedStyle(a);"
+            'if((s.overflowY==="scroll"||s.overflowY==="auto")&&a.scrollHeight>a.clientHeight)'
+            "{a.scrollTo(0,a.scrollHeight);return;}"
+            "a=a.parentElement;}"
+            "window.scrollTo(0,document.body.scrollHeight);"
+            "})()"
+        )
+        time.sleep(SCROLL_PAUSE)
+        try:
+            count = int(safari_eval_js("String(document.querySelectorAll('" + sel + "').length)"))
+        except (ValueError, TypeError):
+            break
+        # only conclude the list is fully loaded after SCROLL_STABLE consecutive no-growth ticks --
+        # a single slow lazy-load tick must NOT end the scroll (that dropped the older tail before)
+        stable = stable + 1 if count == prev else 0
+        if stable >= SCROLL_STABLE:
+            break
+        prev = count
+    else:
+        print(f'  hit MAX_SCROLLS ({MAX_SCROLLS}) — list may be longer than discovered', file=sys.stderr)
+    print('extracting conversation IDs')
+    raw = safari_eval_js(discover_js(cfg))
+    ids = [u for u in raw.splitlines() if u]
+    print(f'found {len(ids)} conversations')
+    return ids
+
+
+def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
+    cfg = AGENTS[agent]
+    do_api = cfg['api']
+    do_scrape = cfg['scrape'] or also_scrape
+    js_script = SCRIPT_DIR / agent / 'browser-chat-capture.js'
+    label = 'discover' if navigate else 'capture'
+    methods = '+'.join(m for m, on in (('api', do_api), ('scrape', do_scrape)) if on)
+    if not ids:
+        print(f'{label}: nothing to do')
+        return []
+    print(f'--- {label} started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
+    print(f'capturing {len(ids)} conversations ({methods})')
+    safari_focus()
+    failed = []
+    for i, conv_id in enumerate(ids):
+        print(f'[{i+1}/{len(ids)}] {conv_id}')
+        out_dir = captures_root / conv_id
+        out_dir.mkdir(parents=True, exist_ok=True)
+        had_md = any(out_dir.glob('*.md'))
+        if navigate:
+            safari_navigate(cfg['chat_url'].format(id=conv_id))
+        start = time.time()
+        files = []
+        if do_api:
+            if navigate:
+                wait_for_url(conv_id)
+                time.sleep(SETTLE_PAUSE)
+            j = fetch_api(conv_id, out_dir)
+            if j:
+                files.append(j)
+        if do_scrape:
+            if navigate:
+                wait_for_url(conv_id)   # confirm the NEW conversation loaded, not a stale/transitioning page
+                if not wait_for_ready(cfg['ready_sel']):
+                    print(f'  not rendered after {READY_TIMEOUT}s — scraping anyway (likely to fail)')
+            safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
+            files += scrape_one(out_dir, js_script) or []
+        print(f'  done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}')
+        fatal, note = outcome(do_api, do_scrape, files, had_md)
+        if note:
+            print(f'  note: {note}', file=sys.stderr)
+        if fatal:
+            failed.append((conv_id, fatal))
+    print(f'--- {label} finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
+    if failed:
+        print(f'\n⚠ {len(failed)}/{len(ids)} failed:', file=sys.stderr)
+        for cid, why in failed:
+            print(f'    {cid}: {why}', file=sys.stderr)
+    return failed
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
+    ap.add_argument('--browser-captures', default=None,
+                    help='Path to ext/browser-captures/<agent>/ (default: repo-relative)')
+    ap.add_argument('--id', metavar='ID',
+                    help='Capture a single conversation (current tab); default is discover mode')
+    ap.add_argument('--scrape', action='store_true',
+                    help='also run the DOM scrape (Claude; feeds compare_markdown). No effect for Gemini.')
+    args = ap.parse_args()
+
+    cfg = AGENTS[args.agent]
+    if cfg['scrape'] or args.scrape:
+        js_script = SCRIPT_DIR / args.agent / 'browser-chat-capture.js'
+        if not js_script.exists():
+            print(f'Error: {js_script} not found', file=sys.stderr)
+            raise SystemExit(1)
+
+    captures_root = Path(args.browser_captures or REPO_DIR / 'ext' / 'browser-captures' / args.agent).resolve()
+    captures_root.mkdir(parents=True, exist_ok=True)
+
+    ids = [args.id] if args.id else ids_from_safari(cfg)
+    failed = capture_all(args.agent, ids, captures_root, navigate=not args.id, also_scrape=args.scrape)
+    if failed:
+        raise SystemExit(1)
+
+
+if __name__ == '__main__':
+    main()

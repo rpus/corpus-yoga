@@ -92,15 +92,38 @@ def wait_for_log(after_time, timeout):
     return None
 
 
+_LEVEL_COLOUR = {'ERROR': '\033[31m', 'WARN': '\033[33m'}  # red, yellow (mirrors the in-page status box)
+_RESET = '\033[0m'
+
+
+def _colour_log_levels(text):
+    """Colour each capture-log line by its [LEVEL] tag (ERROR red, WARN yellow), for TTY output
+    only -- so a tee'd logfile or piped output stays plain. The [LEVEL] label is present either way."""
+    if not sys.stdout.isatty():
+        return text
+    out = []
+    for line in text.split('\n'):
+        colour = next((c for lvl, c in _LEVEL_COLOUR.items() if f'[{lvl}]' in line), '')
+        out.append(f'{colour}{line}{_RESET}' if colour else line)
+    return '\n'.join(out)
+
+
 def collect_md_and_log(after_time, dest_dir):
+    """Move freshly-downloaded (.md, .log) files into dest_dir; return the .md filenames.
+    The .log holds the in-browser capture log -- including errors like 'No copy buttons found!' --
+    so it is PERSISTED beside the .md (and printed), not discarded: a failed scrape must leave its
+    error in the filesystem, not merely scroll past the terminal. An empty return means the scrape
+    produced no markdown (a failure -- read the .log)."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     moved = []
     for f in DOWNLOADS.iterdir():
         if f.stat().st_mtime <= after_time:
             continue
         if f.suffix == '.log':
-            print(f.read_text(), end='')
-            f.unlink()
+            print(_colour_log_levels(f.read_text()), end='')
+            # name the diagnostic log by the conversation id (the dir), not the page title: on a
+            # failed scrape the title is junk, and a stable name overwrites rather than accumulates
+            shutil.move(str(f), dest_dir / f'{dest_dir.name}.log')
         elif f.suffix == '.md':
             shutil.move(str(f), dest_dir / f.name)
             moved.append(f.name)

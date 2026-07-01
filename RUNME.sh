@@ -11,8 +11,9 @@
 # extracts files, infers tables, and renders a dashboard.
 #
 # Usage:
-#   ./RUNME.sh                                      # all pipelines
+#   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)
 #   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
+#   ./RUNME.sh --capture-from-browser --scrape-claude  # also DOM-scrape claude + check projection vs scrape
 #   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
 #   ./RUNME.sh --capture-from-browser --pay-for-inference
 #
@@ -26,12 +27,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 parse_args() {
   pay_for_inference=""
   browser_captures=""
+  scrape_claude=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
       --capture-from-browser) browser_captures="1";                   shift ;;
+      --scrape-claude) scrape_claude="--scrape-claude";               shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--scrape-claude] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done
 }
@@ -120,8 +123,8 @@ main() {
 
   local -a pipeline_failures=()
 
-  [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures
-  run_pipeline_safe  browser-captures
+  [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures ${scrape_claude:+"$scrape_claude"}
+  run_pipeline_safe  browser-captures ${scrape_claude:+"$scrape_claude"}
 
   prep_pipeline_safe chat-exports
   run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports" ${pay_for_inference:+"$pay_for_inference"}

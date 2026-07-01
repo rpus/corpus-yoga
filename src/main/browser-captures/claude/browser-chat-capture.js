@@ -8,6 +8,10 @@ function setupExporter() {
   let humanTotal = 0;
   let agentTotal = 0;
 
+  // Liveness/progress flag the driver (safari_capture.py) polls — so it detects start, progress,
+  // completion, and errors directly instead of waiting out a download timeout.
+  window.__scrape = { started: true, captured: 0, done: false, error: null };
+
   const _consoleLogs = [];
   const log = (level, ...args) => {
     const msg = args.map(a => (a instanceof Error) ? a.stack : typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
@@ -31,6 +35,13 @@ function setupExporter() {
     cleanup: 3000,
   };
 
+  const STATUS = {  // status-box colour per state — CSS named colours, identical for both agents
+    info:    'blue',
+    success: 'green',
+    warn:    'orange',
+    error:   'red',
+  };
+
   function downloadBlob(content, filename, type) {
     const blob = new Blob([content], { type });
     const a = document.createElement('a');
@@ -47,17 +58,16 @@ function setupExporter() {
   }
 
   function getConversationTitle() {
+    const convId = location.pathname.split('/').pop();
     const title = document.title.replace(/ - Claude$/, '').trim();
-    if (!title || title === AGENT || title.includes('New conversation')) {
-      return `${AGENT.toLowerCase()}_conversation`;
-    }
-    return title
-      .replace(/[<>:"/\\|?*]/g, '_')
-      .replace(/\s+/g, '_')
-      .replace(/_{2,}/g, '_')
+    const slug = title.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')   // collapse anything non-alphanumeric (incl. bidi/zero-width marks)
       .replace(/^_+|_+$/g, '')
-      .toLowerCase()
       .substring(0, 100);
+    if (!slug || title === AGENT || title.includes('New conversation')) {
+      return convId || `${AGENT.toLowerCase()}_conversation`;
+    }
+    return slug;
   }
 
   function readFromDOM(btn) {
@@ -102,16 +112,23 @@ function setupExporter() {
   const statusDiv = document.createElement('div');
   statusDiv.style.cssText = `
     position: fixed; top: 10px; right: 10px; z-index: 10000;
-    background: #2196F3; color: white; padding: 10px 15px;
+    background: ${STATUS.info}; color: white; padding: 10px 15px;
     border-radius: 5px; font-family: monospace; font-size: 12px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.3); max-width: 300px;
   `;
   document.body.appendChild(statusDiv);
 
+  function setStatus(msg, state = 'info') {
+    const p = window.__capture_progress ? `conversation ${window.__capture_progress} — ` : '';
+    statusDiv.textContent = p + msg;
+    statusDiv.style.background = STATUS[state];
+  }
+
   function updateStatus() {
     const h = humanTotal ? `${humanMessages.length}/${humanTotal}` : humanMessages.length;
     const a = agentTotal ? `${capturedResponses.length}/${agentTotal}` : capturedResponses.length;
-    statusDiv.textContent = `Human: ${h} | ${AGENT}: ${a}`;
+    window.__scrape.captured = humanMessages.length + capturedResponses.length;
+    setStatus(`Human: ${h} | ${AGENT}: ${a}`);
   }
 
   // A copy button's action bar = the largest ancestor still containing exactly
@@ -209,14 +226,14 @@ function setupExporter() {
       }
 
       // Phase 1: Human messages
-      statusDiv.textContent = 'Copying human messages...';
+      setStatus('Copying human messages...');
       currentCapture = humanMessages;
       interceptorActive = true;
       const { captured: humanCaptured, placeholders: humanPlaceholders } = await triggerCopyButtons(humanButtons, 'human');
       log('LOG', `📊 Phase 1: ${humanCaptured} captured, ${humanPlaceholders} placeholders — ${humanCaptured + humanPlaceholders}/${humanButtons.length} human messages accounted for`);
 
       // Phase 2: Agent responses
-      statusDiv.textContent = `Copying ${AGENT} responses...`;
+      setStatus(`Copying ${AGENT} responses...`);
       currentCapture = capturedResponses;
       const { captured: agentCaptured, placeholders: agentPlaceholders } = await triggerCopyButtons(agentButtons, AGENT.toLowerCase());
       log('LOG', `📊 Phase 2: ${agentCaptured} captured, ${agentPlaceholders} placeholders — ${agentCaptured + agentPlaceholders}/${agentButtons.length} ${AGENT.toLowerCase()} responses accounted for`);
@@ -224,8 +241,8 @@ function setupExporter() {
       completeExport();
 
     } catch (error) {
-      statusDiv.textContent = `Error: ${error.message}`;
-      statusDiv.style.background = '#f44336';
+      window.__scrape.error = error.message || String(error);
+      setStatus(`Error: ${error.message}`, 'error');
       log('ERROR', 'Export failed:', error);
     } finally {
       setTimeout(cleanup, DELAYS.cleanup);
@@ -236,8 +253,7 @@ function setupExporter() {
     interceptorActive = false;
 
     if (humanMessages.length === 0 && capturedResponses.length === 0) {
-      statusDiv.textContent = 'No messages captured!';
-      statusDiv.style.background = '#f44336';
+      setStatus('No messages captured!', 'error');
       return;
     }
 
@@ -245,8 +261,7 @@ function setupExporter() {
     const filename = `${rawTitle}.md`;
     downloadBlob(buildMarkdown(rawTitle || `Conversation with ${AGENT}`), filename, 'text/markdown');
 
-    statusDiv.textContent = `✅ Downloaded: ${filename}`;
-    statusDiv.style.background = '#4CAF50';
+    setStatus(`✅ Downloaded: ${filename}`, 'success');
 
     log('LOG', 'Export complete.');
   }
@@ -258,15 +273,15 @@ function setupExporter() {
     if (document.body.contains(statusDiv)) {
       document.body.removeChild(statusDiv);
     }
+    window.__scrape.done = true;
   }
 
   function onVisibilityChange() {
     if (document.visibilityState === 'hidden') {
       log('WARN', '⚠️ Page hidden — script execution may be suspended by the browser');
-      statusDiv.textContent = '⚠️ Page hidden — please return to this tab';
-      statusDiv.style.background = '#FF9800';
+      setStatus('⚠️ Page hidden — please return to this tab', 'warn');
     } else {
-      statusDiv.style.background = '#2196F3';
+      statusDiv.style.background = STATUS.info;
       updateStatus();
     }
   }

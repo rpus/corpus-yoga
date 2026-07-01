@@ -1,23 +1,24 @@
 #!/usr/bin/env python
 """
 compare_sources.py — Cross-source consistency check. The same conversation projected from the
-live API capture (apiConversation) and from the bulk export (conversations.json) should render
-to identical markdown. Pairs by uuid. A second verifier alongside compare_markdown.py (which
-checks projection vs the legacy scrape).
+live API capture (apiConversation) and from the bulk export should render to identical markdown.
+Both sides are now directories of per-conversation files -- the captures, and the json/ pieces
+project_markdown atomised out of the bulk array -- so this just projects each and pairs by uuid.
+A second verifier alongside compare_markdown.py (which checks projection vs the legacy scrape).
 
-Both formats carry the full edit/regeneration tree; project()/project_bulk() each reduce to the
-active path (explicit current_leaf_message_uuid vs the latest-created message as leaf). Identical
-output across two independent formats validates the projection and the model_join correspondence
-end-to-end.
+Both formats carry the full edit/regeneration tree; project() reduces each to the active path
+(via the explicit current_leaf_message_uuid for a capture, the inferred latest-created leaf for the
+export). Identical output across two independent formats validates the projection and the model_join
+correspondence end-to-end.
 
 A difference is expected only from temporal drift -- the two snapshots are taken at different
 times, so one conversation may simply be longer. A *conflict* at a shared turn signals a
 projection bug (e.g. dead branches leaking in). Use --diff to tell which.
 
 Usage:
-  src/run_python_script.sh src/main/browser-captures/compare_sources.py \
+  src/run_python_script.sh src/main/model/compare_sources.py \
     --browser-captures ext/browser-captures/claude \
-    --bulk-export ext/chat-exports/<batch>/conversations.json [--diff]
+    --bulk-export ext/chat-exports/<batch> [--diff]
 
 Exit status is non-zero iff any conversation present in both sources differs.
 """
@@ -27,7 +28,8 @@ import json
 import sys
 from pathlib import Path
 
-from project_markdown import project, project_bulk, find_api_json, render
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import REPO, project, find_api_json, render
 
 
 def api_by_uuid(captures_dir):
@@ -39,15 +41,24 @@ def api_by_uuid(captures_dir):
     return out
 
 
-def bulk_by_uuid(conversations_json):
-    return {c['uuid']: render(project_bulk(c))
-            for c in json.loads(Path(conversations_json).read_text())}
+def bulk_by_uuid(batch_dir):
+    """The bulk side, read from the per-conversation json/ pieces project_markdown atomised out of
+    the array (gen/chat-exports/<batch>/json/) -- the 24 MB array itself is never re-read here."""
+    json_dir = REPO / 'gen' / 'chat-exports' / Path(batch_dir).name / 'json'
+    if not json_dir.is_dir():
+        sys.exit(f"no atomised json/ at {json_dir}; "
+                 f"run project_markdown.py --bulk-export {batch_dir} first")
+    out = {}
+    for f in sorted(json_dir.glob('*.json')):
+        c = json.loads(f.read_text())
+        out[c['uuid']] = render(project(c))
+    return out
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--browser-captures', required=True, help='dir of <uuid>/ capture folders')
-    ap.add_argument('--bulk-export', required=True, help='a bulk-export conversations.json')
+    ap.add_argument('--bulk-export', required=True, help='a bulk-export batch dir (reads its atomised json/ pieces)')
     ap.add_argument('--diff', action='store_true', help='print full per-conversation unified diffs')
     args = ap.parse_args()
 
