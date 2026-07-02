@@ -13,9 +13,11 @@ Example:
 """
 
 import json
-import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import slug
 
 SCRIPT_DIR = Path(__file__).parent
 OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
@@ -28,13 +30,6 @@ BINARY_MIME_PREFIXES = (
     'audio/',
     'video/',
 )
-
-
-def slug(name):
-    s = name.lower().strip()
-    s = re.sub(r'[^\w\s-]', '', s)
-    s = re.sub(r'[\s_]+', '_', s)
-    return s[:60].strip('_') or 'untitled'
 
 
 def is_binary(mime_type):
@@ -70,10 +65,12 @@ def main():
     data_files = json.loads((present_dir / 'data-local-resources.json').read_text())
     data_chats = json.loads((present_dir / 'data-chats.json').read_text())
 
-    # Build chat_idx → slug from data-chats
+    # Build chat ordinal → canonical "<ordinal>-<slug>" dir name (matches ordered(): the same
+    # width and slug the atomiser, extractors, and downloaded/ dirs use, so the joins below hit).
     ci = {c: i for i, c in enumerate(data_chats['columns'])}
+    width = len(str(len(data_chats['rows'])))
     chat_slugs = {
-        row[ci['chat']]: f'{row[ci["chat"]]:03d}_{slug(row[ci["name"]])}'
+        row[ci['chat']]: f'{row[ci["chat"]]:0{width}d}-{slug(row[ci["name"]])}'
         for row in data_chats['rows']
     }
 
@@ -94,7 +91,7 @@ def main():
         chat_idx  = row[cols['chat']]
         filename  = row[cols['file']]
         mime_type = row[cols['mime_type']] if 'mime_type' in cols else ''
-        chat_slug = chat_slugs.get(chat_idx, f'{chat_idx:03d}_unknown')
+        chat_slug = chat_slugs.get(chat_idx, f'{chat_idx:0{width}d}-unknown')
 
         rel_path, bucket = parse_file_path(filename)
         in_ef = (extracted_files_dir / chat_slug / rel_path).exists()

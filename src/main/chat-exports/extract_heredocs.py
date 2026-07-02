@@ -11,8 +11,10 @@ bash_tool commands, i.e. patterns of the form:
 
 Groups output by conversation under:
 
-    gen/<export-name>/extracted_heredocs/<chat_index>_<conversation_name>/outputs/<filename>   ← /mnt/user-data/outputs/
-    gen/<export-name>/extracted_heredocs/<chat_index>_<conversation_name>/working/<filename>   ← /home/claude/
+    gen/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
+    gen/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
+
+where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
 
 Usage:
     python extract_heredocs.py --chat-export <path-to-export>
@@ -27,6 +29,9 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import ordered
+
 OUTPUTS_PREFIX = '/mnt/user-data/outputs/'
 WORKING_PREFIX = '/home/claude/'
 
@@ -34,13 +39,6 @@ HEREDOC_RE = re.compile(
     r"cat\s*>\s*(\S+)\s*<<\s*'(\w+)'\n(.*?)\n\2",
     re.DOTALL
 )
-
-
-def slug(name: str) -> str:
-    s = name.lower().strip()
-    s = re.sub(r'[^\w\s-]', '', s)
-    s = re.sub(r'[\s_]+', '_', s)
-    return s[:60].strip('_') or 'untitled'
 
 
 def classify(raw_path: str) -> Optional[tuple[str, Path]]:
@@ -72,14 +70,13 @@ def extract_from_command(command: str) -> list[dict]:
 
 def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
-    convos_sorted = sorted(convos, key=lambda c: c.get('created_at', ''))
 
     log_path = out_dir / 'extract_heredocs.log'
-    rows: list[tuple] = []         # (idx, name, extracted, identical, newline_only, differs, copied)
+    rows: list[tuple] = []         # (ordinal, name, extracted, identical, newline_only, differs, copied)
     diff_entries: list[tuple] = [] # (chat_slug, rel, kind, diff_text|None)
 
-    for idx, convo in enumerate(convos_sorted):
-        name     = convo.get('name', 'untitled')
+    for idx, dir_name, convo in ordered(convos):  # canonical <ordinal>-<slug>, created_at order
+        name     = convo['name']
         messages = convo.get('chat_messages', [])
 
         # Collect heredocs; last write for each bucket/path wins
@@ -95,7 +92,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
         if not by_path:
             continue
 
-        convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
+        convo_dir = out_dir / dir_name
         extracted = identical = newline_only = differs = copied = 0
         for e in by_path.values():
             dest = convo_dir / e['bucket'] / e['rel']

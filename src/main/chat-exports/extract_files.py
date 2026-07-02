@@ -7,7 +7,11 @@ tool calls,.
 
 Group output by conversation under:
 
-    gen/<export-name>/extracted_files/<chat_index>_<conversation_name>/<path_from_tool>
+    gen/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
+
+where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
+(created_at order, 1-based) — the same name used by the atomised json/, the timeline, and
+lib/artifacts/downloaded/, so extracted files land beside their downloaded counterparts.
 
 Usage:
     python extract_files.py --chat-export <path-to-export>
@@ -16,23 +20,16 @@ Usage:
 
 import argparse
 import json
-import re
 import shutil
 import sys
 from pathlib import Path
 from typing import Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import ordered
+
 
 # ── extraction ────────────────────────────────────────────────────────────────
-
-def slug(name: str) -> str:
-    """Convert conversation name to a safe directory component."""
-    s = name.lower().strip()
-    s = re.sub(r'[^\w\s-]', '', s)
-    s = re.sub(r'[\s_]+', '_', s)
-    s = s[:60].strip('_')
-    return s or 'untitled'
-
 
 def extract_create_file_calls(message: dict) -> list[dict]:
     """
@@ -75,14 +72,13 @@ def sanitise_path(raw: str) -> Optional[Path]:
 
 def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
-    convos_sorted = sorted(convos, key=lambda c: c.get('created_at', ''))
 
     log_path = out_dir / 'extract_files.log'
     skips: list[str] = []
-    rows:  list[tuple] = []   # (idx, name, extracted, downloaded, copied)
+    rows:  list[tuple] = []   # (ordinal, name, extracted, downloaded, copied)
 
-    for idx, convo in enumerate(convos_sorted):
-        name     = convo.get('name', 'untitled')
+    for idx, dir_name, convo in ordered(convos):  # canonical <ordinal>-<slug>, created_at order
+        name     = convo['name']
         messages = convo.get('chat_messages', [])
 
         # Collect calls; last write for each path wins (Claude often revises files)
@@ -98,7 +94,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
         if not by_path:
             continue
 
-        convo_dir = out_dir / f'{idx:03d}_{slug(name)}'
+        convo_dir = out_dir / dir_name
         extracted = downloaded = copied = 0
         for entry in by_path.values():
             rel = entry['rel']
