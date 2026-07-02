@@ -76,7 +76,7 @@ def main():
 
     extracted_files_dir    = export_dir / 'extracted_files'
     extracted_heredocs_dir = export_dir / 'extracted_heredocs'
-    downloaded_dir         = SCRIPT_DIR.parent.parent.parent / 'rsc' / 'artifacts' / 'downloaded'
+    downloaded_dir         = SCRIPT_DIR.parent.parent.parent / 'lib' / 'artifacts' / 'downloaded'
 
     cols = {c: i for i, c in enumerate(data_files['columns'])}
     heredocs_ran = extracted_heredocs_dir.exists()

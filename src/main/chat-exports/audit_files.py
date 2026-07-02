@@ -37,8 +37,8 @@ Columns
                     differs       downloaded is substantively ahead
                     not_present   no counterpart in downloaded
                   Empty for tooltip and dl rows.
-    in_rsc        For ef/eh_out/eh_wrk rows: Y if this file was copied to
-                  lib/artifacts/extracted_files/ or lib/artifacts/extracted_heredocs/
+    in_gen        For ef/eh_out/eh_wrk rows: Y if this file was copied to
+                  gen/artifacts/extracted_files/ or gen/artifacts/extracted_heredocs/
                   (i.e. it had no downloaded counterpart and was preserved there);
                   N if it was not copied (counterpart existed in downloaded).
                   Empty for tooltip and dl rows.
@@ -70,22 +70,18 @@ reports) are defined in src/main/chat-exports/query_files.py and can be run with
 import argparse
 import csv
 import json
-import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import slug
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 GEN_DIR    = REPO_ROOT / 'gen' / 'chat-exports'
-DL_ROOT    = REPO_ROOT / 'rsc' / 'artifacts' / 'downloaded'
-RSC_EF     = REPO_ROOT / 'rsc' / 'artifacts' / 'extracted_files'
-RSC_EH     = REPO_ROOT / 'rsc' / 'artifacts' / 'extracted_heredocs'
-
-
-def slug(name):
-    s = name.lower().strip()
-    s = re.sub(r'[^\w\s-]', '', s)
-    s = re.sub(r'[\s_]+', '_', s)
-    return s[:60].strip('_') or 'untitled'
+DL_ROOT    = REPO_ROOT / 'lib' / 'artifacts' / 'downloaded'
+GEN_EF     = REPO_ROOT / 'gen' / 'artifacts' / 'extracted_files'
+GEN_EH     = REPO_ROOT / 'gen' / 'artifacts' / 'extracted_heredocs'
 
 
 def compare(src_path, dl_path):
@@ -116,6 +112,7 @@ def run_one(name: str) -> None:
     fc = {c: i for i, c in enumerate(files_j['columns'])}
     cc = {c: i for i, c in enumerate(chats_j['columns'])}
     chat_names = {r[cc['chat']]: r[cc['name']] for r in chats_j['rows']}
+    width      = len(str(len(chats_j['rows'])))  # zero-pad width for the canonical <ordinal>-<slug>
 
     from collections import defaultdict
     tooltip_by_chat = defaultdict(set)
@@ -125,7 +122,7 @@ def run_one(name: str) -> None:
     rows: list[list[int | str]] = []
 
     for chat_idx, cname in sorted(chat_names.items()):
-        cs = f'{chat_idx:03d}_{slug(cname)}'
+        cs = f'{chat_idx:0{width}d}-{slug(cname)}'
 
         # ── tooltip ───────────────────────────────────────────────────────────
         # Paths from local_resource tool results; this is what the tooltip shows.
@@ -143,9 +140,9 @@ def run_one(name: str) -> None:
                 rel    = f.relative_to(ef_dir)
                 dl_p   = DL_ROOT / cs / rel
                 cmp    = compare(f, dl_p)
-                in_rsc = 'Y' if (RSC_EF / cs / rel).exists() else 'N'
+                in_gen = 'Y' if (GEN_EF / cs / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'ef', str(rel),
-                             'Y' if dl_p.exists() else 'N', cmp, in_rsc])
+                             'Y' if dl_p.exists() else 'N', cmp, in_gen])
 
         # ── extracted_heredocs / outputs ──────────────────────────────────────
         # Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
@@ -158,9 +155,9 @@ def run_one(name: str) -> None:
                 rel    = f.relative_to(eh_out)
                 dl_p   = DL_ROOT / cs / rel
                 cmp    = compare(f, dl_p)
-                in_rsc = 'Y' if (RSC_EH / cs / 'outputs' / rel).exists() else 'N'
+                in_gen = 'Y' if (GEN_EH / cs / 'outputs' / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'eh_out', str(rel),
-                             'Y' if dl_p.exists() else 'N', cmp, in_rsc])
+                             'Y' if dl_p.exists() else 'N', cmp, in_gen])
 
         # ── extracted_heredocs / working ──────────────────────────────────────
         # Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
@@ -174,9 +171,9 @@ def run_one(name: str) -> None:
                 rel    = f.relative_to(eh_wrk)
                 dl_p   = DL_ROOT / cs / 'working' / rel
                 cmp    = compare(f, dl_p)
-                in_rsc = 'Y' if (RSC_EH / cs / 'working' / rel).exists() else 'N'
+                in_gen = 'Y' if (GEN_EH / cs / 'working' / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'eh_wrk', str(rel),
-                             'Y' if dl_p.exists() else 'N', cmp, in_rsc])
+                             'Y' if dl_p.exists() else 'N', cmp, in_gen])
 
         # ── downloaded ────────────────────────────────────────────────────────
         # Everything in lib/artifacts/downloaded/<chat_slug>/.
@@ -191,7 +188,7 @@ def run_one(name: str) -> None:
     with out_path.open('w', newline='') as fh:
         w = csv.writer(fh)
         w.writerow(['chat', 'chat_name', 'source', 'path',
-                    'in_dl', 'dl_compare', 'in_rsc'])
+                    'in_dl', 'dl_compare', 'in_gen'])
         w.writerows(rows)
     log.write(f'{len(rows)} rows → {out_path.relative_to(REPO_ROOT)}\n')
 
