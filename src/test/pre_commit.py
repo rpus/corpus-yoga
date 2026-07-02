@@ -438,6 +438,88 @@ def _check_validation_outputs_impl(run, fix, name, pipeline, schema, matrix, run
             run(f'{schema}: unregistered: {subject}', False)
 
 
+def _datum_recency(name: str, pipeline: Pipeline, subject: str):
+    """A sortable recency key for one datum, or None if unavailable. Pipeline-specific,
+    because the corpora differ: chat-exports uses the epoch embedded in the batch dir name;
+    browser-captures the capture's `updated_at`; code-projects the max record `timestamp` in
+    the session `.jsonl`. Keys are only ever compared within a single pipeline, so mixing
+    int (epoch) and ISO-string (timestamp) types across pipelines is fine."""
+    if name == 'chat-exports':
+        m = re.search(r'-(\d{10})-[0-9a-f]+-batch', subject)
+        return int(m.group(1)) if m else None
+    if name == 'browser-captures':
+        f = pipeline.input / subject / f'{subject}.json'
+        try:
+            return json.loads(f.read_text()).get('updated_at')
+        except (OSError, ValueError):
+            return None
+    if name == 'code-projects':
+        f = pipeline.input.joinpath(*subject.split(' / ')).with_suffix('.jsonl')
+        try:
+            lines = f.read_text().splitlines()
+        except OSError:
+            return None
+        stamps = []
+        for line in lines:
+            try:
+                t = json.loads(line).get('timestamp')
+            except ValueError:
+                continue
+            if t:
+                stamps.append(t)
+        return max(stamps) if stamps else None
+    return None
+
+
+def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
+    """Every datum must validate against at least one schema version. A datum that validates
+    against none is unmodelled drift — evolve the schema (or record why it is permanently
+    invalid). Older data may sit below the latest version; that is fine (see check_frontier)."""
+    schema   = pipeline.changelog.parent.name
+    versions = _sorted_versions(SCHEMA_DIR[schema])
+    if not versions:
+        return
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
+        logs = [leaf_dir / 'validation' / schema / f'{v.stem}.log' for v in versions]
+        logs = [l for l in logs if l.exists()]
+        if not logs:
+            continue
+        passing = any('Valid!' in l.read_text() for l in logs)
+        if not passing:
+            item_path = pipeline.input.joinpath(*subject.split(' / ')).relative_to(REPO_ROOT)
+            fix(f'{pipeline.validate_item_cmd} {item_path}')
+            fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
+        run(f'{schema}: modelled by some version: {subject}', passing,
+            None if passing else 'validates against no schema version')
+
+
+def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
+    """The most recent datum must validate against the latest schema version — so the schema
+    frontier tracks the data frontier (no unmodelled newest export, no version minted ahead of
+    all data). Recency is pipeline-specific; see _datum_recency."""
+    schema   = pipeline.changelog.parent.name
+    versions = _sorted_versions(SCHEMA_DIR[schema])
+    if not versions:
+        return
+    latest   = versions[-1].stem
+    keyed    = []
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
+        key = _datum_recency(name, pipeline, subject)
+        if key is not None:
+            keyed.append((key, subject, leaf_dir))
+    if not keyed:
+        return
+    _, subject, leaf_dir = max(keyed, key=lambda k: k[0])
+    log = leaf_dir / 'validation' / schema / f'{latest}.log'
+    ok  = log.exists() and 'Valid!' in log.read_text()
+    if not ok:
+        item_path = pipeline.input.joinpath(*subject.split(' / ')).relative_to(REPO_ROOT)
+        fix(f'{pipeline.validate_item_cmd} {item_path}')
+        fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
+    run(f'{schema}: latest datum validates against latest ({latest}): {subject}', ok,
+        None if ok else str(log.relative_to(REPO_ROOT)))
+
+
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
 
 def check_versioned_schema_diagnostics(run):
@@ -536,26 +618,6 @@ def check_mcp_schema(run):
         run('mcp schema: upstream reachable', False, f'{e}')
 
 
-def check_pipeline_latest_passing(run, fix, name: str, pipeline: Pipeline) -> None:
-    """Every entry must pass validation against the latest schema version."""
-    schema   = pipeline.changelog.parent.name
-    versions = _sorted_versions(SCHEMA_DIR[schema])
-    if not versions:
-        return
-    latest = versions[-1].stem
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
-        log = leaf_dir / 'validation' / schema / f'{latest}.log'
-        if not log.exists():
-            continue
-        content = log.read_text()
-        if 'Valid!' not in content:
-            parts     = subject.split(' / ')
-            item_path = pipeline.input.joinpath(*parts).relative_to(REPO_ROOT)
-            fix(f'{pipeline.validate_item_cmd} {item_path}')
-            fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
-            run(f'{schema}: fails latest ({latest}): {subject}', False,
-                str(log.relative_to(REPO_ROOT)))
-
 
 def check_xref(run):
     _, output = _call(SRC / 'test' / 'xref.py')
@@ -632,8 +694,13 @@ def main():
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_latest_passing(run, _fix, n, p),
-                        label=f'check_{_slug}_latest_passing')
+            run_section(lambda run, p=_pipeline, _fix=fix: check_pipeline_coverage(run, _fix, p),
+                        label=f'check_{_slug}_coverage')
+
+        for _name, _pipeline in PIPELINES.items():
+            _slug = _name.replace('-', '_')
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_frontier(run, _fix, n, p),
+                        label=f'check_{_slug}_frontier')
 
         run_section(check_versioned_schema_diagnostics)
 

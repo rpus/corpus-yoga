@@ -163,15 +163,16 @@ When real MCP tool calls appeared in claude.ai (May 2026), both `conversations/v
 `apiConversation/v2` required the same relaxations — `approval_options`, `approval_key`,
 `mcp_server_url`, and `IntegrationName` — because both schemas describe the same underlying
 conversation data from different export angles. The coupling was only visible in
-`model_join.csv`. Doing one without the other would have left the `check_pipeline_latest_passing`
-pre_commit check failing for whichever pipeline was not updated.
+`model_join.csv`. Doing one without the other would have left the un-updated pipeline's
+latest export failing every version — an all-`✗` row in that pipeline's matrix.
 
 ### `--prune` before `--write` for depth-2 schemas
 
 For pipelines with `subject_depth = 2` (code-projects), always run `--prune` before
 `--write` when data has been deleted or renamed. `--write` only appends; it never removes
-stale rows. Stale rows cause `check_pipeline_latest_passing` failures that cannot be
-resolved by running the pipeline.
+stale rows. Stale rows — matrix entries whose validation logs no longer exist in `gen/` —
+cause `check_pipeline_validation_outputs` failures that cannot be resolved by running the
+pipeline; `--prune` removes them.
 
 ### `gen_changelog_matrix --write` does not reorder existing rows
 
@@ -179,9 +180,26 @@ The tool appends new rows and updates existing ones in place. Row order in the C
 reflects insertion order. Use `--prune` to remove stale rows cleanly; do not sort manually
 unless making a deliberate one-off correction (which will produce a noisy diff).
 
-### The `check_pipeline_latest_passing` check
+### The two coverage gates: `check_pipeline_coverage` and `check_pipeline_frontier`
 
-Every entry in the CHANGELOG must pass validation against the *latest* schema version.
-A `✗` recorded against an older version is historical fact; a `✗` against the latest
-version is an open issue. There is intentionally no way to "accept" a current failure —
-fix the schema or document why the data is permanently invalid.
+An earlier single check (`check_pipeline_latest_passing`) demanded that *every* entry pass the
+*latest* schema version. That conflated two data models — re-fetchable captures
+(browser-captures), always current because the pipeline re-pulls them, and immutable
+point-in-time bulk-export snapshots (chat-exports), which legitimately rest at whatever version
+matched when they were taken. Forcing an old snapshot to pass a newer schema is meaningless, and
+it forced needless pruning of history (e.g. the pre-`approval_key_legacy` exports dropped at
+conversations v10). It was replaced by two independent gates:
+
+- **`check_pipeline_coverage`** — every datum must validate against *some* version. A datum that
+  validates against none is unmodelled drift: evolve the schema (or record why it is permanently
+  invalid). An old snapshot resting below the latest version is fine — a `✗` against a newer
+  version is a fact, not an open issue.
+- **`check_pipeline_frontier`** — the single *most recent* datum must validate against the
+  *latest* version, so the schema frontier tracks the data frontier: no unmodelled newest export,
+  and no version minted ahead of all data. Recency is pipeline-specific (`_datum_recency`):
+  chat-exports uses the epoch in the batch dir name; browser-captures the capture's `updated_at`;
+  code-projects the max record `timestamp` in the session `.jsonl`.
+
+Together they catch a genuinely-drifting fresh export (it fails coverage *and* frontier) while
+letting historical snapshots sit honestly below the latest version. `check_pipeline_validation_outputs`
+still independently enforces that every entry is *registered* in the matrix and matches its `gen/` logs.
