@@ -4,13 +4,15 @@ atomise_bulk.py — Split a bulk export's conversations.json (one big array) int
 per-conversation JSON files, one per Conversation, each validated against the Conversation
 definition in the latest conversations schema (inner-ref; no separate/duplicated schema).
 
-  ext/chat-exports/<batch>/conversations.json  -->  gen/chat-exports/<batch>/json/<slug>.json
+  ext/chat-exports/<batch>/conversations.json  -->  gen/chat-exports/<batch>/json/<ordinal>-<slug>.json
 
 This is the ONLY reader of the 24 MB array. Everything downstream consumes the per-conversation
 pieces instead: project_markdown.py renders them to markdown/, compare_sources.py cross-checks
 them against the live captures. Nothing is skipped -- invalid conversations are written and
-flagged, so failures show up in the filesystem. Filenames (slug, uuid-disambiguated) are what the
-markdown/ files inherit, so json/<name>.json and markdown/<name>.md correspond.
+flagged, so failures show up in the filesystem. Names come from markdown_projection.ordered() --
+the one canonical "<ordinal>-<slug>" (created_at order, 1-based, zero-padded) shared with the
+timeline and the markdown/ files -- so json/<name>.json, markdown/<name>.md, and timeline
+conversation <ordinal> all correspond, and a plain filesystem sort is conversation order.
 
 Usage (output defaults per batch; --out overrides):
   src/run_python_script.sh src/main/chat-exports/atomise_bulk.py \
@@ -19,11 +21,12 @@ Usage (output defaults per batch; --out overrides):
 import argparse
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import REPO, assign_name
+from markdown_projection import REPO, ordered
 CONV_SCHEMAS = REPO / 'rsc' / 'schema' / 'chat-exports' / 'conversations'
 
 
@@ -40,19 +43,19 @@ def atomise(batch_dir, out_dir):
     """Split <batch_dir>/conversations.json into verbatim per-conversation files in out_dir."""
     conv_valid = conversation_validator()
     out_dir = Path(out_dir)
+    if out_dir.exists():
+        shutil.rmtree(out_dir)  # renumbering renames files; wipe so no old-naming pieces linger
     out_dir.mkdir(parents=True, exist_ok=True)
-    seen = set()
-    total = bad = 0
-    for raw in json.loads((Path(batch_dir) / 'conversations.json').read_text()):
-        total += 1
-        name = assign_name(raw['name'], raw['uuid'], seen)
+    convs = json.loads((Path(batch_dir) / 'conversations.json').read_text())
+    bad = 0
+    for _, name, raw in ordered(convs):  # canonical <ordinal>-<slug>, created_at order
         (out_dir / f"{name}.json").write_text(json.dumps(raw, indent=2, ensure_ascii=False) + '\n')
         if not conv_valid.is_valid(raw):
             bad += 1
             err = sorted(conv_valid.iter_errors(raw), key=lambda e: list(e.path))[0]
             loc = '/'.join(str(p) for p in err.path)
             print(f"  INVALID {name} @ {loc} ({err.validator})", file=sys.stderr)
-    print(f"atomised {total} conversations to {out_dir} ({bad} invalid vs Conversation)")
+    print(f"atomised {len(convs)} conversations to {out_dir} ({bad} invalid vs Conversation)")
 
 
 def main():

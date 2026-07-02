@@ -15,8 +15,10 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 # chat_list <conversations_json> → numbered "N: name" lines
+# Numbered "<n>: <name>" list, from the one canonical ordering (markdown_projection.ordered()),
+# so the chat indices Claude returns line up with the timeline and the atomised json/ filenames.
 chat_list() {
-  jq -r '[sort_by(.created_at) | to_entries[] | "\(.key): \(.value.name)"] | join("\n")' "$1"
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/timeline.py" "$1" --table chat-list
 }
 
 # infer_table <columns_json> <column_semantics> <task> <data> → prints {columns, rows} JSON

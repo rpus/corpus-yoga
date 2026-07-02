@@ -11,9 +11,11 @@ view: the downloaded directory already resolves all container-path nonsense
 and multiple-version noise upstream.
 
 Output columns: ["chat", "file"]
-  chat  Integer chat index (0-based, sorted by conversation created_at).
-        Derived from the leading zero-padded index in the directory name,
-        e.g. "015_accessing_files_from_previous_chats" -> 15.
+  chat  The conversation's 1-based ordinal (the canonical numbering from
+        markdown_projection.ordered() — created_at order), so it joins to
+        data-chats.chat / the atomised json/<ordinal>-<slug>.json filenames.
+        Derived from the leading "<ordinal>-" in the directory name, which
+        follows that same convention, e.g. "16-accessing_files..." -> 16.
   file  Path relative to the chat directory, as stored in downloaded/.
 
 Usage (called by present.sh):
@@ -41,7 +43,7 @@ def main() -> None:
     for chat_dir in sorted(downloaded_dir.iterdir()):
         if not chat_dir.is_dir():
             continue
-        prefix = chat_dir.name.split('_', 1)[0]
+        prefix = chat_dir.name.split('-', 1)[0]  # "<ordinal>-<slug>" (canonical, 1-based)
         if not prefix.isdigit():
             continue
         chat_idx = int(prefix)

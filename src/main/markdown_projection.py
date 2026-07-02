@@ -88,6 +88,19 @@ def assign_name(title, uuid, seen):
     return name
 
 
+def ordered(convs):
+    """The single source of truth for how a conversation corpus is ordered and named — shared by
+    the atomised json/ pieces, the rendered markdown/, the presentation timeline, and the inference
+    chat list, so a conversation is "<ordinal>-<slug>" (and conversation N) everywhere.
+
+    Sort ascending by created_at; assign a 1-based ordinal zero-padded to the corpus width (so
+    lexicographic filename order == conversation order); name each "<ordinal>-<slug>". The ordinal
+    is itself unique, so no uuid disambiguation is needed. Returns [(ordinal:int, name:str, conv)]."""
+    convs = sorted(convs, key=lambda c: (c['created_at'], c['uuid']))  # uuid breaks created_at ties -> total, input-order-independent
+    width = len(str(len(convs)))
+    return [(i, f"{i:0{width}d}-{slug(c['name'])}", c) for i, c in enumerate(convs, 1)]
+
+
 def find_api_json(d):
     """The capture's apiConversation JSON (the one with chat_messages)."""
     for f in sorted(d.glob('*.json')):

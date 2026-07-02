@@ -2,7 +2,7 @@
 """
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
-  browser-capture  ext/browser-captures/claude/<uuid>/apiConversation.json   (named by title-slug)
+  browser-capture  ext/browser-captures/claude/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
   bulk-export      gen/chat-exports/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
@@ -20,11 +20,12 @@ Usage (output defaults per pipeline/batch; --out overrides):
 """
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import REPO, project, assign_name, find_api_json, render, md_validator
+from markdown_projection import REPO, project, ordered, find_api_json, render, md_validator
 
 
 def write_markdown(named_convs, out_dir):
@@ -33,6 +34,8 @@ def write_markdown(named_convs, out_dir):
     Returns (n_ok, n_bad)."""
     valid = md_validator()
     out = Path(out_dir)
+    if out.exists():
+        shutil.rmtree(out)  # renumbering renames files; wipe so no old-naming pieces linger
     out.mkdir(parents=True, exist_ok=True)
     n_ok = n_bad = 0
     for name, conv in named_convs:
@@ -54,14 +57,10 @@ def main():
     args = ap.parse_args()
 
     if args.browser_captures:
-        # browser captures: name each by its title-slug (uuid-disambiguated)
-        seen, named = set(), []
-        for d in sorted(p for p in Path(args.browser_captures).iterdir() if p.is_dir()):
-            api = find_api_json(d)
-            if api is None:
-                continue
-            lean = project(api)
-            named.append((assign_name(lean['title'], api['uuid'], seen), lean))
+        # browser captures: same canonical <ordinal>-<slug> ordering (created_at) as the bulk pieces
+        apis = [api for d in sorted(p for p in Path(args.browser_captures).iterdir() if p.is_dir())
+                if (api := find_api_json(d)) is not None]
+        named = [(name, project(api)) for _, name, api in ordered(apis)]
         out = Path(args.out) if args.out else REPO / 'gen' / 'browser-captures' / 'markdown'
     else:
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name

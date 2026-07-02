@@ -123,8 +123,8 @@ src/main/chat-exports/RUNME.sh,60,call,src/run_python_script.sh,Y,"""$REPO_DIR/s
 src/main/chat-exports/RUNME.sh,60,call,src/main/chat-exports/atomise_bulk.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/atomise_bulk.py"" \"
 src/main/chat-exports/RUNME.sh,62,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
 src/main/chat-exports/RUNME.sh,62,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
-src/main/chat-exports/atomise_bulk.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
-src/main/chat-exports/atomise_bulk.py,16,comment,src/main/chat-exports/atomise_bulk.py,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
+src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
+src/main/chat-exports/atomise_bulk.py,18,comment,src/main/chat-exports/atomise_bulk.py,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
 src/main/chat-exports/audit_files.py,14,comment,src/main/chat-exports/extract_files.py,Y,ef       Files written to gen/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
 src/main/chat-exports/audit_files.py,17,comment,src/main/chat-exports/extract_heredocs.py,Y,by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
 src/main/chat-exports/audit_files.py,19,comment,src/main/chat-exports/extract_heredocs.py,Y,by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
@@ -153,38 +153,45 @@ src/main/chat-exports/extract_heredocs.sh,17,call,src/main/chat-exports/extract_
 src/main/chat-exports/infer_tables.sh,3,comment,src/main/chat-exports/infer_tables.sh,Y,#   src/main/chat-exports/infer_tables.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/infer_tables.sh,4,comment,src/main/chat-exports/infer_tables.sh,Y,#   src/main/chat-exports/infer_tables.sh --chat-exports ext/chat-exports
 src/main/chat-exports/infer_tables.sh,13,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
-src/main/chat-exports/infer_tables.sh,61,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/infer_tables.sh,61,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/infer_tables.sh,79,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/infer_tables.sh,79,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/infer_tables.sh,94,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/infer_tables.sh,94,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/infer_tables.sh,21,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$1"" --table chat-list"
+src/main/chat-exports/infer_tables.sh,21,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$1"" --table chat-list"
+src/main/chat-exports/infer_tables.sh,63,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/infer_tables.sh,63,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/infer_tables.sh,81,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/infer_tables.sh,81,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/infer_tables.sh,96,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/infer_tables.sh,96,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
 src/main/chat-exports/present.sh,3,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/present.sh,4,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ext/chat-exports
 src/main/chat-exports/present.sh,11,path_str,rsc/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/index.html"""
 src/main/chat-exports/present.sh,12,path_str,src/main/chat-exports/word_freq_literal.py,Y,"WORD_FREQ_SCRIPT=""$SCRIPT_DIR/word_freq_literal.py"""
 src/main/chat-exports/present.sh,13,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
-src/main/chat-exports/present.sh,14,path_str,src/main/chat-exports/check_harvested.py,Y,"CHECK_HARVESTED_SCRIPT=""$SCRIPT_DIR/check_harvested.py"""
-src/main/chat-exports/present.sh,15,path_str,src/main/chat-exports/files_from_downloaded.py,Y,"FILES_FROM_DOWNLOADED_SCRIPT=""$SCRIPT_DIR/files_from_downloaded.py"""
-src/main/chat-exports/present.sh,49,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"""
-src/main/chat-exports/present.sh,49,call,src/main/chat-exports/files_from_downloaded.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"""
-src/main/chat-exports/present.sh,81,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
-src/main/chat-exports/present.sh,81,call,src/main/chat-exports/format_table.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
-src/main/chat-exports/present.sh,94,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
-src/main/chat-exports/present.sh,94,call,src/main/chat-exports/inject.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
-src/main/chat-exports/present.sh,100,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,100,call,src/main/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,105,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,105,call,src/main/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,123,path_str,rsc/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
-src/main/chat-exports/present.sh,150,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,150,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,153,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
-src/main/chat-exports/present.sh,154,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,154,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,159,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
+src/main/chat-exports/present.sh,14,path_str,src/main/chat-exports/timeline.py,Y,"TIMELINE_SCRIPT=""$SCRIPT_DIR/timeline.py"""
+src/main/chat-exports/present.sh,15,path_str,src/main/chat-exports/check_harvested.py,Y,"CHECK_HARVESTED_SCRIPT=""$SCRIPT_DIR/check_harvested.py"""
+src/main/chat-exports/present.sh,16,path_str,src/main/chat-exports/files_from_downloaded.py,Y,"FILES_FROM_DOWNLOADED_SCRIPT=""$SCRIPT_DIR/files_from_downloaded.py"""
+src/main/chat-exports/present.sh,25,call,src/run_python_script.sh,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
+src/main/chat-exports/present.sh,25,call,src/main/chat-exports/timeline.py,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
+src/main/chat-exports/present.sh,30,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"""
+src/main/chat-exports/present.sh,30,call,src/main/chat-exports/files_from_downloaded.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"""
+src/main/chat-exports/present.sh,46,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
+src/main/chat-exports/present.sh,46,call,src/main/chat-exports/format_table.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
+src/main/chat-exports/present.sh,59,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
+src/main/chat-exports/present.sh,59,call,src/main/chat-exports/inject.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
+src/main/chat-exports/present.sh,65,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,65,call,src/main/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,70,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,70,call,src/main/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,88,path_str,rsc/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
+src/main/chat-exports/present.sh,115,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,115,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,118,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
+src/main/chat-exports/present.sh,119,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,119,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,124,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
+src/main/chat-exports/timeline.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
+src/main/chat-exports/timeline.py,14,comment,src/main/chat-exports/timeline.py,Y,src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
 src/main/chat-exports/validate.sh,5,comment,src/main/chat-exports/validate.sh,Y,#   src/main/chat-exports/validate.sh --chat-export <path/to/data-directory>
 src/main/chat-exports/validate.sh,11,path_str,rsc/schema/chat-exports,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/chat-exports"""
 src/main/chat-exports/validate.sh,15,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c ""import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))"" ""$1"" ""$REPO_DI"

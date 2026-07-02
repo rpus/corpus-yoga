@@ -11,59 +11,24 @@ OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 TEMPLATE="$REPO_DIR/rsc/index.html"
 WORD_FREQ_SCRIPT="$SCRIPT_DIR/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
+TIMELINE_SCRIPT="$SCRIPT_DIR/timeline.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
 DOWNLOADED_DIR="$REPO_DIR/lib/artifacts/downloaded"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
-jq_chats() { jq '{
-  columns: ["chat", "name", "dormant_from"],
-  rows: [sort_by(.created_at) | to_entries[] | [.key, .value.name, (.value.updated_at | sub("\\.[0-9]+Z$"; "Z"))]]
-}' "$@"; }
-
-jq_spans() { jq '
-  [sort_by(.created_at) | to_entries[] |
-    .key as $i | .value.chat_messages[] |
-    {chat: $i, from: (.created_at | sub("\\.[0-9]+Z$"; "Z")), to: (.created_at | sub("\\.[0-9]+Z$"; "Z")), messages: 1}
-  ] | sort_by(.from) |
-  reduce .[] as $m (
-    {acc: [], cur: null};
-    if .cur == null then
-      {acc: .acc, cur: {chat: $m.chat, from: $m.from, to: $m.from, messages: 1}}
-    elif .cur.chat == $m.chat then
-      {acc: .acc, cur: (.cur + {to: $m.to, messages: (.cur.messages + 1)})}
-    else
-      {acc: (.acc + [.cur]), cur: {chat: $m.chat, from: $m.from, to: $m.from, messages: 1}}
-    end
-  ) | .acc + [.cur] |
-  {
-    columns: ["chat", "from", "to", "messages"],
-    rows: [.[] | [.chat, .from, .to, .messages]]
-  }
-' "$@"; }
+# The conversation-keyed tables (data-chats, data-spans, data-local-resources) and the inference
+# chat list all come from timeline.py, which derives `chat` from the one canonical ordering in
+# markdown_projection.ordered() (created_at order, 1-based). present.sh only orchestrates and
+# columnarises; the ordering/numbering lives in one place, shared with the atomised json/ names.
+timeline() { "$REPO_DIR/src/run_python_script.sh" "$TIMELINE_SCRIPT" "$1" --table "$2"; }
 
 # Tooltip: files sourced from lib/artifacts/downloaded/ — pre-curated and
 # path-consistent. local_resource paths (what Claude reported) are unreliable.
 files_from_downloaded() {
   "$REPO_DIR/src/run_python_script.sh" "$FILES_FROM_DOWNLOADED_SCRIPT" "$DOWNLOADED_DIR"
 }
-
-# Harvest input: local_resource records from conversations.json with mime_type.
-# Not used for the tooltip, but passed to check_harvested.py so it can classify
-# binary files and report what was returned to the user but not yet extracted.
-jq_local_resources() { jq '{
-  columns: ["chat", "file", "mime_type"],
-  rows: [
-    (sort_by(.created_at) | to_entries[]) |
-    .key as $i |
-    .value.chat_messages[].content[] |
-    select(.type == "tool_result") |
-    .content[]? |
-    select(.type == "local_resource") |
-    [$i, (.file_path | ltrimstr("/mnt/user-data/outputs/")), .mime_type]
-  ] | unique
-}' "$@"; }
 
 jq_literal() { jq '{
   human:     {columns: ["word","count"], rows: [.human[]     | [.word,.count]]},
@@ -125,13 +90,13 @@ present_export() {
     local json
 
     # data-chats
-    json="$(jq_chats "$conv" | format_table)"
+    json="$(timeline "$conv" chats | format_table)"
     inject "$out" "data-chats" "$json"
     printf '%s\n' "$json" > "$out_dir/data-chats.json"
     echo "  ✓ data-chats"
 
     # data-spans: group consecutive same-chat messages into spans, then columnarise
-    json="$(jq_spans "$conv" | format_table)"
+    json="$(timeline "$conv" spans | format_table)"
     inject "$out" "data-spans" "$json"
     printf '%s\n' "$json" > "$out_dir/data-spans.json"
     echo "  ✓ data-spans"
@@ -145,7 +110,7 @@ present_export() {
     # data-local-resources: local_resource records from conversations.json,
     # with mime_type. Not in the tooltip; used by check_harvested for harvest
     # reporting and binary file classification.
-    json="$(jq_local_resources "$conv" | format_table)"
+    json="$(timeline "$conv" local-resources | format_table)"
     printf '%s\n' "$json" > "$out_dir/data-local-resources.json"
     "$REPO_DIR/src/run_python_script.sh" "$CHECK_HARVESTED_SCRIPT" "$name"
 
@@ -170,7 +135,7 @@ present_export() {
           ;;
         data-chat-categories)
           cols='["chat", "category"]'
-          desc='A join table assigning each chat to one category. Requires data-categories to be populated first. Chat index from: jq '"'"'[sort_by(.created_at) | to_entries[] | {chat: .key, name: .value.name}]'"'"' conversations.json. Category assignment by Claude reading conversation summaries.'
+          desc='A join table assigning each chat to one category. Requires data-categories to be populated first. The chat index is the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(), same as the timeline and the json/ filenames. Category assignment by Claude reading conversation summaries.'
           ;;
         data-semantic)
           cols='["word", "count"]'
