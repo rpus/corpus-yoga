@@ -1,4 +1,4 @@
-pre_commit.py: 1361/1361
+pre_commit.py: 1511/1511
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -85,6 +85,7 @@ pre_commit.py: 1361/1361
   ✓ conversations: valid JSON + $schema: v9
   ✓ conversations: valid JSON + $schema: v10
   ✓ conversations: valid JSON + $schema: v11
+  ✓ conversations: valid JSON + $schema: v12
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
@@ -150,6 +151,9 @@ pre_commit.py: 1361/1361
   ✓ conversations: workflow.changelog_entry: v11
   ✓ conversations: workflow.changelog_narrative: v11
   ✓ conversations: workflow.no_todo: v11
+  ✓ conversations: workflow.changelog_entry: v12
+  ✓ conversations: workflow.changelog_narrative: v12
+  ✓ conversations: workflow.no_todo: v12
 
 ── check_code_projects_workflow ──────────────────────────────────────────────
   ✓ session: workflow.changelog_entry: v1
@@ -743,6 +747,7 @@ pre_commit.py: 1361/1361
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v1
   ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v10
   ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v11
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v12
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v2
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v3
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v4
@@ -754,6 +759,7 @@ pre_commit.py: 1361/1361
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v1
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v10
   ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v11
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v12
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v2
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v3
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v4
@@ -762,6 +768,18 @@ pre_commit.py: 1361/1361
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v7
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v8
   ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v9
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v1
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v10
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v11
+  ✓ conversations: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v12
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v2
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v3
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v4
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v5
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v6
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v7
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v8
+  ✓ conversations: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v9
 
   every conversations log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/conversations/CHANGELOG.md
 
@@ -770,6 +788,7 @@ pre_commit.py: 1361/1361
   looking for gen/chat-exports/<subject>/validation/memories/vN.log — one per entry in rsc/schema/chat-exports/memories/CHANGELOG.md
   ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v1
   ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v1
+  ✓ memories: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v1
 
   every memories log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/memories/CHANGELOG.md
 
@@ -780,6 +799,8 @@ pre_commit.py: 1361/1361
   ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
   ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
   ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
+  ✓ projects: validation failing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v1
+  ✓ projects: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 / 019d1cb4-57a4-77a8-941c-9cf6078d4c31 × v2
 
   every projects log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/projects/CHANGELOG.md
 
@@ -788,6 +809,7 @@ pre_commit.py: 1361/1361
   looking for gen/chat-exports/<subject>/validation/users/vN.log — one per entry in rsc/schema/chat-exports/users/CHANGELOG.md
   ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000 × v1
   ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000 × v1
+  ✓ users: validation passing: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000 × v1
 
   every users log in gen/chat-exports/ should be registered in rsc/schema/chat-exports/users/CHANGELOG.md
 
@@ -817,11 +839,121 @@ pre_commit.py: 1361/1361
 
   every ext/code-projects/-Users-*/*.jsonl entry should be registered in rsc/schema/code-projects/session/CHANGELOG.md
 
-── check_browser_captures_latest_passing ─────────────────────────────────────
+── check_browser_captures_coverage ───────────────────────────────────────────
+  ✓ apiConversation: modelled by some version: 0402e131-d6c4-48be-80d2-66ca0a18d46e
+  ✓ apiConversation: modelled by some version: 057271b2-f120-422a-a94e-414811e93cb3
+  ✓ apiConversation: modelled by some version: 0e537a54-5db8-4164-9a49-06155980b978
+  ✓ apiConversation: modelled by some version: 14ac5a6b-22c8-468b-b46f-11c130056d52
+  ✓ apiConversation: modelled by some version: 16baf843-ad3a-419d-991e-79349e12c601
+  ✓ apiConversation: modelled by some version: 19c0cb0b-0b88-45b4-9757-5572e859c70e
+  ✓ apiConversation: modelled by some version: 1a557fcf-578f-4487-a5cd-4644f5e4475f
+  ✓ apiConversation: modelled by some version: 1b5157dd-3056-455e-8ca6-51d7dcb612c4
+  ✓ apiConversation: modelled by some version: 1cb43d3c-6c03-4fcd-963c-1e121138ee18
+  ✓ apiConversation: modelled by some version: 1da65fdd-03c2-4961-9a38-8c0136244682
+  ✓ apiConversation: modelled by some version: 1ded5137-fab7-4df9-8f41-71db8b5507d3
+  ✓ apiConversation: modelled by some version: 22c09570-351d-4bb0-9a66-330c2e269ba3
+  ✓ apiConversation: modelled by some version: 23416947-1483-4697-bb69-395d9e5c962e
+  ✓ apiConversation: modelled by some version: 257927e9-486d-4102-8380-ab92e2b3be10
+  ✓ apiConversation: modelled by some version: 2814d51a-aa22-4df4-846b-c5f8ba727406
+  ✓ apiConversation: modelled by some version: 28ac88dc-3de3-471a-8891-34991c61519c
+  ✓ apiConversation: modelled by some version: 2ca9e30c-3d9a-463d-8d30-7f70944f9ab6
+  ✓ apiConversation: modelled by some version: 2dbbf32c-ce41-45ff-b6a5-3be520577323
+  ✓ apiConversation: modelled by some version: 30378a34-01a4-48cd-9c21-80ee878b296a
+  ✓ apiConversation: modelled by some version: 368c8bfe-46b3-442e-840a-591f1b6e33bc
+  ✓ apiConversation: modelled by some version: 38d19b49-e64e-4c14-896a-82285b33a1f6
+  ✓ apiConversation: modelled by some version: 393ec024-a6fb-476e-b803-744bfa014e25
+  ✓ apiConversation: modelled by some version: 3ec23b43-5ee6-46b1-af35-5aae291167a5
+  ✓ apiConversation: modelled by some version: 41cb322f-6968-4d31-baab-5322d349418d
+  ✓ apiConversation: modelled by some version: 4371d234-1754-4f07-9288-9528e673c15b
+  ✓ apiConversation: modelled by some version: 43b987ed-e42d-4bd1-b47c-0f81f5eeb231
+  ✓ apiConversation: modelled by some version: 4701b15c-6a9e-4e4c-9b5a-da01fb9d8221
+  ✓ apiConversation: modelled by some version: 470da313-edef-4e4a-b689-64b642435196
+  ✓ apiConversation: modelled by some version: 4a05c603-17a2-4310-a794-adfb150ea1f1
+  ✓ apiConversation: modelled by some version: 4c99d9bb-138f-4f41-9230-2c567f265c30
+  ✓ apiConversation: modelled by some version: 50818324-e474-49ac-af06-92ecff76a0cf
+  ✓ apiConversation: modelled by some version: 51521abb-0b37-4063-a31c-8793dc9508d2
+  ✓ apiConversation: modelled by some version: 536d36b2-91f7-4c54-a031-c31d710ceef5
+  ✓ apiConversation: modelled by some version: 53feec5e-db02-4a4b-8bef-d9db67233196
+  ✓ apiConversation: modelled by some version: 5830bce0-1b1a-4e64-ace5-1ea81656fec0
+  ✓ apiConversation: modelled by some version: 5a8194ea-1126-4b13-86e2-554b38c3a3ef
+  ✓ apiConversation: modelled by some version: 60f3e099-e5c3-4fee-962e-97441f7e474b
+  ✓ apiConversation: modelled by some version: 61fec424-d336-446c-98fd-f150f095512f
+  ✓ apiConversation: modelled by some version: 620052e3-0dfe-4c9b-b60d-7755d955f76f
+  ✓ apiConversation: modelled by some version: 640e8a47-adf4-4343-b138-875f8f9ce6ba
+  ✓ apiConversation: modelled by some version: 6a8c3fde-8f7e-4268-8b08-ab93c8931f8d
+  ✓ apiConversation: modelled by some version: 6ad1c2de-12ec-4a12-89cb-a1e8890edc3f
+  ✓ apiConversation: modelled by some version: 6de41fe2-9763-47d4-9cde-4b1f6bff1d43
+  ✓ apiConversation: modelled by some version: 6f393612-e15f-4b5e-9316-f8a806fe17f9
+  ✓ apiConversation: modelled by some version: 6f79bacb-046f-48fe-81db-b7e1ead92f55
+  ✓ apiConversation: modelled by some version: 7558d12c-dcda-4788-8239-665426c0b0cf
+  ✓ apiConversation: modelled by some version: 75ed5178-ccac-4158-b25e-dc68912407fd
+  ✓ apiConversation: modelled by some version: 81456135-a738-46c6-b4bb-5f8e973c62ce
+  ✓ apiConversation: modelled by some version: 8488fa56-e017-4f06-8e18-9f959f51e130
+  ✓ apiConversation: modelled by some version: 88c0a38e-c11f-4d01-9b80-1ba80355eaae
+  ✓ apiConversation: modelled by some version: 8e170a58-2c96-4ae5-bcfd-ed55891cd7ed
+  ✓ apiConversation: modelled by some version: 8e2fa241-739e-4a7f-b45c-f7a787d8bc3c
+  ✓ apiConversation: modelled by some version: 958eaaee-ce1a-42fe-9426-33def96cf134
+  ✓ apiConversation: modelled by some version: 97819e20-429c-4f40-976d-e39d188eed31
+  ✓ apiConversation: modelled by some version: 9a680e8c-b7c2-48d8-9b57-9831163fda11
+  ✓ apiConversation: modelled by some version: 9afcdf32-976b-47a2-a5d6-e4427ee6bf13
+  ✓ apiConversation: modelled by some version: 9d7817e9-9417-4d86-897b-a828f1d00181
+  ✓ apiConversation: modelled by some version: 9e234526-9896-4086-94f5-fc42cdf2341a
+  ✓ apiConversation: modelled by some version: 9e7f6e16-2c34-47a5-b50f-a5fffc6dd2bf
+  ✓ apiConversation: modelled by some version: a1b0ad89-2c32-4690-81b1-0be5a94137f5
+  ✓ apiConversation: modelled by some version: a4c93d29-12c3-4789-86e7-08310584f11a
+  ✓ apiConversation: modelled by some version: a5403ba3-c93a-49c2-8cfc-a88f321be7d0
+  ✓ apiConversation: modelled by some version: a55e1ece-0f99-46b4-a376-8417cc7ec428
+  ✓ apiConversation: modelled by some version: a97bc903-e48f-4cf0-b41c-9f35a0488d41
+  ✓ apiConversation: modelled by some version: aabc3183-e627-407e-abed-8c776bc33159
+  ✓ apiConversation: modelled by some version: ab24b1ce-12ba-44b6-a586-33f7fa74111f
+  ✓ apiConversation: modelled by some version: b1398a0e-d179-419b-be13-f29412c2b7d2
+  ✓ apiConversation: modelled by some version: b4cf63cd-2561-4822-aae2-e34cb06b6ce1
+  ✓ apiConversation: modelled by some version: b6a22d8d-803d-4083-8fe2-23e9b253a87e
+  ✓ apiConversation: modelled by some version: b7516761-a483-4cbd-a4b2-750b74aa1cb2
+  ✓ apiConversation: modelled by some version: b7e49f6b-5a91-4f34-8e19-012a6c2c56d7
+  ✓ apiConversation: modelled by some version: c01c53c0-941d-4f94-b682-ef39c9d1d49c
+  ✓ apiConversation: modelled by some version: c233a466-0414-459a-89d6-6949b41b7ab6
+  ✓ apiConversation: modelled by some version: c4ad731f-5e9f-49d5-88c6-c2c8551d76cf
+  ✓ apiConversation: modelled by some version: c5927872-093a-4c74-9fb1-53a5a9080652
+  ✓ apiConversation: modelled by some version: c652505d-15dd-40c6-839f-af49bde72a6b
+  ✓ apiConversation: modelled by some version: cb20c819-f7c4-4e8d-90ad-3e3b97c32013
+  ✓ apiConversation: modelled by some version: cdd62ae8-b1f5-4e55-90b5-ece249feca39
+  ✓ apiConversation: modelled by some version: cf8e0d87-ca00-44a3-aada-0debd61bbdbd
+  ✓ apiConversation: modelled by some version: d31607fd-1a05-4464-a5bc-14a0dac8c763
+  ✓ apiConversation: modelled by some version: d3409e0a-2578-4582-92d9-ac90cb346f8d
+  ✓ apiConversation: modelled by some version: d4e6b497-a860-49c0-81da-3ae6d4e4b60b
+  ✓ apiConversation: modelled by some version: d68e6f3f-b668-4a44-8ca0-c8a2e346d07c
+  ✓ apiConversation: modelled by some version: d771f40f-a236-4fa1-81d6-09b4e9b5d1ba
+  ✓ apiConversation: modelled by some version: d8b161c6-e808-4f25-b957-2c78ad5f4460
+  ✓ apiConversation: modelled by some version: dab27496-7ef8-4f59-86a3-35cc07c224ee
+  ✓ apiConversation: modelled by some version: dbd06edd-6293-42a5-aa31-4ef1446ccda1
+  ✓ apiConversation: modelled by some version: e777813d-1fae-4535-9e28-8485ac4fce9a
+  ✓ apiConversation: modelled by some version: ee05c7b3-54e6-4b1f-a483-ef33c843011b
+  ✓ apiConversation: modelled by some version: f4e35a75-190d-47df-aac5-056e76b4157a
+  ✓ apiConversation: modelled by some version: f8bc33b2-eb90-40b1-9eee-2c633d156081
+  ✓ apiConversation: modelled by some version: f8d5cfb3-5306-4ef9-822e-b7ff524c2703
+  ✓ apiConversation: modelled by some version: f8ddb405-888f-449a-8bf8-9ff1d81947c3
+  ✓ apiConversation: modelled by some version: fcee9cff-ab80-48a0-b44b-9e8fa50f31cc
 
-── check_chat_exports_latest_passing ─────────────────────────────────────────
+── check_chat_exports_coverage ───────────────────────────────────────────────
+  ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000
+  ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000
+  ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000
 
-── check_code_projects_latest_passing ────────────────────────────────────────
+── check_code_projects_coverage ──────────────────────────────────────────────
+  ✓ session: modelled by some version: -Users-khalidkhan-dev-Anthropic-nutrition / 83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2
+  ✓ session: modelled by some version: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / 57289774-f418-4916-9678-e8befde97613
+  ✓ session: modelled by some version: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / 89515719-99fa-4db6-89ca-2b9862473e3c
+  ✓ session: modelled by some version: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / df71fdce-b178-4acc-a8c6-d231d5ba56c8
+
+── check_browser_captures_frontier ───────────────────────────────────────────
+  ✓ apiConversation: latest datum validates against latest (v6): 057271b2-f120-422a-a94e-414811e93cb3
+
+── check_chat_exports_frontier ───────────────────────────────────────────────
+  ✓ conversations: latest datum validates against latest (v12): data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000
+
+── check_code_projects_frontier ──────────────────────────────────────────────
+  ✓ session: latest datum validates against latest (v4): -Users-khalidkhan-dev-github-rpus-claude-export-yoga / df71fdce-b178-4acc-a8c6-d231d5ba56c8
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ apiConversation: composition.base_not_used_directly: v1
@@ -1232,6 +1364,30 @@ pre_commit.py: 1361/1361
   ✓ conversations: structure.no_redundant_additional_properties_true: v11
   ✓ conversations: structure.pattern_constraints_enforced: v11
   ✓ conversations: structure.required_subset_of_properties: v11
+  ✓ conversations: composition.base_not_used_directly: v12
+  ✓ conversations: composition.base_schemas_closed: v12
+  ✓ conversations: composition.discriminator_values_disjoint: v12
+  ✓ conversations: composition.no_additional_properties_on_subtypes: v12
+  ✓ conversations: composition.wrapper_has_five_fields: v12
+  ✓ conversations: documentation.discriminator_fields_annotated: v12
+  ✓ conversations: documentation.every_definition_has_title_and_description: v12
+  ✓ conversations: documentation.null_only_fields_documented: v12
+  ✓ conversations: documentation.open_set_enums_documented: v12
+  ✓ conversations: empirical.nullable_fields_surveyed: v12
+  ✓ conversations: empirical.oneOf_branches_evidenced: v12
+  ✓ conversations: naming.property_keys_lowercase: v12
+  ✓ conversations: naming.title_matches_key: v12
+  ✓ conversations: naming.upper_camel_case: v12
+  ✓ conversations: structure.all_definitions_reachable: v12
+  ✓ conversations: structure.bfs_order: v12
+  ✓ conversations: structure.definitions_at_bottom: v12
+  ✓ conversations: structure.enum_refines_explicit_type: v12
+  ✓ conversations: structure.field_order: v12
+  ✓ conversations: structure.minItems_on_non_empty_arrays: v12
+  ✓ conversations: structure.no_dangling_refs: v12
+  ✓ conversations: structure.no_redundant_additional_properties_true: v12
+  ✓ conversations: structure.pattern_constraints_enforced: v12
+  ✓ conversations: structure.required_subset_of_properties: v12
   ✓ memories: composition.base_not_used_directly: v1
   ✓ memories: composition.base_schemas_closed: v1
   ✓ memories: composition.discriminator_values_disjoint: v1
@@ -1426,7 +1582,7 @@ pre_commit.py: 1361/1361
 
 ── check_model_join_versions ─────────────────────────────────────────────────
   ✓ model_join: browser-captures/apiConversation: v6
-  ✓ model_join: chat-exports/conversations: v11
+  ✓ model_join: chat-exports/conversations: v12
   ✓ model_join: code-projects/session: v4
 
 ── check_mcp_schema ──────────────────────────────────────────────────────────
@@ -1437,4 +1593,4 @@ pre_commit.py: 1361/1361
   ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 42 unreferenced
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score: 1361/1361; expected: 1361/1361
+  ✓ score: 1511/1511; expected: 1511/1511
