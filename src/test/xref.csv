@@ -53,6 +53,7 @@ rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browse
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v4.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v5.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v6.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,4,doc,rsc/schema/browser-captures/apiConversation/v7.json,Y,| Conversation UUID | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v1.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v2.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
 rsc/schema/chat-exports/conversations/CHANGELOG.md,4,doc,rsc/schema/chat-exports/conversations/v3.json,Y,| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [
@@ -133,9 +134,9 @@ src/main/chat-exports/audit_files.py,55,comment,src/main/chat-exports/audit_file
 src/main/chat-exports/audit_files.py,58,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-export \
 src/main/chat-exports/audit_files.py,65,comment,src/main/chat-exports/query_files.py,Y,reports) are defined in src/main/chat-exports/query_files.py and can be run with:
 src/main/chat-exports/audit_files.py,67,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py <export-name>
-src/main/chat-exports/audit_files.py,136,comment,src/main/chat-exports/extract_files.py,Y,# Written by src/main/chat-exports/extract_files.py from create_file tool calls.
-src/main/chat-exports/audit_files.py,151,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
-src/main/chat-exports/audit_files.py,166,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
+src/main/chat-exports/audit_files.py,133,comment,src/main/chat-exports/extract_files.py,Y,# Written by src/main/chat-exports/extract_files.py from create_file tool calls.
+src/main/chat-exports/audit_files.py,148,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
+src/main/chat-exports/audit_files.py,163,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
 src/main/chat-exports/audit_files.sh,6,comment,src/main/chat-exports/audit_files.sh,Y,#   src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
 src/main/chat-exports/audit_files.sh,7,comment,src/main/chat-exports/audit_files.sh,Y,#   src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 src/main/chat-exports/audit_files.sh,21,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_files.py"" ""$@"""
