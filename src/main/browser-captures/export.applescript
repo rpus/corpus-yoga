@@ -15,6 +15,15 @@ tell application "Safari"
 		return
 	end if
 
+	-- Fail fast if Safari blocks JavaScript from Apple Events — without this, every
+	-- injection silently returns nothing and the export appears to do nothing.
+	try
+		do JavaScript "1+1" in front document
+	on error
+		display alert "Safari is blocking JavaScript from Apple Events." message "Enable it via Safari → Settings → Advanced → 'Show features for web developers', then Settings → Developer → 'Allow JavaScript from Apple Events' — and run the shortcut again." buttons {"OK"} default button "OK"
+		return
+	end try
+
 	set currentURL to URL of front document
 
 	if currentURL starts with "https://claude.ai/chat/" or currentURL starts with "https://gemini.google.com/app/" then

@@ -29,7 +29,15 @@ def convert(src, dst):
         line = line.strip()
         if not line:
             continue
-        record = json.loads(line)  # validate; raises json.JSONDecodeError on malformed input
+        try:
+            record = json.loads(line)  # validate; raises json.JSONDecodeError on malformed input
+        except json.JSONDecodeError:
+            # A live session file may be mid-append; tolerate a truncated final
+            # line only. Malformed input anywhere else is still an error.
+            if any(rest.strip() for rest in src):
+                raise
+            print('warning: dropped truncated final line', file=sys.stderr)
+            break
         if record.get('type') == 'ai-title':
             current_title = record.get('aiTitle', '')
         dst.write(sep + line)

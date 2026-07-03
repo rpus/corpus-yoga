@@ -14,12 +14,12 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 parse_args() {
   browser_capture=""
   browser_captures="$REPO_DIR/ext/browser-captures/claude"
-  scrape_claude=""
+  new_claude_scrape=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --browser-capture)  browser_capture="$2";  shift 2 ;;
       --browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_captures="$2"; shift 2; else shift; fi ;;
-      --scrape-claude)    scrape_claude=1; shift ;;
+      --new-claude-scrape)    new_claude_scrape=1; shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
@@ -41,6 +41,10 @@ main() {
   if [[ -n "$browser_capture" ]]; then
     run_one "$(cd "$browser_capture" && pwd)"
   else
+    if [[ ! -d "$browser_captures" ]]; then
+      echo "no captures in $browser_captures (populate via ./RUNME.sh --capture-from-browser)"
+      exit 0
+    fi
     local root; root="$(cd "$browser_captures" && pwd)"
     local found=0
     for d in "$root"/*/; do
@@ -52,10 +56,10 @@ main() {
       echo "no captures in $root"
     else
       # render api JSON -> markdown always; diff it against the DOM scrape only when claude was
-      # scraped this run (--scrape-claude) -- otherwise there is no scrape md to compare against.
+      # scraped this run (--new-claude-scrape) -- otherwise there is no scrape md to compare against.
       "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
         --browser-captures "$root"
-      if [[ -n "$scrape_claude" ]]; then
+      if [[ -n "$new_claude_scrape" ]]; then
         "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/compare_markdown.py" \
           --api "$REPO_DIR/gen/browser-captures/markdown" --scrape "$root"
       fi

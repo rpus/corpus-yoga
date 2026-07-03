@@ -109,6 +109,11 @@ validate_export() {
       done
     done
   done
+
+  # Validation owns the datum's machine-local matrix: render matrix.md from the logs
+  # just written (see rsc/schema/WORKFLOW.md).
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validation_matrix.py" \
+    "$(dirname "$validation_dir")" "$SCHEMA_DIR"
 }
 
 parse_args() {

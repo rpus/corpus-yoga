@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Verify that ext/chat-exports/ contains at least one bulk export.
 #
-# If no exports are found, prints setup instructions and exits non-zero.
-# No network access or interactive steps — this is a prerequisite check only.
+# If no exports are found, prints a skip notice and exits zero — a missing bulk
+# export is not an error; the pipeline simply has nothing to do.
+# No network access, no writes, no interactive steps — a prerequisite check only.
 #
 # To download a bulk export:
 #   1. Log in to https://claude.ai
@@ -39,7 +40,6 @@ main() {
   parse_args "$@"
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
-  mkdir -p "$REPO_DIR/ext/chat-exports"
   check_exports
 }
 

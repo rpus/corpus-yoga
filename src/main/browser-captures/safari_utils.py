@@ -41,6 +41,23 @@ def safari_focus():
     if osascript('tell application "Safari" to count windows') == '0':
         osascript('tell application "Safari" to make new document')
         time.sleep(1)
+    safari_assert_js_allowed()
+
+
+def safari_assert_js_allowed():
+    """Fail fast if Safari rejects 'do JavaScript' via Apple Events. Without this,
+    every injection silently evaluates to '' and discovery 'finds' 0 conversations —
+    a hard setup failure disguised as an empty result."""
+    r = subprocess.run(
+        ['osascript', '-e', 'tell application "Safari" to do JavaScript "1+1" in front document'],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        sys.exit(
+            f'error: Safari blocked JavaScript from Apple Events: {r.stderr.strip()}\n'
+            'Enable it via Safari → Settings → Advanced → "Show features for web developers",\n'
+            'then Settings → Developer → "Allow JavaScript from Apple Events" — and re-run.'
+        )
 
 
 def safari_navigate(url):

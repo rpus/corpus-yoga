@@ -70,6 +70,10 @@ main() {
   if [[ -n "$chat_export" ]]; then
     run_one "$(cd "$chat_export" && pwd)"
   else
+    if [[ ! -d "$chat_exports" ]]; then
+      echo "no bulk exports in $chat_exports (download from https://claude.ai/settings/data-privacy-controls)"
+      exit 0
+    fi
     for d in "$(cd "$chat_exports" && pwd)"/data-*/; do
       [[ -d "$d" ]] || continue
       run_one "$d"

@@ -1,14 +1,8 @@
 # session schema changelog
 
-<!-- matrix -->
-| Code project | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | Bytes | Session UUID |
-| --- | :---: | :---: | :---: | :---: | ---: | --- |
-| `-dev-Anthropic-nutrition` | ✗ | ✗ | ✗ | ✓ | 13,530,692 | `83737fec-e5c3-4ce8-b2d9-6f05fe7a9ee2` |
-| `-dev-github-rpus-claude-export-yoga` | ✗ | ✗ | ✗ | ✓ | 11,401,211 | `57289774-f418-4916-9678-e8befde97613` |
-| `-dev-github-rpus-claude-export-yoga` | ✗ | ✗ | ✗ | ✓ | 13,580 | `89515719-99fa-4db6-89ca-2b9862473e3c` |
-| `-dev-github-rpus-claude-export-yoga` | ✗ | ✗ | ✗ | ✓ | 11,581,058 | `df71fdce-b178-4acc-a8c6-d231d5ba56c8` |
-
-Bytes: size of the session JSON file at validation time.
+The validation matrix (which local datum validates against which version) is machine-local
+and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside its
+`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
 

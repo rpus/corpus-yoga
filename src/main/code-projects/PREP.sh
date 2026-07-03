@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ensure ext/code-projects is a symlink to ~/.claude/projects.
+# Ensures ext/code-projects is a symlink to ~/.claude/projects.
 #
 # Usage:
 #   src/main/code-projects/PREP.sh
@@ -19,6 +19,7 @@ parse_args() {
 }
 
 link_projects() {
+  mkdir -p "$REPO_DIR/ext"
   ln -sfn ~/.claude/projects "$REPO_DIR/ext/code-projects"
 }
 

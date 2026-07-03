@@ -4,7 +4,7 @@
 #
 # Usage:
 #   src/main/browser-captures/PREP.sh                  # claude api, gemini dom
-#   src/main/browser-captures/PREP.sh --scrape-claude  # also DOM-scrape claude (for compare_markdown)
+#   src/main/browser-captures/PREP.sh --new-claude-scrape  # also DOM-scrape claude (for compare_markdown)
 
 set -euo pipefail
 
@@ -12,10 +12,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 main() {
-  local scrape_claude=""
+  local new_claude_scrape=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --scrape-claude) scrape_claude="--scrape"; shift ;;
+      --new-claude-scrape) new_claude_scrape="--scrape"; shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *) echo "Unknown argument: $1"; echo "Pass --help for more information."; exit 1 ;;
     esac
@@ -25,9 +25,9 @@ main() {
   mkdir -p "$REPO_DIR/ext/browser-captures/claude"
   mkdir -p "$REPO_DIR/ext/browser-captures/gemini"
   # Capture both agents regardless of either failing, then surface a non-zero exit if either did
-  # (don't let a claude failure abort the gemini capture). Claude is api-only unless --scrape-claude.
+  # (don't let a claude failure abort the gemini capture). Claude is api-only unless --new-claude-scrape.
   local rc=0
-  "$SCRIPT_DIR/safari_capture.sh" --agent claude ${scrape_claude:+"$scrape_claude"} || rc=$?
+  "$SCRIPT_DIR/safari_capture.sh" --agent claude ${new_claude_scrape:+"$new_claude_scrape"} || rc=$?
   "$SCRIPT_DIR/safari_capture.sh" --agent gemini || rc=$?
   return $rc
 }

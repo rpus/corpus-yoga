@@ -1,13 +1,8 @@
 # conversations schema changelog
 
-<!-- matrix -->
-| Export | [v1](./v1.json) | [v2](./v2.json) | [v3](./v3.json) | [v4](./v4.json) | [v5](./v5.json) | [v6](./v6.json) | [v7](./v7.json) | [v8](./v8.json) | [v9](./v9.json) | [v10](./v10.json) | [v11](./v11.json) | [v12](./v12.json) | Bytes |
-| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | ---: |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | 24,220,222 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | 24,567,748 |
-| `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000` | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | 24,615,933 |
-
-Bytes: size of the conversations JSON file at validation time.
+The validation matrix (which local datum validates against which version) is machine-local
+and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside its
+`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
 
@@ -16,9 +11,20 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v13
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000` (the 2026-07-02 export, 96 conversations). Both drift points were single observations in one conversation; older batches rest at their existing versions.
+
+### Relaxed since v12
+
+- `IntegrationName` — closed enum (plus null) → open `string | null`. The v12 description already warned "likely an open set — do not treat as exhaustive"; a `bash_tool` tool_use with `integration_name: "File Creation"` proved it. This is the `conversations` half of the coupling already applied on the live-API side at apiConversation v7 — missed then because `model_join.csv` had no `IntegrationName` row (added in this cycle, so the next divergence flags both sides).
+- `ToolResultBlockBase.start_timestamp` / `stop_timestamp` — `null` → `Timestamp | null`. Real timestamps first observed on `web_search` tool results. The apiConversation side (`ApiToolResultBlockBase`) still pins these to null; it will need the same relaxation (apiConversation v8) when a live capture first exhibits them — not before, since no version may sit ahead of all data.
+
+---
+
 ## v12
 
-Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000`. The two pre-`hidden` batches fail v12 and rest at their last passing version (v10/v11) in the matrix above — they are *not* dropped. That is the departure from v10: the "every entry passes latest" check was retired (see WORKFLOW.md), so an immutable snapshot may honestly sit below the latest version instead of being forced out.
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-batch-0000`. The two pre-`hidden` batches fail v12 and rest at their last passing version (v10/v11) in the machine-local matrix — they are *not* dropped. That is the departure from v10: the "every entry passes latest" check was retired (see WORKFLOW.md), so an immutable snapshot may honestly sit below the latest version instead of being forced out.
 
 ### Restricted since v11 (material)
 

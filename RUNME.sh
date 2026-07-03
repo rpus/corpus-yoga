@@ -3,9 +3,13 @@
 #
 # Runs three pipelines against their sibling input directories:
 #
-#   chat-exports     ext/chat-exports/      claude.ai bulk exports, conversations.json etc. (~/Documents/dev/ symlink)
-#   code-projects    ext/code-projects/     Claude Code CLI sessions (~/.claude/projects/ symlink)
-#   browser-captures ext/browser-captures/  Per-conversation live API JSON captures (~/Documents/dev/ symlink)
+#   chat-exports     ext/chat-exports/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
+#   code-projects    ext/code-projects/     Claude Code CLI sessions (symlinked to ~/.claude/projects/ by its PREP.sh)
+#   browser-captures ext/browser-captures/  Per-conversation captures (written by --capture-from-browser):
+#                                           claude/ live API JSON (validated + projected to markdown);
+#                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
+#
+# Any ext/ entry may instead be a hand-made symlink, to keep the data outside the clone.
 #
 # Each pipeline validates its inputs against all schema versions, then (for chat-exports)
 # extracts files, infers tables, and renders a dashboard.
@@ -13,7 +17,7 @@
 # Usage:
 #   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)
 #   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
-#   ./RUNME.sh --capture-from-browser --scrape-claude  # also DOM-scrape claude + check projection vs scrape
+#   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
 #   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
 #   ./RUNME.sh --capture-from-browser --pay-for-inference
 #
@@ -27,14 +31,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 parse_args() {
   pay_for_inference=""
   browser_captures=""
-  scrape_claude=""
+  new_claude_scrape=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
       --capture-from-browser) browser_captures="1";                   shift ;;
-      --scrape-claude) scrape_claude="--scrape-claude";               shift ;;
+      --new-claude-scrape) new_claude_scrape="--new-claude-scrape";               shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--scrape-claude] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--new-claude-scrape] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done
 }
@@ -119,12 +123,10 @@ main() {
   ensure_venv "$python"
   install_deps
 
-  mkdir -p "$SCRIPT_DIR/ext"
-
   local -a pipeline_failures=()
 
-  [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures ${scrape_claude:+"$scrape_claude"}
-  run_pipeline_safe  browser-captures ${scrape_claude:+"$scrape_claude"}
+  [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures ${new_claude_scrape:+"$new_claude_scrape"}
+  run_pipeline_safe  browser-captures "$SCRIPT_DIR/ext/browser-captures/claude" ${new_claude_scrape:+"$new_claude_scrape"}
 
   prep_pipeline_safe chat-exports
   run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports" ${pay_for_inference:+"$pay_for_inference"}

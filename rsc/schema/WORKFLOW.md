@@ -63,16 +63,16 @@ src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
 src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
 ```
 
-Register results in the CHANGELOG matrix:
+Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
+in the datum's directory under `gen/`, beside its `validation/` logs, written by
+`validate_versions.py` via the shared renderer `src/main/validation_matrix.py` whenever
+the logs change, so it can never lag them. Git-ignored, because which data sits on which
+machine is a local fact; the committed CHANGELOG.md beside the schema records only the
+version *narrative*. To view the aggregate table across a pipeline's data (or re-render
+without revalidating, e.g. after a renderer format change):
 
 ```bash
-src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
-```
-
-If stale entries exist (data no longer on disk):
-
-```bash
-src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --prune
+src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 ```
 
 Add a `## v{N+1}` narrative section to the CHANGELOG using the categories:
@@ -151,7 +151,10 @@ git diff src/test/pre_commit.log
 ```
 
 All checks should pass. The diff to `pre_commit.log` is the final record of what changed.
-Update `src/test/pre_commit_expected_score` if the total count changed.
+Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
+line is the combined code+schema total (matching the score in the log's head line),
+followed by `code:` and `schema:` tier lines only; the `data` tier subtotal is
+machine-local and never recorded.
 
 ---
 
@@ -166,19 +169,14 @@ conversation data from different export angles. The coupling was only visible in
 `model_join.csv`. Doing one without the other would have left the un-updated pipeline's
 latest export failing every version — an all-`✗` row in that pipeline's matrix.
 
-### `--prune` before `--write` for depth-2 schemas
+### Matrices are co-located with their data — there is nothing to prune
 
-For pipelines with `subject_depth = 2` (code-projects), always run `--prune` before
-`--write` when data has been deleted or renamed. `--write` only appends; it never removes
-stale rows. Stale rows — matrix entries whose validation logs no longer exist in `gen/` —
-cause `check_pipeline_validation_outputs` failures that cannot be resolved by running the
-pipeline; `--prune` removes them.
-
-### `gen_changelog_matrix --write` does not reorder existing rows
-
-The tool appends new rows and updates existing ones in place. Row order in the CHANGELOG
-reflects insertion order. Use `--prune` to remove stale rows cleanly; do not sort manually
-unless making a deliberate one-off correction (which will produce a noisy diff).
+Each datum's `matrix.md` sits beside the `validation/` logs it summarises, inside the
+datum's own `gen/` directory. The pipeline wipes and regenerates that directory per run,
+matrix included, and deleting a datum deletes its matrix with it — so stale rows for
+departed data cannot exist, and the old `--prune` step is gone. The matrix is purely
+derived state; `check_pipeline_validation_outputs` verifies it agrees with the logs
+(`matrix.current`) and that every input datum was processed at all.
 
 ### The two coverage gates: `check_pipeline_coverage` and `check_pipeline_frontier`
 

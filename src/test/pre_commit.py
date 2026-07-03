@@ -11,6 +11,19 @@ As a git hook, install the wrapper:
 
 Exits 0 if all checks pass, 1 if any fail.
 
+Checks are grouped into three tiers, run in order:
+    code    — repo code and documentation (required files, xref); deterministic on any clone
+    schema  — committed schema artifacts (diagnostics, changelogs, joins, mcp currency);
+              deterministic on any clone (mcp currency needs network)
+    data    — local ext//gen/ data vs the committed record (validation outputs, coverage,
+              frontier); machine-local, skipped per pipeline where no local data exists
+
+The committed expected score (src/test/pre_commit_expected_score) records the code and
+schema tiers only — their counts are identical on every clone. Its first line is the
+combined code+schema total, which also matches the score in the log's head line. The
+data tier's subtotal is machine-local and never recorded; its failures still fail the
+run wherever data exists.
+
 Atomic diagnostic scripts live in src/test/diagnostics/{principle_id}.py.
 Atomic repair scripts live in src/test/repairs/{principle_id}.py.
 Each diagnostic takes a schema path as argv[1], exits 0 on pass, 1 on fail.
@@ -22,7 +35,7 @@ import json
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -34,6 +47,9 @@ RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
+
+sys.path.insert(0, str(SRC / 'main'))
+from validation_matrix import rows_from_logs  # noqa: E402 — shared with validate_versions.py
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
@@ -50,13 +66,6 @@ class Pipeline:
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
     diagnostic_skip:    frozenset[str] = frozenset()
     gen_key_prefix:     str = ''
-    slug_prefix:        str = ''
-    subject_header:     str = ''
-    dir_col:            str = ''
-    uuid_col:           str = ''
-    changelog_footer:        str = ''
-    validation_log_depth:    int = 0  # extra path levels inside validation/<schema>/ before the log file
-    schema_log_depths:       dict = field(default_factory=dict)  # schema → int, for non-standard nesting
 
 PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
@@ -67,8 +76,6 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob        = '*/',
         subject_depth     = 1,
         validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',
-        subject_header    = 'Conversation UUID',
-        changelog_footer  = 'Bytes: size of the captured JSON file at validation time.',
     ),
     'chat-exports': Pipeline(
         schemas           = ['conversations', 'memories', 'projects', 'users'],
@@ -78,9 +85,6 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob        = 'data-*/',
         subject_depth     = 1,
         validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',
-        subject_header    = 'Export',
-        changelog_footer  = 'Bytes: size of `conversations.json` at validation time.',
-        schema_log_depths = {'projects': 1},
     ),
     'code-projects': Pipeline(
         schemas           = ['session'],
@@ -91,14 +95,6 @@ PIPELINES: dict[str, Pipeline] = {
         subject_depth     = 2,
         validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
-        slug_prefix       = str(Path.home()).replace('/', '-'),
-        subject_header    = 'Repo',
-        dir_col           = 'Code project',
-        uuid_col          = 'Session UUID',
-        changelog_footer  = ('Repo: last component of the `~/.claude/projects/` slug. '
-                             'Code project: full slug from `~/.claude/projects/`. '
-                             'Session UUID: full session `.jsonl` filename stem. '
-                             'Bytes: size of the `.jsonl` file at validation time.'),
     ),
 }
 
@@ -108,6 +104,29 @@ SCHEMA_DIR: dict[str, Path] = {
     for name, pipeline in PIPELINES.items()
     for schema in pipeline.schemas
 }
+
+
+def _parse_matrix_file(path: Path) -> dict[tuple[str, str, str], str]:
+    """(schema, item, version) → ✓/✗/? parsed from a datum's matrix.md table."""
+    rows: dict[tuple[str, str, str], str] = {}
+    for line in path.read_text().splitlines():
+        if not line.startswith('|'):
+            continue
+        cells = [c.strip() for c in line.strip('|').split('|')]
+        if len(cells) < 4:
+            continue
+        m = re.search(r'v\d+', cells[2])
+        if not m or cells[3] not in ('✓', '✗', '?'):
+            continue
+        rows[(cells[0].strip('`'), cells[1].strip('`'), m.group())] = cells[3]
+    return rows
+
+
+def _datum_dirs(pipeline: Pipeline) -> list[Path]:
+    """Each datum directory in gen/ (the dirs that contain a validation/ subdir),
+    at the pipeline's subject depth."""
+    glob = '*/validation' if pipeline.subject_depth == 1 else '*/*/validation'
+    return sorted(v.parent for v in pipeline.gen.glob(glob) if v.is_dir())
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -143,59 +162,6 @@ def _diag_detail(output):
     return lines[0] if lines else None
 
 
-def _parse_changelog_matrix(pipeline: 'Pipeline') -> dict[tuple[str, str], bool]:
-    """Parse the pass/fail matrix from a schema changelog markdown table.
-    Returns {(subject, version): True=pass, False=fail}.
-
-    When pipeline.dir_col and pipeline.uuid_col are set, those columns supply the
-    subject as '{dir} / {uuid}'. Rows missing either value are skipped.
-    Otherwise subject is cells[0].
-    """
-    use_path_cols = bool(pipeline.dir_col and pipeline.uuid_col)
-    matrix: dict[tuple[str, str], bool] = {}
-    version_cols:    list[tuple[int, str]] = []
-    dir_col_idx:     int | None = None
-    uuid_col_idx:    int | None = None
-    for line in pipeline.changelog.read_text().splitlines():
-        if not line.startswith('|'):
-            continue
-        cells = [c.strip() for c in line.strip('|').split('|')]
-        if not version_cols:
-            cols = [(i, m.group(1)) for i, c in enumerate(cells)
-                    if (m := re.match(r'\[(v\d+)\]', c))]
-            if cols:
-                version_cols = cols
-                if use_path_cols:
-                    for i, c in enumerate(cells):
-                        label = c.replace('`', '').strip()
-                        if label == pipeline.dir_col:
-                            dir_col_idx = i
-                        elif label == pipeline.uuid_col:
-                            uuid_col_idx = i
-            continue
-        if all(re.match(r'[-: ]+$', c) for c in cells if c):
-            continue
-        if use_path_cols and dir_col_idx is not None and uuid_col_idx is not None:
-            cp  = cells[dir_col_idx].replace('`', '').strip()  if dir_col_idx  < len(cells) else ''
-            uid = cells[uuid_col_idx].replace('`', '').strip() if uuid_col_idx < len(cells) else ''
-            if not cp or not uid:
-                continue
-            if pipeline.slug_prefix and not cp.startswith(pipeline.slug_prefix):
-                cp = pipeline.slug_prefix + cp
-            subject = f'{cp} / {uid}'
-        else:
-            subject = cells[0].replace('`', '').strip()
-        if not subject:
-            continue
-        for col_i, version in version_cols:
-            if col_i < len(cells):
-                if '✓' in cells[col_i]:
-                    matrix[(subject, version)] = True
-                elif '✗' in cells[col_i]:
-                    matrix[(subject, version)] = False
-    return matrix
-
-
 def _sorted_versions(schema_dir: Path) -> list[Path]:
     """Return all v*.json in schema_dir sorted by version number ascending."""
     return sorted(
@@ -226,6 +192,15 @@ def _input_subjects(pipeline: Pipeline) -> list:
                 outer = outer.parent
             result.append((outer.name.removeprefix(pipeline.gen_key_prefix), item.stem))
     return result
+
+
+def _has_local_data(pipeline: Pipeline) -> bool:
+    """True if this machine holds any data for the pipeline — input entries in ext/ or
+    previously generated output in gen/. Gates the data tier: where neither exists the
+    pipeline's data checks are skipped (the committed matrices are the durable record)."""
+    if _input_subjects(pipeline):
+        return True
+    return pipeline.gen.exists() and any(pipeline.gen.iterdir())
 
 
 def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: list) -> None:
@@ -302,18 +277,13 @@ def check_pipeline_validity(run, pipeline: Pipeline) -> None:
 
 
 def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
+    # Narrative and schema-text checks only — schema tier, valid on any clone. Whether
+    # each version is registered in the validation matrix is a data-tier concern, checked
+    # in _check_validation_outputs_impl where local data exists.
     schema  = pipeline.changelog.parent.name
-    matrix  = _parse_changelog_matrix(pipeline)
-    run_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-
-    registered_versions = {version for _, version in matrix}
     changelog_text = pipeline.changelog.read_text() if pipeline.changelog.exists() else ''
     for path in _sorted_versions(SCHEMA_DIR[schema]):
         v = path.stem
-        if v not in registered_versions:
-            fix(f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}')
-            fix(f'then: {run_cmd}')
-        run(f'{schema}: workflow.changelog_entry: {v}', v in registered_versions)
         run(f'{schema}: workflow.changelog_narrative: {v}',
             f'## {v}' in changelog_text,
             f'Add a ## {v} section to {pipeline.changelog.relative_to(REPO_ROOT)}'
@@ -325,117 +295,73 @@ def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
             if '"TODO' in schema_text else None)
 
 
-def _schema_title(schema: str) -> str:
-    """Return the title from the latest version of a schema, falling back to schema name."""
-    versions = _sorted_versions(SCHEMA_DIR.get(schema, Path('nonexistent')))
-    if versions:
-        title = json.loads(versions[-1].read_text()).get('title', schema)
-        return title.title()
-    return schema.title()
-
-
 def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -> None:
-    def _check_schema(schema: str, changelog: Path, log_depth: int) -> None:
-        overrides: dict = {
-            'changelog':            changelog,
-            'validation_log_depth': log_depth,
-        }
-        if log_depth > 0:
-            overrides.update({
-                'subject_depth': 2,
-                'dir_col':       'Export',
-                'uuid_col':      f'{_schema_title(schema)} UUID',
-                'input_glob':    f'data-*/{schema}/*.json',
-            })
-        p = pipeline.__class__(**{**pipeline.__dict__, **overrides})
-        matrix    = _parse_changelog_matrix(p)
-        run_cmd   = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-        prune_cmd = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --prune'
-        _check_validation_outputs_impl(run, fix, name, p, schema, matrix, run_cmd, prune_cmd)
+    """Each datum's matrix.md must exist and agree with the vN.log files beside it;
+    every schema version must be registered by some datum; every input entry must
+    have been processed. Matrices are co-located with their data, so stale rows for
+    departed data cannot exist — deleting a datum deletes its matrix."""
+    run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+    pipe_cmd = f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}'
+    gen_rel  = pipeline.gen.relative_to(REPO_ROOT)
 
+    print(f'\n  each {gen_rel}/<datum>/matrix.md must match the vN.log files under its validation/')
+    seen_versions: dict[str, set[str]] = {}
+    processed_subjects: set[str] = set()
+    for datum_dir in _datum_dirs(pipeline):
+        subject  = ' / '.join(datum_dir.relative_to(pipeline.gen).parts)
+        processed_subjects.add(subject)
+        expected = rows_from_logs(datum_dir)
+        for (schema, _item, version) in expected:
+            seen_versions.setdefault(schema, set()).add(version)
+        mfile = datum_dir / 'matrix.md'
+        if not mfile.exists():
+            fix(run_cmd)
+            run(f'matrix.written: {subject}', False, str(mfile.relative_to(REPO_ROOT)))
+            continue
+        actual = _parse_matrix_file(mfile)
+        ok = actual == {k: sym for k, (sym, _) in expected.items()}
+        if not ok:
+            fix(run_cmd)
+        run(f'matrix.current: {subject}', ok,
+            None if ok else f'matrix.md disagrees with validation logs — regenerate: {run_cmd}')
+
+    # Every schema version must be registered by some local datum — no version minted
+    # without data validated against it. Data-tier counterpart of the narrative check.
     for schema in pipeline.schemas:
-        changelog = RSC_SCHEMA / pipeline.changelog.parent.parent.name / schema / 'CHANGELOG.md'
-        log_depth = pipeline.schema_log_depths.get(schema, 0)
-        if changelog.exists():
-            _check_schema(schema, changelog, log_depth)
+        for vpath in _sorted_versions(SCHEMA_DIR[schema]):
+            v  = vpath.stem
+            ok = v in seen_versions.get(schema, set())
+            if not ok:
+                fix(pipe_cmd)
+                fix(f'then: {run_cmd}')
+            run(f'{schema}: matrix.version_registered: {v}', ok)
+
+    print(f'\n  every {pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} entry should have validation output in {gen_rel}/')
+    raw_input = _input_subjects(pipeline)
+    current_subjects = (
+        raw_input if pipeline.subject_depth == 1
+        else [f'{p1} / {p2}' for p1, p2 in raw_input]
+    )
+    for subject in sorted(current_subjects):
+        if subject not in processed_subjects:
+            fix(pipe_cmd)
+            fix(f'then: {run_cmd}')
+            run(f'unprocessed input: {subject}', False)
 
 
-def _gen_subject_dirs(gen_dir, depth, schema='', validation_log_depth=0):
+def _gen_subject_dirs(gen_dir, depth):
     """Yield (subject, leaf_dir) for each subject directory in gen_dir."""
     if not gen_dir.exists():
         return
     for d1 in sorted(gen_dir.iterdir()):
         if not d1.is_dir():
             continue
-        if depth == 1 and validation_log_depth == 0:
+        if depth == 1:
             yield d1.name, d1
-        elif depth == 2 and validation_log_depth == 0:
+        else:
             for d2 in sorted(d1.iterdir()):
                 if d2.is_dir():
                     yield f'{d1.name} / {d2.name}', d2
-        elif depth == 2 and validation_log_depth == 1:
-            inner_dir = d1 / 'validation' / schema
-            if inner_dir.exists():
-                for d2 in sorted(inner_dir.iterdir()):
-                    if d2.is_dir():
-                        yield f'{d1.name} / {d2.name}', d2
-
-
-def _check_validation_outputs_impl(run, fix, name, pipeline, schema, matrix, run_cmd, prune_cmd):
-    gen_rel   = pipeline.gen.relative_to(REPO_ROOT)
-    input_rel = pipeline.input.relative_to(REPO_ROOT)
-    chlog_rel = pipeline.changelog.relative_to(REPO_ROOT)
-
-    raw_input = _input_subjects(pipeline)
-    current_subjects = set(
-        raw_input if pipeline.subject_depth == 1
-        else [f'{p1} / {p2}' for p1, p2 in raw_input]
-    )
-
-    print(f'\n  looking for {gen_rel}/<subject>/validation/{schema}/vN.log — one per entry in {chlog_rel}')
-    for (subject, version), expected_pass in sorted(matrix.items()):
-        parts = subject.split(' / ')
-        if pipeline.validation_log_depth == 0:
-            log = pipeline.gen.joinpath(*parts) / 'validation' / schema / f'{version}.log'
-        else:
-            outer, inner = parts[:-pipeline.validation_log_depth], parts[-pipeline.validation_log_depth:]
-            log = pipeline.gen.joinpath(*outer) / 'validation' / schema / Path(*inner) / f'{version}.log'
-        if not log.exists():
-            if subject not in current_subjects:
-                fix(prune_cmd)
-            else:
-                fix(f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}')
-            run(f'{schema}: {subject} × {version}', False, str(log.relative_to(REPO_ROOT)))
-            continue
-        content     = log.read_text()
-        actual_pass = 'Valid!' in content
-        label       = f'{schema}: validation {"passing" if expected_pass else "failing"}: {subject} × {version}'
-        run(label, actual_pass == expected_pass,
-            f'expected {"pass" if expected_pass else "fail"}, got {"pass" if actual_pass else "fail"}'
-            if actual_pass != expected_pass else None)
-
-    registered = {subj for subj, _ in matrix}
-    print(f'\n  every {schema} log in {gen_rel}/ should be registered in {chlog_rel}')
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
-        log_dir = leaf_dir / 'validation' / schema
-        if not log_dir.exists():
-            continue
-        for log in sorted(log_dir.glob('v*.log')):
-            version = log.stem
-            if (subject, version) in matrix:
-                continue
-            content = log.read_text()
-            result  = 'Valid!' if 'Valid!' in content else 'Validation error' if 'Validation error' in content else 'unknown'
-            run(f'{schema}: unregistered: {subject} × {version} — {result}', False,
-                str(log.relative_to(REPO_ROOT)))
-
-    print(f'\n  every {input_rel}/{pipeline.input_glob} entry should be registered in {chlog_rel}')
-    subjects = sorted(current_subjects)
-    for subject in subjects:
-        if subject not in registered:
-            fix(f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}')
-            fix(f'then: {run_cmd}')
-            run(f'{schema}: unregistered: {subject}', False)
 
 
 def _datum_recency(name: str, pipeline: Pipeline, subject: str):
@@ -479,7 +405,7 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
     versions = _sorted_versions(SCHEMA_DIR[schema])
     if not versions:
         return
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth):
         logs = [leaf_dir / 'validation' / schema / f'{v.stem}.log' for v in versions]
         logs = [l for l in logs if l.exists()]
         if not logs:
@@ -503,7 +429,7 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
         return
     latest   = versions[-1].stem
     keyed    = []
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth, schema, pipeline.validation_log_depth):
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth):
         key = _datum_recency(name, pipeline, subject)
         if key is not None:
             keyed.append((key, subject, leaf_dir))
@@ -663,92 +589,150 @@ def main():
             fix_seen.add(hint)
 
     sections: list[str] = []
+    tiers:    list[str] = []
+    current_tier: list = [None]
 
-    def run_section(fn, label=None):
+    def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
+        if tier != current_tier[0]:
+            current_tier[0] = tier
+            print(f'\n════ {tier} tier {"═" * (68 - len(tier))}')
         print(f'\n── {name} {"─" * (74 - len(name))}')
         before = len(results)
         ret = fn(run)
-        sections.extend([name] * (len(results) - before))
+        n = len(results) - before
+        sections.extend([name] * n)
+        tiers.extend([tier] * n)
         return ret
+
+    data_skipped = {n for n, p in PIPELINES.items() if not _has_local_data(p)}
+
+    def _data_skip_note(pipeline):
+        print(f'  – skipped: no local data '
+              f'({pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} absent, '
+              f'{pipeline.gen.relative_to(REPO_ROOT)}/ empty)')
 
     sys.stdout = stdout_buffer
     try:
-        run_section(check_required_files)
-        run_section(check_root_schema_diagnostics)
+        run_section(check_required_files, tier='code')
+        run_section(check_xref, tier='code')
+
+        run_section(check_root_schema_diagnostics, tier='schema')
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
             run_section(lambda run, p=_pipeline: check_pipeline_validity(run, p),
-                        label=f'check_{_slug}_validity')
+                        label=f'check_{_slug}_validity', tier='schema')
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
             run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_workflow(run, _fix, n, p),
-                        label=f'check_{_slug}_workflow')
+                        label=f'check_{_slug}_workflow', tier='schema')
+
+        run_section(check_versioned_schema_diagnostics, tier='schema')
+        run_section(check_schema_join, tier='schema')
+        run_section(check_model_join_versions, tier='schema')
+        run_section(check_mcp_schema, tier='schema')
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_validation_outputs(run, _fix, n, p),
-                        label=f'check_{_slug}_validation_outputs')
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix:
+                            check_pipeline_validation_outputs(run, _fix, n, p)
+                            if n not in data_skipped else _data_skip_note(p),
+                        label=f'check_{_slug}_validation_outputs', tier='data')
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
-            run_section(lambda run, p=_pipeline, _fix=fix: check_pipeline_coverage(run, _fix, p),
-                        label=f'check_{_slug}_coverage')
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix:
+                            check_pipeline_coverage(run, _fix, p)
+                            if n not in data_skipped else _data_skip_note(p),
+                        label=f'check_{_slug}_coverage', tier='data')
 
         for _name, _pipeline in PIPELINES.items():
             _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_frontier(run, _fix, n, p),
-                        label=f'check_{_slug}_frontier')
-
-        run_section(check_versioned_schema_diagnostics)
-
-        run_section(check_schema_join)
-        run_section(check_model_join_versions)
-        run_section(check_mcp_schema)
-        run_section(check_xref)
+            run_section(lambda run, n=_name, p=_pipeline, _fix=fix:
+                            check_pipeline_frontier(run, _fix, n, p)
+                            if n not in data_skipped else _data_skip_note(p),
+                        label=f'check_{_slug}_frontier', tier='data')
     finally:
         sys.stdout = sys.__stdout__
 
-    passes   = sum(1 for _, p, _ in results if p)
     failures = [(n, d) for n, p, d in results if not p]
-    total    = len(results)
-    score    = f'{passes}/{total}'
 
-    # Score check — appended after all checks so it can use the final passes/total.
+    # Score check — per-tier subtotals. code and schema are deterministic on any clone and
+    # are compared against the committed expected score (whose first line is their combined
+    # total, matching the log's head line); data is machine-local — its subtotal is reported
+    # (and its failures block) but never recorded.
+    tier_counts: dict[str, list[int]] = {}
+    for i, (_, p, _) in enumerate(results):
+        c = tier_counts.setdefault(tiers[i], [0, 0])
+        c[0] += 1 if p else 0
+        c[1] += 1
+
+    det_got = sum(tier_counts.get(t, [0, 0])[0] for t in ('code', 'schema'))
+    det_tot = sum(tier_counts.get(t, [0, 0])[1] for t in ('code', 'schema'))
+    det     = f'{det_got}/{det_tot}'
+
     score_file = SRC / 'test' / 'pre_commit_expected_score'
-    expected   = score_file.read_text().strip()
+    expected: dict[str, str] = {}
+    expected_total = None
+    for line in score_file.read_text().splitlines():
+        m = re.match(r'([a-z]+):\s*(\d+/\d+)$', line.strip())
+        if m:
+            expected[m.group(1)] = m.group(2)
+        elif expected_total is None and (m := re.match(r'(\d+/\d+)$', line.strip())):
+            expected_total = m.group(1)
 
-    perfection_achieved = passes == total
-    expectation_met     = expected == score
-    score_ok            = perfection_achieved and expectation_met
+    score_rows: list[tuple] = []
 
-    score_detail = (
-        f'Fix failures in other sections first'
-        if not perfection_achieved else
-        f'Consider updating {score_file.relative_to(REPO_ROOT)} to {score}'
-        if not expectation_met else None
+    exp = expected_total or '(none)'
+    ok  = det_got == det_tot and det == exp
+    detail = (
+        'Fix failures in the code and schema tiers first' if det_got != det_tot else
+        f'Consider updating the first line of {score_file.relative_to(REPO_ROOT)} to {det}'
+        if det != exp else None
     )
-    score_label = f'score: {score}; expected: {expected}'
+    score_rows.append((f'score[code+schema]: {det}; expected: {exp}', ok, detail))
 
-    results.append((score_label, score_ok, score_detail))
-    sections.append('check_score')
-    if not score_ok:
-        failures.append((score_label, score_detail))
+    for t in ('code', 'schema'):
+        got, tot = tier_counts.get(t, [0, 0])
+        sub = f'{got}/{tot}'
+        exp = expected.get(t, '(none)')
+        ok  = got == tot and sub == exp
+        detail = (
+            'Fix failures in this tier first' if got != tot else
+            f'Consider updating {score_file.relative_to(REPO_ROOT)}: "{t}: {sub}"'
+            if sub != exp else None
+        )
+        score_rows.append((f'score[{t}]: {sub}; expected: {exp}', ok, detail))
+
+    got, tot = tier_counts.get('data', [0, 0])
+    skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
+    if tot == 0:
+        score_rows.append((f'score[data]: skipped — no local data{skipped_note}', True, None))
+    else:
+        score_rows.append((f'score[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
+                           got == tot,
+                           'Fix failures in the data tier first' if got != tot else None))
+
+    for label, ok, detail in score_rows:
+        results.append((label, ok, detail))
+        sections.append('check_score')
+        tiers.append('score')
+        if not ok:
+            failures.append((label, detail))
 
     failed_sections = list(dict.fromkeys(
         sections[i] for i, (_, p, _) in enumerate(results) if not p
     ))
 
     # ── HEAD ──────────────────────────────────────────────────────────────────
+    data_got, data_tot = tier_counts.get('data', [0, 0])
+    data_note = 'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}'
     if failures:
-        if not expectation_met:
-            print(f'`src/test/pre_commit.py`: {score} (expected {expected}; failures in {len(failed_sections)} sections)')
-        else:
-            print(f'`src/test/pre_commit.py`: {score} (failures in {len(failed_sections)} sections)')
+        print(f'`src/test/pre_commit.py`: {det} ({data_note}; failures in {len(failed_sections)} sections)')
     else:
-        print(f'pre_commit.py: {score}')
+        print(f'pre_commit.py: {det} ({data_note})')
 
     # ── BODY ──────────────────────────────────────────────────────────────────
     print()
@@ -756,8 +740,9 @@ def main():
 
     name = 'check_score'
     print(f'\n── {name} {"─" * (74 - len(name))}')
-    print(f'  {"✓" if score_ok else "✗"} {score_label}' +
-          (f'\n      {score_detail}' if not score_ok and score_detail else ''))
+    for label, ok, detail in score_rows:
+        print(f'  {"✓" if ok else "✗"} {label}' +
+              (f'\n      {detail}' if not ok and detail else ''))
 
     # ── TAIL ──────────────────────────────────────────────────────────────────
     if failures:

@@ -8,8 +8,10 @@ import glob
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
 
 from validate import validate
+from validation_matrix import write_matrix
 
 
 def validate_versions(input_file, schema_dir, log_dir, label):
@@ -42,6 +44,17 @@ def validate_versions(input_file, schema_dir, log_dir, label):
             print(f'    → {log_out}')
         else:
             print(f'  {label} ({version}): {status}')
+
+    # Validation owns the datum's machine-local matrix: re-render matrix.md from the
+    # logs just written, so it can never lag them. The datum dir is the parent of the
+    # 'validation' component of log_dir (which may nest further, e.g. projects/<uuid>).
+    p = Path(log_dir).resolve()
+    while p.name != 'validation' and p != p.parent:
+        p = p.parent
+    if p.name == 'validation':
+        mfile = write_matrix(p.parent, Path(schema_dir).resolve().parent)
+        if mfile:
+            print(f'  matrix: {mfile}')
 
 
 if __name__ == '__main__':

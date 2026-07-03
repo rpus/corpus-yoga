@@ -53,6 +53,10 @@ main() {
   if [[ -n "$code_project" ]]; then
     dirs=("$(cd "$code_project" && pwd)")
   else
+    if [[ ! -d "$code_projects" ]]; then
+      echo "no projects in $code_projects (PREP.sh symlinks it to ~/.claude/projects)"
+      exit 0
+    fi
     for d in "$(cd "$code_projects" && pwd)"/-Users-*/; do
       [[ -d "$d" ]] || continue
       dirs+=("$d")
