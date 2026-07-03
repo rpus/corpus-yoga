@@ -19,9 +19,12 @@ Where <pipeline> is any key from PIPELINES in pre_commit.py.
 
 import argparse
 import sys
+from pathlib import Path
 
-from pre_commit import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs
-from validation_matrix import HEADER, render_rows, write_matrix
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
+
+from pre_commit import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs  # noqa: E402
+from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402
 
 
 def main():

@@ -65,7 +65,7 @@ src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
 in the datum's directory under `gen/`, beside its `validation/` logs, written by
-`validate_versions.py` via the shared renderer `src/main/validation_matrix.py` whenever
+`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 the logs change, so it can never lag them. Git-ignored, because which data sits on which
 machine is a local fact; the committed CHANGELOG.md beside the schema records only the
 version *narrative*. To view the aggregate table across a pipeline's data (or re-render

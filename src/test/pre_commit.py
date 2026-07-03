@@ -48,8 +48,8 @@ SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
 
-sys.path.insert(0, str(SRC / 'main'))
-from validation_matrix import rows_from_logs  # noqa: E402 — shared with validate_versions.py
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
+from validation_matrix import rows_from_logs  # noqa: E402
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 

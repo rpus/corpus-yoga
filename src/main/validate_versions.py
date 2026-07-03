@@ -11,7 +11,9 @@ from datetime import datetime
 from pathlib import Path
 
 from validate import validate
-from validation_matrix import write_matrix
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
+from validation_matrix import write_matrix  # noqa: E402
 
 
 def validate_versions(input_file, schema_dir, log_dir, label):

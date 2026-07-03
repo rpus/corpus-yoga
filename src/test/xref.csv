@@ -51,7 +51,7 @@ rsc/schema/WORKFLOW.md,53,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   
 rsc/schema/WORKFLOW.md,61,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
 rsc/schema/WORKFLOW.md,62,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
 rsc/schema/WORKFLOW.md,63,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
-rsc/schema/WORKFLOW.md,68,doc,src/main/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/main/validation_matrix.py` whenever
+rsc/schema/WORKFLOW.md,68,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 rsc/schema/WORKFLOW.md,75,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,75,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,84,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
@@ -203,8 +203,8 @@ src/main/chat-exports/validate.sh,59,call,src/main/validate.py,Y,"python_out=""$
 src/main/chat-exports/validate.sh,86,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
 src/main/chat-exports/validate.sh,105,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
 src/main/chat-exports/validate.sh,114,comment,rsc/schema/WORKFLOW.md,Y,# just written (see rsc/schema/WORKFLOW.md).
-src/main/chat-exports/validate.sh,115,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validation_matrix.py"" \"
-src/main/chat-exports/validate.sh,115,call,src/main/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validation_matrix.py"" \"
+src/main/chat-exports/validate.sh,115,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
+src/main/chat-exports/validate.sh,115,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
 src/main/chat-exports/validate.sh,116,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
 src/main/code-projects/PREP.sh,5,comment,src/main/code-projects/PREP.sh,Y,#   src/main/code-projects/PREP.sh
 src/main/code-projects/RUNME.sh,5,comment,src/main/code-projects/RUNME.sh,Y,#   ./src/main/code-projects/RUNME.sh --code-project  <path>
@@ -268,7 +268,6 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
-src/main/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-projects/debug_code_session_record.py,4,comment,rsc/schema/code-projects/session/v1.json,Y,validation against rsc/schema/code-projects/session/v1.json.
 src/test/code-projects/debug_code_session_record.py,15,comment,src/test/code-projects/debug_code_session_record.py,Y,python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl
@@ -318,6 +317,7 @@ src/test/xref.py,55,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_co
 src/test/xref.sh,6,comment,src/test/xref.sh,Y,#   src/test/xref.sh
 src/test/xref.sh,7,comment,src/test/xref.sh,Y,#   src/test/xref.sh --out <path>    # override output path (default: src/test/xref.csv)
 src/test/xref.sh,24,call,src/test/xref.py,Y,"""$SCRIPT_DIR/../run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"""
+src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
