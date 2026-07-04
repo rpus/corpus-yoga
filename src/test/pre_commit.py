@@ -125,6 +125,14 @@ def _parse_matrix_file(path: Path) -> dict[tuple[str, str, str], str]:
     return rows
 
 
+def _leaf(subject: str) -> str:
+    """Check-label form of a subject: the leaf (uuid/name) only. Depth-2 subjects are
+    '<project-slug> / <uuid>' internally (the slug is needed to reconstruct paths), but
+    labels use just the uuid — uniform with the depth-1 pipelines, and the committed
+    pre_commit.log then carries no machine-derived slugs (they embed the username)."""
+    return subject.split(' / ')[-1]
+
+
 def _datum_dirs(pipeline: Pipeline) -> list[Path]:
     """Each datum directory in gen/ (the dirs that contain a validation/ subdir),
     at the pipeline's subject depth."""
@@ -234,7 +242,7 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 def check_required_files(run):
     # Only files named independently of the live tree -- walking rsc/schema/ for v*.json and then
     # asserting those same paths exist is tautological (it requires whatever is present); a missing
-    # schema dir is caught by check_pipeline_validity ("has no v*.json files") instead.
+    # schema dir simply has no versions and is invisible to the family walks instead.
     required = [
         *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES if name != 'browser-captures'],
         SRC / 'main' / 'browser-captures' / 'claude' / 'validate.sh',
@@ -262,14 +270,20 @@ def check_root_schema_diagnostics(run):
                 _diag_detail(output) if not passed else None)
 
 
-def check_pipeline_validity(run, pipeline: Pipeline) -> None:
-    for schema_name in pipeline.schemas:
-        versions = _sorted_versions(SCHEMA_DIR[schema_name])
-        if not versions:
-            run(f'{schema_name}: valid JSON', False,
-                f'{SCHEMA_DIR[schema_name].relative_to(REPO_ROOT)} has no v*.json files')
-            continue
-        for path in versions:
+def _schema_families() -> dict:
+    """Every versioned schema family ON DISK ({name: dir}) — the scope for all
+    schema-tier per-family checks. Not derived from the pipelines' schemas lists:
+    a family can exist outside any pipeline (markdownConversation is validated
+    in-memory at projection time) and must still be checked."""
+    return {d.name: d for d in sorted(RSC_SCHEMA.glob('*/*'))
+            if d.is_dir() and list(d.glob('v*.json'))}
+
+
+def check_schema_validity(run) -> None:
+    """Every version of every schema family parses and declares $schema — a property
+    of the committed schema artifacts, not of any pipeline."""
+    for schema_name, schema_dir in sorted(_schema_families().items()):
+        for path in _sorted_versions(schema_dir):
             v = path.stem
             try:
                 schema = json.loads(path.read_text())
@@ -279,23 +293,25 @@ def check_pipeline_validity(run, pipeline: Pipeline) -> None:
                 run(f'{schema_name}: valid JSON: {v}', False, str(e))
 
 
-def check_pipeline_workflow(run, fix, name: str, pipeline: Pipeline) -> None:
-    # Narrative and schema-text checks only — schema tier, valid on any clone. Whether
-    # each version is registered in the validation matrix is a data-tier concern, checked
-    # in _check_validation_outputs_impl where local data exists.
-    schema  = pipeline.changelog.parent.name
-    changelog_text = pipeline.changelog.read_text() if pipeline.changelog.exists() else ''
-    for path in _sorted_versions(SCHEMA_DIR[schema]):
-        v = path.stem
-        run(f'{schema}: workflow.changelog_narrative: {v}',
-            f'## {v}' in changelog_text,
-            f'Add a ## {v} section to {pipeline.changelog.relative_to(REPO_ROOT)}'
-            if f'## {v}' not in changelog_text else None)
-        schema_text = path.read_text()
-        run(f'{schema}: workflow.no_todo: {v}',
-            '"TODO' not in schema_text,
-            f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)}'
-            if '"TODO' in schema_text else None)
+def check_schema_changelogs(run) -> None:
+    """Every schema family's CHANGELOG narrates every version, and no version carries
+    TODO descriptions — properties of the committed artifacts, not of any pipeline.
+    (Whether each version is registered in the validation matrix is the data-tier
+    concern, checked where local data exists.)"""
+    for schema_name, schema_dir in sorted(_schema_families().items()):
+        changelog = schema_dir / 'CHANGELOG.md'
+        changelog_text = changelog.read_text() if changelog.exists() else ''
+        for path in _sorted_versions(schema_dir):
+            v = path.stem
+            run(f'{schema_name}: changelog_narrative: {v}',
+                f'## {v}' in changelog_text,
+                f'Add a ## {v} section to {changelog.relative_to(REPO_ROOT)}'
+                if f'## {v}' not in changelog_text else None)
+            schema_text = path.read_text()
+            run(f'{schema_name}: no_todo: {v}',
+                '"TODO' not in schema_text,
+                f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)}'
+                if '"TODO' in schema_text else None)
 
 
 def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -> None:
@@ -319,13 +335,13 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
             fix(run_cmd)
-            run(f'matrix.written: {subject}', False, str(mfile.relative_to(REPO_ROOT)))
+            run(f'matrix.written: {_leaf(subject)}', False, str(mfile.relative_to(REPO_ROOT)))
             continue
         actual = _parse_matrix_file(mfile)
         ok = actual == {k: sym for k, (sym, _) in expected.items()}
         if not ok:
             fix(run_cmd)
-        run(f'matrix.current: {subject}', ok,
+        run(f'matrix.current: {_leaf(subject)}', ok,
             None if ok else f'matrix.md disagrees with validation logs — regenerate: {run_cmd}')
 
     # Every schema version must be registered by some local datum — no version minted
@@ -349,7 +365,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
         if subject not in processed_subjects:
             fix(pipe_cmd)
             fix(f'then: {run_cmd}')
-            run(f'unprocessed input: {subject}', False)
+            run(f'unprocessed input: {_leaf(subject)}', False)
 
 
 def _gen_subject_dirs(gen_dir, depth):
@@ -418,7 +434,7 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
             item_path = pipeline.input.joinpath(*subject.split(' / ')).relative_to(REPO_ROOT)
             fix(f'{pipeline.validate_item_cmd} {item_path}')
             fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
-        run(f'{schema}: modelled by some version: {subject}', passing,
+        run(f'{schema}: modelled by some version: {_leaf(subject)}', passing,
             None if passing else 'validates against no schema version')
 
 
@@ -445,7 +461,7 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
         item_path = pipeline.input.joinpath(*subject.split(' / ')).relative_to(REPO_ROOT)
         fix(f'{pipeline.validate_item_cmd} {item_path}')
         fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
-    run(f'{schema}: latest datum validates against latest ({latest}): {subject}', ok,
+    run(f'{schema}: latest datum validates against latest ({latest}): {_leaf(subject)}', ok,
         None if ok else str(log.relative_to(REPO_ROOT)))
 
 
@@ -457,7 +473,7 @@ def check_cross_sources(run) -> None:
     projection bug or data corruption (or a post-export edit/branch switch — rare;
     investigate with compare_sources --diff). Reads the projections both pipelines
     already wrote to gen/; machine-local, so data tier."""
-    api_dir = GEN / 'browser-captures' / 'markdown'
+    api_dir = GEN / 'markdown' / 'claude'
     api = {}
     if api_dir.is_dir():
         for f in api_dir.glob('*.md'):
@@ -466,7 +482,7 @@ def check_cross_sources(run) -> None:
             if cid:
                 api[cid] = turn_seq(text)
     if not api:
-        print('  – skipped: no api projections (gen/browser-captures/markdown empty)')
+        print('  – skipped: no api projections (gen/markdown/claude empty)')
         return
     batch_dirs = sorted((GEN / 'chat-exports').glob('data-*/markdown')) if (GEN / 'chat-exports').is_dir() else []
     if not batch_dirs:
@@ -501,13 +517,15 @@ def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {s: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas}
 
-    for schema_name in sorted(schema_skips):
-        skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips[schema_name]
-        versions    = _sorted_versions(SCHEMA_DIR[schema_name])
+    schema_dirs = _schema_families()
+    for schema_name in sorted(set(schema_skips) | set(schema_dirs)):
+        skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips.get(schema_name, frozenset())
+        schema_dir  = schema_dirs.get(schema_name, SCHEMA_DIR.get(schema_name))
+        versions    = _sorted_versions(schema_dir) if schema_dir else []
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
             run(f'{schema_name}: no versions', False,
-                f'{SCHEMA_DIR[schema_name].relative_to(REPO_ROOT)} has no v*.json files')
+                f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files')
             continue
         for version in versions:
             for script in diagnostics:
@@ -668,15 +686,8 @@ def main():
 
         run_section(check_root_schema_diagnostics, tier='schema')
 
-        for _name, _pipeline in PIPELINES.items():
-            _slug = _name.replace('-', '_')
-            run_section(lambda run, p=_pipeline: check_pipeline_validity(run, p),
-                        label=f'check_{_slug}_validity', tier='schema')
-
-        for _name, _pipeline in PIPELINES.items():
-            _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix: check_pipeline_workflow(run, _fix, n, p),
-                        label=f'check_{_slug}_workflow', tier='schema')
+        run_section(check_schema_validity, tier='schema')
+        run_section(check_schema_changelogs, tier='schema')
 
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')

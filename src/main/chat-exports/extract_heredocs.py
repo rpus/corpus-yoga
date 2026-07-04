@@ -71,6 +71,9 @@ def extract_from_command(command: str) -> list[dict]:
 def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
 
+    if out_dir.exists():
+        shutil.rmtree(out_dir)  # renumbering renames per-conversation dirs; wipe so no old-naming dirs linger
+    out_dir.mkdir(parents=True, exist_ok=True)
     log_path = out_dir / 'extract_heredocs.log'
     rows: list[tuple] = []         # (ordinal, name, extracted, identical, newline_only, differs, copied)
     diff_entries: list[tuple] = [] # (chat_slug, rel, kind, diff_text|None)

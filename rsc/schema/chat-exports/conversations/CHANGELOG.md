@@ -20,6 +20,10 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-bat
 - `IntegrationName` — closed enum (plus null) → open `string | null`. The v12 description already warned "likely an open set — do not treat as exhaustive"; a `bash_tool` tool_use with `integration_name: "File Creation"` proved it. This is the `conversations` half of the coupling already applied on the live-API side at apiConversation v7 — missed then because `model_join.csv` had no `IntegrationName` row (added in this cycle, so the next divergence flags both sides).
 - `ToolResultBlockBase.start_timestamp` / `stop_timestamp` — `null` → `Timestamp | null`. Real timestamps first observed on `web_search` tool results. The apiConversation side (`ApiToolResultBlockBase`) still pins these to null; it will need the same relaxation (apiConversation v8) when a live capture first exhibits them — not before, since no version may sit ahead of all data.
 
+### Refactored since v12
+
+- `RichLink.source` description (in v12 and v13, in place) — example site names generalised to "a site/publication slug": narratives and current schema descriptions are data-anonymised now that the user-specific matrices live outside the repo. No validation effect. (The closed site enums in v11 and earlier are validating and remain untouched.)
+
 ---
 
 ## v12
@@ -34,7 +38,7 @@ claude.ai began emitting `hidden` on every thinking block. Requiring it narrows 
 
 ### Relaxed since v11
 
-- `RichLink.source` — closed enum → open `string`. The v11 description already warned "likely an open set — do not treat as exhaustive"; the first web_fetch of a new site (`pytorch`) proved it. Now a free string, matching `apiConversation`'s `ApiRichLink.source`, which was already open — restoring agreement between the two coupled schemas rather than diverging.
+- `RichLink.source` — closed enum → open `string`. The v11 description already warned "likely an open set — do not treat as exhaustive"; the first web_fetch of a previously-unseen site proved it. Now a free string, matching `apiConversation`'s `ApiRichLink.source`, which was already open — restoring agreement between the two coupled schemas rather than diverging.
 
 ---
 
@@ -44,7 +48,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-bat
 
 ### Relaxed since v10
 
-- `ToolResultSearchItem.links` — widened from `null` to `null | array[string]`. `null` remains the normal value — 1268 of 1270 observed search items — but two carried a short list of related URLs (observed in `Career advice part 2`), so the field had been typed `null`-only in error. Same correction as `approval_key` and `ToolResultBlockBase.meta`: a field typed `null` from its always-null samples, later found occasionally populated.
+- `ToolResultSearchItem.links` — widened from `null` to `null | array[string]`. `null` remains the normal value — 1268 of 1270 observed search items — but two carried a short list of related URLs (observed in conversation `057271b2`), so the field had been typed `null`-only in error. Same correction as `approval_key` and `ToolResultBlockBase.meta`: a field typed `null` from its always-null samples, later found occasionally populated.
 
 ---
 

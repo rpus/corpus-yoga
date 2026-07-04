@@ -28,7 +28,7 @@ Filesystem audit (always) — "are the captures I have any good?"
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/audit_captures.py \
-    [--browser-captures ext/browser-captures] [--api gen/browser-captures/markdown] [--live]
+    [--browser-captures ext/browser-captures] [--api gen/markdown/claude] [--live]
 
 Exit status is non-zero iff anything actionable is found.
 """
@@ -205,7 +205,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--browser-captures', default='ext/browser-captures',
                     help='captures root containing claude/ and gemini/')
-    ap.add_argument('--api', default='gen/browser-captures/markdown',
+    ap.add_argument('--api', default='gen/markdown/claude',
                     help='dir of api-sourced markdown (project_markdown output)')
     ap.add_argument('--live', action='store_true',
                     help='also drive Safari (work tab): claude listing updated_at check; '

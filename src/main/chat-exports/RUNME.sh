@@ -41,9 +41,11 @@ parse_args() {
 
 run_one() {
   local input_dir="${1%/}"
-  local name; name="$(basename "$input_dir")"
 
-  rm -rf "${OUTPUT_DIR:?}/$name"
+  # No blanket wipe of gen/<batch>: each stage owns (wipes or overwrites) its own
+  # output subtree. A blanket wipe would destroy the validation memoisation logs
+  # (forcing full revalidation every run) and the durable paid inferred/ tables,
+  # which by design persist across unpaid runs.
 
   "$SCRIPT_DIR/validate.sh"         --chat-export "$input_dir"
   "$SCRIPT_DIR/extract_files.sh"    --chat-export "$input_dir"

@@ -1,4 +1,4 @@
-pre_commit.py: 838/838 (data: 233/233)
+pre_commit.py: 873/873 (data: 233/233)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 838/838 (data: 233/233)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 62 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 63 unreferenced
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -73,7 +73,7 @@ pre_commit.py: 838/838 (data: 233/233)
   ✓ structure.pattern_constraints_enforced: model.json
   ✓ structure.required_subset_of_properties: model.json
 
-── check_browser_captures_validity ───────────────────────────────────────────
+── check_schema_validity ─────────────────────────────────────────────────────
   ✓ apiConversation: valid JSON + $schema: v1
   ✓ apiConversation: valid JSON + $schema: v2
   ✓ apiConversation: valid JSON + $schema: v3
@@ -82,8 +82,6 @@ pre_commit.py: 838/838 (data: 233/233)
   ✓ apiConversation: valid JSON + $schema: v6
   ✓ apiConversation: valid JSON + $schema: v7
   ✓ apiConversation: valid JSON + $schema: v8
-
-── check_chat_exports_validity ───────────────────────────────────────────────
   ✓ conversations: valid JSON + $schema: v1
   ✓ conversations: valid JSON + $schema: v2
   ✓ conversations: valid JSON + $schema: v3
@@ -97,72 +95,77 @@ pre_commit.py: 838/838 (data: 233/233)
   ✓ conversations: valid JSON + $schema: v11
   ✓ conversations: valid JSON + $schema: v12
   ✓ conversations: valid JSON + $schema: v13
+  ✓ markdownConversation: valid JSON + $schema: v1
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
-  ✓ users: valid JSON + $schema: v1
-
-── check_code_projects_validity ──────────────────────────────────────────────
   ✓ session: valid JSON + $schema: v1
   ✓ session: valid JSON + $schema: v2
   ✓ session: valid JSON + $schema: v3
   ✓ session: valid JSON + $schema: v4
+  ✓ users: valid JSON + $schema: v1
 
-── check_browser_captures_workflow ───────────────────────────────────────────
-  ✓ apiConversation: workflow.changelog_narrative: v1
-  ✓ apiConversation: workflow.no_todo: v1
-  ✓ apiConversation: workflow.changelog_narrative: v2
-  ✓ apiConversation: workflow.no_todo: v2
-  ✓ apiConversation: workflow.changelog_narrative: v3
-  ✓ apiConversation: workflow.no_todo: v3
-  ✓ apiConversation: workflow.changelog_narrative: v4
-  ✓ apiConversation: workflow.no_todo: v4
-  ✓ apiConversation: workflow.changelog_narrative: v5
-  ✓ apiConversation: workflow.no_todo: v5
-  ✓ apiConversation: workflow.changelog_narrative: v6
-  ✓ apiConversation: workflow.no_todo: v6
-  ✓ apiConversation: workflow.changelog_narrative: v7
-  ✓ apiConversation: workflow.no_todo: v7
-  ✓ apiConversation: workflow.changelog_narrative: v8
-  ✓ apiConversation: workflow.no_todo: v8
-
-── check_chat_exports_workflow ───────────────────────────────────────────────
-  ✓ conversations: workflow.changelog_narrative: v1
-  ✓ conversations: workflow.no_todo: v1
-  ✓ conversations: workflow.changelog_narrative: v2
-  ✓ conversations: workflow.no_todo: v2
-  ✓ conversations: workflow.changelog_narrative: v3
-  ✓ conversations: workflow.no_todo: v3
-  ✓ conversations: workflow.changelog_narrative: v4
-  ✓ conversations: workflow.no_todo: v4
-  ✓ conversations: workflow.changelog_narrative: v5
-  ✓ conversations: workflow.no_todo: v5
-  ✓ conversations: workflow.changelog_narrative: v6
-  ✓ conversations: workflow.no_todo: v6
-  ✓ conversations: workflow.changelog_narrative: v7
-  ✓ conversations: workflow.no_todo: v7
-  ✓ conversations: workflow.changelog_narrative: v8
-  ✓ conversations: workflow.no_todo: v8
-  ✓ conversations: workflow.changelog_narrative: v9
-  ✓ conversations: workflow.no_todo: v9
-  ✓ conversations: workflow.changelog_narrative: v10
-  ✓ conversations: workflow.no_todo: v10
-  ✓ conversations: workflow.changelog_narrative: v11
-  ✓ conversations: workflow.no_todo: v11
-  ✓ conversations: workflow.changelog_narrative: v12
-  ✓ conversations: workflow.no_todo: v12
-  ✓ conversations: workflow.changelog_narrative: v13
-  ✓ conversations: workflow.no_todo: v13
-
-── check_code_projects_workflow ──────────────────────────────────────────────
-  ✓ session: workflow.changelog_narrative: v1
-  ✓ session: workflow.no_todo: v1
-  ✓ session: workflow.changelog_narrative: v2
-  ✓ session: workflow.no_todo: v2
-  ✓ session: workflow.changelog_narrative: v3
-  ✓ session: workflow.no_todo: v3
-  ✓ session: workflow.changelog_narrative: v4
-  ✓ session: workflow.no_todo: v4
+── check_schema_changelogs ───────────────────────────────────────────────────
+  ✓ apiConversation: changelog_narrative: v1
+  ✓ apiConversation: no_todo: v1
+  ✓ apiConversation: changelog_narrative: v2
+  ✓ apiConversation: no_todo: v2
+  ✓ apiConversation: changelog_narrative: v3
+  ✓ apiConversation: no_todo: v3
+  ✓ apiConversation: changelog_narrative: v4
+  ✓ apiConversation: no_todo: v4
+  ✓ apiConversation: changelog_narrative: v5
+  ✓ apiConversation: no_todo: v5
+  ✓ apiConversation: changelog_narrative: v6
+  ✓ apiConversation: no_todo: v6
+  ✓ apiConversation: changelog_narrative: v7
+  ✓ apiConversation: no_todo: v7
+  ✓ apiConversation: changelog_narrative: v8
+  ✓ apiConversation: no_todo: v8
+  ✓ conversations: changelog_narrative: v1
+  ✓ conversations: no_todo: v1
+  ✓ conversations: changelog_narrative: v2
+  ✓ conversations: no_todo: v2
+  ✓ conversations: changelog_narrative: v3
+  ✓ conversations: no_todo: v3
+  ✓ conversations: changelog_narrative: v4
+  ✓ conversations: no_todo: v4
+  ✓ conversations: changelog_narrative: v5
+  ✓ conversations: no_todo: v5
+  ✓ conversations: changelog_narrative: v6
+  ✓ conversations: no_todo: v6
+  ✓ conversations: changelog_narrative: v7
+  ✓ conversations: no_todo: v7
+  ✓ conversations: changelog_narrative: v8
+  ✓ conversations: no_todo: v8
+  ✓ conversations: changelog_narrative: v9
+  ✓ conversations: no_todo: v9
+  ✓ conversations: changelog_narrative: v10
+  ✓ conversations: no_todo: v10
+  ✓ conversations: changelog_narrative: v11
+  ✓ conversations: no_todo: v11
+  ✓ conversations: changelog_narrative: v12
+  ✓ conversations: no_todo: v12
+  ✓ conversations: changelog_narrative: v13
+  ✓ conversations: no_todo: v13
+  ✓ markdownConversation: changelog_narrative: v1
+  ✓ markdownConversation: no_todo: v1
+  ✓ memories: changelog_narrative: v1
+  ✓ memories: no_todo: v1
+  ✓ projects: changelog_narrative: v1
+  ✓ projects: no_todo: v1
+  ✓ projects: changelog_narrative: v2
+  ✓ projects: no_todo: v2
+  ✓ session: changelog_narrative: v1
+  ✓ session: no_todo: v1
+  ✓ session: changelog_narrative: v2
+  ✓ session: no_todo: v2
+  ✓ session: changelog_narrative: v3
+  ✓ session: no_todo: v3
+  ✓ session: changelog_narrative: v4
+  ✓ session: no_todo: v4
+  ✓ users: changelog_narrative: v1
+  ✓ users: no_todo: v1
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ apiConversation: composition.base_not_used_directly: v1
@@ -669,6 +672,30 @@ pre_commit.py: 838/838 (data: 233/233)
   ✓ conversations: structure.no_redundant_additional_properties_true: v13
   ✓ conversations: structure.pattern_constraints_enforced: v13
   ✓ conversations: structure.required_subset_of_properties: v13
+  ✓ markdownConversation: composition.base_not_used_directly: v1
+  ✓ markdownConversation: composition.base_schemas_closed: v1
+  ✓ markdownConversation: composition.discriminator_values_disjoint: v1
+  ✓ markdownConversation: composition.no_additional_properties_on_subtypes: v1
+  ✓ markdownConversation: composition.wrapper_has_five_fields: v1
+  ✓ markdownConversation: documentation.discriminator_fields_annotated: v1
+  ✓ markdownConversation: documentation.every_definition_has_title_and_description: v1
+  ✓ markdownConversation: documentation.null_only_fields_documented: v1
+  ✓ markdownConversation: documentation.open_set_enums_documented: v1
+  ✓ markdownConversation: empirical.nullable_fields_surveyed: v1
+  ✓ markdownConversation: empirical.oneOf_branches_evidenced: v1
+  ✓ markdownConversation: naming.property_keys_lowercase: v1
+  ✓ markdownConversation: naming.title_matches_key: v1
+  ✓ markdownConversation: naming.upper_camel_case: v1
+  ✓ markdownConversation: structure.all_definitions_reachable: v1
+  ✓ markdownConversation: structure.bfs_order: v1
+  ✓ markdownConversation: structure.definitions_at_bottom: v1
+  ✓ markdownConversation: structure.enum_refines_explicit_type: v1
+  ✓ markdownConversation: structure.field_order: v1
+  ✓ markdownConversation: structure.minItems_on_non_empty_arrays: v1
+  ✓ markdownConversation: structure.no_dangling_refs: v1
+  ✓ markdownConversation: structure.no_redundant_additional_properties_true: v1
+  ✓ markdownConversation: structure.pattern_constraints_enforced: v1
+  ✓ markdownConversation: structure.required_subset_of_properties: v1
   ✓ memories: composition.base_not_used_directly: v1
   ✓ memories: composition.base_schemas_closed: v1
   ✓ memories: composition.discriminator_values_disjoint: v1
@@ -1010,7 +1037,7 @@ pre_commit.py: 838/838 (data: 233/233)
 ── check_code_projects_validation_outputs ────────────────────────────────────
 
   each gen/code-projects/<datum>/matrix.md must match the vN.log files under its validation/
-  ✓ matrix.current: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / a6f25723-e5d7-444e-90f5-ab2ff49e01cf
+  ✓ matrix.current: a6f25723-e5d7-444e-90f5-ab2ff49e01cf
   ✓ session: matrix.version_registered: v1
   ✓ session: matrix.version_registered: v2
   ✓ session: matrix.version_registered: v3
@@ -1122,7 +1149,7 @@ pre_commit.py: 838/838 (data: 233/233)
   ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
 
 ── check_code_projects_coverage ──────────────────────────────────────────────
-  ✓ session: modelled by some version: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / a6f25723-e5d7-444e-90f5-ab2ff49e01cf
+  ✓ session: modelled by some version: a6f25723-e5d7-444e-90f5-ab2ff49e01cf
 
 ── check_browser_captures_frontier ───────────────────────────────────────────
   ✓ apiConversation: latest datum validates against latest (v8): ee84f070-6d59-4856-bafe-633886b6f0d8
@@ -1131,13 +1158,13 @@ pre_commit.py: 838/838 (data: 233/233)
   ✓ conversations: latest datum validates against latest (v13): data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
 
 ── check_code_projects_frontier ──────────────────────────────────────────────
-  ✓ session: latest datum validates against latest (v4): -Users-khalidkhan-dev-github-rpus-claude-export-yoga / a6f25723-e5d7-444e-90f5-ab2ff49e01cf
+  ✓ session: latest datum validates against latest (v4): a6f25723-e5d7-444e-90f5-ab2ff49e01cf
 
 ── check_cross_sources ───────────────────────────────────────────────────────
   ✓ cross-source: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000: 95 shared — 95 identical, 0 appended-to
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 838/838; expected: 838/838
+  ✓ score[code+schema]: 873/873; expected: 873/873
   ✓ score[code]: 12/12; expected: 12/12
-  ✓ score[schema]: 826/826; expected: 826/826
+  ✓ score[schema]: 861/861; expected: 861/861
   ✓ score[data]: 233/233; machine-local, not recorded

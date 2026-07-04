@@ -73,6 +73,9 @@ def sanitise_path(raw: str) -> Optional[Path]:
 def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
 
+    if out_dir.exists():
+        shutil.rmtree(out_dir)  # renumbering renames per-conversation dirs; wipe so no old-naming dirs linger
+    out_dir.mkdir(parents=True, exist_ok=True)
     log_path = out_dir / 'extract_files.log'
     skips: list[str] = []
     rows:  list[tuple] = []   # (ordinal, name, extracted, downloaded, copied)

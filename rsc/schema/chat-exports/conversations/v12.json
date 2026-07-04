@@ -2273,7 +2273,7 @@
           "type": "string"
         },
         "source": {
-          "description": "Short source label derived from the fetched site (e.g. anthropic, github, arxiv, Wikipedia, pytorch). Open set \u2014 typed as a free string, matching apiConversation ApiRichLink.source. Was a closed enum through v11; widened at v12 when a new site (pytorch) appeared, exactly as the v11 description had warned.",
+          "description": "Short source label derived from the fetched site (a site/publication slug). Open set \u2014 typed as a free string, matching apiConversation ApiRichLink.source. Was a closed enum through v11; widened at v12 when a previously-unlisted site appeared, exactly as the v11 description had warned.",
           "type": "string"
         },
         "subtitles": {
