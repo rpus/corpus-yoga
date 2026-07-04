@@ -125,13 +125,15 @@ def _colour_log_levels(text):
     return '\n'.join(out)
 
 
-def collect_md_and_log(after_time, dest_dir):
-    """Move freshly-downloaded (.md, .log) files into dest_dir; return the .md filenames.
-    The .log holds the in-browser capture log -- including errors like 'No copy buttons found!' --
-    so it is PERSISTED beside the .md (and printed), not discarded: a failed scrape must leave its
-    error in the filesystem, not merely scroll past the terminal. An empty return means the scrape
-    produced no markdown (a failure -- read the .log)."""
+def collect_md_and_log(after_time, dest_dir, log_dir):
+    """Move freshly-downloaded .md files into dest_dir (the capture's data directory under
+    ext/) and the .log into log_dir (under logs/ -- ext/ holds data only). The .log holds
+    the in-browser capture log -- including errors like 'No copy buttons found!' -- so it
+    is PERSISTED (and printed), not discarded: a failed scrape must leave its error in the
+    filesystem, not merely scroll past the terminal. An empty return means the scrape
+    produced no markdown (a failure -- read the log)."""
     dest_dir.mkdir(parents=True, exist_ok=True)
+    log_dir.mkdir(parents=True, exist_ok=True)
     moved = []
     for f in DOWNLOADS.iterdir():
         if f.stat().st_mtime <= after_time:
@@ -140,7 +142,7 @@ def collect_md_and_log(after_time, dest_dir):
             print(_colour_log_levels(f.read_text()), end='')
             # name the diagnostic log by the conversation id (the dir), not the page title: on a
             # failed scrape the title is junk, and a stable name overwrites rather than accumulates
-            shutil.move(str(f), dest_dir / f'{dest_dir.name}.log')
+            shutil.move(str(f), log_dir / f'{dest_dir.name}.log')
         elif f.suffix == '.md':
             shutil.move(str(f), dest_dir / f.name)
             moved.append(f.name)

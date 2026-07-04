@@ -78,7 +78,7 @@ def outcome(do_api, do_scrape, files, had_md):
     if do_api and not has_json:
         return 'apiConversation JSON fetch failed — see the run log', None
     if do_scrape and not has_md:
-        why = 'no markdown — see the .log'
+        why = 'no markdown — see the scrape log under logs/.../safari_capture/<agent>/scrape/'
         if had_md:
             why += ' (previous .md retained, now STALE)'
         return (None, why) if do_api else (why, None)
@@ -143,7 +143,7 @@ def scrape_state():
         return None
 
 
-def scrape_one(out_dir, js_script):
+def scrape_one(out_dir, js_script, log_dir):
     """Inject the DOM scraper and WATCH its in-page flag rather than waiting out a timeout: abort
     fast if it never starts (page wedged) or stalls (no new message), finish the moment it signals
     done. Returns the collected md filenames, or None if the scrape produced no markdown."""
@@ -171,7 +171,7 @@ def scrape_one(out_dir, js_script):
                 return None
         time.sleep(0.5)
     time.sleep(SETTLE_PAUSE)   # let the .md/.log downloads land
-    return collect_md_and_log(start, out_dir)
+    return collect_md_and_log(start, out_dir, log_dir)
 
 
 def ids_from_safari(cfg):
@@ -218,6 +218,8 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
     do_api = cfg['api']
     do_scrape = cfg['scrape'] or also_scrape
     js_script = SCRIPT_DIR / agent / 'browser-chat-capture.js'
+    # per-conversation scrape diagnostics go under logs/ (ext/ holds captured data only)
+    scrape_log_dir = REPO_DIR / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / agent / 'scrape'
     label = 'discover' if navigate else 'capture'
     methods = '+'.join(m for m, on in (('api', do_api), ('scrape', do_scrape)) if on)
     if not ids:
@@ -249,7 +251,7 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
                 if not wait_for_ready(cfg['ready_sel']):
                     print(f'  not rendered after {READY_TIMEOUT}s — scraping anyway (likely to fail)')
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
-            files += scrape_one(out_dir, js_script) or []
+            files += scrape_one(out_dir, js_script, scrape_log_dir) or []
         print(f'  done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}')
         fatal, note = outcome(do_api, do_scrape, files, had_md)
         if note:
