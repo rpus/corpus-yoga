@@ -61,6 +61,16 @@ run_one() {
     --bulk-export "$input_dir"
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
     --bulk-export "$input_dir"
+
+  # cross-source sanity (informational): live-api captures and this bulk export should
+  # project to identical markdown for shared conversations. A difference is legitimate
+  # when a conversation progressed after the export snapshot — hence no gating; the
+  # report keeps what-agrees-with-what visible in every run log.
+  if [[ -d "$REPO_DIR/ext/browser-captures/claude" ]]; then
+    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/compare_sources.py" \
+      --browser-captures "$REPO_DIR/ext/browser-captures/claude" \
+      --bulk-export "$input_dir" || true
+  fi
 }
 
 main() {
@@ -79,6 +89,16 @@ main() {
       run_one "$d"
     done
   fi
+
+  # supersession report (informational): a new export may supersede every earlier one
+  # (message-uuid subsets on the atomised pieces) — their lattice join — even when the
+  # earlier batches don't supersede each other; superseded batches are deletable. Also
+  # compares the latest batch against the live-capture corpus per conversation:
+  # capture-ahead is normal post-snapshot growth; capture-stale names conversations to
+  # recapture in place. Orphaned/deleted conversations are a fact, not an error.
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/compare_batches.py" \
+    --chat-exports-gen "$OUTPUT_DIR" \
+    --captures "$REPO_DIR/ext/browser-captures/claude" || true
 }
 
 main "$@"

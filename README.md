@@ -52,17 +52,26 @@ On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `logs/
   - `export ANTHROPIC_API_KEY=<your-key>` (required for table inference by Claude)
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
   - Open Safari, log in to <https://claude.ai> or <https://gemini.google.com>
-  - **Shortcut mode** — triggered on the current browser page; no programmatic navigation:
+  - **Shortcut trigger** — dispatches on whatever page the front tab shows (the invoker; the capture behaviour it selects is below):
     - Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.applescript"`
-    - With front tab on a specific conversation: captures that conversation (page already loaded)
-    - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures all conversations (AppleScript iterates the listing)
-  - **Script mode** — Python navigates to every conversation automatically via `capture_all()`:
+    - With front tab on a specific conversation: captures that conversation *in place* (no navigation; the page is already loaded)
+    - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures every listed conversation, each opened in its own transient tab and closed after — the listing tab is never navigated away
+  - **Scripted trigger** — Python discovers every conversation and navigates through them in a dedicated work tab (the front tab is restored afterwards):
     - `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
+  - **After having (or extending) a conversation, recapture it** — navigate to it and hit the Shortcut: an in-place recapture of just that conversation (seconds for the claude API fetch; a couple of minutes for a long scrape walk). The incremental loop:
+
+    ```text
+    src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disagree with the api projection)
+    src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Safari: claude updated_at sweep, gemini tail probes)
+    Shortcut (or safari_capture.sh --id) on each flagged conversation             # selective in-place recapture
+    ```
+
 - Render clean markdown straight from the captured API JSON — no browser, no DOM scrape (preferred over the Safari markdown capture above; it only needs the `apiConversation` JSON each capture already fetches):
   - `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/browser-captures/markdown`
   - Projects each capture to the lean `markdownConversation` shape, validates it, and writes a flat directory of `<title>.md` with sane titles.
   - Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `src/run_python_script.sh src/main/browser-captures/compare_markdown.py --api gen/browser-captures/markdown --scrape ext/browser-captures/claude` (pure markdown-vs-markdown, paired by conversation id; add `--diff` for full per-conversation diffs). This runs automatically in the browser-captures pipeline (`RUNME.sh`) after the projection step.
   - For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated against the `Conversation` definition — the only reader of the 24 MB array): `src/run_python_script.sh src/main/chat-exports/atomise_bulk.py --bulk-export ext/chat-exports/<batch>` → `gen/chat-exports/<batch>/json/`. Then render those pieces to markdown (same filenames): `src/run_python_script.sh src/main/model/project_markdown.py --bulk-export ext/chat-exports/<batch>` → `gen/chat-exports/<batch>/markdown/`.
+  - Do later bulk exports supersede earlier ones (every conversation's message uuids a subset of its later self), and is the latest snapshot therefore sufficient — letting you delete earlier batches regardless of their schema vintage? `src/run_python_script.sh src/main/chat-exports/compare_batches.py` (reads the batches' atomised `json/`; exit 0 = sufficient; runs automatically at the end of every chat-exports pipeline run, where it also compares the latest batch against the live captures per conversation — in-sync / capture-ahead / capture-stale-so-recapture / anomaly). Delete a superseded batch from both `ext/chat-exports/` and `gen/chat-exports/` — matrices are machine-local and die with it.
   - Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `src/run_python_script.sh src/main/model/compare_sources.py --browser-captures ext/browser-captures/claude --bulk-export ext/chat-exports/<batch>` (reads the batch's atomised `json/` pieces; add `--diff` for details).
 - Browse and read captures as rendered markdown + LaTeX:
   - `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost:8182>

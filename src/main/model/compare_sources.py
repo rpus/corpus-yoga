@@ -33,12 +33,13 @@ from markdown_projection import REPO, project, find_api_json, render
 
 
 def api_by_uuid(captures_dir):
-    out = {}
+    out, names = {}, {}
     for sub in sorted(p for p in Path(captures_dir).iterdir() if p.is_dir()):
         api = find_api_json(sub)
         if api is not None:
             out[api['uuid']] = render(project(api))
-    return out
+            names[api['uuid']] = api.get('name', '')
+    return out, names
 
 
 def bulk_by_uuid(batch_dir):
@@ -48,11 +49,12 @@ def bulk_by_uuid(batch_dir):
     if not json_dir.is_dir():
         sys.exit(f"no atomised json/ at {json_dir}; "
                  f"run project_markdown.py --bulk-export {batch_dir} first")
-    out = {}
+    out, names = {}, {}
     for f in sorted(json_dir.glob('*.json')):
         c = json.loads(f.read_text())
         out[c['uuid']] = render(project(c))
-    return out
+        names[c['uuid']] = c.get('name', '')
+    return out, names
 
 
 def main():
@@ -62,8 +64,8 @@ def main():
     ap.add_argument('--diff', action='store_true', help='print full per-conversation unified diffs')
     args = ap.parse_args()
 
-    api = api_by_uuid(args.browser_captures)
-    bulk = bulk_by_uuid(args.bulk_export)
+    api, api_names = api_by_uuid(args.browser_captures)
+    bulk, bulk_names = bulk_by_uuid(args.bulk_export)
     shared = set(api) & set(bulk)
 
     identical = differ = 0
@@ -77,8 +79,14 @@ def main():
             print('\n'.join(difflib.unified_diff(api[u].splitlines(), bulk[u].splitlines(),
                                                   'api', 'bulk', lineterm='')))
 
+    api_only = sorted(set(api) - set(bulk))
+    bulk_only = sorted(set(bulk) - set(api))
     print(f"shared {len(shared)}: {identical} identical, {differ} differ "
-          f"| api-only {len(set(api) - set(bulk))}, bulk-only {len(set(bulk) - set(api))}")
+          f"| api-only {len(api_only)}, bulk-only {len(bulk_only)}")
+    for u in api_only:
+        print(f"  api-only {u}: {api_names.get(u, '')!r} (post-export or never exported)")
+    for u in bulk_only:
+        print(f"  bulk-only {u}: {bulk_names.get(u, '')!r} (deleted live? the export's unique data)")
     return 1 if differ else 0
 
 

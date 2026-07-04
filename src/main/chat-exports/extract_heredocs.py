@@ -76,6 +76,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
     diff_entries: list[tuple] = [] # (chat_slug, rel, kind, diff_text|None)
 
     for idx, dir_name, convo in ordered(convos):  # canonical <ordinal>-<slug>, created_at order
+        if idx is None:
+            continue  # empty stub (nothing to extract)
         name     = convo['name']
         messages = convo.get('chat_messages', [])
 

@@ -47,15 +47,19 @@ def atomise(batch_dir, out_dir):
         shutil.rmtree(out_dir)  # renumbering renames files; wipe so no old-naming pieces linger
     out_dir.mkdir(parents=True, exist_ok=True)
     convs = json.loads((Path(batch_dir) / 'conversations.json').read_text())
-    bad = 0
-    for _, name, raw in ordered(convs):  # canonical <ordinal>-<slug>, created_at order
+    bad = empty = 0
+    for idx, name, raw in ordered(convs):  # canonical <ordinal>-<slug>, created_at order
         (out_dir / f"{name}.json").write_text(json.dumps(raw, indent=2, ensure_ascii=False) + '\n')
+        if idx is None:
+            empty += 1  # content-free stub, written under its quarantine name; not "invalid"
+            continue
         if not conv_valid.is_valid(raw):
             bad += 1
             err = sorted(conv_valid.iter_errors(raw), key=lambda e: list(e.path))[0]
             loc = '/'.join(str(p) for p in err.path)
             print(f"  INVALID {name} @ {loc} ({err.validator})", file=sys.stderr)
-    print(f"atomised {len(convs)} conversations to {out_dir} ({bad} invalid vs Conversation)")
+    print(f"atomised {len(convs)} conversations to {out_dir} "
+          f"({bad} invalid vs Conversation, {empty} empty)")
 
 
 def main():

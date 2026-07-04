@@ -85,6 +85,7 @@ def main():
     args = ap.parse_args()
 
     order = ordered(json.loads(Path(args.conversations).read_text()))
+    order = [t for t in order if t[0] is not None]  # empty stubs have no ordinal and no timeline presence
     if args.table == 'chat-list':
         print(chat_list(order))
     else:

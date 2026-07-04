@@ -59,6 +59,11 @@ main() {
       # scraped this run (--new-claude-scrape) -- otherwise there is no scrape md to compare against.
       "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
         --browser-captures "$root"
+      # capture-health report against the fresh projections (informational — the
+      # compare gate below decides pass/fail; PREP.sh printed the pre-run baseline)
+      "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
+        --browser-captures "$REPO_DIR/ext/browser-captures" \
+        --api "$REPO_DIR/gen/browser-captures/markdown" || true
       if [[ -n "$new_claude_scrape" ]]; then
         "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/compare_markdown.py" \
           --api "$REPO_DIR/gen/browser-captures/markdown" --scrape "$root"

@@ -64,6 +64,26 @@ def safari_navigate(url):
     osascript(f'tell application "Safari" to set URL of front document to "{url}"')
 
 
+def safari_open_work_tab():
+    """Open a dedicated work tab (and select it) so multi-conversation captures don't
+    hijack whatever page the user had in their front tab. Returns the index of the
+    previously-selected tab, for safari_close_work_tab to restore. The work tab must
+    stay the CURRENT tab: Safari throttles timers and rendering in background tabs,
+    which would starve the scraper's scroll/settle loops."""
+    safari_focus()
+    prev = osascript('tell application "Safari" to get index of current tab of front window')
+    osascript('tell application "Safari" to tell front window to set current tab to (make new tab at end of tabs)')
+    time.sleep(1)
+    return prev
+
+
+def safari_close_work_tab(prev_index):
+    """Close the work tab and restore the user's previously-selected tab."""
+    osascript('tell application "Safari" to tell front window to close current tab')
+    if prev_index:
+        osascript(f'tell application "Safari" to tell front window to set current tab to tab {prev_index}')
+
+
 
 
 def safari_run_js_file(js_path):
@@ -146,4 +166,12 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
         elif f.suffix == '.md':
             shutil.move(str(f), dest_dir / f.name)
             moved.append(f.name)
+    if moved:
+        # a successful scrape supersedes any previous .md whose title slug has since
+        # changed — remove it, or downstream globs would see two markdowns per datum.
+        # (On a FAILED scrape nothing is touched: the old .md is retained, as STALE.)
+        for old in dest_dir.glob('*.md'):
+            if old.name not in moved:
+                old.unlink()
+                print(f'  removed superseded {old.name}')
     return moved

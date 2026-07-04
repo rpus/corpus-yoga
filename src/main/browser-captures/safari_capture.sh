@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Capture Claude.ai or Gemini conversations via Safari automation.
 #
-# Two modes:
-#   (no args)     Navigate to site and capture all conversations.
-#   --id <id>     Capture a single conversation (called by the macOS Shortcut).
+# Two modes (orthogonal to the invoker — CLI, PREP.sh, or the macOS Shortcut):
+#   (no args)     Discover and capture all conversations, navigating in a work tab.
+#   --id <id>     Capture one conversation in place from the front tab (no navigation).
 #
 # Usage:
 #   src/main/browser-captures/safari_capture.sh --agent claude

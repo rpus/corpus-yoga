@@ -21,18 +21,24 @@ README.md,43,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is saf
 README.md,56,doc,src/main/browser-captures/export.applescript,Y,"- Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/"
 README.md,60,doc,src/main/browser-captures/PREP.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
 README.md,60,doc,RUNME.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
-README.md,62,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/
-README.md,62,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/
-README.md,64,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
-README.md,64,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
-README.md,65,doc,src/run_python_script.sh,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
-README.md,65,doc,src/main/chat-exports/atomise_bulk.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
-README.md,65,doc,src/main/model/project_markdown.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
-README.md,66,doc,src/run_python_script.sh,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
-README.md,66,doc,src/main/model/compare_sources.py,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
-README.md,68,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
-README.md,69,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,77,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,64,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
+README.md,64,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
+README.md,65,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
+README.md,65,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
+README.md,70,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/
+README.md,70,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/
+README.md,72,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
+README.md,72,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
+README.md,73,doc,src/run_python_script.sh,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
+README.md,73,doc,src/main/chat-exports/atomise_bulk.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
+README.md,73,doc,src/main/model/project_markdown.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
+README.md,74,doc,src/run_python_script.sh,Y,"- Do later bulk exports supersede earlier ones (every conversation's message uuids a subset of its later self), and is t"
+README.md,74,doc,src/main/chat-exports/compare_batches.py,Y,"- Do later bulk exports supersede earlier ones (every conversation's message uuids a subset of its later self), and is t"
+README.md,75,doc,src/run_python_script.sh,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
+README.md,75,doc,src/main/model/compare_sources.py,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
+README.md,77,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --browser-captures ext/browser-captures/claude --daemon` then open <http://localhost
+README.md,78,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,86,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,18,comment,RUNME.sh,Y,"#   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)"
 RUNME.sh,19,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 RUNME.sh,20,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
@@ -79,25 +85,31 @@ rsc/schema/model.json,32,path_str,rsc/schema/chat-exports/memories/v1.json,Y,"""
 rsc/schema/model.json,35,path_str,rsc/schema/chat-exports/projects/v1.json,Y,"""./chat-exports/projects/v1.json"": ["
 rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./chat-exports/users/v1.json"": ["
 rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v13.json,Y,"""./chat-exports/conversations/v13.json"": ["
-src/main/browser-captures/PREP.sh,6,comment,src/main/browser-captures/PREP.sh,Y,"#   src/main/browser-captures/PREP.sh                  # claude api, gemini dom"
-src/main/browser-captures/PREP.sh,7,comment,src/main/browser-captures/PREP.sh,Y,#   src/main/browser-captures/PREP.sh --new-claude-scrape  # also DOM-scrape claude (for compare_markdown)
-src/main/browser-captures/PREP.sh,30,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent claude ${new_claude_scrape:+""$new_claude_scrape""} || rc=$?"
-src/main/browser-captures/PREP.sh,31,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent gemini || rc=$?"
+src/main/browser-captures/PREP.sh,7,comment,src/main/browser-captures/PREP.sh,Y,"#   src/main/browser-captures/PREP.sh                  # claude api, gemini dom"
+src/main/browser-captures/PREP.sh,8,comment,src/main/browser-captures/PREP.sh,Y,#   src/main/browser-captures/PREP.sh --new-claude-scrape  # also DOM-scrape claude (for compare_markdown)
+src/main/browser-captures/PREP.sh,31,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,31,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,37,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent claude ${new_claude_scrape:+""$new_claude_scrape""} || rc=$?"
+src/main/browser-captures/PREP.sh,38,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent gemini || rc=$?"
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
 src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/claude/<uuid>
 src/main/browser-captures/RUNME.sh,34,call,src/main/browser-captures/claude/validate.sh,Y,"""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
 src/main/browser-captures/RUNME.sh,60,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
 src/main/browser-captures/RUNME.sh,60,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
-src/main/browser-captures/RUNME.sh,63,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
-src/main/browser-captures/RUNME.sh,63,call,src/main/browser-captures/compare_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,64,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,64,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,68,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,68,call,src/main/browser-captures/compare_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/audit_captures.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--browser-captures ext/browser-captures] [--ap
+src/main/browser-captures/audit_captures.py,30,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--browser-captures ext/browser-captures] [--ap
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 src/main/browser-captures/claude/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
 src/main/browser-captures/claude/validate.sh,23,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,23,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
-src/main/browser-captures/compare_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api gen/browser-captures/markdown --scrape 
-src/main/browser-captures/compare_markdown.py,19,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api gen/browser-captures/markdown --scrape 
+src/main/browser-captures/compare_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api gen/browser-captures/markdown --scrape 
+src/main/browser-captures/compare_markdown.py,24,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api gen/browser-captures/markdown --scrape 
 src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude
 src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude --id <uuid>
 src/main/browser-captures/safari_capture.sh,11,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent gemini
@@ -118,6 +130,10 @@ src/main/chat-exports/RUNME.sh,60,call,src/run_python_script.sh,Y,"""$REPO_DIR/s
 src/main/chat-exports/RUNME.sh,60,call,src/main/chat-exports/atomise_bulk.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/atomise_bulk.py"" \"
 src/main/chat-exports/RUNME.sh,62,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
 src/main/chat-exports/RUNME.sh,62,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
+src/main/chat-exports/RUNME.sh,70,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/compare_sources.py"" \"
+src/main/chat-exports/RUNME.sh,70,call,src/main/model/compare_sources.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/compare_sources.py"" \"
+src/main/chat-exports/RUNME.sh,99,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_batches.py"" \"
+src/main/chat-exports/RUNME.sh,99,call,src/main/chat-exports/compare_batches.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_batches.py"" \"
 src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
 src/main/chat-exports/atomise_bulk.py,18,comment,src/main/chat-exports/atomise_bulk.py,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
 src/main/chat-exports/audit_files.py,14,comment,src/main/chat-exports/extract_files.py,Y,ef       Files written to gen/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
@@ -137,6 +153,8 @@ src/main/chat-exports/audit_files.sh,21,call,src/run_python_script.sh,Y,"""$REPO
 src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
+src/main/chat-exports/compare_batches.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports]
+src/main/chat-exports/compare_batches.py,24,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports]
 src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports
 src/main/chat-exports/extract_files.sh,17,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
@@ -198,14 +216,14 @@ src/main/chat-exports/validate.sh,41,call,src/main/schema_fragment.py,Y,"""$REPO
 src/main/chat-exports/validate.sh,43,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_occurrences.py"" ""$schema_ptr"" ""$schema"" ""$f"" | sed 's/^/"
 src/main/chat-exports/validate.sh,43,call,src/main/schema_occurrences.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_occurrences.py"" ""$schema_ptr"" ""$schema"" ""$f"" | sed 's/^/"
 src/main/chat-exports/validate.sh,47,call,src/main/schema_occurrences.py,Y,"echo ""src/run_python_script.sh \""$(rel_path ""$REPO_DIR/src/main/schema_occurrences.py"")\"" \""$schema_ptr\"" \""$(rel_path """
-src/main/chat-exports/validate.sh,59,call,src/run_python_script.sh,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
-src/main/chat-exports/validate.sh,59,call,src/main/validate.py,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
-src/main/chat-exports/validate.sh,86,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
-src/main/chat-exports/validate.sh,105,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
-src/main/chat-exports/validate.sh,114,comment,rsc/schema/WORKFLOW.md,Y,# just written (see rsc/schema/WORKFLOW.md).
-src/main/chat-exports/validate.sh,115,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
-src/main/chat-exports/validate.sh,115,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
-src/main/chat-exports/validate.sh,116,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
+src/main/chat-exports/validate.sh,75,call,src/run_python_script.sh,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
+src/main/chat-exports/validate.sh,75,call,src/main/validate.py,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
+src/main/chat-exports/validate.sh,104,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
+src/main/chat-exports/validate.sh,123,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
+src/main/chat-exports/validate.sh,134,comment,rsc/schema/WORKFLOW.md,Y,# just written (see rsc/schema/WORKFLOW.md).
+src/main/chat-exports/validate.sh,135,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
+src/main/chat-exports/validate.sh,135,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
+src/main/chat-exports/validate.sh,136,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
 src/main/code-projects/PREP.sh,5,comment,src/main/code-projects/PREP.sh,Y,#   src/main/code-projects/PREP.sh
 src/main/code-projects/RUNME.sh,5,comment,src/main/code-projects/RUNME.sh,Y,#   ./src/main/code-projects/RUNME.sh --code-project  <path>
 src/main/code-projects/RUNME.sh,6,comment,src/main/code-projects/RUNME.sh,Y,#   ./src/main/code-projects/RUNME.sh --code-projects <path>
@@ -282,14 +300,14 @@ src/test/gen_changelog_matrix.py,15,comment,src/run_python_script.sh,Y,src/run_p
 src/test/gen_changelog_matrix.py,15,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,"src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u"
-src/test/pre_commit.py,303,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-src/test/pre_commit.py,78,path_str,src/main/browser-captures/claude/validate.sh,Y,"validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
-src/test/pre_commit.py,87,path_str,src/main/chat-exports/validate.sh,Y,"validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',"
-src/test/pre_commit.py,96,path_str,src/main/code-projects/validate.sh,Y,"validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',"
-src/test/pre_commit.py,773,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,775,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,783,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
-src/test/pre_commit.py,785,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,306,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,81,path_str,src/main/browser-captures/claude/validate.sh,Y,"validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
+src/test/pre_commit.py,90,path_str,src/main/chat-exports/validate.sh,Y,"validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',"
+src/test/pre_commit.py,99,path_str,src/main/code-projects/validate.sh,Y,"validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',"
+src/test/pre_commit.py,824,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,826,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,834,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+src/test/pre_commit.py,836,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,26,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" 2>&1 | tee ""$REPO_DIR/src/test/pre_commit.l"

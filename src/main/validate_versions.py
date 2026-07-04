@@ -16,20 +16,44 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared 
 from validation_matrix import write_matrix  # noqa: E402
 
 
+def _log_current(log_out, input_file, schema_path, input_bytes, schema_bytes):
+    """True iff the existing log demonstrably describes the current datum × schema:
+    it postdates both files and its recorded byte sizes match. Lets an unchanged
+    datum × schema pair skip revalidation — the log IS the memoisation."""
+    try:
+        log_mtime = os.path.getmtime(log_out)
+        if log_mtime <= os.path.getmtime(input_file) or log_mtime <= os.path.getmtime(schema_path):
+            return False
+        with open(log_out) as fh:
+            next(fh)
+            input_line = next(fh)
+            schema_line = next(fh)
+    except (OSError, StopIteration):
+        return False
+    return input_line.rstrip().endswith(f', {input_bytes} bytes') and \
+        schema_line.rstrip().endswith(f': {schema_bytes} bytes')
+
+
 def validate_versions(input_file, schema_dir, log_dir, label):
     os.makedirs(log_dir, exist_ok=True)
     schemas = sorted(glob.glob(os.path.join(schema_dir, 'v*.json')))
     if not schemas:
         print(f'  {label}: no versioned schemas found in {schema_dir}', file=sys.stderr)
         return
+    skipped = 0
     for schema_path in schemas:
         version = os.path.splitext(os.path.basename(schema_path))[0]
         log_out = os.path.join(log_dir, f'{version}.log')
 
-        with open(input_file) as fh:
-            input_lines = fh.read().count('\n')
         input_bytes = os.path.getsize(input_file)
         schema_bytes = os.path.getsize(schema_path)
+
+        if _log_current(log_out, input_file, schema_path, input_bytes, schema_bytes):
+            skipped += 1
+            continue
+
+        with open(input_file) as fh:
+            input_lines = fh.read().count('\n')
 
         result = validate(input_file, schema_path)
         status = result[0]
@@ -46,6 +70,9 @@ def validate_versions(input_file, schema_dir, log_dir, label):
             print(f'    → {log_out}')
         else:
             print(f'  {label} ({version}): {status}')
+
+    if skipped:
+        print(f'  {label}: {skipped}/{len(schemas)} version(s) current — skipped')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
     # logs just written, so it can never lag them. The datum dir is the parent of the

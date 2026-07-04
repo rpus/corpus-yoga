@@ -49,8 +49,24 @@ on_failure() {
   echo "    '$jq_filter'"
 }
 
+# True iff the existing log demonstrably describes the current datum × schema: it
+# postdates both files and its recorded byte sizes match. Lets an unchanged pair skip
+# revalidation — the log IS the memoisation. (Same contract as validate_versions.py.)
+log_current() {
+  local out="$1" f="$2" schema="$3"
+  [[ -f "$out" && "$out" -nt "$f" && "$out" -nt "$schema" ]] || return 1
+  local fb sb
+  fb="$(wc -c < "$f" | xargs)"
+  sb="$(wc -c < "$schema" | xargs)"
+  sed -n '2p' "$out" | grep -q ", ${fb} bytes$" && sed -n '3p' "$out" | grep -q ", ${sb} bytes$"
+}
+
 validate_file() {
   local f="$1" schema="$2" out="$3"
+  if log_current "$out" "$f" "$schema"; then
+    skipped=$((skipped + 1))
+    return
+  fi
   {
     date -Iseconds
     file_info "$f"
@@ -62,6 +78,7 @@ validate_file() {
       on_failure "$f" "$schema" "$python_out"
     fi
   } > "$out"
+  validated=$((validated + 1))
 }
 
 validate_export() {
@@ -69,7 +86,8 @@ validate_export() {
   local validation_dir
   validation_dir="$OUTPUT_DIR/$(basename "$chat_export")/validation"
 
-  rm -rf "$validation_dir"
+  skipped=0
+  validated=0
   mkdir -p "$validation_dir"
 
   for f in "$chat_export"/*.json; do
@@ -109,6 +127,8 @@ validate_export() {
       done
     done
   done
+
+  echo "  validated ${validated}, current (skipped) ${skipped}"
 
   # Validation owns the datum's machine-local matrix: render matrix.md from the logs
   # just written (see rsc/schema/WORKFLOW.md).

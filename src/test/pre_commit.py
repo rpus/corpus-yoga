@@ -51,6 +51,9 @@ SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
 from validation_matrix import rows_from_logs  # noqa: E402
 
+sys.path.insert(0, str(SRC / 'main' / 'browser-captures'))  # turn-sequence authority
+from compare_markdown import conv_id as _conv_id, turn_seq  # noqa: E402
+
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
 @dataclass
@@ -446,6 +449,52 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
         None if ok else str(log.relative_to(REPO_ROOT)))
 
 
+def check_cross_sources(run) -> None:
+    """Append-only invariant across export surfaces: every conversation present in BOTH
+    a bulk export and the live captures must project to a turn sequence identical to,
+    or a prefix of, the capture's — a bulk export is a point-in-time snapshot and
+    conversations only ever gain turns. Divergence inside the shared prefix means a
+    projection bug or data corruption (or a post-export edit/branch switch — rare;
+    investigate with compare_sources --diff). Reads the projections both pipelines
+    already wrote to gen/; machine-local, so data tier."""
+    api_dir = GEN / 'browser-captures' / 'markdown'
+    api = {}
+    if api_dir.is_dir():
+        for f in api_dir.glob('*.md'):
+            text = f.read_text()
+            cid = _conv_id(text)
+            if cid:
+                api[cid] = turn_seq(text)
+    if not api:
+        print('  – skipped: no api projections (gen/browser-captures/markdown empty)')
+        return
+    batch_dirs = sorted((GEN / 'chat-exports').glob('data-*/markdown')) if (GEN / 'chat-exports').is_dir() else []
+    if not batch_dirs:
+        print('  – skipped: no bulk-export projections (gen/chat-exports/*/markdown empty)')
+        return
+    for mdir in batch_dirs:
+        identical = appended = shared = 0
+        divergent = []
+        for f in sorted(mdir.glob('*.md')):
+            text = f.read_text()
+            cid = _conv_id(text)
+            if not cid or cid not in api:
+                continue
+            shared += 1
+            b, a = turn_seq(text), api[cid]
+            if b == a:
+                identical += 1
+            elif len(b) < len(a) and a[:len(b)] == b:
+                appended += 1
+            else:
+                divergent.append(cid)
+        run(f'cross-source: {mdir.parent.name}: {shared} shared — '
+            f'{identical} identical, {appended} appended-to',
+            not divergent,
+            ('divergent (projection bug, corruption, or post-export edit): '
+             + ', '.join(divergent[:5])) if divergent else None)
+
+
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
 
 def check_versioned_schema_diagnostics(run):
@@ -654,6 +703,8 @@ def main():
                             check_pipeline_frontier(run, _fix, n, p)
                             if n not in data_skipped else _data_skip_note(p),
                         label=f'check_{_slug}_frontier', tier='data')
+
+        run_section(check_cross_sources, tier='data')
     finally:
         sys.stdout = sys.__stdout__
 

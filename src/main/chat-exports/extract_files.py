@@ -78,6 +78,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
     rows:  list[tuple] = []   # (ordinal, name, extracted, downloaded, copied)
 
     for idx, dir_name, convo in ordered(convos):  # canonical <ordinal>-<slug>, created_at order
+        if idx is None:
+            continue  # empty stub (nothing to extract)
         name     = convo['name']
         messages = convo.get('chat_messages', [])
 

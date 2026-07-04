@@ -1,16 +1,26 @@
 function setupExporter() {
   const AGENT = 'Claude';
   const originalWriteText = navigator.clipboard.writeText;
-  const capturedResponses = [];
-  const humanMessages = [];
   let currentCapture = null;
   let interceptorActive = false;
-  let humanTotal = 0;
-  let agentTotal = 0;
 
-  // Liveness/progress flag the driver (safari_capture.py) polls — so it detects start, progress,
-  // completion, and errors directly instead of waiting out a download timeout.
-  window.__scrape = { started: true, captured: 0, done: false, error: null };
+  // Ordered transcript: {role: 'Human'|AGENT, content} in true conversation order.
+  // claude.ai virtualizes long conversations (a sliding window of ~10-12 rendered
+  // messages; off-window nodes are REMOVED), so a one-shot DOM snapshot only ever
+  // sees the tail. The capture therefore walks to the top of the history, then
+  // walks back down capturing each message as it enters the render window.
+  // Deduplication is by DOM element identity (a dataset marker on captured rows):
+  // rendered rows are stable keyed nodes while in the window, and text-based keys
+  // cannot distinguish genuinely repeated messages (same text sent twice, the same
+  // file re-uploaded) from window overlap.
+  const transcript = [];
+
+  // Liveness/progress flags the driver (safari_capture.py) polls — so it detects start,
+  // progress, completion, and errors directly instead of waiting out a download timeout.
+  // `progress` is a heartbeat that ticks on every scroll step: during the walk-to-top
+  // phase nothing is captured for minutes, and without it the driver would call a
+  // healthy walk a stall.
+  window.__scrape = { started: true, captured: 0, progress: 0, done: false, error: null };
 
   const _consoleLogs = [];
   const log = (level, ...args) => {
@@ -21,6 +31,7 @@ function setupExporter() {
 
   // DOM Selectors - easily modifiable if Claude's UI changes
   const SELECTORS = {
+    messageRow: '[data-test-render-count]',   // one per message; survives virtualization re-renders
     copyButton: 'button[data-testid="action-bar-copy"]',
     feedbackButton: 'button[aria-label="Give positive feedback"]',
     messageContainer: '.mb-1.group',
@@ -33,6 +44,12 @@ function setupExporter() {
     copy: 100,
     startup: 1000,
     cleanup: 3000,
+    scrollSettle: 1500,   // per scroll step, for the virtualizer to fetch/render
+  };
+
+  const LIMITS = {
+    maxScrollSteps: 400,  // per phase; ~10 min at scrollSettle — a runaway backstop, not a target
+    stableTicks: 3,       // consecutive no-change ticks before an edge is trusted
   };
 
   const STATUS = {  // status-box colour per state — CSS named colours, identical for both agents
@@ -70,32 +87,27 @@ function setupExporter() {
     return slug;
   }
 
-  function readFromDOM(btn) {
-    const msgContainer = btn.closest(SELECTORS.messageContainer) || btn.closest(SELECTORS.agentContainer);
-    if (!msgContainer) return null;
-    const els = msgContainer.querySelectorAll(SELECTORS.responseText);
+  function readFromDOM(row) {
+    const els = row.querySelectorAll(SELECTORS.responseText);
     if (els.length) return Array.from(els).map(e => e.innerText.trim()).filter(t => t).join('\n\n');
     return null;
   }
 
-  function describeButton(btn) {
-    const msgContainer = btn.closest(SELECTORS.messageContainer) || btn.closest(SELECTORS.agentContainer);
-    if (!msgContainer) return '(no container)';
-
+  function describeRow(row) {
     // Plain text message
-    const p = msgContainer.querySelector(SELECTORS.messageText);
+    const p = row.querySelector(SELECTORS.messageText);
     if (p) return '"' + p.innerText.trim().substring(0, 60).replace(/\n/g, ' / ') + '"';
 
     // Image attachments
-    const imgs = msgContainer.querySelectorAll('img[alt]');
+    const imgs = row.querySelectorAll('img[alt]');
     if (imgs.length) {
       const names = Array.from(imgs).map(i => i.alt).filter(a => a).join(', ');
       return '[image: ' + names.substring(0, 60) + ']';
     }
 
     // File/code attachments and tool results: strip sr-only text then use innerText
-    const srOnly = msgContainer.querySelector('.sr-only');
-    const t = (srOnly ? msgContainer.innerText.replace(srOnly.innerText, '') : msgContainer.innerText)
+    const srOnly = row.querySelector('.sr-only');
+    const t = (srOnly ? row.innerText.replace(srOnly.innerText, '') : row.innerText)
                 .trim().substring(0, 60).replace(/\n/g, ' / ');
     return t.length > 5 ? '"' + t + '"' : '(no text)';
   }
@@ -103,8 +115,7 @@ function setupExporter() {
   // Intercept clipboard writes and route to the active capture target
   navigator.clipboard.writeText = function(text) {
     if (interceptorActive && text && currentCapture) {
-      currentCapture.push({ content: text });
-      updateStatus();
+      currentCapture.push(text);
     }
   };
 
@@ -125,10 +136,9 @@ function setupExporter() {
   }
 
   function updateStatus() {
-    const h = humanTotal ? `${humanMessages.length}/${humanTotal}` : humanMessages.length;
-    const a = agentTotal ? `${capturedResponses.length}/${agentTotal}` : capturedResponses.length;
-    window.__scrape.captured = humanMessages.length + capturedResponses.length;
-    setStatus(`Human: ${h} | ${AGENT}: ${a}`);
+    window.__scrape.captured = transcript.length;
+    const h = transcript.filter(t => t.role === 'Human').length;
+    setStatus(`Human: ${h} | ${AGENT}: ${transcript.length - h}`);
   }
 
   // A copy button's action bar = the largest ancestor still containing exactly
@@ -143,100 +153,146 @@ function setupExporter() {
     return bar;
   }
 
-  // agentOnly=true  → Claude responses  (action bar contains a feedback button)
-  // agentOnly=false → human messages    (no feedback button in the action bar)
-  function getCopyButtons(agentOnly) {
-    return Array.from(document.querySelectorAll(SELECTORS.copyButton))
-      .filter(btn => !!actionBarOf(btn).querySelector(SELECTORS.feedbackButton) === agentOnly);
+  // Human message ↔ agent response, per row: the agent action bar carries a feedback button.
+  function roleOf(copyBtn) {
+    return actionBarOf(copyBtn).querySelector(SELECTORS.feedbackButton) ? AGENT : 'Human';
   }
 
-  async function triggerCopyButtons(buttons, label) {
-    let captured = 0;
-    let placeholders = 0;
-    for (let i = 0; i < buttons.length; i++) {
-      const countBefore = currentCapture.length;
-      try {
-        if (buttons[i].offsetParent !== null) {
-          buttons[i].scrollIntoView({ behavior: 'instant', block: 'nearest' });
-          buttons[i].click();
-          await delay(DELAYS.copy);
-          if (currentCapture.length > countBefore) {
-            captured++;
-            log('LOG', `📋 Captured ${label} message ${captured}/${buttons.length}`);
-          } else {
-            const domText = readFromDOM(buttons[i]);
-            if (domText) {
-              captured++;
-              log('LOG', `📋 Captured ${label} message ${captured}/${buttons.length} (from DOM)`);
-              currentCapture.push({ content: domText });
-            } else {
-              const desc = describeButton(buttons[i]);
-              log('LOG', `📎 Button ${i + 1}/${buttons.length} — no text capture, placeholder inserted — ${desc}`);
-              currentCapture.push({ content: `[no capture — ${desc}]` });
-              placeholders++;
-            }
-            updateStatus();
-          }
-        } else {
-          log('WARN', `⏭️ Skipped button ${i + 1}/${buttons.length} — not visible`);
-        }
-      } catch (error) {
-        log('WARN', `Failed on button ${i + 1}:`, error);
-      }
+  // Message rows of the LIVE conversation frame only: during navigation transitions
+  // claude.ai can hold a previous render in an [inert] frame. (The frame's testid
+  // names contain "stale-nav" even when live — filter on the inert attribute, which
+  // reflects actual state, never on the name.)
+  function liveRows() {
+    return Array.from(document.querySelectorAll(SELECTORS.messageRow))
+      .filter(r => !r.closest('[inert]'));
+  }
+
+  // The conversation's scroll container: nearest scrollable ancestor of a live message row.
+  function scrollerOf() {
+    let el = liveRows()[0] || document.querySelector(SELECTORS.copyButton);
+    while (el) {
+      const s = getComputedStyle(el);
+      if ((s.overflowY === 'scroll' || s.overflowY === 'auto') && el.scrollHeight > el.clientHeight) return el;
+      el = el.parentElement;
     }
-    return { captured, placeholders };
+    return null;
+  }
+
+  function tickProgress(msg) {
+    window.__scrape.progress++;
+    setStatus(msg);
+  }
+
+  // Phase 1: walk to the top of the history. Instantly pinning scrollTop to 0 does NOT
+  // work — the virtualizer loads on gradual passes — and content prepending above pushes
+  // scrollTop back off 0, so the top is only trusted after stableTicks quiet ticks.
+  async function scrollToTop() {
+    const sc = scrollerOf();
+    let stable = 0;
+    for (let i = 0; i < LIMITS.maxScrollSteps; i++) {
+      if (sc) sc.scrollBy(0, -Math.round(sc.clientHeight * 0.8));
+      else window.scrollBy(0, -600);
+      await delay(DELAYS.scrollSettle);
+      tickProgress(`loading history… step ${i + 1}`);
+      const top = sc ? sc.scrollTop : window.scrollY;
+      stable = top === 0 ? stable + 1 : 0;
+      if (stable >= LIMITS.stableTicks) return;
+    }
+    log('WARN', `⚠️ hit maxScrollSteps (${LIMITS.maxScrollSteps}) walking up — history may be longer than captured`);
+  }
+
+  async function captureRow(row, copyBtn) {
+    const tmp = [];
+    currentCapture = tmp;
+    try {
+      copyBtn.click();
+      await delay(DELAYS.copy);
+    } catch (error) {
+      log('WARN', 'copy click failed:', error);
+    }
+    currentCapture = null;
+    if (tmp.length) return tmp[0];
+    const domText = readFromDOM(row);
+    if (domText) return domText;
+    return `[no capture — ${describeRow(row)}]`;
+  }
+
+  // Phase 2: walk back down, capturing each message row as it enters the render window.
+  // Rows are processed in document order per step; the monotonic downward walk makes
+  // append-order the true conversation order. A row is captured once, marked with a
+  // dataset attribute — element identity, immune to identical message text. The bottom
+  // is only trusted after stableTicks steps with no scroll movement AND no new rows.
+  async function captureWalkingDown() {
+    const sc = scrollerOf();
+    let stable = 0;
+    for (let i = 0; i < LIMITS.maxScrollSteps; i++) {
+      let added = 0;
+      // Capture only rows at/above the sweep's viewport edge: the virtualizer is lazy
+      // about evicting rows from the PREVIOUS view (hysteresis), and those leftovers
+      // sit far below — sweeping them early corrupts the transcript order. They are
+      // captured when the walk actually reaches them.
+      const limit = (sc ? sc.getBoundingClientRect().bottom : window.innerHeight) + 100;
+      for (const row of liveRows()) {
+        if (row.dataset.scraped) continue;
+        if (row.getBoundingClientRect().top > limit) continue;
+        row.dataset.scraped = '1';
+        const copyBtn = row.querySelector(SELECTORS.copyButton);
+        if (!copyBtn) {
+          log('LOG', `row without copy button skipped — ${describeRow(row)}`);
+          continue;
+        }
+        const role = roleOf(copyBtn);
+        const content = await captureRow(row, copyBtn);
+        transcript.push({ role, content });
+        added++;
+        updateStatus();
+        log('LOG', `📋 Captured ${role} message (${transcript.length} total)`);
+      }
+      const before = sc ? sc.scrollTop : window.scrollY;
+      if (sc) sc.scrollBy(0, Math.round(sc.clientHeight * 0.8));
+      else window.scrollBy(0, 600);
+      await delay(DELAYS.scrollSettle);
+      tickProgress(`capturing… ${transcript.length} messages`);
+      const after = sc ? sc.scrollTop : window.scrollY;
+      stable = (after === before && added === 0) ? stable + 1 : 0;
+      if (stable >= LIMITS.stableTicks) return;
+    }
+    log('WARN', `⚠️ hit maxScrollSteps (${LIMITS.maxScrollSteps}) walking down — capture may be incomplete`);
   }
 
   function buildMarkdown(title) {
     let markdown = `# ${title}\n\n<${window.location.href}>\n\n`;
-    const maxLength = Math.max(humanMessages.length, capturedResponses.length);
-
-    for (let i = 0; i < maxLength; i++) {
-      if (i < humanMessages.length && humanMessages[i].content) {
-        markdown += `## Human (${i+1})\n\n${humanMessages[i].content}\n\n---\n\n`;
-      }
-      if (i < capturedResponses.length && capturedResponses[i].content) {
-        markdown += `## ${AGENT} (${i+1})\n\n${capturedResponses[i].content}\n\n---\n\n`;
-      }
+    let h = 0, a = 0;
+    for (const turn of transcript) {
+      const n = turn.role === 'Human' ? ++h : ++a;
+      markdown += `## ${turn.role} (${n})\n\n${turn.content}\n\n---\n\n`;
     }
-
     return markdown;
   }
 
   async function startExport() {
     try {
-      const humanButtons = getCopyButtons(false);
-      const agentButtons = getCopyButtons(true);
-
-      if (humanButtons.length === 0 && agentButtons.length === 0) {
-        const rawCopy     = document.querySelectorAll(SELECTORS.copyButton).length;
-        const rawFeedback = document.querySelectorAll(SELECTORS.feedbackButton).length;
+      if (!liveRows().length) {
+        const rawCopy = document.querySelectorAll(SELECTORS.copyButton).length;
         throw new Error(
           rawCopy === 0
-            ? `No copy buttons in DOM (feedback: ${rawFeedback}). Page not loaded, wrong page, or copy-button selector "${SELECTORS.copyButton}" drifted.`
-            : `Found ${rawCopy} copy button(s) and ${rawFeedback} feedback button(s), but paired 0 into messages — the pairing logic drifted, not the buttons.`
+            ? `No message rows or copy buttons in DOM. Page not loaded, wrong page, or selectors "${SELECTORS.messageRow}" / "${SELECTORS.copyButton}" drifted.`
+            : `No "${SELECTORS.messageRow}" rows but ${rawCopy} copy button(s) — the row selector drifted, not the page.`
         );
       }
 
-      humanTotal = humanButtons.length;
-      agentTotal = agentButtons.length;
-      log('LOG', `🔍 Copy buttons found: ${humanButtons.length} human, ${agentButtons.length} ${AGENT.toLowerCase()}`);
-      if (Math.abs(humanButtons.length - agentButtons.length) > 1) {
-        log('WARN', `⚠️ Unbalanced counts (${humanButtons.length} human vs ${agentButtons.length} ${AGENT.toLowerCase()}) — possible misclassification from selector drift`);
-      }
-
-      // Phase 1: Human messages
-      setStatus('Copying human messages...');
-      currentCapture = humanMessages;
+      setStatus('Loading full history (walking to top)...');
       interceptorActive = true;
-      const { captured: humanCaptured, placeholders: humanPlaceholders } = await triggerCopyButtons(humanButtons, 'human');
-      log('LOG', `📊 Phase 1: ${humanCaptured} captured, ${humanPlaceholders} placeholders — ${humanCaptured + humanPlaceholders}/${humanButtons.length} human messages accounted for`);
+      await scrollToTop();
 
-      // Phase 2: Agent responses
-      setStatus(`Copying ${AGENT} responses...`);
-      currentCapture = capturedResponses;
-      const { captured: agentCaptured, placeholders: agentPlaceholders } = await triggerCopyButtons(agentButtons, AGENT.toLowerCase());
-      log('LOG', `📊 Phase 2: ${agentCaptured} captured, ${agentPlaceholders} placeholders — ${agentCaptured + agentPlaceholders}/${agentButtons.length} ${AGENT.toLowerCase()} responses accounted for`);
+      setStatus('Capturing (walking down)...');
+      await captureWalkingDown();
+
+      const h = transcript.filter(t => t.role === 'Human').length;
+      log('LOG', `📊 Captured ${transcript.length} messages (${h} human, ${transcript.length - h} ${AGENT.toLowerCase()})`);
+      if (Math.abs(h - (transcript.length - h)) > 1) {
+        log('WARN', `⚠️ Unbalanced counts (${h} human vs ${transcript.length - h} ${AGENT.toLowerCase()}) — possible misclassification from selector drift`);
+      }
 
       completeExport();
 
@@ -252,7 +308,7 @@ function setupExporter() {
   function completeExport() {
     interceptorActive = false;
 
-    if (humanMessages.length === 0 && capturedResponses.length === 0) {
+    if (transcript.length === 0) {
       setStatus('No messages captured!', 'error');
       return;
     }

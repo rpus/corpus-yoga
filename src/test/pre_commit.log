@@ -1,4 +1,4 @@
-pre_commit.py: 838/838 (data: 234/234)
+pre_commit.py: 838/838 (data: 233/233)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -987,7 +987,6 @@ pre_commit.py: 838/838 (data: 234/234)
 
   each gen/chat-exports/<datum>/matrix.md must match the vN.log files under its validation/
   ✓ matrix.current: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
-  ✓ matrix.current: data-2026-03-19-22-47-05-batch-0000
   ✓ conversations: matrix.version_registered: v1
   ✓ conversations: matrix.version_registered: v2
   ✓ conversations: matrix.version_registered: v3
@@ -1121,7 +1120,6 @@ pre_commit.py: 838/838 (data: 234/234)
 
 ── check_chat_exports_coverage ───────────────────────────────────────────────
   ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
-  ✓ conversations: modelled by some version: data-2026-03-19-22-47-05-batch-0000
 
 ── check_code_projects_coverage ──────────────────────────────────────────────
   ✓ session: modelled by some version: -Users-khalidkhan-dev-github-rpus-claude-export-yoga / a6f25723-e5d7-444e-90f5-ab2ff49e01cf
@@ -1135,8 +1133,11 @@ pre_commit.py: 838/838 (data: 234/234)
 ── check_code_projects_frontier ──────────────────────────────────────────────
   ✓ session: latest datum validates against latest (v4): -Users-khalidkhan-dev-github-rpus-claude-export-yoga / a6f25723-e5d7-444e-90f5-ab2ff49e01cf
 
+── check_cross_sources ───────────────────────────────────────────────────────
+  ✓ cross-source: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000: 95 shared — 95 identical, 0 appended-to
+
 ── check_score ───────────────────────────────────────────────────────────────
   ✓ score[code+schema]: 838/838; expected: 838/838
   ✓ score[code]: 12/12; expected: 12/12
   ✓ score[schema]: 826/826; expected: 826/826
-  ✓ score[data]: 234/234; machine-local, not recorded
+  ✓ score[data]: 233/233; machine-local, not recorded
