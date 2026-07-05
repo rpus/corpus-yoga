@@ -149,6 +149,15 @@ main() {
       esac
     done
   fi
+  # Any step that wants the reader to act prints a self-contained "→ run:" line;
+  # gather them here so the tail — the only part anyone reads — carries every
+  # suggested command. The log is safe to read mid-tee: those lines are long flushed.
+  local suggestions
+  suggestions="$(grep -F '→ run:' "$LOG_FILE" 2>/dev/null | sed 's/^.*→ run: /  /' | sort -u)" || true
+  if [[ -n "$suggestions" ]]; then
+    echo "Suggested commands (context beside each '→ run:' line above):"
+    printf '%s\n' "$suggestions"
+  fi
   echo "Run src/test/pre_commit.sh, then: git diff --cached src/test/pre_commit.log"
   echo "Log: $LOG_FILE"
 }

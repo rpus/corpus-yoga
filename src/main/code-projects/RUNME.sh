@@ -66,7 +66,15 @@ main() {
   for project_dir in "${dirs[@]}"; do
     local name; name="$(basename "${project_dir%/}")"
     echo "$name"
-    rm -rf "${OUTPUT_DIR:?}/$name"
+    # No blanket wipe: the validation logs under gen/ ARE the memoisation (an
+    # unchanged session revalidates against nothing), and jsonl_to_json keeps
+    # session.json's mtime when content is unchanged for the same reason. Only
+    # sessions whose .jsonl is gone are pruned.
+    for existing in "$OUTPUT_DIR/$name"/*/; do
+      [[ -d "$existing" ]] || continue
+      local sess; sess="$(basename "${existing%/}")"
+      [[ -f "${project_dir%/}/$sess.jsonl" ]] || rm -rf "${existing:?}"
+    done
     local found=0
     for jsonl in "${project_dir%/}"/*.jsonl; do
       [[ -f "$jsonl" ]] || continue

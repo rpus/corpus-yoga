@@ -190,10 +190,14 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
     for u in capture_only:
         print(f'  capture-only {cap_names.get(u, "")!r} ({u}): post-export — the next export will include it')
     for u in stale:
-        print(f'  CAPTURE-STALE {u}: the export holds {len(latest_convs[u][1] - caps[u])} message(s) '
-              f'the capture lacks — recapture in place')
+        # "→ run:" is a convention the top-level RUNME collects into its tail
+        # summary — keep the line self-contained (the # comment travels with it).
+        print(f'  CAPTURE-STALE {cap_names.get(u, "")!r} ({u}): the export holds '
+              f'{len(latest_convs[u][1] - caps[u])} message(s) the capture lacks — to recapture:')
+        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --id {u}'
+              f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in anomalies:
-        print(f'  ANOMALY {u}: unique messages on both sides — investigate')
+        print(f'  ANOMALY {cap_names.get(u, "")!r} ({u}): unique messages on both sides — investigate')
 
 
 def main():
@@ -229,21 +233,23 @@ def main():
     sufficient = True
     for b in batches[:-1]:
         ext_dir = ext_root / b.name
-        component_verdicts = []
-        lines = []
+        superseded, holding, details = [], [], []
         for name, fn in COMPONENTS:
             earlier = fn(b, ext_dir)
-            subset, details = compare_component(earlier, latest_units[name])
-            ok = not details
-            component_verdicts.append(ok)
-            lines.append(f'  {name}: {len(earlier)} unit(s) — {subset} subset → '
-                         f'{"superseded" if ok else "NOT superseded"}')
-            lines += details
-        batch_ok = all(component_verdicts)
-        print(f'{b.name} → {"SUPERSEDED" if batch_ok else "NOT superseded"}')
-        for line in lines:
-            print(line)
-        sufficient = sufficient and batch_ok
+            _, component_details = compare_component(earlier, latest_units[name])
+            (superseded if not component_details else holding).append(name)
+            details += component_details
+        # One line per batch: the verdict and which components block deletion.
+        # The unit/atom counts are mechanism — the details below carry the
+        # specifics for exactly the components that hold unique data.
+        if not holding:
+            print(f'{b.name} → SUPERSEDED (every component a subset of the latest)')
+        else:
+            print(f'{b.name} → NOT superseded: {", ".join(holding)} hold(s) unique data'
+                  + (f' ({", ".join(superseded)} superseded)' if superseded else ''))
+            for line in details:
+                print(line)
+        sufficient = sufficient and not holding
 
     if len(batches) >= 2:
         print(f'verdict: latest snapshot is '

@@ -98,21 +98,23 @@ src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
 src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/claude/<uuid>
 src/main/browser-captures/RUNME.sh,34,call,src/main/browser-captures/claude/validate.sh,Y,"""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/RUNME.sh,60,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
-src/main/browser-captures/RUNME.sh,60,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
-src/main/browser-captures/RUNME.sh,65,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/browser-captures/RUNME.sh,65,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/browser-captures/RUNME.sh,68,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/RUNME.sh,68,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/RUNME.sh,72,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
-src/main/browser-captures/RUNME.sh,72,call,src/main/browser-captures/compare_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,54,call,src/main/browser-captures/claude/validate.sh,Y,"""$SCRIPT_DIR/claude/validate.sh"" --browser-captures ""$root"""
+src/main/browser-captures/RUNME.sh,57,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,57,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,62,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/browser-captures/RUNME.sh,62,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/browser-captures/RUNME.sh,65,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,65,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,69,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,69,call,src/main/browser-captures/compare_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_markdown.py"" \"
 src/main/browser-captures/audit_captures.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--browser-captures ext/browser-captures] [--ap
 src/main/browser-captures/audit_captures.py,30,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--browser-captures ext/browser-captures] [--ap
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
-src/main/browser-captures/claude/validate.sh,11,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
-src/main/browser-captures/claude/validate.sh,23,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
-src/main/browser-captures/claude/validate.sh,23,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
-src/main/browser-captures/claude/validate.sh,24,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
+src/main/browser-captures/claude/validate.sh,6,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-captures <path/to/captures-root>
+src/main/browser-captures/claude/validate.sh,16,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
+src/main/browser-captures/claude/validate.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/browser-captures/claude/validate.sh,28,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/browser-captures/claude/validate.sh,29,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
 src/main/browser-captures/compare_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api lib/markdown/claude/conversations --scr
 src/main/browser-captures/compare_markdown.py,24,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api lib/markdown/claude/conversations --scr
 src/main/browser-captures/copy_gemini_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-captures ext/browser-captures/
@@ -328,10 +330,11 @@ src/test/pre_commit.py,335,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/
 src/test/pre_commit.py,82,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,91,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,102,path_str,src/main/code-projects/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-projects/RUNME.sh --code-project',"
-src/test/pre_commit.py,867,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,869,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,877,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,879,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,533,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
+src/test/pre_commit.py,884,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,886,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,894,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,896,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,67,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"

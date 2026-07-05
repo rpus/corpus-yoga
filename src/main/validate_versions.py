@@ -41,6 +41,7 @@ def validate_versions(input_file, schema_dir, log_dir, label):
         print(f'  {label}: no versioned schemas found in {schema_dir}', file=sys.stderr)
         return
     skipped = 0
+    ran = {}   # version -> (status, log_path) for the versions validated this run
     for schema_path in schemas:
         version = os.path.splitext(os.path.basename(schema_path))[0]
         log_out = os.path.join(log_dir, f'{version}.log')
@@ -56,7 +57,6 @@ def validate_versions(input_file, schema_dir, log_dir, label):
             input_lines = fh.read().count('\n')
 
         result = validate(input_file, schema_path)
-        status = result[0]
 
         with open(log_out, 'w') as f:
             f.write(datetime.now().astimezone().replace(microsecond=0).isoformat() + '\n')
@@ -65,25 +65,41 @@ def validate_versions(input_file, schema_dir, log_dir, label):
             for line in result:
                 f.write(line + '\n')
 
-        if len(status) > 80:
-            print(f'  {label} ({version}): {status[:80]}…')
-            print(f'    → {log_out}')
-        else:
-            print(f'  {label} ({version}): {status}')
+        ran[version] = (result[0], log_out)
 
-    if skipped:
+    # The expectation is "the datum is modelled by some version" (normally the
+    # frontier); older versions failing is ordinary schema history. So the happy
+    # paths get one line each and no log pointers; only a datum NO version models
+    # gets the full per-version statuses with their logs — that is the case
+    # someone must act on.
+    valid   = [v for v, (s, _) in ran.items() if s == 'Valid!']
+    invalid = [v for v, (s, _) in ran.items() if s != 'Valid!']
+    if not ran:
         print(f'  {label}: {skipped}/{len(schemas)} version(s) current — skipped')
+    elif valid:
+        print(f'  {label}: modelled by {", ".join(valid)}'
+              + (f'; not by {", ".join(invalid)}' if invalid else '')
+              + (f'; {skipped} current — skipped' if skipped else ''))
+    else:
+        print(f'  {label}: NOT modelled by any of the {len(ran)} version(s) validated'
+              + (f' ({skipped} current version(s) skipped — see matrix)' if skipped else '')
+              + ':')
+        for version, (status, log_out) in ran.items():
+            print(f'  {label} ({version}): {status[:80]}{"…" if len(status) > 80 else ""}')
+            print(f'    → {log_out}')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
     # logs just written, so it can never lag them. The datum dir is the parent of the
     # 'validation' component of log_dir (which may nest further, e.g. projects/<uuid>).
+    # Announce it only when something was (re)validated — an all-current datum's
+    # matrix is unchanged and its path is not news.
     p = Path(log_dir).resolve()
     while p.name != 'validation' and p != p.parent:
         p = p.parent
     if p.name == 'validation':
         mfile = write_matrix(p.parent, Path(schema_dir).resolve().parent)
-        if mfile:
-            print(f'  matrix: {mfile}')
+        if mfile and ran:
+            print(f'  matrix: {os.path.relpath(mfile)}')
 
 
 if __name__ == '__main__':

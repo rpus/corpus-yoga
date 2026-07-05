@@ -487,10 +487,12 @@ def check_cross_sources(run) -> None:
     """Append-only invariant across export surfaces: every conversation present in BOTH
     a bulk export and the live captures must project to a turn sequence identical to,
     or a prefix of, the capture's — a bulk export is a point-in-time snapshot and
-    conversations only ever gain turns. Divergence inside the shared prefix means a
-    projection bug or data corruption (or a post-export edit/branch switch — rare;
-    investigate with compare_sources --diff). Reads the projections both pipelines
-    already wrote to gen/; machine-local, so data tier."""
+    conversations only ever gain turns. The capture being a prefix of the EXPORT is
+    the mirror case: a stale capture, fixed by recapturing that conversation (the
+    remedy is printed). Divergence inside the shared prefix means a projection bug
+    or data corruption (or a post-export edit/branch switch — rare; investigate
+    with compare_sources --diff). Reads the projections both pipelines already
+    wrote to gen/; machine-local, so data tier."""
     api_dir = REPO_ROOT / 'lib' / 'markdown' / 'claude' / 'conversations'
     api = {}
     if api_dir.is_dir():
@@ -508,7 +510,7 @@ def check_cross_sources(run) -> None:
         return
     for mdir in batch_dirs:
         identical = appended = shared = 0
-        divergent = []
+        stale, divergent = [], []
         for f in sorted(mdir.glob('*.md')):
             text = f.read_text()
             cid = _conv_id(text)
@@ -520,13 +522,24 @@ def check_cross_sources(run) -> None:
                 identical += 1
             elif len(b) < len(a) and a[:len(b)] == b:
                 appended += 1
+            elif len(b) > len(a) and b[:len(a)] == a:
+                stale.append((cid, f.stem))
             else:
                 divergent.append(cid)
+        detail_parts = []
+        for cid, name in stale[:5]:
+            detail_parts.append(
+                f"capture-stale {name!r} ({cid}) — the export extends the capture; to recapture:"
+                f"\n        → run: src/main/browser-captures/safari_capture.sh --agent claude --id {cid}"
+                f"  # first front https://claude.ai/chat/{cid} in Safari (logged in)")
+        if divergent:
+            detail_parts.append('divergent (projection bug, corruption, or post-export edit): '
+                                + ', '.join(divergent[:5]))
         run(f'cross-source: {mdir.parent.name}: {shared} shared — '
-            f'{identical} identical, {appended} appended-to',
-            not divergent,
-            ('divergent (projection bug, corruption, or post-export edit): '
-             + ', '.join(divergent[:5])) if divergent else None)
+            f'{identical} identical, {appended} appended-to'
+            + (f', {len(stale)} capture-stale' if stale else ''),
+            not (stale or divergent),
+            '\n      '.join(detail_parts) if detail_parts else None)
 
 
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
@@ -813,12 +826,16 @@ def main():
     else:
         score_rows.append((f'score[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
                            got == tot,
-                           'Fix failures in the data tier first' if got != tot else None))
+                           'advisory — a fact about this machine\'s data, not the code; '
+                           'remedies are printed beside each ✗ in the data tier above'
+                           if got != tot else None))
 
     for label, ok, detail in score_rows:
         results.append((label, ok, detail))
         sections.append('check_score')
-        tiers.append('score')
+        # score[data] carries the data tier's advisory nature: it is reported but,
+        # like the tier it summarises, must not gate commits (see exit below).
+        tiers.append('data' if label.startswith('score[data]') else 'score')
         if not ok:
             failures.append((label, detail))
 
@@ -989,7 +1006,14 @@ def main():
         subprocess.run(['git', 'add', '-u'], cwd=REPO_ROOT)
         print('Staged with git add -u — re-run pre_commit.sh to verify.')
 
-    sys.exit(1 if failures else 0)
+    # The data tier is machine-local ("not recorded"): a stale capture on this
+    # machine is a fact about its data, not about the change being committed.
+    # Data failures are reported in full above but only code/schema/score
+    # failures veto the exit status — otherwise local data drift fails every
+    # run, including on trunk where the hook's veto is strict (the hook's
+    # branch-awareness solves feature branches; this solves the tier).
+    gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
+    sys.exit(1 if gating else 0)
 
 
 if __name__ == '__main__':

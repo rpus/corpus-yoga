@@ -15,9 +15,25 @@ Usage:
     cat input.jsonl | python jsonl_to_json.py        # reads from stdin
 """
 
+import filecmp
 import json
+import os
 import sys
 from pathlib import Path
+
+
+def _write_if_changed(path, write):
+    """Write via a sibling temp file; keep the existing file (and its mtime) when the
+    content is identical. The output's mtime is downstream validation's memoisation
+    key — an unchanged session must not look new, or every run revalidates it."""
+    tmp = path + '.tmp'
+    with open(tmp, 'w') as dst:
+        result = write(dst)
+    if os.path.exists(path) and filecmp.cmp(tmp, path, shallow=False):
+        os.remove(tmp)
+    else:
+        os.replace(tmp, path)
+    return result
 
 
 def convert(src, dst):
@@ -54,9 +70,11 @@ def main():
         with open(args[0]) as src:
             convert(src, sys.stdout)
     elif len(args) == 2:
-        with open(args[0]) as src, open(args[1], 'w') as dst:
-            title = convert(src, dst)
-        Path(args[1] + '.title').write_text(title)
+        with open(args[0]) as src:
+            title = _write_if_changed(args[1], lambda dst: convert(src, dst))
+        title_file = Path(args[1] + '.title')
+        if not (title_file.exists() and title_file.read_text() == title):
+            title_file.write_text(title)
     else:
         print(__doc__, file=sys.stderr)
         sys.exit(1)
