@@ -52,8 +52,12 @@ def main() -> None:
     for chat_dir in sorted(downloaded_dir.iterdir()):
         if not chat_dir.is_dir():
             continue
-        uuid8 = chat_dir.name.rsplit('-', 1)[-1]  # "<ordinal>-<slug>-<uuid8>" (see library.py)
+        # "<ordinal>-<slug>-<uuid8>" (see library.py); the prefix fallback reads the
+        # legacy uuid8-first vintage, present until a pipeline run touch-heals it
+        uuid8 = chat_dir.name.rsplit('-', 1)[-1]
         chat_idx = ordinal_by_uuid8.get(uuid8)
+        if chat_idx is None:
+            chat_idx = ordinal_by_uuid8.get(chat_dir.name.split('-', 1)[0])
         if chat_idx is None:
             print(f'files_from_downloaded: {chat_dir.name} not in this batch — omitted',
                   file=sys.stderr)

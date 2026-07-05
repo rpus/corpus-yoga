@@ -192,6 +192,8 @@ src/main/chat-exports/infer_tables.sh,85,call,src/run_python_script.sh,Y,"| ""$R
 src/main/chat-exports/infer_tables.sh,85,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
 src/main/chat-exports/infer_tables.sh,100,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
 src/main/chat-exports/infer_tables.sh,100,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/library.py,27,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/library.py       gen/chat-exports/<batch>/json [--root lib/artifacts/down
+src/main/chat-exports/library.py,27,comment,src/main/chat-exports/library.py,Y,src/run_python_script.sh src/main/chat-exports/library.py       gen/chat-exports/<batch>/json [--root lib/artifacts/down
 src/main/chat-exports/present.sh,3,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/present.sh,4,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ext/chat-exports
 src/main/chat-exports/present.sh,11,path_str,rsc/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/index.html"""

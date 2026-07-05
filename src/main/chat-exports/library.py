@@ -16,15 +16,36 @@ non-alphanumerics to '_'), so the final hyphen always delimits the uuid8.
 
 Resolution is always by uuid8 suffix (glob "*-<uuid8>"), never by dressing: a
 conversation renamed or renumbered simply gets fresh dressing on next touch.
+
+As a CLI, normalises a library holding earlier naming vintages — the original
+"<ordinal>-<slug>" (no uuid: resolved by unique slug against the batch corpus)
+and the uuid8-prefix "<uuid8>-<slug>" — renaming each dir to canonical and
+MERGING when two vintages turn out to be the same conversation (files moved
+across, byte-identical duplicates dropped, differing files reported as
+CONFLICTs and left in place). Dry-run by default:
+
+    src/run_python_script.sh src/main/chat-exports/library.py \
+      gen/chat-exports/<batch>/json [--root lib/artifacts/downloaded] [--apply]
 """
+import re
+import shutil
+import sys
 from pathlib import Path
 
 LIBRARY = Path(__file__).resolve().parents[3] / 'lib' / 'artifacts' / 'downloaded'
 
 
 def find(uuid: str, root: Path = LIBRARY) -> Path | None:
-    """The existing library dir for this conversation, or None."""
-    hits = sorted(root.glob(f'*-{uuid[:8]}')) if root.is_dir() else []
+    """The existing library dir for this conversation, or None. Recognises the
+    canonical suffix form AND the short-lived 2026-07-05 uuid8-PREFIX vintage
+    ("<uuid8>-<slug>"), so a library pulled at that vintage heals on first touch
+    (dir_for renames whatever find returns) instead of silently duplicating —
+    the exact bug uuid-keying exists to prevent. (No false positives either way:
+    an ordinal prefix is 2-3 digits, never 8 hex + '-'; a slug tail would have
+    to equal this conversation's uuid8 exactly.)"""
+    if not root.is_dir():
+        return None
+    hits = sorted(root.glob(f'*-{uuid[:8]}')) or sorted(root.glob(f'{uuid[:8]}-*'))
     return hits[0] if hits else None
 
 
@@ -39,3 +60,105 @@ def dir_for(uuid: str, dressing: str, root: Path = LIBRARY) -> Path:
     if existing != canonical:
         existing.rename(canonical)  # dressing refresh — identity (the suffix) unchanged
     return canonical
+
+
+# ── CLI: normalise a library holding earlier naming vintages ──────────────────
+
+_HEX8 = re.compile(r'^[0-9a-f]{8}$')
+
+
+def _corpus(json_dir: Path):
+    """From a batch's atomised pieces: uuid8 -> current canonical dressing, and
+    slug -> [uuid8, ...] (for resolving the uuid-less ancient vintage)."""
+    import json
+    dressing_by_u8, u8s_by_slug = {}, {}
+    for f in sorted(json_dir.glob('*.json')):
+        head, _, slugpart = f.stem.partition('-')
+        if not head.isdigit():
+            continue  # empty-<uuid8> stubs carry no slug identity
+        u8 = json.loads(f.read_text())['uuid'][:8]
+        dressing_by_u8[u8] = f.stem
+        u8s_by_slug.setdefault(slugpart, []).append(u8)
+    return dressing_by_u8, u8s_by_slug
+
+
+def _identify(name: str, u8s_by_slug) -> tuple[str | None, str]:
+    """(uuid8 or None, reason). Canonical/suffix and prefix vintages carry their
+    uuid8; the ancient <ordinal>-<slug> vintage resolves by unique slug."""
+    tail = name.rsplit('-', 1)[-1]
+    head = name.split('-', 1)[0]
+    if _HEX8.match(tail) and not tail.isdigit():
+        return tail, 'suffix'
+    if _HEX8.match(head) and not head.isdigit():
+        return head, 'prefix vintage'
+    cands = u8s_by_slug.get(name.partition('-')[2], [])
+    if len(cands) == 1:
+        return cands[0], 'ancient vintage, slug-resolved'
+    return None, f'slug matches {len(cands)} conversation(s)'
+
+
+def _merge(src: Path, dest: Path, apply: bool) -> int:
+    """Move src's files into dest; drop byte-identical duplicates; report and
+    keep differing files (CONFLICT). Returns the conflict count."""
+    conflicts = 0
+    for f in sorted(p for p in src.rglob('*') if p.is_file() and p.name != '.DS_Store'):
+        rel = f.relative_to(src)
+        target = dest / rel
+        if not target.exists():
+            print(f'      move {rel}')
+            if apply:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                f.rename(target)
+        elif target.read_bytes() == f.read_bytes():
+            print(f'      identical {rel} — dropping duplicate')
+            if apply:
+                f.unlink()
+        else:
+            print(f'      ✗ CONFLICT {rel} — differs from {dest.name}; left in place')
+            conflicts += 1
+    if apply and not conflicts:
+        shutil.rmtree(src)  # only .DS_Store-class residue can remain
+    return conflicts
+
+
+def _normalise(root: Path, json_dir: Path, apply: bool) -> int:
+    dressing_by_u8, u8s_by_slug = _corpus(json_dir)
+    problems = 0
+    claimed: set[str] = set()  # canonical names claimed this run (dry-run merge prediction)
+    for d in sorted(p for p in root.iterdir() if p.is_dir()):
+        u8, how = _identify(d.name, u8s_by_slug)
+        if u8 is None:
+            print(f'  ! {d.name}: {how} — left alone')
+            problems += 1
+            continue
+        # canonical: current dressing when the conversation is in the corpus;
+        # a departed conversation keeps its slug, dressing-less (no false number)
+        dressing = dressing_by_u8.get(u8)
+        stem = d.name.rsplit('-', 1)[0] if how == 'suffix' else d.name.split('-', 1)[-1]
+        canonical = root / (f'{dressing}-{u8}' if dressing else f'{stem}-{u8}')
+        if d == canonical:
+            claimed.add(canonical.name)
+            continue
+        if canonical.exists():
+            print(f'  {d.name} ({how}) same conversation as {canonical.name} — merging')
+            problems += _merge(d, canonical, apply)
+        elif canonical.name in claimed:
+            print(f'  {d.name} ({how}) same conversation as {canonical.name} — '
+                  f'would merge (file-level plan on --apply)')
+        else:
+            print(f'  {d.name} ({how}) -> {canonical.name}')
+            if apply:
+                d.rename(canonical)
+        claimed.add(canonical.name)
+    print('APPLIED' if apply else 'dry run — pass --apply to normalise')
+    return problems
+
+
+if __name__ == '__main__':
+    import argparse
+    ap = argparse.ArgumentParser(description='normalise library dir naming across vintages')
+    ap.add_argument('json_dir', help="a batch's atomised json/ (the corpus for slug/ordinal resolution)")
+    ap.add_argument('--root', default=str(LIBRARY))
+    ap.add_argument('--apply', action='store_true')
+    args = ap.parse_args()
+    sys.exit(1 if _normalise(Path(args.root), Path(args.json_dir), args.apply) else 0)
