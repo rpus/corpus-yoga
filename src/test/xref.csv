@@ -333,10 +333,10 @@ src/test/pre_commit.py,832,path_str,src/run_python_script.sh,Y,_add(f'src/run_py
 src/test/pre_commit.py,834,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
-src/test/pre_commit.sh,29,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"""
-src/test/pre_commit.sh,29,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"""
-src/test/pre_commit.sh,35,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"""
-src/test/pre_commit.sh,35,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"""
+src/test/pre_commit.sh,54,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || rc=$?"
+src/test/pre_commit.sh,54,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || rc=$?"
+src/test/pre_commit.sh,61,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
+src/test/pre_commit.sh,61,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
 src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.title_matches_key.py,Y,Usage: python src/test/repairs/naming.title_matches_key.py <schema>
