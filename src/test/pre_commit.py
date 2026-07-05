@@ -51,8 +51,8 @@ SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
 from validation_matrix import rows_from_logs  # noqa: E402
 
-sys.path.insert(0, str(SRC / 'main' / 'browser-captures'))  # turn-sequence authority
-from compare_markdown import conv_id as _conv_id, turn_seq  # noqa: E402
+sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
+from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 

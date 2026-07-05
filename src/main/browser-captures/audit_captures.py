@@ -39,7 +39,9 @@ import sys
 import time
 from pathlib import Path
 
-from compare_markdown import classify, conv_id, turn_seq
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
+from compare_markdown import classify
 
 # Gemini renders only the last N exchanges until scrolled; a scrape sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking-scraper one.

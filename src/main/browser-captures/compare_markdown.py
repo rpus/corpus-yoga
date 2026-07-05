@@ -22,31 +22,20 @@ Turns are aligned scrape→api with difflib. Per conversation:
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/compare_markdown.py \
-    --api gen/markdown/claude --scrape ext/browser-captures/claude [--diff]
+    --api lib/markdown/claude/conversations --scrape ext/browser-captures/claude [--diff]
 
 Exit status is non-zero iff a regression is found (suitable for pipeline gating).
 """
 import argparse
 import difflib
-import re
 import sys
 from pathlib import Path
+from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
 
 KEY_PREFIX = 80   # chars of normalized content used as a turn's alignment identity
-
-
-def turn_seq(md):
-    """Ordered [(role, normalized_body)] — role 'H' (Human) or 'A' (Claude/Gemini).
-    The trailing --- turn divider is not part of the turn's content: an empty turn
-    must normalize to '' (the empty-turn exemption in classify depends on it)."""
-    parts = re.split(r'^## (Human|Claude|Gemini) [^\n]*\n', md, flags=re.M)
-    seq = []
-    for i in range(1, len(parts) - 1, 2):
-        role = 'H' if parts[i] == 'Human' else 'A'
-        body = re.sub(r'\s+', ' ', parts[i + 1]).strip()
-        body = re.sub(r'\s*---$', '', body)
-        seq.append((role, body))
-    return seq
 
 
 def _key(turn):
@@ -58,9 +47,10 @@ def _is_placeholder(turn):
     return turn[1].startswith('[no capture')
 
 
-def classify(s_seq, a_seq):
+def classify(s_seq, a_seq) -> tuple[str, Any]:
     """Align scrape→api turn sequences; return (kind, detail).
-    kind: 'exact' | 'improved' | regression string."""
+    kind: 'exact' | 'improved' | regression string. detail is kind-dependent:
+    an int (content-diff pair count) for 'exact', a message otherwise."""
     sm = difflib.SequenceMatcher(None, [_key(t) for t in s_seq], [_key(t) for t in a_seq],
                                  autojunk=False)
     dropped = []   # scrape turns with no api alignment
@@ -109,15 +99,6 @@ def classify(s_seq, a_seq):
     if extra or unpaired_placeholders:
         return 'improved', None
     return 'exact', paired_diff
-
-
-def conv_id(md):
-    """The conversation id, from the <url> line both renderers emit (last path segment).
-    Robust pairing key -- the two sides slugify different titles, so filenames can diverge."""
-    m = re.search(r'<(https?://[^>]+)>', md)
-    if not m:
-        return None
-    return m.group(1).split('?')[0].split('#')[0].rstrip('/').rsplit('/', 1)[-1]
 
 
 def _index(paths):

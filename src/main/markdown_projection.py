@@ -114,6 +114,33 @@ def render(conv):
     return '\n'.join(out).rstrip() + '\n'
 
 
+def turn_seq(md):
+    """Ordered [(role, normalized_body)] — role 'H' (Human) or 'A' (Claude/Gemini) — parsed
+    from a rendered markdown string. The dual of render(): this file owns the markdown
+    format in both directions, so format changes (e.g. the heading anchors, which the
+    `[^\\n]*` split deliberately ignores) stay in lockstep. The trailing --- turn divider
+    is not part of the turn's content: an empty turn must normalize to '' (the empty-turn
+    exemption in compare_markdown.classify depends on it)."""
+    parts = re.split(r'^## (Human|Claude|Gemini) [^\n]*\n', md, flags=re.M)
+    seq = []
+    for i in range(1, len(parts) - 1, 2):
+        role = 'H' if parts[i] == 'Human' else 'A'
+        body = re.sub(r'\s+', ' ', parts[i + 1]).strip()
+        body = re.sub(r'\s*---$', '', body)
+        seq.append((role, body))
+    return seq
+
+
+def conv_id(md):
+    """The conversation id, from the <url> line render() (and the gemini scraper) emits
+    (last path segment). Robust pairing key -- different sides slugify different titles,
+    so filenames can diverge."""
+    m = re.search(r'<(https?://[^>]+)>', md)
+    if not m:
+        return None
+    return m.group(1).split('?')[0].split('#')[0].rstrip('/').rsplit('/', 1)[-1]
+
+
 def slug(title):
     return re.sub(r'[^a-z0-9]+', '_', title.lower()).strip('_')[:100] or 'conversation'
 

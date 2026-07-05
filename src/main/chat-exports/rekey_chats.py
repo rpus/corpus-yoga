@@ -42,8 +42,9 @@ def main():
     table = json.load(sys.stdin)
 
     old_col, new_col = ('chat', 'uuid') if args.to_uuid else ('uuid', 'chat')
-    mapping = ({n: c['uuid'] for n, c in order} if args.to_uuid
-               else {c['uuid']: n for n, c in order})
+    mapping: dict[int | str, int | str] = (
+        {n: c['uuid'] for n, c in order} if args.to_uuid
+        else {c['uuid']: n for n, c in order})
     ci = {c: i for i, c in enumerate(table['columns'])}
     if old_col not in ci:
         sys.exit(f"rekey_chats: no '{old_col}' column in {table['columns']}")

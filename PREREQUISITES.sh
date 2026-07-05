@@ -69,11 +69,17 @@ check_optional_modes() {
   echo "optional modes"
   if [[ "$(uname)" == "Darwin" ]] && command -v osascript &>/dev/null; then
     ok "--capture-from-browser possible: macOS + osascript (Safari must be logged in to claude.ai / gemini.google.com)"
-    if [[ "$(defaults read -app Safari AllowJavaScriptFromAppleEvents 2>/dev/null)" == "1" ]]; then
-      ok "Safari 'Allow JavaScript from Apple Events' is enabled"
-    else
-      info "Safari 'Allow JavaScript from Apple Events' appears disabled — capture will refuse to run (Settings → Advanced → 'Show features for web developers', then Developer → enable it)"
-    fi
+    # Modern Safari keeps this setting where `defaults` cannot see it, and the reliable
+    # probe (`do JavaScript "1+1"`) would drive Safari — off-limits for this read-only
+    # reporter. Report the state only when the legacy key happens to be readable;
+    # otherwise say honestly that we cannot tell from here. Capture itself fail-fasts
+    # with a clear error if the setting is actually off (safari_assert_js_allowed).
+    js_from_ae="$(defaults read -app Safari AllowJavaScriptFromAppleEvents 2>/dev/null || true)"
+    case "$js_from_ae" in
+      1) ok "Safari 'Allow JavaScript from Apple Events' is enabled" ;;
+      0) info "Safari 'Allow JavaScript from Apple Events' is disabled — capture will fail-fast (Settings → Advanced → 'Show features for web developers', then Settings → Developer → enable it)" ;;
+      *) info "Safari 'Allow JavaScript from Apple Events' cannot be verified read-only on this Safari version — if it is off, capture fail-fasts with a clear error naming this setting" ;;
+    esac
   else
     info "--capture-from-browser unavailable: needs macOS + osascript; other pipelines unaffected"
   fi
@@ -121,7 +127,7 @@ check_pipeline_inputs() {
 
 notes() {
   echo "notes"
-  info "./RUNME.sh writes only to ext/, gen/, logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "./RUNME.sh writes only to ext/, gen/, lib/, logs/ (all git-ignored) and the venv; nothing else on this machine"
   info "src/test/pre_commit.sh: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
