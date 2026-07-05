@@ -64,7 +64,8 @@ class Pipeline:
     input:           Path
     input_glob:      str
     subject_depth:   int
-    validate_item_cmd: str
+    # Per-item remedy command; takes the pipeline's TOP-LEVEL ext/ entry (see _fix_item_cmd).
+    fix_item_cmd:    str
     # Extra diagnostics to skip beyond the universal versioned-schema skip set.
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
     diagnostic_skip:    frozenset[str] = frozenset()
@@ -78,7 +79,7 @@ PIPELINES: dict[str, Pipeline] = {
         input             = EXT / 'browser-captures' / 'claude',
         input_glob        = '*/',
         subject_depth     = 1,
-        validate_item_cmd = 'src/main/browser-captures/claude/validate.sh --browser-capture',
+        fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',
     ),
     'chat-exports': Pipeline(
         schemas           = ['conversations', 'memories', 'projects', 'users'],
@@ -87,7 +88,7 @@ PIPELINES: dict[str, Pipeline] = {
         input             = EXT / 'chat-exports',
         input_glob        = 'data-*/',
         subject_depth     = 1,
-        validate_item_cmd = 'src/main/chat-exports/validate.sh --chat-export',
+        fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',
     ),
     'code-projects': Pipeline(
         schemas           = ['session'],
@@ -96,7 +97,9 @@ PIPELINES: dict[str, Pipeline] = {
         input             = EXT / 'code-projects',
         input_glob        = '-Users-*/*.jsonl',
         subject_depth     = 2,
-        validate_item_cmd = 'src/main/code-projects/validate.sh --code-project-session',
+        # validate.sh --code-project-session consumes the gen/ session dir (conversion
+        # from .jsonl comes first), so the runnable ext-rooted unit is the project RUNME.
+        fix_item_cmd      = 'src/main/code-projects/RUNME.sh --code-project',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
     ),
 }
@@ -131,6 +134,16 @@ def _leaf(subject: str) -> str:
     labels use just the uuid — uniform with the depth-1 pipelines, and the committed
     pre_commit.log then carries no machine-derived slugs (they embed the username)."""
     return subject.split(' / ')[-1]
+
+
+def _fix_item_cmd(pipeline: Pipeline, subject: str) -> str:
+    """The runnable remedy for one subject: the pipeline's fix_item_cmd plus the
+    TOP-LEVEL ext/ entry containing the subject — the granularity every per-item
+    command actually accepts. A depth-2 subject ('<project> / <uuid>') therefore
+    hints at its project; joining the full subject would name a path no command
+    consumes (and, for code-projects, one that does not even exist as given)."""
+    item = pipeline.input / subject.split(' / ')[0]
+    return f'{pipeline.fix_item_cmd} {item.relative_to(REPO_ROOT)}'
 
 
 def _datum_dirs(pipeline: Pipeline) -> list[Path]:
@@ -334,13 +347,13 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
             seen_versions.setdefault(schema, set()).add(version)
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
-            fix(run_cmd)
+            fix(run_cmd, problem=f'matrix.written: {_leaf(subject)} — matrix.md missing')
             run(f'matrix.written: {_leaf(subject)}', False, str(mfile.relative_to(REPO_ROOT)))
             continue
         actual = _parse_matrix_file(mfile)
         ok = actual == {k: sym for k, (sym, _) in expected.items()}
         if not ok:
-            fix(run_cmd)
+            fix(run_cmd, problem=f'matrix.current: {_leaf(subject)} — matrix.md disagrees with validation logs')
         run(f'matrix.current: {_leaf(subject)}', ok,
             None if ok else f'matrix.md disagrees with validation logs — regenerate: {run_cmd}')
 
@@ -351,7 +364,8 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
             v  = vpath.stem
             ok = v in seen_versions.get(schema, set())
             if not ok:
-                fix(pipe_cmd)
+                fix(pipe_cmd, problem=f'{schema}: matrix.version_registered: {v} — '
+                                      f'no local datum has validated against {v}')
                 fix(f'then: {run_cmd}')
             run(f'{schema}: matrix.version_registered: {v}', ok)
 
@@ -363,7 +377,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
     )
     for subject in sorted(current_subjects):
         if subject not in processed_subjects:
-            fix(pipe_cmd)
+            fix(pipe_cmd, problem=f'unprocessed input: {_leaf(subject)} — no validation output in {gen_rel}/')
             fix(f'then: {run_cmd}')
             run(f'unprocessed input: {_leaf(subject)}', False)
 
@@ -430,12 +444,14 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
         if not logs:
             continue
         passing = any('Valid!' in l.read_text() for l in logs)
+        label = f'{schema}: modelled by some version: {_leaf(subject)}'
         if not passing:
-            item_path = pipeline.input.joinpath(*subject.split(' / ')).relative_to(REPO_ROOT)
-            fix(f'{pipeline.validate_item_cmd} {item_path}')
-            fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
-        run(f'{schema}: modelled by some version: {_leaf(subject)}', passing,
-            None if passing else 'validates against no schema version')
+            fix(f'{_fix_item_cmd(pipeline, subject)}  # refresh the evidence '
+                '(only helps if data or schemas changed since the logs were written)',
+                problem=f'{label} — validates against no schema version')
+            fix('then, if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
+                'schema version — current evidence means only a schema change can clear it')
+        run(label, passing, None if passing else 'validates against no schema version')
 
 
 def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
@@ -457,12 +473,14 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
     _, subject, leaf_dir = max(keyed, key=lambda k: k[0])
     log = leaf_dir / 'validation' / schema / f'{latest}.log'
     ok  = log.exists() and 'Valid!' in log.read_text()
+    label = f'{schema}: latest datum validates against latest ({latest}): {_leaf(subject)}'
     if not ok:
-        item_path = pipeline.input.joinpath(*subject.split(' / ')).relative_to(REPO_ROOT)
-        fix(f'{pipeline.validate_item_cmd} {item_path}')
-        fix('then follow rsc/schema/WORKFLOW.md to add or adjust a schema version')
-    run(f'{schema}: latest datum validates against latest ({latest}): {_leaf(subject)}', ok,
-        None if ok else str(log.relative_to(REPO_ROOT)))
+        fix(f'{_fix_item_cmd(pipeline, subject)}  # refresh the evidence '
+            '(only helps if data or schemas changed since the logs were written)',
+            problem=label)
+        fix('then, if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
+            'schema version — current evidence means only a schema change can clear it')
+    run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)))
 
 
 def check_cross_sources(run) -> None:
@@ -653,13 +671,21 @@ def main():
         mark = '✓' if passed else '✗'
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
 
-    fix_hints: list[str] = []
-    fix_tier:  dict[str, str] = {}
+    # Each hint is deduplicated but remembers the tier it was raised in (the
+    # committed log carries only deterministic-tier hints) and every problem it
+    # remedies, so the tail can print problem statement(s) above each command —
+    # a bare command with no statement of what it fixes is not a fix hint.
+    fix_hints:    list[str] = []
+    fix_tier:     dict[str, str] = {}
+    fix_problems: dict[str, list[str]] = {}
 
-    def fix(hint: str) -> None:
+    def fix(hint: str, problem: str | None = None) -> None:
         if hint not in fix_tier:
             fix_hints.append(hint)
             fix_tier[hint] = current_tier[0] or 'schema'
+            fix_problems[hint] = []
+        if problem and problem not in fix_problems[hint]:
+            fix_problems[hint].append(problem)
 
     sections: list[str] = []
     tiers:    list[str] = []
@@ -801,14 +827,19 @@ def main():
         return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
 
     def _fix_lines(fail_list, hints):
-        """Assemble the runnable To-fix lines for a failure subset (no execution)."""
+        """Assemble the To-fix entries for a failure subset (no execution). Each
+        entry is (problem statements, runnable command) — a command is only
+        intelligible under the ✗ it remedies. 'then: ' hints merge into the
+        previous command line and contribute their problems to it."""
         fix_commands: list[str] = list(hints)
-        seen: set[str] = set(hints)
+        problems: dict[str, list[str]] = {h: list(fix_problems.get(h, [])) for h in hints}
 
-        def _add(cmd: str) -> None:
-            if cmd not in seen:
+        def _add(cmd: str, problem: str | None = None) -> None:
+            if cmd not in problems:
                 fix_commands.append(cmd)
-                seen.add(cmd)
+                problems[cmd] = []
+            if problem and problem not in problems[cmd]:
+                problems[cmd].append(problem)
 
         for name, detail in fail_list:
             parts = name.split(': ')
@@ -819,33 +850,36 @@ def main():
                 repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
                 diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
                 if repair.exists() and schema_path.exists():
-                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif diagnostic.exists() and schema_path.exists():
-                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif detail:
-                    _add(detail)
+                    _add(detail, name)
             elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
                 diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
                 repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
                 diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
                 if repair.exists() and schema_path.exists():
-                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif diagnostic.exists() and schema_path.exists():
-                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
+                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif detail:
-                    _add(detail)
+                    _add(detail, name)
 
-        lines = []
+        lines: list[tuple[list[str], str]] = []
         for cmd in fix_commands:
+            ps = problems.get(cmd, [])
             if cmd.startswith('then: '):
                 actual = cmd[len('then: '):]
                 if lines:
-                    lines[-1] += f'; {actual}'
+                    prev_ps, prev_cmd = lines[-1]
+                    lines[-1] = (prev_ps + [p for p in ps if p not in prev_ps],
+                                 f'{prev_cmd}; {actual}')
                 else:
-                    lines.append(actual)
+                    lines.append((list(ps), actual))
             else:
                 actual = cmd[len('Run: '):] if cmd.startswith('Run: ') else cmd
-                lines.append(actual)
+                lines.append((list(ps), actual))
         return lines
 
     def _render(committed_only: bool):
@@ -878,7 +912,7 @@ def main():
             out.write(f'  {"✓" if ok else "✗"} {label}' +
                       (f'\n      {detail}\n' if not ok and detail else '\n'))
 
-        lines: list[str] = []
+        lines: list[tuple[list[str], str]] = []
         if fails:
             counts = {sec: sum(1 for i in idxs if not results[i][1] and sections[i] == sec)
                       for sec in fail_sections}
@@ -891,8 +925,12 @@ def main():
             lines = _fix_lines(fails, hints)
             if lines:
                 out.write('\nTo fix:\n')
-                for line in lines:
-                    out.write(f'  {line}\n')
+                for ps, line in lines:
+                    for p in ps[:3]:
+                        out.write(f'  ✗ {p}\n')
+                    if len(ps) > 3:
+                        out.write(f'  ✗ … and {len(ps) - 3} more like these\n')
+                    out.write(f'    {line}\n')
                 out.write('\n')
                 out.write('  (or run with --fix to apply and stage automatically)\n')
         return out.getvalue(), lines
@@ -910,7 +948,9 @@ def main():
     if failures and args.fix and full_fix_lines:
         print()
         print('Running fixes:')
-        for line in full_fix_lines:
+        for ps, line in full_fix_lines:
+            for p in ps[:3]:
+                print(f'  ✗ {p}')
             print(f'  {line}')
             subprocess.run(line, shell=True, cwd=REPO_ROOT)
         print()
