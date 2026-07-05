@@ -32,13 +32,13 @@
         "./chat-exports/memories/v1.json": [
           "#/0/account_uuid"
         ],
-        "./chat-exports/projects/v1.json": [
+        "./chat-exports/projects/v2.json": [
           "#/0/creator/uuid"
         ],
         "./chat-exports/users/v1.json": [
           "#/0/uuid"
         ],
-        "./chat-exports/conversations/v13.json": [
+        "./chat-exports/conversations/v14.json": [
           "#/0/account/uuid"
         ]
       }

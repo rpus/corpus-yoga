@@ -67,6 +67,9 @@ $(chat_list "$conv")" \
 
 # infer_chat_categories <conversations_json> <out_dir>
 # Requires: data-categories.json already present in <out_dir>
+# The LLM speaks ordinals (short, reliable in a prompt); the durable inferred/ file
+# speaks uuid (rekey_chats.py --to-uuid) so it survives corpus renumbering;
+# present.sh re-derives the then-current ordinals at injection time.
 infer_chat_categories() {
   local conv="$1" out_dir="$2"
   local categories
@@ -78,6 +81,7 @@ category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
 $(chat_list "$conv")" \
+    | "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/rekey_chats.py" --to-uuid --conversations "$conv" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_dir/data-chat-categories.json"
   echo "  ✓ data-chat-categories"

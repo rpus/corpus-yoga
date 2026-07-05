@@ -15,6 +15,9 @@ Groups output by conversation under:
     gen/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
+The durable library lib/artifacts/downloaded/ is keyed by identity instead (<uuid8>-<slug>,
+resolved via library.py); files new to the library are copied there and echoed to the
+gen/artifacts delta log under the library's directory name.
 
 Usage:
     python extract_heredocs.py --chat-export <path-to-export>
@@ -31,6 +34,7 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import ordered
+from library import dir_for, LIBRARY
 
 OUTPUTS_PREFIX = '/mnt/user-data/outputs/'
 WORKING_PREFIX = '/home/claude/'
@@ -98,6 +102,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             continue
 
         convo_dir = out_dir / dir_name
+        # library resolution is by uuid (identity), never by the batch ordinal name
+        dl_dir = dir_for(convo['uuid'], dir_name.split('-', 1)[1])
         extracted = identical = newline_only = differs = copied = 0
         for e in by_path.values():
             dest = convo_dir / e['bucket'] / e['rel']
@@ -106,7 +112,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             extracted += 1
 
             if e['bucket'] == 'outputs':
-                dl_path = DOWNLOADED_DIR / convo_dir.name / e['rel']
+                dl_path = dl_dir / e['rel']
                 if dl_path.exists():
                     dl_text = dl_path.read_text()
                     if dl_text == e['content']:
@@ -122,7 +128,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                         diff_entries.append((convo_dir.name, str(e['rel']), 'differs',
                                              dest, dl_path))
                 else:
-                    rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
+                    rsc_dest = RSC_DIR / dl_dir.name / e['bucket'] / e['rel']
                     rsc_dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(dest, rsc_dest)
                     dl_path.parent.mkdir(parents=True, exist_ok=True)
@@ -132,11 +138,11 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                 # working/ files (/home/claude/) are internal to the Claude sandbox and cannot
                 # be downloaded from the claude.ai UI, so there is no user-downloaded version
                 # to diff against. Existence check only.
-                dl_path = DOWNLOADED_DIR / convo_dir.name / e['bucket'] / e['rel']
+                dl_path = dl_dir / e['bucket'] / e['rel']
                 if dl_path.exists():
                     identical += 1
                 else:
-                    rsc_dest = RSC_DIR / convo_dir.name / e['bucket'] / e['rel']
+                    rsc_dest = RSC_DIR / dl_dir.name / e['bucket'] / e['rel']
                     rsc_dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(dest, rsc_dest)
                     dl_path.parent.mkdir(parents=True, exist_ok=True)
@@ -162,7 +168,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_id:>9}  {t_nl:>8}  {t_diff:>8}  {t_cp:>6}\n')
         else:
             t_ext = t_id = t_nl = t_diff = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to {RSC_DIR.relative_to(SCRIPT_DIR.parents[2])} and {DOWNLOADED_DIR.relative_to(SCRIPT_DIR.parents[2])}).\n')
+        log.write(f'\nDone. {t_ext} extracted: {t_id} identical, {t_nl} newline-only, {t_diff} ahead-in-downloaded, {t_cp} new (copied to {RSC_DIR.relative_to(SCRIPT_DIR.parents[2])} and {LIBRARY.relative_to(SCRIPT_DIR.parents[2])}).\n')
 
         if diff_entries:
             log.write(f'\n── outputs/ files found in downloaded ({t_nl}+{t_diff}={t_nl+t_diff} shown, not copied to {RSC_DIR.relative_to(SCRIPT_DIR.parents[2])}) ──\n')
@@ -178,7 +184,6 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 SCRIPT_DIR     = Path(__file__).parent
 OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
-DOWNLOADED_DIR = SCRIPT_DIR.parent.parent.parent / 'lib' / 'artifacts' / 'downloaded'
 RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'gen' / 'artifacts' / 'extracted_heredocs'
 
 

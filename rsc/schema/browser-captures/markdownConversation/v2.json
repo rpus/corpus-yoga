@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "MarkdownConversation",
+  "description": "Lean projection of a claude.ai conversation, isomorphic to its markdown rendering: just the title, URL, and an ordered list of role-tagged text turns, each carrying its message uuid (the turn's durable identity \u2014 rendered as an HTML anchor on the turn's markdown heading, so an index can reference a turn across corpus renumberings). Projected (by stripping metadata) from the richer apiConversation capture, and renderable straight to markdown without any browser/DOM scraping. The same shape is the projection target for bulk-export conversations. See model_join.csv for the field correspondence.",
+  "allOf": [
+    {
+      "$ref": "#/definitions/MarkdownConversation"
+    }
+  ],
+  "definitions": {
+    "MarkdownConversation": {
+      "title": "MarkdownConversation",
+      "description": "A whole conversation reduced to what the markdown shows.",
+      "type": "object",
+      "required": [
+        "title",
+        "url",
+        "messages"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "Conversation title (apiConversation.name).",
+          "type": "string"
+        },
+        "url": {
+          "description": "Canonical claude.ai URL. Example: \"https://claude.ai/chat/<uuid>\".",
+          "type": "string"
+        },
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/MarkdownMessage"
+          }
+        }
+      }
+    },
+    "MarkdownMessage": {
+      "title": "MarkdownMessage",
+      "description": "One turn: a role, its rendered text (the text-type content blocks joined), and the source message's uuid.",
+      "type": "object",
+      "required": [
+        "role",
+        "content",
+        "uuid"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "description": "Speaker of the turn.",
+          "type": "string",
+          "enum": [
+            "human",
+            "assistant"
+          ]
+        },
+        "content": {
+          "description": "Rendered text of the turn.",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "The source message's uuid (apiConversation chat_messages[].uuid / bulk-export Conversation chat_messages[].uuid) \u2014 identical across the two sources, which is what makes the rendered anchors agree cross-source.",
+          "$ref": "#/definitions/UuidV4orV7"
+        }
+      }
+    },
+    "UuidV4orV7": {
+      "title": "UuidV4orV7",
+      "description": "A UUID that is either v4 or v7. Some fields were strictly v7 in earlier exports but v4 UUIDs appeared in later exports.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UuidV4"
+        },
+        {
+          "$ref": "#/definitions/UuidV7"
+        }
+      ]
+    },
+    "UuidV4": {
+      "title": "UuidV4",
+      "description": "Standard UUID version 4 (randomly generated). Used for conversation, account, and tool result content item identifiers. Example: \"e5b78a25-53f5-4d1a-82f4-e35bfe406bd4\". A zero v4 UUID (00000000-0000-4000-8000-000000000000, not the RFC 4122 nil UUID 00000000-0000-0000-0000-000000000000) is used by convention in claude.ai exports as a sentinel value for parent_message_uuid, to indicate a root message with no parent.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "UuidV7": {
+      "title": "UuidV7",
+      "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    }
+  }
+}

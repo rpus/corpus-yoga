@@ -1,4 +1,4 @@
-pre_commit.py: 873/873 (data: 233/233)
+pre_commit.py: 927/927 (data: 237/237)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 873/873 (data: 233/233)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 63 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 65 unreferenced
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -95,7 +95,9 @@ pre_commit.py: 873/873 (data: 233/233)
   ✓ conversations: valid JSON + $schema: v11
   ✓ conversations: valid JSON + $schema: v12
   ✓ conversations: valid JSON + $schema: v13
+  ✓ conversations: valid JSON + $schema: v14
   ✓ markdownConversation: valid JSON + $schema: v1
+  ✓ markdownConversation: valid JSON + $schema: v2
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
@@ -148,8 +150,12 @@ pre_commit.py: 873/873 (data: 233/233)
   ✓ conversations: no_todo: v12
   ✓ conversations: changelog_narrative: v13
   ✓ conversations: no_todo: v13
+  ✓ conversations: changelog_narrative: v14
+  ✓ conversations: no_todo: v14
   ✓ markdownConversation: changelog_narrative: v1
   ✓ markdownConversation: no_todo: v1
+  ✓ markdownConversation: changelog_narrative: v2
+  ✓ markdownConversation: no_todo: v2
   ✓ memories: changelog_narrative: v1
   ✓ memories: no_todo: v1
   ✓ projects: changelog_narrative: v1
@@ -672,6 +678,30 @@ pre_commit.py: 873/873 (data: 233/233)
   ✓ conversations: structure.no_redundant_additional_properties_true: v13
   ✓ conversations: structure.pattern_constraints_enforced: v13
   ✓ conversations: structure.required_subset_of_properties: v13
+  ✓ conversations: composition.base_not_used_directly: v14
+  ✓ conversations: composition.base_schemas_closed: v14
+  ✓ conversations: composition.discriminator_values_disjoint: v14
+  ✓ conversations: composition.no_additional_properties_on_subtypes: v14
+  ✓ conversations: composition.wrapper_has_five_fields: v14
+  ✓ conversations: documentation.discriminator_fields_annotated: v14
+  ✓ conversations: documentation.every_definition_has_title_and_description: v14
+  ✓ conversations: documentation.null_only_fields_documented: v14
+  ✓ conversations: documentation.open_set_enums_documented: v14
+  ✓ conversations: empirical.nullable_fields_surveyed: v14
+  ✓ conversations: empirical.oneOf_branches_evidenced: v14
+  ✓ conversations: naming.property_keys_lowercase: v14
+  ✓ conversations: naming.title_matches_key: v14
+  ✓ conversations: naming.upper_camel_case: v14
+  ✓ conversations: structure.all_definitions_reachable: v14
+  ✓ conversations: structure.bfs_order: v14
+  ✓ conversations: structure.definitions_at_bottom: v14
+  ✓ conversations: structure.enum_refines_explicit_type: v14
+  ✓ conversations: structure.field_order: v14
+  ✓ conversations: structure.minItems_on_non_empty_arrays: v14
+  ✓ conversations: structure.no_dangling_refs: v14
+  ✓ conversations: structure.no_redundant_additional_properties_true: v14
+  ✓ conversations: structure.pattern_constraints_enforced: v14
+  ✓ conversations: structure.required_subset_of_properties: v14
   ✓ markdownConversation: composition.base_not_used_directly: v1
   ✓ markdownConversation: composition.base_schemas_closed: v1
   ✓ markdownConversation: composition.discriminator_values_disjoint: v1
@@ -696,6 +726,30 @@ pre_commit.py: 873/873 (data: 233/233)
   ✓ markdownConversation: structure.no_redundant_additional_properties_true: v1
   ✓ markdownConversation: structure.pattern_constraints_enforced: v1
   ✓ markdownConversation: structure.required_subset_of_properties: v1
+  ✓ markdownConversation: composition.base_not_used_directly: v2
+  ✓ markdownConversation: composition.base_schemas_closed: v2
+  ✓ markdownConversation: composition.discriminator_values_disjoint: v2
+  ✓ markdownConversation: composition.no_additional_properties_on_subtypes: v2
+  ✓ markdownConversation: composition.wrapper_has_five_fields: v2
+  ✓ markdownConversation: documentation.discriminator_fields_annotated: v2
+  ✓ markdownConversation: documentation.every_definition_has_title_and_description: v2
+  ✓ markdownConversation: documentation.null_only_fields_documented: v2
+  ✓ markdownConversation: documentation.open_set_enums_documented: v2
+  ✓ markdownConversation: empirical.nullable_fields_surveyed: v2
+  ✓ markdownConversation: empirical.oneOf_branches_evidenced: v2
+  ✓ markdownConversation: naming.property_keys_lowercase: v2
+  ✓ markdownConversation: naming.title_matches_key: v2
+  ✓ markdownConversation: naming.upper_camel_case: v2
+  ✓ markdownConversation: structure.all_definitions_reachable: v2
+  ✓ markdownConversation: structure.bfs_order: v2
+  ✓ markdownConversation: structure.definitions_at_bottom: v2
+  ✓ markdownConversation: structure.enum_refines_explicit_type: v2
+  ✓ markdownConversation: structure.field_order: v2
+  ✓ markdownConversation: structure.minItems_on_non_empty_arrays: v2
+  ✓ markdownConversation: structure.no_dangling_refs: v2
+  ✓ markdownConversation: structure.no_redundant_additional_properties_true: v2
+  ✓ markdownConversation: structure.pattern_constraints_enforced: v2
+  ✓ markdownConversation: structure.required_subset_of_properties: v2
   ✓ memories: composition.base_not_used_directly: v1
   ✓ memories: composition.base_schemas_closed: v1
   ✓ memories: composition.discriminator_values_disjoint: v1
@@ -890,7 +944,7 @@ pre_commit.py: 873/873 (data: 233/233)
 
 ── check_model_join_versions ─────────────────────────────────────────────────
   ✓ model_join: browser-captures/apiConversation: v8
-  ✓ model_join: chat-exports/conversations: v13
+  ✓ model_join: chat-exports/conversations: v14
   ✓ model_join: code-projects/session: v4
 
 ── check_mcp_schema ──────────────────────────────────────────────────────────
@@ -1014,6 +1068,7 @@ pre_commit.py: 873/873 (data: 233/233)
 
   each gen/chat-exports/<datum>/matrix.md must match the vN.log files under its validation/
   ✓ matrix.current: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
+  ✓ matrix.current: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000
   ✓ conversations: matrix.version_registered: v1
   ✓ conversations: matrix.version_registered: v2
   ✓ conversations: matrix.version_registered: v3
@@ -1027,6 +1082,7 @@ pre_commit.py: 873/873 (data: 233/233)
   ✓ conversations: matrix.version_registered: v11
   ✓ conversations: matrix.version_registered: v12
   ✓ conversations: matrix.version_registered: v13
+  ✓ conversations: matrix.version_registered: v14
   ✓ memories: matrix.version_registered: v1
   ✓ projects: matrix.version_registered: v1
   ✓ projects: matrix.version_registered: v2
@@ -1147,6 +1203,7 @@ pre_commit.py: 873/873 (data: 233/233)
 
 ── check_chat_exports_coverage ───────────────────────────────────────────────
   ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
+  ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000
 
 ── check_code_projects_coverage ──────────────────────────────────────────────
   ✓ session: modelled by some version: a6f25723-e5d7-444e-90f5-ab2ff49e01cf
@@ -1155,16 +1212,17 @@ pre_commit.py: 873/873 (data: 233/233)
   ✓ apiConversation: latest datum validates against latest (v8): ee84f070-6d59-4856-bafe-633886b6f0d8
 
 ── check_chat_exports_frontier ───────────────────────────────────────────────
-  ✓ conversations: latest datum validates against latest (v13): data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
+  ✓ conversations: latest datum validates against latest (v14): data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000
 
 ── check_code_projects_frontier ──────────────────────────────────────────────
   ✓ session: latest datum validates against latest (v4): a6f25723-e5d7-444e-90f5-ab2ff49e01cf
 
 ── check_cross_sources ───────────────────────────────────────────────────────
   ✓ cross-source: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000: 95 shared — 95 identical, 0 appended-to
+  ✓ cross-source: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000: 98 shared — 98 identical, 0 appended-to
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 873/873; expected: 873/873
+  ✓ score[code+schema]: 927/927; expected: 927/927
   ✓ score[code]: 12/12; expected: 12/12
-  ✓ score[schema]: 861/861; expected: 861/861
-  ✓ score[data]: 233/233; machine-local, not recorded
+  ✓ score[schema]: 915/915; expected: 915/915
+  ✓ score[data]: 237/237; machine-local, not recorded

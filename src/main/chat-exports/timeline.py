@@ -12,7 +12,7 @@ duplicate.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
-    --table chats            -> {columns:[chat,name,dormant_from], rows:[...]}   (data-chats)
+    --table chats            -> {columns:[chat,name,dormant_from,uuid], rows:[...]}  (data-chats)
     --table spans            -> {columns:[chat,from,to,messages],  rows:[...]}   (data-spans)
     --table local-resources  -> {columns:[chat,file,mime_type],    rows:[...]}   (data-local-resources)
     --table chat-list         -> "<n>: <name>" lines (stdin for the inference API)
@@ -35,8 +35,12 @@ def _trim(ts):
 
 
 def chats(order):
-    return {'columns': ['chat', 'name', 'dormant_from'],
-            'rows': [[n, c['name'], _trim(c.get('updated_at'))] for n, _, c in order]}
+    # uuid is the conversation's durable identity — the join key to the uuid8-keyed
+    # stores (lib/artifacts/downloaded/, inferred tables); chat is only its CURRENT
+    # ordinal in this batch. Consumers read columns by name, so the extra column is
+    # invisible to the dashboard timeline itself.
+    return {'columns': ['chat', 'name', 'dormant_from', 'uuid'],
+            'rows': [[n, c['name'], _trim(c.get('updated_at')), c['uuid']] for n, _, c in order]}
 
 
 def spans(order):

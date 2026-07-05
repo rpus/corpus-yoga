@@ -17,8 +17,10 @@ sources:
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
     eh_wrk   Files written to gen/<export>/extracted_heredocs/<chat>/working/
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
-    dl       Files in lib/artifacts/downloaded/<chat>/ (manually downloaded
-             from the claude.ai UI).
+    dl       Files in the durable library lib/artifacts/downloaded/<uuid8>-<slug>/
+             (manually downloaded from the claude.ai UI; joined by uuid via
+             library.py and the uuid column of data-chats.json — library names
+             survive the renumbering that batch ordinals don't).
 
 Columns
 ───────
@@ -45,9 +47,9 @@ Columns
 
 Downloaded path conventions
 ────────────────────────────
-    ef      lib/artifacts/downloaded/<chat_slug>/<path>          (no bucket)
-    eh_out  lib/artifacts/downloaded/<chat_slug>/<path>          (no bucket)
-    eh_wrk  lib/artifacts/downloaded/<chat_slug>/working/<path>  (bucket preserved)
+    ef      lib/artifacts/downloaded/<uuid8>-<slug>/<path>          (no bucket)
+    eh_out  lib/artifacts/downloaded/<uuid8>-<slug>/<path>          (no bucket)
+    eh_wrk  lib/artifacts/downloaded/<uuid8>-<slug>/working/<path>  (bucket preserved)
 
 Usage
 ─────
@@ -75,11 +77,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import slug
+from library import dir_for
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 GEN_DIR    = REPO_ROOT / 'gen' / 'chat-exports'
-DL_ROOT    = REPO_ROOT / 'lib' / 'artifacts' / 'downloaded'
 GEN_EF     = REPO_ROOT / 'gen' / 'artifacts' / 'extracted_files'
 GEN_EH     = REPO_ROOT / 'gen' / 'artifacts' / 'extracted_heredocs'
 
@@ -112,6 +114,7 @@ def run_one(name: str) -> None:
     fc = {c: i for i, c in enumerate(files_j['columns'])}
     cc = {c: i for i, c in enumerate(chats_j['columns'])}
     chat_names = {r[cc['chat']]: r[cc['name']] for r in chats_j['rows']}
+    chat_uuids = {r[cc['chat']]: r[cc['uuid']] for r in chats_j['rows']}
     width      = len(str(len(chats_j['rows'])))  # zero-pad width for the canonical <ordinal>-<slug>
 
     from collections import defaultdict
@@ -123,6 +126,9 @@ def run_one(name: str) -> None:
 
     for chat_idx, cname in sorted(chat_names.items()):
         cs = f'{chat_idx:0{width}d}-{slug(cname)}'
+        # library resolution is by uuid (identity); the extractors' gen/artifacts
+        # delta logs mirror the library's directory name
+        dl_dir = dir_for(chat_uuids[chat_idx], slug(cname))
 
         # ── tooltip ───────────────────────────────────────────────────────────
         # Paths from local_resource tool results; this is what the tooltip shows.
@@ -138,9 +144,9 @@ def run_one(name: str) -> None:
                 if not f.is_file():
                     continue
                 rel    = f.relative_to(ef_dir)
-                dl_p   = DL_ROOT / cs / rel
+                dl_p   = dl_dir / rel
                 cmp    = compare(f, dl_p)
-                in_gen = 'Y' if (GEN_EF / cs / rel).exists() else 'N'
+                in_gen = 'Y' if (GEN_EF / dl_dir.name / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'ef', str(rel),
                              'Y' if dl_p.exists() else 'N', cmp, in_gen])
 
@@ -153,9 +159,9 @@ def run_one(name: str) -> None:
                 if not f.is_file():
                     continue
                 rel    = f.relative_to(eh_out)
-                dl_p   = DL_ROOT / cs / rel
+                dl_p   = dl_dir / rel
                 cmp    = compare(f, dl_p)
-                in_gen = 'Y' if (GEN_EH / cs / 'outputs' / rel).exists() else 'N'
+                in_gen = 'Y' if (GEN_EH / dl_dir.name / 'outputs' / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'eh_out', str(rel),
                              'Y' if dl_p.exists() else 'N', cmp, in_gen])
 
@@ -169,15 +175,14 @@ def run_one(name: str) -> None:
                 if not f.is_file():
                     continue
                 rel    = f.relative_to(eh_wrk)
-                dl_p   = DL_ROOT / cs / 'working' / rel
+                dl_p   = dl_dir / 'working' / rel
                 cmp    = compare(f, dl_p)
-                in_gen = 'Y' if (GEN_EH / cs / 'working' / rel).exists() else 'N'
+                in_gen = 'Y' if (GEN_EH / dl_dir.name / 'working' / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'eh_wrk', str(rel),
                              'Y' if dl_p.exists() else 'N', cmp, in_gen])
 
         # ── downloaded ────────────────────────────────────────────────────────
-        # Everything in lib/artifacts/downloaded/<chat_slug>/.
-        dl_dir = DL_ROOT / cs
+        # Everything in the conversation's library dir.
         if dl_dir.exists():
             for f in sorted(dl_dir.rglob('*')):
                 if f.is_file() and f.name != '.DS_Store':

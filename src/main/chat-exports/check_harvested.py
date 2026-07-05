@@ -5,6 +5,11 @@ check_harvested.py
 Cross-references data-files.json against extracted_files/ and
 extracted_heredocs/ to report files not yet harvested.
 
+Batch extraction dirs are joined by the canonical <ordinal>-<slug> name; the
+durable library lib/artifacts/downloaded/ is joined by uuid (via
+src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <uuid8>-<slug> names survive the
+renumbering that batch ordinals don't.
+
 Usage:
     python check_harvested.py <chat-export-name>
 
@@ -18,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import slug
+from library import find as find_library_dir
 
 SCRIPT_DIR = Path(__file__).parent
 OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
@@ -73,10 +79,14 @@ def main():
         row[ci['chat']]: f'{row[ci["chat"]]:0{width}d}-{slug(row[ci["name"]])}'
         for row in data_chats['rows']
     }
+    # the library join is by identity, not ordinal (see library.py)
+    library_dirs = {
+        row[ci['chat']]: find_library_dir(row[ci['uuid']])
+        for row in data_chats['rows']
+    }
 
     extracted_files_dir    = export_dir / 'extracted_files'
     extracted_heredocs_dir = export_dir / 'extracted_heredocs'
-    downloaded_dir         = SCRIPT_DIR.parent.parent.parent / 'lib' / 'artifacts' / 'downloaded'
 
     cols = {c: i for i, c in enumerate(data_files['columns'])}
     heredocs_ran = extracted_heredocs_dir.exists()
@@ -97,7 +107,8 @@ def main():
         in_ef = (extracted_files_dir / chat_slug / rel_path).exists()
         in_eh = any((extracted_heredocs_dir / chat_slug / b / rel_path).exists() for b in BUCKETS)
         in_gen = in_ef or in_eh
-        in_downloaded = (downloaded_dir / chat_slug / rel_path).exists()
+        library_dir = library_dirs.get(chat_idx)
+        in_downloaded = library_dir is not None and (library_dir / rel_path).exists()
 
         display = str(rel_path)
         if in_gen:

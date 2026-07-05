@@ -60,22 +60,9 @@ main() {
       "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
         --browser-captures "$root"
       # gemini's scrapes ARE markdown already -- copy them into the presentation tree
-      # beside claude's projections (gen/markdown/{claude,gemini}); a slug collision
-      # gets the conversation id prefixed.
-      if [[ -d "$REPO_DIR/ext/browser-captures/gemini" ]]; then
-        gout="$REPO_DIR/gen/markdown/gemini"
-        rm -rf "$gout"; mkdir -p "$gout"
-        for d in "$REPO_DIR/ext/browser-captures/gemini"/*/; do
-          [[ -d "$d" ]] || continue
-          for f in "$d"*.md; do
-            [[ -f "$f" ]] || continue
-            dest="$gout/$(basename "$f")"
-            [[ -e "$dest" ]] && dest="$gout/$(basename "${d%/}")-$(basename "$f")"
-            cp "$f" "$dest"
-          done
-        done
-        echo "copied $(find "$gout" -name '*.md' | wc -l | xargs) gemini scrape(s) to gen/markdown/gemini"
-      fi
+      # beside claude's projections (gen/markdown/{claude,gemini}), anchoring each turn
+      # heading for navigability; a slug collision gets the conversation id prefixed.
+      "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/copy_gemini_markdown.py"
       # capture-health report against the fresh projections (informational — the
       # compare gate below decides pass/fail; PREP.sh printed the pre-run baseline)
       "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \

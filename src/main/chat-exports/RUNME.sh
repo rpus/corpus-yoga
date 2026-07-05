@@ -48,6 +48,11 @@ run_one() {
   # which by design persist across unpaid runs.
 
   "$SCRIPT_DIR/validate.sh"         --chat-export "$input_dir"
+  # archive the batch's non-conversation components (memories/projects/users) verbatim
+  # into gen/<batch>/ — the gen dir is then the complete record of the four-component
+  # snapshot, and compare_batches reads all four from that one root
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/archive_components.py" \
+    --chat-export "$input_dir"
   "$SCRIPT_DIR/extract_files.sh"    --chat-export "$input_dir"
   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$input_dir"
 
@@ -92,12 +97,13 @@ main() {
     done
   fi
 
-  # supersession report (informational): a new export may supersede every earlier one
-  # (message-uuid subsets on the atomised pieces) — their lattice join — even when the
-  # earlier batches don't supersede each other; superseded batches are deletable. Also
-  # compares the latest batch against the live-capture corpus per conversation:
-  # capture-ahead is normal post-snapshot growth; capture-stale names conversations to
-  # recapture in place. Orphaned/deleted conversations are a fact, not an error.
+  # supersession report (informational): a batch is a synchronised snapshot of FOUR
+  # components (conversations, memories, projects, users), each put through the same
+  # unprejudiced unit/atom subset check — no component is assumed append-only or
+  # mutable; a batch is deletable iff EVERY component is superseded (their lattice
+  # join). Also compares the latest batch against the live-capture corpus per
+  # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
+  # conversations to recapture in place. Divergence is a fact, not an error.
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/compare_batches.py" \
     --chat-exports-gen "$OUTPUT_DIR" \
     --captures "$REPO_DIR/ext/browser-captures/claude" || true

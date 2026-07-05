@@ -1,16 +1,25 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "ApiConversation",
-  "description": "Schema for a single claude.ai conversation as returned by the internal chat API (GET /api/organizations/{org}/chat_conversations/{id}). v1 validated against 55 live API responses (all pass). See rsc/schema/chat-exports/conversations/ for the bulk-export format.",
+  "title": "conversations",
+  "description": "Schema for the Claude.ai bulk conversation export format (conversations.json), obtained via Settings > Privacy > Export Data. The export format is the Claude API data model extended with a persistence and UI envelope. The core ContentBlock discriminated union (text, tool_use, tool_result) is shared verbatim with the API; the envelope fields (start_timestamp, stop_timestamp, display_content, integration_*, icon_name, approval_*, is_mcp_app, mcp_server_url) are claude.ai additions layered on top with no direct API counterpart. See: https://platform.claude.com/docs/en/build-with-claude/working-with-messages",
   "allOf": [
     {
-      "$ref": "#/definitions/ApiConversation"
+      "$ref": "#/definitions/Conversations"
     }
   ],
   "definitions": {
-    "ApiConversation": {
-      "title": "ApiConversation",
-      "description": "Live claude.ai API conversation. Differs from bulk-export Conversation: adds current_leaf_message_uuid, is_starred, is_temporary, model, platform, settings; omits account. No existing definitions modified. v4 adds is_wiggle_enabled and effective_thinking_mode, two root fields introduced by the claude.ai API after v3.",
+    "Conversations": {
+      "title": "Conversations",
+      "description": "All conversations in a claude.ai data export, as a JSON array.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Conversation"
+      }
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A single conversation thread. No direct equivalent in the API, which is stateless \u2014 the full message history is supplied on every request. The name, summary, created_at, updated_at, and account fields are claude.ai persistence-layer additions.",
       "type": "object",
       "required": [
         "uuid",
@@ -18,14 +27,7 @@
         "summary",
         "created_at",
         "updated_at",
-        "current_leaf_message_uuid",
-        "is_starred",
-        "is_temporary",
-        "model",
-        "platform",
-        "settings",
-        "is_wiggle_enabled",
-        "effective_thinking_mode",
+        "account",
         "chat_messages"
       ],
       "additionalProperties": false,
@@ -37,64 +39,33 @@
           "type": "string"
         },
         "summary": {
+          "description": "Claude-generated summary of the conversation. Empty string for chats not yet processed by the 24-hour summarisation cycle (typically the most recent exports).",
           "type": "string"
         },
         "created_at": {
           "$ref": "#/definitions/Timestamp"
         },
         "updated_at": {
+          "description": "Timestamp of the last modification to the conversation, updated whenever a message is added. Almost coincides with the `updated_at` of the final message. The rare ~1-second discrepancy likely arises when the last activity is a human message or a tool result whose stop_timestamp lags the conversation update slightly.",
           "$ref": "#/definitions/Timestamp"
         },
-        "current_leaf_message_uuid": {
-          "description": "UUID of the active branch tip.",
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "is_starred": {
-          "type": "boolean"
-        },
-        "is_temporary": {
-          "type": "boolean"
-        },
-        "model": {
-          "description": "Claude model. Example: \"claude-sonnet-4-6\".",
-          "type": "string"
-        },
-        "platform": {
-          "description": "Platform. Example: \"CLAUDE_AI\".",
-          "type": "string"
-        },
-        "settings": {
-          "description": "Conversation-level feature settings.",
-          "type": "object"
-        },
-        "is_wiggle_enabled": {
-          "description": "Observed always true across the captured corpus (no false seen).",
-          "type": "boolean"
-        },
-        "effective_thinking_mode": {
-          "description": "Extended-thinking mode. Observed values: \"off\", \"auto\", \"extended\" (open set, kept as string since claude.ai may add modes).",
-          "type": "string"
+        "account": {
+          "type": "object",
+          "required": [
+            "uuid"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "uuid": {
+              "$ref": "#/definitions/UuidV4"
+            }
+          }
         },
         "chat_messages": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "allOf": [
-              {
-                "$ref": "#/definitions/ApiMessageBase"
-              },
-              {
-                "$ref": "#/definitions/HasSenderDiscriminatorProperty"
-              }
-            ],
-            "oneOf": [
-              {
-                "$ref": "#/definitions/ApiHumanMessage"
-              },
-              {
-                "$ref": "#/definitions/ApiAssistantMessage"
-              }
-            ]
+            "$ref": "#/definitions/Message"
           }
         }
       }
@@ -111,21 +82,9 @@
       "type": "string",
       "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$"
     },
-    "UuidV4orV7": {
-      "title": "UuidV4orV7",
-      "description": "A UUID that is either v4 or v7. Some fields were strictly v7 in earlier exports but v4 UUIDs appeared in later exports.",
-      "oneOf": [
-        {
-          "$ref": "#/definitions/UuidV4"
-        },
-        {
-          "$ref": "#/definitions/UuidV7"
-        }
-      ]
-    },
-    "ApiMessageBase": {
-      "title": "ApiMessageBase",
-      "description": "Base for live API messages. Like bulk-export Message but adds index, truncated, sync_sources, stop_reason (optional), input_mode, chat_feedback. Shared by ApiHumanMessage and ApiAssistantMessage. Do not use directly.",
+    "Message": {
+      "title": "Message",
+      "description": "Corresponds to a single element of the messages array in the API request/response. The API uses role: \"user\"/\"assistant\"; the export uses sender: \"human\"/\"assistant\". API-level fields id, type, stop_reason, stop_sequence, and usage are stripped in the export. attachments and files are claude.ai UI additions with no API counterpart.",
       "type": "object",
       "required": [
         "uuid",
@@ -136,10 +95,7 @@
         "updated_at",
         "attachments",
         "files",
-        "parent_message_uuid",
-        "index",
-        "truncated",
-        "sync_sources"
+        "parent_message_uuid"
       ],
       "additionalProperties": false,
       "properties": {
@@ -151,7 +107,9 @@
         },
         "content": {
           "type": "array",
-          "items": {}
+          "items": {
+            "$ref": "#/definitions/ContentBlock"
+          }
         },
         "sender": {
           "type": "string",
@@ -164,118 +122,65 @@
           "$ref": "#/definitions/Timestamp"
         },
         "updated_at": {
+          "description": "Always equal to created_at in observed exports. Messages appear to be immutable \u2014 this field exists for structural symmetry with Conversation.updated_at but carries no independent information.",
           "$ref": "#/definitions/Timestamp"
         },
         "attachments": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ApiAttachment"
+            "$ref": "#/definitions/Attachment"
           }
         },
         "files": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ApiMessageFile"
+            "$ref": "#/definitions/MessageFile"
           }
         },
         "parent_message_uuid": {
           "$ref": "#/definitions/UuidV4orV7"
-        },
-        "index": {
-          "description": "Zero-based position in the conversation.",
-          "type": "integer"
-        },
-        "truncated": {
-          "description": "Whether message content was truncated.",
-          "type": "boolean"
-        },
-        "sync_sources": {
-          "description": "Always empty in observed API responses.",
-          "type": "array"
-        },
-        "stop_reason": {
-          "description": "Reason generation stopped (assistant messages, optional).",
-          "type": "string"
-        },
-        "input_mode": {
-          "description": "Input modality. Observed value: \"text\".",
-          "type": "string"
-        },
-        "chat_feedback": {
-          "description": "User feedback on an assistant message.",
-          "type": "object"
-        },
-        "compaction_summary": {
-          "description": "Summary injected when the conversation was compacted to free context window space. Items are text blocks.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ApiTextBlock"
-          }
         }
       }
     },
-    "HasSenderDiscriminatorProperty": {
-      "title": "HasSenderDiscriminatorProperty",
-      "description": "Abstract base asserting that the sender field is required and typed as a string. Added via allOf to union wrappers that discriminate on sender, parallel to HasTypeDiscriminatorProperty and HasNameDiscriminatorProperty.",
+    "UuidV4orV7": {
+      "title": "UuidV4orV7",
+      "description": "A UUID that is either v4 or v7. Some fields were strictly v7 in earlier exports but v4 UUIDs appeared in later exports.",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/UuidV4"
+        },
+        {
+          "$ref": "#/definitions/UuidV7"
+        }
+      ]
+    },
+    "ContentBlock": {
+      "title": "ContentBlock",
+      "description": "Corresponds exactly to the API content block union. The API defines the same three types: text, tool_use, tool_result. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
-      "required": [
-        "sender"
+      "allOf": [
+        {
+          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
+        }
       ],
-      "properties": {
-        "sender": {
-          "type": "string"
-        }
-      }
-    },
-    "ApiHumanMessage": {
-      "title": "ApiHumanMessage",
-      "description": "Constrains sender to \"human\" and content to ApiContentBlock. Shared fields in ApiMessageBase.",
-      "properties": {
-        "sender": {
-          "type": "string",
-          "enum": [
-            "human"
-          ]
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TextBlock"
         },
-        "content": {
-          "items": {
-            "$ref": "#/definitions/ApiContentBlock"
-          }
+        {
+          "$ref": "#/definitions/ThinkingBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/ToolResultBlock"
         }
-      },
-      "required": [
-        "sender"
       ]
     },
-    "ApiAssistantMessage": {
-      "title": "ApiAssistantMessage",
-      "description": "Constrains sender to \"assistant\" and content to ApiContentBlock. Shared fields in ApiMessageBase.",
-      "properties": {
-        "sender": {
-          "type": "string",
-          "enum": [
-            "assistant"
-          ]
-        },
-        "content": {
-          "items": {
-            "$ref": "#/definitions/ApiContentBlock"
-          }
-        }
-      },
-      "required": [
-        "sender"
-      ]
-    },
-    "UuidV7": {
-      "title": "UuidV7",
-      "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
-      "type": "string",
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
-    },
-    "ApiAttachment": {
-      "title": "ApiAttachment",
-      "description": "Live API file attachment. Like bulk-export Attachment but adds id and created_at (absent in bulk export).",
+    "Attachment": {
+      "title": "Attachment",
+      "description": "A file attached to a human message in the claude.ai UI. No direct API counterpart in the export format; the API accepts file content inline as base64 or via the Files API, but the export stores extracted text content. See: https://platform.claude.com/docs/en/build-with-claude/files",
       "type": "object",
       "required": [
         "file_name",
@@ -289,27 +194,29 @@
           "type": "string"
         },
         "file_size": {
+          "description": "File size in bytes.",
           "type": "integer"
         },
         "file_type": {
-          "type": "string"
+          "description": "Observed values listed. Mixed convention \u2014 extension-style and MIME-type-style values both observed. Likely an open set; do not treat as exhaustive.",
+          "type": "string",
+          "enum": [
+            "application/json",
+            "txt",
+            "text/html",
+            "text/javascript",
+            "text/markdown",
+            "text/x-python-script"
+          ]
         },
         "extracted_content": {
           "type": "string"
-        },
-        "id": {
-          "description": "API only. Attachment identifier (UUID).",
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "created_at": {
-          "description": "API only.",
-          "$ref": "#/definitions/Timestamp"
         }
       }
     },
-    "ApiMessageFile": {
-      "title": "ApiMessageFile",
-      "description": "Live API file reference. Like bulk-export MessageFile but adds created_at, file_kind, path, success, uuid, size_bytes, document_asset and image-specific fields (absent in bulk export).",
+    "MessageFile": {
+      "title": "MessageFile",
+      "description": "A reference to an image or file attached to a message via the claude.ai UI.",
       "type": "object",
       "required": [
         "file_name"
@@ -321,50 +228,37 @@
         },
         "file_uuid": {
           "$ref": "#/definitions/UuidV4orV7"
-        },
-        "uuid": {
-          "$ref": "#/definitions/UuidV4orV7"
-        },
-        "created_at": {
-          "$ref": "#/definitions/Timestamp"
-        },
-        "file_kind": {
-          "type": "string"
-        },
-        "path": {
-          "type": "string"
-        },
-        "success": {
-          "type": "boolean"
-        },
-        "size_bytes": {
-          "type": "integer"
-        },
-        "document_asset": {
-          "type": "object"
-        },
-        "thumbnail_url": {
-          "type": "string"
-        },
-        "preview_url": {
-          "type": "string"
-        },
-        "thumbnail_asset": {
-          "type": "object"
-        },
-        "preview_asset": {
-          "type": "object"
         }
       }
     },
-    "ApiTextBlock": {
-      "title": "ApiTextBlock",
-      "description": "Live API text block. Like TextBlock but omits flags (always null in bulk export) and uses ApiCitation for citations.",
+    "UuidV7": {
+      "title": "UuidV7",
+      "description": "UUID version 7 (time-ordered); the monotonically increasing prefix encodes creation time. Example: \"019d071a-92ec-73bc-9003-89d9630c898d\".",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "HasTypeDiscriminatorProperty": {
+      "title": "HasTypeDiscriminatorProperty",
+      "description": "Abstract base asserting that the type field is required and typed as a string. Added via allOf to union wrappers that discriminate on type, ensuring the discriminator is present and typed independently of any particular subtype matching.",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "TextBlock": {
+      "title": "TextBlock",
+      "description": "Corresponds to the API text content block (type: \"text\"). start_timestamp and stop_timestamp are claude.ai additions recording generation timing; they have no API counterpart. flags is a claude.ai addition, always null in observed exports. citations corresponds to the API Citations feature. See: https://platform.claude.com/docs/en/build-with-claude/citations",
       "type": "object",
       "required": [
         "type",
         "text",
         "citations",
+        "flags",
         "start_timestamp",
         "stop_timestamp"
       ],
@@ -389,11 +283,11 @@
         "citations": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ApiCitation"
+            "$ref": "#/definitions/Citation"
           }
         },
         "flags": {
-          "description": "Always null in observed API responses.",
+          "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
         },
         "citations_grouping_mode": {
@@ -402,87 +296,9 @@
         }
       }
     },
-    "ApiContentBlock": {
-      "title": "ApiContentBlock",
-      "description": "Content block union for live API messages. Uses API-specific variants that omit always-null bulk-export envelope fields.",
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/HasTypeDiscriminatorProperty"
-        }
-      ],
-      "oneOf": [
-        {
-          "$ref": "#/definitions/ApiTextBlock"
-        },
-        {
-          "$ref": "#/definitions/ApiThinkingBlock"
-        },
-        {
-          "$ref": "#/definitions/ApiToolUseBlock"
-        },
-        {
-          "$ref": "#/definitions/ApiToolResultBlock"
-        }
-      ]
-    },
-    "ApiCitation": {
-      "title": "ApiCitation",
-      "description": "Live API citation. Unlike bulk-export Citation (which uses a details object), this format carries title, url, metadata, origin_tool_name, sources directly.",
-      "type": "object",
-      "required": [
-        "uuid",
-        "start_index",
-        "end_index",
-        "title",
-        "url"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "uuid": {
-          "$ref": "#/definitions/UuidV4"
-        },
-        "start_index": {
-          "description": "Character offset of citation start.",
-          "type": "integer"
-        },
-        "end_index": {
-          "description": "Character offset of citation end.",
-          "type": "integer"
-        },
-        "title": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
-        },
-        "metadata": {
-          "$ref": "#/definitions/WebpageMetadata"
-        },
-        "origin_tool_name": {
-          "type": "string"
-        },
-        "sources": {
-          "type": "array"
-        }
-      }
-    },
-    "HasTypeDiscriminatorProperty": {
-      "title": "HasTypeDiscriminatorProperty",
-      "description": "Abstract base asserting that the type field is required and typed as a string. Added via allOf to union wrappers that discriminate on type, ensuring the discriminator is present and typed independently of any particular subtype matching.",
-      "type": "object",
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string"
-        }
-      }
-    },
-    "ApiThinkingBlock": {
-      "title": "ApiThinkingBlock",
-      "description": "Live API thinking block. Like ThinkingBlock but omits alternative_display_type and flags (always null in bulk export); signature is optional (present in bulk export, absent in some API responses).",
+    "ThinkingBlock": {
+      "title": "ThinkingBlock",
+      "description": "A block containing Claude's extended thinking, emitted when extended thinking is enabled. No direct equivalent in the standard API content block union \u2014 thinking blocks appear in the export but are stripped from the API response visible to callers. See: https://platform.claude.com/docs/en/build-with-claude/extended-thinking",
       "type": "object",
       "required": [
         "type",
@@ -491,6 +307,9 @@
         "cut_off",
         "truncated",
         "hidden",
+        "alternative_display_type",
+        "signature",
+        "flags",
         "start_timestamp",
         "stop_timestamp"
       ],
@@ -509,36 +328,50 @@
         "stop_timestamp": {
           "$ref": "#/definitions/Timestamp"
         },
+        "flags": {
+          "type": "null",
+          "description": "Always null in observed exports. Possibly reserved for future use."
+        },
         "thinking": {
+          "description": "The full reasoning text produced during extended thinking.",
           "type": "string"
         },
         "summaries": {
+          "description": "Claude-generated summaries of thinking segments. Always present but may be empty.",
           "type": "array",
           "items": {
             "$ref": "#/definitions/ThinkingSummary"
           }
         },
         "cut_off": {
+          "description": "Whether the thinking was cut off before completion.",
           "type": "boolean"
         },
         "truncated": {
+          "description": "Whether the thinking content was truncated in the export.",
           "type": "boolean"
         },
-        "hidden": {
-          "type": "boolean"
+        "alternative_display_type": {
+          "description": "Always null in observed exports. Possibly reserved for future use.",
+          "type": "null"
         },
         "signature": {
+          "description": "Cryptographic signature over the thinking content, used by the API to verify that thinking blocks have not been tampered with when passed back in subsequent turns.",
           "type": "string"
+        },
+        "hidden": {
+          "description": "Whether the thinking block is collapsed/hidden in the claude.ai UI. Present on every thinking block in the current export format (added by claude.ai mid-2026); required, matching the live-API ApiThinkingBlock (apiConversation v6). Exports predating the field fail v12 and were dropped, as with approval_key_legacy at v10.",
+          "type": "boolean"
         }
       }
     },
-    "ApiToolUseBlock": {
-      "title": "ApiToolUseBlock",
-      "description": "Live API tool_use block. Uses ApiToolUseBlockBase. Same per-tool subtypes as ToolUseBlock.",
+    "ToolUseBlock": {
+      "title": "ToolUseBlock",
+      "description": "Corresponds to the API tool_use content block emitted by the assistant when it decides to call a tool. Combines shared fields from ToolUseBlockBase with per-tool input schemas via allOf/oneOf, discriminated by the name field. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
       "allOf": [
         {
-          "$ref": "#/definitions/ApiToolUseBlockBase"
+          "$ref": "#/definitions/ToolUseBlockBase"
         },
         {
           "$ref": "#/definitions/HasNameDiscriminatorProperty"
@@ -598,13 +431,13 @@
         }
       ]
     },
-    "ApiToolResultBlock": {
-      "title": "ApiToolResultBlock",
-      "description": "Live API tool_result block. Uses ApiToolResultBlockBase and ApiToolResultSearchItem for search results. Same per-tool subtypes as ToolResultBlock.",
+    "ToolResultBlock": {
+      "title": "ToolResultBlock",
+      "description": "Corresponds to the API tool_result content block, supplied by the user/client in response to a tool_use block. Combines shared fields from ToolResultBlockBase with per-tool subtypes via allOf/oneOf, discriminated by the name field. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
       "allOf": [
         {
-          "$ref": "#/definitions/ApiToolResultBlockBase"
+          "$ref": "#/definitions/ToolResultBlockBase"
         },
         {
           "$ref": "#/definitions/HasNameDiscriminatorProperty"
@@ -664,32 +497,31 @@
         }
       ]
     },
-    "WebpageMetadata": {
-      "title": "WebpageMetadata",
-      "description": "Metadata about a web page returned as part of a search result item, containing the site domain, favicon URL, and site name.",
+    "Citation": {
+      "title": "Citation",
+      "description": "Corresponds to the API Citations feature, which provides references from assistant responses to source documents. start_index and end_index are character offsets into the message text. See: https://platform.claude.com/docs/en/build-with-claude/citations",
       "type": "object",
       "required": [
-        "type",
-        "site_domain",
-        "favicon_url",
-        "site_name"
+        "uuid",
+        "start_index",
+        "end_index",
+        "details"
       ],
       "additionalProperties": false,
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "webpage_metadata"
-          ]
+        "uuid": {
+          "$ref": "#/definitions/UuidV4"
         },
-        "site_domain": {
-          "type": "string"
+        "start_index": {
+          "description": "Character offset of citation start in message text.",
+          "type": "integer"
         },
-        "favicon_url": {
-          "type": "string"
+        "end_index": {
+          "description": "Character offset of citation end in message text.",
+          "type": "integer"
         },
-        "site_name": {
-          "type": "string"
+        "details": {
+          "$ref": "#/definitions/CitationDetails"
         }
       }
     },
@@ -707,20 +539,30 @@
         }
       }
     },
-    "ApiToolUseBlockBase": {
-      "title": "ApiToolUseBlockBase",
-      "description": "Base for live API tool_use blocks. Omits the always-null bulk-export envelope fields (approval_key, approval_options, context, flags, is_mcp_app, mcp_server_url) and makes display_content, icon_name, integration_* optional (sometimes absent). Do not use directly \u2014 use ApiToolUseBlock.",
+    "ToolUseBlockBase": {
+      "title": "ToolUseBlockBase",
+      "description": "Base schema for all tool_use content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly \u2014 use ToolUseBlock, which combines this base with the named subtypes via allOf/oneOf.",
       "type": "object",
       "required": [
         "type",
         "id",
         "name",
         "input",
+        "approval_key",
+        "approval_key_legacy",
+        "approval_options",
+        "context",
+        "display_content",
+        "flags",
+        "icon_name",
+        "integration_icon_url",
+        "integration_name",
+        "is_mcp_app",
         "message",
         "start_timestamp",
-        "stop_timestamp"
+        "stop_timestamp",
+        "mcp_server_url"
       ],
-      "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
@@ -735,6 +577,10 @@
         "stop_timestamp": {
           "$ref": "#/definitions/Timestamp"
         },
+        "flags": {
+          "description": "Always null in observed exports. Possibly reserved for future use.",
+          "type": "null"
+        },
         "id": {
           "$ref": "#/definitions/ToolId"
         },
@@ -742,6 +588,7 @@
           "type": "string"
         },
         "input": {
+          "description": "Tool-specific input parameters. Shape varies by tool name; name is sufficient to imply schema. Evidenced name-to-schema mappings: bash_tool -> ToolInputBash (https://platform.claude.com/docs/en/agents-and-tools/tool-use/bash-tool); memory_user_edits -> ToolInputMemoryUserEdits ( https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool); str_replace -> ToolInputStrReplace; view -> ToolInputView; create_file -> ToolInputCreateFile; web_fetch -> ToolInputWebFetch (https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-fetch-tool); web_search -> ToolInputWebSearch (https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool); present_files -> ToolInputPresentFiles; visualize:show_widget -> ToolInputVisualizer; visualize:read_me -> ToolInputReadMe; ask_user_input_v0 -> ToolInputAskUser; recent_chats -> ToolInputRecentChats; conversation_search -> ToolInputConversationSearch (claude.ai-internal tool, no public API documentation); tool_search -> ToolInputToolSearch (https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool); . Additional named tools documented in the API but not observed in this export: computer_use -> ToolInputComputerUse (https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool); text_editor -> ToolInputTextEditor (https://platform.claude.com/docs/en/agents-and-tools/tool-use/text-editor-tool); code_execution -> ToolInputCodeExecution (https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool).",
           "type": "object"
         },
         "message": {
@@ -756,14 +603,8 @@
         "icon_name": {
           "$ref": "#/definitions/IconName"
         },
-        "is_mcp_app": {
-          "$ref": "#/definitions/NullableBoolean"
-        },
-        "display_content": {
-          "$ref": "#/definitions/ApiDisplayContent"
-        },
         "context": {
-          "description": "Always null in observed API responses.",
+          "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
         },
         "approval_options": {
@@ -782,27 +623,24 @@
         },
         "approval_key": {
           "description": "Approval key for MCP tool calls requiring user consent.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "$ref": "#/definitions/NullableString"
+        },
+        "approval_key_legacy": {
+          "description": "Deprecated/legacy form of approval_key. Null on 1842 of 1843 tool_use blocks in the 2026-07-05 export; one MCP tool call carried a real key string (the same call whose live capture forced the api-side field at apiConversation v8, where it is optional and never null \u2014 the export emits the field always, null when unused).",
+          "$ref": "#/definitions/NullableString"
+        },
+        "is_mcp_app": {
+          "$ref": "#/definitions/NullableBoolean"
         },
         "mcp_server_url": {
           "description": "URL of the MCP server providing this tool.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "$ref": "#/definitions/NullableString"
         },
-        "flags": {
-          "description": "Always null in observed API responses.",
-          "type": "null"
-        },
-        "approval_key_legacy": {
-          "description": "Deprecated/legacy form of approval_key. First observed in the API in 2026-07 captures on a single MCP tool call, as a real key string; never observed null \u2014 when unused the field is absent entirely (optional; 1842/1843 surveyed tool_use blocks lack it). The bulk export is the mirror-opposite: conversations v10+ requires the field and has only ever observed null.",
-          "type": "string"
+        "display_content": {
+          "$ref": "#/definitions/DisplayContent"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "HasNameDiscriminatorProperty": {
       "title": "HasNameDiscriminatorProperty",
@@ -1170,18 +1008,28 @@
         "input"
       ]
     },
-    "ApiToolResultBlockBase": {
-      "title": "ApiToolResultBlockBase",
-      "description": "Base for live API tool_result blocks. Omits the always-null bulk-export fields (flags, meta, structured_content, mcp_server_url, start_timestamp, stop_timestamp) and makes display_content, icon_name, integration_*, message optional. Do not use directly \u2014 use ApiToolResultBlock.",
+    "ToolResultBlockBase": {
+      "title": "ToolResultBlockBase",
+      "description": "Base schema for all tool_result content blocks, containing all shared fields. The name field is the discriminator; its specific value is constrained in each subtype. Do not use directly \u2014 use ToolResultBlock, which combines this base with the named subtypes via allOf/oneOf.",
       "type": "object",
       "required": [
         "type",
         "tool_use_id",
         "is_error",
         "content",
-        "name"
+        "display_content",
+        "flags",
+        "icon_name",
+        "integration_icon_url",
+        "integration_name",
+        "message",
+        "meta",
+        "name",
+        "start_timestamp",
+        "stop_timestamp",
+        "structured_content",
+        "mcp_server_url"
       ],
-      "additionalProperties": false,
       "properties": {
         "type": {
           "type": "string",
@@ -1191,7 +1039,7 @@
           ]
         },
         "start_timestamp": {
-          "description": "Was always null in observed API responses through v7; real timestamps first observed on web_search tool results in 2026-07 captures \u2014 the same relaxation as conversations v13 (the two schemas describe the same underlying blocks).",
+          "description": "Was always null in observed exports through v12; real timestamps first observed on web_search tool results in the 2026-07 export.",
           "oneOf": [
             {
               "type": "null"
@@ -1202,7 +1050,7 @@
           ]
         },
         "stop_timestamp": {
-          "description": "Was always null in observed API responses through v7; real timestamps first observed on web_search tool results in 2026-07 captures \u2014 the same relaxation as conversations v13 (the two schemas describe the same underlying blocks).",
+          "description": "Was always null in observed exports through v12; real timestamps first observed on web_search tool results in the 2026-07 export.",
           "oneOf": [
             {
               "type": "null"
@@ -1213,7 +1061,7 @@
           ]
         },
         "flags": {
-          "description": "Always null in observed API responses.",
+          "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
         },
         "tool_use_id": {
@@ -1235,10 +1083,10 @@
                 "$ref": "#/definitions/ToolResultContentItem"
               },
               {
-                "$ref": "#/definitions/ApiToolResultSearchItem"
+                "$ref": "#/definitions/ToolResultSearchItem"
               },
               {
-                "$ref": "#/definitions/ApiToolResultLocalResource"
+                "$ref": "#/definitions/ToolResultLocalResource"
               }
             ]
           }
@@ -1247,7 +1095,7 @@
           "type": "boolean"
         },
         "structured_content": {
-          "description": "Always null in observed API responses.",
+          "description": "Always null in observed exports. Possibly reserved for future use.",
           "type": "null"
         },
         "meta": {
@@ -1275,10 +1123,7 @@
         },
         "mcp_server_url": {
           "description": "URL of the MCP server that handled this tool call.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "$ref": "#/definitions/NullableString"
         },
         "integration_icon_url": {
           "$ref": "#/definitions/NullableString"
@@ -1287,9 +1132,10 @@
           "$ref": "#/definitions/IconName"
         },
         "display_content": {
-          "$ref": "#/definitions/ApiDisplayContent"
+          "$ref": "#/definitions/DisplayContent"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "AskUserToolResultBlock": {
       "title": "AskUserToolResultBlock",
@@ -1576,6 +1422,27 @@
         "name"
       ]
     },
+    "CitationDetails": {
+      "title": "CitationDetails",
+      "description": "Details of a citation source. Only web_search_citation observed in this export; other types may exist. Corresponds to the source object in the API Citations feature. See: https://platform.claude.com/docs/en/build-with-claude/citations",
+      "type": "object",
+      "required": [
+        "type",
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "web_search_citation"
+          ]
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
     "ToolId": {
       "title": "ToolId",
       "description": "Anthropic tool identifier. Used for ToolUseBlock ids and ToolResultBlock tool_use_id references. Corresponds directly to the id field in the API tool_use content block. Example: \"toolu_0114D2BV9g8rkcgkcmWHx2Df\". Referential integrity: every tool_use_id in a ToolResultBlock matches the id of a ToolUseBlock in the same content array. This constraint cannot be expressed in JSON Schema draft-4. To verify: jq '[.[].chat_messages[].content | (map(select(.type==\"tool_use\")) | map(.id) | unique) as $ids | map(select(.type==\"tool_result\") | .tool_use_id) | map(. as $t | $ids | index($t) // error(\"unmatched tool_use_id: \"+$t))] | length' conversations.json",
@@ -1584,7 +1451,7 @@
     },
     "IntegrationName": {
       "title": "IntegrationName",
-      "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v6; opened at v7 when 'File Creation' appeared, exactly as the description had warned.",
+      "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v12; opened at v13 when 'File Creation' appeared in a bulk export, exactly as the description had warned (and as apiConversation v7 had already done).",
       "oneOf": [
         {
           "type": "null"
@@ -1638,9 +1505,9 @@
         }
       ]
     },
-    "ApiDisplayContent": {
-      "title": "ApiDisplayContent",
-      "description": "Display content for live API tool blocks. Like DisplayContent but substitutes ApiRichLink and ApiRichContentItem (which have relaxed requirements for always-null fields) and ApiDisplayContentCodeBlock (filename optional).",
+    "DisplayContent": {
+      "title": "DisplayContent",
+      "description": "A claude.ai UI addition with no API counterpart. Provides a structured rendering hint for the web interface, summarising the tool interaction in a human-readable form. Null when no display hint is provided. rich_link only observed in ToolResultBlock; table only observed in ToolUseBlock.",
       "oneOf": [
         {
           "type": "null"
@@ -1653,16 +1520,16 @@
           ],
           "oneOf": [
             {
-              "$ref": "#/definitions/ApiDisplayContentCodeBlock"
+              "$ref": "#/definitions/DisplayContentCodeBlock"
             },
             {
               "$ref": "#/definitions/DisplayContentJsonBlock"
             },
             {
-              "$ref": "#/definitions/ApiRichLink"
+              "$ref": "#/definitions/DisplayContentRichLink"
             },
             {
-              "$ref": "#/definitions/ApiRichContentItem"
+              "$ref": "#/definitions/DisplayContentRichContent"
             },
             {
               "$ref": "#/definitions/DisplayContentTable"
@@ -1997,9 +1864,9 @@
         }
       }
     },
-    "ApiToolResultSearchItem": {
-      "title": "ApiToolResultSearchItem",
-      "description": "Live API knowledge item: a web search result (web_search, carrying text) or a fetched-page record (web_fetch, metadata only). text, is_citable, and prompt_context_metadata may be absent \u2014 absent on every web_fetch item; present on web_search items (and required by the bulk-export ToolResultSearchItem until conversations v14, when a web_fetch item first appeared in an export and the two sides converged on this looser shape).",
+    "ToolResultSearchItem": {
+      "title": "ToolResultSearchItem",
+      "description": "A knowledge item within a tool result content array \u2014 a web search result from the built-in web_search tool (carrying the result text), or, since the 2026-07 exports, a fetched-page record from the web_fetch tool (metadata only: no text, no is_citable, no prompt_context_metadata \u2014 the fetched content itself is not echoed into the export). text was required until v13, when web_search was the only producer. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool",
       "type": "object",
       "required": [
         "type",
@@ -2010,15 +1877,15 @@
       ],
       "additionalProperties": false,
       "properties": {
+        "title": {
+          "type": "string"
+        },
         "type": {
           "type": "string",
           "description": "(discriminator)",
           "enum": [
             "knowledge"
           ]
-        },
-        "title": {
-          "type": "string"
         },
         "url": {
           "type": "string"
@@ -2045,17 +1912,28 @@
               "$ref": "#/definitions/PromptContextMetadataFetch"
             }
           ]
+        },
+        "links": {
+          "description": "Related URLs surfaced with the result; null for nearly all items, occasionally a short list.",
+          "type": [
+            "null",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
-    "ApiToolResultLocalResource": {
-      "title": "ApiToolResultLocalResource",
-      "description": "Live API local resource item. mime_type is optional (required in bulk-export ToolResultLocalResource).",
+    "ToolResultLocalResource": {
+      "title": "ToolResultLocalResource",
+      "description": "A reference to a file generated by Claude and presented to the user via the claude.ai UI. No direct API counterpart \u2014 the file_path refers to the container filesystem used by the claude.ai computer-use environment. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
       "type": "object",
       "required": [
         "type",
         "file_path",
         "name",
+        "mime_type",
         "uuid"
       ],
       "additionalProperties": false,
@@ -2081,13 +1959,14 @@
         }
       }
     },
-    "ApiDisplayContentCodeBlock": {
-      "title": "ApiDisplayContentCodeBlock",
-      "description": "Live API code block display content. filename is optional (required in bulk-export DisplayContentCodeBlock).",
+    "DisplayContentCodeBlock": {
+      "title": "DisplayContentCodeBlock",
+      "description": "A code block rendering hint for the claude.ai UI. Observed in both ToolUseBlock and ToolResultBlock display_content.",
       "type": "object",
       "required": [
         "type",
         "code",
+        "filename",
         "language"
       ],
       "additionalProperties": false,
@@ -2141,9 +2020,9 @@
         }
       }
     },
-    "ApiRichLink": {
-      "title": "ApiRichLink",
-      "description": "Rich link display content for API responses. subtitles and resource_type on the inner link may be absent (always null in bulk export).",
+    "DisplayContentRichLink": {
+      "title": "DisplayContentRichLink",
+      "description": "A rich link rendering hint for the claude.ai UI. Only observed in ToolResultBlock display_content, not in ToolUseBlock.",
       "type": "object",
       "required": [
         "type",
@@ -2160,45 +2039,16 @@
           ]
         },
         "link": {
-          "type": "object",
-          "required": [
-            "title",
-            "url",
-            "icon_url",
-            "source"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "title": {
-              "type": "string"
-            },
-            "url": {
-              "type": "string"
-            },
-            "icon_url": {
-              "type": "string"
-            },
-            "source": {
-              "type": "string"
-            },
-            "subtitles": {
-              "description": "Always null in observed exports.",
-              "type": "null"
-            },
-            "resource_type": {
-              "description": "Always null in observed exports.",
-              "type": "null"
-            }
-          }
+          "$ref": "#/definitions/RichLink"
         },
         "is_trusted": {
           "type": "boolean"
         }
       }
     },
-    "ApiRichContentItem": {
-      "title": "ApiRichContentItem",
-      "description": "Rich content display for API responses (past-conversation links). Items only require title and url; the always-null fields (subtitles, resource_type, icon_url, source) may be absent.",
+    "DisplayContentRichContent": {
+      "title": "DisplayContentRichContent",
+      "description": "A rich content rendering hint for the claude.ai UI, observed in ToolResultBlock display_content for past-chat search results (recent_chats, conversation_search tools). Each item in content is a chat link with title and URL.",
       "type": "object",
       "required": [
         "type",
@@ -2216,36 +2066,7 @@
         "content": {
           "type": "array",
           "items": {
-            "type": "object",
-            "required": [
-              "title",
-              "url"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "title": {
-                "type": "string"
-              },
-              "url": {
-                "type": "string"
-              },
-              "subtitles": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              },
-              "resource_type": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              },
-              "icon_url": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              },
-              "source": {
-                "description": "Always null in observed exports.",
-                "type": "null"
-              }
-            }
+            "$ref": "#/definitions/RichContentItem"
           }
         }
       }
@@ -2353,6 +2174,35 @@
         "web_search"
       ]
     },
+    "WebpageMetadata": {
+      "title": "WebpageMetadata",
+      "description": "Metadata about a web page returned as part of a search result item, containing the site domain, favicon URL, and site name.",
+      "type": "object",
+      "required": [
+        "type",
+        "site_domain",
+        "favicon_url",
+        "site_name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "webpage_metadata"
+          ]
+        },
+        "site_domain": {
+          "type": "string"
+        },
+        "favicon_url": {
+          "type": "string"
+        },
+        "site_name": {
+          "type": "string"
+        }
+      }
+    },
     "PromptContextMetadataSearch": {
       "title": "PromptContextMetadataSearch",
       "description": "Metadata attached to a web search result item, identifying the source URL and search provider. age is optional, present only when the search result includes a publication date.",
@@ -2403,6 +2253,96 @@
           "type": "string"
         }
       }
+    },
+    "RichLink": {
+      "title": "RichLink",
+      "description": "A structured link object within a DisplayContentRichLink block, containing title, URL, icon, and source. subtitles and resource_type are always null in observed exports.",
+      "type": "object",
+      "required": [
+        "title",
+        "url",
+        "icon_url",
+        "source",
+        "subtitles",
+        "resource_type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "icon_url": {
+          "type": "string"
+        },
+        "source": {
+          "description": "Short source label derived from the fetched site (a site/publication slug). Open set \u2014 typed as a free string, matching apiConversation ApiRichLink.source. Was a closed enum through v11; widened at v12 when a previously-unlisted site appeared, exactly as the v11 description had warned.",
+          "type": "string"
+        },
+        "subtitles": {
+          "description": "Always null in observed exports.",
+          "type": "null"
+        },
+        "resource_type": {
+          "description": "Always null in observed exports.",
+          "type": "null"
+        }
+      }
+    },
+    "RichContentItem": {
+      "title": "RichContentItem",
+      "description": "A single item within a DisplayContentRichContent block, representing a past conversation link. subtitles, resource_type, icon_url, and source are always null in observed exports.",
+      "type": "object",
+      "required": [
+        "title",
+        "subtitles",
+        "url",
+        "resource_type",
+        "icon_url",
+        "source"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "subtitles": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        },
+        "resource_type": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        },
+        "icon_url": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        },
+        "source": {
+          "type": "null",
+          "description": "Always null in observed exports."
+        }
+      }
+    },
+    "ToolInputComputerUse": {
+      "title": "ToolInputComputerUse",
+      "description": "Input for the computer_use tool. Not observed in this export. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool",
+      "type": "object"
+    },
+    "ToolInputTextEditor": {
+      "title": "ToolInputTextEditor",
+      "description": "Input for the text_editor tool. Not observed in this export. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/text-editor-tool",
+      "type": "object"
+    },
+    "ToolInputCodeExecution": {
+      "title": "ToolInputCodeExecution",
+      "description": "Input for the code_execution tool. Not observed in this export. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool",
+      "type": "object"
     }
   }
 }

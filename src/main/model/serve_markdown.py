@@ -124,11 +124,22 @@ const mathOpts={{delimiters:[
 ]}};
 let i=0;
 function tick(){{
-  if(i>=lines.length){{if(window.renderMathInElement)renderMathInElement(root,mathOpts);return;}}
+  if(i>=lines.length){{
+    if(window.renderMathInElement)renderMathInElement(root,mathOpts);
+    /* deep links (#<turn anchor>): the target element only exists once chunked
+       rendering has finished, so the jump happens here, not at page load */
+    if(location.hash){{
+      const el=document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if(el)el.scrollIntoView();
+    }}
+    return;
+  }}
   const d=document.createElement('div');
   d.innerHTML=marked.parse(lines.slice(i,i+CHUNK).join('\\n'));
   root.appendChild(d);i+=CHUNK;
-  (window.requestIdleCallback||setTimeout)(tick,0);
+  /* setTimeout unconditionally: VSCode's simple-browser webview starves
+     requestIdleCallback under scroll, freezing rendering after a few chunks */
+  setTimeout(tick,0);
 }}
 tick();
 </script></body></html>'''

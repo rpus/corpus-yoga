@@ -7,7 +7,7 @@ from either source:
                                                                                run atomise_bulk.py first)
 
 The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
-validated against rsc/schema/browser-captures/markdownConversation/v1.json. Splitting the bulk
+validated against rsc/schema/browser-captures/markdownConversation/v2.json. Splitting the bulk
 array into the per-conversation json/ pieces is atomise_bulk.py's job; this tool only consumes
 them, so json/<name>.json and markdown/<name>.md share a name. Nothing is skipped:
 invalid/degenerate conversations are rendered honestly and flagged.

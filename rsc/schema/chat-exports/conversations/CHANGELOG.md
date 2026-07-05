@@ -11,6 +11,15 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v14
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000` (the 2026-07-05 export, 99 conversations). Two drift points, one conversation, one observation each — and both had been foretold: one by the apiConversation side's looser typing (and a description parenthetical claiming the stricter bulk shape held "always"), the other by an explicit either-branch prediction in the apiConversation v8 narrative and `model_join.csv`.
+
+### Relaxed since v13
+
+- `ToolResultSearchItem.text` — removed from required. The `knowledge` content-item shape gained a second producer: `web_fetch` tool results now carry a metadata-only knowledge item (title, url, webpage metadata, `is_missing` — no `text`, no `is_citable`, no `prompt_context_metadata`), whereas `web_search` items (the shape's only producer through v13) always carry `text`. This converges exactly on the live-API side's `ApiToolResultSearchItem` (apiConversation v8), whose looser required-set already accepted the same block in the same conversation's capture — the coupling `model_join.csv` now records with a direct row (it previously related the two only in prose, the same gap that once let `IntegrationName` diverge silently).
+- `ToolUseBlockBase.approval_key_legacy` — `null` → `string | null`. The v8/model_join prophecy resolved on its first branch: a real key string appeared (1 of 1843 tool_use blocks; 1842 null, none absent — so the field stays required), on the very MCP tool call whose live capture had forced the field onto the api side at apiConversation v8. The two sides remain shape-divergent by emission style — the export always emits the field (null when unused), the api emits it only when used — which the updated model_join note now records as the settled state.
+
 ## v13
 
 Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000` (the 2026-07-02 export, 96 conversations). Both drift points were single observations in one conversation; older batches rest at their existing versions.

@@ -10,16 +10,21 @@ from conversations.json) gives a pre-curated, de-duplicated, path-consistent
 view: the downloaded directory already resolves all container-path nonsense
 and multiple-version noise upstream.
 
+The library directories are keyed "<uuid8>-<slug>" (identity, renumbering-proof
+— see library.py); the presentation tables speak ordinals. This tool performs
+the identity→presentation join: the uuid8 prefix of each library directory is
+looked up in data-chats.json (whose uuid column comes from the one naming
+authority, markdown_projection.ordered()) to recover the batch's CURRENT
+ordinal. A library directory whose conversation is not in this batch (deleted
+live, or captured-only) is reported on stderr and omitted — never mis-numbered.
+
 Output columns: ["chat", "file"]
-  chat  The conversation's 1-based ordinal (the canonical numbering from
-        markdown_projection.ordered() — created_at order), so it joins to
+  chat  The conversation's 1-based ordinal in this batch, so it joins to
         data-chats.chat / the atomised json/<ordinal>-<slug>.json filenames.
-        Derived from the leading "<ordinal>-" in the directory name, which
-        follows that same convention, e.g. "16-accessing_files..." -> 16.
   file  Path relative to the chat directory, as stored in downloaded/.
 
 Usage (called by present.sh):
-    python files_from_downloaded.py <downloaded-dir>
+    python files_from_downloaded.py <downloaded-dir> <data-chats.json>
 
 Output is JSON written to stdout; pipe through format_table.py as normal.
 """
@@ -30,8 +35,8 @@ from pathlib import Path
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        sys.exit(f'Usage: {sys.argv[0]} <downloaded-dir>')
+    if len(sys.argv) != 3:
+        sys.exit(f'Usage: {sys.argv[0]} <downloaded-dir> <data-chats.json>')
 
     downloaded_dir = Path(sys.argv[1])
     if not downloaded_dir.exists():
@@ -39,18 +44,25 @@ def main() -> None:
         print(json.dumps({'columns': ['chat', 'file'], 'rows': []}))
         return
 
+    chats = json.loads(Path(sys.argv[2]).read_text())
+    ci = {c: i for i, c in enumerate(chats['columns'])}
+    ordinal_by_uuid8 = {row[ci['uuid']][:8]: row[ci['chat']] for row in chats['rows']}
+
     rows: list[list[int | str]] = []
     for chat_dir in sorted(downloaded_dir.iterdir()):
         if not chat_dir.is_dir():
             continue
-        prefix = chat_dir.name.split('-', 1)[0]  # "<ordinal>-<slug>" (canonical, 1-based)
-        if not prefix.isdigit():
+        uuid8 = chat_dir.name.split('-', 1)[0]  # "<uuid8>-<slug>" (see library.py)
+        chat_idx = ordinal_by_uuid8.get(uuid8)
+        if chat_idx is None:
+            print(f'files_from_downloaded: {chat_dir.name} not in this batch — omitted',
+                  file=sys.stderr)
             continue
-        chat_idx = int(prefix)
         for f in sorted(chat_dir.rglob('*')):
             if f.is_file() and f.name != '.DS_Store':
                 rows.append([chat_idx, str(f.relative_to(chat_dir))])
 
+    rows.sort()
     print(json.dumps({'columns': ['chat', 'file'], 'rows': rows}))
 
 

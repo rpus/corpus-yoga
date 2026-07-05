@@ -7,6 +7,20 @@ render time, rather than writing per-datum `vN.log` files under `gen/`
 
 ---
 
+## v2
+
+### Restricted since v1
+
+- `MarkdownMessage.uuid` — new **required** property (`UuidV4orV7`, definitions copied
+  from `apiConversation`): the source message's uuid, the turn's durable identity.
+  Present and identical in both source shapes (browser-capture `apiConversation` and
+  bulk-export `Conversation` message uuids agree), so requiring it costs nothing and
+  the markdown rendering can carry a per-turn HTML anchor (`## Human (3) <a id="<uuid>"></a>`)
+  that an index can reference across corpus renumberings — ordinals are presentation,
+  uuids are identity.
+
+Validates every current projection (both pipelines re-rendered at mint time).
+
 ## v1
 
 Initial schema: the lean projection shape (`title`, `url`, `messages[{role, content}]`)

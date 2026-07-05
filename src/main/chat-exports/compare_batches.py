@@ -2,32 +2,52 @@
 """
 compare_batches.py — do later bulk exports SUPERSEDE earlier ones?
 
-Conversations are append-only, so an earlier export's data should be a subset of the
-latest export's: every conversation still present, every message uuid still present.
-Checked on the RAW atomised json/ pieces — format-agnostic (message uuids exist in
-every export vintage), so an old batch's schema conformance and projectability are
-irrelevant to the data question.
+A bulk export is a synchronised snapshot of FOUR components: conversations,
+memories, projects, users. The same unprejudiced supersession processing is
+applied to each — no component is assumed append-only, mutable, or static;
+whether an earlier batch's data survives into the later one is an empirical
+finding per component per batch pair, and the deletability verdict is simply
+their conjunction.
 
-Per earlier batch, against the LATEST batch:
-  subset    — every message uuid of every conversation is present in its later self
-  ORPHANED  — a conversation absent from the latest export (deleted on claude.ai):
-              the earlier batch holds unique data
-  ANOMALY   — messages present earlier but missing later: should be impossible for
-              an append-only tree; investigate before trusting either batch
+The uniform model: each component atomises to {unit key: set of atoms}, and a
+unit is superseded iff its atoms are a subset of its later self's. Atoms are
+the format's content identities — uuid'd immutable constituents where the
+format provides them, content fingerprints where it doesn't:
 
-Overall: if every earlier batch is fully superseded, the latest snapshot is
-SUFFICIENT and the earlier batches are deletable — validation matrices are
+  conversations  unit = conversation uuid;  atoms = message uuids
+                 (read from the RAW atomised json/ pieces — format-agnostic,
+                 so an old batch's schema vintage is irrelevant)
+  memories       unit = account uuid;       atoms = fingerprint per memory field
+  projects       unit = project uuid;       atoms = (doc uuid, content fingerprint)
+                 per doc, plus a fingerprint of the prompt/name/description
+  users          unit = user uuid;          atoms = fingerprint of the user object
+
+Envelope timestamps (created_at/updated_at) are excluded throughout:
+supersession claims retained DATA, not byte equality of snapshots.
+
+Per unit, against the LATEST batch:
+  subset     — every atom present in the unit's later self
+  ORPHANED   — the unit is absent from the latest export: unique data here
+  DIVERGENT  — the unit exists later but atoms are missing there: unique data here
+
+Overall: the latest snapshot is SUFFICIENT (earlier batches deletable) iff every
+component of every earlier batch is fully superseded — validation matrices are
 machine-local and die with their data, and the committed CHANGELOG narratives
-keep the history.
+keep the history. One component holding unique data (e.g. a rewritten memory
+document) makes the earlier batch NOT deletable, however completely the others
+are superseded.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
-    [--chat-exports-gen gen/chat-exports]
+    [--chat-exports-gen gen/chat-exports] [--chat-exports ext/chat-exports]
 
-Requires the batches' atomised json/ (written by the chat-exports pipeline).
+Requires the batches' atomised json/ (written by the chat-exports pipeline);
+memories/projects/users are read from the batch's gen/ archive copies (written
+by archive_components.py; ext/ raw fallback for gen dirs predating that step).
 Exit 0 iff the latest snapshot is sufficient.
 """
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -45,18 +65,87 @@ def batch_time(name):
     return None
 
 
-def load_batch(json_dir):
-    """{conversation uuid: set of message uuids}, plus {uuid: piece filename stem}."""
-    convs, names = {}, {}
-    for f in sorted(json_dir.glob('*.json')):
+def _fp(value):
+    """Content fingerprint of an arbitrary JSON value."""
+    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False)
+                          .encode()).hexdigest()[:16]
+
+
+# ── component atomisers: batch -> {unit key: (display name, set of atoms)} ────
+
+def units_conversations(gen_dir, ext_dir):
+    units = {}
+    for f in sorted((gen_dir / 'json').glob('*.json')):
         c = json.load(f.open())
         u = c.get('uuid')
-        if not u:
-            continue
-        convs[u] = {m['uuid'] for m in c.get('chat_messages', []) if m.get('uuid')}
-        names[u] = f.stem
-    return convs, names
+        if u:
+            units[u] = (f.stem, {m['uuid'] for m in c.get('chat_messages', []) if m.get('uuid')})
+    return units
 
+
+def _component_path(gen_dir, ext_dir, *rel):
+    """Prefer the batch's gen/ archive copy (written by archive_components.py);
+    fall back to the raw ext/ batch dir for gen dirs predating the archive step."""
+    archived = gen_dir.joinpath(*rel)
+    return archived if archived.exists() else ext_dir / rel[-1]
+
+
+def units_memories(gen_dir, ext_dir):
+    path = _component_path(gen_dir, ext_dir, 'memories', 'memories.json')
+    if not path.exists():
+        return {}
+    units = {}
+    for m in json.loads(path.read_text()):
+        key = m.get('account_uuid', '?')
+        atoms = {(field, _fp(value)) for field, value in m.items() if field != 'account_uuid'}
+        units[key] = ('memories', atoms)
+    return units
+
+
+def units_projects(gen_dir, ext_dir):
+    units = {}
+    proj_dir = _component_path(gen_dir, ext_dir, 'projects')
+    for f in sorted(proj_dir.glob('*.json')) if proj_dir.is_dir() else []:
+        p = json.loads(f.read_text())
+        # uniform (kind, constituent id, fingerprint) atoms; the envelope has exactly
+        # one constituent, so its id slot is empty
+        atoms = {('doc', d['uuid'], _fp([d.get('filename'), d.get('content')]))
+                 for d in p.get('docs', [])}
+        atoms.add(('meta', '', _fp([p.get('name'), p.get('description'), p.get('prompt_template')])))
+        units[p.get('uuid', f.stem)] = (p.get('name', f.stem), atoms)
+    return units
+
+
+def units_users(gen_dir, ext_dir):
+    path = _component_path(gen_dir, ext_dir, 'users', 'users.json')
+    if not path.exists():
+        return {}
+    return {u.get('uuid', '?'): (u.get('full_name', 'user'), {_fp(u)})
+            for u in json.loads(path.read_text())}
+
+
+COMPONENTS = [('conversations', units_conversations),
+              ('memories', units_memories),
+              ('projects', units_projects),
+              ('users', units_users)]
+
+
+def compare_component(earlier, latest):
+    """Classify each earlier unit against the latest; return (subset, details)."""
+    subset = 0
+    details = []
+    for key, (name, atoms) in sorted(earlier.items()):
+        if key not in latest:
+            details.append(f'    ORPHANED {name} ({key}): {len(atoms)} atom(s) absent from latest')
+        elif atoms <= latest[key][1]:
+            subset += 1
+        else:
+            missing = len(atoms - latest[key][1])
+            details.append(f'    DIVERGENT {name} ({key}): {missing} atom(s) present here, missing in latest')
+    return subset, details
+
+
+# ── captures cross-check (conversations only: that is what the capture source has) ─
 
 def load_captures(captures_dir):
     """{conversation uuid: set of message uuids} (+ names) from <uuid>/<uuid>.json captures."""
@@ -81,7 +170,7 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
     in_sync = ahead = 0
     stale, anomalies = [], []
     for u in sorted(shared):
-        b, c = latest_convs[u], caps[u]
+        b, c = latest_convs[u][1], caps[u]
         if b == c:
             in_sync += 1
         elif b < c:
@@ -97,11 +186,11 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
           f'{len(export_only)} export-only (deleted live?), '
           f'{len(capture_only)} capture-only (post-export)')
     for u in export_only:
-        print(f'  EXPORT-ONLY {latest_names.get(u, u)} ({u}): deleted live? the export holds its only copy')
+        print(f'  EXPORT-ONLY {latest_convs[u][0]} ({u}): deleted live? the export holds its only copy')
     for u in capture_only:
         print(f'  capture-only {cap_names.get(u, "")!r} ({u}): post-export — the next export will include it')
     for u in stale:
-        print(f'  CAPTURE-STALE {u}: the export holds {len(latest_convs[u] - caps[u])} message(s) '
+        print(f'  CAPTURE-STALE {u}: the export holds {len(latest_convs[u][1] - caps[u])} message(s) '
               f'the capture lacks — recapture in place')
     for u in anomalies:
         print(f'  ANOMALY {u}: unique messages on both sides — investigate')
@@ -111,12 +200,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--chat-exports-gen', default='gen/chat-exports',
                     help='gen root holding <batch>/json/ atomised pieces')
+    ap.add_argument('--chat-exports', default='ext/chat-exports',
+                    help='ext root holding the raw batch dirs (memories/projects/users)')
     ap.add_argument('--captures', default=None,
                     help='ext/browser-captures/claude — also compare the latest batch '
                          'against the live-capture corpus, per conversation (informational)')
     args = ap.parse_args()
 
     root = Path(args.chat_exports_gen)
+    ext_root = Path(args.chat_exports)
     batches = sorted((d for d in root.glob('data-*') if (d / 'json').is_dir()),
                      key=lambda d: (batch_time(d.name) or datetime.min.replace(tzinfo=timezone.utc)))
     unparseable = [d.name for d in batches if batch_time(d.name) is None]
@@ -127,40 +219,38 @@ def main():
         return 0
 
     latest = batches[-1]
-    latest_convs, latest_names = load_batch(latest / 'json')
+    latest_units = {name: fn(latest, ext_root / latest.name) for name, fn in COMPONENTS}
     if len(batches) < 2:
         print(f'1 batch with atomised json/ under {root} — no earlier batches to compare')
     else:
-        print(f'latest: {latest.name} ({len(latest_convs)} conversations, '
-              f'{sum(len(v) for v in latest_convs.values())} messages)')
+        print(f'latest: {latest.name} — ' + ', '.join(
+            f'{len(latest_units[name])} {name}' for name, _ in COMPONENTS))
 
     sufficient = True
     for b in batches[:-1]:
-        convs, names = load_batch(b / 'json')
-        subset = orphaned = anomalies = 0
-        details = []
-        for u, msgs in sorted(convs.items()):
-            if u not in latest_convs:
-                orphaned += 1
-                details.append(f'  ORPHANED {names[u]} ({u}): {len(msgs)} messages absent from latest')
-            elif msgs <= latest_convs[u]:
-                subset += 1
-            else:
-                anomalies += 1
-                missing = len(msgs - latest_convs[u])
-                details.append(f'  ANOMALY {names[u]} ({u}): {missing} message(s) present here, missing in latest')
-        verdict = 'SUPERSEDED' if not (orphaned or anomalies) else 'NOT superseded'
-        print(f'{b.name}: {len(convs)} conversations — {subset} subset, '
-              f'{orphaned} orphaned, {anomalies} anomalies → {verdict}')
-        for d in details:
-            print(d)
-        sufficient = sufficient and not (orphaned or anomalies)
+        ext_dir = ext_root / b.name
+        component_verdicts = []
+        lines = []
+        for name, fn in COMPONENTS:
+            earlier = fn(b, ext_dir)
+            subset, details = compare_component(earlier, latest_units[name])
+            ok = not details
+            component_verdicts.append(ok)
+            lines.append(f'  {name}: {len(earlier)} unit(s) — {subset} subset → '
+                         f'{"superseded" if ok else "NOT superseded"}')
+            lines += details
+        batch_ok = all(component_verdicts)
+        print(f'{b.name} → {"SUPERSEDED" if batch_ok else "NOT superseded"}')
+        for line in lines:
+            print(line)
+        sufficient = sufficient and batch_ok
 
     if len(batches) >= 2:
-        print(f'verdict: latest snapshot is {"SUFFICIENT — earlier batch(es) deletable" if sufficient else "NOT sufficient — earlier batch(es) hold unique data"}')
+        print(f'verdict: latest snapshot is '
+              f'{"SUFFICIENT — earlier batch(es) deletable" if sufficient else "NOT sufficient — earlier batch(es) hold unique data"}')
 
     if args.captures and Path(args.captures).is_dir():
-        compare_vs_captures(latest, latest_convs, latest_names, Path(args.captures))
+        compare_vs_captures(latest, latest_units['conversations'], None, Path(args.captures))
 
     return 0 if sufficient else 1
 

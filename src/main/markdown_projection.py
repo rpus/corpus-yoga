@@ -21,7 +21,7 @@ import re
 from pathlib import Path
 
 REPO      = Path(__file__).resolve().parents[2]
-MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v1.json'
+MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v2.json'
 
 
 def turn_text(msg):
@@ -34,6 +34,10 @@ def turn_text(msg):
 # A root message's parent_message_uuid is the zero-uuid sentinel (see the zero v4 UUID
 # convention in the conversations schema); None covers formats omitting the field.
 NO_PARENT = {None, '00000000-0000-4000-8000-000000000000'}
+
+# Turn-heading anchors are inline HTML, which markdownlint flags (MD033); this file-scoped
+# pragma, rendered into every generated .md, tells any lint-aware editor they are intended.
+MD033_PRAGMA = '<!-- markdownlint-disable MD033 -->'
 
 
 def tree_problems(messages):
@@ -69,11 +73,14 @@ def _path_to_root(messages, leaf_uuid):
 
 
 def _lean(name, uuid, messages):
-    """Lean markdownConversation dict (metadata stripped) from a message list."""
+    """Lean markdownConversation dict (metadata stripped) from a message list. Each turn
+    keeps its message uuid — the turn's durable identity (identical across the browser-capture
+    and bulk-export shapes), rendered as the heading anchor."""
     return {
         'title': name,
         'url': f"https://claude.ai/chat/{uuid}",
-        'messages': [{'role': m['sender'], 'content': turn_text(m)} for m in messages],
+        'messages': [{'role': m['sender'], 'content': turn_text(m), 'uuid': m['uuid']}
+                     for m in messages],
     }
 
 
@@ -91,13 +98,19 @@ def project(conv):
 
 
 def render(conv):
-    """lean markdownConversation dict -> markdown string."""
+    """lean markdownConversation dict -> markdown string. Each turn heading carries an HTML
+    anchor named by the message uuid, so <file>.md#<uuid> addresses the turn durably
+    (ordinals renumber; uuids don't). Anchors ride the heading line, where turn_seq's
+    `## <Role> [^\\n]*` split ignores them — comparisons are anchor-blind by construction."""
     label = {'human': 'Human', 'assistant': 'Claude'}
     count = {'human': 0, 'assistant': 0}
-    out = [f"# {conv['title']}", '', f"<{conv['url']}>", '']
+    # the pragma placates markdownlint (MD033 no-inline-html) about the heading anchors;
+    # it sits in the preamble, before the first turn heading, so turn_seq never sees it
+    out = [f"# {conv['title']}", '', MD033_PRAGMA, '', f"<{conv['url']}>", '']
     for m in conv['messages']:
         count[m['role']] += 1
-        out += [f"## {label[m['role']]} ({count[m['role']]})", '', m['content'], '', '---', '']
+        out += [f"## {label[m['role']]} ({count[m['role']]}) <a id=\"{m['uuid']}\"></a>",
+                '', m['content'], '', '---', '']
     return '\n'.join(out).rstrip() + '\n'
 
 

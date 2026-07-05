@@ -15,6 +15,10 @@ Now validates all 98 captures from the 2026-07-03 re-capture, including the thre
 - `ApiToolResultBlockBase.start_timestamp` / `stop_timestamp` — `null` → `Timestamp | null`. Real timestamps first observed on `web_search` tool results, in the same conversations that forced the identical relaxation at conversations v13 (the two schemas describe the same underlying blocks). Three captures were affected.
 - `ApiToolUseBlockBase.approval_key_legacy` — field added, optional `string` (not nullable: the API has never emitted an explicit null — when unused the field is absent, which optionality already covers). First API observation: a single MCP tool call (of 1,843 surveyed tool_use blocks), carrying a real key string. The bulk-export side is the mirror-opposite: conversations v10+ requires the field and has only ever observed null. A future export will likely force one of two coupled changes there: a real value appears (`null` → `string | null`), or — at least as likely — the always-null emission is dropped in favour of this API shape, tripping the `required` constraint instead (required → optional `string`). Either way, minted only when an export exhibits it.
 
+### Refactored since v8
+
+- `ApiToolResultSearchItem` description (in place, no validation effect) — its parenthetical claimed `text`/`is_citable`/`prompt_context_metadata` were "always present in bulk-export ToolResultSearchItem"; true only while `web_search` was the shape's sole producer. The 2026-07-05 export carried a metadata-only `web_fetch` knowledge item, conversations v14 relaxed to match this side, and the description now names both producers instead of a stale asymmetry.
+
 ---
 
 ## v7
