@@ -22,14 +22,17 @@ main() {
 
   mkdir -p "$REPO_DIR/gen"
 
-  # Run once — generates pre_commit.log and xref.csv.
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@" 2>&1 | tee "$REPO_DIR/src/test/pre_commit.log"
+  # Run once — pre_commit.py writes its own report artifacts: the COMMITTED
+  # src/test/pre_commit.log (code+schema only, byte-identical on any clone — the
+  # machine-local data tier never enters a committed file) plus the full report
+  # to logs/src/test/pre_commit.log; the full report also prints here.
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@"
 
   # Stage the generated artifacts so the second run sees a clean baseline.
   git -C "$REPO_DIR" add src/test/pre_commit.log src/test/xref.csv
 
   # Run again — must produce no further changes.
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" 2>&1 | tee "$REPO_DIR/src/test/pre_commit.log"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py"
   if ! git -C "$REPO_DIR" diff --quiet src/test/pre_commit.log src/test/xref.csv; then
     echo 'ERROR: pre_commit is not idempotent — pre_commit.log or xref.csv changed on second run.' >&2
     git -C "$REPO_DIR" diff src/test/pre_commit.log src/test/xref.csv >&2

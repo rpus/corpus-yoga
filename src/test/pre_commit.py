@@ -640,7 +640,13 @@ def main():
     args = ap.parse_args()
 
     results = []
-    stdout_buffer = io.StringIO()
+    # The report splits by DETERMINISM, mirroring the tiers: code+schema output is
+    # identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+    # data tier describes THIS MACHINE's data (uuids, batch names, home-dir-derived
+    # paths) and must never enter a committed artifact — it goes to the terminal and
+    # to logs/src/test/pre_commit.log (machine-facing, like the serve daemon's log).
+    committed_buffer = io.StringIO()   # code + schema tiers
+    machine_buffer   = io.StringIO()   # data tier
 
     def run(label, passed, detail=None):
         results.append((label, passed, detail))
@@ -648,12 +654,12 @@ def main():
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
 
     fix_hints: list[str] = []
-    fix_seen:  set[str]  = set()
+    fix_tier:  dict[str, str] = {}
 
     def fix(hint: str) -> None:
-        if hint not in fix_seen:
+        if hint not in fix_tier:
             fix_hints.append(hint)
-            fix_seen.add(hint)
+            fix_tier[hint] = current_tier[0] or 'schema'
 
     sections: list[str] = []
     tiers:    list[str] = []
@@ -661,6 +667,7 @@ def main():
 
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
+        sys.stdout = machine_buffer if tier == 'data' else committed_buffer
         if tier != current_tier[0]:
             current_tier[0] = tier
             print(f'\n════ {tier} tier {"═" * (68 - len(tier))}')
@@ -679,7 +686,6 @@ def main():
               f'({pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} absent, '
               f'{pipeline.gen.relative_to(REPO_ROOT)}/ empty)')
 
-    sys.stdout = stdout_buffer
     try:
         run_section(check_required_files, tier='code')
         run_section(check_xref, tier='code')
@@ -784,46 +790,27 @@ def main():
         if not ok:
             failures.append((label, detail))
 
-    failed_sections = list(dict.fromkeys(
-        sections[i] for i, (_, p, _) in enumerate(results) if not p
-    ))
+    # ── report rendering ─────────────────────────────────────────────────────
+    # Two renderings of one result set, split by determinism exactly as the tiers
+    # are: the COMMITTED report (code+schema and their scores — byte-identical on
+    # any clone; this script writes it to src/test/pre_commit.log itself) and the
+    # FULL report (adds the machine-local data tier — printed to stdout and written
+    # to logs/src/test/pre_commit.log, run-facing like the serve daemon's log).
 
-    # ── HEAD ──────────────────────────────────────────────────────────────────
-    data_got, data_tot = tier_counts.get('data', [0, 0])
-    data_note = 'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}'
-    if failures:
-        print(f'`src/test/pre_commit.py`: {det} ({data_note}; failures in {len(failed_sections)} sections)')
-    else:
-        print(f'pre_commit.py: {det} ({data_note})')
+    def _in_committed(i: int) -> bool:
+        return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
 
-    # ── BODY ──────────────────────────────────────────────────────────────────
-    print()
-    print(stdout_buffer.getvalue(), end='')
-
-    name = 'check_score'
-    print(f'\n── {name} {"─" * (74 - len(name))}')
-    for label, ok, detail in score_rows:
-        print(f'  {"✓" if ok else "✗"} {label}' +
-              (f'\n      {detail}' if not ok and detail else ''))
-
-    # ── TAIL ──────────────────────────────────────────────────────────────────
-    if failures:
-        failure_counts = {s: sum(1 for i, (_, p, _) in enumerate(results) if not p and sections[i] == s)
-                         for s in failed_sections}
-        print(f'Failed sections ({len(failed_sections)}):')
-        for s in failed_sections:
-            print(f'  {s} ({failure_counts[s]})')
-        print()
-
-        fix_commands: list[str] = list(fix_hints)
-        seen: set[str] = set(fix_hints)
+    def _fix_lines(fail_list, hints):
+        """Assemble the runnable To-fix lines for a failure subset (no execution)."""
+        fix_commands: list[str] = list(hints)
+        seen: set[str] = set(hints)
 
         def _add(cmd: str) -> None:
             if cmd not in seen:
                 fix_commands.append(cmd)
                 seen.add(cmd)
 
-        for name, detail in failures:
+        for name, detail in fail_list:
             parts = name.split(': ')
             if len(parts) == 3 and re.match(r'[a-z_]+\.[a-z_]+', parts[1]):
                 diag = parts[1]
@@ -848,38 +835,89 @@ def main():
                 elif detail:
                     _add(detail)
 
-        if fix_commands:
-            lines = []
-            for cmd in fix_commands:
-                if cmd.startswith('then: '):
-                    actual = cmd[len('then: '):]
-                    if lines:
-                        lines[-1] += f'; {actual}'
-                    else:
-                        lines.append(actual)
+        lines = []
+        for cmd in fix_commands:
+            if cmd.startswith('then: '):
+                actual = cmd[len('then: '):]
+                if lines:
+                    lines[-1] += f'; {actual}'
                 else:
-                    actual = cmd[len('Run: '):] if cmd.startswith('Run: ') else cmd
                     lines.append(actual)
-            if args.fix:
-                print()
-                print('Running fixes:')
-                for line in lines:
-                    print(f'  {line}')
-                    subprocess.run(line, shell=True, cwd=REPO_ROOT)
-                print()
-                subprocess.run(['git', 'add', '-u'], cwd=REPO_ROOT)
-                print('Staged with git add -u — re-run pre_commit.sh to verify.')
             else:
-                print()
-                print('To fix:')
-                for line in lines:
-                    print(f'  {line}')
-                print()
-                print('  (or run with --fix to apply and stage automatically)')
+                actual = cmd[len('Run: '):] if cmd.startswith('Run: ') else cmd
+                lines.append(actual)
+        return lines
 
-        sys.exit(1)
-    else:
-        sys.exit(0)
+    def _render(committed_only: bool):
+        """Render one report variant; returns (text, runnable fix lines)."""
+        idxs  = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
+        fails = [(results[i][0], results[i][2]) for i in idxs if not results[i][1]]
+        fail_sections = list(dict.fromkeys(sections[i] for i in idxs if not results[i][1]))
+        out = io.StringIO()
+
+        data_got, data_tot = tier_counts.get('data', [0, 0])
+        data_note = ('data: machine-local' if committed_only else
+                     'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
+        if fails:
+            out.write(f'`src/test/pre_commit.py`: {det} ({data_note}; failures in {len(fail_sections)} sections)\n')
+        else:
+            out.write(f'pre_commit.py: {det} ({data_note})\n')
+
+        out.write('\n')
+        out.write(committed_buffer.getvalue())
+        if not committed_only:
+            out.write(machine_buffer.getvalue())
+
+        name = 'check_score'
+        out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
+        for label, ok, detail in score_rows:
+            if committed_only and label.startswith('score[data]'):
+                out.write('  – score[data]: machine-local — reported on the terminal '
+                          'and in logs/src/test/pre_commit.log, never committed\n')
+                continue
+            out.write(f'  {"✓" if ok else "✗"} {label}' +
+                      (f'\n      {detail}\n' if not ok and detail else '\n'))
+
+        lines: list[str] = []
+        if fails:
+            counts = {sec: sum(1 for i in idxs if not results[i][1] and sections[i] == sec)
+                      for sec in fail_sections}
+            out.write(f'Failed sections ({len(fail_sections)}):\n')
+            for sec in fail_sections:
+                out.write(f'  {sec} ({counts[sec]})\n')
+            out.write('\n')
+            hints = [h for h in fix_hints
+                     if not committed_only or fix_tier.get(h) != 'data']
+            lines = _fix_lines(fails, hints)
+            if lines:
+                out.write('\nTo fix:\n')
+                for line in lines:
+                    out.write(f'  {line}\n')
+                out.write('\n')
+                out.write('  (or run with --fix to apply and stage automatically)\n')
+        return out.getvalue(), lines
+
+    committed_text, _         = _render(committed_only=True)
+    full_text, full_fix_lines = _render(committed_only=False)
+
+    (SRC / 'test' / 'pre_commit.log').write_text(committed_text)
+    machine_log = REPO_ROOT / 'logs' / 'src' / 'test' / 'pre_commit.log'
+    machine_log.parent.mkdir(parents=True, exist_ok=True)
+    machine_log.write_text(full_text)
+
+    print(full_text, end='')
+
+    if failures and args.fix and full_fix_lines:
+        print()
+        print('Running fixes:')
+        for line in full_fix_lines:
+            print(f'  {line}')
+            subprocess.run(line, shell=True, cwd=REPO_ROOT)
+        print()
+        subprocess.run(['git', 'add', '-u'], cwd=REPO_ROOT)
+        print('Staged with git add -u — re-run pre_commit.sh to verify.')
+
+    sys.exit(1 if failures else 0)
 
 
 if __name__ == '__main__':
