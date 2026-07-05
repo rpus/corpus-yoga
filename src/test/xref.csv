@@ -158,19 +158,19 @@ src/main/chat-exports/audit_files.py,52,comment,src/main/chat-exports/audit_file
 src/main/chat-exports/audit_files.py,55,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-export \
 src/main/chat-exports/audit_files.py,62,comment,src/main/chat-exports/query_files.py,Y,reports) are defined in src/main/chat-exports/query_files.py and can be run with:
 src/main/chat-exports/audit_files.py,64,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py <export-name>
-src/main/chat-exports/audit_files.py,131,comment,src/main/chat-exports/extract_files.py,Y,# Written by src/main/chat-exports/extract_files.py from create_file tool calls.
-src/main/chat-exports/audit_files.py,145,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
-src/main/chat-exports/audit_files.py,159,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
+src/main/chat-exports/audit_files.py,132,comment,src/main/chat-exports/extract_files.py,Y,# Written by src/main/chat-exports/extract_files.py from create_file tool calls.
+src/main/chat-exports/audit_files.py,146,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
+src/main/chat-exports/audit_files.py,160,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
 src/main/chat-exports/audit_files.sh,6,comment,src/main/chat-exports/audit_files.sh,Y,#   src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
 src/main/chat-exports/audit_files.sh,7,comment,src/main/chat-exports/audit_files.sh,Y,#   src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 src/main/chat-exports/audit_files.sh,21,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
-src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/library.py,Y,src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <uuid8>-<slug> names survive the
+src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/library.py,Y,src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive th
 src/main/chat-exports/compare_batches.py,41,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
 src/main/chat-exports/compare_batches.py,41,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
-src/main/chat-exports/extract_files.py,15,comment,src/main/chat-exports/library.py,Y,"(<uuid8>-<slug>, resolved via src/main/chat-exports/library.py — ordinals renumber"
+src/main/chat-exports/extract_files.py,15,comment,src/main/chat-exports/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber"
 src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports
 src/main/chat-exports/extract_files.sh,17,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"

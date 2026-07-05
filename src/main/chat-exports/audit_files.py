@@ -17,7 +17,7 @@ sources:
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
     eh_wrk   Files written to gen/<export>/extracted_heredocs/<chat>/working/
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
-    dl       Files in the durable library lib/artifacts/downloaded/<uuid8>-<slug>/
+    dl       Files in the durable library lib/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/
              (manually downloaded from the claude.ai UI; joined by uuid via
              library.py and the uuid column of data-chats.json — library names
              survive the renumbering that batch ordinals don't).
@@ -42,9 +42,9 @@ Columns
 
 Downloaded path conventions
 ────────────────────────────
-    ef      lib/artifacts/downloaded/<uuid8>-<slug>/<path>          (no bucket)
-    eh_out  lib/artifacts/downloaded/<uuid8>-<slug>/<path>          (no bucket)
-    eh_wrk  lib/artifacts/downloaded/<uuid8>-<slug>/working/<path>  (bucket preserved)
+    ef      lib/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
+    eh_out  lib/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
+    eh_wrk  lib/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/working/<path>  (bucket preserved)
 
 Usage
 ─────
@@ -119,8 +119,9 @@ def run_one(name: str) -> None:
 
     for chat_idx, cname in sorted(chat_names.items()):
         cs = f'{chat_idx:0{width}d}-{slug(cname)}'
-        # library resolution is by uuid (identity), never by the batch ordinal name
-        dl_dir = dir_for(chat_uuids[chat_idx], slug(cname))
+        # library resolution is by uuid (identity); passing the canonical name as
+        # dressing also refreshes the dir to current numbering (see library.py)
+        dl_dir = dir_for(chat_uuids[chat_idx], cs)
 
         # ── tooltip ───────────────────────────────────────────────────────────
         # Paths from local_resource tool results; this is what the tooltip shows.

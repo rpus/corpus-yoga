@@ -15,7 +15,7 @@ Groups output by conversation under:
     gen/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
-The durable library lib/artifacts/downloaded/ is keyed by identity instead (<uuid8>-<slug>,
+The durable library lib/artifacts/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
 resolved via library.py); files new to the library are copied there and named individually
 in this run's log (the delta is information, not a second copy).
 
@@ -103,8 +103,9 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             continue
 
         convo_dir = out_dir / dir_name
-        # library resolution is by uuid (identity), never by the batch ordinal name
-        dl_dir = dir_for(convo['uuid'], dir_name.split('-', 1)[1])
+        # library resolution is by uuid (identity); the batch's canonical name is
+        # passed as dressing, refreshed onto the dir so listings track current numbering
+        dl_dir = dir_for(convo['uuid'], dir_name)
         extracted = identical = newline_only = differs = copied = 0
         for e in by_path.values():
             dest = convo_dir / e['bucket'] / e['rel']

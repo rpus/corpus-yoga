@@ -7,7 +7,7 @@ extracted_heredocs/ to report files not yet harvested.
 
 Batch extraction dirs are joined by the canonical <ordinal>-<slug> name; the
 durable library lib/artifacts/downloaded/ is joined by uuid (via
-src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <uuid8>-<slug> names survive the
+src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive the (dressing-refreshed)
 renumbering that batch ordinals don't.
 
 Usage:

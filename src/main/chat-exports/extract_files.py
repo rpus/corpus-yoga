@@ -12,7 +12,7 @@ Group output by conversation under:
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
 The durable library lib/artifacts/downloaded/ is keyed by identity instead
-(<uuid8>-<slug>, resolved via src/main/chat-exports/library.py — ordinals renumber
+(<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber
 between batches, uuids don't); files new to the library are copied there and named
 individually in this run's log (the delta is information, not a second copy).
 
@@ -105,8 +105,9 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             continue
 
         convo_dir = out_dir / dir_name
-        # library resolution is by uuid (identity), never by the batch ordinal name
-        dl_dir = dir_for(convo['uuid'], dir_name.split('-', 1)[1])
+        # library resolution is by uuid (identity); the batch's canonical name is
+        # passed as dressing, refreshed onto the dir so listings track current numbering
+        dl_dir = dir_for(convo['uuid'], dir_name)
         extracted = downloaded = copied = 0
         for entry in by_path.values():
             rel = entry['rel']

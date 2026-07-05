@@ -10,9 +10,9 @@ from conversations.json) gives a pre-curated, de-duplicated, path-consistent
 view: the downloaded directory already resolves all container-path nonsense
 and multiple-version noise upstream.
 
-The library directories are keyed "<uuid8>-<slug>" (identity, renumbering-proof
+The library directories are keyed "<ordinal>-<slug>-<uuid8>" (identity, renumbering-proof
 — see library.py); the presentation tables speak ordinals. This tool performs
-the identity→presentation join: the uuid8 prefix of each library directory is
+the identity→presentation join: the uuid8 suffix of each library directory is
 looked up in data-chats.json (whose uuid column comes from the one naming
 authority, markdown_projection.ordered()) to recover the batch's CURRENT
 ordinal. A library directory whose conversation is not in this batch (deleted
@@ -52,7 +52,7 @@ def main() -> None:
     for chat_dir in sorted(downloaded_dir.iterdir()):
         if not chat_dir.is_dir():
             continue
-        uuid8 = chat_dir.name.split('-', 1)[0]  # "<uuid8>-<slug>" (see library.py)
+        uuid8 = chat_dir.name.rsplit('-', 1)[-1]  # "<ordinal>-<slug>-<uuid8>" (see library.py)
         chat_idx = ordinal_by_uuid8.get(uuid8)
         if chat_idx is None:
             print(f'files_from_downloaded: {chat_dir.name} not in this batch — omitted',
