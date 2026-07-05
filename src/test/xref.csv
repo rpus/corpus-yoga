@@ -215,17 +215,18 @@ src/main/chat-exports/present.sh,67,call,src/run_python_script.sh,Y,"""$REPO_DIR
 src/main/chat-exports/present.sh,67,call,src/main/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
 src/main/chat-exports/present.sh,72,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
 src/main/chat-exports/present.sh,72,call,src/main/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,90,path_str,rsc/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
-src/main/chat-exports/present.sh,117,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,117,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,120,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
-src/main/chat-exports/present.sh,121,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,121,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,126,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
-src/main/chat-exports/present.sh,152,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
-src/main/chat-exports/present.sh,152,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
+src/main/chat-exports/present.sh,104,path_str,rsc/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
+src/main/chat-exports/present.sh,131,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,131,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,134,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
+src/main/chat-exports/present.sh,135,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,135,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,140,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
+src/main/chat-exports/present.sh,166,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
+src/main/chat-exports/present.sh,166,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
+src/main/chat-exports/rekey_chats.py,24,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-uuid --legacy-ordinals \
 src/main/chat-exports/timeline.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
 src/main/chat-exports/timeline.py,14,comment,src/main/chat-exports/timeline.py,Y,src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
 src/main/chat-exports/validate.sh,5,comment,src/main/chat-exports/validate.sh,Y,#   src/main/chat-exports/validate.sh --chat-export <path/to/data-directory>

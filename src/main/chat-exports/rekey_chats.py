@@ -16,6 +16,15 @@ Rows whose conversation is unknown to the corpus (a stale uuid after a live
 deletion, an ordinal the LLM hallucinated) are dropped with a note on stderr —
 a durable table must never carry a dangling reference forward silently.
 
+--legacy-ordinals (with --to-uuid only): interpret incoming ordinals under the
+numbering ordered() produced before empty stubs were excluded (924ebf8) — the
+numbering the pre-uuid inferred tables were generated against. This is the
+migration recipe for an old ordinal-keyed inferred table:
+
+    src/main/chat-exports/rekey_chats.py --to-uuid --legacy-ordinals \\
+        --conversations <batch>/conversations.json \\
+        < gen/chat-exports/<batch>/inferred/data-chat-categories.json
+
 Usage (see infer_tables.sh / present.sh):
     ... | rekey_chats.py --to-uuid --conversations <conversations.json> | ...
 """
@@ -25,7 +34,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import ordered
+from markdown_projection import is_empty, ordered
 
 
 def main():
@@ -35,10 +44,24 @@ def main():
     direction.add_argument('--to-ordinal', action='store_true')
     ap.add_argument('--conversations', required=True,
                     help='the batch conversations.json (ordering authority)')
+    ap.add_argument('--legacy-ordinals', action='store_true',
+                    help='incoming ordinals counted empty stubs (pre-924ebf8 numbering); '
+                         'for migrating old inferred tables')
     args = ap.parse_args()
+    if args.legacy_ordinals and not args.to_uuid:
+        ap.error('--legacy-ordinals is a migration aid: legacy ordinals only ever come IN, '
+                 'so it requires --to-uuid')
 
-    order = [(n, c) for n, _, c in ordered(json.loads(Path(args.conversations).read_text()))
-             if n is not None]
+    convs = json.loads(Path(args.conversations).read_text())
+    if args.legacy_ordinals:
+        # The numbering ordered() produced before 924ebf8: same (created_at, uuid) sort,
+        # but empty stubs counted. A stub takes its ordinal yet gets no mapping entry, so
+        # its rows drop with the standard note — a category for a content-free chat
+        # carries nothing worth migrating.
+        by_created = sorted(convs, key=lambda c: (c['created_at'], c['uuid']))
+        order = [(i, c) for i, c in enumerate(by_created, 1) if not is_empty(c)]
+    else:
+        order = [(n, c) for n, _, c in ordered(convs) if n is not None]
     table = json.load(sys.stdin)
 
     old_col, new_col = ('chat', 'uuid') if args.to_uuid else ('uuid', 'chat')

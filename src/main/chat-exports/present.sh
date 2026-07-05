@@ -74,6 +74,19 @@ update_title() {
 
 # ── per-export logic ──────────────────────────────────────────────────────────
 
+# present_export sends all step output to present.log; without this trap a failing
+# step dies invisibly (set -e ends the script, the reason stays in the log). A trap
+# rather than `|| report`: an `||` context would suspend set -e inside the block.
+CURRENT_LOG=""
+report_failure() {
+  local rc=$?
+  if [[ $rc -ne 0 && -f "$CURRENT_LOG" ]]; then
+    echo "  ✗ failed — $CURRENT_LOG ends with:" >&2
+    tail -n 15 "$CURRENT_LOG" | sed 's/^/    /' >&2
+  fi
+}
+trap report_failure EXIT
+
 present_export() {
   local chat_export="${1%/}"
   local name
@@ -85,6 +98,7 @@ present_export() {
 
   rm -rf "$out_dir"
   mkdir -p "$out_dir"
+  CURRENT_LOG="$out_dir/present.log"
 
   {
     cp "$TEMPLATE" "$out"

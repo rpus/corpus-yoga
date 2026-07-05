@@ -142,12 +142,10 @@ main() {
     for f in "${pipeline_failures[@]}"; do
       echo "  $f"
       case "$f" in
-        browser-captures)        echo "    → check gen/browser-captures/claude/*/validation/apiConversation/*.log" ;;
         "browser-captures (prep)") echo "    → check ext/browser-captures/claude/ and Safari setup" ;;
-        chat-exports)            echo "    → check gen/chat-exports/*/validation/*.log" ;;
         "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see PREP.sh --help)" ;;
-        code-projects)           echo "    → check gen/code-projects/*/validation/*.log" ;;
         "code-projects (prep)")  echo "    → check ext/code-projects/ symlink setup" ;;
+        *)                       echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done
   fi
