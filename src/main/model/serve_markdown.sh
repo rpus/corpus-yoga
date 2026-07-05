@@ -2,8 +2,8 @@
 # Local HTTP server for browsing and searching markdown files.
 #
 # Usage:
-#   src/main/model/serve_markdown.sh --browser-captures <path> [--port 8182]
-#   src/main/model/serve_markdown.sh --browser-captures <path> --daemon [--port 8182]
+#   src/main/model/serve_markdown.sh --markdown <dir> [--port 8182]
+#   src/main/model/serve_markdown.sh --markdown <dir> --daemon [--port 8182]
 #   src/main/model/serve_markdown.sh stop
 
 set -euo pipefail

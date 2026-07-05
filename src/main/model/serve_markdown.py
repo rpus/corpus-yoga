@@ -3,8 +3,8 @@
 Local HTTP server for browsing and searching markdown files.
 
 Usage:
-    src/main/model/serve_markdown.sh --browser-captures <path> [--port 8182]
-    src/main/model/serve_markdown.sh --browser-captures <path> --daemon [--port 8182]
+    src/main/model/serve_markdown.sh --markdown <dir> [--port 8182]
+    src/main/model/serve_markdown.sh --markdown <dir> --daemon [--port 8182]
     src/main/model/serve_markdown.sh stop
 """
 import argparse
@@ -51,11 +51,10 @@ def ensure_assets() -> None:
             except Exception as e: print(f'Warning: could not download {f}: {e}', flush=True)
 
 
-def conversations(captures_dir: Path) -> list[dict]:
-    """All .md files sorted newest first."""
+def conversations(markdown_dir: Path) -> list[dict]:
+    """All .md files under the tree, sorted newest first."""
     result = []
-    for md in sorted((p for p in captures_dir.rglob('*.md')
-                      if p.with_suffix('.json').exists()),
+    for md in sorted(markdown_dir.rglob('*.md'),
                      key=lambda p: p.stat().st_mtime, reverse=True):
         title = md.stem.replace('_', ' ').title()
         try:
@@ -68,11 +67,11 @@ def conversations(captures_dir: Path) -> list[dict]:
     return result
 
 
-def search(query: str, captures_dir: Path) -> list[dict]:
-    """Case-insensitive full-text grep across all captures."""
+def search(query: str, markdown_dir: Path) -> list[dict]:
+    """Case-insensitive full-text grep across the markdown tree."""
     try:
         files = subprocess.run(
-            ['grep', '-rli', '--include=*.md', query, str(captures_dir)],
+            ['grep', '-rli', '--include=*.md', query, str(markdown_dir)],
             capture_output=True, text=True, timeout=10
         ).stdout.strip().splitlines()
     except Exception:
@@ -181,7 +180,7 @@ function esc(s){{return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}}
 </script></body></html>'''
 
 
-def make_handler(captures_dir: Path) -> type:
+def make_handler(markdown_dir: Path) -> type:
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, format, *args):  # noqa: A002
             print(format % args)
@@ -191,7 +190,7 @@ def make_handler(captures_dir: Path) -> type:
             path   = parsed.path.lstrip('/')
 
             if path == '' or path == 'index.html':
-                convs = conversations(captures_dir)
+                convs = conversations(markdown_dir)
                 items = ''.join(
                     f'<div class="item"><a href="/file/{c["path"]}">{c["title"]}</a></div>'
                     for c in convs
@@ -205,7 +204,7 @@ def make_handler(captures_dir: Path) -> type:
 
             elif path == 'search':
                 q = parse_qs(parsed.query).get('q', [''])[0]
-                self._send(200, 'application/json', json.dumps(search(q, captures_dir)).encode())
+                self._send(200, 'application/json', json.dumps(search(q, markdown_dir)).encode())
 
             elif path.startswith('static/'):
                 asset = STATIC_DIR / path[len('static/'):]
@@ -251,19 +250,19 @@ def make_handler(captures_dir: Path) -> type:
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('--browser-captures', required=True, metavar='PATH',
-                   help='Directory of markdown files to serve')
+    p.add_argument('--markdown', required=True, metavar='DIR',
+                   help='Directory tree of markdown files to serve (e.g. gen/markdown)')
     p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
     args = p.parse_args()
 
-    captures_dir = Path(args.browser_captures).resolve()
+    markdown_dir = Path(args.markdown).resolve()
 
     ensure_assets()
 
     print(f'Browse: http://localhost:{args.port}', flush=True)
 
     try:
-        HTTPServer(('', args.port), make_handler(captures_dir)).serve_forever()
+        HTTPServer(('', args.port), make_handler(markdown_dir)).serve_forever()
     except OSError as e:
         if e.errno == 48:
             print(f'Port {args.port} already in use.', flush=True)

@@ -74,7 +74,7 @@ On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `logs/
   - Do later bulk exports supersede earlier ones (every conversation's message uuids a subset of its later self), and is the latest snapshot therefore sufficient — letting you delete earlier batches regardless of their schema vintage? `src/run_python_script.sh src/main/chat-exports/compare_batches.py` (reads the batches' atomised `json/`; exit 0 = sufficient; runs automatically at the end of every chat-exports pipeline run, where it also compares the latest batch against the live captures per conversation — in-sync / capture-ahead / capture-stale-so-recapture / anomaly). Delete a superseded batch from both `ext/chat-exports/` and `gen/chat-exports/` — matrices are machine-local and die with it.
   - Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `src/run_python_script.sh src/main/model/compare_sources.py --browser-captures ext/browser-captures/claude --bulk-export ext/chat-exports/<batch>` (reads the batch's atomised `json/` pieces; add `--diff` for details).
 - Browse and read captures as rendered markdown + LaTeX:
-  - `src/main/model/serve_markdown.sh --browser-captures gen/markdown --daemon` then open <http://localhost:8182> — serves the whole presentation tree: claude projections (`gen/markdown/claude/`) and gemini scrapes (`gen/markdown/gemini/`)
+  - `src/main/model/serve_markdown.sh --markdown gen/markdown --daemon` then open <http://localhost:8182> — serves the whole presentation tree: claude projections (`gen/markdown/claude/`) and gemini scrapes (`gen/markdown/gemini/`)
   - `src/main/model/serve_markdown.sh stop` to shut down
 
 ---
