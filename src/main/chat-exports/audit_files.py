@@ -39,11 +39,6 @@ Columns
                     differs       downloaded is substantively ahead
                     not_present   no counterpart in downloaded
                   Empty for tooltip and dl rows.
-    in_gen        For ef/eh_out/eh_wrk rows: Y if this file was copied to
-                  gen/artifacts/extracted_files/ or gen/artifacts/extracted_heredocs/
-                  (i.e. it had no downloaded counterpart and was preserved there);
-                  N if it was not copied (counterpart existed in downloaded).
-                  Empty for tooltip and dl rows.
 
 Downloaded path conventions
 ────────────────────────────
@@ -82,8 +77,6 @@ from library import dir_for
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 GEN_DIR    = REPO_ROOT / 'gen' / 'chat-exports'
-GEN_EF     = REPO_ROOT / 'gen' / 'artifacts' / 'extracted_files'
-GEN_EH     = REPO_ROOT / 'gen' / 'artifacts' / 'extracted_heredocs'
 
 
 def compare(src_path, dl_path):
@@ -126,14 +119,13 @@ def run_one(name: str) -> None:
 
     for chat_idx, cname in sorted(chat_names.items()):
         cs = f'{chat_idx:0{width}d}-{slug(cname)}'
-        # library resolution is by uuid (identity); the extractors' gen/artifacts
-        # delta logs mirror the library's directory name
+        # library resolution is by uuid (identity), never by the batch ordinal name
         dl_dir = dir_for(chat_uuids[chat_idx], slug(cname))
 
         # ── tooltip ───────────────────────────────────────────────────────────
         # Paths from local_resource tool results; this is what the tooltip shows.
         for p in sorted(tooltip_by_chat[chat_idx]):
-            rows.append([chat_idx, cname, 'tooltip', p, '', '', ''])
+            rows.append([chat_idx, cname, 'tooltip', p, '', ''])
 
         # ── extracted_files ───────────────────────────────────────────────────
         # Written by src/main/chat-exports/extract_files.py from create_file tool calls.
@@ -146,9 +138,8 @@ def run_one(name: str) -> None:
                 rel    = f.relative_to(ef_dir)
                 dl_p   = dl_dir / rel
                 cmp    = compare(f, dl_p)
-                in_gen = 'Y' if (GEN_EF / dl_dir.name / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'ef', str(rel),
-                             'Y' if dl_p.exists() else 'N', cmp, in_gen])
+                             'Y' if dl_p.exists() else 'N', cmp])
 
         # ── extracted_heredocs / outputs ──────────────────────────────────────
         # Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
@@ -161,9 +152,8 @@ def run_one(name: str) -> None:
                 rel    = f.relative_to(eh_out)
                 dl_p   = dl_dir / rel
                 cmp    = compare(f, dl_p)
-                in_gen = 'Y' if (GEN_EH / dl_dir.name / 'outputs' / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'eh_out', str(rel),
-                             'Y' if dl_p.exists() else 'N', cmp, in_gen])
+                             'Y' if dl_p.exists() else 'N', cmp])
 
         # ── extracted_heredocs / working ──────────────────────────────────────
         # Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
@@ -177,9 +167,8 @@ def run_one(name: str) -> None:
                 rel    = f.relative_to(eh_wrk)
                 dl_p   = dl_dir / 'working' / rel
                 cmp    = compare(f, dl_p)
-                in_gen = 'Y' if (GEN_EH / dl_dir.name / 'working' / rel).exists() else 'N'
                 rows.append([chat_idx, cname, 'eh_wrk', str(rel),
-                             'Y' if dl_p.exists() else 'N', cmp, in_gen])
+                             'Y' if dl_p.exists() else 'N', cmp])
 
         # ── downloaded ────────────────────────────────────────────────────────
         # Everything in the conversation's library dir.
@@ -187,13 +176,13 @@ def run_one(name: str) -> None:
             for f in sorted(dl_dir.rglob('*')):
                 if f.is_file() and f.name != '.DS_Store':
                     rows.append([chat_idx, cname, 'dl',
-                                 str(f.relative_to(dl_dir)), '', '', ''])
+                                 str(f.relative_to(dl_dir)), '', ''])
 
     # ── Write normalised table ────────────────────────────────────────────────
     with out_path.open('w', newline='') as fh:
         w = csv.writer(fh)
         w.writerow(['chat', 'chat_name', 'source', 'path',
-                    'in_dl', 'dl_compare', 'in_gen'])
+                    'in_dl', 'dl_compare'])
         w.writerows(rows)
     log.write(f'{len(rows)} rows → {out_path.relative_to(REPO_ROOT)}\n')
 

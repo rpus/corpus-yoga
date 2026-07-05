@@ -13,9 +13,8 @@ where <ordinal>-<slug> is the canonical conversation name from markdown_projecti
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
 The durable library lib/artifacts/downloaded/ is keyed by identity instead
 (<uuid8>-<slug>, resolved via src/main/chat-exports/library.py — ordinals renumber
-between batches, uuids don't);
-files new to the library are copied there and echoed to the gen/artifacts delta log under
-the library's directory name.
+between batches, uuids don't); files new to the library are copied there and named
+individually in this run's log (the delta is information, not a second copy).
 
 Usage:
     python extract_files.py --chat-export <path-to-export>
@@ -83,6 +82,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     log_path = out_dir / 'extract_files.log'
     skips: list[str] = []
+    new_copies: list[str] = []   # files this run added to the library (the delta)
     rows:  list[tuple] = []   # (ordinal, name, extracted, downloaded, copied)
 
     for idx, dir_name, convo in ordered(convos):  # canonical <ordinal>-<slug>, created_at order
@@ -117,13 +117,11 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             if (dl_dir / rel).exists():
                 downloaded += 1
             else:
-                rsc_dest = RSC_DIR / dl_dir.name / rel
-                rsc_dest.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(dest, rsc_dest)
                 dl_dest = dl_dir / rel
                 dl_dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(dest, dl_dest)
                 copied += 1
+                new_copies.append(f'  NEW→library {dl_dir.name}/{rel}')
 
         rows.append((idx, name[:50], extracted, downloaded, copied))
 
@@ -145,14 +143,15 @@ def process(conversations_path: Path, out_dir: Path) -> None:
             log.write(f'  {"":3}  {"TOTAL":<{nw}}  {t_ext:>9}  {t_dl:>10}  {t_cp:>6}\n')
         else:
             t_ext = t_dl = t_cp = 0
-        log.write(f'\nDone. {t_ext} extracted, {t_dl} already in downloaded, {t_cp} new (copied to {RSC_DIR.relative_to(SCRIPT_DIR.parents[2])} and {LIBRARY.relative_to(SCRIPT_DIR.parents[2])}).\n')
+        log.write(f'\nDone. {t_ext} extracted, {t_dl} already in downloaded, {t_cp} new (copied to {LIBRARY.relative_to(SCRIPT_DIR.parents[2])}).\n')
+        if new_copies:
+            log.write('\n'.join(new_copies) + '\n')
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).parent
 OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
-RSC_DIR        = SCRIPT_DIR.parent.parent.parent / 'gen' / 'artifacts' / 'extracted_files'
 
 
 def main():

@@ -97,6 +97,13 @@ main() {
     done
   fi
 
+  # memory accumulation: every distinct memory state deposits into the durable
+  # lib/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
+  # is mutable and lossy between exports, and bulk exports are its only log) and the
+  # timeline renders to lib/markdown/claude/memories/. A deposited state is the licence to
+  # delete a memories-divergent batch; the verdict below stays unprejudiced.
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/accumulate_memories.py"
+
   # supersession report (informational): a batch is a synchronised snapshot of FOUR
   # components (conversations, memories, projects, users), each put through the same
   # unprejudiced unit/atom subset check — no component is assumed append-only or

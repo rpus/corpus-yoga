@@ -1,4 +1,4 @@
-pre_commit.py: 927/927 (data: 237/237)
+pre_commit.py: 927/927 (data: 234/234)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -1067,7 +1067,6 @@ pre_commit.py: 927/927 (data: 237/237)
 ── check_chat_exports_validation_outputs ─────────────────────────────────────
 
   each gen/chat-exports/<datum>/matrix.md must match the vN.log files under its validation/
-  ✓ matrix.current: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
   ✓ matrix.current: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000
   ✓ conversations: matrix.version_registered: v1
   ✓ conversations: matrix.version_registered: v2
@@ -1202,7 +1201,6 @@ pre_commit.py: 927/927 (data: 237/237)
   ✓ apiConversation: modelled by some version: fcee9cff-ab80-48a0-b44b-9e8fa50f31cc
 
 ── check_chat_exports_coverage ───────────────────────────────────────────────
-  ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000
   ✓ conversations: modelled by some version: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000
 
 ── check_code_projects_coverage ──────────────────────────────────────────────
@@ -1218,11 +1216,10 @@ pre_commit.py: 927/927 (data: 237/237)
   ✓ session: latest datum validates against latest (v4): a6f25723-e5d7-444e-90f5-ab2ff49e01cf
 
 ── check_cross_sources ───────────────────────────────────────────────────────
-  ✓ cross-source: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-batch-0000: 95 shared — 95 identical, 0 appended-to
   ✓ cross-source: data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000: 98 shared — 98 identical, 0 appended-to
 
 ── check_score ───────────────────────────────────────────────────────────────
   ✓ score[code+schema]: 927/927; expected: 927/927
   ✓ score[code]: 12/12; expected: 12/12
   ✓ score[schema]: 915/915; expected: 915/915
-  ✓ score[data]: 237/237; machine-local, not recorded
+  ✓ score[data]: 234/234; machine-local, not recorded

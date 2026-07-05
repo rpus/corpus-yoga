@@ -128,14 +128,13 @@ def run_one(name: str) -> None:
             source     TEXT,
             path       TEXT,
             in_dl      TEXT,
-            dl_compare TEXT,
-            in_gen     TEXT
+            dl_compare TEXT
         )
     ''')
     with csv_path.open() as fh:
         con.executemany(
             'INSERT INTO files_audit VALUES '
-            '(:chat,:chat_name,:source,:path,:in_dl,:dl_compare,:in_gen)',
+            '(:chat,:chat_name,:source,:path,:in_dl,:dl_compare)',
             csv.DictReader(fh),
         )
     con.commit()

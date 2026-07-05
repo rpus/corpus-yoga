@@ -473,7 +473,7 @@ def check_cross_sources(run) -> None:
     projection bug or data corruption (or a post-export edit/branch switch — rare;
     investigate with compare_sources --diff). Reads the projections both pipelines
     already wrote to gen/; machine-local, so data tier."""
-    api_dir = GEN / 'markdown' / 'claude'
+    api_dir = REPO_ROOT / 'lib' / 'markdown' / 'claude' / 'conversations'
     api = {}
     if api_dir.is_dir():
         for f in api_dir.glob('*.md'):
@@ -482,7 +482,7 @@ def check_cross_sources(run) -> None:
             if cid:
                 api[cid] = turn_seq(text)
     if not api:
-        print('  – skipped: no api projections (gen/markdown/claude empty)')
+        print('  – skipped: no api projections (lib/markdown/claude/conversations empty)')
         return
     batch_dirs = sorted((GEN / 'chat-exports').glob('data-*/markdown')) if (GEN / 'chat-exports').is_dir() else []
     if not batch_dirs:

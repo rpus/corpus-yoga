@@ -6,7 +6,7 @@ README.md,8,doc,PREREQUISITES.sh,Y,./PREREQUISITES.sh # read-only report: what t
 README.md,12,doc,RUNME.sh,Y,./RUNME.sh --capture-from-browser \
 README.md,15,doc,src/main/model/gen_model.sh,Y,./src/main/model/gen_model.sh
 README.md,17,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
-README.md,22,doc,src/main,Y,Everything is driven by shell entry points — there is no package or build system. The root `RUNME.sh` orchestrates three
+README.md,22,doc,src/main,Y,Everything is driven by shell entry points — there is no package or build system. Three git-ignored roots divide the dat
 README.md,30,doc,src/main/model/project_markdown.py,Y,"Downstream of capture, `src/main/model/project_markdown.py` renders clean markdown straight from the API JSON (no DOM sc"
 README.md,32,doc,src/main/chat-exports/library.py,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
 README.md,34,doc,rsc/schema,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
@@ -17,8 +17,8 @@ README.md,34,doc,rsc/schema/WORKFLOW.md,Y,The heart of the repo is the schema sy
 README.md,38,doc,PREREQUISITES.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
 README.md,38,doc,RUNME.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
 README.md,40,doc,src/requirements.txt,Y,- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `RUNME.sh` creates a venv at `~/venvs/general` (override v
-README.md,45,doc,RUNME.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `logs/` and the venv, and pipelines with no in"
-README.md,45,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `logs/` and the venv, and pipelines with no in"
+README.md,45,doc,RUNME.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
+README.md,45,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
 README.md,58,doc,src/main/browser-captures/export.applescript,Y,"- Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/"
 README.md,62,doc,src/main/browser-captures/PREP.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
 README.md,62,doc,RUNME.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
@@ -26,8 +26,8 @@ README.md,66,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/br
 README.md,66,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
 README.md,67,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
 README.md,67,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
-README.md,72,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/
-README.md,72,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out gen/
+README.md,72,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
+README.md,72,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
 README.md,74,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,74,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,75,doc,src/run_python_script.sh,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
@@ -37,9 +37,9 @@ README.md,76,doc,src/run_python_script.sh,Y,"- Do later bulk exports supersede e
 README.md,76,doc,src/main/chat-exports/compare_batches.py,Y,"- Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, m"
 README.md,77,doc,src/run_python_script.sh,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
 README.md,77,doc,src/main/model/compare_sources.py,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
-README.md,79,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --markdown gen/markdown --daemon` then open <http://localhost:8182> — serves the who
-README.md,80,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,88,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,79,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --markdown lib/markdown --daemon` then open <http://localhost:8182> — serves the who
+README.md,81,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,89,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,18,comment,RUNME.sh,Y,"#   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)"
 RUNME.sh,19,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 RUNME.sh,20,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
@@ -140,8 +140,12 @@ src/main/chat-exports/RUNME.sh,69,call,src/run_python_script.sh,Y,"""$REPO_DIR/s
 src/main/chat-exports/RUNME.sh,69,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/project_markdown.py"" \"
 src/main/chat-exports/RUNME.sh,77,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/compare_sources.py"" \"
 src/main/chat-exports/RUNME.sh,77,call,src/main/model/compare_sources.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/compare_sources.py"" \"
-src/main/chat-exports/RUNME.sh,107,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_batches.py"" \"
-src/main/chat-exports/RUNME.sh,107,call,src/main/chat-exports/compare_batches.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_batches.py"" \"
+src/main/chat-exports/RUNME.sh,105,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/accumulate_memories.py"""
+src/main/chat-exports/RUNME.sh,105,call,src/main/chat-exports/accumulate_memories.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/accumulate_memories.py"""
+src/main/chat-exports/RUNME.sh,114,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_batches.py"" \"
+src/main/chat-exports/RUNME.sh,114,call,src/main/chat-exports/compare_batches.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/compare_batches.py"" \"
+src/main/chat-exports/accumulate_memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-gen gen/chat-exports] [--lib
+src/main/chat-exports/accumulate_memories.py,31,comment,src/main/chat-exports/accumulate_memories.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-gen gen/chat-exports] [--lib
 src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export ext/chat-exports/<batch> [--out
 src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export ext/chat-exports/<batch> [--out
 src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
@@ -149,14 +153,14 @@ src/main/chat-exports/atomise_bulk.py,18,comment,src/main/chat-exports/atomise_b
 src/main/chat-exports/audit_files.py,14,comment,src/main/chat-exports/extract_files.py,Y,ef       Files written to gen/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
 src/main/chat-exports/audit_files.py,17,comment,src/main/chat-exports/extract_heredocs.py,Y,by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
 src/main/chat-exports/audit_files.py,19,comment,src/main/chat-exports/extract_heredocs.py,Y,by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
-src/main/chat-exports/audit_files.py,56,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
-src/main/chat-exports/audit_files.py,57,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
-src/main/chat-exports/audit_files.py,60,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-export \
-src/main/chat-exports/audit_files.py,67,comment,src/main/chat-exports/query_files.py,Y,reports) are defined in src/main/chat-exports/query_files.py and can be run with:
-src/main/chat-exports/audit_files.py,69,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py <export-name>
-src/main/chat-exports/audit_files.py,139,comment,src/main/chat-exports/extract_files.py,Y,# Written by src/main/chat-exports/extract_files.py from create_file tool calls.
-src/main/chat-exports/audit_files.py,154,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
-src/main/chat-exports/audit_files.py,169,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
+src/main/chat-exports/audit_files.py,51,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
+src/main/chat-exports/audit_files.py,52,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
+src/main/chat-exports/audit_files.py,55,comment,src/main/chat-exports/audit_files.sh,Y,src/main/chat-exports/audit_files.sh --chat-export \
+src/main/chat-exports/audit_files.py,62,comment,src/main/chat-exports/query_files.py,Y,reports) are defined in src/main/chat-exports/query_files.py and can be run with:
+src/main/chat-exports/audit_files.py,64,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py <export-name>
+src/main/chat-exports/audit_files.py,131,comment,src/main/chat-exports/extract_files.py,Y,# Written by src/main/chat-exports/extract_files.py from create_file tool calls.
+src/main/chat-exports/audit_files.py,145,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /mnt/user-data/outputs/.
+src/main/chat-exports/audit_files.py,159,comment,src/main/chat-exports/extract_heredocs.py,Y,# Written by src/main/chat-exports/extract_heredocs.py; heredoc target was /home/claude/.
 src/main/chat-exports/audit_files.sh,6,comment,src/main/chat-exports/audit_files.sh,Y,#   src/main/chat-exports/audit_files.sh --chat-export  <path-to-export>
 src/main/chat-exports/audit_files.sh,7,comment,src/main/chat-exports/audit_files.sh,Y,#   src/main/chat-exports/audit_files.sh --chat-exports <path-to-exports>
 src/main/chat-exports/audit_files.sh,21,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_files.py"" ""$@"""
@@ -288,8 +292,8 @@ src/main/model/serve_markdown.py,8,comment,src/main/model/serve_markdown.sh,Y,sr
 src/main/model/serve_markdown.sh,5,comment,src/main/model/serve_markdown.sh,Y,#   src/main/model/serve_markdown.sh --markdown <dir> [--port 8182]
 src/main/model/serve_markdown.sh,6,comment,src/main/model/serve_markdown.sh,Y,#   src/main/model/serve_markdown.sh --markdown <dir> --daemon [--port 8182]
 src/main/model/serve_markdown.sh,7,comment,src/main/model/serve_markdown.sh,Y,#   src/main/model/serve_markdown.sh stop
-src/main/model/serve_markdown.sh,44,call,src/main/model/serve_markdown.py,Y,"nohup ""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"" ${args[@]+""${args[@]}""} \"
-src/main/model/serve_markdown.sh,51,call,src/main/model/serve_markdown.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"" ${args[@]+""${args[@]}""}"
+src/main/model/serve_markdown.sh,46,call,src/main/model/serve_markdown.py,Y,"nohup ""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"" ${args[@]+""${args[@]}""} \"
+src/main/model/serve_markdown.sh,53,call,src/main/model/serve_markdown.py,Y,"""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"" ${args[@]+""${args[@]}""}"
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_occurrences.py,8,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_occurrences.py ""#/definitions/MessageFile"" \"

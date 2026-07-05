@@ -30,7 +30,7 @@ main() {
   # log. Suspects here are the reason to capture, not an error.
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
     --browser-captures "$REPO_DIR/ext/browser-captures" \
-    --api "$REPO_DIR/gen/markdown/claude" || true
+    --api "$REPO_DIR/lib/markdown/claude/conversations" || true
   # Capture both agents regardless of either failing, then surface a non-zero exit if either did
   # (don't let a claude failure abort the gemini capture). Claude is api-only unless --new-claude-scrape.
   local rc=0

@@ -14,7 +14,7 @@ invalid/degenerate conversations are rendered honestly and flagged.
 
 Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/model/project_markdown.py \
-    --browser-captures ext/browser-captures/claude              # -> gen/markdown/claude/
+    --browser-captures ext/browser-captures/claude              # -> lib/markdown/claude/conversations/
   src/run_python_script.sh src/main/model/project_markdown.py \
     --bulk-export ext/chat-exports/<batch>                       # -> gen/chat-exports/<batch>/markdown/
 """
@@ -72,7 +72,7 @@ def main():
                 if (api := find_api_json(d)) is not None]
         named = [(name, project(api), tree_problems(api['chat_messages']))
                  for _, name, api in ordered(apis)]
-        out = Path(args.out) if args.out else REPO / 'gen' / 'markdown' / 'claude'
+        out = Path(args.out) if args.out else REPO / 'lib' / 'markdown' / 'claude' / 'conversations'
     else:
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name
         batch = Path(args.bulk_export)

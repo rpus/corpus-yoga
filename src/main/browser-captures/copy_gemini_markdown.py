@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 copy_gemini_markdown.py — copy gemini scrape markdown into the presentation tree
-(gen/markdown/gemini, beside claude's projections), anchoring each turn heading:
+(lib/markdown/gemini/conversations, beside claude's projections), anchoring each turn heading:
 
     ## Human (3)   ->   ## Human (3) <a id="human-3"></a>
 
@@ -42,7 +42,7 @@ def anchored(md):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--browser-captures', default=str(REPO / 'ext' / 'browser-captures' / 'gemini'))
-    ap.add_argument('--out', default=str(REPO / 'gen' / 'markdown' / 'gemini'))
+    ap.add_argument('--out', default=str(REPO / 'lib' / 'markdown' / 'gemini' / 'conversations'))
     args = ap.parse_args()
 
     src = Path(args.browser_captures)
@@ -51,7 +51,7 @@ def main():
         return
     out = Path(args.out)
     if out.exists():
-        shutil.rmtree(out)  # this stage owns gen/markdown/gemini
+        shutil.rmtree(out)  # this stage owns lib/markdown/gemini/conversations
     out.mkdir(parents=True, exist_ok=True)
 
     n = 0
