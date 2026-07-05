@@ -35,6 +35,12 @@ default_branch() {
     | sed 's|^origin/||' | grep . || echo main
 }
 
+# Epoch mtime, BSD then GNU stat (a Linux clone must not silently lose the
+# did-the-checks-run probe); 0 on a missing file.
+_mtime() {
+  stat -f %m "$1" 2>/dev/null || stat -c %Y "$1" 2>/dev/null || echo 0
+}
+
 main() {
   parse_args "$@"
 
@@ -66,9 +72,9 @@ main() {
   # Run again — must produce no further changes. The log's mtime doubles as the
   # did-the-checks-even-run probe for the advisory decision below.
   local before after rc=0
-  before="$(stat -f %m "$REPO_DIR/src/test/pre_commit.log" 2>/dev/null || echo 0)"
+  before="$(_mtime "$REPO_DIR/src/test/pre_commit.log")"
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" || rc=$?
-  after="$(stat -f %m "$REPO_DIR/src/test/pre_commit.log" 2>/dev/null || echo 0)"
+  after="$(_mtime "$REPO_DIR/src/test/pre_commit.log")"
 
   if [[ $fix_mode -eq 1 ]]; then
     # --fix changed the world between the two writes: a failing first log and a

@@ -333,12 +333,12 @@ src/test/pre_commit.py,832,path_str,src/run_python_script.sh,Y,_add(f'src/run_py
 src/test/pre_commit.py,834,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
-src/test/pre_commit.sh,61,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
-src/test/pre_commit.sh,61,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
-src/test/pre_commit.sh,69,path_str,src/test/pre_commit.log,Y,"before=""$(stat -f %m ""$REPO_DIR/src/test/pre_commit.log"" 2>/dev/null || echo 0)"""
-src/test/pre_commit.sh,70,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
-src/test/pre_commit.sh,70,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
-src/test/pre_commit.sh,71,path_str,src/test/pre_commit.log,Y,"after=""$(stat -f %m ""$REPO_DIR/src/test/pre_commit.log"" 2>/dev/null || echo 0)"""
+src/test/pre_commit.sh,67,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
+src/test/pre_commit.sh,67,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
+src/test/pre_commit.sh,75,path_str,src/test/pre_commit.log,Y,"before=""$(_mtime ""$REPO_DIR/src/test/pre_commit.log"")"""
+src/test/pre_commit.sh,76,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
+src/test/pre_commit.sh,76,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
+src/test/pre_commit.sh,77,path_str,src/test/pre_commit.log,Y,"after=""$(_mtime ""$REPO_DIR/src/test/pre_commit.log"")"""
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
 src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.title_matches_key.py,Y,Usage: python src/test/repairs/naming.title_matches_key.py <schema>
