@@ -22,7 +22,7 @@
 #   ./RUNME.sh --capture-from-browser --pay-for-inference
 #
 # After running, check results with:
-#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
+#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -151,7 +151,7 @@ main() {
       esac
     done
   fi
-  echo "Run src/test/pre_commit.sh, then: git diff src/test/pre_commit.log"
+  echo "Run src/test/pre_commit.sh, then: git diff --cached src/test/pre_commit.log"
   echo "Log: $LOG_FILE"
 }
 

@@ -147,7 +147,7 @@ cross-pipeline types need documenting. Also bump any stale version references in
 
 ```bash
 src/test/pre_commit.sh
-git diff src/test/pre_commit.log
+git diff --cached src/test/pre_commit.log
 ```
 
 All checks should pass. The diff to `pre_commit.log` is the final record of what changed.
