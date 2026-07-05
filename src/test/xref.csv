@@ -46,7 +46,7 @@ RUNME.sh,19,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser            
 RUNME.sh,20,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
 RUNME.sh,21,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
 RUNME.sh,22,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --pay-for-inference
-RUNME.sh,25,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff src/test/pre_commit.log
+RUNME.sh,25,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 RUNME.sh,80,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
 rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
@@ -68,7 +68,7 @@ rsc/schema/WORKFLOW.md,114,doc,rsc/schema/_reference/mcp.json,Y,`rsc/schema/_ref
 rsc/schema/WORKFLOW.md,135,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
 rsc/schema/WORKFLOW.md,139,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
 rsc/schema/WORKFLOW.md,149,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/WORKFLOW.md,150,doc,src/test/pre_commit.log,Y,git diff src/test/pre_commit.log
+rsc/schema/WORKFLOW.md,150,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
 rsc/schema/WORKFLOW.md,154,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
@@ -333,10 +333,12 @@ src/test/pre_commit.py,832,path_str,src/run_python_script.sh,Y,_add(f'src/run_py
 src/test/pre_commit.py,834,path_str,src/run_python_script.sh,Y,_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}')
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
-src/test/pre_commit.sh,54,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || rc=$?"
-src/test/pre_commit.sh,54,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || rc=$?"
-src/test/pre_commit.sh,61,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
-src/test/pre_commit.sh,61,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
+src/test/pre_commit.sh,61,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
+src/test/pre_commit.sh,61,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
+src/test/pre_commit.sh,69,path_str,src/test/pre_commit.log,Y,"before=""$(stat -f %m ""$REPO_DIR/src/test/pre_commit.log"" 2>/dev/null || echo 0)"""
+src/test/pre_commit.sh,70,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
+src/test/pre_commit.sh,70,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
+src/test/pre_commit.sh,71,path_str,src/test/pre_commit.log,Y,"after=""$(stat -f %m ""$REPO_DIR/src/test/pre_commit.log"" 2>/dev/null || echo 0)"""
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
 src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.title_matches_key.py,Y,Usage: python src/test/repairs/naming.title_matches_key.py <schema>
