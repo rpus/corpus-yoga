@@ -46,15 +46,12 @@ main() {
       exit 0
     fi
     local root; root="$(cd "$browser_captures" && pwd)"
-    local found=0
-    for d in "$root"/*/; do
-      [[ -d "$d" ]] || continue
-      found=1
-      run_one "$d"
-    done
-    if [[ $found -eq 0 ]]; then
+    if ! compgen -G "$root/*/" > /dev/null; then
       echo "no captures in $root"
     else
+      # corpus mode: validate.sh announces itself once and folds the all-current
+      # captures into one summary line, so a 95-capture steady state is one line
+      "$SCRIPT_DIR/claude/validate.sh" --browser-captures "$root"
       # render api JSON -> markdown always; diff it against the DOM scrape only when claude was
       # scraped this run (--new-claude-scrape) -- otherwise there is no scrape md to compare against.
       "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
