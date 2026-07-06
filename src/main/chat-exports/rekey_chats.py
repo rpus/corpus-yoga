@@ -18,8 +18,13 @@ a durable table must never carry a dangling reference forward silently.
 
 --legacy-ordinals (with --to-uuid only): interpret incoming ordinals under the
 numbering ordered() produced before empty stubs were excluded (924ebf8) — the
-numbering the pre-uuid inferred tables were generated against. This is the
-migration recipe for an old ordinal-keyed inferred table:
+1-based, all-inclusive numbering that inferred tables from the 924ebf8..a19be50
+era were generated against. NOT the era before 3b8faba (Jul 2), when
+infer_tables.sh numbered chats itself via jq to_entries: 0-BASED, created_at
+only — a table from that vintage migrated with this flag mis-assigns every row
+by one, and only the dropped 'chat 0' would hint at it. None survive on disk,
+but check the provenance before trusting the flag on an unfamiliar table.
+This is the migration recipe for an old ordinal-keyed inferred table:
 
     src/main/chat-exports/rekey_chats.py --to-uuid --legacy-ordinals \\
         --conversations <batch>/conversations.json \\

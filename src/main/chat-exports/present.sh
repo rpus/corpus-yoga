@@ -96,9 +96,12 @@ present_export() {
   local conv="$chat_export/conversations.json"
   local out="$out_dir/index.html"
 
+  # Point the failure trap at THIS export before any step that can fail — if the
+  # rm/mkdir below die, the trap must not tail the previous export's (successful)
+  # log; a not-yet-written log is safely silent (the trap guards on -f).
+  CURRENT_LOG="$out_dir/present.log"
   rm -rf "$out_dir"
   mkdir -p "$out_dir"
-  CURRENT_LOG="$out_dir/present.log"
 
   {
     cp "$TEMPLATE" "$out"

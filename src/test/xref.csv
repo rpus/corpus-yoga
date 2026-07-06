@@ -112,9 +112,9 @@ src/main/browser-captures/audit_captures.py,30,comment,src/main/browser-captures
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 src/main/browser-captures/claude/validate.sh,6,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-captures <path/to/captures-root>
 src/main/browser-captures/claude/validate.sh,16,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
-src/main/browser-captures/claude/validate.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
-src/main/browser-captures/claude/validate.sh,28,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
-src/main/browser-captures/claude/validate.sh,29,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"""
+src/main/browser-captures/claude/validate.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/browser-captures/claude/validate.sh,32,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/browser-captures/claude/validate.sh,33,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"" || rc=$?"
 src/main/browser-captures/compare_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api lib/markdown/claude/conversations --scr
 src/main/browser-captures/compare_markdown.py,24,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api lib/markdown/claude/conversations --scr
 src/main/browser-captures/copy_gemini_markdown.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-captures ext/browser-captures/
@@ -217,18 +217,18 @@ src/main/chat-exports/present.sh,67,call,src/run_python_script.sh,Y,"""$REPO_DIR
 src/main/chat-exports/present.sh,67,call,src/main/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
 src/main/chat-exports/present.sh,72,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
 src/main/chat-exports/present.sh,72,call,src/main/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,104,path_str,rsc/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
-src/main/chat-exports/present.sh,131,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,131,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,134,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
-src/main/chat-exports/present.sh,135,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,135,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,140,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
-src/main/chat-exports/present.sh,166,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
-src/main/chat-exports/present.sh,166,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
+src/main/chat-exports/present.sh,107,path_str,rsc/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
+src/main/chat-exports/present.sh,134,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,134,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,137,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
+src/main/chat-exports/present.sh,138,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,138,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,143,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
+src/main/chat-exports/present.sh,169,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
+src/main/chat-exports/present.sh,169,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
-src/main/chat-exports/rekey_chats.py,24,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-uuid --legacy-ordinals \
+src/main/chat-exports/rekey_chats.py,29,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-uuid --legacy-ordinals \
 src/main/chat-exports/timeline.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
 src/main/chat-exports/timeline.py,14,comment,src/main/chat-exports/timeline.py,Y,src/run_python_script.sh src/main/chat-exports/timeline.py <conversations.json> --table chats
 src/main/chat-exports/validate.sh,5,comment,src/main/chat-exports/validate.sh,Y,#   src/main/chat-exports/validate.sh --chat-export <path/to/data-directory>

@@ -21,17 +21,22 @@ validate_conversation() {
   local uuid; uuid="$(basename "$uuid_dir")"
   local out_dir="$OUTPUT_DIR/$uuid"
 
-  local found=0
+  # Return the validator's own rc explicitly: corpus mode calls this inside a
+  # $(…) with a tested exit status, a context where set -e is suspended — an
+  # implicit fall-through would end on the if below and report success even
+  # over a crashed validator run.
+  local found=0 rc=0
   for json in "$uuid_dir"/*.json; do
     [[ -f "$json" ]] || continue
     found=1
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
-      "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid"
+      "$json" "$SCHEMA_DIR" "$out_dir/validation/apiConversation" "$uuid" || rc=$?
   done
 
   if [[ "$found" -eq 0 ]]; then
     echo "  (no JSON files found)"
   fi
+  return $rc
 }
 
 validate_corpus() {
