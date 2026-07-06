@@ -448,9 +448,9 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
         if not passing:
             fix(f'{_fix_item_cmd(pipeline, subject)}  # refresh the evidence '
                 '(only helps if data or schemas changed since the logs were written)',
-                problem=f'{label} — validates against no schema version')
-            fix('then, if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
-                'schema version — current evidence means only a schema change can clear it')
+                problem=f'{label} — validates against no schema version',
+                guidance='if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
+                         'schema version — current evidence means only a schema change can clear it')
         run(label, passing, None if passing else 'validates against no schema version')
 
 
@@ -477,9 +477,9 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
     if not ok:
         fix(f'{_fix_item_cmd(pipeline, subject)}  # refresh the evidence '
             '(only helps if data or schemas changed since the logs were written)',
-            problem=label)
-        fix('then, if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
-            'schema version — current evidence means only a schema change can clear it')
+            problem=label,
+            guidance='if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
+                     'schema version — current evidence means only a schema change can clear it')
     run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)))
 
 
@@ -672,20 +672,26 @@ def main():
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
 
     # Each hint is deduplicated but remembers the tier it was raised in (the
-    # committed log carries only deterministic-tier hints) and every problem it
-    # remedies, so the tail can print problem statement(s) above each command —
-    # a bare command with no statement of what it fixes is not a fix hint.
+    # committed log carries only deterministic-tier hints), every problem it
+    # remedies — the tail prints problem statement(s) above each command; a bare
+    # command with no statement of what it fixes is not a fix hint — and any
+    # GUIDANCE: prose advice rendered as an indented note under the command and
+    # NEVER passed to the --fix runner (prose is not executable).
     fix_hints:    list[str] = []
     fix_tier:     dict[str, str] = {}
     fix_problems: dict[str, list[str]] = {}
+    fix_guidance: dict[str, list[str]] = {}
 
-    def fix(hint: str, problem: str | None = None) -> None:
+    def fix(hint: str, problem: str | None = None, guidance: str | None = None) -> None:
         if hint not in fix_tier:
             fix_hints.append(hint)
             fix_tier[hint] = current_tier[0] or 'schema'
             fix_problems[hint] = []
+            fix_guidance[hint] = []
         if problem and problem not in fix_problems[hint]:
             fix_problems[hint].append(problem)
+        if guidance and guidance not in fix_guidance[hint]:
+            fix_guidance[hint].append(guidance)
 
     sections: list[str] = []
     tiers:    list[str] = []
@@ -828,16 +834,24 @@ def main():
 
     def _fix_lines(fail_list, hints):
         """Assemble the To-fix entries for a failure subset (no execution). Each
-        entry is (problem statements, runnable command) — a command is only
-        intelligible under the ✗ it remedies. 'then: ' hints merge into the
-        previous command line and contribute their problems to it."""
+        entry is (problem statements, runnable command or None, guidance notes):
+        a command is only intelligible under the ✗ it remedies; guidance is prose
+        rendered under the command and NEVER executed; a None command (a failure
+        with no repair/diagnostic script, only a prose detail) renders as ✗ +
+        guidance alone. 'then: ' hints merge into the previous command line and
+        contribute their problems and guidance to it."""
         fix_commands: list[str] = list(hints)
         problems: dict[str, list[str]] = {h: list(fix_problems.get(h, [])) for h in hints}
+        guidance: dict[str, list[str]] = {h: list(fix_guidance.get(h, [])) for h in hints}
+        prose_only: set[str] = set()   # keys that are advice, not commands
 
-        def _add(cmd: str, problem: str | None = None) -> None:
+        def _add(cmd: str, problem: str | None = None, prose: bool = False) -> None:
             if cmd not in problems:
                 fix_commands.append(cmd)
                 problems[cmd] = []
+                guidance[cmd] = []
+                if prose:
+                    prose_only.add(cmd)
             if problem and problem not in problems[cmd]:
                 problems[cmd].append(problem)
 
@@ -854,7 +868,7 @@ def main():
                 elif diagnostic.exists() and schema_path.exists():
                     _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif detail:
-                    _add(detail, name)
+                    _add(detail, name, prose=True)   # a detail is advice, not a command
             elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
                 diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
                 repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
@@ -864,22 +878,30 @@ def main():
                 elif diagnostic.exists() and schema_path.exists():
                     _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif detail:
-                    _add(detail, name)
+                    _add(detail, name, prose=True)
 
-        lines: list[tuple[list[str], str]] = []
+        lines: list[tuple[list[str], str | None, list[str]]] = []
         for cmd in fix_commands:
-            ps = problems.get(cmd, [])
-            if cmd.startswith('then: '):
+            ps, gs = problems.get(cmd, []), guidance.get(cmd, [])
+            if cmd in prose_only:
+                lines.append((list(ps), None, [cmd] + list(gs)))
+            elif cmd.startswith('then: '):
                 actual = cmd[len('then: '):]
-                if lines:
-                    prev_ps, prev_cmd = lines[-1]
+                if lines and (prev_cmd := lines[-1][1]) is not None:
+                    prev_ps, _, prev_gs = lines[-1]
+                    # splice before any trailing '  # …' comment — appending after
+                    # it would bury the follow-up inside the comment, silently
+                    # unexecuted under --fix
+                    base, sep, note = prev_cmd.partition('  # ')
+                    merged = f'{base}; {actual}' + (f'  # {note}' if sep else '')
                     lines[-1] = (prev_ps + [p for p in ps if p not in prev_ps],
-                                 f'{prev_cmd}; {actual}')
+                                 merged,
+                                 prev_gs + [g for g in gs if g not in prev_gs])
                 else:
-                    lines.append((list(ps), actual))
+                    lines.append((list(ps), actual, list(gs)))
             else:
                 actual = cmd[len('Run: '):] if cmd.startswith('Run: ') else cmd
-                lines.append((list(ps), actual))
+                lines.append((list(ps), actual, list(gs)))
         return lines
 
     def _render(committed_only: bool):
@@ -912,7 +934,7 @@ def main():
             out.write(f'  {"✓" if ok else "✗"} {label}' +
                       (f'\n      {detail}\n' if not ok and detail else '\n'))
 
-        lines: list[tuple[list[str], str]] = []
+        lines: list[tuple[list[str], str | None, list[str]]] = []
         if fails:
             counts = {sec: sum(1 for i in idxs if not results[i][1] and sections[i] == sec)
                       for sec in fail_sections}
@@ -925,12 +947,15 @@ def main():
             lines = _fix_lines(fails, hints)
             if lines:
                 out.write('\nTo fix:\n')
-                for ps, line in lines:
+                for ps, cmd, gs in lines:
                     for p in ps[:3]:
                         out.write(f'  ✗ {p}\n')
                     if len(ps) > 3:
                         out.write(f'  ✗ … and {len(ps) - 3} more like these\n')
-                    out.write(f'    {line}\n')
+                    if cmd is not None:
+                        out.write(f'    {cmd}\n')
+                    for g in gs:
+                        out.write(f'      ↳ {g}\n')
                 out.write('\n')
                 out.write('  (or run with --fix to apply and stage automatically)\n')
         return out.getvalue(), lines
@@ -948,11 +973,18 @@ def main():
     if failures and args.fix and full_fix_lines:
         print()
         print('Running fixes:')
-        for ps, line in full_fix_lines:
+        for ps, cmd, gs in full_fix_lines:
             for p in ps[:3]:
                 print(f'  ✗ {p}')
-            print(f'  {line}')
-            subprocess.run(line, shell=True, cwd=REPO_ROOT)
+            if cmd is None:
+                # advice, not a command — print it, never execute it
+                for g in gs:
+                    print(f'      ↳ {g}')
+                continue
+            print(f'  {cmd}')
+            subprocess.run(cmd, shell=True, cwd=REPO_ROOT)
+            for g in gs:
+                print(f'      ↳ {g}')
         print()
         subprocess.run(['git', 'add', '-u'], cwd=REPO_ROOT)
         print('Staged with git add -u — re-run pre_commit.sh to verify.')
