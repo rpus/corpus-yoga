@@ -9,6 +9,7 @@ README.md,17,doc,src/test/pre_commit.sh,Y,# ./src/test/pre_commit.sh
 README.md,22,doc,src/main,Y,Everything is driven by shell entry points — there is no package or build system. Three git-ignored roots divide the dat
 README.md,30,doc,src/main/model/project_markdown.py,Y,"Downstream of capture, `src/main/model/project_markdown.py` renders clean markdown straight from the API JSON (no DOM sc"
 README.md,32,doc,src/main/chat-exports/library.py,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
+README.md,32,doc,rsc/CALCULUS.md,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
 README.md,34,doc,rsc/schema,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
 README.md,34,doc,rsc/schema/model_join.csv,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
 README.md,34,doc,src/test/pre_commit.py,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
@@ -48,6 +49,9 @@ RUNME.sh,21,comment,RUNME.sh,Y,#   ./RUNME.sh --pay-for-inference               
 RUNME.sh,22,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --pay-for-inference
 RUNME.sh,25,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 RUNME.sh,80,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
+rsc/CALCULUS.md,60,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
+rsc/CALCULUS.md,77,doc,src/main/chat-exports/accumulate_memories.py,Y,(`src/main/chat-exports/accumulate_memories.py`.)
+rsc/CALCULUS.md,177,doc,src/main,Y,"protocol (a `corpus.py` under the shared `src/main/` root, per the module placement"
 rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
 rsc/schema/WORKFLOW.md,32,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh        --code-project  ext/code-projects/<project>
