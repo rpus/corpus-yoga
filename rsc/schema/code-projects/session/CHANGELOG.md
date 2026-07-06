@@ -6,6 +6,29 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 ---
 
+## v5
+
+Now validates `3b98fa60-…` (2026-07-05, the session that raised this repo's PRs #1–#3 from
+the second machine) — the first session in which Claude Code created pull requests, and so
+the first to carry the record type this version admits. Aptly, the very session that
+exposed the gap is the evidence for closing it; more aptly still, the prediction that the
+PR proposing this version would write `pr-link` records into the session raising it CAME
+TRUE and was verified: moments after `gh pr create` raised PR #4, the raising session
+(`a6f25723-…`) gained `{"type": "pr-link", "prNumber": 4, …}` and on revalidation reads
+"modelled by v5; not by v1, v2, v3, v4" — the second datum of the record type, produced by
+the act of proposing it, validating only against the version it carries in its own diff.
+(Provenance, learned the same way: the record is written by the harness asynchronously
+when a PR is created from a session's shell — a first check that ran too early reported a
+false negative.)
+
+### Relaxed since v4
+
+- `PrLinkRecord` — new `Record` variant, discriminator `type: "pr-link"`: links the session
+  to a GitHub pull request it created or updated (`prNumber`, `prUrl`, `prRepository`,
+  `sessionId`, `timestamp` — all six fields present in all 59 observed records, so all
+  required). Heartbeat-style like `ai-title`: re-emitted with fresh timestamps while the
+  PR context is active (59 records across 3 PRs in the one observed session).
+
 ## v4
 
 ### Relaxed since v3
