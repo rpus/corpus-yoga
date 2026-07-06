@@ -29,8 +29,11 @@ hints to see the exact error before changing the schema.
 ```bash
 src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
-src/main/code-projects/validate.sh     --code-project-session ext/code-projects/<project>/<uuid>
+src/main/code-projects/RUNME.sh        --code-project  ext/code-projects/<project>
 ```
+
+(code-projects converts each `.jsonl` before validating, so its runnable unit is the
+project RUNME; `validate.sh --code-project-session` takes the *gen/* session dir, not ext/.)
 
 Read the validation log in `gen/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
