@@ -26,6 +26,8 @@ CONFLICTs and left in place). Dry-run by default:
 
     src/run_python_script.sh src/main/chat-exports/library.py \
       gen/chat-exports/<batch>/json [--root lib/artifacts/downloaded] [--apply]
+
+The vintages themselves are data: rsc/naming/library_dir_vintages.csv.
 """
 import re
 import shutil
@@ -64,7 +66,16 @@ def dir_for(uuid: str, dressing: str, root: Path = LIBRARY) -> Path:
 
 # ── CLI: normalise a library holding earlier naming vintages ──────────────────
 
-_HEX8 = re.compile(r'^[0-9a-f]{8}$')
+REPO = Path(__file__).resolve().parents[3]
+
+
+def _vintages() -> list[dict]:
+    """The library's naming-format history AS DATA, not as commented conditionals:
+    rsc/naming/library_dir_vintages.csv (id, status, pattern, note), in match
+    priority order. Identification cites vintage ids from this table."""
+    import csv
+    with open(REPO / 'rsc' / 'naming' / 'library_dir_vintages.csv') as f:
+        return list(csv.DictReader(f))
 
 
 def _corpus(json_dir: Path):
@@ -83,18 +94,21 @@ def _corpus(json_dir: Path):
 
 
 def _identify(name: str, u8s_by_slug) -> tuple[str | None, str]:
-    """(uuid8 or None, reason). Canonical/suffix and prefix vintages carry their
-    uuid8; the ancient <ordinal>-<slug> vintage resolves by unique slug."""
-    tail = name.rsplit('-', 1)[-1]
-    head = name.split('-', 1)[0]
-    if _HEX8.match(tail) and not tail.isdigit():
-        return tail, 'suffix'
-    if _HEX8.match(head) and not head.isdigit():
-        return head, 'prefix vintage'
-    cands = u8s_by_slug.get(name.partition('-')[2], [])
-    if len(cands) == 1:
-        return cands[0], 'ancient vintage, slug-resolved'
-    return None, f'slug matches {len(cands)} conversation(s)'
+    """(uuid8 or None, reason) — by matching the vintages table in priority order.
+    Vintages carrying a u8 group resolve by identity; the slug-only vintage
+    resolves by unique slug against the corpus; anything else is unknown."""
+    for v in _vintages():
+        m = re.match(v['pattern'], name)
+        if not m:
+            continue
+        u8 = m.groupdict().get('u8')
+        if u8:
+            return u8, f"{v['id']} ({v['status']})"
+        cands = u8s_by_slug.get(m.group('slug'), [])
+        if len(cands) == 1:
+            return cands[0], f"{v['id']}, slug-resolved"
+        return None, f"{v['id']}: slug matches {len(cands)} conversation(s)"
+    return None, 'matches no vintage in rsc/naming/library_dir_vintages.csv'
 
 
 def _merge(src: Path, dest: Path, apply: bool) -> int:

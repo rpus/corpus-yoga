@@ -67,6 +67,16 @@ STDLIB_MODULES = {
 
 # Repo-relative path prefixes derived from actual top-level directories.
 # Only directories that exist are included, so REPO_PREFIXES is never stale.
+# The artifact extensions xref recognises — ONE authority: every extractor's
+# token pattern and looks_like_repo_path derive from it. Before this constant,
+# eight sites carried five drifted vintages of the list. (The subprocess/exec
+# scan stays narrower on purpose: only executables run.)
+REF_EXTS = ('py', 'sh', 'json', 'md', 'html', 'g4', 'txt', 'csv', 'log')
+_DOT_EXTS = tuple(f'.{e}' for e in REF_EXTS)
+_TOKEN = r'[\w./\-]+\.(?:' + '|'.join(REF_EXTS) + r')'
+PATH_TOKEN_RE = re.compile(_TOKEN)
+DOTSLASH_TOKEN_RE = re.compile(r'(?<![./\w])\./' + _TOKEN)
+
 REPO_PREFIXES = tuple(
     f'{d.name}/'
     for d in sorted(REPO_ROOT.iterdir())
@@ -108,7 +118,7 @@ def looks_like_repo_path(s: str) -> bool:
     # Explicit relative reference ./name.ext or ./name.ext#fragment
     if s.startswith('./'):
         base = s.split('#')[0]  # strip JSON Pointer fragment before extension check
-        if re.search(r'\.(py|sh|json|md|html|g4|txt|log)$', base):
+        if base.endswith(_DOT_EXTS):
             return True
         s = s[2:]
     # Must be more than a bare fragment like "gen/data-" with no filename
@@ -118,9 +128,7 @@ def looks_like_repo_path(s: str) -> bool:
             return False
     return any(s.startswith(p) for p in REPO_PREFIXES) or (
         '/' in s and not s.startswith('#') and len(s) > 6
-        and s[0].isalpha() and (s.endswith('.py') or s.endswith('.sh')
-            or s.endswith('.json') or s.endswith('.md') or s.endswith('.html')
-            or s.endswith('.g4') or s.endswith('.txt') or s.endswith('.log'))
+        and s[0].isalpha() and s.endswith(_DOT_EXTS)
     )
 
 
@@ -229,8 +237,7 @@ def extract_python(f: Path, rows: list) -> None:
                 if '\n' in s:
                     # Multi-line string (docstring): scan each line for paths
                     for j, subline in enumerate(s.splitlines()):
-                        for m in re.finditer(r'[\w./\-]+\.(?:py|sh|json|md|html|g4)',
-                                             subline):
+                        for m in PATH_TOKEN_RE.finditer(subline):
                             candidate = m.group()
                             if looks_like_repo_path(candidate):
                                 emit(rows, f, lineno_base + j, 'comment',
@@ -247,7 +254,7 @@ def extract_python(f: Path, rows: list) -> None:
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
         if stripped.startswith('#'):
-            for match in re.finditer(r'[\w./\-]+\.(?:py|sh|json|md|html|g4)', stripped):
+            for match in PATH_TOKEN_RE.finditer(stripped):
                 s = match.group()
                 if looks_like_repo_path(s):
                     emit(rows, f, i, 'comment', s, stripped)
@@ -327,7 +334,7 @@ def extract_shell(f: Path, rows: list) -> None:
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
         if stripped.startswith('#'):
-            for match in re.finditer(r'[\w./\-]+\.(?:py|sh|json|md|html)', stripped):
+            for match in PATH_TOKEN_RE.finditer(stripped):
                 s = match.group()
                 if looks_like_repo_path(s):
                     emit(rows, f, i, 'comment', s, stripped)
@@ -387,7 +394,7 @@ def extract_markdown(f: Path, rows: list) -> None:
             m = re.match(r'^\w[\w_]*:\s+(\S+)$', stripped)
             if m:
                 val = m.group(1).strip('"\'')
-                if re.search(r'\.(json|md|py|sh|html|g4|txt|csv)$', val):
+                if val.endswith(_DOT_EXTS):
                     emit(rows, f, i, 'doc', val, stripped)
             continue
         # Markdown links [text](path)
@@ -404,7 +411,7 @@ def extract_markdown(f: Path, rows: list) -> None:
                 emit(rows, f, i, 'doc', s, stripped)
         # Explicit ./path.ext references (e.g. in fenced code blocks).
         # Negative lookbehind prevents matching the inner ./ in ./../foo.
-        for match in re.finditer(r'(?<![./\w])\./[\w./\-]+\.(?:py|sh|json|md|html|g4)', stripped):
+        for match in DOTSLASH_TOKEN_RE.finditer(stripped):
             s = match.group()
             if looks_like_repo_path(s):
                 emit(rows, f, i, 'doc', s, stripped)
@@ -424,7 +431,7 @@ def extract_html(f: Path, rows: list) -> None:
         stripped = line.strip()
         # HTML comments
         for match in re.finditer(r'<!--(.*?)-->', stripped):
-            for m2 in re.finditer(r'[\w./\-]+\.(?:py|sh|json|md|html|g4)', match.group(1)):
+            for m2 in PATH_TOKEN_RE.finditer(match.group(1)):
                 s = m2.group()
                 if looks_like_repo_path(s):
                     emit(rows, f, i, 'comment', s, stripped)
@@ -456,7 +463,7 @@ def extract_g4(f: Path, rows: list) -> None:
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
         if stripped.startswith('//'):
-            for match in re.finditer(r'[\w./\-]+\.(?:py|sh|json|md|g4)', stripped):
+            for match in PATH_TOKEN_RE.finditer(stripped):
                 s = match.group()
                 if looks_like_repo_path(s):
                     emit(rows, f, i, 'comment', s, stripped)

@@ -1,0 +1,4 @@
+id,status,pattern,note
+v3,current,"^(?P<dressing>.+)-(?P<u8>(?!\d{8}$)[0-9a-f]{8})$","uuid8 SUFFIX is the resolution key; dressing is <ordinal>-<slug> refreshed on touch by library.dir_for (or bare <slug> for a conversation outside the current corpus). Settled 2026-07-06 after v1/v2 both burned: see library.py docstring."
+v2,legacy-resolvable,"^(?P<u8>(?!\d{8}-)[0-9a-f]{8})-(?P<slug>.+)$","uuid8 PREFIX (the short-lived 2026-07-05 form): identity present, so library.find resolves it and dir_for heals it to v3 on first touch."
+v1,legacy-slug-only,"^(?P<ordinal>\d{1,3})-(?P<slug>[a-z0-9_]+)$","batch-ordinal naming (pre-2026-07-05): NO identity in the name — the form whose renumbering duplicated dirs and forced uuid-keying. Resolvable only by unique slug against a batch corpus: library.py's normalise CLI."

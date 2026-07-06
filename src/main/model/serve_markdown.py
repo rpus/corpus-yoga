@@ -123,20 +123,35 @@ const mathOpts={{delimiters:[
   {{left:'\\\\(',right:'\\\\)',display:false}},{{left:'\\\\[',right:'\\\\]',display:true}}
 ]}};
 let i=0;
+function jump(){{
+  if(!location.hash)return;
+  const el=document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  if(el)el.scrollIntoView();
+}}
+function chunkEnd(start){{
+  /* never split a fenced code block across chunks: marked parses each chunk
+     independently, so a fence opened in one chunk would leak into the next */
+  let end=Math.min(start+CHUNK,lines.length),open=false;
+  for(let k=start;k<end;k++)if(/^```/.test(lines[k]))open=!open;
+  while(open&&end<lines.length){{if(/^```/.test(lines[end]))open=!open;end++;}}
+  return end;
+}}
 function tick(){{
   if(i>=lines.length){{
     if(window.renderMathInElement)renderMathInElement(root,mathOpts);
-    /* deep links (#<turn anchor>): the target element only exists once chunked
-       rendering has finished, so the jump happens here, not at page load */
-    if(location.hash){{
-      const el=document.getElementById(decodeURIComponent(location.hash.slice(1)));
-      if(el)el.scrollIntoView();
-    }}
+    /* deep links (#<turn anchor>): the target exists only after chunked
+       rendering — jump now, and AGAIN once webfonts settle: KaTeX's fonts
+       arrive async and reflow every formula, silently dragging the viewport
+       off the anchor on math-heavy pages */
+    jump();
+    if(document.fonts&&document.fonts.ready)
+      document.fonts.ready.then(()=>requestAnimationFrame(jump));
     return;
   }}
+  const end=chunkEnd(i);
   const d=document.createElement('div');
-  d.innerHTML=marked.parse(lines.slice(i,i+CHUNK).join('\\n'));
-  root.appendChild(d);i+=CHUNK;
+  d.innerHTML=marked.parse(lines.slice(i,end).join('\\n'));
+  root.appendChild(d);i=end;
   /* setTimeout unconditionally: VSCode's simple-browser webview starves
      requestIdleCallback under scroll, freezing rendering after a few chunks */
   setTimeout(tick,0);

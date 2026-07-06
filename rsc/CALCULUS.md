@@ -139,6 +139,12 @@ Each law names its current enforcement (or the incident that taught it).
   memoisation ("the log IS the memoisation"), deposit dedup, dressing refresh,
   the normalise CLI's fixpoint, the hook's double-run check. An operation that
   isn't idempotent is either wrong or not yet finished being designed.
+  Corollary: there are no migrations, only normalisations — a one-shot
+  state-A-to-state-B script is dead the moment it runs, while a normaliser
+  converges every recognisable form toward the canonical one, where canonical
+  and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so
+  migration, healing, and maintenance are the same safely-rerunnable operation
+  and running it on a current corpus proves itself by silence.
 - **L2 — Determinism split.** Committed artifacts are machine-invariant; machine
   facts (data-tier reports, usernames, local paths) never enter them. Enforced
   structurally by the split report (`pre_commit.py` writes the committed log

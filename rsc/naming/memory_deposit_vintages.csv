@@ -1,0 +1,3 @@
+id,status,pattern,strptime,note
+v2,current,"^\d{4}-\d{2}-\d{2}T\d{6}Z$","%Y-%m-%dT%H%M%SZ","ISO 8601 basic-format time (no colons): portable to every filesystem — Windows forbids ':' and macOS Finder renders it as '/'. Adopted 2026-07-06."
+v1,legacy,"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$","%Y-%m-%dT%H:%M:%SZ","extended-format time (RFC 3339 style) with colons; accumulate_memories normalises these to v2 on every run."

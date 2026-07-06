@@ -54,6 +54,9 @@ from validation_matrix import rows_from_logs  # noqa: E402
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 
+sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
+from build_index import inferred_concepts, parse_decisions, parse_headwords, term_regex  # noqa: E402
+
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
 @dataclass
@@ -483,6 +486,26 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
     run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)))
 
 
+def check_index_curation(run) -> None:
+    """Indexing data obeys the schema system's disposal rigour: every concept the
+    corpus's own inference proposes (the latest batch's inferred concept table) is
+    either ADOPTED — covered by a headword or alias in rsc/index/headwords.txt —
+    or DECLINED in rsc/index/decisions.txt; anything else is pending curation and
+    says so here. The concept list is machine-local (gen/), so data tier."""
+    concepts = inferred_concepts()
+    if not concepts:
+        print('  – skipped: no inferred concept list (chat-exports --pay-for-inference produces it)')
+        return
+    entries = parse_headwords(RSC / 'index' / 'headwords.txt')
+    declined = parse_decisions(RSC / 'index' / 'decisions.txt')
+    covered = term_regex([t for ts in entries.values() for t in ts])
+    for c in concepts:
+        ok = bool(covered.search(c)) or c.lower() in declined
+        run(f'index: concept disposed: {c}', ok,
+            None if ok else 'pending — adopt in rsc/index/headwords.txt '
+                            'or decline in rsc/index/decisions.txt')
+
+
 def check_cross_sources(run) -> None:
     """Append-only invariant across export surfaces: every conversation present in BOTH
     a bulk export and the live captures must project to a turn sequence identical to,
@@ -767,6 +790,7 @@ def main():
                         label=f'check_{_slug}_frontier', tier='data')
 
         run_section(check_cross_sources, tier='data')
+        run_section(check_index_curation, tier='data')
     finally:
         sys.stdout = sys.__stdout__
 

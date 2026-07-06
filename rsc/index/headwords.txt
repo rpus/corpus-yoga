@@ -1,0 +1,57 @@
+adjunction = adjunctions, adjoint, adjoints
+aesthetics = aesthetic
+alignment
+category theory = categorical
+Cayley-Dickson = Cayley Dickson
+chaos theory
+combinator = combinators
+commemoration = commemorate
+compression
+conjecture = conjectures
+consciousness
+duality = dual, duals
+embodiment = embodied
+emergence = emergent
+entropy
+Euler = Euler identity
+film = films, cinema
+Gaussian elimination
+gauge = gauge theory
+Grothendieck
+honing = hone not clone, honed
+identity
+inference = infer, inferred
+information theory
+JSON schema = JSON schemas, jsonschema
+linguistics = linguistic
+logic = logical inference
+memory = memories, persistent memory
+metaphor = metaphors
+monad = monads
+morphism = morphisms
+music = musical
+negation
+pattern recognition
+perfect number = perfect numbers
+philosophy of mind
+prime = primes, prime number, prime numbers
+psychotope = psychotopes
+pushout = pushouts
+quasiparticle = quasiparticles
+quotient = quotients
+relativity = relativistic
+Schanuel
+schema = schemas
+self-reference = self-referential
+semantihedron
+sentinel = sentinels
+Show/Tell = show and tell, show versus tell, showing and telling
+socketry = socket, sockets
+S-prompt = S-prompting, sprompt
+symmetry = symmetries, symmetry break
+topos = toposes, topoi
+type theory = type-theoretic
+uncertainty = uncertainty principle
+uuid = uuids, guid
+wave = waves
+yoga

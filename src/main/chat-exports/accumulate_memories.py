@@ -33,9 +33,11 @@ Usage (wired into RUNME.sh after the per-batch stages):
       [--markdown lib/markdown/claude/memories]
 """
 import argparse
+import csv
 import json
+import re
 import sys
-from datetime import timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from compare_batches import batch_time
@@ -44,16 +46,57 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[2]
 
 
+def stamp_vintages() -> list[dict]:
+    """Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
+    (id, status, pattern, strptime, note). The 'current' row's strptime is the
+    one authority for writing stamps; legacy rows are recognised and normalised."""
+    with open(REPO / 'rsc' / 'naming' / 'memory_deposit_vintages.csv') as f:
+        return list(csv.DictReader(f))
+
+
+def current_stamp_fmt() -> str:
+    return next(v['strptime'] for v in stamp_vintages() if v['status'] == 'current')
+
+
+def normalise_stamps(lib_dir: Path) -> int:
+    """Heal legacy-vintage deposit filenames to the current format (no migrations,
+    only normalisations — running this on a current store is silence). The
+    snapshot time IS the identity, preserved exactly under reformatting; a rename
+    collision with identical content drops the duplicate file, a differing one is
+    a loud CONFLICT left in place."""
+    vintages = stamp_vintages()
+    fmt = current_stamp_fmt()
+    conflicts = 0
+    for f in sorted(lib_dir.glob('*.json')) if lib_dir.is_dir() else []:
+        v = next((v for v in vintages if re.match(v['pattern'], f.stem)), None)
+        if v is None or v['status'] == 'current':
+            continue
+        t = datetime.strptime(f.stem, v['strptime']).replace(tzinfo=timezone.utc)
+        dest = f.with_name(t.strftime(fmt) + '.json')
+        if dest.exists():
+            if dest.read_text() == f.read_text():
+                f.unlink()
+                print(f'  {f.name}: duplicate of {dest.name} — dropped')
+            else:
+                conflicts += 1
+                print(f'  ✗ CONFLICT: {f.name} and {dest.name} differ — both left in place')
+        else:
+            f.rename(dest)
+            print(f'  {f.name} ({v["id"]}) -> {dest.name}')
+    return conflicts
+
+
 def memory_states(gen_root):
     """[(stamp, batch name, verbatim text)] for every batch with an archived memory,
     in snapshot-time order."""
+    fmt = current_stamp_fmt()
     states = []
     for d in sorted(gen_root.glob('data-*')):
         f = d / 'memories' / 'memories.json'
         t = batch_time(d.name)
         if not f.exists() or t is None:
             continue
-        stamp = t.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+        stamp = t.astimezone(timezone.utc).strftime(fmt)
         states.append((stamp, d.name, f.read_text()))
     return sorted(states)
 
@@ -63,7 +106,7 @@ def deposit(states, lib_dir):
     identical. Existing deposits are immutable; a same-stamp content mismatch is
     reported loudly and left alone."""
     lib_dir.mkdir(parents=True, exist_ok=True)
-    conflicts = 0
+    conflicts = normalise_stamps(lib_dir)
     for stamp, batch, text in states:
         dest = lib_dir / f'{stamp}.json'
         if dest.exists():
