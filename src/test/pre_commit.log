@@ -1,4 +1,4 @@
-pre_commit.py: 988/988 (data: machine-local)
+pre_commit.py: 991/991 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -46,6 +46,9 @@ pre_commit.py: 988/988 (data: machine-local)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
   ✓ cli: supersede: advertised flags exist
+  ✓ cli: agent: target exists: src/main/code-projects/agent.py
+  ✓ cli: agent: cited calculus defined
+  ✓ cli: agent: advertised flags exist
   ✓ cli: model: target exists: src/main/model/gen_model.sh
   ✓ cli: model: cited calculus defined
   ✓ cli: calculus: target exists: rsc/CALCULUS.md
@@ -1014,7 +1017,7 @@ pre_commit.py: 988/988 (data: machine-local)
   ✓ mcp schema: up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 988/988; expected: 988/988
-  ✓ score[code]: 47/47; expected: 47/47
+  ✓ score[code+schema]: 991/991; expected: 991/991
+  ✓ score[code]: 50/50; expected: 50/50
   ✓ score[schema]: 941/941; expected: 941/941
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

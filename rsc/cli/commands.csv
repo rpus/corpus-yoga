@@ -8,6 +8,7 @@ index,src/main/model/build_index.py,[--candidates] [--top <n>],project,,Rebuild 
 library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-library dir naming across vintages (dry run by default)
 memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit every distinct chat-memory state; render the timeline
 supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk exports supersede earlier ones? Computed; never assumed
+agent,src/main/code-projects/agent.py,transport --to <room> [--session <uuid8>] | receive --from <room> [--apply],transport supersession merge L1 L6,,Move an agent (session × memory) between machines via a room or handoff dir
 model,src/main/model/gen_model.sh,,project,,Generate per-schema definition catalogues
 calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites
 completion,src/main/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table

@@ -35,7 +35,7 @@ keeps the telling honest, deterministically on any clone:
 
 The table is curated, not discovered: it is the repo's chosen presentation surface, so a
 script's absence here is a decision, not an omission. Operations without a command
-(e.g. transport, which is `cp`) are likewise partiality, not gaps.
+(e.g. atomise, which lives inside `./yoga run`'s steps) are likewise partiality, not gaps.
 
 ## Flags and steps correspond, in three tiers of authority
 

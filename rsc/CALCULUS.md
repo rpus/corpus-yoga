@@ -88,7 +88,10 @@ per-corpus code.
   global and classes determine reconciliation, transport is `cp`: a session
   `.jsonl` moves a conversation's worth of corpus; session + `memory/` folder
   moves an *agent* (user doctrine, 2026-07-06 — proven by the v5 mint, whose
-  evidence crossed machines as a file).
+  evidence crossed machines as a file). Reified as a careful cp with the class
+  semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
+  prefix-supersession for the append-only session, CONFLICT-mediated merge for
+  the memory folder, rooms as hand-made `ext/agents/<room>` symlinks.
 
 - **project / re-derive** — durable identity → presentation: ordinals, markdown,
   matrices, name dressing. Presentation converges to current without ever being
