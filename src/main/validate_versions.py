@@ -81,12 +81,13 @@ def validate_versions(input_file, schema_dir, log_dir, label):
               + (f'; not by {", ".join(invalid)}' if invalid else '')
               + (f'; {skipped} current — skipped' if skipped else ''))
     else:
-        print(f'  {label}: NOT modelled by any of the {len(ran)} version(s) validated'
+        print(f'  FAIL: {label}: NOT modelled by any of the {len(ran)} version(s) validated'
               + (f' ({skipped} current version(s) skipped — see matrix)' if skipped else '')
               + ':')
         for version, (status, log_out) in ran.items():
             print(f'  {label} ({version}): {status[:80]}{"…" if len(status) > 80 else ""}')
             print(f'    → {log_out}')
+        print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
     # logs just written, so it can never lag them. The datum dir is the parent of the

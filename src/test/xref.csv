@@ -117,24 +117,25 @@ rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src
 rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
 rsc/schema/WORKFLOW.md,32,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh        --code-project  ext/code-projects/<project>
 rsc/schema/WORKFLOW.md,43,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,50,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,50,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,50,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,56,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,64,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
-rsc/schema/WORKFLOW.md,65,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
-rsc/schema/WORKFLOW.md,66,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
-rsc/schema/WORKFLOW.md,71,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
-rsc/schema/WORKFLOW.md,78,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,78,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,87,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,111,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity
-rsc/schema/WORKFLOW.md,117,doc,rsc/schema/_reference/mcp.json,Y,`rsc/schema/_reference/mcp.json` is a snapshot of the MCP protocol spec used as the
-rsc/schema/WORKFLOW.md,138,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
-rsc/schema/WORKFLOW.md,142,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
-rsc/schema/WORKFLOW.md,152,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/WORKFLOW.md,153,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
-rsc/schema/WORKFLOW.md,157,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
+rsc/schema/WORKFLOW.md,50,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,60,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,60,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,60,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,66,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+rsc/schema/WORKFLOW.md,74,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
+rsc/schema/WORKFLOW.md,75,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
+rsc/schema/WORKFLOW.md,76,doc,src/main/code-projects/RUNME.sh,Y,src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
+rsc/schema/WORKFLOW.md,81,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
+rsc/schema/WORKFLOW.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,88,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,97,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
+rsc/schema/WORKFLOW.md,121,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity
+rsc/schema/WORKFLOW.md,127,doc,rsc/schema/_reference/mcp.json,Y,`rsc/schema/_reference/mcp.json` is a snapshot of the MCP protocol spec used as the
+rsc/schema/WORKFLOW.md,148,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
+rsc/schema/WORKFLOW.md,152,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
+rsc/schema/WORKFLOW.md,162,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+rsc/schema/WORKFLOW.md,163,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
+rsc/schema/WORKFLOW.md,167,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
@@ -144,7 +145,7 @@ rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`v
 rsc/schema/chat-exports/projects/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-projects/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-projects/session/CHANGELOG.md,100,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,117,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
@@ -152,7 +153,7 @@ rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""
 rsc/schema/model.json,32,path_str,rsc/schema/chat-exports/memories/v1.json,Y,"""./chat-exports/memories/v1.json"": ["
 rsc/schema/model.json,35,path_str,rsc/schema/chat-exports/projects/v2.json,Y,"""./chat-exports/projects/v2.json"": ["
 rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./chat-exports/users/v1.json"": ["
-rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v14.json,Y,"""./chat-exports/conversations/v14.json"": ["
+rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v15.json,Y,"""./chat-exports/conversations/v15.json"": ["
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the public web surface, as committed data"
 rsc/site/README.md,4,doc,rsc/site/yoga/index.html,Y,"directory mirrors the site's path space, so `yoga/index.html` here serves at"
 rsc/site/README.md,16,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
@@ -498,6 +499,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/chat-exports/conversations/v11.json,Y,
 ,,,rsc/schema/chat-exports/conversations/v12.json,Y,
 ,,,rsc/schema/chat-exports/conversations/v13.json,Y,
+,,,rsc/schema/chat-exports/conversations/v14.json,Y,
 ,,,rsc/schema/chat-exports/conversations/v2.json,Y,
 ,,,rsc/schema/chat-exports/conversations/v3.json,Y,
 ,,,rsc/schema/chat-exports/conversations/v4.json,Y,
@@ -513,6 +515,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/code-projects/session/v3.json,Y,
 ,,,rsc/schema/code-projects/session/v4.json,Y,
 ,,,rsc/schema/code-projects/session/v5.json,Y,
+,,,rsc/schema/code-projects/session/v6.json,Y,
 ,,self_only,rsc/schema/documenter.json,Y,
 ,,,src/main/browser-captures/claude/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/export-all-conversations.applescript,Y,

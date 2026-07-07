@@ -11,6 +11,14 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v15
+
+Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783454107-540c98c0-batch-0000` (the 2026-07-07 export, 100 conversations). One drift point, uniform across the whole corpus: the bulk renderer re-rendered ALL history with one new envelope field — literally the sole difference between this export's and the 2026-07-05 export's rendering of the same March tool block.
+
+### Restricted since v14
+
+- `ToolUseBlockBase.tool_identifier` — added as required, null-only (`type: null`, the `context` idiom), following the required-envelope precedent of `mcp_server_url` (v2): present on all 1843 tool_use blocks of this export and null on every one, so instances lacking it now fail — earlier exports rest at v14, per the coverage/frontier doctrine. Absent from the live API captures and from apiConversation as of the same date (bulk-export-only so far), so no coupled api-side mint yet; `model_join.csv` records the pending coupling, and apiConversation gets the field when a live capture first exhibits it — not before, since no version may sit ahead of all data.
+
 ## v14
 
 Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-batch-0000` (the 2026-07-05 export, 99 conversations). Two drift points, one conversation, one observation each — and both had been foretold: one by the apiConversation side's looser typing (and a description parenthetical claiming the stricter bulk shape held "always"), the other by an explicit either-branch prediction in the apiConversation v8 narrative and `model_join.csv`.

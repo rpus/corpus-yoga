@@ -69,11 +69,21 @@ def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
             continue
         kind, _ = classify(turn_seq(s), turn_seq(api_md[cid]))
         if kind not in ('exact', 'improved'):
-            suspects.append(f'{d.name} ({mds[0].stem}): {kind}')
-    print(f'claude: {len(suspects)} suspect scrape(s); '
-          f'{unscraped} capture(s) without a scrape (fine — api JSON is primary); '
-          f'{unprojected} scrape(s) without an api projection (run the pipeline)')
-    return suspects
+            suspects.append((d.name, mds[0].stem, kind))
+    # One WARN per disagreeing scrape, its recapture command beside it; counts
+    # that are zero say nothing, and optional-by-design facts are plain lines.
+    for uuid, stem, kind in suspects:
+        print(f'WARN: claude .md scrape {uuid} ({stem}) disagrees with its api json — {kind}. '
+              "claude's scrape is retired (the api json is the record): delete the scrape .md, "
+              'or refresh it:')
+        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --scrape --id {uuid}'
+              f'  # first front https://claude.ai/chat/{uuid} in Safari (logged in); the scrape walk takes minutes')
+    if unscraped:
+        print(f'claude: {unscraped} capture dir(s) have no scrape .md — optional; the api json is the record')
+    if unprojected:
+        print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under lib/markdown — '
+              'the browser-captures pipeline step project_markdown produces it')
+    return [f'{u} ({s}): {k}' for u, s, k in suspects]
 
 
 def audit_gemini(captures_dir: Path) -> list[str]:
@@ -86,13 +96,18 @@ def audit_gemini(captures_dir: Path) -> list[str]:
         s = mds[0].read_text()
         humans = sum(1 for r, _ in turn_seq(s) if r == 'H')
         if humans == RENDER_CEILING:
-            suspects.append(f'{d.name} ({mds[0].stem}): {humans} human turns — at the '
-                            f'render ceiling, likely truncated; recapture in place')
+            suspects.append((d.name, mds[0].stem))
         if '[no capture' in s:
             placeholder_convs += 1
-    print(f'gemini: {len(suspects)} suspect scrape(s); '
-          f'{placeholder_convs} conversation(s) contain [no capture placeholders')
-    return suspects
+    for cid, stem in suspects:
+        print(f'WARN: gemini scrape {cid} ({stem}) shows exactly {RENDER_CEILING} human turns — '
+              f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
+              'likely missing from this scrape; to recapture:')
+        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent gemini --id {cid}'
+              '  # a full scrape walks the page — takes a couple of minutes')
+    if placeholder_convs:
+        print(f'gemini: {placeholder_convs} scrape(s) contain "[no capture" placeholder text')
+    return [f'{c} ({s})' for c, s in suspects]
 
 
 def _alnum(s: str) -> str:
@@ -229,9 +244,6 @@ def main():
         suspects += audit_gemini(gemini_dir)
     else:
         print(f'gemini: skipped ({gemini_dir} absent)')
-
-    for s in suspects:
-        print(f'  SUSPECT {s}')
 
     actionable = []
     if args.live:

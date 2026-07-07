@@ -152,8 +152,28 @@ main() {
   run_pipeline_safe  code-projects "$SCRIPT_DIR/ext/code-projects"
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
+  # The tail carries SUMMARIES only — the body already marks each fact at its
+  # source (FAIL: something that needs acting on, remedy beside it; WARN: a
+  # fact worth eyes that gates nothing) and is grep-able by those sigils. Here:
+  # the verdict: line(s) (one-line computed conclusions), the "→ run:"
+  # suggested commands, and the FAIL/WARN counts in the closing line. The log
+  # is safe to read mid-tee: those lines are long flushed.
+  local n_fail n_warn verdicts suggestions
+  n_fail="$(grep -cE '^[[:space:]]*FAIL:' "$LOG_FILE" 2>/dev/null || true)"
+  n_warn="$(grep -cE '^[[:space:]]*WARN:' "$LOG_FILE" 2>/dev/null || true)"
+  verdicts="$(grep -E '^verdict:' "$LOG_FILE" 2>/dev/null | sort -u)" || true
+  suggestions="$(grep -F '→ run:' "$LOG_FILE" 2>/dev/null | sed 's/^.*→ run: /  /' | sort -u)" || true
+  [[ -n "$verdicts" ]] && printf '%s\n' "$verdicts"
+  if [[ -n "$suggestions" ]]; then
+    echo "Suggested commands (context beside each '→ run:' line above):"
+    printf '%s\n' "$suggestions"
+  fi
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
-    echo "All pipelines completed successfully."
+    if [[ "$n_fail" -gt 0 || "$n_warn" -gt 0 ]]; then
+      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above."
+    else
+      echo "All pipelines completed successfully."
+    fi
   else
     echo "Failed pipelines:"
     for f in "${pipeline_failures[@]}"; do
@@ -165,15 +185,6 @@ main() {
         *)                       echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done
-  fi
-  # Any step that wants the reader to act prints a self-contained "→ run:" line;
-  # gather them here so the tail — the only part anyone reads — carries every
-  # suggested command. The log is safe to read mid-tee: those lines are long flushed.
-  local suggestions
-  suggestions="$(grep -F '→ run:' "$LOG_FILE" 2>/dev/null | sed 's/^.*→ run: /  /' | sort -u)" || true
-  if [[ -n "$suggestions" ]]; then
-    echo "Suggested commands (context beside each '→ run:' line above):"
-    printf '%s\n' "$suggestions"
   fi
   echo "Run src/test/pre_commit.sh, then: git diff --cached src/test/pre_commit.log"
   echo "Log: $LOG_FILE"

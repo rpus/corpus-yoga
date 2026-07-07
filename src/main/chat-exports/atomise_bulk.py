@@ -48,6 +48,8 @@ def atomise(batch_dir, out_dir):
     out_dir.mkdir(parents=True, exist_ok=True)
     convs = json.loads((Path(batch_dir) / 'conversations.json').read_text())
     bad = empty = 0
+    detail = []  # per-piece detail is a file, not a log spray: an old export not
+    # matching the LATEST definition is ordinary schema history, one count's worth
     for idx, name, raw in ordered(convs):  # canonical <ordinal>-<slug>, created_at order
         (out_dir / f"{name}.json").write_text(json.dumps(raw, indent=2, ensure_ascii=False) + '\n')
         if idx is None:
@@ -57,9 +59,13 @@ def atomise(batch_dir, out_dir):
             bad += 1
             err = sorted(conv_valid.iter_errors(raw), key=lambda e: list(e.path))[0]
             loc = '/'.join(str(p) for p in err.path)
-            print(f"  INVALID {name} @ {loc} ({err.validator})", file=sys.stderr)
+            detail.append(f"{name} @ {loc} ({err.validator})")
+    if detail:
+        (out_dir / 'invalid.log').write_text('\n'.join(detail) + '\n')
     print(f"atomised {len(convs)} conversations to {out_dir} "
-          f"({bad} invalid vs Conversation, {empty} empty)")
+          f"({bad} do not match the latest Conversation definition"
+          + (" — detail: json/invalid.log" if bad else "")
+          + f", {empty} empty)")
 
 
 def main():

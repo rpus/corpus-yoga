@@ -84,9 +84,9 @@ def main():
     print(f"shared {len(shared)}: {identical} identical, {differ} differ "
           f"| api-only {len(api_only)}, bulk-only {len(bulk_only)}")
     for u in api_only:
-        print(f"  api-only {u}: {api_names.get(u, '')!r} (post-export or never exported)")
+        print(f"  api-only {u}: {api_names.get(u, '')!r} (captured; not in this export)")
     for u in bulk_only:
-        print(f"  bulk-only {u}: {bulk_names.get(u, '')!r} (deleted live? the export's unique data)")
+        print(f"  bulk-only {u}: {bulk_names.get(u, '')!r} (in the export; no capture of it here)")
     return 1 if differ else 0
 
 

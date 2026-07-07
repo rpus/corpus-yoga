@@ -6,6 +6,23 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 ---
 
+## v6
+
+Now validates `a6f25723-…` (2026-07-04 →, the session of the yoga CLI, the plans, the
+transports, and the reformed run log — reading which surfaced this very failure as its
+first catch). The session published the rpus.co/yoga landing page as a web Artifact,
+twice; the harness wrote a `frame-link` record per publish, and the session outgrew v5
+by the same motion v5 itself was minted for: doing a new kind of durable thing. One
+record type per kind of thing a session publishes — a PR at v5, a page at v6.
+
+### Relaxed since v5
+
+- `FrameLinkRecord` — new `Record` variant, discriminator `type: "frame-link"`: links the
+  session to a web Artifact it published (`sessionId`, `path`, `frameUrl`, `timestamp` —
+  all five fields present in both observed records, so all required; closed). `path` is an
+  absolute machine-local path and `frameUrl` is stable across redeploys — one record per
+  publish, same URL.
+
 ## v5
 
 Now validates `3b98fa60-…` (2026-07-05, the session that raised this repo's PRs #1–#3 from

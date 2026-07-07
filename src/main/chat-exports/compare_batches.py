@@ -181,23 +181,28 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
             anomalies.append(u)
     export_only = sorted(set(latest_convs) - set(caps))
     capture_only = sorted(set(caps) - set(latest_convs))
-    print(f'{latest.name} vs captures: {len(shared)} shared — {in_sync} in-sync, '
+    noteworthy = stale or anomalies or export_only
+    print(('WARN: ' if noteworthy else '')
+          + f'{latest.name} vs captures: {len(shared)} shared — {in_sync} in-sync, '
           f'{ahead} capture-ahead, {len(stale)} capture-stale, {len(anomalies)} anomalies; '
-          f'{len(export_only)} export-only (deleted live?), '
-          f'{len(capture_only)} capture-only (post-export)')
+          f'{len(export_only)} export-only (no local capture), '
+          f'{len(capture_only)} capture-only (absent from this export)')
+    # Each mismatched conversation is its own WARN: line — the top-level RUNME
+    # gathers WARN: (and "→ run:") lines verbatim into its tail, so the NAMES
+    # reach the part of the log that gets read, not just the counts.
     for u in export_only:
-        print(f'  EXPORT-ONLY {latest_convs[u][0]} ({u}): deleted live? the export holds its only copy')
+        print(f'WARN: export-only {latest_convs[u][0]} ({u}) — no capture of it here; to capture:')
+        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --id {u}'
+              f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in capture_only:
-        print(f'  capture-only {cap_names.get(u, "")!r} ({u}): post-export — the next export will include it')
+        print(f'  capture-only {cap_names.get(u, "")!r} ({u}): in the captures, absent from this export')
     for u in stale:
-        # "→ run:" is a convention the top-level RUNME collects into its tail
-        # summary — keep the line self-contained (the # comment travels with it).
-        print(f'  CAPTURE-STALE {cap_names.get(u, "")!r} ({u}): the export holds '
+        print(f'WARN: capture-stale {cap_names.get(u, "")!r} ({u}) — the export holds '
               f'{len(latest_convs[u][1] - caps[u])} message(s) the capture lacks — to recapture:')
         print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --id {u}'
               f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in anomalies:
-        print(f'  ANOMALY {cap_names.get(u, "")!r} ({u}): unique messages on both sides — investigate')
+        print(f'WARN: anomaly {cap_names.get(u, "")!r} ({u}) — unique messages on both sides — investigate')
 
 
 def main():
@@ -219,13 +224,13 @@ def main():
     for n in unparseable:
         print(f'warning: cannot parse a time from batch name {n} — ordering may be wrong', file=sys.stderr)
     if not batches:
-        print(f'no batches with atomised json/ under {root} — nothing to compare')
+        print(f'no export dirs with atomised json/ under {root} — nothing to compare')
         return 0
 
     latest = batches[-1]
     latest_units = {name: fn(latest, ext_root / latest.name) for name, fn in COMPONENTS}
     if len(batches) < 2:
-        print(f'1 batch with atomised json/ under {root} — no earlier batches to compare')
+        print(f'1 export dir with atomised json/ under {root} — no earlier exports to compare')
     else:
         print(f'latest: {latest.name} — ' + ', '.join(
             f'{len(latest_units[name])} {name}' for name, _ in COMPONENTS))
@@ -245,15 +250,16 @@ def main():
         if not holding:
             print(f'{b.name} → SUPERSEDED (every component a subset of the latest)')
         else:
-            print(f'{b.name} → NOT superseded: {", ".join(holding)} hold(s) unique data'
+            print(f'WARN: {b.name} is NOT superseded — its {", ".join(holding)} hold(s) unique data'
                   + (f' ({", ".join(superseded)} superseded)' if superseded else ''))
             for line in details:
                 print(line)
         sufficient = sufficient and not holding
 
     if len(batches) >= 2:
-        print(f'verdict: latest snapshot is '
-              f'{"SUFFICIENT — earlier batch(es) deletable" if sufficient else "NOT sufficient — earlier batch(es) hold unique data"}')
+        print('verdict: the newest export '
+              + ('supersedes every earlier export dir — they are deletable' if sufficient else
+                 'does NOT supersede the earlier export dir(s) — they hold unique data (lines above)'))
 
     if args.captures and Path(args.captures).is_dir():
         compare_vs_captures(latest, latest_units['conversations'], None, Path(args.captures))

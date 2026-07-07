@@ -129,12 +129,46 @@ def wait_for_url(conv_id, timeout=READY_TIMEOUT):
     return False
 
 
+def _process_chain() -> str:
+    """This process's ancestry (comm names, child ← parent), for TCC forensics:
+    macOS attributes a file-access denial to some app up this chain, and which
+    one is not knowable from here — so name them all and let the reader grant
+    the outermost real app."""
+    import os
+    import subprocess as sp
+    chain, pid = [], os.getpid()
+    for _ in range(12):
+        out = sp.run(['ps', '-o', 'ppid=,comm=', '-p', str(pid)],
+                     capture_output=True, text=True).stdout.split(None, 1)
+        if len(out) < 2:
+            break
+        chain.append(out[1].strip().rsplit('/', 1)[-1])
+        pid = int(out[0])
+        if pid <= 1:
+            break
+    return ' ← '.join(chain)
+
+
 def fetch_api(conv_id, out_dir):
     """Fetch the apiConversation JSON; returns the saved filename, or None on failure."""
     f = safari_fetch_api_json(conv_id)
     if f is None:
         return None
-    shutil.move(str(f), out_dir / f'{conv_id}.json')
+    try:
+        shutil.move(str(f), out_dir / f'{conv_id}.json')
+    except PermissionError:
+        # macOS TCC: reading ~/Downloads needs a per-app grant held by some app
+        # in this process's ancestry — print the ancestry so the reader knows
+        # which app to grant (Files and Folders only lists apps that have
+        # ASKED; Full Disk Access accepts manual additions via its + button).
+        print(f'FAIL: macOS denied reading {f} from this process chain:\n'
+              f'    {_process_chain()}\n'
+              '    grant the outermost app Downloads access (System Settings → Privacy & '
+              'Security; Full Disk Access takes manual additions where Files and Folders '
+              f'shows nothing). The fetched json is stranded in ~/Downloads — move it '
+              f'into {out_dir} by hand, or rerun from Terminal (already granted).',
+              file=sys.stderr)
+        return None
     return f'{conv_id}.json'
 
 

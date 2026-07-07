@@ -44,6 +44,16 @@ cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.
 ```
 
 Edit `v{N+1}.json` minimally — only the changes needed to pass the failing data.
+Then **diff it against its parent and read the diff**:
+
+```bash
+diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+```
+
+The diff IS the change: it should read as exactly what the CHANGELOG narrative
+will say, and nothing else. Anything extra — re-escaped strings, re-indentation,
+reordered keys — means the edit did more than the change, however it happened.
+
 Run the BFS order repair after editing:
 
 ```bash

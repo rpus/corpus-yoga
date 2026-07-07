@@ -86,15 +86,16 @@ def classify(s_seq, a_seq) -> tuple[str, Any]:
     extra = [t for t in extra if t[1].strip()]
 
     if reordered:
-        return (f'{len(reordered)} turn(s) out of order',
+        return (f'{len(reordered)} turn(s) appear in a different order than in the api json',
                 '; '.join(f'[{r}] {b}' for r, b in sorted(reordered)[:3]))
     if role_mismatch:
-        return f'{role_mismatch} aligned turn(s) disagree on role', None
+        return f'{role_mismatch} aligned turn(s) disagree on speaker role', None
     if real_dropped:
-        return (f'api dropped {len(real_dropped)} turn(s)',
+        return (f'the scrape has {len(real_dropped)} turn(s) the api json lacks',
                 '; '.join(f'[{t[0]}] {t[1][:60]}' for t in real_dropped[:3]))
     if len(extra) > placeholders:
-        return (f'{len(extra)} extra api turn(s) beyond {placeholders} placeholder(s)',
+        return (f'the api json has {len(extra)} turn(s) the scrape lacks '
+                f'({placeholders} excusable as "[no capture" placeholder(s))',
                 '; '.join(f'[{t[0]}] {t[1][:60]}' for t in extra[:3]))
     if extra or unpaired_placeholders:
         return 'improved', None
