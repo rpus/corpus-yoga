@@ -45,6 +45,13 @@ moves is never the tool's call — no recency guessing, no automatic choice.
 transport writes to the handoff medium immediately (it is not precious).
 receive and demerge are dry-run by default and only --apply writes into this
 machine's projects root — that is harness-owned state. Exit 1 on any CONFLICT.
+
+Field note (2026-07-07, first scripted teleport): a received agent that does
+not appear in the VSCode sidebar was probably trash-buttoned there once — the
+extension tombstones session uuids in `hiddenSessionIds` (its globalState in
+the machine's state.vscdb), machine-globally and with no unhide affordance;
+purge that list with VSCode quit, or resume via the terminal CLI, which does
+not consult it.
 """
 import argparse
 import hashlib
