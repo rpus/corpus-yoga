@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="yoga — the practice of tending AI conversations as a corpus: validated, accumulated, indexed, and carried between machines.">
+<title>rpus.co/yoga</title>
+<style>
+  :root {
+    --paper: #F4F5F2;
+    --ink: #1B251F;
+    --muted: #5C685F;
+    --accent: #2E6B4E;
+    --rule: #D9DED7;
+    --term-bg: #0E1411;
+    --term-ink: #C9D8CD;
+    --term-accent: #6FCF97;
+    --term-muted: #71836F;
+    --serif: "Iowan Old Style", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0E1411;
+      --ink: #D6E0D8;
+      --muted: #7E8C82;
+      --accent: #6FCF97;
+      --rule: #223028;
+      --term-bg: #121A16;
+      --term-ink: #C9D8CD;
+      --term-accent: #6FCF97;
+      --term-muted: #71836F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E1411;
+    --ink: #D6E0D8;
+    --muted: #7E8C82;
+    --accent: #6FCF97;
+    --rule: #223028;
+    --term-bg: #121A16;
+  }
+  :root[data-theme="light"] {
+    --paper: #F4F5F2;
+    --ink: #1B251F;
+    --muted: #5C685F;
+    --accent: #2E6B4E;
+    --rule: #D9DED7;
+    --term-bg: #0E1411;
+  }
+
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    line-height: 1.62;
+  }
+  .col { max-width: 43rem; margin: 0 auto; padding: 0 1.5rem; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover, a:focus-visible { text-decoration: underline; text-underline-offset: 0.2em; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── hero: the index entry ─────────────────────────────── */
+  header { padding: 5.5rem 0 0; }
+  .wordmark {
+    font-size: clamp(3.4rem, 9vw, 5.4rem);
+    line-height: 1;
+    margin: 0.75rem 0 0;
+    text-wrap: balance;
+    font-weight: 400;
+  }
+  .wordmark .dotslash { font-family: var(--mono); font-size: 0.62em; color: var(--muted); letter-spacing: -0.02em; vertical-align: 0.07em; }
+  .wordmark em { font-style: italic; letter-spacing: 0.005em; }
+  .entry {
+    margin: 1.6rem 0 0;
+    font-size: 1.1875rem;
+    text-wrap: pretty;
+  }
+  .entry .pos { font-style: italic; color: var(--muted); }
+  .locators { margin-top: 0.9rem; font-size: 1.0625rem; }
+  .locators .n { font-family: var(--mono); font-size: 0.85em; color: var(--muted); }
+  .mantra {
+    margin: 3.2rem 0 0;
+    padding: 1.1rem 0 1.2rem;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-style: italic;
+    font-size: 1.1875rem;
+    text-wrap: balance;
+  }
+  .mantra .who { font-style: normal; font-family: var(--mono); font-size: 0.72em; color: var(--muted); display: block; margin-top: 0.55rem; }
+
+  /* ── sections ──────────────────────────────────────────── */
+  section { padding: 3.4rem 0 0; }
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 400;
+    margin: 0.4rem 0 1rem;
+    text-wrap: balance;
+  }
+  h2 .sec { font-family: var(--mono); font-size: 0.58em; color: var(--muted); margin-left: 0.6em; }
+  p { margin: 0 0 1rem; text-wrap: pretty; }
+  .small { font-size: 0.9375rem; color: var(--muted); }
+
+  /* ── machine bands ─────────────────────────────────────── */
+  .term {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    font-family: var(--mono);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    margin: 1.6rem 0;
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+  .term pre { margin: 0; padding: 1.1rem 1.3rem; min-width: max-content; }
+  .term .p { color: var(--term-accent); }
+  .term .c { color: var(--term-muted); }
+  .term .ok { color: var(--term-accent); }
+
+  /* ── routes table ──────────────────────────────────────── */
+  .routes { list-style: none; margin: 1.4rem 0 0; padding: 0; display: flex; flex-direction: column; }
+  .routes li {
+    display: grid;
+    grid-template-columns: 11.5rem 1fr;
+    gap: 0.35rem 1.4rem;
+    padding: 0.72rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .routes li:last-child { border-bottom: 1px solid var(--rule); }
+  .routes .path { font-family: var(--mono); font-size: 0.8438rem; white-space: nowrap; }
+  .routes .what { font-size: 0.9688rem; }
+  .routes .ops { font-family: var(--mono); font-size: 0.7188rem; color: var(--muted); display: block; margin-top: 0.15rem; }
+  @media (max-width: 38rem) {
+    .routes li { grid-template-columns: 1fr; gap: 0.15rem; }
+  }
+
+  /* ── laws ──────────────────────────────────────────────── */
+  .laws { margin: 1.4rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.85rem; }
+  .laws li { display: grid; grid-template-columns: 2.6rem 1fr; gap: 1rem; }
+  .laws .l { font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); padding-top: 0.22rem; }
+  .laws p { margin: 0; font-size: 0.9688rem; }
+  .laws b { font-weight: 600; }
+
+  /* ── footer ────────────────────────────────────────────── */
+  footer {
+    margin-top: 4.5rem;
+    border-top: 1px solid var(--rule);
+    padding: 1.6rem 0 4rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 2rem;
+  }
+  footer .score { font-variant-numeric: tabular-nums; }
+
+  .cursor { display: inline-block; width: 0.55em; height: 1.05em; background: var(--term-accent); vertical-align: text-bottom; animation: blink 1.1s steps(1) infinite; }
+  @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="col">
+  <header>
+    <div class="eyebrow">rpus.co/yoga — a corpus and some yogic code</div>
+    <h1 class="wordmark"><span class="dotslash">./</span><em>yoga</em></h1>
+    <p class="entry">
+      <strong>yoga</strong>, <span class="pos">n.</span> — the practice of tending
+      AI conversations as a corpus: captured, validated, accumulated, indexed, and
+      carried between machines — by deterministic code and intelligences together,
+      each holding the other honest.
+    </p>
+    <p class="locators">
+      <span class="pos">see:</span>
+      <a href="#practice">the practice</a>&thinsp;<span class="n">§1</span>;
+      <a href="#routes">the routes</a>&thinsp;<span class="n">§2</span>;
+      <a href="#laws">the laws</a>&thinsp;<span class="n">§3</span>;
+      <a href="#agents">the agents</a>&thinsp;<span class="n">§4</span>.
+    </p>
+    <p class="mantra">
+      The LLM speaks ordinals, storage speaks uuid, presentation re-derives ordinals.
+      <span class="who">— the governing slogan, earned twice</span>
+    </p>
+  </header>
+
+  <section id="practice">
+    <div class="eyebrow">§1</div>
+    <h2>The practice</h2>
+    <p>
+      Your conversations with machines are a corpus — the only record of what you
+      actually thought, asked, and were told. This repo treats that corpus with the
+      rigour it deserves: every export validated against versioned schemas, every
+      memory state deposited before its source is rewritten, every artifact keyed by
+      durable identity rather than by whatever it happened to be called that day.
+    </p>
+    <p>
+      Two disciplines carry everything. <strong>Human-and-agent-amenable</strong>:
+      each artifact serves both audiences — prose that machines can parse, data that
+      people can read. <strong>Reproducible from the repo</strong>: no process is
+      real if it lives only in a chat window or a terminal scrollback; the machine
+      proposes in files, the human disposes in files, and a gate reports anything
+      pending.
+    </p>
+    <div class="term"><pre>$ <span class="p">./yoga</span> index headwords
+<span class="c">adopted: 57 entries (rsc/index/headwords.txt); declined: 0 (rsc/index/decisions.txt)</span>
+<span class="c">pending queue (24 inferred concepts to dispose — headwords add adopts; decline refuses):</span>
+mathematics
+artificial intelligence
+physics concepts
+<span class="c">…</span></pre></div>
+    <p class="small">
+      The corpus proposes its own vocabulary; the judgment stays yours. Every answer
+      names the legal next moves — the interface is the documentation is the data.
+    </p>
+  </section>
+
+  <section id="routes">
+    <div class="eyebrow">§2</div>
+    <h2>The routes <span class="sec">rsc/cli/commands.csv</span></h2>
+    <p>
+      One curated table is the whole surface — rendered as help in a terminal, as
+      completion in a shell, as routes here. Each entry cites the calculus
+      operations it performs, and the pre-commit tier holds every citation to the
+      doctrine that defines it. These paths are not yet routed — today the terminal
+      is the surface; the table is the same either way.
+    </p>
+    <ul class="routes">
+      <li><span class="path">/yoga/run</span>
+          <span class="what">Every pipeline against its inputs; <code>--plan</code> prints the ordered steps that execute.
+          <span class="ops">⟨atomise validate supersession accumulate project⟩</span></span></li>
+      <li><span class="path">/yoga/calculus</span>
+          <span class="what">The corpus calculus — objects, operations, products, laws; extracted from working code, never designed ahead of it.
+          <span class="ops">⟨the doctrine itself⟩</span></span></li>
+      <li><span class="path">/yoga/index</span>
+          <span class="what">A book-style index over every conversation: headwords to durable turn anchors, locators that survive renumbering.
+          <span class="ops">⟨project curate⟩</span></span></li>
+      <li><span class="path">/yoga/memories</span>
+          <span class="what">Every distinct memory state, deposited before the source rewrites it — a diffable timeline of what the machine believed.
+          <span class="ops">⟨accumulate normalise project L1 L4⟩</span></span></li>
+      <li><span class="path">/yoga/supersede</span>
+          <span class="what">Do later exports supersede earlier ones? Computed per component; never assumed.
+          <span class="ops">⟨supersession L3⟩</span></span></li>
+      <li><span class="path">/yoga/agent</span>
+          <span class="what">Move an agent — session × memory — between machines, with every conflict loud.
+          <span class="ops">⟨transport supersession merge L1 L6⟩</span></span></li>
+      <li><span class="path">/yoga/machine</span>
+          <span class="what">Docker-style room manifests: desired state as committed data, observation strictly local.
+          <span class="ops">⟨validate L2 L8⟩</span></span></li>
+    </ul>
+  </section>
+
+  <section id="laws">
+    <div class="eyebrow">§3</div>
+    <h2>The laws <span class="sec">rsc/CALCULUS.md</span></h2>
+    <ul class="laws">
+      <li><span class="l">L1</span><p><b>Idempotence.</b> Every operation, re-run, is a no-op. There are no migrations, only normalisations — running one on a current corpus proves itself by silence.</p></li>
+      <li><span class="l">L2</span><p><b>Determinism split.</b> Committed artifacts are machine-invariant; machine facts never enter them.</p></li>
+      <li><span class="l">L3</span><p><b>Licensed deletion.</b> Nothing is deleted on assumption — only on a computed verdict or a deposit that stands in for it.</p></li>
+      <li><span class="l">L5</span><p><b>Presentation is never load-bearing.</b> Names, numbers, and titles are dressing, re-derived at will from durable identity.</p></li>
+      <li><span class="l">L6</span><p><b>Conflicts are loud.</b> Nothing overwrites divergent content silently; human judgment is summoned, not preempted.</p></li>
+      <li><span class="l">L8</span><p><b>Absence is a signal.</b> Missing data is an informative skip; a crashed step surfaces. Nothing fabricates a value where the honest state is unknown.</p></li>
+    </ul>
+    <p class="small">Six of eight shown; the calculus names its enforcement — or the incident that taught it — beside each.</p>
+  </section>
+
+  <section id="agents">
+    <div class="eyebrow">§4</div>
+    <h2>The agents</h2>
+    <p>
+      An agent is two files: an append-only session and a folder of memory. That
+      makes it portable — copy both and the agent resumes mid-thought on another
+      machine, remembering the conversation that built the vehicle it arrived in.
+      A forked agent is two agents thereafter: hone, not clone.
+    </p>
+    <div class="term"><pre>$ <span class="p">./yoga</span> agent transport --to reading-room
+transport → reading-room: a6f25723-….jsonl
+  session: <span class="ok">new</span>
+  memory/MEMORY.md: <span class="ok">new</span>
+$ <span class="p">./yoga</span> agent transport --to reading-room
+  session: identical — no-op
+  memory/MEMORY.md: identical — no-op<span class="cursor"></span></pre></div>
+    <p class="small">
+      Run it twice and the second run is silence — L1, observed. Divergence would
+      have refused loudly instead — L6, ready.
+    </p>
+  </section>
+
+  <footer>
+    <span class="score">deterministic tiers 994/994 · byte-identical on any clone</span>
+    <span>home room ⇄ reading room</span>
+    <span>rpus.co</span>
+  </footer>
+</div>
+</body>
+</html>

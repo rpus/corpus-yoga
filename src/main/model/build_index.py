@@ -24,11 +24,17 @@ as DATA (machine-local, under gen/index/) from the corpus and each batch's
 inferred concept list; every inferred concept must end up adopted or declined —
 anything else is PENDING, reported here and by the pre-commit data tier.
 
+The disposal acts themselves are also verbs (the judgment stays human; the verb
+only writes the committed line-lists with format discipline, then reports how
+many inferred concepts remain pending):
+
 Usage:
   src/run_python_script.sh src/main/model/build_index.py \
       [--markdown lib/markdown] [--headwords rsc/index/headwords.txt] \
       [--decisions rsc/index/decisions.txt]
   src/run_python_script.sh src/main/model/build_index.py --candidates [--top N]
+  src/run_python_script.sh src/main/model/build_index.py headwords add <term> [alias ...]
+  src/run_python_script.sh src/main/model/build_index.py decline <concept> [--because <why>]
 """
 import argparse
 import re
@@ -233,6 +239,62 @@ def candidates(markdown_root: Path, headwords_path: Path, decisions_path: Path,
     print(f'-> {out.relative_to(REPO)}')
 
 
+def adopt(headwords_path: Path, term: str, aliases: list[str]) -> str:
+    """Adopt a headword (or merge new aliases into an existing one) in the
+    committed line list. Append-at-end for new entries — the file's order is
+    the curation history; presentation alphabetises (L5)."""
+    entries = parse_headwords(headwords_path)
+    lines = headwords_path.read_text().splitlines()
+    if term in entries:
+        known = {t.lower() for t in entries[term]}
+        new = [a for a in aliases if a.lower() not in known]
+        if not new:
+            return f'{term!r}: already adopted — no-op'
+        merged = entries[term][1:] + new
+        for i, raw in enumerate(lines):
+            if raw.split('#', 1)[0].partition('=')[0].strip() == term:
+                lines[i] = f'{term} = {", ".join(merged)}'
+                break
+        headwords_path.write_text('\n'.join(lines) + '\n')
+        return f'{term!r}: merged alias(es) {", ".join(new)}'
+    line = term + (f' = {", ".join(aliases)}' if aliases else '')
+    headwords_path.write_text('\n'.join(lines + [line]) + '\n')
+    return f'{term!r}: adopted' + (f' with alias(es) {", ".join(aliases)}' if aliases else '')
+
+
+def decline(headwords_path: Path, decisions_path: Path, concept: str, because: str) -> str:
+    """Record a decline in the committed disposal record — unless the concept is
+    already covered (adopted) or already declined; disposals never duplicate."""
+    if concept.lower() in parse_decisions(decisions_path):
+        return f'{concept!r}: already declined — no-op'
+    entries = parse_headwords(headwords_path)
+    if term_regex([t for ts in entries.values() for t in ts]).search(concept):
+        return f'{concept!r}: already covered by an adopted headword — no decline needed'
+    lines = decisions_path.read_text().splitlines() if decisions_path.exists() else []
+    lines.append(f'decline {concept}' + (f'  # {because}' if because else ''))
+    decisions_path.write_text('\n'.join(lines) + '\n')
+    return f'{concept!r}: declined' + (f' ({because})' if because else '')
+
+
+def pending_concepts(headwords_path: Path, decisions_path: Path) -> list[str]:
+    """Inferred concepts not yet adopted or declined — the disposal queue."""
+    entries = parse_headwords(headwords_path)
+    declined = parse_decisions(decisions_path)
+    covered = term_regex([t for ts in entries.values() for t in ts])
+    return [c for c in inferred_concepts()
+            if not covered.search(c) and c.lower() not in declined]
+
+
+def pending_report(headwords_path: Path, decisions_path: Path) -> None:
+    """The loop's feedback: how many inferred concepts remain undisposed."""
+    if not inferred_concepts():
+        print('pending: unknown — no inferred concept list on this machine')
+        return
+    pending = pending_concepts(headwords_path, decisions_path)
+    print(f'pending: {len(pending)} inferred concept(s) undisposed'
+          + (f' — next: {pending[0]!r}' if pending else ' — fully disposed'))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--markdown', default=str(REPO / 'lib' / 'markdown'))
@@ -241,7 +303,45 @@ def main():
     ap.add_argument('--candidates', action='store_true',
                     help='derive the candidate report (gen/index/candidates.md) instead of building')
     ap.add_argument('--top', type=int, default=40)
+    sub = ap.add_subparsers(dest='verb', help='curation verbs (default: build the index)')
+    hw = sub.add_parser('headwords', help='bare: list pending concepts; add: adopt')
+    hw_sub = hw.add_subparsers(dest='action')
+    hw_add = hw_sub.add_parser('add', help='adopt a headword (or merge aliases into it)')
+    hw_add.add_argument('term')
+    hw_add.add_argument('aliases', nargs='*')
+    dec = sub.add_parser('decline', help='record a decline in the disposal record')
+    dec.add_argument('concept')
+    dec.add_argument('--because', default='', help='reason, kept as a # comment')
     args = ap.parse_args()
+
+    if args.verb == 'headwords':
+        if args.action is None:
+            # Bare noun: the state of the curation surface. Framing on stderr,
+            # the pending queue as pure lines on stdout — human-amenable at the
+            # terminal (both interleave), agent-amenable in a pipe (queue only).
+            hw, dc = Path(args.headwords), Path(args.decisions)
+            n_adopted, n_declined = len(parse_headwords(hw)), len(parse_decisions(dc))
+            print(f'adopted: {n_adopted} entries ({hw.relative_to(REPO) if hw.is_relative_to(REPO) else hw}); '
+                  f'declined: {n_declined} ({dc.relative_to(REPO) if dc.is_relative_to(REPO) else dc})',
+                  file=sys.stderr)
+            if not inferred_concepts():
+                print('pending queue: unknown — no inferred concept list on this machine',
+                      file=sys.stderr)
+                return
+            pending = pending_concepts(hw, dc)
+            print(f'pending queue ({len(pending)} inferred concepts to dispose — '
+                  'headwords add <term> adopts; decline <concept> refuses):'
+                  if pending else 'pending queue: empty — fully disposed', file=sys.stderr)
+            for c in pending:
+                print(c)
+            return
+        print(adopt(Path(args.headwords), args.term, args.aliases))
+        pending_report(Path(args.headwords), Path(args.decisions))
+        return
+    if args.verb == 'decline':
+        print(decline(Path(args.headwords), Path(args.decisions), args.concept, args.because))
+        pending_report(Path(args.headwords), Path(args.decisions))
+        return
 
     root = Path(args.markdown)
     if args.candidates:

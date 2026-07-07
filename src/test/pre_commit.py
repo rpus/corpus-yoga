@@ -507,6 +507,26 @@ def check_index_curation(run) -> None:
                             'or decline in rsc/index/decisions.txt')
 
 
+def check_machine_manifest(run) -> None:
+    """This machine against its room's manifest (rsc/machines/, required rows
+    only — optional absences are the room's business). The binding
+    (ext/machine) is machine-local, so data tier: skipped where unbound."""
+    import machine
+    if not machine.BINDING.exists():
+        print('  – skipped: unbound machine (no ext/machine — see rsc/machines/README.md)')
+        return
+    room = machine.BINDING.read_text().strip()
+    try:
+        rows = machine.checks(room)
+    except SystemExit as e:
+        run(f'machine: manifest exists for bound room: {room}', False, str(e))
+        return
+    for label, present, level, note in rows:
+        if level != 'required':
+            continue
+        run(f'machine: {room}: {label}', present, None if present else note)
+
+
 def check_cross_sources(run) -> None:
     """Append-only invariant across export surfaces: every conversation present in BOTH
     a bulk export and the live captures must project to a turn sequence identical to,
@@ -841,6 +861,7 @@ def main():
 
         run_section(check_cross_sources, tier='data')
         run_section(check_index_curation, tier='data')
+        run_section(check_machine_manifest, tier='data')
     finally:
         sys.stdout = sys.__stdout__
 

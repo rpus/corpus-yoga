@@ -1,4 +1,4 @@
-pre_commit.py: 991/991 (data: machine-local)
+pre_commit.py: 994/994 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 991/991 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 67 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 70 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -49,6 +49,9 @@ pre_commit.py: 991/991 (data: machine-local)
   ✓ cli: agent: target exists: src/main/code-projects/agent.py
   ✓ cli: agent: cited calculus defined
   ✓ cli: agent: advertised flags exist
+  ✓ cli: machine: target exists: src/main/machine.py
+  ✓ cli: machine: cited calculus defined
+  ✓ cli: machine: advertised flags exist
   ✓ cli: model: target exists: src/main/model/gen_model.sh
   ✓ cli: model: cited calculus defined
   ✓ cli: calculus: target exists: rsc/CALCULUS.md
@@ -1017,7 +1020,7 @@ pre_commit.py: 991/991 (data: machine-local)
   ✓ mcp schema: up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 991/991; expected: 991/991
-  ✓ score[code]: 50/50; expected: 50/50
+  ✓ score[code+schema]: 994/994; expected: 994/994
+  ✓ score[code]: 53/53; expected: 53/53
   ✓ score[schema]: 941/941; expected: 941/941
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

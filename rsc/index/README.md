@@ -43,10 +43,18 @@ in a file, human disposes in a file, the gate keeps everyone honest.
 ## Commands
 
     # propose: derive the candidate report (prints, and writes it under gen/index/)
-    src/run_python_script.sh src/main/model/build_index.py --candidates
+    ./yoga index --candidates
+
+    # the queue: pending inferred concepts, one per line (pipeable)
+    ./yoga index headwords
+
+    # dispose: the judgment is yours; the verbs write these files with format
+    # discipline and report how many inferred concepts remain pending
+    ./yoga index headwords add <term> [alias ...]
+    ./yoga index decline <concept> [--because <why>]
 
     # build: regenerate the index over the whole corpus
-    src/run_python_script.sh src/main/model/build_index.py
+    ./yoga index
 
     # browse: the index is served like any page
-    src/main/model/serve_markdown.sh --markdown lib/markdown --daemon
+    ./yoga serve --markdown lib/markdown --daemon
