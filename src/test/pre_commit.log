@@ -1,4 +1,4 @@
-pre_commit.py: 953/953 (data: machine-local)
+pre_commit.py: 988/988 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,44 @@ pre_commit.py: 953/953 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 66 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 67 unreferenced
+
+── check_cli_surface ─────────────────────────────────────────────────────────
+  ✓ cli: table parses: rsc/cli/commands.csv
+  ✓ cli: command names unique
+  ✓ cli: run: target exists: RUNME.sh
+  ✓ cli: run: cited calculus defined
+  ✓ cli: run: advertised flags exist
+  ✓ cli: prerequisites: target exists: PREREQUISITES.sh
+  ✓ cli: prerequisites: cited calculus defined
+  ✓ cli: check: target exists: src/test/pre_commit.sh
+  ✓ cli: check: cited calculus defined
+  ✓ cli: check: advertised flags exist
+  ✓ cli: xref: target exists: src/test/xref.py
+  ✓ cli: xref: cited calculus defined
+  ✓ cli: serve: target exists: src/main/model/serve_markdown.sh
+  ✓ cli: serve: cited calculus defined
+  ✓ cli: serve: advertised flags exist
+  ✓ cli: index: target exists: src/main/model/build_index.py
+  ✓ cli: index: cited calculus defined
+  ✓ cli: index: advertised flags exist
+  ✓ cli: library: target exists: src/main/chat-exports/library.py
+  ✓ cli: library: cited calculus defined
+  ✓ cli: library: advertised flags exist
+  ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
+  ✓ cli: memories: cited calculus defined
+  ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
+  ✓ cli: supersede: cited calculus defined
+  ✓ cli: supersede: advertised flags exist
+  ✓ cli: model: target exists: src/main/model/gen_model.sh
+  ✓ cli: model: cited calculus defined
+  ✓ cli: calculus: target exists: rsc/CALCULUS.md
+  ✓ cli: calculus: cited calculus defined
+  ✓ cli: completion: target exists: src/main/cli.py
+  ✓ cli: completion: cited calculus defined
+  ✓ cli: completion: advertised flags exist
+  ✓ cli: memories: run step exists in plan: accumulate_memories
+  ✓ cli: supersede: run step exists in plan: compare_batches
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -977,7 +1014,7 @@ pre_commit.py: 953/953 (data: machine-local)
   ✓ mcp schema: up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 953/953; expected: 953/953
-  ✓ score[code]: 12/12; expected: 12/12
+  ✓ score[code+schema]: 988/988; expected: 988/988
+  ✓ score[code]: 47/47; expected: 47/47
   ✓ score[schema]: 941/941; expected: 941/941
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

@@ -1,6 +1,7 @@
 # The corpus calculus
 
-The operational, set-theoretic semantics of this repo's data — **extracted from the
+The operational, set-theoretic semantics of this repo's data — and, reflexively,
+of the yogic code that tends it (see Reflexivity below) — **extracted from the
 code that already works, not designed ahead of it**. Every rule below was converged
 on independently by two or more implementations before it was written down here;
 file references point at the implementations that discovered it. The companion
@@ -11,6 +12,13 @@ discovered from working code and then imposed back, never the reverse.
 Laws are numbered (L1–L8) so that checks and reviews can cite them. Each is a
 candidate property check for the pre-commit code tier: the document holds the
 narrative, the code holds the shape, and the laws are the testable seam between.
+
+This document is also an INTERFACE, not only a narrative: the bolded leads of
+the operation and law bullets below are machine-read as the citable vocabulary
+for the yoga CLI's command table (`calculus_terms()` in `src/main/cli.py`;
+table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any
+citation not defined here. Reformatting a bullet therefore shrinks the
+vocabulary — loudly, never silently.
 
 ---
 
@@ -83,11 +91,31 @@ per-corpus code.
   evidence crossed machines as a file).
 
 - **project / re-derive** — durable identity → presentation: ordinals, markdown,
-  matrices, name dressing. Re-derivation may write back to the filesystem as
-  *normalisation*: `library.py`'s `dir_for()` refreshes a dir's ordinal-slug
-  dressing on every touch, so presentation converges to current without ever
-  being trusted. (`markdown_projection.ordered()` is the single ordering
-  authority; `validate_versions.py` renders matrices at validation time.)
+  matrices, name dressing. Presentation converges to current without ever being
+  trusted. (`markdown_projection.ordered()` is the single ordering authority;
+  `validate_versions.py` renders matrices at validation time.)
+
+- **normalise** — re-derivation written BACK: converge every recognisable form
+  of a durable artifact toward the canonical form, in place, safely
+  re-runnable — L1's corollary made an operation (there are no migrations,
+  only normalisations). Canonical and recognisable are both data
+  (`rsc/naming/library_dir_vintages.csv`,
+  `rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and
+  maintenance are one operation, and running it on a current corpus proves
+  itself by silence. (`library.py`'s `dir_for()` dressing refresh and its
+  normalise CLI; `accumulate_memories.py`'s `normalise_stamps` — converged
+  independently, 2026-07-06.)
+
+- **curate** (candidate) — the disposal loop: the machine proposes candidates
+  as a derived report, a human disposes in committed files, a gate reports
+  anything pending — never a disposal in prose. Two instances are converging:
+  headword curation (the latest batch's inferred concepts → adopt in
+  `rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
+  `check_index_curation`) and the schema WORKFLOW (a frontier failure proposes;
+  a minted version narrated in its changelog disposes; the coverage and
+  frontier gates report). Their shapes have not yet been unified in code, so
+  this entry is a candidate, not doctrine — written down where the next
+  instance can find it.
 
 - **validate** — datum × schema-version → the machine-local matrix. Two gates:
   *coverage* (every datum modelled by some version) and *frontier* (the newest
@@ -173,6 +201,43 @@ Each law names its current enforcement (or the incident that taught it).
   "cannot verify").
 
 ---
+
+## Reflexivity: a corpus and some yogic code
+
+The repo is two things: a (chat) corpus, and the yogic code that tends it. This
+section records a discovered fact, not a design: the code, once reified, obeys
+the same calculus as the corpus — classified on the same axes, operated on by
+the same operations, governed by the same laws. Code is not a second ontology.
+
+- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,
+  `rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
+  record: grow by curation, an absence is a decision, never auto-modified.
+- **append-only history** — the format-vintage tables
+  (`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):
+  states only accrue; the current one is a status flag, not an overwrite.
+- **projection** — the yoga help text, the zsh completion, the `--plan` output:
+  presentation re-derived on demand from durable authority and stored nowhere
+  load-bearing (L5), with currency checked by CONTENT, not timestamps (the
+  completion is compared byte-wise against a regeneration — observed catching
+  its own author's drift, 2026-07-07).
+- **committed derivation** — a class the corpus tables did not need:
+  regenerable like anything in `gen/`, but COMMITTED as the machine-invariant
+  record other clones diff against — `src/test/pre_commit.log`,
+  `src/test/xref.csv`, and the expected-score files beside them. Operations:
+  re-run to regenerate (L1); drift from the committed state is loud (L6);
+  byte-identity on any clone is the invariant (L2). The deletion licence
+  inverts: never hand-edited, only ever regenerated-and-recommitted.
+- **atomisation of code** — a RUNME unit atomises to named steps
+  (`src/main/steps.sh`), `--plan` is the projection of that atomisation, and
+  the CLI table's step column is checked against it — a cross-source
+  comparison, with the executing list as the senior source.
+
+The laws transfer verbatim: L2 *is* the committed/machine-local split; L6 fired
+on a stale completion the day the completion existed; L8 is the yoga launcher's
+honesty about a fresh machine (stdlib fallback, venv hint). The conversations
+remain the primary objects — this section only records that the machinery
+tending them has come to obey its own discipline, extracted, as ever, after
+the fact.
 
 ## Encoding roadmap
 

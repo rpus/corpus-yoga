@@ -53,6 +53,7 @@ from validation_matrix import rows_from_logs  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
+import cli  # noqa: E402 — the yoga CLI's table machinery (check_cli_surface)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from build_index import inferred_concepts, parse_decisions, parse_headwords, term_regex  # noqa: E402
@@ -565,6 +566,54 @@ def check_cross_sources(run) -> None:
             '\n      '.join(detail_parts) if detail_parts else None)
 
 
+def check_cli_surface(run) -> None:
+    """The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
+    lie: it parses, command names are unique, every target exists, every
+    calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+    parsed from the document itself), every flag a usage sketch advertises
+    appears in the target's source or its stem-sibling .py/.sh pair (wrapper
+    and implementation share a stem — the repo idiom), and every run-step
+    correspondence a row claims names a step in the RUNME.sh --plan output
+    (which is itself the executing list, so the chain cannot drift). Committed
+    files and the deterministic plan only, so deterministic on any clone:
+    code tier."""
+    try:
+        cmds = cli.commands()
+    except Exception as e:
+        run('cli: table parses: rsc/cli/commands.csv', False, str(e))
+        return
+    run('cli: table parses: rsc/cli/commands.csv', True)
+    names = [c['command'] for c in cmds]
+    dupes = sorted({n for n in names if names.count(n) > 1})
+    run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None)
+    vocab = cli.calculus_terms()
+    for c in cmds:
+        target = REPO_ROOT / c['target']
+        run(f'cli: {c["command"]}: target exists: {c["target"]}', target.exists())
+        unknown = [t for t in c['calculus'].split() if t not in vocab]
+        run(f'cli: {c["command"]}: cited calculus defined', not unknown,
+            f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None)
+        flags = cli.flags_of(c['usage'])
+        if not flags or not target.exists():
+            continue
+        sources = [target] + [s for s in (target.with_suffix('.py'), target.with_suffix('.sh'))
+                              if s != target and s.exists()]
+        text = ''.join(s.read_text() for s in sources)
+        missing = [f for f in flags if f not in text]
+        run(f'cli: {c["command"]}: advertised flags exist', not missing,
+            ('not in ' + ' or '.join(str(s.relative_to(REPO_ROOT)) for s in sources)
+             + f': {", ".join(missing)}') if missing else None)
+    stepped = [c for c in cmds if c['step']]
+    if not stepped:
+        return
+    plan = subprocess.run([str(REPO_ROOT / 'RUNME.sh'), '--plan'],
+                          capture_output=True, text=True, cwd=REPO_ROOT).stdout
+    for c in stepped:
+        ok = bool(re.search(rf'^\s*{re.escape(c["step"])}\b', plan, re.M))
+        run(f'cli: {c["command"]}: run step exists in plan: {c["step"]}', ok,
+            None if ok else 'not a step name in `RUNME.sh --plan` output')
+
+
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
 
 def check_versioned_schema_diagnostics(run):
@@ -757,6 +806,7 @@ def main():
     try:
         run_section(check_required_files, tier='code')
         run_section(check_xref, tier='code')
+        run_section(check_cli_surface, tier='code')
 
         run_section(check_root_schema_diagnostics, tier='schema')
 

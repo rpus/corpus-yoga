@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# yoga — the repo's terminal CLI: curated subcommands with zsh tab-completion.
+# The table is rsc/cli/commands.csv; the machinery is src/main/cli.py.
+# Run bare for the table; `yoga <command> --help` asks the target itself.
+#
+# cli.py is deliberately stdlib-only, so the CLI itself runs on any Python 3 —
+# system python3 when the venv does not exist yet (a fresh clone can read the
+# table, print the calculus, and generate completion before ./RUNME.sh);
+# .py TARGETS still run via src/run_python_script.sh, which requires the venv.
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+: "${VENV:=$HOME/venvs/general}"
+if [[ -f "$VENV/bin/python" ]]; then
+  exec "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli.py" "$@"
+fi
+if ! command -v python3 &>/dev/null; then
+  echo "error: Python 3 not found — install via: brew install python (see ./PREREQUISITES.sh)" >&2
+  exit 1
+fi
+exec python3 "$SCRIPT_DIR/src/main/cli.py" "$@"

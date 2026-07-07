@@ -16,6 +16,7 @@
 #
 # Usage:
 #   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)
+#   ./RUNME.sh --plan                               # print the ordered step plan; run nothing
 #   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 #   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
 #   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
@@ -114,6 +115,22 @@ prep_pipeline_safe() {
 
 LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 
+# The pipelines' own --plan output is the one authority on their step order
+# (each prints exactly the step list it executes — see src/main/steps.sh);
+# only this script's own frame (tooling, preps, tail) is narrated here, beside
+# the main() that performs it.
+print_plan() {
+  echo "RUNME.sh — the ordered plan (conditional steps annotated; nothing executed):"
+  echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
+  echo "  browser-captures/PREP.sh (only with --capture-from-browser: Safari capture/update sweep)"
+  "$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
+  echo "  chat-exports/PREP.sh"
+  "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
+  echo "  code-projects/PREP.sh"
+  "$SCRIPT_DIR/src/main/code-projects/RUNME.sh" --plan | sed 's/^/  /'
+  echo "  tail: failed-pipeline summary; gather '→ run:' suggestions; pre_commit reminder; log path"
+}
+
 main() {
   parse_args "$@"
   echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
@@ -162,5 +179,9 @@ main() {
   echo "Log: $LOG_FILE"
 }
 
+# --plan runs before the log exists: it writes nothing, not even a log file.
+for _arg in "$@"; do
+  if [[ "$_arg" == "--plan" ]]; then print_plan; exit 0; fi
+done
 mkdir -p "$(dirname "$LOG_FILE")"
 main "$@" 2>&1 | tee "$LOG_FILE"

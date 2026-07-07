@@ -90,6 +90,31 @@ check_optional_modes() {
   fi
 }
 
+check_cli() {
+  echo "yoga CLI (./yoga — table: rsc/cli/commands.csv)"
+  local comp="$SCRIPT_DIR/gen/completions/_yoga"
+  if [[ -f "$comp" ]]; then
+    # Currency probe is read-only (`./yoga completion` without --write only
+    # prints); cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
+    if "$SCRIPT_DIR/yoga" completion 2>/dev/null | cmp -s - "$comp"; then
+      ok "zsh completion generated and current with rsc/cli/commands.csv"
+    elif "$SCRIPT_DIR/yoga" completion &>/dev/null; then
+      info "zsh completion stale vs rsc/cli/commands.csv — regenerate: ./yoga completion --write"
+    else
+      info "zsh completion generated; currency cannot be verified (running ./yoga needs Python 3)"
+    fi
+  else
+    info "zsh completion not generated — ./yoga completion --write (derived under gen/; safe to regenerate any time)"
+  fi
+  if ! command -v zsh &>/dev/null; then
+    info "zsh not present — tab-completion not applicable on this machine"
+  elif [[ -f "$HOME/.zshrc" ]] && grep -q 'gen/completions' "$HOME/.zshrc" 2>/dev/null; then
+    ok "completions fpath line present in ~/.zshrc"
+  else
+    info "no completions fpath line in ~/.zshrc — ./yoga completion --write prints the lines to add"
+  fi
+}
+
 check_pipeline_inputs() {
   echo "pipeline inputs (this repo ships no data; you supply your own)"
   local n
@@ -138,6 +163,7 @@ main() {
   check_tools
   check_venv
   check_optional_modes
+  check_cli
   check_pipeline_inputs
   notes
 

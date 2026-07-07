@@ -5,6 +5,10 @@
 #   ./src/main/chat-exports/RUNME.sh --chat-export  ext/chat-exports/data-<...>
 #   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
 #   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports --pay-for-inference
+#   ./src/main/chat-exports/RUNME.sh --plan   # print the ordered step list; run nothing
+#
+# The step lists below (run_one, run_tail) are the ONE authority on order:
+# --plan prints exactly the lists that execute (see src/main/steps.sh).
 
 set -euo pipefail
 
@@ -12,76 +16,107 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
 
+# shellcheck source=src/main/steps.sh
+source "$REPO_DIR/src/main/steps.sh"
+
 parse_args() {
   chat_export=""
   chat_exports=""
   pay_for_inference="0"
+  plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --chat-export)       chat_export="$2";      shift 2 ;;
       --chat-exports)      chat_exports="$2";     shift 2 ;;
       --pay-for-inference) pay_for_inference="1"; shift   ;;
+      --plan)              plan="1";              shift   ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --chat-export <path> | --chat-exports <path> [--pay-for-inference]"
+        echo "Usage: $0 --chat-export <path> | --chat-exports <path> [--pay-for-inference] | --plan"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-  if [[ -z "$chat_export" && -z "$chat_exports" ]]; then
+  if [[ "$plan" == "0" && -z "$chat_export" && -z "$chat_exports" ]]; then
     echo "Usage: $0 --chat-export <path/to/single-export>"
     echo "       $0 --chat-exports <path/to/chat-exports>"
     echo
     echo "Options:"
     echo "  --pay-for-inference   also run infer_tables.sh (requires ANTHROPIC_API_KEY in env)"
+    echo "  --plan                print the ordered step list; run nothing"
     echo "Pass --help for more information."
     exit 1
   fi
 }
 
 run_one() {
-  local input_dir="${1%/}"
-
+  local batch="${1%/}"
   # No blanket wipe of gen/<batch>: each stage owns (wipes or overwrites) its own
   # output subtree. A blanket wipe would destroy the validation memoisation logs
   # (forcing full revalidation every run) and the durable paid inferred/ tables,
   # which by design persist across unpaid runs.
+  local have_captures="0"
+  if [[ -d "$REPO_DIR/ext/browser-captures/claude" ]]; then have_captures="1"; fi
 
-  "$SCRIPT_DIR/validate.sh"         --chat-export "$input_dir"
-  # archive the batch's non-conversation components (memories/projects/users) verbatim
-  # into gen/<batch>/ — the gen dir is then the complete record of the four-component
-  # snapshot, and compare_batches reads all four from that one root
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/archive_components.py" \
-    --chat-export "$input_dir"
-  "$SCRIPT_DIR/extract_files.sh"    --chat-export "$input_dir"
-  "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$input_dir"
-
-  if [[ "$pay_for_inference" == "1" ]]; then
-    "$SCRIPT_DIR/infer_tables.sh" --chat-export "$input_dir"
-  fi
-
-  "$SCRIPT_DIR/present.sh"     --chat-export "$input_dir"
-  "$SCRIPT_DIR/audit_files.sh" --chat-export "$input_dir"
-  # split the bulk array into verbatim per-conversation json/ pieces (validated vs the Conversation
-  # definition), then render them to markdown/, beside this batch's validation/ output.
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/atomise_bulk.py" \
-    --bulk-export "$input_dir"
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/project_markdown.py" \
-    --bulk-export "$input_dir"
-
-  # cross-source sanity (informational): live-api captures and this bulk export should
-  # project to identical markdown for shared conversations. A difference is legitimate
-  # when a conversation progressed after the export snapshot — hence no gating; the
+  step validate           "$SCRIPT_DIR/validate.sh" --chat-export "$batch"
+  # archive_components: the batch's non-conversation components (memories/projects/
+  # users) verbatim into gen/<batch>/ — the gen dir is then the complete record of
+  # the four-component snapshot, and compare_batches reads all four from that root
+  step archive_components "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
+  step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
+  step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
+  step_if "$pay_for_inference" 'with --pay-for-inference' \
+       infer_tables       "$SCRIPT_DIR/infer_tables.sh" --chat-export "$batch"
+  step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
+  step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"
+  # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces
+  # (validated vs the Conversation definition); project_markdown renders them to
+  # markdown/, beside this batch's validation/ output.
+  step atomise_bulk       "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
+  step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
+    "$REPO_DIR/src/main/model/project_markdown.py" --bulk-export "$batch"
+  # compare_sources: live-api captures and this bulk export should project to
+  # identical markdown for shared conversations. A difference is legitimate when a
+  # conversation progressed after the export snapshot — hence never gates; the
   # report keeps what-agrees-with-what visible in every run log.
-  if [[ -d "$REPO_DIR/ext/browser-captures/claude" ]]; then
-    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/compare_sources.py" \
-      --browser-captures "$REPO_DIR/ext/browser-captures/claude" \
-      --bulk-export "$input_dir" || true
-  fi
+  step_if_ok "$have_captures" 'when live captures exist' \
+       compare_sources    "$REPO_DIR/src/run_python_script.sh" \
+    "$REPO_DIR/src/main/model/compare_sources.py" \
+    --browser-captures "$REPO_DIR/ext/browser-captures/claude" --bulk-export "$batch"
+}
+
+run_tail() {
+  # accumulate_memories: every distinct memory state deposits into the durable
+  # lib/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
+  # is mutable and lossy between exports, and bulk exports are its only log) and the
+  # timeline renders to lib/markdown/claude/memories/. A deposited state is the
+  # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
+  step accumulate_memories "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/accumulate_memories.py"
+  # compare_batches: a batch is a synchronised snapshot of FOUR components
+  # (conversations, memories, projects, users), each put through the same
+  # unprejudiced unit/atom subset check — no component is assumed append-only or
+  # mutable; a batch is deletable iff EVERY component is superseded (their lattice
+  # join). Also compares the latest batch against the live-capture corpus per
+  # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
+  # conversations to recapture in place. Divergence is a fact, not an error.
+  step_ok compare_batches  "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/compare_batches.py" \
+    --chat-exports-gen "$OUTPUT_DIR" --captures "$REPO_DIR/ext/browser-captures/claude"
+}
+
+print_plan() {
+  echo "chat-exports steps — per batch (ext/chat-exports/data-*/ in name order):"
+  run_one '<batch>'
+  echo "then once, after all batches:"
+  run_tail
 }
 
 main() {
   parse_args "$@"
+  if [[ "$plan" == "1" ]]; then print_plan; exit 0; fi
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
   if [[ -n "$chat_export" ]]; then
@@ -97,23 +132,7 @@ main() {
     done
   fi
 
-  # memory accumulation: every distinct memory state deposits into the durable
-  # lib/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
-  # is mutable and lossy between exports, and bulk exports are its only log) and the
-  # timeline renders to lib/markdown/claude/memories/. A deposited state is the licence to
-  # delete a memories-divergent batch; the verdict below stays unprejudiced.
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/accumulate_memories.py"
-
-  # supersession report (informational): a batch is a synchronised snapshot of FOUR
-  # components (conversations, memories, projects, users), each put through the same
-  # unprejudiced unit/atom subset check — no component is assumed append-only or
-  # mutable; a batch is deletable iff EVERY component is superseded (their lattice
-  # join). Also compares the latest batch against the live-capture corpus per
-  # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
-  # conversations to recapture in place. Divergence is a fact, not an error.
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/compare_batches.py" \
-    --chat-exports-gen "$OUTPUT_DIR" \
-    --captures "$REPO_DIR/ext/browser-captures/claude" || true
+  run_tail
 }
 
 main "$@"
