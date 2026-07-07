@@ -22,7 +22,9 @@ ext/agents/<room> — a hand-made symlink (the ext/ convention) to whatever
 medium the machines share. The projects root is ext/code-projects (PREP.sh's
 symlink to the Claude Code projects folder), so both ends stay repo-relative
 and the bundle mirrors the projects layout exactly:
-<project-key>/<session>.jsonl + <project-key>/memory/.
+<project-key>/<session>.jsonl + <project-key>/<session-uuid>/ (the eponymous
+workspace: subagent transcripts and persisted tool-results the log REFERENCES,
+moved with log semantics per file) + <project-key>/memory/.
 
 Received merges are DETECTABLE and INVERTIBLE: a receive that changes the
 memory writes a marker block into MEMORY.md — begin/end comments wrapping the
@@ -33,9 +35,12 @@ anything was edited since the merge: the record licenses the undo (L3). This
 is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
-    ./yoga agent transport --to <room-or-dir> [--session <uuid8>]
-    ./yoga agent receive --from <room-or-dir> [--apply]
+    ./yoga agent transport --to <room-or-dir> --session <uuid8>
+    ./yoga agent receive --from <room-or-dir> --session <uuid8> [--apply]
     ./yoga agent demerge [--apply]
+
+--session is MANDATORY and matches by uuid prefix, exactly one: which agent
+moves is never the tool's call — no recency guessing, no automatic choice.
 
 transport writes to the handoff medium immediately (it is not precious).
 receive and demerge are dry-run by default and only --apply writes into this
@@ -83,20 +88,22 @@ def resolve_room(name: str, writing: bool) -> Path:
     return room
 
 
-def pick_session(proj_dir: Path, uuid8: str | None) -> Path:
-    """The session to move: --session's uuid prefix match, else newest .jsonl."""
-    sessions = sorted(proj_dir.glob('*.jsonl'))
-    if uuid8:
-        sessions = [s for s in sessions if s.stem.startswith(uuid8)]
-    if not sessions:
-        sys.exit(f'error: no matching session .jsonl in {proj_dir}')
-    return max(sessions, key=lambda s: s.stat().st_mtime)
+def pick_session(proj_dir: Path, uuid8: str) -> Path:
+    """The session to move, by IDENTITY: the --session uuid prefix must match
+    exactly one .jsonl. No recency guessing, no automatic choice, ever —
+    transport moves an agent, and which agent is never the tool's call."""
+    matches = [s for s in sorted(proj_dir.glob('*.jsonl')) if s.stem.startswith(uuid8)]
+    if not matches:
+        sys.exit(f'error: no session matching {uuid8!r} in {proj_dir}')
+    if len(matches) > 1:
+        sys.exit(f'error: {uuid8!r} is ambiguous here — matches: '
+                 + ', '.join(s.stem[:8] for s in matches))
+    return matches[0]
 
 
-def place_session(src: Path, dest: Path, apply: bool) -> tuple[str, int]:
+def place_log(data: bytes, dest: Path, apply: bool) -> tuple[str, int]:
     """Append-only placement: new, identical, prefix-superseded, or CONFLICT.
     Returns (status, conflicts)."""
-    data = src.read_bytes()
     if not dest.exists():
         if apply:
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -112,6 +119,50 @@ def place_session(src: Path, dest: Path, apply: bool) -> tuple[str, int]:
     if have[:len(data)] == data:
         return 'destination is ahead — no-op', 0
     return '✗ CONFLICT: diverged — left in place', 1
+
+
+def place_session(src: Path, dest: Path, apply: bool) -> tuple[str, int]:
+    return place_log(src.read_bytes(), dest, apply)
+
+
+def move_workspace(src_ws: Path, dest_ws: Path, apply: bool) -> int:
+    """The session's eponymous workspace (subagent transcripts, persisted
+    tool-results — files the session log REFERENCES) rides along. The
+    filesystem, checked here and now, is the only oracle — no reconstruction
+    of what "ever existed": a destination folder that is absent takes the
+    workspace wholesale as a unit; one that is present (however it came to be)
+    merges with log semantics per file — new / identical / prefix-superseded;
+    divergence a loud CONFLICT. Returns the conflict count."""
+    if not src_ws.is_dir():
+        return 0
+    files = sorted(p for p in src_ws.rglob('*') if p.is_file() and p.name != '.DS_Store')
+    if not dest_ws.exists():
+        print(f'  workspace {src_ws.name}/: new ({len(files)} file(s))')
+        if apply:
+            for f in files:
+                dest = dest_ws / f.relative_to(src_ws)
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(f.read_bytes())
+        return 0
+    tally = {'new': 0, 'identical': 0, 'extends': 0, 'ahead': 0}
+    conflicts = 0
+    for f in files:
+        rel = f.relative_to(src_ws)
+        status, c = place_log(f.read_bytes(), dest_ws / rel, apply)
+        if c:
+            print(f'  workspace/{rel}: {status}')
+            conflicts += c
+        else:
+            key = ('new' if status == 'new' else
+                   'identical' if status.startswith('identical') else
+                   'extends' if status.startswith('extends') else 'ahead')
+            tally[key] += 1
+    print(f'  workspace {src_ws.name}/: '
+          + ', '.join(f'{n} {k}' for k, n in tally.items() if n)
+          + (f', {conflicts} CONFLICT(S)' if conflicts else '')
+          if any(tally.values()) or conflicts else
+          f'  workspace {src_ws.name}/: empty')
+    return conflicts
 
 
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -> int:
@@ -327,7 +378,8 @@ def demerge(proj_dir: Path, apply: bool) -> int:
             idx.unlink()
         else:
             idx.write_text('\n'.join(remaining) + ('\n' if remaining else ''))
-    print('note: session .jsonl files are visit residue demerge does not touch')
+    print('note: session .jsonl files and their eponymous workspace dirs are '
+          'visit residue demerge does not touch')
     print('APPLIED' if apply else 'dry run — pass --apply to undo the merge')
     return 0
 
@@ -337,6 +389,7 @@ def move(src_proj: Path, dest_proj: Path, session: Path, apply: bool, label: str
     print(f'{label}: {session.name}')
     status, conflicts = place_session(session, dest_proj / session.name, apply)
     print(f'  session: {status}')
+    conflicts += move_workspace(src_proj / session.stem, dest_proj / session.stem, apply)
     conflicts += merge_memory(src_proj / 'memory', dest_proj / 'memory', apply, room)
     print('APPLIED' if apply else 'dry run — pass --apply to write into the projects root')
     return conflicts
@@ -347,10 +400,12 @@ def main() -> int:
     sub = ap.add_subparsers(dest='direction', required=True)
     t = sub.add_parser('transport', help='write the agent bundle to a room/handoff dir')
     t.add_argument('--to', required=True, help='room name (ext/agents/<room>) or directory')
-    t.add_argument('--session', help='uuid(8) prefix; default: newest session')
+    t.add_argument('--session', required=True,
+                   help='uuid(8) prefix of the agent to move — identity is never guessed')
     r = sub.add_parser('receive', help='install an agent bundle from a room/handoff dir')
     r.add_argument('--from', dest='source', required=True, help='room name or directory')
-    r.add_argument('--session', help='uuid(8) prefix; default: newest session in the bundle')
+    r.add_argument('--session', required=True,
+                   help='uuid(8) prefix of the agent to install — identity is never guessed')
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing)')
     d.add_argument('--apply', action='store_true')

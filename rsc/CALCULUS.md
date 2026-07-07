@@ -90,8 +90,10 @@ per-corpus code.
   moves an *agent* (user doctrine, 2026-07-06 — proven by the v5 mint, whose
   evidence crossed machines as a file). Reified as a careful cp with the class
   semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
-  prefix-supersession for the append-only session; for the memory folder, a
-  merge that treats leaf NAMES as dressing (novelty copies, an appendix
+  prefix-supersession for the append-only session and its eponymous workspace
+  (subagent transcripts, persisted tool-results — files the log references,
+  without which a rematerialised agent has dangling limbs); for the memory
+  folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
   re-dressed by its room and links following, the index unioning by
   novelty-append); rooms as hand-made `ext/agents/<room>` symlinks.

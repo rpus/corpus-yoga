@@ -73,21 +73,21 @@ rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), a
 rsc/CALCULUS.md,68,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
 rsc/CALCULUS.md,85,doc,src/main/chat-exports/accumulate_memories.py,Y,(`src/main/chat-exports/accumulate_memories.py`.)
 rsc/CALCULUS.md,92,doc,src/main/code-projects/agent.py,Y,semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
-rsc/CALCULUS.md,108,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
-rsc/CALCULUS.md,109,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
-rsc/CALCULUS.md,119,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
-rsc/CALCULUS.md,119,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
-rsc/CALCULUS.md,188,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
-rsc/CALCULUS.md,227,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
-rsc/CALCULUS.md,228,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
-rsc/CALCULUS.md,228,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
-rsc/CALCULUS.md,231,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,231,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,240,doc,src/test/pre_commit.log,Y,"record other clones diff against — `src/test/pre_commit.log`,"
-rsc/CALCULUS.md,241,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expected-score files beside them. Operations:"
-rsc/CALCULUS.md,246,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
-rsc/CALCULUS.md,263,doc,src/main/code-projects/agent.py,Y,`src/main/code-projects/agent.py` (prefix-supersession + the memory-folder
-rsc/CALCULUS.md,286,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
+rsc/CALCULUS.md,110,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
+rsc/CALCULUS.md,111,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
+rsc/CALCULUS.md,121,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
+rsc/CALCULUS.md,121,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
+rsc/CALCULUS.md,190,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
+rsc/CALCULUS.md,229,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
+rsc/CALCULUS.md,230,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
+rsc/CALCULUS.md,230,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
+rsc/CALCULUS.md,233,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,233,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,242,doc,src/test/pre_commit.log,Y,"record other clones diff against — `src/test/pre_commit.log`,"
+rsc/CALCULUS.md,243,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expected-score files beside them. Operations:"
+rsc/CALCULUS.md,248,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
+rsc/CALCULUS.md,265,doc,src/main/code-projects/agent.py,Y,`src/main/code-projects/agent.py` (prefix-supersession + the memory-folder
+rsc/CALCULUS.md,288,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/cli/README.md,4,doc,src/main/cli.py,Y,`src/main/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
 rsc/cli/README.md,7,doc,rsc/CALCULUS.md,Y,(L5 of `rsc/CALCULUS.md`). The CLI adds no behaviour of its own: `./yoga <command> [args...]`
 rsc/cli/README.md,16,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
@@ -105,7 +105,7 @@ rsc/cli/commands.csv,7,path_str,src/main/model/build_index.py,Y,"index,src/main/
 rsc/cli/commands.csv,8,path_str,src/main/chat-exports/library.py,Y,"library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-libr"
 rsc/cli/commands.csv,9,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit ev"
 rsc/cli/commands.csv,10,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk expo"
-rsc/cli/commands.csv,11,path_str,src/main/code-projects/agent.py,Y,"agent,src/main/code-projects/agent.py,transport --to <room> [--session <uuid8>] | receive --from <room> [--apply] | deme"
+rsc/cli/commands.csv,11,path_str,src/main/code-projects/agent.py,Y,"agent,src/main/code-projects/agent.py,transport --to <room> --session <uuid8> | receive --from <room> --session <uuid8> "
 rsc/cli/commands.csv,12,path_str,src/main/machine.py,Y,"machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)"
 rsc/cli/commands.csv,13,path_str,src/main/model/gen_model.sh,Y,"model,src/main/model/gen_model.sh,,project,,Generate per-schema definition catalogues"
 rsc/cli/commands.csv,14,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites"

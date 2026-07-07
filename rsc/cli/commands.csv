@@ -8,7 +8,7 @@ index,src/main/model/build_index.py,[--candidates] [--top <n>] | headwords [add 
 library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-library dir naming across vintages (dry run by default)
 memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit every distinct chat-memory state; render the timeline
 supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk exports supersede earlier ones? Computed; never assumed
-agent,src/main/code-projects/agent.py,transport --to <room> [--session <uuid8>] | receive --from <room> [--apply] | demerge [--apply],transport supersession merge L1 L3 L4 L6,,Move an agent (session × memory) between machines; demerge undoes the latest received merge
+agent,src/main/code-projects/agent.py,transport --to <room> --session <uuid8> | receive --from <room> --session <uuid8> [--apply] | demerge [--apply],transport supersession merge L1 L3 L4 L6,,Move an agent (session × memory) between machines; demerge undoes the latest received merge
 machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)
 model,src/main/model/gen_model.sh,,project,,Generate per-schema definition catalogues
 calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites
