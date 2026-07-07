@@ -51,7 +51,11 @@ not appear in the VSCode sidebar was probably trash-buttoned there once — the
 extension tombstones session uuids in `hiddenSessionIds` (its globalState in
 the machine's state.vscdb), machine-globally and with no unhide affordance;
 purge that list with VSCode quit, or resume via the terminal CLI, which does
-not consult it.
+not consult it. The listing's other lie is the mirror image: it counts a
+session's eponymous guid-dir (via its subagents/) as a session even after the
+.jsonl is deleted — so the correct on-disk deletion rite is BOTH the .jsonl
+AND its guid-dir together; delete only the file and the sidebar advertises a
+ghost, whose only offered remedy is the tombstone that started this note.
 """
 import argparse
 import hashlib
