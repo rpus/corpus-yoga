@@ -109,7 +109,7 @@ rsc/cli/commands.csv,7,path_str,src/main/model/build_index.py,Y,"index,src/main/
 rsc/cli/commands.csv,8,path_str,src/main/chat-exports/library.py,Y,"library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-libr"
 rsc/cli/commands.csv,9,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit ev"
 rsc/cli/commands.csv,10,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk expo"
-rsc/cli/commands.csv,11,path_str,src/main/code-projects/agent.py,Y,"agent,src/main/code-projects/agent.py,transport --session <uuid8> [--to <dir>] | receive --from <room> --session <uuid8>"
+rsc/cli/commands.csv,11,path_str,src/main/code-projects/agent.py,Y,"agent,src/main/code-projects/agent.py,list | transport --session <uuid8> [--to <dir>] | receive --from <room> --session "
 rsc/cli/commands.csv,12,path_str,src/main/machine.py,Y,"machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)"
 rsc/cli/commands.csv,13,path_str,src/main/model/gen_model.sh,Y,"model,src/main/model/gen_model.sh,,project,,Generate per-schema definition catalogues"
 rsc/cli/commands.csv,14,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites"

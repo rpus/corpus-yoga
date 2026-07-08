@@ -41,6 +41,7 @@ anything was edited since the merge: the record licenses the undo (L3). This
 is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
+    ./yoga agent list
     ./yoga agent transport --session <uuid8> [--to <dir>]
     ./yoga agent receive --from <room> --session <uuid8> [--apply]
     ./yoga agent demerge [--apply]
@@ -66,6 +67,7 @@ ghost, whose only offered remedy is the tombstone that started this note.
 """
 import argparse
 import hashlib
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -320,6 +322,39 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
     return conflicts
 
 
+def list_agents() -> int:
+    """The sidebar-independent census: every session in this machine's project
+    and in each hall room's bundle, dressed with its LAST ai-title record —
+    the title history rides the log, so this works identically on live
+    sessions and transported bundles, and the dressing is derived on demand,
+    never stored (L5). Framing on stderr; data lines on stdout (pipeable)."""
+    rows = []
+
+    def scan(where: str, d: Path) -> None:
+        for f in sorted(d.glob('*.jsonl')):
+            title = '(untitled)'
+            for line in f.open(errors='replace'):
+                if '"ai-title"' in line:
+                    try:
+                        title = json.loads(line).get('aiTitle') or title
+                    except ValueError:
+                        continue
+            st = f.stat()
+            rows.append((f.stem[:8], where, st.st_size, st.st_mtime, title))
+
+    key = project_key()
+    if (PROJECTS / key).is_dir():
+        scan('local', PROJECTS / key)
+    if HALL.is_dir():
+        for room in sorted(p for p in HALL.iterdir() if p.is_dir()):
+            scan(room.name, room)
+    print(f'{"uuid8":<8}  {"where":<14}  {"size":>7}  {"last-write":<16}  title', file=sys.stderr)
+    for u8, where, size, mtime, title in rows:
+        t = datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M')
+        print(f'{u8}  {where:<14}  {size / 1e6:6.1f}M  {t}  {title}')
+    return 0
+
+
 def demerge(proj_dir: Path, apply: bool) -> int:
     """Undo the LATEST merge recorded in MEMORY.md, exactly and all-or-nothing:
     delete the recorded additions (novelties, twins), truncate the recorded
@@ -476,7 +511,11 @@ def main() -> int:
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing)')
     d.add_argument('--apply', action='store_true')
+    sub.add_parser('list', help='census: sessions here and in the hall, dressed with their last ai-title')
     args = ap.parse_args()
+
+    if args.direction == 'list':
+        return list_agents()
 
     if not PROJECTS.is_dir():
         sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/code-projects/PREP.sh creates the symlink')
