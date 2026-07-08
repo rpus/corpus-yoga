@@ -1,4 +1,3 @@
 level,kind,arg,note
-required,path,ext/agents/reading-room,hand-made symlink to the medium shared with the reading room (agent transport)
 optional,path,ext/chat-exports,bulk exports are supplied in this room
 optional,path,ext/browser-captures/claude,live captures are taken in this room

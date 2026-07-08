@@ -17,14 +17,20 @@ human act — recorded in-folder rather than blocking the transport ("hone,
 not clone": the twins are the fork, made visible). Re-running either
 direction on an unchanged pair is silence (L1).
 
-Rooms: --to/--from take a directory path, or a bare room name resolved as
-ext/agents/<room> — a hand-made symlink (the ext/ convention) to whatever
-medium the machines share. The projects root is ext/code-projects (PREP.sh's
-symlink to the Claude Code projects folder), so both ends stay repo-relative
-and the bundle mirrors the projects layout exactly:
-<project-key>/<session>.jsonl + <project-key>/<session-uuid>/ (the eponymous
-workspace: subagent transcripts and persisted tool-results the log REFERENCES,
-moved with log semantics per file) + <project-key>/memory/.
+Rooms: bundles live in a shared ARRIVALS HALL — ext/agents, a hand-made
+symlink on each machine to the same medium — each bundle FLAT under its
+ORIGIN room's name: <room>/<session>.jsonl + <room>/<session-uuid>/ (the
+eponymous workspace: subagent transcripts and persisted tool-results the log
+REFERENCES, moved with log semantics per file) + <room>/memory/. Provenance
+is spatial and sender-declared: transport takes no destination — it mirrors
+the agent into ext/agents/<own room>, the room read from the ext/machine
+binding (rsc/machines/) — and receive --from names the peer room whose bundle
+to merge, the twin-dressing and marker label coming from that ADDRESS rather
+than the receiver's assertion. An outbox is single-writer by construction, so
+transport MIRRORS its memory (updated in place, absentees removed); every
+merge subtlety lives in receive, where two agents actually meet. The projects
+root is ext/code-projects (PREP.sh's symlink to the Claude Code projects
+folder), so both ends stay repo-relative.
 
 Received merges are DETECTABLE and INVERTIBLE: a receive that changes the
 memory writes a marker block into MEMORY.md — begin/end comments wrapping the
@@ -35,12 +41,13 @@ anything was edited since the merge: the record licenses the undo (L3). This
 is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
-    ./yoga agent transport --to <room-or-dir> --session <uuid8>
-    ./yoga agent receive --from <room-or-dir> --session <uuid8> [--apply]
+    ./yoga agent transport --session <uuid8> [--to <dir>]
+    ./yoga agent receive --from <room> --session <uuid8> [--apply]
     ./yoga agent demerge [--apply]
 
 --session is MANDATORY and matches by uuid prefix, exactly one: which agent
 moves is never the tool's call — no recency guessing, no automatic choice.
+--to is a directory override for scratch and tests only.
 
 transport writes to the handoff medium immediately (it is not precious).
 receive and demerge are dry-run by default and only --apply writes into this
@@ -65,7 +72,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 PROJECTS = REPO / 'ext' / 'code-projects'
-ROOMS = REPO / 'ext' / 'agents'
+HALL = REPO / 'ext' / 'agents'
+
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the room binding
+from machine import bound_room  # noqa: E402
 
 
 def project_key() -> str:
@@ -84,18 +94,28 @@ def _sha_lines(text: str) -> str:
     return _sha('\n'.join(text.splitlines()))
 
 
-def resolve_room(name: str, writing: bool) -> Path:
-    """A destination/source directory: a path as given, or a registered room
-    (ext/agents/<name>, normally a hand-made symlink to the shared medium)."""
+def own_outbox() -> Path:
+    """The hall directory this machine writes: ext/agents/<its ext/machine
+    binding>. The hall itself is hand-made; the outbox inside it is ours."""
+    if not HALL.is_dir():
+        sys.exit('error: ext/agents missing — hand-make it as a symlink to the '
+                 'shared arrivals hall (bundles live there under origin-room names)')
+    out = HALL / bound_room()
+    out.mkdir(exist_ok=True)
+    return out
+
+
+def peer_bundle(name: str) -> Path:
+    """A source for receive: a directory path as given, or ext/agents/<room> —
+    the bundle that room last transported."""
     p = Path(name).expanduser()
     if '/' in name or p.is_dir():
-        if writing:
-            p.mkdir(parents=True, exist_ok=True)
         return p
-    room = ROOMS / name
+    room = HALL / name
     if not room.is_dir():
-        sys.exit(f"error: room '{name}' is not registered — create ext/agents/{name} "
-                 '(a directory, or a symlink to the medium this room shares with it)')
+        rooms = sorted(d.name for d in HALL.iterdir() if d.is_dir()) if HALL.is_dir() else []
+        sys.exit(f"error: no bundle from room '{name}' in the arrivals hall — "
+                 f"present: {', '.join(rooms) or '(none)'}")
     return room
 
 
@@ -176,18 +196,18 @@ def move_workspace(src_ws: Path, dest_ws: Path, apply: bool) -> int:
     return conflicts
 
 
-def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -> int:
-    """Memory-folder merge. A leaf file's NAME is dressing; the fact is the
-    identity — so per leaf: absent → copy (novelty); identical → skip; the
-    incoming extends the local (byte-prefix) → superseded in place (an
-    appendix); true divergence → BOTH kept, the incoming fact re-dressed as
-    <stem>.<room>.md with its [[links]] following (nothing lost, nothing
-    silently overwritten, nothing blocking — reconciliation stays a human act,
-    recorded in-folder). MEMORY.md is the index, not a fact: it unions by
-    novelty-append, with lines for re-dressed facts rewritten to their new
-    names. Without a room name (transport into a handoff) divergence is a
-    blocking CONFLICT instead — a bundle should be one agent's memory, and a
-    divergent bundle usually means: receive first. Returns the conflict count."""
+def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
+    """Memory-folder merge — RECEIVE only, where two agents actually meet
+    (transport mirrors its own outbox instead; see mirror_memory). A leaf
+    file's NAME is dressing; the fact is the identity — so per leaf: absent →
+    copy (novelty); identical → skip; the incoming extends the local
+    (byte-prefix) → superseded in place (an appendix); true divergence → BOTH
+    kept, the incoming fact re-dressed as <stem>.<room>.md — room is the
+    bundle's ADDRESS in the hall, sender-declared — with its [[links]]
+    following (nothing lost, nothing silently overwritten, nothing blocking —
+    reconciliation stays a human act, recorded in-folder). MEMORY.md is the
+    index, not a fact: it unions by novelty-append, with lines for re-dressed
+    facts rewritten to their new names. Returns the conflict count."""
     conflicts = 0
     if not src_dir.is_dir():
         print('  memory: none at source')
@@ -211,7 +231,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -
         next_map: dict[str, str] = {}
         for rel, raw in leaves:
             target = dest_dir / rel
-            if room is None or not target.exists():
+            if not target.exists():
                 continue
             form, have = dressed(raw, renamed), target.read_text()
             if form != have and not form.startswith(have) and not have.startswith(form):
@@ -220,7 +240,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -
             break
         renamed = next_map
 
-    acts: list[str] = []  # merge-marker act lines (receive only): the undo record
+    acts: list[str] = []  # merge-marker act lines: the undo record
     for rel, raw in leaves:
         target = dest_dir / rel
         form = dressed(raw, renamed)
@@ -229,8 +249,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -
             if apply:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(form)
-            if room is not None:
-                acts.append(f'<!-- merge:act new {rel} sha={_sha(form)} len={len(form)} -->')
+            acts.append(f'<!-- merge:act new {rel} sha={_sha(form)} len={len(form)} -->')
             continue
         have = target.read_text()
         if have == form:
@@ -239,14 +258,10 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -
             print(f'  memory/{rel}: extends it — superseded (appendix)')
             if apply:
                 target.write_text(form)
-            if room is not None:
-                acts.append(f'<!-- merge:act appendix {rel} prior={len(have)} '
-                            f'post={len(form)} sha={_sha(form)} -->')
+            acts.append(f'<!-- merge:act appendix {rel} prior={len(have)} '
+                        f'post={len(form)} sha={_sha(form)} -->')
         elif have.startswith(form):
             print(f'  memory/{rel}: destination is ahead — no-op')
-        elif room is None:
-            print(f'  memory/{rel}: ✗ CONFLICT: diverged — left in place (receive before transporting?)')
-            conflicts += 1
         else:
             twin = target.with_name(f'{renamed[target.stem]}{target.suffix}')
             twin_rel = rel.with_name(twin.name)
@@ -282,19 +297,16 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str | None) -
             if apply:
                 dest_dir.mkdir(parents=True, exist_ok=True)
                 dest_index.write_text(filtered)
-            if room is not None:
-                acts.append(f'<!-- merge:act index-new sha={_sha_lines(filtered)} -->')
+            acts.append(f'<!-- merge:act index-new sha={_sha_lines(filtered)} -->')
             novel = []  # the whole index arrived; no separate union lines
         elif novel:
-            print(f'  memory/MEMORY.md: index unioned — {len(novel)} line(s) appended'
-                  + (' (inside the merge marker)' if room is not None else ''))
-            if apply and room is None:
-                dest_index.write_text('\n'.join(have_lines + novel) + '\n')
+            print(f'  memory/MEMORY.md: index unioned — {len(novel)} line(s) appended '
+                  '(inside the merge marker)')
         else:
             print('  memory/MEMORY.md: index already covers it — no-op')
     # the merge marker: begin/end comments wrapping the unioned lines, then the
     # acts — MEMORY.md carries the record that makes this merge demergeable
-    if room is not None and (acts or novel):
+    if acts or novel:
         stamp = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H%M%SZ')
         block = [f'<!-- merge:begin {stamp} from={room} -->', *novel, *acts, '<!-- merge:end -->']
         print(('  memory/MEMORY.md: merge marker recorded' if apply else
@@ -395,13 +407,56 @@ def demerge(proj_dir: Path, apply: bool) -> int:
     return 0
 
 
-def move(src_proj: Path, dest_proj: Path, session: Path, apply: bool, label: str,
-         room: str | None = None) -> int:
-    print(f'{label}: {session.name}')
+def mirror_memory(src_dir: Path, dest_dir: Path) -> None:
+    """Transport writes the agent's OWN outbox — single-writer by construction —
+    so the memory folder is MIRRORED, not merged: the outbox is a faithful
+    projection of the agent's current aggregate (new files added, changed ones
+    updated in place, absentees removed). Every merge subtlety stays in
+    receive, where two agents meet."""
+    files = {p.relative_to(src_dir): p for p in sorted(src_dir.rglob('*'))
+             if p.is_file() and p.name != '.DS_Store'} if src_dir.is_dir() else {}
+    if not files:
+        print('  memory: none at source')
+        return
+    have = {p.relative_to(dest_dir): p for p in sorted(dest_dir.rglob('*'))
+            if p.is_file() and p.name != '.DS_Store'} if dest_dir.is_dir() else {}
+    new = updated = same = removed = 0
+    for rel, f in files.items():
+        target = dest_dir / rel
+        data = f.read_bytes()
+        if rel not in have:
+            new += 1
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        elif have[rel].read_bytes() == data:
+            same += 1
+        else:
+            updated += 1
+            target.write_bytes(data)
+    for rel, p in have.items():
+        if rel not in files:
+            removed += 1
+            p.unlink()
+    print(f'  memory: mirrored — {new} new, {updated} updated, {same} identical'
+          + (f', {removed} removed (absent at source)' if removed else ''))
+
+
+def transport_move(src_proj: Path, outbox: Path, session: Path) -> int:
+    print(f'transport → {outbox.name}: {session.name}')
+    status, conflicts = place_session(session, outbox / session.name, apply=True)
+    print(f'  session: {status}')
+    conflicts += move_workspace(src_proj / session.stem, outbox / session.stem, apply=True)
+    mirror_memory(src_proj / 'memory', outbox / 'memory')
+    print('APPLIED')
+    return conflicts
+
+
+def receive_move(bundle: Path, dest_proj: Path, session: Path, apply: bool, room: str) -> int:
+    print(f'receive ← {room}: {session.name}')
     status, conflicts = place_session(session, dest_proj / session.name, apply)
     print(f'  session: {status}')
-    conflicts += move_workspace(src_proj / session.stem, dest_proj / session.stem, apply)
-    conflicts += merge_memory(src_proj / 'memory', dest_proj / 'memory', apply, room)
+    conflicts += move_workspace(bundle / session.stem, dest_proj / session.stem, apply)
+    conflicts += merge_memory(bundle / 'memory', dest_proj / 'memory', apply, room)
     print('APPLIED' if apply else 'dry run — pass --apply to write into the projects root')
     return conflicts
 
@@ -409,12 +464,13 @@ def move(src_proj: Path, dest_proj: Path, session: Path, apply: bool, label: str
 def main() -> int:
     ap = argparse.ArgumentParser(description='transport an agent (session × memory) between machines')
     sub = ap.add_subparsers(dest='direction', required=True)
-    t = sub.add_parser('transport', help='write the agent bundle to a room/handoff dir')
-    t.add_argument('--to', required=True, help='room name (ext/agents/<room>) or directory')
+    t = sub.add_parser('transport', help="mirror the agent into its own room's dir in the arrivals hall")
     t.add_argument('--session', required=True,
                    help='uuid(8) prefix of the agent to move — identity is never guessed')
-    r = sub.add_parser('receive', help='install an agent bundle from a room/handoff dir')
-    r.add_argument('--from', dest='source', required=True, help='room name or directory')
+    t.add_argument('--to', help='directory override (scratch/tests); default: ext/agents/<ext/machine binding>')
+    r = sub.add_parser('receive', help="install a peer room's bundle from the arrivals hall")
+    r.add_argument('--from', dest='source', required=True,
+                   help='origin room name in the hall (or a directory)')
     r.add_argument('--session', required=True,
                    help='uuid(8) prefix of the agent to install — identity is never guessed')
     r.add_argument('--apply', action='store_true')
@@ -430,21 +486,21 @@ def main() -> int:
         return 1 if demerge(PROJECTS / key, args.apply) else 0
 
     if args.direction == 'transport':
-        dest = resolve_room(args.to, writing=True)
+        if args.to:
+            outbox = Path(args.to).expanduser()
+            outbox.mkdir(parents=True, exist_ok=True)
+        else:
+            outbox = own_outbox()
         src_proj = PROJECTS / key
         session = pick_session(src_proj, args.session)
-        return 1 if move(src_proj, dest / key, session, apply=True, label=f'transport → {args.to}') else 0
+        return 1 if transport_move(src_proj, outbox, session) else 0
 
-    src = resolve_room(args.source, writing=False)
-    src_proj = src / key
-    if not src_proj.is_dir():
-        sys.exit(f'error: no {key} bundle under {src}')
-    session = pick_session(src_proj, args.session)
-    # the twin-dressing label for diverged facts: the room name as given, or the
-    # directory's own name when --from was a path
-    room = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in Path(args.source).name) or 'incoming'
-    return 1 if move(src_proj, PROJECTS / key, session, args.apply,
-                     label=f'receive ← {args.source}', room=room) else 0
+    bundle = peer_bundle(args.source)
+    session = pick_session(bundle, args.session)
+    # the twin-dressing and marker label: the bundle's ADDRESS — the origin room's
+    # name as it stands in the hall (or the directory's own name for a path)
+    room = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
+    return 1 if receive_move(bundle, PROJECTS / key, session, args.apply, room) else 0
 
 
 if __name__ == '__main__':

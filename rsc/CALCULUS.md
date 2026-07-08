@@ -96,7 +96,12 @@ per-corpus code.
   folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
   re-dressed by its room and links following, the index unioning by
-  novelty-append); rooms as hand-made `ext/agents/<room>` symlinks.
+  novelty-append). Bundles live in a shared ARRIVALS HALL (`ext/agents`, one
+  hand-made symlink per machine), each FLAT under its ORIGIN room's name — the
+  `ext/machine` binding — so provenance is spatial and sender-declared, never
+  the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
+  design): transport MIRRORS the agent into its own single-writer outbox, and
+  every merge subtlety lives in receive, where two agents actually meet.
 
 - **project / re-derive** — durable identity → presentation: ordinals, markdown,
   matrices, name dressing. Presentation converges to current without ever being

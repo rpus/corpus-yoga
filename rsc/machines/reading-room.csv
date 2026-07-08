@@ -1,3 +1,2 @@
 level,kind,arg,note
-required,path,ext/agents/home-room,hand-made symlink to the medium shared with the home room (agent transport)
 optional,path,ext/browser-captures/claude,captures overlap with the home room by choice
