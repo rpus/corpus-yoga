@@ -44,7 +44,16 @@ def bound_room() -> str:
         sys.exit(f'unbound machine — name its room in the one-line {rel} binding:\n'
                  f'    echo <unique-room-name> > {rel}\n'
                  f'rooms already declared in rsc/machines/: {", ".join(rooms()) or "(none)"}')
-    return BINDING.read_text().strip()
+    room = BINDING.read_text().strip()
+    if room not in rooms():
+        # declaredness gate, here in the ONE reader so every consumer inherits
+        # it — above all transport, which would otherwise mint a phantom room
+        # dir in the shared hall from a typo. Bootstrap order per the machines
+        # README: a new room is a manifest PLUS a binding, declare then bind.
+        sys.exit(f"bound to '{room}' but no manifest declares it — declare "
+                 f'rsc/machines/{room}.csv, or fix the {rel} binding; '
+                 f'rooms declared: {", ".join(rooms()) or "(none)"}')
+    return room
 
 
 def manifest(room: str) -> list[dict]:

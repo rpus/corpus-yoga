@@ -100,7 +100,13 @@ check_room() {
   local rel="${binding#"$SCRIPT_DIR/"}"
   echo "room (the machine's own name for itself — never shared, never transported)"
   if [[ -f "$binding" ]]; then
-    ok "bound: $(cat "$binding")"
+    local room
+    room="$(cat "$binding")"
+    if [[ -f "$SCRIPT_DIR/rsc/machines/$room.csv" ]]; then
+      ok "bound: $room"
+    else
+      info "bound: $room — but no rsc/machines/$room.csv declares it; declare the manifest, or fix the binding"
+    fi
   else
     local declared="" f
     for f in "$SCRIPT_DIR/rsc/machines"/*.csv; do

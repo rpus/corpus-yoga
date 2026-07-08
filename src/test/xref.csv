@@ -4,7 +4,7 @@ PREREQUISITES.sh,5,comment,RUNME.sh,Y,"# (unlike ./RUNME.sh, which does all of t
 PREREQUISITES.sh,11,comment,PREREQUISITES.sh,Y,#   ./PREREQUISITES.sh
 PREREQUISITES.sh,94,comment,rsc/machines/README.md,Y,# The binding names this machine's room (see rsc/machines/README.md). The
 PREREQUISITES.sh,98,path_str,rsc/machines,Y,"local binding=""$SCRIPT_DIR/rsc/machines"""
-PREREQUISITES.sh,106,path_str,rsc/machines,Y,"for f in ""$SCRIPT_DIR/rsc/machines""/*.csv; do"
+PREREQUISITES.sh,112,path_str,rsc/machines,Y,"for f in ""$SCRIPT_DIR/rsc/machines""/*.csv; do"
 README.md,8,doc,PREREQUISITES.sh,Y,./PREREQUISITES.sh # read-only report: what this machine can run
 README.md,10,doc,RUNME.sh,Y,"./RUNME.sh --plan  # the ordered step plan, printed by the step lists that execute it"
 README.md,14,doc,RUNME.sh,Y,./RUNME.sh --capture-from-browser \
