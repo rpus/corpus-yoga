@@ -510,10 +510,10 @@ def check_index_curation(run) -> None:
 def check_machine_manifest(run) -> None:
     """This machine against its room's manifest (rsc/machines/, required rows
     only — optional absences are the room's business). The binding
-    (ext/machine) is machine-local, so data tier: skipped where unbound."""
+    (self.txt in rsc/machines/) is machine-local, so data tier: skipped where unbound."""
     import machine
     if not machine.BINDING.exists():
-        print('  – skipped: unbound machine (no ext/machine — see rsc/machines/README.md)')
+        print('  – skipped: unbound machine (no self.txt binding — see rsc/machines/README.md)')
         return
     room = machine.BINDING.read_text().strip()
     try:

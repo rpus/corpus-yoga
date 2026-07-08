@@ -87,6 +87,18 @@ PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
+def _gitignored(rels: list[str]) -> set[str]:
+    """The subset of paths .gitignore matches, asked of git itself. Gitignored
+    files INSIDE the committed tree (the machine's self binding beside the
+    manifests) are machine-local by definition and must not enter the scannable
+    set — the committed expected counts are machine-invariant (L2), and a file
+    that exists only on bound machines would skew them per machine."""
+    import subprocess
+    r = subprocess.run(['git', '-C', str(REPO_ROOT), 'check-ignore', '--stdin'],
+                       input='\n'.join(rels), capture_output=True, text=True)
+    return set(r.stdout.splitlines())
+
+
 def repo_files() -> list[Path]:
     """Return all scannable source files in the repo."""
     result = []
@@ -100,7 +112,8 @@ def repo_files() -> list[Path]:
         if any(part in SKIP_DIRS or part.startswith('.') for part in parts):
             continue
         result.append(f)
-    return sorted(result)
+    ignored = _gitignored([str(f.relative_to(REPO_ROOT)) for f in result])
+    return sorted(f for f in result if str(f.relative_to(REPO_ROOT)) not in ignored)
 
 
 def looks_like_repo_path(s: str) -> bool:

@@ -73,6 +73,7 @@ rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), a
 rsc/CALCULUS.md,71,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
 rsc/CALCULUS.md,88,doc,src/main/chat-exports/accumulate_memories.py,Y,(`src/main/chat-exports/accumulate_memories.py`.)
 rsc/CALCULUS.md,95,doc,src/main/code-projects/agent.py,Y,semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
+rsc/CALCULUS.md,104,doc,rsc/machines,Y,"`self.txt` binding in `rsc/machines/` — so provenance is spatial and sender-declared, never"
 rsc/CALCULUS.md,118,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
 rsc/CALCULUS.md,119,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
 rsc/CALCULUS.md,129,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →

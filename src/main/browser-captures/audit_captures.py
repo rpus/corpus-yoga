@@ -83,6 +83,11 @@ def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
     if unprojected:
         print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under lib/markdown — '
               'the browser-captures pipeline step project_markdown produces it')
+    # show the working even on success: silence was load-bearing here once —
+    # a clean audit and a skipped one printed identically (nothing)
+    checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
+    print(f'claude: {checked} scrape(s) checked against api projections — '
+          + ('all aligned' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
     return [f'{u} ({s}): {k}' for u, s, k in suspects]
 
 
@@ -107,6 +112,9 @@ def audit_gemini(captures_dir: Path) -> list[str]:
               '  # a full scrape walks the page — takes a couple of minutes')
     if placeholder_convs:
         print(f'gemini: {placeholder_convs} scrape(s) contain "[no capture" placeholder text')
+    checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
+    print(f'gemini: {checked} scrape(s) health-checked (no api side exists — heuristics only) — '
+          + ('nothing flagged' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
     return [f'{c} ({s})' for c, s in suspects]
 
 

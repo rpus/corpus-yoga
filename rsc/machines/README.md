@@ -11,7 +11,9 @@ usernames, absolute paths, or observed values).
 - **Manifests (committed, here):** `_base.csv` applies to every room (the docker
   `FROM` layer); `<room>.csv` layers the room's own requirements on top.
 - **Binding (machine-local, gitignored):** each machine names which room it is in
-  a one-line file `ext/machine`. An unbound machine is told so, and how to bind
+  a one-line `self.txt` beside these manifests — the one git-ignored file in
+  the committed tree, because the room is the machine's own name for itself
+  and must never be shared or transported. An unbound machine is told so, and how to bind
   (L8: absence is a signal).
 - **Report (never committed):** `./yoga machine` verifies THIS machine against
   its room's manifest — ✓ present, – optional and absent, ✗ required and absent

@@ -216,16 +216,31 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
             anomalies.append(u)
     export_only = sorted(set(latest_convs) - set(caps))
     capture_only = sorted(set(caps) - set(latest_convs))
-    noteworthy = stale or anomalies or export_only
-    print(('WARN: ' if noteworthy else '')
-          + f'{latest.name} vs captures: {len(shared)} shared — {in_sync} in-sync, '
+    # The summary is a plain line: every noteworthy class below emits its own
+    # per-item WARN, so a WARN prefix here would always double-count one fact
+    # (observed as "2 WARN" for one ghost conversation, 2026-07-08).
+    print(f'{latest.name} vs captures: {len(shared)} shared — {in_sync} in-sync, '
           f'{ahead} capture-ahead, {len(stale)} capture-stale, {len(anomalies)} anomalies; '
           f'{len(export_only)} export-only (no local capture), '
           f'{len(capture_only)} capture-only (absent from this export)')
     # Each mismatched conversation is its own WARN: line — the top-level RUNME
     # gathers WARN: (and "→ run:") lines verbatim into its tail, so the NAMES
     # reach the part of the log that gets read, not just the counts.
+    def _blank(stem: str) -> bool:
+        """No content in any message (e.g. a stray blank send): the export's
+        record is complete however long it is kept — nothing worth capturing."""
+        try:
+            c = json.loads((latest / 'json' / f'{stem}.json').read_text())
+        except (OSError, ValueError):
+            return False
+        msgs = c.get('chat_messages', [])
+        return all(not m.get('text') and not m.get('content') for m in msgs)
+
     for u in export_only:
+        if not latest_convs[u][1] or _blank(latest_convs[u][0]):
+            print(f'  export-only {latest_convs[u][0]} ({u}): blank (no message content) — '
+                  'the export holds its complete record; nothing to capture')
+            continue
         print(f'WARN: export-only {latest_convs[u][0]} ({u}) — no capture of it here; to capture:')
         print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --id {u}'
               f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')

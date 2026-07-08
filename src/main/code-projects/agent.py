@@ -23,8 +23,8 @@ ORIGIN room's name: <room>/<session>.jsonl + <room>/<session-uuid>/ (the
 eponymous workspace: subagent transcripts and persisted tool-results the log
 REFERENCES, moved with log semantics per file) + <room>/memory/. Provenance
 is spatial and sender-declared: transport takes no destination — it mirrors
-the agent into ext/agents/<own room>, the room read from the ext/machine
-binding (rsc/machines/) — and receive --from names the peer room whose bundle
+the agent into ext/agents/<own room>, the room read from the self.txt
+binding beside the manifests (rsc/machines/) — and receive --from names the peer room whose bundle
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
 than the receiver's assertion. An outbox is single-writer by construction, so
 transport MIRRORS its memory (updated in place, absentees removed); every
@@ -95,7 +95,7 @@ def _sha_lines(text: str) -> str:
 
 
 def own_outbox() -> Path:
-    """The hall directory this machine writes: ext/agents/<its ext/machine
+    """The hall directory this machine writes: ext/agents/<its self.txt
     binding>. The hall itself is hand-made; the outbox inside it is ours."""
     if not HALL.is_dir():
         sys.exit('error: ext/agents missing — hand-make it as a symlink to the '
@@ -467,7 +467,7 @@ def main() -> int:
     t = sub.add_parser('transport', help="mirror the agent into its own room's dir in the arrivals hall")
     t.add_argument('--session', required=True,
                    help='uuid(8) prefix of the agent to move — identity is never guessed')
-    t.add_argument('--to', help='directory override (scratch/tests); default: ext/agents/<ext/machine binding>')
+    t.add_argument('--to', help='directory override (scratch/tests); default: ext/agents/<the self.txt binding>')
     r = sub.add_parser('receive', help="install a peer room's bundle from the arrivals hall")
     r.add_argument('--from', dest='source', required=True,
                    help='origin room name in the hall (or a directory)')

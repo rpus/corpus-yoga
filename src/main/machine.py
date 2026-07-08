@@ -4,7 +4,8 @@ machine.py — verify THIS machine against its room's manifest.
 
 Manifests are docker-style desired state as committed data (rsc/machines/:
 _base.csv layered under <room>.csv — format: rsc/machines/README.md); the
-machine's identity is the one-line gitignored binding ext/machine; the report
+machine's identity is the one-line self.txt binding beside the manifests in
+rsc/machines/ (the one gitignored file in the committed tree); the report
 is strictly machine-local (L2). An unbound machine is told how to bind (L8).
 
     ./yoga machine                  # verify against the bound room
@@ -22,7 +23,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 MANIFESTS = REPO / 'rsc' / 'machines'
-BINDING = REPO / 'ext' / 'machine'
+# The binding lives BESIDE the manifests it selects among — the one gitignored
+# file in the committed tree, because the room is the machine's own name for
+# itself: the anti-Mergeable, never shared, never transported (user placement,
+# 2026-07-08; path built by arithmetic so no committed literal names a file
+# that rightly does not exist on a fresh clone).
+BINDING = MANIFESTS / 'self.txt'
 
 
 def rooms() -> list[str]:
@@ -30,10 +36,14 @@ def rooms() -> list[str]:
 
 
 def bound_room() -> str:
+    rel = BINDING.relative_to(REPO)
     if not BINDING.exists():
-        sys.exit(f'unbound machine — name its room in a one-line ext/machine file, e.g.:\n'
-                 f'    echo {rooms()[0] if rooms() else "<room>"} > ext/machine\n'
-                 f'rooms declared in rsc/machines/: {", ".join(rooms()) or "(none)"}')
+        # constant placeholder, deliberately never an existing room's name: an
+        # example a new machine could paste verbatim would mint an identity
+        # collision — the placeholder's own spelling carries the requirement
+        sys.exit(f'unbound machine — name its room in the one-line {rel} binding:\n'
+                 f'    echo <unique-room-name> > {rel}\n'
+                 f'rooms already declared in rsc/machines/: {", ".join(rooms()) or "(none)"}')
     return BINDING.read_text().strip()
 
 
@@ -71,7 +81,7 @@ def checks(room: str) -> list[tuple[str, bool, str, str]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='verify this machine against its room manifest')
-    ap.add_argument('--room', help='manifest to verify against (default: the ext/machine binding)')
+    ap.add_argument('--room', help='manifest to verify against (default: the self.txt binding)')
     args = ap.parse_args()
     room = args.room or bound_room()
     print(f'machine manifest: {room} (rsc/machines, _base layered first)')
