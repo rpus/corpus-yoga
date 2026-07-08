@@ -207,3 +207,32 @@ def md_validator():
     """A Draft4 validator for the markdownConversation schema."""
     import jsonschema
     return jsonschema.Draft4Validator(json.loads(MD_SCHEMA.read_text()))
+
+
+def reconcile_dir(out_dir, files: dict) -> tuple:
+    """Make out_dir hold EXACTLY {relative-name: text content}, touching only
+    what changed. A file whose content already matches is left untouched — its
+    mtime preserved — so re-running is silence on disk (L1) and a synced
+    filesystem (iCloud) re-uploads only genuine changes; a differing or absent
+    file is written; an existing file absent from `files` is removed (the orphan
+    a rename would otherwise strand — the one thing the old wholesale rmtree got
+    right). Reconciling rather than wiping also keeps the previous output intact
+    to diff against: you cannot check parity against a directory you deleted
+    first. Returns (written, unchanged, removed)."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    written = unchanged = removed = 0
+    for name, content in files.items():
+        target = out_dir / name
+        if target.exists() and target.read_text() == content:
+            unchanged += 1
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content)
+        written += 1
+    keep = set(files)
+    for f in out_dir.rglob('*'):
+        if f.is_file() and f.name != '.DS_Store' and str(f.relative_to(out_dir)) not in keep:
+            f.unlink()
+            removed += 1
+    return written, unchanged, removed

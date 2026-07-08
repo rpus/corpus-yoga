@@ -20,41 +20,40 @@ Usage (output defaults per pipeline/batch; --out overrides):
 """
 import argparse
 import json
-import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import (REPO, project, ordered, find_api_json, render,
-                                 md_validator, tree_problems)
+                                 md_validator, tree_problems, reconcile_dir)
 
 
 def write_markdown(named_convs, out_dir):
     """Render (name, lean-conv, tree-problems) triples to <name>.md in out_dir, each
     validated against markdownConversation. Nothing skipped -- invalid/degenerate convs
     are written and flagged, with WHY: an unwalkable tree projects to a fragment that
-    would otherwise still validate. Returns (n_ok, n_bad)."""
+    would otherwise still validate. Reconciles rather than wiping (reconcile_dir):
+    unchanged renders keep their mtime, renamed/removed convs' files are the orphans it
+    prunes. Returns (n_ok, n_bad, n_empty)."""
     valid = md_validator()
-    out = Path(out_dir)
-    if out.exists():
-        shutil.rmtree(out)  # renumbering renames files; wipe so no old-naming pieces linger
-    out.mkdir(parents=True, exist_ok=True)
     n_ok = n_bad = n_empty = 0
+    files = {}
     for name, conv, problems in named_convs:
         if name.startswith('empty-'):
             # ordered() already classified this stub and named it so (the atomised piece
             # stems carry the name to the bulk path) — one authority, no re-deciding here.
             n_empty += 1
-            (out / f"{name}.md").write_text(render(conv))
-            continue
-        if not valid.is_valid(conv):
-            problems = problems + ['fails markdownConversation']
-        if problems:
-            n_bad += 1
-            print(f"  INVALID {name}: {'; '.join(problems)}", file=sys.stderr)
         else:
-            n_ok += 1
-        (out / f"{name}.md").write_text(render(conv))
+            if not valid.is_valid(conv):
+                problems = problems + ['fails markdownConversation']
+            if problems:
+                n_bad += 1
+                print(f"  INVALID {name}: {'; '.join(problems)}", file=sys.stderr)
+            else:
+                n_ok += 1
+        files[f"{name}.md"] = render(conv)
+    w, u, r = reconcile_dir(out_dir, files)
+    print(f"  markdown: {w} written, {u} unchanged, {r} pruned", file=sys.stderr)
     return n_ok, n_bad, n_empty
 
 

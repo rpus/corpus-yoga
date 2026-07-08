@@ -21,12 +21,11 @@ Usage:
 """
 import argparse
 import re
-import shutil
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import REPO, MD033_PRAGMA
+from markdown_projection import REPO, MD033_PRAGMA, reconcile_dir
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 
@@ -50,19 +49,16 @@ def main():
         print(f'no gemini captures in {src} — nothing to copy')
         return
     out = Path(args.out)
-    if out.exists():
-        shutil.rmtree(out)  # this stage owns lib/markdown/gemini/conversations
-    out.mkdir(parents=True, exist_ok=True)
-
-    n = 0
+    files = {}
     for d in sorted(p for p in src.iterdir() if p.is_dir()):
         for f in sorted(d.glob('*.md')):
-            dest = out / f.name
-            if dest.exists():
-                dest = out / f'{d.name}-{f.name}'
-            dest.write_text(anchored(f.read_text()))
-            n += 1
-    print(f'copied {n} gemini scrape(s) to {out.relative_to(REPO)} (turn headings anchored)')
+            name = f.name if f.name not in files else f'{d.name}-{f.name}'
+            files[name] = anchored(f.read_text())
+    # reconcile, not wipe: unchanged scrapes keep their mtime (no needless iCloud
+    # re-upload of the whole tree each run); departed ones are pruned as orphans
+    w, u, r = reconcile_dir(out, files)
+    print(f'gemini: {len(files)} scrape(s) to {out.relative_to(REPO)} (anchored) — '
+          f'{w} written, {u} unchanged, {r} pruned')
 
 
 if __name__ == '__main__':

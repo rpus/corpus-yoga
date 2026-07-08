@@ -42,6 +42,9 @@ from pathlib import Path
 
 from compare_batches import batch_time
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import reconcile_dir  # noqa: E402
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[2]
 
@@ -130,11 +133,10 @@ def deposit(states, lib_dir):
 
 def render(deposits, out_dir):
     """Unwrap each deposit's markdown to <stamp>.md. Sections appear only where
-    the format forces them (several accounts, several memory fields)."""
-    import shutil
-    if out_dir.exists():
-        shutil.rmtree(out_dir)  # this stage owns lib/markdown/claude/memories
-    out_dir.mkdir(parents=True, exist_ok=True)
+    the format forces them (several accounts, several memory fields). Reconciles
+    rather than wiping (reconcile_dir): a deposit's markdown never changes once
+    written, so a re-run rewrites nothing — silence on disk, no iCloud churn."""
+    files = {}
     for f in deposits:
         accounts = json.loads(f.read_text())
         out = [f'# Claude memory — {f.stem}', '']
@@ -146,9 +148,10 @@ def render(deposits, out_dir):
                 if len(fields) > 1:
                     out += [f'## {name}', '']
                 out += [str(value).rstrip(), '']
-        (out_dir / f'{f.stem}.md').write_text('\n'.join(out).rstrip() + '\n')
+        files[f'{f.stem}.md'] = '\n'.join(out).rstrip() + '\n'
+    w, u, r = reconcile_dir(out_dir, files)
     shown = out_dir.relative_to(REPO) if out_dir.is_relative_to(REPO) else out_dir
-    print(f'rendered {len(deposits)} memory snapshot(s) to {shown}')
+    print(f'{len(deposits)} memory snapshot(s) to {shown} — {w} written, {u} unchanged, {r} pruned')
 
 
 def main():
