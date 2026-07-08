@@ -1,4 +1,4 @@
-pre_commit.py: 1047/1047 (data: machine-local)
+pre_commit.py: 1073/1073 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 1047/1047 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 72 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 73 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -151,6 +151,7 @@ pre_commit.py: 1047/1047 (data: machine-local)
   ✓ session: valid JSON + $schema: v4
   ✓ session: valid JSON + $schema: v5
   ✓ session: valid JSON + $schema: v6
+  ✓ session: valid JSON + $schema: v7
   ✓ users: valid JSON + $schema: v1
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
@@ -222,6 +223,8 @@ pre_commit.py: 1047/1047 (data: machine-local)
   ✓ session: no_todo: v5
   ✓ session: changelog_narrative: v6
   ✓ session: no_todo: v6
+  ✓ session: changelog_narrative: v7
+  ✓ session: no_todo: v7
   ✓ users: changelog_narrative: v1
   ✓ users: no_todo: v1
 
@@ -1036,6 +1039,29 @@ pre_commit.py: 1047/1047 (data: machine-local)
   ✓ session: structure.no_redundant_additional_properties_true: v6
   ✓ session: structure.pattern_constraints_enforced: v6
   ✓ session: structure.required_subset_of_properties: v6
+  ✓ session: composition.base_not_used_directly: v7
+  ✓ session: composition.discriminator_values_disjoint: v7
+  ✓ session: composition.no_additional_properties_on_subtypes: v7
+  ✓ session: composition.wrapper_has_five_fields: v7
+  ✓ session: documentation.discriminator_fields_annotated: v7
+  ✓ session: documentation.every_definition_has_title_and_description: v7
+  ✓ session: documentation.null_only_fields_documented: v7
+  ✓ session: documentation.open_set_enums_documented: v7
+  ✓ session: empirical.nullable_fields_surveyed: v7
+  ✓ session: empirical.oneOf_branches_evidenced: v7
+  ✓ session: naming.property_keys_lowercase: v7
+  ✓ session: naming.title_matches_key: v7
+  ✓ session: naming.upper_camel_case: v7
+  ✓ session: structure.all_definitions_reachable: v7
+  ✓ session: structure.bfs_order: v7
+  ✓ session: structure.definitions_at_bottom: v7
+  ✓ session: structure.enum_refines_explicit_type: v7
+  ✓ session: structure.field_order: v7
+  ✓ session: structure.minItems_on_non_empty_arrays: v7
+  ✓ session: structure.no_dangling_refs: v7
+  ✓ session: structure.no_redundant_additional_properties_true: v7
+  ✓ session: structure.pattern_constraints_enforced: v7
+  ✓ session: structure.required_subset_of_properties: v7
   ✓ users: composition.base_not_used_directly: v1
   ✓ users: composition.base_schemas_closed: v1
   ✓ users: composition.discriminator_values_disjoint: v1
@@ -1067,13 +1093,13 @@ pre_commit.py: 1047/1047 (data: machine-local)
 ── check_model_join_versions ─────────────────────────────────────────────────
   ✓ model_join: browser-captures/apiConversation: v8
   ✓ model_join: chat-exports/conversations: v15
-  ✓ model_join: code-projects/session: v6
+  ✓ model_join: code-projects/session: v7
 
 ── check_mcp_schema ──────────────────────────────────────────────────────────
   ✓ mcp schema: up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1047/1047; expected: 1047/1047
+  ✓ score[code+schema]: 1073/1073; expected: 1073/1073
   ✓ score[code]: 53/53; expected: 53/53
-  ✓ score[schema]: 994/994; expected: 994/994
+  ✓ score[schema]: 1020/1020; expected: 1020/1020
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

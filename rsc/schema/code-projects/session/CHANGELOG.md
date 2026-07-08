@@ -6,6 +6,48 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 ---
 
+## v7
+
+Adds `FallbackBlock`, the record of an involuntary model fallback within a single
+assistant turn. Surfaced first by the reading-room fork of `a6f25723-…` (which fell to
+Opus on 2026-07-07), and exhibited by the very session that minted this version — the
+local frontier datum forcing v7. The mechanical trace, read from that session's own log:
+the message `model` field reads `claude-fable-5` through 2026-07-08T13:36; at 13:37, a
+`system` record of subtype `model_refusal_fallback` (`apiRefusalCategory: "cyber"`,
+raised on the agent's own output during reverse-engineering of a local binary and sqlite
+store — not on any user input), an assistant turn carrying a `fallback` content block,
+and the `model` field reading `claude-opus-4-8` for the 81 turns that followed.
+`usage.iterations` shows the seam is intra-turn: one response begun under `claude-fable-5`
+(406 output tokens) and finished under `claude-opus-4-8` (961) — two models, one turn,
+one uuid.
+
+The harness records only the involuntary direction. A fallback TO a model leaves this
+block; a voluntary return leaves none, inferable at most from the `model` field changing
+on later turns — so the log is a complete account of forced switches and a silent one
+about reversions.
+
+Worth recording as method, since the schema was written inside the affected session: the
+`model` field is the harness's external attribution of each completed turn, and it is the
+only authority available — a running agent has no introspective access to its own model.
+In this datum a documented switch produced no corresponding change in the agent's
+self-report, which went on naming the prior model for dozens of turns; the block marks
+from the outside what the inside cannot perceive. This narrative therefore claims nothing
+about who authored any turn beyond the harness's own attribution. (The same event family
+also emits the `api_error` system subtype and a `fallback_message` iteration inside
+`usage`; both already validate — `SystemRecordType` and `usage` are open — so only the
+assistant-turn content block needed modelling.)
+
+### Relaxed since v6
+
+- `FallbackBlock` — new `ContentBlock` variant, discriminator `type: "fallback"`: an
+  automatic model fallback recorded inline in the assistant turn (`from`/`to`, each an
+  object with a `model` string). Emitted only for the involuntary harness fallback TO a
+  model (observed `claude-fable-5` → `claude-opus-4-8`); a user's voluntary switch BACK
+  leaves no block, visible only as the message `model` changing — the schema records
+  when the harness overrides the user, not when the user reclaims control. `from`/`to`
+  are left open (not `additionalProperties: false`): only `model` has been observed, but
+  a fallback envelope may well carry more.
+
 ## v6
 
 Now validates `a6f25723-…` (2026-07-04 →, the session of the yoga CLI, the plans, the
