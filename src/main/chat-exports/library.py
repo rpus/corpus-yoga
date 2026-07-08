@@ -37,6 +37,24 @@ from pathlib import Path
 LIBRARY = Path(__file__).resolve().parents[3] / 'lib' / 'artifacts' / 'downloaded'
 
 
+def assert_uuid8_unique(uuids) -> None:
+    """The census the dressing scheme rests on: uuid8 (32 bits) is an identity
+    key only while no two conversations share a prefix — a property to VERIFY
+    against the population, never to purchase from probability (user law,
+    2026-07-08; the check is O(n), the failure it prevents is two
+    conversations' artifacts silently interleaved in one dir). Exits loudly,
+    naming the full colliding uuids — a collision means the scheme needs
+    longer prefixes, not a shrug."""
+    by_u8: dict[str, set[str]] = {}
+    for u in uuids:
+        by_u8.setdefault(u[:8], set()).add(u)
+    clashes = {u8: us for u8, us in by_u8.items() if len(us) > 1}
+    if clashes:
+        lines = [f'  {u8}: ' + ', '.join(sorted(us)) for u8, us in sorted(clashes.items())]
+        sys.exit('error: uuid8 prefix collision — the library dressing scheme cannot '
+                 'key these conversations:\n' + '\n'.join(lines))
+
+
 def find(uuid: str, root: Path = LIBRARY) -> Path | None:
     """The existing library dir for this conversation, or None. Recognises the
     canonical suffix form AND the short-lived 2026-07-05 uuid8-PREFIX vintage
@@ -83,13 +101,17 @@ def _corpus(json_dir: Path):
     slug -> [uuid8, ...] (for resolving the uuid-less ancient vintage)."""
     import json
     dressing_by_u8, u8s_by_slug = {}, {}
+    uuids = []
     for f in sorted(json_dir.glob('*.json')):
         head, _, slugpart = f.stem.partition('-')
         if not head.isdigit():
             continue  # empty-<uuid8> stubs carry no slug identity
-        u8 = json.loads(f.read_text())['uuid'][:8]
+        uuid = json.loads(f.read_text())['uuid']
+        uuids.append(uuid)
+        u8 = uuid[:8]
         dressing_by_u8[u8] = f.stem
         u8s_by_slug.setdefault(slugpart, []).append(u8)
+    assert_uuid8_unique(uuids)  # dressing_by_u8 would otherwise overwrite silently
     return dressing_by_u8, u8s_by_slug
 
 

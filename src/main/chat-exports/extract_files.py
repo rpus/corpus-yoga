@@ -30,7 +30,7 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import ordered
-from library import dir_for, LIBRARY
+from library import assert_uuid8_unique, dir_for, LIBRARY
 
 
 # ── extraction ────────────────────────────────────────────────────────────────
@@ -76,6 +76,7 @@ def sanitise_path(raw: str) -> Optional[Path]:
 
 def process(conversations_path: Path, out_dir: Path) -> None:
     convos = json.loads(conversations_path.read_text())
+    assert_uuid8_unique(c['uuid'] for c in convos)  # dir_for keys by uuid8; verify before minting
 
     if out_dir.exists():
         shutil.rmtree(out_dir)  # renumbering renames per-conversation dirs; wipe so no old-naming dirs linger

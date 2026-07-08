@@ -12,30 +12,31 @@ their conjunction.
 The uniform model: each component atomises to {unit key: set of atoms}, and a
 unit is superseded iff its atoms are a subset of its later self's. Atoms are
 the format's content identities — uuid'd immutable constituents where the
-format provides them, content fingerprints where it doesn't:
+format provides them; where it doesn't, canonical values for bounded fields
+and fingerprints only for unbounded content:
 
   conversations  unit = conversation uuid;  atoms = message uuids
                  (read from the RAW atomised json/ pieces — format-agnostic,
                  so an old batch's schema vintage is irrelevant)
-  memories       unit = account uuid;       atoms = fingerprint per memory field
+  memories       unit = account uuid;       atoms = (field, canonical value)
   projects       unit = project uuid;       atoms = (doc uuid, content fingerprint)
                  per doc, plus a fingerprint of the prompt/name/description
-  users          unit = user uuid;          atoms = fingerprint of the user object
+  users          unit = user uuid;          atoms = canonical user object
 
 Envelope timestamps (created_at/updated_at) are excluded throughout:
 supersession claims retained DATA, not byte equality of snapshots.
 
-Per unit, against the LATEST batch:
-  subset     — every atom present in the unit's later self
-  ORPHANED   — the unit is absent from the latest export: unique data here
-  DIVERGENT  — the unit exists later but atoms are missing there: unique data here
-
-Overall: the latest snapshot is SUFFICIENT (earlier batches deletable) iff every
-component of every earlier batch is fully superseded — validation matrices are
-machine-local and die with their data, and the committed CHANGELOG narratives
-keep the history. One component holding unique data (e.g. a rewritten memory
-document) makes the earlier batch NOT deletable, however completely the others
-are superseded.
+The verdict SHOWS ITS WORKING (user specification, 2026-07-08): a batch is
+deletable iff every atom it holds survives somewhere durable that is KEPT,
+and each batch's report names the evidence per component — the WITNESSES
+(every later batch whose verified ⊑ covers it: a licence conditional on that
+witness's own retention; diachronic appending is checked per pair, never
+assumed) and, for memories, the byte-identical DEPOSIT in lib/memories (the
+unconditional licence: deposits outlive every batch). A component with no
+witness and no deposit is unique data — a loud WARN, and the batch is not
+deletable until it is deposited or superseded. Verdicts describe what exists
+NOW: re-run after any deletion, since deleting a witness expires the
+licences it carried.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
@@ -44,7 +45,7 @@ Usage:
 Requires the batches' atomised json/ (written by the chat-exports pipeline);
 memories/projects/users are read from the batch's gen/ archive copies (written
 by archive_components.py; ext/ raw fallback for gen dirs predating that step).
-Exit 0 iff the latest snapshot is sufficient.
+Exit 0 iff every earlier batch is covered (witnessed or deposited).
 """
 import argparse
 import hashlib
@@ -65,10 +66,18 @@ def batch_time(name):
     return None
 
 
+def _canon(value):
+    """Canonical form of a bounded JSON value — atoms carry the VALUE itself
+    (set equality is then exact string equality, no fingerprint, no collision
+    caveat). Right for the bounded components: memory fields, user objects."""
+    return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+
 def _fp(value):
-    """Content fingerprint of an arbitrary JSON value."""
-    return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False)
-                          .encode()).hexdigest()[:16]
+    """Content fingerprint of an arbitrary JSON value — for atoms over
+    UNBOUNDED content (project doc bodies), where carrying the value itself
+    would make atom sets as large as the corpus."""
+    return hashlib.sha256(_canon(value).encode()).hexdigest()[:16]
 
 
 # ── component atomisers: batch -> {unit key: (display name, set of atoms)} ────
@@ -97,7 +106,7 @@ def units_memories(gen_dir, ext_dir):
     units = {}
     for m in json.loads(path.read_text()):
         key = m.get('account_uuid', '?')
-        atoms = {(field, _fp(value)) for field, value in m.items() if field != 'account_uuid'}
+        atoms = {(field, _canon(value)) for field, value in m.items() if field != 'account_uuid'}
         units[key] = ('memories', atoms)
     return units
 
@@ -120,7 +129,7 @@ def units_users(gen_dir, ext_dir):
     path = _component_path(gen_dir, ext_dir, 'users', 'users.json')
     if not path.exists():
         return {}
-    return {u.get('uuid', '?'): (u.get('full_name', 'user'), {_fp(u)})
+    return {u.get('uuid', '?'): (u.get('full_name', 'user'), {_canon(u)})
             for u in json.loads(path.read_text())}
 
 
@@ -143,6 +152,32 @@ def compare_component(earlier, latest):
             missing = len(atoms - latest[key][1])
             details.append(f'    DIVERGENT {name} ({key}): {missing} atom(s) present here, missing in latest')
     return subset, details
+
+
+def covers(earlier, later) -> bool:
+    """True iff every earlier unit's atoms survive in the later corpus —
+    the verified ⊑ of one component between two specific batches."""
+    return all(key in later and atoms <= later[key][1]
+               for key, (_n, atoms) in earlier.items())
+
+
+def _short(batch_name: str) -> str:
+    """The batch's own 8-hex segment, for compact witness citations."""
+    m = re.search(r'-([0-9a-f]{8})-batch', batch_name)
+    return m.group(1) if m else batch_name
+
+
+def deposit_witness(gen_dir, ext_dir, lib_dir: Path):
+    """The deposit file byte-identical to this batch's memory state, or None —
+    the unconditional licence: a copy that outlives every batch."""
+    path = _component_path(gen_dir, ext_dir, 'memories', 'memories.json')
+    if not path.exists() or not lib_dir.is_dir():
+        return None
+    text = path.read_text()
+    for f in sorted(lib_dir.glob('*.json')):
+        if f.read_text() == text:
+            return f
+    return None
 
 
 # ── captures cross-check (conversations only: that is what the capture source has) ─
@@ -214,6 +249,9 @@ def main():
     ap.add_argument('--captures', default=None,
                     help='ext/browser-captures/claude — also compare the latest batch '
                          'against the live-capture corpus, per conversation (informational)')
+    ap.add_argument('--memories-lib', default='lib/memories',
+                    help='the deposit store — a byte-identical deposit is the '
+                         'unconditional memories licence')
     args = ap.parse_args()
 
     root = Path(args.chat_exports_gen)
@@ -228,38 +266,60 @@ def main():
         return 0
 
     latest = batches[-1]
-    latest_units = {name: fn(latest, ext_root / latest.name) for name, fn in COMPONENTS}
+    all_units = {b.name: {name: fn(b, ext_root / b.name) for name, fn in COMPONENTS}
+                 for b in batches}
+    latest_units = all_units[latest.name]
     if len(batches) < 2:
         print(f'1 export dir with atomised json/ under {root} — no earlier exports to compare')
     else:
         print(f'latest: {latest.name} — ' + ', '.join(
             f'{len(latest_units[name])} {name}' for name, _ in COMPONENTS))
 
-    sufficient = True
-    for b in batches[:-1]:
+    # Show the working: a batch is deletable iff every atom it holds survives
+    # somewhere durable that is KEPT — for each component, name the WITNESSES
+    # (later batches whose verified ⊑ covers it: a licence conditional on the
+    # witness's own retention) and, for memories, the byte-identical DEPOSIT
+    # (unconditional: deposits outlive every batch). Witnessed-by-later relies
+    # on nothing but per-pair verified subset — diachronic appending is
+    # checked, never assumed. Verdicts describe what exists NOW: re-run after
+    # any deletion, since deleting a witness expires the licences it carried.
+    covered_all = True
+    for i, b in enumerate(batches[:-1]):
         ext_dir = ext_root / b.name
-        superseded, holding, details = [], [], []
-        for name, fn in COMPONENTS:
-            earlier = fn(b, ext_dir)
-            _, component_details = compare_component(earlier, latest_units[name])
-            (superseded if not component_details else holding).append(name)
-            details += component_details
-        # One line per batch: the verdict and which components block deletion.
-        # The unit/atom counts are mechanism — the details below carry the
-        # specifics for exactly the components that hold unique data.
-        if not holding:
-            print(f'{b.name} → SUPERSEDED (every component a subset of the latest)')
+        working, uncovered = [], []
+        for name, _ in COMPONENTS:
+            earlier = all_units[b.name][name]
+            witnesses = [w.name for w in batches[i + 1:]
+                         if covers(earlier, all_units[w.name][name])]
+            dep = deposit_witness(b, ext_dir, Path(args.memories_lib)) if name == 'memories' else None
+            if dep is not None:
+                working.append(f'    memories: copied — {dep} is byte-identical (unconditional)'
+                               + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
+            elif witnesses:
+                working.append(f'    {name} ⊑ {", ".join(_short(w) for w in witnesses)}'
+                               ' (while one of these is kept)')
+            else:
+                uncovered.append(name)
+                _, details = compare_component(earlier, latest_units[name])
+                working += details
+        if not uncovered:
+            print(f'{b.name} → deletable; the working:')
         else:
-            print(f'WARN: {b.name} is NOT superseded — its {", ".join(holding)} hold(s) unique data'
-                  + (f' ({", ".join(superseded)} superseded)' if superseded else ''))
-            for line in details:
-                print(line)
-        sufficient = sufficient and not holding
+            print(f'WARN: {b.name} holds unique {", ".join(uncovered)} data — '
+                  'found in no later export and no deposit')
+        for line in working:
+            print(line)
+        covered_all = covered_all and not uncovered
 
     if len(batches) >= 2:
-        print('verdict: the newest export '
-              + ('supersedes every earlier export dir — they are deletable' if sufficient else
-                 'does NOT supersede the earlier export dir(s) — they hold unique data (lines above)'))
+        print('verdict: ' + (
+            f'keep {latest.name}; every earlier export dir is covered — '
+            'batch-witnessed licences hold while their witnesses are kept, deposit '
+            'licences unconditionally; re-run after any deletion'
+            if covered_all else
+            'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
+            'not deletable until deposited or superseded'))
+    sufficient = covered_all
 
     if args.captures and Path(args.captures).is_dir():
         compare_vs_captures(latest, latest_units['conversations'], None, Path(args.captures))

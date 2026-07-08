@@ -70,24 +70,24 @@ RUNME.sh,128,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-
 RUNME.sh,130,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" --plan | sed 's/^/  /'"
 rsc/CALCULUS.md,18,doc,src/main/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
-rsc/CALCULUS.md,68,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
-rsc/CALCULUS.md,85,doc,src/main/chat-exports/accumulate_memories.py,Y,(`src/main/chat-exports/accumulate_memories.py`.)
-rsc/CALCULUS.md,92,doc,src/main/code-projects/agent.py,Y,semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
-rsc/CALCULUS.md,115,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
-rsc/CALCULUS.md,116,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
-rsc/CALCULUS.md,126,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
-rsc/CALCULUS.md,126,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
-rsc/CALCULUS.md,195,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
-rsc/CALCULUS.md,234,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
-rsc/CALCULUS.md,235,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
-rsc/CALCULUS.md,235,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
-rsc/CALCULUS.md,238,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,238,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,247,doc,src/test/pre_commit.log,Y,"record other clones diff against — `src/test/pre_commit.log`,"
-rsc/CALCULUS.md,248,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expected-score files beside them. Operations:"
-rsc/CALCULUS.md,253,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
-rsc/CALCULUS.md,270,doc,src/main/code-projects/agent.py,Y,`src/main/code-projects/agent.py` (prefix-supersession + the memory-folder
-rsc/CALCULUS.md,293,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
+rsc/CALCULUS.md,71,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
+rsc/CALCULUS.md,88,doc,src/main/chat-exports/accumulate_memories.py,Y,(`src/main/chat-exports/accumulate_memories.py`.)
+rsc/CALCULUS.md,95,doc,src/main/code-projects/agent.py,Y,semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
+rsc/CALCULUS.md,118,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
+rsc/CALCULUS.md,119,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
+rsc/CALCULUS.md,129,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
+rsc/CALCULUS.md,129,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` or decline in `rsc/index/decisions.txt` →
+rsc/CALCULUS.md,198,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
+rsc/CALCULUS.md,237,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
+rsc/CALCULUS.md,238,doc,rsc/index/headwords.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
+rsc/CALCULUS.md,238,doc,rsc/index/decisions.txt,Y,`rsc/index/headwords.txt` with `rsc/index/decisions.txt` as its disposal
+rsc/CALCULUS.md,241,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,241,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,250,doc,src/test/pre_commit.log,Y,"record other clones diff against — `src/test/pre_commit.log`,"
+rsc/CALCULUS.md,251,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expected-score files beside them. Operations:"
+rsc/CALCULUS.md,256,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
+rsc/CALCULUS.md,273,doc,src/main/code-projects/agent.py,Y,`src/main/code-projects/agent.py` (prefix-supersession + the memory-folder
+rsc/CALCULUS.md,296,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/cli/README.md,4,doc,src/main/cli.py,Y,`src/main/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
 rsc/cli/README.md,7,doc,rsc/CALCULUS.md,Y,(L5 of `rsc/CALCULUS.md`). The CLI adds no behaviour of its own: `./yoga <command> [args...]`
 rsc/cli/README.md,16,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
@@ -249,8 +249,8 @@ src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.p
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/library.py,Y,src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive th
-src/main/chat-exports/compare_batches.py,41,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
-src/main/chat-exports/compare_batches.py,41,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
+src/main/chat-exports/compare_batches.py,42,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
+src/main/chat-exports/compare_batches.py,42,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
 src/main/chat-exports/extract_files.py,15,comment,src/main/chat-exports/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber"
 src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports
@@ -276,7 +276,7 @@ src/main/chat-exports/infer_tables.sh,100,call,src/main/chat-exports/format_tabl
 src/main/chat-exports/library.py,27,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/library.py       gen/chat-exports/<batch>/json [--root lib/artifacts/down
 src/main/chat-exports/library.py,27,comment,src/main/chat-exports/library.py,Y,src/run_python_script.sh src/main/chat-exports/library.py       gen/chat-exports/<batch>/json [--root lib/artifacts/down
 src/main/chat-exports/library.py,29,comment,rsc/naming/library_dir_vintages.csv,Y,The vintages themselves are data: rsc/naming/library_dir_vintages.csv.
-src/main/chat-exports/library.py,74,comment,rsc/naming/library_dir_vintages.csv,Y,"rsc/naming/library_dir_vintages.csv (id, status, pattern, note), in match"
+src/main/chat-exports/library.py,92,comment,rsc/naming/library_dir_vintages.csv,Y,"rsc/naming/library_dir_vintages.csv (id, status, pattern, note), in match"
 src/main/chat-exports/present.sh,3,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/present.sh,4,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ext/chat-exports
 src/main/chat-exports/present.sh,11,path_str,rsc/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/index.html"""

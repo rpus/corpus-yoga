@@ -63,7 +63,10 @@ per-corpus code.
 
 - **atomise** — unit → set of atoms. Atoms are the format's content identities:
   uuid'd immutable constituents where the format provides them (messages, project
-  docs), content fingerprints where it doesn't (memory fields, user objects).
+  docs); where it doesn't, the content itself — canonical values for bounded
+  fields (memory fields, user objects: equality exact, no fingerprint, no
+  collision caveat — user simplification, 2026-07-08), fingerprints only where
+  content is unbounded (project doc bodies).
   Envelope timestamps are excluded: supersession claims retained *data*, not byte
   equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
 
