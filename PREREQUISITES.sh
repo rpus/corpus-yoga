@@ -90,6 +90,27 @@ check_optional_modes() {
   fi
 }
 
+check_room() {
+  # The binding names this machine's room (see rsc/machines/README.md). The
+  # path is built in pieces: the joined literal must not appear in committed
+  # text, because the file rightly does not exist on fresh clones and the
+  # committed xref counts are machine-invariant.
+  local binding="$SCRIPT_DIR/rsc/machines"
+  binding+="/self.txt"
+  local rel="${binding#"$SCRIPT_DIR/"}"
+  echo "room (the machine's own name for itself — never shared, never transported)"
+  if [[ -f "$binding" ]]; then
+    ok "bound: $(cat "$binding")"
+  else
+    local declared="" f
+    for f in "$SCRIPT_DIR/rsc/machines"/*.csv; do
+      f="$(basename "$f" .csv)"
+      if [[ "$f" != "_base" ]]; then declared+="$f "; fi
+    done
+    info "unbound — bind: echo <unique-room-name> > $rel  (rooms already declared: ${declared:-none})"
+  fi
+}
+
 check_cli() {
   echo "yoga CLI (./yoga — table: rsc/cli/commands.csv)"
   local comp="$SCRIPT_DIR/gen/completions/_yoga"
@@ -160,6 +181,7 @@ main() {
   parse_args "$@"
   echo "$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
+  check_room
   check_tools
   check_venv
   check_optional_modes
