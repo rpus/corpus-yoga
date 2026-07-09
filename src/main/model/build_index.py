@@ -1,40 +1,42 @@
 #!/usr/bin/env python
 """
-build_index.py — the book-style index over the corpus: headword → turn locators.
+build_index.py — the book-style index over the corpus (headword → turn locators)
+and the curation surface behind it: accept / reject / candidates over the concept
+capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 
-The first proper USE of the corpus rather than a means of building it. Scans the
-readable markdown library (lib/markdown/{claude,gemini}/conversations/), matches
-the curated headwords (rsc/index/headwords.txt: 'headword = alias, ...' lines,
-case-insensitive on word boundaries), and writes lib/markdown/index.md — one
-alphabetised entry per headword, locators grouped by conversation, every locator
+Building an index is the first proper USE of the corpus rather than merely writing into it.
+It scans the readable markdown library (lib/markdown/{claude,gemini}/conversations/),
+matches the accepted headwords (lib/indexing/accepted.txt: 'headword = alias,
+...' lines, case-insensitive on word boundaries), and writes lib/markdown/index.md —
+one alphabetised entry per headword, locators grouped by conversation, every locator
 a link to the turn's durable anchor (message uuid for claude, role-count for
 gemini), so an entry survives corpus renumbering.
 
 Human-and-agent-amenable by construction: the entry text reads as a book index
 (conversation name, turn labels H3/A7), while every locator's href is a
-machine-followable file#anchor. The headword file is the curation surface;
-the index is derived dressing (regenerate at will; deterministic output — no
-timestamps — so regeneration is a no-op when nothing changed, per CALCULUS L1).
+machine-followable file#anchor. accepted.txt is the curation surface; the index
+is derived dressing (regenerate at will; deterministic output — no timestamps —
+so regeneration is a no-op when nothing changed, per CALCULUS L1).
 
 Curation is reproducible from the repo, on the schema system's template
-(candidates -> disposal record -> coverage gate): see rsc/index/README.md for
-the two line-list formats (rsc/index/headwords.txt adopts, rsc/index/
-decisions.txt declines) and the loop. --candidates derives the proposal report
-as DATA (machine-local, under gen/index/) from the corpus and each batch's
-inferred concept list; every inferred concept must end up adopted or declined —
-anything else is PENDING, reported here and by the pre-commit data tier.
+(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
+for the three line-list formats (accepted.txt, rejected.txt, candidates.txt) and
+the loop. `candidates` derives the pending report into a rebuildable gen/ file
+(gen/indexing/candidates.txt) from the single-source concept capture
+(lib/dashboard/semantic-concepts.json); every captured concept must end up
+accepted or rejected — anything else is PENDING, reported here and by the
+pre-commit data tier.
 
-The disposal acts themselves are also verbs (the judgment stays human; the verb
-only writes the committed line-lists with format discipline, then reports how
-many inferred concepts remain pending):
+The disposal acts (accept / reject) are verbs too: the judgment stays human; the
+verb only writes the durable line-lists with format discipline, then reports how
+many concepts remain pending.
 
-Usage:
-  src/run_python_script.sh src/main/model/build_index.py \
-      [--markdown lib/markdown] [--headwords rsc/index/headwords.txt] \
-      [--decisions rsc/index/decisions.txt]
-  src/run_python_script.sh src/main/model/build_index.py --candidates [--top N]
-  src/run_python_script.sh src/main/model/build_index.py headwords add <term> [alias ...]
-  src/run_python_script.sh src/main/model/build_index.py decline <concept> [--because <why>]
+Usage (via ./yoga indexing):
+  yoga indexing                                    # status: counts + pending queue
+  yoga indexing candidates [--top N]               # derive gen/indexing/candidates.txt
+  yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
+  yoga indexing reject <concept> [--because <why>] # reject a concept
+  yoga indexing build                              # build lib/markdown/index.md
 """
 import argparse
 import re
@@ -53,9 +55,13 @@ TURN_RE = re.compile(
 LOCATORS_SHOWN = 4
 
 
-def parse_headwords(path: Path) -> dict[str, list[str]]:
-    """{headword: [headword, alias, ...]} preserving file order of headwords."""
+def parse_accepted(path: Path) -> dict[str, list[str]]:
+    """{headword: [headword, alias, ...]} preserving file order of headwords.
+    Absent file → empty (accepted.txt lives in git-ignored lib/, so a fresh room
+    before iCloud sync has none — degrade to 'no headwords', never crash)."""
     entries: dict[str, list[str]] = {}
+    if not path.exists():
+        return entries
     for raw in path.read_text().splitlines():
         line = raw.split('#', 1)[0].strip()
         if not line:
@@ -67,32 +73,39 @@ def parse_headwords(path: Path) -> dict[str, list[str]]:
     return entries
 
 
-def parse_decisions(path: Path) -> set[str]:
-    """Lower-cased declined candidates from decisions.txt ('decline <term>' lines)."""
-    declined = set()
+def parse_rejected(path: Path) -> set[str]:
+    """Lower-cased rejected concepts from lib/indexing/rejected.txt — one per
+    line, 'term # optional reason' (the file name says 'rejected', so no verb
+    prefix). A '# …'-only line is a comment."""
+    rejected = set()
     if path.exists():
         for raw in path.read_text().splitlines():
-            line = raw.split('#', 1)[0].strip()
-            if line.startswith('decline '):
-                declined.add(line[len('decline '):].strip().lower())
-    return declined
+            term = raw.split('#', 1)[0].strip()
+            if term:
+                rejected.add(term.lower())
+    return rejected
 
 
 def inferred_concepts() -> list[str]:
-    """The finite candidate source: the latest batch's inferred concept list
-    (machine-local; empty where no inference has run)."""
+    """The finite candidate source: the single-source concept capture
+    lib/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga dashboard capture`).
+    Durable and shared across rooms (via lib/), so both curate one shared base — the
+    24-vs-27 divergence of the old per-batch, per-machine gen/ inference is gone.
+    Empty where no capture has been taken yet."""
     import json
-    files = sorted(d / 'inferred' / 'data-semantic.json'
-                   for d in (REPO / 'gen' / 'chat-exports').glob('data-*'))
-    files = [f for f in files if f.exists()]
-    if not files:
+    f = REPO / 'lib' / 'dashboard' / 'semantic-concepts.json'
+    if not f.exists():
         return []
-    return [r[0] for r in json.loads(files[-1].read_text())['rows']]
+    return [r[0] for r in json.loads(f.read_text()).get('rows', [])]
 
 
 def term_regex(terms: list[str]) -> re.Pattern:
     """One alternation over the headword and its aliases, word-bounded where the
-    term's edges are word characters (so 'S/T'-ish terms still match sanely)."""
+    term's edges are word characters (so 'S/T'-ish terms still match sanely).
+    Empty terms → a NEVER-match pattern: '|'.join([]) is '' which matches every
+    string, so an empty accepted.txt would silently mark every concept covered."""
+    if not terms:
+        return re.compile(r'(?!)')
     parts = []
     for t in terms:
         esc = re.escape(t)
@@ -126,15 +139,15 @@ def scan(markdown_root: Path):
     return corpus
 
 
-def build(markdown_root: Path, headwords_path: Path) -> str:
-    entries = parse_headwords(headwords_path)
+def build(markdown_root: Path, accepted_path: Path) -> str:
+    entries = parse_accepted(accepted_path)
     corpus = scan(markdown_root)
 
     lines = [
         '# Index',
         '',
-        f'Headwords: `rsc/index/headwords.txt` (curated — edit and re-run '
-        f'`src/main/model/build_index.py`). Locators link to durable turn anchors; '
+        f'Headwords: `lib/indexing/accepted.txt` (curated — edit and re-run '
+        f'`yoga indexing build`). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
     ]
@@ -188,170 +201,188 @@ STOPWORDS = frozenset(
     every each both again true false none non within without across against""".split())
 
 
-def candidates(markdown_root: Path, headwords_path: Path, decisions_path: Path,
-               top: int) -> None:
-    """The machine's side of headword curation. Writes the proposal report as
-    DATA (gen/index/candidates.md) and prints it; excludes declined candidates;
-    names each inferred concept's disposal state. Never edits the curated files."""
-    entries = parse_headwords(headwords_path)
-    declined = parse_decisions(decisions_path)
-    covered = term_regex([t for terms in entries.values() for t in terms])
-    corpus = scan(markdown_root)
+CANDIDATES_TXT = REPO / 'gen' / 'indexing' / 'candidates.txt'
 
+
+def _coverage(accepted_path: Path, rejected_path: Path):
+    """The disposal predicate's state, in ONE place: (covered, rejected) — a regex
+    over every accepted headword+alias, and the set of rejected concepts. A concept
+    is DISPOSED iff covered.search(c) or c.lower() in rejected; pending otherwise.
+    pending_concepts and the candidates() advisory both build from this, so 'what
+    counts as disposed' has a single definition."""
+    entries = parse_accepted(accepted_path)
+    covered = term_regex([t for terms in entries.values() for t in terms])
+    return covered, parse_rejected(rejected_path)
+
+
+def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
+    """The pending queue as a bare line-list (one concept per line) — the third
+    disposal state beside accepted.txt and rejected.txt, and a DETERMINISTIC,
+    reproducible derivation of lib/dashboard/semantic-concepts.json − accepted −
+    rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
+    data. Reproducible, so it is a rebuildable gen/ file, regenerated on demand
+    (not committed, not gated)."""
+    pending = pending_concepts(accepted_path, rejected_path)
+    return '\n'.join(pending) + ('\n' if pending else '')
+
+
+def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
+               top: int) -> None:
+    """Write the pending line-list (gen/indexing/candidates.txt) and print the
+    machine-local frequency advisory to the terminal. The filed half is
+    deterministic; the advisory half (frequent uncovered corpus words) scans
+    lib/markdown, so it is never filed — it would differ per machine."""
+    report = candidates_report(accepted_path, rejected_path)
+    CANDIDATES_TXT.parent.mkdir(parents=True, exist_ok=True)
+    CANDIDATES_TXT.write_text(report)
+    print(f'-> {CANDIDATES_TXT.relative_to(REPO)} '
+          f'({len([l for l in report.splitlines() if l.strip()])} pending)')
+
+    covered, rejected = _coverage(accepted_path, rejected_path)
     from collections import Counter
     word_convs: dict[str, set] = {}
     counts: Counter = Counter()
-    for _source, stem, _rel, turns in corpus:
+    for _source, stem, _rel, turns in scan(markdown_root):
         for _role, _n, _anchor, body in turns:
             for w in re.findall(r"[A-Za-z][A-Za-z'’-]{3,}", body):
                 lw = w.lower().strip("'’-")
-                if lw in STOPWORDS or lw in declined or covered.search(lw):
+                if lw in STOPWORDS or lw in rejected or covered.search(lw):
                     continue
                 counts[lw] += 1
                 word_convs.setdefault(lw, set()).add(stem)
-
     ranked = sorted(counts, key=lambda w: (-len(word_convs[w]), -counts[w]))
-    pending = [c for c in inferred_concepts()
-               if not covered.search(c) and c.lower() not in declined]
-
-    lines = [
-        '# Headword candidates',
-        '',
-        'Derived by `src/main/model/build_index.py --candidates` from the corpus and',
-        'the latest inferred concept list; excludes candidates already adopted',
-        '(`rsc/index/headwords.txt`) or declined (`rsc/index/decisions.txt`).',
-        'Dispose of pending concepts by editing those two files — this report is',
-        'derived data and never the record.',
-        '',
-        f'## Pending inferred concepts ({len(pending)})',
-        '',
-    ]
-    lines += [f'- {c}' for c in pending] or ['(none — the concept list is fully disposed)']
-    lines += ['', f'## Frequent uncovered corpus words (top {top} of {len(ranked)}; advisory)', '']
-    lines += [f'- {w} — {len(word_convs[w])} conversation(s), {counts[w]}×'
-              for w in ranked[:top]]
-    report = '\n'.join(lines) + '\n'
-
-    out = REPO / 'gen' / 'index' / 'candidates.md'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(report)
-    print(report, end='')
-    print(f'-> {out.relative_to(REPO)}')
+    print(f'\n## Frequent uncovered corpus words (top {top} of {len(ranked)}; '
+          'advisory — machine-local, terminal only)')
+    for w in ranked[:top]:
+        print(f'- {w} — {len(word_convs[w])} conversation(s), {counts[w]}×')
 
 
-def adopt(headwords_path: Path, term: str, aliases: list[str]) -> str:
-    """Adopt a headword (or merge new aliases into an existing one) in the
-    committed line list. Append-at-end for new entries — the file's order is
-    the curation history; presentation alphabetises (L5)."""
-    entries = parse_headwords(headwords_path)
-    lines = headwords_path.read_text().splitlines()
-    if term in entries:
-        known = {t.lower() for t in entries[term]}
+def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
+    """Accept a concept as a headword (or merge new aliases into an existing one)
+    in the durable line list. Append-at-end for new entries — the file's order
+    is the curation history; presentation alphabetises (L5)."""
+    entries = parse_accepted(accepted_path)
+    accepted_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh room
+    lines = accepted_path.read_text().splitlines() if accepted_path.exists() else []
+    # Merge-vs-new is decided case-INSENSITIVELY, like coverage matching everywhere
+    # else (term_regex, reject); otherwise 'Mathematics' would append a second entry
+    # beside 'mathematics'. Merge into the already-curated headword, keeping its casing.
+    existing = {h.lower(): h for h in entries}
+    if term.lower() in existing:
+        head = existing[term.lower()]
+        known = {t.lower() for t in entries[head]}
         new = [a for a in aliases if a.lower() not in known]
         if not new:
-            return f'{term!r}: already adopted — no-op'
-        merged = entries[term][1:] + new
+            return f'{term!r}: already accepted' + (f' (as {head!r})' if head != term else '') + ' — no-op'
+        merged = entries[head][1:] + new
         for i, raw in enumerate(lines):
-            if raw.split('#', 1)[0].partition('=')[0].strip() == term:
-                lines[i] = f'{term} = {", ".join(merged)}'
+            if raw.split('#', 1)[0].partition('=')[0].strip().lower() == head.lower():
+                lines[i] = f'{head} = {", ".join(merged)}'
                 break
-        headwords_path.write_text('\n'.join(lines) + '\n')
-        return f'{term!r}: merged alias(es) {", ".join(new)}'
+        accepted_path.write_text('\n'.join(lines) + '\n')
+        return f'{head!r}: merged alias(es) {", ".join(new)}'
     line = term + (f' = {", ".join(aliases)}' if aliases else '')
-    headwords_path.write_text('\n'.join(lines + [line]) + '\n')
-    return f'{term!r}: adopted' + (f' with alias(es) {", ".join(aliases)}' if aliases else '')
+    accepted_path.write_text('\n'.join(lines + [line]) + '\n')
+    return f'{term!r}: accepted' + (f' with alias(es) {", ".join(aliases)}' if aliases else '')
 
 
-def decline(headwords_path: Path, decisions_path: Path, concept: str, because: str) -> str:
-    """Record a decline in the committed disposal record — unless the concept is
-    already covered (adopted) or already declined; disposals never duplicate."""
-    if concept.lower() in parse_decisions(decisions_path):
-        return f'{concept!r}: already declined — no-op'
-    entries = parse_headwords(headwords_path)
+def reject(accepted_path: Path, rejected_path: Path, concept: str, because: str) -> str:
+    """Record a rejection in the durable disposal record — unless the concept is
+    already covered (accepted) or already rejected; disposals never duplicate."""
+    if concept.lower() in parse_rejected(rejected_path):
+        return f'{concept!r}: already rejected — no-op'
+    entries = parse_accepted(accepted_path)
     if term_regex([t for ts in entries.values() for t in ts]).search(concept):
-        return f'{concept!r}: already covered by an adopted headword — no decline needed'
-    lines = decisions_path.read_text().splitlines() if decisions_path.exists() else []
-    lines.append(f'decline {concept}' + (f'  # {because}' if because else ''))
-    decisions_path.write_text('\n'.join(lines) + '\n')
-    return f'{concept!r}: declined' + (f' ({because})' if because else '')
+        return f'{concept!r}: already covered by an accepted headword — no rejection needed'
+    rejected_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh room
+    lines = rejected_path.read_text().splitlines() if rejected_path.exists() else []
+    lines.append(f'{concept}' + (f'  # {because}' if because else ''))
+    rejected_path.write_text('\n'.join(lines) + '\n')
+    return f'{concept!r}: rejected' + (f' ({because})' if because else '')
 
 
-def pending_concepts(headwords_path: Path, decisions_path: Path) -> list[str]:
-    """Inferred concepts not yet adopted or declined — the disposal queue."""
-    entries = parse_headwords(headwords_path)
-    declined = parse_decisions(decisions_path)
-    covered = term_regex([t for ts in entries.values() for t in ts])
+def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
+    """Captured concepts not yet accepted or rejected — the disposal queue."""
+    covered, rejected = _coverage(accepted_path, rejected_path)
     return [c for c in inferred_concepts()
-            if not covered.search(c) and c.lower() not in declined]
+            if not covered.search(c) and c.lower() not in rejected]
 
 
-def pending_report(headwords_path: Path, decisions_path: Path) -> None:
-    """The loop's feedback: how many inferred concepts remain undisposed."""
+def pending_report(accepted_path: Path, rejected_path: Path) -> None:
+    """The loop's feedback: how many captured concepts remain undisposed."""
     if not inferred_concepts():
-        print('pending: unknown — no inferred concept list on this machine')
+        print('pending: unknown — no concept capture on this machine (yoga dashboard capture)')
         return
-    pending = pending_concepts(headwords_path, decisions_path)
-    print(f'pending: {len(pending)} inferred concept(s) undisposed'
+    pending = pending_concepts(accepted_path, rejected_path)
+    print(f'pending: {len(pending)} concept(s) undisposed'
           + (f' — next: {pending[0]!r}' if pending else ' — fully disposed'))
+
+
+def status(accepted_path: Path, rejected_path: Path) -> None:
+    """Read-only state of lib/indexing/ (bare `yoga indexing`): counts on
+    stderr, the pending queue as pure lines on stdout — human-amenable at the
+    terminal (both interleave), agent-amenable in a pipe (queue only)."""
+    a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
+    r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
+    n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
+    print(f'accepted: {n_accepted} entries ({a_rel}); rejected: {n_rejected} ({r_rel})',
+          file=sys.stderr)
+    if not inferred_concepts():
+        print('pending queue: unknown — no concept capture on this machine '
+              '(yoga dashboard capture)', file=sys.stderr)
+        return
+    pending = pending_concepts(accepted_path, rejected_path)
+    print(f'pending queue ({len(pending)} concepts to dispose — '
+          'accept <term> / reject <concept>):'
+          if pending else 'pending queue: empty — fully disposed', file=sys.stderr)
+    for c in pending:
+        print(c)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--markdown', default=str(REPO / 'lib' / 'markdown'))
-    ap.add_argument('--headwords', default=str(REPO / 'rsc' / 'index' / 'headwords.txt'))
-    ap.add_argument('--decisions', default=str(REPO / 'rsc' / 'index' / 'decisions.txt'))
-    ap.add_argument('--candidates', action='store_true',
-                    help='derive the candidate report (gen/index/candidates.md) instead of building')
-    ap.add_argument('--top', type=int, default=40)
-    sub = ap.add_subparsers(dest='verb', help='curation verbs (default: build the index)')
-    hw = sub.add_parser('headwords', help='bare: list pending concepts; add: adopt')
-    hw_sub = hw.add_subparsers(dest='action')
-    hw_add = hw_sub.add_parser('add', help='adopt a headword (or merge aliases into it)')
-    hw_add.add_argument('term')
-    hw_add.add_argument('aliases', nargs='*')
-    dec = sub.add_parser('decline', help='record a decline in the disposal record')
-    dec.add_argument('concept')
-    dec.add_argument('--because', default='', help='reason, kept as a # comment')
+    ap.add_argument('--accepted', default=str(REPO / 'lib' / 'indexing' / 'accepted.txt'))
+    ap.add_argument('--rejected', default=str(REPO / 'lib' / 'indexing' / 'rejected.txt'))
+    sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
+    cand = sub.add_parser('candidates', help='derive gen/indexing/candidates.txt (the pending queue)')
+    # --top belongs on the candidates subparser, not the parent — the advertised form
+    # is `candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
+    cand.add_argument('--top', type=int, default=40,
+                      help='size of the terminal frequency advisory (default 40)')
+    acc = sub.add_parser('accept', help='accept a concept as a headword (merge aliases into it)')
+    acc.add_argument('term')
+    acc.add_argument('aliases', nargs='*')
+    rej = sub.add_parser('reject', help='reject a concept into the disposal record')
+    rej.add_argument('concept')
+    rej.add_argument('--because', default='', help='reason, kept as a # comment')
+    sub.add_parser('build', help='build lib/markdown/index.md from accepted.txt')
     args = ap.parse_args()
 
-    if args.verb == 'headwords':
-        if args.action is None:
-            # Bare noun: the state of the curation surface. Framing on stderr,
-            # the pending queue as pure lines on stdout — human-amenable at the
-            # terminal (both interleave), agent-amenable in a pipe (queue only).
-            hw, dc = Path(args.headwords), Path(args.decisions)
-            n_adopted, n_declined = len(parse_headwords(hw)), len(parse_decisions(dc))
-            print(f'adopted: {n_adopted} entries ({hw.relative_to(REPO) if hw.is_relative_to(REPO) else hw}); '
-                  f'declined: {n_declined} ({dc.relative_to(REPO) if dc.is_relative_to(REPO) else dc})',
-                  file=sys.stderr)
-            if not inferred_concepts():
-                print('pending queue: unknown — no inferred concept list on this machine',
-                      file=sys.stderr)
-                return
-            pending = pending_concepts(hw, dc)
-            print(f'pending queue ({len(pending)} inferred concepts to dispose — '
-                  'headwords add <term> adopts; decline <concept> refuses):'
-                  if pending else 'pending queue: empty — fully disposed', file=sys.stderr)
-            for c in pending:
-                print(c)
-            return
-        print(adopt(Path(args.headwords), args.term, args.aliases))
-        pending_report(Path(args.headwords), Path(args.decisions))
+    accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)
+
+    if args.verb == 'candidates':
+        candidates(Path(args.markdown), accepted_path, rejected_path, args.top)
         return
-    if args.verb == 'decline':
-        print(decline(Path(args.headwords), Path(args.decisions), args.concept, args.because))
-        pending_report(Path(args.headwords), Path(args.decisions))
+    if args.verb == 'accept':
+        print(accept(accepted_path, args.term, args.aliases))
+        pending_report(accepted_path, rejected_path)
+        return
+    if args.verb == 'reject':
+        print(reject(accepted_path, rejected_path, args.concept, args.because))
+        pending_report(accepted_path, rejected_path)
+        return
+    if args.verb == 'build':
+        root = Path(args.markdown)
+        text = build(root, accepted_path)
+        out = root / 'index.md'
+        out.write_text(text)
+        print(f'index: {out.relative_to(REPO) if out.is_relative_to(REPO) else out} — '
+              + text.rstrip().rsplit(chr(10), 1)[-1])
         return
 
-    root = Path(args.markdown)
-    if args.candidates:
-        candidates(root, Path(args.headwords), Path(args.decisions), args.top)
-        return
-    text = build(root, Path(args.headwords))
-    out = root / 'index.md'
-    out.write_text(text)
-    print(f'index: {out.relative_to(REPO) if out.is_relative_to(REPO) else out} — '
-          + text.rstrip().rsplit(chr(10), 1)[-1])
+    # bare `yoga indexing`: read-only status of the curation surface
+    status(accepted_path, rejected_path)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-pre_commit.py: 1073/1073 (data: machine-local)
+pre_commit.py: 1080/1080 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -35,9 +35,15 @@ pre_commit.py: 1073/1073 (data: machine-local)
   ✓ cli: serve: target exists: src/main/model/serve_markdown.sh
   ✓ cli: serve: cited calculus defined
   ✓ cli: serve: advertised flags exist
-  ✓ cli: index: target exists: src/main/model/build_index.py
-  ✓ cli: index: cited calculus defined
-  ✓ cli: index: advertised flags exist
+  ✓ cli: serve: advertised verbs exist
+  ✓ cli: dashboard: target exists: src/main/chat-exports/dashboard.sh
+  ✓ cli: dashboard: cited calculus defined
+  ✓ cli: dashboard: advertised flags exist
+  ✓ cli: dashboard: advertised verbs exist
+  ✓ cli: indexing: target exists: src/main/model/build_index.py
+  ✓ cli: indexing: cited calculus defined
+  ✓ cli: indexing: advertised flags exist
+  ✓ cli: indexing: advertised verbs exist
   ✓ cli: library: target exists: src/main/chat-exports/library.py
   ✓ cli: library: cited calculus defined
   ✓ cli: library: advertised flags exist
@@ -49,6 +55,7 @@ pre_commit.py: 1073/1073 (data: machine-local)
   ✓ cli: agent: target exists: src/main/code-projects/agent.py
   ✓ cli: agent: cited calculus defined
   ✓ cli: agent: advertised flags exist
+  ✓ cli: agent: advertised verbs exist
   ✓ cli: machine: target exists: src/main/machine.py
   ✓ cli: machine: cited calculus defined
   ✓ cli: machine: advertised flags exist
@@ -1099,7 +1106,7 @@ pre_commit.py: 1073/1073 (data: machine-local)
   ✓ mcp schema: up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1073/1073; expected: 1073/1073
-  ✓ score[code]: 53/53; expected: 53/53
+  ✓ score[code+schema]: 1080/1080; expected: 1080/1080
+  ✓ score[code]: 60/60; expected: 60/60
   ✓ score[schema]: 1020/1020; expected: 1020/1020
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

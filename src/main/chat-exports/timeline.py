@@ -4,8 +4,8 @@ timeline.py — emit the presentation's conversation-keyed tables from a bulk ex
 conversations.json, plus the numbered chat list for inference. Every table's `chat` value comes
 from the one canonical ordering in markdown_projection.ordered() (created_at order, 1-based), so
 the timeline number, the atomised json/<ordinal>-<slug>.json filename, and the inferred
-category joins all agree. Replaces the inline jq that present.sh and infer_tables.sh used to
-duplicate.
+category joins all agree. Replaces the inline jq that present.sh and infer_tables.sh
+(dashboard.sh's predecessor) used to duplicate.
 
 `chat` is the 1-based ordinal, kept as an integer so index.html's JS joins (spans/categories/files
 → conversation) stay numeric; the zero-padded form is the filename only.
@@ -24,7 +24,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import ordered
+from markdown_projection import ordered, load_convs
 
 OUTPUTS_PREFIX = '/mnt/user-data/outputs/'
 
@@ -83,12 +83,13 @@ def chat_list(order):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('conversations', help='path to a bulk export conversations.json')
+    ap.add_argument('conversations',
+                    help='a bulk export conversations.json OR an atomised json/ dir')
     ap.add_argument('--table', required=True,
                     choices=['chats', 'spans', 'local-resources', 'chat-list'])
     args = ap.parse_args()
 
-    order = ordered(json.loads(Path(args.conversations).read_text()))
+    order = ordered(load_convs(args.conversations))
     order = [t for t in order if t[0] is not None]  # empty stubs have no ordinal and no timeline presence
     if args.table == 'chat-list':
         print(chat_list(order))

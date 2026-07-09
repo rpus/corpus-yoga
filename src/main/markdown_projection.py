@@ -191,6 +191,20 @@ def ordered(convs):
             + [(None, f"empty-{c['uuid'][:8]}", c) for c in empties])
 
 
+def load_convs(path) -> list:
+    """The conversation objects for a batch, from EITHER the bulk conversations.json
+    (a JSON array) or the atomised json/ dir (one object per file — the same elements,
+    since atomisation just splits the array). ordered() consumes the result
+    identically, so a consumer can read the normalized per-conversation CACHE
+    (gen/<batch>/json/) instead of reaching back into the raw INPUT
+    (ext/<batch>/conversations.json) — the source-agnostic per-conversation shape a
+    non-claude source (gemini) can also produce."""
+    p = Path(path)
+    if p.is_dir():
+        return [json.loads(f.read_text()) for f in sorted(p.glob('*.json'))]
+    return json.loads(p.read_text())
+
+
 def find_api_json(d):
     """The capture's apiConversation JSON (the one with chat_messages)."""
     for f in sorted(d.glob('*.json')):

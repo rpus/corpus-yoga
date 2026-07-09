@@ -8,6 +8,11 @@ from this table on demand — the help text a bare `./yoga` prints, the zsh tab-
 execs the row's target with the args forwarded verbatim, so `./yoga <command> --help` prints
 the *target's* help and each script remains the one authority on its own interface.
 
+Two commands produce/consume corpus *readings* whose file formats are a contract but whose
+data lives outside git (durable in `lib/`, rebuildable in `gen/`): `yoga dashboard` (model
+captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
+committed in `rsc/cli/readings.md`.
+
 ## Columns
 
 | column | meaning |
@@ -46,8 +51,8 @@ hand-maintained table:
    verbatim, so `./yoga run --plan` ≡ `./RUNME.sh --plan` for every flag, by
    construction — a correspondence table would imply it could be otherwise.
 2. **Flag → step is printed by the plan itself.** `./yoga run --plan` annotates every
-   conditional step with the flag or condition that enables it (`infer_tables (only
-   with --pay-for-inference)`), and the plan is the executing step list
+   conditional step with the flag or condition that enables it (`compare_sources
+   (only when live captures exist)`), and the plan is the executing step list
    (`src/main/steps.sh`), so this correspondence cannot drift.
 3. **Step → standalone command is the `step` column.** Where a plan step can be
    re-run on its own, the row says so (`./yoga memories` ≡ run step
@@ -61,7 +66,7 @@ The table also gives *problem reports* a stable, in-band vocabulary: a repo or
 project issue should be succinctly specifiable as yoga commands — the command
 line that exhibits it, what was expected, what was observed. `./yoga supersede`
 exits 1 on a batch believed superseded; `./yoga check` disagrees with the
-committed log; `./yoga index` drops a locator that `./yoga serve` can reach. An
+committed log; `./yoga indexing build` drops a locator that `./yoga serve` can reach. An
 issue that cannot be phrased as commands plus data is probably not yet
 understood — and one that can is reproducible from the repo by construction,
 on any machine, which is the same property demanded of every process here.

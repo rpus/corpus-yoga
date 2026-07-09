@@ -1,10 +1,19 @@
-# rsc/site — the public web surface, as committed data
+# rsc/site — the rpus.co web surface, as committed data
 
-Pages destined for <https://rpus.co>, laid out exactly as they deploy: the
-directory mirrors the site's path space, so `yoga/index.html` here serves at
-`rpus.co/yoga/`. Self-contained by construction (no external fonts, scripts,
-or images), light/dark via `prefers-color-scheme`, and honest about
-affordances: nothing renders as a link unless it resolves.
+The authored HTML for <https://rpus.co>, in one committed home rather than loose
+in `rsc/`. The directory mirrors the site's path space, so a file here serves at
+the matching URL:
+
+- **`index.html`** → `rpus.co/` — the homepage: the corpus dashboard. A TEMPLATE,
+  not a finished page: `present.sh` copies it to each batch's
+  `gen/.../presentation/index.html` and fills it (inferred category hues, tables);
+  the filled result is what deploys.
+- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already
+  complete page.
+
+Self-contained by construction (no external fonts, scripts, or images), light/dark
+via `prefers-color-scheme`, and honest about affordances: nothing renders as a
+link unless it resolves.
 
 ## Deploying (Netlify via the private site repo)
 

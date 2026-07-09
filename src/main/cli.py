@@ -13,9 +13,9 @@ invocation and stored nowhere (L5); the CLI adds no behaviour of its own.
 The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 operations and laws its command performs, and the pre-commit code tier
 (check_cli_surface) holds it to that — cited terms must be defined there,
-targets must exist, and advertised flags must appear in the target's source
-(or its stem-sibling wrapper/implementation). The vocabulary is parsed from
-the calculus document itself (calculus_terms), never restated.
+targets must exist, and advertised flags AND subcommand verbs must appear in
+the target's source (or its stem-sibling wrapper/implementation). The vocabulary
+is parsed from the calculus document itself (calculus_terms), never restated.
 
 Usage:
     ./yoga                       # render the table
@@ -54,6 +54,20 @@ def flags_of(usage: str) -> list[str]:
     """The --flags a usage sketch advertises — machine-read for completion and
     for the flags-exist-in-target check."""
     return [t for t in re.sub(r'[\[\]|]', ' ', usage).split() if t.startswith('--')]
+
+
+def verbs_of(usage: str) -> list[str]:
+    """The subcommand verbs a usage sketch advertises: the first bare word of each
+    ' | '-separated alternative (not a --flag, not a <placeholder>). Alternatives
+    are spaced ' | '; an enum value like '--only a|b' uses an unspaced '|' and so is
+    not split. Checked to exist in the target's source like flags_of's flags — so a
+    renamed verb cannot leave the table advertising one the target no longer handles."""
+    verbs = []
+    for alt in usage.split(' | '):
+        tok = alt.strip().lstrip('[').split(' ', 1)[0]
+        if re.fullmatch(r'[a-z][a-z-]*', tok):
+            verbs.append(tok)
+    return verbs
 
 
 def calculus_terms() -> set[str]:

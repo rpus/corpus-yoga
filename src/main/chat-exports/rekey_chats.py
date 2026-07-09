@@ -5,7 +5,7 @@ rekey_chats.py — swap a table's chat-identity column between ordinal and uuid.
 A stdin→stdout filter for tables whose rows reference conversations (e.g. the
 inferred data-chat-categories). Ordinals are presentation, uuids are identity:
 the LLM speaks ordinals (short, reliable in a prompt), durable storage under
-inferred/ speaks uuid (renumbering-proof), and presentation re-derives ordinals
+the durable stores speak uuid (renumbering-proof), and presentation re-derives ordinals
 at injection time. The ordinal↔uuid mapping comes from the one naming authority,
 markdown_projection.ordered(), over the batch's conversations.json.
 
@@ -20,7 +20,8 @@ a durable table must never carry a dangling reference forward silently.
 numbering ordered() produced before empty stubs were excluded (924ebf8) — the
 1-based, all-inclusive numbering that inferred tables from the 924ebf8..a19be50
 era were generated against. NOT the era before 3b8faba (Jul 2), when
-infer_tables.sh numbered chats itself via jq to_entries: 0-BASED, created_at
+infer_tables.sh (dashboard.sh's predecessor) numbered chats itself via jq
+to_entries: 0-BASED, created_at
 only — a table from that vintage migrated with this flag mis-assigns every row
 by one, and only the dropped 'chat 0' would hint at it. None survive on disk,
 but check the provenance before trusting the flag on an unfamiliar table.
@@ -30,7 +31,7 @@ This is the migration recipe for an old ordinal-keyed inferred table:
         --conversations <batch>/conversations.json \\
         < gen/chat-exports/<batch>/inferred/data-chat-categories.json
 
-Usage (see infer_tables.sh / present.sh):
+Usage (see dashboard.sh / present.sh):
     ... | rekey_chats.py --to-uuid --conversations <conversations.json> | ...
 """
 import argparse
@@ -39,7 +40,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import is_empty, ordered
+from markdown_projection import is_empty, ordered, load_convs
 
 
 def main():
@@ -48,7 +49,7 @@ def main():
     direction.add_argument('--to-uuid', action='store_true')
     direction.add_argument('--to-ordinal', action='store_true')
     ap.add_argument('--conversations', required=True,
-                    help='the batch conversations.json (ordering authority)')
+                    help='the batch conversations.json OR atomised json/ dir (ordering authority)')
     ap.add_argument('--legacy-ordinals', action='store_true',
                     help='incoming ordinals counted empty stubs (pre-924ebf8 numbering); '
                          'for migrating old inferred tables')
@@ -57,7 +58,7 @@ def main():
         ap.error('--legacy-ordinals is a migration aid: legacy ordinals only ever come IN, '
                  'so it requires --to-uuid')
 
-    convs = json.loads(Path(args.conversations).read_text())
+    convs = load_convs(args.conversations)
     if args.legacy_ordinals:
         # The numbering ordered() produced before 924ebf8: same (created_at, uuid) sort,
         # but empty stubs counted. A stub takes its ordinal yet gets no mapping entry, so

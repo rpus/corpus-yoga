@@ -84,9 +84,9 @@ check_optional_modes() {
     info "--capture-from-browser unavailable: needs macOS + osascript; other pipelines unaffected"
   fi
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-    ok "--pay-for-inference possible: ANTHROPIC_API_KEY is set"
+    ok "yoga dashboard capture possible: ANTHROPIC_API_KEY is set"
   else
-    info "--pay-for-inference unavailable: ANTHROPIC_API_KEY not set (only table inference needs it)"
+    info "yoga dashboard capture unavailable: ANTHROPIC_API_KEY not set (only the paid concept/category capture needs it)"
   fi
 }
 

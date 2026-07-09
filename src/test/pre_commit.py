@@ -56,7 +56,7 @@ from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 import cli  # noqa: E402 — the yoga CLI's table machinery (check_cli_surface)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
-from build_index import inferred_concepts, parse_decisions, parse_headwords, term_regex  # noqa: E402
+from build_index import inferred_concepts, pending_concepts  # noqa: E402
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
@@ -489,22 +489,25 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
 
 def check_index_curation(run) -> None:
     """Indexing data obeys the schema system's disposal rigour: every concept the
-    corpus's own inference proposes (the latest batch's inferred concept table) is
-    either ADOPTED — covered by a headword or alias in rsc/index/headwords.txt —
-    or DECLINED in rsc/index/decisions.txt; anything else is pending curation and
-    says so here. The concept list is machine-local (gen/), so data tier."""
+    capture proposes (lib/dashboard/semantic-concepts.json) is either ACCEPTED — covered
+    by a headword or alias in lib/indexing/accepted.txt — or REJECTED in
+    lib/indexing/rejected.txt; anything else is pending curation and says so here.
+    All inputs live in the iCloud-shared lib/ (not git), so this is a DATA-tier
+    check — machine-local, advisory (an undisposed concept must not block an
+    unrelated commit), skipped where lib/ has no capture. The pending queue itself
+    is the reproducible derivation gen/indexing/candidates.txt (yoga indexing
+    candidates), a rebuildable workshop file, not a committed artifact."""
     concepts = inferred_concepts()
     if not concepts:
-        print('  – skipped: no inferred concept list (chat-exports --pay-for-inference produces it)')
+        print('  – skipped: no concept capture yet (lib/dashboard/semantic-concepts.json — run `yoga dashboard capture`)')
         return
-    entries = parse_headwords(RSC / 'index' / 'headwords.txt')
-    declined = parse_decisions(RSC / 'index' / 'decisions.txt')
-    covered = term_regex([t for ts in entries.values() for t in ts])
+    pending = set(pending_concepts(REPO_ROOT / 'lib' / 'indexing' / 'accepted.txt',
+                                   REPO_ROOT / 'lib' / 'indexing' / 'rejected.txt'))
     for c in concepts:
-        ok = bool(covered.search(c)) or c.lower() in declined
-        run(f'index: concept disposed: {c}', ok,
-            None if ok else 'pending — adopt in rsc/index/headwords.txt '
-                            'or decline in rsc/index/decisions.txt')
+        ok = c not in pending
+        run(f'indexing: concept disposed: {c}', ok,
+            None if ok else 'pending — accept in lib/indexing/accepted.txt '
+                            'or reject in lib/indexing/rejected.txt')
 
 
 def check_machine_manifest(run) -> None:
@@ -590,9 +593,9 @@ def check_cli_surface(run) -> None:
     """The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
     calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-    parsed from the document itself), every flag a usage sketch advertises
-    appears in the target's source or its stem-sibling .py/.sh pair (wrapper
-    and implementation share a stem — the repo idiom), and every run-step
+    parsed from the document itself), every flag AND subcommand verb a usage
+    sketch advertises appears in the target's source or its stem-sibling .py/.sh
+    pair (wrapper and implementation share a stem — the repo idiom), and every run-step
     correspondence a row claims names a step in the RUNME.sh --plan output
     (which is itself the executing list, so the chain cannot drift). Committed
     files and the deterministic plan only, so deterministic on any clone:
@@ -614,15 +617,21 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
             f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None)
         flags = cli.flags_of(c['usage'])
-        if not flags or not target.exists():
+        verbs = cli.verbs_of(c['usage'])
+        if not (flags or verbs) or not target.exists():
             continue
         sources = [target] + [s for s in (target.with_suffix('.py'), target.with_suffix('.sh'))
                               if s != target and s.exists()]
         text = ''.join(s.read_text() for s in sources)
-        missing = [f for f in flags if f not in text]
-        run(f'cli: {c["command"]}: advertised flags exist', not missing,
-            ('not in ' + ' or '.join(str(s.relative_to(REPO_ROOT)) for s in sources)
-             + f': {", ".join(missing)}') if missing else None)
+        where = ('not in ' + ' or '.join(str(s.relative_to(REPO_ROOT)) for s in sources) + ': ')
+        if flags:
+            missing = [f for f in flags if f not in text]
+            run(f'cli: {c["command"]}: advertised flags exist', not missing,
+                (where + ', '.join(missing)) if missing else None)
+        if verbs:
+            missing_v = [v for v in verbs if v not in text]
+            run(f'cli: {c["command"]}: advertised verbs exist', not missing_v,
+                (where + ', '.join(missing_v)) if missing_v else None)
     stepped = [c for c in cmds if c['step']]
     if not stepped:
         return

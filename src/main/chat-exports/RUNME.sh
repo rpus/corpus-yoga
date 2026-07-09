@@ -4,7 +4,6 @@
 # Usage:
 #   ./src/main/chat-exports/RUNME.sh --chat-export  ext/chat-exports/data-<...>
 #   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
-#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports --pay-for-inference
 #   ./src/main/chat-exports/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (run_one, run_tail) are the ONE authority on order:
@@ -22,18 +21,16 @@ source "$REPO_DIR/src/main/steps.sh"
 parse_args() {
   chat_export=""
   chat_exports=""
-  pay_for_inference="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --chat-export)       chat_export="$2";      shift 2 ;;
       --chat-exports)      chat_exports="$2";     shift 2 ;;
-      --pay-for-inference) pay_for_inference="1"; shift   ;;
       --plan)              plan="1";              shift   ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --chat-export <path> | --chat-exports <path> [--pay-for-inference] | --plan"
+        echo "Usage: $0 --chat-export <path> | --chat-exports <path> | --plan"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
@@ -42,8 +39,7 @@ parse_args() {
     echo "       $0 --chat-exports <path/to/chat-exports>"
     echo
     echo "Options:"
-    echo "  --pay-for-inference   also run infer_tables.sh (requires ANTHROPIC_API_KEY in env)"
-    echo "  --plan                print the ordered step list; run nothing"
+    echo "  --plan   print the ordered step list; run nothing"
     echo "Pass --help for more information."
     exit 1
   fi
@@ -53,7 +49,7 @@ run_one() {
   local batch="${1%/}"
   # No blanket wipe of gen/<batch>: each stage owns (wipes or overwrites) its own
   # output subtree. A blanket wipe would destroy the validation memoisation logs
-  # (forcing full revalidation every run) and the durable paid inferred/ tables,
+  # (forcing full revalidation every run) and the durable paid lib/dashboard/ tables,
   # which by design persist across unpaid runs.
   local have_captures="0"
   if [[ -d "$REPO_DIR/ext/browser-captures/claude" ]]; then have_captures="1"; fi
@@ -66,8 +62,9 @@ run_one() {
     "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
   step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
-  step_if "$pay_for_inference" 'with --pay-for-inference' \
-       infer_tables       "$SCRIPT_DIR/infer_tables.sh" --chat-export "$batch"
+  # inference is no longer per-batch: the dashboard's captures are the durable
+  # single-source lib/dashboard/ (refreshed deliberately by `yoga dashboard
+  # capture`), which present reads. Nothing paid runs on every export now.
   step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
   step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"
   # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces

@@ -12,15 +12,13 @@
 # Any ext/ entry may instead be a hand-made symlink, to keep the data outside the clone.
 #
 # Each pipeline validates its inputs against all schema versions, then (for chat-exports)
-# extracts files, infers tables, and renders a dashboard.
+# extracts files and renders a dashboard (reading the durable lib/dashboard/ captures).
 #
 # Usage:
 #   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)
 #   ./RUNME.sh --plan                               # print the ordered step plan; run nothing
 #   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
 #   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
-#   ./RUNME.sh --pay-for-inference                  # also run infer_tables.sh for chat-exports (costs money)
-#   ./RUNME.sh --capture-from-browser --pay-for-inference
 #
 # After running, check results with:
 #   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
@@ -30,16 +28,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 
 parse_args() {
-  pay_for_inference=""
   browser_captures=""
   new_claude_scrape=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --pay-for-inference) pay_for_inference="--pay-for-inference"; shift ;;
       --capture-from-browser) browser_captures="1";                   shift ;;
       --new-claude-scrape) new_claude_scrape="--new-claude-scrape";               shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--new-claude-scrape] [--pay-for-inference]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--new-claude-scrape]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done
 }
@@ -106,6 +102,22 @@ run_pipeline_safe() {
   fi
 }
 
+# The error:/FAIL: lines from one failed pipeline's section of the log — so the
+# tail can QUOTE the failure, not send the reader scrolling. Sections are
+# delimited by the "── <name> ─…" headers prep_pipeline/run_pipeline print;
+# by tail time those lines are long flushed through the tee.
+section_error_lines() {
+  local label="$1" header
+  case "$label" in
+    *" (prep)") header="── prep: ${label% (prep)} " ;;
+    *)          header="── ${label} " ;;
+  esac
+  awk -v h="$header" '
+    index($0, "── ") == 1 { insec = (index($0, h) == 1) }
+    insec && /^[[:space:]]*(error:|FAIL:)/ { sub(/^[[:space:]]*/, ""); print }
+  ' "$LOG_FILE"
+}
+
 prep_pipeline_safe() {
   local name="$1"; shift
   if ! prep_pipeline "$name" "$@"; then
@@ -128,7 +140,7 @@ print_plan() {
   "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
   echo "  code-projects/PREP.sh"
   "$SCRIPT_DIR/src/main/code-projects/RUNME.sh" --plan | sed 's/^/  /'
-  echo "  tail: failed-pipeline summary; gather '→ run:' suggestions; pre_commit reminder; log path"
+  echo "  tail: FAIL/WARN counts; failed pipelines with their error:/FAIL: lines quoted; gather '→ run:' suggestions; pre_commit reminder; log path"
 }
 
 main() {
@@ -146,7 +158,7 @@ main() {
   run_pipeline_safe  browser-captures "$SCRIPT_DIR/ext/browser-captures/claude" ${new_claude_scrape:+"$new_claude_scrape"}
 
   prep_pipeline_safe chat-exports
-  run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports" ${pay_for_inference:+"$pay_for_inference"}
+  run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports"
 
   prep_pipeline_safe code-projects
   run_pipeline_safe  code-projects "$SCRIPT_DIR/ext/code-projects"
@@ -156,8 +168,10 @@ main() {
   # source (FAIL: something that needs acting on, remedy beside it; WARN: a
   # fact worth eyes that gates nothing) and is grep-able by those sigils. Here:
   # the verdict: line(s) (one-line computed conclusions), the "→ run:"
-  # suggested commands, and the FAIL/WARN counts in the closing line. The log
-  # is safe to read mid-tee: those lines are long flushed.
+  # suggested commands, the FAIL/WARN counts, and — when a pipeline died — its
+  # error:/FAIL: lines quoted under its name (section_error_lines), so a failure
+  # is summarised in the tail exactly as a warning is, never just "scroll up".
+  # The log is safe to read mid-tee: those lines are long flushed.
   local n_fail n_warn verdicts suggestions
   n_fail="$(grep -cE '^[[:space:]]*FAIL:' "$LOG_FILE" 2>/dev/null || true)"
   n_warn="$(grep -cE '^[[:space:]]*WARN:' "$LOG_FILE" 2>/dev/null || true)"
@@ -175,14 +189,21 @@ main() {
       echo "All pipelines completed successfully."
     fi
   else
+    # FAIL summarises like WARN even when a pipeline died — the counts do not
+    # vanish on the runs that need them most.
+    [[ "$n_fail" -gt 0 || "$n_warn" -gt 0 ]] && \
+      echo "$n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above."
     echo "Failed pipelines:"
+    local errs
     for f in "${pipeline_failures[@]}"; do
       echo "  $f"
+      errs="$(section_error_lines "$f")"
+      [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
         "browser-captures (prep)") echo "    → check ext/browser-captures/claude/ and Safari setup" ;;
         "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see PREP.sh --help)" ;;
         "code-projects (prep)")  echo "    → check ext/code-projects/ symlink setup" ;;
-        *)                       echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
+        *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done
   fi
