@@ -92,6 +92,16 @@ Add a `## v{N+1}` narrative section to the CHANGELOG using the categories:
 `### Restricted since vN`, `### Relaxed since vN`, `### Refactored since vN`.
 State which data it now validates.
 
+For a Restriction, also state its **materiality**: material means some observed
+datum that passed vN fails v{N+1} — name what is excluded and where it rests;
+non-material means every observed datum passes both, and the tightening bites
+only futures — mark the section `### Restricted since vN (non-material)` and
+say what would now fail by name. A closed enum minted from a survey is the
+typical non-material case (session v9, `ModelId`: no observed record excluded;
+a new model id now fails loudly instead of sliding through a bare string). The
+distinction tells a reader whether upgrading re-classifies any existing data or
+only sharpens the frontier.
+
 ### 4. Review model_join.csv  ← **do not skip**
 
 Open `rsc/schema/model_join.csv` and:

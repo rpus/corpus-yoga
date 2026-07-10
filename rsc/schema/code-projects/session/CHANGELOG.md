@@ -6,6 +6,35 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 ---
 
+## v9
+
+The model field earns a type system. Since v1 `AssistantMessage.model` was a bare
+string, which let one value hide in plain sight: `"<synthetic>"` is not a model id
+but the harness's marker for records NO model authored (semantically null —
+limit-death tombstones and other deterministic records rendered as agent speech;
+the forensics of 2026-07-10, surfaced when `yoga agent models` censused both
+rooms). v9 splits the field into two named types so the distinction is structural,
+not tribal: `ModelId` (the real ids, exhaustive over both rooms' observed data)
+and `NotAModel` (the lone `"<synthetic>"`). A new model in the data now fails
+validation by name — model drift mints a version instead of sliding through a
+string.
+
+### Restricted since v8 (non-material)
+
+The restriction excludes no observed record: every datum that passed v8 passes
+v9 — both home-room sessions rest at v9 unchanged, and reading-room's census
+(2026-07-10) shows only in-enum values, so its logs are expected to follow. The
+tightening bites only futures: a new model id, or a marker where a model
+belongs, now fails by name instead of sliding through a string.
+
+- `AssistantMessage.model` — was any string; now `oneOf` [`ModelId`, `NotAModel`].
+  `ModelId` enumerates the observed ids: `claude-fable-5`, `claude-opus-4-8`
+  (home-room's sessions), `claude-sonnet-4-6` (reading-room's census,
+  2026-07-10). `NotAModel` holds only `"<synthetic>"`.
+- `FallbackBlock.from.model` / `.to.model` — now `ModelId`: a fallback moves
+  between real models, never to the synthetic marker (observed pairs confirm:
+  only `claude-fable-5` → `claude-opus-4-8`).
+
 ## v8
 
 The frontier datum is again `a6f25723-…`, and again it outgrew the schema by doing —
