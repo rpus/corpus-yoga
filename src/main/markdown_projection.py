@@ -136,6 +136,41 @@ def render(conv, frontmatter=None, summaries_link=None):
     return '\n'.join(out).rstrip() + '\n'
 
 
+def corpus_index(md_dir):
+    """[(ordinal, stem, title, id)] for a projected conversation corpus — the format
+    authority reading back what it wrote. `md_dir` is either ONE conversations dir
+    (lib/markdown/claude/conversations) or the corpus root (lib/markdown), whose
+    <source>/conversations dirs are combined: claude first (canonical), other
+    sources appended alphabetically, ordinals a fresh 1..N enumeration (prompt-local
+    presentation — for claude alone it coincides with the filename ordinals, which
+    are contiguous by construction). Per file: the '<NN>-<slug>' stem gates entry
+    (both sources now carry ordered naming), the title from the h1, and the IDENTITY
+    from conv_id — the frontmatter uuid (claude) or the <url> line's app id (gemini:
+    no uuids exist; the 16-hex app id is the identity). The content-dashboard capture
+    sources its chat list and its ordinal↔id rekey map from here: the model reads the
+    same corpus the dashboard describes, whole batches nowhere involved."""
+    root = Path(md_dir)
+    # corpus-root detection FIRST: lib/markdown legitimately holds *.md of its own
+    # (index.md, the book index), so the presence of <source>/conversations dirs is
+    # what marks a root; a bare dir of conversation files is the single-source case
+    subs = sorted((d for d in root.glob('*/conversations') if any(d.glob('*.md'))),
+                  key=lambda d: (d.parent.name != 'claude', d.parent.name))
+    dirs = list(subs) if subs else [root]
+    out, n = [], 0
+    for d in dirs:
+        for f in sorted(d.glob('*.md')):
+            if not re.match(r'\d+-', f.stem):
+                continue
+            head = f.read_text()[:600]
+            t = re.search(r'^# (.+)$', head, flags=re.M)
+            cid = conv_id(head)
+            if t and cid:
+                n += 1
+                stem = f'{d.parent.name}/{f.stem}' if len(dirs) > 1 else f.stem
+                out.append((n, stem, t.group(1), cid))
+    return out
+
+
 def strip_frontmatter(md):
     """The comparison half of the frontmatter contract: remove a leading YAML block
     (provenance dressing) so cross-source comparisons see only the conversation —

@@ -151,7 +151,7 @@ present_export() {
       case "$key" in
         data-chat-categories)
           cols='["chat", "category"]'
-          desc='A join table assigning each chat to one category (palette authored in the template). Stored uuid-keyed (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `yoga dashboard capture`.'
+          desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `yoga dashboard capture`.'
           inferred_file="$REPO_DIR/lib/dashboard/chat-categories.json"
           ;;
         data-semantic-concepts)

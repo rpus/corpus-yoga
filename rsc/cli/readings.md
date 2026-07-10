@@ -11,19 +11,26 @@ in `gen/`); this committed file is its format contract. The command surface itse
 Paid model readings behind the corpus dashboard (`rsc/site/index.html`, filled by
 `src/main/chat-exports/present.sh`), single-source and shared across rooms, refreshed
 deliberately and out-of-band by `yoga dashboard capture` (both files; `--only <name>`
-for one). Both are `{columns, rows}` tables:
+for one), reading the whole projected corpus (`lib/markdown` — claude and gemini
+alike). Both are `{columns, rows}` tables, schema'd like every other data class and
+validated in-memory before promotion:
 
-- **`semantic-concepts.json`** — `{"columns": ["word", "count"], "rows": [["mathematics", 100], …]}`.
+- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v1.json`
+  (changelog: `rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
+  `{"columns": ["word", "count"], "rows": [["mathematics", 100], …]}`.
   A weighted reading of the corpus's key concepts; the **count is salience** (top
   concept = 100), which the word cloud sizes by. Two consumers, each taking what it
   needs: the dashboard uses the weights (cloud sizing); `indexing` borrows only the
   names (candidate headwords, weights discarded).
-- **`chat-categories.json`** — `{"columns": ["uuid", "category"], "rows": [["<uuid>", "mathematics"], …]}`.
-  Each conversation assigned exactly one category. **uuid-keyed** (identity survives
-  corpus renumbering); `present.sh` re-derives the current 1-based ordinal at render
-  time. Every category must be an authored palette name — the `category → hue` map is a
-  *design decision* authored inline in `rsc/site/index.html`, not a reading; capture
-  validates category ∈ palette before promoting.
+- **`chat-categories.json`** — schema `rsc/schema/dashboard/chatCategories/v1.json`
+  (changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
+  `{"columns": ["id", "category"], "rows": [["<id>", "mathematics"], …]}`.
+  Each conversation assigned exactly one category, **id-keyed** — claude uuid /
+  gemini app id — so identity survives corpus renumbering; `present.sh` re-derives
+  the current 1-based ordinal at render time. Every category must be an authored
+  palette name — the `category → hue` map is a *design decision* authored inline in
+  `rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join
+  constraint beyond the schema, which the capture checks separately before promoting.
 
 ## `yoga indexing` — the user's curation (`lib/indexing/` + `gen/indexing/`)
 

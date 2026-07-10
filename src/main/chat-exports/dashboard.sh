@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 # dashboard.sh — the paid model capture behind the corpus dashboard (yoga dashboard).
 # NOT per-batch, NOT in the pipeline (2026-07-09): one deliberate single-source
-# capture over the frontier batch (≈ the whole corpus), written durable to
-# lib/dashboard/, shared by both rooms. The category PALETTE is authored inline
-# in rsc/site/index.html (design, not inference); only the weighted concept list
-# (word cloud) and the chat→category assignment are captured here.
+# capture over THE CORPUS ITSELF (lib/markdown — every source's conversations,
+# claude and gemini alike: the same projected corpus the dashboard describes and
+# serve renders; sourced from markdownConversation form, 2026-07-10; gemini joined
+# the same day, its ordering a capture of the web-UI listing), written durable to
+# lib/dashboard/, shared
+# by both rooms. The category PALETTE is authored inline in rsc/site/index.html
+# (design, not inference); only the weighted concept list (word cloud) and the
+# chat→category assignment are captured here.
 #
 #   yoga dashboard              # status: what is captured (read-only, free)
 #   yoga dashboard capture      # PAID: re-read the corpus → lib/dashboard/
-#                               #   [--conversations <path>] overrides the frontier — a
-#                               #     json/ dir or a conversations.json (default: the
-#                               #     newest atomised batch's gen/<batch>/json/)
+#                               #   [--conversations <path>] overrides the source — a
+#                               #     projected markdown corpus dir, an atomised json/
+#                               #     dir, or a conversations.json (default:
+#                               #     lib/markdown — the whole corpus, every source)
 #                               #   [--only semantic-concepts|chat-categories] refreshes
 #                               #     just one file (default: both) — e.g. re-roll the
 #                               #     category assignment without disturbing the concept
@@ -27,11 +32,25 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-# chat_list <conversations_json> → numbered "N: name" lines
-# Numbered "<n>: <name>" list, from the one canonical ordering (markdown_projection.ordered()),
-# so the chat indices Claude returns line up with the timeline and the atomised json/ filenames.
+# chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
+# The default source is the projected corpus itself (lib/markdown — every source's
+# conversations dir combined, claude first), whose filenames carry the cached
+# ordering — read back by markdown_projection.corpus_index, the format authority.
+# A batch source (conversations.json or atomised json/) still works via
+# timeline.py, re-deriving the claude numbering with ordered().
 chat_list() {
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/timeline.py" "$1" --table chat-list
+  local src="$1"
+  if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || compgen -G "$src/*/conversations/*.md" > /dev/null; }; then
+    "$REPO_DIR/src/run_python_script.sh" -c "
+import sys
+sys.path.insert(0, '$REPO_DIR/src/main')
+from markdown_projection import corpus_index
+for n, _stem, title, _u in corpus_index('$src'):
+    print(f'{n}: {title}')
+"
+  else
+    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/timeline.py" "$src" --table chat-list
+  fi
 }
 
 # capture_table <columns_json> <column_semantics> <task> <data> → prints {columns, rows} JSON
@@ -80,8 +99,8 @@ print(', '.join(r[0] for r in json.loads(m.group(1))['rows']))
 
 # capture_chat_categories <conversations_json> <chat_list> <categories> <out_file> — the chat→category assignment.
 # The palette is authored (canonical_categories); only the ASSIGNMENT is captured.
-# The LLM speaks ordinals (short, reliable in a prompt); the durable file speaks uuid
-# (rekey_chats.py --to-uuid) so it survives corpus renumbering; present.sh re-derives
+# The LLM speaks ordinals (short, reliable in a prompt); the durable file speaks the conversation id (claude uuid / gemini app id)
+# (rekey_chats.py --to-id) so it survives corpus renumbering; present.sh re-derives
 # the then-current ordinals at injection time. Both the chat list and the palette are
 # passed in (resolved by the caller before any paid call) so their failure aborts
 # before we spend, not silently or mid-run.
@@ -94,7 +113,7 @@ category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
 $chats" \
-    | "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/rekey_chats.py" --to-uuid --conversations "$conv" \
+    | "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/rekey_chats.py" --to-id --conversations "$conv" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_file"
 }
@@ -113,19 +132,20 @@ $chats" \
     > "$out_file"
 }
 
-# validate_table <file> <col1> <col2> — abort if a staged capture is malformed, so
-# junk never promotes to the durable lib/dashboard/. format_table.py already guarantees
-# the file parses as JSON; this adds the SEMANTIC gate the paid path lacked: the right
-# columns, and non-empty 2-column rows (an API error object becomes {"rows": []} or
-# "null" and is caught here, in gen/, before it can reach lib/dashboard/).
-validate_table() {
-  local file="$1" c1="$2" c2="$3"
-  jq -e --arg c1 "$c1" --arg c2 "$c2" '
-    (.columns == [$c1, $c2])
-    and (.rows | type) == "array" and (.rows | length) > 0
-    and all(.rows[]; type == "array" and length == 2)
-  ' "$file" >/dev/null 2>&1 || {
-    echo "yoga dashboard capture: $file failed shape check (want columns [$c1, $c2], non-empty 2-col rows) — staged, NOT promoted" >&2
+# validate_capture <staged-file> <schema-family> — the staged capture must validate
+# against the LATEST rsc/schema/dashboard/<family> version before promotion
+# (validate.py, in-memory — the markdownConversation no-matrix precedent: captures
+# validate at write time, no per-datum logs). This retired the hand-written shape
+# jq: the shape contract now lives in the schema system like every other data
+# class. The palette join (category ∈ authored names) is a cross-file constraint
+# beyond JSON Schema and stays checked separately below.
+validate_capture() {
+  local file="$1" family="$2" schema verdict
+  schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/dashboard/$family"/v*.json | sort -V | tail -1)"
+  verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
+  [[ "$verdict" == 'Valid!' ]] || {
+    echo "yoga dashboard capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
+    printf '%s\n' "$verdict" >&2
     exit 1
   }
 }
@@ -133,10 +153,10 @@ validate_table() {
 # ── the dashboard capture (yoga dashboard capture) ────────────────────────────
 # Both PAID model readings the dashboard shows, single-source and durable: the
 # weighted concept list (word cloud) and the chat→category assignment. Run once
-# over the frontier batch (≈ the whole corpus); both rooms share the result.
+# over the corpus; both rooms share the result.
 #
-# capture is DERIVE-then-DEPOSIT: both readings are captured into gen/ (the workshop,
-# git-ignored, batch-scoped like present.sh's output) and validated there, then
+# capture is DERIVE-then-DEPOSIT: both readings are captured into gen/dashboard
+# (the workshop, git-ignored, corpus-scoped like gen/indexing) and validated there, then
 # PROMOTED into the durable lib/dashboard/ only once both succeed. A failed or
 # malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
 # untouched; set -e aborts before the promotion step. Promotion is `mv` (an atomic
@@ -148,8 +168,10 @@ validate_table() {
 # never leaves the durable pair at mixed vintages if the second capture fails.
 capture_dashboard() {
   local conv="$1" only="${2:-}"
-  local batch; batch="$(basename "$(dirname "$conv")")"
-  local stage="$REPO_DIR/gen/chat-exports/$batch/dashboard"
+  local src_label; src_label="$(basename "$(dirname "$conv")")/$(basename "$conv")"
+  # corpus-scoped staging (like gen/indexing): the capture is a reading of the
+  # whole corpus, tied to no batch
+  local stage="$REPO_DIR/gen/dashboard"
   local dest="$REPO_DIR/lib/dashboard"
   mkdir -p "$stage" "$dest"
 
@@ -167,15 +189,15 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing dashboard readings from $batch${only:+ (--only $only)} → gen/ (promoted to lib/dashboard/ on success)"
+  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → gen/dashboard (promoted to lib/dashboard/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/semantic-concepts.json"
-    validate_table "$stage/semantic-concepts.json" word count
+    validate_capture "$stage/semantic-concepts.json" semanticConcepts
     echo "  ✓ semantic-concepts.json ($(jq '.rows | length' "$stage/semantic-concepts.json") concepts)"
   fi
   if [[ "$want_categories" == 1 ]]; then
     capture_chat_categories "$conv" "$chats" "$categories" "$stage/chat-categories.json"
-    validate_table "$stage/chat-categories.json" uuid category
+    validate_capture "$stage/chat-categories.json" chatCategories
     # Every assigned category MUST be an authored palette name, else present.sh's hue
     # lookup misses and those chats render uncoloured — the join's real dependency, which
     # a columns/rows shape-check alone would not catch (a model 'science'/'math' passes).
@@ -209,31 +231,18 @@ status() {
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
-# The frontier batch's atomised per-conversation pieces (gen/<batch>/json/) — the
-# corpus at its most complete, in the NORMALIZED per-conversation shape (uuid-keyed
-# {uuid, name, created_at, chat_messages}) that claude produces today and a non-claude
-# source (gemini) can produce tomorrow, so the capture becomes source-agnostic.
-# Reading the CACHE (gen/) rather than the raw INPUT (ext/conversations.json) is the
-# correct layer for the input→cache→output lifecycle — and it makes "frontier" mean
-# the newest ATOMISED batch: a batch is a candidate only once the pipeline has
-# processed it into json/, so a stray/half-downloaded ext/ dir has no json/ and can't
-# be picked. Capture therefore needs `yoga run` to have atomised the batch, and errors
-# clearly otherwise. "Newest" is by compare_batches.batch_time — the ONE batch-ordering
-# authority, which parses both name styles (epoch and YYYY-MM-DD); export names have
-# changed style in history, so lexical name order would misorder a mixed corpus.
-# (Moved off ext/conversations.json → gen/json/, 2026-07-09.)
-frontier_conversations() {
-  "$REPO_DIR/src/run_python_script.sh" -c "
-import sys, pathlib
-from datetime import datetime, timezone
-sys.path.insert(0, '$REPO_DIR/src/main/chat-exports')
-from compare_batches import batch_time
-gen = pathlib.Path('$REPO_DIR/gen/chat-exports')
-floor = datetime.min.replace(tzinfo=timezone.utc)
-atomised = [d for d in gen.glob('data-*') if (d / 'json').is_dir()]
-if atomised:
-    print(max(atomised, key=lambda d: batch_time(d.name) or floor) / 'json')
-"
+# The corpus itself: lib/markdown/claude/conversations — the projected
+# markdownConversation corpus, source-agnostic by construction (whatever projects
+# into it — captures today, gemini tomorrow — is what the model reads), and the
+# very thing the dashboard describes. Its filenames carry ordered()'s canonical
+# numbering and its frontmatter the uuids, so the chat list and the rekey map read
+# straight off the OUTPUT layer: no batch selection, no atomise-first coupling —
+# capture works the moment the corpus exists. (Sourced from the frontier batch's
+# gen/<batch>/json/ before 2026-07-10; from ext/conversations.json before that —
+# each move one layer further down the input→cache→output lifecycle.)
+corpus_conversations() {
+  local d="$REPO_DIR/lib/markdown"
+  [[ -d "$d" ]] && compgen -G "$d/*/conversations/*.md" > /dev/null && echo "$d"
 }
 
 capture() {
@@ -251,8 +260,8 @@ capture() {
   esac
   [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  local conv="${conversations:-$(frontier_conversations)}"
-  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no atomised frontier batch — run the pipeline first (yoga run), or pass --conversations <json/ dir | conversations.json>" >&2; exit 1; }
+  local conv="${conversations:-$(corpus_conversations)}"
+  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under lib/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   capture_dashboard "$conv" "$only"
 }
 

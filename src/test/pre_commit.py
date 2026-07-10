@@ -593,9 +593,11 @@ def check_cli_surface(run) -> None:
     """The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
     calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-    parsed from the document itself), every flag AND subcommand verb a usage
-    sketch advertises appears in the target's source or its stem-sibling .py/.sh
-    pair (wrapper and implementation share a stem — the repo idiom), and every run-step
+    parsed from the document itself), every flag a usage sketch advertises
+    appears in the target's source or its stem-sibling .py/.sh pair (wrapper
+    and implementation share a stem — the repo idiom), every subcommand VERB it
+    advertises appears in the target's own --help (the live dispatch surface —
+    a source grep is vacuous for ordinary words like build/accept), and every run-step
     correspondence a row claims names a step in the RUNME.sh --plan output
     (which is itself the executing list, so the chain cannot drift). Committed
     files and the deterministic plan only, so deterministic on any clone:
@@ -629,9 +631,19 @@ def check_cli_surface(run) -> None:
             run(f'cli: {c["command"]}: advertised flags exist', not missing,
                 (where + ', '.join(missing)) if missing else None)
         if verbs:
-            missing_v = [v for v in verbs if v not in text]
-            run(f'cli: {c["command"]}: advertised verbs exist', not missing_v,
-                (where + ', '.join(missing_v)) if missing_v else None)
+            # verbs are ordinary words (build, accept), so a source grep is vacuous —
+            # the target's own --help is the authority on what it dispatches (argparse
+            # renders the live subparsers; the shell scripts print their real usage)
+            runner = REPO_ROOT / 'src' / 'run_python_script.sh'
+            help_cmd = ([str(runner), str(target), '--help'] if target.suffix == '.py'
+                        else [str(target), '--help'])
+            proc = subprocess.run(help_cmd, capture_output=True, text=True, cwd=REPO_ROOT)
+            help_text = proc.stdout + proc.stderr
+            missing_v = [v for v in verbs
+                         if not re.search(rf'\b{re.escape(v)}\b', help_text)]
+            run(f'cli: {c["command"]}: advertised verbs in target --help', not missing_v,
+                f'`{c["target"]} --help` does not mention: {", ".join(missing_v)}'
+                if missing_v else None)
     stepped = [c for c in cmds if c['step']]
     if not stepped:
         return

@@ -13,9 +13,11 @@ invocation and stored nowhere (L5); the CLI adds no behaviour of its own.
 The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 operations and laws its command performs, and the pre-commit code tier
 (check_cli_surface) holds it to that — cited terms must be defined there,
-targets must exist, and advertised flags AND subcommand verbs must appear in
-the target's source (or its stem-sibling wrapper/implementation). The vocabulary
-is parsed from the calculus document itself (calculus_terms), never restated.
+targets must exist, advertised flags must appear in the target's source (or its
+stem-sibling wrapper/implementation), and advertised subcommand VERBS must appear
+in the target's own --help output — the live dispatch surface, not a source grep.
+The vocabulary is parsed from the calculus document itself (calculus_terms),
+never restated.
 
 Usage:
     ./yoga                       # render the table
@@ -60,11 +62,11 @@ def verbs_of(usage: str) -> list[str]:
     """The subcommand verbs a usage sketch advertises: the first bare word of each
     ' | '-separated alternative (not a --flag, not a <placeholder>). Alternatives
     are spaced ' | '; an enum value like '--only a|b' uses an unspaced '|' and so is
-    not split. Checked to exist in the target's source like flags_of's flags — a
-    PRESENCE check only: verbs are ordinary words (build, accept), so this catches a
-    deleted verb, not one that ceased to be dispatched while the word survives in the
-    source. The honest gate — diffing against the target's own --help — is deliberately
-    deferred (the schematize-the-surface arc)."""
+    not split. check_cli_surface verifies each against the TARGET'S OWN --help
+    output (argparse renders the live subparsers; shell targets print their real
+    usage) — a renamed or un-dispatched verb goes red even while the word survives
+    in the source, which a source grep could never catch (verbs are ordinary
+    words)."""
     verbs = []
     for alt in usage.split(' | '):
         tok = alt.strip().lstrip('[').split(' ', 1)[0]
