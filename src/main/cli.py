@@ -60,8 +60,11 @@ def verbs_of(usage: str) -> list[str]:
     """The subcommand verbs a usage sketch advertises: the first bare word of each
     ' | '-separated alternative (not a --flag, not a <placeholder>). Alternatives
     are spaced ' | '; an enum value like '--only a|b' uses an unspaced '|' and so is
-    not split. Checked to exist in the target's source like flags_of's flags — so a
-    renamed verb cannot leave the table advertising one the target no longer handles."""
+    not split. Checked to exist in the target's source like flags_of's flags — a
+    PRESENCE check only: verbs are ordinary words (build, accept), so this catches a
+    deleted verb, not one that ceased to be dispatched while the word survives in the
+    source. The honest gate — diffing against the target's own --help — is deliberately
+    deferred (the schematize-the-surface arc)."""
     verbs = []
     for alt in usage.split(' | '):
         tok = alt.strip().lstrip('[').split(' ', 1)[0]

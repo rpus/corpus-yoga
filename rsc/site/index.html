@@ -414,7 +414,7 @@
     const DATA_SOURCES = [
       { key: 'chats',          id: 'data-chats',             file: 'data-chats.json' },
       { key: 'spans',          id: 'data-spans',             file: 'data-spans.json' },
-      { key: 'categories',     id: 'data-categories',        file: 'data-categories.json' },
+      { key: 'categories',     id: 'data-categories' },  // authored palette: inline-only, no external file
       { key: 'chatCategories', id: 'data-chat-categories',   file: 'data-chat-categories.json' },
       { key: 'literal',        id: 'data-literal-words',     file: 'data-literal-words.json' },
       { key: 'semantic',       id: 'data-semantic-concepts', file: 'data-semantic-concepts.json' },
@@ -474,6 +474,7 @@
       const sources = loadFromInlinedScripts(); // baseline from inline
       const loaded = [], failed = [];
       await Promise.all(DATA_SOURCES.map(async ({ key, file }) => {
+        if (!file) return; // inline-only source (the authored palette) — nothing to fetch
         try {
           const resp = await fetch(file);
           if (!resp.ok) throw new Error(resp.status);

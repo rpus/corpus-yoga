@@ -48,9 +48,9 @@ parse_args() {
 run_one() {
   local batch="${1%/}"
   # No blanket wipe of gen/<batch>: each stage owns (wipes or overwrites) its own
-  # output subtree. A blanket wipe would destroy the validation memoisation logs
-  # (forcing full revalidation every run) and the durable paid lib/dashboard/ tables,
-  # which by design persist across unpaid runs.
+  # output subtree. A blanket wipe would destroy the validation memoisation logs,
+  # forcing full revalidation every run. (The paid captures are out of reach either
+  # way — they live in lib/dashboard/, not under gen/.)
   local have_captures="0"
   if [[ -d "$REPO_DIR/ext/browser-captures/claude" ]]; then have_captures="1"; fi
 

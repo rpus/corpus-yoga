@@ -4,9 +4,9 @@ rekey_chats.py — swap a table's chat-identity column between ordinal and uuid.
 
 A stdin→stdout filter for tables whose rows reference conversations (e.g. the
 inferred data-chat-categories). Ordinals are presentation, uuids are identity:
-the LLM speaks ordinals (short, reliable in a prompt), durable storage under
-the durable stores speak uuid (renumbering-proof), and presentation re-derives ordinals
-at injection time. The ordinal↔uuid mapping comes from the one naming authority,
+the LLM speaks ordinals (short, reliable in a prompt), durable storage
+(lib/dashboard/) speaks uuid (renumbering-proof), and presentation re-derives
+ordinals at injection time. The ordinal↔uuid mapping comes from the one naming authority,
 markdown_projection.ordered(), over the batch's conversations.json.
 
   --to-uuid     rows carry a 'chat' ordinal column  → rewrite as 'uuid'

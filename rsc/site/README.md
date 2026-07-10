@@ -6,8 +6,9 @@ the matching URL:
 
 - **`index.html`** → `rpus.co/` — the homepage: the corpus dashboard. A TEMPLATE,
   not a finished page: `present.sh` copies it to each batch's
-  `gen/.../presentation/index.html` and fills it (inferred category hues, tables);
-  the filled result is what deploys.
+  `gen/.../presentation/index.html` and fills it with the data tables (the category
+  palette is authored inline here — design, never filled); the filled result is
+  what deploys.
 - **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already
   complete page.
 
@@ -18,7 +19,7 @@ link unless it resolves.
 ## Deploying (Netlify via the private site repo)
 
 The site deploys from a separate private GitHub repo that Netlify watches;
-its root is the publish directory (the same repo the post-inference dashboard
+its root is the publish directory (the same repo the presented dashboard
 `index.html` is copied into). Deploying a page from here is a copy plus a
 push in that repo:
 
