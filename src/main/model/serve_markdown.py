@@ -112,6 +112,9 @@ VIEWER_TEMPLATE = '''<!doctype html><html><head>
   pre code{{background:none;padding:0}}
   blockquote{{border-left:3px solid #555;margin:0;padding-left:1rem;color:#999}}
   #back{{position:fixed;top:1rem;right:1rem;font-size:.8rem}}
+  #meta{{font-size:.75rem;color:#888;border-collapse:collapse;margin-bottom:1.5rem}}
+  #meta td{{padding:.05rem .6rem .05rem 0;vertical-align:top}}
+  #meta td:first-child{{color:#666;white-space:nowrap}}
 </style></head><body>
 <a id="back" href="/">← all conversations</a>
 <div id="content"></div>
@@ -123,6 +126,22 @@ const mathOpts={{delimiters:[
   {{left:'\\\\(',right:'\\\\)',display:false}},{{left:'\\\\[',right:'\\\\]',display:true}}
 ]}};
 let i=0;
+/* provenance frontmatter (dressing, not conversation — see markdownConversation v3):
+   marked has no YAML support, so lift a leading --- block into a muted meta table.
+   Values that ARE references become links: the uuid item is the conversation's one
+   claude.ai link (the old <url> preamble line retired into it), and relative paths
+   (the summaries index, the conversation backlink) resolve against the served tree. */
+if(lines[0]==='---'){{const c=lines.indexOf('---',1);if(c>0){{
+  const t=document.createElement('table');t.id='meta';
+  for(const l of lines.slice(1,c)){{const j=l.indexOf(': ');const r=t.insertRow();
+    const k=j<0?l:l.slice(0,j),v=j<0?'':l.slice(j+2);
+    r.insertCell().textContent=k;
+    const cell=r.insertCell();
+    const href=/^(\\.\\.?\\/|https?:\\/\\/)/.test(v)?v
+      :(k==='uuid'&&/^[0-9a-f-]{{36}}$/.test(v)?'https://claude.ai/chat/'+v:null);
+    if(href){{const a=document.createElement('a');a.href=href;a.textContent=v;cell.appendChild(a);}}
+    else cell.textContent=v;}}
+  root.appendChild(t);i=c+1;}}}}
 function jump(){{
   if(!location.hash)return;
   const el=document.getElementById(decodeURIComponent(location.hash.slice(1)));

@@ -21,7 +21,7 @@ import re
 from pathlib import Path
 
 REPO      = Path(__file__).resolve().parents[2]
-MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v2.json'
+MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v3.json'
 
 
 def turn_text(msg):
@@ -72,13 +72,16 @@ def _path_to_root(messages, leaf_uuid):
     return list(reversed(chain))
 
 
-def _lean(name, uuid, messages):
+def _lean(name, uuid, messages, summary=''):
     """Lean markdownConversation dict (metadata stripped) from a message list. Each turn
     keeps its message uuid — the turn's durable identity (identical across the browser-capture
-    and bulk-export shapes), rendered as the heading anchor."""
+    and bulk-export shapes), rendered as the heading anchor. The source's own summary is
+    carried VERBATIM (v3 requires it: both shapes always emit the key — the empty string
+    where the backend has not summarised, observed only on the empty stub)."""
     return {
         'title': name,
         'url': f"https://claude.ai/chat/{uuid}",
+        'summary': summary,
         'messages': [{'role': m['sender'], 'content': turn_text(m), 'uuid': m['uuid']}
                      for m in messages],
     }
@@ -94,24 +97,55 @@ def project(conv):
     leaf = conv.get('current_leaf_message_uuid')
     if leaf is None:
         leaf = max(msgs, key=lambda m: m['created_at'])['uuid'] if msgs else None
-    return _lean(conv['name'], conv['uuid'], _path_to_root(msgs, leaf))
+    return _lean(conv['name'], conv['uuid'], _path_to_root(msgs, leaf),
+                 summary=conv.get('summary') or '')
 
 
-def render(conv):
+def render(conv, frontmatter=None, summaries_link=None):
     """lean markdownConversation dict -> markdown string. Each turn heading carries an HTML
     anchor named by the message uuid, so <file>.md#<uuid> addresses the turn durably
     (ordinals renumber; uuids don't). Anchors ride the heading line, where turn_seq's
-    `## <Role> [^\\n]*` split ignores them — comparisons are anchor-blind by construction."""
+    `## <Role> [^\\n]*` split ignores them — comparisons are anchor-blind by construction.
+
+    `frontmatter` (ordered {key: value}, optional) renders as a leading YAML block —
+    write-time PROVENANCE dressing, metadata about the file's derivation, not part of
+    the conversation (outside the v3 schema; see strip_frontmatter, this file's other
+    half of that contract). Right after the title, a bulleted SOURCE LIST carries the
+    file's outbound links as proper named hyperlinks (clickable in any markdown
+    renderer, not just the serve viewer): the conversation's claude.ai URL always, and
+    — when `summaries_link` is given (the lib/ render) — the conversation's summary
+    readings index (accumulate_summaries.py's deposits). The summary itself is DATA
+    carried but never body-rendered; the preamble holds no bare URLs and no headings,
+    so the file's only ## headings are the turns."""
     label = {'human': 'Human', 'assistant': 'Claude'}
     count = {'human': 0, 'assistant': 0}
+    out = []
+    if frontmatter:
+        out += ['---', *[f"{k}: {v}" for k, v in frontmatter.items()], '---', '']
     # the pragma placates markdownlint (MD033 no-inline-html) about the heading anchors;
     # it sits in the preamble, before the first turn heading, so turn_seq never sees it
-    out = [f"# {conv['title']}", '', MD033_PRAGMA, '', f"<{conv['url']}>", '']
+    out += [f"# {conv['title']}", '', MD033_PRAGMA, '',
+            f"- [This conversation on claude.ai]({conv['url']})"]
+    if summaries_link:
+        out += [f"- [Its distinct summary readings]({summaries_link})"]
+    out += ['']
     for m in conv['messages']:
         count[m['role']] += 1
         out += [f"## {label[m['role']]} ({count[m['role']]}) <a id=\"{m['uuid']}\"></a>",
                 '', m['content'], '', '---', '']
     return '\n'.join(out).rstrip() + '\n'
+
+
+def strip_frontmatter(md):
+    """The comparison half of the frontmatter contract: remove a leading YAML block
+    (provenance dressing) so cross-source comparisons see only the conversation —
+    title, URL, summary, turns. The dual of render(frontmatter=...): this file owns
+    the format in both directions, so the delimiter never drifts from the writer."""
+    if md.startswith('---\n'):
+        end = md.find('\n---\n', 4)
+        if end != -1:
+            return md[end + len('\n---\n'):].lstrip('\n')
+    return md
 
 
 def turn_seq(md):
@@ -132,9 +166,13 @@ def turn_seq(md):
 
 
 def conv_id(md):
-    """The conversation id, from the <url> line render() (and the gemini scraper) emits
-    (last path segment). Robust pairing key -- different sides slugify different titles,
-    so filenames can diverge."""
+    """The conversation id: the frontmatter uuid item render()'s provenance dressing
+    carries (claude projections), else the <url> line's last path segment (gemini
+    scrapes, and any render predating the frontmatter). Robust pairing key --
+    different sides slugify different titles, so filenames can diverge."""
+    m = re.search(r'^uuid: ([0-9a-f-]{36})$', md[:500], flags=re.M)
+    if m:
+        return m.group(1)
     m = re.search(r'<(https?://[^>]+)>', md)
     if not m:
         return None

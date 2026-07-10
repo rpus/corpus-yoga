@@ -11,16 +11,20 @@ Both formats carry the full edit/regeneration tree; project() reduces each to th
 export). Identical output across two independent formats validates the projection and the model_join
 correspondence end-to-end.
 
-A difference is expected only from temporal drift -- the two snapshots are taken at different
-times, so one conversation may simply be longer. A *conflict* at a shared turn signals a
-projection bug (e.g. dead branches leaking in). Use --diff to tell which.
+A TRANSCRIPT difference is expected only from temporal drift -- the two snapshots are taken at
+different times, so one conversation may simply be longer. A *conflict* at a shared turn signals
+a projection bug (e.g. dead branches leaking in). Use --diff to tell which. The SUMMARY (v3's
+optional field) is compared separately and reported as its own category: the backend regenerates
+it between snapshots, so two snapshots of an identical transcript can legitimately carry
+different prose summaries -- that is summary drift, not a transcript difference, and it never
+sets the exit status.
 
 Usage:
   src/run_python_script.sh src/main/model/compare_sources.py \
     --browser-captures ext/browser-captures/claude \
     --bulk-export ext/chat-exports/<batch> [--diff]
 
-Exit status is non-zero iff any conversation present in both sources differs.
+Exit status is non-zero iff any shared conversation's TRANSCRIPT differs.
 """
 import argparse
 import difflib
@@ -32,14 +36,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from markdown_projection import REPO, project, find_api_json, render
 
 
+def _transcript_and_summary(conv):
+    """(render-without-summary, summary) for one source conversation. The TRANSCRIPT
+    (title, url, turns) is the byte-compared contract; the summary is a mutable field
+    the backend regenerates between snapshots, compared separately. (Frontmatter never
+    appears here: these are in-memory renders — the provenance dressing belongs to
+    write_markdown's files, not to render() itself.)"""
+    lean = project(conv)
+    summary = lean.pop('summary', '')
+    return render(lean), summary
+
+
 def api_by_uuid(captures_dir):
-    out, names = {}, {}
+    out, names, summaries = {}, {}, {}
     for sub in sorted(p for p in Path(captures_dir).iterdir() if p.is_dir()):
         api = find_api_json(sub)
         if api is not None:
-            out[api['uuid']] = render(project(api))
+            out[api['uuid']], summaries[api['uuid']] = _transcript_and_summary(api)
             names[api['uuid']] = api.get('name', '')
-    return out, names
+    return out, names, summaries
 
 
 def bulk_by_uuid(batch_dir):
@@ -49,12 +64,12 @@ def bulk_by_uuid(batch_dir):
     if not json_dir.is_dir():
         sys.exit(f"no atomised json/ at {json_dir}; "
                  f"run project_markdown.py --bulk-export {batch_dir} first")
-    out, names = {}, {}
+    out, names, summaries = {}, {}, {}
     for f in sorted(json_dir.glob('*.json')):
         c = json.loads(f.read_text())
-        out[c['uuid']] = render(project(c))
+        out[c['uuid']], summaries[c['uuid']] = _transcript_and_summary(c)
         names[c['uuid']] = c.get('name', '')
-    return out, names
+    return out, names, summaries
 
 
 def main():
@@ -64,12 +79,14 @@ def main():
     ap.add_argument('--diff', action='store_true', help='print full per-conversation unified diffs')
     args = ap.parse_args()
 
-    api, api_names = api_by_uuid(args.browser_captures)
-    bulk, bulk_names = bulk_by_uuid(args.bulk_export)
+    api, api_names, api_summ = api_by_uuid(args.browser_captures)
+    bulk, bulk_names, bulk_summ = bulk_by_uuid(args.bulk_export)
     shared = set(api) & set(bulk)
 
-    identical = differ = 0
+    identical = differ = summary_drift = 0
     for u in sorted(shared):
+        if api_summ[u] != bulk_summ[u]:
+            summary_drift += 1
         if api[u] == bulk[u]:
             identical += 1
             continue
@@ -81,7 +98,8 @@ def main():
 
     api_only = sorted(set(api) - set(bulk))
     bulk_only = sorted(set(bulk) - set(api))
-    print(f"shared {len(shared)}: {identical} identical, {differ} differ "
+    print(f"shared {len(shared)}: {identical} transcripts identical, {differ} differ, "
+          f"{summary_drift} summary-drift (snapshots' summaries differ; never gates) "
           f"| api-only {len(api_only)}, bulk-only {len(bulk_only)}")
     for u in api_only:
         print(f"  api-only {u}: {api_names.get(u, '')!r} (captured; not in this export)")

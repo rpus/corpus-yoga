@@ -3,11 +3,14 @@
 compare_batches.py — do later bulk exports SUPERSEDE earlier ones?
 
 A bulk export is a synchronised snapshot of FOUR components: conversations,
-memories, projects, users. The same unprejudiced supersession processing is
-applied to each — no component is assumed append-only, mutable, or static;
-whether an earlier batch's data survives into the later one is an empirical
-finding per component per batch pair, and the deletability verdict is simply
-their conjunction.
+memories, projects, users — licensed here as FIVE, because a conversation
+carries two different kinds of content: its messages (append-only atoms) and
+its summary (a per-snapshot oracle reading, checked as its own component).
+The same unprejudiced supersession processing is applied to each — no
+component is assumed append-only, mutable, or static; whether an earlier
+batch's data survives into the later one is an empirical finding per
+component per batch pair, and the deletability verdict is simply their
+conjunction.
 
 The uniform model: each component atomises to {unit key: set of atoms}, and a
 unit is superseded iff its atoms are a subset of its later self's. Atoms are
@@ -18,6 +21,10 @@ and fingerprints only for unbounded content:
   conversations  unit = conversation uuid;  atoms = message uuids
                  (read from the RAW atomised json/ pieces — format-agnostic,
                  so an old batch's schema vintage is irrelevant)
+  summaries      unit = conversation uuid;  atom = fingerprint of the summary
+                 (a per-snapshot oracle READING — capture-class, stochastic —
+                 so only the IDENTICAL summary covers it; message coverage
+                 says nothing about it, hence its own component)
   memories       unit = account uuid;       atoms = (field, canonical value)
   projects       unit = project uuid;       atoms = (doc uuid, content fingerprint)
                  per doc, plus a fingerprint of the prompt/name/description
@@ -31,10 +38,12 @@ deletable iff every atom it holds survives somewhere durable that is KEPT,
 and each batch's report names the evidence per component — the WITNESSES
 (every later batch whose verified ⊑ covers it: a licence conditional on that
 witness's own retention; diachronic appending is checked per pair, never
-assumed) and, for memories, the byte-identical DEPOSIT in lib/memories (the
-unconditional licence: deposits outlive every batch). A component with no
-witness and no deposit is unique data — a loud WARN, and the batch is not
-deletable until it is deposited or superseded. Verdicts describe what exists
+assumed) and the unconditional DEPOSITS that outlive every batch: for
+memories, the byte-identical copy in lib/memories; for summaries, every
+reading held verbatim in lib/markdown/claude/summaries
+(accumulate_summaries.py). A component with no witness and no deposit is
+unique data — a loud WARN, and the batch is not deletable until it is
+deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
 licences it carried.
 
@@ -92,6 +101,24 @@ def units_conversations(gen_dir, ext_dir):
     return units
 
 
+def units_summaries(gen_dir, ext_dir):
+    """Each conversation's summary as ONE fingerprinted atom. The summary is a
+    per-snapshot oracle READING (capture-class, stochastic: the same transcript has
+    been observed to re-read differently — №99, capture vs export, identical
+    updated_at), so a later batch covers it only by carrying the IDENTICAL summary;
+    a divergent later summary is a NEW reading, not a superseding one, and deleting
+    the earlier batch would destroy a reading that exists nowhere else. Message
+    coverage says nothing about this — hence its own component in the licence.
+    Empty summaries contribute no unit (nothing to lose, nothing to orphan)."""
+    units = {}
+    for f in sorted((gen_dir / 'json').glob('*.json')):
+        c = json.load(f.open())
+        u, s = c.get('uuid'), c.get('summary')
+        if u and s:
+            units[u] = (f.stem, {_fp(s)})
+    return units
+
+
 def _component_path(gen_dir, ext_dir, *rel):
     """Prefer the batch's gen/ archive copy (written by archive_components.py);
     fall back to the raw ext/ batch dir for gen dirs predating the archive step."""
@@ -134,6 +161,7 @@ def units_users(gen_dir, ext_dir):
 
 
 COMPONENTS = [('conversations', units_conversations),
+              ('summaries', units_summaries),
               ('memories', units_memories),
               ('projects', units_projects),
               ('users', units_users)]
@@ -178,6 +206,18 @@ def deposit_witness(gen_dir, ext_dir, lib_dir: Path):
         if f.read_text() == text:
             return f
     return None
+
+
+def summaries_deposit_fps(lib_dir: Path):
+    """Fingerprints of every deposited summary reading (accumulate_summaries.py's
+    verbatim <ts>.md / browser-capture.md files) — the summaries component's
+    unconditional licence: deposits outlive every batch and every capture refresh."""
+    fps = set()
+    if lib_dir.is_dir():
+        for f in lib_dir.glob('*/*.md'):
+            if f.name != 'index.md':
+                fps.add(_fp(f.read_text()))
+    return fps
 
 
 # ── captures cross-check (conversations only: that is what the capture source has) ─
@@ -267,6 +307,9 @@ def main():
     ap.add_argument('--memories-lib', default='lib/memories',
                     help='the deposit store — a byte-identical deposit is the '
                          'unconditional memories licence')
+    ap.add_argument('--summaries-lib', default='lib/markdown/claude/summaries',
+                    help='the summary-reading deposit store (accumulate_summaries.py) — '
+                         'a verbatim deposit is the unconditional summaries licence')
     args = ap.parse_args()
 
     root = Path(args.chat_exports_gen)
@@ -293,12 +336,14 @@ def main():
     # Show the working: a batch is deletable iff every atom it holds survives
     # somewhere durable that is KEPT — for each component, name the WITNESSES
     # (later batches whose verified ⊑ covers it: a licence conditional on the
-    # witness's own retention) and, for memories, the byte-identical DEPOSIT
-    # (unconditional: deposits outlive every batch). Witnessed-by-later relies
-    # on nothing but per-pair verified subset — diachronic appending is
+    # witness's own retention) and the unconditional DEPOSITS (memories: the
+    # byte-identical lib/memories copy; summaries: every reading held verbatim
+    # in the summaries lib — deposits outlive every batch). Witnessed-by-later
+    # relies on nothing but per-pair verified subset — diachronic appending is
     # checked, never assumed. Verdicts describe what exists NOW: re-run after
     # any deletion, since deleting a witness expires the licences it carried.
     covered_all = True
+    summ_fps = summaries_deposit_fps(Path(args.summaries_lib))
     for i, b in enumerate(batches[:-1]):
         ext_dir = ext_root / b.name
         working, uncovered = [], []
@@ -309,6 +354,11 @@ def main():
             dep = deposit_witness(b, ext_dir, Path(args.memories_lib)) if name == 'memories' else None
             if dep is not None:
                 working.append(f'    memories: copied — {dep} is byte-identical (unconditional)'
+                               + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
+            elif (name == 'summaries' and earlier
+                  and all(atoms <= summ_fps for _k, (_n2, atoms) in earlier.items())):
+                working.append(f'    summaries: deposited — every reading held verbatim in '
+                               f'{args.summaries_lib} (unconditional)'
                                + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
             elif witnesses:
                 working.append(f'    {name} ⊑ {", ".join(_short(w) for w in witnesses)}'

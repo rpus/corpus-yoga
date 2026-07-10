@@ -92,13 +92,23 @@ run_tail() {
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
   step accumulate_memories "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/accumulate_memories.py"
+  # accumulate_summaries: the same deposit discipline per conversation — a summary is
+  # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
+  # refresh in place), so every distinct reading deposits into
+  # lib/markdown/claude/summaries/<conversation>/ (export-snapshot-time-keyed,
+  # content-deduplicated). A deposited reading is the licence to delete a
+  # summaries-divergent batch; the verdict below stays unprejudiced.
+  step accumulate_summaries "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/accumulate_summaries.py"
   # compare_batches: a batch is a synchronised snapshot of FOUR components
-  # (conversations, memories, projects, users), each put through the same
-  # unprejudiced unit/atom subset check — no component is assumed append-only or
-  # mutable; a batch is deletable iff EVERY component is superseded (their lattice
-  # join). Also compares the latest batch against the live-capture corpus per
-  # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
-  # conversations to recapture in place. Divergence is a fact, not an error.
+  # (conversations, memories, projects, users), licensed as FIVE — a conversation's
+  # summary is a per-snapshot oracle reading, checked as its own component — each
+  # put through the same unprejudiced unit/atom subset check; no component is
+  # assumed append-only or mutable; a batch is deletable iff EVERY component is
+  # superseded (their lattice join). Also compares the latest batch against the
+  # live-capture corpus per conversation: capture-ahead is normal post-snapshot
+  # growth; capture-stale names conversations to recapture in place. Divergence is
+  # a fact, not an error.
   step_ok compare_batches  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_batches.py" \
     --chat-exports-gen "$OUTPUT_DIR" --captures "$REPO_DIR/ext/browser-captures/claude"

@@ -220,11 +220,15 @@ src/main/chat-exports/RUNME.sh,82,call,src/run_python_script.sh,Y,"compare_sourc
 src/main/chat-exports/RUNME.sh,83,call,src/main/model/compare_sources.py,Y,"""$REPO_DIR/src/main/model/compare_sources.py"" \"
 src/main/chat-exports/RUNME.sh,93,call,src/run_python_script.sh,Y,"step accumulate_memories ""$REPO_DIR/src/run_python_script.sh"" \"
 src/main/chat-exports/RUNME.sh,94,call,src/main/chat-exports/accumulate_memories.py,Y,"""$SCRIPT_DIR/accumulate_memories.py"""
-src/main/chat-exports/RUNME.sh,102,call,src/run_python_script.sh,Y,"step_ok compare_batches  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,103,call,src/main/chat-exports/compare_batches.py,Y,"""$SCRIPT_DIR/compare_batches.py"" \"
+src/main/chat-exports/RUNME.sh,101,call,src/run_python_script.sh,Y,"step accumulate_summaries ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/RUNME.sh,102,call,src/main/chat-exports/accumulate_summaries.py,Y,"""$SCRIPT_DIR/accumulate_summaries.py"""
+src/main/chat-exports/RUNME.sh,112,call,src/run_python_script.sh,Y,"step_ok compare_batches  ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/RUNME.sh,113,call,src/main/chat-exports/compare_batches.py,Y,"""$SCRIPT_DIR/compare_batches.py"" \"
 src/main/chat-exports/accumulate_memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-gen gen/chat-exports] [--lib
 src/main/chat-exports/accumulate_memories.py,31,comment,src/main/chat-exports/accumulate_memories.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-gen gen/chat-exports] [--lib
 src/main/chat-exports/accumulate_memories.py,53,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
+src/main/chat-exports/accumulate_summaries.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \
+src/main/chat-exports/accumulate_summaries.py,30,comment,src/main/chat-exports/accumulate_summaries.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \
 src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export ext/chat-exports/<batch> [--out
 src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export ext/chat-exports/<batch> [--out
 src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export ext/chat-exports/<batch>            # -
@@ -247,8 +251,8 @@ src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.p
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/library.py,Y,src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive th
-src/main/chat-exports/compare_batches.py,42,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
-src/main/chat-exports/compare_batches.py,42,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
+src/main/chat-exports/compare_batches.py,51,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
+src/main/chat-exports/compare_batches.py,51,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
 src/main/chat-exports/dashboard.sh,6,comment,rsc/site/index.html,Y,"# in rsc/site/index.html (design, not inference); only the weighted concept list"
 src/main/chat-exports/dashboard.sh,26,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
 src/main/chat-exports/dashboard.sh,34,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$1"" --table chat-list"
@@ -361,8 +365,8 @@ src/main/markdown_projection.py,11,comment,src/main/chat-exports/atomise_bulk.py
 src/main/model/build_index.py,5,comment,rsc/cli/commands.csv,Y,capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 src/main/model/build_index.py,22,comment,rsc/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
 src/main/model/build_index.py,222,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
-src/main/model/compare_sources.py,19,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-captures ext/browser-captures/claude     --bulk
-src/main/model/compare_sources.py,19,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-captures ext/browser-captures/claude     --bulk
+src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-captures ext/browser-captures/claude     --bulk
+src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-captures ext/browser-captures/claude     --bulk
 src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
 src/main/model/gen_model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
 src/main/model/gen_model.py,8,comment,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
@@ -381,7 +385,7 @@ src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candid
 src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 src/main/model/gen_model_candidate.py,19,comment,src/main/model/gen_model.sh,Y,Normally invoked via src/main/model/gen_model.sh which handles all schemas automatically.
 src/main/model/project_markdown.py,9,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
-src/main/model/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v2.json,Y,validated against rsc/schema/browser-captures/markdownConversation/v2.json. Splitting the bulk
+src/main/model/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v3.json,Y,validated against rsc/schema/browser-captures/markdownConversation/v3.json. Splitting the bulk
 src/main/model/project_markdown.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-captures ext/browser-captures/claude          
 src/main/model/project_markdown.py,16,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-captures ext/browser-captures/claude          
 src/main/model/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export ext/chat-exports/<batch>                  
@@ -481,6 +485,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/browser-captures/apiConversation/v8.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/v1.json,Y,
+,,,rsc/schema/browser-captures/markdownConversation/v2.json,Y,
 ,,,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/conversations/v1.json,Y,
 ,,,rsc/schema/chat-exports/conversations/v10.json,Y,

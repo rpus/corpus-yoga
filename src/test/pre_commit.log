@@ -1,4 +1,4 @@
-pre_commit.py: 1080/1080 (data: machine-local)
+pre_commit.py: 1107/1107 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 1080/1080 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 73 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 74 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -149,6 +149,7 @@ pre_commit.py: 1080/1080 (data: machine-local)
   ✓ conversations: valid JSON + $schema: v15
   ✓ markdownConversation: valid JSON + $schema: v1
   ✓ markdownConversation: valid JSON + $schema: v2
+  ✓ markdownConversation: valid JSON + $schema: v3
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
@@ -212,6 +213,8 @@ pre_commit.py: 1080/1080 (data: machine-local)
   ✓ markdownConversation: no_todo: v1
   ✓ markdownConversation: changelog_narrative: v2
   ✓ markdownConversation: no_todo: v2
+  ✓ markdownConversation: changelog_narrative: v3
+  ✓ markdownConversation: no_todo: v3
   ✓ memories: changelog_narrative: v1
   ✓ memories: no_todo: v1
   ✓ projects: changelog_narrative: v1
@@ -836,6 +839,30 @@ pre_commit.py: 1080/1080 (data: machine-local)
   ✓ markdownConversation: structure.no_redundant_additional_properties_true: v2
   ✓ markdownConversation: structure.pattern_constraints_enforced: v2
   ✓ markdownConversation: structure.required_subset_of_properties: v2
+  ✓ markdownConversation: composition.base_not_used_directly: v3
+  ✓ markdownConversation: composition.base_schemas_closed: v3
+  ✓ markdownConversation: composition.discriminator_values_disjoint: v3
+  ✓ markdownConversation: composition.no_additional_properties_on_subtypes: v3
+  ✓ markdownConversation: composition.wrapper_has_five_fields: v3
+  ✓ markdownConversation: documentation.discriminator_fields_annotated: v3
+  ✓ markdownConversation: documentation.every_definition_has_title_and_description: v3
+  ✓ markdownConversation: documentation.null_only_fields_documented: v3
+  ✓ markdownConversation: documentation.open_set_enums_documented: v3
+  ✓ markdownConversation: empirical.nullable_fields_surveyed: v3
+  ✓ markdownConversation: empirical.oneOf_branches_evidenced: v3
+  ✓ markdownConversation: naming.property_keys_lowercase: v3
+  ✓ markdownConversation: naming.title_matches_key: v3
+  ✓ markdownConversation: naming.upper_camel_case: v3
+  ✓ markdownConversation: structure.all_definitions_reachable: v3
+  ✓ markdownConversation: structure.bfs_order: v3
+  ✓ markdownConversation: structure.definitions_at_bottom: v3
+  ✓ markdownConversation: structure.enum_refines_explicit_type: v3
+  ✓ markdownConversation: structure.field_order: v3
+  ✓ markdownConversation: structure.minItems_on_non_empty_arrays: v3
+  ✓ markdownConversation: structure.no_dangling_refs: v3
+  ✓ markdownConversation: structure.no_redundant_additional_properties_true: v3
+  ✓ markdownConversation: structure.pattern_constraints_enforced: v3
+  ✓ markdownConversation: structure.required_subset_of_properties: v3
   ✓ memories: composition.base_not_used_directly: v1
   ✓ memories: composition.base_schemas_closed: v1
   ✓ memories: composition.discriminator_values_disjoint: v1
@@ -1106,7 +1133,7 @@ pre_commit.py: 1080/1080 (data: machine-local)
   ✓ mcp schema: up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1080/1080; expected: 1080/1080
+  ✓ score[code+schema]: 1107/1107; expected: 1107/1107
   ✓ score[code]: 60/60; expected: 60/60
-  ✓ score[schema]: 1020/1020; expected: 1020/1020
+  ✓ score[schema]: 1047/1047; expected: 1047/1047
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

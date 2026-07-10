@@ -7,6 +7,38 @@ render time, rather than writing per-datum `vN.log` files under `gen/`
 
 ---
 
+## v3
+
+### Restricted since v2
+
+- `MarkdownConversation.summary` — new **required** property (`string`): the source's
+  own summary, which BOTH source shapes always emit (browser-capture
+  `apiConversation.summary` and bulk-export `Conversation.summary` — the empty string
+  where the backend has not summarised, observed only on the empty stub, which never
+  validates anyway), so the projection carries it verbatim and requiring it costs
+  nothing — the same argument that made v2 require the message uuid. It is a
+  per-snapshot oracle READING — stochastic; the same transcript has been observed to
+  re-read differently across snapshots (№99: capture vs export, identical
+  `updated_at`) — so it is carried as data, never body-rendered:
+  `accumulate_summaries.py` deposits each distinct reading durably under
+  `lib/markdown/claude/summaries/` (the memories pattern, per conversation), the
+  body's source list links each conversation's deposit index, and `compare_sources`
+  reports cross-source summary drift as its own non-gating category.
+
+Also restated at v3 (dressing, not schema): the rendered file opens with YAML
+frontmatter — write-time PROVENANCE (source, uuid, turn count, last activity,
+cross-check currency vs the other corpus): facts about the file's derivation, not
+part of the conversation. The file's outbound LINKS live in the body as a named
+SOURCE LIST right after the title — `[This conversation on claude.ai](<url>)` (the
+bare `<url>` preamble line retired in its favour) and, in the lib/ render,
+`[Its distinct summary readings](../summaries/<stem>/index.md)` — proper hyperlinks
+with explanatory names, clickable in any markdown renderer, not only the serve
+viewer. The rendered body is therefore title + source list + turns.
+`strip_frontmatter()` (markdown_projection.py, the format's one authority) removes
+the dressing before any cross-source comparison, exactly as `turn_seq` is
+anchor-blind. All frontmatter values derive from the local corpora — no wall-clock —
+so regeneration stays a no-op when nothing changed (L1).
+
 ## v2
 
 ### Restricted since v1
