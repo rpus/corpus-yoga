@@ -42,6 +42,7 @@ is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
     ./yoga agent list
+    ./yoga agent models
     ./yoga agent transport --session <uuid8> [--to <dir>]
     ./yoga agent receive --from <room> --session <uuid8> [--apply]
     ./yoga agent demerge [--apply]
@@ -69,6 +70,7 @@ import argparse
 import hashlib
 import json
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -355,6 +357,43 @@ def list_agents() -> int:
     return 0
 
 
+def model_census() -> int:
+    """Aggregate message.model over every "type":"assistant" record across ALL
+    coding sessions in this machine's projects root — every project, main
+    sessions and their subagents. Hall bundles are copies of sessions counted
+    here (or in their origin room), so they are not counted. The model is a
+    per-RECORD fact, so a mid-session switch — elective /model or forced
+    fallback — shows as a mixed session; '<synthetic>' rows are harness-authored
+    records (no model spoke). Framing on stderr; data lines on stdout
+    (pipeable), derived on demand, never stored (L5)."""
+    rows = []
+    total = Counter()
+    for proj in sorted(p for p in PROJECTS.iterdir() if p.is_dir()):
+        buckets: dict[str, Counter] = {}
+        for f in sorted(proj.rglob('*.jsonl')):
+            bucket = f.stem[:8] if f.parent == proj else 'subagents'
+            for line in f.open(errors='replace'):
+                if '"assistant"' not in line:
+                    continue
+                try:
+                    rec = json.loads(line)
+                except ValueError:
+                    continue
+                if rec.get('type') != 'assistant':
+                    continue
+                model = (rec.get('message') or {}).get('model') or 'null'
+                buckets.setdefault(bucket, Counter())[model] += 1
+                total[model] += 1
+        rows += [(proj.name, b, buckets[b]) for b in sorted(buckets)]
+    print(f'{"project":<52}  {"session":<9}  {"model":<22}  {"records":>7}', file=sys.stderr)
+    for proj_name, bucket, counts in rows:
+        for model, n in counts.most_common():
+            print(f'{proj_name:<52}  {bucket:<9}  {model:<22}  {n:>7}')
+    for model, n in total.most_common():
+        print(f'{"(total)":<52}  {"":<9}  {model:<22}  {n:>7}')
+    return 0
+
+
 def demerge(proj_dir: Path, apply: bool) -> int:
     """Undo the LATEST merge recorded in MEMORY.md, exactly and all-or-nothing:
     delete the recorded additions (novelties, twins), truncate the recorded
@@ -512,6 +551,8 @@ def main() -> int:
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing)')
     d.add_argument('--apply', action='store_true')
     sub.add_parser('list', help='census: sessions here and in the hall, dressed with their last ai-title')
+    sub.add_parser('models', help='model census: message.model counts over "type":"assistant" records, '
+                                  'every project and session in this machine\'s projects root')
     args = ap.parse_args()
 
     if args.direction == 'list':
@@ -520,6 +561,9 @@ def main() -> int:
     if not PROJECTS.is_dir():
         sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/code-projects/PREP.sh creates the symlink')
     key = project_key()
+
+    if args.direction == 'models':
+        return model_census()
 
     if args.direction == 'demerge':
         return 1 if demerge(PROJECTS / key, args.apply) else 0

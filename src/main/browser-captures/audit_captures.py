@@ -3,7 +3,7 @@
 audit_captures.py — list known/suspect problems across the browser-captures corpus.
 
 The recapture workflow needs a staleness detector: after having (or extending) a
-conversation, the user recaptures it in place (Shortcut / --id); this tool says which
+conversation, the user recaptures it (Shortcut / --id); this tool says which
 captures need attention. Two independent questions, two modes:
 
 Filesystem audit (always) — "are the captures I have any good?"
@@ -77,7 +77,7 @@ def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
               "claude's scrape is retired (the api json is the record): delete the scrape .md, "
               'or refresh it:')
         print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --scrape --id {uuid}'
-              f'  # first front https://claude.ai/chat/{uuid} in Safari (logged in); the scrape walk takes minutes')
+              '  # needs Safari logged in; the scrape walk takes minutes')
     if unscraped:
         print(f'claude: {unscraped} capture dir(s) have no scrape .md — optional; the api json is the record')
     if unprojected:

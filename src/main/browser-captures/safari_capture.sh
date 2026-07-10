@@ -3,7 +3,7 @@
 #
 # Two modes (orthogonal to the invoker — CLI, PREP.sh, or the macOS Shortcut):
 #   (no args)     Discover and capture all conversations, navigating in a work tab.
-#   --id <id>     Capture one conversation in place from the front tab (no navigation).
+#   --id <id>     Capture one conversation — in place if the front tab shows it, else navigated to.
 #
 # Usage:
 #   src/main/browser-captures/safari_capture.sh --agent claude

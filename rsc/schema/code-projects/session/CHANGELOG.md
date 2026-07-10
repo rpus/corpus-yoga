@@ -6,6 +6,25 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 ---
 
+## v8
+
+The frontier datum is again `a6f25723-…`, and again it outgrew the schema by doing —
+this time a thing it had already done once. On 2026-07-09 it published a second web
+Artifact ("Schematise the surface — the Gemini arc"), and the harness's `frame-link`
+record arrived one field richer than the two v6-era records that minted the type: it
+now carries the page's display `title`. One record observed with it, two before it
+without — so the field is optional and v8 is a pure relaxation, modelling both
+vintages. A session schema minted from inside the session it validates, for the third
+version running: v6 read this session's first publishes, v7 its forced fallback, v8
+the record of the artifact that documented v7's arc.
+
+### Relaxed since v7
+
+- `FrameLinkRecord` — optional `title` (string): the published artifact's display
+  title. Observed 2026-07-09 in the one record written since; the two 2026-07-07
+  records predate the field and rest unchanged (the record stays otherwise closed:
+  `additionalProperties: false`, five original fields required).
+
 ## v7
 
 Adds `FallbackBlock`, the record of an involuntary model fallback within a single

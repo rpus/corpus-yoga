@@ -96,11 +96,21 @@ State which data it now validates.
 
 Open `rsc/schema/model_join.csv` and:
 
-1. **Bump version references** — replace `v{N}.json` with `v{N+1}.json` in any rows
-   that reference the schema you changed.
+1. **Pointers name no versions** — every cell is a path relative to `rsc/schema`:
+   a versioned FAMILY DIR (`chat-exports/conversations#/definitions/…`,
+   `code-projects/session#/definitions/…`, `browser-captures/apiConversation#/definitions/…`)
+   or a real file (`_reference/mcp.json#/definitions/…`). `check_schema_join`
+   resolves family dirs against their LATEST version, so a mint costs this file
+   no edit at all; if the mint renamed or removed a referenced definition, the
+   pointer check fails — that failure IS the review prompt. (The old
+   version-pinned grammar churned dozens of cells per mint, and its bare
+   `vN.json#…` session cells contained neither "session" nor a pipeline name —
+   invisible to search, which is how a 2026-07-10 review declared the file a
+   no-op while 37 rows needed judgement. `check_model_join_versions` now rejects
+   any reintroduced pin.)
 
 2. **Update stale notes** — fields that were "always null in observed exports" or
-   `api_null` may now have real values; correct the relationship and note columns.
+   `null_in_api` may now have real values; correct the relationship and note columns.
 
 3. **Check for coupling** — look at every field you changed and ask:
    - Does the same field exist in another pipeline's schema?
@@ -115,11 +125,11 @@ Open `rsc/schema/model_join.csv` and:
    New tool types (`SearchMcpRegistryToolUseBlock`) and new message fields
    (`compaction_summary`) are examples.
 
-5. **Verify pointers and version currency** by running:
+5. **Verify pointers and grammar** by running:
 
    ```bash
-   src/test/pre_commit.sh   # check_schema_join: pointer validity
-                            # check_model_join_versions: stale version refs
+   src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
+                            # check_model_join_versions: no version-pinned cells
    ```
 
 ### 5. Check _reference/mcp.json

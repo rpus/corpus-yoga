@@ -16,9 +16,9 @@ macOS Shortcut — is independent of the mode):
   (no args)   Discover every conversation from the listing, then navigate through and
               capture all of them — in a dedicated work tab; the user's front tab is
               restored afterwards.
-  --id <id>   Capture ONE conversation in place, from the front tab, with no
-              navigation. The front tab must already show that conversation
-              (refused otherwise).
+  --id <id>   Capture ONE conversation. If the front tab already shows it, capture
+              in place (no navigation — the capture-what-you're-reading workflow);
+              otherwise navigate to it in a work tab, like discovery mode for one id.
 
 Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
@@ -314,8 +314,8 @@ def main():
     ap.add_argument('--browser-captures', default=None,
                     help='Path to ext/browser-captures/<agent>/ (default: repo-relative)')
     ap.add_argument('--id', metavar='ID',
-                    help='Capture ONE conversation in place from the front tab (no navigation); '
-                         'default is to discover and navigate all conversations in a work tab')
+                    help='Capture ONE conversation — in place if the front tab shows it, '
+                         'else navigated to in a work tab; default is to discover and capture all')
     ap.add_argument('--scrape', action='store_true',
                     help='also run the DOM scrape (Claude; feeds compare_markdown). No effect for Gemini.')
     args = ap.parse_args()
@@ -331,15 +331,22 @@ def main():
     captures_root.mkdir(parents=True, exist_ok=True)
 
     if args.id:
-        # In-place capture: the front tab IS the conversation (no navigation happens).
-        # Refuse a mismatched id rather than capture the wrong page and file it under it.
+        # Single capture. If the front tab already shows the conversation, capture it in
+        # place (the capture-what-you're-reading workflow: no navigation, browser untouched);
+        # otherwise do exactly what discovery mode does for one id — navigate in a dedicated
+        # work tab and restore the front tab — so the audit's remedy runs as printed. Either
+        # way the id is verified against the page before filing (wait_for_url on the
+        # navigating path), never trusted.
         front_url = osascript('tell application "Safari" to get URL of front document')
-        if args.id not in front_url:
-            print(f'error: --id {args.id} does not match the front tab ({front_url or "no page"}) — '
-                  '--id captures the front tab without navigating; open the conversation first',
-                  file=sys.stderr)
-            raise SystemExit(1)
-        failed = capture_all(args.agent, [args.id], captures_root, navigate=False, also_scrape=args.scrape)
+        if args.id in front_url:
+            failed = capture_all(args.agent, [args.id], captures_root, navigate=False, also_scrape=args.scrape)
+        else:
+            prev_tab = safari_open_work_tab()
+            try:
+                failed = capture_all(args.agent, [args.id], captures_root,
+                                     navigate=True, also_scrape=args.scrape)
+            finally:
+                safari_close_work_tab(prev_tab)
     else:
         # Discovery mode navigates through every conversation — do that in a dedicated
         # work tab so the user's front tab survives, and restore it afterwards.

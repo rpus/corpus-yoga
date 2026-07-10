@@ -62,10 +62,10 @@ RUNME.sh,21,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --new-claud
 RUNME.sh,24,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 RUNME.sh,24,comment,src/test/pre_commit.log,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 RUNME.sh,77,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-RUNME.sh,131,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-RUNME.sh,138,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,140,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,142,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,139,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+RUNME.sh,146,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,148,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,150,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" --plan | sed 's/^/  /'"
 rsc/CALCULUS.md,18,doc,src/main/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
@@ -102,19 +102,21 @@ rsc/cli/commands.csv,8,path_str,src/main/model/build_index.py,Y,"indexing,src/ma
 rsc/cli/commands.csv,9,path_str,src/main/chat-exports/library.py,Y,"library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-libr"
 rsc/cli/commands.csv,10,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit ev"
 rsc/cli/commands.csv,11,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk expo"
-rsc/cli/commands.csv,12,path_str,src/main/code-projects/agent.py,Y,"agent,src/main/code-projects/agent.py,list | transport --session <uuid8> [--to <dir>] | receive --from <room> --session "
+rsc/cli/commands.csv,12,path_str,src/main/code-projects/agent.py,Y,"agent,src/main/code-projects/agent.py,list | models | transport --session <uuid8> [--to <dir>] | receive --from <room> -"
 rsc/cli/commands.csv,13,path_str,src/main/machine.py,Y,"machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)"
 rsc/cli/commands.csv,14,path_str,src/main/model/gen_model.sh,Y,"model,src/main/model/gen_model.sh,,project,,Generate per-schema definition catalogues"
 rsc/cli/commands.csv,15,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites"
 rsc/cli/commands.csv,16,path_str,src/main/cli.py,Y,"completion,src/main/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table"
 rsc/cli/readings.md,7,doc,rsc/cli/commands.csv,Y,"`rsc/cli/commands.csv`, and each script's `--help` is the authority on its interface."
-rsc/cli/readings.md,11,doc,rsc/site/index.html,Y,"Paid model readings behind the corpus dashboard (`rsc/site/index.html`, filled by"
-rsc/cli/readings.md,12,doc,src/main/chat-exports/present.sh,Y,"`src/main/chat-exports/present.sh`), single-source and shared across rooms, refreshed"
-rsc/cli/readings.md,18,doc,rsc/schema/dashboard/semanticConcepts/v1.json,Y,- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v1.json`
-rsc/cli/readings.md,19,doc,rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
-rsc/cli/readings.md,25,doc,rsc/schema/dashboard/chatCategories/v1.json,Y,- **`chat-categories.json`** — schema `rsc/schema/dashboard/chatCategories/v1.json`
-rsc/cli/readings.md,26,doc,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
-rsc/cli/readings.md,32,doc,rsc/site/index.html,Y,"`rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join"
+rsc/cli/readings.md,11,doc,rsc/site/index.html,Y,"Paid model readings behind the corpus dashboard (`rsc/site/index.html`, the shared"
+rsc/cli/readings.md,16,doc,src/main/chat-exports/present_corpus.py,Y,(`src/main/chat-exports/present_corpus.py` → `gen/dashboard/presentation/`): keys
+rsc/cli/readings.md,20,doc,src/main/chat-exports/present.sh,Y,lanes and clouds alike. The per-batch pages (`src/main/chat-exports/present.sh` →
+rsc/cli/readings.md,25,doc,rsc/schema/dashboard/semanticConcepts/v2.json,Y,- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v2.json`
+rsc/cli/readings.md,26,doc,rsc/schema/dashboard/semanticConcepts/v1.json,Y,"(v1, untagged: `rsc/schema/dashboard/semanticConcepts/v1.json`; changelog:"
+rsc/cli/readings.md,27,doc,rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,Y,`rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
+rsc/cli/readings.md,36,doc,rsc/schema/dashboard/chatCategories/v1.json,Y,- **`chat-categories.json`** — schema `rsc/schema/dashboard/chatCategories/v1.json`
+rsc/cli/readings.md,37,doc,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
+rsc/cli/readings.md,43,doc,rsc/site/index.html,Y,"`rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join"
 rsc/machines/README.md,5,doc,rsc/CALCULUS.md,Y,`rsc/CALCULUS.md`: these files are byte-identical on every clone because they
 rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
@@ -132,13 +134,14 @@ rsc/schema/WORKFLOW.md,81,doc,src/validation_matrix.py,Y,`validate_versions.py` 
 rsc/schema/WORKFLOW.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,88,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,97,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,121,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity
-rsc/schema/WORKFLOW.md,127,doc,rsc/schema/_reference/mcp.json,Y,`rsc/schema/_reference/mcp.json` is a snapshot of the MCP protocol spec used as the
-rsc/schema/WORKFLOW.md,148,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
-rsc/schema/WORKFLOW.md,152,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
-rsc/schema/WORKFLOW.md,162,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/WORKFLOW.md,163,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
-rsc/schema/WORKFLOW.md,167,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
+rsc/schema/WORKFLOW.md,99,doc,rsc/schema,Y,1. **Pointers name no versions** — every cell is a path relative to `rsc/schema`:
+rsc/schema/WORKFLOW.md,131,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,137,doc,rsc/schema/_reference/mcp.json,Y,`rsc/schema/_reference/mcp.json` is a snapshot of the MCP protocol spec used as the
+rsc/schema/WORKFLOW.md,158,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
+rsc/schema/WORKFLOW.md,162,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
+rsc/schema/WORKFLOW.md,172,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+rsc/schema/WORKFLOW.md,173,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
+rsc/schema/WORKFLOW.md,177,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
@@ -148,7 +151,7 @@ rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`v
 rsc/schema/chat-exports/projects/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-projects/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-projects/session/CHANGELOG.md,159,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,178,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
@@ -260,22 +263,24 @@ src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/librar
 src/main/chat-exports/compare_batches.py,51,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
 src/main/chat-exports/compare_batches.py,51,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
 src/main/chat-exports/dashboard.sh,9,comment,rsc/site/index.html,Y,# by both rooms. The category PALETTE is authored inline in rsc/site/index.html
-src/main/chat-exports/dashboard.sh,31,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
-src/main/chat-exports/dashboard.sh,44,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
-src/main/chat-exports/dashboard.sh,46,path_str,src/main,Y,"sys.path.insert(0, '$REPO_DIR/src/main')"
-src/main/chat-exports/dashboard.sh,52,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
-src/main/chat-exports/dashboard.sh,52,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
-src/main/chat-exports/dashboard.sh,86,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
-src/main/chat-exports/dashboard.sh,90,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
-src/main/chat-exports/dashboard.sh,92,path_str,rsc/site/index.html,Y,h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
-src/main/chat-exports/dashboard.sh,116,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
-src/main/chat-exports/dashboard.sh,116,call,src/main/chat-exports/rekey_chats.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
-src/main/chat-exports/dashboard.sh,117,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,117,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,131,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,131,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,145,call,src/run_python_script.sh,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
-src/main/chat-exports/dashboard.sh,145,call,src/main/validate.py,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,35,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
+src/main/chat-exports/dashboard.sh,51,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
+src/main/chat-exports/dashboard.sh,53,path_str,src/main,Y,"sys.path.insert(0, '$REPO_DIR/src/main')"
+src/main/chat-exports/dashboard.sh,59,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
+src/main/chat-exports/dashboard.sh,59,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
+src/main/chat-exports/dashboard.sh,93,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
+src/main/chat-exports/dashboard.sh,97,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
+src/main/chat-exports/dashboard.sh,99,path_str,rsc/site/index.html,Y,h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
+src/main/chat-exports/dashboard.sh,123,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
+src/main/chat-exports/dashboard.sh,123,call,src/main/chat-exports/rekey_chats.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
+src/main/chat-exports/dashboard.sh,124,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,124,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,141,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,141,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,155,call,src/run_python_script.sh,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,155,call,src/main/validate.py,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,281,call,src/run_python_script.sh,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
+src/main/chat-exports/dashboard.sh,281,call,src/main/chat-exports/present_corpus.py,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
 src/main/chat-exports/extract_files.py,15,comment,src/main/chat-exports/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber"
 src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
 src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports ext/chat-exports
@@ -289,35 +294,35 @@ src/main/chat-exports/library.py,27,comment,src/run_python_script.sh,Y,src/run_p
 src/main/chat-exports/library.py,27,comment,src/main/chat-exports/library.py,Y,src/run_python_script.sh src/main/chat-exports/library.py       gen/chat-exports/<batch>/json [--root lib/artifacts/down
 src/main/chat-exports/library.py,29,comment,rsc/naming/library_dir_vintages.csv,Y,The vintages themselves are data: rsc/naming/library_dir_vintages.csv.
 src/main/chat-exports/library.py,92,comment,rsc/naming/library_dir_vintages.csv,Y,"rsc/naming/library_dir_vintages.csv (id, status, pattern, note), in match"
-src/main/chat-exports/present.sh,3,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/present.sh,4,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ext/chat-exports
-src/main/chat-exports/present.sh,11,path_str,rsc/site/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/site/index.html"""
-src/main/chat-exports/present.sh,12,path_str,src/main/chat-exports/word_freq_literal.py,Y,"WORD_FREQ_SCRIPT=""$SCRIPT_DIR/word_freq_literal.py"""
-src/main/chat-exports/present.sh,13,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
-src/main/chat-exports/present.sh,14,path_str,src/main/chat-exports/timeline.py,Y,"TIMELINE_SCRIPT=""$SCRIPT_DIR/timeline.py"""
-src/main/chat-exports/present.sh,15,path_str,src/main/chat-exports/check_harvested.py,Y,"CHECK_HARVESTED_SCRIPT=""$SCRIPT_DIR/check_harvested.py"""
-src/main/chat-exports/present.sh,16,path_str,src/main/chat-exports/files_from_downloaded.py,Y,"FILES_FROM_DOWNLOADED_SCRIPT=""$SCRIPT_DIR/files_from_downloaded.py"""
-src/main/chat-exports/present.sh,25,call,src/run_python_script.sh,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
-src/main/chat-exports/present.sh,25,call,src/main/chat-exports/timeline.py,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
-src/main/chat-exports/present.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"" ""$1"""
-src/main/chat-exports/present.sh,32,call,src/main/chat-exports/files_from_downloaded.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"" ""$1"""
-src/main/chat-exports/present.sh,48,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
-src/main/chat-exports/present.sh,48,call,src/main/chat-exports/format_table.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
-src/main/chat-exports/present.sh,61,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
-src/main/chat-exports/present.sh,61,call,src/main/chat-exports/inject.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
-src/main/chat-exports/present.sh,67,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,67,call,src/main/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,72,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,72,call,src/main/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
-src/main/chat-exports/present.sh,106,path_str,rsc/site/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
-src/main/chat-exports/present.sh,133,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,133,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/chat-exports/present.sh,136,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
-src/main/chat-exports/present.sh,137,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,137,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/chat-exports/present.sh,142,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal-words: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
-src/main/chat-exports/present.sh,168,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
-src/main/chat-exports/present.sh,168,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
+src/main/chat-exports/present.sh,6,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
+src/main/chat-exports/present.sh,7,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports ext/chat-exports
+src/main/chat-exports/present.sh,14,path_str,rsc/site/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/site/index.html"""
+src/main/chat-exports/present.sh,15,path_str,src/main/chat-exports/word_freq_literal.py,Y,"WORD_FREQ_SCRIPT=""$SCRIPT_DIR/word_freq_literal.py"""
+src/main/chat-exports/present.sh,16,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
+src/main/chat-exports/present.sh,17,path_str,src/main/chat-exports/timeline.py,Y,"TIMELINE_SCRIPT=""$SCRIPT_DIR/timeline.py"""
+src/main/chat-exports/present.sh,18,path_str,src/main/chat-exports/check_harvested.py,Y,"CHECK_HARVESTED_SCRIPT=""$SCRIPT_DIR/check_harvested.py"""
+src/main/chat-exports/present.sh,19,path_str,src/main/chat-exports/files_from_downloaded.py,Y,"FILES_FROM_DOWNLOADED_SCRIPT=""$SCRIPT_DIR/files_from_downloaded.py"""
+src/main/chat-exports/present.sh,28,call,src/run_python_script.sh,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
+src/main/chat-exports/present.sh,28,call,src/main/chat-exports/timeline.py,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
+src/main/chat-exports/present.sh,35,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"" ""$1"""
+src/main/chat-exports/present.sh,35,call,src/main/chat-exports/files_from_downloaded.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"" ""$1"""
+src/main/chat-exports/present.sh,51,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
+src/main/chat-exports/present.sh,51,call,src/main/chat-exports/format_table.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
+src/main/chat-exports/present.sh,64,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
+src/main/chat-exports/present.sh,64,call,src/main/chat-exports/inject.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
+src/main/chat-exports/present.sh,70,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,70,call,src/main/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,75,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,75,call,src/main/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
+src/main/chat-exports/present.sh,109,path_str,rsc/site/index.html,Y,"cp ""$TEMPLATE"" ""$out"""
+src/main/chat-exports/present.sh,136,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,136,call,src/main/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
+src/main/chat-exports/present.sh,139,path_str,src/main/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
+src/main/chat-exports/present.sh,140,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,140,call,src/main/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
+src/main/chat-exports/present.sh,145,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal-words: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
+src/main/chat-exports/present.sh,171,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
+src/main/chat-exports/present.sh,171,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 src/main/chat-exports/rekey_chats.py,32,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
@@ -432,19 +437,19 @@ src/test/gen_changelog_matrix.py,15,comment,src/run_python_script.sh,Y,src/run_p
 src/test/gen_changelog_matrix.py,15,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,"src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u"
-src/test/pre_commit.py,593,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
-src/test/pre_commit.py,595,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/pre_commit.py,339,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
+src/test/pre_commit.py,603,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
+src/test/pre_commit.py,605,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/pre_commit.py,349,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,86,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,95,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,106,path_str,src/main/code-projects/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-projects/RUNME.sh --code-project',"
-src/test/pre_commit.py,580,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
-src/test/pre_commit.py,1000,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1002,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1010,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1012,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,788,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
-src/test/pre_commit.py,961,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
+src/test/pre_commit.py,590,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
+src/test/pre_commit.py,999,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1001,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1009,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1011,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,787,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+src/test/pre_commit.py,960,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,62,comment,src/test/pre_commit.log,Y,"# src/test/pre_commit.log (code+schema only, byte-identical on any clone — the"
@@ -518,6 +523,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/code-projects/session/v5.json,Y,
 ,,,rsc/schema/code-projects/session/v6.json,Y,
 ,,,rsc/schema/code-projects/session/v7.json,Y,
+,,,rsc/schema/code-projects/session/v8.json,Y,
 ,,self_only,rsc/schema/documenter.json,Y,
 ,,,src/main/browser-captures/claude/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/export-all-conversations.applescript,Y,

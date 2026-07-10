@@ -232,7 +232,11 @@ def _has_local_data(pipeline: Pipeline) -> bool:
 
 
 def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: list) -> None:
-    """Validate JSON Pointer fragments in a join CSV. base_for maps column name → base dir."""
+    """Validate JSON Pointer fragments in a join CSV. base_for maps column name → base dir.
+    A cell may name a .json file directly, or a versioned FAMILY DIR — the de-versioned
+    grammar — in which case the pointer resolves against the family's LATEST version,
+    so a mint that renames or removes a referenced definition fails here (the review
+    prompt), and a mint that keeps it costs the join table nothing."""
     with csv_path.open() as fh:
         for i, row in enumerate(csv.DictReader(fh), 2):
             for col in columns:
@@ -240,10 +244,16 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
                 if not ref:
                     continue
                 file_part, _, pointer = ref.partition('#')
-                f = (base_for.get(col, RSC_SCHEMA / 'conversations') / file_part).resolve()
+                f = (base_for.get(col, RSC_SCHEMA) / file_part).resolve()
                 if not f.exists():
                     fails.append(f'row {i} {col}: file not found: {file_part}')
                     continue
+                if f.is_dir():
+                    versions = _sorted_versions(f)
+                    if not versions:
+                        fails.append(f'row {i} {col}: no v*.json in family dir: {file_part}')
+                        continue
+                    f = versions[-1]
                 if pointer and f.suffix == '.json':
                     try:
                         doc = json.loads(f.read_text())
@@ -684,49 +694,38 @@ def check_schema_join(run):
         run('schema model_join.csv exists', False)
         return
     fails: list[str] = []
+    # One grammar, one base: every cell is a path relative to rsc/schema — a
+    # versioned family dir ('chat-exports/conversations#…') or a real file
+    # ('_reference/mcp.json#…'). No per-column tribal knowledge to resolve a cell.
     _check_csv_pointers(join,
-                        ('conv_path', 'session_path', 'api_path', 'mcp_path'),
-                        {'conv_path':    SCHEMA_DIR['conversations'].parent,
-                         'session_path': SCHEMA_DIR['session'],
-                         'api_path':     SCHEMA_DIR['apiConversation'].parent,
-                         'mcp_path':     RSC_SCHEMA},
+                        ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path'),
+                        {c: RSC_SCHEMA for c in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')},
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None)
 
 
 def check_model_join_versions(run):
-    """Every versioned schema referenced in model_join.csv must be the latest version."""
+    """The versioned columns must use the de-versioned grammar — a family dir per
+    cell ('<pipeline>/<family>#/definitions/…'), never a vN.json pin. The old pinned
+    grammar churned every session/conv/api cell on each mint and its bare filenames
+    defeated search: a session row spelling 'v7.json#…' contains neither 'session'
+    nor its pipeline, which is how a 2026-07-10 grep for session references found
+    nothing while 37 rows sat there. check_schema_join resolves family dirs against
+    their latest version, so currency is enforced by resolution, not by rewriting."""
     join = RSC_SCHEMA / 'model_join.csv'
     if not join.exists():
         return
-    base_for = {
-        'conv_path':    SCHEMA_DIR['conversations'].parent,
-        'session_path': SCHEMA_DIR['session'],
-        'api_path':     SCHEMA_DIR['apiConversation'].parent,
-    }
-    seen_dirs: dict[Path, str] = {}  # schema_dir → stem of version referenced
+    pins: list[str] = []
     with join.open() as fh:
-        for row in csv.DictReader(fh):
-            for col, base in base_for.items():
-                ref = row.get(col, '').strip()
-                if not ref:
-                    continue
-                file_part = ref.partition('#')[0]
-                f = (base / file_part).resolve()
-                if not re.match(r'v\d+', f.stem):
-                    continue
-                if f.parent not in seen_dirs:
-                    seen_dirs[f.parent] = f.stem
-    for schema_dir, used_stem in sorted(seen_dirs.items()):
-        versions = _sorted_versions(schema_dir)
-        if not versions:
-            continue
-        latest_stem = versions[-1].stem
-        rel = schema_dir.relative_to(RSC_SCHEMA)
-        run(f'model_join: {rel}: {used_stem}',
-            used_stem == latest_stem,
-            f'Update {used_stem}.json refs to {latest_stem}.json in {join.relative_to(REPO_ROOT)}' if used_stem != latest_stem else None)
+        for i, row in enumerate(csv.DictReader(fh), 2):
+            for col in ('conversations_path', 'session_path', 'apiConversation_path'):
+                file_part = (row.get(col) or '').strip().partition('#')[0]
+                if re.search(r'v\d+\.json$', file_part):
+                    pins.append(f'row {i} {col}: {file_part}')
+    run('model_join: de-versioned pointer grammar (family dirs, no vN.json pins)',
+        not pins,
+        '\n    '.join(pins[:5]) if pins else None)
 
 
 def check_mcp_schema(run):

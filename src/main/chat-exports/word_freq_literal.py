@@ -41,29 +41,38 @@ def filtered(words):
 def top_n(counter, n=120):
     return [{'word': w, 'count': c} for w, c in counter.most_common(n)]
 
-path = sys.argv[1] if len(sys.argv) > 1 else 'conversations.json'
-data = json.load(open(path))
+def tables(human_words, assistant_words):
+    """The three sub-tables from raw word lists — shared with present_corpus.py,
+    whose word lists come from projected markdown rather than conversations.json."""
+    hf = Counter(human_words)
+    af = Counter(assistant_words)
+    return {
+        'human':     top_n(hf),
+        'assistant': top_n(af),
+        'both':      top_n(hf + af),
+    }
 
-human_words, assistant_words = [], []
 
-for conv in data:
-    for msg in conv['chat_messages']:
-        text = ' '.join(
-            b['text'] for b in msg['content']
-            if b.get('type') == 'text' and b.get('text')
-        )
-        ws = filtered(words_from(text))
-        if msg['sender'] == 'human':
-            human_words += ws
-        else:
-            assistant_words += ws
+def main():
+    path = sys.argv[1] if len(sys.argv) > 1 else 'conversations.json'
+    data = json.load(open(path))
 
-hf = Counter(human_words)
-af = Counter(assistant_words)
-bf = hf + af
+    human_words, assistant_words = [], []
 
-print(json.dumps({
-    'human':     top_n(hf),
-    'assistant': top_n(af),
-    'both':      top_n(bf),
-}, indent=2))
+    for conv in data:
+        for msg in conv['chat_messages']:
+            text = ' '.join(
+                b['text'] for b in msg['content']
+                if b.get('type') == 'text' and b.get('text')
+            )
+            ws = filtered(words_from(text))
+            if msg['sender'] == 'human':
+                human_words += ws
+            else:
+                assistant_words += ws
+
+    print(json.dumps(tables(human_words, assistant_words), indent=2))
+
+
+if __name__ == '__main__':
+    main()

@@ -11,6 +11,10 @@
 # chat→category assignment are captured here.
 #
 #   yoga dashboard              # status: what is captured (read-only, free)
+#   yoga dashboard present      # FREE: render the corpus dashboard page from
+#                               #   lib/markdown + lib/dashboard → gen/dashboard/presentation/
+#                               #   (keys = corpus ordinals, all sources; the per-batch
+#                               #   pages under gen/chat-exports/ remain export artifacts)
 #   yoga dashboard capture      # PAID: re-read the corpus → lib/dashboard/
 #                               #   [--conversations <path>] overrides the source — a
 #                               #     projected markdown corpus dir, an atomised json/
@@ -36,8 +40,11 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # The default source is the projected corpus itself (lib/markdown — every source's
 # conversations dir combined, claude first), whose filenames carry the cached
 # ordering — read back by markdown_projection.corpus_index, the format authority.
+# Each line carries a [source] marker, derived from the id shape (36-char uuid =
+# claude, 16-hex app id = gemini) — the concept capture tags its rows from these.
 # A batch source (conversations.json or atomised json/) still works via
-# timeline.py, re-deriving the claude numbering with ordered().
+# timeline.py, re-deriving the claude numbering with ordered() (no markers: a
+# batch is claude by construction, and the prompt says so).
 chat_list() {
   local src="$1"
   if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || compgen -G "$src/*/conversations/*.md" > /dev/null; }; then
@@ -45,8 +52,8 @@ chat_list() {
 import sys
 sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
-for n, _stem, title, _u in corpus_index('$src'):
-    print(f'{n}: {title}')
+for n, _stem, title, cid in corpus_index('$src'):
+    print(f'{n} [{\"claude\" if len(cid) == 36 else \"gemini\"}]: {title}')
 "
   else
     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/timeline.py" "$src" --table chat-list
@@ -118,14 +125,17 @@ $chats" \
     > "$out_file"
 }
 
-# capture_concepts_to <chat_list> <out_file> — the weighted concept table
+# capture_concepts_to <chat_list> <out_file> — the weighted concept table, each
+# concept tagged with the source(s) it is salient in (from the chat list's [source]
+# markers) — the dimension behind the dashboard's source toggle (schema v2)
 capture_concepts_to() {
   local chats="$1" out_file="$2"
   capture_table \
-    '["word", "count"]' \
+    '["word", "count", "source"]' \
     'word: key concept or theme (word or short phrase)
-count: salience weight (not raw frequency); scale so the top concept = 100' \
-    'Generate a weighted list of 20-50 key concepts and themes across all conversations.' \
+count: salience weight (not raw frequency); scale so the top concept = 100
+source: which source the concept is salient in — "claude", "gemini", or "both", from the [source] markers in the conversation list (a list without markers is all claude)' \
+    'Generate a weighted list of 20-50 key concepts and themes across all conversations, tagging each concept with the source(s) whose conversations it is salient in.' \
     "Conversations:
 $chats" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
@@ -268,9 +278,10 @@ capture() {
 main() {
   case "${1:-}" in
     capture)     shift; capture "$@" ;;
+    present)     shift; exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/present_corpus.py" "$@" ;;
     ''|status)   status ;;
     -h|--help)   grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-    *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid) or bare (status)" >&2; exit 1 ;;
+    *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid), 'present' (free render), or bare (status)" >&2; exit 1 ;;
   esac
 }
 

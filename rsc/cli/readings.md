@@ -8,20 +8,31 @@ in `gen/`); this committed file is its format contract. The command surface itse
 
 ## `yoga dashboard` — the model's captures (`lib/dashboard/`)
 
-Paid model readings behind the corpus dashboard (`rsc/site/index.html`, filled by
-`src/main/chat-exports/present.sh`), single-source and shared across rooms, refreshed
-deliberately and out-of-band by `yoga dashboard capture` (both files; `--only <name>`
-for one), reading the whole projected corpus (`lib/markdown` — claude and gemini
-alike). Both are `{columns, rows}` tables, schema'd like every other data class and
-validated in-memory before promotion:
+Paid model readings behind the corpus dashboard (`rsc/site/index.html`, the shared
+template), single-source and shared across rooms, refreshed deliberately and
+out-of-band by `yoga dashboard capture` (both files; `--only <name>` for one),
+reading the whole projected corpus (`lib/markdown` — claude and gemini alike).
+`yoga dashboard present` renders the CORPUS page free
+(`src/main/chat-exports/present_corpus.py` → `gen/dashboard/presentation/`): keys
+are the corpus ordinals over every source, claude lanes carry real spans (turn
+anchors are UUIDv7s, whose first 48 bits are a timestamp), gemini lanes list
+bar-less (its scrapes hold no time data), and the page-top source toggle filters
+lanes and clouds alike. The per-batch pages (`src/main/chat-exports/present.sh` →
+`gen/chat-exports/<batch>/presentation/`) remain export artifacts. Both captures
+are `{columns, rows}` tables, schema'd like every other data class and validated
+in-memory before promotion:
 
-- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v1.json`
-  (changelog: `rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
-  `{"columns": ["word", "count"], "rows": [["mathematics", 100], …]}`.
+- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v2.json`
+  (v1, untagged: `rsc/schema/dashboard/semanticConcepts/v1.json`; changelog:
+  `rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
+  `{"columns": ["word", "count", "source"], "rows": [["mathematics", 100, "both"], …]}`.
   A weighted reading of the corpus's key concepts; the **count is salience** (top
-  concept = 100), which the word cloud sizes by. Two consumers, each taking what it
-  needs: the dashboard uses the weights (cloud sizing); `indexing` borrows only the
-  names (candidate headwords, weights discarded).
+  concept = 100), which the word cloud sizes by, and the **source names where the
+  concept is salient** (`claude` / `gemini` / `both`), which the dashboard's
+  source toggle filters by (a pre-v2 capture lacks the column; the toggle
+  disables until the next capture). Two consumers, each taking what it needs:
+  the dashboard uses the weights and tags (cloud sizing and filtering);
+  `indexing` borrows only the names (candidate headwords, weights discarded).
 - **`chat-categories.json`** — schema `rsc/schema/dashboard/chatCategories/v1.json`
   (changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
   `{"columns": ["id", "category"], "rows": [["<id>", "mathematics"], …]}`.
