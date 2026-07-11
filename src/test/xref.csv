@@ -66,10 +66,10 @@ RUNME.sh,21,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser --new-claud
 RUNME.sh,24,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 RUNME.sh,24,comment,src/test/pre_commit.log,Y,#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
 RUNME.sh,77,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-RUNME.sh,139,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-RUNME.sh,146,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,148,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,150,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,152,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+RUNME.sh,159,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,161,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,163,call,src/main/code-projects/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-projects/RUNME.sh"" --plan | sed 's/^/  /'"
 rsc/CALCULUS.md,18,doc,src/main/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
@@ -265,8 +265,8 @@ src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.p
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/library.py,Y,src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive th
-src/main/chat-exports/compare_batches.py,51,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
-src/main/chat-exports/compare_batches.py,51,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
+src/main/chat-exports/compare_batches.py,59,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
+src/main/chat-exports/compare_batches.py,59,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-gen gen/chat-exports] [--chat-expo
 src/main/chat-exports/dashboard.sh,9,comment,rsc/site/index.html,Y,# by both rooms. The category PALETTE is authored inline in rsc/site/index.html
 src/main/chat-exports/dashboard.sh,35,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
 src/main/chat-exports/dashboard.sh,51,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """

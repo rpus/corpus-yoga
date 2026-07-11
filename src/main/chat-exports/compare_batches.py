@@ -47,6 +47,14 @@ deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
 licences it carried.
 
+A gen/ batch dir whose ext/ datum is gone is an ORPHANED DERIVATION — the
+shadow of a batch already disposed of, not a batch. Its archive copies are
+complete, so left in it would keep passing for a live batch (and witnessing
+others) indefinitely; it is excluded from the comparison and WARNed with its
+rm remedy — datum-scoped gen/ dirs die with their ext/ datum (README), but
+deletion stays deliberate, so the machinery names the orphan rather than
+resurrecting it.
+
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
     [--chat-exports-gen gen/chat-exports] [--chat-exports ext/chat-exports]
@@ -319,6 +327,18 @@ def main():
     unparseable = [d.name for d in batches if batch_time(d.name) is None]
     for n in unparseable:
         print(f'warning: cannot parse a time from batch name {n} — ordering may be wrong', file=sys.stderr)
+
+    # Orphaned derivations (docstring): a gen/ dir with no ext/ datum beside it
+    # must not feed the comparison — its archive copies are complete, so it
+    # would keep passing for a live batch (and witnessing others) after the
+    # data it derives from was disposed of.
+    orphans = [d for d in batches if not (ext_root / d.name).is_dir()]
+    for d in orphans:
+        print(f'WARN: orphaned derivation {d.name} — no {ext_root / d.name} beside it; '
+              'excluded from comparison')
+        print(f'    → run: rm -r {d}')
+    batches = [d for d in batches if (ext_root / d.name).is_dir()]
+
     if not batches:
         print(f'no export dirs with atomised json/ under {root} — nothing to compare')
         return 0
@@ -380,7 +400,7 @@ def main():
         print('verdict: ' + (
             f'keep {latest.name}; every earlier export dir is covered — '
             'batch-witnessed licences hold while their witnesses are kept, deposit '
-            'licences unconditionally; re-run after any deletion'
+            'licences unconditionally; re-run after any deletion (from `ext/` and `gen/`)'
             if covered_all else
             'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
             'not deletable until deposited or superseded'))

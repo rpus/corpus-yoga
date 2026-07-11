@@ -118,12 +118,25 @@ section_error_lines() {
   ' "$LOG_FILE"
 }
 
-# Every FAIL: line in the body, quoted verbatim — a FAIL in a pipeline that
-# COMPLETED never enters section_error_lines (that quoting is keyed on death),
-# so the tail must hoist these itself; a count alone still sends the reader
-# scrolling.
-hoist_fail_lines() {
-  grep -E '^[[:space:]]*FAIL:' "$LOG_FILE" 2>/dev/null | sed 's/^[[:space:]]*/  /' || true
+# Every FAIL:/WARN: line in the body, quoted verbatim — a FAIL in a pipeline
+# that COMPLETED never enters section_error_lines (that quoting is keyed on
+# death), and WARNs carry facts worth eyes too (an orphaned derivation, a
+# stale capture), so the tail must hoist both itself; a count alone still
+# sends the reader scrolling. Only a sigil that occurs is announced —
+# "each FAIL:" with zero FAILs promises a quote that never comes.
+hoist_lines() {
+  grep -E "^[[:space:]]*$1:" "$LOG_FILE" 2>/dev/null | sed 's/^[[:space:]]*/  /' || true
+}
+
+hoist_marks() {
+  if [[ "$n_fail" -gt 0 ]]; then
+    echo "each FAIL:"
+    hoist_lines FAIL
+  fi
+  if [[ "$n_warn" -gt 0 ]]; then
+    echo "each WARN:"
+    hoist_lines WARN
+  fi
 }
 
 prep_pipeline_safe() {
@@ -148,7 +161,7 @@ print_plan() {
   "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
   echo "  code-projects/PREP.sh"
   "$SCRIPT_DIR/src/main/code-projects/RUNME.sh" --plan | sed 's/^/  /'
-  echo "  tail: FAIL/WARN counts with every FAIL: line quoted; failed pipelines with their error:/FAIL: lines quoted; gather '→ run:' suggestions; pre_commit reminder; log path"
+  echo "  tail: FAIL/WARN counts with every FAIL:/WARN: line quoted; failed pipelines with their error:/FAIL: lines quoted; gather '→ run:' suggestions; pre_commit reminder; log path"
 }
 
 main() {
@@ -176,11 +189,11 @@ main() {
   # source (FAIL: something that needs acting on, remedy beside it; WARN: a
   # fact worth eyes that gates nothing) and is grep-able by those sigils. Here:
   # the verdict: line(s) (one-line computed conclusions), the "→ run:"
-  # suggested commands, the FAIL/WARN counts with every FAIL: line quoted
-  # beneath (hoist_fail_lines — a FAIL inside a pipeline that COMPLETED reaches
-  # the tail too, not only a died pipeline's section_error_lines), and — when a
-  # pipeline died — its error:/FAIL: lines quoted under its name, so a failure
-  # is never just "scroll up". The log is safe to read mid-tee: those lines are
+  # suggested commands, the FAIL/WARN counts with every FAIL:/WARN: line
+  # quoted beneath (hoist_marks — a FAIL inside a pipeline that COMPLETED
+  # reaches the tail too, not only a died pipeline's section_error_lines), and
+  # — when a pipeline died — its error:/FAIL: lines quoted under its name, so
+  # a failure is never just "scroll up". The log is safe to read mid-tee: those lines are
   # long flushed.
   local n_fail n_warn verdicts suggestions
   n_fail="$(grep -cE '^[[:space:]]*FAIL:' "$LOG_FILE" 2>/dev/null || true)"
@@ -194,8 +207,8 @@ main() {
   fi
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
     if [[ "$n_fail" -gt 0 || "$n_warn" -gt 0 ]]; then
-      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above; each FAIL:"
-      hoist_fail_lines
+      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above:"
+      hoist_marks
     else
       echo "All pipelines completed successfully."
     fi
@@ -203,8 +216,8 @@ main() {
     # FAIL summarises like WARN even when a pipeline died — the counts do not
     # vanish on the runs that need them most.
     if [[ "$n_fail" -gt 0 || "$n_warn" -gt 0 ]]; then
-      echo "$n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above; each FAIL:"
-      hoist_fail_lines
+      echo "$n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above:"
+      hoist_marks
     fi
     echo "Failed pipelines:"
     local errs
