@@ -14,47 +14,50 @@ README.md,25,doc,src/main,Y,Everything is driven by shell entry points — there
 README.md,33,doc,src/main/model/project_markdown.py,Y,"Downstream of capture, `src/main/model/project_markdown.py` renders clean markdown straight from the API JSON (no DOM sc"
 README.md,35,doc,src/main/chat-exports/library.py,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
 README.md,35,doc,rsc/CALCULUS.md,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
-README.md,39,doc,rsc/cli/commands.csv,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
-README.md,39,doc,rsc/CALCULUS.md,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
-README.md,39,doc,rsc/cli/README.md,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
-README.md,39,doc,PREREQUISITES.sh,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
-README.md,39,doc,RUNME.sh,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
-README.md,41,doc,rsc/schema,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
-README.md,41,doc,rsc/schema/model_join.csv,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
-README.md,41,doc,src/test/pre_commit.py,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
-README.md,41,doc,src/test,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
-README.md,41,doc,rsc/schema/WORKFLOW.md,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
-README.md,45,doc,PREREQUISITES.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
-README.md,45,doc,RUNME.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
-README.md,47,doc,src/requirements.txt,Y,- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `RUNME.sh` creates a venv at `~/venvs/general` (override v
-README.md,51,doc,rsc/machines,Y,- **Machine manifests**: each machine (*room*) declares its desired state as committed data (`rsc/machines/`: a `_base.c
-README.md,53,doc,RUNME.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
-README.md,53,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
-README.md,53,doc,src/test/pre_commit.log,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
-README.md,68,doc,src/main/browser-captures/export.applescript,Y,"- Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/"
-README.md,72,doc,src/main/browser-captures/PREP.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
-README.md,72,doc,RUNME.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
-README.md,76,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
-README.md,76,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
-README.md,77,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
-README.md,77,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
-README.md,82,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
-README.md,82,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
-README.md,84,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
-README.md,84,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
-README.md,85,doc,src/run_python_script.sh,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
-README.md,85,doc,src/main/chat-exports/atomise_bulk.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
-README.md,85,doc,src/main/model/project_markdown.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
-README.md,86,doc,src/run_python_script.sh,Y,"- Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, m"
-README.md,86,doc,src/main/chat-exports/compare_batches.py,Y,"- Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, m"
-README.md,87,doc,src/run_python_script.sh,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
-README.md,87,doc,src/main/model/compare_sources.py,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
-README.md,89,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --markdown lib/markdown --daemon` then open <http://localhost:8182> — serves the who
-README.md,92,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
-README.md,98,doc,rsc/site,Y,"Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html"
-README.md,98,doc,rsc/site/yoga/index.html,Y,"Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html"
-README.md,98,doc,rsc/site/README.md,Y,"Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html"
-README.md,104,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,41,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,41,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,43,doc,RUNME.sh,Y,| `gen/` | cache | local | none — reproducible from `ext/` by `./RUNME.sh` |
+README.md,51,doc,rsc/cli/commands.csv,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
+README.md,51,doc,rsc/CALCULUS.md,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
+README.md,51,doc,rsc/cli/README.md,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
+README.md,51,doc,PREREQUISITES.sh,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
+README.md,51,doc,RUNME.sh,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
+README.md,53,doc,rsc/schema,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
+README.md,53,doc,rsc/schema/model_join.csv,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
+README.md,53,doc,src/test/pre_commit.py,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
+README.md,53,doc,src/test,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
+README.md,53,doc,rsc/schema/WORKFLOW.md,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
+README.md,57,doc,PREREQUISITES.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
+README.md,57,doc,RUNME.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
+README.md,59,doc,src/requirements.txt,Y,- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `RUNME.sh` creates a venv at `~/venvs/general` (override v
+README.md,63,doc,rsc/machines,Y,- **Machine manifests**: each machine (*room*) declares its desired state as committed data (`rsc/machines/`: a `_base.c
+README.md,65,doc,RUNME.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
+README.md,65,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
+README.md,65,doc,src/test/pre_commit.log,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
+README.md,80,doc,src/main/browser-captures/export.applescript,Y,"- Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/"
+README.md,84,doc,src/main/browser-captures/PREP.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
+README.md,84,doc,RUNME.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
+README.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
+README.md,88,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
+README.md,89,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
+README.md,89,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
+README.md,94,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
+README.md,94,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
+README.md,96,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
+README.md,96,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
+README.md,97,doc,src/run_python_script.sh,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
+README.md,97,doc,src/main/chat-exports/atomise_bulk.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
+README.md,97,doc,src/main/model/project_markdown.py,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
+README.md,98,doc,src/run_python_script.sh,Y,"- Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, m"
+README.md,98,doc,src/main/chat-exports/compare_batches.py,Y,"- Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, m"
+README.md,99,doc,src/run_python_script.sh,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
+README.md,99,doc,src/main/model/compare_sources.py,Y,- Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `s
+README.md,101,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh --markdown lib/markdown --daemon` then open <http://localhost:8182> — serves the who
+README.md,104,doc,src/main/model/serve_markdown.sh,Y,- `src/main/model/serve_markdown.sh stop` to shut down
+README.md,110,doc,rsc/site,Y,"Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html"
+README.md,110,doc,rsc/site/yoga/index.html,Y,"Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html"
+README.md,110,doc,rsc/site/README.md,Y,"Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html"
+README.md,116,doc,src/main/schema_recommendations.py,Y,"- [ ] `src/main/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,18,comment,RUNME.sh,Y,"#   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)"
 RUNME.sh,19,comment,RUNME.sh,Y,#   ./RUNME.sh --plan                               # print the ordered step plan; run nothing
 RUNME.sh,20,comment,RUNME.sh,Y,#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
