@@ -24,13 +24,27 @@ eponymous workspace: subagent transcripts and persisted tool-results the log
 REFERENCES, moved with log semantics per file) + <room>/memory/. Provenance
 is spatial and sender-declared: transport takes no destination — it mirrors
 the agent into ext/agents/<own room>, the room read from the self.txt
-binding beside the manifests (rsc/machines/) — and receive --from names the peer room whose bundle
+binding beside the manifests (rsc/machines/) — and receive --from names the peer room(s) whose bundle(s)
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
 than the receiver's assertion. An outbox is single-writer by construction, so
 transport MIRRORS its memory (updated in place, absentees removed); every
 merge subtlety lives in receive, where two agents actually meet. The projects
 root is ext/code-projects (PREP.sh's symlink to the Claude Code projects
 folder), so both ends stay repo-relative.
+
+The hall is a git ORIGIN in all but name, and exactly so for append-only
+artifacts: a session log contains every prior state of itself as a byte
+prefix, so the latest copy IS the whole history and place_log's prefix check
+is a fast-forward gate — no commit chain needed, a dumb file store suffices.
+Each room's dir is a single-writer branch (a room pushes only its own ref);
+transport is a fast-forward-only push ('destination is ahead' is the refused
+stale force-push); receive is fetch-plus-merge, dry-run first; two rooms
+extending the same session are diverged branches, refused until a human
+merges. And memory/ is the actual REPOSITORY of the pair — the component
+where real merges happen: the marker block in MEMORY.md is the merge commit
+(it records what came in and licenses demerge, the exact revert), diverged
+facts persist as room-dressed twin branches, and the index unions like a
+tree merge. The session is history; the memory is the repo.
 
 Received merges are DETECTABLE and INVERTIBLE: a receive that changes the
 memory writes a marker block into MEMORY.md — begin/end comments wrapping the
@@ -43,13 +57,30 @@ extracts by transporting itself home, and the host demerges the residue.
 
     ./yoga agent list
     ./yoga agent models
-    ./yoga agent transport --session <uuid8> [--to <dir>]
-    ./yoga agent receive --from <room> --session <uuid8> [--apply]
+    ./yoga agent transport --session <uuid8> [--to <scratch-dir>]
+    ./yoga agent receive   --session <uuid8> --from <room|dir> [--apply]
+    ./yoga agent transport --all [--to <scratch-dir>]
+    ./yoga agent receive   --all --from <room|dir> [--apply]
     ./yoga agent demerge [--apply]
 
---session is MANDATORY and matches by uuid prefix, exactly one: which agent
-moves is never the tool's call — no recency guessing, no automatic choice.
---to is a directory override for scratch and tests only.
+transport and receive each take --session <uuid8> (matches by uuid prefix,
+exactly one) or --all: a NAMED agent or the named TOTALITY — git push --all /
+pull --all, safe because each per-session placement independently lands on
+the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
+component moves ONCE either way (mirrored out; merged in under a single
+marker block, so `receive --all --from <room>` is still one demerge). What is never
+accepted is an INFERENCE: no recency guessing, no automatic choice. receive
+stays dry-run by default regardless — --apply is the write gate, totality or
+not.
+
+The endpoint asymmetry is the model, not an accident: transport takes NO
+destination — it pushes this room's own ref, the only legal one
+(single-writer branches) — so --to is purely a scratch/test escape hatch and
+takes a bare directory, never a room name. receive must NAME its source ref:
+a peer room in the hall, or (the same scratch affordance, symmetric) a
+directory. The two are distinguished by SHAPE, never by lookup: a bare token
+is a room, a path-shaped token (containing '/') is a directory — so meaning
+never depends on the CWD.
 
 transport writes to the handoff medium immediately (it is not precious).
 receive and demerge are dry-run by default and only --apply writes into this
@@ -110,16 +141,21 @@ def own_outbox() -> Path:
 
 
 def peer_bundle(name: str) -> Path:
-    """A source for receive: a directory path as given, or ext/agents/<room> —
-    the bundle that room last transported."""
-    p = Path(name).expanduser()
-    if '/' in name or p.is_dir():
-        return p
+    """A source for receive: a ROOM NAME or a DIRECTORY, distinguished by shape,
+    never by lookup — rooms are names (bare tokens, resolved in the hall, loud
+    error if absent), places are paths (anything containing '/' or starting
+    '~'; a scratch dir beside you is spelled ./like-this). A bare token never
+    consults the CWD, so what a command means cannot depend on where you stand
+    (the old heuristic tried the CWD first: a local folder named like a room
+    silently shadowed the hall bundle)."""
+    if '/' in name or name.startswith('~'):
+        return Path(name).expanduser()
     room = HALL / name
     if not room.is_dir():
         rooms = sorted(d.name for d in HALL.iterdir() if d.is_dir()) if HALL.is_dir() else []
         sys.exit(f"error: no bundle from room '{name}' in the arrivals hall — "
-                 f"present: {', '.join(rooms) or '(none)'}")
+                 f"present: {', '.join(rooms) or '(none)'} "
+                 f"(a directory source is path-shaped: ./{name})")
     return room
 
 
@@ -137,8 +173,15 @@ def pick_session(proj_dir: Path, uuid8: str) -> Path:
 
 
 def place_log(data: bytes, dest: Path, apply: bool) -> tuple[str, int]:
-    """Append-only placement: new, identical, prefix-superseded, or CONFLICT.
-    Returns (status, conflicts)."""
+    """Append-only placement — the five-state prefix lattice: new (absent →
+    written) / identical (L1 silence) / extends (existing is a strict prefix:
+    the fast-forward, superseded in place) / destination-ahead (incoming is
+    the prefix: a stale stash never truncates — the refused force-push, so
+    replaying old transports is idempotent) / CONFLICT (neither prefixes the
+    other: diverged twins, loud, nothing written, human merge). Successive
+    stashes from one source ratchet new → extends → … → identical; divergence
+    is unreachable from a single well-behaved writer. Returns (status,
+    conflicts)."""
     if not dest.exists():
         if apply:
             dest.parent.mkdir(parents=True, exist_ok=True)
@@ -515,21 +558,61 @@ def mirror_memory(src_dir: Path, dest_dir: Path) -> None:
           + (f', {removed} removed (absent at source)' if removed else ''))
 
 
-def transport_move(src_proj: Path, outbox: Path, session: Path) -> int:
+def _transport_session(src_proj: Path, outbox: Path, session: Path) -> int:
     print(f'transport → {outbox.name}: {session.name}')
     status, conflicts = place_session(session, outbox / session.name, apply=True)
     print(f'  session: {status}')
-    conflicts += move_workspace(src_proj / session.stem, outbox / session.stem, apply=True)
+    return conflicts + move_workspace(src_proj / session.stem, outbox / session.stem, apply=True)
+
+
+def transport_move(src_proj: Path, outbox: Path, session: Path) -> int:
+    conflicts = _transport_session(src_proj, outbox, session)
     mirror_memory(src_proj / 'memory', outbox / 'memory')
     print('APPLIED')
     return conflicts
 
 
-def receive_move(bundle: Path, dest_proj: Path, session: Path, apply: bool, room: str) -> int:
+def transport_all(src_proj: Path, outbox: Path) -> int:
+    """git push --all: mirror EVERY session (and the memory, once). Not an
+    inference — the named totality. Safe by the prefix lattice: each session's
+    placement independently lands on silence, fast-forward, ahead-no-op, or a
+    loud per-session CONFLICT, so mirroring everything is idempotent and
+    monotone."""
+    sessions = sorted(src_proj.glob('*.jsonl'))
+    if not sessions:
+        print(f'error: no sessions under {src_proj}', file=sys.stderr)
+        return 1
+    conflicts = sum(_transport_session(src_proj, outbox, s) for s in sessions)
+    mirror_memory(src_proj / 'memory', outbox / 'memory')
+    print(f'APPLIED — {len(sessions)} session(s) mirrored'
+          + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
+    return conflicts
+
+
+def _receive_session(bundle: Path, dest_proj: Path, session: Path, apply: bool, room: str) -> int:
     print(f'receive ← {room}: {session.name}')
     status, conflicts = place_session(session, dest_proj / session.name, apply)
     print(f'  session: {status}')
-    conflicts += move_workspace(bundle / session.stem, dest_proj / session.stem, apply)
+    return conflicts + move_workspace(bundle / session.stem, dest_proj / session.stem, apply)
+
+
+def receive_all(bundle: Path, dest_proj: Path, apply: bool, room: str) -> int:
+    """git pull --all from one peer: every session in the room's bundle (and its
+    memory, merged once — so one marker block, one demerge). The same lattice
+    safety as transport --all, plus receive's own guard: dry-run unless --apply."""
+    sessions = sorted(bundle.glob('*.jsonl'))
+    if not sessions:
+        print(f'error: no sessions in bundle {bundle}', file=sys.stderr)
+        return 1
+    conflicts = sum(_receive_session(bundle, dest_proj, s, apply, room) for s in sessions)
+    conflicts += merge_memory(bundle / 'memory', dest_proj / 'memory', apply, room)
+    print(f'{"APPLIED" if apply else "dry run — pass --apply to write into the projects root"}'
+          f' — {len(sessions)} session(s)' + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
+    return conflicts
+
+
+def receive_move(bundle: Path, dest_proj: Path, session: Path, apply: bool, room: str) -> int:
+    conflicts = _receive_session(bundle, dest_proj, session, apply, room)
     conflicts += merge_memory(bundle / 'memory', dest_proj / 'memory', apply, room)
     print('APPLIED' if apply else 'dry run — pass --apply to write into the projects root')
     return conflicts
@@ -539,14 +622,24 @@ def main() -> int:
     ap = argparse.ArgumentParser(description='transport an agent (session × memory) between machines')
     sub = ap.add_subparsers(dest='direction', required=True)
     t = sub.add_parser('transport', help="mirror the agent into its own room's dir in the arrivals hall")
-    t.add_argument('--session', required=True,
+    t.add_argument('--session',
                    help='uuid(8) prefix of the agent to move — identity is never guessed')
-    t.add_argument('--to', help='directory override (scratch/tests); default: ext/agents/<the self.txt binding>')
+    t.add_argument('--all', action='store_true',
+                   help='mirror EVERY session (git push --all): the named totality, safe by the '
+                        'prefix lattice — each placement is silence/fast-forward/ahead or a loud CONFLICT')
+    t.add_argument('--to', metavar='SCRATCH_DIR',
+                   help='scratch/test escape hatch: write the bundle to this directory instead of the '
+                        "room's own ref (ext/agents/<the self.txt binding>) — never a room name: a room "
+                        'pushes only its own ref')
     r = sub.add_parser('receive', help="install a peer room's bundle from the arrivals hall")
-    r.add_argument('--from', dest='source', required=True,
-                   help='origin room name in the hall (or a directory)')
-    r.add_argument('--session', required=True,
+    r.add_argument('--from', dest='source', required=True, metavar='ROOM_OR_DIR',
+                   help="source ref, distinguished by shape: a bare token is a peer room's name in the hall "
+                        "(never a CWD lookup); anything with a '/' is a directory path (scratch: ./dir)")
+    r.add_argument('--session',
                    help='uuid(8) prefix of the agent to install — identity is never guessed')
+    r.add_argument('--all', action='store_true',
+                   help="install EVERY session in the room's bundle (git pull --all from one peer): "
+                        'the named totality, dry-run like any receive')
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing)')
     d.add_argument('--apply', action='store_true')
@@ -568,6 +661,9 @@ def main() -> int:
     if args.direction == 'demerge':
         return 1 if demerge(PROJECTS / key, args.apply) else 0
 
+    if args.direction in ('transport', 'receive') and bool(args.session) == args.all:
+        ap.error(f'{args.direction}: name --session <uuid8> or --all — an agent or the totality, never an inference')
+
     if args.direction == 'transport':
         if args.to:
             outbox = Path(args.to).expanduser()
@@ -575,14 +671,18 @@ def main() -> int:
         else:
             outbox = own_outbox()
         src_proj = PROJECTS / key
+        if args.all:
+            return 1 if transport_all(src_proj, outbox) else 0
         session = pick_session(src_proj, args.session)
         return 1 if transport_move(src_proj, outbox, session) else 0
 
     bundle = peer_bundle(args.source)
-    session = pick_session(bundle, args.session)
     # the twin-dressing and marker label: the bundle's ADDRESS — the origin room's
     # name as it stands in the hall (or the directory's own name for a path)
     room = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
+    if args.all:
+        return 1 if receive_all(bundle, PROJECTS / key, args.apply, room) else 0
+    session = pick_session(bundle, args.session)
     return 1 if receive_move(bundle, PROJECTS / key, session, args.apply, room) else 0
 
 
