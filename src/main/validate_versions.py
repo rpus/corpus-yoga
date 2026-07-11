@@ -81,13 +81,33 @@ def validate_versions(input_file, schema_dir, log_dir, label):
               + (f'; not by {", ".join(invalid)}' if invalid else '')
               + (f'; {skipped} current — skipped' if skipped else ''))
     else:
-        print(f'  FAIL: {label}: NOT modelled by any of the {len(ran)} version(s) validated'
-              + (f' ({skipped} current version(s) skipped — see matrix)' if skipped else '')
-              + ':')
-        for version, (status, log_out) in ran.items():
-            print(f'  {label} ({version}): {status[:80]}{"…" if len(status) > 80 else ""}')
-            print(f'    → {log_out}')
-        print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
+        # Every version validated THIS RUN failed — but the denominator of
+        # "NOT modelled" is ALL versions: a skipped-current log still records
+        # its verdict, and a datum those logs model is healthy. (2026-07-12:
+        # a new REQUIRED field revalidated every old capture against just the
+        # new version — a false-alarm FAIL storm over perfectly modelled data.)
+        current_valid = []
+        for schema_path in schemas:
+            version = os.path.splitext(os.path.basename(schema_path))[0]
+            if version in ran:
+                continue
+            try:
+                with open(os.path.join(log_dir, f'{version}.log')) as fh:
+                    if any(line.rstrip() == 'Valid!' for line in fh):
+                        current_valid.append(version)
+            except OSError:
+                continue
+        if current_valid:
+            print(f'  {label}: modelled by {", ".join(current_valid)} (current — skipped); '
+                  f'not by the newly validated {", ".join(invalid)}')
+        else:
+            print(f'  FAIL: {label}: NOT modelled by any of the {len(schemas)} version(s)'
+                  + (f' ({len(ran)} validated now, {skipped} current)' if skipped else '')
+                  + ':')
+            for version, (status, log_out) in ran.items():
+                print(f'  {label} ({version}): {status[:80]}{"…" if len(status) > 80 else ""}')
+                print(f'    → {log_out}')
+            print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
     # logs just written, so it can never lag them. The datum dir is the parent of the

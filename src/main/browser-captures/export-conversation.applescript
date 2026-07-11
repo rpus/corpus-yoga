@@ -21,7 +21,7 @@ tell application "Safari"
 	else if currentURL starts with "https://gemini.google.com/app/" and currentURL is not "https://gemini.google.com/app/" then
 		set agentFlag to "--agent gemini"
 	else
-		display alert "Navigate to a specific conversation first." & return & return & "For bulk capture, use PREP.sh or run export-all-conversations.applescript from the recents page." buttons {"OK"} default button "OK"
+		display alert "Navigate to a specific conversation first." & return & return & "For bulk capture, run from Terminal at the repo root: src/main/browser-captures/PREP.sh — or run export-all-conversations.applescript from the recents page." buttons {"OK"} default button "OK"
 		return
 	end if
 

@@ -229,7 +229,7 @@ main() {
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
         "browser-captures (prep)") echo "    → check ext/browser-captures/claude/ and Safari setup" ;;
-        "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see PREP.sh --help)" ;;
+        "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
         "code-agents (prep)")  echo "    → check ext/code-agents/ (the store) and ext/code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac

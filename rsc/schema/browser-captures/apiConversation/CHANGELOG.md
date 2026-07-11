@@ -6,6 +6,23 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 ---
 
+## v9
+
+The 2026-07 claude.ai API adds `thinking_hidden` to live thinking blocks,
+beside the existing `hidden`: capture 233aa03f (2026-07-11, 'Persistent self
+through alternating agents') is the first datum to carry it and failed v1–v8
+wholesale (ApiThinkingBlock is closed). The API stamps the field on EVERY
+thinking block it serves (all 4 blocks of the carrying capture), so v9
+requires it — a post-introduction block without it is drift and fails
+loudly, the ModelId precedent (session v9). The same field surfaced on the
+bulk-export side within the same observed window (absent from the
+2026-07-08 export, stamped across the whole 2026-07-11 one) —
+conversations v16, the coupled change; see model_join.csv.
+
+### Restricted since v8 (material)
+
+- `ApiThinkingBlock.thinking_hidden` — one NEW REQUIRED field. Observed false only.
+
 ## v8
 
 Now validates all 98 captures from the 2026-07-03 re-capture, including the three that failed every prior version. Both changes had been foretold: the first is the API half of a coupling already applied at conversations v13; the second resolves a "no apiConversation counterpart yet" note in `model_join.csv`.

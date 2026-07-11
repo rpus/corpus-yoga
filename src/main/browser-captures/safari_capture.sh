@@ -27,11 +27,17 @@ main() {
     echo "Usage: $0 --agent claude|gemini [--id <id>]" >&2; exit 1
   fi
   echo "src/main/browser-captures/$(basename "$0") ($agent)"
-  local log
+  local log rc=0
   log="$REPO_DIR/logs/src/main/browser-captures/safari_capture/$agent/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
   mkdir -p "$(dirname "$log")"
+  # Name the log FIRST: a Shortcut invocation shows this output in a transient
+  # dialog (if at all), and any 'see the run log' advice is useless unless the
+  # log's own path has been said out loud somewhere durable-feeling.
+  echo "Log: $log"
   caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" --agent "$agent" "$@" \
-    2>&1 | tee "$log"
+    2>&1 | tee "$log" || rc=$?
+  echo "Log: $log"
+  return $rc
 }
 
 main "$@"

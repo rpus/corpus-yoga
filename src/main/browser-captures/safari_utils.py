@@ -145,6 +145,25 @@ def _colour_log_levels(text):
     return '\n'.join(out)
 
 
+def process_chain() -> str:
+    """This process's ancestry (comm names, child ← parent), for TCC forensics:
+    macOS attributes a file-access denial to some app up this chain, and which
+    one is not knowable from here — so name them all and let the reader grant
+    the outermost real app."""
+    import os
+    chain, pid = [], os.getpid()
+    for _ in range(12):
+        out = subprocess.run(['ps', '-o', 'ppid=,comm=', '-p', str(pid)],
+                             capture_output=True, text=True).stdout.split(None, 1)
+        if len(out) < 2:
+            break
+        chain.append(out[1].strip().rsplit('/', 1)[-1])
+        pid = int(out[0])
+        if pid <= 1:
+            break
+    return ' ← '.join(chain)
+
+
 def collect_md_and_log(after_time, dest_dir, log_dir):
     """Move freshly-downloaded .md files into dest_dir (the capture's data directory under
     ext/) and the .log into log_dir (under logs/ -- ext/ holds data only). The .log holds
@@ -155,7 +174,25 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
     dest_dir.mkdir(parents=True, exist_ok=True)
     log_dir.mkdir(parents=True, exist_ok=True)
     moved = []
-    for f in DOWNLOADS.iterdir():
+    try:
+        downloads = sorted(DOWNLOADS.iterdir())
+    except PermissionError:
+        # macOS TCC: the same wall fetch_api hits — word it identically (the
+        # claude path's curated FAIL), never a bare traceback: the 2026-07-11
+        # shortcut run died raw here while claude's error explained itself.
+        print(f'FAIL: macOS denied reading {DOWNLOADS} from this process chain:\n'
+              f'    {process_chain()}\n'
+              '    grant the outermost app Downloads access (System Settings → Privacy & '
+              'Security; Full Disk Access takes manual additions where Files and Folders '
+              f'shows nothing). The scraped files are stranded in ~/Downloads — move the '
+              f'.md into {dest_dir} and the .log into {log_dir} by hand, or recapture '
+              'from an already-granted Terminal:\n'
+              f'    → run: src/main/browser-captures/safari_capture.sh '
+              f'--agent {dest_dir.parent.name} --id {dest_dir.name}'
+              '  # first front the conversation in Safari',
+              file=sys.stderr)
+        return moved
+    for f in downloads:
         if f.stat().st_mtime <= after_time:
             continue
         if f.suffix == '.log':

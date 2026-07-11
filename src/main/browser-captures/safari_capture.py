@@ -38,7 +38,7 @@ from pathlib import Path
 from safari_utils import (  # type: ignore[import-not-found]
     osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_open_work_tab, safari_close_work_tab,
-    safari_fetch_api_json, collect_md_and_log,
+    safari_fetch_api_json, collect_md_and_log, process_chain,
     PAGE_LOAD_WAIT,
 )
 
@@ -71,8 +71,36 @@ AGENTS = {
         'link_sel':     'a[href*="/app/"]',
         'id_re':        r'^[0-9a-f]{8,}$',
         'ready_sel':    'button[aria-label="Copy"]',
+        # the DOM scrapes carry no timestamps, so the listing order is the one
+        # ordering observation there is — persisted as ordering.txt on every
+        # discovery sweep (claude needs none: created_at is its authority)
+        'ordering_capture': True,
     },
 }
+
+
+def write_ordering(cfg, ids, captures_root):
+    """Persist the discovery listing as the ordering CAPTURE, ordering.txt —
+    gemini only (cfg['ordering_capture']): the web-UI lists newest-first by
+    edit time, reversed here to ascending so line N is conversation N,
+    paralleling claude's created_at ordinals. Refreshed on every discovery
+    sweep; a --id capture observes no listing and leaves it untouched.
+    Consumed by copy_gemini_markdown for NN- naming."""
+    if not cfg.get('ordering_capture') or not ids:
+        return
+    out = captures_root / 'ordering.txt'
+    header = (
+        '# gemini conversation ordering — a CAPTURE of the web-UI listing (gemini.google.com/app),\n'
+        '# reversed to ascending: the UI lists newest-first by edit time, so line N here is\n'
+        "# conversation N, paralleling claude's created_at ordinals. Ordinals are presentation\n"
+        '# and renumber as the corpus changes (an edit resurfaces a conversation; a new one\n'
+        '# appends); the id is the identity. Refreshed by every discovery sweep\n'
+        '# (safari_capture ids_from_safari → write_ordering); consumed by\n'
+        '# copy_gemini_markdown for NN- naming.\n'
+        f'# Captured {time.strftime("%Y-%m-%d")}.\n'
+    )
+    out.write_text(header + '\n'.join(reversed(ids)) + '\n')
+    print(f'ordering: {len(ids)} conversation(s) → {out}')
 
 
 def outcome(do_api, do_scrape, files, had_md):
@@ -82,7 +110,7 @@ def outcome(do_api, do_scrape, files, had_md):
     has_json = any(f.endswith('.json') for f in files)
     has_md = any(f.endswith('.md') for f in files)
     if do_api and not has_json:
-        return 'apiConversation JSON fetch failed — see the run log', None
+        return 'apiConversation JSON fetch failed — the FAIL: line above carries the remedy', None
     if do_scrape and not has_md:
         why = 'no markdown — see the scrape log under logs/.../safari_capture/<agent>/scrape/'
         if had_md:
@@ -129,26 +157,6 @@ def wait_for_url(conv_id, timeout=READY_TIMEOUT):
     return False
 
 
-def _process_chain() -> str:
-    """This process's ancestry (comm names, child ← parent), for TCC forensics:
-    macOS attributes a file-access denial to some app up this chain, and which
-    one is not knowable from here — so name them all and let the reader grant
-    the outermost real app."""
-    import os
-    import subprocess as sp
-    chain, pid = [], os.getpid()
-    for _ in range(12):
-        out = sp.run(['ps', '-o', 'ppid=,comm=', '-p', str(pid)],
-                     capture_output=True, text=True).stdout.split(None, 1)
-        if len(out) < 2:
-            break
-        chain.append(out[1].strip().rsplit('/', 1)[-1])
-        pid = int(out[0])
-        if pid <= 1:
-            break
-    return ' ← '.join(chain)
-
-
 def fetch_api(conv_id, out_dir):
     """Fetch the apiConversation JSON; returns the saved filename, or None on failure."""
     f = safari_fetch_api_json(conv_id)
@@ -162,11 +170,13 @@ def fetch_api(conv_id, out_dir):
         # which app to grant (Files and Folders only lists apps that have
         # ASKED; Full Disk Access accepts manual additions via its + button).
         print(f'FAIL: macOS denied reading {f} from this process chain:\n'
-              f'    {_process_chain()}\n'
+              f'    {process_chain()}\n'
               '    grant the outermost app Downloads access (System Settings → Privacy & '
               'Security; Full Disk Access takes manual additions where Files and Folders '
               f'shows nothing). The fetched json is stranded in ~/Downloads — move it '
-              f'into {out_dir} by hand, or rerun from Terminal (already granted).',
+              f'into {out_dir} by hand, or recapture from an already-granted Terminal:\n'
+              f'    → run: src/main/browser-captures/safari_capture.sh --agent claude '
+              f'--id {conv_id}  # first front https://claude.ai/chat/{conv_id} in Safari',
               file=sys.stderr)
         return None
     return f'{conv_id}.json'
@@ -305,6 +315,13 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
         print(f'\n⚠ {len(failed)}/{len(ids)} failed:', file=sys.stderr)
         for cid, why in failed:
             print(f'    {cid}: {why}', file=sys.stderr)
+        if len(ids) > 1:
+            # a sweep's bulk remedy, beside the per-item ones above: fix the
+            # cause the FAIL lines name, then re-sweep (runnable, full path —
+            # a bare 'PREP.sh' names four different scripts in this repo)
+            print('    → run: src/main/browser-captures/PREP.sh'
+                  '  # re-sweep after fixing the cause(s) the FAIL lines above name',
+                  file=sys.stderr)
     return failed
 
 
@@ -352,7 +369,9 @@ def main():
         # work tab so the user's front tab survives, and restore it afterwards.
         prev_tab = safari_open_work_tab()
         try:
-            failed = capture_all(args.agent, ids_from_safari(cfg), captures_root,
+            ids = ids_from_safari(cfg)
+            write_ordering(cfg, ids, captures_root)
+            failed = capture_all(args.agent, ids, captures_root,
                                  navigate=True, also_scrape=args.scrape)
         finally:
             safari_close_work_tab(prev_tab)

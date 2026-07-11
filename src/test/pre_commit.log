@@ -1,4 +1,4 @@
-pre_commit.py: 1293/1293 (data: machine-local)
+pre_commit.py: 1347/1347 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 1293/1293 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 80 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 82 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -132,6 +132,7 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ apiConversation: valid JSON + $schema: v6
   ✓ apiConversation: valid JSON + $schema: v7
   ✓ apiConversation: valid JSON + $schema: v8
+  ✓ apiConversation: valid JSON + $schema: v9
   ✓ chatCategories: valid JSON + $schema: v1
   ✓ conversations: valid JSON + $schema: v1
   ✓ conversations: valid JSON + $schema: v2
@@ -148,6 +149,7 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ conversations: valid JSON + $schema: v13
   ✓ conversations: valid JSON + $schema: v14
   ✓ conversations: valid JSON + $schema: v15
+  ✓ conversations: valid JSON + $schema: v16
   ✓ markdownConversation: valid JSON + $schema: v1
   ✓ markdownConversation: valid JSON + $schema: v2
   ✓ markdownConversation: valid JSON + $schema: v3
@@ -187,6 +189,8 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ apiConversation: no_todo: v7
   ✓ apiConversation: changelog_narrative: v8
   ✓ apiConversation: no_todo: v8
+  ✓ apiConversation: changelog_narrative: v9
+  ✓ apiConversation: no_todo: v9
   ✓ chatCategories: changelog_narrative: v1
   ✓ chatCategories: no_todo: v1
   ✓ conversations: changelog_narrative: v1
@@ -219,6 +223,8 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ conversations: no_todo: v14
   ✓ conversations: changelog_narrative: v15
   ✓ conversations: no_todo: v15
+  ✓ conversations: changelog_narrative: v16
+  ✓ conversations: no_todo: v16
   ✓ markdownConversation: changelog_narrative: v1
   ✓ markdownConversation: no_todo: v1
   ✓ markdownConversation: changelog_narrative: v2
@@ -455,6 +461,30 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ apiConversation: structure.no_redundant_additional_properties_true: v8
   ✓ apiConversation: structure.pattern_constraints_enforced: v8
   ✓ apiConversation: structure.required_subset_of_properties: v8
+  ✓ apiConversation: composition.base_not_used_directly: v9
+  ✓ apiConversation: composition.base_schemas_closed: v9
+  ✓ apiConversation: composition.discriminator_values_disjoint: v9
+  ✓ apiConversation: composition.no_additional_properties_on_subtypes: v9
+  ✓ apiConversation: composition.wrapper_has_five_fields: v9
+  ✓ apiConversation: documentation.discriminator_fields_annotated: v9
+  ✓ apiConversation: documentation.every_definition_has_title_and_description: v9
+  ✓ apiConversation: documentation.null_only_fields_documented: v9
+  ✓ apiConversation: documentation.open_set_enums_documented: v9
+  ✓ apiConversation: empirical.nullable_fields_surveyed: v9
+  ✓ apiConversation: empirical.oneOf_branches_evidenced: v9
+  ✓ apiConversation: naming.property_keys_lowercase: v9
+  ✓ apiConversation: naming.title_matches_key: v9
+  ✓ apiConversation: naming.upper_camel_case: v9
+  ✓ apiConversation: structure.all_definitions_reachable: v9
+  ✓ apiConversation: structure.bfs_order: v9
+  ✓ apiConversation: structure.definitions_at_bottom: v9
+  ✓ apiConversation: structure.enum_refines_explicit_type: v9
+  ✓ apiConversation: structure.field_order: v9
+  ✓ apiConversation: structure.minItems_on_non_empty_arrays: v9
+  ✓ apiConversation: structure.no_dangling_refs: v9
+  ✓ apiConversation: structure.no_redundant_additional_properties_true: v9
+  ✓ apiConversation: structure.pattern_constraints_enforced: v9
+  ✓ apiConversation: structure.required_subset_of_properties: v9
   ✓ chatCategories: composition.base_not_used_directly: v1
   ✓ chatCategories: composition.base_schemas_closed: v1
   ✓ chatCategories: composition.discriminator_values_disjoint: v1
@@ -839,6 +869,30 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ conversations: structure.no_redundant_additional_properties_true: v15
   ✓ conversations: structure.pattern_constraints_enforced: v15
   ✓ conversations: structure.required_subset_of_properties: v15
+  ✓ conversations: composition.base_not_used_directly: v16
+  ✓ conversations: composition.base_schemas_closed: v16
+  ✓ conversations: composition.discriminator_values_disjoint: v16
+  ✓ conversations: composition.no_additional_properties_on_subtypes: v16
+  ✓ conversations: composition.wrapper_has_five_fields: v16
+  ✓ conversations: documentation.discriminator_fields_annotated: v16
+  ✓ conversations: documentation.every_definition_has_title_and_description: v16
+  ✓ conversations: documentation.null_only_fields_documented: v16
+  ✓ conversations: documentation.open_set_enums_documented: v16
+  ✓ conversations: empirical.nullable_fields_surveyed: v16
+  ✓ conversations: empirical.oneOf_branches_evidenced: v16
+  ✓ conversations: naming.property_keys_lowercase: v16
+  ✓ conversations: naming.title_matches_key: v16
+  ✓ conversations: naming.upper_camel_case: v16
+  ✓ conversations: structure.all_definitions_reachable: v16
+  ✓ conversations: structure.bfs_order: v16
+  ✓ conversations: structure.definitions_at_bottom: v16
+  ✓ conversations: structure.enum_refines_explicit_type: v16
+  ✓ conversations: structure.field_order: v16
+  ✓ conversations: structure.minItems_on_non_empty_arrays: v16
+  ✓ conversations: structure.no_dangling_refs: v16
+  ✓ conversations: structure.no_redundant_additional_properties_true: v16
+  ✓ conversations: structure.pattern_constraints_enforced: v16
+  ✓ conversations: structure.required_subset_of_properties: v16
   ✓ markdownConversation: composition.base_not_used_directly: v1
   ✓ markdownConversation: composition.base_schemas_closed: v1
   ✓ markdownConversation: composition.discriminator_values_disjoint: v1
@@ -1319,7 +1373,7 @@ pre_commit.py: 1293/1293 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1293/1293; expected: 1293/1293
+  ✓ score[code+schema]: 1347/1347; expected: 1347/1347
   ✓ score[code]: 60/60; expected: 60/60
-  ✓ score[schema]: 1233/1233; expected: 1233/1233
+  ✓ score[schema]: 1287/1287; expected: 1287/1287
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

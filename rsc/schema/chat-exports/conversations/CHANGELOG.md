@@ -11,6 +11,22 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v16
+
+The 2026-07 bulk export adds `thinking_hidden` to thinking blocks, beside the
+existing `hidden`: batch 6e2b6e2f (export epoch 1783806722) failed v1–v15
+wholesale (ThinkingBlock is closed). The export serializer stamps the field
+on EVERY thinking block — all 217 in the batch, its oldest conversations
+included — so v16 requires it: a post-introduction block without it is drift
+and fails loudly, the ModelId precedent (session v9). The live API surfaced the
+same field within the same observed window (present on every block of a
+2026-07-10 conversation's capture) — apiConversation v9, the coupled
+change; see model_join.csv.
+
+### Restricted since v15 (material)
+
+- `ThinkingBlock.thinking_hidden` — one NEW REQUIRED field. Observed false only.
+
 ## v15
 
 Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783454107-540c98c0-batch-0000` (the 2026-07-07 export, 100 conversations). One drift point, uniform across the whole corpus: the bulk renderer re-rendered ALL history with one new envelope field — literally the sole difference between this export's and the 2026-07-05 export's rendering of the same March tool block.

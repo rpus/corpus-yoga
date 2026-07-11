@@ -128,6 +128,22 @@ validate_export() {
     done
   done
 
+  # A component modelled by NO version is a schema-frontier event and must say
+  # FAIL: — the tail hoists that sigil. validate_versions.py already shouts for
+  # the capture pipelines; this wrapper's roll-up must not stay quiet (the
+  # 2026-07 batch failed every conversations version and the tail showed
+  # nothing until the next pre_commit).
+  local family fam_dir
+  for fam_dir in "$SCHEMA_DIR"/*/; do
+    [[ -d "$fam_dir" ]] || continue
+    family="$(basename "${fam_dir%/}")"
+    local logs=("$validation_dir/$family"/v*.log)
+    [[ -e "${logs[0]}" ]] || continue
+    if ! grep -qx "Valid!" "${logs[@]}" 2>/dev/null; then
+      echo "  FAIL: $(basename "$chat_export"): ${family} NOT modelled by any of the ${#logs[@]} version(s) validated — follow rsc/schema/WORKFLOW.md"
+    fi
+  done
+
   echo "  validated ${validated}, current (skipped) ${skipped}"
 
   # Validation owns the datum's machine-local matrix: render matrix.md from the logs
