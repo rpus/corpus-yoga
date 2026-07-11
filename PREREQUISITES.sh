@@ -191,13 +191,16 @@ check_pipeline_inputs() {
     info "chat-exports: no data-* bulk export in ext/chat-exports — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  if [[ -d "$HOME/.claude/projects" ]]; then
-    n="$(count_glob_dirs "$HOME/.claude/projects"/-Users-*/)"
+  if [[ -d "$SCRIPT_DIR/ext/code-agents" ]]; then
+    n="$(count_glob_dirs "$SCRIPT_DIR/ext/code-agents"/*/)"
     local sessions
-    sessions="$(find "$HOME/.claude/projects" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-projects: ~/.claude/projects has $n project(s), $sessions session file(s) — will convert + validate into gen/"
+    sessions="$(find -L "$SCRIPT_DIR/ext/code-agents" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
+    ok "code-agents: ext/code-agents holds $n room(s), $sessions session file(s) — will convert + validate into gen/"
   else
-    info "code-projects: ~/.claude/projects not found — will skip (created by using the Claude Code CLI)"
+    info "code-agents: no ext/code-agents store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
+  fi
+  if [[ -d "$HOME/.claude/projects" ]]; then
+    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./yoga agent capture --all"
   fi
 }
 

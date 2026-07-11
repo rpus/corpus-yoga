@@ -40,8 +40,10 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # The default source is the projected corpus itself (lib/markdown — every source's
 # conversations dir combined, claude first), whose filenames carry the cached
 # ordering — read back by markdown_projection.corpus_index, the format authority.
-# Each line carries a [source] marker, derived from the id shape (36-char uuid =
-# claude, 16-hex app id = gemini) — the concept capture tags its rows from these.
+# Each line carries a [source] marker: the stem's <source> dir prefix on a
+# multi-source corpus (claude / gemini / code — a code session's id is a 36-char
+# uuid too, so the id shape alone cannot name it), falling back to the id shape
+# for a single conversations dir — the concept capture tags its rows from these.
 # A batch source (conversations.json or atomised json/) still works via
 # timeline.py, re-deriving the claude numbering with ordered() (no markers: a
 # batch is claude by construction, and the prompt says so).
@@ -52,8 +54,9 @@ chat_list() {
 import sys
 sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
-for n, _stem, title, cid in corpus_index('$src'):
-    print(f'{n} [{\"claude\" if len(cid) == 36 else \"gemini\"}]: {title}')
+for n, stem, title, cid in corpus_index('$src'):
+    source = stem.split('/')[0] if '/' in stem else ('claude' if len(cid) == 36 else 'gemini')
+    print(f'{n} [{source}]: {title}')
 "
   else
     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/timeline.py" "$src" --table chat-list

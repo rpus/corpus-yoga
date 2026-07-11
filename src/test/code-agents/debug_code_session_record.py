@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 debug_code_session_record.py — Diagnose why a specific record in a session fails
-validation against rsc/schema/code-projects/session/v1.json.
+validation against rsc/schema/code-agents/session/v1.json.
 
 For each branch of Record.oneOf, reports whether it passes or fails and — for the
 branch matching the record's type — drills into the sub-schema to find the leaf-level
@@ -12,13 +12,13 @@ Accepts either a .jsonl session file (converts in-memory) or a pre-converted .js
 
 Usage:
     # Diagnose the first failing record in a session:
-    python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl
+    python src/test/code-agents/debug_code_session_record.py ext/code-agents/{room}/{project-slug}/{uuid}.jsonl
 
     # Diagnose record at a specific index:
-    python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl --index 42
+    python src/test/code-agents/debug_code_session_record.py ext/code-agents/{room}/{project-slug}/{uuid}.jsonl --index 42
 
     # Diagnose all failing records (summary):
-    python src/test/code-projects/debug_code_session_record.py ext/code-projects/{project-slug}/{uuid}.jsonl --all
+    python src/test/code-agents/debug_code_session_record.py ext/code-agents/{room}/{project-slug}/{uuid}.jsonl --all
 """
 
 import argparse
@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-projects/session/v1.json'
+SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 
 
 def load(session_path: Path, schema_path: Path):

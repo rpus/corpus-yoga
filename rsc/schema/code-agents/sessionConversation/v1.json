@@ -1,0 +1,96 @@
+{
+ "$schema": "http://json-schema.org/draft-04/schema#",
+ "title": "sessionConversation",
+ "description": "A Claude Code session read as TALK: the conversation projection of a converted session (session.json), written beside it as conversation.json by project_conversation.py. Only user and assistant records project — no sidechain records (a subagent's transcript is its own session), no meta records, no tool-result carrier records (a user record with toolUseResult is the harness returning a tool's output, not the user speaking) — and each turn is the record's visible text: text blocks joined, while thinking, tool_use and tool_result blocks are working, not talk, and remain in session.json. A record whose projection is empty (a pure tool step) contributes no turn, so messages may legitimately be empty for a session that is all tool work. Roles use the corpus vocabulary ('human'/'assistant', as in browser-captures/markdownConversation), because this shape is the projection source for the session corpus render under lib/markdown/code/conversations/. See model_join.csv for field correspondences with the session and markdownConversation families.",
+ "allOf": [
+  {
+   "$ref": "#/definitions/SessionConversation"
+  }
+ ],
+ "definitions": {
+  "SessionConversation": {
+   "title": "SessionConversation",
+   "description": "One session reduced to its conversation: identity, span, title dressing, and the ordered role-tagged turns.",
+   "type": "object",
+   "required": [
+    "title",
+    "project",
+    "session_id",
+    "created",
+    "last_activity",
+    "messages"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "title": {
+     "description": "The LAST ai-title record's aiTitle — the same dressing authority agent.py's census uses; '' where the session never received one (every observed local session is titled; the empty case is reachable by construction).",
+     "type": "string"
+    },
+    "project": {
+     "description": "The project directory name the session belongs to — the harness's cwd encoding, e.g. '-Users-khalidkhan-dev-github-rpus-claude-export-yoga'.",
+     "type": "string"
+    },
+    "session_id": {
+     "description": "The session's uuid — the .jsonl stem, the session's identity everywhere (gen/ dirs, transported copies, corpus frontmatter).",
+     "$ref": "#/definitions/UuidV4"
+    },
+    "created": {
+     "description": "The earliest record timestamp in the WHOLE session (ISO 8601, milliseconds, Z) — the session's span, not the projected turns': ordering authority for corpus ordinals.",
+     "type": "string"
+    },
+    "last_activity": {
+     "description": "The latest record timestamp in the WHOLE session (ISO 8601, milliseconds, Z) — a session that ends in tool work still ends then.",
+     "type": "string"
+    },
+    "messages": {
+     "description": "The conversation turns in record order. May be empty: a session that is all tool work projects no talk.",
+     "type": "array",
+     "items": {
+      "$ref": "#/definitions/Message"
+     }
+    }
+   }
+  },
+  "UuidV4": {
+   "title": "UuidV4",
+   "description": "Standard UUID version 4 (randomly generated). Pattern: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where y is 8, 9, a, or b.",
+   "type": "string",
+   "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+  },
+  "Message": {
+   "title": "Message",
+   "description": "One projected turn: the source record's uuid (the turn's durable identity — rendered as an HTML anchor on the corpus heading, exactly as markdownConversation turns are), its role, its timestamp, and its visible text.",
+   "type": "object",
+   "required": [
+    "uuid",
+    "role",
+    "timestamp",
+    "content"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "uuid": {
+     "description": "The source user/assistant record's uuid — addresses the turn durably across corpus renumberings.",
+     "$ref": "#/definitions/UuidV4"
+    },
+    "role": {
+     "description": "The corpus role vocabulary: a user record projects as 'human' (matching markdownConversation), an assistant record as 'assistant'.",
+     "type": "string",
+     "enum": [
+      "human",
+      "assistant"
+     ]
+    },
+    "timestamp": {
+     "description": "The source record's timestamp (ISO 8601, milliseconds, Z).",
+     "type": "string"
+    },
+    "content": {
+     "description": "The turn's visible text: a bare string content verbatim, else the record's text blocks joined by blank lines. Never empty — an empty projection contributes no turn at all.",
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  }
+ }
+}

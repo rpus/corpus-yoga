@@ -130,15 +130,17 @@ let i=0;
    marked has no YAML support, so lift a leading --- block into a muted meta table.
    Values that ARE references become links: the uuid item is the conversation's one
    claude.ai link (the old <url> preamble line retired into it), and relative paths
-   (the summaries index, the conversation backlink) resolve against the served tree. */
+   (the summaries index, the conversation backlink) resolve against the served tree.
+   A code-session's uuid is a session id, not a claude.ai chat — no link exists. */
 if(lines[0]==='---'){{const c=lines.indexOf('---',1);if(c>0){{
   const t=document.createElement('table');t.id='meta';
+  const isCode=lines.slice(1,c).includes('source: code-session');
   for(const l of lines.slice(1,c)){{const j=l.indexOf(': ');const r=t.insertRow();
     const k=j<0?l:l.slice(0,j),v=j<0?'':l.slice(j+2);
     r.insertCell().textContent=k;
     const cell=r.insertCell();
     const href=/^(\\.\\.?\\/|https?:\\/\\/)/.test(v)?v
-      :(k==='uuid'&&/^[0-9a-f-]{{36}}$/.test(v)?'https://claude.ai/chat/'+v:null);
+      :(k==='uuid'&&!isCode&&/^[0-9a-f-]{{36}}$/.test(v)?'https://claude.ai/chat/'+v:null);
     if(href){{const a=document.createElement('a');a.href=href;a.textContent=v;cell.appendChild(a);}}
     else cell.textContent=v;}}
   root.appendChild(t);i=c+1;}}}}
@@ -300,7 +302,14 @@ if __name__ == '__main__':
     p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
     args = p.parse_args()
 
-    markdown_dir = Path(args.markdown).resolve()
+    # Absolutize WITHOUT resolving symlinks: lib/ is a symlink into the shared
+    # medium, and resolving through it strands every served file outside
+    # REPO_ROOT — relative_to() then fails, and the /file/ route needs
+    # repo-relative spellings that traverse the symlink, not physical paths
+    # beyond it.
+    markdown_dir = Path(args.markdown)
+    if not markdown_dir.is_absolute():
+        markdown_dir = Path.cwd() / markdown_dir
 
     ensure_assets()
 

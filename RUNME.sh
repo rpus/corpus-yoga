@@ -4,7 +4,9 @@
 # Runs three pipelines against their sibling input directories:
 #
 #   chat-exports     ext/chat-exports/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
-#   code-projects    ext/code-projects/     Claude Code CLI sessions (symlinked to ~/.claude/projects/ by its PREP.sh)
+#   code-agents      ext/code-agents/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
+#                                           populated by `yoga agent capture --all` — the pipeline never reads
+#                                           the harness-owned ~/.claude/projects)
 #   browser-captures ext/browser-captures/  Per-conversation captures (written by --capture-from-browser):
 #                                           claude/ live API JSON (validated + projected to markdown);
 #                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
@@ -159,8 +161,8 @@ print_plan() {
   "$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
   echo "  chat-exports/PREP.sh"
   "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
-  echo "  code-projects/PREP.sh"
-  "$SCRIPT_DIR/src/main/code-projects/RUNME.sh" --plan | sed 's/^/  /'
+  echo "  code-agents/PREP.sh"
+  "$SCRIPT_DIR/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
   echo "  tail: FAIL/WARN counts with every FAIL:/WARN: line quoted; failed pipelines with their error:/FAIL: lines quoted; gather '→ run:' suggestions; pre_commit reminder; log path"
 }
 
@@ -181,8 +183,8 @@ main() {
   prep_pipeline_safe chat-exports
   run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports"
 
-  prep_pipeline_safe code-projects
-  run_pipeline_safe  code-projects "$SCRIPT_DIR/ext/code-projects"
+  prep_pipeline_safe code-agents
+  run_pipeline_safe  code-agents "$SCRIPT_DIR/ext/code-agents"
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
   # The tail carries SUMMARIES only — the body already marks each fact at its
@@ -228,7 +230,7 @@ main() {
       case "$f" in
         "browser-captures (prep)") echo "    → check ext/browser-captures/claude/ and Safari setup" ;;
         "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see PREP.sh --help)" ;;
-        "code-projects (prep)")  echo "    → check ext/code-projects/ symlink setup" ;;
+        "code-agents (prep)")  echo "    → check ext/code-agents/ (the store) and ext/code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done

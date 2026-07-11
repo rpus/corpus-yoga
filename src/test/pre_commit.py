@@ -76,6 +76,10 @@ class Pipeline:
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
     diagnostic_skip:    frozenset[str] = frozenset()
     gen_key_prefix:     str = ''
+    # A second input shape the pipeline demands beyond input_glob — code-agents'
+    # per-project memory/ dirs beside its per-session .jsonl files. Same subject
+    # depth; the trailing-slash convention (dirs vs files) is per glob.
+    extra_input_glob:   str = ''
 
 PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
@@ -96,17 +100,23 @@ PIPELINES: dict[str, Pipeline] = {
         subject_depth     = 1,
         fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',
     ),
-    'code-projects': Pipeline(
-        schemas           = ['session'],
-        changelog         = RSC_SCHEMA / 'code-projects' / 'session' / 'CHANGELOG.md',
-        gen               = GEN / 'code-projects',
-        input             = EXT / 'code-projects',
-        input_glob        = '-Users-*/*.jsonl',
-        subject_depth     = 2,
-        # validate.sh --code-project-session consumes the gen/ session dir (conversion
-        # from .jsonl comes first), so the runnable ext-rooted unit is the project RUNME.
-        fix_item_cmd      = 'src/main/code-projects/RUNME.sh --code-project',
+    'code-agents': Pipeline(
+        schemas           = ['session', 'sessionConversation', 'projectMemory'],
+        changelog         = RSC_SCHEMA / 'code-agents' / 'session' / 'CHANGELOG.md',
+        gen               = GEN / 'code-agents',
+        # The pipeline sources the repo-owned STORE (rooms → projects →
+        # sessions), never the harness-owned ~/.claude/projects — transport
+        # is the capture step that populates it.
+        input             = EXT / 'code-agents',
+        input_glob        = '*/-Users-*/*.jsonl',
+        subject_depth     = 3,
+        # validate.sh --code-agent-session consumes the gen/ session dir (conversion
+        # from .jsonl comes first), so the runnable store-rooted unit is the project RUNME.
+        fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
+        # Each project's memory/ is its own datum (projectMemory), a subject beside
+        # the project's sessions: gen/code-agents/<room>/<project>/memory/.
+        extra_input_glob  = '*/-Users-*/memory/',
     ),
 }
 
@@ -144,18 +154,20 @@ def _leaf(subject: str) -> str:
 
 def _fix_item_cmd(pipeline: Pipeline, subject: str) -> str:
     """The runnable remedy for one subject: the pipeline's fix_item_cmd plus the
-    TOP-LEVEL ext/ entry containing the subject — the granularity every per-item
-    command actually accepts. A depth-2 subject ('<project> / <uuid>') therefore
-    hints at its project; joining the full subject would name a path no command
-    consumes (and, for code-projects, one that does not even exist as given)."""
-    item = pipeline.input / subject.split(' / ')[0]
+    subject's CONTAINER in ext/ — the granularity every per-item command
+    actually accepts (the subject minus its leaf; the whole subject at depth 1).
+    A depth-3 subject ('<room> / <project> / <uuid>') therefore hints at its
+    room/project dir; joining the full subject would name a path no command
+    consumes (and, for code-agents, one that does not even exist as given)."""
+    parts = subject.split(' / ')
+    item = pipeline.input.joinpath(*(parts[:-1] or parts))
     return f'{pipeline.fix_item_cmd} {item.relative_to(REPO_ROOT)}'
 
 
 def _datum_dirs(pipeline: Pipeline) -> list[Path]:
     """Each datum directory in gen/ (the dirs that contain a validation/ subdir),
     at the pipeline's subject depth."""
-    glob = '*/validation' if pipeline.subject_depth == 1 else '*/*/validation'
+    glob = '/'.join(['*'] * pipeline.subject_depth) + '/validation'
     return sorted(v.parent for v in pipeline.gen.glob(glob) if v.is_dir())
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -203,25 +215,27 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
 
 
 def _input_subjects(pipeline: Pipeline) -> list:
+    """Each input entry as its gen subject: a bare name at depth 1, else the
+    tuple of path parts relative to the input root (files contribute their
+    stem — the .jsonl becomes the session dir's name)."""
     if not pipeline.input.exists():
         return []
-    glob      = pipeline.input_glob.rstrip('/')
-    dirs_only = pipeline.input_glob.endswith('/')
+    globs = [g for g in (pipeline.input_glob, pipeline.extra_input_glob) if g]
     if pipeline.subject_depth == 1:
-        return sorted(d.name for d in pipeline.input.glob(glob) if d.is_dir())
+        return sorted(d.name for g in globs
+                      for d in pipeline.input.glob(g.rstrip('/')) if d.is_dir())
     result = []
-    for item in sorted(pipeline.input.glob(glob)):
-        if item.is_dir() and dirs_only:
-            result.append((item.parent.name, item.name))
-        elif not item.is_dir() and not dirs_only:
-            # For multi-level globs (e.g. data-*/projects/*.json), walk up enough
-            # levels to find the first wildcard segment (the outer subject).
-            outer_depth = len(glob.rsplit('/', 1)[0].split('/'))
-            outer = item
-            for _ in range(outer_depth):
-                outer = outer.parent
-            result.append((outer.name.removeprefix(pipeline.gen_key_prefix), item.stem))
-    return result
+    for pattern in globs:
+        glob      = pattern.rstrip('/')
+        dirs_only = pattern.endswith('/')
+        for item in sorted(pipeline.input.glob(glob)):
+            if item.is_dir() != dirs_only:
+                continue
+            rel   = item.relative_to(pipeline.input)
+            parts = rel.parts[:-1] + (item.name if dirs_only else item.stem,)
+            parts = (parts[0].removeprefix(pipeline.gen_key_prefix),) + parts[1:]
+            result.append(parts)
+    return sorted(result)
 
 
 def _has_local_data(pipeline: Pipeline) -> bool:
@@ -389,7 +403,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
     raw_input = _input_subjects(pipeline)
     current_subjects = (
         raw_input if pipeline.subject_depth == 1
-        else [f'{p1} / {p2}' for p1, p2 in raw_input]
+        else [' / '.join(parts) for parts in raw_input]
     )
     for subject in sorted(current_subjects):
         if subject not in processed_subjects:
@@ -399,24 +413,19 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
 
 
 def _gen_subject_dirs(gen_dir, depth):
-    """Yield (subject, leaf_dir) for each subject directory in gen_dir."""
+    """Yield (subject, leaf_dir) for each subject directory in gen_dir, at any
+    depth (the subject is the ' / '-joined path parts)."""
     if not gen_dir.exists():
         return
-    for d1 in sorted(gen_dir.iterdir()):
-        if not d1.is_dir():
-            continue
-        if depth == 1:
-            yield d1.name, d1
-        else:
-            for d2 in sorted(d1.iterdir()):
-                if d2.is_dir():
-                    yield f'{d1.name} / {d2.name}', d2
+    for leaf in sorted(gen_dir.glob('/'.join(['*'] * depth))):
+        if leaf.is_dir():
+            yield ' / '.join(leaf.relative_to(gen_dir).parts), leaf
 
 
 def _datum_recency(name: str, pipeline: Pipeline, subject: str):
     """A sortable recency key for one datum, or None if unavailable. Pipeline-specific,
     because the corpora differ: chat-exports uses the epoch embedded in the batch dir name;
-    browser-captures the capture's `updated_at`; code-projects the max record `timestamp` in
+    browser-captures the capture's `updated_at`; code-agents the max record `timestamp` in
     the session `.jsonl`. Keys are only ever compared within a single pipeline, so mixing
     int (epoch) and ISO-string (timestamp) types across pipelines is fine."""
     if name == 'chat-exports':
@@ -428,7 +437,7 @@ def _datum_recency(name: str, pipeline: Pipeline, subject: str):
             return json.loads(f.read_text()).get('updated_at')
         except (OSError, ValueError):
             return None
-    if name == 'code-projects':
+    if name == 'code-agents':
         f = pipeline.input.joinpath(*subject.split(' / ')).with_suffix('.jsonl')
         try:
             lines = f.read_text().splitlines()
@@ -499,7 +508,7 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
     run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)))
 
 
-def check_index_curation(run) -> None:
+def check_index_curation(run, fix) -> None:
     """Indexing data obeys the schema system's disposal rigour: every concept the
     capture proposes (lib/dashboard/semantic-concepts.json) is either ACCEPTED — covered
     by a headword or alias in lib/indexing/accepted.txt — or REJECTED in
@@ -520,6 +529,11 @@ def check_index_curation(run) -> None:
         run(f'indexing: concept disposed: {c}', ok,
             None if ok else 'pending — accept in lib/indexing/accepted.txt '
                             'or reject in lib/indexing/rejected.txt')
+        if not ok:
+            fix('./yoga indexing candidates  # write the pending queue: gen/indexing/candidates.txt',
+                problem=f'indexing: concept undisposed: {c}',
+                guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
+                         '| ./yoga indexing reject <concept> [--because <why>]')
 
 
 def check_machine_manifest(run) -> None:
@@ -895,7 +909,8 @@ def main():
                         label=f'check_{_slug}_frontier', tier='data')
 
         run_section(check_cross_sources, tier='data')
-        run_section(check_index_curation, tier='data')
+        run_section(lambda run, _fix=fix: check_index_curation(run, _fix),
+                    label='check_index_curation', tier='data')
         run_section(check_machine_manifest, tier='data')
     finally:
         sys.stdout = sys.__stdout__

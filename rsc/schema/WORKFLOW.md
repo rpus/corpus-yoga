@@ -29,11 +29,11 @@ hints to see the exact error before changing the schema.
 ```bash
 src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
 src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
-src/main/code-projects/RUNME.sh        --code-project  ext/code-projects/<project>
+src/main/code-agents/RUNME.sh        --code-agent  ext/code-agents/<room>/<project>
 ```
 
-(code-projects converts each `.jsonl` before validating, so its runnable unit is the
-project RUNME; `validate.sh --code-project-session` takes the *gen/* session dir, not ext/.)
+(code-agents converts each `.jsonl` before validating, so its runnable unit is the
+project RUNME; `validate.sh --code-agent-session` takes the *gen/* session dir, not ext/.)
 
 Read the validation log in `gen/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
@@ -73,7 +73,7 @@ Re-run the pipeline to generate validation logs for the new version:
 ```bash
 src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
 src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
-src/main/code-projects/RUNME.sh    --code-projects    ext/code-projects
+src/main/code-agents/RUNME.sh    --code-agents    ext/code-agents
 ```
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
@@ -108,7 +108,7 @@ Open `rsc/schema/model_join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
    to `rsc/schema` (`chat-exports/conversations#/definitions/…`,
-   `code-projects/session#/definitions/…`, `browser-captures/apiConversation#/definitions/…`,
+   `code-agents/session#/definitions/…`, `browser-captures/apiConversation#/definitions/…`,
    `_reference/mcp#/definitions/…`). `check_schema_join`
    resolves family dirs against their LATEST version, so a mint costs this file
    no edit at all; if the mint renamed or removed a referenced definition, the
@@ -237,7 +237,7 @@ conversations v10). It was replaced by two independent gates:
   *latest* version, so the schema frontier tracks the data frontier: no unmodelled newest export,
   and no version minted ahead of all data. Recency is pipeline-specific (`_datum_recency`):
   chat-exports uses the epoch in the batch dir name; browser-captures the capture's `updated_at`;
-  code-projects the max record `timestamp` in the session `.jsonl`.
+  code-agents the max record `timestamp` in the session `.jsonl`.
 
 Together they catch a genuinely-drifting fresh export (it fails coverage *and* frontier) while
 letting historical snapshots sit honestly below the latest version. `check_pipeline_validation_outputs`

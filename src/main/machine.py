@@ -48,7 +48,7 @@ def bound_room() -> str:
     if room not in rooms():
         # declaredness gate, here in the ONE reader so every consumer inherits
         # it — above all transport, which would otherwise mint a phantom room
-        # dir in the shared ext/agents from a typo. Bootstrap order per the machines
+        # dir in the shared ext/code-agents from a typo. Bootstrap order per the machines
         # README: a new room is a manifest PLUS a binding, declare then bind.
         sys.exit(f"bound to '{room}' but no manifest declares it — declare "
                  f'rsc/machines/{room}.csv, or fix the {rel} binding; '

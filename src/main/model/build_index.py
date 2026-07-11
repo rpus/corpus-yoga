@@ -227,16 +227,25 @@ def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
 
 
 def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
-               top: int) -> None:
-    """Write the pending line-list (gen/indexing/candidates.txt) and print the
-    machine-local frequency advisory to the terminal. The filed half is
-    deterministic; the advisory half (frequent uncovered corpus words) scans
-    lib/markdown, so it is never filed — it would differ per machine."""
+               top: int | None) -> None:
+    """Write the pending line-list (gen/indexing/candidates.txt) AND print it —
+    the queue is the deliverable, so the console leads with it, never with a
+    side report. The optional frequency advisory (frequent uncovered corpus
+    words, --top N) scans lib/markdown, so it is never filed — it would differ
+    per machine — and it prints only when explicitly asked for: its raw word
+    ranking is a prospecting aid, not the queue, and unasked it buried the
+    queue under noise (user report, 2026-07-11)."""
     report = candidates_report(accepted_path, rejected_path)
     CANDIDATES_TXT.parent.mkdir(parents=True, exist_ok=True)
     CANDIDATES_TXT.write_text(report)
-    print(f'-> {CANDIDATES_TXT.relative_to(REPO)} '
-          f'({len([l for l in report.splitlines() if l.strip()])} pending)')
+    pending = [l for l in report.splitlines() if l.strip()]
+    print(f'{len(pending)} pending concept(s) -> {CANDIDATES_TXT.relative_to(REPO)}'
+          + (' — dispose each: yoga indexing accept <term> [alias ...] | reject <concept>'
+             if pending else ''))
+    for c in pending:
+        print(f'  {c}')
+    if top is None:
+        return
 
     covered, rejected = _coverage(accepted_path, rejected_path)
     from collections import Counter
@@ -348,8 +357,9 @@ def main():
     cand = sub.add_parser('candidates', help='derive gen/indexing/candidates.txt (the pending queue)')
     # --top belongs on the candidates subparser, not the parent — the advertised form
     # is `candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
-    cand.add_argument('--top', type=int, default=40,
-                      help='size of the terminal frequency advisory (default 40)')
+    cand.add_argument('--top', type=int, default=None, metavar='N',
+                      help='also print the frequent-uncovered-corpus-words advisory '
+                           '(top N; terminal only, machine-local; off unless asked)')
     acc = sub.add_parser('accept', help='accept a concept as a headword (merge aliases into it)')
     acc.add_argument('term')
     acc.add_argument('aliases', nargs='*')

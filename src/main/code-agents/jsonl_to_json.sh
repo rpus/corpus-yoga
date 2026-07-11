@@ -2,7 +2,7 @@
 # Convert a JSON Lines file to a JSON array and create a human-readable symlink.
 #
 # Usage:
-#   src/main/code-projects/jsonl_to_json.sh <input.jsonl> <output.json>
+#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 
 set -euo pipefail
 

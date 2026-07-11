@@ -1,11 +1,11 @@
-pre_commit.py: 1241/1241 (data: machine-local)
+pre_commit.py: 1293/1293 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
 
 ── check_required_files ──────────────────────────────────────────────────────
   ✓ exists: src/main/chat-exports/validate.sh
-  ✓ exists: src/main/code-projects/validate.sh
+  ✓ exists: src/main/code-agents/validate.sh
   ✓ exists: src/main/browser-captures/claude/validate.sh
   ✓ exists: src/main/validate.py
   ✓ exists: src/main/model/gen_model_candidate.py
@@ -17,7 +17,7 @@ pre_commit.py: 1241/1241 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 76 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 80 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -52,7 +52,7 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
   ✓ cli: supersede: advertised flags exist
-  ✓ cli: agent: target exists: src/main/code-projects/agent.py
+  ✓ cli: agent: target exists: src/main/code-agents/agent.py
   ✓ cli: agent: cited calculus defined
   ✓ cli: agent: advertised flags exist
   ✓ cli: agent: advertised verbs in target --help
@@ -153,6 +153,7 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ markdownConversation: valid JSON + $schema: v3
   ✓ mcp: valid JSON + $schema: v1
   ✓ memories: valid JSON + $schema: v1
+  ✓ projectMemory: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
   ✓ semanticConcepts: valid JSON + $schema: v1
@@ -166,6 +167,7 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ session: valid JSON + $schema: v7
   ✓ session: valid JSON + $schema: v8
   ✓ session: valid JSON + $schema: v9
+  ✓ sessionConversation: valid JSON + $schema: v1
   ✓ users: valid JSON + $schema: v1
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
@@ -227,6 +229,8 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ mcp: no_todo: v1
   ✓ memories: changelog_narrative: v1
   ✓ memories: no_todo: v1
+  ✓ projectMemory: changelog_narrative: v1
+  ✓ projectMemory: no_todo: v1
   ✓ projects: changelog_narrative: v1
   ✓ projects: no_todo: v1
   ✓ projects: changelog_narrative: v2
@@ -253,6 +257,8 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ session: no_todo: v8
   ✓ session: changelog_narrative: v9
   ✓ session: no_todo: v9
+  ✓ sessionConversation: changelog_narrative: v1
+  ✓ sessionConversation: no_todo: v1
   ✓ users: changelog_narrative: v1
   ✓ users: no_todo: v1
 
@@ -929,6 +935,29 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ memories: structure.no_redundant_additional_properties_true: v1
   ✓ memories: structure.pattern_constraints_enforced: v1
   ✓ memories: structure.required_subset_of_properties: v1
+  ✓ projectMemory: composition.base_not_used_directly: v1
+  ✓ projectMemory: composition.discriminator_values_disjoint: v1
+  ✓ projectMemory: composition.no_additional_properties_on_subtypes: v1
+  ✓ projectMemory: composition.wrapper_has_five_fields: v1
+  ✓ projectMemory: documentation.discriminator_fields_annotated: v1
+  ✓ projectMemory: documentation.every_definition_has_title_and_description: v1
+  ✓ projectMemory: documentation.null_only_fields_documented: v1
+  ✓ projectMemory: documentation.open_set_enums_documented: v1
+  ✓ projectMemory: empirical.nullable_fields_surveyed: v1
+  ✓ projectMemory: empirical.oneOf_branches_evidenced: v1
+  ✓ projectMemory: naming.property_keys_lowercase: v1
+  ✓ projectMemory: naming.title_matches_key: v1
+  ✓ projectMemory: naming.upper_camel_case: v1
+  ✓ projectMemory: structure.all_definitions_reachable: v1
+  ✓ projectMemory: structure.bfs_order: v1
+  ✓ projectMemory: structure.definitions_at_bottom: v1
+  ✓ projectMemory: structure.enum_refines_explicit_type: v1
+  ✓ projectMemory: structure.field_order: v1
+  ✓ projectMemory: structure.minItems_on_non_empty_arrays: v1
+  ✓ projectMemory: structure.no_dangling_refs: v1
+  ✓ projectMemory: structure.no_redundant_additional_properties_true: v1
+  ✓ projectMemory: structure.pattern_constraints_enforced: v1
+  ✓ projectMemory: structure.required_subset_of_properties: v1
   ✓ projects: composition.base_not_used_directly: v1
   ✓ projects: composition.base_schemas_closed: v1
   ✓ projects: composition.discriminator_values_disjoint: v1
@@ -1232,6 +1261,29 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ session: structure.no_redundant_additional_properties_true: v9
   ✓ session: structure.pattern_constraints_enforced: v9
   ✓ session: structure.required_subset_of_properties: v9
+  ✓ sessionConversation: composition.base_not_used_directly: v1
+  ✓ sessionConversation: composition.discriminator_values_disjoint: v1
+  ✓ sessionConversation: composition.no_additional_properties_on_subtypes: v1
+  ✓ sessionConversation: composition.wrapper_has_five_fields: v1
+  ✓ sessionConversation: documentation.discriminator_fields_annotated: v1
+  ✓ sessionConversation: documentation.every_definition_has_title_and_description: v1
+  ✓ sessionConversation: documentation.null_only_fields_documented: v1
+  ✓ sessionConversation: documentation.open_set_enums_documented: v1
+  ✓ sessionConversation: empirical.nullable_fields_surveyed: v1
+  ✓ sessionConversation: empirical.oneOf_branches_evidenced: v1
+  ✓ sessionConversation: naming.property_keys_lowercase: v1
+  ✓ sessionConversation: naming.title_matches_key: v1
+  ✓ sessionConversation: naming.upper_camel_case: v1
+  ✓ sessionConversation: structure.all_definitions_reachable: v1
+  ✓ sessionConversation: structure.bfs_order: v1
+  ✓ sessionConversation: structure.definitions_at_bottom: v1
+  ✓ sessionConversation: structure.enum_refines_explicit_type: v1
+  ✓ sessionConversation: structure.field_order: v1
+  ✓ sessionConversation: structure.minItems_on_non_empty_arrays: v1
+  ✓ sessionConversation: structure.no_dangling_refs: v1
+  ✓ sessionConversation: structure.no_redundant_additional_properties_true: v1
+  ✓ sessionConversation: structure.pattern_constraints_enforced: v1
+  ✓ sessionConversation: structure.required_subset_of_properties: v1
   ✓ users: composition.base_not_used_directly: v1
   ✓ users: composition.base_schemas_closed: v1
   ✓ users: composition.discriminator_values_disjoint: v1
@@ -1267,7 +1319,7 @@ pre_commit.py: 1241/1241 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1241/1241; expected: 1241/1241
+  ✓ score[code+schema]: 1293/1293; expected: 1293/1293
   ✓ score[code]: 60/60; expected: 60/60
-  ✓ score[schema]: 1181/1181; expected: 1181/1181
+  ✓ score[schema]: 1233/1233; expected: 1233/1233
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

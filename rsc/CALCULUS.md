@@ -101,15 +101,15 @@ per-corpus code.
   `.jsonl` moves a conversation's worth of corpus; session + `memory/` folder
   moves an *agent* (user doctrine, 2026-07-06 — proven by the v5 mint, whose
   evidence crossed machines as a file). Reified as a careful cp with the class
-  semantics checked: `src/main/code-projects/agent.py` (`yoga agent`) —
+  semantics checked: `src/main/code-agents/agent.py` (`yoga agent`) —
   prefix-supersession for the append-only session and its eponymous workspace
   (subagent transcripts, persisted tool-results — files the log references,
   without which a rematerialised agent has dangling limbs); for the memory
   folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
   re-dressed by its room and links following, the index unioning by
-  novelty-append). Transported agents live in a shared directory (`ext/agents`, one
-  hand-made symlink per machine), each room's sessions FLAT under the ORIGIN room's name — the
+  novelty-append). Transported agents live in the shared STORE (`ext/code-agents`, one
+  hand-made symlink per machine), keyed room-then-project under the ORIGIN room's name — the
   `self.txt` binding in `rsc/machines/` — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
   design): transport MIRRORS the agent into its own single-writer outbox, and
@@ -296,7 +296,7 @@ The generic interface already exists in embryo, four times:
 `compare_batches.py`'s `COMPONENTS` (atomisers + one generic comparator),
 `library.py` (identity resolution + dressing normalisation + set merge),
 `accumulate_memories.py` (mutable-document accumulation), and
-`src/main/code-projects/agent.py` (prefix-supersession + the memory-folder
+`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 merge). The spectre they jointly raise is a `Mergeable` protocol (user-named,
 2026-07-07): a resource class supplies its merge, and the laws supply the
 contract — idempotent (L1: re-merging is silence), monotone (L4: nothing

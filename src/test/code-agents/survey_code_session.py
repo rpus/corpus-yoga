@@ -3,12 +3,12 @@
 survey_code_session.py — Survey the record types and field structure of one or more
 Claude Code CLI session .jsonl files.
 
-Useful for empirically grounding the code-projects schema before writing or
+Useful for empirically grounding the code-agents schema before writing or
 extending it, following the same approach as the conversations schema diagnostics.
 
 Usage:
-    python src/test/code-projects/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-    python src/test/code-projects/survey_code_session.py ext/code-projects/{project-slug}/*.jsonl
+    python src/test/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
+    python src/test/code-agents/survey_code_session.py ext/code-agents/{room}/{project-slug}/*.jsonl
 
 Output: a human-readable report to stdout covering:
   - Record counts per type across all files
