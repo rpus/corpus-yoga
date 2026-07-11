@@ -17,14 +17,14 @@ human act — recorded in-folder rather than blocking the transport ("hone,
 not clone": the twins are the fork, made visible). Re-running either
 direction on an unchanged pair is silence (L1).
 
-Rooms: bundles live in a shared ARRIVALS HALL — ext/agents, a hand-made
-symlink on each machine to the same medium — each bundle FLAT under its
-ORIGIN room's name: <room>/<session>.jsonl + <room>/<session-uuid>/ (the
+Rooms: transported agents live in a shared directory — ext/agents, a hand-made
+symlink on each machine to the same medium — each room's sessions FLAT under
+the ORIGIN room's name: <room>/<session>.jsonl + <room>/<session-uuid>/ (the
 eponymous workspace: subagent transcripts and persisted tool-results the log
 REFERENCES, moved with log semantics per file) + <room>/memory/. Provenance
 is spatial and sender-declared: transport takes no destination — it mirrors
 the agent into ext/agents/<own room>, the room read from the self.txt
-binding beside the manifests (rsc/machines/) — and receive --from names the peer room(s) whose bundle(s)
+binding beside the manifests (rsc/machines/) — and receive --from names the peer room(s) whose sessions
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
 than the receiver's assertion. An outbox is single-writer by construction, so
 transport MIRRORS its memory (updated in place, absentees removed); every
@@ -32,7 +32,7 @@ merge subtlety lives in receive, where two agents actually meet. The projects
 root is ext/code-projects (PREP.sh's symlink to the Claude Code projects
 folder), so both ends stay repo-relative.
 
-The hall is a git ORIGIN in all but name, and exactly so for append-only
+ext/agents is a git ORIGIN in all but name, and exactly so for append-only
 artifacts: a session log contains every prior state of itself as a byte
 prefix, so the latest copy IS the whole history and place_log's prefix check
 is a fast-forward gate — no commit chain needed, a dumb file store suffices.
@@ -77,7 +77,7 @@ The endpoint asymmetry is the model, not an accident: transport takes NO
 destination — it pushes this room's own ref, the only legal one
 (single-writer branches) — so --to is purely a scratch/test escape hatch and
 takes a bare directory, never a room name. receive must NAME its source ref:
-a peer room in the hall, or (the same scratch affordance, symmetric) a
+a peer room under ext/agents, or (the same scratch affordance, symmetric) a
 directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a room, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
@@ -98,7 +98,9 @@ AND its guid-dir together; delete only the file and the sidebar advertises a
 ghost, whose only offered remedy is the tombstone that started this note.
 """
 import argparse
+import contextlib
 import hashlib
+import io
 import json
 import sys
 from collections import Counter
@@ -107,7 +109,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 PROJECTS = REPO / 'ext' / 'code-projects'
-HALL = REPO / 'ext' / 'agents'
+AGENTS_DIR = REPO / 'ext' / 'agents'
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the room binding
 from machine import bound_room  # noqa: E402
@@ -130,31 +132,31 @@ def _sha_lines(text: str) -> str:
 
 
 def own_outbox() -> Path:
-    """The hall directory this machine writes: ext/agents/<its self.txt
-    binding>. The hall itself is hand-made; the outbox inside it is ours."""
-    if not HALL.is_dir():
+    """The remote this machine writes: ext/agents/<its self.txt binding>.
+    ext/agents itself is hand-made; the room's subdirectory inside it is ours."""
+    if not AGENTS_DIR.is_dir():
         sys.exit('error: ext/agents missing — hand-make it as a symlink to the '
-                 'shared arrivals hall (bundles live there under origin-room names)')
-    out = HALL / bound_room()
+                 'shared agents directory (one subdirectory per room name)')
+    out = AGENTS_DIR / bound_room()
     out.mkdir(exist_ok=True)
     return out
 
 
 def peer_bundle(name: str) -> Path:
     """A source for receive: a ROOM NAME or a DIRECTORY, distinguished by shape,
-    never by lookup — rooms are names (bare tokens, resolved in the hall, loud
-    error if absent), places are paths (anything containing '/' or starting
+    never by lookup — rooms are names (bare tokens, resolved under ext/agents,
+    loud error if absent), places are paths (anything containing '/' or starting
     '~'; a scratch dir beside you is spelled ./like-this). A bare token never
     consults the CWD, so what a command means cannot depend on where you stand
     (the old heuristic tried the CWD first: a local folder named like a room
-    silently shadowed the hall bundle)."""
+    silently shadowed the room's directory under ext/agents)."""
     if '/' in name or name.startswith('~'):
         return Path(name).expanduser()
-    room = HALL / name
+    room = AGENTS_DIR / name
     if not room.is_dir():
-        rooms = sorted(d.name for d in HALL.iterdir() if d.is_dir()) if HALL.is_dir() else []
-        sys.exit(f"error: no bundle from room '{name}' in the arrivals hall — "
-                 f"present: {', '.join(rooms) or '(none)'} "
+        rooms = sorted(d.name for d in AGENTS_DIR.iterdir() if d.is_dir()) if AGENTS_DIR.is_dir() else []
+        sys.exit(f"error: no ext/agents/{name}/ — rooms present: "
+                 f"{', '.join(rooms) or '(none)'} "
                  f"(a directory source is path-shaped: ./{name})")
     return room
 
@@ -172,75 +174,94 @@ def pick_session(proj_dir: Path, uuid8: str) -> Path:
     return matches[0]
 
 
-def place_log(data: bytes, dest: Path, apply: bool) -> tuple[str, int]:
+def place_log(data: bytes, dest: Path, apply: bool) -> tuple[str, str]:
     """Append-only placement — the five-state prefix lattice: new (absent →
     written) / identical (L1 silence) / extends (existing is a strict prefix:
-    the fast-forward, superseded in place) / destination-ahead (incoming is
-    the prefix: a stale stash never truncates — the refused force-push, so
-    replaying old transports is idempotent) / CONFLICT (neither prefixes the
-    other: diverged twins, loud, nothing written, human merge). Successive
-    stashes from one source ratchet new → extends → … → identical; divergence
-    is unreachable from a single well-behaved writer. Returns (status,
-    conflicts)."""
+    the fast-forward, superseded in place) / ahead (incoming is the prefix: a
+    stale stash never truncates — the refused force-push, so replaying old
+    transports is idempotent) / conflict (neither prefixes the other: diverged
+    twins, loud, nothing written, human merge). Successive stashes from one
+    source ratchet new → extends → … → identical; divergence is unreachable
+    from a single well-behaved writer. Returns (kind, detail): the lattice
+    state plus the byte counts for extends. The lattice is direction-blind;
+    the SENTENCE is not — wording is the caller's, via word_placement."""
     if not dest.exists():
         if apply:
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
-        return 'new', 0
+        return 'new', ''
     have = dest.read_bytes()
     if have == data:
-        return 'identical — no-op', 0
+        return 'identical', ''
     if data[:len(have)] == have:
         if apply:
             dest.write_bytes(data)
-        return f'extends it ({len(have)} → {len(data)} bytes) — superseded', 0
+        return 'extends', f'{len(have)} → {len(data)} bytes'
     if have[:len(data)] == data:
-        return 'destination is ahead — no-op', 0
-    return '✗ CONFLICT: diverged — left in place', 1
+        return 'ahead', ''
+    return 'conflict', ''
 
 
-def place_session(src: Path, dest: Path, apply: bool) -> tuple[str, int]:
+def word_placement(kind: str, detail: str, src: str, dest: str) -> str:
+    """One lattice state as one sentence, both sides NAMED — noun extends noun
+    (user specification, 2026-07-11): the opposition is local/remote, never a
+    pronoun without an antecedent, never a metonym. A room name is an ADDRESS
+    (which remote), not a side — both sides of a transport belong to the same
+    room, so the name lives in the header/tail, not in the relation."""
+    return {
+        'new':       f'nothing in {dest} yet — written',
+        'identical': f'{src} and {dest} hold identical bytes — no-op',
+        'extends':   f'{src} extends {dest} ({detail}) — {dest} copy superseded',
+        'ahead':     f'{dest} is ahead of {src} — no-op',
+        'conflict':  f'✗ CONFLICT: {src} and {dest} diverged — {dest} copy left in place',
+    }[kind]
+
+
+def place_session(src: Path, dest: Path, apply: bool) -> tuple[str, str]:
     return place_log(src.read_bytes(), dest, apply)
 
 
-def move_workspace(src_ws: Path, dest_ws: Path, apply: bool) -> int:
+def move_workspace(src_ws: Path, dest_ws: Path, apply: bool,
+                   src_label: str, dest_label: str) -> tuple[int, bool, bool]:
     """The session's eponymous workspace (subagent transcripts, persisted
     tool-results — files the session log REFERENCES) rides along. The
     filesystem, checked here and now, is the only oracle — no reconstruction
     of what "ever existed": a destination folder that is absent takes the
     workspace wholesale as a unit; one that is present (however it came to be)
     merges with log semantics per file — new / identical / prefix-superseded;
-    divergence a loud CONFLICT. Returns the conflict count."""
+    divergence a loud CONFLICT, worded with both sides named (src_label /
+    dest_label). Returns (conflicts, wrote, eventful): wrote is
+    bytes-changed-at-destination; eventful adds anything else worth eyes
+    (ahead files, conflicts) — L1 silence is neither."""
     if not src_ws.is_dir():
-        return 0
+        return 0, False, False
     files = sorted(p for p in src_ws.rglob('*') if p.is_file() and p.name != '.DS_Store')
     if not dest_ws.exists():
-        print(f'  workspace {src_ws.name}/: new ({len(files)} file(s))')
+        print(f'  workspace {src_ws.name}/: nothing in {dest_label} yet — '
+              f'written whole ({len(files)} file(s))')
         if apply:
             for f in files:
                 dest = dest_ws / f.relative_to(src_ws)
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 dest.write_bytes(f.read_bytes())
-        return 0
+        return 0, True, True
     tally = {'new': 0, 'identical': 0, 'extends': 0, 'ahead': 0}
     conflicts = 0
     for f in files:
         rel = f.relative_to(src_ws)
-        status, c = place_log(f.read_bytes(), dest_ws / rel, apply)
-        if c:
-            print(f'  workspace/{rel}: {status}')
-            conflicts += c
+        kind, detail = place_log(f.read_bytes(), dest_ws / rel, apply)
+        if kind == 'conflict':
+            print(f'  workspace/{rel}: {word_placement(kind, detail, src_label, dest_label)}')
+            conflicts += 1
         else:
-            key = ('new' if status == 'new' else
-                   'identical' if status.startswith('identical') else
-                   'extends' if status.startswith('extends') else 'ahead')
-            tally[key] += 1
+            tally[kind] += 1
     print(f'  workspace {src_ws.name}/: '
           + ', '.join(f'{n} {k}' for k, n in tally.items() if n)
           + (f', {conflicts} CONFLICT(S)' if conflicts else '')
           if any(tally.values()) or conflicts else
           f'  workspace {src_ws.name}/: empty')
-    return conflicts
+    wrote = bool(tally['new'] or tally['extends'])
+    return conflicts, wrote, wrote or bool(conflicts or tally['ahead'])
 
 
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
@@ -250,7 +271,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
     copy (novelty); identical → skip; the incoming extends the local
     (byte-prefix) → superseded in place (an appendix); true divergence → BOTH
     kept, the incoming fact re-dressed as <stem>.<room>.md — room is the
-    bundle's ADDRESS in the hall, sender-declared — with its [[links]]
+    sender's ADDRESS under ext/agents, sender-declared — with its [[links]]
     following (nothing lost, nothing silently overwritten, nothing blocking —
     reconciliation stays a human act, recorded in-folder). MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
@@ -369,9 +390,9 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
 
 def list_agents() -> int:
     """The sidebar-independent census: every session in this machine's project
-    and in each hall room's bundle, dressed with its LAST ai-title record —
-    the title history rides the log, so this works identically on live
-    sessions and transported bundles, and the dressing is derived on demand,
+    and in each room's directory under ext/agents, dressed with its LAST
+    ai-title record — the title history rides the log, so this works
+    identically on live and transported sessions, and the dressing is derived on demand,
     never stored (L5). Framing on stderr; data lines on stdout (pipeable)."""
     rows = []
 
@@ -390,8 +411,8 @@ def list_agents() -> int:
     key = project_key()
     if (PROJECTS / key).is_dir():
         scan('local', PROJECTS / key)
-    if HALL.is_dir():
-        for room in sorted(p for p in HALL.iterdir() if p.is_dir()):
+    if AGENTS_DIR.is_dir():
+        for room in sorted(p for p in AGENTS_DIR.iterdir() if p.is_dir()):
             scan(room.name, room)
     print(f'{"uuid8":<8}  {"where":<14}  {"size":>7}  {"last-write":<16}  title', file=sys.stderr)
     for u8, where, size, mtime, title in rows:
@@ -403,8 +424,8 @@ def list_agents() -> int:
 def model_census() -> int:
     """Aggregate message.model over every "type":"assistant" record across ALL
     coding sessions in this machine's projects root — every project, main
-    sessions and their subagents. Hall bundles are copies of sessions counted
-    here (or in their origin room), so they are not counted. The model is a
+    sessions and their subagents. The copies under ext/agents are of sessions
+    counted here (or in their origin room), so they are not counted. The model is a
     per-RECORD fact, so a mid-session switch — elective /model or forced
     fallback — shows as a mixed session; '<synthetic>' rows are harness-authored
     records (no model spoke). Framing on stderr; data lines on stdout
@@ -520,7 +541,7 @@ def demerge(proj_dir: Path, apply: bool) -> int:
             idx.write_text('\n'.join(remaining) + ('\n' if remaining else ''))
     print('note: session .jsonl files and their eponymous workspace dirs are '
           'visit residue demerge does not touch')
-    print('APPLIED' if apply else 'dry run — pass --apply to undo the merge')
+    print('DONE' if apply else 'dry run — pass --apply to undo the merge')
     return 0
 
 
@@ -558,17 +579,34 @@ def mirror_memory(src_dir: Path, dest_dir: Path) -> None:
           + (f', {removed} removed (absent at source)' if removed else ''))
 
 
-def _transport_session(src_proj: Path, outbox: Path, session: Path) -> int:
-    print(f'transport → {outbox.name}: {session.name}')
-    status, conflicts = place_session(session, outbox / session.name, apply=True)
-    print(f'  session: {status}')
-    return conflicts + move_workspace(src_proj / session.stem, outbox / session.stem, apply=True)
+def _transport_session(src_proj: Path, outbox: Path, session: Path,
+                       quiet_noop: bool = False) -> tuple[int, bool, bool]:
+    """Mirror one session (log + workspace) into the outbox. Returns
+    (conflicts, wrote, eventful) with move_workspace's semantics extended to
+    the pair. With quiet_noop, a session that lands wholly on L1 silence
+    (identical log, identical-or-absent workspace) narrates NOTHING — the
+    --all caller names the silent ones in one line instead of three each."""
+    kind, detail = place_session(session, outbox / session.name, apply=True)
+    conflicts = 1 if kind == 'conflict' else 0
+    ws_narration = io.StringIO()
+    with contextlib.redirect_stdout(ws_narration):
+        ws_conflicts, ws_wrote, ws_eventful = move_workspace(
+            src_proj / session.stem, outbox / session.stem, apply=True,
+            src_label='local', dest_label='remote')
+    conflicts += ws_conflicts
+    wrote = ws_wrote or kind in ('new', 'extends')
+    eventful = wrote or bool(conflicts) or ws_eventful or kind != 'identical'
+    if eventful or not quiet_noop:
+        print(f'transport → {outbox.name}: {session.name}')
+        print(f'  session: {word_placement(kind, detail, "local", "remote")}')
+        print(ws_narration.getvalue(), end='')
+    return conflicts, wrote, eventful
 
 
 def transport_move(src_proj: Path, outbox: Path, session: Path) -> int:
-    conflicts = _transport_session(src_proj, outbox, session)
+    conflicts, _, _ = _transport_session(src_proj, outbox, session)
     mirror_memory(src_proj / 'memory', outbox / 'memory')
-    print('APPLIED')
+    print('DONE')
     return conflicts
 
 
@@ -577,23 +615,47 @@ def transport_all(src_proj: Path, outbox: Path) -> int:
     inference — the named totality. Safe by the prefix lattice: each session's
     placement independently lands on silence, fast-forward, ahead-no-op, or a
     loud per-session CONFLICT, so mirroring everything is idempotent and
-    monotone."""
+    monotone. Narration is lattice-shaped: sessions landing on L1 silence are
+    named in one line, not narrated three each, and the tail keeps EFFECT
+    (what this run wrote) and POSTCONDITION (what the remote now holds)
+    apart — 'mirrored' must never leave the reader guessing which it claims."""
     sessions = sorted(src_proj.glob('*.jsonl'))
     if not sessions:
         print(f'error: no sessions under {src_proj}', file=sys.stderr)
         return 1
-    conflicts = sum(_transport_session(src_proj, outbox, s) for s in sessions)
+    conflicts, written, quiet = 0, 0, []
+    for s in sessions:
+        c, wrote, eventful = _transport_session(src_proj, outbox, s, quiet_noop=True)
+        conflicts += c
+        written += 1 if wrote else 0
+        if not eventful:
+            quiet.append(s.stem[:8])
+    if quiet:
+        print(f'{len(quiet)} session(s) identical in local and remote '
+              f'(log and workspace): {", ".join(quiet)}')
     mirror_memory(src_proj / 'memory', outbox / 'memory')
-    print(f'APPLIED — {len(sessions)} session(s) mirrored'
-          + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
+    # The tail names the strongest true statement: with no effect, the
+    # PRECONDITION ("already held" — it was true before the run, so nothing
+    # needed doing); with writes, effect and postcondition as separate clauses.
+    if conflicts:
+        print(f'DONE — effect: {written} of {len(sessions)} session(s) written, '
+              f'{conflicts} CONFLICT(S); postcondition: remote ({outbox.name}) does NOT '
+              'yet hold everything local holds — CONFLICT(S) above, left in place')
+    elif written:
+        print(f'DONE — effect: {written} of {len(sessions)} session(s) written; '
+              f'postcondition: remote ({outbox.name}) holds everything local holds')
+    else:
+        print(f'DONE — no effect: remote ({outbox.name}) already held everything local holds')
     return conflicts
 
 
 def _receive_session(bundle: Path, dest_proj: Path, session: Path, apply: bool, room: str) -> int:
     print(f'receive ← {room}: {session.name}')
-    status, conflicts = place_session(session, dest_proj / session.name, apply)
-    print(f'  session: {status}')
-    return conflicts + move_workspace(bundle / session.stem, dest_proj / session.stem, apply)
+    kind, detail = place_session(session, dest_proj / session.name, apply)
+    print(f'  session: {word_placement(kind, detail, "remote", "local")}')
+    ws_conflicts, _, _ = move_workspace(bundle / session.stem, dest_proj / session.stem, apply,
+                                        src_label='remote', dest_label='local')
+    return (1 if kind == 'conflict' else 0) + ws_conflicts
 
 
 def receive_all(bundle: Path, dest_proj: Path, apply: bool, room: str) -> int:
@@ -602,11 +664,11 @@ def receive_all(bundle: Path, dest_proj: Path, apply: bool, room: str) -> int:
     safety as transport --all, plus receive's own guard: dry-run unless --apply."""
     sessions = sorted(bundle.glob('*.jsonl'))
     if not sessions:
-        print(f'error: no sessions in bundle {bundle}', file=sys.stderr)
+        print(f'error: no sessions in {bundle}', file=sys.stderr)
         return 1
     conflicts = sum(_receive_session(bundle, dest_proj, s, apply, room) for s in sessions)
     conflicts += merge_memory(bundle / 'memory', dest_proj / 'memory', apply, room)
-    print(f'{"APPLIED" if apply else "dry run — pass --apply to write into the projects root"}'
+    print(f'{"DONE" if apply else "dry run — pass --apply to write into the projects root"}'
           f' — {len(sessions)} session(s)' + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
     return conflicts
 
@@ -614,36 +676,36 @@ def receive_all(bundle: Path, dest_proj: Path, apply: bool, room: str) -> int:
 def receive_move(bundle: Path, dest_proj: Path, session: Path, apply: bool, room: str) -> int:
     conflicts = _receive_session(bundle, dest_proj, session, apply, room)
     conflicts += merge_memory(bundle / 'memory', dest_proj / 'memory', apply, room)
-    print('APPLIED' if apply else 'dry run — pass --apply to write into the projects root')
+    print('DONE' if apply else 'dry run — pass --apply to write into the projects root')
     return conflicts
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='transport an agent (session × memory) between machines')
     sub = ap.add_subparsers(dest='direction', required=True)
-    t = sub.add_parser('transport', help="mirror the agent into its own room's dir in the arrivals hall")
+    t = sub.add_parser('transport', help="mirror the agent into its own room's remote, ext/agents/<room>/")
     t.add_argument('--session',
                    help='uuid(8) prefix of the agent to move — identity is never guessed')
     t.add_argument('--all', action='store_true',
                    help='mirror EVERY session (git push --all): the named totality, safe by the '
                         'prefix lattice — each placement is silence/fast-forward/ahead or a loud CONFLICT')
     t.add_argument('--to', metavar='SCRATCH_DIR',
-                   help='scratch/test escape hatch: write the bundle to this directory instead of the '
+                   help='scratch/test escape hatch: write to this directory instead of the '
                         "room's own ref (ext/agents/<the self.txt binding>) — never a room name: a room "
                         'pushes only its own ref')
-    r = sub.add_parser('receive', help="install a peer room's bundle from the arrivals hall")
+    r = sub.add_parser('receive', help="install a peer room's sessions from its remote, ext/agents/<room>/")
     r.add_argument('--from', dest='source', required=True, metavar='ROOM_OR_DIR',
-                   help="source ref, distinguished by shape: a bare token is a peer room's name in the hall "
-                        "(never a CWD lookup); anything with a '/' is a directory path (scratch: ./dir)")
+                   help="source ref, distinguished by shape: a bare token is a peer room's name under "
+                        "ext/agents (never a CWD lookup); anything with a '/' is a directory path (scratch: ./dir)")
     r.add_argument('--session',
                    help='uuid(8) prefix of the agent to install — identity is never guessed')
     r.add_argument('--all', action='store_true',
-                   help="install EVERY session in the room's bundle (git pull --all from one peer): "
+                   help="install EVERY session the room transported (git pull --all from one peer): "
                         'the named totality, dry-run like any receive')
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing)')
     d.add_argument('--apply', action='store_true')
-    sub.add_parser('list', help='census: sessions here and in the hall, dressed with their last ai-title')
+    sub.add_parser('list', help='census: sessions local and under ext/agents, dressed with their last ai-title')
     sub.add_parser('models', help='model census: message.model counts over "type":"assistant" records, '
                                   'every project and session in this machine\'s projects root')
     args = ap.parse_args()
@@ -677,8 +739,8 @@ def main() -> int:
         return 1 if transport_move(src_proj, outbox, session) else 0
 
     bundle = peer_bundle(args.source)
-    # the twin-dressing and marker label: the bundle's ADDRESS — the origin room's
-    # name as it stands in the hall (or the directory's own name for a path)
+    # the twin-dressing and marker label: the source's ADDRESS — the origin room's
+    # name as it stands under ext/agents (or the directory's own name for a path)
     room = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
         return 1 if receive_all(bundle, PROJECTS / key, args.apply, room) else 0

@@ -2,7 +2,7 @@ level,kind,arg,note
 required,cmd,jq,install via: brew install jq
 required,cmd,python3,install via: brew install python
 required,path,ext/code-projects,src/main/code-projects/PREP.sh symlinks it to the Claude Code projects folder
-required,path,ext/agents,hand-made symlink to the shared arrivals hall (agent bundles under origin-room names)
+required,path,ext/agents,hand-made symlink to the shared agents directory (one subdirectory per room name)
 optional,path,ext/chat-exports,hand-made symlink to the shared bulk-export supply (downloaded in whichever room; one union both rooms see)
 optional,path,ext/browser-captures/claude,hand-made symlink to the shared capture set (taken wherever Safari is logged in)
 optional,env,ANTHROPIC_API_KEY,only `yoga dashboard capture` (paid) needs it

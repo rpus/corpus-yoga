@@ -160,6 +160,7 @@ def _merge(src: Path, dest: Path, apply: bool) -> int:
 def _normalise(root: Path, json_dir: Path, apply: bool) -> int:
     dressing_by_u8, u8s_by_slug = _corpus(json_dir)
     problems = 0
+    changed = False  # any rename/merge done (or, dry-run, found to be needed)
     claimed: set[str] = set()  # canonical names claimed this run (dry-run merge prediction)
     for d in sorted(p for p in root.iterdir() if p.is_dir()):
         u8, how = _identify(d.name, u8s_by_slug)
@@ -175,6 +176,7 @@ def _normalise(root: Path, json_dir: Path, apply: bool) -> int:
         if d == canonical:
             claimed.add(canonical.name)
             continue
+        changed = True
         if canonical.exists():
             print(f'  {d.name} ({how}) same conversation as {canonical.name} — merging')
             problems += _merge(d, canonical, apply)
@@ -186,7 +188,13 @@ def _normalise(root: Path, json_dir: Path, apply: bool) -> int:
             if apply:
                 d.rename(canonical)
         claimed.add(canonical.name)
-    print('APPLIED' if apply else 'dry run — pass --apply to normalise')
+    # No-op: state the PRECONDITION — the names were already canonical, so
+    # there was nothing to do (and, dry-run, nothing to offer --apply for).
+    if apply:
+        print('DONE' if changed else 'DONE (already canonical)')
+    else:
+        print('dry run — pass --apply to normalise' if changed else
+              'dry run — already canonical, nothing to apply')
     return problems
 
 

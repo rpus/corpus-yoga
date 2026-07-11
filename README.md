@@ -39,12 +39,12 @@ Every root also has a complete **sync story** — nothing valuable lives only on
 | root | lifecycle | medium | loss cost |
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-| `ext/` | input | iCloud (captures, exports, the arrivals hall) | none — the medium carries it (sessions: once stashed via `transport --all`) |
+| `ext/` | input | iCloud (captures, exports, `ext/agents`) | none — the medium carries it (sessions: once stashed via `transport --all`) |
 | `gen/` | cache | local | none — pipeline subdirectories reproducible from `ext/` by `./yoga run`; `gen/completions/`, `gen/dashboard/presentation/`, `gen/indexing/` by their `./yoga` subcommands (`completion --write`, `dashboard present`, `indexing candidates` — the latter two read `lib/`, not `ext/`) |
 | `logs/` | run history | local | disposable (not reproducible, but dispensable) |
 | `lib/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-The last gap closed 2026-07-11: Claude Code sessions live in harness-owned, machine-local state (`ext/code-projects` is a symlink into `~/.claude/projects`, which must not itself sync), and `./yoga agent transport --all` projects the whole stable into the iCloud arrivals hall — push-shaped and deliberate rather than ambient, which is the stronger property: the prefix lattice gates every byte on the way in, so a live session file can never be half-synced into corruption. (The tier names may yet change — an `ext`/`gen`/`lib` → `input`/`cache`/`output` rename is parked — but the semantics above are the contract.)
+The last gap closed 2026-07-11: Claude Code sessions live in harness-owned, machine-local state (`ext/code-projects` is a symlink into `~/.claude/projects`, which must not itself sync), and `./yoga agent transport --all` mirrors every session into the shared `ext/agents` directory on iCloud — push-shaped and deliberate rather than ambient, which is the stronger property: the prefix lattice gates every byte on the way in, so a live session file can never be half-synced into corruption. (The tier names may yet change — an `ext`/`gen`/`lib` → `input`/`cache`/`output` rename is parked — but the semantics above are the contract.)
 
 ## The `yoga` CLI
 

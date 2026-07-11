@@ -108,8 +108,8 @@ per-corpus code.
   folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
   re-dressed by its room and links following, the index unioning by
-  novelty-append). Bundles live in a shared ARRIVALS HALL (`ext/agents`, one
-  hand-made symlink per machine), each FLAT under its ORIGIN room's name — the
+  novelty-append). Transported agents live in a shared directory (`ext/agents`, one
+  hand-made symlink per machine), each room's sessions FLAT under the ORIGIN room's name — the
   `self.txt` binding in `rsc/machines/` — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
   design): transport MIRRORS the agent into its own single-writer outbox, and
