@@ -142,6 +142,30 @@ check_cli() {
   fi
 }
 
+check_git_hook() {
+  echo "pre-commit hook (the repo's commit gate; src/test/pre_commit.sh fails any run until installed)"
+  local script="$SCRIPT_DIR/src/test/pre_commit.sh" hook link dir
+  if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
+    info "not a git clone — no hook to install"
+    return
+  fi
+  [[ "$hook" = /* ]] || hook="$SCRIPT_DIR/$hook"
+  if [[ -L "$hook" ]]; then
+    link="$(readlink "$hook")"
+    [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
+    dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd || true)"
+    if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
+      ok "installed: the load-bearing symlink to src/test/pre_commit.sh"
+    else
+      info "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+    fi
+  elif [[ -e "$hook" ]]; then
+    info "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+  else
+    info "not installed — ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+  fi
+}
+
 check_pipeline_inputs() {
   echo "pipeline inputs (this repo ships no data; you supply your own)"
   local n
@@ -192,6 +216,7 @@ main() {
   check_venv
   check_optional_modes
   check_cli
+  check_git_hook
   check_pipeline_inputs
   notes
 

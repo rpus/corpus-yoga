@@ -15,6 +15,14 @@
 # that could not execute at all (nothing verified — nothing to be advisory about).
 # (Surviving a failing run instead of dying at it also means the run still stages
 # its regenerated artifacts and still gets idempotence-checked.)
+#
+# The wrapper also gates its own installation: pre-commit lives up to its name
+# only as the installed hook, so a run where .git/hooks/pre-commit is not the
+# load-bearing symlink fails with the install one-liner. The state is
+# machine-local, so it cannot be a committed-tier check (that log is
+# byte-identical on any clone) — it gates here, in the machine-facing wrapper.
+# In hook context the probe passes by construction, unless a drifted COPY is
+# running, which rightly fails itself.
 
 set -euo pipefail
 
@@ -33,6 +41,19 @@ parse_args() {
 default_branch() {
   git -C "$REPO_DIR" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null \
     | sed 's|^origin/||' | grep . || echo main
+}
+
+# Is .git/hooks/pre-commit the load-bearing symlink to this script? Resolved
+# via --git-path so a worktree checkout probes the right hooks directory.
+hook_installed() {
+  local hook link dir
+  hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)" || return 1
+  [[ "$hook" = /* ]] || hook="$REPO_DIR/$hook"
+  [[ -L "$hook" ]] || return 1
+  link="$(readlink "$hook")"
+  [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
+  dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd)" || return 1
+  [[ "$dir/$(basename "$link")" == "$REPO_DIR/src/test/pre_commit.sh" ]]
 }
 
 # Epoch mtime, BSD then GNU stat (a Linux clone must not silently lose the
@@ -86,6 +107,15 @@ main() {
     echo 'ERROR: pre_commit is not idempotent — pre_commit.log or xref.csv changed on second run.' >&2
     git -C "$REPO_DIR" diff src/test/pre_commit.log src/test/xref.csv >&2
     exit 1
+  fi
+
+  # The installation gate (see header). After the checks, so a failing run is
+  # still a full report; before the branch-advisory verdict, so it is weighed
+  # like any other failure.
+  if ! hook_installed; then
+    echo "✗ pre_commit is not installed as the git pre-commit hook — nothing vets a commit until it is:"
+    echo "    ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+    if [[ $rc -eq 0 ]]; then rc=1; fi
   fi
 
   if [[ $rc -ne 0 && $strict -eq 0 ]]; then

@@ -13,6 +13,7 @@
 		"python.analysis.extraPaths": ["src", "src/main", "src/main/chat-exports", "src/main/browser-captures", "src/main/model", "src/test"],
 		"python.analysis.typeCheckingMode": "standard",
 		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python", // mirrors the VENV default in run_python_script.sh / RUNME.sh
-		"python.analysis.diagnosticMode": "workspace"
+		"python.analysis.diagnosticMode": "workspace",
+		"python.terminal.activateEnvironment": false
 	}
 }

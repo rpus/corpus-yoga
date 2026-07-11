@@ -21,8 +21,10 @@ Checks are grouped into three tiers, run in order:
 The committed expected score (src/test/pre_commit_expected_score) records the code and
 schema tiers only — their counts are identical on every clone. Its first line is the
 combined code+schema total, which also matches the score in the log's head line. The
-data tier's subtotal is machine-local and never recorded; its failures still fail the
-run wherever data exists.
+data tier's subtotal is machine-local and never recorded; its failures are reported in
+full but never veto the exit — a fact about this machine's data must not gate an
+unrelated commit. Machine state that SHOULD gate — the hook's own installation — is
+enforced by the wrapper (pre_commit.sh), never by a tier.
 
 Atomic diagnostic scripts live in src/test/diagnostics/{principle_id}.py.
 Atomic repair scripts live in src/test/repairs/{principle_id}.py.
