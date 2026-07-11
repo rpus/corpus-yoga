@@ -134,14 +134,15 @@ rsc/schema/WORKFLOW.md,81,doc,src/validation_matrix.py,Y,`validate_versions.py` 
 rsc/schema/WORKFLOW.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,88,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,107,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,109,doc,rsc/schema,Y,1. **Pointers name no versions** — every cell is a path relative to `rsc/schema`:
+rsc/schema/WORKFLOW.md,110,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
 rsc/schema/WORKFLOW.md,141,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,147,doc,rsc/schema/_reference/mcp.json,Y,`rsc/schema/_reference/mcp.json` is a snapshot of the MCP protocol spec used as the
-rsc/schema/WORKFLOW.md,168,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
-rsc/schema/WORKFLOW.md,172,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
-rsc/schema/WORKFLOW.md,182,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/WORKFLOW.md,183,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
-rsc/schema/WORKFLOW.md,187,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
+rsc/schema/WORKFLOW.md,153,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
+rsc/schema/WORKFLOW.md,154,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
+rsc/schema/WORKFLOW.md,176,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
+rsc/schema/WORKFLOW.md,180,doc,src/main/model/gen_model.sh,Y,src/main/model/gen_model.sh
+rsc/schema/WORKFLOW.md,190,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+rsc/schema/WORKFLOW.md,191,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
+rsc/schema/WORKFLOW.md,195,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
@@ -151,7 +152,7 @@ rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`v
 rsc/schema/chat-exports/projects/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-projects/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-projects/session/CHANGELOG.md,207,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
+rsc/schema/code-projects/session/CHANGELOG.md,216,doc,src/main/code-projects/RUNME.sh,Y,discovered iteratively by running `src/main/code-projects/RUNME.sh` and re-tightening:
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
@@ -444,12 +445,12 @@ src/test/pre_commit.py,86,path_str,src/main/browser-captures/claude/validate.sh,
 src/test/pre_commit.py,95,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,106,path_str,src/main/code-projects/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-projects/RUNME.sh --code-project',"
 src/test/pre_commit.py,590,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
-src/test/pre_commit.py,999,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1001,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1009,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1011,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,787,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
-src/test/pre_commit.py,960,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
+src/test/pre_commit.py,1012,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1014,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1022,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1024,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,800,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+src/test/pre_commit.py,973,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,62,comment,src/test/pre_commit.log,Y,"# src/test/pre_commit.log (code+schema only, byte-identical on any clone — the"

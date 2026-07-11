@@ -35,6 +35,15 @@ belongs, now fails by name instead of sliding through a string.
   between real models, never to the synthetic marker (observed pairs confirm:
   only `claude-fable-5` → `claude-opus-4-8`).
 
+### Refactored since v8
+
+- MCP cross-references in the TextBlock / ToolUseBlock / ToolResultBlock /
+  ImageBlock descriptions (in v1–v9, in place, no validation effect) —
+  `../_reference/mcp.json#…` → `../_reference/mcp/v1.json#…` when the protocol
+  snapshot joined the versioned-family system (2026-07-10). Pinned to v1
+  deliberately: these descriptions correspond to the snapshot as it stood when
+  they were written.
+
 ## v8
 
 The frontier datum is again `a6f25723-…`, and again it outgrew the schema by doing —

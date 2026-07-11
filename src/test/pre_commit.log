@@ -1,4 +1,4 @@
-pre_commit.py: 1238/1238 (data: machine-local)
+pre_commit.py: 1241/1241 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -151,6 +151,7 @@ pre_commit.py: 1238/1238 (data: machine-local)
   ✓ markdownConversation: valid JSON + $schema: v1
   ✓ markdownConversation: valid JSON + $schema: v2
   ✓ markdownConversation: valid JSON + $schema: v3
+  ✓ mcp: valid JSON + $schema: v1
   ✓ memories: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
@@ -222,6 +223,8 @@ pre_commit.py: 1238/1238 (data: machine-local)
   ✓ markdownConversation: no_todo: v2
   ✓ markdownConversation: changelog_narrative: v3
   ✓ markdownConversation: no_todo: v3
+  ✓ mcp: changelog_narrative: v1
+  ✓ mcp: no_todo: v1
   ✓ memories: changelog_narrative: v1
   ✓ memories: no_todo: v1
   ✓ projects: changelog_narrative: v1
@@ -1261,10 +1264,10 @@ pre_commit.py: 1238/1238 (data: machine-local)
   ✓ model_join: de-versioned pointer grammar (family dirs, no vN.json pins)
 
 ── check_mcp_schema ──────────────────────────────────────────────────────────
-  ✓ mcp schema: up to date
+  ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1238/1238; expected: 1238/1238
+  ✓ score[code+schema]: 1241/1241; expected: 1241/1241
   ✓ score[code]: 60/60; expected: 60/60
-  ✓ score[schema]: 1178/1178; expected: 1178/1178
+  ✓ score[schema]: 1181/1181; expected: 1181/1181
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed

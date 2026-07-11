@@ -838,7 +838,7 @@
     },
     "TextBlock": {
       "title": "TextBlock",
-      "description": "A plain text content block. Corresponds to MCP TextContent (../_reference/mcp.json#/definitions/TextContent); the CLI format omits _meta and annotations.",
+      "description": "A plain text content block. Corresponds to MCP TextContent (../_reference/mcp/v1.json#/definitions/TextContent); the CLI format omits _meta and annotations.",
       "type": "object",
       "required": [
         "type",
@@ -861,7 +861,7 @@
     },
     "ToolUseBlock": {
       "title": "ToolUseBlock",
-      "description": "A tool invocation block. Corresponds to MCP ToolUseContent (../_reference/mcp.json#/definitions/ToolUseContent); id, name, and input are identical. The CLI adds a caller field absent from MCP.",
+      "description": "A tool invocation block. Corresponds to MCP ToolUseContent (../_reference/mcp/v1.json#/definitions/ToolUseContent); id, name, and input are identical. The CLI adds a caller field absent from MCP.",
       "type": "object",
       "required": [
         "type",
@@ -898,7 +898,7 @@
     },
     "ToolResultBlock": {
       "title": "ToolResultBlock",
-      "description": "The result of a tool invocation. Corresponds to MCP ToolResultContent (../_reference/mcp.json#/definitions/ToolResultContent); tool_use_id/is_error are snake_cased equivalents of toolUseId/isError.",
+      "description": "The result of a tool invocation. Corresponds to MCP ToolResultContent (../_reference/mcp/v1.json#/definitions/ToolResultContent); tool_use_id/is_error are snake_cased equivalents of toolUseId/isError.",
       "type": "object",
       "required": [
         "type",
@@ -960,7 +960,7 @@
     },
     "ImageBlock": {
       "title": "ImageBlock",
-      "description": "An image content block. Observed when the user pastes or drags an image into the prompt. Corresponds to MCP ImageContent (../_reference/mcp.json#/definitions/ImageContent); the CLI format uses a nested source object rather than top-level data/mimeType fields.",
+      "description": "An image content block. Observed when the user pastes or drags an image into the prompt. Corresponds to MCP ImageContent (../_reference/mcp/v1.json#/definitions/ImageContent); the CLI format uses a nested source object rather than top-level data/mimeType fields.",
       "type": "object",
       "required": [
         "type",

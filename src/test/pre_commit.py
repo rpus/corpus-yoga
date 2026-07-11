@@ -675,6 +675,12 @@ def check_versioned_schema_diagnostics(run):
     for schema_name in sorted(set(schema_skips) | set(schema_dirs)):
         skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips.get(schema_name, frozenset())
         schema_dir  = schema_dirs.get(schema_name, SCHEMA_DIR.get(schema_name))
+        if schema_dir and schema_dir.parent.name.startswith('_'):
+            # _reference/ families are VERBATIM upstream snapshots (e.g. the MCP
+            # protocol spec): house style diagnostics do not apply — repairing
+            # upstream text to satisfy them would falsify the snapshot. Validity
+            # ($schema, parseability) is still checked by check_schema_validity.
+            continue
         versions    = _sorted_versions(schema_dir) if schema_dir else []
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
@@ -694,9 +700,9 @@ def check_schema_join(run):
         run('schema model_join.csv exists', False)
         return
     fails: list[str] = []
-    # One grammar, one base: every cell is a path relative to rsc/schema — a
-    # versioned family dir ('chat-exports/conversations#…') or a real file
-    # ('_reference/mcp.json#…'). No per-column tribal knowledge to resolve a cell.
+    # One grammar, one base: every cell is a versioned family dir relative to
+    # rsc/schema ('chat-exports/conversations#…', '_reference/mcp#…'), resolved
+    # against its latest version. No per-column tribal knowledge to resolve a cell.
     _check_csv_pointers(join,
                         ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path'),
                         {c: RSC_SCHEMA for c in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')},
@@ -719,7 +725,7 @@ def check_model_join_versions(run):
     pins: list[str] = []
     with join.open() as fh:
         for i, row in enumerate(csv.DictReader(fh), 2):
-            for col in ('conversations_path', 'session_path', 'apiConversation_path'):
+            for col in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path'):
                 file_part = (row.get(col) or '').strip().partition('#')[0]
                 if re.search(r'v\d+\.json$', file_part):
                     pins.append(f'row {i} {col}: {file_part}')
@@ -729,27 +735,34 @@ def check_model_join_versions(run):
 
 
 def check_mcp_schema(run):
-    """_reference/mcp.json must match the upstream schema at the raw URL in its description."""
+    """The LATEST _reference/mcp/vN.json must match the upstream schema at the raw
+    URL in its description. Upstream drift is answered by MINTING the next version
+    beside the old one (the snapshot's history is data), never by updating in place."""
     import hashlib, urllib.request
-    mcp_path = RSC_SCHEMA / '_reference' / 'mcp.json'
-    if not mcp_path.exists():
-        run('mcp schema: _reference/mcp.json exists', False)
+    mcp_dir  = RSC_SCHEMA / '_reference' / 'mcp'
+    versions = _sorted_versions(mcp_dir) if mcp_dir.is_dir() else []
+    if not versions:
+        run('mcp schema: _reference/mcp/ has versions', False)
         return
-    desc = json.loads(mcp_path.read_text()).get('description', '')
+    latest = versions[-1]
+    rel    = latest.relative_to(REPO_ROOT)
+    desc = json.loads(latest.read_text()).get('description', '')
     m_url  = re.search(r'(https://raw\.githubusercontent\.com/\S+)', desc)
     m_hash = re.search(r'upstream SHA256:\s*([0-9a-f]{64})', desc)
     if not m_url or not m_hash:
         run('mcp schema: description has raw URL and upstream SHA256', False,
-            'Add raw URL and "upstream SHA256: <hex>" to the description field in _reference/mcp.json')
+            f'Add raw URL and "upstream SHA256: <hex>" to the description field in {rel}')
         return
     raw_url     = m_url.group(1)
     stored_hash = m_hash.group(1)
     try:
         with urllib.request.urlopen(raw_url, timeout=15) as resp:
             live_hash = hashlib.sha256(resp.read()).hexdigest()
-        run('mcp schema: up to date',
+        run(f'mcp schema: {latest.stem} up to date',
             stored_hash == live_hash,
-            f'upstream changed — re-fetch {raw_url} and update upstream SHA256 in _reference/mcp.json')
+            f'upstream changed — mint _reference/mcp/v{len(versions) + 1}.json from {raw_url} '
+            f'(convert to draft-04, set its description commit URL + SHA256, narrate in the family '
+            f'CHANGELOG); {rel} stays as history')
     except Exception as e:
         run('mcp schema: upstream reachable', False, f'{e}')
 

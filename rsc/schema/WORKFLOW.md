@@ -106,10 +106,10 @@ only sharpens the frontier.
 
 Open `rsc/schema/model_join.csv` and:
 
-1. **Pointers name no versions** — every cell is a path relative to `rsc/schema`:
-   a versioned FAMILY DIR (`chat-exports/conversations#/definitions/…`,
-   `code-projects/session#/definitions/…`, `browser-captures/apiConversation#/definitions/…`)
-   or a real file (`_reference/mcp.json#/definitions/…`). `check_schema_join`
+1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
+   to `rsc/schema` (`chat-exports/conversations#/definitions/…`,
+   `code-projects/session#/definitions/…`, `browser-captures/apiConversation#/definitions/…`,
+   `_reference/mcp#/definitions/…`). `check_schema_join`
    resolves family dirs against their LATEST version, so a mint costs this file
    no edit at all; if the mint renamed or removed a referenced definition, the
    pointer check fails — that failure IS the review prompt. (The old
@@ -142,26 +142,34 @@ Open `rsc/schema/model_join.csv` and:
                             # check_model_join_versions: no version-pinned cells
    ```
 
-### 5. Check _reference/mcp.json
+### 5. Check _reference/mcp
 
-`rsc/schema/_reference/mcp.json` is a snapshot of the MCP protocol spec used as the
-`mcp_path` reference column in `model_join.csv`. It has no changelog or pipeline — it
-is updated manually when the MCP protocol itself evolves.
+`rsc/schema/_reference/mcp/` is a versioned family of VERBATIM SNAPSHOTS of the MCP
+protocol spec (converted to draft-04), used as the `mcp_path` reference column in
+`model_join.csv` (`_reference/mcp#/definitions/…` — the same family-dir grammar as
+every other column, resolved against the latest version). It enters no pipeline —
+no data is validated against it — and the house style diagnostics deliberately
+skip `_reference/` families: repairing upstream text to satisfy house rules would
+falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
+the first version is `rsc/schema/_reference/mcp/v1.json`.
 
-The file's `description` field records the source URL, the commit it was taken from, and a
-SHA256 of the upstream file at that point:
+Each version's `description` field records the source URL, the commit it was taken
+from, and a SHA256 of the upstream file at that point:
 
 ```text
 ... (as at https://github.com/.../commit/<hash>; upstream SHA256: <hex>)
 ```
 
-`pre_commit` checks currency automatically (`check_mcp_schema`) by fetching the raw schema
-URL from the description and comparing its SHA256 to the stored value. If the upstream file
-has changed, the check fails.
+`pre_commit` checks currency automatically (`check_mcp_schema`) by fetching the raw
+schema URL from the LATEST version's description and comparing its SHA256 to the
+stored value. If the upstream file has changed, the check fails.
 
-If `check_mcp_schema` fails: download the updated schema, convert it to Draft-04 if needed,
-update the `description` field with the new commit URL and SHA256, then re-run `pre_commit`
-to verify all `model_join.csv` pointers still resolve.
+If `check_mcp_schema` fails: MINT the next version — download the updated schema,
+convert it to Draft-04 if needed, set its `description` to the new commit URL and
+SHA256, narrate the upstream change in the family CHANGELOG, and leave the old
+snapshot in place (its history is data; the old update-in-place remedy destroyed
+it). Then re-run `pre_commit` to verify all `model_join.csv` pointers still resolve
+against the new latest.
 
 ### 6. Update model.json if needed
 
