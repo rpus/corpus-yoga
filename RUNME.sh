@@ -120,25 +120,32 @@ section_error_lines() {
   ' "$LOG_FILE"
 }
 
-# Every FAIL:/WARN: line in the body, quoted verbatim — a FAIL in a pipeline
-# that COMPLETED never enters section_error_lines (that quoting is keyed on
-# death), and WARNs carry facts worth eyes too (an orphaned derivation, a
-# stale capture), so the tail must hoist both itself; a count alone still
-# sends the reader scrolling. Only a sigil that occurs is announced —
-# "each FAIL:" with zero FAILs promises a quote that never comes.
-hoist_lines() {
-  grep -E "^[[:space:]]*$1:" "$LOG_FILE" 2>/dev/null | sed 's/^[[:space:]]*/  /' || true
-}
-
-hoist_marks() {
-  if [[ "$n_fail" -gt 0 ]]; then
-    echo "each FAIL:"
-    hoist_lines FAIL
-  fi
-  if [[ "$n_warn" -gt 0 ]]; then
-    echo "each WARN:"
-    hoist_lines WARN
-  fi
+# Every FAIL:/WARN:/INFO: ATOM, hoisted whole and GROUPED by severity — the
+# FAIL group, then WARN, then INFO — with the original log-BODY ORDER preserved
+# WITHIN each group. An atom is a reason line plus the "→ run:" command(s)
+# directly beneath it, kept together (the body already pairs them; the tail must
+# never tear them into a reason-list and a separate command-rail — a pile of
+# buttons, pressed in some order, for reasons not stated). The grouping is safe
+# and purely ADDITIVE: the body is the source of truth (full context, true step
+# order), and messages are emitted in step order, so we rely on the script's step
+# authorship for cross-message sanity — the tail only hoists and sorts by
+# severity, destroying nothing. A reason with no command still shows; a "→ run:"
+# joins the reason above it (in_atom), never a flat pile. Leading whitespace is
+# normalised. (A FAIL in a pipeline that COMPLETED never enters
+# section_error_lines — that quoting is keyed on death — so the tail hoists it here.)
+hoist_atoms() {
+  awk '
+    /^[[:space:]]*FAIL:/ { s=$0; sub(/^[[:space:]]+/,"",s); fail=fail "  " s "\n"; b="F"; in_atom=1; next }
+    /^[[:space:]]*WARN:/ { s=$0; sub(/^[[:space:]]+/,"",s); warn=warn "  " s "\n"; b="W"; in_atom=1; next }
+    /^[[:space:]]*INFO:/ { s=$0; sub(/^[[:space:]]+/,"",s); info=info "  " s "\n"; b="I"; in_atom=1; next }
+    /→ run:/ {
+      if (in_atom) { s=$0; sub(/^[[:space:]]+/,"",s); r="    " s "\n";
+                     if (b=="F") fail=fail r; else if (b=="W") warn=warn r; else info=info r }
+      next
+    }
+    { in_atom=0 }
+    END { printf "%s%s%s", fail, warn, info }   # FAIL group, then WARN, then INFO
+  ' "$LOG_FILE" 2>/dev/null || true
 }
 
 prep_pipeline_safe() {
@@ -163,7 +170,7 @@ print_plan() {
   "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
   echo "  code-agents/PREP.sh"
   "$SCRIPT_DIR/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
-  echo "  tail: FAIL/WARN counts with every FAIL:/WARN: line quoted; failed pipelines with their error:/FAIL: lines quoted; gather '→ run:' suggestions; pre_commit reminder; log path"
+  echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; pre_commit reminder; log path"
 }
 
 main() {
@@ -189,37 +196,31 @@ main() {
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
   # The tail carries SUMMARIES only — the body already marks each fact at its
   # source (FAIL: something that needs acting on, remedy beside it; WARN: a
-  # fact worth eyes that gates nothing) and is grep-able by those sigils. Here:
-  # the verdict: line(s) (one-line computed conclusions), the "→ run:"
-  # suggested commands, the FAIL/WARN counts with every FAIL:/WARN: line
-  # quoted beneath (hoist_marks — a FAIL inside a pipeline that COMPLETED
-  # reaches the tail too, not only a died pipeline's section_error_lines), and
-  # — when a pipeline died — its error:/FAIL: lines quoted under its name, so
-  # a failure is never just "scroll up". The log is safe to read mid-tee: those lines are
-  # long flushed.
-  local n_fail n_warn verdicts suggestions
+  # fact worth eyes that gates nothing; INFO: a computed conclusion) and is
+  # grep-able by those sigils. Here: the FAIL/WARN/INFO ATOMS — each reason with
+  # its "→ run:" command(s) beneath it, in source order (hoist_atoms; a FAIL
+  # inside a pipeline that COMPLETED reaches the tail too, not only a died
+  # pipeline's section_error_lines), and — when a pipeline died — its error:/FAIL:
+  # lines quoted under its name, so a failure is never just "scroll up". The log
+  # is safe to read mid-tee: those lines are long flushed.
+  local n_fail n_warn n_info atoms
   n_fail="$(grep -cE '^[[:space:]]*FAIL:' "$LOG_FILE" 2>/dev/null || true)"
   n_warn="$(grep -cE '^[[:space:]]*WARN:' "$LOG_FILE" 2>/dev/null || true)"
-  verdicts="$(grep -E '^verdict:' "$LOG_FILE" 2>/dev/null | sort -u)" || true
-  suggestions="$(grep -F '→ run:' "$LOG_FILE" 2>/dev/null | sed 's/^.*→ run: /  /' | sort -u)" || true
-  [[ -n "$verdicts" ]] && printf '%s\n' "$verdicts"
-  if [[ -n "$suggestions" ]]; then
-    echo "Suggested commands (context beside each '→ run:' line above):"
-    printf '%s\n' "$suggestions"
-  fi
+  n_info="$(grep -cE '^[[:space:]]*INFO:' "$LOG_FILE" 2>/dev/null || true)"
+  atoms="$(hoist_atoms)"   # non-empty iff some FAIL/WARN/INFO occurred
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
-    if [[ "$n_fail" -gt 0 || "$n_warn" -gt 0 ]]; then
-      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above:"
-      hoist_marks
+    if [[ -n "$atoms" ]]; then
+      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN, $n_info INFO — grouped by severity, each reason with its command (body order within each):"
+      printf '%s\n' "$atoms"
     else
       echo "All pipelines completed successfully."
     fi
   else
     # FAIL summarises like WARN even when a pipeline died — the counts do not
     # vanish on the runs that need them most.
-    if [[ "$n_fail" -gt 0 || "$n_warn" -gt 0 ]]; then
-      echo "$n_fail FAIL, $n_warn WARN — marked FAIL:/WARN: in the body above:"
-      hoist_marks
+    if [[ -n "$atoms" ]]; then
+      echo "$n_fail FAIL, $n_warn WARN, $n_info INFO — grouped by severity, each reason with its command (body order within each):"
+      printf '%s\n' "$atoms"
     fi
     echo "Failed pipelines:"
     local errs

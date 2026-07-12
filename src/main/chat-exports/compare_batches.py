@@ -412,18 +412,21 @@ def main():
         covered_all = covered_all and not uncovered
 
     if len(batches) >= 2:
-        print('verdict: ' + (
+        # The deletability verdict — a computed CONCLUSION, which as a severity is
+        # INFO (it acts on nothing, gates nothing); the tail hoists FAIL/WARN/INFO
+        # atoms alike.
+        print('INFO: ' + (
             f'keep {latest.name}; every earlier export dir is covered — '
             'batch-witnessed licences hold while their witnesses are kept, deposit '
             'licences unconditionally; re-run after any deletion'
             if covered_all else
             'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
             'not deletable until deposited or superseded'))
-        # The verdict's ACTIONABLE half: each licensed disposal as one runnable
-        # command over BOTH dirs — the export and its gen/ derivation together,
-        # so no orphaned-derivation WARN ever follows a licensed deletion.
+        # Each licensed disposal is its own INFO atom — the reason plus one
+        # runnable command over BOTH dirs (the export and its gen/ derivation
+        # together, so no orphaned-derivation WARN ever follows a licensed deletion).
         for b in deletable:
-            print(f'  deletable: {b.name} — every atom witnessed or deposited; to dispose:')
+            print(f'  INFO: {b.name} deletable — every atom witnessed or deposited; to dispose:')
             print(f'    → run: rm -r {_rel(ext_root / b.name)} {_rel(b)}')
     sufficient = covered_all
 
