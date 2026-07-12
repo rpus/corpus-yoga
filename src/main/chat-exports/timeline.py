@@ -37,10 +37,15 @@ def _trim(ts):
 def chats(order):
     # uuid is the conversation's durable identity — the join key to the uuid8-keyed
     # stores (lib/artifacts/downloaded/, inferred tables); chat is only its CURRENT
-    # ordinal in this batch. Consumers read columns by name, so the extra column is
-    # invisible to the dashboard timeline itself.
-    return {'columns': ['chat', 'name', 'dormant_from', 'uuid'],
-            'rows': [[n, c['name'], _trim(c.get('updated_at')), c['uuid']] for n, _, c in order]}
+    # ordinal in this batch. source/channel are constant here by CONSTRUCTION: a
+    # batch is a claude.ai bulk export, so every row is claude × chat — stated
+    # explicitly so the dashboard never has to guess provider from the id shape
+    # (which a 36-char code-session uuid would fool). Consumers read columns by
+    # name, so extra columns are invisible to the dashboard timeline itself.
+    return {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns'],
+            'rows': [[n, c['name'], _trim(c.get('updated_at')), c['uuid'], 'claude', 'chat',
+                      len(c['chat_messages'])]
+                     for n, _, c in order]}
 
 
 def spans(order):

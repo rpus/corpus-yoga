@@ -139,6 +139,30 @@
       flex-wrap: wrap;
     }
 
+    /* Collapsible section heading: an h2 that is its own show/hide control,
+       with a triangle that rotates open. Reusable via class. */
+    summary.section-toggle {
+      cursor: pointer;
+      list-style: none;
+      width: fit-content;
+    }
+
+    summary.section-toggle::-webkit-details-marker {
+      display: none;
+    }
+
+    summary.section-toggle::before {
+      content: '▸';
+      display: inline-block;
+      margin-right: 0.5rem;
+      color: #888;
+      transition: transform 0.15s;
+    }
+
+    details[open] > summary.section-toggle::before {
+      transform: rotate(90deg);
+    }
+
     .toggle-group {
       display: flex;
       border: 0.5px solid #ccc;
@@ -296,13 +320,19 @@
        uuid:          the conversation's durable identity — claude uuid / gemini app id;
                       the join key to the uuid8-keyed stores; the ordinal is presentation
                       only and renumbers between scopes
-       source:        corpus page only — the PROVIDER, claude / gemini (batch pages
-                      predate the column; the JS falls back to the id shape)
-       channel:       corpus page only — chat / code (code sessions are claude-provided,
-                      code-channelled; pages predating the column hold chat only) -->
+       provider:      claude / gemini. Emitted by both presenters:
+                      present_corpus from the corpus directory, timeline as the
+                      constant claude (a batch is a claude.ai bulk export)
+       channel:       chat / code (code sessions are claude-provided, code-channelled).
+                      Emitted by both presenters: present_corpus from the corpus
+                      directory, timeline as the constant chat
+       turns:         message count of the conversation — real for every source
+                      (present_corpus counts turn_seq, which parses all sources;
+                      timeline counts chat_messages), so gemini rows report it
+                      even though they carry no timeline spans -->
   <!-- data-chats.json:begin -->
   <script id="data-chats" type="application/json">
-  {"columns":["chat","name","dormant_from","uuid","source","channel"],"rows":[]}
+  {"columns":["chat","name","dormant_from","uuid","provider","channel","turns"],"rows":[]}
   </script>
   <!-- data-chats.json:end -->
 
@@ -384,52 +414,40 @@
        why). Concepts carry no channel tag, so the channel toggle leaves the cloud
        untouched. Batch-derived panels (literal cloud) are claude-chat by
        construction and unaffected. -->
-  <div class="section" id="source-header" style="display:flex;align-items:baseline;gap:2rem;flex-wrap:wrap;">
-    <h2 style="margin-bottom:0;">Source</h2>
-    <div class="toggle-group" id="source-toggle">
-      <button class="toggle-btn" data-source="claude">claude</button>
-      <button class="toggle-btn" data-source="gemini">gemini</button>
-      <button class="toggle-btn active" data-source="both">both</button>
+  <div class="section" id="provider-header" style="display:flex;align-items:baseline;gap:2rem;flex-wrap:wrap;">
+    <h2 style="margin-bottom:0;">Provider</h2>
+    <div class="toggle-group" id="provider-toggle">
+      <button class="toggle-btn" data-provider="claude">claude</button>
+      <button class="toggle-btn" data-provider="gemini">gemini</button>
+      <button class="toggle-btn active" data-provider="both">both</button>
     </div>
+    <h2 style="margin-bottom:0;">Channel</h2>
     <div class="toggle-group" id="channel-toggle">
       <button class="toggle-btn" data-channel="chat">chat</button>
       <button class="toggle-btn" data-channel="code">code</button>
       <button class="toggle-btn active" data-channel="both">both</button>
     </div>
-    <span id="source-note" style="font-size:11px;color:#aaa;"></span>
+    <span id="provider-note" style="font-size:11px;color:#aaa;"></span>
   </div>
 
+  <!-- Clouds above timeline (2026-07-12): the word clouds are the corpus's
+       CONTENT, the timeline its shape over time — content reads first. -->
   <div class="section">
-    <div id="tl-section-header" style="display:flex;align-items:baseline;gap:2rem;margin-bottom:1rem;flex-wrap:wrap;">
-      <h2 style="margin-bottom:0;">Engagement timeline</h2>
-      <div class="toggle-group">
-        <button class="toggle-btn" data-filter="filesOnly">files</button>
-        <button class="toggle-btn" data-filter="noFiles">no files</button>
-        <button class="toggle-btn active" data-filter="both">both</button>
-      </div>
-    </div>
-    <div id="tl-legend"></div>
-    <div id="tl-wrap">
-      <div id="tl-header">
-        <div id="tl-label-spacer"></div>
-        <div id="tl-axis"></div>
-      </div>
-      <div id="tl-grid"></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div id="clouds-header">
-      <h2 style="margin-bottom:0;">Word clouds</h2>
-      <div class="toggle-group">
-        <button class="toggle-btn active" data-mode="human">human</button>
-        <button class="toggle-btn" data-mode="assistant">assistant</button>
-        <button class="toggle-btn" data-mode="both">both</button>
-      </div>
-    </div>
-    <div id="clouds">
+    <details open>
+      <summary class="section-toggle"><h2 style="display:inline;margin:0;">Word clouds</h2></summary>
+    <div id="clouds" style="margin-top:1rem;">
       <div class="cloud-panel">
-        <div class="cloud-title">Literal</div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div class="cloud-title">Literal</div>
+          <!-- Governs THIS panel only: human/assistant is a role split, which needs
+               role-tagged text. The literal cloud tokenizes each turn by speaker; a
+               concept (semantic panel) is spoken by no one, so it has no such mode. -->
+          <div class="toggle-group" id="literal-mode">
+            <button class="toggle-btn active" data-mode="human">human</button>
+            <button class="toggle-btn" data-mode="assistant">assistant</button>
+            <button class="toggle-btn" data-mode="both">both</button>
+          </div>
+        </div>
         <div class="cloud-sub" id="literal-sub">Surface word frequency from all messages</div>
         <div class="cloud" id="literal-cloud"></div>
       </div>
@@ -439,6 +457,30 @@
         <div class="cloud" id="semantic-cloud"></div>
       </div>
     </div>
+    </details>
+  </div>
+
+  <div class="section">
+    <details open>
+      <summary class="section-toggle"><h2 style="display:inline;margin:0;">Engagement timeline</h2></summary>
+      <!-- Control in the body, not the summary: a click filters, and can never be
+           mistaken for (or hijack) the collapse. Governs this section's lanes only. -->
+      <div id="tl-section-header" style="display:flex;margin:1rem 0;">
+        <div class="toggle-group">
+          <button class="toggle-btn" data-filter="filesOnly">files</button>
+          <button class="toggle-btn" data-filter="noFiles">no files</button>
+          <button class="toggle-btn active" data-filter="both">both</button>
+        </div>
+      </div>
+      <div id="tl-legend"></div>
+      <div id="tl-wrap">
+        <div id="tl-header">
+          <div id="tl-label-spacer"></div>
+          <div id="tl-axis"></div>
+        </div>
+        <div id="tl-grid"></div>
+      </div>
+    </details>
   </div>
 
 
@@ -575,24 +617,19 @@
       legEl.appendChild(dormItem);
     }
 
-    // A chat's source (provider): the explicit column (corpus presentation) or the
-    // id shape — 36-char uuid = claude, 16-hex app id = gemini (batch pages predate
-    // the column; their rows are all chat conversations, so the shape cannot lie there).
-    function srcOf(chat) {
-      return chat.source || (String(chat.uuid || '').length === 36 ? 'claude' : 'gemini');
-    }
+    // Provider and channel come from the explicit columns every generator now
+    // emits: present_corpus (from the corpus directory) and timeline (constant
+    // claude × chat, a batch being a claude.ai bulk export). No id-shape guessing —
+    // a code session's 36-char uuid once masqueraded as claude. The defaults are a
+    // defensive fallback for hand-authored data only, never the two generators.
+    function providerOf(chat) { return chat.provider || 'claude'; }
+    function channelOf(chat) { return chat.channel || 'chat'; }
 
-    // A chat's channel: the explicit column (corpus presentation); pages that
-    // predate the column hold chat conversations only.
-    function chanOf(chat) {
-      return chat.channel || 'chat';
-    }
-
-    function renderTimeline(chats, spans, colorMap, filesMap, filesFilter, sourceFilter, channelFilter) {
-      const bySource     = (sourceFilter && sourceFilter !== 'both')
-                           ? chats.filter(c => srcOf(c) === sourceFilter) : chats;
+    function renderTimeline(chats, spans, colorMap, filesMap, filesFilter, providerFilter, channelFilter) {
+      const bySource     = (providerFilter && providerFilter !== 'both')
+                           ? chats.filter(c => providerOf(c) === providerFilter) : chats;
       const byChannel    = (channelFilter && channelFilter !== 'both')
-                           ? bySource.filter(c => chanOf(c) === channelFilter) : bySource;
+                           ? bySource.filter(c => channelOf(c) === channelFilter) : bySource;
       const visibleChats = filesFilter === FilesFilter.FilesOnly ? byChannel.filter(c => filesMap[c.chat]) :
                            filesFilter === FilesFilter.NoFiles   ? byChannel.filter(c => !filesMap[c.chat]) :
                            byChannel;
@@ -624,7 +661,8 @@
         const label = document.createElement('div'); label.className = 'tl-label';
         label.textContent = '#' + chat.chat + ' ' + chat.name;
         const chatFiles   = filesMap[chat.chat];
-        label.title       = chat.name + '\n' + (chatFiles ? chatFiles.join('\n') : '(no files)');
+        label.title       = `${chat.turns ?? '?'} turns\n` + chat.name + '\n' +
+                             (chatFiles ? chatFiles.join('\n') : '(no files)');
 
         const track = document.createElement('div'); track.className = 'tl-track';
         if (!chat.spans.length && !chat.dormant_from) {
@@ -702,9 +740,9 @@
       // Timeline state: the files filter and the page-top source filter compose;
       // either control re-renders with both current values.
       let curFilter  = document.querySelector('#tl-section-header .toggle-btn.active')?.dataset.filter || FilesFilter.Both;
-      let curSource  = document.querySelector('#source-toggle .toggle-btn.active')?.dataset.source || 'both';
+      let curProvider  = document.querySelector('#provider-toggle .toggle-btn.active')?.dataset.provider || 'both';
       let curChannel = document.querySelector('#channel-toggle .toggle-btn.active')?.dataset.channel || 'both';
-      const redrawTimeline = () => renderTimeline(chats, spans, colorMap, filesMap, curFilter, curSource, curChannel);
+      const redrawTimeline = () => renderTimeline(chats, spans, colorMap, filesMap, curFilter, curProvider, curChannel);
 
       // Wire timeline filter buttons (re-wired each init so they close over fresh data).
       document.querySelectorAll('#tl-section-header .toggle-btn').forEach(btn => {
@@ -732,21 +770,21 @@
           : semanticWords.filter(w => w.source === src || w.source === 'both');
         renderCloud(words, 'semantic-cloud', 270);
       };
-      document.getElementById('source-note').textContent =
+      document.getElementById('provider-note').textContent =
         tagged ? '' : 'concepts untagged (pre-v2 capture) — the semantic cloud shows all sources until the next `yoga dashboard capture`';
-      document.querySelectorAll('#source-toggle .toggle-btn').forEach(btn => {
+      document.querySelectorAll('#provider-toggle .toggle-btn').forEach(btn => {
         btn.replaceWith(btn.cloneNode(true)); // drop stale listeners
       });
-      document.querySelectorAll('#source-toggle .toggle-btn').forEach(btn => {
+      document.querySelectorAll('#provider-toggle .toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.querySelectorAll('#source-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('#provider-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          curSource = btn.dataset.source;
-          updateSemanticCloud(curSource);
+          curProvider = btn.dataset.provider;
+          updateSemanticCloud(curProvider);
           redrawTimeline();
         });
       });
-      updateSemanticCloud(curSource);
+      updateSemanticCloud(curProvider);
 
       // Channel toggle → timeline lanes only (concepts carry no channel tag,
       // so the semantic cloud is provider-filtered but never channel-filtered).
@@ -763,13 +801,13 @@
       });
 
       // Wire cloud toggle buttons (re-wired each init so they close over fresh literalData).
-      document.querySelectorAll('#clouds-header .toggle-btn').forEach(btn => {
+      document.querySelectorAll('#literal-mode .toggle-btn').forEach(btn => {
         btn.replaceWith(btn.cloneNode(true)); // drop stale listeners
       });
-      const activeMode = document.querySelector('#clouds-header .toggle-btn.active')?.dataset.mode || 'human';
-      document.querySelectorAll('#clouds-header .toggle-btn').forEach(btn => {
+      const activeMode = document.querySelector('#literal-mode .toggle-btn.active')?.dataset.mode || 'human';
+      document.querySelectorAll('#literal-mode .toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.querySelectorAll('#clouds-header .toggle-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('#literal-mode .toggle-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           updateLiteralCloud(btn.dataset.mode, literalData);
         });

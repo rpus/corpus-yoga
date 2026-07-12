@@ -106,16 +106,16 @@ def main() -> int:
 
     chats_rows, span_rows = [], []
     human_words, assistant_words = [], []
-    by_source = Counter()
+    by_dir = Counter()
     all_times: list[datetime] = []
     for n, stem, title, cid in entries:
         # provider/channel from the corpus DIRECTORY, never the id shape (code
         # sessions carry 36-char uuids too and would masquerade as claude chat):
         # claude/ and gemini/ are chat channels; code/ is claude's code channel.
         src_dir, _, fname = stem.partition('/')
-        source = 'claude' if src_dir == 'code' else src_dir
+        provider = 'claude' if src_dir == 'code' else src_dir
         channel = 'code' if src_dir == 'code' else 'chat'
-        by_source[src_dir] += 1
+        by_dir[src_dir] += 1
         md = (md_root / src_dir / 'conversations' / f'{fname}.md').read_text()
 
         times = [uuid7_time(u) for u in ANCHOR.findall(md)]
@@ -124,19 +124,20 @@ def main() -> int:
             span_rows.append([n, a, b, count])
         m = re.search(r'^last_activity: (\S+)$', md[:400], flags=re.M)
         dormant = m.group(1) if m else (iso(max(times)) if times else '')
-        chats_rows.append([n, title, dormant, cid, source, channel])
+        turns = list(turn_seq(md))
+        chats_rows.append([n, title, dormant, cid, provider, channel, len(turns)])
 
-        for role, body in turn_seq(md):
+        for role, body in turns:
             ws = filtered(words_from(body))
             (human_words if role == 'H' else assistant_words).append(ws)
     human_words = [w for ws in human_words for w in ws]
     assistant_words = [w for ws in assistant_words for w in ws]
 
     print(f'presenting the corpus: {len(entries)} conversations '
-          f'({", ".join(f"{v} {k}" for k, v in sorted(by_source.items()))}) → {out_dir.relative_to(REPO)}')
+          f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}) → {out_dir.relative_to(REPO)}')
 
     write_table(out_dir, 'data-chats',
-                {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'source', 'channel'],
+                {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns'],
                  'rows': chats_rows}, html)
     write_table(out_dir, 'data-spans',
                 {'columns': ['chat', 'from', 'to', 'messages'], 'rows': span_rows}, html)
@@ -182,7 +183,7 @@ def main() -> int:
     else:
         date_range = 'undated'
     title = (f'Conversation corpus — {len(entries)} conversations '
-             f'({", ".join(f"{v} {k}" for k, v in sorted(by_source.items()))}), {date_range}')
+             f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}), {date_range}')
     html.write_text(re.sub(r'<title>.*?</title>', f'<title>{title}</title>', html.read_text()))
     subprocess.run([sys.executable, str(SCRIPT_DIR / 'update_export_tooltip.py'), str(html),
                     f'the projected corpus: {md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root}'],
