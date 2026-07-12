@@ -109,9 +109,13 @@ def main() -> int:
     by_source = Counter()
     all_times: list[datetime] = []
     for n, stem, title, cid in entries:
-        source = 'claude' if len(cid) == 36 else 'gemini'
-        by_source[source] += 1
+        # provider/channel from the corpus DIRECTORY, never the id shape (code
+        # sessions carry 36-char uuids too and would masquerade as claude chat):
+        # claude/ and gemini/ are chat channels; code/ is claude's code channel.
         src_dir, _, fname = stem.partition('/')
+        source = 'claude' if src_dir == 'code' else src_dir
+        channel = 'code' if src_dir == 'code' else 'chat'
+        by_source[src_dir] += 1
         md = (md_root / src_dir / 'conversations' / f'{fname}.md').read_text()
 
         times = [uuid7_time(u) for u in ANCHOR.findall(md)]
@@ -120,7 +124,7 @@ def main() -> int:
             span_rows.append([n, a, b, count])
         m = re.search(r'^last_activity: (\S+)$', md[:400], flags=re.M)
         dormant = m.group(1) if m else (iso(max(times)) if times else '')
-        chats_rows.append([n, title, dormant, cid, source])
+        chats_rows.append([n, title, dormant, cid, source, channel])
 
         for role, body in turn_seq(md):
             ws = filtered(words_from(body))
@@ -132,7 +136,8 @@ def main() -> int:
           f'({", ".join(f"{v} {k}" for k, v in sorted(by_source.items()))}) → {out_dir.relative_to(REPO)}')
 
     write_table(out_dir, 'data-chats',
-                {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'source'], 'rows': chats_rows}, html)
+                {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'source', 'channel'],
+                 'rows': chats_rows}, html)
     write_table(out_dir, 'data-spans',
                 {'columns': ['chat', 'from', 'to', 'messages'], 'rows': span_rows}, html)
 

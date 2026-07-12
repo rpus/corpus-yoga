@@ -296,11 +296,13 @@
        uuid:          the conversation's durable identity — claude uuid / gemini app id;
                       the join key to the uuid8-keyed stores; the ordinal is presentation
                       only and renumbers between scopes
-       source:        corpus page only — claude / gemini (batch pages predate the column;
-                      the JS falls back to the id shape) -->
+       source:        corpus page only — the PROVIDER, claude / gemini (batch pages
+                      predate the column; the JS falls back to the id shape)
+       channel:       corpus page only — chat / code (code sessions are claude-provided,
+                      code-channelled; pages predating the column hold chat only) -->
   <!-- data-chats.json:begin -->
   <script id="data-chats" type="application/json">
-  {"columns":["chat","name","dormant_from","uuid","source"],"rows":[]}
+  {"columns":["chat","name","dormant_from","uuid","source","channel"],"rows":[]}
   </script>
   <!-- data-chats.json:end -->
 
@@ -374,17 +376,25 @@
 
   <!-- ── markup ─────────────────────────────────────── -->
 
-  <!-- Corpus-source toggle: filters the source-tagged tables (today: the semantic
-       cloud, whose v2 capture tags each concept claude/gemini/both). Untagged
-       (pre-v2) data cannot answer the question, so the toggle disables rather
-       than lie. Batch-derived panels (timeline, literal cloud) are claude-only
-       by construction and unaffected. -->
+  <!-- Corpus filters, two axes of the same classification: PROVIDER (claude /
+       gemini — the source toggle) and CHANNEL (chat / code — code sessions are
+       claude-provided). Both filter the timeline lanes; the source toggle also
+       filters the semantic cloud (v2 captures tag each concept claude/gemini/both;
+       untagged pre-v2 data cannot answer, so the cloud shows all and the note says
+       why). Concepts carry no channel tag, so the channel toggle leaves the cloud
+       untouched. Batch-derived panels (literal cloud) are claude-chat by
+       construction and unaffected. -->
   <div class="section" id="source-header" style="display:flex;align-items:baseline;gap:2rem;flex-wrap:wrap;">
     <h2 style="margin-bottom:0;">Source</h2>
     <div class="toggle-group" id="source-toggle">
       <button class="toggle-btn" data-source="claude">claude</button>
       <button class="toggle-btn" data-source="gemini">gemini</button>
       <button class="toggle-btn active" data-source="both">both</button>
+    </div>
+    <div class="toggle-group" id="channel-toggle">
+      <button class="toggle-btn" data-channel="chat">chat</button>
+      <button class="toggle-btn" data-channel="code">code</button>
+      <button class="toggle-btn active" data-channel="both">both</button>
     </div>
     <span id="source-note" style="font-size:11px;color:#aaa;"></span>
   </div>
@@ -565,18 +575,27 @@
       legEl.appendChild(dormItem);
     }
 
-    // A chat's source: the explicit column (corpus presentation) or the id shape —
-    // 36-char uuid = claude, 16-hex app id = gemini (batch pages predate the column).
+    // A chat's source (provider): the explicit column (corpus presentation) or the
+    // id shape — 36-char uuid = claude, 16-hex app id = gemini (batch pages predate
+    // the column; their rows are all chat conversations, so the shape cannot lie there).
     function srcOf(chat) {
       return chat.source || (String(chat.uuid || '').length === 36 ? 'claude' : 'gemini');
     }
 
-    function renderTimeline(chats, spans, colorMap, filesMap, filesFilter, sourceFilter) {
+    // A chat's channel: the explicit column (corpus presentation); pages that
+    // predate the column hold chat conversations only.
+    function chanOf(chat) {
+      return chat.channel || 'chat';
+    }
+
+    function renderTimeline(chats, spans, colorMap, filesMap, filesFilter, sourceFilter, channelFilter) {
       const bySource     = (sourceFilter && sourceFilter !== 'both')
                            ? chats.filter(c => srcOf(c) === sourceFilter) : chats;
-      const visibleChats = filesFilter === FilesFilter.FilesOnly ? bySource.filter(c => filesMap[c.chat]) :
-                           filesFilter === FilesFilter.NoFiles   ? bySource.filter(c => !filesMap[c.chat]) :
-                           bySource;
+      const byChannel    = (channelFilter && channelFilter !== 'both')
+                           ? bySource.filter(c => chanOf(c) === channelFilter) : bySource;
+      const visibleChats = filesFilter === FilesFilter.FilesOnly ? byChannel.filter(c => filesMap[c.chat]) :
+                           filesFilter === FilesFilter.NoFiles   ? byChannel.filter(c => !filesMap[c.chat]) :
+                           byChannel;
       // The axis spans only what carries time data. A source with none (gemini
       // scrapes hold no timestamps) still LISTS — its lanes render bar-less with
       // the absence named, never with invented bars.
@@ -682,9 +701,10 @@
 
       // Timeline state: the files filter and the page-top source filter compose;
       // either control re-renders with both current values.
-      let curFilter = document.querySelector('#tl-section-header .toggle-btn.active')?.dataset.filter || FilesFilter.Both;
-      let curSource = document.querySelector('#source-toggle .toggle-btn.active')?.dataset.source || 'both';
-      const redrawTimeline = () => renderTimeline(chats, spans, colorMap, filesMap, curFilter, curSource);
+      let curFilter  = document.querySelector('#tl-section-header .toggle-btn.active')?.dataset.filter || FilesFilter.Both;
+      let curSource  = document.querySelector('#source-toggle .toggle-btn.active')?.dataset.source || 'both';
+      let curChannel = document.querySelector('#channel-toggle .toggle-btn.active')?.dataset.channel || 'both';
+      const redrawTimeline = () => renderTimeline(chats, spans, colorMap, filesMap, curFilter, curSource, curChannel);
 
       // Wire timeline filter buttons (re-wired each init so they close over fresh data).
       document.querySelectorAll('#tl-section-header .toggle-btn').forEach(btn => {
@@ -727,6 +747,20 @@
         });
       });
       updateSemanticCloud(curSource);
+
+      // Channel toggle → timeline lanes only (concepts carry no channel tag,
+      // so the semantic cloud is provider-filtered but never channel-filtered).
+      document.querySelectorAll('#channel-toggle .toggle-btn').forEach(btn => {
+        btn.replaceWith(btn.cloneNode(true)); // drop stale listeners
+      });
+      document.querySelectorAll('#channel-toggle .toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#channel-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          curChannel = btn.dataset.channel;
+          redrawTimeline();
+        });
+      });
 
       // Wire cloud toggle buttons (re-wired each init so they close over fresh literalData).
       document.querySelectorAll('#clouds-header .toggle-btn').forEach(btn => {
