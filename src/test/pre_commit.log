@@ -1377,3 +1377,5 @@ pre_commit.py: 1347/1347 (data: machine-local)
   ✓ score[code]: 60/60; expected: 60/60
   ✓ score[schema]: 1287/1287; expected: 1287/1287
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
+
+gate: PASS — code+schema 1347/1347 match the committed expectation; nothing here vetoes a commit

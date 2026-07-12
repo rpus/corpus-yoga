@@ -524,12 +524,12 @@ def check_index_curation(run, fix) -> None:
         return
     pending = set(pending_concepts(REPO_ROOT / 'lib' / 'indexing' / 'accepted.txt',
                                    REPO_ROOT / 'lib' / 'indexing' / 'rejected.txt'))
+    # One line per pending concept, no per-row remedy — 27 identical two-line
+    # remedies were the mumble; the single fix hint below carries it once.
     for c in concepts:
-        ok = c not in pending
-        run(f'indexing: concept disposed: {c}', ok,
-            None if ok else 'pending — accept in lib/indexing/accepted.txt '
-                            'or reject in lib/indexing/rejected.txt')
-        if not ok:
+        disposed = c not in pending
+        run(f'indexing: concept disposed: {c}', disposed)
+        if not disposed:
             fix('./yoga indexing candidates  # write the pending queue: gen/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
@@ -822,7 +822,11 @@ def main():
 
     def run(label, passed, detail=None):
         results.append((label, passed, detail))
-        mark = '✓' if passed else '✗'
+        # Data-tier facts are advisory (they never veto — see the exit) and
+        # carry the WARN sigil ⚠, never the gating ✗ (user specification,
+        # 2026-07-12: a "final summary" must not LOOK failed where nothing
+        # blocks).
+        mark = '✓' if passed else ('⚠' if current_tier[0] == 'data' else '✗')
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
 
     # Each hint is deduplicated but remembers the tier it was raised in (the
@@ -970,10 +974,7 @@ def main():
         score_rows.append((f'score[data]: skipped — no local data{skipped_note}', True, None))
     else:
         score_rows.append((f'score[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
-                           got == tot,
-                           'advisory — a fact about this machine\'s data, not the code; '
-                           'remedies are printed beside each ✗ in the data tier above'
-                           if got != tot else None))
+                           got == tot, None))
 
     for label, ok, detail in score_rows:
         results.append((label, ok, detail))
@@ -1066,18 +1067,41 @@ def main():
                 lines.append((list(ps), actual, list(gs)))
         return lines
 
+    def _is_advisory(i: int) -> bool:
+        return tiers[i] == 'data' or results[i][0].startswith('score[data]')
+
+    def _write_fixes(out, lines, mark):
+        for ps, cmd, gs in lines:
+            for p in ps[:3]:
+                out.write(f'  {mark} {p}\n')
+            if len(ps) > 3:
+                out.write(f'  {mark} … and {len(ps) - 3} more like these\n')
+            if cmd is not None:
+                out.write(f'    {cmd}\n')
+            for g in gs:
+                out.write(f'      ↳ {g}\n')
+
     def _render(committed_only: bool):
-        """Render one report variant; returns (text, runnable fix lines)."""
-        idxs  = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
-        fails = [(results[i][0], results[i][2]) for i in idxs if not results[i][1]]
-        fail_sections = list(dict.fromkeys(sections[i] for i in idxs if not results[i][1]))
+        """Render one report variant; returns (text, runnable fix lines).
+        The tail splits by GATE EFFECT (user specification, 2026-07-12): a
+        penultimate WARN block carries the machine-local advisory facts (the
+        data tier, score[data] included — they never veto anything), and the
+        FINAL word states what the hook actually does — FAIL with the gating
+        sections and their remedies, or an explicit PASS."""
+        idxs       = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
+        fail_idx   = [i for i in idxs if not results[i][1]]
+        warn_idx   = [i for i in fail_idx if _is_advisory(i)]
+        gate_idx   = [i for i in fail_idx if not _is_advisory(i)]
+        warn_sections = list(dict.fromkeys(sections[i] for i in warn_idx))
+        gate_sections = list(dict.fromkeys(sections[i] for i in gate_idx))
         out = io.StringIO()
 
         data_got, data_tot = tier_counts.get('data', [0, 0])
         data_note = ('data: machine-local' if committed_only else
                      'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
-        if fails:
-            out.write(f'`src/test/pre_commit.py`: {det} ({data_note}; failures in {len(fail_sections)} sections)\n')
+        if fail_idx:
+            out.write(f'`src/test/pre_commit.py`: {det} ({data_note}; '
+                      f'{len(gate_sections)} gating / {len(warn_sections)} advisory section(s) failing)\n')
         else:
             out.write(f'pre_commit.py: {det} ({data_note})\n')
 
@@ -1093,33 +1117,43 @@ def main():
                 out.write('  – score[data]: machine-local — reported on the terminal '
                           'and in logs/src/test/pre_commit.log, never committed\n')
                 continue
-            out.write(f'  {"✓" if ok else "✗"} {label}' +
+            mark = '✓' if ok else ('⚠' if label.startswith('score[data]') else '✗')
+            out.write(f'  {mark} {label}' +
                       (f'\n      {detail}\n' if not ok and detail else '\n'))
 
+        # Penultimate: WARN — advisory, never gating.
         lines: list[tuple[list[str], str | None, list[str]]] = []
-        if fails:
-            counts = {sec: sum(1 for i in idxs if not results[i][1] and sections[i] == sec)
-                      for sec in fail_sections}
-            out.write(f'Failed sections ({len(fail_sections)}):\n')
-            for sec in fail_sections:
+        if warn_idx:
+            counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
+            out.write(f'\nWARN — machine-local facts, marked ⚠ above; they never gate a commit:\n')
+            for sec in warn_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
-            out.write('\n')
-            hints = [h for h in fix_hints
-                     if not committed_only or fix_tier.get(h) != 'data']
-            lines = _fix_lines(fails, hints)
-            if lines:
+            warn_fails = [(results[i][0], results[i][2]) for i in warn_idx]
+            warn_lines = _fix_lines(warn_fails, [h for h in fix_hints if fix_tier.get(h) == 'data'])
+            if warn_lines:
+                out.write('  to address, at leisure:\n')
+                _write_fixes(out, warn_lines, '⚠')
+            lines += warn_lines
+
+        # Final: the gate's actual verdict.
+        if gate_idx:
+            counts = {sec: sum(1 for i in gate_idx if sections[i] == sec) for sec in gate_sections}
+            out.write('\nFAIL — these gate: the hook vetoes a commit on the default branch, '
+                      'and a manual run exits non-zero:\n')
+            for sec in gate_sections:
+                out.write(f'  {sec} ({counts[sec]})\n')
+            gate_fails = [(results[i][0], results[i][2]) for i in gate_idx]
+            gate_lines = _fix_lines(gate_fails, [h for h in fix_hints
+                                                 if fix_tier.get(h) != 'data'])
+            if gate_lines:
                 out.write('\nTo fix:\n')
-                for ps, cmd, gs in lines:
-                    for p in ps[:3]:
-                        out.write(f'  ✗ {p}\n')
-                    if len(ps) > 3:
-                        out.write(f'  ✗ … and {len(ps) - 3} more like these\n')
-                    if cmd is not None:
-                        out.write(f'    {cmd}\n')
-                    for g in gs:
-                        out.write(f'      ↳ {g}\n')
-                out.write('\n')
-                out.write('  (or run with --fix to apply and stage automatically)\n')
+                _write_fixes(out, gate_lines, '✗')
+            lines += gate_lines
+        else:
+            out.write(f'\ngate: PASS — code+schema {det} match the committed expectation; '
+                      'nothing here vetoes a commit\n')
+        if lines:
+            out.write('\n  (or run with --fix to apply and stage automatically)\n')
         return out.getvalue(), lines
 
     committed_text, _         = _render(committed_only=True)

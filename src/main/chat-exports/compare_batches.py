@@ -72,6 +72,18 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+REPO = Path(__file__).resolve().parents[3]
+
+
+def _rel(p: Path) -> Path:
+    """Repo-relative spelling for printed paths — symmetric and brief whatever
+    spelling the caller passed (RUNME passes gen absolute, ext relative), and
+    runnable from the repo root, where every printed command runs."""
+    try:
+        return p.relative_to(REPO)
+    except ValueError:
+        return p
+
 
 def batch_time(name):
     m = re.search(r'-(\d{10})-[0-9a-f]+-batch', name)
@@ -334,9 +346,10 @@ def main():
     # data it derives from was disposed of.
     orphans = [d for d in batches if not (ext_root / d.name).is_dir()]
     for d in orphans:
-        print(f'WARN: orphaned derivation {d.name} — no {ext_root / d.name} beside it; '
-              'excluded from comparison')
-        print(f'    → run: rm -r {d}')
+        print(f'WARN: orphaned derivation {d.name} — no {_rel(ext_root / d.name)} beside it; '
+              'excluded from comparison. If the export was deliberately deleted, this '
+              'shadow is the disposal\'s one remaining step:')
+        print(f'    → run: rm -r {_rel(d)}')
     batches = [d for d in batches if (ext_root / d.name).is_dir()]
 
     if not batches:
@@ -363,6 +376,7 @@ def main():
     # checked, never assumed. Verdicts describe what exists NOW: re-run after
     # any deletion, since deleting a witness expires the licences it carried.
     covered_all = True
+    deletable = []
     summ_fps = summaries_deposit_fps(Path(args.summaries_lib))
     for i, b in enumerate(batches[:-1]):
         ext_dir = ext_root / b.name
@@ -389,6 +403,7 @@ def main():
                 working += details
         if not uncovered:
             print(f'{b.name} → deletable; the working:')
+            deletable.append(b)
         else:
             print(f'WARN: {b.name} holds unique {", ".join(uncovered)} data — '
                   'found in no later export and no deposit')
@@ -400,10 +415,16 @@ def main():
         print('verdict: ' + (
             f'keep {latest.name}; every earlier export dir is covered — '
             'batch-witnessed licences hold while their witnesses are kept, deposit '
-            'licences unconditionally; re-run after any deletion (from `ext/` and `gen/`)'
+            'licences unconditionally; re-run after any deletion'
             if covered_all else
             'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
             'not deletable until deposited or superseded'))
+        # The verdict's ACTIONABLE half: each licensed disposal as one runnable
+        # command over BOTH dirs — the export and its gen/ derivation together,
+        # so no orphaned-derivation WARN ever follows a licensed deletion.
+        for b in deletable:
+            print(f'  deletable: {b.name} — every atom witnessed or deposited; to dispose:')
+            print(f'    → run: rm -r {_rel(ext_root / b.name)} {_rel(b)}')
     sufficient = covered_all
 
     if args.captures and Path(args.captures).is_dir():
