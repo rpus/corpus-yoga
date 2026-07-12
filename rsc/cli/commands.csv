@@ -11,6 +11,8 @@ memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise proj
 supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk exports supersede earlier ones? Computed; never assumed
 agent,src/main/code-agents/agent.py,list | models | capture --session <uuid8>|--all [--to <scratch-dir>] | receive --session <uuid8>|--all --from <room|dir> [--apply] | demerge [--apply],transport supersession merge L1 L3 L4 L6,,List agents (last ai-title dressing); models counts assistant records by model; capture mirrors one or all (of every project) into the store ext/code-agents/<room>/<project>/; receive merges a peer room's transported sessions (one or all) — the one deliberate writer of ~/.claude/projects; demerge undoes it
 machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)
-model,src/main/model/gen_model.sh,,project,,Generate per-schema definition catalogues
+model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues
 calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites
-completion,src/main/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table
+clean,src/main/cli/clean.py,--dry-run | --apply,,,Remove orphaned gen/ subtrees (neither written nor read by any current step); one of --dry-run/--apply required
+regen,src/main/cli/regen.py,[--dry-run],project,,Rebuild gen/ by running its declared producers (rsc/cache_io.csv); the free reproduction paired with clean
+completions,src/main/cli/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table

@@ -1,9 +1,9 @@
 # The yoga CLI's command table
 
 `commands.csv` is the single authority for the `./yoga` terminal surface (machinery:
-`src/main/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
+`src/main/cli/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
 from this table on demand — the help text a bare `./yoga` prints, the zsh tab-completion
-`./yoga completion` emits — and stored nowhere, because presentation is never load-bearing
+`./yoga completions` emits — and stored nowhere, because presentation is never load-bearing
 (L5 of `rsc/CALCULUS.md`). The CLI adds no behaviour of its own: `./yoga <command> [args...]`
 execs the row's target with the args forwarded verbatim, so `./yoga <command> --help` prints
 the *target's* help and each script remains the one authority on its own interface.
@@ -74,6 +74,6 @@ on any machine, which is the same property demanded of every process here.
 ## Commands
 
     ./yoga                        # render the table as help
-    ./yoga completion             # zsh completion script to stdout
-    ./yoga completion --write     # write it under gen/ and print the ~/.zshrc lines to add
+    ./yoga completions             # zsh completion script to stdout
+    ./yoga completions --write     # write it under gen/ and print the ~/.zshrc lines to add
     ./PREREQUISITES.sh            # reports (read-only) whether this machine has completion generated, current, and wired

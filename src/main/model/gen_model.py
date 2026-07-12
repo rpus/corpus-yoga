@@ -5,7 +5,7 @@ Output: gen/model/{schema}/v{N}.json for each versioned schema (flat, not mirror
 rsc/schema/model.json is hand-curated from these.
 
 Usage:
-    src/main/model/gen_model.sh
+    ./yoga model
 """
 
 import re

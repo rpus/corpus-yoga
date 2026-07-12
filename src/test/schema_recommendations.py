@@ -4,7 +4,7 @@ schema_recommendations.py - Given an instance document and a schema file,
 output recommendations for improving the instance's conformance to the schema.
 
 Usage:
-    src/run_python_script.sh src/main/schema_recommendations.py <instance-file> <schema-file>
+    src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
 """
 
 import inspect

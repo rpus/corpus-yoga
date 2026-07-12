@@ -6,7 +6,7 @@ One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
 whole interface: a bare `./yoga` renders it as help, `./yoga <command> [args...]`
 execs the row's target with the args forwarded verbatim (so
 `./yoga <command> --help` prints the TARGET's help — each script stays the one
-authority on its own interface), and `./yoga completion` derives static zsh
+authority on its own interface), and `./yoga completions` derives static zsh
 tab-completion from the same table. Presentation is re-derived on every
 invocation and stored nowhere (L5); the CLI adds no behaviour of its own.
 
@@ -22,7 +22,7 @@ never restated.
 Usage:
     ./yoga                       # render the table
     ./yoga <command> [args...]   # exec the target
-    ./yoga completion [--write]  # zsh completion to stdout, or written under gen/
+    ./yoga completions [--write]  # zsh completion to stdout, or written under gen/
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
@@ -35,7 +35,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
 COLUMNS = ('command', 'target', 'usage', 'calculus', 'step', 'summary')
 COMPLETION_OUT = REPO / 'gen' / 'completions' / '_yoga'
@@ -104,21 +104,21 @@ def render_help(cmds: list[dict]) -> str:
                    + (f'  ⟨{c["calculus"]}⟩' if c['calculus'] else '')
                    + (f'  ≡ run step {c["step"]}' if c['step'] else ''))
     out += ['',
-            'zsh completion: `./yoga completion --write`, then add the printed lines to ~/.zshrc',
+            'zsh completion: `./yoga completions --write`, then add the printed lines to ~/.zshrc',
             '']
     return '\n'.join(out)
 
 
 def completion_script(cmds: list[dict]) -> str:
     """A static zsh completion function derived from the table (regenerate via
-    `./yoga completion`; never edit the emitted file). The command word completes
+    `./yoga completions`; never edit the emitted file). The command word completes
     with summaries; after it, a word starting '-' completes the row's
     advertised flags and anything else completes as a path."""
     def esc(s: str) -> str:
         return (s.replace('\\', '\\\\').replace("'", "'\\''").replace(':', '\\:'))
     lines = [
         '#compdef yoga',
-        '# derived from rsc/cli/commands.csv by `./yoga completion` — regenerate, never edit',
+        '# derived from rsc/cli/commands.csv by `./yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
         '  local -a cmds opts',
@@ -194,7 +194,7 @@ def main() -> int:
         print(f'yoga: unknown command {argv[0]!r} — the table:\n', file=sys.stderr)
         print(render_help(cmds), file=sys.stderr, end='')
         return 2
-    if row['command'] == 'completion':
+    if row['command'] == 'completions':
         return completion(argv[1:])
     return dispatch(row, argv[1:])
 

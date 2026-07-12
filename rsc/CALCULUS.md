@@ -15,7 +15,7 @@ narrative, the code holds the shape, and the laws are the testable seam between.
 
 This document is also an INTERFACE, not only a narrative: the bolded leads of
 the operation and law bullets below are machine-read as the citable vocabulary
-for the yoga CLI's command table (`calculus_terms()` in `src/main/cli.py`;
+for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any
 citation not defined here. Reformatting a bullet therefore shrinks the
 vocabulary — loudly, never silently.

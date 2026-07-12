@@ -6,7 +6,7 @@ Scans every non-generated file and extracts references to other repo files,
 writing a CSV with one row per reference.
 
 Usage:
-    src/test/xref.sh [--out <path>]
+    ./yoga xref [--out <path>]
 
     Default output: src/test/xref.csv
 
@@ -37,7 +37,7 @@ Filter on  exists = N  to find references to files that no longer exist or whose
 JSON Pointer fragments have become invalid — the primary signal for stale comments,
 outdated documentation, dead imports, and broken intra-schema cross-references.
 
-    src/test/xref.sh && awk -F, '$5=="N"' src/test/xref.csv
+    ./yoga xref && awk -F, '$5=="N"' src/test/xref.csv
 """
 
 import argparse

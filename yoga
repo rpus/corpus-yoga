@@ -11,10 +11,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 if [[ -f "$VENV/bin/python" ]]; then
-  exec "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli.py" "$@"
+  exec "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
 fi
 if ! command -v python3 &>/dev/null; then
   echo "error: Python 3 not found — install via: brew install python (see ./PREREQUISITES.sh)" >&2
   exit 1
 fi
-exec python3 "$SCRIPT_DIR/src/main/cli.py" "$@"
+exec python3 "$SCRIPT_DIR/src/main/cli/cli.py" "$@"

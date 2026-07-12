@@ -185,7 +185,7 @@ against the new latest.
 changes, regenerate the candidates:
 
 ```bash
-src/main/model/gen_model.sh
+./yoga model
 ```
 
 Review `gen/model/` for new or changed definitions and update `model.json` if any

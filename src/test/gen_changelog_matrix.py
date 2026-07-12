@@ -39,7 +39,7 @@ def main():
 
     datum_dirs = _datum_dirs(pipeline)
     if not datum_dirs:
-        sys.exit(f'no validated data under {pipeline.gen.relative_to(REPO_ROOT)} — '
+        sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
                  f'run src/main/{args.pipeline}/RUNME.sh first')
 
     if args.write:
@@ -51,7 +51,7 @@ def main():
         print('| Datum ' + HEADER[0])
         print('| --- ' + HEADER[1])
         for datum_dir in datum_dirs:
-            subject = ' / '.join(datum_dir.relative_to(pipeline.gen).parts)
+            subject = ' / '.join(datum_dir.relative_to(pipeline.cache_output).parts)
             for line in render_rows(datum_dir, schema_parent_dir):
                 print(f'| `{subject}` {line}')
 

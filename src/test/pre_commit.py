@@ -55,7 +55,10 @@ from validation_matrix import rows_from_logs  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
-import cli  # noqa: E402 — the yoga CLI's table machinery (check_cli_surface)
+
+sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + standalone commands)
+import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
+import cache_io  # noqa: E402 — the declared gen/ IO registry (check_cache_io)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from build_index import inferred_concepts, pending_concepts  # noqa: E402
@@ -66,7 +69,7 @@ from build_index import inferred_concepts, pending_concepts  # noqa: E402
 class Pipeline:
     schemas:         list[str]
     changelog:       Path
-    gen:             Path
+    cache_output:    Path
     input:           Path
     input_glob:      str
     subject_depth:   int
@@ -85,7 +88,7 @@ PIPELINES: dict[str, Pipeline] = {
     'browser-captures': Pipeline(
         schemas           = ['apiConversation'],
         changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
-        gen               = GEN / 'browser-captures' / 'claude',
+        cache_output      = REPO_ROOT / cache_io.path_for('browser-captures'),
         input             = EXT / 'browser-captures' / 'claude',
         input_glob        = '*/',
         subject_depth     = 1,
@@ -94,7 +97,7 @@ PIPELINES: dict[str, Pipeline] = {
     'chat-exports': Pipeline(
         schemas           = ['conversations', 'memories', 'projects', 'users'],
         changelog         = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
-        gen               = GEN / 'chat-exports',
+        cache_output      = REPO_ROOT / cache_io.path_for('chat-exports'),
         input             = EXT / 'chat-exports',
         input_glob        = 'data-*/',
         subject_depth     = 1,
@@ -103,7 +106,7 @@ PIPELINES: dict[str, Pipeline] = {
     'code-agents': Pipeline(
         schemas           = ['session', 'sessionConversation', 'projectMemory'],
         changelog         = RSC_SCHEMA / 'code-agents' / 'session' / 'CHANGELOG.md',
-        gen               = GEN / 'code-agents',
+        cache_output      = REPO_ROOT / cache_io.path_for('code-agents'),
         # The pipeline sources the repo-owned STORE (rooms → projects →
         # sessions), never the harness-owned ~/.claude/projects — transport
         # is the capture step that populates it.
@@ -168,7 +171,7 @@ def _datum_dirs(pipeline: Pipeline) -> list[Path]:
     """Each datum directory in gen/ (the dirs that contain a validation/ subdir),
     at the pipeline's subject depth."""
     glob = '/'.join(['*'] * pipeline.subject_depth) + '/validation'
-    return sorted(v.parent for v in pipeline.gen.glob(glob) if v.is_dir())
+    return sorted(v.parent for v in pipeline.cache_output.glob(glob) if v.is_dir())
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -244,7 +247,7 @@ def _has_local_data(pipeline: Pipeline) -> bool:
     pipeline's data checks are skipped (the committed matrices are the durable record)."""
     if _input_subjects(pipeline):
         return True
-    return pipeline.gen.exists() and any(pipeline.gen.iterdir())
+    return pipeline.cache_output.exists() and any(pipeline.cache_output.iterdir())
 
 
 def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: list) -> None:
@@ -294,7 +297,7 @@ def check_required_files(run):
         SRC  / 'main' / 'model' / 'gen_model.py',
         SRC  / 'test' / 'pre_commit_expected_score',
         SRC  / 'test' / 'xref_expected_score',
-        SRC  / 'main' / 'schema_recommendations.py',
+        SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
     ]
     for path in required:
@@ -364,13 +367,13 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
     departed data cannot exist — deleting a datum deletes its matrix."""
     run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
     pipe_cmd = f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}'
-    gen_rel  = pipeline.gen.relative_to(REPO_ROOT)
+    gen_rel  = pipeline.cache_output.relative_to(REPO_ROOT)
 
     print(f'\n  each {gen_rel}/<datum>/matrix.md must match the vN.log files under its validation/')
     seen_versions: dict[str, set[str]] = {}
     processed_subjects: set[str] = set()
     for datum_dir in _datum_dirs(pipeline):
-        subject  = ' / '.join(datum_dir.relative_to(pipeline.gen).parts)
+        subject  = ' / '.join(datum_dir.relative_to(pipeline.cache_output).parts)
         processed_subjects.add(subject)
         expected = rows_from_logs(datum_dir)
         for (schema, _item, version) in expected:
@@ -463,7 +466,7 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
     versions = _sorted_versions(SCHEMA_DIR[schema])
     if not versions:
         return
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth):
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.cache_output, pipeline.subject_depth):
         logs = [leaf_dir / 'validation' / schema / f'{v.stem}.log' for v in versions]
         logs = [l for l in logs if l.exists()]
         if not logs:
@@ -489,7 +492,7 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
         return
     latest   = versions[-1].stem
     keyed    = []
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.gen, pipeline.subject_depth):
+    for subject, leaf_dir in _gen_subject_dirs(pipeline.cache_output, pipeline.subject_depth):
         key = _datum_recency(name, pipeline, subject)
         if key is not None:
             keyed.append((key, subject, leaf_dir))
@@ -613,6 +616,56 @@ def check_cross_sources(run) -> None:
             + (f', {len(stale)} capture-stale' if stale else ''),
             not (stale or divergent),
             '\n      '.join(detail_parts) if detail_parts else None)
+
+
+def check_cache_io(run) -> None:
+    """The declared gen/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
+    covers every pipeline's gen root (so clean and regen know the pipelines),
+    and — the catastrophe guard — no subtree is READ with no WRITER. A gen/ path
+    the machinery consumes but nothing produces breaks the 'gen/ is reproducible
+    from ext/' contract: a fresh clone, or `yoga clean`, would strand the
+    reader. Written-but-not-read is fine (a terminal output — a page a browser
+    reads); only the read side lacking a writer is fatal. Committed registry
+    only, so deterministic on any clone: code tier."""
+    try:
+        rows = cache_io.rows()
+    except Exception as e:
+        run('cache_io: registry parses: rsc/cache_io.csv', False, str(e))
+        return
+    run('cache_io: registry parses: rsc/cache_io.csv', True)
+
+    # PIPELINES now derives cache_output from cache_io.path_for(), so a pipeline
+    # missing its row fails loudly at import; this catches the reverse — a
+    # pipeline TAG in cache_io naming no real pipeline (or a mismatch either way).
+    tagged = cache_io.pipelines()
+    run('cache_io: pipeline tags match PIPELINES', tagged == set(PIPELINES),
+        f'cache_io tags {sorted(tagged)} != PIPELINES {sorted(PIPELINES)}'
+        if tagged != set(PIPELINES) else None)
+
+    commands = {c['command'] for c in cli.commands()}
+    for r in rows:
+        # read-but-not-written: the catastrophe (see docstring).
+        read_no_writer = bool(r['read_by']) and not r['written_by']
+        run(f'cache_io: {r["cache_path"]}: read implies a writer', not read_no_writer,
+            'READ but not WRITTEN — a gen/ dependency nothing produces; name its '
+            'producer in written_by, or the gen/ contract breaks' if read_no_writer else None)
+        # Every producer/reader RESOLVES — a rename that strands one (how
+        # gen/browser-captures/markdown happened) fails here, not silently.
+        unresolved = [e for e in r['written_by'] + r['read_by']
+                      if not _cache_io_resolves(e, commands)]
+        run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,
+            f'unresolved: {", ".join(unresolved)}' if unresolved else None)
+
+
+def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
+    """A cache_io written_by/read_by entry resolves iff it is an `external:*` reader
+    (exempt), a `./yoga <cmd>` whose command is in the table, or a path (its first
+    token) that exists in the repo."""
+    if entry.startswith('external:'):
+        return True
+    if entry.startswith('./yoga '):
+        return entry.split()[1] in commands
+    return (REPO_ROOT / entry.lstrip('./').split()[0]).exists()
 
 
 def check_cli_surface(run) -> None:
@@ -874,12 +927,13 @@ def main():
     def _data_skip_note(pipeline):
         print(f'  – skipped: no local data '
               f'({pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} absent, '
-              f'{pipeline.gen.relative_to(REPO_ROOT)}/ empty)')
+              f'{pipeline.cache_output.relative_to(REPO_ROOT)}/ empty)')
 
     try:
         run_section(check_required_files, tier='code')
         run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
+        run_section(check_cache_io, tier='code')
 
         run_section(check_root_schema_diagnostics, tier='schema')
 

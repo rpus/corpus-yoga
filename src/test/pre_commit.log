@@ -1,4 +1,4 @@
-pre_commit.py: 1347/1347 (data: machine-local)
+pre_commit.py: 1369/1369 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -12,12 +12,12 @@ pre_commit.py: 1347/1347 (data: machine-local)
   ✓ exists: src/main/model/gen_model.py
   ✓ exists: src/test/pre_commit_expected_score
   ✓ exists: src/test/xref_expected_score
-  ✓ exists: src/main/schema_recommendations.py
+  ✓ exists: src/test/schema_recommendations.py
   ✓ exists: src/run_python_script.sh
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 82 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 83 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -59,15 +59,39 @@ pre_commit.py: 1347/1347 (data: machine-local)
   ✓ cli: machine: target exists: src/main/machine.py
   ✓ cli: machine: cited calculus defined
   ✓ cli: machine: advertised flags exist
-  ✓ cli: model: target exists: src/main/model/gen_model.sh
+  ✓ cli: model: target exists: src/main/model/gen_model.py
   ✓ cli: model: cited calculus defined
   ✓ cli: calculus: target exists: rsc/CALCULUS.md
   ✓ cli: calculus: cited calculus defined
-  ✓ cli: completion: target exists: src/main/cli.py
-  ✓ cli: completion: cited calculus defined
-  ✓ cli: completion: advertised flags exist
+  ✓ cli: clean: target exists: src/main/cli/clean.py
+  ✓ cli: clean: cited calculus defined
+  ✓ cli: clean: advertised flags exist
+  ✓ cli: regen: target exists: src/main/cli/regen.py
+  ✓ cli: regen: cited calculus defined
+  ✓ cli: regen: advertised flags exist
+  ✓ cli: completions: target exists: src/main/cli/cli.py
+  ✓ cli: completions: cited calculus defined
+  ✓ cli: completions: advertised flags exist
   ✓ cli: memories: run step exists in plan: accumulate_memories
   ✓ cli: supersede: run step exists in plan: compare_batches
+
+── check_cache_io ────────────────────────────────────────────────────────────
+  ✓ cache_io: registry parses: rsc/cache_io.csv
+  ✓ cache_io: pipeline tags match PIPELINES
+  ✓ cache_io: gen/browser-captures/claude: read implies a writer
+  ✓ cache_io: gen/browser-captures/claude: producers/readers resolve
+  ✓ cache_io: gen/chat-exports: read implies a writer
+  ✓ cache_io: gen/chat-exports: producers/readers resolve
+  ✓ cache_io: gen/code-agents: read implies a writer
+  ✓ cache_io: gen/code-agents: producers/readers resolve
+  ✓ cache_io: gen/completions: read implies a writer
+  ✓ cache_io: gen/completions: producers/readers resolve
+  ✓ cache_io: gen/dashboard: read implies a writer
+  ✓ cache_io: gen/dashboard: producers/readers resolve
+  ✓ cache_io: gen/indexing: read implies a writer
+  ✓ cache_io: gen/indexing: producers/readers resolve
+  ✓ cache_io: gen/model: read implies a writer
+  ✓ cache_io: gen/model: producers/readers resolve
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -1373,9 +1397,9 @@ pre_commit.py: 1347/1347 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1347/1347; expected: 1347/1347
-  ✓ score[code]: 60/60; expected: 60/60
+  ✓ score[code+schema]: 1369/1369; expected: 1369/1369
+  ✓ score[code]: 82/82; expected: 82/82
   ✓ score[schema]: 1287/1287; expected: 1287/1287
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1347/1347 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1369/1369 match the committed expectation; nothing here vetoes a commit

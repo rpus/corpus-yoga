@@ -16,7 +16,7 @@ Examples:
     python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 
 Output: JSON to stdout. Redirect to gen/model/<schema-type>/<version>.json for review.
-Normally invoked via src/main/model/gen_model.sh which handles all schemas automatically.
+Normally invoked via ./yoga model which handles all schemas automatically.
 """
 
 import json
