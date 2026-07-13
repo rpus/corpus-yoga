@@ -34,14 +34,27 @@ def _split(cell: str) -> list[str]:
 def rows() -> list[dict]:
     """The registry rows, each with parsed written_by / read_by lists. `pipeline`
     names the owning pipeline for a pipeline's cache root (empty for out-of-band
-    producers). Raises if the columns drift — the registry is an interface."""
+    producers). Raises if the columns drift, or a row's field count isn't exactly
+    len(COLUMNS) — an unquoted comma in a cell would otherwise silently truncate the
+    note into csv's overflow. The registry is an interface."""
     with REGISTRY.open() as f:
         reader = csv.DictReader(f)
         if tuple(reader.fieldnames or ()) != COLUMNS:
             raise ValueError(f'{REGISTRY.relative_to(REPO)}: '
                              f'columns {reader.fieldnames} != {list(COLUMNS)}')
         out = []
-        for r in reader:
+        for n, r in enumerate(reader, start=2):  # file line 1 is the header
+            overflow = r.get(None)  # csv.DictReader dumps surplus cells here
+            if overflow:
+                raise ValueError(
+                    f'{REGISTRY.relative_to(REPO)} row {n} ({r[COLUMNS[0]]!r}): '
+                    f'{len(COLUMNS) + len(overflow)} fields, expected {len(COLUMNS)} — '
+                    f'an unquoted comma in a cell? surplus: {overflow}')
+            missing = [c for c in COLUMNS if r[c] is None]
+            if missing:
+                raise ValueError(
+                    f'{REGISTRY.relative_to(REPO)} row {n} ({r[COLUMNS[0]]!r}): '
+                    f'fewer than {len(COLUMNS)} fields — missing {missing}')
             out.append({'cache_path': r['cache_path'].strip(),
                         'pipeline': r['pipeline'].strip(),
                         'written_by': _split(r['written_by']),
