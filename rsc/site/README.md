@@ -5,10 +5,15 @@ in `rsc/`. The directory mirrors the site's path space, so a file here serves at
 the matching URL:
 
 - **`index.html`** → `rpus.co/` — the homepage: the corpus dashboard. A TEMPLATE,
-  not a finished page: `present.sh` copies it to each batch's
-  `cache/.../presentation/index.html` and fills it with the data tables (the category
-  palette is authored inline here — design, never filled); the filled result is
-  what deploys.
+  not a finished page — both presenters copy it and inject the data tables (the
+  category palette is authored inline here — design, never filled). The corpus-wide
+  page is what deploys: `present_corpus.py` (`yoga dashboard present`) writes it to
+  `output/dashboard/presentation/index.html`, a library artifact beside the
+  `output/dashboard/` captures it summarises. The per-batch pages (`present.sh`) are
+  export-scoped and stay in the workshop under `cache/chat-exports/<batch>/presentation/`.
+  The tables the page is built from are self-contained inside it (inlined `<script>`
+  blocks); it fetches nothing at runtime — this repo only ever projects the corpus as
+  it stands in `input/`.
 - **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already
   complete page.
 

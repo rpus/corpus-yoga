@@ -121,14 +121,14 @@ rsc/cli/commands.csv,17,path_str,src/main/cli/regen.py,Y,"regen,src/main/cli/reg
 rsc/cli/commands.csv,18,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table"
 rsc/cli/readings.md,7,doc,rsc/cli/commands.csv,Y,"`rsc/cli/commands.csv`, and each script's `--help` is the authority on its interface."
 rsc/cli/readings.md,11,doc,rsc/site/index.html,Y,"Paid model readings behind the corpus dashboard (`rsc/site/index.html`, the shared"
-rsc/cli/readings.md,16,doc,src/main/chat-exports/present_corpus.py,Y,(`src/main/chat-exports/present_corpus.py` → `cache/dashboard/presentation/`): keys
-rsc/cli/readings.md,20,doc,src/main/chat-exports/present.sh,Y,lanes and clouds alike. The per-batch pages (`src/main/chat-exports/present.sh` →
-rsc/cli/readings.md,25,doc,rsc/schema/dashboard/semanticConcepts/v2.json,Y,- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v2.json`
-rsc/cli/readings.md,26,doc,rsc/schema/dashboard/semanticConcepts/v1.json,Y,"(v1, untagged: `rsc/schema/dashboard/semanticConcepts/v1.json`; changelog:"
-rsc/cli/readings.md,27,doc,rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,Y,`rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
-rsc/cli/readings.md,36,doc,rsc/schema/dashboard/chatCategories/v1.json,Y,- **`chat-categories.json`** — schema `rsc/schema/dashboard/chatCategories/v1.json`
-rsc/cli/readings.md,37,doc,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
-rsc/cli/readings.md,43,doc,rsc/site/index.html,Y,"`rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join"
+rsc/cli/readings.md,16,doc,src/main/chat-exports/present_corpus.py,Y,"(`src/main/chat-exports/present_corpus.py` → `output/dashboard/presentation/index.html`,"
+rsc/cli/readings.md,21,doc,src/main/chat-exports/present.sh,Y,lanes and clouds alike. The per-batch pages (`src/main/chat-exports/present.sh` →
+rsc/cli/readings.md,26,doc,rsc/schema/dashboard/semanticConcepts/v2.json,Y,- **`semantic-concepts.json`** — schema `rsc/schema/dashboard/semanticConcepts/v2.json`
+rsc/cli/readings.md,27,doc,rsc/schema/dashboard/semanticConcepts/v1.json,Y,"(v1, untagged: `rsc/schema/dashboard/semanticConcepts/v1.json`; changelog:"
+rsc/cli/readings.md,28,doc,rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,Y,`rsc/schema/dashboard/semanticConcepts/CHANGELOG.md`):
+rsc/cli/readings.md,37,doc,rsc/schema/dashboard/chatCategories/v1.json,Y,- **`chat-categories.json`** — schema `rsc/schema/dashboard/chatCategories/v1.json`
+rsc/cli/readings.md,38,doc,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
+rsc/cli/readings.md,44,doc,rsc/site/index.html,Y,"`rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join"
 rsc/machines/README.md,5,doc,rsc/CALCULUS.md,Y,`rsc/CALCULUS.md`: these files are byte-identical on every clone because they
 rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
 rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
@@ -185,8 +185,8 @@ rsc/schema/model.json,38,path_str,rsc/schema/chat-exports/users/v1.json,Y,"""./c
 rsc/schema/model.json,41,path_str,rsc/schema/chat-exports/conversations/v15.json,Y,"""./chat-exports/conversations/v15.json"": ["
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as committed data"
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
-rsc/site/README.md,12,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
-rsc/site/README.md,26,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
+rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
+rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
 src/main/browser-captures/PREP.sh,7,comment,src/main/browser-captures/PREP.sh,Y,"#   src/main/browser-captures/PREP.sh                  # claude api, gemini dom"
 src/main/browser-captures/PREP.sh,8,comment,src/main/browser-captures/PREP.sh,Y,#   src/main/browser-captures/PREP.sh --new-claude-scrape  # also DOM-scrape claude (for compare_markdown)
 src/main/browser-captures/PREP.sh,31,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -287,24 +287,24 @@ src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/librar
 src/main/chat-exports/compare_batches.py,59,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-cache cache/chat-exports] [--bulk-
 src/main/chat-exports/compare_batches.py,59,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-cache cache/chat-exports] [--bulk-
 src/main/chat-exports/dashboard.sh,9,comment,rsc/site/index.html,Y,# by both rooms. The category PALETTE is authored inline in rsc/site/index.html
-src/main/chat-exports/dashboard.sh,35,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
-src/main/chat-exports/dashboard.sh,53,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
-src/main/chat-exports/dashboard.sh,55,path_str,src/main,Y,"sys.path.insert(0, '$REPO_DIR/src/main')"
-src/main/chat-exports/dashboard.sh,66,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
-src/main/chat-exports/dashboard.sh,66,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
-src/main/chat-exports/dashboard.sh,100,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
-src/main/chat-exports/dashboard.sh,104,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
-src/main/chat-exports/dashboard.sh,106,path_str,rsc/site/index.html,Y,h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
-src/main/chat-exports/dashboard.sh,130,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
-src/main/chat-exports/dashboard.sh,130,call,src/main/chat-exports/rekey_chats.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
-src/main/chat-exports/dashboard.sh,131,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,131,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,148,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,148,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,162,call,src/run_python_script.sh,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
-src/main/chat-exports/dashboard.sh,162,call,src/main/validate.py,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
-src/main/chat-exports/dashboard.sh,288,call,src/run_python_script.sh,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
-src/main/chat-exports/dashboard.sh,288,call,src/main/chat-exports/present_corpus.py,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
+src/main/chat-exports/dashboard.sh,36,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
+src/main/chat-exports/dashboard.sh,54,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
+src/main/chat-exports/dashboard.sh,56,path_str,src/main,Y,"sys.path.insert(0, '$REPO_DIR/src/main')"
+src/main/chat-exports/dashboard.sh,67,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
+src/main/chat-exports/dashboard.sh,67,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
+src/main/chat-exports/dashboard.sh,101,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
+src/main/chat-exports/dashboard.sh,105,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
+src/main/chat-exports/dashboard.sh,107,path_str,rsc/site/index.html,Y,h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
+src/main/chat-exports/dashboard.sh,131,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
+src/main/chat-exports/dashboard.sh,131,call,src/main/chat-exports/rekey_chats.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
+src/main/chat-exports/dashboard.sh,132,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,132,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,149,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,149,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,163,call,src/run_python_script.sh,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,163,call,src/main/validate.py,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,289,call,src/run_python_script.sh,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
+src/main/chat-exports/dashboard.sh,289,call,src/main/chat-exports/present_corpus.py,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
 src/main/chat-exports/extract_files.py,15,comment,src/main/chat-exports/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber"
 src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-00
 src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports input/claude/chat/bulk-export

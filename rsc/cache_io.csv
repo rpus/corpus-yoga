@@ -3,6 +3,6 @@ cache/browser-captures/claude,browser-captures,./RUNME.sh,src/test/pre_commit.py
 cache/chat-exports,chat-exports,./RUNME.sh,src/main/chat-exports/compare_batches.py; src/test/pre_commit.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
 cache/code-agents,code-agents,./RUNME.sh,src/main/code-agents/render_corpus.py; src/test/pre_commit.py,converted sessions; conversation.json; memory.json; validation logs; matrices
 cache/completions,,./yoga completions --write,external:zsh; PREREQUISITES.sh,static zsh tab-completion derived from rsc/cli/commands.csv
-cache/dashboard,,./yoga dashboard present,external:browser,the rendered corpus dashboard (present); the paid capture stages here transiently before promotion to output/dashboard
+cache/dashboard,,./yoga dashboard present,,the data tables feeding the corpus dashboard (present) — feedstock only (re-derived each run; the finished page now lands in output/dashboard/presentation/). The paid capture also stages here transiently before promotion to output/dashboard
 cache/indexing,,./yoga indexing candidates,external:human,the pending-concept queue (candidates.txt); a rebuildable derivation of output/dashboard minus output/indexing curation
 cache/model,,./yoga model,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/schema/model.json

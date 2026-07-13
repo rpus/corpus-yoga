@@ -484,27 +484,19 @@
   </div>
 
 
-  <!-- ── external-load toggle ──────────────────────── -->
-  <div class="section" id="external-load-section" style="display:flex;align-items:center;gap:1rem;">
-    <button id="try-external-btn" style="font-size:12px;padding:4px 10px;border:1px solid #ccc;border-radius:4px;background:#fafafa;cursor:pointer;color:#555;">
-      Try loading external data files
-    </button>
-    <span id="external-load-status" style="font-size:11px;color:#aaa;"></span>
-  </div>
-
   <!-- ── logic ──────────────────────────────────────── -->
   <script>
 
     // ── constants ────────────────────────────────────────
 
     const DATA_SOURCES = [
-      { key: 'chats',          id: 'data-chats',             file: 'data-chats.json' },
-      { key: 'spans',          id: 'data-spans',             file: 'data-spans.json' },
-      { key: 'categories',     id: 'data-categories' },  // authored palette: inline-only, no external file
-      { key: 'chatCategories', id: 'data-chat-categories',   file: 'data-chat-categories.json' },
-      { key: 'literal',        id: 'data-literal-words',     file: 'data-literal-words.json' },
-      { key: 'semantic',       id: 'data-semantic-concepts', file: 'data-semantic-concepts.json' },
-      { key: 'files',          id: 'data-files',             file: 'data-files.json' },
+      { key: 'chats',          id: 'data-chats' },
+      { key: 'spans',          id: 'data-spans' },
+      { key: 'categories',     id: 'data-categories' },  // authored palette, inlined like the rest
+      { key: 'chatCategories', id: 'data-chat-categories' },
+      { key: 'literal',        id: 'data-literal-words' },
+      { key: 'semantic',       id: 'data-semantic-concepts' },
+      { key: 'files',          id: 'data-files' },
     ];
 
     const FilesFilter = { Both: 'both', FilesOnly: 'filesOnly', NoFiles: 'noFiles' };
@@ -546,36 +538,15 @@
     }
 
     // ── data loading ─────────────────────────────────────
-
-    const DataSource = { InlinedScripts: 'inlinedScripts', ExternalFiles: 'externalFiles' };
+    // Every table is inlined into this page at render time — present_corpus.py /
+    // present.sh inject each <script type="application/json"> block — so the page
+    // reads its own DOM and is entirely self-contained. To load custom data, edit
+    // the inlined blocks directly (view source, paste your table, save).
 
     function loadFromInlinedScripts() {
       const sources = {};
       DATA_SOURCES.forEach(({ key, id }) => { sources[key] = parse(id); });
       return sources;
-    }
-
-    // Returns { packedTables, loaded: string[], failed: string[] }.
-    async function loadFromExternalFiles() {
-      const sources = loadFromInlinedScripts(); // baseline from inline
-      const loaded = [], failed = [];
-      await Promise.all(DATA_SOURCES.map(async ({ key, file }) => {
-        if (!file) return; // inline-only source (the authored palette) — nothing to fetch
-        try {
-          const resp = await fetch(file);
-          if (!resp.ok) throw new Error(resp.status);
-          sources[key] = await resp.json();
-          loaded.push(file);
-        } catch {
-          failed.push(file);
-        }
-      }));
-      return { packedTables: sources, loaded, failed };
-    }
-
-    async function load(dataSource) {
-      if (dataSource === DataSource.ExternalFiles) return loadFromExternalFiles();
-      return { packedTables: loadFromInlinedScripts(), loaded: [], failed: [] };
     }
 
     function unpackAll(packedTables) {
@@ -819,36 +790,10 @@
       updateLiteralCloud(activeMode, literalData);
     }
 
-    // ── external load handler ────────────────────────────
-
-    async function onExternalLoad() {
-      const btn    = document.getElementById('try-external-btn');
-      const status = document.getElementById('external-load-status');
-      btn.disabled    = true;
-      btn.textContent = 'Trying…';
-      status.textContent = '';
-      const { packedTables, loaded, failed } = await load(DataSource.ExternalFiles);
-      if (loaded.length === 0) {
-        status.style.color = '#c55';
-        status.textContent = 'No external files found — using embedded data.';
-      } else if (failed.length === 0) {
-        status.style.color = '#585';
-        status.textContent = `All ${loaded.length} files loaded.`;
-      } else {
-        status.style.color = '#a70';
-        status.textContent = `${loaded.length} loaded, ${failed.length} not found ` +
-          `(${failed.join(', ')}) — falling back to embedded for those.`;
-      }
-      btn.textContent = 'Try loading external data files';
-      btn.disabled    = false;
-      init(packedTables);
-    }
-
     // ── main ─────────────────────────────────────────────
 
     function main() {
-      document.getElementById('try-external-btn').addEventListener('click', onExternalLoad);
-      load(DataSource.InlinedScripts).then(({ packedTables }) => init(packedTables));
+      init(loadFromInlinedScripts());
     }
 
     main();

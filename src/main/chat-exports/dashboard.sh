@@ -12,8 +12,9 @@
 #
 #   yoga dashboard              # status: what is captured (read-only, free)
 #   yoga dashboard present      # FREE: render the corpus dashboard page from
-#                               #   output/markdown + output/dashboard → cache/dashboard/presentation/
-#                               #   (keys = corpus ordinals, all sources; the per-batch
+#                               #   output/markdown + output/dashboard → output/dashboard/presentation/index.html
+#                               #   (its data tables stage in cache/dashboard/presentation/;
+#                               #   keys = corpus ordinals, all sources; the per-batch
 #                               #   pages under cache/chat-exports/ remain export artifacts)
 #   yoga dashboard capture      # PAID: re-read the corpus → output/dashboard/
 #                               #   [--conversations <path>] overrides the source — a

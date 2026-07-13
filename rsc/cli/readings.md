@@ -13,7 +13,8 @@ template), single-source and shared across rooms, refreshed deliberately and
 out-of-band by `yoga dashboard capture` (both files; `--only <name>` for one),
 reading the whole projected corpus (`output/markdown` — claude and gemini alike).
 `yoga dashboard present` renders the CORPUS page free
-(`src/main/chat-exports/present_corpus.py` → `cache/dashboard/presentation/`): keys
+(`src/main/chat-exports/present_corpus.py` → `output/dashboard/presentation/index.html`,
+its data tables staged in `cache/dashboard/presentation/`): keys
 are the corpus ordinals over every source, claude lanes carry real spans (turn
 anchors are UUIDv7s, whose first 48 bits are a timestamp), gemini lanes list
 bar-less (its scrapes hold no time data), and the page-top source toggle filters

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-present_corpus.py — render THE CORPUS dashboard: cache/dashboard/presentation/index.html.
+present_corpus.py — render THE CORPUS dashboard: output/dashboard/presentation/index.html.
 
 The batch presenter (present.sh) renders ONE EXPORT's presentation under
 cache/chat-exports/<batch>/presentation — an export artifact, honestly filed under
@@ -18,11 +18,13 @@ absence is shown, never invented. Bolster the values when a source grows time
 data; the KEYS are the contract.
 
 Usage:
-  present_corpus.py [--markdown <dir>] [--dashboard <dir>] [--out <dir>]
+  present_corpus.py [--markdown <dir>] [--dashboard <dir>] [--out <dir>] [--page-out <dir>]
 
-Defaults: output/markdown, output/dashboard, cache/dashboard/presentation (all
-repo-relative). Called by dashboard.sh (`yoga dashboard present`) — free, local,
-re-derivable at will (L5).
+Defaults: output/markdown, output/dashboard, cache/dashboard/presentation for the
+data tables, output/dashboard/presentation for the finished page (all repo-relative).
+The page is the human-facing artifact (library tier); the per-table JSON it is built
+from — machine feedstock, re-derived on every run — stay behind in the cache workshop.
+Called by dashboard.sh (`yoga dashboard present`) — free, local, re-derivable at will (L5).
 """
 import argparse
 import json
@@ -77,8 +79,8 @@ def run_helper(script: str, args: list[str], stdin_text: str | None = None) -> s
 
 
 def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
-    """Align (format_table), persist beside the page, inject into it — one motion
-    per table, matching the batch presenter's artifacts."""
+    """Align (format_table), persist in the cache workshop, inject into the page —
+    one motion per table, matching the batch presenter's artifacts."""
     styled = run_helper('format_table.py', [], json.dumps(table))
     f = out_dir / f'{key}.json'
     f.write_text(styled)
@@ -90,10 +92,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description='render the corpus dashboard from output/markdown + output/dashboard')
     ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown'))
     ap.add_argument('--dashboard', default=str(REPO / 'output' / 'dashboard'))
-    ap.add_argument('--out', default=str(REPO / 'cache' / 'dashboard' / 'presentation'))
+    ap.add_argument('--out', default=str(REPO / 'cache' / 'dashboard' / 'presentation'),
+                    help='cache workshop dir for the data tables (feedstock)')
+    ap.add_argument('--page-out', default=str(REPO / 'output' / 'dashboard' / 'presentation'),
+                    help='library dir the finished index.html lands in')
     args = ap.parse_args()
 
-    md_root, dash, out_dir = Path(args.markdown), Path(args.dashboard), Path(args.out)
+    md_root, dash = Path(args.markdown), Path(args.dashboard)
+    out_dir, page_out = Path(args.out), Path(args.page_out)
     entries = corpus_index(md_root)
     if not entries:
         print(f'error: no projected corpus under {md_root}', file=sys.stderr)
@@ -187,8 +193,16 @@ def main() -> int:
     subprocess.run([sys.executable, str(SCRIPT_DIR / 'update_export_tooltip.py'), str(html),
                     f'the projected corpus: {md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root}'],
                    check=True)
+
+    # The page is the human-facing artifact — it graduates to the library tier; the
+    # data tables (self-contained, inlined above) stay behind in the cache workshop.
+    page_out.mkdir(parents=True, exist_ok=True)
+    page = page_out / 'index.html'
+    page.unlink(missing_ok=True)
+    shutil.move(str(html), str(page))
     print(f'  title: {title}')
-    print(f'→ {html}')
+    print(f'  data tables: {out_dir.relative_to(REPO)}/')
+    print(f'→ {page.relative_to(REPO) if page.is_relative_to(REPO) else page}')
     return 0
 
 
