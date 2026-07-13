@@ -89,7 +89,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['apiConversation'],
         changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
         cache_output      = REPO_ROOT / cache_io.path_for('browser-captures'),
-        input             = INPUT / 'browser-captures' / 'claude',
+        input             = INPUT / 'claude' / 'chat' / 'browser-API',
         input_glob        = '*/',
         subject_depth     = 1,
         fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',
@@ -569,7 +569,7 @@ def check_cross_sources(run) -> None:
     or data corruption (or a post-export edit/branch switch — rare; investigate
     with compare_sources --diff). Reads the projections both pipelines already
     wrote to cache/; machine-local, so data tier."""
-    api_dir = REPO_ROOT / 'output' / 'markdown' / 'claude' / 'conversations'
+    api_dir = REPO_ROOT / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
     api = {}
     if api_dir.is_dir():
         for f in api_dir.glob('*.md'):
@@ -578,7 +578,7 @@ def check_cross_sources(run) -> None:
             if cid:
                 api[cid] = turn_seq(text)
     if not api:
-        print('  – skipped: no api projections (output/markdown/claude/conversations empty)')
+        print('  – skipped: no api projections (output/markdown/claude/chat/conversations empty)')
         return
     batch_dirs = sorted((CACHE / 'chat-exports').glob('data-*/markdown')) if (CACHE / 'chat-exports').is_dir() else []
     if not batch_dirs:

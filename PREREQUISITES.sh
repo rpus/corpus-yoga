@@ -170,34 +170,34 @@ check_pipeline_inputs() {
   echo "pipeline inputs (this repo ships no data; you supply your own)"
   local n
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/input/browser-captures/claude"/*/)"
+  n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/chat/browser-API"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n claude capture(s) in input/browser-captures/claude — will validate + project to markdown"
+    ok "browser-captures: $n claude capture(s) in input/claude/chat/browser-API — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in input/browser-captures/claude — will skip (populate via --capture-from-browser)"
+    info "browser-captures: no claude captures in input/claude/chat/browser-API — will skip (populate via --capture-from-browser)"
   fi
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/input/browser-captures/gemini"/*/)"
+  n="$(count_glob_dirs "$SCRIPT_DIR/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in input/browser-captures/gemini — markdown is the terminal artifact (browse via serve_markdown.sh); not validated"
+    ok "browser-captures: $n gemini scrape(s) in input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via serve_markdown.sh); not validated"
   else
-    info "browser-captures: no gemini scrapes in input/browser-captures/gemini — captured only via --capture-from-browser; not processed further"
+    info "browser-captures: no gemini scrapes in input/gemini/chat/browser-DOM — captured only via --capture-from-browser; not processed further"
   fi
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/input/chat-exports"/data-*/)"
+  n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/chat/bulk-export"/data-*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "chat-exports: $n bulk export(s) in input/chat-exports — will validate, extract, atomise, render"
+    ok "chat-exports: $n bulk export(s) in input/claude/chat/bulk-export — will validate, extract, atomise, render"
   else
-    info "chat-exports: no data-* bulk export in input/chat-exports — will skip (download via https://claude.ai/settings/data-privacy-controls)"
+    info "chat-exports: no data-* bulk export in input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  if [[ -d "$SCRIPT_DIR/input/code-agents" ]]; then
-    n="$(count_glob_dirs "$SCRIPT_DIR/input/code-agents"/*/)"
+  if [[ -d "$SCRIPT_DIR/input/claude/code/machine-transport" ]]; then
+    n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/code/machine-transport"/*/)"
     local sessions
-    sessions="$(find -L "$SCRIPT_DIR/input/code-agents" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-agents: input/code-agents holds $n room(s), $sessions session file(s) — will convert + validate into cache/"
+    sessions="$(find -L "$SCRIPT_DIR/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
+    ok "code-agents: input/claude/code/machine-transport holds $n room(s), $sessions session file(s) — will convert + validate into cache/"
   else
-    info "code-agents: no input/code-agents store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
+    info "code-agents: no input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
     info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./yoga agent capture --all"

@@ -1,7 +1,7 @@
 {
  "$schema": "http://json-schema.org/draft-04/schema#",
  "title": "projectMemory",
- "description": "A project's memory/ directory (under input/code-agents/<room>/<project>/, the repo-owned store transport populates) as one JSON datum — memory.json, written by memory_to_json.py. The memory contract: an index (MEMORY.md, one entry line per fact) plus one markdown file per fact, each carrying YAML frontmatter (name, description, metadata) and a body that may [[link]] other facts by name. The datum holds that contract to account: every fact carries its identity and classification; index lines that are not entries (headings, the merge marker comments agent.py's receive writes) are carried verbatim as unparsed — data, not discarded. facts may be empty: one observed project's memory/ is a guard-only MEMORY.md with no fact files.",
+ "description": "A project's memory/ directory (under input/claude/code/machine-transport/<room>/<project>/, the repo-owned store transport populates) as one JSON datum — memory.json, written by memory_to_json.py. The memory contract: an index (MEMORY.md, one entry line per fact) plus one markdown file per fact, each carrying YAML frontmatter (name, description, metadata) and a body that may [[link]] other facts by name. The datum holds that contract to account: every fact carries its identity and classification; index lines that are not entries (headings, the merge marker comments agent.py's receive writes) are carried verbatim as unparsed — data, not discarded. facts may be empty: one observed project's memory/ is a guard-only MEMORY.md with no fact files.",
  "allOf": [
   {
    "$ref": "#/definitions/ProjectMemory"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Capture all conversations from claude.ai and gemini.google.com into input/browser-captures/.
+# Capture all conversations from claude.ai and gemini.google.com into input/<provider>/chat/browser-{API,DOM}/.
 # Requires Safari open, focused, and logged into both sites throughout.
 # Captures run in their own tab; the user's front tab is restored afterwards.
 #
@@ -23,14 +23,14 @@ main() {
   done
 
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  mkdir -p "$REPO_DIR/input/browser-captures/claude"
-  mkdir -p "$REPO_DIR/input/browser-captures/gemini"
+  mkdir -p "$REPO_DIR/input/claude/chat/browser-API"
+  mkdir -p "$REPO_DIR/input/gemini/chat/browser-DOM"
 
   # Capture-health baseline before the run — the before/after delta lands in the same
   # log. Suspects here are the reason to capture, not an error.
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
-    --browser-captures "$REPO_DIR/input/browser-captures" \
-    --api "$REPO_DIR/output/markdown/claude/conversations" || true
+    --input "$REPO_DIR/input" \
+    --api "$REPO_DIR/output/markdown/claude/chat/conversations" || true
   # Capture both agents regardless of either failing, then surface a non-zero exit if either did
   # (don't let a claude failure abort the gemini capture). Claude is api-only unless --new-claude-scrape.
   local rc=0

@@ -109,14 +109,13 @@ def main() -> int:
     by_dir = Counter()
     all_times: list[datetime] = []
     for n, stem, title, cid in entries:
-        # provider/channel from the corpus DIRECTORY, never the id shape (code
-        # sessions carry 36-char uuids too and would masquerade as claude chat):
-        # claude/ and gemini/ are chat channels; code/ is claude's code channel.
-        src_dir, _, fname = stem.partition('/')
-        provider = 'claude' if src_dir == 'code' else src_dir
-        channel = 'code' if src_dir == 'code' else 'chat'
-        by_dir[src_dir] += 1
-        md = (md_root / src_dir / 'conversations' / f'{fname}.md').read_text()
+        # provider/channel ARE the corpus path segments now — the unfused layout
+        # made the old dirname decode ('code' meaning claude×code) a plain read.
+        # Identity is still never taken from the id shape (code sessions carry
+        # 36-char uuids too and would masquerade as claude chat).
+        provider, channel, fname = stem.split('/')
+        by_dir[f'{provider}/{channel}'] += 1
+        md = (md_root / provider / channel / 'conversations' / f'{fname}.md').read_text()
 
         times = [uuid7_time(u) for u in ANCHOR.findall(md)]
         all_times += times

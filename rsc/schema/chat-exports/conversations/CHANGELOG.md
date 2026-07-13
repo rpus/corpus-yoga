@@ -6,8 +6,8 @@ and git-ignored: each datum directory under `cache/` carries a `matrix.md` besid
 
 ---
 
-The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../input/browser-captures/apiConversation/v1.json)
-and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../input/browser-captures/apiConversation/) for that schema's history.
+The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../browser-captures/apiConversation/v1.json)
+and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversation/) for that schema's history.
 
 ---
 

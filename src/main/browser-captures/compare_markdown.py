@@ -22,7 +22,7 @@ Turns are aligned scrape→api with difflib. Per conversation:
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/compare_markdown.py \
-    --api output/markdown/claude/conversations --scrape input/browser-captures/claude [--diff]
+    --api output/markdown/claude/chat/conversations --scrape input/claude/chat/browser-DOM [--diff]
 
 Exit status is non-zero iff a regression is found (suitable for pipeline gating).
 """

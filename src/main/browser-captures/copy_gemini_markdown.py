@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 copy_gemini_markdown.py — copy gemini scrape markdown into the presentation tree
-(output/markdown/gemini/conversations, beside claude's projections), anchoring each turn heading:
+(output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:
 
     ## Human (3)   ->   ## Human (3) <a id="human-3"></a>
 
@@ -13,7 +13,7 @@ split ignores them. The input/ scrapes themselves are data and are left untouche
 this derived copy is the navigable/indexable surface.
 
 Files are named '<NN>-<slug>.md', paralleling claude's ordinals: the numbering comes
-from the ordering CAPTURE (input/browser-captures/gemini/ordering.txt — the web-UI
+from the ordering CAPTURE (input/gemini/chat/browser-DOM/ordering.txt — the web-UI
 listing, reversed to ascending; refresh via the listing sweep), zero-padded to the
 corpus width so lexicographic order == conversation order. Ordinals are presentation
 and renumber as the corpus changes; the gemini app id (the <url> line) is the
@@ -22,7 +22,7 @@ id-sorted; a residual filename collision gets the id prefixed (the old rule).
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py \
-    [--browser-captures input/browser-captures/gemini] [--out cache/markdown/gemini]
+    [--browser-dom input/gemini/chat/browser-DOM] [--out cache/markdown/gemini]
 """
 import argparse
 import re
@@ -56,11 +56,11 @@ def anchored(md):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', default=str(REPO / 'input' / 'browser-captures' / 'gemini'))
-    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'gemini' / 'conversations'))
+    ap.add_argument('--browser-dom', default=str(REPO / 'input' / 'gemini' / 'chat' / 'browser-DOM'))
+    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'gemini' / 'chat' / 'conversations'))
     args = ap.parse_args()
 
-    src = Path(args.browser_captures)
+    src = Path(args.browser_dom)
     if not src.is_dir():
         print(f'no gemini captures in {src} — nothing to copy')
         return

@@ -22,7 +22,7 @@ vintages may lack one).
 
 Usage:
     src/run_python_script.sh src/main/chat-exports/archive_components.py \
-      --chat-export input/chat-exports/<batch> [--out-dir <override>]
+      --chat-export input/claude/chat/bulk-export/<batch> [--out-dir <override>]
 """
 import argparse
 import shutil

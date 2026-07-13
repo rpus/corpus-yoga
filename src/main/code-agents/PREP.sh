@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ensures input/code-projects is a symlink to ~/.claude/projects.
+# Ensures input/claude-code-projects is a symlink to ~/.claude/projects.
 #
 # Usage:
 #   src/main/code-agents/PREP.sh
@@ -20,7 +20,7 @@ parse_args() {
 
 link_projects() {
   mkdir -p "$REPO_DIR/input"
-  ln -sfn ~/.claude/projects "$REPO_DIR/input/code-projects"
+  ln -sfn ~/.claude/projects "$REPO_DIR/input/claude-code-projects"
 }
 
 main() {

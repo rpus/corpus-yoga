@@ -21,7 +21,7 @@ deposited, the batch's memories-divergence no longer blocks its deletion
 (compare_batches stays unprejudiced — the deposit report here is the licence,
 not a carve-out there).
 
-The projection renders every deposit to output/markdown/claude/memories/<stamp>.md (this
+The projection renders every deposit to output/markdown/claude/chat/memories/<stamp>.md (this
 stage owns that subtree). The memory content is already markdown inside the
 JSON string, so this is an unwrap, not a transformation — the served corpus
 gains a diffable timeline of what claude.ai believed about the user at each
@@ -30,7 +30,7 @@ export.
 Usage (wired into RUNME.sh after the per-batch stages):
     src/run_python_script.sh src/main/chat-exports/accumulate_memories.py \
       [--chat-exports-cache cache/chat-exports] [--memories-output output/memories] \
-      [--markdown output/markdown/claude/memories]
+      [--markdown output/markdown/claude/chat/memories]
 """
 import argparse
 import csv
@@ -158,7 +158,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
     ap.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'))
-    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'memories'))
+    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'))
     args = ap.parse_args()
 
     states = memory_states(Path(args.chat_exports_cache))

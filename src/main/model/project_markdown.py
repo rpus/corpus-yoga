@@ -2,7 +2,7 @@
 """
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
-  browser-capture  input/browser-captures/claude/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
+  browser-capture  input/claude/chat/browser-API/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
   bulk-export      cache/chat-exports/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
@@ -14,9 +14,9 @@ invalid/degenerate conversations are rendered honestly and flagged.
 
 Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/model/project_markdown.py \
-    --browser-captures input/browser-captures/claude              # -> output/markdown/claude/conversations/
+    --browser-api input/claude/chat/browser-API              # -> output/markdown/claude/chat/conversations/
   src/run_python_script.sh src/main/model/project_markdown.py \
-    --bulk-export input/chat-exports/<batch>                       # -> cache/chat-exports/<batch>/markdown/
+    --bulk-export input/claude/chat/bulk-export/<batch>                       # -> cache/chat-exports/<batch>/markdown/
 """
 import argparse
 import json
@@ -120,16 +120,16 @@ def write_markdown(named_convs, out_dir):
 def main():
     ap = argparse.ArgumentParser()
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument('--browser-captures', help='dir of <uuid>/ apiConversation capture folders')
+    src.add_argument('--browser-api', help='dir of <uuid>/ apiConversation capture folders')
     src.add_argument('--bulk-export', help='a bulk-export batch dir whose atomised json/ pieces are rendered')
     ap.add_argument('--out', help='output dir (default: cache/<pipeline>/[<batch>/]markdown)')
     args = ap.parse_args()
 
-    if args.browser_captures:
+    if args.browser_api:
         # browser captures: same canonical <ordinal>-<slug> ordering (created_at) as the bulk
         # pieces. Provenance cross-checks against the newest atomised export batch (offline,
         # local — staleness vs claude.ai live stays audit_captures --live's job).
-        apis = [api for d in sorted(p for p in Path(args.browser_captures).iterdir() if p.is_dir())
+        apis = [api for d in sorted(p for p in Path(args.browser_api).iterdir() if p.is_dir())
                 if (api := find_api_json(d)) is not None]
         other = _newest_batch_json()
         other_index = (_msg_index(json.loads(f.read_text()) for f in sorted(other.glob('*.json')))
@@ -140,7 +140,7 @@ def main():
                   f'../summaries/{name}/index.md')
                  for _, name, api in ordered(apis)
                  for lean in (project(api),)]
-        out = Path(args.out) if args.out else REPO / 'output' / 'markdown' / 'claude' / 'conversations'
+        out = Path(args.out) if args.out else REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
     else:
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
         # Provenance cross-checks the other way: against the capture corpus, when present.
@@ -148,11 +148,11 @@ def main():
         json_dir = REPO / 'cache' / 'chat-exports' / batch.name / 'json'
         if not json_dir.is_dir():
             sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
-        captures = REPO / 'input' / 'browser-captures' / 'claude'
+        captures = REPO / 'input' / 'claude' / 'chat' / 'browser-API'
         cap_apis = ([api for d in sorted(p for p in captures.iterdir() if p.is_dir())
                      if (api := find_api_json(d)) is not None] if captures.is_dir() else None)
         other_index = _msg_index(cap_apis) if cap_apis else None
-        other_name = 'input/browser-captures/claude' if cap_apis else None
+        other_name = 'input/claude/chat/browser-API' if cap_apis else None
         # no summaries link here: cache/ stems renumber per batch, so a relative
         # link into output/'s stem-named folders would dangle
         named = ((f.stem, lean, tree_problems(c['chat_messages']),

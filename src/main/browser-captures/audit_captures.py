@@ -28,7 +28,7 @@ Filesystem audit (always) — "are the captures I have any good?"
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/audit_captures.py \
-    [--browser-captures input/browser-captures] [--api output/markdown/claude/conversations] [--live]
+    [--input input] [--api output/markdown/claude/chat/conversations] [--live]
 
 Exit status is non-zero iff anything actionable is found.
 """
@@ -48,7 +48,10 @@ from compare_markdown import classify
 RENDER_CEILING = 10
 
 
-def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
+def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[str]:
+    """Scrapes live under browser-DOM/, api json under browser-API/ — the
+    conversation id is the join. A capture with no scrape is found by that join,
+    not by an empty dir: the DOM root only holds ids that were scraped."""
     suspects = []
     api_md = {}
     for f in api_dir.glob('*.md'):
@@ -56,12 +59,13 @@ def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
         cid = conv_id(text)
         if cid:
             api_md[cid] = text
-    unscraped = unprojected = 0
-    for d in sorted(captures_dir.iterdir()):
+    unprojected = 0
+    scraped = set()
+    for d in sorted(dom_dir.iterdir()) if dom_dir.is_dir() else []:
         mds = sorted(d.glob('*.md')) if d.is_dir() else []
         if not mds:
-            unscraped += 1
             continue
+        scraped.add(d.name)
         s = mds[0].read_text()
         cid = conv_id(s) or d.name
         if cid not in api_md:
@@ -78,14 +82,17 @@ def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
               'or refresh it:')
         print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --scrape --id {uuid}'
               '  # needs Safari logged in; the scrape walk takes minutes')
+    unscraped = sum(1 for d in api_capture_dir.iterdir()
+                    if d.is_dir() and d.name not in scraped) if api_capture_dir.is_dir() else 0
     if unscraped:
-        print(f'claude: {unscraped} capture dir(s) have no scrape .md — optional; the api json is the record')
+        print(f'claude: {unscraped} browser-API capture(s) have no browser-DOM scrape — '
+              'optional; the api json is the record')
     if unprojected:
         print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under output/markdown — '
               'the browser-captures pipeline step project_markdown produces it')
     # show the working even on success: silence was load-bearing here once —
     # a clean audit and a skipped one printed identically (nothing)
-    checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
+    checked = len(scraped)
     print(f'claude: {checked} scrape(s) checked against api projections — '
           + ('all aligned' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
     return [f'{u} ({s}): {k}' for u, s, k in suspects]
@@ -228,40 +235,42 @@ def live_gemini(captures_dir: Path) -> list[str]:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', default='input/browser-captures',
-                    help='captures root containing claude/ and gemini/')
-    ap.add_argument('--api', default='output/markdown/claude/conversations',
+    ap.add_argument('--input', default='input',
+                    help='input root, typed <provider>/<channel>/<capture> — the audit '
+                         'derives claude/chat/browser-{API,DOM} and gemini/chat/browser-DOM')
+    ap.add_argument('--api', default='output/markdown/claude/chat/conversations',
                     help='dir of api-sourced markdown (project_markdown output)')
     ap.add_argument('--live', action='store_true',
                     help='also drive Safari (work tab): claude listing updated_at check; '
                          'gemini listing + rendered-tail checks')
     args = ap.parse_args()
 
-    root = Path(args.browser_captures)
+    root = Path(args.input)
     api_dir = Path(args.api)
+    claude_api = root / 'claude' / 'chat' / 'browser-API'
+    claude_dom = root / 'claude' / 'chat' / 'browser-DOM'
+    gemini_dom = root / 'gemini' / 'chat' / 'browser-DOM'
     suspects = []
 
-    claude_dir = root / 'claude'
-    if claude_dir.is_dir() and api_dir.is_dir():
-        suspects += audit_claude(claude_dir, api_dir)
+    if claude_api.is_dir() and api_dir.is_dir():
+        suspects += audit_claude(claude_dom, claude_api, api_dir)
     else:
-        print(f'claude: skipped ({claude_dir} or {api_dir} absent)')
+        print(f'claude: skipped ({claude_api} or {api_dir} absent)')
 
-    gemini_dir = root / 'gemini'
-    if gemini_dir.is_dir():
-        suspects += audit_gemini(gemini_dir)
+    if gemini_dom.is_dir():
+        suspects += audit_gemini(gemini_dom)
     else:
-        print(f'gemini: skipped ({gemini_dir} absent)')
+        print(f'gemini: skipped ({gemini_dom} absent)')
 
     actionable = []
     if args.live:
         from safari_utils import safari_open_work_tab, safari_close_work_tab
         prev_tab = safari_open_work_tab()
         try:
-            if claude_dir.is_dir():
-                actionable += live_claude(claude_dir)
-            if gemini_dir.is_dir():
-                actionable += live_gemini(gemini_dir)
+            if claude_api.is_dir():
+                actionable += live_claude(claude_api)
+            if gemini_dom.is_dir():
+                actionable += live_gemini(gemini_dom)
         finally:
             safari_close_work_tab(prev_tab)
         for a in actionable:

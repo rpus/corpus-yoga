@@ -49,13 +49,17 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # batch is claude by construction, and the prompt says so).
 chat_list() {
   local src="$1"
-  if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || compgen -G "$src/*/conversations/*.md" > /dev/null; }; then
+  if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || compgen -G "$src/*/*/conversations/*.md" > /dev/null; }; then
     "$REPO_DIR/src/run_python_script.sh" -c "
 import sys
 sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
 for n, stem, title, cid in corpus_index('$src'):
-    source = stem.split('/')[0] if '/' in stem else ('claude' if len(cid) == 36 else 'gemini')
+    # stem is <provider>/<channel>/<file> at a corpus root; the marker keeps its
+    # historical vocabulary (claude | gemini | code) — 'code' names the channel
+    parts = stem.split('/')
+    source = ('code' if len(parts) == 3 and parts[1] == 'code' else parts[0]) \
+        if len(parts) > 1 else ('claude' if len(cid) == 36 else 'gemini')
     print(f'{n} [{source}]: {title}')
 "
   else
@@ -244,7 +248,7 @@ status() {
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
-# The corpus itself: output/markdown/claude/conversations — the projected
+# The corpus itself: output/markdown/claude/chat/conversations — the projected
 # markdownConversation corpus, source-agnostic by construction (whatever projects
 # into it — captures today, gemini tomorrow — is what the model reads), and the
 # very thing the dashboard describes. Its filenames carry ordered()'s canonical

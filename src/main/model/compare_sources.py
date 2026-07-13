@@ -21,8 +21,8 @@ sets the exit status.
 
 Usage:
   src/run_python_script.sh src/main/model/compare_sources.py \
-    --browser-captures input/browser-captures/claude \
-    --bulk-export input/chat-exports/<batch> [--diff]
+    --browser-api input/claude/chat/browser-API \
+    --bulk-export input/claude/chat/bulk-export/<batch> [--diff]
 
 Exit status is non-zero iff any shared conversation's TRANSCRIPT differs.
 """
@@ -74,12 +74,12 @@ def bulk_by_uuid(batch_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', required=True, help='dir of <uuid>/ capture folders')
+    ap.add_argument('--browser-api', required=True, help='dir of <uuid>/ capture folders')
     ap.add_argument('--bulk-export', required=True, help='a bulk-export batch dir (reads its atomised json/ pieces)')
     ap.add_argument('--diff', action='store_true', help='print full per-conversation unified diffs')
     args = ap.parse_args()
 
-    api, api_names, api_summ = api_by_uuid(args.browser_captures)
+    api, api_names, api_summ = api_by_uuid(args.browser_api)
     bulk, bulk_names, bulk_summ = bulk_by_uuid(args.bulk_export)
     shared = set(api) & set(bulk)
 

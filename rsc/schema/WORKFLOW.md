@@ -27,9 +27,9 @@ hints to see the exact error before changing the schema.
 ### 1. Identify the failure
 
 ```bash
-src/main/browser-captures/claude/validate.sh --browser-capture input/browser-captures/claude/<uuid>
-src/main/chat-exports/validate.sh      --chat-export   input/chat-exports/<batch>
-src/main/code-agents/RUNME.sh        --code-agent  input/code-agents/<room>/<project>
+src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
+src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
+src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<room>/<project>
 ```
 
 (code-agents converts each `.jsonl` before validating, so its runnable unit is the
@@ -71,9 +71,9 @@ src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_sche
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-captures input/browser-captures/claude
-src/main/chat-exports/RUNME.sh     --chat-exports     input/chat-exports
-src/main/code-agents/RUNME.sh    --code-agents    input/code-agents
+src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
+src/main/chat-exports/RUNME.sh     --chat-exports     input/claude/chat/bulk-export
+src/main/code-agents/RUNME.sh    --code-agents    input/claude/code/machine-transport
 ```
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`

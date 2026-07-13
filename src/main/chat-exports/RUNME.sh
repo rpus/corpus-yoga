@@ -2,8 +2,8 @@
 # Run the chat-exports pipeline against one or all exports.
 #
 # Usage:
-#   ./src/main/chat-exports/RUNME.sh --chat-export  input/chat-exports/data-<...>
-#   ./src/main/chat-exports/RUNME.sh --chat-exports input/chat-exports
+#   ./src/main/chat-exports/RUNME.sh --chat-export  input/claude/chat/bulk-export/data-<...>
+#   ./src/main/chat-exports/RUNME.sh --chat-exports input/claude/chat/bulk-export
 #   ./src/main/chat-exports/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (run_one, run_tail) are the ONE authority on order:
@@ -52,7 +52,7 @@ run_one() {
   # forcing full revalidation every run. (The paid captures are out of reach either
   # way — they live in output/dashboard/, not under cache/.)
   local have_captures="0"
-  if [[ -d "$REPO_DIR/input/browser-captures/claude" ]]; then have_captures="1"; fi
+  if [[ -d "$REPO_DIR/input/claude/chat/browser-API" ]]; then have_captures="1"; fi
 
   step validate           "$SCRIPT_DIR/validate.sh" --chat-export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
@@ -81,21 +81,21 @@ run_one() {
   step_if_ok "$have_captures" 'when live captures exist' \
        compare_sources    "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/compare_sources.py" \
-    --browser-captures "$REPO_DIR/input/browser-captures/claude" --bulk-export "$batch"
+    --browser-api "$REPO_DIR/input/claude/chat/browser-API" --bulk-export "$batch"
 }
 
 run_tail() {
   # accumulate_memories: every distinct memory state deposits into the durable
   # output/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
   # is mutable and lossy between exports, and bulk exports are its only log) and the
-  # timeline renders to output/markdown/claude/memories/. A deposited state is the
+  # timeline renders to output/markdown/claude/chat/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
   step accumulate_memories "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/accumulate_memories.py"
   # accumulate_summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
   # refresh in place), so every distinct reading deposits into
-  # output/markdown/claude/summaries/<conversation>/ (export-snapshot-time-keyed,
+  # output/markdown/claude/chat/summaries/<conversation>/ (export-snapshot-time-keyed,
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
   step accumulate_summaries "$REPO_DIR/src/run_python_script.sh" \
@@ -111,11 +111,11 @@ run_tail() {
   # a fact, not an error.
   step_ok compare_batches  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_batches.py" \
-    --chat-exports-cache "$CACHE_DIR" --captures "$REPO_DIR/input/browser-captures/claude"
+    --chat-exports-cache "$CACHE_DIR" --browser-api "$REPO_DIR/input/claude/chat/browser-API"
 }
 
 print_plan() {
-  echo "chat-exports steps — per batch (input/chat-exports/data-*/ in name order):"
+  echo "chat-exports steps — per batch (input/claude/chat/bulk-export/data-*/ in name order):"
   run_one '<batch>'
   echo "then once, after all batches:"
   run_tail

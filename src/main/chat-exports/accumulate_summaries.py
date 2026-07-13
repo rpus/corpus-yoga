@@ -12,8 +12,8 @@ conversation), each distinct reading is deposited once, durably, so batches and
 captures may churn while no reading is ever lost — and compare_batches' summaries
 component recognises the deposits as its unconditional licence.
 
-Layout (output/markdown/claude/summaries/):
-  <conversation-stem>/          # stem matches output/markdown/claude/conversations/<stem>.md;
+Layout (output/markdown/claude/chat/summaries/):
+  <conversation-stem>/          # stem matches output/markdown/claude/chat/conversations/<stem>.md;
                                 # renamed when ordinals renumber (the index's uuid is the key)
     index.md                    # the map: uuid, conversation link, one line per reading
     <export-ts>.md              # a distinct reading, verbatim, named by the FIRST export
@@ -28,9 +28,9 @@ from the local corpora — L1: re-running is silence on disk.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \\
-      [--chat-exports-cache cache/chat-exports] [--captures input/browser-captures/claude] \\
-      [--conversations-output output/markdown/claude/conversations] \\
-      [--summaries-output output/markdown/claude/summaries]
+      [--chat-exports-cache cache/chat-exports] [--browser-api input/claude/chat/browser-API] \\
+      [--conversations-output output/markdown/claude/chat/conversations] \\
+      [--summaries-output output/markdown/claude/chat/summaries]
 """
 import argparse
 import json
@@ -121,17 +121,17 @@ def index_text(uuid, stem, title, deposit_names):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
-    ap.add_argument('--captures', default=str(REPO / 'input' / 'browser-captures' / 'claude'))
+    ap.add_argument('--browser-api', default=str(REPO / 'input' / 'claude' / 'chat' / 'browser-API'))
     ap.add_argument('--conversations-output',
-                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'conversations'))
+                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'))
     ap.add_argument('--summaries-output',
-                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'summaries'))
+                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries'))
     args = ap.parse_args()
 
     root = Path(args.summaries_output)
     stems = stems_by_uuid(Path(args.conversations_output))
     readings = readings_by_uuid(Path(args.chat_exports_cache))
-    captured = capture_summaries(Path(args.captures))
+    captured = capture_summaries(Path(args.browser_api))
 
     # existing folders by their index's uuid — the rename key across renumberings
     existing = {}

@@ -5,9 +5,15 @@ safari_capture.py — Capture conversations from claude.ai or gemini.google.com 
 One script, dispatched on --agent. Each agent declares what it can capture:
   claude : api=True  (fetch the apiConversation JSON — the reliable source), scrape opt-in
   gemini : api=False, scrape=True (no API; the DOM scrape is the only source)
---scrape additionally runs the DOM scrape for an api agent (Claude), saving markdown alongside the
-JSON so compare_markdown can check the projection against it. Claude's scrape is otherwise retired
-(slow, brittle, redundant — markdown is derived from the JSON by project_markdown).
+--scrape additionally runs the DOM scrape for an api agent (Claude) so compare_markdown can check
+the projection against it. Claude's scrape is otherwise retired (slow, brittle, redundant —
+markdown is derived from the JSON by project_markdown).
+
+Each mechanism deposits under its own root — the capture axis of the corpus type
+system (input/<provider>/<channel>/<capture>/):
+  browser-API : input/<agent>/chat/browser-API/<id>/<id>.json     (claude only)
+  browser-DOM : input/<agent>/chat/browser-DOM/<id>/<title>.md    (+ gemini's ordering.txt)
+The same conversation id names the capture dir under both roots — the id is the join.
 
 Discovery (the conversation-id listing) is shared: navigate to the agent's listing URL and scroll.
 
@@ -24,9 +30,9 @@ Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --agent claude            --browser-captures input/browser-captures/claude
-    python safari_capture.py --agent claude --scrape   --browser-captures input/browser-captures/claude
-    python safari_capture.py --agent gemini --id <id>  --browser-captures input/browser-captures/gemini
+    python safari_capture.py --agent claude            [--browser-api  input/claude/chat/browser-API]
+    python safari_capture.py --agent claude --scrape   [--browser-dom  input/claude/chat/browser-DOM]
+    python safari_capture.py --agent gemini --id <id>  [--browser-dom  input/gemini/chat/browser-DOM]
 """
 import argparse
 import json
@@ -79,7 +85,7 @@ AGENTS = {
 }
 
 
-def write_ordering(cfg, ids, captures_root):
+def write_ordering(cfg, ids, dom_root):
     """Persist the discovery listing as the ordering CAPTURE, ordering.txt —
     gemini only (cfg['ordering_capture']): the web-UI lists newest-first by
     edit time, reversed here to ascending so line N is conversation N,
@@ -88,7 +94,7 @@ def write_ordering(cfg, ids, captures_root):
     Consumed by copy_gemini_markdown for NN- naming."""
     if not cfg.get('ordering_capture') or not ids:
         return
-    out = captures_root / 'ordering.txt'
+    out = dom_root / 'ordering.txt'
     header = (
         '# gemini conversation ordering — a CAPTURE of the web-UI listing (gemini.google.com/app),\n'
         '# reversed to ascending: the UI lists newest-first by edit time, so line N here is\n'
@@ -265,7 +271,7 @@ def ids_from_safari(cfg):
     return ids
 
 
-def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
+def capture_all(agent, ids, api_root, dom_root, navigate=True, also_scrape=False):
     cfg = AGENTS[agent]
     do_api = cfg['api']
     do_scrape = cfg['scrape'] or also_scrape
@@ -283,9 +289,14 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
     failed = []
     for i, conv_id in enumerate(ids):
         print(f'[{i+1}/{len(ids)}] {conv_id}')
-        out_dir = captures_root / conv_id
-        out_dir.mkdir(parents=True, exist_ok=True)
-        had_md = any(out_dir.glob('*.md'))
+        # one dir per mechanism, both named by the conversation id (the join key);
+        # created only for the mechanism(s) this run performs — no empty twins
+        api_dir = api_root / conv_id if do_api else None
+        dom_dir = dom_root / conv_id if do_scrape else None
+        for d in (api_dir, dom_dir):
+            if d is not None:
+                d.mkdir(parents=True, exist_ok=True)
+        had_md = any(dom_dir.glob('*.md')) if dom_dir is not None else False
         if navigate:
             safari_navigate(cfg['chat_url'].format(id=conv_id))
         start = time.time()
@@ -294,7 +305,7 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
             if navigate:
                 wait_for_url(conv_id)
                 time.sleep(SETTLE_PAUSE)
-            j = fetch_api(conv_id, out_dir)
+            j = fetch_api(conv_id, api_dir)
             if j:
                 files.append(j)
         if do_scrape:
@@ -303,7 +314,7 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
                 if not wait_for_ready(cfg['ready_sel']):
                     print(f'  not rendered after {READY_TIMEOUT}s — scraping anyway (likely to fail)')
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
-            files += scrape_one(out_dir, js_script, scrape_log_dir) or []
+            files += scrape_one(dom_dir, js_script, scrape_log_dir) or []
         print(f'  done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}')
         fatal, note = outcome(do_api, do_scrape, files, had_md)
         if note:
@@ -328,8 +339,10 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
-    ap.add_argument('--browser-captures', default=None,
-                    help='Path to input/browser-captures/<agent>/ (default: repo-relative)')
+    ap.add_argument('--browser-api', default=None,
+                    help='browser-API root (default: input/<agent>/chat/browser-API; claude only)')
+    ap.add_argument('--browser-dom', default=None,
+                    help='browser-DOM root (default: input/<agent>/chat/browser-DOM)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -344,8 +357,13 @@ def main():
             print(f'Error: {js_script} not found', file=sys.stderr)
             raise SystemExit(1)
 
-    captures_root = Path(args.browser_captures or REPO_DIR / 'input' / 'browser-captures' / args.agent).resolve()
-    captures_root.mkdir(parents=True, exist_ok=True)
+    # one root per mechanism this agent performs; dirs appear only when captured into
+    api_root = Path(args.browser_api or REPO_DIR / 'input' / args.agent / 'chat' / 'browser-API').resolve()
+    dom_root = Path(args.browser_dom or REPO_DIR / 'input' / args.agent / 'chat' / 'browser-DOM').resolve()
+    if cfg['api']:
+        api_root.mkdir(parents=True, exist_ok=True)
+    if cfg['scrape'] or args.scrape:
+        dom_root.mkdir(parents=True, exist_ok=True)
 
     if args.id:
         # Single capture. If the front tab already shows the conversation, capture it in
@@ -356,11 +374,11 @@ def main():
         # navigating path), never trusted.
         front_url = osascript('tell application "Safari" to get URL of front document')
         if args.id in front_url:
-            failed = capture_all(args.agent, [args.id], captures_root, navigate=False, also_scrape=args.scrape)
+            failed = capture_all(args.agent, [args.id], api_root, dom_root, navigate=False, also_scrape=args.scrape)
         else:
             prev_tab = safari_open_work_tab()
             try:
-                failed = capture_all(args.agent, [args.id], captures_root,
+                failed = capture_all(args.agent, [args.id], api_root, dom_root,
                                      navigate=True, also_scrape=args.scrape)
             finally:
                 safari_close_work_tab(prev_tab)
@@ -370,8 +388,8 @@ def main():
         prev_tab = safari_open_work_tab()
         try:
             ids = ids_from_safari(cfg)
-            write_ordering(cfg, ids, captures_root)
-            failed = capture_all(args.agent, ids, captures_root,
+            write_ordering(cfg, ids, dom_root)
+            failed = capture_all(args.agent, ids, api_root, dom_root,
                                  navigate=True, also_scrape=args.scrape)
         finally:
             safari_close_work_tab(prev_tab)

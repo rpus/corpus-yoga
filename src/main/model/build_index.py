@@ -127,14 +127,17 @@ def turns_of(md: str):
 
 
 def scan(markdown_root: Path):
-    """[(source, stem, relpath, turns)] across the corpus, in listing order."""
+    """[(source, stem, relpath, turns)] across the corpus, in listing order.
+    The book index covers the chat channel of each provider (code sessions are
+    corpus but not book — unchanged since the fused layout, where code/ was
+    likewise unscanned)."""
     corpus = []
     for source in ('claude', 'gemini'):
-        d = markdown_root / source / 'conversations'
+        d = markdown_root / source / 'chat' / 'conversations'
         if not d.is_dir():
             continue
         for f in sorted(d.glob('*.md')):
-            corpus.append((source, f.stem, f'{source}/conversations/{f.name}',
+            corpus.append((source, f.stem, f'{source}/chat/conversations/{f.name}',
                            turns_of(f.read_text())))
     return corpus
 

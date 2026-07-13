@@ -40,7 +40,7 @@ and each batch's report names the evidence per component — the WITNESSES
 witness's own retention; diachronic appending is checked per pair, never
 assumed) and the unconditional DEPOSITS that outlive every batch: for
 memories, the byte-identical copy in output/memories; for summaries, every
-reading held verbatim in output/markdown/claude/summaries
+reading held verbatim in output/markdown/claude/chat/summaries
 (accumulate_summaries.py). A component with no witness and no deposit is
 unique data — a loud WARN, and the batch is not deletable until it is
 deposited or superseded. Verdicts describe what exists
@@ -57,7 +57,7 @@ resurrecting it.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
-    [--chat-exports-cache cache/chat-exports] [--chat-exports input/chat-exports]
+    [--chat-exports-cache cache/chat-exports] [--bulk-exports input/claude/chat/bulk-export]
 
 Requires the batches' atomised json/ (written by the chat-exports pipeline);
 memories/projects/users are read from the batch's cache/ archive copies (written
@@ -319,21 +319,21 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--chat-exports-cache', default='cache/chat-exports',
                     help='cache root holding <batch>/json/ atomised pieces')
-    ap.add_argument('--chat-exports', default='input/chat-exports',
+    ap.add_argument('--bulk-exports', default='input/claude/chat/bulk-export',
                     help='input root holding the raw batch dirs (memories/projects/users)')
-    ap.add_argument('--captures', default=None,
-                    help='input/browser-captures/claude — also compare the latest batch '
+    ap.add_argument('--browser-api', default=None,
+                    help='input/claude/chat/browser-API — also compare the latest batch '
                          'against the live-capture corpus, per conversation (informational)')
     ap.add_argument('--memories-output', default='output/memories',
                     help='the deposit store — a byte-identical deposit is the '
                          'unconditional memories licence')
-    ap.add_argument('--summaries-output', default='output/markdown/claude/summaries',
+    ap.add_argument('--summaries-output', default='output/markdown/claude/chat/summaries',
                     help='the summary-reading deposit store (accumulate_summaries.py) — '
                          'a verbatim deposit is the unconditional summaries licence')
     args = ap.parse_args()
 
     root = Path(args.chat_exports_cache)
-    ext_root = Path(args.chat_exports)
+    ext_root = Path(args.bulk_exports)
     batches = sorted((d for d in root.glob('data-*') if (d / 'json').is_dir()),
                      key=lambda d: (batch_time(d.name) or datetime.min.replace(tzinfo=timezone.utc)))
     unparseable = [d.name for d in batches if batch_time(d.name) is None]
@@ -430,8 +430,8 @@ def main():
             print(f'    → run: rm -r {_rel(ext_root / b.name)} {_rel(b)}')
     sufficient = covered_all
 
-    if args.captures and Path(args.captures).is_dir():
-        compare_vs_captures(latest, latest_units['conversations'], None, Path(args.captures))
+    if args.browser_api and Path(args.browser_api).is_dir():
+        compare_vs_captures(latest, latest_units['conversations'], None, Path(args.browser_api))
 
     return 0 if sufficient else 1
 

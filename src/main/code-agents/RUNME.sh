@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Convert and validate Claude Code CLI session transcripts, from the STORE.
 #
-# The pipeline sources input/code-agents — the repo-owned, medium-carried store
+# The pipeline sources input/claude/code/machine-transport — the repo-owned, medium-carried store
 # (<room>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
 # the harness-owned ~/.claude/projects, which Anthropic expires at will.
 # `yoga agent capture --all` is the capture step that populates the store
 # from the live projects root; run it early and often.
 #
 # Usage:
-#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/code-agents/<room>/<project>
-#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/code-agents
+#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<room>/<project>
+#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/claude/code/machine-transport
 #   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (room_housekeeping, run_one, run_memory, corpus) are the
@@ -46,7 +46,7 @@ parse_args() {
     echo "       $0 --code-agents <path/to/store-root>"
     echo
     echo "  project-directory: a room's project under the store, e.g.:"
-    echo "    input/code-agents/<room>/\$(pwd | tr '/' '-')"
+    echo "    input/claude/code/machine-transport/<room>/\$(pwd | tr '/' '-')"
     echo "Pass --help for more information."
     exit 1
   fi
@@ -166,7 +166,7 @@ main() {
   fi
 
   if [[ ! -d "$code_projects" ]]; then
-    echo "no store at $code_projects (hand-make input/code-agents as a symlink to the shared store;"
+    echo "no store at $code_projects (hand-make input/claude/code/machine-transport as a symlink to the shared store;"
     echo "populate it via: ./yoga agent capture --all)"
     exit 0
   fi

@@ -10,7 +10,7 @@ and git-ignored: each datum directory under `cache/` carries a `matrix.md` besid
 
 Inaugural version, minted 2026-07-11 from the two local projects carrying a
 `memory/` directory. The family models a project's whole memory state as one
-datum: `memory_to_json.py` parses `input/code-agents/<room>/<project>/memory/` —
+datum: `memory_to_json.py` parses `input/claude/code/machine-transport/<room>/<project>/memory/` —
 the `MEMORY.md` index plus one frontmattered markdown file per fact — into
 `cache/code-agents/<room>/<project>/memory/memory.json`. Facts carry identity
 (`name`), classification (`metadata`), body, and extracted `[[link]]` targets;

@@ -108,7 +108,7 @@ per-corpus code.
   folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
   re-dressed by its room and links following, the index unioning by
-  novelty-append). Transported agents live in the shared STORE (`input/code-agents`, one
+  novelty-append). Transported agents live in the shared STORE (`input/claude/code/machine-transport`, one
   hand-made symlink per machine), keyed room-then-project under the ORIGIN room's name — the
   `self.txt` binding in `rsc/machines/` — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
@@ -139,7 +139,7 @@ per-corpus code.
   oracle is stochastic or the source ephemeral — so a capture is PRECIOUS
   (deposited durably, never disposable) and homed by vettability: `output/dashboard/`
   and `output/indexing/` for the corpus readings (durable, corpus-derived, shared
-  across rooms with the rest of `output/`); `input/browser-captures/` when large and
+  across rooms with the rest of `output/`); the `input/` browser-capture roots when large and
   private; `output/memories/` when a versioned deposit. And *curation is capture of a
   user decision* — the same act with a human oracle (`output/indexing/accepted.txt`,
   `output/indexing/rejected.txt`), which is why they sit beside the model's readings in

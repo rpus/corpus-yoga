@@ -21,7 +21,7 @@ render time, rather than writing per-datum `vN.log` files under `cache/`
   re-read differently across snapshots (№99: capture vs export, identical
   `updated_at`) — so it is carried as data, never body-rendered:
   `accumulate_summaries.py` deposits each distinct reading durably under
-  `output/markdown/claude/summaries/` (the memories pattern, per conversation), the
+  `output/markdown/claude/chat/summaries/` (the memories pattern, per conversation), the
   body's source list links each conversation's deposit index, and `compare_sources`
   reports cross-source summary drift as its own non-gating category.
 

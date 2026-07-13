@@ -3,7 +3,7 @@
 render_corpus.py — render every projected session conversation
 (cache/code-agents/<room>/<project>/<session>/conversation.json, the
 sessionConversation data) into the served corpus:
-output/markdown/code/conversations/<ordinal>-<slug>.md. Rooms dedupe: the same
+output/markdown/claude/code/conversations/<ordinal>-<slug>.md. Rooms dedupe: the same
 session held by several rooms renders once, from its maximal copy.
 
 The code source joins the corpus exactly as claude and gemini do: files carry
@@ -60,7 +60,7 @@ def render_session(conv):
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='render session conversations into the corpus')
-    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'code' / 'conversations'))
+    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'claude' / 'code' / 'conversations'))
     args = ap.parse_args()
     out = Path(args.out)
 

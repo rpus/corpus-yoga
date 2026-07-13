@@ -8,7 +8,7 @@ pipeline (its validation/derivation tree) or an out-of-band command (its
 output). A path under cache/ that is neither an owned subtree, nor inside one,
 nor an ancestor of one (a parent kept only to reach owned children) is
 RESIDUE: a former output whose producer moved or was renamed — e.g. the
-projected markdown that moved to output/markdown/claude/conversations, orphaning
+projected markdown that moved to output/markdown/claude/chat/conversations, orphaning
 cache/browser-captures/markdown; or a cache/<old-name>/ left by a pipeline rename.
 
 "Not written AND not read" is the criterion — coverage by the machinery in

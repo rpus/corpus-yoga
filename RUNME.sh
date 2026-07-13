@@ -3,11 +3,11 @@
 #
 # Runs three pipelines against their sibling input directories:
 #
-#   chat-exports     input/chat-exports/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
-#   code-agents      input/code-agents/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
+#   chat-exports     input/claude/chat/bulk-export/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
+#   code-agents      input/claude/code/machine-transport/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
 #                                           populated by `yoga agent capture --all` — the pipeline never reads
 #                                           the harness-owned ~/.claude/projects)
-#   browser-captures input/browser-captures/  Per-conversation captures (written by --capture-from-browser):
+#   browser-captures input/<provider>/chat/browser-{API,DOM}/  Per-conversation captures (written by --capture-from-browser):
 #                                           claude/ live API JSON (validated + projected to markdown);
 #                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
 #
@@ -185,13 +185,13 @@ main() {
   local -a pipeline_failures=()
 
   [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures ${new_claude_scrape:+"$new_claude_scrape"}
-  run_pipeline_safe  browser-captures "$SCRIPT_DIR/input/browser-captures/claude" ${new_claude_scrape:+"$new_claude_scrape"}
+  run_pipeline_safe  browser-captures "$SCRIPT_DIR/input/claude/chat/browser-API" ${new_claude_scrape:+"$new_claude_scrape"}
 
   prep_pipeline_safe chat-exports
-  run_pipeline_safe  chat-exports "$SCRIPT_DIR/input/chat-exports"
+  run_pipeline_safe  chat-exports "$SCRIPT_DIR/input/claude/chat/bulk-export"
 
   prep_pipeline_safe code-agents
-  run_pipeline_safe  code-agents "$SCRIPT_DIR/input/code-agents"
+  run_pipeline_safe  code-agents "$SCRIPT_DIR/input/claude/code/machine-transport"
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
   # The tail carries SUMMARIES only — the body already marks each fact at its
@@ -229,9 +229,9 @@ main() {
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
-        "browser-captures (prep)") echo "    → check input/browser-captures/claude/ and Safari setup" ;;
-        "chat-exports (prep)")   echo "    → populate input/chat-exports/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
-        "code-agents (prep)")  echo "    → check input/code-agents/ (the store) and input/code-projects/ (transport's source) symlinks" ;;
+        "browser-captures (prep)") echo "    → check input/claude/chat/browser-API/ and Safari setup" ;;
+        "chat-exports (prep)")   echo "    → populate input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
+        "code-agents (prep)")  echo "    → check input/claude/code/machine-transport/ (the store) and input/claude-code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done

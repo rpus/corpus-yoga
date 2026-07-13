@@ -139,7 +139,7 @@ def render(conv, frontmatter=None, summaries_link=None):
 def corpus_index(md_dir):
     """[(ordinal, stem, title, id)] for a projected conversation corpus — the format
     authority reading back what it wrote. `md_dir` is either ONE conversations dir
-    (output/markdown/claude/conversations) or the corpus root (output/markdown), whose
+    (output/markdown/claude/chat/conversations) or the corpus root (output/markdown), whose
     <source>/conversations dirs are combined: claude first (canonical), other
     sources appended alphabetically, ordinals a fresh 1..N enumeration (prompt-local
     presentation — for claude alone it coincides with the filename ordinals, which
@@ -151,10 +151,15 @@ def corpus_index(md_dir):
     same corpus the dashboard describes, whole batches nowhere involved."""
     root = Path(md_dir)
     # corpus-root detection FIRST: output/markdown legitimately holds *.md of its own
-    # (index.md, the book index), so the presence of <source>/conversations dirs is
-    # what marks a root; a bare dir of conversation files is the single-source case
-    subs = sorted((d for d in root.glob('*/conversations') if any(d.glob('*.md'))),
-                  key=lambda d: (d.parent.name != 'claude', d.parent.name))
+    # (index.md, the book index), so the presence of <provider>/<channel>/conversations
+    # dirs is what marks a root; a bare dir of conversation files is the single-source
+    # case. Order: claude first (canonical), then alphabetical; channels alphabetical
+    # within a provider (chat before code) — the same corpus sequence the fused
+    # layout produced (claude, claude×code, gemini), so ordinals are stable across
+    # the unfusing.
+    subs = sorted((d for d in root.glob('*/*/conversations') if any(d.glob('*.md'))),
+                  key=lambda d: (d.parent.parent.name != 'claude',
+                                 d.parent.parent.name, d.parent.name))
     dirs = list(subs) if subs else [root]
     out, n = [], 0
     for d in dirs:
@@ -166,7 +171,8 @@ def corpus_index(md_dir):
             cid = conv_id(head)
             if t and cid:
                 n += 1
-                stem = f'{d.parent.name}/{f.stem}' if len(dirs) > 1 else f.stem
+                stem = (f'{d.parent.parent.name}/{d.parent.name}/{f.stem}'
+                        if len(dirs) > 1 else f.stem)
                 out.append((n, stem, t.group(1), cid))
     return out
 

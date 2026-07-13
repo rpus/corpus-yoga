@@ -16,7 +16,7 @@ no meta records, no tool-result carriers), each reduced to its visible text; a
 record whose projection is empty contributes no turn. Roles use the corpus
 vocabulary (`human`/`assistant`, matching `browser-captures/markdownConversation`)
 because this shape is the projection source for the session corpus render under
-`output/markdown/code/conversations/`.
+`output/markdown/claude/code/conversations/`.
 
 Evidence notes:
 

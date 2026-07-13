@@ -4,7 +4,7 @@ atomise_bulk.py — Split a bulk export's conversations.json (one big array) int
 per-conversation JSON files, one per Conversation, each validated against the Conversation
 definition in the latest conversations schema (inner-ref; no separate/duplicated schema).
 
-  input/chat-exports/<batch>/conversations.json  -->  cache/chat-exports/<batch>/json/<ordinal>-<slug>.json
+  input/claude/chat/bulk-export/<batch>/conversations.json  -->  cache/chat-exports/<batch>/json/<ordinal>-<slug>.json
 
 This is the ONLY reader of the 24 MB array. Everything downstream consumes the per-conversation
 pieces instead: project_markdown.py renders them to markdown/, compare_sources.py cross-checks
@@ -16,7 +16,7 @@ conversation <ordinal> all correspond, and a plain filesystem sort is conversati
 
 Usage (output defaults per batch; --out overrides):
   src/run_python_script.sh src/main/chat-exports/atomise_bulk.py \
-    --bulk-export input/chat-exports/<batch>            # -> cache/chat-exports/<batch>/json/
+    --bulk-export input/claude/chat/bulk-export/<batch>            # -> cache/chat-exports/<batch>/json/
 """
 import argparse
 import json

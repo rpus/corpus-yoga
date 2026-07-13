@@ -18,13 +18,13 @@ human act — recorded in-folder rather than blocking the transport ("hone,
 not clone": the twins are the fork, made visible). Re-running either
 direction on an unchanged pair is silence (L1).
 
-Rooms and projects: transported agents live in the STORE — input/code-agents,
+Rooms and projects: transported agents live in the STORE — input/claude/code/machine-transport,
 a hand-made symlink on each machine to the same medium — keyed
 <room>/<project>/<session>.jsonl + <room>/<project>/<session-uuid>/ (the
 eponymous workspace: subagent transcripts and persisted tool-results the log
 REFERENCES, moved with log semantics per file) + <room>/<project>/memory/.
 Provenance is spatial and sender-declared: capture takes no destination —
-it mirrors EVERY project in the projects root into input/code-agents/<own
+it mirrors EVERY project in the projects root into input/claude/code/machine-transport/<own
 room>/, the room read from the self.txt binding beside the manifests
 (rsc/machines/) — and receive --from names the peer room(s) whose sessions
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
@@ -33,13 +33,13 @@ capture MIRRORS each project's memory (updated in place, absentees
 removed); every merge subtlety lives in receive, where two agents actually
 meet.
 
-The projects root is input/code-projects (PREP.sh's symlink to the Claude Code
+The projects root is input/claude-code-projects (PREP.sh's symlink to the Claude Code
 projects folder) — HARNESS-OWNED state that Anthropic expires at will. The
 doctrine: capture is the one READER of it — sweep early, sweep often; receive is the one WRITER of it, and only ever by a user's
 explicit --apply, never a pipeline's. The pipelines source from the store,
 which the repo owns and the medium carries.
 
-input/code-agents is a git ORIGIN in all but name, and exactly so for append-only
+input/claude/code/machine-transport is a git ORIGIN in all but name, and exactly so for append-only
 artifacts: a session log contains every prior state of itself as a byte
 prefix, so the latest copy IS the whole history and place_log's prefix check
 is a fast-forward gate — no commit chain needed, a dumb file store suffices.
@@ -84,7 +84,7 @@ The endpoint asymmetry is the model, not an accident: capture takes NO
 destination — it pushes this room's own ref, the only legal one
 (single-writer branches) — so --to is purely a scratch/test escape hatch and
 takes a bare directory, never a room name. receive must NAME its source ref:
-a peer room under input/code-agents, or (the same scratch affordance, symmetric) a
+a peer room under input/claude/code/machine-transport, or (the same scratch affordance, symmetric) a
 directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a room, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
@@ -115,8 +115,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
-PROJECTS = REPO / 'input' / 'code-projects'
-AGENTS_DIR = REPO / 'input' / 'code-agents'
+PROJECTS = REPO / 'input' / 'claude-code-projects'
+AGENTS_DIR = REPO / 'input' / 'claude' / 'code' / 'machine-transport'
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the room binding
 from machine import bound_room  # noqa: E402
@@ -133,10 +133,10 @@ def _sha_lines(text: str) -> str:
 
 
 def own_outbox() -> Path:
-    """The remote this machine writes: input/code-agents/<its self.txt binding>.
-    input/code-agents itself is hand-made; the room's subdirectory inside it is ours."""
+    """The remote this machine writes: input/claude/code/machine-transport/<its self.txt binding>.
+    input/claude/code/machine-transport itself is hand-made; the room's subdirectory inside it is ours."""
     if not AGENTS_DIR.is_dir():
-        sys.exit('error: input/code-agents missing — hand-make it as a symlink to the '
+        sys.exit('error: input/claude/code/machine-transport missing — hand-make it as a symlink to the '
                  'shared store (one subdirectory per room name, projects nested within)')
     out = AGENTS_DIR / bound_room()
     out.mkdir(exist_ok=True)
@@ -145,18 +145,18 @@ def own_outbox() -> Path:
 
 def peer_bundle(name: str) -> Path:
     """A source for receive: a ROOM NAME or a DIRECTORY, distinguished by shape,
-    never by lookup — rooms are names (bare tokens, resolved under input/code-agents,
+    never by lookup — rooms are names (bare tokens, resolved under input/claude/code/machine-transport,
     loud error if absent), places are paths (anything containing '/' or starting
     '~'; a scratch dir beside you is spelled ./like-this). A bare token never
     consults the CWD, so what a command means cannot depend on where you stand
     (the old heuristic tried the CWD first: a local folder named like a room
-    silently shadowed the room's directory under input/code-agents)."""
+    silently shadowed the room's directory under input/claude/code/machine-transport)."""
     if '/' in name or name.startswith('~'):
         return Path(name).expanduser()
     room = AGENTS_DIR / name
     if not room.is_dir():
         rooms = sorted(d.name for d in AGENTS_DIR.iterdir() if d.is_dir()) if AGENTS_DIR.is_dir() else []
-        sys.exit(f"error: no input/code-agents/{name}/ — rooms present: "
+        sys.exit(f"error: no input/claude/code/machine-transport/{name}/ — rooms present: "
                  f"{', '.join(rooms) or '(none)'} "
                  f"(a directory source is path-shaped: ./{name})")
     return room
@@ -275,7 +275,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
     copy (novelty); identical → skip; the incoming extends the local
     (byte-prefix) → superseded in place (an appendix); true divergence → BOTH
     kept, the incoming fact re-dressed as <stem>.<room>.md — room is the
-    sender's ADDRESS under input/code-agents, sender-declared — with its [[links]]
+    sender's ADDRESS under input/claude/code/machine-transport, sender-declared — with its [[links]]
     following (nothing lost, nothing silently overwritten, nothing blocking —
     reconciliation stays a human act, recorded in-folder). MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
@@ -394,7 +394,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, room: str) -> int:
 
 def list_agents() -> int:
     """The sidebar-independent census: every session in this machine's project
-    and in each room's store dir under input/code-agents, dressed with its LAST
+    and in each room's store dir under input/claude/code/machine-transport, dressed with its LAST
     ai-title record — the title history rides the log, so this works
     identically on live and transported sessions, and the dressing is derived on demand,
     never stored (L5). Framing on stderr; data lines on stdout (pipeable)."""
@@ -428,7 +428,7 @@ def list_agents() -> int:
 def model_census() -> int:
     """Aggregate message.model over every "type":"assistant" record across ALL
     coding sessions in this machine's projects root — every project, main
-    sessions and their subagents. The copies under input/code-agents are of sessions
+    sessions and their subagents. The copies under input/claude/code/machine-transport are of sessions
     counted here (or in their origin room), so they are not counted. The model is a
     per-RECORD fact, so a mid-session switch — elective /model or forced
     fallback — shows as a mixed session; '<synthetic>' rows are harness-authored
@@ -725,7 +725,7 @@ def receive_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool,
 def main() -> int:
     ap = argparse.ArgumentParser(description='capture agents into the store; receive them from peer rooms (session × memory)')
     sub = ap.add_subparsers(dest='direction', required=True)
-    t = sub.add_parser('capture', help="mirror every project's agents into the room's store dir, input/code-agents/<room>/<project>/")
+    t = sub.add_parser('capture', help="mirror every project's agents into the room's store dir, input/claude/code/machine-transport/<room>/<project>/")
     t.add_argument('--session',
                    help='uuid(8) prefix of the agent to move — identity is never guessed')
     t.add_argument('--all', action='store_true',
@@ -733,13 +733,13 @@ def main() -> int:
                         'prefix lattice — each placement is silence/fast-forward/ahead or a loud CONFLICT')
     t.add_argument('--to', metavar='SCRATCH_DIR',
                    help='scratch/test escape hatch: write to this directory instead of the '
-                        "room's own ref (input/code-agents/<the self.txt binding>) — never a room name: a room "
+                        "room's own ref (input/claude/code/machine-transport/<the self.txt binding>) — never a room name: a room "
                         'pushes only its own ref')
-    r = sub.add_parser('receive', help="install a peer room's sessions from its store dir, input/code-agents/<room>/ "
+    r = sub.add_parser('receive', help="install a peer room's sessions from its store dir, input/claude/code/machine-transport/<room>/ "
                                        '(the ONE deliberate writer of the harness-owned projects root)')
     r.add_argument('--from', dest='source', required=True, metavar='ROOM_OR_DIR',
                    help="source ref, distinguished by shape: a bare token is a peer room's name under "
-                        "input/code-agents (never a CWD lookup); anything with a '/' is a directory path (scratch: ./dir)")
+                        "input/claude/code/machine-transport (never a CWD lookup); anything with a '/' is a directory path (scratch: ./dir)")
     r.add_argument('--session',
                    help='uuid(8) prefix of the agent to install — identity is never guessed')
     r.add_argument('--all', action='store_true',
@@ -748,7 +748,7 @@ def main() -> int:
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing per project)')
     d.add_argument('--apply', action='store_true')
-    sub.add_parser('list', help='census: sessions local and under input/code-agents, dressed with their last ai-title')
+    sub.add_parser('list', help='census: sessions local and under input/claude/code/machine-transport, dressed with their last ai-title')
     sub.add_parser('models', help='model census: message.model counts over "type":"assistant" records, '
                                   'every project and session in this machine\'s projects root')
     args = ap.parse_args()
@@ -787,7 +787,7 @@ def main() -> int:
 
     bundle = peer_bundle(args.source)
     # the twin-dressing and marker label: the source's ADDRESS — the origin room's
-    # name as it stands under input/code-agents (or the directory's own name for a path)
+    # name as it stands under input/claude/code/machine-transport (or the directory's own name for a path)
     room = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
         return 1 if receive_all(bundle, PROJECTS, args.apply, room) else 0

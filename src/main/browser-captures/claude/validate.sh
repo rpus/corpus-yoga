@@ -3,7 +3,7 @@
 #
 # Usage:
 #   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
-#   src/main/browser-captures/claude/validate.sh --browser-captures <path/to/captures-root>
+#   src/main/browser-captures/claude/validate.sh --browser-api <path/to/browser-API-root>
 #
 # Corpus mode prints one summary line for the captures that are current (the
 # steady-state majority); a capture only gets its own lines when something was
@@ -66,21 +66,21 @@ validate_corpus() {
 
 parse_args() {
   browser_capture=""
-  browser_captures=""
+  browser_api=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --browser-capture)  browser_capture="$2";  shift 2 ;;
-      --browser-captures) browser_captures="$2"; shift 2 ;;
+      --browser-api) browser_api="$2"; shift 2 ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --browser-capture <path> | --browser-captures <root>"
+        echo "Usage: $0 --browser-capture <path> | --browser-api <root>"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-  if [[ -z "$browser_capture" && -z "$browser_captures" ]]; then
+  if [[ -z "$browser_capture" && -z "$browser_api" ]]; then
     echo "Usage: $0 --browser-capture <path/to/uuid-directory>"
-    echo "       $0 --browser-captures <path/to/captures-root>"
+    echo "       $0 --browser-api <path/to/browser-API-root>"
     echo "Pass --help for more information."
     exit 1
   fi
@@ -92,7 +92,7 @@ main() {
   if [[ -n "$browser_capture" ]]; then
     validate_conversation "$(cd "$browser_capture" && pwd)"
   else
-    validate_corpus "$(cd "$browser_captures" && pwd)"
+    validate_corpus "$(cd "$browser_api" && pwd)"
   fi
 }
 
