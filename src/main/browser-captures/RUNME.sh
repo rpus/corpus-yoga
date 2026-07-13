@@ -28,7 +28,9 @@ parse_args() {
     case "$1" in
       --browser-capture)  browser_capture="$2";  shift 2 ;;
       --browser-dom)      browser_dom="$2";      shift 2 ;;
-      --browser-api) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
+      # --browser-captures is the eponymous pipeline flag the root ./RUNME.sh
+      # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
+      --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
       --new-claude-scrape)    new_claude_scrape="1"; shift ;;
       --plan)             plan="1"; shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;

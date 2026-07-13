@@ -130,6 +130,13 @@ def main():
 
     root = Path(args.summaries_output)
     stems = stems_by_uuid(Path(args.conversations_output))
+    if not stems:
+        # L8: absence is a signal. No projected corpus means an upstream failure
+        # (or a corpus-less clone) — depositing under fallback names would file
+        # readings wrongly and then hold them immutable. Skip, loudly.
+        print(f'summaries: no projected conversations under {args.conversations_output} — '
+              'skipping (deposits key on the projection; run the browser-captures pipeline first)')
+        return 0
     readings = readings_by_uuid(Path(args.chat_exports_cache))
     captured = capture_summaries(Path(args.browser_api))
 
@@ -147,11 +154,15 @@ def main():
     for u in sorted(set(readings) | set(captured)):
         stem, title = stems.get(u, (None, None))
         if stem is None:
-            # never captured: name by the newest batch's piece carrying it
+            # never captured: name by the newest batch's piece OWNING it — exact
+            # uuid match, never substring (a conversation's text can cite other
+            # conversations' uuids; first-substring-wins once mis-filed ~55
+            # readings into one folder, found 2026-07-13 when an upstream
+            # failure emptied the stems map)
             stem = title = next((f.stem for b in sorted(Path(args.chat_exports_cache).glob('data-*'),
                                                         key=lambda d: d.name, reverse=True)
                                  for f in (b / 'json').glob('*.json')
-                                 if u in f.read_text()), u[:8])
+                                 if json.loads(f.read_text()).get('uuid') == u), u[:8])
         folder = root / stem
         prior = existing.get(u)
         if prior is not None and prior != folder:
