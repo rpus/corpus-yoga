@@ -140,10 +140,11 @@ per-corpus code.
   (deposited durably, never disposable) and homed by vettability: `output/dashboard/`
   and `output/indexing/` for the corpus readings (durable, corpus-derived, shared
   across rooms with the rest of `output/`); `input/browser-captures/` when large and
-  private; `output/memories/` when a versioned deposit. And *curation is capture by a
-  user* — the same act with a human oracle (`output/indexing/accepted.txt`,
+  private; `output/memories/` when a versioned deposit. And *curation is capture of a
+  user decision* — the same act with a human oracle (`output/indexing/accepted.txt`,
   `output/indexing/rejected.txt`), which is why they sit beside the model's readings in
-  `output/`; the repo privileges no intelligence over another (user insight, 2026-07-09).
+  `output/`; the repo privileges no intelligence over another (user insight,
+  2026-07-09; sharpened 2026-07-13).
   (`yoga dashboard capture`; `yoga indexing accept`/`reject`; the browser-captures
   scrape; `accumulate_memories`.)
 
