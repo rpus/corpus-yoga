@@ -16,7 +16,6 @@ README.md,35,doc,rsc/CALCULUS.md,Y,"Naming rule: within a batch, conversations a
 README.md,41,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,41,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,43,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — every subtree's producer is declared in `rsc/cache_io.csv`; `./yoga regen` rebuilds 
-README.md,47,doc,src/restructure,Y,"The last gap closed 2026-07-11: Claude Code sessions live in harness-owned, machine-local state (`input/claude-code-proj"
 README.md,51,doc,rsc/cli/commands.csv,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
 README.md,51,doc,RUNME.sh,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
 README.md,51,doc,rsc/CALCULUS.md,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
