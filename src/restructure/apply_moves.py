@@ -46,11 +46,18 @@ def main():
     swap = moves_csv.parent
     rows = read_moves(moves_csv)
 
-    # each OLD input root's medium base: where its data really lives
+    # each OLD input root's medium base: where its data really lives. In ANY room
+    # that applies after the first, this root is a DANGLING symlink — it points at
+    # an iCloud path the first room's apply already moved away — so p.exists() is
+    # False. resolve() still recovers the (now-absent) target's parent, i.e. the
+    # medium base, so key on is_symlink() too; exists() alone strands every data row
+    # as MISSING (dest computed against the local input/ instead of iCloud, where
+    # the shared data now lives) and refuses. The first room never hit this: its
+    # roots still resolved. Boundary links derive from these bases, so they heal too.
     base_of = {}
     for seg in OLD_INPUT_ROOTS:
         p = repo / 'input' / seg
-        if p.exists():
+        if p.is_symlink() or p.exists():
             base_of[seg] = p.resolve().parent
 
     actions, conflicts, missing = [], [], []
@@ -73,7 +80,16 @@ def main():
             continue
         src = (repo / old)
         if rule == 'dispose':
-            plan(src, swap / 'disposed' / new, rule)
+            dst = swap / 'disposed' / new
+            # A dispose source already gone was disposed by the FIRST room: the shared
+            # .log lived on iCloud, and disposal moved the single copy to that room's
+            # local swap/disposed/. A subsequent room has nothing to move — done, not
+            # MISSING; its own disposed/ was never meant to hold a second copy. (Same
+            # first-vs-subsequent asymmetry as the medium base above.)
+            if not (src.exists() or src.is_symlink()) and not dst.exists():
+                done[rule] += 1
+            else:
+                plan(src, dst, rule)
             continue
         if rule == 'markdown-channel':
             plan(src, repo / new, rule)
