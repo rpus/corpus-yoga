@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "SemanticConcepts",
-  "description": "The weighted concept capture behind the dashboard word cloud (lib/dashboard/semantic-concepts.json): a paid model reading of the whole projected corpus, staged to gen/dashboard and validated against this schema before promotion (dashboard.sh, in-memory via validate.py \u2014 no per-datum matrix, the markdownConversation precedent). v2 adds the source column: each concept is tagged with the source(s) it is salient in, captured in the same single reading, so the dashboard's source toggle can filter the cloud client-side. Two consumers, each taking what it needs: the dashboard uses the weights and tags (cloud sizing and filtering); indexing borrows only the names (candidate headwords).",
+  "description": "The weighted concept capture behind the dashboard word cloud (lib/dashboard/semantic-concepts.json): a paid model reading of the whole projected corpus, staged to gen/dashboard and validated against this schema before promotion (dashboard.sh, in-memory via validate.py \u2014 no per-datum matrix, the markdownConversation precedent). v2 adds the provider column: each concept is tagged with the provider(s) it is salient in, captured in the same single reading, so the dashboard's provider toggle can filter the cloud client-side. Two consumers, each taking what it needs: the dashboard uses the weights and tags (cloud sizing and filtering); indexing borrows only the names (candidate headwords).",
   "allOf": [
     {
       "$ref": "#/definitions/SemanticConcepts"
@@ -10,7 +10,7 @@
   "definitions": {
     "SemanticConcepts": {
       "title": "SemanticConcepts",
-      "description": "A format_table-styled three-column table: the concept names, their salience weights, and their source tags.",
+      "description": "A format_table-styled three-column table: the concept names, their salience weights, and their provider tags.",
       "type": "object",
       "required": [
         "columns",
@@ -19,7 +19,7 @@
       "additionalProperties": false,
       "properties": {
         "columns": {
-          "description": "Exactly [\"word\", \"count\", \"source\"].",
+          "description": "Exactly [\"word\", \"count\", \"provider\"].",
           "type": "array",
           "minItems": 3,
           "maxItems": 3,
@@ -40,10 +40,10 @@
               ]
             },
             {
-              "description": "Literally \"source\".",
+              "description": "Literally \"provider\".",
               "type": "string",
               "enum": [
-                "source"
+                "provider"
               ]
             }
           ]
@@ -60,7 +60,7 @@
     },
     "ConceptRow": {
       "title": "ConceptRow",
-      "description": "One concept: [word, count, source]. The count is SALIENCE, not raw frequency \u2014 the model scales the top concept to 100. The source names where the concept is salient: one source's conversations, or both.",
+      "description": "One concept: [word, count, provider]. The count is SALIENCE, not raw frequency \u2014 the model scales the top concept to 100. The provider names where the concept is salient: one provider's conversations, or both.",
       "type": "array",
       "minItems": 3,
       "maxItems": 3,
@@ -77,7 +77,7 @@
           "minimum": 0
         },
         {
-          "description": "Which source the concept is salient in. The set is exhaustive: the corpus's two sources plus \"both\"; a third corpus source would mint a new schema version.",
+          "description": "Which provider the concept is salient in. The set is exhaustive: the corpus's two providers plus \"both\"; a third provider would mint a new schema version.",
           "type": "string",
           "enum": [
             "claude",

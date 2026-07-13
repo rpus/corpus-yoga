@@ -129,16 +129,16 @@ $chats" \
 }
 
 # capture_concepts_to <chat_list> <out_file> — the weighted concept table, each
-# concept tagged with the source(s) it is salient in (from the chat list's [source]
-# markers) — the dimension behind the dashboard's source toggle (schema v2)
+# concept tagged with the provider(s) it is salient in (from the chat list's [source]
+# markers) — the dimension behind the dashboard's provider toggle (schema v2)
 capture_concepts_to() {
   local chats="$1" out_file="$2"
   capture_table \
-    '["word", "count", "source"]' \
+    '["word", "count", "provider"]' \
     'word: key concept or theme (word or short phrase)
 count: salience weight (not raw frequency); scale so the top concept = 100
-source: which source the concept is salient in — "claude", "gemini", or "both", from the [source] markers in the conversation list (a list without markers is all claude)' \
-    'Generate a weighted list of 20-50 key concepts and themes across all conversations, tagging each concept with the source(s) whose conversations it is salient in.' \
+provider: which provider the concept is salient in — "claude", "gemini", or "both", from the [source] markers in the conversation list (a list without markers is all claude)' \
+    'Generate a weighted list of 20-50 key concepts and themes across all conversations, tagging each concept with the provider(s) whose conversations it is salient in.' \
     "Conversations:
 $chats" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
