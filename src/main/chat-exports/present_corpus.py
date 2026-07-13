@@ -120,6 +120,7 @@ def main() -> int:
         # Identity is still never taken from the id shape (code sessions carry
         # 36-char uuids too and would masquerade as claude chat).
         provider, channel, fname = stem.split('/')
+        file_ord = fname.split('-', 1)[0]  # the per-channel ordinal from the output/markdown filename
         by_dir[f'{provider}/{channel}'] += 1
         md = (md_root / provider / channel / 'conversations' / f'{fname}.md').read_text()
 
@@ -130,7 +131,7 @@ def main() -> int:
         m = re.search(r'^last_activity: (\S+)$', md[:400], flags=re.M)
         dormant = m.group(1) if m else (iso(max(times)) if times else '')
         turns = list(turn_seq(md))
-        chats_rows.append([n, title, dormant, cid, provider, channel, len(turns)])
+        chats_rows.append([n, file_ord, title, dormant, cid, provider, channel, len(turns)])
 
         for role, body in turns:
             ws = filtered(words_from(body))
@@ -142,7 +143,7 @@ def main() -> int:
           f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}) → {out_dir.relative_to(REPO)}')
 
     write_table(out_dir, 'data-chats',
-                {'columns': ['chat', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns'],
+                {'columns': ['chat', 'ord', 'name', 'dormant_from', 'uuid', 'provider', 'channel', 'turns'],
                  'rows': chats_rows}, html)
     write_table(out_dir, 'data-spans',
                 {'columns': ['chat', 'from', 'to', 'messages'], 'rows': span_rows}, html)
