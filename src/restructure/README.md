@@ -62,7 +62,7 @@ local share: the symlink boundary (`input/claude`, `input/gemini`,
 Disposals (`dispose` rows — e.g. stray scrape logs) are MOVED to
 `<swap>/disposed/`, never deleted: inspect at leisure, delete by hand.
 
-Every report lands under `tmp/restructure/` — `moves.csv`, `reports/*.log`, and
+Every report lands under `tmp/restructure/` — `moves.csv`, the teed `reports` logs, and
 the worktree's own `logs/RUNME/<ts>.log` (pipeline runs) and
 `logs/src/test/pre_commit.log` (the full gate report incl. the machine-local
 data tier) — one folder tells the room's whole story.
