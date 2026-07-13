@@ -16,6 +16,8 @@ README.md,35,doc,rsc/CALCULUS.md,Y,"Naming rule: within a batch, conversations a
 README.md,41,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,41,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,43,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — every subtree's producer is declared in `rsc/cache_io.csv`; `./yoga regen` rebuilds 
+README.md,47,doc,src/restructure/README.md,Y,"The last gap closed 2026-07-11: Claude Code sessions live in harness-owned, machine-local state (`input/claude-code-proj"
+README.md,47,doc,src/restructure,Y,"The last gap closed 2026-07-11: Claude Code sessions live in harness-owned, machine-local state (`input/claude-code-proj"
 README.md,51,doc,rsc/cli/commands.csv,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
 README.md,51,doc,RUNME.sh,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
 README.md,51,doc,rsc/CALCULUS.md,Y,"`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, render"
@@ -42,8 +44,8 @@ README.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/br
 README.md,88,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
 README.md,89,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
 README.md,89,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
-README.md,94,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures input/browser-captures/claude --out ou
-README.md,94,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures input/browser-captures/claude --out ou
+README.md,94,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-api input/claude/chat/browser-API --out output/
+README.md,94,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-api input/claude/chat/browser-API --out output/
 README.md,96,doc,src/main/browser-captures/RUNME.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,96,doc,RUNME.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,96,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
@@ -111,7 +113,7 @@ rsc/cli/commands.csv,7,path_str,src/main/chat-exports/dashboard.sh,Y,"dashboard,
 rsc/cli/commands.csv,8,path_str,src/main/model/build_index.py,Y,"indexing,src/main/model/build_index.py,candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [--because "
 rsc/cli/commands.csv,9,path_str,src/main/chat-exports/library.py,Y,"library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-libr"
 rsc/cli/commands.csv,10,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit ev"
-rsc/cli/commands.csv,11,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--captures <dir>],supersession L3,compare_batches,Do later bulk expo"
+rsc/cli/commands.csv,11,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--browser-api <dir>],supersession L3,compare_batches,Do later bulk e"
 rsc/cli/commands.csv,12,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,list | models | capture --session <uuid8>|--all [--to <scratch-dir>] | receive --ses"
 rsc/cli/commands.csv,13,path_str,src/main/machine.py,Y,"machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)"
 rsc/cli/commands.csv,14,path_str,src/main/model/gen_model.py,Y,"model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues"
@@ -130,18 +132,18 @@ rsc/cli/readings.md,36,doc,rsc/schema/dashboard/chatCategories/v1.json,Y,- **`ch
 rsc/cli/readings.md,37,doc,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
 rsc/cli/readings.md,43,doc,rsc/site/index.html,Y,"`rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join"
 rsc/machines/README.md,5,doc,rsc/CALCULUS.md,Y,`rsc/CALCULUS.md`: these files are byte-identical on every clone because they
-rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/browser-captures/claude/<uuid>
-rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/chat-exports/<batch>
-rsc/schema/WORKFLOW.md,32,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/code-agents/<room>/<project>
+rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
+rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
+rsc/schema/WORKFLOW.md,32,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<room>/<project>
 rsc/schema/WORKFLOW.md,43,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,50,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,60,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,60,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,60,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,66,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,74,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-captures input/browser-captures/claude
-rsc/schema/WORKFLOW.md,75,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     input/chat-exports
-rsc/schema/WORKFLOW.md,76,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    input/code-agents
+rsc/schema/WORKFLOW.md,74,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
+rsc/schema/WORKFLOW.md,75,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,76,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    input/claude/code/machine-transport
 rsc/schema/WORKFLOW.md,81,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 rsc/schema/WORKFLOW.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,88,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
@@ -157,11 +159,18 @@ rsc/schema/WORKFLOW.md,203,doc,src/test/pre_commit_expected_score,Y,Update `src/
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../inpu
-rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../input/browser-captures/apiConvers
+rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../b
+rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
 rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/chat-exports/memories/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/memories/v1.json,20,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/projects/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/chat-exports/projects/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/projects/v1.json,59,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
+rsc/schema/chat-exports/projects/v2.json,55,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/chat-exports/users/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/users/v1.json,19,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/session/CHANGELOG.md,216,doc,src/main/code-agents/RUNME.sh,Y,discovered iteratively by running `src/main/code-agents/RUNME.sh` and re-tightening:
@@ -187,35 +196,36 @@ src/main/browser-captures/PREP.sh,31,call,src/main/browser-captures/audit_captur
 src/main/browser-captures/PREP.sh,37,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent claude ${new_claude_scrape:+""$new_claude_scrape""} || rc=$?"
 src/main/browser-captures/PREP.sh,38,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --agent gemini || rc=$?"
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh
-src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-captures input/browser-captures/claude
-src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture input/browser-captures/claude/<uuid>
+src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
+src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture input/claude/chat/browser-API/<uuid>
 src/main/browser-captures/RUNME.sh,8,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --plan   # print the ordered step list; run nothing
 src/main/browser-captures/RUNME.sh,11,comment,src/main/steps.sh,Y,# exactly the list that executes (see src/main/steps.sh).
 src/main/browser-captures/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser-captures/RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
-src/main/browser-captures/RUNME.sh,43,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/RUNME.sh,50,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-captures ""$root"""
-src/main/browser-captures/RUNME.sh,52,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,53,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-captures ""$root"""
-src/main/browser-captures/RUNME.sh,57,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,58,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/browser-captures/RUNME.sh,61,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,62,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/RUNME.sh,68,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,69,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
-src/main/browser-captures/audit_captures.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--browser-captures input/browser-captures] [--
-src/main/browser-captures/audit_captures.py,30,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--browser-captures input/browser-captures] [--
+src/main/browser-captures/RUNME.sh,31,comment,RUNME.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./RUNME.sh
+src/main/browser-captures/RUNME.sh,47,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
+src/main/browser-captures/RUNME.sh,54,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
+src/main/browser-captures/RUNME.sh,56,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,57,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
+src/main/browser-captures/RUNME.sh,61,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,62,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/browser-captures/RUNME.sh,65,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,66,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,72,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,73,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/audit_captures.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api output/markdown/claude/c
+src/main/browser-captures/audit_captures.py,30,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api output/markdown/claude/c
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
-src/main/browser-captures/claude/validate.sh,6,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-captures <path/to/captures-root>
+src/main/browser-captures/claude/validate.sh,6,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-api <path/to/browser-API-root>
 src/main/browser-captures/claude/validate.sh,16,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
 src/main/browser-captures/claude/validate.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,32,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,33,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"" || rc=$?"
-src/main/browser-captures/compare_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api output/markdown/claude/conversations --
-src/main/browser-captures/compare_markdown.py,24,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api output/markdown/claude/conversations --
-src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-captures input/browser-capture
-src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-captures input/browser-capture
-src/main/browser-captures/safari_capture.py,178,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
+src/main/browser-captures/compare_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api output/markdown/claude/chat/conversatio
+src/main/browser-captures/compare_markdown.py,24,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api output/markdown/claude/chat/conversatio
+src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom input/gemini/chat/browser-
+src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom input/gemini/chat/browser-
+src/main/browser-captures/safari_capture.py,184,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
 src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude
 src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude --id <uuid>
 src/main/browser-captures/safari_capture.sh,11,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent gemini
@@ -224,8 +234,8 @@ src/main/browser-captures/safari_capture.sh,37,call,src/run_python_script.sh,Y,"
 src/main/browser-captures/safari_capture.sh,37,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --agent ""$agent"" ""$@"" \"
 src/main/browser-captures/safari_utils.py,189,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent
 src/main/chat-exports/PREP.sh,15,comment,src/main/chat-exports/PREP.sh,Y,#   src/main/chat-exports/PREP.sh
-src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export  input/chat-exports/data-<...>
-src/main/chat-exports/RUNME.sh,6,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports input/chat-exports
+src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export  input/claude/chat/bulk-export/data-<...>
+src/main/chat-exports/RUNME.sh,6,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports input/claude/chat/bulk-export
 src/main/chat-exports/RUNME.sh,7,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --plan   # print the ordered step list; run nothing
 src/main/chat-exports/RUNME.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
 src/main/chat-exports/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -254,10 +264,10 @@ src/main/chat-exports/accumulate_memories.py,31,comment,src/main/chat-exports/ac
 src/main/chat-exports/accumulate_memories.py,53,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
 src/main/chat-exports/accumulate_summaries.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \
 src/main/chat-exports/accumulate_summaries.py,30,comment,src/main/chat-exports/accumulate_summaries.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \
-src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export input/chat-exports/<batch> [--o
-src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export input/chat-exports/<batch> [--o
-src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export input/chat-exports/<batch>            #
-src/main/chat-exports/atomise_bulk.py,18,comment,src/main/chat-exports/atomise_bulk.py,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export input/chat-exports/<batch>            #
+src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export input/claude/chat/bulk-export/<
+src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export input/claude/chat/bulk-export/<
+src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export input/claude/chat/bulk-export/<batch>  
+src/main/chat-exports/atomise_bulk.py,18,comment,src/main/chat-exports/atomise_bulk.py,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export input/claude/chat/bulk-export/<batch>  
 src/main/chat-exports/audit_files.py,14,comment,src/main/chat-exports/extract_files.py,Y,ef       Files written to cache/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
 src/main/chat-exports/audit_files.py,17,comment,src/main/chat-exports/extract_heredocs.py,Y,by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
 src/main/chat-exports/audit_files.py,19,comment,src/main/chat-exports/extract_heredocs.py,Y,by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
@@ -276,42 +286,42 @@ src/main/chat-exports/audit_files.sh,21,call,src/main/chat-exports/audit_files.p
 src/main/chat-exports/audit_files.sh,22,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/audit_files.sh,22,call,src/main/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/chat-exports/check_harvested.py,10,comment,src/main/chat-exports/library.py,Y,src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive th
-src/main/chat-exports/compare_batches.py,59,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-cache cache/chat-exports] [--chat-
-src/main/chat-exports/compare_batches.py,59,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-cache cache/chat-exports] [--chat-
+src/main/chat-exports/compare_batches.py,59,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-cache cache/chat-exports] [--bulk-
+src/main/chat-exports/compare_batches.py,59,comment,src/main/chat-exports/compare_batches.py,Y,src/run_python_script.sh src/main/chat-exports/compare_batches.py     [--chat-exports-cache cache/chat-exports] [--bulk-
 src/main/chat-exports/dashboard.sh,9,comment,rsc/site/index.html,Y,# by both rooms. The category PALETTE is authored inline in rsc/site/index.html
 src/main/chat-exports/dashboard.sh,35,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
 src/main/chat-exports/dashboard.sh,53,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
 src/main/chat-exports/dashboard.sh,55,path_str,src/main,Y,"sys.path.insert(0, '$REPO_DIR/src/main')"
-src/main/chat-exports/dashboard.sh,62,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
-src/main/chat-exports/dashboard.sh,62,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
-src/main/chat-exports/dashboard.sh,96,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
-src/main/chat-exports/dashboard.sh,100,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
-src/main/chat-exports/dashboard.sh,102,path_str,rsc/site/index.html,Y,h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
-src/main/chat-exports/dashboard.sh,126,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
-src/main/chat-exports/dashboard.sh,126,call,src/main/chat-exports/rekey_chats.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
-src/main/chat-exports/dashboard.sh,127,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,127,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,144,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,144,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
-src/main/chat-exports/dashboard.sh,158,call,src/run_python_script.sh,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
-src/main/chat-exports/dashboard.sh,158,call,src/main/validate.py,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
-src/main/chat-exports/dashboard.sh,284,call,src/run_python_script.sh,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
-src/main/chat-exports/dashboard.sh,284,call,src/main/chat-exports/present_corpus.py,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
+src/main/chat-exports/dashboard.sh,66,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
+src/main/chat-exports/dashboard.sh,66,call,src/main/chat-exports/timeline.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/timeline.py"" ""$src"" --table chat-list"
+src/main/chat-exports/dashboard.sh,100,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
+src/main/chat-exports/dashboard.sh,104,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c """
+src/main/chat-exports/dashboard.sh,106,path_str,rsc/site/index.html,Y,h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
+src/main/chat-exports/dashboard.sh,130,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
+src/main/chat-exports/dashboard.sh,130,call,src/main/chat-exports/rekey_chats.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" --to-id --conversations ""$conv"" \"
+src/main/chat-exports/dashboard.sh,131,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,131,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,148,call,src/run_python_script.sh,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,148,call,src/main/chat-exports/format_table.py,Y,"| ""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" \"
+src/main/chat-exports/dashboard.sh,162,call,src/run_python_script.sh,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,162,call,src/main/validate.py,Y,"verdict=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$file"" ""$schema"")"""
+src/main/chat-exports/dashboard.sh,288,call,src/run_python_script.sh,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
+src/main/chat-exports/dashboard.sh,288,call,src/main/chat-exports/present_corpus.py,Y,"present)     shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/present_corpus.py"" ""$@"" ;;"
 src/main/chat-exports/extract_files.py,15,comment,src/main/chat-exports/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber"
-src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export input/chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports input/chat-exports
+src/main/chat-exports/extract_files.sh,3,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-00
+src/main/chat-exports/extract_files.sh,4,comment,src/main/chat-exports/extract_files.sh,Y,#   src/main/chat-exports/extract_files.sh --chat-exports input/claude/chat/bulk-export
 src/main/chat-exports/extract_files.sh,17,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/extract_files.sh,17,call,src/main/chat-exports/extract_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
-src/main/chat-exports/extract_heredocs.sh,3,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-export input/chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/extract_heredocs.sh,4,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-exports input/chat-exports
+src/main/chat-exports/extract_heredocs.sh,3,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch
+src/main/chat-exports/extract_heredocs.sh,4,comment,src/main/chat-exports/extract_heredocs.sh,Y,#   src/main/chat-exports/extract_heredocs.sh --chat-exports input/claude/chat/bulk-export
 src/main/chat-exports/extract_heredocs.sh,17,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/extract_heredocs.sh,17,call,src/main/chat-exports/extract_heredocs.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/library.py,27,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/library.py       cache/chat-exports/<batch>/json [--root output/artifacts
 src/main/chat-exports/library.py,27,comment,src/main/chat-exports/library.py,Y,src/run_python_script.sh src/main/chat-exports/library.py       cache/chat-exports/<batch>/json [--root output/artifacts
 src/main/chat-exports/library.py,29,comment,rsc/naming/library_dir_vintages.csv,Y,The vintages themselves are data: rsc/naming/library_dir_vintages.csv.
 src/main/chat-exports/library.py,92,comment,rsc/naming/library_dir_vintages.csv,Y,"rsc/naming/library_dir_vintages.csv (id, status, pattern, note), in match"
-src/main/chat-exports/present.sh,6,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export input/chat-exports/data-2026-04-07-07-52-05-batch-0000
-src/main/chat-exports/present.sh,7,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports input/chat-exports
+src/main/chat-exports/present.sh,6,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
+src/main/chat-exports/present.sh,7,comment,src/main/chat-exports/present.sh,Y,#   src/main/chat-exports/present.sh --chat-exports input/claude/chat/bulk-export
 src/main/chat-exports/present.sh,14,path_str,rsc/site/index.html,Y,"TEMPLATE=""$REPO_DIR/rsc/site/index.html"""
 src/main/chat-exports/present.sh,15,path_str,src/main/chat-exports/word_freq_literal.py,Y,"WORD_FREQ_SCRIPT=""$SCRIPT_DIR/word_freq_literal.py"""
 src/main/chat-exports/present.sh,16,path_str,src/main/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
@@ -375,8 +385,8 @@ src/main/cli/cli.py,29,comment,RUNME.sh,Y,"the table, print the calculus, and ge
 src/main/cli/cli.py,79,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
 src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs the distinct set, in"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
-src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/code-agents/<room>/<project>
-src/main/code-agents/RUNME.sh,12,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/code-agents
+src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<room>/<pr
+src/main/code-agents/RUNME.sh,12,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/claude/code/machine-transport
 src/main/code-agents/RUNME.sh,13,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
 src/main/code-agents/RUNME.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
 src/main/code-agents/RUNME.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -424,9 +434,9 @@ src/main/markdown_projection.py,11,comment,src/main/browser-captures/compare_mar
 src/main/markdown_projection.py,11,comment,src/main/chat-exports/atomise_bulk.py,Y,"browser-captures/compare_markdown.py (project+render to compare), chat-exports/atomise_bulk.py"
 src/main/model/build_index.py,5,comment,rsc/cli/commands.csv,Y,capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 src/main/model/build_index.py,22,comment,rsc/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
-src/main/model/build_index.py,222,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
-src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-captures input/browser-captures/claude     --bu
-src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-captures input/browser-captures/claude     --bu
+src/main/model/build_index.py,225,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
+src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
+src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
 src/main/model/gen_model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/model.json is hand-curated from these.
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
@@ -441,10 +451,10 @@ src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candid
 src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 src/main/model/project_markdown.py,9,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
 src/main/model/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v3.json,Y,validated against rsc/schema/browser-captures/markdownConversation/v3.json. Splitting the bulk
-src/main/model/project_markdown.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-captures input/browser-captures/claude        
-src/main/model/project_markdown.py,16,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-captures input/browser-captures/claude        
-src/main/model/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export input/chat-exports/<batch>                
-src/main/model/project_markdown.py,17,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export input/chat-exports/<batch>                
+src/main/model/project_markdown.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-api input/claude/chat/browser-API             
+src/main/model/project_markdown.py,16,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-api input/claude/chat/browser-API             
+src/main/model/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export input/claude/chat/bulk-export/<batch>     
+src/main/model/project_markdown.py,17,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export input/claude/chat/bulk-export/<batch>     
 src/main/model/serve_markdown.py,6,comment,src/main/model/serve_markdown.sh,Y,src/main/model/serve_markdown.sh --markdown <dir> [--port 8182]
 src/main/model/serve_markdown.py,7,comment,src/main/model/serve_markdown.sh,Y,src/main/model/serve_markdown.sh --markdown <dir> --daemon [--port 8182]
 src/main/model/serve_markdown.py,8,comment,src/main/model/serve_markdown.sh,Y,src/main/model/serve_markdown.sh stop
@@ -463,20 +473,31 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
+src/restructure/README.md,19,doc,src/restructure/gen_moves.py,Y,| [gen_moves.py](src/restructure/gen_moves.py) | scan the OLD-layout data roots → `moves.csv` (the one authority) + a br
+src/restructure/README.md,20,doc,src/restructure/gen_refs.py,Y,"| [gen_refs.py](src/restructure/gen_refs.py) | scan an OLD-layout checkout's committed files → `refs.csv`, the code-side"
+src/restructure/README.md,21,doc,src/restructure/build_harness.py,Y,| [build_harness.py](src/restructure/build_harness.py) | materialize dry-run data roots in THIS checkout from `moves.csv
+src/restructure/README.md,22,doc,src/restructure/compare_outputs.py,Y,"| [compare_outputs.py](src/restructure/compare_outputs.py) | equivalence verdict: old `output/markdown` vs rebuilt, byte"
+src/restructure/README.md,23,doc,src/restructure/apply_moves.py,Y,"| [apply_moves.py](src/restructure/apply_moves.py) | execute `moves.csv` against the real roots — dry-run by default, `-"
+src/restructure/README.md,24,doc,src/restructure/common.py,Y,"| [common.py](src/restructure/common.py) | the shared vocabulary: the markdown path map, manifest I/O |"
+src/restructure/README.md,44,doc,RUNME.sh,Y,( cd tmp/restructure/dryrun && ./RUNME.sh )        # run once cold; a second run heals currency stamps
+src/restructure/gen_refs.py,19,comment,rsc/cache_io.csv,Y,rsc/cache_io.csv keys) — the pipeline vocabulary is untouched by design.
+src/restructure/gen_refs.py,81,path_str,src/test/xref.csv,Y,"DERIVED = {'src/test/xref.csv', 'src/test/pre_commit.log'}  # regenerated by the gate"
+src/restructure/gen_refs.py,81,path_str,src/test/pre_commit.log,Y,"DERIVED = {'src/test/xref.csv', 'src/test/pre_commit.log'}  # regenerated by the gate"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
-src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/code-agents/{room}/{project-slug}/{uuid}.jsonl
-src/test/code-agents/debug_code_session_record.py,18,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/code-agents/{room}/{project-slug}/{uuid}.jsonl --index 42
-src/test/code-agents/debug_code_session_record.py,21,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/code-agents/{room}/{project-slug}/{uuid}.jsonl --all
+src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{room}/{project-slug}/{uuid
+src/test/code-agents/debug_code_session_record.py,18,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{room}/{project-slug}/{uuid
+src/test/code-agents/debug_code_session_record.py,21,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{room}/{project-slug}/{uuid
 src/test/code-agents/debug_code_session_record.py,30,path_str,rsc/schema/code-agents/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 src/test/code-agents/survey_code_session.py,10,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py input/code-agents/{room}/{project-slug}/*.jsonl
+src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py input/claude/code/machine-transport/{room}/{project-slug}/*.jsonl
 src/test/gen_changelog_matrix.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/gen_changelog_matrix.py,14,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/gen_changelog_matrix.py,15,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
 src/test/gen_changelog_matrix.py,15,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,"src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u"
+src/test/pre_commit.py,10,comment,src/test/pre_commit.sh,Y,ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
 src/test/pre_commit.py,622,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
 src/test/pre_commit.py,672,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
 src/test/pre_commit.py,674,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
@@ -491,6 +512,7 @@ src/test/pre_commit.py,1094,path_str,src/run_python_script.sh,Y,"_add(f'src/run_
 src/test/pre_commit.py,1096,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,869,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
 src/test/pre_commit.py,1045,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
+src/test/pre_commit.sh,3,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh
 src/test/pre_commit.sh,7,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
 src/test/pre_commit.sh,56,call,src/test/pre_commit.sh,Y,"[[ ""$dir/$(basename ""$link"")"" == ""$REPO_DIR/src/test/pre_commit.sh"" ]]"
