@@ -65,7 +65,6 @@ STDLIB_MODULES = {
     'jsonschema', 'referencing', 'requests', 'yaml', 'toml', 'pytest',
 }
 
-# Repo-relative path prefixes derived from actual top-level directories.
 # The DECLARED lifecycle roots, statically — never derived from the live
 # filesystem. Deriving them from iterdir() made the committed xref.csv depend
 # on which git-ignored dirs happened to exist at run time (found 2026-07-13:
