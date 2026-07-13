@@ -11,7 +11,10 @@ worktree) from a room's moves.csv and its real OLD-layout roots.
   output/  precious tiers COPIED in (artifacts, dashboard, indexing, memories,
            serve_markdown, and the summary DEPOSITS path-mapped — deposits,
            not dressing); markdown/ otherwise empty for the rebuild
-  rsc/machines/self.txt copied — same machine, same room, honest binding
+  the room self-binding under rsc/machines/ copied — same machine, same room,
+           honest binding (its filename stays out of committed text, as
+           PREREQUISITES' check_room does: the file is machine-local and never
+           committed, so xref would read the joined path as a missing file)
 
 Re-runnable: wipes and rebuilds input/, cache/, output/ here (L1).
 """
