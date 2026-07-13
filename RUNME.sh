@@ -3,18 +3,18 @@
 #
 # Runs three pipelines against their sibling input directories:
 #
-#   chat-exports     ext/chat-exports/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
-#   code-agents      ext/code-agents/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
+#   chat-exports     input/chat-exports/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
+#   code-agents      input/code-agents/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
 #                                           populated by `yoga agent capture --all` — the pipeline never reads
 #                                           the harness-owned ~/.claude/projects)
-#   browser-captures ext/browser-captures/  Per-conversation captures (written by --capture-from-browser):
+#   browser-captures input/browser-captures/  Per-conversation captures (written by --capture-from-browser):
 #                                           claude/ live API JSON (validated + projected to markdown);
 #                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
 #
-# Any ext/ entry may instead be a hand-made symlink, to keep the data outside the clone.
+# Any input/ entry may instead be a hand-made symlink, to keep the data outside the clone.
 #
 # Each pipeline validates its inputs against all schema versions, then (for chat-exports)
-# extracts files and renders a dashboard (reading the durable lib/dashboard/ captures).
+# extracts files and renders a dashboard (reading the durable output/dashboard/ captures).
 #
 # Usage:
 #   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)
@@ -185,13 +185,13 @@ main() {
   local -a pipeline_failures=()
 
   [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures ${new_claude_scrape:+"$new_claude_scrape"}
-  run_pipeline_safe  browser-captures "$SCRIPT_DIR/ext/browser-captures/claude" ${new_claude_scrape:+"$new_claude_scrape"}
+  run_pipeline_safe  browser-captures "$SCRIPT_DIR/input/browser-captures/claude" ${new_claude_scrape:+"$new_claude_scrape"}
 
   prep_pipeline_safe chat-exports
-  run_pipeline_safe  chat-exports "$SCRIPT_DIR/ext/chat-exports"
+  run_pipeline_safe  chat-exports "$SCRIPT_DIR/input/chat-exports"
 
   prep_pipeline_safe code-agents
-  run_pipeline_safe  code-agents "$SCRIPT_DIR/ext/code-agents"
+  run_pipeline_safe  code-agents "$SCRIPT_DIR/input/code-agents"
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
   # The tail carries SUMMARIES only — the body already marks each fact at its
@@ -229,9 +229,9 @@ main() {
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
-        "browser-captures (prep)") echo "    → check ext/browser-captures/claude/ and Safari setup" ;;
-        "chat-exports (prep)")   echo "    → populate ext/chat-exports/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
-        "code-agents (prep)")  echo "    → check ext/code-agents/ (the store) and ext/code-projects/ (transport's source) symlinks" ;;
+        "browser-captures (prep)") echo "    → check input/browser-captures/claude/ and Safari setup" ;;
+        "chat-exports (prep)")   echo "    → populate input/chat-exports/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
+        "code-agents (prep)")  echo "    → check input/code-agents/ (the store) and input/code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Convert and validate Claude Code CLI session transcripts, from the STORE.
 #
-# The pipeline sources ext/code-agents — the repo-owned, medium-carried store
+# The pipeline sources input/code-agents — the repo-owned, medium-carried store
 # (<room>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
 # the harness-owned ~/.claude/projects, which Anthropic expires at will.
 # `yoga agent capture --all` is the capture step that populates the store
 # from the live projects root; run it early and often.
 #
 # Usage:
-#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: ext/code-agents/<room>/<project>
-#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: ext/code-agents
+#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/code-agents/<room>/<project>
+#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/code-agents
 #   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (room_housekeeping, run_one, run_memory, corpus) are the
@@ -20,7 +20,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-OUTPUT_DIR="$REPO_DIR/gen/code-agents"
+CACHE_DIR="$REPO_DIR/cache/code-agents"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -46,20 +46,20 @@ parse_args() {
     echo "       $0 --code-agents <path/to/store-root>"
     echo
     echo "  project-directory: a room's project under the store, e.g.:"
-    echo "    ext/code-agents/<room>/\$(pwd | tr '/' '-')"
+    echo "    input/code-agents/<room>/\$(pwd | tr '/' '-')"
     echo "Pass --help for more information."
     exit 1
   fi
 }
 
 prune_departed() {
-  # No blanket wipe: the validation logs under gen/ ARE the memoisation (an
+  # No blanket wipe: the validation logs under cache/ ARE the memoisation (an
   # unchanged session revalidates against nothing), and jsonl_to_json keeps
-  # session.json's mtime when content is unchanged for the same reason. gen
+  # session.json's mtime when content is unchanged for the same reason. cache
   # derivations die with their STORE datum — and the store is repo-owned, so
   # a departure there was a deliberate disposal, never harness expiry.
   local project_dir="$1" room="$2" name="$3"
-  for existing in "$OUTPUT_DIR/$room/$name"/*/; do
+  for existing in "$CACHE_DIR/$room/$name"/*/; do
     [[ -d "$existing" ]] || continue
     local sess; sess="$(basename "${existing%/}")"
     if [[ "$sess" == "memory" ]]; then
@@ -71,11 +71,11 @@ prune_departed() {
 }
 
 prune_departed_projects() {
-  # A gen project dir whose store project is gone dies whole; a top-level gen
+  # A cache project dir whose store project is gone dies whole; a top-level cache
   # dir that is not a room in the store (the pre-store flat layout, or a
-  # removed room) dies too — every gen path mirrors a store path or goes.
+  # removed room) dies too — every cache path mirrors a store path or goes.
   local store_root="$1"
-  for room_dir in "$OUTPUT_DIR"/*/; do
+  for room_dir in "$CACHE_DIR"/*/; do
     [[ -d "$room_dir" ]] || continue
     local room; room="$(basename "${room_dir%/}")"
     if [[ ! -d "${store_root%/}/$room" ]]; then
@@ -101,7 +101,7 @@ project_housekeeping() {
 run_one() {
   local jsonl="$1" room="$2" project_name="$3"
   local session; session="$(basename "${jsonl%.jsonl}")"
-  local out_dir="$OUTPUT_DIR/$room/$project_name/$session"
+  local out_dir="$CACHE_DIR/$room/$project_name/$session"
   step ensure_session_dir   mkdir -p "$out_dir"
   step jsonl_to_json        "$SCRIPT_DIR/jsonl_to_json.sh" "$jsonl" "$out_dir/session.json"
   step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/project_conversation.py" "$out_dir"
@@ -110,7 +110,7 @@ run_one() {
 
 run_memory() {
   local project_dir="$1" room="$2" name="$3" guard="$4"
-  local out_dir="$OUTPUT_DIR/$room/$name/memory"
+  local out_dir="$CACHE_DIR/$room/$name/memory"
   step_if "$guard" 'when the project has a memory/ dir' memory_to_json \
     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
   step_if "$guard" 'when the project has a memory/ dir' validate_memory \
@@ -166,7 +166,7 @@ main() {
   fi
 
   if [[ ! -d "$code_projects" ]]; then
-    echo "no store at $code_projects (hand-make ext/code-agents as a symlink to the shared store;"
+    echo "no store at $code_projects (hand-make input/code-agents as a symlink to the shared store;"
     echo "populate it via: ./yoga agent capture --all)"
     exit 0
   fi

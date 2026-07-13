@@ -6,7 +6,7 @@ A stdin→stdout filter for tables whose rows reference conversations (e.g. the
 captured data-chat-categories). Ordinals are presentation, ids are identity —
 the source-native conversation id: claude's uuid, gemini's 16-hex app id (no
 uuids exist there; conv_id extracts both uniformly). The LLM speaks ordinals
-(short, reliable in a prompt), durable storage (lib/dashboard/) speaks id
+(short, reliable in a prompt), durable storage (output/dashboard/) speaks id
 (renumbering-proof), and presentation re-derives ordinals at injection time.
 The ordinal↔id mapping comes from the ordering authority given to
 --conversations (see _order).
@@ -31,7 +31,7 @@ This is the migration recipe for an old ordinal-keyed inferred table:
 
     src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \\
         --conversations <batch>/conversations.json \\
-        < gen/chat-exports/<batch>/inferred/data-chat-categories.json
+        < cache/chat-exports/<batch>/inferred/data-chat-categories.json
 
 Usage (see dashboard.sh / present.sh):
     ... | rekey_chats.py --to-id --conversations <corpus dir | conversations.json> | ...
@@ -47,7 +47,7 @@ from markdown_projection import is_empty, ordered, load_convs, corpus_index
 
 def _order(conversations, legacy):
     """[(ordinal, id)] from the ordering authority — either a projected corpus
-    (a conversations dir, or the lib/markdown root combining every source: the
+    (a conversations dir, or the output/markdown root combining every source: the
     filenames ARE the cached ordering, read back by corpus_index) or a batch's
     conversations.json / atomised json/ (re-derived via ordered())."""
     p = Path(conversations)
@@ -74,7 +74,7 @@ def main():
     direction.add_argument('--to-ordinal', action='store_true')
     ap.add_argument('--conversations', required=True,
                     help='the ordering authority: the projected corpus (a conversations '
-                         'dir or the lib/markdown root), a batch conversations.json, or '
+                         'dir or the output/markdown root), a batch conversations.json, or '
                          'an atomised json/ dir')
     ap.add_argument('--legacy-ordinals', action='store_true',
                     help='incoming ordinals counted empty stubs (pre-924ebf8 numbering); '

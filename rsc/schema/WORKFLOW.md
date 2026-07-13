@@ -27,15 +27,15 @@ hints to see the exact error before changing the schema.
 ### 1. Identify the failure
 
 ```bash
-src/main/browser-captures/claude/validate.sh --browser-capture ext/browser-captures/claude/<uuid>
-src/main/chat-exports/validate.sh      --chat-export   ext/chat-exports/<batch>
-src/main/code-agents/RUNME.sh        --code-agent  ext/code-agents/<room>/<project>
+src/main/browser-captures/claude/validate.sh --browser-capture input/browser-captures/claude/<uuid>
+src/main/chat-exports/validate.sh      --chat-export   input/chat-exports/<batch>
+src/main/code-agents/RUNME.sh        --code-agent  input/code-agents/<room>/<project>
 ```
 
 (code-agents converts each `.jsonl` before validating, so its runnable unit is the
-project RUNME; `validate.sh --code-agent-session` takes the *gen/* session dir, not ext/.)
+project RUNME; `validate.sh --code-agent-session` takes the *cache/* session dir, not input/.)
 
-Read the validation log in `gen/<pipeline>/<subject>/validation/<schema>/vN.log`.
+Read the validation log in `cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
 ### 2. Create the new schema version
 
@@ -71,13 +71,13 @@ src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_sche
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
-src/main/chat-exports/RUNME.sh     --chat-exports     ext/chat-exports
-src/main/code-agents/RUNME.sh    --code-agents    ext/code-agents
+src/main/browser-captures/RUNME.sh --browser-captures input/browser-captures/claude
+src/main/chat-exports/RUNME.sh     --chat-exports     input/chat-exports
+src/main/code-agents/RUNME.sh    --code-agents    input/code-agents
 ```
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
-in the datum's directory under `gen/`, beside its `validation/` logs, written by
+in the datum's directory under `cache/`, beside its `validation/` logs, written by
 `validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 the logs change, so it can never lag them. Git-ignored, because which data sits on which
 machine is a local fact; the committed CHANGELOG.md beside the schema records only the
@@ -188,7 +188,7 @@ changes, regenerate the candidates:
 ./yoga model
 ```
 
-Review `gen/model/` for new or changed definitions and update `model.json` if any
+Review `cache/model/` for new or changed definitions and update `model.json` if any
 cross-pipeline types need documenting. Also bump any stale version references in the
 `default` section of `model.json`.
 
@@ -221,7 +221,7 @@ latest export failing every version — an all-`✗` row in that pipeline's matr
 ### Matrices are co-located with their data — there is nothing to prune
 
 Each datum's `matrix.md` sits beside the `validation/` logs it summarises, inside the
-datum's own `gen/` directory. The pipeline wipes and regenerates that directory per run,
+datum's own `cache/` directory. The pipeline wipes and regenerates that directory per run,
 matrix included, and deleting a datum deletes its matrix with it — so stale rows for
 departed data cannot exist, and the old `--prune` step is gone. The matrix is purely
 derived state; `check_pipeline_validation_outputs` verifies it agrees with the logs
@@ -249,4 +249,4 @@ conversations v10). It was replaced by two independent gates:
 
 Together they catch a genuinely-drifting fresh export (it fails coverage *and* frontier) while
 letting historical snapshots sit honestly below the latest version. `check_pipeline_validation_outputs`
-still independently enforces that every entry is *registered* in the matrix and matches its `gen/` logs.
+still independently enforces that every entry is *registered* in the matrix and matches its `cache/` logs.

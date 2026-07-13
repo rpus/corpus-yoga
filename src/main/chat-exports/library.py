@@ -2,7 +2,7 @@
 """
 library.py — uuid-keyed resolution of the durable artifact library.
 
-lib/artifacts/downloaded/ outlives any one export batch, so its directories are
+output/artifacts/downloaded/ outlives any one export batch, so its directories are
 keyed by identity with presentation as dressing: <ordinal>-<slug>-<uuid8>, where
 <uuid8> (the first 8 hex digits of the conversation uuid) is the resolution key
 and <ordinal>-<slug> is the batch's canonical presentation name — carried for
@@ -25,7 +25,7 @@ across, byte-identical duplicates dropped, differing files reported as
 CONFLICTs and left in place). Dry-run by default:
 
     src/run_python_script.sh src/main/chat-exports/library.py \
-      gen/chat-exports/<batch>/json [--root lib/artifacts/downloaded] [--apply]
+      cache/chat-exports/<batch>/json [--root output/artifacts/downloaded] [--apply]
 
 The vintages themselves are data: rsc/naming/library_dir_vintages.csv.
 """
@@ -34,7 +34,7 @@ import shutil
 import sys
 from pathlib import Path
 
-LIBRARY = Path(__file__).resolve().parents[3] / 'lib' / 'artifacts' / 'downloaded'
+LIBRARY = Path(__file__).resolve().parents[3] / 'output' / 'artifacts' / 'downloaded'
 
 
 def assert_uuid8_unique(uuids) -> None:

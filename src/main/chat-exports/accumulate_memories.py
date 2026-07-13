@@ -9,9 +9,9 @@ accumulate by uuid (identity stable, ordinals drift); memory snapshots are
 versions of ONE document, so here snapshot time IS the identity — the dual
 keying (cf. library.py):
 
-    lib/memories/<batch snapshot time, ISO-8601 UTC>.json   (verbatim memories.json)
+    output/memories/<batch snapshot time, ISO-8601 UTC>.json   (verbatim memories.json)
 
-Per pipeline run, every batch's archived memory state (gen/<batch>/memories/,
+Per pipeline run, every batch's archived memory state (cache/<batch>/memories/,
 written by archive_components.py) is deposited under its batch timestamp unless
 the nearest earlier deposit already carries identical content — so an unchanged
 memory costs nothing, a rewrite is preserved forever, and a reverted-then-back
@@ -21,7 +21,7 @@ deposited, the batch's memories-divergence no longer blocks its deletion
 (compare_batches stays unprejudiced — the deposit report here is the licence,
 not a carve-out there).
 
-The projection renders every deposit to lib/markdown/claude/memories/<stamp>.md (this
+The projection renders every deposit to output/markdown/claude/memories/<stamp>.md (this
 stage owns that subtree). The memory content is already markdown inside the
 JSON string, so this is an unwrap, not a transformation — the served corpus
 gains a diffable timeline of what claude.ai believed about the user at each
@@ -29,8 +29,8 @@ export.
 
 Usage (wired into RUNME.sh after the per-batch stages):
     src/run_python_script.sh src/main/chat-exports/accumulate_memories.py \
-      [--chat-exports-gen gen/chat-exports] [--lib lib/memories] \
-      [--markdown lib/markdown/claude/memories]
+      [--chat-exports-cache cache/chat-exports] [--memories-output output/memories] \
+      [--markdown output/markdown/claude/memories]
 """
 import argparse
 import csv
@@ -127,7 +127,7 @@ def deposit(states, lib_dir):
                 status = '✓ deposited (new)'
         print(f'  {batch}: memory state {stamp} {status}')
     deposits = sorted(lib_dir.glob('*.json'))
-    print(f'lib/memories: {len(deposits)} deposit(s)')
+    print(f'output/memories: {len(deposits)} deposit(s)')
     return deposits, conflicts
 
 
@@ -156,17 +156,17 @@ def render(deposits, out_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-gen', default=str(REPO / 'gen' / 'chat-exports'))
-    ap.add_argument('--lib', default=str(REPO / 'lib' / 'memories'))
-    ap.add_argument('--markdown', default=str(REPO / 'lib' / 'markdown' / 'claude' / 'memories'))
+    ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
+    ap.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'))
+    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'memories'))
     args = ap.parse_args()
 
-    states = memory_states(Path(args.chat_exports_gen))
+    states = memory_states(Path(args.chat_exports_cache))
     if not states:
         print('no archived memory states under '
-              f'{args.chat_exports_gen} — nothing to accumulate')
+              f'{args.chat_exports_cache} — nothing to accumulate')
         return 0
-    deposits, conflicts = deposit(states, Path(args.lib))
+    deposits, conflicts = deposit(states, Path(args.memories_output))
     render(deposits, Path(args.markdown))
     return 1 if conflicts else 0
 

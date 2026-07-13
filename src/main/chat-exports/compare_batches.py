@@ -39,29 +39,29 @@ and each batch's report names the evidence per component — the WITNESSES
 (every later batch whose verified ⊑ covers it: a licence conditional on that
 witness's own retention; diachronic appending is checked per pair, never
 assumed) and the unconditional DEPOSITS that outlive every batch: for
-memories, the byte-identical copy in lib/memories; for summaries, every
-reading held verbatim in lib/markdown/claude/summaries
+memories, the byte-identical copy in output/memories; for summaries, every
+reading held verbatim in output/markdown/claude/summaries
 (accumulate_summaries.py). A component with no witness and no deposit is
 unique data — a loud WARN, and the batch is not deletable until it is
 deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
 licences it carried.
 
-A gen/ batch dir whose ext/ datum is gone is an ORPHANED DERIVATION — the
+A cache/ batch dir whose input/ datum is gone is an ORPHANED DERIVATION — the
 shadow of a batch already disposed of, not a batch. Its archive copies are
 complete, so left in it would keep passing for a live batch (and witnessing
 others) indefinitely; it is excluded from the comparison and WARNed with its
-rm remedy — datum-scoped gen/ dirs die with their ext/ datum (README), but
+rm remedy — datum-scoped cache/ dirs die with their input/ datum (README), but
 deletion stays deliberate, so the machinery names the orphan rather than
 resurrecting it.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
-    [--chat-exports-gen gen/chat-exports] [--chat-exports ext/chat-exports]
+    [--chat-exports-cache cache/chat-exports] [--chat-exports input/chat-exports]
 
 Requires the batches' atomised json/ (written by the chat-exports pipeline);
-memories/projects/users are read from the batch's gen/ archive copies (written
-by archive_components.py; ext/ raw fallback for gen dirs predating that step).
+memories/projects/users are read from the batch's cache/ archive copies (written
+by archive_components.py; input/ raw fallback for cache dirs predating that step).
 Exit 0 iff every earlier batch is covered (witnessed or deposited).
 """
 import argparse
@@ -77,7 +77,7 @@ REPO = Path(__file__).resolve().parents[3]
 
 def _rel(p: Path) -> Path:
     """Repo-relative spelling for printed paths — symmetric and brief whatever
-    spelling the caller passed (RUNME passes gen absolute, ext relative), and
+    spelling the caller passed (RUNME passes cache absolute, input relative), and
     runnable from the repo root, where every printed command runs."""
     try:
         return p.relative_to(REPO)
@@ -140,8 +140,8 @@ def units_summaries(gen_dir, ext_dir):
 
 
 def _component_path(gen_dir, ext_dir, *rel):
-    """Prefer the batch's gen/ archive copy (written by archive_components.py);
-    fall back to the raw ext/ batch dir for gen dirs predating the archive step."""
+    """Prefer the batch's cache/ archive copy (written by archive_components.py);
+    fall back to the raw input/ batch dir for cache dirs predating the archive step."""
     archived = gen_dir.joinpath(*rel)
     return archived if archived.exists() else ext_dir / rel[-1]
 
@@ -317,22 +317,22 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-gen', default='gen/chat-exports',
-                    help='gen root holding <batch>/json/ atomised pieces')
-    ap.add_argument('--chat-exports', default='ext/chat-exports',
-                    help='ext root holding the raw batch dirs (memories/projects/users)')
+    ap.add_argument('--chat-exports-cache', default='cache/chat-exports',
+                    help='cache root holding <batch>/json/ atomised pieces')
+    ap.add_argument('--chat-exports', default='input/chat-exports',
+                    help='input root holding the raw batch dirs (memories/projects/users)')
     ap.add_argument('--captures', default=None,
-                    help='ext/browser-captures/claude — also compare the latest batch '
+                    help='input/browser-captures/claude — also compare the latest batch '
                          'against the live-capture corpus, per conversation (informational)')
-    ap.add_argument('--memories-lib', default='lib/memories',
+    ap.add_argument('--memories-output', default='output/memories',
                     help='the deposit store — a byte-identical deposit is the '
                          'unconditional memories licence')
-    ap.add_argument('--summaries-lib', default='lib/markdown/claude/summaries',
+    ap.add_argument('--summaries-output', default='output/markdown/claude/summaries',
                     help='the summary-reading deposit store (accumulate_summaries.py) — '
                          'a verbatim deposit is the unconditional summaries licence')
     args = ap.parse_args()
 
-    root = Path(args.chat_exports_gen)
+    root = Path(args.chat_exports_cache)
     ext_root = Path(args.chat_exports)
     batches = sorted((d for d in root.glob('data-*') if (d / 'json').is_dir()),
                      key=lambda d: (batch_time(d.name) or datetime.min.replace(tzinfo=timezone.utc)))
@@ -340,7 +340,7 @@ def main():
     for n in unparseable:
         print(f'warning: cannot parse a time from batch name {n} — ordering may be wrong', file=sys.stderr)
 
-    # Orphaned derivations (docstring): a gen/ dir with no ext/ datum beside it
+    # Orphaned derivations (docstring): a cache/ dir with no input/ datum beside it
     # must not feed the comparison — its archive copies are complete, so it
     # would keep passing for a live batch (and witnessing others) after the
     # data it derives from was disposed of.
@@ -370,14 +370,14 @@ def main():
     # somewhere durable that is KEPT — for each component, name the WITNESSES
     # (later batches whose verified ⊑ covers it: a licence conditional on the
     # witness's own retention) and the unconditional DEPOSITS (memories: the
-    # byte-identical lib/memories copy; summaries: every reading held verbatim
-    # in the summaries lib — deposits outlive every batch). Witnessed-by-later
+    # byte-identical output/memories copy; summaries: every reading held verbatim
+    # in the summaries output — deposits outlive every batch). Witnessed-by-later
     # relies on nothing but per-pair verified subset — diachronic appending is
     # checked, never assumed. Verdicts describe what exists NOW: re-run after
     # any deletion, since deleting a witness expires the licences it carried.
     covered_all = True
     deletable = []
-    summ_fps = summaries_deposit_fps(Path(args.summaries_lib))
+    summ_fps = summaries_deposit_fps(Path(args.summaries_output))
     for i, b in enumerate(batches[:-1]):
         ext_dir = ext_root / b.name
         working, uncovered = [], []
@@ -385,14 +385,14 @@ def main():
             earlier = all_units[b.name][name]
             witnesses = [w.name for w in batches[i + 1:]
                          if covers(earlier, all_units[w.name][name])]
-            dep = deposit_witness(b, ext_dir, Path(args.memories_lib)) if name == 'memories' else None
+            dep = deposit_witness(b, ext_dir, Path(args.memories_output)) if name == 'memories' else None
             if dep is not None:
                 working.append(f'    memories: copied — {dep} is byte-identical (unconditional)'
                                + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
             elif (name == 'summaries' and earlier
                   and all(atoms <= summ_fps for _k, (_n2, atoms) in earlier.items())):
                 working.append(f'    summaries: deposited — every reading held verbatim in '
-                               f'{args.summaries_lib} (unconditional)'
+                               f'{args.summaries_output} (unconditional)'
                                + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
             elif witnesses:
                 working.append(f'    {name} ⊑ {", ".join(_short(w) for w in witnesses)}'
@@ -423,7 +423,7 @@ def main():
             'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
             'not deletable until deposited or superseded'))
         # Each licensed disposal is its own INFO atom — the reason plus one
-        # runnable command over BOTH dirs (the export and its gen/ derivation
+        # runnable command over BOTH dirs (the export and its cache/ derivation
         # together, so no orphaned-derivation WARN ever follows a licensed deletion).
         for b in deletable:
             print(f'  INFO: {b.name} deletable — every atom witnessed or deposited; to dispose:')

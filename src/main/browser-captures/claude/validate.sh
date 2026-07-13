@@ -14,12 +14,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
-OUTPUT_DIR="$REPO_DIR/gen/browser-captures/claude"
+CACHE_DIR="$REPO_DIR/cache/browser-captures/claude"
 
 validate_conversation() {
   local uuid_dir="${1%/}"
   local uuid; uuid="$(basename "$uuid_dir")"
-  local out_dir="$OUTPUT_DIR/$uuid"
+  local out_dir="$CACHE_DIR/$uuid"
 
   # Return the validator's own rc explicitly: corpus mode calls this inside a
   # $(…) with a tested exit status, a context where set -e is suspended — an

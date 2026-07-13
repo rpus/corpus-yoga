@@ -1,4 +1,4 @@
--- Capture the current Claude or Gemini conversation into ext/browser-captures/.
+-- Capture the current Claude or Gemini conversation into input/browser-captures/.
 -- Delegates to safari_capture.sh --agent <claude|gemini> --id, which handles JS injection,
 -- file moving, API JSON fetch, and logging.
 --

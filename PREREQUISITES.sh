@@ -119,7 +119,7 @@ check_room() {
 
 check_cli() {
   echo "yoga CLI (./yoga — table: rsc/cli/commands.csv)"
-  local comp="$SCRIPT_DIR/gen/completions/_yoga"
+  local comp="$SCRIPT_DIR/cache/completions/_yoga"
   if [[ -f "$comp" ]]; then
     # Currency probe is read-only (`./yoga completions` without --write only
     # prints); cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
@@ -131,11 +131,11 @@ check_cli() {
       info "zsh completion generated; currency cannot be verified (running ./yoga needs Python 3)"
     fi
   else
-    info "zsh completion not generated — ./yoga completions --write (derived under gen/; safe to regenerate any time)"
+    info "zsh completion not generated — ./yoga completions --write (derived under cache/; safe to regenerate any time)"
   fi
   if ! command -v zsh &>/dev/null; then
     info "zsh not present — tab-completion not applicable on this machine"
-  elif [[ -f "$HOME/.zshrc" ]] && grep -q 'gen/completions' "$HOME/.zshrc" 2>/dev/null; then
+  elif [[ -f "$HOME/.zshrc" ]] && grep -q 'cache/completions' "$HOME/.zshrc" 2>/dev/null; then
     ok "completions fpath line present in ~/.zshrc"
   else
     info "no completions fpath line in ~/.zshrc — ./yoga completions --write prints the lines to add"
@@ -170,34 +170,34 @@ check_pipeline_inputs() {
   echo "pipeline inputs (this repo ships no data; you supply your own)"
   local n
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/ext/browser-captures/claude"/*/)"
+  n="$(count_glob_dirs "$SCRIPT_DIR/input/browser-captures/claude"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n claude capture(s) in ext/browser-captures/claude — will validate + project to markdown"
+    ok "browser-captures: $n claude capture(s) in input/browser-captures/claude — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in ext/browser-captures/claude — will skip (populate via --capture-from-browser)"
+    info "browser-captures: no claude captures in input/browser-captures/claude — will skip (populate via --capture-from-browser)"
   fi
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/ext/browser-captures/gemini"/*/)"
+  n="$(count_glob_dirs "$SCRIPT_DIR/input/browser-captures/gemini"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in ext/browser-captures/gemini — markdown is the terminal artifact (browse via serve_markdown.sh); not validated"
+    ok "browser-captures: $n gemini scrape(s) in input/browser-captures/gemini — markdown is the terminal artifact (browse via serve_markdown.sh); not validated"
   else
-    info "browser-captures: no gemini scrapes in ext/browser-captures/gemini — captured only via --capture-from-browser; not processed further"
+    info "browser-captures: no gemini scrapes in input/browser-captures/gemini — captured only via --capture-from-browser; not processed further"
   fi
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/ext/chat-exports"/data-*/)"
+  n="$(count_glob_dirs "$SCRIPT_DIR/input/chat-exports"/data-*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "chat-exports: $n bulk export(s) in ext/chat-exports — will validate, extract, atomise, render"
+    ok "chat-exports: $n bulk export(s) in input/chat-exports — will validate, extract, atomise, render"
   else
-    info "chat-exports: no data-* bulk export in ext/chat-exports — will skip (download via https://claude.ai/settings/data-privacy-controls)"
+    info "chat-exports: no data-* bulk export in input/chat-exports — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  if [[ -d "$SCRIPT_DIR/ext/code-agents" ]]; then
-    n="$(count_glob_dirs "$SCRIPT_DIR/ext/code-agents"/*/)"
+  if [[ -d "$SCRIPT_DIR/input/code-agents" ]]; then
+    n="$(count_glob_dirs "$SCRIPT_DIR/input/code-agents"/*/)"
     local sessions
-    sessions="$(find -L "$SCRIPT_DIR/ext/code-agents" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-agents: ext/code-agents holds $n room(s), $sessions session file(s) — will convert + validate into gen/"
+    sessions="$(find -L "$SCRIPT_DIR/input/code-agents" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
+    ok "code-agents: input/code-agents holds $n room(s), $sessions session file(s) — will convert + validate into cache/"
   else
-    info "code-agents: no ext/code-agents store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
+    info "code-agents: no input/code-agents store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
     info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./yoga agent capture --all"
@@ -206,7 +206,7 @@ check_pipeline_inputs() {
 
 notes() {
   echo "notes"
-  info "./RUNME.sh writes only to ext/, gen/, lib/, logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "./RUNME.sh writes only to input/, cache/, output/, logs/ (all git-ignored) and the venv; nothing else on this machine"
   info "src/test/pre_commit.sh: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 

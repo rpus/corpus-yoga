@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
-Output: gen/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring rsc/schema/{pipeline}/{schema}/).
+Output: cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring rsc/schema/{pipeline}/{schema}/).
 rsc/schema/model.json is hand-curated from these.
 
 Usage:
@@ -16,7 +16,7 @@ from gen_model_candidate import generate
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
-OUT_DIR    = REPO_ROOT / 'gen' / 'model'
+OUT_DIR    = REPO_ROOT / 'cache' / 'model'
 
 
 def _sorted_versions(schema_dir: Path) -> list[Path]:
@@ -41,9 +41,9 @@ def main():
             out_dir.mkdir(parents=True, exist_ok=True)
             for schema in versions:
                 (out_dir / schema.name).write_text(generate(name, schema))
-                print(f'  ✓ gen/model/{name}/{schema.name}')
+                print(f'  ✓ cache/model/{name}/{schema.name}')
 
-    print('Review gen/model/ and update rsc/schema/model.json as needed.')
+    print('Review cache/model/ and update rsc/schema/model.json as needed.')
 
 
 if __name__ == '__main__':

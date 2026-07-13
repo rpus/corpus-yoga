@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 # dashboard.sh — the paid model capture behind the corpus dashboard (yoga dashboard).
 # NOT per-batch, NOT in the pipeline (2026-07-09): one deliberate single-source
-# capture over THE CORPUS ITSELF (lib/markdown — every source's conversations,
+# capture over THE CORPUS ITSELF (output/markdown — every source's conversations,
 # claude and gemini alike: the same projected corpus the dashboard describes and
 # serve renders; sourced from markdownConversation form, 2026-07-10; gemini joined
 # the same day, its ordering a capture of the web-UI listing), written durable to
-# lib/dashboard/, shared
+# output/dashboard/, shared
 # by both rooms. The category PALETTE is authored inline in rsc/site/index.html
 # (design, not inference); only the weighted concept list (word cloud) and the
 # chat→category assignment are captured here.
 #
 #   yoga dashboard              # status: what is captured (read-only, free)
 #   yoga dashboard present      # FREE: render the corpus dashboard page from
-#                               #   lib/markdown + lib/dashboard → gen/dashboard/presentation/
+#                               #   output/markdown + output/dashboard → cache/dashboard/presentation/
 #                               #   (keys = corpus ordinals, all sources; the per-batch
-#                               #   pages under gen/chat-exports/ remain export artifacts)
-#   yoga dashboard capture      # PAID: re-read the corpus → lib/dashboard/
+#                               #   pages under cache/chat-exports/ remain export artifacts)
+#   yoga dashboard capture      # PAID: re-read the corpus → output/dashboard/
 #                               #   [--conversations <path>] overrides the source — a
 #                               #     projected markdown corpus dir, an atomised json/
 #                               #     dir, or a conversations.json (default:
-#                               #     lib/markdown — the whole corpus, every source)
+#                               #     output/markdown — the whole corpus, every source)
 #                               #   [--only semantic-concepts|chat-categories] refreshes
 #                               #     just one file (default: both) — e.g. re-roll the
 #                               #     category assignment without disturbing the concept
@@ -37,7 +37,7 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
-# The default source is the projected corpus itself (lib/markdown — every source's
+# The default source is the projected corpus itself (output/markdown — every source's
 # conversations dir combined, claude first), whose filenames carry the cached
 # ordering — read back by markdown_projection.corpus_index, the format authority.
 # Each line carries a [source] marker: the stem's <source> dir prefix on a
@@ -168,24 +168,24 @@ validate_capture() {
 # weighted concept list (word cloud) and the chat→category assignment. Run once
 # over the corpus; both rooms share the result.
 #
-# capture is DERIVE-then-DEPOSIT: both readings are captured into gen/dashboard
-# (the workshop, git-ignored, corpus-scoped like gen/indexing) and validated there, then
-# PROMOTED into the durable lib/dashboard/ only once both succeed. A failed or
+# capture is DERIVE-then-DEPOSIT: both readings are captured into cache/dashboard
+# (the workshop, git-ignored, corpus-scoped like cache/indexing) and validated there, then
+# PROMOTED into the durable output/dashboard/ only once both succeed. A failed or
 # malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
 # untouched; set -e aborts before the promotion step. Promotion is `mv` (an atomic
 # rename within the repo's one filesystem), the two adjacent so the mixed-vintage
 # window is two syscalls rather than a paid API round-trip.
 # capture_dashboard <conversations_json> <only> — <only> is "" (both),
 # "semantic-concepts", or "chat-categories". Whatever is requested is captured and
-# validated in gen/ FIRST, then all of it promoted — so the default two-file refresh
+# validated in cache/ FIRST, then all of it promoted — so the default two-file refresh
 # never leaves the durable pair at mixed vintages if the second capture fails.
 capture_dashboard() {
   local conv="$1" only="${2:-}"
   local src_label; src_label="$(basename "$(dirname "$conv")")/$(basename "$conv")"
-  # corpus-scoped staging (like gen/indexing): the capture is a reading of the
+  # corpus-scoped staging (like cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
-  local stage="$REPO_DIR/gen/dashboard"
-  local dest="$REPO_DIR/lib/dashboard"
+  local stage="$REPO_DIR/cache/dashboard"
+  local dest="$REPO_DIR/output/dashboard"
   mkdir -p "$stage" "$dest"
 
   local want_concepts=1 want_categories=1
@@ -202,7 +202,7 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → gen/dashboard (promoted to lib/dashboard/ on success)"
+  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → cache/dashboard (promoted to output/dashboard/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/semantic-concepts.json"
     validate_capture "$stage/semantic-concepts.json" semanticConcepts
@@ -225,13 +225,13 @@ capture_dashboard() {
 
   [[ "$want_concepts"   == 1 ]] && mv "$stage/semantic-concepts.json" "$dest/semantic-concepts.json"
   [[ "$want_categories" == 1 ]] && mv "$stage/chat-categories.json"   "$dest/chat-categories.json"
-  echo "promoted → lib/dashboard/ — both rooms share it (lib/ is iCloud, not git)"
+  echo "promoted → output/dashboard/ — both rooms share it (output/ is iCloud, not git)"
 }
 
 # ── read-only status (bare `yoga dashboard`) ──────────────────────────────────
 status() {
-  local d="$REPO_DIR/lib/dashboard" f
-  echo "lib/dashboard/ — the paid model captures the dashboard renders"
+  local d="$REPO_DIR/output/dashboard" f
+  echo "output/dashboard/ — the paid model captures the dashboard renders"
   for f in semantic-concepts.json chat-categories.json; do
     if [[ -f "$d/$f" ]]; then
       echo "  ✓ $f ($(jq '.rows | length' "$d/$f") rows)"
@@ -244,17 +244,17 @@ status() {
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
-# The corpus itself: lib/markdown/claude/conversations — the projected
+# The corpus itself: output/markdown/claude/conversations — the projected
 # markdownConversation corpus, source-agnostic by construction (whatever projects
 # into it — captures today, gemini tomorrow — is what the model reads), and the
 # very thing the dashboard describes. Its filenames carry ordered()'s canonical
 # numbering and its frontmatter the uuids, so the chat list and the rekey map read
 # straight off the OUTPUT layer: no batch selection, no atomise-first coupling —
 # capture works the moment the corpus exists. (Sourced from the frontier batch's
-# gen/<batch>/json/ before 2026-07-10; from ext/conversations.json before that —
+# cache/<batch>/json/ before 2026-07-10; from input/conversations.json before that —
 # each move one layer further down the input→cache→output lifecycle.)
 corpus_conversations() {
-  local d="$REPO_DIR/lib/markdown"
+  local d="$REPO_DIR/output/markdown"
   [[ -d "$d" ]] && compgen -G "$d/*/conversations/*.md" > /dev/null && echo "$d"
 }
 
@@ -274,7 +274,7 @@ capture() {
   [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   local conv="${conversations:-$(corpus_conversations)}"
-  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under lib/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under output/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   capture_dashboard "$conv" "$only"
 }
 

@@ -10,7 +10,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-# run diagnostics live under logs/ (time-keyed, human-facing); gen/ holds only
+# run diagnostics live under logs/ (time-keyed, human-facing); cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
 LOG_FILE="$REPO_DIR/logs/src/main/model/serve_markdown.log"
 

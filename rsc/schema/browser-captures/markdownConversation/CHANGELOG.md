@@ -2,7 +2,7 @@
 
 This schema has no machine-local validation matrix: markdownConversation instances are
 projections, not captured data — `project_markdown.py` validates each one in-memory at
-render time, rather than writing per-datum `vN.log` files under `gen/`
+render time, rather than writing per-datum `vN.log` files under `cache/`
 (see `rsc/schema/WORKFLOW.md`).
 
 ---
@@ -21,7 +21,7 @@ render time, rather than writing per-datum `vN.log` files under `gen/`
   re-read differently across snapshots (№99: capture vs export, identical
   `updated_at`) — so it is carried as data, never body-rendered:
   `accumulate_summaries.py` deposits each distinct reading durably under
-  `lib/markdown/claude/summaries/` (the memories pattern, per conversation), the
+  `output/markdown/claude/summaries/` (the memories pattern, per conversation), the
   body's source list links each conversation's deposit index, and `compare_sources`
   reports cross-source summary drift as its own non-gating category.
 
@@ -30,7 +30,7 @@ frontmatter — write-time PROVENANCE (source, uuid, turn count, last activity,
 cross-check currency vs the other corpus): facts about the file's derivation, not
 part of the conversation. The file's outbound LINKS live in the body as a named
 SOURCE LIST right after the title — `[This conversation on claude.ai](<url>)` (the
-bare `<url>` preamble line retired in its favour) and, in the lib/ render,
+bare `<url>` preamble line retired in its favour) and, in the output/ render,
 `[Its distinct summary readings](../summaries/<stem>/index.md)` — proper hyperlinks
 with explanatory names, clickable in any markdown renderer, not only the serve
 viewer. The rendered body is therefore title + source list + turns.

@@ -11,11 +11,11 @@ bash_tool commands, i.e. patterns of the form:
 
 Groups output by conversation under:
 
-    gen/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
-    gen/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
+    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
+    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
-The durable library lib/artifacts/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
+The durable library output/artifacts/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
 resolved via library.py); files new to the library are copied there and named individually
 in this run's log (the delta is information, not a second copy).
 
@@ -184,7 +184,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 
 SCRIPT_DIR     = Path(__file__).parent
-OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
+CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'cache' / 'chat-exports'
 
 
 def main():
@@ -198,7 +198,7 @@ def main():
 
     data_dir           = Path(args.chat_export).resolve()
     conversations_path = data_dir / 'conversations.json'
-    out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_heredocs'
+    out_dir            = Path(args.out_dir) if args.out_dir else CACHE_DIR / data_dir.name / 'extracted_heredocs'
 
     if not conversations_path.exists():
         sys.exit(f'Not found: {conversations_path}')

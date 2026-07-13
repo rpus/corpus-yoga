@@ -1,19 +1,19 @@
 #!/usr/bin/env python
 """
-cache_io.py — the reader for rsc/cache_io.csv, the declared gen/ IO registry.
+cache_io.py — the reader for rsc/cache_io.csv, the declared cache/ IO registry.
 
-gen/ is the cache tier: every LIVE subtree is written and/or read by the
-machinery. This registry declares, per gen/ subtree, WHO writes it (its
+cache/ is the cache tier: every LIVE subtree is written and/or read by the
+machinery. This registry declares, per cache/ subtree, WHO writes it (its
 producer command) and WHO reads it (machinery consumers, or `external:<who>`
-for a human/browser/shell). Paths are REPO-RELATIVE (`gen/…`), the real thing
+for a human/browser/shell). Paths are REPO-RELATIVE (`cache/…`), the real thing
 you can cd to or rm. Three consumers share it:
 
-  clean  — a gen/ subtree ABSENT from the registry is residue (neither written
+  clean  — a cache/ subtree ABSENT from the registry is residue (neither written
            nor read): removable (yoga clean).
-  regen  — the distinct producer commands rebuild gen/ (yoga regen).
+  regen  — the distinct producer commands rebuild cache/ (yoga regen).
   check  — pre_commit's check_cache_io blocks the catastrophe: a path READ with
-           no WRITER (a gen/ dependency nothing produces) breaks the "gen/ is
-           reproducible from ext/" contract. Written-but-not-read is fine (a
+           no WRITER (a cache/ dependency nothing produces) breaks the "cache/ is
+           reproducible from input/" contract. Written-but-not-read is fine (a
            terminal output — a page a browser reads); only the read side,
            lacking a writer, is fatal.
 
@@ -33,7 +33,7 @@ def _split(cell: str) -> list[str]:
 
 def rows() -> list[dict]:
     """The registry rows, each with parsed written_by / read_by lists. `pipeline`
-    names the owning pipeline for a pipeline's gen root (empty for out-of-band
+    names the owning pipeline for a pipeline's cache root (empty for out-of-band
     producers). Raises if the columns drift — the registry is an interface."""
     with REGISTRY.open() as f:
         reader = csv.DictReader(f)
@@ -51,13 +51,13 @@ def rows() -> list[dict]:
 
 
 def owned_paths() -> set[str]:
-    """The repo-relative subtrees (`gen/…`) the machinery writes and/or reads —
+    """The repo-relative subtrees (`cache/…`) the machinery writes and/or reads —
     clean's keep-set; anything else on disk is residue."""
     return {r['cache_path'] for r in rows()}
 
 
 def path_for(pipeline: str) -> str:
-    """The repo-relative path (`gen/…`) a pipeline writes — the ONE authority for
+    """The repo-relative path (`cache/…`) a pipeline writes — the ONE authority for
     it, so PIPELINES derives its cache_output from here rather than restating it.
     Raises loudly if a pipeline has no row (a pipeline unbuildable without its
     cache_io declaration is the point)."""

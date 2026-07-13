@@ -65,7 +65,7 @@ _mtime() {
 main() {
   parse_args "$@"
 
-  mkdir -p "$REPO_DIR/gen"
+  mkdir -p "$REPO_DIR/cache"
 
   local fix_mode=0
   if [[ "${1:-}" == "--fix" ]]; then fix_mode=1; fi

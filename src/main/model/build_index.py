@@ -5,9 +5,9 @@ and the curation surface behind it: accept / reject / candidates over the concep
 capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
-It scans the readable markdown library (lib/markdown/{claude,gemini}/conversations/),
-matches the accepted headwords (lib/indexing/accepted.txt: 'headword = alias,
-...' lines, case-insensitive on word boundaries), and writes lib/markdown/index.md —
+It scans the readable markdown library (output/markdown/{claude,gemini}/conversations/),
+matches the accepted headwords (output/indexing/accepted.txt: 'headword = alias,
+...' lines, case-insensitive on word boundaries), and writes output/markdown/index.md —
 one alphabetised entry per headword, locators grouped by conversation, every locator
 a link to the turn's durable anchor (message uuid for claude, role-count for
 gemini), so an entry survives corpus renumbering.
@@ -21,9 +21,9 @@ so regeneration is a no-op when nothing changed, per CALCULUS L1).
 Curation is reproducible from the repo, on the schema system's template
 (candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
 for the three line-list formats (accepted.txt, rejected.txt, candidates.txt) and
-the loop. `candidates` derives the pending report into a rebuildable gen/ file
-(gen/indexing/candidates.txt) from the single-source concept capture
-(lib/dashboard/semantic-concepts.json); every captured concept must end up
+the loop. `candidates` derives the pending report into a rebuildable cache/ file
+(cache/indexing/candidates.txt) from the single-source concept capture
+(output/dashboard/semantic-concepts.json); every captured concept must end up
 accepted or rejected — anything else is PENDING, reported here and by the
 pre-commit data tier.
 
@@ -33,10 +33,10 @@ many concepts remain pending.
 
 Usage (via ./yoga indexing):
   yoga indexing                                    # status: counts + pending queue
-  yoga indexing candidates [--top N]               # derive gen/indexing/candidates.txt
+  yoga indexing candidates [--top N]               # derive cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
   yoga indexing reject <concept> [--because <why>] # reject a concept
-  yoga indexing build                              # build lib/markdown/index.md
+  yoga indexing build                              # build output/markdown/index.md
 """
 import argparse
 import re
@@ -57,7 +57,7 @@ LOCATORS_SHOWN = 4
 
 def parse_accepted(path: Path) -> dict[str, list[str]]:
     """{headword: [headword, alias, ...]} preserving file order of headwords.
-    Absent file → empty (accepted.txt lives in git-ignored lib/, so a fresh room
+    Absent file → empty (accepted.txt lives in git-ignored output/, so a fresh room
     before iCloud sync has none — degrade to 'no headwords', never crash)."""
     entries: dict[str, list[str]] = {}
     if not path.exists():
@@ -74,7 +74,7 @@ def parse_accepted(path: Path) -> dict[str, list[str]]:
 
 
 def parse_rejected(path: Path) -> set[str]:
-    """Lower-cased rejected concepts from lib/indexing/rejected.txt — one per
+    """Lower-cased rejected concepts from output/indexing/rejected.txt — one per
     line, 'term # optional reason' (the file name says 'rejected', so no verb
     prefix). A '# …'-only line is a comment."""
     rejected = set()
@@ -88,12 +88,12 @@ def parse_rejected(path: Path) -> set[str]:
 
 def inferred_concepts() -> list[str]:
     """The finite candidate source: the single-source concept capture
-    lib/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga dashboard capture`).
-    Durable and shared across rooms (via lib/), so both curate one shared base — the
-    24-vs-27 divergence of the old per-batch, per-machine gen/ inference is gone.
+    output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga dashboard capture`).
+    Durable and shared across rooms (via output/), so both curate one shared base — the
+    24-vs-27 divergence of the old per-batch, per-machine cache/ inference is gone.
     Empty where no capture has been taken yet."""
     import json
-    f = REPO / 'lib' / 'dashboard' / 'semantic-concepts.json'
+    f = REPO / 'output' / 'dashboard' / 'semantic-concepts.json'
     if not f.exists():
         return []
     return [r[0] for r in json.loads(f.read_text()).get('rows', [])]
@@ -146,7 +146,7 @@ def build(markdown_root: Path, accepted_path: Path) -> str:
     lines = [
         '# Index',
         '',
-        f'Headwords: `lib/indexing/accepted.txt` (curated — edit and re-run '
+        f'Headwords: `output/indexing/accepted.txt` (curated — edit and re-run '
         f'`yoga indexing build`). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
@@ -201,7 +201,7 @@ STOPWORDS = frozenset(
     every each both again true false none non within without across against""".split())
 
 
-CANDIDATES_TXT = REPO / 'gen' / 'indexing' / 'candidates.txt'
+CANDIDATES_TXT = REPO / 'cache' / 'indexing' / 'candidates.txt'
 
 
 def _coverage(accepted_path: Path, rejected_path: Path):
@@ -218,9 +218,9 @@ def _coverage(accepted_path: Path, rejected_path: Path):
 def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
     """The pending queue as a bare line-list (one concept per line) — the third
     disposal state beside accepted.txt and rejected.txt, and a DETERMINISTIC,
-    reproducible derivation of lib/dashboard/semantic-concepts.json − accepted −
+    reproducible derivation of output/dashboard/semantic-concepts.json − accepted −
     rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
-    data. Reproducible, so it is a rebuildable gen/ file, regenerated on demand
+    data. Reproducible, so it is a rebuildable cache/ file, regenerated on demand
     (not committed, not gated)."""
     pending = pending_concepts(accepted_path, rejected_path)
     return '\n'.join(pending) + ('\n' if pending else '')
@@ -228,10 +228,10 @@ def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
 
 def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
                top: int | None) -> None:
-    """Write the pending line-list (gen/indexing/candidates.txt) AND print it —
+    """Write the pending line-list (cache/indexing/candidates.txt) AND print it —
     the queue is the deliverable, so the console leads with it, never with a
     side report. The optional frequency advisory (frequent uncovered corpus
-    words, --top N) scans lib/markdown, so it is never filed — it would differ
+    words, --top N) scans output/markdown, so it is never filed — it would differ
     per machine — and it prints only when explicitly asked for: its raw word
     ranking is a prospecting aid, not the queue, and unasked it buried the
     queue under noise (user report, 2026-07-11)."""
@@ -328,7 +328,7 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
 
 
 def status(accepted_path: Path, rejected_path: Path) -> None:
-    """Read-only state of lib/indexing/ (bare `yoga indexing`): counts on
+    """Read-only state of output/indexing/ (bare `yoga indexing`): counts on
     stderr, the pending queue as pure lines on stdout — human-amenable at the
     terminal (both interleave), agent-amenable in a pipe (queue only)."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
@@ -350,11 +350,11 @@ def status(accepted_path: Path, rejected_path: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--markdown', default=str(REPO / 'lib' / 'markdown'))
-    ap.add_argument('--accepted', default=str(REPO / 'lib' / 'indexing' / 'accepted.txt'))
-    ap.add_argument('--rejected', default=str(REPO / 'lib' / 'indexing' / 'rejected.txt'))
+    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown'))
+    ap.add_argument('--accepted', default=str(REPO / 'output' / 'indexing' / 'accepted.txt'))
+    ap.add_argument('--rejected', default=str(REPO / 'output' / 'indexing' / 'rejected.txt'))
     sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
-    cand = sub.add_parser('candidates', help='derive gen/indexing/candidates.txt (the pending queue)')
+    cand = sub.add_parser('candidates', help='derive cache/indexing/candidates.txt (the pending queue)')
     # --top belongs on the candidates subparser, not the parent — the advertised form
     # is `candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
     cand.add_argument('--top', type=int, default=None, metavar='N',
@@ -366,7 +366,7 @@ def main():
     rej = sub.add_parser('reject', help='reject a concept into the disposal record')
     rej.add_argument('concept')
     rej.add_argument('--because', default='', help='reason, kept as a # comment')
-    sub.add_parser('build', help='build lib/markdown/index.md from accepted.txt')
+    sub.add_parser('build', help='build output/markdown/index.md from accepted.txt')
     args = ap.parse_args()
 
     accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)

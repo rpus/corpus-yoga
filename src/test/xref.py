@@ -50,7 +50,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parents[2]
 
 # Directories/files to skip entirely
-SKIP_DIRS  = {'ext', 'gen', 'lib', 'logs', 'tmp', '__pycache__'}
+SKIP_DIRS  = {'input', 'cache', 'output', 'logs', 'tmp', '__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
 SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}
 
@@ -82,7 +82,7 @@ REPO_PREFIXES = tuple(
     for d in sorted(REPO_ROOT.iterdir())
     if d.is_dir() and not d.name.startswith('.')
 )
-# Regex alternation of bare directory names, e.g. 'gen|rsc|src'
+# Regex alternation of bare directory names, e.g. 'cache|rsc|src'
 PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ def looks_like_repo_path(s: str) -> bool:
         if base.endswith(_DOT_EXTS):
             return True
         s = s[2:]
-    # Must be more than a bare fragment like "gen/data-" with no filename
+    # Must be more than a bare fragment like "cache/data-" with no filename
     if not Path(s).suffix and not any(s.rstrip('/') == p.rstrip('/') for p in REPO_PREFIXES):
         has_name = bool(Path(s).name) and len(Path(s).name) > 3
         if not has_name:

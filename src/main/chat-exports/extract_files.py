@@ -7,11 +7,11 @@ tool calls,.
 
 Group output by conversation under:
 
-    gen/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
+    cache/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
-The durable library lib/artifacts/downloaded/ is keyed by identity instead
+The durable library output/artifacts/downloaded/ is keyed by identity instead
 (<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber
 between batches, uuids don't); files new to the library are copied there and named
 individually in this run's log (the delta is information, not a second copy).
@@ -153,7 +153,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).parent
-OUTPUT_DIR     = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
+CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'cache' / 'chat-exports'
 
 
 def main():
@@ -167,7 +167,7 @@ def main():
 
     data_dir           = Path(args.chat_export).resolve()
     conversations_path = data_dir / 'conversations.json'
-    out_dir            = Path(args.out_dir) if args.out_dir else OUTPUT_DIR / data_dir.name / 'extracted_files'
+    out_dir            = Path(args.out_dir) if args.out_dir else CACHE_DIR / data_dir.name / 'extracted_files'
 
     if not conversations_path.exists():
         sys.exit(f'conversations.json not found: {conversations_path}')

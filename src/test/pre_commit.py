@@ -15,7 +15,7 @@ Checks are grouped into three tiers, run in order:
     code    — repo code and documentation (required files, xref); deterministic on any clone
     schema  — committed schema artifacts (diagnostics, changelogs, joins, mcp currency);
               deterministic on any clone (mcp currency needs network)
-    data    — local ext//gen/ data vs the committed record (validation outputs, coverage,
+    data    — local input//cache/ data vs the committed record (validation outputs, coverage,
               frontier); machine-local, skipped per pipeline where no local data exists
 
 The committed expected score (src/test/pre_commit_expected_score) records the code and
@@ -43,8 +43,8 @@ from typing import Any
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
 REPO_ROOT                = Path(__file__).resolve().parents[2]
-EXT                      = REPO_ROOT / 'ext'
-GEN                      = REPO_ROOT / 'gen'
+INPUT                    = REPO_ROOT / 'input'
+CACHE                    = REPO_ROOT / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
@@ -58,7 +58,7 @@ from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + standalone commands)
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
-import cache_io  # noqa: E402 — the declared gen/ IO registry (check_cache_io)
+import cache_io  # noqa: E402 — the declared cache/ IO registry (check_cache_io)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from build_index import inferred_concepts, pending_concepts  # noqa: E402
@@ -73,7 +73,7 @@ class Pipeline:
     input:           Path
     input_glob:      str
     subject_depth:   int
-    # Per-item remedy command; takes the pipeline's TOP-LEVEL ext/ entry (see _fix_item_cmd).
+    # Per-item remedy command; takes the pipeline's TOP-LEVEL input/ entry (see _fix_item_cmd).
     fix_item_cmd:    str
     # Extra diagnostics to skip beyond the universal versioned-schema skip set.
     # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
@@ -89,7 +89,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['apiConversation'],
         changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
         cache_output      = REPO_ROOT / cache_io.path_for('browser-captures'),
-        input             = EXT / 'browser-captures' / 'claude',
+        input             = INPUT / 'browser-captures' / 'claude',
         input_glob        = '*/',
         subject_depth     = 1,
         fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',
@@ -98,7 +98,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['conversations', 'memories', 'projects', 'users'],
         changelog         = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
         cache_output      = REPO_ROOT / cache_io.path_for('chat-exports'),
-        input             = EXT / 'chat-exports',
+        input             = INPUT / 'chat-exports',
         input_glob        = 'data-*/',
         subject_depth     = 1,
         fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',
@@ -110,15 +110,15 @@ PIPELINES: dict[str, Pipeline] = {
         # The pipeline sources the repo-owned STORE (rooms → projects →
         # sessions), never the harness-owned ~/.claude/projects — transport
         # is the capture step that populates it.
-        input             = EXT / 'code-agents',
+        input             = INPUT / 'code-agents',
         input_glob        = '*/-Users-*/*.jsonl',
         subject_depth     = 3,
-        # validate.sh --code-agent-session consumes the gen/ session dir (conversion
+        # validate.sh --code-agent-session consumes the cache/ session dir (conversion
         # from .jsonl comes first), so the runnable store-rooted unit is the project RUNME.
         fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
         # Each project's memory/ is its own datum (projectMemory), a subject beside
-        # the project's sessions: gen/code-agents/<room>/<project>/memory/.
+        # the project's sessions: cache/code-agents/<room>/<project>/memory/.
         extra_input_glob  = '*/-Users-*/memory/',
     ),
 }
@@ -157,7 +157,7 @@ def _leaf(subject: str) -> str:
 
 def _fix_item_cmd(pipeline: Pipeline, subject: str) -> str:
     """The runnable remedy for one subject: the pipeline's fix_item_cmd plus the
-    subject's CONTAINER in ext/ — the granularity every per-item command
+    subject's CONTAINER in input/ — the granularity every per-item command
     actually accepts (the subject minus its leaf; the whole subject at depth 1).
     A depth-3 subject ('<room> / <project> / <uuid>') therefore hints at its
     room/project dir; joining the full subject would name a path no command
@@ -168,7 +168,7 @@ def _fix_item_cmd(pipeline: Pipeline, subject: str) -> str:
 
 
 def _datum_dirs(pipeline: Pipeline) -> list[Path]:
-    """Each datum directory in gen/ (the dirs that contain a validation/ subdir),
+    """Each datum directory in cache/ (the dirs that contain a validation/ subdir),
     at the pipeline's subject depth."""
     glob = '/'.join(['*'] * pipeline.subject_depth) + '/validation'
     return sorted(v.parent for v in pipeline.cache_output.glob(glob) if v.is_dir())
@@ -218,7 +218,7 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
 
 
 def _input_subjects(pipeline: Pipeline) -> list:
-    """Each input entry as its gen subject: a bare name at depth 1, else the
+    """Each input entry as its cache subject: a bare name at depth 1, else the
     tuple of path parts relative to the input root (files contribute their
     stem — the .jsonl becomes the session dir's name)."""
     if not pipeline.input.exists():
@@ -242,8 +242,8 @@ def _input_subjects(pipeline: Pipeline) -> list:
 
 
 def _has_local_data(pipeline: Pipeline) -> bool:
-    """True if this machine holds any data for the pipeline — input entries in ext/ or
-    previously generated output in gen/. Gates the data tier: where neither exists the
+    """True if this machine holds any data for the pipeline — input entries in input/ or
+    previously generated output in cache/. Gates the data tier: where neither exists the
     pipeline's data checks are skipped (the committed matrices are the durable record)."""
     if _input_subjects(pipeline):
         return True
@@ -513,27 +513,27 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
 
 def check_index_curation(run, fix) -> None:
     """Indexing data obeys the schema system's disposal rigour: every concept the
-    capture proposes (lib/dashboard/semantic-concepts.json) is either ACCEPTED — covered
-    by a headword or alias in lib/indexing/accepted.txt — or REJECTED in
-    lib/indexing/rejected.txt; anything else is pending curation and says so here.
-    All inputs live in the iCloud-shared lib/ (not git), so this is a DATA-tier
+    capture proposes (output/dashboard/semantic-concepts.json) is either ACCEPTED — covered
+    by a headword or alias in output/indexing/accepted.txt — or REJECTED in
+    output/indexing/rejected.txt; anything else is pending curation and says so here.
+    All inputs live in the iCloud-shared output/ (not git), so this is a DATA-tier
     check — machine-local, advisory (an undisposed concept must not block an
-    unrelated commit), skipped where lib/ has no capture. The pending queue itself
-    is the reproducible derivation gen/indexing/candidates.txt (yoga indexing
+    unrelated commit), skipped where output/ has no capture. The pending queue itself
+    is the reproducible derivation cache/indexing/candidates.txt (yoga indexing
     candidates), a rebuildable workshop file, not a committed artifact."""
     concepts = inferred_concepts()
     if not concepts:
-        print('  – skipped: no concept capture yet (lib/dashboard/semantic-concepts.json — run `yoga dashboard capture`)')
+        print('  – skipped: no concept capture yet (output/dashboard/semantic-concepts.json — run `yoga dashboard capture`)')
         return
-    pending = set(pending_concepts(REPO_ROOT / 'lib' / 'indexing' / 'accepted.txt',
-                                   REPO_ROOT / 'lib' / 'indexing' / 'rejected.txt'))
+    pending = set(pending_concepts(REPO_ROOT / 'output' / 'indexing' / 'accepted.txt',
+                                   REPO_ROOT / 'output' / 'indexing' / 'rejected.txt'))
     # One line per pending concept, no per-row remedy — 27 identical two-line
     # remedies were the mumble; the single fix hint below carries it once.
     for c in concepts:
         disposed = c not in pending
         run(f'indexing: concept disposed: {c}', disposed)
         if not disposed:
-            fix('./yoga indexing candidates  # write the pending queue: gen/indexing/candidates.txt',
+            fix('./yoga indexing candidates  # write the pending queue: cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
                          '| ./yoga indexing reject <concept> [--because <why>]')
@@ -568,8 +568,8 @@ def check_cross_sources(run) -> None:
     remedy is printed). Divergence inside the shared prefix means a projection bug
     or data corruption (or a post-export edit/branch switch — rare; investigate
     with compare_sources --diff). Reads the projections both pipelines already
-    wrote to gen/; machine-local, so data tier."""
-    api_dir = REPO_ROOT / 'lib' / 'markdown' / 'claude' / 'conversations'
+    wrote to cache/; machine-local, so data tier."""
+    api_dir = REPO_ROOT / 'output' / 'markdown' / 'claude' / 'conversations'
     api = {}
     if api_dir.is_dir():
         for f in api_dir.glob('*.md'):
@@ -578,11 +578,11 @@ def check_cross_sources(run) -> None:
             if cid:
                 api[cid] = turn_seq(text)
     if not api:
-        print('  – skipped: no api projections (lib/markdown/claude/conversations empty)')
+        print('  – skipped: no api projections (output/markdown/claude/conversations empty)')
         return
-    batch_dirs = sorted((GEN / 'chat-exports').glob('data-*/markdown')) if (GEN / 'chat-exports').is_dir() else []
+    batch_dirs = sorted((CACHE / 'chat-exports').glob('data-*/markdown')) if (CACHE / 'chat-exports').is_dir() else []
     if not batch_dirs:
-        print('  – skipped: no bulk-export projections (gen/chat-exports/*/markdown empty)')
+        print('  – skipped: no bulk-export projections (cache/chat-exports/*/markdown empty)')
         return
     for mdir in batch_dirs:
         identical = appended = shared = 0
@@ -619,11 +619,11 @@ def check_cross_sources(run) -> None:
 
 
 def check_cache_io(run) -> None:
-    """The declared gen/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
+    """The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
     covers every pipeline's gen root (so clean and regen know the pipelines),
-    and — the catastrophe guard — no subtree is READ with no WRITER. A gen/ path
-    the machinery consumes but nothing produces breaks the 'gen/ is reproducible
-    from ext/' contract: a fresh clone, or `yoga clean`, would strand the
+    and — the catastrophe guard — no subtree is READ with no WRITER. A cache/ path
+    the machinery consumes but nothing produces breaks the 'cache/ is reproducible
+    from input/' contract: a fresh clone, or `yoga clean`, would strand the
     reader. Written-but-not-read is fine (a terminal output — a page a browser
     reads); only the read side lacking a writer is fatal. Committed registry
     only, so deterministic on any clone: code tier."""
@@ -647,10 +647,10 @@ def check_cache_io(run) -> None:
         # read-but-not-written: the catastrophe (see docstring).
         read_no_writer = bool(r['read_by']) and not r['written_by']
         run(f'cache_io: {r["cache_path"]}: read implies a writer', not read_no_writer,
-            'READ but not WRITTEN — a gen/ dependency nothing produces; name its '
-            'producer in written_by, or the gen/ contract breaks' if read_no_writer else None)
+            'READ but not WRITTEN — a cache/ dependency nothing produces; name its '
+            'producer in written_by, or the cache/ contract breaks' if read_no_writer else None)
         # Every producer/reader RESOLVES — a rename that strands one (how
-        # gen/browser-captures/markdown happened) fails here, not silently.
+        # cache/browser-captures/markdown happened) fails here, not silently.
         unresolved = [e for e in r['written_by'] + r['read_by']
                       if not _cache_io_resolves(e, commands)]
         run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,

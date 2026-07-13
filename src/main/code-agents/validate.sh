@@ -3,11 +3,11 @@
 #
 # Usage:
 #   src/main/code-agents/validate.sh --code-agent-session <path/to/session-dir>
-#   src/main/code-agents/validate.sh --code-agent-memory  <path/to/gen-memory-dir>
+#   src/main/code-agents/validate.sh --code-agent-memory  <path/to/cache-memory-dir>
 #
 # A session dir holds two data: session.json (the session family) and
 # conversation.json (its sessionConversation projection); both validate here.
-# A gen memory dir holds memory.json (the projectMemory family).
+# A cache memory dir holds memory.json (the projectMemory family).
 
 set -euo pipefail
 
@@ -31,7 +31,7 @@ parse_args() {
   done
   if [[ -z "$session_dir" && -z "$memory_dir" ]]; then
     echo "Usage: $0 --code-agent-session <path/to/session-directory>"
-    echo "       $0 --code-agent-memory  <path/to/gen-memory-directory>"
+    echo "       $0 --code-agent-memory  <path/to/cache-memory-directory>"
     echo "Pass --help for more information."
     exit 1
   fi

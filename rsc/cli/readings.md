@@ -2,23 +2,23 @@
 
 Two yoga commands produce and consume the intelligences' *readings* of the corpus —
 the model's paid captures and the user's curation. That data is corpus-derived, so it
-lives outside git with the rest of the corpus (**durable** in `lib/`, **rebuildable**
-in `gen/`); this committed file is its format contract. The command surface itself is
+lives outside git with the rest of the corpus (**durable** in `output/`, **rebuildable**
+in `cache/`); this committed file is its format contract. The command surface itself is
 `rsc/cli/commands.csv`, and each script's `--help` is the authority on its interface.
 
-## `yoga dashboard` — the model's captures (`lib/dashboard/`)
+## `yoga dashboard` — the model's captures (`output/dashboard/`)
 
 Paid model readings behind the corpus dashboard (`rsc/site/index.html`, the shared
 template), single-source and shared across rooms, refreshed deliberately and
 out-of-band by `yoga dashboard capture` (both files; `--only <name>` for one),
-reading the whole projected corpus (`lib/markdown` — claude and gemini alike).
+reading the whole projected corpus (`output/markdown` — claude and gemini alike).
 `yoga dashboard present` renders the CORPUS page free
-(`src/main/chat-exports/present_corpus.py` → `gen/dashboard/presentation/`): keys
+(`src/main/chat-exports/present_corpus.py` → `cache/dashboard/presentation/`): keys
 are the corpus ordinals over every source, claude lanes carry real spans (turn
 anchors are UUIDv7s, whose first 48 bits are a timestamp), gemini lanes list
 bar-less (its scrapes hold no time data), and the page-top source toggle filters
 lanes and clouds alike. The per-batch pages (`src/main/chat-exports/present.sh` →
-`gen/chat-exports/<batch>/presentation/`) remain export artifacts. Both captures
+`cache/chat-exports/<batch>/presentation/`) remain export artifacts. Both captures
 are `{columns, rows}` tables, schema'd like every other data class and validated
 in-memory before promotion:
 
@@ -43,14 +43,14 @@ in-memory before promotion:
   `rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join
   constraint beyond the schema, which the capture checks separately before promoting.
 
-## `yoga indexing` — the user's curation (`lib/indexing/` + `gen/indexing/`)
+## `yoga indexing` — the user's curation (`output/indexing/` + `cache/indexing/`)
 
 The three **disposal states** of a captured concept: every concept in
 `semantic-concepts.json` must reach `accepted` or `rejected`; whatever has reached
 neither is a `candidate` (pending). Curation is inference by a user — the same act as
 the model's capture, with a human oracle.
 
-- **`accepted.txt`** (durable, `lib/indexing/`) — adopted headwords:
+- **`accepted.txt`** (durable, `output/indexing/`) — adopted headwords:
 
       headword = alias, alias, …
 
@@ -58,24 +58,24 @@ the model's capture, with a human oracle.
   boundaries; aliases locate under their headword. Append a bare word whenever one
   occurs to you — zero ceremony is the point. `# …` is a comment.
 
-- **`rejected.txt`** (durable, `lib/indexing/`) — declined concepts:
+- **`rejected.txt`** (durable, `output/indexing/`) — declined concepts:
 
       term          # optional reason
 
   One rejected concept per line (the filename says *rejected*, so no verb prefix). A
   `# …`-only line is a comment.
 
-- **`candidates.txt`** (rebuildable, `gen/indexing/`) — the pending queue, DERIVED:
+- **`candidates.txt`** (rebuildable, `cache/indexing/`) — the pending queue, DERIVED:
   `semantic-concepts.json`'s names − `accepted` − `rejected`. Regenerate with
-  `yoga indexing candidates`; never edit by hand (it is a `gen/` derivation, not a
+  `yoga indexing candidates`; never edit by hand (it is a `cache/` derivation, not a
   curated file).
 
 ## The loop
 
-    yoga dashboard capture   ──▶ lib/dashboard/semantic-concepts.json  (model reads the corpus)
+    yoga dashboard capture   ──▶ output/dashboard/semantic-concepts.json  (model reads the corpus)
                         │
-    yoga indexing candidates ──▶ gen/indexing/candidates.txt  (pending = concepts − accepted − rejected)
+    yoga indexing candidates ──▶ cache/indexing/candidates.txt  (pending = concepts − accepted − rejected)
                         │ (judgment)
        accepted.txt (accept)  ◀──── you ────▶  rejected.txt (reject)
                         │
-       yoga indexing build ──▶ lib/markdown/index.md  (locators to durable turn anchors)
+       yoga indexing build ──▶ output/markdown/index.md  (locators to durable turn anchors)

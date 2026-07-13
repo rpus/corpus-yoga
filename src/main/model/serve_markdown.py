@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 REPO_ROOT  = Path(__file__).resolve().parents[3]
-STATIC_DIR = REPO_ROOT / 'lib' / 'serve_markdown'
+STATIC_DIR = REPO_ROOT / 'output' / 'serve_markdown'
 
 ASSETS = {
     'marked.min.js':      'https://cdn.jsdelivr.net/npm/marked@9/marked.min.js',
@@ -298,11 +298,11 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--markdown', required=True, metavar='DIR',
-                   help='Directory tree of markdown files to serve (e.g. gen/markdown)')
+                   help='Directory tree of markdown files to serve (e.g. cache/markdown)')
     p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
     args = p.parse_args()
 
-    # Absolutize WITHOUT resolving symlinks: lib/ is a symlink into the shared
+    # Absolutize WITHOUT resolving symlinks: output/ is a symlink into the shared
     # medium, and resolving through it strands every served file outside
     # REPO_ROOT — relative_to() then fails, and the /file/ route needs
     # repo-relative spellings that traverse the symlink, not physical paths

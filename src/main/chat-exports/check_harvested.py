@@ -6,7 +6,7 @@ Cross-references data-files.json against extracted_files/ and
 extracted_heredocs/ to report files not yet harvested.
 
 Batch extraction dirs are joined by the canonical <ordinal>-<slug> name; the
-durable library lib/artifacts/downloaded/ is joined by uuid (via
+durable library output/artifacts/downloaded/ is joined by uuid (via
 src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive the (dressing-refreshed)
 renumbering that batch ordinals don't.
 
@@ -26,7 +26,7 @@ from markdown_projection import slug
 from library import find as find_library_dir
 
 SCRIPT_DIR = Path(__file__).parent
-OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / 'gen' / 'chat-exports'
+CACHE_DIR = SCRIPT_DIR.parent.parent.parent / 'cache' / 'chat-exports'
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',
@@ -65,7 +65,7 @@ def main():
         sys.exit(f'Usage: {sys.argv[0]} <chat-export-name>')
 
     name        = sys.argv[1]
-    export_dir  = OUTPUT_DIR / name
+    export_dir  = CACHE_DIR / name
     present_dir = export_dir / 'presentation'
 
     data_files = json.loads((present_dir / 'data-local-resources.json').read_text())
@@ -148,7 +148,7 @@ def main():
             print(f'      [{chat_idx:03d}] {f}')
 
     if downloaded_only:
-        print(f'  ↓ in rsc/downloaded only ({len(downloaded_only)} file(s), manually downloaded, not in gen):')
+        print(f'  ↓ in rsc/downloaded only ({len(downloaded_only)} file(s), manually downloaded, not in cache):')
         for chat_idx, f in downloaded_only:
             print(f'      [{chat_idx:03d}] {f}')
 
@@ -158,7 +158,7 @@ def main():
             print(f'      [{chat_idx:03d}] {f}')
 
     if unharvested_unrecoverable:
-        print(f'  ⚠ not recoverable from export ({len(unharvested_unrecoverable)} file(s), produced at runtime, not in gen):')
+        print(f'  ⚠ not recoverable from export ({len(unharvested_unrecoverable)} file(s), produced at runtime, not in cache):')
         for chat_idx, f in unharvested_unrecoverable:
             print(f'      [{chat_idx:03d}] {f}')
 

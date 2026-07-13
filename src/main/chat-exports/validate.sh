@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/chat-exports"
-OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
+CACHE_DIR="$REPO_DIR/cache/chat-exports"
 
 rel_path() {
   "$REPO_DIR/src/run_python_script.sh" -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$REPO_DIR"
@@ -84,7 +84,7 @@ validate_file() {
 validate_export() {
   local chat_export="${1%/}"
   local validation_dir
-  validation_dir="$OUTPUT_DIR/$(basename "$chat_export")/validation"
+  validation_dir="$CACHE_DIR/$(basename "$chat_export")/validation"
 
   skipped=0
   validated=0

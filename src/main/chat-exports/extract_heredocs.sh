@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   src/main/chat-exports/extract_heredocs.sh --chat-export ext/chat-exports/data-2026-04-07-07-52-05-batch-0000
-#   src/main/chat-exports/extract_heredocs.sh --chat-exports ext/chat-exports
+#   src/main/chat-exports/extract_heredocs.sh --chat-export input/chat-exports/data-2026-04-07-07-52-05-batch-0000
+#   src/main/chat-exports/extract_heredocs.sh --chat-exports input/chat-exports
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
+CACHE_DIR="$REPO_DIR/cache/chat-exports"
 
 run_one() {
   local d="${1%/}"
   local name; name="$(basename "$d")"
-  local log_path="$OUTPUT_DIR/$name/extracted_heredocs/extract_heredocs.log"
+  local log_path="$CACHE_DIR/$name/extracted_heredocs/extract_heredocs.log"
   mkdir -p "$(dirname "$log_path")"
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1
 }

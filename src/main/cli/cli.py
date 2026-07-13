@@ -22,7 +22,7 @@ never restated.
 Usage:
     ./yoga                       # render the table
     ./yoga <command> [args...]   # exec the target
-    ./yoga completions [--write]  # zsh completion to stdout, or written under gen/
+    ./yoga completions [--write]  # zsh completion to stdout, or written under cache/
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
@@ -38,7 +38,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
 COLUMNS = ('command', 'target', 'usage', 'calculus', 'step', 'summary')
-COMPLETION_OUT = REPO / 'gen' / 'completions' / '_yoga'
+COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
 
 
 def commands() -> list[dict]:

@@ -1,7 +1,7 @@
 # projectMemory schema changelog
 
 The validation matrix (which local datum validates against which version) is machine-local
-and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside its
+and git-ignored: each datum directory under `cache/` carries a `matrix.md` beside its
 `validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
@@ -10,9 +10,9 @@ and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside 
 
 Inaugural version, minted 2026-07-11 from the two local projects carrying a
 `memory/` directory. The family models a project's whole memory state as one
-datum: `memory_to_json.py` parses `ext/code-agents/<room>/<project>/memory/` —
+datum: `memory_to_json.py` parses `input/code-agents/<room>/<project>/memory/` —
 the `MEMORY.md` index plus one frontmattered markdown file per fact — into
-`gen/code-agents/<room>/<project>/memory/memory.json`. Facts carry identity
+`cache/code-agents/<room>/<project>/memory/memory.json`. Facts carry identity
 (`name`), classification (`metadata`), body, and extracted `[[link]]` targets;
 index lines that are not entries (headings, `agent.py`'s merge marker
 comments, prose) are carried verbatim as `unparsed`.

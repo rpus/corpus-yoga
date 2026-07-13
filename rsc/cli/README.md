@@ -9,7 +9,7 @@ execs the row's target with the args forwarded verbatim, so `./yoga <command> --
 the *target's* help and each script remains the one authority on its own interface.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
-data lives outside git (durable in `lib/`, rebuildable in `gen/`): `yoga dashboard` (model
+data lives outside git (durable in `output/`, rebuildable in `cache/`): `yoga dashboard` (model
 captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
 committed in `rsc/cli/readings.md`.
 
@@ -75,5 +75,5 @@ on any machine, which is the same property demanded of every process here.
 
     ./yoga                        # render the table as help
     ./yoga completions             # zsh completion script to stdout
-    ./yoga completions --write     # write it under gen/ and print the ~/.zshrc lines to add
+    ./yoga completions --write     # write it under cache/ and print the ~/.zshrc lines to add
     ./PREREQUISITES.sh            # reports (read-only) whether this machine has completion generated, current, and wired

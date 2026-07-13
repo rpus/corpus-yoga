@@ -24,9 +24,9 @@ Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --agent claude            --browser-captures ext/browser-captures/claude
-    python safari_capture.py --agent claude --scrape   --browser-captures ext/browser-captures/claude
-    python safari_capture.py --agent gemini --id <id>  --browser-captures ext/browser-captures/gemini
+    python safari_capture.py --agent claude            --browser-captures input/browser-captures/claude
+    python safari_capture.py --agent claude --scrape   --browser-captures input/browser-captures/claude
+    python safari_capture.py --agent gemini --id <id>  --browser-captures input/browser-captures/gemini
 """
 import argparse
 import json
@@ -270,7 +270,7 @@ def capture_all(agent, ids, captures_root, navigate=True, also_scrape=False):
     do_api = cfg['api']
     do_scrape = cfg['scrape'] or also_scrape
     js_script = SCRIPT_DIR / agent / 'browser-chat-capture.js'
-    # per-conversation scrape diagnostics go under logs/ (ext/ holds captured data only)
+    # per-conversation scrape diagnostics go under logs/ (input/ holds captured data only)
     scrape_log_dir = REPO_DIR / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / agent / 'scrape'
     label = 'discover' if navigate else 'capture'
     methods = '+'.join(m for m, on in (('api', do_api), ('scrape', do_scrape)) if on)
@@ -329,7 +329,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
     ap.add_argument('--browser-captures', default=None,
-                    help='Path to ext/browser-captures/<agent>/ (default: repo-relative)')
+                    help='Path to input/browser-captures/<agent>/ (default: repo-relative)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -344,7 +344,7 @@ def main():
             print(f'Error: {js_script} not found', file=sys.stderr)
             raise SystemExit(1)
 
-    captures_root = Path(args.browser_captures or REPO_DIR / 'ext' / 'browser-captures' / args.agent).resolve()
+    captures_root = Path(args.browser_captures or REPO_DIR / 'input' / 'browser-captures' / args.agent).resolve()
     captures_root.mkdir(parents=True, exist_ok=True)
 
     if args.id:

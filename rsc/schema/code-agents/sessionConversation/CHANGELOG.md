@@ -1,7 +1,7 @@
 # sessionConversation schema changelog
 
 The validation matrix (which local datum validates against which version) is machine-local
-and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside its
+and git-ignored: each datum directory under `cache/` carries a `matrix.md` beside its
 `validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
@@ -16,7 +16,7 @@ no meta records, no tool-result carriers), each reduced to its visible text; a
 record whose projection is empty contributes no turn. Roles use the corpus
 vocabulary (`human`/`assistant`, matching `browser-captures/markdownConversation`)
 because this shape is the projection source for the session corpus render under
-`lib/markdown/code/conversations/`.
+`output/markdown/code/conversations/`.
 
 Evidence notes:
 

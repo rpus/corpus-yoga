@@ -78,20 +78,20 @@ pre_commit.py: 1369/1369 (data: machine-local)
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv
   ✓ cache_io: pipeline tags match PIPELINES
-  ✓ cache_io: gen/browser-captures/claude: read implies a writer
-  ✓ cache_io: gen/browser-captures/claude: producers/readers resolve
-  ✓ cache_io: gen/chat-exports: read implies a writer
-  ✓ cache_io: gen/chat-exports: producers/readers resolve
-  ✓ cache_io: gen/code-agents: read implies a writer
-  ✓ cache_io: gen/code-agents: producers/readers resolve
-  ✓ cache_io: gen/completions: read implies a writer
-  ✓ cache_io: gen/completions: producers/readers resolve
-  ✓ cache_io: gen/dashboard: read implies a writer
-  ✓ cache_io: gen/dashboard: producers/readers resolve
-  ✓ cache_io: gen/indexing: read implies a writer
-  ✓ cache_io: gen/indexing: producers/readers resolve
-  ✓ cache_io: gen/model: read implies a writer
-  ✓ cache_io: gen/model: producers/readers resolve
+  ✓ cache_io: cache/browser-captures/claude: read implies a writer
+  ✓ cache_io: cache/browser-captures/claude: producers/readers resolve
+  ✓ cache_io: cache/chat-exports: read implies a writer
+  ✓ cache_io: cache/chat-exports: producers/readers resolve
+  ✓ cache_io: cache/code-agents: read implies a writer
+  ✓ cache_io: cache/code-agents: producers/readers resolve
+  ✓ cache_io: cache/completions: read implies a writer
+  ✓ cache_io: cache/completions: producers/readers resolve
+  ✓ cache_io: cache/dashboard: read implies a writer
+  ✓ cache_io: cache/dashboard: producers/readers resolve
+  ✓ cache_io: cache/indexing: read implies a writer
+  ✓ cache_io: cache/indexing: producers/readers resolve
+  ✓ cache_io: cache/model: read implies a writer
+  ✓ cache_io: cache/model: producers/readers resolve
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 

@@ -6,7 +6,7 @@ the matching URL:
 
 - **`index.html`** → `rpus.co/` — the homepage: the corpus dashboard. A TEMPLATE,
   not a finished page: `present.sh` copies it to each batch's
-  `gen/.../presentation/index.html` and fills it with the data tables (the category
+  `cache/.../presentation/index.html` and fills it with the data tables (the category
   palette is authored inline here — design, never filled); the filled result is
   what deploys.
 - **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already
@@ -28,5 +28,5 @@ push in that repo:
 
 Netlify builds on push; `rpus.co/yoga/` serves the directory index. The site
 repo's location is machine-local (it is not this repo's business) — a
-hand-made `ext/site` symlink to its clone is the conventional binding if a
+hand-made `input/site` symlink to its clone is the conventional binding if a
 `yoga`-verb deploy step is ever wanted.

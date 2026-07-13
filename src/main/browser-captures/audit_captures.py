@@ -28,7 +28,7 @@ Filesystem audit (always) — "are the captures I have any good?"
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/audit_captures.py \
-    [--browser-captures ext/browser-captures] [--api lib/markdown/claude/conversations] [--live]
+    [--browser-captures input/browser-captures] [--api output/markdown/claude/conversations] [--live]
 
 Exit status is non-zero iff anything actionable is found.
 """
@@ -81,7 +81,7 @@ def audit_claude(captures_dir: Path, api_dir: Path) -> list[str]:
     if unscraped:
         print(f'claude: {unscraped} capture dir(s) have no scrape .md — optional; the api json is the record')
     if unprojected:
-        print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under lib/markdown — '
+        print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under output/markdown — '
               'the browser-captures pipeline step project_markdown produces it')
     # show the working even on success: silence was load-bearing here once —
     # a clean audit and a skipped one printed identically (nothing)
@@ -228,9 +228,9 @@ def live_gemini(captures_dir: Path) -> list[str]:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-captures', default='ext/browser-captures',
+    ap.add_argument('--browser-captures', default='input/browser-captures',
                     help='captures root containing claude/ and gemini/')
-    ap.add_argument('--api', default='lib/markdown/claude/conversations',
+    ap.add_argument('--api', default='output/markdown/claude/conversations',
                     help='dir of api-sourced markdown (project_markdown output)')
     ap.add_argument('--live', action='store_true',
                     help='also drive Safari (work tab): claude listing updated_at check; '

@@ -36,7 +36,7 @@ def _trim(ts):
 
 def chats(order):
     # uuid is the conversation's durable identity — the join key to the uuid8-keyed
-    # stores (lib/artifacts/downloaded/, inferred tables); chat is only its CURRENT
+    # stores (output/artifacts/downloaded/, inferred tables); chat is only its CURRENT
     # ordinal in this batch. source/channel are constant here by CONSTRUCTION: a
     # batch is a claude.ai bulk export, so every row is claude × chat — stated
     # explicitly so the dashboard never has to guess provider from the id shape

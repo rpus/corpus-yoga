@@ -3,8 +3,8 @@
 #
 # Usage:
 #   ./src/main/browser-captures/RUNME.sh
-#   ./src/main/browser-captures/RUNME.sh --browser-captures ext/browser-captures/claude
-#   ./src/main/browser-captures/RUNME.sh --browser-capture ext/browser-captures/claude/<uuid>
+#   ./src/main/browser-captures/RUNME.sh --browser-captures input/browser-captures/claude
+#   ./src/main/browser-captures/RUNME.sh --browser-capture input/browser-captures/claude/<uuid>
 #   ./src/main/browser-captures/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step list below (run_corpus) is the ONE authority on order: --plan prints
@@ -20,7 +20,7 @@ source "$REPO_DIR/src/main/steps.sh"
 
 parse_args() {
   browser_capture=""
-  browser_captures="$REPO_DIR/ext/browser-captures/claude"
+  browser_captures="$REPO_DIR/input/browser-captures/claude"
   new_claude_scrape="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
@@ -52,7 +52,7 @@ run_corpus() {
   step project_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/project_markdown.py" --browser-captures "$root"
   # copy_gemini_markdown: gemini's scrapes ARE markdown already — copy them into the
-  # presentation tree beside claude's projections (lib/markdown/{claude,gemini}),
+  # presentation tree beside claude's projections (output/markdown/{claude,gemini}),
   # anchoring each turn heading; a slug collision gets the conversation id prefixed.
   step copy_gemini_markdown  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/copy_gemini_markdown.py"
@@ -60,14 +60,14 @@ run_corpus() {
   # gate below decides pass/fail; PREP.sh printed the pre-run baseline)
   step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit_captures.py" \
-    --browser-captures "$REPO_DIR/ext/browser-captures" \
-    --api "$REPO_DIR/lib/markdown/claude/conversations"
+    --browser-captures "$REPO_DIR/input/browser-captures" \
+    --api "$REPO_DIR/output/markdown/claude/conversations"
   # compare_markdown: diff the projection against the DOM scrape only when claude was
   # scraped this run — otherwise there is no fresh scrape md to compare against.
   step_if "$new_claude_scrape" 'with --new-claude-scrape' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \
-    --api "$REPO_DIR/lib/markdown/claude/conversations" --scrape "$root"
+    --api "$REPO_DIR/output/markdown/claude/conversations" --scrape "$root"
 }
 
 print_plan() {

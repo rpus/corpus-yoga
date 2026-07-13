@@ -113,7 +113,7 @@ def render(conv, frontmatter=None, summaries_link=None):
     half of that contract). Right after the title, a bulleted SOURCE LIST carries the
     file's outbound links as proper named hyperlinks (clickable in any markdown
     renderer, not just the serve viewer): the conversation's claude.ai URL always, and
-    — when `summaries_link` is given (the lib/ render) — the conversation's summary
+    — when `summaries_link` is given (the output/ render) — the conversation's summary
     readings index (accumulate_summaries.py's deposits). The summary itself is DATA
     carried but never body-rendered; the preamble holds no bare URLs and no headings,
     so the file's only ## headings are the turns."""
@@ -139,7 +139,7 @@ def render(conv, frontmatter=None, summaries_link=None):
 def corpus_index(md_dir):
     """[(ordinal, stem, title, id)] for a projected conversation corpus — the format
     authority reading back what it wrote. `md_dir` is either ONE conversations dir
-    (lib/markdown/claude/conversations) or the corpus root (lib/markdown), whose
+    (output/markdown/claude/conversations) or the corpus root (output/markdown), whose
     <source>/conversations dirs are combined: claude first (canonical), other
     sources appended alphabetically, ordinals a fresh 1..N enumeration (prompt-local
     presentation — for claude alone it coincides with the filename ordinals, which
@@ -150,7 +150,7 @@ def corpus_index(md_dir):
     sources its chat list and its ordinal↔id rekey map from here: the model reads the
     same corpus the dashboard describes, whole batches nowhere involved."""
     root = Path(md_dir)
-    # corpus-root detection FIRST: lib/markdown legitimately holds *.md of its own
+    # corpus-root detection FIRST: output/markdown legitimately holds *.md of its own
     # (index.md, the book index), so the presence of <source>/conversations dirs is
     # what marks a root; a bare dir of conversation files is the single-source case
     subs = sorted((d for d in root.glob('*/conversations') if any(d.glob('*.md'))),
@@ -269,8 +269,8 @@ def load_convs(path) -> list:
     (a JSON array) or the atomised json/ dir (one object per file — the same elements,
     since atomisation just splits the array). ordered() consumes the result
     identically, so a consumer can read the normalized per-conversation CACHE
-    (gen/<batch>/json/) instead of reaching back into the raw INPUT
-    (ext/<batch>/conversations.json) — the source-agnostic per-conversation shape a
+    (cache/<batch>/json/) instead of reaching back into the raw INPUT
+    (input/<batch>/conversations.json) — the source-agnostic per-conversation shape a
     non-claude source (gemini) can also produce."""
     p = Path(path)
     if p.is_dir():

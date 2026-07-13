@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 render_corpus.py — render every projected session conversation
-(gen/code-agents/<room>/<project>/<session>/conversation.json, the
+(cache/code-agents/<room>/<project>/<session>/conversation.json, the
 sessionConversation data) into the served corpus:
-lib/markdown/code/conversations/<ordinal>-<slug>.md. Rooms dedupe: the same
+output/markdown/code/conversations/<ordinal>-<slug>.md. Rooms dedupe: the same
 session held by several rooms renders once, from its maximal copy.
 
 The code source joins the corpus exactly as claude and gemini do: files carry
@@ -60,17 +60,17 @@ def render_session(conv):
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='render session conversations into the corpus')
-    ap.add_argument('--out', default=str(REPO / 'lib' / 'markdown' / 'code' / 'conversations'))
+    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'code' / 'conversations'))
     args = ap.parse_args()
     out = Path(args.out)
 
-    gen = REPO / 'gen' / 'code-agents'
+    cache = REPO / 'cache' / 'code-agents'
     # One file per SESSION, across rooms: several rooms may hold the same
-    # session (gen is keyed <room>/<project>/<session>); the maximal copy
+    # session (cache is keyed <room>/<project>/<session>); the maximal copy
     # renders — most turns, then latest activity — since by the prefix
     # lattice the longest log holds every shorter one.
     held: dict = {}
-    for f in sorted(gen.glob('*/*/*/conversation.json')):
+    for f in sorted(cache.glob('*/*/*/conversation.json')):
         c = json.loads(f.read_text())
         rival = held.get(c['session_id'])
         if rival is None or ((len(c['messages']), c['last_activity'])
@@ -78,7 +78,7 @@ def main() -> int:
             held[c['session_id']] = c
     convs = sorted(held.values(), key=lambda c: c['created'])
     if not convs:
-        print('code: no projected sessions under gen/code-agents — nothing to render')
+        print('code: no projected sessions under cache/code-agents — nothing to render')
         return 0
 
     width = len(str(len(convs)))  # ordered()'s width rule — the one enumeration style

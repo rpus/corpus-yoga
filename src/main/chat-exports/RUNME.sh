@@ -2,8 +2,8 @@
 # Run the chat-exports pipeline against one or all exports.
 #
 # Usage:
-#   ./src/main/chat-exports/RUNME.sh --chat-export  ext/chat-exports/data-<...>
-#   ./src/main/chat-exports/RUNME.sh --chat-exports ext/chat-exports
+#   ./src/main/chat-exports/RUNME.sh --chat-export  input/chat-exports/data-<...>
+#   ./src/main/chat-exports/RUNME.sh --chat-exports input/chat-exports
 #   ./src/main/chat-exports/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (run_one, run_tail) are the ONE authority on order:
@@ -13,7 +13,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-OUTPUT_DIR="$REPO_DIR/gen/chat-exports"
+CACHE_DIR="$REPO_DIR/cache/chat-exports"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -47,23 +47,23 @@ parse_args() {
 
 run_one() {
   local batch="${1%/}"
-  # No blanket wipe of gen/<batch>: each stage owns (wipes or overwrites) its own
+  # No blanket wipe of cache/<batch>: each stage owns (wipes or overwrites) its own
   # output subtree. A blanket wipe would destroy the validation memoisation logs,
   # forcing full revalidation every run. (The paid captures are out of reach either
-  # way — they live in lib/dashboard/, not under gen/.)
+  # way — they live in output/dashboard/, not under cache/.)
   local have_captures="0"
-  if [[ -d "$REPO_DIR/ext/browser-captures/claude" ]]; then have_captures="1"; fi
+  if [[ -d "$REPO_DIR/input/browser-captures/claude" ]]; then have_captures="1"; fi
 
   step validate           "$SCRIPT_DIR/validate.sh" --chat-export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
-  # users) verbatim into gen/<batch>/ — the gen dir is then the complete record of
+  # users) verbatim into cache/<batch>/ — the cache dir is then the complete record of
   # the four-component snapshot, and compare_batches reads all four from that root
   step archive_components "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
   step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
   # inference is no longer per-batch: the dashboard's captures are the durable
-  # single-source lib/dashboard/ (refreshed deliberately by `yoga dashboard
+  # single-source output/dashboard/ (refreshed deliberately by `yoga dashboard
   # capture`), which present reads. Nothing paid runs on every export now.
   step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
   step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"
@@ -81,21 +81,21 @@ run_one() {
   step_if_ok "$have_captures" 'when live captures exist' \
        compare_sources    "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/compare_sources.py" \
-    --browser-captures "$REPO_DIR/ext/browser-captures/claude" --bulk-export "$batch"
+    --browser-captures "$REPO_DIR/input/browser-captures/claude" --bulk-export "$batch"
 }
 
 run_tail() {
   # accumulate_memories: every distinct memory state deposits into the durable
-  # lib/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
+  # output/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
   # is mutable and lossy between exports, and bulk exports are its only log) and the
-  # timeline renders to lib/markdown/claude/memories/. A deposited state is the
+  # timeline renders to output/markdown/claude/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
   step accumulate_memories "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/accumulate_memories.py"
   # accumulate_summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
   # refresh in place), so every distinct reading deposits into
-  # lib/markdown/claude/summaries/<conversation>/ (export-snapshot-time-keyed,
+  # output/markdown/claude/summaries/<conversation>/ (export-snapshot-time-keyed,
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
   step accumulate_summaries "$REPO_DIR/src/run_python_script.sh" \
@@ -111,11 +111,11 @@ run_tail() {
   # a fact, not an error.
   step_ok compare_batches  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_batches.py" \
-    --chat-exports-gen "$OUTPUT_DIR" --captures "$REPO_DIR/ext/browser-captures/claude"
+    --chat-exports-cache "$CACHE_DIR" --captures "$REPO_DIR/input/browser-captures/claude"
 }
 
 print_plan() {
-  echo "chat-exports steps — per batch (ext/chat-exports/data-*/ in name order):"
+  echo "chat-exports steps — per batch (input/chat-exports/data-*/ in name order):"
   run_one '<batch>'
   echo "then once, after all batches:"
   run_tail

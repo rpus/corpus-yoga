@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 """
-clean.py — remove ORPHANED gen/ subtrees: paths the machinery neither writes
+clean.py — remove ORPHANED cache/ subtrees: paths the machinery neither writes
 nor reads.
 
-gen/ is the workshop — rebuildable derivations, every live subtree OWNED by a
+cache/ is the workshop — rebuildable derivations, every live subtree OWNED by a
 pipeline (its validation/derivation tree) or an out-of-band command (its
-output). A path under gen/ that is neither an owned subtree, nor inside one,
+output). A path under cache/ that is neither an owned subtree, nor inside one,
 nor an ancestor of one (a parent kept only to reach owned children) is
 RESIDUE: a former output whose producer moved or was renamed — e.g. the
-projected markdown that moved to lib/markdown/claude/conversations, orphaning
-gen/browser-captures/markdown; or a gen/<old-name>/ left by a pipeline rename.
+projected markdown that moved to output/markdown/claude/conversations, orphaning
+cache/browser-captures/markdown; or a cache/<old-name>/ left by a pipeline rename.
 
 "Not written AND not read" is the criterion — coverage by the machinery in
-either direction is what makes a gen/ path live. Being derived, an orphan is
+either direction is what makes a cache/ path live. Being derived, an orphan is
 safe to remove (nothing regenerates it here); and even a mistaken removal of a
-LIVE subtree costs only a pipeline re-run, never data — that is the gen/
+LIVE subtree costs only a pipeline re-run, never data — that is the cache/
 contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
 
 The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with regen
@@ -24,7 +24,7 @@ STDLIB-ONLY. One of --dry-run / --apply is REQUIRED: cleaning is deliberate,
 never a default, and never a silent no-op.
 
 Usage:
-    ./yoga clean --dry-run   # list orphaned gen/ subtrees with sizes; remove nothing
+    ./yoga clean --dry-run   # list orphaned cache/ subtrees with sizes; remove nothing
     ./yoga clean --apply     # remove them
 """
 import argparse
@@ -35,15 +35,15 @@ from pathlib import Path
 from cache_io import owned_paths
 
 REPO = Path(__file__).resolve().parents[3]
-GEN = REPO / 'gen'
+CACHE = REPO / 'cache'
 
 
 def orphans(root: Path) -> list[Path]:
-    """The gen/ entries the machinery neither writes nor reads. An entry is KEPT
+    """The cache/ entries the machinery neither writes nor reads. An entry is KEPT
     when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we
     never descend into owned dirs), or an ANCESTOR of one (descend to reach the
     owned child); everything else is returned as an orphan, without descending.
-    Paths compare repo-relative (`gen/…`), matching the registry's cache_path."""
+    Paths compare repo-relative (`cache/…`), matching the registry's cache_path."""
     owned = owned_paths()
     found: list[Path] = []
 
@@ -77,19 +77,19 @@ def _human(n: float) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='remove orphaned gen/ subtrees (neither written nor read)')
+    ap = argparse.ArgumentParser(description='remove orphaned cache/ subtrees (neither written nor read)')
     mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument('--dry-run', action='store_true', help='list orphaned gen/ subtrees; remove nothing')
-    mode.add_argument('--apply', action='store_true', help='remove the orphaned gen/ subtrees')
+    mode.add_argument('--dry-run', action='store_true', help='list orphaned cache/ subtrees; remove nothing')
+    mode.add_argument('--apply', action='store_true', help='remove the orphaned cache/ subtrees')
     args = ap.parse_args()
 
-    if not GEN.is_dir():
-        print('no gen/ — nothing to clean')
+    if not CACHE.is_dir():
+        print('no cache/ — nothing to clean')
         return 0
 
-    found = orphans(GEN)
+    found = orphans(CACHE)
     if not found:
-        print('gen/ is clean — every subtree is written or read by a current step')
+        print('cache/ is clean — every subtree is written or read by a current step')
         return 0
 
     total = 0

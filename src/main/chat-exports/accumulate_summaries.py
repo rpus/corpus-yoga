@@ -12,12 +12,12 @@ conversation), each distinct reading is deposited once, durably, so batches and
 captures may churn while no reading is ever lost — and compare_batches' summaries
 component recognises the deposits as its unconditional licence.
 
-Layout (lib/markdown/claude/summaries/):
-  <conversation-stem>/          # stem matches lib/markdown/claude/conversations/<stem>.md;
+Layout (output/markdown/claude/summaries/):
+  <conversation-stem>/          # stem matches output/markdown/claude/conversations/<stem>.md;
                                 # renamed when ordinals renumber (the index's uuid is the key)
     index.md                    # the map: uuid, conversation link, one line per reading
     <export-ts>.md              # a distinct reading, verbatim, named by the FIRST export
-                                # exhibiting it (ts format matches lib/memories deposits)
+                                # exhibiting it (ts format matches output/memories deposits)
     browser-capture.md          # the capture's reading, only while it matches no export
                                 # deposit (rolling: recaptures refresh it; the export
                                 # deposits are the immutable record)
@@ -28,9 +28,9 @@ from the local corpora — L1: re-running is silence on disk.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \\
-      [--chat-exports-gen gen/chat-exports] [--captures ext/browser-captures/claude] \\
-      [--conversations-lib lib/markdown/claude/conversations] \\
-      [--summaries-lib lib/markdown/claude/summaries]
+      [--chat-exports-cache cache/chat-exports] [--captures input/browser-captures/claude] \\
+      [--conversations-output output/markdown/claude/conversations] \\
+      [--summaries-output output/markdown/claude/summaries]
 """
 import argparse
 import json
@@ -46,16 +46,16 @@ from compare_batches import batch_time  # noqa: E402 — the one batch-ordering 
 
 
 def _ts(batch_name):
-    """The batch's snapshot time in the lib/memories deposit style (compact UTC)."""
+    """The batch's snapshot time in the output/memories deposit style (compact UTC)."""
     t = batch_time(batch_name)
     return t.strftime('%Y-%m-%dT%H%M%SZ') if t else None
 
 
-def stems_by_uuid(conversations_lib: Path):
+def stems_by_uuid(conversations_output: Path):
     """{uuid: (stem, title)} from the projected conversation files' frontmatter —
     the current presentation names, so summary folders ride the same renumbering."""
     out = {}
-    for f in sorted(conversations_lib.glob('*.md')) if conversations_lib.is_dir() else []:
+    for f in sorted(conversations_output.glob('*.md')) if conversations_output.is_dir() else []:
         head = f.read_text()[:600]
         u = re.search(r'^uuid: ([0-9a-f-]{36})$', head, flags=re.M)
         t = re.search(r'^# (.+)$', head, flags=re.M)
@@ -120,17 +120,17 @@ def index_text(uuid, stem, title, deposit_names):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-gen', default=str(REPO / 'gen' / 'chat-exports'))
-    ap.add_argument('--captures', default=str(REPO / 'ext' / 'browser-captures' / 'claude'))
-    ap.add_argument('--conversations-lib',
-                    default=str(REPO / 'lib' / 'markdown' / 'claude' / 'conversations'))
-    ap.add_argument('--summaries-lib',
-                    default=str(REPO / 'lib' / 'markdown' / 'claude' / 'summaries'))
+    ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
+    ap.add_argument('--captures', default=str(REPO / 'input' / 'browser-captures' / 'claude'))
+    ap.add_argument('--conversations-output',
+                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'conversations'))
+    ap.add_argument('--summaries-output',
+                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'summaries'))
     args = ap.parse_args()
 
-    root = Path(args.summaries_lib)
-    stems = stems_by_uuid(Path(args.conversations_lib))
-    readings = readings_by_uuid(Path(args.chat_exports_gen))
+    root = Path(args.summaries_output)
+    stems = stems_by_uuid(Path(args.conversations_output))
+    readings = readings_by_uuid(Path(args.chat_exports_cache))
     captured = capture_summaries(Path(args.captures))
 
     # existing folders by their index's uuid — the rename key across renumberings
@@ -148,7 +148,7 @@ def main():
         stem, title = stems.get(u, (None, None))
         if stem is None:
             # never captured: name by the newest batch's piece carrying it
-            stem = title = next((f.stem for b in sorted(Path(args.chat_exports_gen).glob('data-*'),
+            stem = title = next((f.stem for b in sorted(Path(args.chat_exports_cache).glob('data-*'),
                                                         key=lambda d: d.name, reverse=True)
                                  for f in (b / 'json').glob('*.json')
                                  if u in f.read_text()), u[:8])

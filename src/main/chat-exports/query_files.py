@@ -2,9 +2,9 @@
 """
 query_files.py — Run the standard SQL queries against files_audit.csv.
 
-Loads gen/<export>/presentation/files_audit.csv into an in-memory SQLite
+Loads cache/<export>/presentation/files_audit.csv into an in-memory SQLite
 database and runs each of the five documented queries, writing results to
-gen/<export>/audit_queries/.
+cache/<export>/audit_queries/.
 
 Usage:
     python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
@@ -31,7 +31,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-GEN_DIR    = REPO_ROOT / 'gen' / 'chat-exports'
+CACHE_DIR    = REPO_ROOT / 'cache' / 'chat-exports'
 
 QUERIES: list[tuple[str, str, str]] = [
     (
@@ -110,8 +110,8 @@ QUERIES: list[tuple[str, str, str]] = [
 
 
 def run_one(name: str) -> None:
-    csv_path = GEN_DIR / name / 'audit_queries' / 'files_audit.csv'
-    out_dir  = GEN_DIR / name / 'audit_queries'
+    csv_path = CACHE_DIR / name / 'audit_queries' / 'files_audit.csv'
+    out_dir  = CACHE_DIR / name / 'audit_queries'
     out_dir.mkdir(exist_ok=True)
 
     if not csv_path.exists():
@@ -151,7 +151,7 @@ def run_one(name: str) -> None:
 
     con.close()
     log.close()
-    print(f'  ✓ {name} → {out_dir.relative_to(GEN_DIR.parent)}')
+    print(f'  ✓ {name} → {out_dir.relative_to(CACHE_DIR.parent)}')
 
 
 def main() -> None:

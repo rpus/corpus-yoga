@@ -1,13 +1,13 @@
 # conversations schema changelog
 
 The validation matrix (which local datum validates against which version) is machine-local
-and git-ignored: each datum directory under `gen/` carries a `matrix.md` beside its
+and git-ignored: each datum directory under `cache/` carries a `matrix.md` beside its
 `validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
 
-The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../ext/browser-captures/apiConversation/v1.json)
-and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../ext/browser-captures/apiConversation/) for that schema's history.
+The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../input/browser-captures/apiConversation/v1.json)
+and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../input/browser-captures/apiConversation/) for that schema's history.
 
 ---
 

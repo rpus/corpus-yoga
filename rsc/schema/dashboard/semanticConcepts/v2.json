@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "SemanticConcepts",
-  "description": "The weighted concept capture behind the dashboard word cloud (lib/dashboard/semantic-concepts.json): a paid model reading of the whole projected corpus, staged to gen/dashboard and validated against this schema before promotion (dashboard.sh, in-memory via validate.py \u2014 no per-datum matrix, the markdownConversation precedent). v2 adds the provider column: each concept is tagged with the provider(s) it is salient in, captured in the same single reading, so the dashboard's provider toggle can filter the cloud client-side. Two consumers, each taking what it needs: the dashboard uses the weights and tags (cloud sizing and filtering); indexing borrows only the names (candidate headwords).",
+  "description": "The weighted concept capture behind the dashboard word cloud (output/dashboard/semantic-concepts.json): a paid model reading of the whole projected corpus, staged to cache/dashboard and validated against this schema before promotion (dashboard.sh, in-memory via validate.py \u2014 no per-datum matrix, the markdownConversation precedent). v2 adds the provider column: each concept is tagged with the provider(s) it is salient in, captured in the same single reading, so the dashboard's provider toggle can filter the cloud client-side. Two consumers, each taking what it needs: the dashboard uses the weights and tags (cloud sizing and filtering); indexing borrows only the names (candidate headwords).",
   "allOf": [
     {
       "$ref": "#/definitions/SemanticConcepts"
