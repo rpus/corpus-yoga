@@ -44,8 +44,10 @@ python3 tmp/restructure/dryrun/src/restructure/build_harness.py --from . --moves
 ( cd tmp/restructure/dryrun && ./RUNME.sh )        # run once cold; a second run heals currency stamps
 python3 tmp/restructure/dryrun/src/restructure/compare_outputs.py --from . --worktree tmp/restructure/dryrun \
     2>&1 | tee tmp/restructure/reports/equivalence.log
-# expected residue: one DIFFERS on index.md — it convicts the OLD corpus's stale
-# book index, not the rebuild; it clears when the index is rebuilt post-migration
+# expected residue, one line about index.md: MISSING (the recipe does not rebuild
+# the book index) — or DIFFERS if you optionally run `./yoga indexing build` in
+# the worktree first (fresh index vs the OLD corpus's stale one). Either reading
+# convicts the stale old index, not the rebuild; it clears post-migration.
 
 # 4. when satisfied, execute (the point of no return is --apply; without it, a plan prints)
 python3 tmp/restructure/dryrun/src/restructure/apply_moves.py --from . --moves tmp/restructure/moves.csv \
