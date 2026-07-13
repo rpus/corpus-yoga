@@ -52,7 +52,7 @@
       "additionalProperties": false,
       "properties": {
         "uuid": {
-          "description": "../../model.json#/UserUUID",
+          "description": "../../model.json#/default/UserUUID",
           "type": "string"
         },
         "full_name": {

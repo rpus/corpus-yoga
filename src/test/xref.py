@@ -126,8 +126,20 @@ def looks_like_repo_path(s: str) -> bool:
     bare = s.lstrip('./')
     if any(bare.startswith(d + '/') or bare == d for d in SKIP_DIRS):
         return False  # reference into a skipped directory
-    if '/../' in s or s.startswith('../') or s.endswith('/..'):
-        return False  # escapes the repo
+    if '<' in s or '…' in s:
+        return False  # a placeholder-bearing path is a format QUOTATION, not a reference
+    lead = re.match(r'^(?:\.\./)+', s)
+    body = s[lead.end():] if lead else s
+    if '/../' in body or body.endswith('/..'):
+        return False  # interior parent hops — never a link shape the repo writes
+    if lead:
+        # leading ../ hops from a nested file are ordinary intra-repo relative
+        # links — resolve() checks them against the referring file and rejects
+        # true escapes. Until 2026-07-13 this branch rejected them wholesale,
+        # which let a born-broken ../ext/ link in a schema CHANGELOG sail
+        # through unflagged.
+        base = body.split('#')[0]
+        return base.endswith(_DOT_EXTS) or (base.endswith('/') and '/' in base.rstrip('/'))
     # Explicit relative reference ./name.ext or ./name.ext#fragment
     if s.startswith('./'):
         base = s.split('#')[0]  # strip JSON Pointer fragment before extension check

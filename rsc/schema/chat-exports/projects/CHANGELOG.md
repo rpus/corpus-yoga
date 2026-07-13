@@ -6,6 +6,12 @@ and git-ignored: each datum directory under `cache/` carries a `matrix.md` besid
 
 ---
 
+2026-07-13: the `UserUUID` cross-reference in v1 and v2's description fields was
+amended in place: the fragment `#/UserUUID` became `#/default/UserUUID`
+(against `../../model.json`) — the old pointer had never navigated; xref
+learned to follow `../` links and caught it. A description change is not a
+validation change: no new version.
+
 ## v2
 
 Now validates `019d1cb4-57a4-77a8-941c-9cf6078d4c31` in `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000`.
