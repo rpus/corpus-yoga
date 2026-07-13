@@ -1,4 +1,4 @@
-pre_commit.py: 1369/1369 (data: machine-local)
+`src/test/pre_commit.py`: 1368/1369 (data: machine-local; 2 gating / 0 advisory section(s) failing)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,8 @@ pre_commit.py: 1369/1369 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 83 unreferenced
+  ✗ xref: 1 missing-file, 0 bad-pointer, 16 self-only, 83 unreferenced
+      expected: 0 missing-file, 0 bad-pointer, 16 self-only, 83 unreferenced  →  consider updating src/test/xref_expected_score
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -1397,9 +1398,13 @@ pre_commit.py: 1369/1369 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1369/1369; expected: 1369/1369
-  ✓ score[code]: 82/82; expected: 82/82
+  ✗ score[code+schema]: 1368/1369; expected: 1369/1369
+      Fix failures in the code and schema tiers first
+  ✗ score[code]: 81/82; expected: 82/82
+      Fix failures in this tier first
   ✓ score[schema]: 1287/1287; expected: 1287/1287
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1369/1369 match the committed expectation; nothing here vetoes a commit
+FAIL — these gate: the hook vetoes a commit on the default branch, and a manual run exits non-zero:
+  check_xref (1)
+  check_score (2)

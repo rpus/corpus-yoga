@@ -28,23 +28,28 @@ branch itself is deleted).
 ```bash
 # from the room's MAIN checkout (old layout), with this branch in a worktree:
 git worktree add tmp/restructure/dryrun restructure
+mkdir -p tmp/restructure/reports
 
 # 1. generate this room's manifest from its real landscape
-python3 tmp/restructure/dryrun/src/restructure/gen_moves.py --from . --swap tmp/restructure
+python3 tmp/restructure/dryrun/src/restructure/gen_moves.py --from . --swap tmp/restructure \
+    2>&1 | tee tmp/restructure/reports/gen_moves.log
 
 # 2. review: tmp/restructure/moves.csv is the plan; tmp/restructure/view/ is the plan rendered
 #    (optional review aid: the code-side manifest of an old-layout checkout)
 python3 tmp/restructure/dryrun/src/restructure/gen_refs.py --from .
 
 # 3. dry-run the migrated code against the future layout
-python3 tmp/restructure/dryrun/src/restructure/build_harness.py --from . --moves tmp/restructure/moves.csv
+python3 tmp/restructure/dryrun/src/restructure/build_harness.py --from . --moves tmp/restructure/moves.csv \
+    2>&1 | tee tmp/restructure/reports/harness.log
 ( cd tmp/restructure/dryrun && ./RUNME.sh )        # run once cold; a second run heals currency stamps
-python3 tmp/restructure/dryrun/src/restructure/compare_outputs.py --from . --worktree tmp/restructure/dryrun
+python3 tmp/restructure/dryrun/src/restructure/compare_outputs.py --from . --worktree tmp/restructure/dryrun \
+    2>&1 | tee tmp/restructure/reports/equivalence.log
 # expected residue: one DIFFERS on index.md — it convicts the OLD corpus's stale
 # book index, not the rebuild; it clears when the index is rebuilt post-migration
 
 # 4. when satisfied, execute (the point of no return is --apply; without it, a plan prints)
-python3 tmp/restructure/dryrun/src/restructure/apply_moves.py --from . --moves tmp/restructure/moves.csv          # plan
+python3 tmp/restructure/dryrun/src/restructure/apply_moves.py --from . --moves tmp/restructure/moves.csv \
+    2>&1 | tee tmp/restructure/reports/apply-plan.log                                                     # plan
 python3 tmp/restructure/dryrun/src/restructure/apply_moves.py --from . --moves tmp/restructure/moves.csv --apply  # execute
 ```
 
@@ -56,3 +61,8 @@ local share: the symlink boundary (`input/claude`, `input/gemini`,
 
 Disposals (`dispose` rows — e.g. stray scrape logs) are MOVED to
 `<swap>/disposed/`, never deleted: inspect at leisure, delete by hand.
+
+Every report lands under `tmp/restructure/` — `moves.csv`, `reports/*.log`, and
+the worktree's own `logs/RUNME/<ts>.log` (pipeline runs) and
+`logs/src/test/pre_commit.log` (the full gate report incl. the machine-local
+data tier) — one folder tells the room's whole story.
