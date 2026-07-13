@@ -142,6 +142,18 @@ def main():
                 old_real.rmdir()
             else:
                 leftovers.append(old_real)
+    # ...and the emptied parents a markdown-channel move leaves behind (the
+    # first real apply left output/markdown/code standing over its moved child)
+    for old, new, rule in rows:
+        if rule != 'markdown-channel':
+            continue
+        parent = (repo / old).parent
+        if parent != repo / 'output' / 'markdown' and parent.is_dir():
+            ds = parent / '.DS_Store'
+            if ds.exists() and sum(1 for _ in parent.iterdir()) == 1:
+                ds.unlink()
+            if not any(parent.iterdir()):
+                parent.rmdir()
     print(f'applied: {len(actions)} move(s), {len(boundary)} link(s)')
     for l in leftovers:
         print(f'  residue left (inspect by hand): {l}')
