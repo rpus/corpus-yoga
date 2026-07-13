@@ -1206,8 +1206,16 @@ def main():
         else:
             out.write(f'\ngate: PASS — code+schema {det} match the committed expectation; '
                       'nothing here vetoes a commit\n')
-        if lines:
-            out.write('\n  (or run with --fix to apply and stage automatically)\n')
+        # The verdict is the terminal word — no trailing offer after it. The
+        # remediation each finding needs is already printed beside it (WARN's
+        # "to address, at leisure"; the gate's "To fix"). We do NOT append a
+        # blanket "or run with --fix to apply and stage automatically": it fired
+        # even on a clean PASS (lines includes non-gating advisories), sat after
+        # the verdict where its "or" had no antecedent, and over-promised — the
+        # surviving items here are cmd-less curation advice --fix never executes,
+        # so it would `git add -u` without disposing them. --fix stays available
+        # for anyone who invokes it deliberately (see --help); it just isn't
+        # advertised after every run.
         return out.getvalue(), lines
 
     committed_text, _         = _render(committed_only=True)

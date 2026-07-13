@@ -66,7 +66,14 @@ STDLIB_MODULES = {
 }
 
 # Repo-relative path prefixes derived from actual top-level directories.
-# Only directories that exist are included, so REPO_PREFIXES is never stale.
+# The DECLARED lifecycle roots, statically — never derived from the live
+# filesystem. Deriving them from iterdir() made the committed xref.csv depend
+# on which git-ignored dirs happened to exist at run time (found 2026-07-13:
+# a machine whose gate had already created logs/ swallowed `logs/src/...`
+# tokens whole and skipped them; a fresh worktree without logs/ matched the
+# same text from `src/` inward and emitted a row — two rooms, two artifacts,
+# one byte-identical tree). Freshness is the wrong invariant for a committed
+# artifact; machine-invariance is the right one.
 # The artifact extensions xref recognises — ONE authority: every extractor's
 # token pattern and looks_like_repo_path derive from it. Before this constant,
 # eight sites carried five drifted vintages of the list. (The subprocess/exec
@@ -77,11 +84,7 @@ _TOKEN = r'[\w./\-]+\.(?:' + '|'.join(REF_EXTS) + r')'
 PATH_TOKEN_RE = re.compile(_TOKEN)
 DOTSLASH_TOKEN_RE = re.compile(r'(?<![./\w])\./' + _TOKEN)
 
-REPO_PREFIXES = tuple(
-    f'{d.name}/'
-    for d in sorted(REPO_ROOT.iterdir())
-    if d.is_dir() and not d.name.startswith('.')
-)
+REPO_PREFIXES = tuple(f'{d}/' for d in ('cache', 'input', 'logs', 'output', 'rsc', 'src'))
 # Regex alternation of bare directory names, e.g. 'cache|rsc|src'
 PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 
