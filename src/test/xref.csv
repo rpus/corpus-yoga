@@ -28,7 +28,8 @@ README.md,53,doc,src/test,Y,The heart of the repo is the schema system under `rs
 README.md,53,doc,rsc/schema/WORKFLOW.md,Y,The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConv
 README.md,57,doc,PREREQUISITES.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
 README.md,57,doc,RUNME.sh,Y,Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.s
-README.md,59,doc,src/requirements.txt,Y,- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `RUNME.sh` creates a venv at `~/venvs/general` (override v
+README.md,59,doc,RUNME.sh,Y,- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `./RUNME.sh` creates a venv at `~/venvs/general` (override
+README.md,59,doc,src/requirements.txt,Y,- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `./RUNME.sh` creates a venv at `~/venvs/general` (override
 README.md,63,doc,rsc/machines,Y,- **Machine manifests**: each machine (*room*) declares its desired state as committed data (`rsc/machines/`: a `_base.c
 README.md,65,doc,RUNME.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
 README.md,65,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `ext/`, `gen/`, `lib/`, `logs/` and the venv, and pipelines wi"
@@ -43,6 +44,8 @@ README.md,89,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/br
 README.md,89,doc,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Saf
 README.md,94,doc,src/run_python_script.sh,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
 README.md,94,doc,src/main/model/project_markdown.py,Y,- `src/run_python_script.sh src/main/model/project_markdown.py --browser-captures ext/browser-captures/claude --out lib/
+README.md,96,doc,src/main/browser-captures/RUNME.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
+README.md,96,doc,RUNME.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,96,doc,src/run_python_script.sh,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,96,doc,src/main/browser-captures/compare_markdown.py,Y,- Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `
 README.md,97,doc,src/run_python_script.sh,Y,"- For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated"
