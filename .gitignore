@@ -10,5 +10,5 @@
 # room is the machine's own name for itself and must never be shared
 rsc/machines/self.txt
 
-# migration swap-space (src/restructure machinery output; ephemeral)
+# migration swap-space (the 2026-07-13 restructure's record and residue; ephemeral)
 /tmp/
