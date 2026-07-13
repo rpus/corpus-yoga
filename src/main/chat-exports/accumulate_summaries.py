@@ -2,8 +2,8 @@
 """
 accumulate_summaries.py — deposit every distinct conversation summary durably.
 
-The summary is a per-snapshot oracle READING of a conversation (capture-class,
-stochastic: the same transcript has been observed to re-read differently — №99,
+The summary is a per-snapshot oracle READING of a conversation (a nondeterministic
+emission: the same transcript has been observed to re-read differently — №99,
 two exports ten hours apart, identical updated_at), carried by every bulk export
 and every browser capture, and lossy between snapshots: the backend regenerates it
 at will, exports supersede each other, captures refresh in place. Like the

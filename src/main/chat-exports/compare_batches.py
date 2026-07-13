@@ -22,7 +22,7 @@ and fingerprints only for unbounded content:
                  (read from the RAW atomised json/ pieces — format-agnostic,
                  so an old batch's schema vintage is irrelevant)
   summaries      unit = conversation uuid;  atom = fingerprint of the summary
-                 (a per-snapshot oracle READING — capture-class, stochastic —
+                 (a per-snapshot oracle READING — nondeterministically emitted —
                  so only the IDENTICAL summary covers it; message coverage
                  says nothing about it, hence its own component)
   memories       unit = account uuid;       atoms = (field, canonical value)
@@ -123,7 +123,7 @@ def units_conversations(gen_dir, ext_dir):
 
 def units_summaries(gen_dir, ext_dir):
     """Each conversation's summary as ONE fingerprinted atom. The summary is a
-    per-snapshot oracle READING (capture-class, stochastic: the same transcript has
+    per-snapshot oracle READING (a nondeterministic emission: the same transcript has
     been observed to re-read differently — №99, capture vs export, identical
     updated_at), so a later batch covers it only by carrying the IDENTICAL summary;
     a divergent later summary is a NEW reading, not a superseding one, and deleting
