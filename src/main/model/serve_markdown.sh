@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Local HTTP server for browsing and searching markdown files.
+# Local HTTP server for browsing and searching markdown files, with LaTeX rendering.
 #
 # Usage:
-#   src/main/model/serve_markdown.sh --markdown <dir> [--port 8182]
-#   src/main/model/serve_markdown.sh --markdown <dir> --daemon [--port 8182]
+#   src/main/model/serve_markdown.sh                 # status: daemon + render-asset presence
+#   src/main/model/serve_markdown.sh start [--markdown <dir>] [--port <n>] [--daemon]
 #   src/main/model/serve_markdown.sh stop
+#   src/main/model/serve_markdown.sh ensure-assets   # fetch the render libs into cache/, then exit
+#
+# Defaults: --markdown output/markdown (the corpus the server exists to serve), --port 8182.
 
 set -euo pipefail
 
@@ -13,45 +16,68 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 # run diagnostics live under logs/ (time-keyed, human-facing); cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
 LOG_FILE="$REPO_DIR/logs/src/main/model/serve_markdown.log"
+PY=("$SCRIPT_DIR/../../run_python_script.sh" "$SCRIPT_DIR/serve_markdown.py")
 
-parse_args() {
-  daemon=0
-  args=()
+# print only the leading usage block (comment lines until the first non-comment line),
+# not every '# ' comment in the file
+help() { awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; }
+
+status() {
+  local pid
+  pid="$(pgrep -f 'serve_markdown.py' 2>/dev/null | head -1 || true)"
+  if [[ -n "$pid" ]]; then
+    echo "serve_markdown daemon: running (pid $pid)"
+  else
+    echo "serve_markdown daemon: not running"
+  fi
+  # render-asset presence — a bare file tally against the manifest (the authoritative
+  # readiness report, with versions, is PREREQUISITES.sh's check_dependencies)
+  local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/cache/serve_markdown"
+  local total=0 present=0 line f
+  while IFS= read -r line; do
+    line="${line%%#*}"; f="${line%%[[:space:]]*}"
+    [[ -z "$f" ]] && continue
+    total=$((total + 1)); [[ -f "$dir/$f" ]] && present=$((present + 1))
+  done < "$manifest"
+  echo "render assets: $present/$total present in cache/serve_markdown"
+  echo "verbs: start | stop | ensure-assets    (./yoga server --help)"
+}
+
+start() {
+  local daemon=0 have_md=0 pyargs=()
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      --daemon)  daemon=1; shift ;;
-      *)         args+=("$1"); shift ;;
+      --daemon) daemon=1; shift ;;
+      *) [[ "$1" == "--markdown" ]] && have_md=1; pyargs+=("$1"); shift ;;
     esac
   done
-}
-
-main() {
-  parse_args "$@"
-  echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-
-  if [[ "${args[0]:-}" == "stop" ]]; then
-    if pkill -f 'serve_markdown.py' 2>/dev/null; then
-      echo "Stopped"
-    else
-      echo "No serve_markdown.py process found"
-    fi
-    return
-  fi
-
+  [[ "$have_md" -eq 0 ]] && pyargs+=(--markdown "$REPO_DIR/output/markdown")
   mkdir -p "$(dirname "$LOG_FILE")"
   export PYTHONUNBUFFERED=1
-
   if [[ "$daemon" -eq 1 ]]; then
-    nohup "$SCRIPT_DIR/../../run_python_script.sh" "$SCRIPT_DIR/serve_markdown.py" ${args[@]+"${args[@]}"} \
-      > "$LOG_FILE" 2>&1 &
+    nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    echo "Stop with: $0 stop"
+    echo "Stop with: ./yoga server stop"
     echo "Logs: $LOG_FILE"
   else
-    "$SCRIPT_DIR/../../run_python_script.sh" "$SCRIPT_DIR/serve_markdown.py" ${args[@]+"${args[@]}"}
+    "${PY[@]}" "${pyargs[@]}"
   fi
 }
 
-main "$@"
+stop() {
+  if pkill -f 'serve_markdown.py' 2>/dev/null; then
+    echo "Stopped"
+  else
+    echo "No serve_markdown.py process found"
+  fi
+}
+
+case "${1:-}" in
+  ""|status)      status ;;
+  -h|--help|help) help ;;
+  start)          shift; start "$@" ;;
+  stop)           stop ;;
+  ensure-assets)  "${PY[@]}" --ensure-assets ;;
+  *) echo "server: unknown verb '${1}' — expected start, stop, ensure-assets (bare: status)" >&2; help; exit 1 ;;
+esac

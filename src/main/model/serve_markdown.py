@@ -2,10 +2,9 @@
 """
 Local HTTP server for browsing and searching markdown files.
 
-Usage:
-    src/main/model/serve_markdown.sh --markdown <dir> [--port 8182]
-    src/main/model/serve_markdown.sh --markdown <dir> --daemon [--port 8182]
-    src/main/model/serve_markdown.sh stop
+Driven by serve_markdown.sh (the `yoga server` verbs: start / stop / ensure-assets /
+bare status). This module's own flags — used by that wrapper — are --markdown DIR
+(required to serve), --port, and --ensure-assets (fetch the render libs, then exit).
 """
 import argparse
 import json
@@ -17,38 +16,45 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 REPO_ROOT  = Path(__file__).resolve().parents[3]
-STATIC_DIR = REPO_ROOT / 'output' / 'serve_markdown'
+STATIC_DIR = REPO_ROOT / 'cache' / 'serve_markdown'
+# The viewer's render-lib dependency, declared like a requirements.txt (pinned
+# versions, one line per artifact) rather than buried in a dict here — so it is
+# visible and PREREQUISITES.sh can report against the same source.
+MANIFEST   = Path(__file__).resolve().parent / 'serve_assets.txt'
 
-ASSETS = {
-    'marked.min.js':      'https://cdn.jsdelivr.net/npm/marked@9/marked.min.js',
-    'katex.min.js':       'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
-    'katex.min.css':      'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
-    'auto-render.min.js': 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js',
-}
-FONTS = [
-    'KaTeX_Main-Regular.woff2', 'KaTeX_Main-Bold.woff2', 'KaTeX_Main-Italic.woff2',
-    'KaTeX_Math-Italic.woff2',  'KaTeX_Size1-Regular.woff2', 'KaTeX_Size2-Regular.woff2',
-    'KaTeX_Size3-Regular.woff2', 'KaTeX_Size4-Regular.woff2',
-    'KaTeX_AMS-Regular.woff2',  'KaTeX_Caligraphic-Regular.woff2',
-    'KaTeX_Fraktur-Regular.woff2', 'KaTeX_SansSerif-Regular.woff2',
-    'KaTeX_Script-Regular.woff2',  'KaTeX_Typewriter-Regular.woff2',
-]
+
+def assets() -> list[tuple[str, str]]:
+    """Parse serve_assets.txt into [(dest-relative-to-STATIC_DIR, url)] — the one
+    source shared by ensure_assets (fetch) and PREREQUISITES.sh (report)."""
+    out = []
+    for line in MANIFEST.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        dest, url = line.split()
+        out.append((dest, url))
+    return out
+
 
 def ensure_assets() -> None:
-    STATIC_DIR.mkdir(parents=True, exist_ok=True)
-    for name, url in ASSETS.items():
-        dest = STATIC_DIR / name
-        if not dest.exists():
-            print(f'Downloading {name}…', flush=True)
+    """Fetch any missing render library into STATIC_DIR. The core js/css are
+    REQUIRED — a failure raises, so serve refuses to start half-rendered; the fonts/
+    woff2 are progressive enhancement, fetched best-effort. Called at serve startup
+    and by --ensure-assets (the regen producer, which additionally tolerates the
+    required-libs raise so an offline regen still exits clean)."""
+    for dest_rel, url in assets():
+        dest = STATIC_DIR / dest_rel
+        if dest.exists():
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        optional = dest_rel.startswith('fonts/')
+        try:
+            print(f'Downloading {dest_rel}…', flush=True)
             urllib.request.urlretrieve(url, dest)
-    fonts_dir = STATIC_DIR / 'fonts'
-    fonts_dir.mkdir(exist_ok=True)
-    base = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/fonts/'
-    for f in FONTS:
-        dest = fonts_dir / f
-        if not dest.exists():
-            try: urllib.request.urlretrieve(base + f, dest)
-            except Exception as e: print(f'Warning: could not download {f}: {e}', flush=True)
+        except Exception as e:
+            if not optional:
+                raise
+            print(f'Warning: could not download {dest_rel}: {e}', flush=True)
 
 
 def conversations(markdown_dir: Path) -> list[dict]:
@@ -297,10 +303,29 @@ def make_handler(markdown_dir: Path) -> type:
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('--markdown', required=True, metavar='DIR',
-                   help='Directory tree of markdown files to serve (e.g. cache/markdown)')
+    p.add_argument('--markdown', metavar='DIR',
+                   help='Directory tree of markdown files to serve (e.g. output/markdown)')
     p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
+    p.add_argument('--ensure-assets', action='store_true',
+                   help='fetch the render libraries into cache/serve_markdown, then exit '
+                        '(the regen producer for that subtree — serve also self-heals them at startup)')
     args = p.parse_args()
+
+    # The regen producer path: repopulate cache/serve_markdown and stop. Best-effort
+    # so an offline `yoga regen` still exits clean — serve itself hard-requires the
+    # assets at startup (ensure_assets there is not caught), so a broken render can't
+    # slip through; here we only warn and leave the subtree for the next online run.
+    if args.ensure_assets:
+        try:
+            ensure_assets()
+            print(f'fetched render assets → {STATIC_DIR.relative_to(REPO_ROOT)}/', flush=True)
+        except Exception as e:
+            print(f'Warning: could not fetch render assets ({e}); '
+                  f'serve will retry at startup', flush=True)
+        sys.exit(0)
+
+    if not args.markdown:
+        p.error('--markdown is required to serve (or pass --ensure-assets to fetch them and exit)')
 
     # Absolutize WITHOUT resolving symlinks: output/ is a symlink into the shared
     # medium, and resolving through it strands every served file outside
@@ -321,6 +346,6 @@ if __name__ == '__main__':
         if e.errno == 48:
             print(f'Port {args.port} already in use.', flush=True)
             print(f'To fix: lsof -ti :{args.port} | xargs kill', flush=True)
-            print(f'     or: src/main/model/serve_markdown.sh stop', flush=True)
+            print('     or: ./yoga server stop', flush=True)
             sys.exit(1)
         raise

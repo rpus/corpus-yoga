@@ -66,7 +66,7 @@ The table also gives *problem reports* a stable, in-band vocabulary: a repo or
 project issue should be succinctly specifiable as yoga commands — the command
 line that exhibits it, what was expected, what was observed. `./yoga supersede`
 exits 1 on a batch believed superseded; `./yoga check` disagrees with the
-committed log; `./yoga indexing build` drops a locator that `./yoga serve` can reach. An
+committed log; `./yoga indexing build` drops a locator that `./yoga server` can reach. An
 issue that cannot be phrased as commands plus data is probably not yet
 understood — and one that can is reproducible from the repo by construction,
 on any machine, which is the same property demanded of every process here.

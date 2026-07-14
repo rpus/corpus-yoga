@@ -1,4 +1,4 @@
-pre_commit.py: 1369/1369 (data: machine-local)
+pre_commit.py: 1371/1371 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -32,10 +32,10 @@ pre_commit.py: 1369/1369 (data: machine-local)
   ✓ cli: check: advertised flags exist
   ✓ cli: xref: target exists: src/test/xref.py
   ✓ cli: xref: cited calculus defined
-  ✓ cli: serve: target exists: src/main/model/serve_markdown.sh
-  ✓ cli: serve: cited calculus defined
-  ✓ cli: serve: advertised flags exist
-  ✓ cli: serve: advertised verbs in target --help
+  ✓ cli: server: target exists: src/main/model/serve_markdown.sh
+  ✓ cli: server: cited calculus defined
+  ✓ cli: server: advertised flags exist
+  ✓ cli: server: advertised verbs in target --help
   ✓ cli: dashboard: target exists: src/main/chat-exports/dashboard.sh
   ✓ cli: dashboard: cited calculus defined
   ✓ cli: dashboard: advertised flags exist
@@ -92,6 +92,8 @@ pre_commit.py: 1369/1369 (data: machine-local)
   ✓ cache_io: cache/indexing: producers/readers resolve
   ✓ cache_io: cache/model: read implies a writer
   ✓ cache_io: cache/model: producers/readers resolve
+  ✓ cache_io: cache/serve_markdown: read implies a writer
+  ✓ cache_io: cache/serve_markdown: producers/readers resolve
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -1397,9 +1399,9 @@ pre_commit.py: 1369/1369 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1369/1369; expected: 1369/1369
-  ✓ score[code]: 82/82; expected: 82/82
+  ✓ score[code+schema]: 1371/1371; expected: 1371/1371
+  ✓ score[code]: 84/84; expected: 84/84
   ✓ score[schema]: 1287/1287; expected: 1287/1287
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1369/1369 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1371/1371 match the committed expectation; nothing here vetoes a commit

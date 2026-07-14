@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# PREREQUISITES.sh — Report what this machine has and what ./RUNME.sh would do.
+# PREREQUISITES.sh — Report what this machine has and what ./yoga run would do.
 #
 # Strictly read-only: no directories created, no symlinks, no venv, no installs
-# (unlike ./RUNME.sh, which does all of those). Safe as the first command on a
+# (unlike ./yoga run, which does all of those). Safe as the first command on a
 # fresh clone.
 #
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
@@ -53,16 +53,70 @@ check_tools() {
 
 check_venv() {
   echo "venv ($VENV — override via VENV=...)"
-  if [[ -f "$VENV/bin/python" ]]; then
+  if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1))"
-    if "$VENV/bin/python" -c 'import jsonschema, referencing' &>/dev/null; then
-      ok "jsonschema + referencing importable"
-    else
-      info "jsonschema/referencing missing — ./RUNME.sh installs them (pip install -r src/requirements.txt)"
-    fi
   else
-    info "not found — ./RUNME.sh creates it and installs src/requirements.txt"
+    info "not found — ./yoga run creates it and installs src/requirements.txt"
   fi
+}
+
+# check_dependencies <header> <manifest> <extract> <probe> <subject> <remediation>
+#   One reporter for every pinned-dependency manifest. Both manifests hold one item
+#   per non-comment/blank line by construction, so the read/count/report is shared;
+#   only what varies is passed in — <extract> (a function: `<extract> <line>` echoes
+#   the item id) and <probe> (a function: `<probe> <item> <line>` exits 0 and echoes a
+#   version token if satisfied, else non-zero), plus the <subject>/<remediation>
+#   wording. Each manifest supplies a <name>_extract / <name>_probe pair; the test
+#   can't be a mere regex because it differs — a distribution-metadata lookup vs a
+#   file existence check. Absence is only ever an informational –, never a ✗.
+check_dependencies() {
+  local header="$1" manifest="$2" extract="$3" probe="$4" subject="$5" remediation="$6"
+  echo "$header"
+  if [[ ! -f "$manifest" ]]; then
+    info "manifest not found (unexpected)"
+    return
+  fi
+  local detail="" seen="|" missing="" total=0 got=0 line item tok
+  while IFS= read -r line; do
+    line="${line%%#*}"                            # drop comment
+    [[ "$line" =~ ^[[:space:]]*$ ]] && continue   # skip blank
+    item="$("$extract" "$line")"
+    total=$((total + 1))
+    if tok="$("$probe" "$item" "$line")"; then
+      got=$((got + 1))
+      # de-duplicate version tokens (18 render assets collapse to 2 pinned packages)
+      if [[ -n "$tok" ]]; then
+        case "$seen" in *"|$tok|"*) ;; *) seen="$seen$tok|"; detail+="${detail:+, }$tok" ;; esac
+      fi
+    else
+      missing+="${missing:+ }$item"
+    fi
+  done < "$manifest"
+  if [[ "$got" -eq "$total" ]]; then
+    ok "$got/$total $subject ($detail)"
+  else
+    info "$got/$total $subject — $remediation (missing: $missing)"
+  fi
+}
+
+# The parts that differ per manifest — a matched <name>_extract / <name>_probe pair.
+# extract: line → item id. probe: item present? → echo a version token, else non-zero.
+
+# Python requirements: name is the first field minus version specifiers/extras;
+# presence and version come from the installed distribution's metadata.
+req_extract() { printf '%s' "$1" | sed -E 's/^[[:space:]]+//; s/[[:space:]].*//; s/[<>=!~;[].*//'; }
+req_probe() {
+  local v
+  v="$("$VENV/bin/python" -c "import importlib.metadata as m; print(m.version('$1'))" 2>/dev/null)" || return 1
+  printf '%s %s' "$1" "$v"
+}
+
+# Render libraries: item is the dest path (first field); presence is the cached file,
+# and the pinned version comes from the line's /npm/<pkg>@<ver>/ URL.
+asset_extract() { printf '%s' "$1" | sed -E 's/^[[:space:]]+//; s/[[:space:]].*//'; }
+asset_probe() {  # $1 = dest, $2 = full line
+  [[ -f "$SCRIPT_DIR/cache/serve_markdown/$1" ]] || return 1
+  printf '%s' "$2" | grep -oE '/npm/[^/@]+@[^/]+' | sed 's#/npm/##' || true
 }
 
 check_optional_modes() {
@@ -179,7 +233,7 @@ check_pipeline_inputs() {
 
   n="$(count_glob_dirs "$SCRIPT_DIR/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via serve_markdown.sh); not validated"
+    ok "browser-captures: $n gemini scrape(s) in input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./yoga server start); not validated"
   else
     info "browser-captures: no gemini scrapes in input/gemini/chat/browser-DOM — captured only via --capture-from-browser; not processed further"
   fi
@@ -206,8 +260,8 @@ check_pipeline_inputs() {
 
 notes() {
   echo "notes"
-  info "./RUNME.sh writes only to input/, cache/, output/, logs/ (all git-ignored) and the venv; nothing else on this machine"
-  info "src/test/pre_commit.sh: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
+  info "./yoga run writes only to input/, cache/, output/, logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "./yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
 main() {
@@ -217,6 +271,18 @@ main() {
   check_room
   check_tools
   check_venv
+  check_dependencies \
+    "python requirements (yoga run — manifest: src/requirements.txt)" \
+    "$SCRIPT_DIR/src/requirements.txt" \
+    req_extract req_probe \
+    "requirements installed" \
+    "pip install -r src/requirements.txt, or automatically on the next ./yoga run"
+  check_dependencies \
+    "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
+    "$SCRIPT_DIR/src/main/model/serve_assets.txt" \
+    asset_extract asset_probe \
+    "render assets present in cache/serve_markdown" \
+    "./yoga server ensure-assets, or automatically on the next ./yoga server start"
   check_optional_modes
   check_cli
   check_git_hook
@@ -227,7 +293,7 @@ main() {
     echo "missing required tools — install the ✗ items above, then re-run"
     exit 1
   fi
-  echo "ready — run ./RUNME.sh (pipelines without input data are skipped)"
+  echo "ready — ./yoga run (pipelines without input data are skipped)"
 }
 
 main "$@"

@@ -3,7 +3,7 @@ run,RUNME.sh,[--plan] [--capture-from-browser] [--new-claude-scrape],atomise val
 prerequisites,PREREQUISITES.sh,,L8,,Read-only report of what this machine can run
 check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the deterministic ones
 xref,src/test/xref.py,,validate,,Cross-reference integrity of every committed artifact
-serve,src/main/model/serve_markdown.sh,--markdown <dir> [--port <n>] [--daemon] | stop,project,,Serve the markdown corpus with LaTeX rendering and turn deep links
+server,src/main/model/serve_markdown.sh,start [--markdown <dir>] [--port <n>] [--daemon] | stop | ensure-assets,project,,Serve the markdown corpus locally with LaTeX rendering and turn deep links (bare — status; --markdown defaults to output/markdown); ensure-assets fetches the render libs into cache/serve_markdown
 dashboard,src/main/chat-exports/dashboard.sh,capture [--conversations <path>] [--only semantic-concepts|chat-categories] | present,capture project,,Refresh output/dashboard/ — the paid model capture of semantic-concepts + chat-categories; present renders the corpus page free (bare: status)
 indexing,src/main/model/build_index.py,candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [--because <why>] | build,capture curate project,,Curate and build the book index over output/indexing/ (bare: status)
 library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-library dir naming across vintages (dry run by default)

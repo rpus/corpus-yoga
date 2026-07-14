@@ -6,3 +6,4 @@ cache/completions,,./yoga completions --write,external:zsh; PREREQUISITES.sh,sta
 cache/dashboard,,./yoga dashboard present,,the data tables feeding the corpus dashboard (present) — feedstock only (re-derived each run; the finished page now lands in output/dashboard/presentation/). The paid capture also stages here transiently before promotion to output/dashboard
 cache/indexing,,./yoga indexing candidates,external:human,the pending-concept queue (candidates.txt); a rebuildable derivation of output/dashboard minus output/indexing curation
 cache/model,,./yoga model,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/schema/model.json
+cache/serve_markdown,,./yoga server ensure-assets,external:browser,the markdown viewer's third-party render libraries — KaTeX + marked + pinned fonts — fetched from the CDN by ensure_assets; browser-read via /static/; the server self-heals them at startup and this producer lets regen repopulate them too
