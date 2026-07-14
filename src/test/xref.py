@@ -49,8 +49,22 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).parents[2]
 
-# Directories/files to skip entirely
-SKIP_DIRS  = {'input', 'cache', 'output', 'logs', 'tmp', '__pycache__'}
+# The git-ignored lifecycle roots to skip — parsed from the committed .gitignore
+# (its one authority) rather than restated by hand. .gitignore is a committed source,
+# so this stays machine-invariant (L2) — unlike iterdir(); see the REF_EXTS note below.
+# Found 2026-07-14: the hand-kept copy still carried 'tmp' after its .gitignore line
+# was retired — two sources, already drifted. __pycache__ stays explicit: a universal
+# Python artifact, always skipped whatever .gitignore says, not a repo lifecycle root.
+def _gitignored_roots() -> frozenset:
+    roots = set()
+    for line in (REPO_ROOT / '.gitignore').read_text().splitlines():
+        m = re.fullmatch(r'/([^/]+)/?', line.strip())  # anchored top-level dir: /cache/, /output
+        if m:
+            roots.add(m.group(1))
+    return frozenset(roots)
+
+_IGNORED_ROOTS = _gitignored_roots()
+SKIP_DIRS  = _IGNORED_ROOTS | {'__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
 SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}
 
@@ -83,7 +97,7 @@ _TOKEN = r'[\w./\-]+\.(?:' + '|'.join(REF_EXTS) + r')'
 PATH_TOKEN_RE = re.compile(_TOKEN)
 DOTSLASH_TOKEN_RE = re.compile(r'(?<![./\w])\./' + _TOKEN)
 
-REPO_PREFIXES = tuple(f'{d}/' for d in ('cache', 'input', 'logs', 'output', 'rsc', 'src'))
+REPO_PREFIXES = tuple(f'{d}/' for d in sorted(_IGNORED_ROOTS | {'rsc', 'src'}))
 # Regex alternation of bare directory names, e.g. 'cache|rsc|src'
 PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 

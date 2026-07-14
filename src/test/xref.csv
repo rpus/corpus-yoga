@@ -524,8 +524,8 @@ src/test/schema_recommendations.py,7,comment,src/test/schema_recommendations.py,
 src/test/xref.py,11,comment,src/test/xref.csv,Y,Default output: src/test/xref.csv
 src/test/xref.py,26,comment,rsc/schema/chat-exports/conversations/v5.json,Y,fragment (e.g. rsc/schema/chat-exports/conversations/v5.json#/definitions/TextBlock).
 src/test/xref.py,40,comment,src/test/xref.csv,Y,"./yoga xref && awk -F, '$5==""N""' src/test/xref.csv"
-src/test/xref.py,55,path_str,src/test/pre_commit.log,Y,"SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}"
-src/test/xref.py,55,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}"
+src/test/xref.py,69,path_str,src/test/pre_commit.log,Y,"SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}"
+src/test/xref.py,69,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}"
 src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
