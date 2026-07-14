@@ -14,6 +14,12 @@
 		"python.analysis.typeCheckingMode": "standard",
 		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python", // mirrors the VENV default in run_python_script.sh / RUNME.sh
 		"python.analysis.diagnosticMode": "workspace",
-		"python.terminal.activateEnvironment": false
+		"python.terminal.activateEnvironment": false,
+		// Constant-titled CHANGELOG section headings (### Replaces, #### Restricted/
+		// Relaxed/Refactored) repeat under every ## vN parent by design (rsc/schema/
+		// WORKFLOW.md, step 3) — flag duplicate headings only among siblings
+		"markdownlint.config": {
+			"MD024": { "siblings_only": true }
+		}
 	}
 }
