@@ -9,8 +9,8 @@ for a human/browser/shell). Paths are REPO-RELATIVE (`cache/…`), the real thin
 you can cd to or rm. Three consumers share it:
 
   clean  — a cache/ subtree ABSENT from the registry is residue (neither written
-           nor read): removable (yoga clean).
-  regen  — the distinct producer commands rebuild cache/ (yoga regen).
+           nor read): removable (yoga cache clean).
+  regen  — every row's producer commands rebuild cache/ (yoga cache regen).
   check  — pre_commit's check_cache_io blocks the catastrophe: a path READ with
            no WRITER (a cache/ dependency nothing produces) breaks the "cache/ is
            reproducible from input/" contract. Written-but-not-read is fine (a
@@ -86,10 +86,13 @@ def pipelines() -> set[str]:
 
 
 def producers() -> list[str]:
-    """The distinct producer commands, in first-seen order — regen's plan."""
-    seen: list[str] = []
+    """Every written_by command, row by row in registry order — regen's plan.
+    Deliberately NO dedup: the row is the unit of the reproduction claim, and a
+    command string shared by two rows proves nothing about one run covering
+    both — a producer may write more than its row declares (dashboard present
+    also lands the output/ page) or less than a twin row hopes. A shared
+    command running twice is the safe reading."""
+    cmds: list[str] = []
     for r in rows():
-        for cmd in r['written_by']:
-            if cmd not in seen:
-                seen.append(cmd)
-    return seen
+        cmds.extend(r['written_by'])
+    return cmds

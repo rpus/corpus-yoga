@@ -1,5 +1,6 @@
 command,target,usage,calculus,step,summary
-run,RUNME.sh,[--plan] [--capture-from-browser] [--new-claude-scrape],atomise validate supersession accumulate project,,Run every pipeline against its input/ inputs; --plan prints the ordered steps
+run,RUNME.sh,[--plan] [--only <pipeline>] [--compare-scrape],atomise validate supersession accumulate project,,Run every pipeline against its input/ inputs — processing only; acquisition lives under browser/agent/dashboard capture. --plan previews any parametrised call
+browser,src/main/browser-captures/PREP.sh,capture [--provider claude|gemini] [--DOM],capture,,"Sweep browser-reachable providers into input/<provider>/chat/browser-{API,DOM}/ via Safari — claude live API JSON (+ DOM scrape with --DOM), gemini DOM-only (REQUIRES --DOM: no API, and a scrape walk is slow); audits capture health first"
 prerequisites,PREREQUISITES.sh,,L8,,Read-only report of what this machine can run
 check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the deterministic ones
 xref,src/test/xref.py,,validate,,Cross-reference integrity of every committed artifact
@@ -13,6 +14,5 @@ agent,src/main/code-agents/agent.py,list | models | capture --session <uuid8>|--
 machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)
 model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues
 calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites
-clean,src/main/cli/clean.py,--dry-run | --apply,,,Remove orphaned cache/ subtrees (neither written nor read by any current step); one of --dry-run/--apply required
-regen,src/main/cli/regen.py,[--dry-run],project,,Rebuild cache/ by running its declared producers (rsc/cache_io.csv); the free reproduction paired with clean
+cache,src/main/cli/cache.py,clean (--dry-run | --apply) | regen [--dry-run],project,,"cache/ lifecycle: clean removes orphaned subtrees (neither written nor read; one of --dry-run/--apply required), regen rebuilds cache/ by running each registry row's producers (rsc/cache_io.csv) — which co-write output/ derivations too. The free reproduction ritual: cache clean --apply && cache regen"
 completions,src/main/cli/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table

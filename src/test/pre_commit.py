@@ -98,7 +98,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['conversations', 'memories', 'projects', 'users'],
         changelog         = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
         cache_output      = REPO_ROOT / cache_io.path_for('chat-exports'),
-        input             = INPUT / 'chat-exports',
+        input             = INPUT / 'claude' / 'chat' / 'bulk-export',
         input_glob        = 'data-*/',
         subject_depth     = 1,
         fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',
@@ -110,7 +110,7 @@ PIPELINES: dict[str, Pipeline] = {
         # The pipeline sources the repo-owned STORE (rooms → projects →
         # sessions), never the harness-owned ~/.claude/projects — transport
         # is the capture step that populates it.
-        input             = INPUT / 'code-agents',
+        input             = INPUT / 'claude' / 'code' / 'machine-transport',
         input_glob        = '*/-Users-*/*.jsonl',
         subject_depth     = 3,
         # validate.sh --code-agent-session consumes the cache/ session dir (conversion
@@ -623,7 +623,7 @@ def check_cache_io(run) -> None:
     covers every pipeline's gen root (so clean and regen know the pipelines),
     and — the catastrophe guard — no subtree is READ with no WRITER. A cache/ path
     the machinery consumes but nothing produces breaks the 'cache/ is reproducible
-    from input/' contract: a fresh clone, or `yoga clean`, would strand the
+    from input/' contract: a fresh clone, or `yoga cache clean`, would strand the
     reader. Written-but-not-read is fine (a terminal output — a page a browser
     reads); only the read side lacking a writer is fatal. Committed registry
     only, so deterministic on any clone: code tier."""

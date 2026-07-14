@@ -24,8 +24,8 @@ STDLIB-ONLY. One of --dry-run / --apply is REQUIRED: cleaning is deliberate,
 never a default, and never a silent no-op.
 
 Usage:
-    ./yoga clean --dry-run   # list orphaned cache/ subtrees with sizes; remove nothing
-    ./yoga clean --apply     # remove them
+    ./yoga cache clean --dry-run   # list orphaned cache/ subtrees with sizes; remove nothing
+    ./yoga cache clean --apply     # remove them
 """
 import argparse
 import shutil
@@ -107,7 +107,7 @@ def main() -> int:
 
     if args.dry_run:
         print(f'DONE — dry run: {len(found)} orphan(s), {_human(total)} — pass --apply to remove')
-        print('    → run: ./yoga clean --apply')
+        print('    → run: ./yoga cache clean --apply')
     else:
         print(f'DONE — removed {len(found)} orphan(s), {_human(total)} freed')
     return 0

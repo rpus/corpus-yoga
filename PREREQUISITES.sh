@@ -122,7 +122,7 @@ asset_probe() {  # $1 = dest, $2 = full line
 check_optional_modes() {
   echo "optional modes"
   if [[ "$(uname)" == "Darwin" ]] && command -v osascript &>/dev/null; then
-    ok "--capture-from-browser possible: macOS + osascript (Safari must be logged in to claude.ai / gemini.google.com)"
+    ok "browser capture possible (yoga browser capture): macOS + osascript (Safari must be logged in to claude.ai / gemini.google.com)"
     # Modern Safari keeps this setting where `defaults` cannot see it, and the reliable
     # probe (`do JavaScript "1+1"`) would drive Safari — off-limits for this read-only
     # reporter. Report the state only when the legacy key happens to be readable;
@@ -135,7 +135,7 @@ check_optional_modes() {
       *) info "Safari 'Allow JavaScript from Apple Events' cannot be verified read-only on this Safari version — if it is off, capture fail-fasts with a clear error naming this setting" ;;
     esac
   else
-    info "--capture-from-browser unavailable: needs macOS + osascript; other pipelines unaffected"
+    info "browser capture (yoga browser capture) unavailable: needs macOS + osascript; other pipelines unaffected"
   fi
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
     ok "yoga dashboard capture possible: ANTHROPIC_API_KEY is set"
@@ -228,14 +228,14 @@ check_pipeline_inputs() {
   if [[ "$n" -gt 0 ]]; then
     ok "browser-captures: $n claude capture(s) in input/claude/chat/browser-API — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in input/claude/chat/browser-API — will skip (populate via --capture-from-browser)"
+    info "browser-captures: no claude captures in input/claude/chat/browser-API — will skip (populate via: yoga browser capture)"
   fi
 
   n="$(count_glob_dirs "$SCRIPT_DIR/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
     ok "browser-captures: $n gemini scrape(s) in input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./yoga server start); not validated"
   else
-    info "browser-captures: no gemini scrapes in input/gemini/chat/browser-DOM — captured only via --capture-from-browser; not processed further"
+    info "browser-captures: no gemini scrapes in input/gemini/chat/browser-DOM — captured only via: yoga browser capture --DOM (gemini is DOM-only); not processed further"
   fi
 
   n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/chat/bulk-export"/data-*/)"

@@ -1,26 +1,33 @@
 #!/usr/bin/env bash
 # RUNME.sh — Process all Claude data exports.
 #
-# Runs three pipelines against their sibling input directories:
+# Runs three pipelines against their sibling input directories (filesystem order):
 #
+#   browser-captures input/<provider>/chat/browser-{API,DOM}/  Per-conversation captures (written by `yoga browser capture`):
+#                                           claude/ live API JSON (validated + projected to markdown);
+#                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
 #   chat-exports     input/claude/chat/bulk-export/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
 #   code-agents      input/claude/code/machine-transport/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
 #                                           populated by `yoga agent capture --all` — the pipeline never reads
 #                                           the harness-owned ~/.claude/projects)
-#   browser-captures input/<provider>/chat/browser-{API,DOM}/  Per-conversation captures (written by --capture-from-browser):
-#                                           claude/ live API JSON (validated + projected to markdown);
-#                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
 #
 # Any input/ entry may instead be a hand-made symlink, to keep the data outside the clone.
 #
 # Each pipeline validates its inputs against all schema versions, then (for chat-exports)
-# extracts files and renders a dashboard (reading the durable output/dashboard/ captures).
+# extracts files and renders each batch's presentation pages under cache/. The corpus
+# dashboard page (output/dashboard/presentation/index.html) is NOT a pipeline product:
+# `yoga dashboard present` renders it, free, from output/markdown + the durable
+# output/dashboard/ captures.
 #
 # Usage:
-#   ./RUNME.sh                                      # all pipelines (claude api, gemini dom)
+#   ./RUNME.sh                                      # all pipelines, processing what input/ holds
 #   ./RUNME.sh --plan                               # print the ordered step plan; run nothing
-#   ./RUNME.sh --capture-from-browser               # also capture/update via Safari (slow)
-#   ./RUNME.sh --capture-from-browser --new-claude-scrape  # also DOM-scrape claude + check projection vs scrape
+#   ./RUNME.sh --only <pipeline>                    # one pipeline: browser-captures | chat-exports | code-agents
+#   ./RUNME.sh --compare-scrape                     # also compare the claude projection against a fresh DOM scrape
+#
+# Acquisition is not this script's job: `yoga browser capture` sweeps the browser
+# providers into input/ (Safari; claude API, gemini DOM), `yoga agent capture` the
+# code sessions, `yoga dashboard capture` the paid model readings. Run processes.
 #
 # After running, check results with:
 #   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
@@ -30,17 +37,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 
 parse_args() {
-  browser_captures=""
-  new_claude_scrape=""
+  compare_scrape=""
+  only=""
+  plan=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --capture-from-browser) browser_captures="1";                   shift ;;
-      --new-claude-scrape) new_claude_scrape="--new-claude-scrape";               shift ;;
+      --plan) plan="1";                                               shift ;;
+      --compare-scrape) compare_scrape="--compare-scrape";            shift ;;
+      --only)
+        case "${2-}" in
+          browser-captures|chat-exports|code-agents) only="$2"; shift 2 ;;
+          *) echo "error: --only takes browser-captures | chat-exports | code-agents (got: ${2-})"; exit 1 ;;
+        esac ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--capture-from-browser] [--new-claude-scrape]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: $0 [--plan] [--only <pipeline>] [--compare-scrape]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done
 }
+
+# Does this pipeline run? True when unfiltered or when --only names it.
+should_run() { [[ -z "$only" || "$only" == "$1" ]]; }
 
 require_cmd() {
   local cmd="$1" hint="$2"
@@ -162,14 +178,23 @@ LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # only this script's own frame (tooling, preps, tail) is narrated here, beside
 # the main() that performs it.
 print_plan() {
-  echo "RUNME.sh — the ordered plan (conditional steps annotated; nothing executed):"
+  # The plan of THIS invocation: --only filters to its pipeline, and the
+  # capture-sweep line resolves against the flags given instead of staying
+  # a conditional annotation — appending --plan to any parametrised call
+  # previews exactly that call.
+  echo "RUNME.sh — the ordered plan${only:+ (--only $only)} (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
-  echo "  browser-captures/PREP.sh (only with --capture-from-browser: Safari capture/update sweep)"
-  "$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
-  echo "  chat-exports/PREP.sh"
-  "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
-  echo "  code-agents/PREP.sh"
-  "$SCRIPT_DIR/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
+  if should_run browser-captures; then
+    "$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
+  fi
+  if should_run chat-exports; then
+    echo "  chat-exports/PREP.sh"
+    "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
+  fi
+  if should_run code-agents; then
+    echo "  code-agents/PREP.sh"
+    "$SCRIPT_DIR/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
+  fi
   echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; pre_commit reminder; log path"
 }
 
@@ -184,14 +209,19 @@ main() {
 
   local -a pipeline_failures=()
 
-  [[ -n "$browser_captures" ]] && prep_pipeline_safe browser-captures ${new_claude_scrape:+"$new_claude_scrape"}
-  run_pipeline_safe  browser-captures "$SCRIPT_DIR/input/claude/chat/browser-API" ${new_claude_scrape:+"$new_claude_scrape"}
+  if should_run browser-captures; then
+    run_pipeline_safe  browser-captures "$SCRIPT_DIR/input/claude/chat/browser-API" ${compare_scrape:+"$compare_scrape"}
+  fi
 
-  prep_pipeline_safe chat-exports
-  run_pipeline_safe  chat-exports "$SCRIPT_DIR/input/claude/chat/bulk-export"
+  if should_run chat-exports; then
+    prep_pipeline_safe chat-exports
+    run_pipeline_safe  chat-exports "$SCRIPT_DIR/input/claude/chat/bulk-export"
+  fi
 
-  prep_pipeline_safe code-agents
-  run_pipeline_safe  code-agents "$SCRIPT_DIR/input/claude/code/machine-transport"
+  if should_run code-agents; then
+    prep_pipeline_safe code-agents
+    run_pipeline_safe  code-agents "$SCRIPT_DIR/input/claude/code/machine-transport"
+  fi
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
   # The tail carries SUMMARIES only — the body already marks each fact at its
@@ -229,7 +259,6 @@ main() {
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
-        "browser-captures (prep)") echo "    → check input/claude/chat/browser-API/ and Safari setup" ;;
         "chat-exports (prep)")   echo "    → populate input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
         "code-agents (prep)")  echo "    → check input/claude/code/machine-transport/ (the store) and input/claude-code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
@@ -241,8 +270,9 @@ main() {
 }
 
 # --plan runs before the log exists: it writes nothing, not even a log file.
-for _arg in "$@"; do
-  if [[ "$_arg" == "--plan" ]]; then print_plan; exit 0; fi
-done
+# Args are parsed FIRST so the plan previews this exact invocation (--only
+# filters it; the capture flags resolve their conditional lines).
+parse_args "$@"
+if [[ -n "$plan" ]]; then print_plan; exit 0; fi
 mkdir -p "$(dirname "$LOG_FILE")"
 main "$@" 2>&1 | tee "$LOG_FILE"

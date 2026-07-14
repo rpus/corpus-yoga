@@ -22,7 +22,7 @@ parse_args() {
   browser_capture=""
   browser_api="$REPO_DIR/input/claude/chat/browser-API"
   browser_dom="$REPO_DIR/input/claude/chat/browser-DOM"
-  new_claude_scrape="0"
+  compare_scrape="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -31,7 +31,7 @@ parse_args() {
       # --browser-captures is the eponymous pipeline flag the root ./RUNME.sh
       # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
-      --new-claude-scrape)    new_claude_scrape="1"; shift ;;
+      --compare-scrape)       compare_scrape="1"; shift ;;
       --plan)             plan="1"; shift ;;
       --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
       *)
@@ -66,9 +66,10 @@ run_corpus() {
     "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/input" \
     --api "$REPO_DIR/output/markdown/claude/chat/conversations"
-  # compare_markdown: diff the projection against the DOM scrape only when claude was
-  # scraped this run — otherwise there is no fresh scrape md to compare against.
-  step_if "$new_claude_scrape" 'with --new-claude-scrape' \
+  # compare_markdown: diff the projection against the DOM scrape only when asked —
+  # a fresh scrape (yoga browser capture --provider claude --DOM) is what makes the
+  # comparison meaningful; against the resting legacy scrapes it is noise.
+  step_if "$compare_scrape" 'with --compare-scrape' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \
     --api "$REPO_DIR/output/markdown/claude/chat/conversations" --scrape "$browser_dom"
@@ -89,7 +90,7 @@ main() {
     run_one "$(cd "$browser_capture" && pwd)"
   else
     if [[ ! -d "$browser_api" ]]; then
-      echo "no captures in $browser_api (populate via ./RUNME.sh --capture-from-browser)"
+      echo "no captures in $browser_api (populate via: yoga browser capture)"
       exit 0
     fi
     local root; root="$(cd "$browser_api" && pwd)"

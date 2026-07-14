@@ -1,4 +1,4 @@
-pre_commit.py: 1397/1397 (data: machine-local)
+pre_commit.py: 1399/1399 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -25,6 +25,10 @@ pre_commit.py: 1397/1397 (data: machine-local)
   ✓ cli: run: target exists: RUNME.sh
   ✓ cli: run: cited calculus defined
   ✓ cli: run: advertised flags exist
+  ✓ cli: browser: target exists: src/main/browser-captures/PREP.sh
+  ✓ cli: browser: cited calculus defined
+  ✓ cli: browser: advertised flags exist
+  ✓ cli: browser: advertised verbs in target --help
   ✓ cli: prerequisites: target exists: PREREQUISITES.sh
   ✓ cli: prerequisites: cited calculus defined
   ✓ cli: check: target exists: src/test/pre_commit.sh
@@ -63,12 +67,10 @@ pre_commit.py: 1397/1397 (data: machine-local)
   ✓ cli: model: cited calculus defined
   ✓ cli: calculus: target exists: rsc/CALCULUS.md
   ✓ cli: calculus: cited calculus defined
-  ✓ cli: clean: target exists: src/main/cli/clean.py
-  ✓ cli: clean: cited calculus defined
-  ✓ cli: clean: advertised flags exist
-  ✓ cli: regen: target exists: src/main/cli/regen.py
-  ✓ cli: regen: cited calculus defined
-  ✓ cli: regen: advertised flags exist
+  ✓ cli: cache: target exists: src/main/cli/cache.py
+  ✓ cli: cache: cited calculus defined
+  ✓ cli: cache: advertised flags exist
+  ✓ cli: cache: advertised verbs in target --help
   ✓ cli: completions: target exists: src/main/cli/cli.py
   ✓ cli: completions: cited calculus defined
   ✓ cli: completions: advertised flags exist
@@ -1425,9 +1427,9 @@ pre_commit.py: 1397/1397 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1397/1397; expected: 1397/1397
-  ✓ score[code]: 84/84; expected: 84/84
+  ✓ score[code+schema]: 1399/1399; expected: 1399/1399
+  ✓ score[code]: 86/86; expected: 86/86
   ✓ score[schema]: 1313/1313; expected: 1313/1313
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1397/1397 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1399/1399 match the committed expectation; nothing here vetoes a commit

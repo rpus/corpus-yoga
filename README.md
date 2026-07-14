@@ -5,15 +5,17 @@ This repo wrangles AI conversations, from Gemini (via browser capture only) and 
 ---
 
 ```bash
-./PREREQUISITES.sh # read-only report: what this machine can run
+./yoga prerequisites       # read-only report: what this machine can run
 
-./RUNME.sh --plan  # the ordered step plan, printed by the step lists that execute it
+./yoga run [--plan]        # the optional step plan is printed by the step lists that execute it
 
-# git clean -fdXn; git clean -fdxn
+./yoga browser capture [--DOM]             # Safari sweep into input/ (claude API; --DOM adds scrapes, and gemini has only those)
 
-./RUNME.sh --capture-from-browser
+./yoga run --only <pipeline>               # or one <pipeline> [browser-captures | chat-exports | code-agents]
 
 ./yoga dashboard capture   # (paid) refresh output/dashboard/; requires ANTHROPIC_API_KEY
+
+./yoga dashboard present
 
 ./yoga model
 
@@ -40,7 +42,7 @@ Every root also has a complete **sync story** — nothing valuable lives only on
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `input/` | input | iCloud (captures, exports, `input/claude/code/machine-transport`) | none — the medium carries it (sessions: once stashed via `capture --all`) |
-| `cache/` | cache | local | none — every subtree's producer is declared in `rsc/cache_io.csv`; `./yoga regen` rebuilds them all, `./yoga clean` removes residue (subtrees neither written nor read), and pre-commit's `check_cache_io` blocks the catastrophe a registry would otherwise hide: a path READ with no WRITER (a `cache/` dependency nothing produces — which would strand a fresh clone) |
+| `cache/` | cache | local | none — every subtree's producer is declared in `rsc/cache_io.csv`; `./yoga cache regen` rebuilds them all, `./yoga cache clean` removes residue (subtrees neither written nor read), and pre-commit's `check_cache_io` blocks the catastrophe a registry would otherwise hide: a path READ with no WRITER (a `cache/` dependency nothing produces — which would strand a fresh clone) |
 | `logs/` | run history | local | disposable (not reproducible, but dispensable) |
 | `output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
@@ -57,7 +59,7 @@ The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON
 Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.sh` is what creates directories and the venv).
 
 - **Required**: `jq` and Python 3 (system bash 3.2 suffices). `./RUNME.sh` creates a venv at `~/venvs/general` (override via `VENV=...`) and installs `src/requirements.txt` into it — note this venv is shared, not repo-local.
-- **macOS-only, optional**: browser capture (`--capture-from-browser`) drives Safari via AppleScript, so it needs macOS with Safari logged in to claude.ai / gemini.google.com.
+- **macOS-only, optional**: browser capture (`yoga browser capture`) drives Safari via AppleScript, so it needs macOS with Safari logged in to claude.ai / gemini.google.com.
 - **Optional**: `ANTHROPIC_API_KEY`, needed only for `yoga dashboard capture` (the paid concept/category capture).
 - **Optional (network, on first use)**: the markdown viewer (`yoga server`) renders LaTeX with pinned KaTeX + marked, declared like a `requirements.txt` in `src/main/model/serve_assets.txt` and fetched into `cache/serve_markdown/` on the first `yoga server start` (or eagerly via `yoga server ensure-assets`, the regen producer). `PREREQUISITES.sh` reports how many are present; absence is never fatal — the server re-fetches what it needs.
 - **Data**: the repo ships none — `input/`, `cache/`, `output/`, `logs/` are git-ignored. You supply your own bulk exports, captures, and Claude Code sessions (see "How to use").
@@ -82,7 +84,7 @@ Contributing: PRs land by **squash only** — enforced as repository settings (m
     - With front tab on a specific conversation: captures that conversation *in place* (no navigation; the page is already loaded)
     - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures every listed conversation, each opened in its own transient tab and closed after — the listing tab is never navigated away
   - **Scripted trigger** — Python discovers every conversation and navigates through them in a dedicated work tab (the front tab is restored afterwards):
-    - `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
+    - `./yoga browser capture [--provider claude|gemini] [--DOM]`
   - **After having (or extending) a conversation, recapture it** — navigate to it and hit the Shortcut: an in-place recapture of just that conversation (seconds for the claude API fetch; a couple of minutes for a long scrape walk). The incremental loop:
 
     ```text
@@ -94,7 +96,7 @@ Contributing: PRs land by **squash only** — enforced as repository settings (m
 - Render clean markdown straight from the captured API JSON — no browser, no DOM scrape (preferred over the Safari markdown capture above; it only needs the `apiConversation` JSON each capture already fetches):
   - `src/run_python_script.sh src/main/model/project_markdown.py --browser-api input/claude/chat/browser-API --out output/markdown/claude/chat/conversations`
   - Projects each capture to the lean `markdownConversation` shape, validates it, and writes a flat directory of `<title>.md` with sane titles. Every turn heading carries an HTML anchor — the message uuid for claude (durable identity: `<file>.md#<uuid>` addresses a turn across renumberings), the role-count (`#human-3`) for gemini, whose scrapes have no uuids but are append-only. Comparisons are anchor-blind (the anchor rides the heading line, which `turn_seq` ignores).
-  - Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `src/run_python_script.sh src/main/browser-captures/compare_markdown.py --api output/markdown/claude/chat/conversations --scrape input/claude/chat/browser-DOM` (pure markdown-vs-markdown, paired by conversation id; add `--diff` for full per-conversation diffs). This runs automatically after the projection step, as a later step of `src/main/browser-captures/RUNME.sh` — the browser-captures pipeline's runner, which the root `./RUNME.sh` invokes, so a plain `./RUNME.sh` run performs it.
+  - Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `src/run_python_script.sh src/main/browser-captures/compare_markdown.py --api output/markdown/claude/chat/conversations --scrape input/claude/chat/browser-DOM` (pure markdown-vs-markdown, paired by conversation id; add `--diff` for full per-conversation diffs). The browser-captures pipeline runner performs it as a later step when passed `--compare-scrape` (`./yoga run --compare-scrape`) — asked-for only, because the comparison is meaningful against a fresh scrape (`yoga browser capture --provider claude --DOM`) and noise against the resting legacy ones.
   - For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated against the `Conversation` definition — the only reader of the 24 MB array): `src/run_python_script.sh src/main/chat-exports/atomise_bulk.py --bulk-export input/claude/chat/bulk-export/<batch>` → `cache/chat-exports/<batch>/json/`. Then render those pieces to markdown (same filenames): `src/run_python_script.sh src/main/model/project_markdown.py --bulk-export input/claude/chat/bulk-export/<batch>` → `cache/chat-exports/<batch>/markdown/`.
   - Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, memories, projects, users — and `src/run_python_script.sh src/main/chat-exports/compare_batches.py` puts each through the same unprejudiced unit/atom subset check (conversation → message uuids; project → doc uuids + prompt fingerprint; memory/user → canonical values). The verdict *shows its working*: an earlier batch is deletable iff every atom it holds survives somewhere durable that is kept, and each report names the evidence per component — the **witnesses** (every later batch whose verified subset covers it; a licence conditional on that witness's own retention) and, for memories, the byte-identical **deposit** in `output/memories` (unconditional — deposits outlive every batch). A component found in no later export and no deposit is unique data: a loud WARN, deletion blocked until it is deposited or superseded. Exit 0 iff every earlier batch is covered; verdicts describe what exists *now*, so re-run after any deletion — deleting a witness expires the licences it carried. Runs automatically at the end of every chat-exports pipeline run, where it also compares the latest batch against the live captures per conversation (in-sync / capture-ahead / capture-stale-so-recapture / anomaly). Deleting a covered batch means both `input/claude/chat/bulk-export/` and `cache/chat-exports/`; matrices are machine-local and die with it.
   - Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `src/run_python_script.sh src/main/model/compare_sources.py --browser-api input/claude/chat/browser-API --bulk-export input/claude/chat/bulk-export/<batch>` (reads the batch's atomised `json/` pieces; add `--diff` for details).
