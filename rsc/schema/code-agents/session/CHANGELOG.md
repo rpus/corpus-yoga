@@ -6,6 +6,33 @@ and git-ignored: each datum directory under `cache/` carries a `matrix.md` besid
 
 ---
 
+## v10
+
+The file-history ledger grows a second grain. Reading-room session `eeafe24c-…`
+(2026-07-13 → 14, the yoga-serve and xref-gitignore work) crossed three harness
+builds overnight — 2.1.207 through 2.1.209 — and 23 minutes into the 2.1.208 era
+the log's first `file-history-delta` appeared: where `file-history-snapshot`
+records a turn's whole tracked-backup map, the delta records ONE file's backup
+at edit time. Ten records observed, all in that session; 4 of its 47 snapshots
+carry linked deltas. Every record valid under v9 is valid under v10 unchanged:
+the mint admits its triggering records and nothing else — v9 now happens to
+reject only the record type its era never showed.
+
+### Relaxed since v9
+
+- `FileHistoryDelta` — new `Record` variant, discriminator `type:
+  "file-history-delta"`: one tracked file's backup at edit time —
+  `messageId` (the editing turn), `snapshotMessageId` (resolves to a
+  `file-history-snapshot` in the same log, 10 of 10 observed), `trackingPath`
+  (cwd-relative path of the edited file), `backup`, `timestamp`. All six
+  fields present in every observed record, so all required; closed.
+- `FileHistoryBackup` — the delta's `backup`: `backupFileName` names the
+  stored copy in `~/.claude/file-history/` (`<16 hex>@v<version>`, the suffix
+  agreeing with the `version` field in every observed record) and is nullable —
+  null once, for a file created new in the session, no prior content to back
+  up; `version` (ordinal, only 1 observed); `backupTime`. All three fields
+  present in every observed record, so all required; closed.
+
 ## v9
 
 The model field earns a type system. Since v1 `AssistantMessage.model` was a bare
