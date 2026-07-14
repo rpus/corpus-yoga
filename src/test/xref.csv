@@ -36,7 +36,7 @@ README.md,66,doc,RUNME.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes o
 README.md,66,doc,src/test/pre_commit.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `input/`, `cache/`, `output/`, `logs/` and the venv, and pipel"
 README.md,66,doc,src/test/pre_commit.log,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `input/`, `cache/`, `output/`, `logs/` and the venv, and pipel"
 README.md,66,doc,PREREQUISITES.sh,Y,"On a fresh clone, `./RUNME.sh` is safe: it writes only to `input/`, `cache/`, `output/`, `logs/` and the venv, and pipel"
-README.md,81,doc,src/main/browser-captures/export.applescript,Y,"- Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript ""$HOME/<path-to-repo-parent>/claude-export-yoga/src/"
+README.md,81,doc,src/main/browser-captures/export.command,Y,"- Set up a macOS Shortcuts app shortcut whose entire shell line is: `open -a Terminal ""$HOME/<path-to-repo-parent>/claud"
 README.md,85,doc,src/main/browser-captures/PREP.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
 README.md,85,doc,RUNME.sh,Y,- `./src/main/browser-captures/PREP.sh` (or `./RUNME.sh --capture-from-browser`)
 README.md,89,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disa
@@ -222,6 +222,7 @@ src/main/browser-captures/compare_markdown.py,24,comment,src/run_python_script.s
 src/main/browser-captures/compare_markdown.py,24,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --api output/markdown/claude/chat/conversatio
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom input/gemini/chat/browser-
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom input/gemini/chat/browser-
+src/main/browser-captures/export.command,19,path_str,src/main/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
 src/main/browser-captures/safari_capture.py,184,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
 src/main/browser-captures/safari_capture.sh,9,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude
 src/main/browser-captures/safari_capture.sh,10,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --agent claude --id <uuid>

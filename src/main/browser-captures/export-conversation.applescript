@@ -25,9 +25,15 @@ tell application "Safari"
 		return
 	end if
 
+	-- The conversation id is the last path segment. Strip any #fragment or ?query
+	-- first: a fragment like #settings/usage contains "/" and would poison the split.
 	set oldDelimiters to AppleScript's text item delimiters
+	set AppleScript's text item delimiters to "#"
+	set convId to first text item of currentURL
+	set AppleScript's text item delimiters to "?"
+	set convId to first text item of convId
 	set AppleScript's text item delimiters to "/"
-	set convId to last text item of currentURL
+	set convId to last text item of convId
 	set AppleScript's text item delimiters to oldDelimiters
 end tell
 

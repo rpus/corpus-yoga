@@ -78,7 +78,7 @@ Contributing: PRs land by **squash only** — enforced as repository settings (m
 - Capture markdown exports for each conversation via Safari (optional pre-processing step):
   - Open Safari, log in to <https://claude.ai> or <https://gemini.google.com>
   - **Shortcut trigger** — dispatches on whatever page the front tab shows (the invoker; the capture behaviour it selects is below):
-    - Set up a macOS Shortcuts app shortcut: `caffeinate -dim osascript "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.applescript"`
+    - Set up a macOS Shortcuts app shortcut whose entire shell line is: `open -a Terminal "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.command"` — the capture must run under Terminal (which holds the needed folder permissions from everyday CLI use), because Shortcuts' own shell runs under a helper that macOS silently denies access to protected folders, with no prompt, regardless of any grant made in System Settings
     - With front tab on a specific conversation: captures that conversation *in place* (no navigation; the page is already loaded)
     - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures every listed conversation, each opened in its own transient tab and closed after — the listing tab is never navigated away
   - **Scripted trigger** — Python discovers every conversation and navigates through them in a dedicated work tab (the front tab is restored afterwards):

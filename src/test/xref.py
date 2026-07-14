@@ -513,13 +513,14 @@ def extract_g4(f: Path, rows: list) -> None:
 # ── dispatch ──────────────────────────────────────────────────────────────────
 
 EXTRACTORS = {
-    '.py':   extract_python,
-    '.sh':   extract_shell,
-    '.json': extract_json,
-    '.md':   extract_markdown,
-    '.html': extract_html,
-    '.g4':   extract_g4,
-    '.csv':  extract_csv,
+    '.py':      extract_python,
+    '.sh':      extract_shell,
+    '.command': extract_shell,  # Terminal-hosted shell — same language, Finder-executable name
+    '.json':    extract_json,
+    '.md':      extract_markdown,
+    '.html':    extract_html,
+    '.g4':      extract_g4,
+    '.csv':     extract_csv,
 }
 
 
