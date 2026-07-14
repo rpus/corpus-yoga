@@ -20,6 +20,10 @@ output/dashboard/) rather than writing per-datum `vN.log` files under `cache/`
   axis — same values, a label fix amended in place, not a new version: the row
   shape never changed and no committed data depended on it.)
 
+### Replaces
+
+[v1.json](./v1.json)
+
 ## v1
 
 Initial schema: the format_table-styled two-column table `yoga dashboard capture`

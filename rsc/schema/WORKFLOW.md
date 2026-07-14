@@ -14,7 +14,7 @@ Create `vN+1.json` (copy of `vN.json`) when the schema change is:
 - **Restricted** — rejects values previously accepted (tightened type, new required field)
 
 Purely **refactored** changes (no validation effect) can go directly into the current version;
-document them in the CHANGELOG narrative as `### Refactored since vN`.
+document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
 
 If a new export or capture fails validation against the current latest version, that is the
 signal to create a new version. Run the item-level validate command from the pre_commit fix
@@ -88,9 +88,14 @@ without revalidating, e.g. after a renderer format change):
 src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 ```
 
-Add a `## v{N+1}` narrative section to the CHANGELOG using the categories:
-`### Restricted since vN`, `### Relaxed since vN`, `### Refactored since vN`.
-State which data it now validates.
+Add a `## v{N+1}` narrative section to the CHANGELOG: intro narrative first, then a
+single `### Replaces` heading whose body links the predecessor — `[v<N>.json](./v<N>.json)`
+— then the change categories nested under it as constant-titled h4s: `#### Restricted`,
+`#### Relaxed`, `#### Refactored`. State which data it now validates. (The Replaces
+link is also what keeps xref's unreferenced inventory constant across mints: every
+non-latest version file is referenced by its successor's section, so only each
+family's frontier version is unreferenced — a mint costs `xref_expected_score`
+no edit.)
 
 Narrate temporally, and classify only the fate of PREVIOUSLY-VALID data
 (ruling 2026-07-12, the thinking_hidden mint): every mint admits its
@@ -103,7 +108,7 @@ data is data vN "now happens to reject", never data vN "rejected".
 For a Restriction, also state its **materiality**: material means some observed
 datum that passed vN fails v{N+1} — name what is excluded and where it rests;
 non-material means every observed datum passes both, and the tightening bites
-only futures — mark the section `### Restricted since vN (non-material)` and
+only futures — mark the section `#### Restricted (non-material)` and
 say what would now fail by name. A closed enum minted from a survey is the
 typical non-material case (session v9, `ModelId`: no observed record excluded;
 a new model id now fails loudly instead of sliding through a bare string). The

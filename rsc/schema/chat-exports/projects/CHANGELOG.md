@@ -16,7 +16,11 @@ validation change: no new version.
 
 Now validates `019d1cb4-57a4-77a8-941c-9cf6078d4c31` in `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000`.
 
-### Refactored since v1
+### Replaces
+
+[v1.json](./v1.json)
+
+#### Refactored
 
 - Top-level schema changed from `type: array` (wrapping a single project object) to `type: object` — the data export places each project in its own file under `projects/`, not in a single array file. No change to the fields validated.
 

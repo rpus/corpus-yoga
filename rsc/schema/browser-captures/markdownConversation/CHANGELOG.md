@@ -9,7 +9,11 @@ render time, rather than writing per-datum `vN.log` files under `cache/`
 
 ## v3
 
-### Restricted since v2
+### Replaces
+
+[v2.json](./v2.json)
+
+#### Restricted
 
 - `MarkdownConversation.summary` — new **required** property (`string`): the source's
   own summary, which BOTH source shapes always emit (browser-capture
@@ -41,7 +45,11 @@ so regeneration stays a no-op when nothing changed (L1).
 
 ## v2
 
-### Restricted since v1
+### Replaces
+
+[v1.json](./v1.json)
+
+#### Restricted
 
 - `MarkdownMessage.uuid` — new **required** property (`UuidV4orV7`, definitions copied
   from `apiConversation`): the source message's uuid, the turn's durable identity.

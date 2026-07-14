@@ -18,7 +18,11 @@ carry linked deltas. Every record valid under v9 is valid under v10 unchanged:
 the mint admits its triggering records and nothing else — v9 now happens to
 reject only the record type its era never showed.
 
-### Relaxed since v9
+### Replaces
+
+[v9.json](./v9.json)
+
+#### Relaxed
 
 - `FileHistoryDelta` — new `Record` variant, discriminator `type:
   "file-history-delta"`: one tracked file's backup at edit time —
@@ -46,7 +50,11 @@ and `NotAModel` (the lone `"<synthetic>"`). A new model in the data now fails
 validation by name — model drift mints a version instead of sliding through a
 string.
 
-### Restricted since v8 (non-material)
+### Replaces
+
+[v8.json](./v8.json)
+
+#### Restricted (non-material)
 
 The restriction excludes no observed record: every datum that passed v8 passes
 v9 — both home-room sessions rest at v9 unchanged, and reading-room's census
@@ -62,7 +70,7 @@ belongs, now fails by name instead of sliding through a string.
   between real models, never to the synthetic marker (observed pairs confirm:
   only `claude-fable-5` → `claude-opus-4-8`).
 
-### Refactored since v8
+#### Refactored
 
 - MCP cross-references in the TextBlock / ToolUseBlock / ToolResultBlock /
   ImageBlock descriptions (in v1–v9, in place, no validation effect) —
@@ -83,7 +91,11 @@ vintages. A session schema minted from inside the session it validates, for the 
 version running: v6 read this session's first publishes, v7 its forced fallback, v8
 the record of the artifact that documented v7's arc.
 
-### Relaxed since v7
+### Replaces
+
+[v7.json](./v7.json)
+
+#### Relaxed
 
 - `FrameLinkRecord` — optional `title` (string): the published artifact's display
   title. Observed 2026-07-09 in the one record written since; the two 2026-07-07
@@ -121,7 +133,11 @@ also emits the `api_error` system subtype and a `fallback_message` iteration ins
 `usage`; both already validate — `SystemRecordType` and `usage` are open — so only the
 assistant-turn content block needed modelling.)
 
-### Relaxed since v6
+### Replaces
+
+[v6.json](./v6.json)
+
+#### Relaxed
 
 - `FallbackBlock` — new `ContentBlock` variant, discriminator `type: "fallback"`: an
   automatic model fallback recorded inline in the assistant turn (`from`/`to`, each an
@@ -141,7 +157,11 @@ twice; the harness wrote a `frame-link` record per publish, and the session outg
 by the same motion v5 itself was minted for: doing a new kind of durable thing. One
 record type per kind of thing a session publishes — a PR at v5, a page at v6.
 
-### Relaxed since v5
+### Replaces
+
+[v5.json](./v5.json)
+
+#### Relaxed
 
 - `FrameLinkRecord` — new `Record` variant, discriminator `type: "frame-link"`: links the
   session to a web Artifact it published (`sessionId`, `path`, `frameUrl`, `timestamp` —
@@ -164,7 +184,11 @@ the act of proposing it, validating only against the version it carries in its o
 when a PR is created from a session's shell — a first check that ran too early reported a
 false negative.)
 
-### Relaxed since v4
+### Replaces
+
+[v4.json](./v4.json)
+
+#### Relaxed
 
 - `PrLinkRecord` — new `Record` variant, discriminator `type: "pr-link"`: links the session
   to a GitHub pull request it created or updated (`prNumber`, `prUrl`, `prRepository`,
@@ -174,13 +198,21 @@ false negative.)
 
 ## v4
 
-### Relaxed since v3
+### Replaces
+
+[v3.json](./v3.json)
+
+#### Relaxed
 
 - `ModeRecord` — new record type (`type: "mode"`) with required `mode: string` and `sessionId: UuidV4`. Observed with `mode: "normal"`. Written alongside other session lifecycle records. Sessions `83737fec` and `57289774` now pass; they fail v1–v3. Sessions `89515719` and `df71fdce` originally passed v1–v3 (registered before they emitted a `mode` record); both have since grown to include one, so they now fail v1–v3 and pass only v4 — the same transition, observed live.
 
 ---
 
 ## v3
+
+### Replaces
+
+[v2.json](./v2.json)
 
 ### Relaxed
 
@@ -195,6 +227,10 @@ false negative.)
 ---
 
 ## v2
+
+### Replaces
+
+[v1.json](./v1.json)
 
 ### Refactored
 
