@@ -527,7 +527,8 @@ EXTRACTORS = {
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--out', default=str(REPO_ROOT / 'src' / 'test' / 'xref.csv'))
+    parser.add_argument('--out', default=str(REPO_ROOT / 'src' / 'test' / 'xref.csv'),
+                        help='where the reference table lands (default: the committed src/test/xref.csv)')
     args = parser.parse_args()
 
     rows: list[list] = []

@@ -23,7 +23,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 main() {
   case "${1-}" in
     capture) shift ;;
-    --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+    --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: $0 capture [--provider claude|gemini] [--DOM]  (--help for details)" >&2; exit 1 ;;
   esac
   local provider="" dom=""
@@ -35,7 +35,7 @@ main() {
           *) echo "error: --provider takes claude | gemini (got: ${2-})" >&2; exit 1 ;;
         esac ;;
       --DOM) dom="1"; shift ;;
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *) echo "Unknown argument: $1"; echo "Usage: $0 capture [--provider claude|gemini] [--DOM]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done

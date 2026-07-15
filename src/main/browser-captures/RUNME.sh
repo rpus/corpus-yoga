@@ -33,7 +33,7 @@ parse_args() {
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
       --compare-scrape)       compare_scrape="1"; shift ;;
       --plan)             plan="1"; shift ;;
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 [--browser-api <path>] | --browser-capture <path> | --plan"

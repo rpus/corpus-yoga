@@ -11,7 +11,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 parse_args() {
   if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
-    grep "^# " "$0" | sed "s/^# //"; exit 0
+    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0
   fi
   if [[ $# -ne 2 ]]; then
     echo "Usage: $0 <input.jsonl> <output.json>"

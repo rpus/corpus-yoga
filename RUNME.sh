@@ -49,7 +49,7 @@ parse_args() {
           browser-captures|chat-exports|code-agents) only="$2"; shift 2 ;;
           *) echo "error: --only takes browser-captures | chat-exports | code-agents (got: ${2-})"; exit 1 ;;
         esac ;;
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *) echo "Unknown argument: $1"; echo "Usage: $0 [--plan] [--only <pipeline>] [--compare-scrape]"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done

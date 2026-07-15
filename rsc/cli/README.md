@@ -24,6 +24,30 @@ committed in `rsc/cli/readings.md`.
 | `step` | the `RUNME.sh --plan` step this command re-runs standalone (empty where none); each value is checked to name a real plan step |
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |
 
+## The grammar
+
+Rules that govern every row, stated once (a reader should never have to infer them
+from examples — one did, and misread design as sediment):
+
+- **Verbs.** `capture` is the acquisition verb everywhere it appears — `browser
+  capture`, `dashboard capture`, `agent capture` all *bring data in* (from Safari,
+  the paid model, the harness's session store respectively). `run` only processes
+  what `input/` already holds. `present` renders, free. `clean`/`regen` are the
+  cache lifecycle. `receive`/`demerge` move agents between rooms and undo the move.
+- **Bare invocations are free and local** — never paid, never a browser. Bare is a
+  *status report* where the summary says so (`dashboard`, `indexing`, `server`);
+  the command's *whole act* where that act is one free idempotent step (`run`,
+  `memories`, `supersede`, `model`, `check`, `xref`, `prerequisites`); and a
+  *usage refusal* where a verb is required (`browser`, `cache`, `agent`).
+- **Usage strings are a small grammar, machine-read.** A spaced ` | ` separates
+  INVOCATION FORMS — each becomes its own line in `yoga commands` and its own
+  verb for the honesty gate. An unspaced `|` is an enum inside one form
+  (`--provider claude|gemini`). Parens group a required choice
+  (`(--dry-run|--apply)`); brackets mark the optional. `--flags` are harvested
+  across all forms and deduplicated for the completion.
+- **Rows are alphabetical by command**, enforced (`cli: commands alphabetical`),
+  so every derived surface lists commands in one findable order.
+
 ## The table speaks the calculus, and is held to it
 
 Each row cites the calculus operations and laws its command performs, so the help text

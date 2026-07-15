@@ -34,7 +34,7 @@ parse_args() {
       --code-agent)  code_project="$2";  shift 2 ;;
       --code-agents) code_projects="$2"; shift 2 ;;
       --plan)          plan="1";           shift   ;;
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 --code-agent <path> | --code-agents <path> | --plan"

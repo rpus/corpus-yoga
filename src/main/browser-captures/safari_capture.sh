@@ -20,7 +20,7 @@ main() {
   local agent=""
   case "${1-}" in
     --agent) agent="$2"; shift 2 ;;
-    --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+    --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: $0 --agent claude|gemini [--id <id>]" >&2; exit 1 ;;
   esac
   if [[ "$agent" != "claude" && "$agent" != "gemini" ]]; then

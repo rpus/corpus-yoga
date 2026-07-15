@@ -10,7 +10,7 @@ set -euo pipefail
 
 parse_args() {
   case "${1:-}" in
-    --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+    --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   esac
 }
 

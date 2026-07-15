@@ -9,6 +9,8 @@ PREREQUISITES.sh,282,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/m
 README.md,27,doc,src/main,Y,Everything is driven by shell entry points — there is no package or build system. Three git-ignored roots divide the dat
 README.md,35,doc,src/main/model/project_markdown.py,Y,"Downstream of capture, `src/main/model/project_markdown.py` renders clean markdown straight from the API JSON (no DOM sc"
 README.md,37,doc,src/main/chat-exports/library.py,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
+README.md,37,doc,rsc/naming/library_dir_vintages.csv,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
+README.md,37,doc,rsc/naming/memory_deposit_vintages.csv,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
 README.md,37,doc,rsc/CALCULUS.md,Y,"Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection"
 README.md,43,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,43,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
@@ -87,12 +89,12 @@ rsc/cli/README.md,7,doc,rsc/CALCULUS.md,Y,(L5 of `rsc/CALCULUS.md`). The CLI add
 rsc/cli/README.md,14,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
 rsc/cli/README.md,21,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
 rsc/cli/README.md,23,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
-rsc/cli/README.md,30,doc,rsc/CALCULUS.md,Y,doubles as a map from the terminal surface onto `rsc/CALCULUS.md` — showing and telling
-rsc/cli/README.md,31,doc,src/test/pre_commit.py,Y,the calculus. The pre-commit **code tier** (`check_cli_surface` in `src/test/pre_commit.py`)
-rsc/cli/README.md,36,doc,rsc/CALCULUS.md,Y,- every term in a `calculus` cell is defined in `rsc/CALCULUS.md` — the vocabulary is
-rsc/cli/README.md,51,doc,RUNME.sh,Y,"verbatim, so `./yoga run --plan` ≡ `./RUNME.sh --plan` for every flag, by"
-rsc/cli/README.md,56,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), so this correspondence cannot drift."
-rsc/cli/README.md,79,doc,PREREQUISITES.sh,Y,"./PREREQUISITES.sh            # reports (read-only) whether this machine has completion generated, current, and wired"
+rsc/cli/README.md,54,doc,rsc/CALCULUS.md,Y,doubles as a map from the terminal surface onto `rsc/CALCULUS.md` — showing and telling
+rsc/cli/README.md,55,doc,src/test/pre_commit.py,Y,the calculus. The pre-commit **code tier** (`check_cli_surface` in `src/test/pre_commit.py`)
+rsc/cli/README.md,60,doc,rsc/CALCULUS.md,Y,- every term in a `calculus` cell is defined in `rsc/CALCULUS.md` — the vocabulary is
+rsc/cli/README.md,75,doc,RUNME.sh,Y,"verbatim, so `./yoga run --plan` ≡ `./RUNME.sh --plan` for every flag, by"
+rsc/cli/README.md,80,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), so this correspondence cannot drift."
+rsc/cli/README.md,103,doc,PREREQUISITES.sh,Y,"./PREREQUISITES.sh            # reports (read-only) whether this machine has completion generated, current, and wired"
 rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,list | models | capture --session <uuid8>|--all [--to <scratch-dir>] | receive --ses"
 rsc/cli/commands.csv,3,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,capture [--provider claude|gemini] [--DOM],capture,,Sweep browser-reachable pr"
 rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,clean (--dry-run|--apply) | regen [--dry-run],project,,cache/ lifecycle: clean removes orpha"
@@ -120,30 +122,30 @@ rsc/cli/readings.md,37,doc,rsc/schema/dashboard/chatCategories/v1.json,Y,- **`ch
 rsc/cli/readings.md,38,doc,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,(changelog: `rsc/schema/dashboard/chatCategories/CHANGELOG.md`):
 rsc/cli/readings.md,44,doc,rsc/site/index.html,Y,"`rsc/site/index.html`, not a reading; category ∈ palette is a cross-file join"
 rsc/machines/README.md,5,doc,rsc/CALCULUS.md,Y,`rsc/CALCULUS.md`: these files are byte-identical on every clone because they
-rsc/schema/WORKFLOW.md,30,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
-rsc/schema/WORKFLOW.md,31,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
-rsc/schema/WORKFLOW.md,32,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<room>/<project>
-rsc/schema/WORKFLOW.md,43,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,50,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,60,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,60,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,60,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,66,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,74,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
-rsc/schema/WORKFLOW.md,75,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     input/claude/chat/bulk-export
-rsc/schema/WORKFLOW.md,76,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    input/claude/code/machine-transport
-rsc/schema/WORKFLOW.md,81,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
-rsc/schema/WORKFLOW.md,88,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,88,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,120,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,123,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
-rsc/schema/WORKFLOW.md,154,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,166,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
-rsc/schema/WORKFLOW.md,167,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
-rsc/schema/WORKFLOW.md,189,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
-rsc/schema/WORKFLOW.md,203,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
-rsc/schema/WORKFLOW.md,204,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
-rsc/schema/WORKFLOW.md,208,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
+rsc/schema/WORKFLOW.md,39,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
+rsc/schema/WORKFLOW.md,40,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
+rsc/schema/WORKFLOW.md,41,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<room>/<project>
+rsc/schema/WORKFLOW.md,52,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,59,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,69,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,69,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,69,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,75,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+rsc/schema/WORKFLOW.md,83,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
+rsc/schema/WORKFLOW.md,84,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,85,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    input/claude/code/machine-transport
+rsc/schema/WORKFLOW.md,90,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
+rsc/schema/WORKFLOW.md,97,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,97,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,129,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
+rsc/schema/WORKFLOW.md,132,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
+rsc/schema/WORKFLOW.md,163,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,175,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
+rsc/schema/WORKFLOW.md,176,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
+rsc/schema/WORKFLOW.md,198,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
+rsc/schema/WORKFLOW.md,212,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
+rsc/schema/WORKFLOW.md,213,doc,src/test/pre_commit.log,Y,git diff --cached src/test/pre_commit.log
+rsc/schema/WORKFLOW.md,217,doc,src/test/pre_commit_expected_score,Y,Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,24,doc,rsc/schema/browser-captures/apiConversation/v8.json,Y,[v8.json](./v8.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,36,doc,rsc/schema/browser-captures/apiConversation/v7.json,Y,[v7.json](./v7.json)

@@ -203,7 +203,7 @@ parse_args() {
     case "$1" in
       --chat-export)  chat_export="$2";  shift 2 ;;
       --chat-exports) chat_exports="$2"; shift 2 ;;
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
         echo "Usage: $0 --chat-export <path> | --chat-exports <path>"

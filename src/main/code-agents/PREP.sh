@@ -12,7 +12,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --help|-h) grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *) echo "Unknown argument: $1"; echo "Pass --help for more information."; exit 1 ;;
     esac
   done

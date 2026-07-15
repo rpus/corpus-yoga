@@ -288,7 +288,7 @@ main() {
     capture)     shift; capture "$@" ;;
     present)     shift; exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/present_corpus.py" "$@" ;;
     ''|status)   status ;;
-    -h|--help)   grep "^# " "$0" | sed "s/^# //"; exit 0 ;;
+    -h|--help)   awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid), 'present' (free render), or bare (status)" >&2; exit 1 ;;
   esac
 }

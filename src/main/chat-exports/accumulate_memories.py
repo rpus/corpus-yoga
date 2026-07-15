@@ -155,10 +155,17 @@ def render(deposits, out_dir):
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
-    ap.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'))
-    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'))
+    ap = argparse.ArgumentParser(
+        description='Deposit every distinct chat-memory state verbatim into the durable store '
+                    '(content-deduplicated against the nearest earlier deposit; deposits are '
+                    'immutable and outlive their batches), then render the diffable markdown '
+                    'timeline. Free, local, idempotent — a bare run is the whole act.')
+    ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'),
+                    help='cache root holding each batch\'s archived memories component')
+    ap.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'),
+                    help='the deposit store — one immutable <snapshot-time>.json per distinct state')
+    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'),
+                    help='where each deposit unwraps to a readable <snapshot-time>.md')
     args = ap.parse_args()
 
     states = memory_states(Path(args.chat_exports_cache))
