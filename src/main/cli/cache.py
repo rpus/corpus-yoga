@@ -31,7 +31,7 @@ def main() -> int:
     verb = sys.argv[1]
     target = VERBS.get(verb)
     if target is None:
-        print(f"error: unknown verb {verb!r} — takes: clean (--dry-run | --apply) | regen [--dry-run]",
+        print(f"error: unknown verb {verb!r} — takes: clean (--dry-run|--apply) | regen [--dry-run]",
               file=sys.stderr)
         return 1
     # execv replaces the process — the verb's own exit status is the exit status

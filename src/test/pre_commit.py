@@ -690,6 +690,11 @@ def check_cli_surface(run) -> None:
     names = [c['command'] for c in cmds]
     dupes = sorted({n for n in names if names.count(n) > 1})
     run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None)
+    # alphabetical by contract (2026-07-15): every surface derived from the table
+    # (help, synopsis, completion) inherits its order, so the table carries it
+    run('cli: commands alphabetical', names == sorted(names),
+        None if names == sorted(names) else
+        f'first out of order: {next(a for a, b in zip(names, sorted(names)) if a != b)}')
     vocab = cli.calculus_terms()
     for c in cmds:
         target = REPO_ROOT / c['target']
@@ -723,6 +728,25 @@ def check_cli_surface(run) -> None:
             run(f'cli: {c["command"]}: advertised verbs in target --help', not missing_v,
                 f'`{c["target"]} --help` does not mention: {", ".join(missing_v)}'
                 if missing_v else None)
+    # The emitted completion is a zsh PROGRAM, not prose — it must parse. The
+    # 2026-07-15 lesson: a '(--a|--b)' usage leaked '--b)' through flags_of and
+    # the installed file failed to load, silently costing completion entirely;
+    # no gate parsed what the ritual installs. zsh-less clones skip the parse
+    # invisibly (constant label, no detail) so the committed log stays
+    # byte-identical; every room runs macOS, where the check is real.
+    import shutil, tempfile
+    zsh = shutil.which('zsh')
+    parse_ok, parse_err = True, None
+    if zsh:
+        with tempfile.NamedTemporaryFile('w', suffix='_yoga', delete=False) as f:
+            f.write(cli.completion_script(cmds))
+            tmp = f.name
+        proc = subprocess.run([zsh, '-n', tmp], capture_output=True, text=True)
+        Path(tmp).unlink()
+        parse_ok, parse_err = proc.returncode == 0, (proc.stderr.strip() or None)
+    run('cli: completions: emitted script parses (zsh -n)', parse_ok,
+        parse_err if not parse_ok else None)
+
     stepped = [c for c in cmds if c['step']]
     if not stepped:
         return

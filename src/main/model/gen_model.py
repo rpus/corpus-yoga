@@ -8,6 +8,7 @@ Usage:
     ./yoga model
 """
 
+import argparse
 import re
 from pathlib import Path
 
@@ -27,6 +28,11 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
 
 
 def main():
+    # no arguments — but a --help must be a QUESTION, never a generation run
+    # (the yoga row targets this file directly, so argparse is the help surface)
+    argparse.ArgumentParser(
+        description='Generate per-schema definition catalogues (cache/model/<family>/vN.json) '
+                    'as candidates for the hand-curated rsc/schema/model.json.').parse_args()
     for pipeline_dir in sorted(SCHEMA_DIR.iterdir()):
         if not pipeline_dir.is_dir() or pipeline_dir.name.startswith('_'):
             continue

@@ -23,6 +23,7 @@ Usage:
     ./yoga                       # render the table
     ./yoga <command> [args...]   # exec the target
     ./yoga completions [--write]  # zsh completion to stdout, or written under cache/
+    ./yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
@@ -54,8 +55,13 @@ def commands() -> list[dict]:
 
 def flags_of(usage: str) -> list[str]:
     """The --flags a usage sketch advertises — machine-read for completion and
-    for the flags-exist-in-target check."""
-    return [t for t in re.sub(r'[\[\]|]', ' ', usage).split() if t.startswith('--')]
+    for the flags-exist-in-target check. Brackets, pipes, AND parens are grouping
+    punctuation, never flag text — a '(--a|--b)' choice must not leak '--b)' into
+    the emitted completion (it did once: the zsh file failed to parse). Deduped
+    preserving order: a flag repeated across alternatives (agent's --session)
+    advertises once."""
+    toks = [t for t in re.sub(r'[\[\]|()]', ' ', usage).split() if t.startswith('--')]
+    return list(dict.fromkeys(toks))
 
 
 def verbs_of(usage: str) -> list[str]:
@@ -90,6 +96,26 @@ def calculus_terms() -> set[str]:
         for part in re.sub(r'\s*\([^)]*\)', '', name).split(' / '):
             terms.add(part.strip())
     return terms
+
+
+def render_synopsis(cmds: list[dict]) -> str:
+    """`yoga commands` — every command's syntax, man-page SYNOPSIS style (and
+    nothing else, for now) — derived from the table on every invocation and
+    stored nowhere (L5), so it can never drift from the one authority. One
+    invocation FORM per line: a usage's ' | '-separated alternatives are
+    distinct forms (the same split verbs_of reads); an unspaced '|' is an enum
+    inside one form and stays put."""
+    out = ['yoga(1) — claude-export-yoga', '', 'SYNOPSIS',
+           '  yoga',
+           '  yoga <command> --help']
+    for c in cmds:
+        if not c['usage']:
+            out.append(f'  yoga {c["command"]}')
+            continue
+        for alt in c['usage'].split(' | '):
+            out.append(f'  yoga {c["command"]} {alt.strip()}')
+    out.append('')
+    return '\n'.join(out)
 
 
 def render_help(cmds: list[dict]) -> str:
@@ -155,6 +181,11 @@ def tilde(p: Path) -> str:
 
 
 def completion(rest: list[str]) -> int:
+    if any(a in rest for a in ('-h', '--help')):
+        # a help request is a question, never an action — and never the product
+        print('yoga completions [--write] — emit zsh tab-completion derived from rsc/cli/commands.csv\n'
+              '  (bare: print to stdout; --write: install under cache/completions/ and print the ~/.zshrc lines)')
+        return 0
     text = completion_script(commands())
     if '--write' in rest:
         COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -196,6 +227,9 @@ def main() -> int:
         return 2
     if row['command'] == 'completions':
         return completion(argv[1:])
+    if row['command'] == 'commands':
+        print(render_synopsis(cmds), end='')
+        return 0
     return dispatch(row, argv[1:])
 
 

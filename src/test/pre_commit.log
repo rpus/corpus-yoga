@@ -1,4 +1,4 @@
-pre_commit.py: 1399/1399 (data: machine-local)
+pre_commit.py: 1403/1403 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -22,24 +22,29 @@ pre_commit.py: 1399/1399 (data: machine-local)
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
   ✓ cli: command names unique
-  ✓ cli: run: target exists: RUNME.sh
-  ✓ cli: run: cited calculus defined
-  ✓ cli: run: advertised flags exist
+  ✓ cli: commands alphabetical
+  ✓ cli: agent: target exists: src/main/code-agents/agent.py
+  ✓ cli: agent: cited calculus defined
+  ✓ cli: agent: advertised flags exist
+  ✓ cli: agent: advertised verbs in target --help
   ✓ cli: browser: target exists: src/main/browser-captures/PREP.sh
   ✓ cli: browser: cited calculus defined
   ✓ cli: browser: advertised flags exist
   ✓ cli: browser: advertised verbs in target --help
-  ✓ cli: prerequisites: target exists: PREREQUISITES.sh
-  ✓ cli: prerequisites: cited calculus defined
+  ✓ cli: cache: target exists: src/main/cli/cache.py
+  ✓ cli: cache: cited calculus defined
+  ✓ cli: cache: advertised flags exist
+  ✓ cli: cache: advertised verbs in target --help
+  ✓ cli: calculus: target exists: rsc/CALCULUS.md
+  ✓ cli: calculus: cited calculus defined
   ✓ cli: check: target exists: src/test/pre_commit.sh
   ✓ cli: check: cited calculus defined
   ✓ cli: check: advertised flags exist
-  ✓ cli: xref: target exists: src/test/xref.py
-  ✓ cli: xref: cited calculus defined
-  ✓ cli: server: target exists: src/main/model/serve_markdown.sh
-  ✓ cli: server: cited calculus defined
-  ✓ cli: server: advertised flags exist
-  ✓ cli: server: advertised verbs in target --help
+  ✓ cli: commands: target exists: src/main/cli/cli.py
+  ✓ cli: commands: cited calculus defined
+  ✓ cli: completions: target exists: src/main/cli/cli.py
+  ✓ cli: completions: cited calculus defined
+  ✓ cli: completions: advertised flags exist
   ✓ cli: dashboard: target exists: src/main/chat-exports/dashboard.sh
   ✓ cli: dashboard: cited calculus defined
   ✓ cli: dashboard: advertised flags exist
@@ -51,29 +56,28 @@ pre_commit.py: 1399/1399 (data: machine-local)
   ✓ cli: library: target exists: src/main/chat-exports/library.py
   ✓ cli: library: cited calculus defined
   ✓ cli: library: advertised flags exist
-  ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
-  ✓ cli: memories: cited calculus defined
-  ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
-  ✓ cli: supersede: cited calculus defined
-  ✓ cli: supersede: advertised flags exist
-  ✓ cli: agent: target exists: src/main/code-agents/agent.py
-  ✓ cli: agent: cited calculus defined
-  ✓ cli: agent: advertised flags exist
-  ✓ cli: agent: advertised verbs in target --help
   ✓ cli: machine: target exists: src/main/machine.py
   ✓ cli: machine: cited calculus defined
   ✓ cli: machine: advertised flags exist
+  ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
+  ✓ cli: memories: cited calculus defined
   ✓ cli: model: target exists: src/main/model/gen_model.py
   ✓ cli: model: cited calculus defined
-  ✓ cli: calculus: target exists: rsc/CALCULUS.md
-  ✓ cli: calculus: cited calculus defined
-  ✓ cli: cache: target exists: src/main/cli/cache.py
-  ✓ cli: cache: cited calculus defined
-  ✓ cli: cache: advertised flags exist
-  ✓ cli: cache: advertised verbs in target --help
-  ✓ cli: completions: target exists: src/main/cli/cli.py
-  ✓ cli: completions: cited calculus defined
-  ✓ cli: completions: advertised flags exist
+  ✓ cli: prerequisites: target exists: PREREQUISITES.sh
+  ✓ cli: prerequisites: cited calculus defined
+  ✓ cli: run: target exists: RUNME.sh
+  ✓ cli: run: cited calculus defined
+  ✓ cli: run: advertised flags exist
+  ✓ cli: server: target exists: src/main/model/serve_markdown.sh
+  ✓ cli: server: cited calculus defined
+  ✓ cli: server: advertised flags exist
+  ✓ cli: server: advertised verbs in target --help
+  ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
+  ✓ cli: supersede: cited calculus defined
+  ✓ cli: supersede: advertised flags exist
+  ✓ cli: xref: target exists: src/test/xref.py
+  ✓ cli: xref: cited calculus defined
+  ✓ cli: completions: emitted script parses (zsh -n)
   ✓ cli: memories: run step exists in plan: accumulate_memories
   ✓ cli: supersede: run step exists in plan: compare_batches
 
@@ -1427,9 +1431,9 @@ pre_commit.py: 1399/1399 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1399/1399; expected: 1399/1399
-  ✓ score[code]: 86/86; expected: 86/86
+  ✓ score[code+schema]: 1403/1403; expected: 1403/1403
+  ✓ score[code]: 90/90; expected: 90/90
   ✓ score[schema]: 1313/1313; expected: 1313/1313
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1399/1399 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1403/1403 match the committed expectation; nothing here vetoes a commit
