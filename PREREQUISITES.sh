@@ -220,6 +220,33 @@ check_git_hook() {
   fi
 }
 
+check_signature_hook() {
+  # A convention, not a gate: it stamps the Signature: trailer and strips the model
+  # co-author (rsc/COMMITS.md). Absent, commits simply carry no signature — never a
+  # failure, so this reports informationally even when installed.
+  echo "signature hook (stamps Signature: machine/provider/session; strips the model co-author — rsc/COMMITS.md)"
+  local script="$SCRIPT_DIR/src/test/prepare_commit_msg.sh" hook link dir
+  if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
+    info "not a git clone — no hook to install"
+    return
+  fi
+  [[ "$hook" = /* ]] || hook="$SCRIPT_DIR/$hook"
+  if [[ -L "$hook" ]]; then
+    link="$(readlink "$hook")"
+    [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
+    dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd || true)"
+    if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
+      ok "installed: the symlink to src/test/prepare_commit_msg.sh"
+    else
+      info "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+    fi
+  elif [[ -e "$hook" ]]; then
+    info "a prepare-commit-msg hook exists but is not the symlink — replace: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+  else
+    info "not installed — ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+  fi
+}
+
 check_pipeline_inputs() {
   echo "pipeline inputs (this repo ships no data; you supply your own)"
   local n
@@ -286,6 +313,7 @@ main() {
   check_optional_modes
   check_cli
   check_git_hook
+  check_signature_hook
   check_pipeline_inputs
   notes
 

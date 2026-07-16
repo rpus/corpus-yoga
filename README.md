@@ -59,12 +59,16 @@ Code sessions: `yoga agent capture --all`. Paid model readings:
 `jq` and Python 3; `./RUNME.sh` creates the shared venv (`~/venvs/general`,
 override via `VENV=`). Browser capture needs macOS + Safari. The repo ships no
 data — `input/ cache/ output/ logs/` are git-ignored. Install the hook (gated,
-required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`.
+required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
+signature hook (convention, optional; `rsc/COMMITS.md`):
+`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 
 ## Contributing
 
 Squash-only PRs, enforced by repository settings: main carries one narrated
-commit per landed idea. If a PR can't be squashed, it was not atomic.
+commit per landed idea. If a PR can't be squashed, it was not atomic. Each commit
+is signed `machine/provider/session` (the model dropped — it's derivable from the
+session); grammar and rationale in `rsc/COMMITS.md`.
 
 ## The public surface
 
