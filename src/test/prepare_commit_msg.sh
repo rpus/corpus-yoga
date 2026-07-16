@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # prepare_commit_msg.sh — the prepare-commit-msg hook: stamp each commit with its
-# drafting SIGNATURE, and strip the volatile model co-author. Grammar: rsc/COMMITS.md.
+# drafting SIGNATURE, and strip the volatile model co-author. This header is the
+# grammar's ONE home — the hook implements it, so nothing restates it elsewhere.
 #
 #   Signature: <machine>/<provider>/<session>      (a Claude Code session drafted it)
 #   Signature: <machine>                           (no agent session in the environment)
 #
 # machine  — this machine's binding (rsc/machines/, its self-name), read at commit
-#            time. The concrete axis, not the "room" metonym.
+#            time. The concrete axis, not the "room" metonym. Always knowable.
 # provider — the AI provider that drafted it (claude, …), from AI_AGENT — the outer
 #            corpus identity coordinate, so a signature reads like a corpus path.
 # session  — the agent session id (uuid8) that drafted it, from CLAUDE_CODE_SESSION_ID.
@@ -15,10 +16,25 @@
 #            is DERIVABLE from it (yoga agent models), accurately and plurally — so it
 #            is never asserted here. This retired `Co-Authored-By: <model>`.
 #
-# Squash aggregates the per-commit signatures, so a landed idea drafted across
-# machines/providers/sessions carries one line each — the honest multi-contributor
-# record a single co-author could not give. The git AUTHOR stays the human: they own
-# what lands; the signature records who DRAFTED it.
+# Attest ONLY what the environment positively provides: absence of a session is not
+# evidence of a human (another tool, a bot, a scrubbed env all read the same), so the
+# second form claims the machine and nothing whatever about the drafter.
+#
+# The git AUTHOR stays the human: they own what lands; the signature records who
+# DRAFTED it — the same split as "curation is capture by a user" (rsc/CALCULUS.md).
+#
+# MULTIPLE SIGNATURES. git parses trailers only in a message's LAST paragraph, so:
+#   - co-drafting ONE commit (a second agent amends/cherry-picks/rebases it; each hook
+#     run adds its line to the same block) -> every signature is a parsed trailer;
+#     addIfDifferent admits a distinct line, never a duplicate. This is the clean case.
+#   - separate commits squashed -> the messages concatenate, so only the LAST signature
+#     parses; earlier ones survive as body text. A fair hint the PR was not atomic.
+# And none of it reaches main unless the forge composes the squash body from the commit
+# messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by
+# ./PREREQUISITES.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+#
+# Install (a convention, not a gate, so optional unlike the pre-commit hook):
+#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
 #
 # Best-effort by design: any failure exits 0 so a signature never blocks a commit.
 
