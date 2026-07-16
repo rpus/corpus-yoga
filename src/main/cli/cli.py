@@ -98,22 +98,39 @@ def calculus_terms() -> set[str]:
     return terms
 
 
-def render_synopsis(cmds: list[dict]) -> str:
-    """`yoga commands` — every command's syntax, man-page SYNOPSIS style (and
-    nothing else, for now) — derived from the table on every invocation and
-    stored nowhere (L5), so it can never drift from the one authority. One
-    invocation FORM per line: a usage's ' | '-separated alternatives are
-    distinct forms (the same split verbs_of reads); an unspaced '|' is an enum
-    inside one form and stays put."""
+def _forms(c: dict) -> list[str]:
+    """A row's invocation forms: the usage's ' | '-separated alternatives (the
+    same split verbs_of reads); an unspaced '|' is an enum inside one form."""
+    if not c['usage']:
+        return [f'yoga {c["command"]}']
+    return [f'yoga {c["command"]} {alt.strip()}' for alt in c['usage'].split(' | ')]
+
+
+def render_synopsis(cmds: list[dict], name: str | None = None) -> str:
+    """`yoga commands [<command>]` — man-page entries derived from the table on
+    every invocation and stored nowhere (L5), so they can never drift from the
+    one authority. Bare: the full SYNOPSIS, one invocation form per line. With a
+    command: that command's whole entry — NAME, SYNOPSIS, its calculus citations
+    and run-step equivalence — so the terminal answers what a command alleges
+    without anyone reading source."""
+    if name:
+        c = next((c for c in cmds if c['command'] == name), None)
+        if c is None:
+            return f'yoga commands: no command {name!r} — `yoga commands` lists them all\n'
+        out = ['NAME', f'  yoga {c["command"]} — {c["summary"]}', '', 'SYNOPSIS',
+               *[f'  {f}' for f in _forms(c)]]
+        if c['calculus']:
+            out += ['', 'CALCULUS', f'  {c["calculus"]}   (defined in `yoga calculus`)']
+        if c['step']:
+            out += ['', 'RUN STEP', f'  ≡ `yoga run` step {c["step"]}']
+        out += ['', 'SEE ALSO', f'  yoga {c["command"]} --help   (the target\'s own voice)', '']
+        return '\n'.join(out)
     out = ['yoga(1) — claude-export-yoga', '', 'SYNOPSIS',
            '  yoga',
-           '  yoga <command> -h|--help']
+           '  yoga <command> -h|--help',
+           '  yoga commands [<command>]']
     for c in cmds:
-        if not c['usage']:
-            out.append(f'  yoga {c["command"]}')
-            continue
-        for alt in c['usage'].split(' | '):
-            out.append(f'  yoga {c["command"]} {alt.strip()}')
+        out += [f'  {f}' for f in _forms(c)]
     out.append('')
     return '\n'.join(out)
 
@@ -228,7 +245,8 @@ def main() -> int:
     if row['command'] == 'completions':
         return completion(argv[1:])
     if row['command'] == 'commands':
-        print(render_synopsis(cmds), end='')
+        name = next((a for a in argv[1:] if not a.startswith('-')), None)
+        print(render_synopsis(cmds, name), end='')
         return 0
     return dispatch(row, argv[1:])
 

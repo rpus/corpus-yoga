@@ -317,19 +317,16 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-cache', default='cache/chat-exports',
+    ap.add_argument('--chat-exports-cache', metavar='DIR', default='cache/chat-exports',
                     help='cache root holding <batch>/json/ atomised pieces')
-    ap.add_argument('--bulk-exports', default='input/claude/chat/bulk-export',
+    ap.add_argument('--bulk-exports', metavar='DIR', default='input/claude/chat/bulk-export',
                     help='input root holding the raw batch dirs (memories/projects/users)')
-    ap.add_argument('--browser-api', default=None,
-                    help='input/claude/chat/browser-API — also compare the latest batch '
-                         'against the live-capture corpus, per conversation (informational)')
-    ap.add_argument('--memories-output', default='output/memories',
-                    help='the deposit store — a byte-identical deposit is the '
-                         'unconditional memories licence')
-    ap.add_argument('--summaries-output', default='output/markdown/claude/chat/summaries',
-                    help='the summary-reading deposit store (accumulate_summaries.py) — '
-                         'a verbatim deposit is the unconditional summaries licence')
+    ap.add_argument('--browser-api', metavar='DIR', default=None,
+                    help='browser-API root: also compare the latest batch against live captures (informational)')
+    ap.add_argument('--memories-output', metavar='DIR', default='output/memories',
+                    help='the memory deposit store (a deposit is the unconditional licence)')
+    ap.add_argument('--summaries-output', metavar='DIR', default='output/markdown/claude/chat/summaries',
+                    help='the summary deposit store (a deposit is the unconditional licence)')
     args = ap.parse_args()
 
     root = Path(args.chat_exports_cache)

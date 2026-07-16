@@ -725,30 +725,24 @@ def receive_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool,
 def main() -> int:
     ap = argparse.ArgumentParser(description='capture agents into the store; receive them from peer rooms (session × memory)')
     sub = ap.add_subparsers(dest='direction', required=True)
-    t = sub.add_parser('capture', help="mirror every project's agents into the room's store dir, input/claude/code/machine-transport/<room>/<project>/")
+    t = sub.add_parser('capture', help="mirror agents into the room's store dir (the ref a room pushes)")
     t.add_argument('--session',
                    help='uuid(8) prefix of the agent to move — identity is never guessed')
     t.add_argument('--all', action='store_true',
-                   help='mirror EVERY session of EVERY project (git push --all): the named totality, safe by the '
-                        'prefix lattice — each placement is silence/fast-forward/ahead or a loud CONFLICT')
+                   help='every session of every project (git push --all); safe by the prefix lattice')
     t.add_argument('--to', metavar='SCRATCH_DIR',
-                   help='scratch/test escape hatch: write to this directory instead of the '
-                        "room's own ref (input/claude/code/machine-transport/<the self.txt binding>) — never a room name: a room "
-                        'pushes only its own ref')
-    r = sub.add_parser('receive', help="install a peer room's sessions from its store dir, input/claude/code/machine-transport/<room>/ "
-                                       '(the ONE deliberate writer of the harness-owned projects root)')
+                   help='scratch/test escape hatch: a directory, never a room name')
+    r = sub.add_parser('receive', help="install a peer room's sessions (the one deliberate writer of ~/.claude/projects)")
     r.add_argument('--from', dest='source', required=True, metavar='ROOM_OR_DIR',
-                   help="source ref, distinguished by shape: a bare token is a peer room's name under "
-                        "input/claude/code/machine-transport (never a CWD lookup); anything with a '/' is a directory path (scratch: ./dir)")
+                   help="a room name (bare token) or a directory (path-shaped: ./dir) — shape, never CWD lookup")
     r.add_argument('--session',
                    help='uuid(8) prefix of the agent to install — identity is never guessed')
     r.add_argument('--all', action='store_true',
-                   help="install EVERY session the room transported (git pull --all from one peer): "
-                        'the named totality, dry-run like any receive')
+                   help='every session the room transported (git pull --all from one peer)')
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing per project)')
     d.add_argument('--apply', action='store_true')
-    sub.add_parser('list', help='census: sessions local and under input/claude/code/machine-transport, dressed with their last ai-title')
+    sub.add_parser('list', help='census: local + store sessions, dressed with their last ai-title')
     sub.add_parser('models', help='model census: message.model counts over "type":"assistant" records, '
                                   'every project and session in this machine\'s projects root')
     args = ap.parse_args()

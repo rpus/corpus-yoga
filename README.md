@@ -1,116 +1,74 @@
-# README
+# claude-export-yoga
 
-This repo wrangles AI conversations, from Gemini (via browser capture only) and Claude (via browser capture, bulk export, and local coding sessions).
+Wrangles AI conversations — Claude (bulk export, browser capture, Claude Code
+sessions) and Gemini (browser capture) — into one validated, readable, indexed
+corpus.
 
----
+## Quickstart
 
 ```bash
-./yoga prerequisites       # read-only report: what this machine can run
-
-./yoga run [--plan]        # the optional step plan is printed by the step lists that execute it
-
-./yoga browser capture [--DOM]             # Safari sweep into input/ (claude API; --DOM adds scrapes, and gemini has only those)
-
-./yoga run --only <pipeline>               # or one <pipeline> [browser-captures | chat-exports | code-agents]
-
-./yoga dashboard capture   # (paid) refresh output/dashboard/; requires ANTHROPIC_API_KEY
-
-./yoga dashboard present
-
-./yoga model
-
-# ./yoga check
+./yoga prerequisites          # read-only: what this machine can run
+./yoga browser capture        # acquire: Safari sweep into input/ (claude API; add --DOM for gemini)
+./yoga run                    # process: validate, extract, project (--plan previews)
+./yoga server start --daemon  # read the corpus at http://localhost:8182
+./yoga check                  # the three-tier gate suite
 ```
 
-## Lay of the land
+`./yoga` lists every command with its summary; `./yoga commands [<command>]`
+prints man entries; `./yoga <command> --help` asks each target itself.
 
-Everything is driven by shell entry points — there is no package or build system. Three git-ignored roots divide the data by lifecycle: **`input/`** holds the raw inputs you supplied, typed `<provider>/<channel>/<capture>/` — the identity axes then the acquisition mechanism; **`cache/`** is the workshop — rebuildable derivations, coupled to no one pipeline: its pipeline subdirectories (`cache/chat-exports/`, `cache/code-agents/`, …: validation logs, matrices, atomised pieces, presentations) are datum-scoped and die with their `input/` datum, while others outlive any datum (the zsh completion `cache/completions/`, the per-schema `cache/model/`, and the corpus-scoped `cache/indexing/` — the only subtrees a *human* reader touches, each reached through the CLI rather than by opening a file: `yoga completions --write`, `yoga model`, `yoga indexing` — plus the markdown viewer's third-party render libraries `cache/serve_markdown/` (KaTeX + marked), fetched on demand by `yoga server` and read back into the served page, never opened by a human); **`output/`** is the library — what outlives any batch or run: the curated artifact library, the memory-snapshot timeline, and the readable markdown corpus (`output/markdown/`, what the server serves). (A fourth root, `logs/`, holds run-keyed diagnostics of the driving machinery — Safari capture runs, the serve daemon — timestamped and human-facing; the datum-keyed `.log` files inside `cache/` are different beasts: machine-read derived state, serving as validation memoisation and matrix input.) `output/` also holds the non-reproducible *readings* of the corpus by the intelligences that tend it — your curation (`output/indexing/`: `accepted.txt` / `rejected.txt`) is inference by a user exactly as the model's concept/category captures (`output/dashboard/`) are inference by a model; the repo privileges no intelligence over another. Being corpus-derived, they stay out of git with the rest of `output/` (shared across rooms by the same means as `input/`); only their reproducible by-product, the pending queue, is a rebuildable `cache/indexing/candidates.txt`. The root `RUNME.sh` orchestrates three pipelines, each with its own `PREP.sh` / `RUNME.sh` / `validate.sh` under `src/main/`:
-
-| pipeline | input (`input/…`) | what it does |
-| --- | --- | --- |
-| `browser-captures` | per-conversation captures via Safari (AppleScript + injected JS; Shortcut mode or scripted `capture_all()`): live API JSON for claude, DOM-scraped markdown for gemini (no API) | validates each claude capture against the `apiConversation` schema versions, then projects to markdown; gemini's scraped markdown is already the terminal artifact |
-| `chat-exports` | official claude.ai bulk data exports (`data-*/` with `conversations.json` etc. — a synchronised snapshot of four components: conversations, memories, projects, users) | validates all four components, archives the non-conversation three verbatim into `cache/<batch>/` (bulk exports are the *only* log of chat memories), extracts embedded files/heredocs, renders a dashboard (reading the `output/dashboard/` captures, refreshed out-of-band by `yoga dashboard capture`), atomises the bulk array into per-conversation JSON, projects to markdown |
-| `code-agents` | Claude Code CLI session `.jsonl` files and per-project `memory/` folders (symlink to `~/.claude/projects`) | converts JSONL→JSON and validates against the `session` schema versions; projects each session to its conversation form (`sessionConversation`: user/assistant talk only — tool work stays in `session.json`) and renders the session corpus to `output/markdown/claude/code/conversations/`, where the server, the book index and the dashboard see it like any other source; JSONifies each project's `memory/` (index + frontmattered facts) into a `projectMemory` datum, validated like everything else |
-
-Downstream of capture, `src/main/model/project_markdown.py` renders clean markdown straight from the API JSON (no DOM scrape — `compare_markdown.py` is the safety net that verified parity with the legacy scrape), and `serve_markdown.sh` serves the results locally with LaTeX rendering.
-
-Naming rule: within a batch, conversations are `<ordinal>-<slug>` (created-at order, one authority: `markdown_projection.ordered()`), but anything that *outlives* a batch — the curated artifact library `output/artifacts/downloaded/` and the inferred tables — is keyed by conversation uuid (`<ordinal>-<slug>-<uuid8>` directories: the uuid8 suffix is the resolution key; the ordinal-slug prefix is presentation dressing, refreshed to current numbering whenever a pipeline run touches the dir — so listings sort in conversation order without the ordinal ever being trusted as identity; resolved via `src/main/chat-exports/library.py`), because ordinals renumber whenever the corpus changes. The successive naming formats those tools recognise are themselves committed data — `rsc/naming/library_dir_vintages.csv` and `rsc/naming/memory_deposit_vintages.csv`, one row per vintage — so healing an old layout is a table lookup, never archaeology. The LLM speaks ordinals, storage speaks uuid, presentation re-derives ordinals. The one deliberate exception proves the rule: memory snapshots (`output/memories/`) are versions of a single mutable document, so there snapshot *time* is the identity — the dual keying. The full operational calculus — the corpus classes, their supersession/merge/transport semantics, the product constructions (a bulk export; an agent), and the numbered laws (L1–L8) the pipelines obey — is documented in `rsc/CALCULUS.md`, extracted from the working code. Note that `output/` means "outlives the data that produced it", not "irreplaceable": `output/markdown/` is rebuildable dressing (any pipeline run regenerates it) with one exception — the summary deposits (`output/markdown/claude/chat/summaries/`) are oracle readings whose source batches may since be disposed, so they rebuild only partially (found 2026-07-13: 056 held readings from two deleted batches) — while `output/artifacts/` and `output/memories/` hold states nothing else records; treat deposits as precious wherever they sit.
-
-Every root also has a complete **sync story** — nothing valuable lives only on one machine:
+## The tiers
 
 | root | lifecycle | medium | loss cost |
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-| `input/` | input | iCloud (captures, exports, `input/claude/code/machine-transport`) | none — the medium carries it (sessions: once stashed via `capture --all`) |
-| `cache/` | cache | local | none — every subtree's producer is declared in `rsc/cache_io.csv`; `./yoga cache regen` rebuilds them all, `./yoga cache clean` removes residue (subtrees neither written nor read), and pre-commit's `check_cache_io` blocks the catastrophe a registry would otherwise hide: a path READ with no WRITER (a `cache/` dependency nothing produces — which would strand a fresh clone) |
-| `logs/` | run history | local | disposable (not reproducible, but dispensable) |
+| `input/` | input | iCloud | none — the medium carries it (sessions: once stashed via `yoga agent capture --all`) |
+| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
+| `logs/` | run history | local | disposable |
 | `output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-The last gap closed 2026-07-11: Claude Code sessions live in harness-owned, machine-local state (`input/claude-code-projects` is a symlink into `~/.claude/projects`, which must not itself sync), and `./yoga agent capture --all` mirrors every project's sessions and memory into the shared `input/claude/code/machine-transport` store on iCloud (keyed `<room>/<project>/`), from which the code-agents pipeline sources — the pipelines never read `~/.claude/projects` at all, and nothing but a user's explicit `receive --apply` ever writes it — push-shaped and deliberate rather than ambient, which is the stronger property: the prefix lattice gates every byte on the way in, so a live session file can never be half-synced into corruption. (The tier names said this obliquely until 2026-07-13, when `ext`/`gen`/`lib` became `input`/`cache`/`output`; the semantics above were the contract throughout.) The **corpus type system** landed 2026-07-13: the two coordinates the data already carries — PROVIDER (claude / gemini) and CHANNEL (chat / code) — are directory levels now, `<provider>/<channel>/<capture>/` under `input/` and `<provider>/<channel>/` under `output/markdown/`. The fused `output/markdown/{claude,gemini,code}` (`code` silently meaning claude×code — the fusion that once let code sessions masquerade as claude *chat* rows in the dashboard) is gone: the dashboard's `claude|gemini` and `chat|code` toggles are a projection of the filesystem rather than a re-derivation, and a new provider×channel arrival has a home without a placement rule living in anyone's head. (Still open from that design: the agent product's components — memory, conversation(s), summaries — as typed leaves.) The migration ran 2026-07-13, by manifest, rehearsed in both rooms before a byte moved; its machinery (a restructure toolset under src/, temporary by design) served and was deleted — history keeps it. Beneath those three IDENTITY coordinates sits a fourth, innermost layer — **capture**: a single observation of a component (a bulk-export batch, a browser-capture, a room's transported session, a DOM scrape). One identity has many captures, and reconciling them — the prefix-lattice supersession, the accumulate-and-deposit — is the whole pipeline; `input/` is already the capture-major view (one acquisition, many components) and `output/markdown` its identity-major transpose (one component, captures reconciled). The dashboard's per-batch pages vs the cross-capture corpus page are this layer surfacing. The value vocabulary (proposed 2026-07-12, now the innermost directory level) names each acquisition MECHANISM: `bulk-export` (`input/claude/chat/bulk-export/`), `browser-API` and `browser-DOM` (the two Safari-driven captures — live JSON vs scraped DOM — `input/<provider>/chat/browser-{API,DOM}/`), and `machine-transport` (`input/claude/code/machine-transport/`, `yoga agent capture`). These cross-cut the identity axes rather than nesting under them — the same (claude, chat) conversation can arrive as both `bulk-export` and `browser-API`, which is exactly why the layer exists: it is where supersession reconciles the duplicates. And because no value is the bare word `capture`, the axis can keep that label without collision — the calculus's `capture` *operation* (a non-reproducible oracle reading: a model's concept read, a DOM scrape, a memory snapshot) is then one mechanism among these, narrower than the layer, which also spans deterministic acquisitions the calculus files elsewhere (a `bulk-export` is append-only data; a `machine-transport` is the `transport` operation).
+Inputs are typed `input/<provider>/<channel>/<capture>/` — providers `claude`,
+`gemini`; channels `chat`, `code`; captures `bulk-export`, `browser-API`,
+`browser-DOM`, `machine-transport`. The readable corpus is
+`output/markdown/<provider>/<channel>/`, and the pipelines never read
+`~/.claude/projects` — sessions arrive via `yoga agent capture` through the
+prefix-gated store.
 
-## The `yoga` CLI
+## Where facts live
 
-`./yoga` is the terminal surface over all of the above: one curated table of subcommands (`rsc/cli/commands.csv`, rendered as help by a bare `./yoga`) dispatching to the scripts that own each operation — `./yoga run`, `./yoga check --fix`, `./yoga server start --daemon`, `./yoga dashboard capture`, `./yoga supersede`, `./yoga calculus`, … The CLI adds no behaviour of its own: args are forwarded verbatim (so `./yoga <command> --help` prints the target's own help, and `./yoga run` is exactly `./RUNME.sh`, flags and all — wherever this README says one, the other works), and each row cites the calculus operations and laws (`rsc/CALCULUS.md`) its command performs — the help text doubles as a map of the calculus, and the pre-commit code tier keeps it honest (cited terms must be defined in the calculus; advertised flags must exist in the target; see `rsc/cli/README.md`). Zsh tab-completion is derived from the same table: `./yoga completions --write`, then add the printed lines (`fpath`, optional alias) to `~/.zshrc` and start a new shell — `./PREREQUISITES.sh` reports whether this machine has done so, and whether the generated completion is still current with the table. The CLI machinery is stdlib-only and falls back to system `python3`, so on a fresh clone `./yoga` works before the venv exists; subcommands whose *target* is a Python stage still need the venv `./RUNME.sh` creates, and fail with that exact hint until then.
+- the command surface: `rsc/cli/commands.csv` — grammar and gates: `rsc/cli/README.md`
+- the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)
+- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
+- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
+- machine manifests: `rsc/machines/` (`yoga machine`)
+- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref`
 
-The heart of the repo is the schema system under `rsc/schema/`: **versioned JSON Schemas** for each data shape (`apiConversation`, `conversations`, `session`, …). A schema whose validation behaviour must change is never edited in place — a new `vN+1.json` is minted and narrated in the schema's `CHANGELOG.md` (`### Restricted/Relaxed/Refactored since vN`); a machine-local `matrix.md` beside each datum's validation logs in `cache/` records which versions that datum validates against. Two gates keep schema and data honest: *coverage* (every datum validates against some version) and *frontier* (the newest datum validates against the latest version). `rsc/schema/model_join.csv` cross-references equivalent fields across pipelines so coupled changes aren't half-made. All of this is enforced by `src/test/pre_commit.py` plus paired diagnostic/repair scripts under `src/test/`. The end-to-end process for changing a schema is documented in `rsc/schema/WORKFLOW.md`.
+## Getting data
+
+Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
+the emailed `data-*` into `input/claude/chat/bulk-export/`. Browser captures:
+Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
+(or the macOS Shortcut: `open -a Terminal .../src/main/browser-captures/export.command`
+— Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
+Code sessions: `yoga agent capture --all`. Paid model readings:
+`ANTHROPIC_API_KEY=... yoga dashboard capture`, rendered free by
+`yoga dashboard present`. Batch disposal is computed, never assumed: `yoga supersede`.
 
 ## Prerequisites
 
-Run `./PREREQUISITES.sh` for a read-only report of everything below against your machine (it changes nothing; `./RUNME.sh` is what creates directories and the venv).
+`jq` and Python 3; `./RUNME.sh` creates the shared venv (`~/venvs/general`,
+override via `VENV=`). Browser capture needs macOS + Safari. The repo ships no
+data — `input/ cache/ output/ logs/` are git-ignored. Install the hook (gated,
+required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`.
 
-- **Required**: `jq` and Python 3 (system bash 3.2 suffices). `./RUNME.sh` creates a venv at `~/venvs/general` (override via `VENV=...`) and installs `src/requirements.txt` into it — note this venv is shared, not repo-local.
-- **macOS-only, optional**: browser capture (`yoga browser capture`) drives Safari via AppleScript, so it needs macOS with Safari logged in to claude.ai / gemini.google.com.
-- **Optional**: `ANTHROPIC_API_KEY`, needed only for `yoga dashboard capture` (the paid concept/category capture).
-- **Optional (network, on first use)**: the markdown viewer (`yoga server`) renders LaTeX with pinned KaTeX + marked, declared like a `requirements.txt` in `src/main/model/serve_assets.txt` and fetched into `cache/serve_markdown/` on the first `yoga server start` (or eagerly via `yoga server ensure-assets`, the regen producer). `PREREQUISITES.sh` reports how many are present; absence is never fatal — the server re-fetches what it needs.
-- **Data**: the repo ships none — `input/`, `cache/`, `output/`, `logs/` are git-ignored. You supply your own bulk exports, captures, and Claude Code sessions (see "How to use").
-- **Machine manifests**: each machine (*room*) declares its desired state as committed data (`rsc/machines/`: a `_base.csv` every room layers under its own `<room>.csv`, docker-style) and binds its identity in `self.txt` beside them — the one git-ignored file in the committed tree; `./yoga machine` verifies this machine against its room, and the pre-commit data tier repeats the required rows where a binding exists.
+## Contributing
 
-On a fresh clone, `./RUNME.sh` is safe: it writes only to `input/`, `cache/`, `output/`, `logs/` and the venv, and pipelines with no input data report a skip rather than failing. `./yoga model` works from the committed schemas alone. `src/test/pre_commit.sh` groups its checks into three tiers: **code** (docs, cross-references) and **schema** (the committed schema artifacts) are deterministic on any clone and compared against the committed expected score; the **data** tier (per-datum matrices vs their validation logs, coverage, frontier) is machine-local — it runs only for pipelines with local data, is skipped with a notice otherwise, and its report never enters the committed `src/test/pre_commit.log` (which carries only the deterministic tiers, byte-identical on any clone); the full report prints to the terminal and lands in `logs/src/test/pre_commit.log`. A fresh clone should therefore pass every check, which makes the git hook installable anywhere: `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit` (that exact symlink is load-bearing: the wrapper recognises hook context by its invoked name). The wrapper holds itself to that installation: a manual run fails with that one-liner until the symlink exists — pre-commit only lives up to its name once it actually gates commits — and `./PREREQUISITES.sh` reports the installation state read-only. As a hook, failures veto a commit only on the default branch (read from `origin/HEAD`); on any other branch — never on detached HEAD — the full report still prints but the commit proceeds: a branch commits work-in-progress, and its PR review is the gate. Run manually, `pre_commit.sh` always exits non-zero on failure. Either way the artifacts are staged by the run itself, so read a failure via `git diff --cached src/test/pre_commit.log`.
-
-Contributing: PRs land by **squash only** — enforced as repository settings (merge commits and rebase-merge disabled; the PR title and body become the commit message; branches auto-delete on merge), so any `gh pr merge` or web merge behaves identically from any machine. The criterion behind the policy: *if a PR can't be squashed, it was not atomic* — main carries one narrated commit per landed idea, and the PR keeps the iteration. One local consequence of squashing: git cannot see a squashed branch as merged, so clean up with `git fetch --prune` and `git branch -D <branch>`.
-
-## How to use
-
-- Prepare new data
-  - Open Safari, log in to <https://claude.ai>
-  - Ask to "Export ('All') data" from <https://claude.ai/settings/data-privacy-controls>
-  - Click on 24-hour emailed "Download Data" link (like <https://claude.ai/export/0fc4c1e0-4719-4e10-997a-697bf05599af/download/cdb658167a0d6dd4a2ffe829aeea9d15>)
-  - Move downloaded folder/zip (like `data-*`) from `Downloads` into `input/claude/chat/bulk-export` in this (cloned) repo (creating that directory first if needed), and unzip it if needed.
-  - `export ANTHROPIC_API_KEY=<your-key>` (required for table inference by Claude)
-- Capture markdown exports for each conversation via Safari (optional pre-processing step):
-  - Open Safari, log in to <https://claude.ai> or <https://gemini.google.com>
-  - **Shortcut trigger** — dispatches on whatever page the front tab shows (the invoker; the capture behaviour it selects is below):
-    - Set up a macOS Shortcuts app shortcut whose entire shell line is: `open -a Terminal "$HOME/<path-to-repo-parent>/claude-export-yoga/src/main/browser-captures/export.command"` — the capture must run under Terminal (which holds the needed folder permissions from everyday CLI use), because Shortcuts' own shell runs under a helper that macOS silently denies access to protected folders, with no prompt, regardless of any grant made in System Settings
-    - With front tab on a specific conversation: captures that conversation *in place* (no navigation; the page is already loaded)
-    - With front tab on <https://claude.ai/recents> or <https://gemini.google.com/app>: captures every listed conversation, each opened in its own transient tab and closed after — the listing tab is never navigated away
-  - **Scripted trigger** — Python discovers every conversation and navigates through them in a dedicated work tab (the front tab is restored afterwards):
-    - `./yoga browser capture [--provider claude|gemini] [--DOM]`
-  - **After having (or extending) a conversation, recapture it** — navigate to it and hit the Shortcut: an in-place recapture of just that conversation (seconds for the claude API fetch; a couple of minutes for a long scrape walk). The incremental loop:
-
-    ```text
-    src/run_python_script.sh src/main/browser-captures/audit_captures.py          # which captures are BAD (truncated / disagree with the api projection)
-    src/run_python_script.sh src/main/browser-captures/audit_captures.py --live   # which conversations MOVED ON (drives Safari: claude updated_at sweep, gemini tail probes)
-    Shortcut (or safari_capture.sh --id) on each flagged conversation             # selective in-place recapture
-    ```
-
-- Render clean markdown straight from the captured API JSON — no browser, no DOM scrape (preferred over the Safari markdown capture above; it only needs the `apiConversation` JSON each capture already fetches):
-  - `src/run_python_script.sh src/main/model/project_markdown.py --browser-api input/claude/chat/browser-API --out output/markdown/claude/chat/conversations`
-  - Projects each capture to the lean `markdownConversation` shape, validates it, and writes a flat directory of `<title>.md` with sane titles. Every turn heading carries an HTML anchor — the message uuid for claude (durable identity: `<file>.md#<uuid>` addresses a turn across renumberings), the role-count (`#human-3`) for gemini, whose scrapes have no uuids but are append-only. Comparisons are anchor-blind (the anchor rides the heading line, which `turn_seq` ignores).
-  - Verify the projection reproduces (or improves on) the legacy DOM scrape — the safety net before retiring the scrape: `src/run_python_script.sh src/main/browser-captures/compare_markdown.py --api output/markdown/claude/chat/conversations --scrape input/claude/chat/browser-DOM` (pure markdown-vs-markdown, paired by conversation id; add `--diff` for full per-conversation diffs). The browser-captures pipeline runner performs it as a later step when passed `--compare-scrape` (`./yoga run --compare-scrape`) — asked-for only, because the comparison is meaningful against a fresh scrape (`yoga browser capture --provider claude --DOM`) and noise against the resting legacy ones.
-  - For a bulk export, first split the one big `conversations.json` array into verbatim per-conversation pieces (validated against the `Conversation` definition — the only reader of the 24 MB array): `src/run_python_script.sh src/main/chat-exports/atomise_bulk.py --bulk-export input/claude/chat/bulk-export/<batch>` → `cache/chat-exports/<batch>/json/`. Then render those pieces to markdown (same filenames): `src/run_python_script.sh src/main/model/project_markdown.py --bulk-export input/claude/chat/bulk-export/<batch>` → `cache/chat-exports/<batch>/markdown/`.
-  - Do later bulk exports supersede earlier ones? A batch is a synchronised snapshot of four components — conversations, memories, projects, users — and `src/run_python_script.sh src/main/chat-exports/compare_batches.py` puts each through the same unprejudiced unit/atom subset check (conversation → message uuids; project → doc uuids + prompt fingerprint; memory/user → canonical values). The verdict *shows its working*: an earlier batch is deletable iff every atom it holds survives somewhere durable that is kept, and each report names the evidence per component — the **witnesses** (every later batch whose verified subset covers it; a licence conditional on that witness's own retention) and, for memories, the byte-identical **deposit** in `output/memories` (unconditional — deposits outlive every batch). A component found in no later export and no deposit is unique data: a loud WARN, deletion blocked until it is deposited or superseded. Exit 0 iff every earlier batch is covered; verdicts describe what exists *now*, so re-run after any deletion — deleting a witness expires the licences it carried. Runs automatically at the end of every chat-exports pipeline run, where it also compares the latest batch against the live captures per conversation (in-sync / capture-ahead / capture-stale-so-recapture / anomaly). Deleting a covered batch means both `input/claude/chat/bulk-export/` and `cache/chat-exports/`; matrices are machine-local and die with it.
-  - Cross-check the two sources agree (live API and bulk export should project to identical markdown per conversation): `src/run_python_script.sh src/main/model/compare_sources.py --browser-api input/claude/chat/browser-API --bulk-export input/claude/chat/bulk-export/<batch>` (reads the batch's atomised `json/` pieces; add `--diff` for details).
-- Browse and read captures as rendered markdown + LaTeX:
-  - `./yoga server start --daemon` then open <http://localhost:8182> — serves the whole corpus library: claude projections (`output/markdown/claude/chat/conversations/`), the chat-memory timeline (`output/markdown/claude/chat/memories/`), and gemini scrapes (`output/markdown/gemini/chat/conversations/`); turn deep links (`…/file/<path>.md#<anchor>`) jump to the turn once the page finishes rendering
-  - `./yoga indexing build` regenerates the book-style index over the whole corpus (`output/markdown/index.md`): headwords from the curated `output/indexing/accepted.txt` (seeded from the corpus's own inferred concept list plus the author's idiolect — edit and re-run), locators linking to durable turn anchors, so entries survive renumbering. Browse it through the server like any other page.
-  - The memory timeline is accumulated by the chat-exports pipeline (`accumulate_memories.py`): every distinct memory state deposits verbatim into the durable `output/memories/<snapshot-time>.json` (content-deduplicated against the nearest earlier deposit — deposits are immutable and outlive their batches, which is what makes a memories-divergent batch safely deletable) and each deposit unwraps to `output/markdown/claude/chat/memories/<snapshot-time>.md` — a diffable record of what claude.ai believed at each export.
-  - `./yoga server stop` to shut down
-
----
+Squash-only PRs, enforced by repository settings: main carries one narrated
+commit per landed idea. If a PR can't be squashed, it was not atomic.
 
 ## The public surface
 
-Pages for <https://rpus.co> live under `rsc/site/` as committed data, laid out as they deploy (`rsc/site/yoga/index.html` → `rpus.co/yoga/`); the deploy process — a copy into the private Netlify-watched site repo — is documented in `rsc/site/README.md`.
+Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 
 ## Pre-public checklist
 

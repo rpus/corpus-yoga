@@ -1,31 +1,17 @@
 #!/usr/bin/env bash
-# dashboard.sh — the paid model capture behind the corpus dashboard (yoga dashboard).
-# NOT per-batch, NOT in the pipeline (2026-07-09): one deliberate single-source
-# capture over THE CORPUS ITSELF (output/markdown — every source's conversations,
-# claude and gemini alike: the same projected corpus the dashboard describes and
-# serve renders; sourced from markdownConversation form, 2026-07-10; gemini joined
-# the same day, its ordering a capture of the web-UI listing), written durable to
-# output/dashboard/, shared
-# by both rooms. The category PALETTE is authored inline in rsc/site/index.html
-# (design, not inference); only the weighted concept list (word cloud) and the
-# chat→category assignment are captured here.
+# dashboard.sh (yoga dashboard) — the corpus dashboard: paid captures, free render.
 #
-#   yoga dashboard              # status: what is captured (read-only, free)
-#   yoga dashboard present      # FREE: render the corpus dashboard page from
-#                               #   output/markdown + output/dashboard → output/dashboard/presentation/index.html
-#                               #   (its data tables stage in cache/dashboard/presentation/;
-#                               #   keys = corpus ordinals, all sources; the per-batch
-#                               #   pages under cache/chat-exports/ remain export artifacts)
-#   yoga dashboard capture      # PAID: re-read the corpus → output/dashboard/
-#                               #   [--conversations <path>] overrides the source — a
-#                               #     projected markdown corpus dir, an atomised json/
-#                               #     dir, or a conversations.json (default:
-#                               #     output/markdown — the whole corpus, every source)
-#                               #   [--only semantic-concepts|chat-categories] refreshes
-#                               #     just one file (default: both) — e.g. re-roll the
-#                               #     category assignment without disturbing the concept
-#                               #     base the indexing curation sits on
-# Capture needs ANTHROPIC_API_KEY.
+# Usage:
+#   yoga dashboard [status]     # what is captured (read-only, free)
+#   yoga dashboard present      # FREE: render output/dashboard/presentation/index.html
+#                               #   from output/markdown + the durable captures
+#   yoga dashboard capture      # PAID (needs ANTHROPIC_API_KEY): re-read the corpus
+#     [--conversations <path>]  #   source override: markdown corpus dir | json/ dir | conversations.json
+#     [--only semantic-concepts|chat-categories]   # refresh one file (default: both)
+#
+# Captures land durable in output/dashboard/ (shared across rooms); the category
+# palette is authored in rsc/site/index.html; the capture schemas live under
+# rsc/schema/dashboard/.
 
 set -euo pipefail
 

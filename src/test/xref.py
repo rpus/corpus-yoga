@@ -1,43 +1,18 @@
 #!/usr/bin/env python
 """
-xref.py — Cross-reference table for the repo.
-
-Scans every non-generated file and extracts references to other repo files,
-writing a CSV with one row per reference.
-
-Usage:
-    ./yoga xref [--out <path>]
-
-    Default output: src/test/xref.csv
+xref.py — Cross-reference table for the repo: every non-generated file is scanned
+for references to other repo files; one CSV row per reference.
 
 Output columns
 ──────────────
-    referring_file   Repo-relative path of the file containing the reference.
-    line             Line number (1-based).
-    ref_type         How the reference appears:
-                       import      Python import / from-import
-                       call        Shell execution or Python subprocess/exec call
-                       path_str    String literal containing a repo-relative path
-                       $ref        JSON Schema $ref value
-                       $schema     JSON Schema $schema value
-                       comment     Mentioned only in a comment or docstring
-                       doc         Mentioned in markdown prose or HTML comment
-    referred_file    The resolved repo-relative path, including any JSON Pointer
-                     fragment (e.g. rsc/schema/chat-exports/conversations/v5.json#/definitions/TextBlock).
-                     Fragments follow RFC 6901: tokens separated by /, with ~0/~1 escapes.
-    exists           Y if the referred path resolves to an existing file AND any
-                     JSON Pointer fragment navigates successfully within that file.
-                     N if the file is missing or the fragment path does not exist —
-                     both are stale reference signals.
-    line_text        Stripped source line for context (truncated at 120 chars).
+    referring_file   repo-relative path holding the reference
+    line             1-based line number
+    ref_type         import | call | path_str | $ref | $schema | comment | doc
+    referred_file    the resolved repo-relative path, with any RFC 6901 fragment
+    exists           Y | N — N means missing file or dead fragment: a stale reference
+    line_text        stripped source line for context (truncated at 120 chars)
 
-Stale reference detection
-─────────────────────────
-Filter on  exists = N  to find references to files that no longer exist or whose
-JSON Pointer fragments have become invalid — the primary signal for stale comments,
-outdated documentation, dead imports, and broken intra-schema cross-references.
-
-    ./yoga xref && awk -F, '$5=="N"' src/test/xref.csv
+Stale references:  ./yoga xref && awk -F, '$5=="N"' src/test/xref.csv
 """
 
 import argparse

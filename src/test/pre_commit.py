@@ -751,6 +751,16 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
             if unadvertised else None)
+        # Uniform SHAPE, enforced (2026-07-16): a --help is a man entry — name,
+        # what, usage, flags — and fits one screen. Length is the cheapest proxy
+        # a gate can hold; the essays this bound evicted live on in code
+        # comments and changelogs, where they belong.
+        if not c['target'].endswith('cli.py'):
+            # cli.py-targeted rows (commands, completions) answer --help with the
+            # whole derived surface — their help IS the product, unbounded by design
+            n_lines = len(help_text.rstrip().splitlines())
+            run(f'cli: {c["command"]}: help fits one screen (≤20 lines)', n_lines <= 20,
+                f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 20 else None)
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. The
     # 2026-07-15 lesson: a '(--a|--b)' usage leaked '--b)' through flags_of and
     # the installed file failed to load, silently costing completion entirely;

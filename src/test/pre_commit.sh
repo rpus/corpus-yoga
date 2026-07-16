@@ -1,28 +1,15 @@
 #!/usr/bin/env bash
-# Pre-commit hook wrapper. Install with:
-#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
+# pre_commit.sh (yoga check) — the three-tier check suite; also the pre-commit hook.
 #
 # Usage:
-#   src/test/pre_commit.sh
-#   src/test/pre_commit.sh --fix   # run all fix commands and stage with git add -u
+#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command, stages with git add -u
+#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install (itself gated)
 #
-# Strictness is branch-aware IN HOOK CONTEXT ONLY (invoked as 'pre-commit' via the
-# symlink): check failures veto a commit only on the default branch — a feature
-# branch may commit work-in-progress, its PR review is the gate that matters.
-# Manual runs ('pre_commit.sh') always exit non-zero on failure, so scripts and CI
-# read an honest status. Two things block on EVERY branch: the idempotence check
-# (an unstable committed log would churn on every subsequent commit) and a run
-# that could not execute at all (nothing verified — nothing to be advisory about).
-# (Surviving a failing run instead of dying at it also means the run still stages
-# its regenerated artifacts and still gets idempotence-checked.)
-#
-# The wrapper also gates its own installation: pre-commit lives up to its name
-# only as the installed hook, so a run where .git/hooks/pre-commit is not the
-# load-bearing symlink fails with the install one-liner. The state is
-# machine-local, so it cannot be a committed-tier check (that log is
-# byte-identical on any clone) — it gates here, in the machine-facing wrapper.
-# In hook context the probe passes by construction, unless a drifted COPY is
-# running, which rightly fails itself.
+# Tiers: code + schema are deterministic on any clone (the committed log carries
+# only these); data is machine-local, advisory. As the installed hook, failures
+# veto only on the default branch; manual runs always exit non-zero on failure.
+# Idempotence violations and a run that could not execute block on every branch.
+# Read a failure via: git diff --cached src/test/pre_commit.log
 
 set -euo pipefail
 

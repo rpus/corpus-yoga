@@ -1,36 +1,17 @@
 #!/usr/bin/env bash
-# RUNME.sh — Process all Claude data exports.
-#
-# Runs three pipelines against their sibling input directories (filesystem order):
-#
-#   browser-captures input/<provider>/chat/browser-{API,DOM}/  Per-conversation captures (written by `yoga browser capture`):
-#                                           claude/ live API JSON (validated + projected to markdown);
-#                                           gemini/ DOM-scraped markdown (terminal artifact — no API, nothing to validate)
-#   chat-exports     input/claude/chat/bulk-export/      claude.ai bulk exports, conversations.json etc. (you unzip downloads here)
-#   code-agents      input/claude/code/machine-transport/       Claude Code CLI sessions, from the repo-owned store (<room>/<project>/;
-#                                           populated by `yoga agent capture --all` — the pipeline never reads
-#                                           the harness-owned ~/.claude/projects)
-#
-# Any input/ entry may instead be a hand-made symlink, to keep the data outside the clone.
-#
-# Each pipeline validates its inputs against all schema versions, then (for chat-exports)
-# extracts files and renders each batch's presentation pages under cache/. The corpus
-# dashboard page (output/dashboard/presentation/index.html) is NOT a pipeline product:
-# `yoga dashboard present` renders it, free, from output/markdown + the durable
-# output/dashboard/ captures.
+# RUNME.sh (yoga run) — process what input/ already holds; never acquire.
+# Three pipelines (browser-captures, chat-exports, code-agents) each validate their
+# inputs against all schema versions, then extract, project, and present.
+# Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
 #
 # Usage:
-#   ./RUNME.sh                                      # all pipelines, processing what input/ holds
-#   ./RUNME.sh --plan                               # print the ordered step plan; run nothing
-#   ./RUNME.sh --only <pipeline>                    # one pipeline: browser-captures | chat-exports | code-agents
-#   ./RUNME.sh --compare-scrape                     # also compare the claude projection against a fresh DOM scrape
+#   ./RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
+#     --plan            print the ordered step plan; run nothing
+#     --only <p>        one pipeline: browser-captures | chat-exports | code-agents
+#     --compare-scrape  also compare the claude projection against a fresh DOM scrape
 #
-# Acquisition is not this script's job: `yoga browser capture` sweeps the browser
-# providers into input/ (Safari; claude API, gemini DOM), `yoga agent capture` the
-# code sessions, `yoga dashboard capture` the paid model readings. Run processes.
-#
-# After running, check results with:
-#   src/test/pre_commit.sh            # full check suite; read via: git diff --cached src/test/pre_commit.log
+# Inputs live under input/<provider>/<channel>/<capture>/ (any entry may be a
+# hand-made symlink); --plan names each pipeline's exact steps. After: yoga check.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
