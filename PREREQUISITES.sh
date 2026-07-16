@@ -222,9 +222,9 @@ check_git_hook() {
 
 check_signature_hook() {
   # A convention, not a gate: it stamps the Signature: trailer and strips the model
-  # co-author (rsc/COMMITS.md). Absent, commits simply carry no signature — never a
-  # failure, so this reports informationally even when installed.
-  echo "signature hook (stamps Signature: machine/provider/session; strips the model co-author — rsc/COMMITS.md)"
+  # co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry
+  # no signature — never a failure, so this reports informationally even when installed.
+  echo "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
   local script="$SCRIPT_DIR/src/test/prepare_commit_msg.sh" hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
     info "not a git clone — no hook to install"
@@ -245,6 +245,62 @@ check_signature_hook() {
   else
     info "not installed — ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
   fi
+}
+
+check_forge() {
+  # The forge's merge settings decide how main's history is composed, yet they live
+  # on the server: no clone can see them and no git config holds them. rsc/forge.csv
+  # is the declaration; this is the only thing that reconciles it with reality.
+  # Network- and auth-dependent, so it NEVER fails the run — unverifiable is
+  # reported, never vetoed (the deterministic gate must stay offline-reproducible,
+  # which is why this check lives here and not in yoga check).
+  echo "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
+  local declared="$SCRIPT_DIR/rsc/forge.csv"
+  if [[ ! -f "$declared" ]]; then
+    info "no rsc/forge.csv — nothing declared to reconcile"
+    return
+  fi
+  if ! command -v gh &>/dev/null; then
+    info "gh not found — settings unverified (install: brew install gh)"
+    return
+  fi
+  local live
+  # quoted: {owner}/{repo} are gh's own placeholders, resolved from this checkout's
+  # remote — never brace-expansion, and never a hard-coded (fork-specific) slug
+  if ! live="$(cd "$SCRIPT_DIR" && gh api "repos/{owner}/{repo}" 2>/dev/null)"; then
+    info "forge unreachable — settings unverified (offline, no GitHub remote, or: gh auth login)"
+    return
+  fi
+  # Each drifting row carries its OWN remedy, filled in: the repo's slug from the live
+  # response, and the single setting at issue. A finding that points at a command rail
+  # elsewhere is a button with its reason torn off — the atom is reason + run.
+  local out
+  out="$(printf '%s' "$live" | python3 -c '
+import csv, json, sys
+live = json.load(sys.stdin)
+slug = live.get("full_name") or "{owner}/{repo}"
+def norm(v):
+    return "true" if v is True else "false" if v is False else str(v)
+for r in csv.DictReader(open(sys.argv[1])):
+    key, want = r["setting"], r["value"]
+    got = norm(live.get(key))
+    if got == want:
+        print("OK", key, want, "", sep="\t")
+    else:
+        flag = "-F" if want in ("true", "false") else "-f"   # -F types booleans, -f strings
+        print("DRIFT", key, "declared " + want + ", live " + got,
+              "gh api -X PATCH repos/" + slug + " " + flag + " " + key + "=" + want, sep="\t")
+' "$declared" 2>/dev/null)" || { info "could not compare — rsc/forge.csv unreadable or malformed"; return; }
+  local status key detail remedy
+  while IFS=$'\t' read -r status key detail remedy; do
+    [[ -z "$status" ]] && continue
+    if [[ "$status" == "OK" ]]; then
+      ok "$key: $detail"
+    else
+      info "$key: $detail"
+      echo "    → run: $remedy"
+    fi
+  done <<< "$out"
 }
 
 check_pipeline_inputs() {
@@ -314,6 +370,7 @@ main() {
   check_cli
   check_git_hook
   check_signature_hook
+  check_forge
   check_pipeline_inputs
   notes
 

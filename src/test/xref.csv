@@ -4,10 +4,12 @@ PREREQUISITES.sh,148,comment,rsc/machines/README.md,Y,# The binding names this m
 PREREQUISITES.sh,152,path_str,rsc/machines,Y,"local binding=""$SCRIPT_DIR/rsc/machines"""
 PREREQUISITES.sh,166,path_str,rsc/machines,Y,"for f in ""$SCRIPT_DIR/rsc/machines""/*.csv; do"
 PREREQUISITES.sh,201,call,src/test/pre_commit.sh,Y,"local script=""$SCRIPT_DIR/src/test/pre_commit.sh"" hook link dir"
-PREREQUISITES.sh,225,comment,rsc/COMMITS.md,Y,"# co-author (rsc/COMMITS.md). Absent, commits simply carry no signature — never a"
+PREREQUISITES.sh,225,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
 PREREQUISITES.sh,228,call,src/test/prepare_commit_msg.sh,Y,"local script=""$SCRIPT_DIR/src/test/prepare_commit_msg.sh"" hook link dir"
-PREREQUISITES.sh,303,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements.txt"" \"
-PREREQUISITES.sh,309,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
+PREREQUISITES.sh,252,comment,rsc/forge.csv,Y,# on the server: no clone can see them and no git config holds them. rsc/forge.csv
+PREREQUISITES.sh,258,path_str,rsc/forge.csv,Y,"local declared=""$SCRIPT_DIR/rsc/forge.csv"""
+PREREQUISITES.sh,359,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements.txt"" \"
+PREREQUISITES.sh,365,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
 README.md,24,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,24,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,26,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
@@ -19,16 +21,19 @@ README.md,41,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<famil
 README.md,42,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,42,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,43,doc,rsc/machines,Y,- machine manifests: `rsc/machines/` (`yoga machine`)
-README.md,44,doc,src/test/pre_commit.py,Y,- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref`
-README.md,51,doc,src/main/browser-captures/export.command,Y,(or the macOS Shortcut: `open -a Terminal .../src/main/browser-captures/export.command`
-README.md,59,doc,RUNME.sh,Y,"`jq` and Python 3; `./RUNME.sh` creates the shared venv (`~/venvs/general`,"
-README.md,62,doc,src/test/pre_commit.sh,Y,required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
-README.md,63,doc,rsc/COMMITS.md,Y,"signature hook (convention, optional; `rsc/COMMITS.md`):"
-README.md,64,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
-README.md,71,doc,rsc/COMMITS.md,Y,session); grammar and rationale in `rsc/COMMITS.md`.
-README.md,75,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,75,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,81,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,44,doc,src/test/prepare_commit_msg.sh,Y,- commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
+README.md,45,doc,rsc/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles t"
+README.md,46,doc,src/test/pre_commit.py,Y,- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref`
+README.md,53,doc,src/main/browser-captures/export.command,Y,(or the macOS Shortcut: `open -a Terminal .../src/main/browser-captures/export.command`
+README.md,61,doc,RUNME.sh,Y,"`jq` and Python 3; `./RUNME.sh` creates the shared venv (`~/venvs/general`,"
+README.md,64,doc,src/test/pre_commit.sh,Y,required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
+README.md,66,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
+README.md,71,doc,rsc/forge.csv,Y,"settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a"
+README.md,76,doc,rsc/forge.csv,Y,"clone can see them, so they are declared as data in `rsc/forge.csv`: main carries"
+README.md,82,doc,src/test/prepare_commit_msg.sh,Y,"grammar and rationale in the hook's header, `src/test/prepare_commit_msg.sh`."
+README.md,86,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,86,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,92,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,8,comment,RUNME.sh,Y,#   ./RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
 RUNME.sh,76,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
 RUNME.sh,158,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
@@ -52,11 +57,6 @@ rsc/CALCULUS.md,278,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expect
 rsc/CALCULUS.md,283,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
 rsc/CALCULUS.md,300,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 rsc/CALCULUS.md,323,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
-rsc/COMMITS.md,8,doc,rsc/machines,Y,"- **machine** — this machine's binding (`rsc/machines/`, its self-name), read at"
-rsc/COMMITS.md,46,doc,src/test/prepare_commit_msg.sh,Y,"Stamped by `src/test/prepare_commit_msg.sh` (the `prepare-commit-msg` hook, a"
-rsc/COMMITS.md,47,doc,src/test/pre_commit.sh,Y,"sibling of `src/test/pre_commit.sh`). Install (a convention, not a gate — so"
-rsc/COMMITS.md,50,doc,src/test/prepare_commit_msg.sh,Y,ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
-rsc/COMMITS.md,52,doc,PREREQUISITES.sh,Y,Install state is reported by `./PREREQUISITES.sh` and `./yoga machine`.
 rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture api"
 rsc/cli/README.md,4,doc,src/main/cli/cli.py,Y,`src/main/cli/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
 rsc/cli/README.md,7,doc,rsc/CALCULUS.md,Y,(L5 of `rsc/CALCULUS.md`). The CLI adds no behaviour of its own: `./yoga <command> [args...]`
@@ -502,7 +502,10 @@ src/test/pre_commit.sh,83,path_str,src/test/pre_commit.log,Y,"before=""$(_mtime 
 src/test/pre_commit.sh,84,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
 src/test/pre_commit.sh,84,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" || rc=$?"
 src/test/pre_commit.sh,85,path_str,src/test/pre_commit.log,Y,"after=""$(_mtime ""$REPO_DIR/src/test/pre_commit.log"")"""
-src/test/prepare_commit_msg.sh,3,comment,rsc/COMMITS.md,Y,"# drafting SIGNATURE, and strip the volatile model co-author. Grammar: rsc/COMMITS.md."
+src/test/prepare_commit_msg.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
+src/test/prepare_commit_msg.sh,33,comment,rsc/forge.csv,Y,"# messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by"
+src/test/prepare_commit_msg.sh,34,comment,PREREQUISITES.sh,Y,# ./PREREQUISITES.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+src/test/prepare_commit_msg.sh,37,comment,src/test/prepare_commit_msg.sh,Y,#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
 src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.title_matches_key.py,Y,Usage: python src/test/repairs/naming.title_matches_key.py <schema>

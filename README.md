@@ -41,6 +41,8 @@ prefix-gated store.
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
 - machine manifests: `rsc/machines/` (`yoga machine`)
+- commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
+- the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles them against the live forge and prints each drift's own `gh` remedy)
 - the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref`
 
 ## Getting data
@@ -60,15 +62,24 @@ Code sessions: `yoga agent capture --all`. Paid model readings:
 override via `VENV=`). Browser capture needs macOS + Safari. The repo ships no
 data — `input/ cache/ output/ logs/` are git-ignored. Install the hook (gated,
 required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
-signature hook (convention, optional; `rsc/COMMITS.md`):
+signature hook (convention, optional; grammar in its own header):
 `ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 
 ## Contributing
 
-Squash-only PRs, enforced by repository settings: main carries one narrated
-commit per landed idea. If a PR can't be squashed, it was not atomic. Each commit
-is signed `machine/provider/session` (the model dropped — it's derivable from the
-session); grammar and rationale in `rsc/COMMITS.md`.
+Before merging anything, run `./yoga prerequisites`: it reconciles the forge's
+settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a
+reviewer or a fresh cloner can see what the forge actually does to a merge without
+having to merge one to find out.
+
+Squash-only PRs, enforced by forge settings — which live on the server where no
+clone can see them, so they are declared as data in `rsc/forge.csv`: main carries
+one narrated commit per landed idea. If a PR can't be squashed, it was not atomic.
+The squash body is the branch commit message(s) (`squash_merge_commit_message:
+COMMIT_MESSAGES`), so **narrate in the commit** — the pull request description is
+review conversation, not the record. Each commit is signed
+`machine/provider/session` (the model dropped — it's derivable from the session);
+grammar and rationale in the hook's header, `src/test/prepare_commit_msg.sh`.
 
 ## The public surface
 

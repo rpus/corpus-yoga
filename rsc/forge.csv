@@ -1,0 +1,7 @@
+setting,value,note
+allow_squash_merge,true,"Squash-only: main carries one narrated commit per landed idea. Not merely a history style — it is the ENFORCEMENT of atomicity, collapsing a sloppy branch into the one commit the idea deserved. If a PR can't be squashed, it was not atomic."
+allow_merge_commit,false,"No merge commits. One would enshrine a branch's WIP, bubble and all, and surrender one-narrated-commit-per-idea — even though it preserves per-commit trailers more perfectly than a squash can. The guardrail is worth more than the provenance of scaffolding."
+allow_rebase_merge,false,"No rebase merges: they would propagate a sloppy branch onto main commit by commit. Under the one-commit-per-PR discipline a rebase lands what a squash lands, minus the guardrail."
+squash_merge_commit_title,PR_TITLE,The squash SUBJECT is the pull request title.
+squash_merge_commit_message,COMMIT_MESSAGES,"The squash BODY is the branch commit message(s), so their trailers reach main: the Signature survives (grammar: src/test/prepare_commit_msg.sh). Narrate in the COMMIT — the pull request description is review conversation, not the record. PR_BODY — live and undeclared until 2026-07-16 — composed the body from the PR description instead and discarded the commit message with every trailer on it; no signature ever reached main. Co-authored-by was the sole survivor, because the forge special-cases that one trailer and re-appends it."
+delete_branch_on_merge,true,The branch is scaffolding; the squashed commit is the record.
