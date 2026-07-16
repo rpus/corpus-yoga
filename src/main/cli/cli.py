@@ -127,8 +127,7 @@ def render_synopsis(cmds: list[dict], name: str | None = None) -> str:
         return '\n'.join(out)
     out = ['yoga(1) — claude-export-yoga', '', 'SYNOPSIS',
            '  yoga',
-           '  yoga <command> -h|--help',
-           '  yoga commands [<command>]']
+           '  yoga <command> -h|--help']
     for c in cmds:
         out += [f'  {f}' for f in _forms(c)]
     out.append('')

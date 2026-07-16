@@ -363,7 +363,7 @@ src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,One curated table (rsc/cli/com
 src/main/cli/cli.py,13,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 src/main/cli/cli.py,30,comment,RUNME.sh,Y,"the table, print the calculus, and generate completion before ./RUNME.sh has"
 src/main/cli/cli.py,85,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
-src/main/cli/cli.py,203,comment,rsc/cli/commands.csv,Y,yoga completions [--write] — emit zsh tab-completion derived from rsc/cli/commands.csv
+src/main/cli/cli.py,202,comment,rsc/cli/commands.csv,Y,yoga completions [--write] — emit zsh tab-completion derived from rsc/cli/commands.csv
 src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<room>/<pr
