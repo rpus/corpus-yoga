@@ -107,7 +107,7 @@ def render_synopsis(cmds: list[dict]) -> str:
     inside one form and stays put."""
     out = ['yoga(1) — claude-export-yoga', '', 'SYNOPSIS',
            '  yoga',
-           '  yoga <command> --help']
+           '  yoga <command> -h|--help']
     for c in cmds:
         if not c['usage']:
             out.append(f'  yoga {c["command"]}')

@@ -370,6 +370,7 @@ def main():
     rej.add_argument('concept')
     rej.add_argument('--because', default='', help='reason, kept as a # comment')
     sub.add_parser('build', help='build output/markdown/index.md from accepted.txt')
+    sub.add_parser('status', help='the disposal-state report (also what a bare invocation prints)')
     args = ap.parse_args()
 
     accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)

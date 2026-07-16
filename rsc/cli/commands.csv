@@ -6,14 +6,14 @@ calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this tabl
 check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the deterministic ones
 commands,src/main/cli/cli.py,,project L5,,List every command's syntax — a SYNOPSIS derived from this table (just syntax; one invocation form per line)
 completions,src/main/cli/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table
-dashboard,src/main/chat-exports/dashboard.sh,capture [--conversations <path>] [--only semantic-concepts|chat-categories] | present,capture project,,Refresh output/dashboard/ — the paid model capture of semantic-concepts + chat-categories; present renders the corpus page free (bare: status)
-indexing,src/main/model/build_index.py,candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [--because <why>] | build,capture curate project,,Curate and build the book index over output/indexing/ (bare: status)
+dashboard,src/main/chat-exports/dashboard.sh,status | capture [--conversations <path>] [--only semantic-concepts|chat-categories] | present,capture project,,Refresh output/dashboard/ — the paid model capture of semantic-concepts + chat-categories; present renders the corpus page free (bare: status)
+indexing,src/main/model/build_index.py,status | candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [--because <why>] | build [--markdown <dir>] [--accepted <file>] [--rejected <file>],capture curate project,,Curate and build the book index over output/indexing/ (bare: status)
 library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-library dir naming across vintages (dry run by default)
 machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)
-memories,src/main/chat-exports/accumulate_memories.py,,accumulate normalise project L1 L4,accumulate_memories,Deposit every distinct chat-memory state; render the timeline
+memories,src/main/chat-exports/accumulate_memories.py,[--chat-exports-cache <dir>] [--memories-output <dir>] [--markdown <dir>],accumulate normalise project L1 L4,accumulate_memories,Deposit every distinct chat-memory state; render the timeline
 model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues
 prerequisites,PREREQUISITES.sh,,L8,,Read-only report of what this machine can run
 run,RUNME.sh,[--plan] [--only <pipeline>] [--compare-scrape],atomise validate supersession accumulate project,,Run every pipeline against its input/ inputs — processing only; acquisition lives under browser/agent/dashboard capture. --plan previews any parametrised call
-server,src/main/model/serve_markdown.sh,start [--markdown <dir>] [--port <n>] [--daemon] | stop | ensure-assets,project,,Serve the markdown corpus locally with LaTeX rendering and turn deep links (bare — status; --markdown defaults to output/markdown); ensure-assets fetches the render libs into cache/serve_markdown
-supersede,src/main/chat-exports/compare_batches.py,[--browser-api <dir>],supersession L3,compare_batches,Do later bulk exports supersede earlier ones? Computed; never assumed
-xref,src/test/xref.py,,validate,,Cross-reference integrity of every committed artifact
+server,src/main/model/serve_markdown.sh,status | start [--markdown <dir>] [--port <n>] [--daemon] | stop | ensure-assets,project,,Serve the markdown corpus locally with LaTeX rendering and turn deep links (bare — status; --markdown defaults to output/markdown); ensure-assets fetches the render libs into cache/serve_markdown
+supersede,src/main/chat-exports/compare_batches.py,[--chat-exports-cache <dir>] [--bulk-exports <dir>] [--browser-api <dir>] [--memories-output <dir>] [--summaries-output <dir>],supersession L3,compare_batches,Do later bulk exports supersede earlier ones? Computed; never assumed
+xref,src/test/xref.py,[--out <path>],validate,,Cross-reference integrity of every committed artifact

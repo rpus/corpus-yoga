@@ -714,20 +714,43 @@ def check_cli_surface(run) -> None:
             missing = [f for f in flags if f not in text]
             run(f'cli: {c["command"]}: advertised flags exist', not missing,
                 (where + ', '.join(missing)) if missing else None)
+        # the target's own --help is the authority on its live surface — fetched
+        # once here for both directions of the honesty check
+        runner = REPO_ROOT / 'src' / 'run_python_script.sh'
+        help_cmd = ([str(runner), str(target), '--help'] if target.suffix == '.py'
+                    else [str(target), '--help'])
+        proc = subprocess.run(help_cmd, capture_output=True, text=True, cwd=REPO_ROOT)
+        help_text = proc.stdout + proc.stderr
         if verbs:
             # verbs are ordinary words (build, accept), so a source grep is vacuous —
-            # the target's own --help is the authority on what it dispatches (argparse
-            # renders the live subparsers; the shell scripts print their real usage)
-            runner = REPO_ROOT / 'src' / 'run_python_script.sh'
-            help_cmd = ([str(runner), str(target), '--help'] if target.suffix == '.py'
-                        else [str(target), '--help'])
-            proc = subprocess.run(help_cmd, capture_output=True, text=True, cwd=REPO_ROOT)
-            help_text = proc.stdout + proc.stderr
+            # argparse renders the live subparsers; the shell scripts print their real usage
             missing_v = [v for v in verbs
                          if not re.search(rf'\b{re.escape(v)}\b', help_text)]
             run(f'cli: {c["command"]}: advertised verbs in target --help', not missing_v,
                 f'`{c["target"]} --help` does not mention: {", ".join(missing_v)}'
                 if missing_v else None)
+        # The REVERSE direction (2026-07-16): every flag the target itself declares
+        # must be advertised in the usage cell. The one-way check let the table
+        # under-tell — `yoga commands` rendered a synopsis hiding memories' three
+        # flags, xref's --out, supersede's four — and nothing cared until a reader
+        # did. Harvest only DECLARING lines: argparse option lines (leading
+        # whitespace, then --flag) and invocation lines naming the command or
+        # target, with trailing '# …' comments stripped (prose cites foreign
+        # flags: `git diff --cached`). Under-harvest is safe — the claim is
+        # real ⊆ advertised, so a missed declaration weakens, never falsifies.
+        real: set[str] = set()
+        for line in help_text.splitlines():
+            m = re.match(r'\s+(--[a-z][\w-]*)', line)
+            if m:
+                real.add(m.group(1))
+                continue
+            if f'yoga {c["command"]} ' in line or f'{target.name} ' in line or '$0' in line:
+                real.update(re.findall(r'--[a-z][\w-]+', line.split(' # ')[0]))
+        real.discard('--help')
+        unadvertised = sorted(real - set(flags))
+        run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
+            f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
+            if unadvertised else None)
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. The
     # 2026-07-15 lesson: a '(--a|--b)' usage leaked '--b)' through flags_of and
     # the installed file failed to load, silently costing completion entirely;
