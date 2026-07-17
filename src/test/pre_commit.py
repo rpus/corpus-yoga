@@ -4,7 +4,7 @@ pre_commit.py — Pre-commit checks for the repo.
 
 Usage (direct):
     src/test/pre_commit.sh
-    src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u
+    src/test/pre_commit.sh --fix   # run all fix commands; stages nothing
 
 As a git hook, install the wrapper:
     ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
@@ -898,7 +898,7 @@ def main():
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument('--fix', action='store_true',
-                    help='Run all fix commands and stage results with git add -u')
+                    help='Run all fix commands; stages nothing — review and stage yourself')
     args = ap.parse_args()
 
     results = []
@@ -1228,8 +1228,8 @@ def main():
         # Final: the gate's actual verdict.
         if gate_idx:
             counts = {sec: sum(1 for i in gate_idx if sections[i] == sec) for sec in gate_sections}
-            out.write('\nFAIL — these gate: the hook vetoes a commit on the default branch, '
-                      'and a manual run exits non-zero:\n')
+            out.write('\nFAIL — these gate: the hook vetoes the commit, and any run '
+                      'exits non-zero:\n')
             for sec in gate_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
             gate_fails = [(results[i][0], results[i][2]) for i in gate_idx]
@@ -1248,8 +1248,8 @@ def main():
         # blanket "or run with --fix to apply and stage automatically": it fired
         # even on a clean PASS (lines includes non-gating advisories), sat after
         # the verdict where its "or" had no antecedent, and over-promised — the
-        # surviving items here are cmd-less curation advice --fix never executes,
-        # so it would `git add -u` without disposing them. --fix stays available
+        # surviving items here are cmd-less curation advice --fix never executes.
+        # It also offered to stage, which --fix no longer does at all. --fix stays available
         # for anyone who invokes it deliberately (see --help); it just isn't
         # advertised after every run.
         return out.getvalue(), lines
@@ -1280,15 +1280,24 @@ def main():
             for g in gs:
                 print(f'      ↳ {g}')
         print()
-        subprocess.run(['git', 'add', '-u'], cwd=REPO_ROOT)
-        print('Staged with git add -u — re-run pre_commit.sh to verify.')
+        # Nothing is staged here, deliberately. `git add` cannot be undone: it
+        # cannot tell "the tool staged this" from "this was already staged,
+        # differently", so a blanket `git add -u` over a hunk staged with
+        # `git add -p` destroys that state with nothing to restore it from. The
+        # fixes are in the worktree; what enters the commit stays the operator's
+        # to say.
+        print('Fixes applied to the worktree — nothing staged. Review with '
+              '`git diff`, stage what you meant, then re-run pre_commit.sh to verify.')
 
     # The data tier is machine-local ("not recorded"): a stale capture on this
     # machine is a fact about its data, not about the change being committed.
     # Data failures are reported in full above but only code/schema/score
-    # failures veto the exit status — otherwise local data drift fails every
-    # run, including on trunk where the hook's veto is strict (the hook's
-    # branch-awareness solves feature branches; this solves the tier).
+    # failures veto the exit status — otherwise local data drift would fail every
+    # run everywhere. This tier rule is now the ONLY thing standing between local
+    # data drift and a blocked commit: the veto used to soften itself on feature
+    # branches, and no longer does (2026-07-17 — a check that reads your branch
+    # name to decide how much to mean it). What is machine-local never gates;
+    # what is deterministic always does. The axis is the tier, not the branch.
     gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
     sys.exit(1 if gating else 0)
 

@@ -219,7 +219,10 @@ check_cli() {
 }
 
 check_git_hook() {
-  echo "pre-commit hook (the repo's commit gate; src/test/pre_commit.sh fails any run until installed)"
+  # The one voice for this fact: pre_commit.sh used to probe its own installation
+  # too, and say so in its own words. Two probes, one fact — and its copy was
+  # downgraded to advice on the very branches where nothing was vetting at all.
+  echo "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
   local script="$SCRIPT_DIR/src/test/pre_commit.sh" hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"

@@ -246,7 +246,7 @@ main() {
       esac
     done
   fi
-  echo "Run src/test/pre_commit.sh, then: git diff --cached src/test/pre_commit.log"
+  echo "Run src/test/pre_commit.sh, then: git diff src/test/pre_commit.log"
   echo "Log: $LOG_FILE"
 }
 

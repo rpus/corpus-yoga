@@ -60,8 +60,9 @@ Code sessions: `yoga agent capture --all`. Paid model readings:
 
 `jq` and Python 3; `./RUNME.sh` creates the shared venv (`~/venvs/general`,
 override via `VENV=`). Browser capture needs macOS + Safari. The repo ships no
-data — `input/ cache/ output/ logs/` are git-ignored. Install the hook (gated,
-required): `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
+data — `input/ cache/ output/ logs/` are git-ignored. Install the hook (required;
+`yoga prerequisites` reports whether it is):
+`ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
 signature hook (convention, optional; grammar in its own header):
 `ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 
