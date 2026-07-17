@@ -31,8 +31,10 @@ the table, print the calculus, and generate completion before ./RUNME.sh has
 run. Adding a third-party import here would silently break that.
 """
 import csv
+import datetime
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -188,6 +190,12 @@ def completion_script(cmds: list[dict]) -> str:
     return '\n'.join(lines)
 
 
+def _stamp() -> str:
+    """Local wall-clock, filename-safe — this names a backup a human will look for
+    beside their own ~/.zshrc, so it reads in their timezone, not UTC."""
+    return datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+
+
 def tilde(p: Path) -> str:
     """Home-relative rendering: '~/dev/...' where p is under $HOME, else
     absolute. The printed ~ lines are portable across machines and users,
@@ -225,8 +233,19 @@ def install_completion() -> int:
         lines[idx:idx] = ['# yoga tab-completion (regenerate: ./yoga completions --write)',
                           fpath_line, '']
         where = f'inserted at line {idx + 1}, above compinit'
+    # A timestamped copy before the write. This is the repo's only write outside
+    # its own tiers and the store, and ~/.zshrc is the user's file, not ours: a
+    # careful edit of someone else's file still owes them an undo. Timestamped, so
+    # a later install cannot overwrite an earlier one's evidence. Reached only when
+    # a change is actually being made — the already-wired path returns above, so
+    # re-running never litters.
+    note = ''
+    if zshrc.exists():
+        backup = zshrc.with_name(f'.zshrc.pre-yoga-{_stamp()}')
+        shutil.copy2(zshrc, backup)
+        note = f'\n  a copy of the original is at {tilde(backup)}'
     zshrc.write_text('\n'.join(lines) + '\n')
-    print(f'{tilde(zshrc)}: {where}')
+    print(f'{tilde(zshrc)}: {where}{note}')
     print(f'    {fpath_line}')
     print(f"→ start a new shell (exec zsh). Optional, for yoga from anywhere:\n"
           f"    alias yoga='{tilde(REPO / 'yoga')}'")

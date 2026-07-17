@@ -2,13 +2,13 @@ referring_file,line,ref_type,referred_file,exists,line_text
 PREREQUISITES.sh,11,comment,PREREQUISITES.sh,Y,#   ./PREREQUISITES.sh
 PREREQUISITES.sh,148,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
 PREREQUISITES.sh,152,path_str,rsc/machine/machines.csv,Y,"local registry=""$SCRIPT_DIR/rsc/machine/machines.csv"""
-PREREQUISITES.sh,206,call,src/test/pre_commit.sh,Y,"local script=""$SCRIPT_DIR/src/test/pre_commit.sh"" hook link dir"
-PREREQUISITES.sh,230,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-PREREQUISITES.sh,233,call,src/test/prepare_commit_msg.sh,Y,"local script=""$SCRIPT_DIR/src/test/prepare_commit_msg.sh"" hook link dir"
-PREREQUISITES.sh,257,comment,rsc/forge.csv,Y,# on the server: no clone can see them and no git config holds them. rsc/forge.csv
-PREREQUISITES.sh,263,path_str,rsc/forge.csv,Y,"local declared=""$SCRIPT_DIR/rsc/forge.csv"""
-PREREQUISITES.sh,364,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements.txt"" \"
-PREREQUISITES.sh,370,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
+PREREQUISITES.sh,223,call,src/test/pre_commit.sh,Y,"local script=""$SCRIPT_DIR/src/test/pre_commit.sh"" hook link dir"
+PREREQUISITES.sh,247,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+PREREQUISITES.sh,250,call,src/test/prepare_commit_msg.sh,Y,"local script=""$SCRIPT_DIR/src/test/prepare_commit_msg.sh"" hook link dir"
+PREREQUISITES.sh,274,comment,rsc/forge.csv,Y,# on the server: no clone can see them and no git config holds them. rsc/forge.csv
+PREREQUISITES.sh,280,path_str,rsc/forge.csv,Y,"local declared=""$SCRIPT_DIR/rsc/forge.csv"""
+PREREQUISITES.sh,381,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements.txt"" \"
+PREREQUISITES.sh,387,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
 README.md,24,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,24,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,26,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
@@ -369,8 +369,8 @@ src/main/cli/cli.py,5,comment,rsc/cli/commands.csv,Y,One curated table (rsc/cli/
 src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
 src/main/cli/cli.py,13,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 src/main/cli/cli.py,30,comment,RUNME.sh,Y,"the table, print the calculus, and generate completion before ./RUNME.sh has"
-src/main/cli/cli.py,85,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
-src/main/cli/cli.py,239,comment,rsc/cli/commands.csv,Y,yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv
+src/main/cli/cli.py,87,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
+src/main/cli/cli.py,258,comment,rsc/cli/commands.csv,Y,yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv
 src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<machine>/

@@ -151,6 +151,23 @@ check_machine() {
   local rel="${binding#"$SCRIPT_DIR/"}"
   local registry="$SCRIPT_DIR/rsc/machine/machines.csv"
   echo "machine (its own name for itself — never shared, never transported)"
+  # The pre-move location, built in pieces — for the very reason the rooted
+  # binding no longer needs to be. This path must exist on NO clean clone, so a
+  # committed literal naming it would be a dangling reference, and would resolve
+  # one way on a machine that migrated and another on one that had not. Reported
+  # first: on an un-migrated machine it is the answer to every other line here.
+  # Transitional — delete this check once no machine carries the residue.
+  # Split above 'machines', not above 'self.txt': the DIRECTORY vanishes on
+  # migration too, so a literal naming it resolves on an un-migrated machine and
+  # dangles on a migrated one — machine-dependent by the same rule. (The first
+  # draft of this check split one component too low and xref said so.) A fragment
+  # beginning '/' is never read as a repo path, so this names nothing that can go.
+  local legacy="$SCRIPT_DIR/rsc"; legacy+="/machines/self.txt"
+  if [[ -f "$legacy" ]]; then
+    local lrel="${legacy#"$SCRIPT_DIR/"}"
+    info "legacy binding at $lrel — the binding moved to $rel (2026-07-17); migrate it:"
+    echo "    → run: mv $lrel $rel && rmdir $(dirname "$lrel")"
+  fi
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
