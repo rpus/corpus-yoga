@@ -1,15 +1,15 @@
 referring_file,line,ref_type,referred_file,exists,line_text
 PREREQUISITES.sh,11,comment,PREREQUISITES.sh,Y,#   ./PREREQUISITES.sh
-PREREQUISITES.sh,148,comment,rsc/machines/README.md,Y,# The binding names this machine's room (see rsc/machines/README.md). The
-PREREQUISITES.sh,152,path_str,rsc/machines,Y,"local binding=""$SCRIPT_DIR/rsc/machines"""
-PREREQUISITES.sh,166,path_str,rsc/machines,Y,"for f in ""$SCRIPT_DIR/rsc/machines""/*.csv; do"
-PREREQUISITES.sh,201,call,src/test/pre_commit.sh,Y,"local script=""$SCRIPT_DIR/src/test/pre_commit.sh"" hook link dir"
-PREREQUISITES.sh,225,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-PREREQUISITES.sh,228,call,src/test/prepare_commit_msg.sh,Y,"local script=""$SCRIPT_DIR/src/test/prepare_commit_msg.sh"" hook link dir"
-PREREQUISITES.sh,252,comment,rsc/forge.csv,Y,# on the server: no clone can see them and no git config holds them. rsc/forge.csv
-PREREQUISITES.sh,258,path_str,rsc/forge.csv,Y,"local declared=""$SCRIPT_DIR/rsc/forge.csv"""
-PREREQUISITES.sh,359,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements.txt"" \"
-PREREQUISITES.sh,365,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
+PREREQUISITES.sh,148,comment,rsc/machine/README.md,Y,# The binding names this machine (rsc/machine/README.md). Its path is built in
+PREREQUISITES.sh,152,path_str,rsc/machine,Y,"local dir=""$SCRIPT_DIR/rsc/machine"""
+PREREQUISITES.sh,155,path_str,rsc/machine/machines.csv,Y,"local registry=""$SCRIPT_DIR/rsc/machine/machines.csv""   # spelt whole: xref resolves it"
+PREREQUISITES.sh,209,call,src/test/pre_commit.sh,Y,"local script=""$SCRIPT_DIR/src/test/pre_commit.sh"" hook link dir"
+PREREQUISITES.sh,233,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+PREREQUISITES.sh,236,call,src/test/prepare_commit_msg.sh,Y,"local script=""$SCRIPT_DIR/src/test/prepare_commit_msg.sh"" hook link dir"
+PREREQUISITES.sh,260,comment,rsc/forge.csv,Y,# on the server: no clone can see them and no git config holds them. rsc/forge.csv
+PREREQUISITES.sh,266,path_str,rsc/forge.csv,Y,"local declared=""$SCRIPT_DIR/rsc/forge.csv"""
+PREREQUISITES.sh,367,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements.txt"" \"
+PREREQUISITES.sh,373,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
 README.md,24,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,24,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,26,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
@@ -20,7 +20,7 @@ README.md,41,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipe
 README.md,41,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
 README.md,42,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,42,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,43,doc,rsc/machines,Y,- machine manifests: `rsc/machines/` (`yoga machine`)
+README.md,43,doc,rsc/machine,Y,"- the machine registry, and this machine's binding to it: `rsc/machine/` (`yoga prerequisites` reports it)"
 README.md,44,doc,src/test/prepare_commit_msg.sh,Y,- commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
 README.md,45,doc,rsc/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles t"
 README.md,46,doc,src/test/pre_commit.py,Y,- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref`
@@ -45,7 +45,7 @@ rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), a
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
 rsc/CALCULUS.md,97,doc,src/main/chat-exports/accumulate_memories.py,Y,(`src/main/chat-exports/accumulate_memories.py`.)
 rsc/CALCULUS.md,104,doc,src/main/code-agents/agent.py,Y,semantics checked: `src/main/code-agents/agent.py` (`yoga agent`) —
-rsc/CALCULUS.md,113,doc,rsc/machines,Y,"`self.txt` binding in `rsc/machines/` — so provenance is spatial and sender-declared, never"
+rsc/CALCULUS.md,113,doc,rsc/machine,Y,"`self.txt` binding in `rsc/machine/` — so provenance is spatial and sender-declared, never"
 rsc/CALCULUS.md,127,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
 rsc/CALCULUS.md,128,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
 rsc/CALCULUS.md,225,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
@@ -70,23 +70,22 @@ rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cach
 rsc/cli/commands.csv,5,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites"
 rsc/cli/commands.csv,6,path_str,src/test/pre_commit.sh,Y,"check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the de"
 rsc/cli/commands.csv,7,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,[<command>],project L5,,Man entries derived from this table: bare, the full SYNOPSIS (one i"
-rsc/cli/commands.csv,8,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,[--write],project L5,,Emit zsh tab-completion derived from this table"
+rsc/cli/commands.csv,8,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,[--write | --install],project L5,,Emit zsh tab-completion derived from this table; --ins"
 rsc/cli/commands.csv,9,path_str,src/main/chat-exports/dashboard.sh,Y,"dashboard,src/main/chat-exports/dashboard.sh,status | capture [--conversations <path>] [--only semantic-concepts|chat-ca"
 rsc/cli/commands.csv,10,path_str,src/main/model/build_index.py,Y,"indexing,src/main/model/build_index.py,status | candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [-"
 rsc/cli/commands.csv,11,path_str,src/main/chat-exports/library.py,Y,"library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-libr"
-rsc/cli/commands.csv,12,path_str,src/main/machine.py,Y,"machine,src/main/machine.py,[--room <name>],validate L2 L8,,Verify this machine against its room manifest (rsc/machines)"
-rsc/cli/commands.csv,13,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,[--chat-exports-cache <dir>] [--memories-output <dir>] [--markdown"
-rsc/cli/commands.csv,14,path_str,src/main/model/gen_model.py,Y,"model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues"
-rsc/cli/commands.csv,17,path_str,src/main/model/serve_markdown.sh,Y,"server,src/main/model/serve_markdown.sh,status | start [--markdown <dir>] [--port <n>] [--daemon] | stop | ensure-assets"
-rsc/cli/commands.csv,18,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--chat-exports-cache <dir>] [--bulk-exports <dir>] [--browser-api <d"
-rsc/cli/commands.csv,19,path_str,src/test/xref.py,Y,"xref,src/test/xref.py,[--out <path>],validate,,Cross-reference integrity of every committed artifact"
+rsc/cli/commands.csv,12,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,[--chat-exports-cache <dir>] [--memories-output <dir>] [--markdown"
+rsc/cli/commands.csv,13,path_str,src/main/model/gen_model.py,Y,"model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues"
+rsc/cli/commands.csv,16,path_str,src/main/model/serve_markdown.sh,Y,"server,src/main/model/serve_markdown.sh,status | start [--markdown <dir>] [--port <n>] [--daemon] | stop | ensure-assets"
+rsc/cli/commands.csv,17,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,[--chat-exports-cache <dir>] [--bulk-exports <dir>] [--browser-api <d"
+rsc/cli/commands.csv,18,path_str,src/test/xref.py,Y,"xref,src/test/xref.py,[--out <path>],validate,,Cross-reference integrity of every committed artifact"
 rsc/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 rsc/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 rsc/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
-rsc/machines/README.md,5,doc,rsc/CALCULUS.md,Y,`rsc/CALCULUS.md`: these files are byte-identical on every clone because they
+rsc/machine/README.md,10,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
 rsc/schema/WORKFLOW.md,39,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
 rsc/schema/WORKFLOW.md,40,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
-rsc/schema/WORKFLOW.md,41,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<room>/<project>
+rsc/schema/WORKFLOW.md,41,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<machine>/<project>
 rsc/schema/WORKFLOW.md,52,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,59,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,69,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
@@ -373,7 +372,7 @@ src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,One curated table (rsc/cli/com
 src/main/cli/cli.py,13,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 src/main/cli/cli.py,30,comment,RUNME.sh,Y,"the table, print the calculus, and generate completion before ./RUNME.sh has"
 src/main/cli/cli.py,85,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
-src/main/cli/cli.py,202,comment,rsc/cli/commands.csv,Y,yoga completions [--write] — emit zsh tab-completion derived from rsc/cli/commands.csv
+src/main/cli/cli.py,239,comment,rsc/cli/commands.csv,Y,yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv
 src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<room>/<pr
@@ -418,7 +417,7 @@ src/main/code-agents/validate.sh,49,path_str,rsc/schema/code-agents/sessionConve
 src/main/code-agents/validate.sh,54,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/code-agents/validate.sh,54,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/code-agents/validate.sh,55,path_str,rsc/schema/code-agents/projectMemory,Y,"""$memory_dir/memory.json"" ""$SCHEMA_ROOT/projectMemory"" \"
-src/main/machine.py,6,comment,rsc/machines/README.md,Y,_base.csv layered under <room>.csv — format: rsc/machines/README.md); the
+src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/markdown_projection.py,10,comment,src/main/model/project_markdown.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and"
 src/main/markdown_projection.py,10,comment,src/main/model/compare_sources.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and"
 src/main/markdown_projection.py,11,comment,src/main/browser-captures/compare_markdown.py,Y,"browser-captures/compare_markdown.py (project+render to compare), chat-exports/atomise_bulk.py"
@@ -477,20 +476,20 @@ src/test/gen_changelog_matrix.py,15,comment,src/test/gen_changelog_matrix.py,Y,s
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,"src/test/pre_commit.sh --fix   # run all fix commands, then stage with git add -u"
 src/test/pre_commit.py,10,comment,src/test/pre_commit.sh,Y,ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
-src/test/pre_commit.py,622,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/pre_commit.py,672,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
-src/test/pre_commit.py,674,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/pre_commit.py,602,comment,rsc/cache_io.csv,Y,"The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
+src/test/pre_commit.py,652,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
+src/test/pre_commit.py,654,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/pre_commit.py,368,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,95,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,104,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,118,path_str,src/main/code-agents/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',"
-src/test/pre_commit.py,609,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
-src/test/pre_commit.py,1141,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1143,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1151,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1153,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,926,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
-src/test/pre_commit.py,1102,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
+src/test/pre_commit.py,589,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
+src/test/pre_commit.py,1120,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1122,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1130,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1132,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,906,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+src/test/pre_commit.py,1081,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,5,comment,src/test/pre_commit.sh,Y,"#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command, stages with git add -u"
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install (itself gated)
 src/test/pre_commit.sh,12,comment,src/test/pre_commit.log,Y,# Read a failure via: git diff --cached src/test/pre_commit.log
@@ -525,9 +524,6 @@ src/test/xref.py,44,path_str,src/test/xref.csv,Y,"SKIP_FILES = {'src/test/pre_co
 src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
-,,,rsc/machines/_base.csv,Y,
-,,,rsc/machines/home-room.csv,Y,
-,,,rsc/machines/reading-room.csv,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/apiConversation/v9.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,

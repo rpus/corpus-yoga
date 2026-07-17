@@ -196,20 +196,58 @@ def tilde(p: Path) -> str:
     return f'~/{p.relative_to(home)}' if p.is_relative_to(home) else str(p)
 
 
+def install_completion() -> int:
+    """Wire cache/completions into ~/.zshrc — idempotently, and ABOVE compinit.
+
+    Position is the whole difficulty, which is why this is a command and not
+    printed advice: zsh scans fpath when compinit RUNS, so a line added after it
+    silently does nothing. That is the mistake the old printed lines invited (the
+    obvious move is to append), and a grep for the string could not tell it from
+    success. We insert above the first fpath=/compinit line, first backing up over
+    its comment header so we land OUTSIDE a managed block — Docker Desktop rewrites
+    its own block and would eat a line placed inside it.
+    """
+    zshrc = Path.home() / '.zshrc'
+    fpath_line = f'fpath=({tilde(COMPLETION_OUT.parent)} $fpath)'
+    lines = zshrc.read_text().splitlines() if zshrc.exists() else []
+    if any(str(COMPLETION_OUT.parent) in l or tilde(COMPLETION_OUT.parent) in l for l in lines):
+        print(f'{tilde(zshrc)}: already wired — nothing to do')
+        return 0
+    idx = next((i for i, l in enumerate(lines)
+                if re.match(r'\s*(compinit\b|fpath=)', l)), None)
+    if idx is None:
+        lines += ['', '# yoga tab-completion (regenerate: ./yoga completions --write)',
+                  fpath_line, 'autoload -Uz compinit', 'compinit']
+        where = 'appended, with its own compinit (this ~/.zshrc had none)'
+    else:
+        while idx > 0 and lines[idx - 1].lstrip().startswith('#'):
+            idx -= 1                      # step above the block's comment header
+        lines[idx:idx] = ['# yoga tab-completion (regenerate: ./yoga completions --write)',
+                          fpath_line, '']
+        where = f'inserted at line {idx + 1}, above compinit'
+    zshrc.write_text('\n'.join(lines) + '\n')
+    print(f'{tilde(zshrc)}: {where}')
+    print(f'    {fpath_line}')
+    print(f"→ start a new shell (exec zsh). Optional, for yoga from anywhere:\n"
+          f"    alias yoga='{tilde(REPO / 'yoga')}'")
+    return 0
+
+
 def completion(rest: list[str]) -> int:
     if any(a in rest for a in ('-h', '--help')):
         # a help request is a question, never an action — and never the product
-        print('yoga completions [--write] — emit zsh tab-completion derived from rsc/cli/commands.csv\n'
-              '  (bare: print to stdout; --write: install under cache/completions/ and print the ~/.zshrc lines)')
+        print('yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv\n'
+              '  bare: print to stdout; --write: write under cache/completions/;\n'
+              '  --install: --write, then wire it into ~/.zshrc above compinit (idempotent)')
         return 0
     text = completion_script(commands())
-    if '--write' in rest:
+    if '--write' in rest or '--install' in rest:
         COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
         COMPLETION_OUT.write_text(text)
         print(f'wrote {COMPLETION_OUT.relative_to(REPO)}')
-        print('→ add to ~/.zshrc (before compinit), then restart the shell:')
-        print(f'    fpath=({tilde(COMPLETION_OUT.parent)} $fpath)')
-        print(f"    alias yoga='{tilde(REPO / 'yoga')}'   # optional: yoga from anywhere")
+        if '--install' in rest:
+            return install_completion()
+        print('→ wire it in: ./yoga completions --install   (edits ~/.zshrc above compinit)')
         return 0
     print(text, end='')
     return 0

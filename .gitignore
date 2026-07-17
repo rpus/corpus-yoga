@@ -7,6 +7,6 @@
 __pycache__/
 
 # the machine binding: the one gitignored file in the committed tree — the
-# room is the machine's own name for itself and must never be shared
-rsc/machines/self.txt
+# machine names itself here, and that name must never be shared or transported
+rsc/machine/self.txt
 

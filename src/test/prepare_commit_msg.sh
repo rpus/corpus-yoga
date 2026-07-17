@@ -6,7 +6,7 @@
 #   Signature: <machine>/<provider>/<session>      (a Claude Code session drafted it)
 #   Signature: <machine>                           (no agent session in the environment)
 #
-# machine  — this machine's binding (rsc/machines/, its self-name), read at commit
+# machine  — this machine's binding (rsc/machine/, its self-name), read at commit
 #            time. The concrete axis, not the "room" metonym. Always knowable.
 # provider — the AI provider that drafted it (claude, …), from AI_AGENT — the outer
 #            corpus identity coordinate, so a signature reads like a corpus path.
@@ -48,8 +48,8 @@ repo="$(cd "$script_dir/../.." 2>/dev/null && pwd)" || exit 0
 
 # The machine binding is machine-local and uncommitted; its joined path literal must
 # not appear in committed text (it would strand xref — the very law the signature
-# records). Build the path in pieces, as PREREQUISITES' check_room does.
-binding="$repo/rsc/machines"; binding+="/self.txt"
+# records). Build the path in pieces, as PREREQUISITES' check_machine does.
+binding="$repo/rsc/machine"; binding+="/self.txt"
 machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null || echo unbound)"
 # A hook that rewrites commit messages must trust no input it didn't spell: a stray
 # newline/space/slash in the binding would corrupt the trailer (a multiline value
