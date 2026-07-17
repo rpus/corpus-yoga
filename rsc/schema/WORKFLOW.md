@@ -210,10 +210,12 @@ cross-pipeline types need documenting. Also bump any stale version references in
 
 ```bash
 src/test/pre_commit.sh
-git diff --cached src/test/pre_commit.log
+git diff src/test/pre_commit.log
 ```
 
-All checks should pass. The diff to `pre_commit.log` is the final record of what changed.
+All checks should pass. The diff to `pre_commit.log` is the final record of what
+changed — read it in the worktree, and stage it yourself when it says what you meant.
+Nothing stages on your behalf.
 Update `src/test/pre_commit_expected_score` if a tier's check count changed — its first
 line is the combined code+schema total (matching the score in the log's head line),
 followed by `code:` and `schema:` tier lines only; the `data` tier subtotal is
