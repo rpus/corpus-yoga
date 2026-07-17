@@ -57,7 +57,7 @@ LOCATORS_SHOWN = 4
 
 def parse_accepted(path: Path) -> dict[str, list[str]]:
     """{headword: [headword, alias, ...]} preserving file order of headwords.
-    Absent file → empty (accepted.txt lives in git-ignored output/, so a fresh room
+    Absent file → empty (accepted.txt lives in git-ignored output/, so a fresh machine
     before iCloud sync has none — degrade to 'no headwords', never crash)."""
     entries: dict[str, list[str]] = {}
     if not path.exists():
@@ -89,7 +89,7 @@ def parse_rejected(path: Path) -> set[str]:
 def inferred_concepts() -> list[str]:
     """The finite candidate source: the single-source concept capture
     output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga dashboard capture`).
-    Durable and shared across rooms (via output/), so both curate one shared base — the
+    Durable and shared across machines (via output/), so both curate one shared base — the
     24-vs-27 divergence of the old per-batch, per-machine cache/ inference is gone.
     Empty where no capture has been taken yet."""
     import json
@@ -274,7 +274,7 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
     in the durable line list. Append-at-end for new entries — the file's order
     is the curation history; presentation alphabetises (L5)."""
     entries = parse_accepted(accepted_path)
-    accepted_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh room
+    accepted_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh machine
     lines = accepted_path.read_text().splitlines() if accepted_path.exists() else []
     # Merge-vs-new is decided case-INSENSITIVELY, like coverage matching everywhere
     # else (term_regex, reject); otherwise 'Mathematics' would append a second entry
@@ -306,7 +306,7 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, because: str)
     entries = parse_accepted(accepted_path)
     if term_regex([t for ts in entries.values() for t in ts]).search(concept):
         return f'{concept!r}: already covered by an accepted headword — no rejection needed'
-    rejected_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh room
+    rejected_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh machine
     lines = rejected_path.read_text().splitlines() if rejected_path.exists() else []
     lines.append(f'{concept}' + (f'  # {because}' if because else ''))
     rejected_path.write_text('\n'.join(lines) + '\n')

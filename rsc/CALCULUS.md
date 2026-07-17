@@ -59,7 +59,7 @@ in `output/` alongside the rest of the durable corpus — curation is inference 
 user (`output/indexing/accepted.txt`, `output/indexing/rejected.txt`) exactly as concept
 extraction is inference by a model (`output/dashboard/`); the repo privileges no
 intelligence over another. They are corpus-derived and stay out of git with the
-rest of `output/` (shared across rooms by the same means — e.g. iCloud — as `input/`);
+rest of `output/` (shared across machines by the same means — e.g. iCloud — as `input/`);
 only their reproducible by-product, the pending queue, is a rebuildable `cache/`
 derivation. (User insight, 2026-07-09.)
 
@@ -107,10 +107,10 @@ per-corpus code.
   without which a rematerialised agent has dangling limbs); for the memory
   folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
-  re-dressed by its room and links following, the index unioning by
+  re-dressed by its machine and links following, the index unioning by
   novelty-append). Transported agents live in the shared STORE (`input/claude/code/machine-transport`, one
-  hand-made symlink per machine), keyed room-then-project under the ORIGIN room's name — the
-  `self.txt` binding in `rsc/machines/` — so provenance is spatial and sender-declared, never
+  hand-made symlink per machine), keyed machine-then-project under the ORIGIN machine's name — the
+  rooted `machine-name.txt` binding — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
   design): transport MIRRORS the agent into its own single-writer outbox, and
   every merge subtlety lives in receive, where two agents actually meet.
@@ -139,7 +139,7 @@ per-corpus code.
   oracle is stochastic or the source ephemeral — so a capture is PRECIOUS
   (deposited durably, never disposable) and homed by vettability: `output/dashboard/`
   and `output/indexing/` for the corpus readings (durable, corpus-derived, shared
-  across rooms with the rest of `output/`); the `input/` browser-capture roots when large and
+  across machines with the rest of `output/`); the `input/` browser-capture roots when large and
   private; `output/memories/` when a versioned deposit. And *curation is capture of a
   user decision* — the same act with a human oracle (`output/indexing/accepted.txt`,
   `output/indexing/rejected.txt`), which is why they sit beside the model's readings in
@@ -179,7 +179,7 @@ conjunction verdicts:
 - **agent** = session × memory. Componentwise transport moves it; componentwise
   merge semantics differ (append-only × a set of facts under name-dressing), so
   a forked agent is *two agents thereafter* — diverged facts are installed side
-  by side under room dressing, never auto-unified: the twins ARE the fork, made
+  by side under machine dressing, never auto-unified: the twins ARE the fork, made
   visible, and their reconciliation is a human decision ("hone, not clone").
 
 The product construction is the whole content of "a bulk export is a synchronised
@@ -229,7 +229,7 @@ Each law names its current enforcement (or the incident that taught it).
   facts (data-tier reports, usernames, local paths) never enter them. Enforced
   structurally by the split report (`pre_commit.py` writes the committed log
   itself, code+schema only). Corollary: the deterministic tiers read identically
-  on every machine — observed as both rooms at 953/12/941 with differing data tiers.
+  on every machine — observed as both machines at 953/12/941 with differing data tiers.
 - **L3 — Supersession is a partial order; deletion is licensed, never assumed.**
   ⊑ is transitive across batches; a deletion is justified by a SUPERSEDED verdict
   or by an accumulation licence (states deposited), and by nothing else.

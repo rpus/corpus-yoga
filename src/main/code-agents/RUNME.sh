@@ -2,17 +2,17 @@
 # Convert and validate Claude Code CLI session transcripts, from the STORE.
 #
 # The pipeline sources input/claude/code/machine-transport — the repo-owned, medium-carried store
-# (<room>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
+# (<machine>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
 # the harness-owned ~/.claude/projects, which Anthropic expires at will.
 # `yoga agent capture --all` is the capture step that populates the store
 # from the live projects root; run it early and often.
 #
 # Usage:
-#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<room>/<project>
+#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<machine>/<project>
 #   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/claude/code/machine-transport
 #   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
 #
-# The step lists below (room_housekeeping, run_one, run_memory, corpus) are the
+# The step lists below (machine_housekeeping, run_one, run_memory, corpus) are the
 # ONE authority on order: --plan prints exactly the lists that execute (see
 # src/main/steps.sh).
 
@@ -42,11 +42,11 @@ parse_args() {
     esac
   done
   if [[ "$plan" == "0" && -z "$code_project" && -z "$code_projects" ]]; then
-    echo "Usage: $0 --code-agent <path/to/room/project-directory>"
+    echo "Usage: $0 --code-agent <path/to/machine/project-directory>"
     echo "       $0 --code-agents <path/to/store-root>"
     echo
-    echo "  project-directory: a room's project under the store, e.g.:"
-    echo "    input/claude/code/machine-transport/<room>/\$(pwd | tr '/' '-')"
+    echo "  project-directory: a machine's project under the store, e.g.:"
+    echo "    input/claude/code/machine-transport/<machine>/\$(pwd | tr '/' '-')"
     echo "Pass --help for more information."
     exit 1
   fi
@@ -58,8 +58,8 @@ prune_departed() {
   # session.json's mtime when content is unchanged for the same reason. cache
   # derivations die with their STORE datum — and the store is repo-owned, so
   # a departure there was a deliberate disposal, never harness expiry.
-  local project_dir="$1" room="$2" name="$3"
-  for existing in "$CACHE_DIR/$room/$name"/*/; do
+  local project_dir="$1" machine="$2" name="$3"
+  for existing in "$CACHE_DIR/$machine/$name"/*/; do
     [[ -d "$existing" ]] || continue
     local sess; sess="$(basename "${existing%/}")"
     if [[ "$sess" == "memory" ]]; then
@@ -72,25 +72,25 @@ prune_departed() {
 
 prune_departed_projects() {
   # A cache project dir whose store project is gone dies whole; a top-level cache
-  # dir that is not a room in the store (the pre-store flat layout, or a
-  # removed room) dies too — every cache path mirrors a store path or goes.
+  # dir that is not a machine in the store (the pre-store flat layout, or a
+  # removed machine) dies too — every cache path mirrors a store path or goes.
   local store_root="$1"
-  for room_dir in "$CACHE_DIR"/*/; do
-    [[ -d "$room_dir" ]] || continue
-    local room; room="$(basename "${room_dir%/}")"
-    if [[ ! -d "${store_root%/}/$room" ]]; then
-      rm -rf "${room_dir:?}"
+  for machine_dir in "$CACHE_DIR"/*/; do
+    [[ -d "$machine_dir" ]] || continue
+    local machine; machine="$(basename "${machine_dir%/}")"
+    if [[ ! -d "${store_root%/}/$machine" ]]; then
+      rm -rf "${machine_dir:?}"
       continue
     fi
-    for proj_dir in "$room_dir"*/; do
+    for proj_dir in "$machine_dir"*/; do
       [[ -d "$proj_dir" ]] || continue
       local proj; proj="$(basename "${proj_dir%/}")"
-      [[ -d "${store_root%/}/$room/$proj" ]] || rm -rf "${proj_dir:?}"
+      [[ -d "${store_root%/}/$machine/$proj" ]] || rm -rf "${proj_dir:?}"
     done
   done
 }
 
-room_housekeeping() {
+machine_housekeeping() {
   step prune_departed_gen prune_departed_projects "$1"
 }
 
@@ -99,9 +99,9 @@ project_housekeeping() {
 }
 
 run_one() {
-  local jsonl="$1" room="$2" project_name="$3"
+  local jsonl="$1" machine="$2" project_name="$3"
   local session; session="$(basename "${jsonl%.jsonl}")"
-  local out_dir="$CACHE_DIR/$room/$project_name/$session"
+  local out_dir="$CACHE_DIR/$machine/$project_name/$session"
   step ensure_session_dir   mkdir -p "$out_dir"
   step jsonl_to_json        "$SCRIPT_DIR/jsonl_to_json.sh" "$jsonl" "$out_dir/session.json"
   step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/project_conversation.py" "$out_dir"
@@ -109,8 +109,8 @@ run_one() {
 }
 
 run_memory() {
-  local project_dir="$1" room="$2" name="$3" guard="$4"
-  local out_dir="$CACHE_DIR/$room/$name/memory"
+  local project_dir="$1" machine="$2" name="$3" guard="$4"
+  local out_dir="$CACHE_DIR/$machine/$name/memory"
   step_if "$guard" 'when the project has a memory/ dir' memory_to_json \
     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
   step_if "$guard" 'when the project has a memory/ dir' validate_memory \
@@ -122,31 +122,31 @@ corpus() {
 }
 
 run_project() {
-  local project_dir="$1" room="$2"
+  local project_dir="$1" machine="$2"
   local name; name="$(basename "${project_dir%/}")"
-  echo "$room/$name"
-  project_housekeeping "$project_dir" "$room" "$name"
+  echo "$machine/$name"
+  project_housekeeping "$project_dir" "$machine" "$name"
   local found=0
   for jsonl in "${project_dir%/}"/*.jsonl; do
     [[ -f "$jsonl" ]] || continue
     found=1
-    run_one "$jsonl" "$room" "$name"
+    run_one "$jsonl" "$machine" "$name"
   done
   [[ "$found" -eq 1 ]] || echo "  (no .jsonl files found)"
   local has_memory=0
   [[ -d "${project_dir%/}/memory" ]] && has_memory=1
-  run_memory "$project_dir" "$room" "$name" "$has_memory"
+  run_memory "$project_dir" "$machine" "$name" "$has_memory"
 }
 
 print_plan() {
   echo "code-agents steps — once, against the store root:"
-  room_housekeeping '<store-root>'
-  echo "then per room/project directory:"
-  project_housekeeping '<project-dir>' '<room>' '<project>'
+  machine_housekeeping '<store-root>'
+  echo "then per machine/project directory:"
+  project_housekeeping '<project-dir>' '<machine>' '<project>'
   echo "then per session .jsonl within it:"
-  run_one '<session>.jsonl' '<room>' '<project>'
+  run_one '<session>.jsonl' '<machine>' '<project>'
   echo "then per project:"
-  run_memory '<project-dir>' '<room>' '<project>' '0'
+  run_memory '<project-dir>' '<machine>' '<project>' '0'
   echo "then once, after all projects:"
   corpus
 }
@@ -157,10 +157,10 @@ main() {
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
   if [[ -n "$code_project" ]]; then
-    local project_dir room
+    local project_dir machine
     project_dir="$(cd "$code_project" && pwd)"
-    room="$(basename "$(dirname "$project_dir")")"
-    run_project "$project_dir" "$room"
+    machine="$(basename "$(dirname "$project_dir")")"
+    run_project "$project_dir" "$machine"
     corpus
     return 0
   fi
@@ -171,13 +171,13 @@ main() {
     exit 0
   fi
   local store_root; store_root="$(cd "$code_projects" && pwd)"
-  room_housekeeping "$store_root"
-  for room_dir in "$store_root"/*/; do
-    [[ -d "$room_dir" ]] || continue
-    local room; room="$(basename "${room_dir%/}")"
-    for project_dir in "${room_dir%/}"/-Users-*/; do
+  machine_housekeeping "$store_root"
+  for machine_dir in "$store_root"/*/; do
+    [[ -d "$machine_dir" ]] || continue
+    local machine; machine="$(basename "${machine_dir%/}")"
+    for project_dir in "${machine_dir%/}"/-Users-*/; do
       [[ -d "$project_dir" ]] || continue
-      run_project "${project_dir%/}" "$room"
+      run_project "${project_dir%/}" "$machine"
     done
   done
   corpus

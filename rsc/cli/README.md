@@ -33,7 +33,7 @@ from examples — one did, and misread design as sediment):
   capture`, `dashboard capture`, `agent capture` all *bring data in* (from Safari,
   the paid model, the harness's session store respectively). `run` only processes
   what `input/` already holds. `present` renders, free. `clean`/`regen` are the
-  cache lifecycle. `receive`/`demerge` move agents between rooms and undo the move.
+  cache lifecycle. `receive`/`demerge` move agents between machines and undo the move.
 - **Bare invocations are free and local** — never paid, never a browser. Bare is a
   *status report* where the summary says so (`dashboard`, `indexing`, `server`);
   the command's *whole act* where that act is one free idempotent step (`run`,

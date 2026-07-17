@@ -144,30 +144,46 @@ check_optional_modes() {
   fi
 }
 
-check_room() {
-  # The binding names this machine's room (see rsc/machines/README.md). The
-  # path is built in pieces: the joined literal must not appear in committed
-  # text, because the file rightly does not exist on fresh clones and the
-  # committed xref counts are machine-invariant.
-  local binding="$SCRIPT_DIR/rsc/machines"
-  binding+="/self.txt"
+check_machine() {
+  # The binding names this machine (rsc/machine/README.md): rooted, gitignored,
+  # and so spelt whole like anything else.
+  local binding="$SCRIPT_DIR/machine-name.txt"
   local rel="${binding#"$SCRIPT_DIR/"}"
-  echo "room (the machine's own name for itself — never shared, never transported)"
-  if [[ -f "$binding" ]]; then
-    local room
-    room="$(cat "$binding")"
-    if [[ -f "$SCRIPT_DIR/rsc/machines/$room.csv" ]]; then
-      ok "bound: $room"
-    else
-      info "bound: $room — but no rsc/machines/$room.csv declares it; declare the manifest, or fix the binding"
-    fi
+  local registry="$SCRIPT_DIR/rsc/machine/machines.csv"
+  echo "machine (its own name for itself — never shared, never transported)"
+  # The pre-move location, built in pieces — for the very reason the rooted
+  # binding no longer needs to be. This path must exist on NO clean clone, so a
+  # committed literal naming it would be a dangling reference, and would resolve
+  # one way on a machine that migrated and another on one that had not. Reported
+  # first: on an un-migrated machine it is the answer to every other line here.
+  # Transitional — delete this check once no machine carries the residue.
+  # Split above 'machines', not above 'self.txt': the DIRECTORY vanishes on
+  # migration too, so a literal naming it resolves on an un-migrated machine and
+  # dangles on a migrated one — machine-dependent by the same rule. (The first
+  # draft of this check split one component too low and xref said so.) A fragment
+  # beginning '/' is never read as a repo path, so this names nothing that can go.
+  local legacy="$SCRIPT_DIR/rsc"; legacy+="/machines/self.txt"
+  if [[ -f "$legacy" ]]; then
+    local lrel="${legacy#"$SCRIPT_DIR/"}"
+    info "legacy binding at $lrel — the binding moved to $rel (2026-07-17); migrate it:"
+    echo "    → run: mv $lrel $rel && rmdir $(dirname "$lrel")"
+  fi
+  local declared=""
+  [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
+  if [[ ! -f "$binding" ]]; then
+    info "unbound — declare it in rsc/machine/machines.csv first, then bind:"
+    echo "    → run: echo <declared-machine-name> > $rel"
+    info "declared: ${declared:-none}"
+    return
+  fi
+  local name; name="$(cat "$binding")"
+  if tail -n +2 "$registry" 2>/dev/null | cut -d, -f1 | grep -qxF "$name"; then
+    ok "bound: $name"
   else
-    local declared="" f
-    for f in "$SCRIPT_DIR/rsc/machines"/*.csv; do
-      f="$(basename "$f" .csv)"
-      if [[ "$f" != "_base" ]]; then declared+="$f "; fi
-    done
-    info "unbound — bind: echo <unique-room-name> > $rel  (rooms already declared: ${declared:-none})"
+    # the same declaredness gate machine.py gives every consumer: an undeclared
+    # binding would mint a phantom machine in the shared transport store
+    info "bound: $name — but rsc/machine/machines.csv does not declare it (declared: ${declared:-none})"
+    echo "    → run: add a '$name' row to rsc/machine/machines.csv, or fix $rel"
   fi
 }
 
@@ -187,12 +203,18 @@ check_cli() {
   else
     info "zsh completion not generated — ./yoga completions --write (derived under cache/; safe to regenerate any time)"
   fi
+  # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
+  # added after it is present in the file and does nothing — a grep for the string
+  # would report ✓ over dead completion, certifying the exact mistake the old advice
+  # invited. Presence of a string is not the fact; resolution is. An interactive
+  # shell sources the rc and answers for itself.
   if ! command -v zsh &>/dev/null; then
     info "zsh not present — tab-completion not applicable on this machine"
-  elif [[ -f "$HOME/.zshrc" ]] && grep -q 'cache/completions' "$HOME/.zshrc" 2>/dev/null; then
-    ok "completions fpath line present in ~/.zshrc"
+  elif [[ "$(zsh -ic 'print -r -- ${+_comps[yoga]}' 2>/dev/null | tail -1)" == "1" ]]; then
+    ok "zsh resolves the yoga completion"
   else
-    info "no completions fpath line in ~/.zshrc — ./yoga completions --write prints the lines to add"
+    info "zsh does not resolve the yoga completion (an fpath line after compinit is inert)"
+    echo "    → run: ./yoga completions --install"
   fi
 }
 
@@ -332,7 +354,7 @@ check_pipeline_inputs() {
     n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/code/machine-transport"/*/)"
     local sessions
     sessions="$(find -L "$SCRIPT_DIR/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-agents: input/claude/code/machine-transport holds $n room(s), $sessions session file(s) — will convert + validate into cache/"
+    ok "code-agents: input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into cache/"
   else
     info "code-agents: no input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
   fi
@@ -351,7 +373,7 @@ main() {
   parse_args "$@"
   echo "$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
-  check_room
+  check_machine
   check_tools
   check_venv
   check_dependencies \

@@ -107,7 +107,7 @@ PIPELINES: dict[str, Pipeline] = {
         schemas           = ['session', 'sessionConversation', 'projectMemory'],
         changelog         = RSC_SCHEMA / 'code-agents' / 'session' / 'CHANGELOG.md',
         cache_output      = REPO_ROOT / cache_io.path_for('code-agents'),
-        # The pipeline sources the repo-owned STORE (rooms → projects →
+        # The pipeline sources the repo-owned STORE (machines → projects →
         # sessions), never the harness-owned ~/.claude/projects — transport
         # is the capture step that populates it.
         input             = INPUT / 'claude' / 'code' / 'machine-transport',
@@ -118,7 +118,7 @@ PIPELINES: dict[str, Pipeline] = {
         fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
         # Each project's memory/ is its own datum (projectMemory), a subject beside
-        # the project's sessions: cache/code-agents/<room>/<project>/memory/.
+        # the project's sessions: cache/code-agents/<machine>/<project>/memory/.
         extra_input_glob  = '*/-Users-*/memory/',
     ),
 }
@@ -159,8 +159,8 @@ def _fix_item_cmd(pipeline: Pipeline, subject: str) -> str:
     """The runnable remedy for one subject: the pipeline's fix_item_cmd plus the
     subject's CONTAINER in input/ — the granularity every per-item command
     actually accepts (the subject minus its leaf; the whole subject at depth 1).
-    A depth-3 subject ('<room> / <project> / <uuid>') therefore hints at its
-    room/project dir; joining the full subject would name a path no command
+    A depth-3 subject ('<machine> / <project> / <uuid>') therefore hints at its
+    machine/project dir; joining the full subject would name a path no command
     consumes (and, for code-agents, one that does not even exist as given)."""
     parts = subject.split(' / ')
     item = pipeline.input.joinpath(*(parts[:-1] or parts))
@@ -539,26 +539,6 @@ def check_index_curation(run, fix) -> None:
                          '| ./yoga indexing reject <concept> [--because <why>]')
 
 
-def check_machine_manifest(run) -> None:
-    """This machine against its room's manifest (rsc/machines/, required rows
-    only — optional absences are the room's business). The binding
-    (self.txt in rsc/machines/) is machine-local, so data tier: skipped where unbound."""
-    import machine
-    if not machine.BINDING.exists():
-        print('  – skipped: unbound machine (no self.txt binding — see rsc/machines/README.md)')
-        return
-    room = machine.BINDING.read_text().strip()
-    try:
-        rows = machine.checks(room)
-    except SystemExit as e:
-        run(f'machine: manifest exists for bound room: {room}', False, str(e))
-        return
-    for label, present, level, note in rows:
-        if level != 'required':
-            continue
-        run(f'machine: {room}: {label}', present, None if present else note)
-
-
 def check_cross_sources(run) -> None:
     """Append-only invariant across export surfaces: every conversation present in BOTH
     a bulk export and the live captures must project to a turn sequence identical to,
@@ -766,7 +746,7 @@ def check_cli_surface(run) -> None:
     # the installed file failed to load, silently costing completion entirely;
     # no gate parsed what the ritual installs. zsh-less clones skip the parse
     # invisibly (constant label, no detail) so the committed log stays
-    # byte-identical; every room runs macOS, where the check is real.
+    # byte-identical; every machine runs macOS, where the check is real.
     import shutil, tempfile
     zsh = shutil.which('zsh')
     parse_ok, parse_err = True, None
@@ -1026,7 +1006,6 @@ def main():
         run_section(check_cross_sources, tier='data')
         run_section(lambda run, _fix=fix: check_index_curation(run, _fix),
                     label='check_index_curation', tier='data')
-        run_section(check_machine_manifest, tier='data')
     finally:
         sys.stdout = sys.__stdout__
 

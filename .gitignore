@@ -1,12 +1,31 @@
-/input/
-/cache/
+# The machine-local tiers. NO trailing slash on any of them, deliberately: a
+# trailing slash means "directory only", and git treats a symlink as a blob, not
+# a directory — so /output/ would NOT ignore output, which is a symlink into
+# iCloud here. Untracked, it would offer git an absolute path naming one machine.
+# Which tiers are symlinks is a per-machine fact (output is one here, input is
+# not), so no slash on any: without one a rule ignores a directory AND a symlink,
+# and stops depending on the shape a tier happens to have on whoever's disk.
+/input
+/cache
 /output
-/logs/
+/logs
 
 **/.DS_Store
 __pycache__/
 
-# the machine binding: the one gitignored file in the committed tree — the
-# room is the machine's own name for itself and must never be shared
+# the machine binding: this machine names ITSELF here, and that name is never
+# shared, never transported. It sits at the root beside the other machine-local
+# entries above (cache/, input/, logs/, output/) because that is what it IS —
+# not inside rsc/machine/, where its name keys a registry every clone shares.
+/machine-name.txt
+
+# Transitional (2026-07-17): the binding's pre-move location. A checkout cannot
+# delete it — it is untracked — so it survives on machines bound before the move,
+# and on those only. Left unignored it enters xref's scan, and the committed
+# counts then depend on whether a machine has migrated yet: precisely the
+# machine-dependence this move exists to end (home-room hit it, 56 ≠ 55). It is
+# residue, so it is ignored like every other machine-local thing, and
+# `yoga prerequisites` prints the migration rather than a gate refusing to
+# explain itself. Delete this rule once no machine carries the residue.
 rsc/machines/self.txt
 

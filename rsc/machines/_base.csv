@@ -1,9 +1,0 @@
-level,kind,arg,note
-required,cmd,jq,install via: brew install jq
-required,cmd,python3,install via: brew install python
-required,path,input/claude-code-projects,src/main/code-agents/PREP.sh symlinks it to the Claude Code projects folder (transport reads it; pipelines never do)
-required,path,input/claude/code/machine-transport,hand-made symlink to the shared store (one subdirectory per room name; projects nested within)
-optional,path,input/claude/chat/bulk-export,hand-made symlink to the shared bulk-export supply (downloaded in whichever room; one union both rooms see)
-optional,path,input/claude/chat/browser-API,via the input/claude symlink to the shared iCloud store (captures taken wherever Safari is logged in)
-optional,env,ANTHROPIC_API_KEY,only `yoga dashboard capture` (paid) needs it
-optional,grep,~/.zshrc cache/completions,zsh completion wiring — ./yoga completions --write prints the lines to add

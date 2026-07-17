@@ -38,7 +38,7 @@ the bulk export's whole array), a **singular** family validates *one unit*
 ```bash
 src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
 src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
-src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<room>/<project>
+src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<machine>/<project>
 ```
 
 (code-agents converts each `.jsonl` before validating, so its runnable unit is the

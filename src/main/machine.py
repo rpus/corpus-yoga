@@ -1,112 +1,67 @@
 #!/usr/bin/env python
 """
-machine.py — verify THIS machine against its room's manifest.
+machine.py — the machine registry and this machine's binding to it. A LIBRARY,
+not a command: nothing here reports. `./yoga prerequisites` is the one machine
+voice, and it says everything this ever said, in more detail.
 
-Manifests are docker-style desired state as committed data (rsc/machines/:
-_base.csv layered under <room>.csv — format: rsc/machines/README.md); the
-machine's identity is the one-line self.txt binding beside the manifests in
-rsc/machines/ (the one gitignored file in the committed tree); the report
-is strictly machine-local (L2). An unbound machine is told how to bind (L8).
+Two facts, and only two:
 
-    ./yoga machine                  # verify against the bound room
-    ./yoga machine --room <name>    # verify against a named room
+  machines()       the declared machines (rsc/machine/machines.csv) — the registry.
+  bound_machine()  which one this is, from the one-line machine-name.txt binding
+                   at the repo root, REFUSED unless the registry declares it.
 
-STDLIB-ONLY, like cli.py: works on a fresh clone before the venv exists.
-Exit 1 iff a required item is absent.
+That refusal is the whole point, and it guards exactly one write: agent.py keys the
+shared transport store by this name (input/claude/code/machine-transport/<machine>/),
+so a typo'd binding would mint a phantom machine in a store BOTH machines see. The
+gate lives here, in the one reader, so every consumer inherits it. Declare a machine
+in the registry first, then bind to it — never the other way round.
+
+The two live apart because they are opposites. The registry is shared: every clone
+carries the same machines.csv. The binding is the machine naming ITSELF, and that
+name is never shared, never transported — so it sits at the repo root among the
+other machine-local entries (cache/, input/, logs/, output/), gitignored, and
+rsc/machine/ is left wholly committed. Until 2026-07-17 the binding lived INSIDE
+rsc/machine/, the one gitignored file in the committed tree, and that single
+exception cost more than it was worth: its path had to be built by arithmetic and
+never spelled whole, because a committed literal naming it read as a reference to
+a file that exists only on bound machines. Rooted, it is spelled outright here —
+its own .gitignore rule is what makes that safe.
+
+There is no per-machine manifest and no layering: machines do not diverge. What a
+machine may or may not have is expressed by PREREQUISITES as optional, not by giving
+each machine its own list. A machine is an IDENTITY, not a configuration variant.
+
+STDLIB-ONLY, like cli.py: importable on a fresh clone before the venv exists.
 """
-import argparse
 import csv
-import os
-import shutil
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-MANIFESTS = REPO / 'rsc' / 'machines'
-# The binding lives BESIDE the manifests it selects among — the one gitignored
-# file in the committed tree, because the room is the machine's own name for
-# itself: the anti-Mergeable, never shared, never transported (user placement,
-# 2026-07-08; path built by arithmetic so no committed literal names a file
-# that rightly does not exist on a fresh clone).
-BINDING = MANIFESTS / 'self.txt'
+REGISTRY = REPO / 'rsc' / 'machine' / 'machines.csv'
+BINDING = REPO / 'machine-name.txt'
 
 
-def rooms() -> list[str]:
-    return sorted(p.stem for p in MANIFESTS.glob('*.csv') if p.stem != '_base')
+def machines() -> list[str]:
+    """The declared machines, in registry order."""
+    with REGISTRY.open() as f:
+        return [r['machine'].strip() for r in csv.DictReader(f) if r['machine'].strip()]
 
 
-def bound_room() -> str:
+def bound_machine() -> str:
+    """This machine's name — refused unless the registry declares it."""
     rel = BINDING.relative_to(REPO)
+    declared = machines()
     if not BINDING.exists():
-        # constant placeholder, deliberately never an existing room's name: an
-        # example a new machine could paste verbatim would mint an identity
-        # collision — the placeholder's own spelling carries the requirement
-        sys.exit(f'unbound machine — name its room in the one-line {rel} binding:\n'
-                 f'    echo <unique-room-name> > {rel}\n'
-                 f'rooms already declared in rsc/machines/: {", ".join(rooms()) or "(none)"}')
-    room = BINDING.read_text().strip()
-    if room not in rooms():
-        # declaredness gate, here in the ONE reader so every consumer inherits
-        # it — above all transport, which would otherwise mint a phantom room
-        # dir in the shared input/claude/code/machine-transport from a typo. Bootstrap order per the machines
-        # README: a new room is a manifest PLUS a binding, declare then bind.
-        sys.exit(f"bound to '{room}' but no manifest declares it — declare "
-                 f'rsc/machines/{room}.csv, or fix the {rel} binding; '
-                 f'rooms declared: {", ".join(rooms()) or "(none)"}')
-    return room
-
-
-def manifest(room: str) -> list[dict]:
-    """_base.csv layered under the room's own rows (the docker FROM analogy)."""
-    room_csv = MANIFESTS / f'{room}.csv'
-    if not room_csv.exists():
-        sys.exit(f"error: no manifest rsc/machines/{room}.csv — rooms: {', '.join(rooms())}")
-    rows: list[dict] = []
-    for f in (MANIFESTS / '_base.csv', room_csv):
-        with f.open() as fh:
-            rows.extend(csv.DictReader(fh))
-    return rows
-
-
-def probe(kind: str, arg: str) -> bool:
-    if kind == 'cmd':
-        return shutil.which(arg) is not None
-    if kind == 'env':
-        return bool(os.environ.get(arg))
-    if kind == 'path':
-        return (REPO / arg).exists()
-    if kind == 'grep':
-        file_part, _, pattern = arg.partition(' ')
-        f = Path(file_part).expanduser()
-        return f.is_file() and pattern in f.read_text()
-    sys.exit(f'error: unknown manifest kind {kind!r} (see rsc/machines/README.md)')
-
-
-def checks(room: str) -> list[tuple[str, bool, str, str]]:
-    """[(label, present, level, note)] for the room's layered manifest."""
-    return [(f'{r["kind"]}: {r["arg"]}', probe(r['kind'], r['arg']), r['level'], r['note'])
-            for r in manifest(room)]
-
-
-def main() -> int:
-    ap = argparse.ArgumentParser(description='verify this machine against its room manifest')
-    ap.add_argument('--room', help='manifest to verify against (default: the self.txt binding)')
-    args = ap.parse_args()
-    room = args.room or bound_room()
-    print(f'machine manifest: {room} (rsc/machines, _base layered first)')
-    missing_required = 0
-    for label, present, level, note in checks(room):
-        if present:
-            print(f'  ✓ {label}')
-        elif level == 'optional':
-            print(f'  – {label} — {note}')
-        else:
-            print(f'  ✗ {label} — {note}')
-            missing_required += 1
-    if missing_required:
-        print(f'{missing_required} required item(s) absent — the notes above say how to satisfy each')
-    return 1 if missing_required else 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+        # A constant placeholder, deliberately never a real machine's name: an
+        # example a new machine could paste verbatim would mint an identity collision.
+        sys.exit(f'unbound machine — name it in the one-line {rel} binding:\n'
+                 f'    echo <unique-machine-name> > {rel}\n'
+                 f'machines declared in {REGISTRY.relative_to(REPO)}: '
+                 f'{", ".join(declared) or "(none)"}')
+    name = BINDING.read_text().strip()
+    if name not in declared:
+        sys.exit(f"bound to '{name}' but the registry does not declare it — add it to "
+                 f'{REGISTRY.relative_to(REPO)}, or fix the {rel} binding; '
+                 f'declared: {", ".join(declared) or "(none)"}')
+    return name

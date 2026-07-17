@@ -9,7 +9,7 @@
 #     [--conversations <path>]  #   source override: markdown corpus dir | json/ dir | conversations.json
 #     [--only semantic-concepts|chat-categories]   # refresh one file (default: both)
 #
-# Captures land durable in output/dashboard/ (shared across rooms); the category
+# Captures land durable in output/dashboard/ (shared across machines); the category
 # palette is authored in rsc/site/index.html; the capture schemas live under
 # rsc/schema/dashboard/.
 
@@ -157,7 +157,7 @@ validate_capture() {
 # ── the dashboard capture (yoga dashboard capture) ────────────────────────────
 # Both PAID model readings the dashboard shows, single-source and durable: the
 # weighted concept list (word cloud) and the chat→category assignment. Run once
-# over the corpus; both rooms share the result.
+# over the corpus; both machines share the result.
 #
 # capture is DERIVE-then-DEPOSIT: both readings are captured into cache/dashboard
 # (the workshop, git-ignored, corpus-scoped like cache/indexing) and validated there, then
@@ -216,7 +216,7 @@ capture_dashboard() {
 
   [[ "$want_concepts"   == 1 ]] && mv "$stage/semantic-concepts.json" "$dest/semantic-concepts.json"
   [[ "$want_categories" == 1 ]] && mv "$stage/chat-categories.json"   "$dest/chat-categories.json"
-  echo "promoted → output/dashboard/ — both rooms share it (output/ is iCloud, not git)"
+  echo "promoted → output/dashboard/ — both machines share it (output/ is iCloud, not git)"
 }
 
 # ── read-only status (bare `yoga dashboard`) ──────────────────────────────────

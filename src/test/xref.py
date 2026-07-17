@@ -59,7 +59,7 @@ STDLIB_MODULES = {
 # on which git-ignored dirs happened to exist at run time (found 2026-07-13:
 # a machine whose gate had already created logs/ swallowed `logs/src/...`
 # tokens whole and skipped them; a fresh worktree without logs/ matched the
-# same text from `src/` inward and emitted a row — two rooms, two artifacts,
+# same text from `src/` inward and emitted a row — two machines, two artifacts,
 # one byte-identical tree). Freshness is the wrong invariant for a committed
 # artifact; machine-invariance is the right one.
 # The artifact extensions xref recognises — ONE authority: every extractor's
@@ -79,11 +79,14 @@ PREFIXES_RE = '|'.join(re.escape(p.rstrip('/')) for p in REPO_PREFIXES)
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 def _gitignored(rels: list[str]) -> set[str]:
-    """The subset of paths .gitignore matches, asked of git itself. Gitignored
-    files INSIDE the committed tree (the machine's self binding beside the
-    manifests) are machine-local by definition and must not enter the scannable
-    set — the committed expected counts are machine-invariant (L2), and a file
-    that exists only on bound machines would skew them per machine."""
+    """The subset of paths .gitignore matches, asked of git itself — the backstop
+    for anything the anchored top-level parse above cannot see. Gitignored files
+    are machine-local by definition and must not enter the scannable set: the
+    committed expected counts are machine-invariant (L2), and a file that exists
+    on some machines only would skew them per machine. This once had to catch a
+    gitignored file living INSIDE the committed tree (the machine binding, then a
+    self.txt under rsc/machine/); since 2026-07-17 that binding is rooted, so the
+    parse catches it by its own rule and nothing in the tree is an exception."""
     import subprocess
     r = subprocess.run(['git', '-C', str(REPO_ROOT), 'check-ignore', '--stdin'],
                        input='\n'.join(rels), capture_output=True, text=True)
