@@ -18,4 +18,3 @@ __pycache__/
 # entries above (cache/, input/, logs/, output/) because that is what it IS —
 # not inside rsc/machine/, where its name keys a registry every clone shares.
 /machine-name.txt
-
