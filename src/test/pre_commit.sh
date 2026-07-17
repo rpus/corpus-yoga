@@ -7,18 +7,18 @@
 #
 # ONE behaviour, however it is called: it asks neither what it was invoked as nor
 # which branch you are on. A failure exits non-zero — as `yoga check`, as the hook,
-# on trunk, on a branch, detached. Deliberate work-in-progress is
-# `git commit --no-verify`, said out loud, not inferred from your branch name.
+# on trunk, on a branch, detached. Deliberate WIP is `git commit --no-verify`, said
+# out loud, not inferred from your branch name.
 #
 # It NEVER touches your index. `git add` cannot be undone — it cannot tell "the tool
-# staged this" from "this was already staged, differently", so staging over a hunk
-# you staged with `git add -p` destroys it with nothing to restore from. The artifacts
-# it rewrites (src/test/pre_commit.log, src/test/xref.csv) are yours to read and stage.
+# staged this" from "this was already staged, differently", so staging over a
+# `git add -p` hunk destroys it with nothing to restore from. The artifacts it rewrites
+# (pre_commit.log, xref.csv) are yours to stage; stale, it refuses and says so.
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
-# machine-local fact and `yoga prerequisites` is its one voice.
-# Read a failure: git diff src/test/pre_commit.log
+# machine-local fact and `yoga prerequisites` is its one voice. Read a failure:
+# git diff src/test/pre_commit.log
 
 set -euo pipefail
 
@@ -75,6 +75,21 @@ main() {
         exit 1
       fi
     done
+  fi
+
+  # The artifacts' currency, guarded without touching anything. Deleting the old
+  # `git add` deleted a guarantee along with the rudeness: it silently ensured
+  # every commit carried freshly regenerated artifacts. Nothing reads the
+  # COMMITTED log — check_score reads live counts — so a forgotten stage would
+  # decay the byte-identical-on-any-clone contract one commit at a time, with no
+  # check ever noticing. Refuse and tell; never stage on someone's behalf.
+  # Worktree-vs-index is the right comparison: what is about to be committed must
+  # be what a fresh run produces. Unchanged artifacts never diff, so this is
+  # silent until it matters.
+  if ! git -C "$REPO_DIR" diff --quiet -- "${ARTIFACTS[@]}" 2>/dev/null; then
+    echo "ERROR: the regenerated artifacts are not staged — what would be committed is stale:" >&2
+    printf '    → run: git add %s\n' "${ARTIFACTS[*]}" >&2
+    rc=1
   fi
 
   exit $rc
