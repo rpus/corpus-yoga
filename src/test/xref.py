@@ -59,7 +59,7 @@ STDLIB_MODULES = {
 # on which git-ignored dirs happened to exist at run time (found 2026-07-13:
 # a machine whose gate had already created logs/ swallowed `logs/src/...`
 # tokens whole and skipped them; a fresh worktree without logs/ matched the
-# same text from `src/` inward and emitted a row — two rooms, two artifacts,
+# same text from `src/` inward and emitted a row — two machines, two artifacts,
 # one byte-identical tree). Freshness is the wrong invariant for a committed
 # artifact; machine-invariance is the right one.
 # The artifact extensions xref recognises — ONE authority: every extractor's

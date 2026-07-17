@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
 render_corpus.py — render every projected session conversation
-(cache/code-agents/<room>/<project>/<session>/conversation.json, the
+(cache/code-agents/<machine>/<project>/<session>/conversation.json, the
 sessionConversation data) into the served corpus:
-output/markdown/claude/code/conversations/<ordinal>-<slug>.md. Rooms dedupe: the same
-session held by several rooms renders once, from its maximal copy.
+output/markdown/claude/code/conversations/<ordinal>-<slug>.md. Machines dedupe: the same
+session held by several machines renders once, from its maximal copy.
 
 The code source joins the corpus exactly as claude and gemini do: files carry
 the '<ordinal>-<slug>' stem corpus_index requires, an h1 title, and
@@ -65,8 +65,8 @@ def main() -> int:
     out = Path(args.out)
 
     cache = REPO / 'cache' / 'code-agents'
-    # One file per SESSION, across rooms: several rooms may hold the same
-    # session (cache is keyed <room>/<project>/<session>); the maximal copy
+    # One file per SESSION, across machines: several machines may hold the same
+    # session (cache is keyed <machine>/<project>/<session>); the maximal copy
     # renders — most turns, then latest activity — since by the prefix
     # lattice the longest log holds every shorter one.
     held: dict = {}

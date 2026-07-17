@@ -375,7 +375,7 @@ src/main/cli/cli.py,85,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed
 src/main/cli/cli.py,239,comment,rsc/cli/commands.csv,Y,yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv
 src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
-src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<room>/<pr
+src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<machine>/
 src/main/code-agents/RUNME.sh,12,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/claude/code/machine-transport
 src/main/code-agents/RUNME.sh,13,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
 src/main/code-agents/RUNME.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
@@ -390,11 +390,11 @@ src/main/code-agents/RUNME.sh,115,call,src/main/code-agents/memory_to_json.py,Y,
 src/main/code-agents/RUNME.sh,117,call,src/main/code-agents/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --code-agent-memory ""$out_dir"""
 src/main/code-agents/RUNME.sh,121,call,src/run_python_script.sh,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
 src/main/code-agents/RUNME.sh,121,call,src/main/code-agents/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
-src/main/code-agents/RUNME.sh,128,path_str,src/main/code-agents,Y,"project_housekeeping ""$project_dir"" ""$room"" ""$name"""
-src/main/code-agents/RUNME.sh,133,path_str,src/main/code-agents,Y,"run_one ""$jsonl"" ""$room"" ""$name"""
-src/main/code-agents/RUNME.sh,138,path_str,src/main/code-agents,Y,"run_memory ""$project_dir"" ""$room"" ""$name"" ""$has_memory"""
-src/main/code-agents/RUNME.sh,163,path_str,src/main/code-agents,Y,"run_project ""$project_dir"" ""$room"""
-src/main/code-agents/RUNME.sh,180,path_str,src/main/code-agents,Y,"run_project ""${project_dir%/}"" ""$room"""
+src/main/code-agents/RUNME.sh,128,path_str,src/main/code-agents,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"""
+src/main/code-agents/RUNME.sh,133,path_str,src/main/code-agents,Y,"run_one ""$jsonl"" ""$machine"" ""$name"""
+src/main/code-agents/RUNME.sh,138,path_str,src/main/code-agents,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" ""$has_memory"""
+src/main/code-agents/RUNME.sh,163,path_str,src/main/code-agents,Y,"run_project ""$project_dir"" ""$machine"""
+src/main/code-agents/RUNME.sh,180,path_str,src/main/code-agents,Y,"run_project ""${project_dir%/}"" ""$machine"""
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/code-agents/jsonl_to_json.sh,5,comment,src/main/code-agents/jsonl_to_json.sh,Y,#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/code-agents/jsonl_to_json.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
@@ -463,12 +463,12 @@ src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
-src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{room}/{project-slug}/{uuid
-src/test/code-agents/debug_code_session_record.py,18,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{room}/{project-slug}/{uuid
-src/test/code-agents/debug_code_session_record.py,21,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{room}/{project-slug}/{uuid
+src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{machine}/{project-slug}/{u
+src/test/code-agents/debug_code_session_record.py,18,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{machine}/{project-slug}/{u
+src/test/code-agents/debug_code_session_record.py,21,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py input/claude/code/machine-transport/{machine}/{project-slug}/{u
 src/test/code-agents/debug_code_session_record.py,30,path_str,rsc/schema/code-agents/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 src/test/code-agents/survey_code_session.py,10,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py input/claude/code/machine-transport/{room}/{project-slug}/*.jsonl
+src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py input/claude/code/machine-transport/{machine}/{project-slug}/*.jsonl
 src/test/gen_changelog_matrix.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/gen_changelog_matrix.py,14,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
 src/test/gen_changelog_matrix.py,15,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write

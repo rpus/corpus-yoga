@@ -53,7 +53,7 @@ binding="$repo/rsc/machine"; binding+="/self.txt"
 machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null || echo unbound)"
 # A hook that rewrites commit messages must trust no input it didn't spell: a stray
 # newline/space/slash in the binding would corrupt the trailer (a multiline value
-# breaks out of it entirely). Hold it to the charset agent.py holds room labels to.
+# breaks out of it entirely). Hold it to the charset agent.py holds machine labels to.
 machine="$(tr -cd 'A-Za-z0-9_-' <<< "$machine")"; [[ -n "$machine" ]] || machine='unbound'
 
 if [[ -n "${CLAUDE_CODE_SESSION_ID:-}" ]]; then
