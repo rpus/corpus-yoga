@@ -6,7 +6,9 @@
 **/.DS_Store
 __pycache__/
 
-# the machine binding: the one gitignored file in the committed tree — the
-# machine names itself here, and that name must never be shared or transported
-rsc/machine/self.txt
+# the machine binding: this machine names ITSELF here, and that name is never
+# shared, never transported. It sits at the root beside the other machine-local
+# entries above (cache/, input/, logs/, output/) because that is what it IS —
+# not inside rsc/machine/, where its name keys a registry every clone shares.
+/machine-name.txt
 

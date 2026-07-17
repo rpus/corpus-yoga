@@ -25,8 +25,8 @@ eponymous workspace: subagent transcripts and persisted tool-results the log
 REFERENCES, moved with log semantics per file) + <machine>/<project>/memory/.
 Provenance is spatial and sender-declared: capture takes no destination —
 it mirrors EVERY project in the projects root into input/claude/code/machine-transport/<own
-machine>/, the machine read from the self.txt binding beside the registry
-(rsc/machine/) — and receive --from names the peer machine(s) whose sessions
+machine>/, the machine read from the rooted machine-name.txt binding, which
+rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
 than the receiver's assertion. An outbox is single-writer by construction, so
 capture MIRRORS each project's memory (updated in place, absentees
@@ -133,7 +133,7 @@ def _sha_lines(text: str) -> str:
 
 
 def own_outbox() -> Path:
-    """The remote this machine writes: input/claude/code/machine-transport/<its self.txt binding>.
+    """The remote this machine writes: input/claude/code/machine-transport/<its machine-name.txt binding>.
     input/claude/code/machine-transport itself is hand-made; the machine's subdirectory inside it is ours."""
     if not AGENTS_DIR.is_dir():
         sys.exit('error: input/claude/code/machine-transport missing — hand-make it as a symlink to the '

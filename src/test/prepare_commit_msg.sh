@@ -6,8 +6,8 @@
 #   Signature: <machine>/<provider>/<session>      (a Claude Code session drafted it)
 #   Signature: <machine>                           (no agent session in the environment)
 #
-# machine  — this machine's binding (rsc/machine/, its self-name), read at commit
-#            time. The concrete axis, not the "room" metonym. Always knowable.
+# machine  — this machine's binding (machine-name.txt, its self-name), read at
+#            commit time. The concrete axis, not the "room" metonym. Always knowable.
 # provider — the AI provider that drafted it (claude, …), from AI_AGENT — the outer
 #            corpus identity coordinate, so a signature reads like a corpus path.
 # session  — the agent session id (uuid8) that drafted it, from CLAUDE_CODE_SESSION_ID.
@@ -46,10 +46,9 @@ case "$source_type" in merge|squash) exit 0 ;; esac
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || exit 0
 repo="$(cd "$script_dir/../.." 2>/dev/null && pwd)" || exit 0
 
-# The machine binding is machine-local and uncommitted; its joined path literal must
-# not appear in committed text (it would strand xref — the very law the signature
-# records). Build the path in pieces, as PREREQUISITES' check_machine does.
-binding="$repo/rsc/machine"; binding+="/self.txt"
+# The machine binding: machine-local, uncommitted, and rooted beside the other
+# machine-local entries. Its own .gitignore rule is what lets this name it whole.
+binding="$repo/machine-name.txt"
 machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null || echo unbound)"
 # A hook that rewrites commit messages must trust no input it didn't spell: a stray
 # newline/space/slash in the binding would corrupt the trailer (a multiline value

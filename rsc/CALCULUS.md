@@ -110,7 +110,7 @@ per-corpus code.
   re-dressed by its machine and links following, the index unioning by
   novelty-append). Transported agents live in the shared STORE (`input/claude/code/machine-transport`, one
   hand-made symlink per machine), keyed machine-then-project under the ORIGIN machine's name — the
-  `self.txt` binding in `rsc/machine/` — so provenance is spatial and sender-declared, never
+  rooted `machine-name.txt` binding — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
   design): transport MIRRORS the agent into its own single-writer outbox, and
   every merge subtlety lives in receive, where two agents actually meet.

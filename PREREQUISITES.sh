@@ -145,14 +145,11 @@ check_optional_modes() {
 }
 
 check_machine() {
-  # The binding names this machine (rsc/machine/README.md). Its path is built in
-  # pieces: the joined literal must not appear in committed text, because the file
-  # rightly does not exist on a fresh clone and the committed xref counts are
-  # machine-invariant.
-  local dir="$SCRIPT_DIR/rsc/machine"
-  local binding="$dir"; binding+="/self.txt"
+  # The binding names this machine (rsc/machine/README.md): rooted, gitignored,
+  # and so spelt whole like anything else.
+  local binding="$SCRIPT_DIR/machine-name.txt"
   local rel="${binding#"$SCRIPT_DIR/"}"
-  local registry="$SCRIPT_DIR/rsc/machine/machines.csv"   # spelt whole: xref resolves it
+  local registry="$SCRIPT_DIR/rsc/machine/machines.csv"
   echo "machine (its own name for itself — never shared, never transported)"
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"

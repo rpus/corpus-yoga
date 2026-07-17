@@ -2,10 +2,15 @@
 
 Two facts about machines, and deliberately no more.
 
-| file | what |
+| where | what |
 | --- | --- |
-| `machines.csv` | the **registry**: every declared machine. Committed. |
-| `self.txt` | the **binding**: which one this is. One line, gitignored — a machine names itself, and that name is never shared, never transported. |
+| `machines.csv` (here) | the **registry**: every declared machine. Committed — every clone carries the same one. |
+| `machine-name.txt` (repo root) | the **binding**: which one this is. One line, gitignored — a machine names itself, and that name is never shared, never transported. |
+
+They live apart because they are opposites: the registry is the list every clone
+shares, the binding is the one thing no clone may share. So the binding sits at the
+root among the other machine-local entries (`cache/`, `input/`, `logs/`, `output/`),
+which is what it is — and this directory is left wholly committed.
 
 `src/main/machine.py` reads both and is a library, not a command: `machines()` and
 `bound_machine()`. Nothing here reports — `./yoga prerequisites` is the one machine
@@ -22,13 +27,24 @@ reader, so every consumer inherits it.
 Declare first, then bind — never the other way round:
 
     # 1. add a row to machines.csv (committed, reviewed)
-    # 2. then, on that machine, from this directory:
-    echo <its-declared-name> > self.txt
+    # 2. then, on that machine, from the repo root:
+    echo <its-declared-name> > machine-name.txt
 
-`./yoga prerequisites` prints that command with the path filled in — it builds the
-path by arithmetic, because the joined literal must not appear in committed text:
-the file rightly does not exist on a fresh clone, so naming it whole would strand
-xref and make the committed counts depend on which machine wrote them.
+`./yoga prerequisites` prints that command ready to run, and names the declared
+machines to pick from.
+
+## Why the binding is not in here
+
+Until 2026-07-17 it was — `self.txt`, beside the registry, the one gitignored file
+in the committed tree. That single exception cost more than it was worth. Its path
+had to be assembled from pieces and never written whole, in this README and in every
+script that read it, because a committed literal naming it was a reference to a file
+that exists only on bound machines: cross-reference resolution asked the filesystem,
+so the committed counts came out one way here and another way on a fresh clone. The
+rule was easy to state and easy to forget, and it was forgotten — by the very commit
+that rewrote this file. Rooted, the binding is named outright everywhere, because
+its own `.gitignore` rule is what makes naming it safe. The exception is gone, and
+with it the discipline that existed only to survive it.
 
 ## Why there is no manifest
 

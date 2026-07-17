@@ -7,8 +7,8 @@ voice, and it says everything this ever said, in more detail.
 Two facts, and only two:
 
   machines()       the declared machines (rsc/machine/machines.csv) — the registry.
-  bound_machine()  which one this is, from the one-line self.txt binding beside it,
-                   REFUSED unless the registry declares it.
+  bound_machine()  which one this is, from the one-line machine-name.txt binding
+                   at the repo root, REFUSED unless the registry declares it.
 
 That refusal is the whole point, and it guards exactly one write: agent.py keys the
 shared transport store by this name (input/claude/code/machine-transport/<machine>/),
@@ -16,10 +16,16 @@ so a typo'd binding would mint a phantom machine in a store BOTH machines see. T
 gate lives here, in the one reader, so every consumer inherits it. Declare a machine
 in the registry first, then bind to it — never the other way round.
 
-The binding is the one gitignored file in the committed tree: a machine names ITSELF,
-and that name is never shared, never transported (user placement, 2026-07-08). Its
-path is built by arithmetic so no committed literal names a file that rightly does
-not exist on a fresh clone — the same law the registry itself serves.
+The two live apart because they are opposites. The registry is shared: every clone
+carries the same machines.csv. The binding is the machine naming ITSELF, and that
+name is never shared, never transported — so it sits at the repo root among the
+other machine-local entries (cache/, input/, logs/, output/), gitignored, and
+rsc/machine/ is left wholly committed. Until 2026-07-17 the binding lived INSIDE
+rsc/machine/, the one gitignored file in the committed tree, and that single
+exception cost more than it was worth: its path had to be built by arithmetic and
+never spelled whole, because a committed literal naming it read as a reference to
+a file that exists only on bound machines. Rooted, it is spelled outright here —
+its own .gitignore rule is what makes that safe.
 
 There is no per-machine manifest and no layering: machines do not diverge. What a
 machine may or may not have is expressed by PREREQUISITES as optional, not by giving
@@ -32,9 +38,8 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-REGISTRY_DIR = REPO / 'rsc' / 'machine'
-REGISTRY = REGISTRY_DIR / 'machines.csv'
-BINDING = REGISTRY_DIR / 'self.txt'
+REGISTRY = REPO / 'rsc' / 'machine' / 'machines.csv'
+BINDING = REPO / 'machine-name.txt'
 
 
 def machines() -> list[str]:
