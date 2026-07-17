@@ -5,7 +5,7 @@ cache,src/main/cli/cache.py,clean (--dry-run|--apply) | regen [--dry-run],projec
 calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites
 check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the deterministic ones
 commands,src/main/cli/cli.py,[<command>],project L5,,"Man entries derived from this table: bare, the full SYNOPSIS (one invocation form per line); with a command, its whole entry"
-completions,src/main/cli/cli.py,[--write | --install],project L5,,Emit zsh tab-completion derived from this table; --install wires it into ~/.zshrc above compinit (idempotent)
+completions,src/main/cli/cli.py,[--write | --install | --uninstall],project L5,,Emit zsh tab-completion derived from this table; --install wires it into ~/.zshrc above compinit (idempotent); --uninstall removes it
 dashboard,src/main/chat-exports/dashboard.sh,status | capture [--conversations <path>] [--only semantic-concepts|chat-categories] | present,capture project,,Refresh output/dashboard/ — the paid model capture of semantic-concepts + chat-categories; present renders the corpus page free (bare: status)
 indexing,src/main/model/build_index.py,status | candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [--because <why>] | build [--markdown <dir>] [--accepted <file>] [--rejected <file>],capture curate project,,Curate and build the book index over output/indexing/ (bare: status)
 library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-library dir naming across vintages (dry run by default)

@@ -31,10 +31,8 @@ the table, print the calculus, and generate completion before ./RUNME.sh has
 run. Adding a third-party import here would silently break that.
 """
 import csv
-import datetime
 import os
 import re
-import shutil
 import sys
 from pathlib import Path
 
@@ -42,6 +40,11 @@ REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
 COLUMNS = ('command', 'target', 'usage', 'calculus', 'step', 'summary')
 COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
+# The comment that tags the block --install writes into ~/.zshrc, and by which
+# --uninstall finds it again. One constant, so the write and its inverse can never
+# name the block differently — an already-installed machine (home-room) carries
+# exactly this text, so it must stay byte-stable to remain removable.
+COMPLETION_MARKER = '# yoga tab-completion (regenerate: ./yoga completions --write)'
 
 
 def commands() -> list[dict]:
@@ -190,12 +193,6 @@ def completion_script(cmds: list[dict]) -> str:
     return '\n'.join(lines)
 
 
-def _stamp() -> str:
-    """Local wall-clock, filename-safe — this names a backup a human will look for
-    beside their own ~/.zshrc, so it reads in their timezone, not UTC."""
-    return datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
-
-
 def tilde(p: Path) -> str:
     """Home-relative rendering: '~/dev/...' where p is under $HOME, else
     absolute. The printed ~ lines are portable across machines and users,
@@ -224,41 +221,72 @@ def install_completion() -> int:
     idx = next((i for i, l in enumerate(lines)
                 if re.match(r'\s*(compinit\b|fpath=)', l)), None)
     if idx is None:
-        lines += ['', '# yoga tab-completion (regenerate: ./yoga completions --write)',
-                  fpath_line, 'autoload -Uz compinit', 'compinit']
+        lines += ['', COMPLETION_MARKER, fpath_line, 'autoload -Uz compinit', 'compinit']
         where = 'appended, with its own compinit (this ~/.zshrc had none)'
     else:
         while idx > 0 and lines[idx - 1].lstrip().startswith('#'):
             idx -= 1                      # step above the block's comment header
-        lines[idx:idx] = ['# yoga tab-completion (regenerate: ./yoga completions --write)',
-                          fpath_line, '']
+        lines[idx:idx] = [COMPLETION_MARKER, fpath_line, '']
         where = f'inserted at line {idx + 1}, above compinit'
-    # A timestamped copy before the write. This is the repo's only write outside
-    # its own tiers and the store, and ~/.zshrc is the user's file, not ours: a
-    # careful edit of someone else's file still owes them an undo. Timestamped, so
-    # a later install cannot overwrite an earlier one's evidence. Reached only when
-    # a change is actually being made — the already-wired path returns above, so
-    # re-running never litters.
-    note = ''
-    if zshrc.exists():
-        backup = zshrc.with_name(f'.zshrc.pre-yoga-{_stamp()}')
-        shutil.copy2(zshrc, backup)
-        note = f'\n  a copy of the original is at {tilde(backup)}'
+    # No backup is written. The block is tagged (COMPLETION_MARKER) and positioned,
+    # so --uninstall is a precise inverse the tool owns — a better undo than a
+    # whole-file copy the user would have to remember to delete. Nothing lands
+    # outside ~/.zshrc itself.
     zshrc.write_text('\n'.join(lines) + '\n')
-    print(f'{tilde(zshrc)}: {where}{note}')
+    print(f'{tilde(zshrc)}: {where}')
     print(f'    {fpath_line}')
+    print('  undo anytime: ./yoga completions --uninstall')
     print(f"→ start a new shell (exec zsh). Optional, for yoga from anywhere:\n"
           f"    alias yoga='{tilde(REPO / 'yoga')}'")
+    return 0
+
+
+def uninstall_completion() -> int:
+    """The exact inverse of install: remove the tagged yoga block from ~/.zshrc,
+    leaving everything else byte-identical. The marker comment and the fpath line
+    naming our completion dir are unambiguously ours; one adjacent blank (install
+    leaves one on a side) goes with them. A compinit install added to a ~/.zshrc
+    that had none is deliberately LEFT — it is generic zsh a later config may now
+    rely on, and an idle compinit harms nothing; removing it could break what was
+    built on top."""
+    zshrc = Path.home() / '.zshrc'
+    if not zshrc.exists():
+        print(f'{tilde(zshrc)}: no such file — nothing to remove')
+        return 0
+    lines = zshrc.read_text().splitlines()
+    parent, tparent = str(COMPLETION_OUT.parent), tilde(COMPLETION_OUT.parent)
+    drop: set[int] = set()
+    for i, l in enumerate(lines):
+        if l.strip() == COMPLETION_MARKER:
+            drop.add(i)
+        elif l.lstrip().startswith('fpath=') and (parent in l or tparent in l):
+            drop.add(i)  # the fpath line, even if the marker was hand-removed
+    if not drop:
+        print(f'{tilde(zshrc)}: no yoga completion block found — nothing to remove')
+        return 0
+    lo, hi = min(drop), max(drop)
+    if hi + 1 < len(lines) and lines[hi + 1].strip() == '':
+        drop.add(hi + 1)                  # the blank install left after an insert
+    elif lo > 0 and lines[lo - 1].strip() == '':
+        drop.add(lo - 1)                  # or the blank it left before an append
+    kept = [l for i, l in enumerate(lines) if i not in drop]
+    zshrc.write_text('\n'.join(kept) + '\n')
+    print(f'{tilde(zshrc)}: removed the yoga completion block ({len(drop)} lines) — '
+          'nothing else touched')
+    print('→ start a new shell (exec zsh) for it to take effect')
     return 0
 
 
 def completion(rest: list[str]) -> int:
     if any(a in rest for a in ('-h', '--help')):
         # a help request is a question, never an action — and never the product
-        print('yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv\n'
+        print('yoga completions [--write | --install | --uninstall] — zsh tab-completion derived from rsc/cli/commands.csv\n'
               '  bare: print to stdout; --write: write under cache/completions/;\n'
-              '  --install: --write, then wire it into ~/.zshrc above compinit (idempotent)')
+              '  --install: --write, then wire it into ~/.zshrc above compinit (idempotent);\n'
+              '  --uninstall: remove that block from ~/.zshrc (the exact inverse — no file left behind)')
         return 0
+    if '--uninstall' in rest:
+        return uninstall_completion()
     text = completion_script(commands())
     if '--write' in rest or '--install' in rest:
         COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)

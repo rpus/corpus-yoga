@@ -68,7 +68,7 @@ rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cach
 rsc/cli/commands.csv,5,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites"
 rsc/cli/commands.csv,6,path_str,src/test/pre_commit.sh,Y,"check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the de"
 rsc/cli/commands.csv,7,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,[<command>],project L5,,Man entries derived from this table: bare, the full SYNOPSIS (one i"
-rsc/cli/commands.csv,8,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,[--write | --install],project L5,,Emit zsh tab-completion derived from this table; --ins"
+rsc/cli/commands.csv,8,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,[--write | --install | --uninstall],project L5,,Emit zsh tab-completion derived from thi"
 rsc/cli/commands.csv,9,path_str,src/main/chat-exports/dashboard.sh,Y,"dashboard,src/main/chat-exports/dashboard.sh,status | capture [--conversations <path>] [--only semantic-concepts|chat-ca"
 rsc/cli/commands.csv,10,path_str,src/main/model/build_index.py,Y,"indexing,src/main/model/build_index.py,status | candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [-"
 rsc/cli/commands.csv,11,path_str,src/main/chat-exports/library.py,Y,"library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-libr"
@@ -369,8 +369,8 @@ src/main/cli/cli.py,5,comment,rsc/cli/commands.csv,Y,One curated table (rsc/cli/
 src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
 src/main/cli/cli.py,13,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 src/main/cli/cli.py,30,comment,RUNME.sh,Y,"the table, print the calculus, and generate completion before ./RUNME.sh has"
-src/main/cli/cli.py,87,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
-src/main/cli/cli.py,258,comment,rsc/cli/commands.csv,Y,yoga completions [--write | --install] — zsh tab-completion derived from rsc/cli/commands.csv
+src/main/cli/cli.py,90,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
+src/main/cli/cli.py,283,comment,rsc/cli/commands.csv,Y,yoga completions [--write | --install | --uninstall] — zsh tab-completion derived from rsc/cli/commands.csv
 src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<machine>/
