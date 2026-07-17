@@ -1,7 +1,14 @@
-/input/
-/cache/
+# The machine-local tiers. NO trailing slash on any of them, deliberately: a
+# trailing slash means "directory only", and git treats a symlink as a blob, not
+# a directory — so /output/ would NOT ignore output, which is a symlink into
+# iCloud here. Untracked, it would offer git an absolute path naming one machine.
+# Which tiers are symlinks is a per-machine fact (output is one here, input is
+# not), so no slash on any: without one a rule ignores a directory AND a symlink,
+# and stops depending on the shape a tier happens to have on whoever's disk.
+/input
+/cache
 /output
-/logs/
+/logs
 
 **/.DS_Store
 __pycache__/
