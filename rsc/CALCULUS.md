@@ -283,6 +283,20 @@ the same operations, governed by the same laws. Code is not a second ontology.
   (`src/main/steps.sh`), `--plan` is the projection of that atomisation, and
   the CLI table's step column is checked against it — a cross-source
   comparison, with the executing list as the senior source.
+- **the terminal grammar (noun / verb)** — the CLI's own invocation surface draws
+  the corpus's operation/read line. A bare `yoga <noun>` is a READ: status
+  re-derived on demand, writing nothing — a projection (L5), idempotent by
+  triviality. A `yoga <noun> <verb>` is an OPERATION, and `sync` is its idempotent
+  archetype (L1: re-running is silence), the write kept behind the verb so a bare
+  noun can never mutate the tree. Help is a third thing, a projection QUERY —
+  `-h`/`--help` answered from the table, never an act — so it left the bare
+  invocation and the `help` command both. And the usage each command prints is
+  GENERATED from `rsc/cli/help.csv`, not stored in a `usage` column: a projection
+  kept independently of its source is a projection that can drift, so generating it
+  is L5 carried to its end, where the reconciling check has nothing left to
+  reconcile (the help.csv-complete check deleted itself, and the score went down).
+  Drawn to stop a bare noun writing; seen only afterwards to be the operation/read
+  split the corpus already keeps.
 
 The laws transfer verbatim: L2 *is* the committed/machine-local split; L6 fired
 on a stale completion the day the completion existed; L8 is the yoga launcher's

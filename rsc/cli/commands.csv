@@ -1,18 +1,18 @@
-command,target,usage,calculus,step,summary
-agent,src/main/code-agents/agent.py,list | models | capture --session <uuid8>|--all [--to <scratch-dir>] | receive --session <uuid8>|--all --from <machine|dir> [--apply] | demerge [--apply],transport supersession merge L1 L3 L4 L6,,List agents (last ai-title dressing); models counts assistant records by model; capture mirrors one or all (of every project) into the store input/claude/code/machine-transport/<machine>/<project>/; receive merges a peer machine's transported sessions (one or all) — the one deliberate writer of ~/.claude/projects; demerge undoes it
-browser,src/main/browser-captures/PREP.sh,capture [--provider claude|gemini] [--DOM],capture,,"Sweep browser-reachable providers into input/<provider>/chat/browser-{API,DOM}/ via Safari — claude live API JSON (+ DOM scrape with --DOM), gemini DOM-only (REQUIRES --DOM: no API, and a scrape walk is slow); audits capture health first"
-cache,src/main/cli/cache.py,clean (--dry-run|--apply) | regen [--dry-run],project,,"cache/ lifecycle: clean removes orphaned subtrees (neither written nor read; one of --dry-run/--apply required), regen rebuilds cache/ by running each registry row's producers (rsc/cache_io.csv) — which co-write output/ derivations too. The free reproduction ritual: cache clean --apply && cache regen"
-calculus,rsc/CALCULUS.md,,,,Print the corpus calculus — the doctrine this table cites
-check,src/test/pre_commit.sh,[--fix],validate L2,,Pre-commit suite in three tiers; the committed log carries only the deterministic ones
-commands,src/main/cli/cli.py,[<command>],project L5,,"Man entries derived from this table: bare, the full SYNOPSIS (one invocation form per line); with a command, its whole entry"
-completions,src/main/cli/cli.py,[--write | --install | --uninstall],project L5,,Emit zsh tab-completion derived from this table; --install wires it into ~/.zshrc above compinit (idempotent); --uninstall removes it
-dashboard,src/main/chat-exports/dashboard.sh,status | capture [--conversations <path>] [--only semantic-concepts|chat-categories] | present,capture project,,Refresh output/dashboard/ — the paid model capture of semantic-concepts + chat-categories; present renders the corpus page free (bare: status)
-indexing,src/main/model/build_index.py,status | candidates [--top <n>] | accept <term> [alias ...] | reject <concept> [--because <why>] | build [--markdown <dir>] [--accepted <file>] [--rejected <file>],capture curate project,,Curate and build the book index over output/indexing/ (bare: status)
-library,src/main/chat-exports/library.py,<json_dir> [--root <dir>] [--apply],normalise merge L1,,Normalise artifact-library dir naming across vintages (dry run by default)
-memories,src/main/chat-exports/accumulate_memories.py,[--chat-exports-cache <dir>] [--memories-output <dir>] [--markdown <dir>],accumulate normalise project L1 L4,accumulate_memories,Deposit every distinct chat-memory state; render the timeline
-model,src/main/model/gen_model.py,,project,,Generate per-schema definition catalogues
-prerequisites,PREREQUISITES.sh,,L8,,Read-only report of what this machine can run
-run,RUNME.sh,[--plan] [--only <pipeline>] [--compare-scrape],atomise validate supersession accumulate project,,Run every pipeline against its input/ inputs — processing only; acquisition lives under browser/agent/dashboard capture. --plan previews any parametrised call
-server,src/main/model/serve_markdown.sh,status | start [--markdown <dir>] [--port <n>] [--daemon] | stop | ensure-assets,project,,Serve the markdown corpus locally with LaTeX rendering and turn deep links (bare — status; --markdown defaults to output/markdown); ensure-assets fetches the render libs into cache/serve_markdown
-supersede,src/main/chat-exports/compare_batches.py,[--chat-exports-cache <dir>] [--bulk-exports <dir>] [--browser-api <dir>] [--memories-output <dir>] [--summaries-output <dir>],supersession L3,compare_batches,Do later bulk exports supersede earlier ones? Computed; never assumed
-xref,src/test/xref.py,[--out <path>],validate,,Cross-reference integrity of every committed artifact
+"command","target","calculus","step","summary"
+"agent","src/main/code-agents/agent.py","transport supersession merge L1 L3 L4 L6","","code-agent sessions: the census, and transport between machines"
+"browser","src/main/browser-captures/PREP.sh","capture","","capture browser-reachable chats via Safari (claude API, gemini DOM)"
+"cache","src/main/cli/cache.py","project","","the rebuildable cache/ tier: clean orphans, sync rebuilds"
+"calculus","rsc/CALCULUS.md","","","Print the corpus calculus — the doctrine this table cites"
+"check","src/test/pre_commit.sh","validate L2","","the pre-commit check suite (also the installed git hook)"
+"commands","src/main/cli/cli.py","project L5","","each command's standard help (bare: every command's forms)"
+"completions","src/main/cli/cli.py","project L5","","zsh tab-completion derived from the command table"
+"dashboard","src/main/chat-exports/dashboard.sh","capture project","","the corpus dashboard: paid capture, free render"
+"indexing","src/main/model/build_index.py","capture curate project","","Curate and build the book index over output/indexing/ (bare: status)"
+"library","src/main/chat-exports/library.py","normalise merge L1","","normalise artifact-library dir naming across vintages"
+"memories","src/main/chat-exports/accumulate_memories.py","accumulate normalise project L1 L4","accumulate_memories","Deposit every distinct chat-memory state; render the timeline"
+"model","src/main/model/gen_model.py","project","","per-schema definition catalogues, candidates for model.json"
+"prerequisites","PREREQUISITES.sh","L8","","Read-only machine report — bare shows what needs attention, --show-all the lot"
+"run","RUNME.sh","atomise validate supersession accumulate project","","run every pipeline over input/ — processing only, never acquiring"
+"server","src/main/model/serve_markdown.sh","project","","serve the markdown corpus locally (LaTeX + turn deep links)"
+"supersede","src/main/chat-exports/compare_batches.py","supersession L3","compare_batches","Do later bulk exports supersede earlier ones? Computed; never assumed"
+"xref","src/test/xref.py","validate","","Cross-reference integrity of every committed artifact"

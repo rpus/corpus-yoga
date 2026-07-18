@@ -357,20 +357,17 @@ def main():
     ap.add_argument('--accepted', default=str(REPO / 'output' / 'indexing' / 'accepted.txt'))
     ap.add_argument('--rejected', default=str(REPO / 'output' / 'indexing' / 'rejected.txt'))
     sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
-    cand = sub.add_parser('candidates', help='derive cache/indexing/candidates.txt (the pending queue)')
+    cand = sub.add_parser('candidates')
     # --top belongs on the candidates subparser, not the parent — the advertised form
     # is `candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
-    cand.add_argument('--top', type=int, default=None, metavar='N',
-                      help='also print the frequent-uncovered-corpus-words advisory '
-                           '(top N; terminal only, machine-local; off unless asked)')
-    acc = sub.add_parser('accept', help='accept a concept as a headword (merge aliases into it)')
+    cand.add_argument('--top', type=int, default=None, metavar='N')
+    acc = sub.add_parser('accept')
     acc.add_argument('term')
     acc.add_argument('aliases', nargs='*')
-    rej = sub.add_parser('reject', help='reject a concept into the disposal record')
+    rej = sub.add_parser('reject')
     rej.add_argument('concept')
-    rej.add_argument('--because', default='', help='reason, kept as a # comment')
-    sub.add_parser('build', help='build output/markdown/index.md from accepted.txt')
-    sub.add_parser('status', help='the disposal-state report (also what a bare invocation prints)')
+    rej.add_argument('--because', default='')
+    sub.add_parser('sync')
     args = ap.parse_args()
 
     accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)
@@ -386,7 +383,7 @@ def main():
         print(reject(accepted_path, rejected_path, args.concept, args.because))
         pending_report(accepted_path, rejected_path)
         return
-    if args.verb == 'build':
+    if args.verb == 'sync':
         root = Path(args.markdown)
         text = build(root, accepted_path)
         out = root / 'index.md'

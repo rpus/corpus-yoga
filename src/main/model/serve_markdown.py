@@ -303,12 +303,9 @@ def make_handler(markdown_dir: Path) -> type:
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('--markdown', metavar='DIR',
-                   help='Directory tree of markdown files to serve (e.g. output/markdown)')
-    p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
-    p.add_argument('--ensure-assets', action='store_true',
-                   help='fetch the render libraries into cache/serve_markdown, then exit '
-                        '(the regen producer for that subtree — serve also self-heals them at startup)')
+    p.add_argument('--markdown', metavar='DIR')
+    p.add_argument('--port', type=int, default=8182)
+    p.add_argument('--ensure-assets', action='store_true')
     args = p.parse_args()
 
     # The regen producer path: repopulate cache/serve_markdown and stop. Best-effort

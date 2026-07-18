@@ -724,31 +724,24 @@ def receive_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool,
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='capture agents into the store; receive from peer machines (session × memory)')
-    sub = ap.add_subparsers(dest='direction', required=True)
-    t = sub.add_parser('capture', help="mirror agents into the machine's store dir (the ref a machine pushes)")
-    t.add_argument('--session',
-                   help='uuid(8) prefix of the agent to move — identity is never guessed')
-    t.add_argument('--all', action='store_true',
-                   help='every session of every project (git push --all); safe by the prefix lattice')
-    t.add_argument('--to', metavar='SCRATCH_DIR',
-                   help='scratch/test escape hatch: a directory, never a machine name')
-    r = sub.add_parser('receive', help="install a peer machine's sessions (the one deliberate writer of ~/.claude/projects)")
-    r.add_argument('--from', dest='source', required=True, metavar='MACHINE|DIR',
-                   help="a machine name (bare token) or a directory (path-shaped: ./dir) — shape, never CWD lookup")
-    r.add_argument('--session',
-                   help='uuid(8) prefix of the agent to install — identity is never guessed')
-    r.add_argument('--all', action='store_true',
-                   help='every session the machine transported (git pull --all from one peer)')
+    # bare noun → the census (status); not required, and there is no `list` verb (bare IS it)
+    sub = ap.add_subparsers(dest='direction')
+    t = sub.add_parser('capture')
+    t.add_argument('--session')
+    t.add_argument('--all', action='store_true')
+    t.add_argument('--to', metavar='SCRATCH_DIR')
+    r = sub.add_parser('receive')
+    r.add_argument('--from', dest='source', required=True, metavar='MACHINE|DIR')
+    r.add_argument('--session')
+    r.add_argument('--all', action='store_true')
     r.add_argument('--apply', action='store_true')
-    d = sub.add_parser('demerge', help='undo the latest received merge (memory only, all-or-nothing per project)')
+    d = sub.add_parser('demerge')
     d.add_argument('--apply', action='store_true')
-    sub.add_parser('list', help='census: local + store sessions, dressed with their last ai-title')
-    sub.add_parser('models', help='model census: message.model counts over "type":"assistant" records, '
-                                  'every project and session in the projects root')
+    sub.add_parser('models')
     args = ap.parse_args()
 
-    if args.direction == 'list':
-        return list_agents()
+    if args.direction is None:
+        return list_agents()   # bare noun → the census (local + store sessions), read-only status
 
     if not PROJECTS.is_dir():
         sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/code-agents/PREP.sh creates the symlink')

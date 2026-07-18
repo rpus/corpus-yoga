@@ -154,28 +154,46 @@ def render(deposits, out_dir):
     print(f'{len(deposits)} memory snapshot(s) to {shown} — {w} written, {u} unchanged, {r} pruned')
 
 
+def status(memories_output: Path, chat_exports_cache: Path) -> int:
+    """The bare-noun default: show current state, write nothing. Reports how many
+    deposits the store already holds and how many memory states sit in the cache
+    awaiting a sync."""
+    n = len(list(memories_output.glob('*.json'))) if memories_output.is_dir() else 0
+    states = memory_states(chat_exports_cache)
+    store = memories_output.relative_to(REPO) if memories_output.is_relative_to(REPO) else memories_output
+    print(f'memories: {n} deposit(s) in {store}; {len(states)} memory state(s) in the cache')
+    return 0
+
+
+def sync(chat_exports_cache: Path, memories_output: Path, markdown: Path) -> int:
+    """The verb: deposit every distinct chat-memory state verbatim into the durable
+    store (content-deduplicated against the nearest earlier deposit; deposits are
+    immutable and outlive their batches), then render the diffable markdown timeline.
+    Free, local, idempotent (L1) — the only path here that writes."""
+    states = memory_states(chat_exports_cache)
+    if not states:
+        print(f'no archived memory states under {chat_exports_cache} — nothing to accumulate')
+        return 0
+    deposits, conflicts = deposit(states, memories_output)
+    render(deposits, markdown)
+    return 1 if conflicts else 0
+
+
 def main():
     ap = argparse.ArgumentParser(
-        description='Deposit every distinct chat-memory state verbatim into the durable store '
-                    '(content-deduplicated against the nearest earlier deposit; deposits are '
-                    'immutable and outlive their batches), then render the diffable markdown '
-                    'timeline. Free, local, idempotent — a bare run is the whole act.')
-    ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'),
-                    help='cache root holding each batch\'s archived memories component')
-    ap.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'),
-                    help='the deposit store — one immutable <snapshot-time>.json per distinct state')
-    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'),
-                    help='where each deposit unwraps to a readable <snapshot-time>.md')
+        description='The durable chat-memory store. Bare shows status; `sync` deposits '
+                    'every distinct state (immutable, content-deduplicated) and renders the '
+                    'markdown timeline — free, local, idempotent.')
+    sub = ap.add_subparsers(dest='verb')
+    sp = sub.add_parser('sync')
+    sp.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
+    sp.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'))
+    sp.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'))
     args = ap.parse_args()
-
-    states = memory_states(Path(args.chat_exports_cache))
-    if not states:
-        print('no archived memory states under '
-              f'{args.chat_exports_cache} — nothing to accumulate')
-        return 0
-    deposits, conflicts = deposit(states, Path(args.memories_output))
-    render(deposits, Path(args.markdown))
-    return 1 if conflicts else 0
+    if args.verb == 'sync':
+        return sync(Path(args.chat_exports_cache), Path(args.memories_output), Path(args.markdown))
+    # bare → status (read-only), against the canonical store
+    return status(REPO / 'output' / 'memories', REPO / 'cache' / 'chat-exports')
 
 
 if __name__ == '__main__':

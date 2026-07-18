@@ -74,7 +74,7 @@ stop() {
 }
 
 case "${1:-}" in
-  ""|status)      status ;;
+  "")             status ;;   # bare noun → status; there is no `status` verb (this IS it)
   -h|--help|help) help ;;
   start)          shift; start "$@" ;;
   stop)           stop ;;

@@ -40,7 +40,7 @@ REPO = Path(__file__).resolve().parents[3]
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='rebuild cache/ by running its declared producers')
-    ap.add_argument('--dry-run', action='store_true', help='print the producer commands; run nothing')
+    ap.add_argument('--dry-run', action='store_true')
     args = ap.parse_args()
 
     cmds = producers()
