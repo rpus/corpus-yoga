@@ -20,9 +20,19 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
+# The bare-noun default: the capture-health audit, read-only. Shows what is captured
+# and what is missing without touching Safari or writing anything — the same audit
+# `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
+status() {
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
+    --input "$REPO_DIR/input" \
+    --api "$REPO_DIR/output/markdown/claude/chat/conversations"
+}
+
 main() {
   case "${1-}" in
     capture) shift ;;
+    '') status; exit $? ;;   # bare noun → status (read-only), never the scrape
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: $0 capture [--provider claude|gemini] [--DOM]  (--help for details)" >&2; exit 1 ;;
   esac

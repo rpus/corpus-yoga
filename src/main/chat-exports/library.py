@@ -204,10 +204,8 @@ if __name__ == '__main__':
         description='Normalise artifact-library dir naming across vintages '
                     '(rsc/naming/library_dir_vintages.csv is the vintage authority): every dir '
                     'becomes <ordinal>-<slug>-<uuid8>, the uuid8 suffix being the identity.')
-    ap.add_argument('json_dir', help="a batch's atomised json/ (the corpus for slug/ordinal resolution)")
-    ap.add_argument('--root', default=str(LIBRARY),
-                    help='the library to normalise (default: output/artifacts/downloaded)')
-    ap.add_argument('--apply', action='store_true',
-                    help='write the renames — without it, a dry run that only reports')
+    ap.add_argument('json_dir')
+    ap.add_argument('--root', default=str(LIBRARY))
+    ap.add_argument('--apply', action='store_true')
     args = ap.parse_args()
     sys.exit(1 if _normalise(Path(args.root), Path(args.json_dir), args.apply) else 0)

@@ -1,12 +1,15 @@
 # The yoga CLI's command table
 
 `commands.csv` is the single authority for the `./yoga` terminal surface (machinery:
-`src/main/cli/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
-from this table on demand — the help text a bare `./yoga` prints, the zsh tab-completion
-`./yoga completions` emits — and stored nowhere, because presentation is never load-bearing
-(L5 of `rsc/CALCULUS.md`). The CLI adds no behaviour of its own: `./yoga <command> [args...]`
-execs the row's target with the args forwarded verbatim, so `./yoga <command> --help` prints
-the *target's* help and each script remains the one authority on its own interface.
+`src/main/cli/cli.py`; launcher: the root `./yoga`), with each verb's and flag's one-line
+helptext in the sibling `help.csv` (columns: `command,item,help` — `item` a verb or a
+`--flag`). Everything a user meets is re-derived from these on demand — the menu `./yoga -h`
+prints, each command's `./yoga <command> -h` (its summary, its invocation forms, and the
+`help.csv` lines as headed subparagraphs), the zsh tab-completion `./yoga completions` emits
+— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
+`./yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
+`./yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
+level down at `./yoga <command> <verb> -h`, which passes through to the target's argparse.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
 data lives outside git (durable in `output/`, rebuildable in `cache/`): `yoga dashboard` (model

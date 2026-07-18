@@ -33,6 +33,7 @@ run. Adding a third-party import here would silently break that.
 import csv
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -40,11 +41,10 @@ REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
 COLUMNS = ('command', 'target', 'usage', 'calculus', 'step', 'summary')
 COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
-# The comment that tags the block --install writes into ~/.zshrc, and by which
-# --uninstall finds it again. One constant, so the write and its inverse can never
-# name the block differently — an already-installed machine (home-room) carries
-# exactly this text, so it must stay byte-stable to remain removable.
-COMPLETION_MARKER = '# yoga tab-completion (regenerate: ./yoga completions --write)'
+# The comment that tags the block `install` writes into ~/.zshrc, and by which
+# `uninstall` finds it again. One constant, so the write and its inverse can never
+# name the block differently.
+COMPLETION_MARKER = '# yoga tab-completion (regenerate: ./yoga completions sync)'
 
 
 def commands() -> list[dict]:
@@ -111,48 +111,53 @@ def _forms(c: dict) -> list[str]:
     return [f'yoga {c["command"]} {alt.strip()}' for alt in c['usage'].split(' | ')]
 
 
+def command_help_items(command: str) -> list[tuple[str, str]]:
+    """(item, description) rows for a command from rsc/cli/help.csv — the one home
+    for verb/flag helptext, hoisted into the command help so the targets' argparse
+    carries none. Empty until a command's rows are added."""
+    table = REPO / 'rsc' / 'cli' / 'help.csv'
+    if not table.exists():
+        return []
+    with table.open() as f:
+        return [(r['item'], r['help']) for r in csv.DictReader(f) if r['command'] == command]
+
+
+def render_command_help(c: dict) -> str:
+    """The standard command help, shared by `yoga <cmd> -h` and `yoga commands
+    <cmd>`: the summary, every invocation form, and each verb/flag as a headed
+    subparagraph (rsc/cli/help.csv). All from data (L5) — uniform, no drift. A
+    noun's bare form (its status) leads."""
+    forms = ([f"yoga {c['command']}   (status)"] if verbs_of(c['usage']) else []) + _forms(c)
+    out = [f"yoga {c['command']} — {c['summary']}", '', *[f'  {f}' for f in forms]]
+    items = command_help_items(c['command'])
+    if items:
+        out.append('')
+        for item, text in items:
+            out += [item, f'    {text}']
+    return '\n'.join(out) + '\n'
+
+
 def render_synopsis(cmds: list[dict], name: str | None = None) -> str:
-    """`yoga commands [<command>]` — man-page entries derived from the table on
-    every invocation and stored nowhere (L5), so they can never drift from the
-    one authority. Bare: the full SYNOPSIS, one invocation form per line. With a
-    command: that command's whole entry — NAME, SYNOPSIS, its calculus citations
-    and run-step equivalence — so the terminal answers what a command alleges
-    without anyone reading source."""
+    """`yoga commands [<command>]` — from the table (L5). With a command: its
+    standard help. Bare: every command's forms, one per line."""
     if name:
         c = next((c for c in cmds if c['command'] == name), None)
         if c is None:
             return f'yoga commands: no command {name!r} — `yoga commands` lists them all\n'
-        out = ['NAME', f'  yoga {c["command"]} — {c["summary"]}', '', 'SYNOPSIS',
-               *[f'  {f}' for f in _forms(c)]]
-        if c['calculus']:
-            out += ['', 'CALCULUS', f'  {c["calculus"]}   (defined in `yoga calculus`)']
-        if c['step']:
-            out += ['', 'RUN STEP', f'  ≡ `yoga run` step {c["step"]}']
-        out += ['', 'SEE ALSO', f'  yoga {c["command"]} --help   (the target\'s own voice)', '']
-        return '\n'.join(out)
-    out = ['yoga(1) — claude-export-yoga', '', 'SYNOPSIS',
-           '  yoga',
-           '  yoga <command> -h|--help']
+        return render_command_help(c)
+    out = ['yoga — claude-export-yoga', '']
     for c in cmds:
         out += [f'  {f}' for f in _forms(c)]
-    out.append('')
-    return '\n'.join(out)
+    return '\n'.join(out) + '\n'
 
 
 def render_help(cmds: list[dict]) -> str:
-    out = ['yoga — the terminal surface of claude-export-yoga',
-           'table: rsc/cli/commands.csv · calculus: rsc/CALCULUS.md (`./yoga calculus`)',
-           '',
-           'usage: ./yoga <command> [args...]   # `./yoga <command> --help` asks the target itself',
-           '']
-    for c in cmds:
-        out.append(f'  {c["command"]}' + (f' {c["usage"]}' if c['usage'] else ''))
-        out.append(f'      {c["summary"]}'
-                   + (f'  ⟨{c["calculus"]}⟩' if c['calculus'] else '')
-                   + (f'  ≡ run step {c["step"]}' if c['step'] else ''))
-    out += ['',
-            'zsh completion: `./yoga completions --write`, then add the printed lines to ~/.zshrc',
-            '']
+    """`yoga -h` — the command menu: one line each, name and summary. Bare `yoga`
+    runs the machine report (prerequisites); `yoga <command> -h` is a command's forms."""
+    w = max(len(c['command']) for c in cmds)
+    out = ['yoga — claude-export-yoga', '',
+           *[f"  {c['command']:<{w}}  {c['summary']}" for c in cmds],
+           '', '→ `yoga <command> -h` for its forms · `yoga <command>` for its status', '']
     return '\n'.join(out)
 
 
@@ -235,7 +240,7 @@ def install_completion() -> int:
     zshrc.write_text('\n'.join(lines) + '\n')
     print(f'{tilde(zshrc)}: {where}')
     print(f'    {fpath_line}')
-    print('  undo anytime: ./yoga completions --uninstall')
+    print('  undo anytime: ./yoga completions uninstall')
     print(f"→ start a new shell (exec zsh). Optional, for yoga from anywhere:\n"
           f"    alias yoga='{tilde(REPO / 'yoga')}'")
     return 0
@@ -277,27 +282,51 @@ def uninstall_completion() -> int:
     return 0
 
 
+def completion_status() -> int:
+    """The bare-noun default: show current state, write nothing. Whether the _yoga
+    file is written (and current with the table) and whether ~/.zshrc is wired."""
+    written = COMPLETION_OUT.exists()
+    current = written and COMPLETION_OUT.read_text() == completion_script(commands())
+    zshrc = Path.home() / '.zshrc'
+    wired = zshrc.exists() and any(l.strip() == COMPLETION_MARKER
+                                   for l in zshrc.read_text().splitlines())
+    state = ('not written — `yoga completions sync`' if not written else
+             'current' if current else 'STALE — `yoga completions sync`')
+    print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
+    print(f'  ~/.zshrc: ' + ('wired' if wired else 'not wired — `yoga completions install`'))
+    return 0
+
+
+def _write_completion() -> None:
+    COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
+    COMPLETION_OUT.write_text(completion_script(commands()))
+    print(f'wrote {COMPLETION_OUT.relative_to(REPO)}')
+
+
 def completion(rest: list[str]) -> int:
     if any(a in rest for a in ('-h', '--help')):
         # a help request is a question, never an action — and never the product
-        print('yoga completions [--write | --install | --uninstall] — zsh tab-completion derived from rsc/cli/commands.csv\n'
-              '  bare: print to stdout; --write: write under cache/completions/;\n'
-              '  --install: --write, then wire it into ~/.zshrc above compinit (idempotent);\n'
-              '  --uninstall: remove that block from ~/.zshrc (the exact inverse — no file left behind)')
+        print('yoga completions — zsh tab-completion derived from rsc/cli/commands.csv\n'
+              '  (bare)      status: whether _yoga is written/current and wired into ~/.zshrc\n'
+              '  sync        (re-)write cache/completions/_yoga from the table — idempotent\n'
+              '  install     sync, then wire it into ~/.zshrc above compinit (idempotent)\n'
+              '  uninstall   remove that block from ~/.zshrc (the exact inverse — no file left behind)')
         return 0
-    if '--uninstall' in rest:
+    verb = next((a for a in rest if not a.startswith('-')), None)
+    if verb is None:
+        return completion_status()                  # bare noun → status
+    if verb == 'sync':
+        _write_completion()
+        print('→ wire it in: ./yoga completions install   (edits ~/.zshrc above compinit)')
+        return 0
+    if verb == 'install':
+        _write_completion()
+        return install_completion()
+    if verb == 'uninstall':
         return uninstall_completion()
-    text = completion_script(commands())
-    if '--write' in rest or '--install' in rest:
-        COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
-        COMPLETION_OUT.write_text(text)
-        print(f'wrote {COMPLETION_OUT.relative_to(REPO)}')
-        if '--install' in rest:
-            return install_completion()
-        print('→ wire it in: ./yoga completions --install   (edits ~/.zshrc above compinit)')
-        return 0
-    print(text, end='')
-    return 0
+    print(f'yoga completions: unknown verb {verb!r} — sync | install | uninstall (bare: status)',
+          file=sys.stderr)
+    return 2
 
 
 def dispatch(row: dict, rest: list[str]) -> int:
@@ -315,24 +344,68 @@ def dispatch(row: dict, rest: list[str]) -> int:
     return 1  # unreachable
 
 
+def usage_line(c: dict) -> str:
+    """The tail every bare noun-status carries: the command's own usage, from the
+    table. It names EVERY verb and flag that applies — so there is no need to guess
+    a unique 'next' (a noun with several verbs has none), and it can never drift
+    from the surface the honesty check already holds to `commands.csv`."""
+    return f"usage: yoga {c['command']}" + (f" {c['usage']}" if c['usage'] else '')
+
+
+def _run_status(row: dict) -> int:
+    """Run a noun's bare (status) invocation as a CHILD, so the CLI can print the
+    usage tail after it returns. Only ever reached for a read-only status — no verb,
+    no args — so subprocess (not the execv dispatch uses) is safe: nothing here is
+    interactive, and the child's exit code is forwarded."""
+    target = REPO / row['target']
+    if target.suffix == '.py':
+        return subprocess.run([str(REPO / 'src' / 'run_python_script.sh'),
+                               str(target)]).returncode
+    return subprocess.run([str(target)]).returncode
+
+
 def main() -> int:
     argv = sys.argv[1:]
     cmds = commands()
-    if not argv or argv[0] in ('-h', '--help', 'help'):
-        print(render_help(cmds), end='')
-        return 0
+    if not argv:
+        # bare `yoga` → the machine report: what still needs attention (failures-only;
+        # `yoga prerequisites --show-all` for the full report). The root obeys the same
+        # rule as every noun — bare shows status, -h shows help — and its status IS the
+        # prerequisites report, so there is nothing to invent here.
+        return dispatch(next(c for c in cmds if c['command'] == 'prerequisites'), [])
+    if argv[0] in ('-h', '--help'):
+        print(render_help(cmds), end='')      # help is the -h/--help flag, uniformly —
+        return 0                              # not a bareword `help` the table never declared
     row = next((c for c in cmds if c['command'] == argv[0]), None)
     if row is None:
         print(f'yoga: unknown command {argv[0]!r} — the table:\n', file=sys.stderr)
         print(render_help(cmds), file=sys.stderr, end='')
         return 2
-    if row['command'] == 'completions':
-        return completion(argv[1:])
+    rest = argv[1:]
+    # command-level help (`yoga <cmd> -h`, no verb before the flag) → the uniform
+    # standard help. A verb before it (`yoga <cmd> <verb> -h`) falls through to the
+    # target, whose argparse carries that verb's own flags.
+    if rest and rest[0] in ('-h', '--help'):
+        print(render_command_help(row), end='')
+        return 0
     if row['command'] == 'commands':
-        name = next((a for a in argv[1:] if not a.startswith('-')), None)
+        name = next((a for a in rest if not a.startswith('-')), None)
         print(render_synopsis(cmds, name), end='')
         return 0
-    return dispatch(row, argv[1:])
+    if row['command'] == 'completions':
+        rc = completion(rest)
+        if not rest:                              # bare noun → tail with the usage
+            print(usage_line(row))
+        return rc
+    # A bare noun (advertised verbs, no args) shows status, then tails with its usage
+    # — the one tail that works everywhere, naming every verb that applies. Verbs
+    # (check/run/supersede: no advertised verbs) act on a bare invocation, so they
+    # keep the plain execv path and no tail.
+    if not rest and verbs_of(row['usage']):
+        rc = _run_status(row)
+        print(usage_line(row))
+        return rc
+    return dispatch(row, rest)
 
 
 if __name__ == '__main__':

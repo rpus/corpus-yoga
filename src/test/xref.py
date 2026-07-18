@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 """
-xref.py — Cross-reference table for the repo: every non-generated file is scanned
-for references to other repo files; one CSV row per reference.
+xref.py — the cross-reference table of the repo. `xref` is a NOUN: the table. A bare
+invocation shows its status (the committed table's tallies) and writes nothing; the
+`check` verb rebuilds it, writes src/test/xref.csv, and reports. Every non-generated
+file is scanned for references to other repo files, one CSV row per reference (columns
+are the header of src/test/xref.csv; exists=N marks a stale reference).
 
-Output columns
-──────────────
-    referring_file   repo-relative path holding the reference
-    line             1-based line number
-    ref_type         import | call | path_str | $ref | $schema | comment | doc
-    referred_file    the resolved repo-relative path, with any RFC 6901 fragment
-    exists           Y | N — N means missing file or dead fragment: a stale reference
-    line_text        stripped source line for context (truncated at 120 chars)
-
-Stale references:  ./yoga xref && awk -F, '$5=="N"' src/test/xref.csv
+    ./yoga xref                            # status of the committed table
+    ./yoga xref check                      # rebuild + write + report
+    awk -F, '$5=="N"' src/test/xref.csv    # the stale references
 """
 
 import argparse
@@ -502,17 +498,15 @@ EXTRACTORS = {
 }
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--out', default=str(REPO_ROOT / 'src' / 'test' / 'xref.csv'),
-                        help='where the reference table lands (default: the committed src/test/xref.csv)')
-    args = parser.parse_args()
+DEFAULT_OUT = REPO_ROOT / 'src' / 'test' / 'xref.csv'
+HEADER = ['referring_file', 'line', 'ref_type', 'referred_file', 'exists', 'line_text']
 
+
+def build_table() -> list[list]:
+    """Scan the repo and return the deduplicated, outer-joined reference rows."""
     rows: list[list] = []
     for f in repo_files():
-        ext = f.suffix.lower()
-        extractor = EXTRACTORS.get(ext)
+        extractor = EXTRACTORS.get(f.suffix.lower())
         if extractor:
             extractor(f, rows)
 
@@ -528,9 +522,6 @@ def main() -> None:
     # Full outer join: add rows for repo files never appearing as referred_file,
     # and for files only referenced from themselves.
     all_files = {str(f.relative_to(REPO_ROOT)) for f in repo_files()}
-
-    # Build a set of files that have at least one external (cross-file) referrer.
-    # Strip fragments to get base file paths for comparison.
     externally_referenced: set[str] = set()
     for row in deduped:
         referring, referred = row[0], row[3]
@@ -538,7 +529,6 @@ def main() -> None:
             referred_base = referred.split('#')[0]
             if referred_base != referring:
                 externally_referenced.add(referred_base)
-
     for fp in sorted(all_files):
         if fp not in externally_referenced:
             ref_type = 'self_only' if any(
@@ -546,22 +536,50 @@ def main() -> None:
                 for row in deduped
             ) else ''
             deduped.append(['', '', ref_type, fp, 'Y', ''])
+    return deduped
 
-    out = Path(args.out)
+
+def _summary(rows: list[list], where) -> str:
+    stale_file    = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' not in r[3])
+    stale_pointer = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' in r[3])
+    self_only     = sum(1 for r in rows if not r[0] and r[2] == 'self_only')
+    unreferenced  = sum(1 for r in rows if not r[0] and r[2] != 'self_only')
+    live          = len(rows) - stale_file - stale_pointer - self_only - unreferenced
+    return (f'{len(rows)} rows: {live} live, {stale_file} missing-file, '
+            f'{stale_pointer} bad-pointer, {self_only} self-only, {unreferenced} unreferenced → {where}')
+
+
+def check(out: Path) -> None:
+    """The verb: rebuild the table, WRITE it, and report. The only writing path;
+    idempotent (L1) — a re-run reproduces the same bytes."""
+    deduped = build_table()
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open('w', newline='') as fh:
         w = csv.writer(fh)
-        w.writerow(['referring_file', 'line', 'ref_type', 'referred_file', 'exists', 'line_text'])
+        w.writerow(HEADER)
         w.writerows(deduped)
+    print(_summary(deduped, out.relative_to(REPO_ROOT)))
 
-    stale_file    = sum(1 for r in deduped if r[0] and r[4] == 'N' and '#' not in r[3])
-    stale_pointer = sum(1 for r in deduped if r[0] and r[4] == 'N' and '#' in r[3])
-    self_only     = sum(1 for r in deduped if not r[0] and r[2] == 'self_only')
-    unreferenced  = sum(1 for r in deduped if not r[0] and r[2] != 'self_only')
-    live          = len(deduped) - stale_file - stale_pointer - self_only - unreferenced
-    print(f'{len(deduped)} rows: {live} live, '
-          f'{stale_file} missing-file, {stale_pointer} bad-pointer, '
-          f'{self_only} self-only, {unreferenced} unreferenced → {out.relative_to(REPO_ROOT)}')
+
+def status() -> None:
+    """The bare-noun default: summarise the committed table, write nothing."""
+    if not DEFAULT_OUT.exists():
+        print(f'{DEFAULT_OUT.relative_to(REPO_ROOT)} not present — `yoga xref check` builds it')
+        return
+    with DEFAULT_OUT.open(newline='') as fh:
+        rows = list(csv.reader(fh))[1:]   # drop header
+    print(_summary(rows, DEFAULT_OUT.relative_to(REPO_ROOT)))
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = parser.add_subparsers(dest='verb')
+    chk = sub.add_parser('check')
+    chk.add_argument('--out', default=str(DEFAULT_OUT))
+    args = parser.parse_args()
+    # bare noun → status (read the committed table); only `check` rebuilds and writes
+    check(Path(args.out)) if args.verb == 'check' else status()
 
 
 if __name__ == '__main__':

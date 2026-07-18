@@ -1,0 +1,59 @@
+command,item,help
+agent,models,"model census — message.model counts over assistant records, every project and session"
+agent,capture,mirror this machine's sessions into its store dir (what a machine pushes to the shared store)
+agent,receive,install a peer machine's transported sessions (the one deliberate writer of ~/.claude/projects)
+agent,demerge,"undo the latest received merge (memory only, all-or-nothing per project)"
+agent,--session,uuid(8) prefix of the agent — identity is never guessed
+agent,--all,every session of every project (the whole store)
+agent,--to,"capture to a scratch dir instead of the store (test escape hatch — a directory, never a machine name)"
+agent,--from,"the peer to receive from — a machine name (bare token) or a directory (./dir), by shape not CWD lookup"
+agent,--apply,"perform the merge/undo — without it, a dry run that only reports"
+browser,capture,scrape browser-reachable chats via Safari into input/ (a bare `yoga browser` audits capture-health)
+browser,--provider,limit to one provider: claude | gemini (default: every provider in scope)
+browser,--DOM,"also do the DOM scrape — gemini REQUIRES it (no API), and a scrape walk is slow"
+cache,clean,remove orphaned cache/ subtrees (neither written nor read by any registry producer)
+cache,sync,rebuild cache/ from input/ + output/ by running each registry row’s producers — idempotent
+cache,--dry-run,"report only, change nothing — sync: the producer commands; clean: the orphaned subtrees"
+cache,--apply,actually remove the orphaned subtrees (clean)
+check,--fix,"run every fix command, then stop — stages nothing (review and stage yourself)"
+completions,sync,(re-)write cache/completions/_yoga from the table — idempotent
+completions,install,"sync, then wire it into ~/.zshrc above compinit (idempotent)"
+completions,uninstall,"remove that block from ~/.zshrc — the exact inverse, nothing left behind"
+dashboard,capture,PAID — the model reads the corpus for semantic-concepts + chat-categories (needs ANTHROPIC_API_KEY)
+dashboard,sync,FREE — render the dashboard page from the captures + markdown corpus — idempotent
+dashboard,--conversations,source override: a markdown corpus dir | a json/ dir | a conversations.json
+dashboard,--only,limit the paid capture to semantic-concepts | chat-categories
+indexing,candidates,derive cache/indexing/candidates.txt (the pending queue of undisposed concepts)
+indexing,accept,accept a concept as a headword (merge any aliases into it)
+indexing,reject,reject a concept into the disposal record
+indexing,sync,build output/markdown/index.md from accepted.txt — idempotent
+indexing,--top,"also print the frequent-uncovered-corpus-words advisory (top N; terminal only, machine-local)"
+indexing,--because,"reason for a rejection, kept as a # comment in the disposal record"
+indexing,--markdown,the markdown corpus to index (default: output/markdown)
+indexing,--accepted,the accepted-headwords file (default: output/indexing/accepted.txt)
+indexing,--rejected,the disposal record (default: output/indexing/rejected.txt)
+library,json_dir,a batch's atomised json/ — the corpus the slug/ordinal naming is derived from
+library,--root,the artifact library to normalise (default: output/artifacts/downloaded)
+library,--apply,"write the renames — without it, a dry run that only reports"
+memories,sync,deposit new distinct states and re-render — idempotent (the only write)
+memories,--chat-exports-cache,cache root holding each batch's archived memories component
+memories,--memories-output,the deposit store (read for content-dedup + written): one immutable <stamp>.json per distinct state
+memories,--markdown,the re-rendered markdown projection of the deposits — one readable <stamp>.md each
+model,sync,(re-)generate every catalogue to agree with the schemas — idempotent
+prerequisites,--show-all,"show the full report, including satisfied (✓) items (default: only what needs attention)"
+run,--plan,print the ordered step plan; run nothing
+run,--only,run one pipeline only: browser-captures | chat-exports | code-agents
+run,--compare-scrape,also compare the claude projection against a fresh DOM scrape
+server,start,start the markdown server (LaTeX rendering + turn deep links)
+server,stop,stop the running server daemon
+server,ensure-assets,"fetch the render libraries into cache/serve_markdown, then exit"
+server,--markdown,the markdown tree to serve (default: output/markdown)
+server,--port,port to serve on (default: 8182)
+server,--daemon,"run in the background (detached), rather than in the foreground"
+supersede,--chat-exports-cache,cache root holding <batch>/json/ atomised pieces
+supersede,--bulk-exports,input root holding the raw batch dirs (memories/projects/users)
+supersede,--browser-api,browser-API root: also compare the latest batch against live captures (informational)
+supersede,--memories-output,the memory deposit store (a deposit is the unconditional licence)
+supersede,--summaries-output,the summary deposit store (a deposit is the unconditional licence)
+xref,check,"rebuild the table, write it, and report — idempotent (the only write)"
+xref,--out,where the reference table lands (default: the committed src/test/xref.csv)

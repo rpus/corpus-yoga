@@ -1,4 +1,4 @@
-pre_commit.py: 1427/1427 (data: machine-local)
+pre_commit.py: 1450/1450 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -25,26 +25,30 @@ pre_commit.py: 1427/1427 (data: machine-local)
   ✓ cli: commands alphabetical
   ✓ cli: agent: target exists: src/main/code-agents/agent.py
   ✓ cli: agent: cited calculus defined
+  ✓ cli: agent: help.csv complete
   ✓ cli: agent: advertised flags exist
-  ✓ cli: agent: advertised verbs in target --help
+  ✓ cli: agent: advertised verbs dispatch
   ✓ cli: agent: target flags all advertised
   ✓ cli: agent: help fits one screen (≤20 lines)
   ✓ cli: browser: target exists: src/main/browser-captures/PREP.sh
   ✓ cli: browser: cited calculus defined
+  ✓ cli: browser: help.csv complete
   ✓ cli: browser: advertised flags exist
-  ✓ cli: browser: advertised verbs in target --help
+  ✓ cli: browser: advertised verbs dispatch
   ✓ cli: browser: target flags all advertised
   ✓ cli: browser: help fits one screen (≤20 lines)
   ✓ cli: cache: target exists: src/main/cli/cache.py
   ✓ cli: cache: cited calculus defined
+  ✓ cli: cache: help.csv complete
   ✓ cli: cache: advertised flags exist
-  ✓ cli: cache: advertised verbs in target --help
+  ✓ cli: cache: advertised verbs dispatch
   ✓ cli: cache: target flags all advertised
   ✓ cli: cache: help fits one screen (≤20 lines)
   ✓ cli: calculus: target exists: rsc/CALCULUS.md
   ✓ cli: calculus: cited calculus defined
   ✓ cli: check: target exists: src/test/pre_commit.sh
   ✓ cli: check: cited calculus defined
+  ✓ cli: check: help.csv complete
   ✓ cli: check: advertised flags exist
   ✓ cli: check: target flags all advertised
   ✓ cli: check: help fits one screen (≤20 lines)
@@ -52,53 +56,72 @@ pre_commit.py: 1427/1427 (data: machine-local)
   ✓ cli: commands: cited calculus defined
   ✓ cli: completions: target exists: src/main/cli/cli.py
   ✓ cli: completions: cited calculus defined
-  ✓ cli: completions: advertised flags exist
+  ✓ cli: completions: help.csv complete
+  ✓ cli: completions: advertised verbs dispatch
   ✓ cli: completions: target flags all advertised
   ✓ cli: dashboard: target exists: src/main/chat-exports/dashboard.sh
   ✓ cli: dashboard: cited calculus defined
+  ✓ cli: dashboard: help.csv complete
   ✓ cli: dashboard: advertised flags exist
-  ✓ cli: dashboard: advertised verbs in target --help
+  ✓ cli: dashboard: advertised verbs dispatch
   ✓ cli: dashboard: target flags all advertised
   ✓ cli: dashboard: help fits one screen (≤20 lines)
   ✓ cli: indexing: target exists: src/main/model/build_index.py
   ✓ cli: indexing: cited calculus defined
+  ✓ cli: indexing: help.csv complete
   ✓ cli: indexing: advertised flags exist
-  ✓ cli: indexing: advertised verbs in target --help
+  ✓ cli: indexing: advertised verbs dispatch
   ✓ cli: indexing: target flags all advertised
   ✓ cli: indexing: help fits one screen (≤20 lines)
   ✓ cli: library: target exists: src/main/chat-exports/library.py
   ✓ cli: library: cited calculus defined
+  ✓ cli: library: help.csv complete
   ✓ cli: library: advertised flags exist
   ✓ cli: library: target flags all advertised
   ✓ cli: library: help fits one screen (≤20 lines)
   ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
   ✓ cli: memories: cited calculus defined
+  ✓ cli: memories: help.csv complete
   ✓ cli: memories: advertised flags exist
+  ✓ cli: memories: advertised verbs dispatch
   ✓ cli: memories: target flags all advertised
   ✓ cli: memories: help fits one screen (≤20 lines)
   ✓ cli: model: target exists: src/main/model/gen_model.py
   ✓ cli: model: cited calculus defined
+  ✓ cli: model: help.csv complete
+  ✓ cli: model: advertised verbs dispatch
+  ✓ cli: model: target flags all advertised
+  ✓ cli: model: help fits one screen (≤20 lines)
   ✓ cli: prerequisites: target exists: PREREQUISITES.sh
   ✓ cli: prerequisites: cited calculus defined
+  ✓ cli: prerequisites: help.csv complete
+  ✓ cli: prerequisites: advertised flags exist
+  ✓ cli: prerequisites: target flags all advertised
+  ✓ cli: prerequisites: help fits one screen (≤20 lines)
   ✓ cli: run: target exists: RUNME.sh
   ✓ cli: run: cited calculus defined
+  ✓ cli: run: help.csv complete
   ✓ cli: run: advertised flags exist
   ✓ cli: run: target flags all advertised
   ✓ cli: run: help fits one screen (≤20 lines)
   ✓ cli: server: target exists: src/main/model/serve_markdown.sh
   ✓ cli: server: cited calculus defined
+  ✓ cli: server: help.csv complete
   ✓ cli: server: advertised flags exist
-  ✓ cli: server: advertised verbs in target --help
+  ✓ cli: server: advertised verbs dispatch
   ✓ cli: server: target flags all advertised
   ✓ cli: server: help fits one screen (≤20 lines)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
+  ✓ cli: supersede: help.csv complete
   ✓ cli: supersede: advertised flags exist
   ✓ cli: supersede: target flags all advertised
   ✓ cli: supersede: help fits one screen (≤20 lines)
   ✓ cli: xref: target exists: src/test/xref.py
   ✓ cli: xref: cited calculus defined
+  ✓ cli: xref: help.csv complete
   ✓ cli: xref: advertised flags exist
+  ✓ cli: xref: advertised verbs dispatch
   ✓ cli: xref: target flags all advertised
   ✓ cli: xref: help fits one screen (≤20 lines)
   ✓ cli: completions: emitted script parses (zsh -n)
@@ -1455,9 +1478,9 @@ pre_commit.py: 1427/1427 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1427/1427; expected: 1427/1427
-  ✓ score[code]: 114/114; expected: 114/114
+  ✓ score[code+schema]: 1450/1450; expected: 1450/1450
+  ✓ score[code]: 137/137; expected: 137/137
   ✓ score[schema]: 1313/1313; expected: 1313/1313
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1427/1427 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1450/1450 match the committed expectation; nothing here vetoes a commit

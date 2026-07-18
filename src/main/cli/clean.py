@@ -79,8 +79,8 @@ def _human(n: float) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description='remove orphaned cache/ subtrees (neither written nor read)')
     mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument('--dry-run', action='store_true', help='list orphaned cache/ subtrees; remove nothing')
-    mode.add_argument('--apply', action='store_true', help='remove the orphaned cache/ subtrees')
+    mode.add_argument('--dry-run', action='store_true')
+    mode.add_argument('--apply', action='store_true')
     args = ap.parse_args()
 
     if not CACHE.is_dir():

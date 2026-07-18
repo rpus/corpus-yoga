@@ -3,7 +3,7 @@
 #
 # Usage:
 #   yoga dashboard [status]     # what is captured (read-only, free)
-#   yoga dashboard present      # FREE: render output/dashboard/presentation/index.html
+#   yoga dashboard sync         # FREE: render output/dashboard/presentation/index.html (idempotent)
 #                               #   from output/markdown + the durable captures
 #   yoga dashboard capture      # PAID (needs ANTHROPIC_API_KEY): re-read the corpus
 #     [--conversations <path>]  #   source override: markdown corpus dir | json/ dir | conversations.json
@@ -272,10 +272,10 @@ capture() {
 main() {
   case "${1:-}" in
     capture)     shift; capture "$@" ;;
-    present)     shift; exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/present_corpus.py" "$@" ;;
-    ''|status)   status ;;
+    sync)        shift; exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/present_corpus.py" "$@" ;;
+    '')          status ;;   # bare noun → status; there is no `status` verb (this IS it)
     -h|--help)   awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid), 'present' (free render), or bare (status)" >&2; exit 1 ;;
+    *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid), 'sync' (free render), or bare (status)" >&2; exit 1 ;;
   esac
 }
 

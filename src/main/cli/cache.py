@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 """
-cache.py — the `yoga cache` dispatcher: the cache/ lifecycle verbs.
+cache.py — the `yoga cache` dispatcher. `cache` is a NOUN: the rebuildable cache/
+tier. Bare shows its state and writes nothing; the verbs do the work.
 
+    ./yoga cache                    # status: the cache/ subtrees present
     ./yoga cache clean --dry-run    # report orphaned cache/ subtrees (neither written nor read)
     ./yoga cache clean --apply      # remove them
-    ./yoga cache regen [--dry-run]  # rebuild cache/ by running each registry row's producers
+    ./yoga cache sync [--dry-run]   # rebuild cache/ by running each registry row's producers
 
 Thin verb router over the sibling implementations — src/main/cli/clean.py and
 src/main/cli/regen.py — so the CLI table carries one `cache` command whose verbs
 are the two halves of the reproduction ritual: `yoga cache clean --apply &&
-yoga cache regen` gives a fresh cache/ from input/ + output/ alone.
+yoga cache sync` gives a fresh cache/ from input/ + output/ alone. `sync` is the
+idempotent regenerator (L1); `clean` is the only destructive verb.
 STDLIB-ONLY, like everything it routes to.
 """
 import os
@@ -17,8 +20,17 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-VERBS = {'clean': 'clean.py', 'regen': 'regen.py'}
+REPO = HERE.parents[2]
+VERBS = {'clean': 'clean.py', 'sync': 'regen.py'}
 USAGE = (__doc__ or '').strip()
+
+
+def status() -> int:
+    """The bare-noun default: show current state, write nothing."""
+    cache = REPO / 'cache'
+    subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
+    print(f'cache/: {len(subs)} subtree(s) present' + (f': {", ".join(subs)}' if subs else ' (empty)'))
+    return 0
 
 
 def main() -> int:
@@ -26,12 +38,11 @@ def main() -> int:
         print(USAGE)
         return 0
     if len(sys.argv) < 2:
-        print(USAGE)
-        return 1
+        return status()               # bare noun → status, never an action
     verb = sys.argv[1]
     target = VERBS.get(verb)
     if target is None:
-        print(f"error: unknown verb {verb!r} — takes: clean (--dry-run|--apply) | regen [--dry-run]",
+        print(f"error: unknown verb {verb!r} — takes: clean (--dry-run|--apply) | sync [--dry-run]",
               file=sys.stderr)
         return 1
     # execv replaces the process — the verb's own exit status is the exit status
