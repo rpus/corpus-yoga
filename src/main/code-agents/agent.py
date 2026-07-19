@@ -62,7 +62,7 @@ anything was edited since the merge: the record licenses the undo (L3). This
 is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
-    ./yoga agent list
+    ./yoga agent
     ./yoga agent models
     ./yoga agent capture --session <uuid8> [--to <scratch-dir>]
     ./yoga agent receive   --session <uuid8> --from <machine|dir> [--apply]

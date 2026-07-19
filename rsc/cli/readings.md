@@ -21,4 +21,4 @@ The disposal loop:
     yoga dashboard capture → concepts   (model reads the corpus, paid)
     yoga indexing candidates            (pending = concepts − accepted − rejected)
     accept <term> / reject <concept>    (your judgement, one per concept)
-    yoga indexing build                 (the book index over durable turn anchors)
+    yoga indexing sync                  (the book index over durable turn anchors)

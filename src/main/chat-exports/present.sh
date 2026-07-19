@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The BATCH presenter: one export's presentation under its own directory
 # (cache/chat-exports/<batch>/presentation — an export artifact, honestly filed).
-# The corpus dashboard is its sibling present_corpus.py (yoga dashboard present).
+# The corpus dashboard is its sibling present_corpus.py (yoga dashboard sync).
 # Run from the repo root, e.g.:
 #   src/main/chat-exports/present.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
 #   src/main/chat-exports/present.sh --chat-exports input/claude/chat/bulk-export

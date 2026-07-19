@@ -36,7 +36,7 @@ Usage (via ./yoga indexing):
   yoga indexing candidates [--top N]               # derive cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
   yoga indexing reject <concept> [--because <why>] # reject a concept
-  yoga indexing build                              # build output/markdown/index.md
+  yoga indexing sync                               # build output/markdown/index.md
 """
 import argparse
 import re
@@ -150,7 +150,7 @@ def build(markdown_root: Path, accepted_path: Path) -> str:
         '# Index',
         '',
         f'Headwords: `output/indexing/accepted.txt` (curated — edit and re-run '
-        f'`yoga indexing build`). Locators link to durable turn anchors; '
+        f'`yoga indexing sync`). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
     ]

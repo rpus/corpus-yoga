@@ -89,7 +89,7 @@ def producers() -> list[str]:
     """Every written_by command, row by row in registry order — sync's plan.
     Deliberately NO dedup: the row is the unit of the reproduction claim, and a
     command string shared by two rows proves nothing about one run covering
-    both — a producer may write more than its row declares (dashboard present
+    both — a producer may write more than its row declares (dashboard sync
     also lands the output/ page) or less than a twin row hopes. A shared
     command running twice is the safe reading."""
     cmds: list[str] = []

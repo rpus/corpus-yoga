@@ -7,7 +7,7 @@ the matching URL:
 - **`index.html`** → `rpus.co/` — the homepage: the corpus dashboard. A TEMPLATE,
   not a finished page — both presenters copy it and inject the data tables (the
   category palette is authored inline here — design, never filled). The corpus-wide
-  page is what deploys: `present_corpus.py` (`yoga dashboard present`) writes it to
+  page is what deploys: `present_corpus.py` (`yoga dashboard sync`) writes it to
   `output/dashboard/presentation/index.html`, a library artifact beside the
   `output/dashboard/` captures it summarises. The per-batch pages (`present.sh`) are
   export-scoped and stay in the workshop under `cache/chat-exports/<batch>/presentation/`.
