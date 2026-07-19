@@ -22,7 +22,7 @@ never restated.
 Usage:
     ./yoga                       # render the table
     ./yoga <command> [args...]   # exec the target
-    ./yoga completions [--write]  # zsh completion to stdout, or written under cache/
+    ./yoga completions sync       # write the zsh tab-completion under cache/
     ./yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
