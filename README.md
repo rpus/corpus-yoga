@@ -23,7 +23,7 @@ prints man entries; `./yoga <command> --help` asks each target itself.
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `input/` | input | iCloud | none — the medium carries it (sessions: once stashed via `yoga agent capture --all`) |
-| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
+| `cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
 | `logs/` | run history | local | disposable |
 | `output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 

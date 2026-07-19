@@ -600,7 +600,7 @@ def check_cross_sources(run) -> None:
 
 def check_cache_io(run) -> None:
     """The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
-    covers every pipeline's gen root (so clean and regen know the pipelines),
+    covers every pipeline's gen root (so clean and sync know the pipelines),
     and — the catastrophe guard — no subtree is READ with no WRITER. A cache/ path
     the machinery consumes but nothing produces breaks the 'cache/ is reproducible
     from input/' contract: a fresh clone, or `yoga cache clean`, would strand the

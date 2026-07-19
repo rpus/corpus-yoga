@@ -17,7 +17,7 @@ safe to remove (nothing regenerates it here); and even a mistaken removal of a
 LIVE subtree costs only a pipeline re-run, never data — that is the cache/
 contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
 
-The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with regen
+The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync
 and pre_commit's check_cache_io — one registry, three consumers.
 
 STDLIB-ONLY. One of --dry-run / --apply is REQUIRED: cleaning is deliberate,

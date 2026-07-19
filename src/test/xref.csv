@@ -12,7 +12,7 @@ PREREQUISITES.sh,398,call,src/requirements.txt,Y,"""$SCRIPT_DIR/src/requirements
 PREREQUISITES.sh,404,call,src/main/model/serve_assets.txt,Y,"""$SCRIPT_DIR/src/main/model/serve_assets.txt"" \"
 README.md,24,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,24,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,26,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
+README.md,26,doc,rsc/cache_io.csv,Y,| `cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
 README.md,39,doc,rsc/cli/commands.csv,Y,- the command surface: `rsc/cli/commands.csv` — grammar and gates: `rsc/cli/README.md`
 README.md,39,doc,rsc/cli/README.md,Y,- the command surface: `rsc/cli/commands.csv` — grammar and gates: `rsc/cli/README.md`
 README.md,40,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)"
@@ -364,10 +364,10 @@ src/main/chat-exports/validate.sh,151,call,src/run_python_script.sh,Y,"""$REPO_D
 src/main/chat-exports/validate.sh,151,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
 src/main/chat-exports/validate.sh,152,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
 src/main/cli/cache.py,11,comment,src/main/cli/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/clean.py and
-src/main/cli/cache.py,12,comment,src/main/cli/regen.py,Y,src/main/cli/regen.py — so the CLI table carries one `cache` command whose verbs
+src/main/cli/cache.py,12,comment,src/main/cli/sync.py,Y,src/main/cli/sync.py — so the CLI table carries one `cache` command whose verbs
 src/main/cli/cache_io.py,3,comment,rsc/cache_io.csv,Y,"cache_io.py — the reader for rsc/cache_io.csv, the declared cache/ IO registry."
 src/main/cli/clean.py,18,comment,rsc/CALCULUS.md,Y,"contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
-src/main/cli/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with regen"
+src/main/cli/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync"
 src/main/cli/clean.py,43,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
 src/main/cli/cli.py,5,comment,rsc/cli/commands.csv,Y,One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
 src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
@@ -376,7 +376,7 @@ src/main/cli/cli.py,30,comment,RUNME.sh,Y,"the table, print the calculus, and ge
 src/main/cli/cli.py,65,comment,rsc/cli/help.csv,Y,"All rsc/cli/help.csv rows (columns command, subcommand, arg-name, arg-type,"
 src/main/cli/cli.py,99,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
 src/main/cli/cli.py,388,comment,rsc/cli/commands.csv,Y,yoga completions — zsh tab-completion derived from rsc/cli/commands.csv
-src/main/cli/regen.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); regen runs every row's producers,"
+src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<machine>/
 src/main/code-agents/RUNME.sh,12,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/claude/code/machine-transport
