@@ -47,6 +47,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from markdown_projection import REPO
 from argparse_help import enrich
 
+MARKDOWN_DIR = REPO / 'output' / 'markdown'                    # the corpus to index
+ACCEPTED_FILE = REPO / 'output' / 'indexing' / 'accepted.txt'  # curated headwords (read + written)
+REJECTED_FILE = REPO / 'output' / 'indexing' / 'rejected.txt'  # disposal record (read + written)
+
 TURN_RE = re.compile(
     r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
     flags=re.M)
@@ -354,9 +358,6 @@ def status(accepted_path: Path, rejected_path: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown'))
-    ap.add_argument('--accepted', default=str(REPO / 'output' / 'indexing' / 'accepted.txt'))
-    ap.add_argument('--rejected', default=str(REPO / 'output' / 'indexing' / 'rejected.txt'))
     sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
     cand = sub.add_parser('candidates')
     # --top belongs on the candidates subparser, not the parent — the advertised form
@@ -372,10 +373,10 @@ def main():
     enrich(ap, 'indexing')
     args = ap.parse_args()
 
-    accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)
+    accepted_path, rejected_path = ACCEPTED_FILE, REJECTED_FILE
 
     if args.verb == 'candidates':
-        candidates(Path(args.markdown), accepted_path, rejected_path, args.top)
+        candidates(MARKDOWN_DIR, accepted_path, rejected_path, args.top)
         return
     if args.verb == 'accept':
         print(accept(accepted_path, args.term, args.aliases))
@@ -386,7 +387,7 @@ def main():
         pending_report(accepted_path, rejected_path)
         return
     if args.verb == 'sync':
-        root = Path(args.markdown)
+        root = MARKDOWN_DIR
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)

@@ -426,7 +426,7 @@ src/main/markdown_projection.py,11,comment,src/main/browser-captures/compare_mar
 src/main/markdown_projection.py,11,comment,src/main/chat-exports/atomise_bulk.py,Y,"browser-captures/compare_markdown.py (project+render to compare), chat-exports/atomise_bulk.py"
 src/main/model/build_index.py,5,comment,rsc/cli/commands.csv,Y,capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 src/main/model/build_index.py,22,comment,rsc/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
-src/main/model/build_index.py,226,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
+src/main/model/build_index.py,230,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
 src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,"gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."
