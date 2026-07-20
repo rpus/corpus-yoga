@@ -682,12 +682,12 @@ def check_cli_surface(run) -> None:
         unknown = [t for t in c['calculus'].split() if t not in vocab]
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
             f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None)
-        # verbs and flags are read from rsc/cli/help.csv — the single source the usage
-        # is generated from — so there is no usage cell to reconcile it against, and no
-        # help.csv-complete check: the two cannot drift because there is only one.
+        # subcommands and flags are read from rsc/cli/help.csv — the single source the
+        # usage is generated from — so there is no usage cell to reconcile it against, and
+        # no help.csv-complete check: the two cannot drift because there is only one.
         flags = cli.flags_of(c['command'])
-        verbs = cli.verbs_of(c['command'])
-        if not (flags or verbs) or not target.exists():
+        subcommands = cli.subcommands_of(c['command'])
+        if not (flags or subcommands) or not target.exists():
             continue
         sources = [target] + [s for s in (target.with_suffix('.py'), target.with_suffix('.sh'))
                               if s != target and s.exists()]
@@ -704,31 +704,31 @@ def check_cli_surface(run) -> None:
                     else [str(target), '--help'])
         proc = subprocess.run(help_cmd, capture_output=True, text=True, cwd=REPO_ROOT)
         help_text = proc.stdout + proc.stderr
-        if verbs:
-            # A verb must be a REAL dispatched subcommand, not a word in the help
-            # prose (2026-07-18: a `model project` once advertised a verb no
+        if subcommands:
+            # An advertised subcommand must be REALLY dispatched, not a word in the help
+            # prose (2026-07-18: a `model project` once advertised a subcommand no
             # subparser dispatched, and a bare-word grep could never tell). argparse
             # renders its subparsers as a {a,b,c} choice block — parse it and require
-            # each advertised verb to be an actual choice. Shell targets carry no such
+            # each advertised subcommand to be an actual choice. Shell targets carry no such
             # block, so there we fall back to matching their printed usage.
             choice_blocks = re.findall(r'\{([a-z0-9][a-z0-9,_-]*)\}', help_text)
             if choice_blocks:
                 real = {v for blk in choice_blocks for v in blk.split(',')}
-                missing_v = [v for v in verbs if v not in real]
+                missing_sub = [s for s in subcommands if s not in real]
                 detail = (f'not real subcommands (target dispatches {sorted(real)}): '
-                          f'{", ".join(missing_v)}') if missing_v else None
+                          f'{", ".join(missing_sub)}') if missing_sub else None
             else:
-                # No {…} block: a shell target (verbs in its printed usage) or a
-                # cli.py-internal command whose verbs are dispatched in code rather
-                # than by argparse (completions: `verb == 'sync'`). Accept a verb that
+                # No {…} block: a shell target (subcommands in its printed usage) or a
+                # cli.py-internal command whose subcommands are dispatched in code rather
+                # than by argparse (completions: `verb == 'sync'`). Accept a subcommand that
                 # appears as a word in the target's --help OR as a dispatch literal in
-                # its source — either is real evidence the verb is handled, not prose.
-                missing_v = [v for v in verbs
-                             if not re.search(rf'\b{re.escape(v)}\b', help_text)
-                             and not re.search(rf'\b{re.escape(v)}\b', text)]
-                detail = (f'{c["target"]} neither prints nor dispatches: {", ".join(missing_v)}'
-                          if missing_v else None)
-            run(f'cli: {c["command"]}: advertised verbs dispatch', not missing_v, detail)
+                # its source — either is real evidence it is handled, not prose.
+                missing_sub = [s for s in subcommands
+                               if not re.search(rf'\b{re.escape(s)}\b', help_text)
+                               and not re.search(rf'\b{re.escape(s)}\b', text)]
+                detail = (f'{c["target"]} neither prints nor dispatches: {", ".join(missing_sub)}'
+                          if missing_sub else None)
+            run(f'cli: {c["command"]}: advertised subcommands dispatch', not missing_sub, detail)
         # The REVERSE direction (2026-07-16): every flag the target itself declares
         # must be advertised in the usage cell. The one-way check let the table
         # under-tell — `yoga commands` rendered a synopsis hiding memories' three

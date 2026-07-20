@@ -26,19 +26,19 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: agent: target exists: src/main/code-agents/agent.py
   ✓ cli: agent: cited calculus defined
   ✓ cli: agent: advertised flags exist
-  ✓ cli: agent: advertised verbs dispatch
+  ✓ cli: agent: advertised subcommands dispatch
   ✓ cli: agent: target flags all advertised
   ✓ cli: agent: help fits one screen (≤20 lines)
   ✓ cli: browser: target exists: src/main/browser-captures/PREP.sh
   ✓ cli: browser: cited calculus defined
   ✓ cli: browser: advertised flags exist
-  ✓ cli: browser: advertised verbs dispatch
+  ✓ cli: browser: advertised subcommands dispatch
   ✓ cli: browser: target flags all advertised
   ✓ cli: browser: help fits one screen (≤20 lines)
   ✓ cli: cache: target exists: src/main/cli/cache.py
   ✓ cli: cache: cited calculus defined
   ✓ cli: cache: advertised flags exist
-  ✓ cli: cache: advertised verbs dispatch
+  ✓ cli: cache: advertised subcommands dispatch
   ✓ cli: cache: target flags all advertised
   ✓ cli: cache: help fits one screen (≤20 lines)
   ✓ cli: calculus: target exists: rsc/CALCULUS.md
@@ -52,28 +52,28 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: commands: cited calculus defined
   ✓ cli: completions: target exists: src/main/cli/cli.py
   ✓ cli: completions: cited calculus defined
-  ✓ cli: completions: advertised verbs dispatch
+  ✓ cli: completions: advertised subcommands dispatch
   ✓ cli: completions: target flags all advertised
   ✓ cli: dashboard: target exists: src/main/chat-exports/dashboard.sh
   ✓ cli: dashboard: cited calculus defined
   ✓ cli: dashboard: advertised flags exist
-  ✓ cli: dashboard: advertised verbs dispatch
+  ✓ cli: dashboard: advertised subcommands dispatch
   ✓ cli: dashboard: target flags all advertised
   ✓ cli: dashboard: help fits one screen (≤20 lines)
   ✓ cli: indexing: target exists: src/main/model/build_index.py
   ✓ cli: indexing: cited calculus defined
   ✓ cli: indexing: advertised flags exist
-  ✓ cli: indexing: advertised verbs dispatch
+  ✓ cli: indexing: advertised subcommands dispatch
   ✓ cli: indexing: target flags all advertised
   ✓ cli: indexing: help fits one screen (≤20 lines)
   ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
   ✓ cli: memories: cited calculus defined
-  ✓ cli: memories: advertised verbs dispatch
+  ✓ cli: memories: advertised subcommands dispatch
   ✓ cli: memories: target flags all advertised
   ✓ cli: memories: help fits one screen (≤20 lines)
   ✓ cli: model: target exists: src/main/model/gen_model.py
   ✓ cli: model: cited calculus defined
-  ✓ cli: model: advertised verbs dispatch
+  ✓ cli: model: advertised subcommands dispatch
   ✓ cli: model: target flags all advertised
   ✓ cli: model: help fits one screen (≤20 lines)
   ✓ cli: prerequisites: target exists: PREREQUISITES.sh
@@ -89,7 +89,7 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: server: target exists: src/main/model/serve_markdown.sh
   ✓ cli: server: cited calculus defined
   ✓ cli: server: advertised flags exist
-  ✓ cli: server: advertised verbs dispatch
+  ✓ cli: server: advertised subcommands dispatch
   ✓ cli: server: target flags all advertised
   ✓ cli: server: help fits one screen (≤20 lines)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
@@ -99,7 +99,7 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: supersede: help fits one screen (≤20 lines)
   ✓ cli: xref: target exists: src/test/xref.py
   ✓ cli: xref: cited calculus defined
-  ✓ cli: xref: advertised verbs dispatch
+  ✓ cli: xref: advertised subcommands dispatch
   ✓ cli: xref: target flags all advertised
   ✓ cli: xref: help fits one screen (≤20 lines)
   ✓ cli: completions: emitted script parses (zsh -n)

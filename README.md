@@ -14,8 +14,8 @@ corpus.
 ./yoga check                  # the three-tier gate suite
 ```
 
-`./yoga` lists every command with its summary; `./yoga commands [<command>]`
-prints man entries; `./yoga <command> --help` asks each target itself.
+`./yoga -h` lists every command with its summary; `./yoga commands [<command>]`
+prints man entries; `./yoga <command> <verb> --help` asks each target itself.
 
 ## The tiers
 
@@ -36,7 +36,7 @@ prefix-gated store.
 
 ## Where facts live
 
-- the command surface: `rsc/cli/commands.csv` — grammar and gates: `rsc/cli/README.md`
+- the command surface: `rsc/cli/commands.csv` (arguments: `rsc/cli/help.csv`) — grammar and gates: `rsc/cli/README.md`
 - the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
@@ -50,11 +50,11 @@ prefix-gated store.
 Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
 the emailed `data-*` into `input/claude/chat/bulk-export/`. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
-(or the macOS Shortcut: `open -a Terminal .../src/main/browser-captures/export.command`
+(or the macOS Shortcut: `open -a Terminal src/main/browser-captures/export.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
 Code sessions: `yoga agent capture --all`. Paid model readings:
-`ANTHROPIC_API_KEY=... yoga dashboard capture`, rendered free by
-`yoga dashboard sync`. Batch disposal is computed, never assumed: `yoga supersede`.
+`yoga dashboard capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
+reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed, never assumed: `yoga supersede`.
 
 ## Prerequisites
 
