@@ -45,6 +45,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import REPO
+from argparse_help import enrich
 
 TURN_RE = re.compile(
     r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
@@ -368,6 +369,7 @@ def main():
     rej.add_argument('concept')
     rej.add_argument('--because', default='')
     sub.add_parser('sync')
+    enrich(ap, 'indexing')
     args = ap.parse_args()
 
     accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)

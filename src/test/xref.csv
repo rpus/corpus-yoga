@@ -60,10 +60,11 @@ rsc/CALCULUS.md,337,doc,src/main,Y,"The planned protocol (a `corpus.py` under th
 rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture api"
 rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,Two curated files describe the `./yoga` terminal surface (machinery: `src/main/cli/cli.py`;
 rsc/cli/README.md,22,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
-rsc/cli/README.md,30,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
-rsc/cli/README.md,37,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
-rsc/cli/README.md,39,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
-rsc/cli/README.md,71,doc,rsc/CALCULUS.md,Y,"calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the"
+rsc/cli/README.md,26,doc,src/main/argparse_help.py,Y,That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
+rsc/cli/README.md,33,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
+rsc/cli/README.md,40,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
+rsc/cli/README.md,42,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
+rsc/cli/README.md,74,doc,rsc/CALCULUS.md,Y,"calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the"
 rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,transport supersession merge L1 L3 L4 L6,,code-agent sessions: the census, and trans"
 rsc/cli/commands.csv,3,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,capture,,capture browser-reachable chats via Safari (claude API, gemini DOM)"
 rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,project,,the rebuildable cache/ tier: clean orphans, sync rebuilds"
@@ -176,6 +177,7 @@ rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as 
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
 rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
 rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
+src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/PREP.sh,16,comment,src/main/browser-captures/PREP.sh,Y,#   (src/main/browser-captures/PREP.sh takes the same verb and flags)
 src/main/browser-captures/PREP.sh,27,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/browser-captures/PREP.sh,27,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -368,7 +370,7 @@ src/main/cli/cache.py,12,comment,src/main/cli/sync.py,Y,src/main/cli/sync.py —
 src/main/cli/cache_io.py,3,comment,rsc/cache_io.csv,Y,"cache_io.py — the reader for rsc/cache_io.csv, the declared cache/ IO registry."
 src/main/cli/clean.py,18,comment,rsc/CALCULUS.md,Y,"contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
 src/main/cli/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync"
-src/main/cli/clean.py,43,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
+src/main/cli/clean.py,46,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
 src/main/cli/cli.py,5,comment,rsc/cli/commands.csv,Y,One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
 src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
 src/main/cli/cli.py,13,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
@@ -428,7 +430,7 @@ src/main/markdown_projection.py,11,comment,src/main/browser-captures/compare_mar
 src/main/markdown_projection.py,11,comment,src/main/chat-exports/atomise_bulk.py,Y,"browser-captures/compare_markdown.py (project+render to compare), chat-exports/atomise_bulk.py"
 src/main/model/build_index.py,5,comment,rsc/cli/commands.csv,Y,capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 src/main/model/build_index.py,22,comment,rsc/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
-src/main/model/build_index.py,225,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
+src/main/model/build_index.py,226,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
 src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,"gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."

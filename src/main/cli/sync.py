@@ -35,12 +35,16 @@ from pathlib import Path
 
 from cache_io import producers
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from argparse_help import enrich
+
 REPO = Path(__file__).resolve().parents[3]
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='rebuild cache/ by running its declared producers')
     ap.add_argument('--dry-run', action='store_true')
+    enrich(ap, 'cache', 'sync')
     args = ap.parse_args()
 
     cmds = producers()

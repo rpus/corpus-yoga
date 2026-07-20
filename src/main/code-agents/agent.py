@@ -120,6 +120,7 @@ AGENTS_DIR = REPO / 'input' / 'claude' / 'code' / 'machine-transport'
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 from machine import bound_machine  # noqa: E402
+from argparse_help import enrich  # noqa: E402
 
 
 def _sha(text: str) -> str:
@@ -738,6 +739,7 @@ def main() -> int:
     d = sub.add_parser('demerge')
     d.add_argument('--apply', action='store_true')
     sub.add_parser('models')
+    enrich(ap, 'agent')
     args = ap.parse_args()
 
     if args.direction is None:

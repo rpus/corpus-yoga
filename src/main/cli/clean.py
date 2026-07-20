@@ -34,6 +34,9 @@ from pathlib import Path
 
 from cache_io import owned_paths
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from argparse_help import enrich
+
 REPO = Path(__file__).resolve().parents[3]
 CACHE = REPO / 'cache'
 
@@ -81,6 +84,7 @@ def main() -> int:
     mode = ap.add_mutually_exclusive_group(required=True)
     mode.add_argument('--dry-run', action='store_true')
     mode.add_argument('--apply', action='store_true')
+    enrich(ap, 'cache', 'clean')
     args = ap.parse_args()
 
     if not CACHE.is_dir():
