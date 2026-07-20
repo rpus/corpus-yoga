@@ -536,7 +536,7 @@ def check_index_curation(run, fix) -> None:
             fix('./yoga indexing candidates  # write the pending queue: cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
-                         '| ./yoga indexing reject <concept> [--because <why>]')
+                         '| ./yoga indexing reject [--reason <why>] <concept>')
 
 
 def check_cross_sources(run) -> None:

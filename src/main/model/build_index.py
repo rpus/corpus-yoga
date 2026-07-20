@@ -35,7 +35,7 @@ Usage (via ./yoga indexing):
   yoga indexing                                    # status: counts + pending queue
   yoga indexing candidates [--top N]               # derive cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
-  yoga indexing reject <concept> [--because <why>] # reject a concept
+  yoga indexing reject [--reason <why>] <concept>  # reject a concept
   yoga indexing sync                               # build output/markdown/index.md
 """
 import argparse
@@ -299,7 +299,7 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
     return f'{term!r}: accepted' + (f' with alias(es) {", ".join(aliases)}' if aliases else '')
 
 
-def reject(accepted_path: Path, rejected_path: Path, concept: str, because: str) -> str:
+def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) -> str:
     """Record a rejection in the durable disposal record — unless the concept is
     already covered (accepted) or already rejected; disposals never duplicate."""
     if concept.lower() in parse_rejected(rejected_path):
@@ -309,9 +309,9 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, because: str)
         return f'{concept!r}: already covered by an accepted headword — no rejection needed'
     rejected_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh machine
     lines = rejected_path.read_text().splitlines() if rejected_path.exists() else []
-    lines.append(f'{concept}' + (f'  # {because}' if because else ''))
+    lines.append(f'{concept}' + (f'  # {reason}' if reason else ''))
     rejected_path.write_text('\n'.join(lines) + '\n')
-    return f'{concept!r}: rejected' + (f' ({because})' if because else '')
+    return f'{concept!r}: rejected' + (f' ({reason})' if reason else '')
 
 
 def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
@@ -367,7 +367,7 @@ def main():
     acc.add_argument('aliases', nargs='*')
     rej = sub.add_parser('reject')
     rej.add_argument('concept')
-    rej.add_argument('--because', default='')
+    rej.add_argument('--reason', default='')
     sub.add_parser('sync')
     enrich(ap, 'indexing')
     args = ap.parse_args()
@@ -382,7 +382,7 @@ def main():
         pending_report(accepted_path, rejected_path)
         return
     if args.verb == 'reject':
-        print(reject(accepted_path, rejected_path, args.concept, args.because))
+        print(reject(accepted_path, rejected_path, args.concept, args.reason))
         pending_report(accepted_path, rejected_path)
         return
     if args.verb == 'sync':
