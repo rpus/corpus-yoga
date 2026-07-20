@@ -30,11 +30,11 @@ README.md,61,doc,RUNME.sh,Y,"`jq` and Python 3; `./RUNME.sh` creates the shared 
 README.md,65,doc,src/test/pre_commit.sh,Y,`ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
 README.md,67,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 README.md,72,doc,rsc/forge.csv,Y,"settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a"
-README.md,77,doc,rsc/forge.csv,Y,"clone can see them, so they are declared as data in `rsc/forge.csv`: main carries"
-README.md,83,doc,src/test/prepare_commit_msg.sh,Y,"grammar and rationale in the hook's header, `src/test/prepare_commit_msg.sh`."
-README.md,87,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,87,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,93,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,77,doc,rsc/forge.csv,Y,them against `rsc/forge.csv`). main carries one narrated commit per landed idea;
+README.md,95,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
+README.md,100,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,100,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,106,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,8,comment,RUNME.sh,Y,#   ./RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
 RUNME.sh,76,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
 RUNME.sh,158,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);

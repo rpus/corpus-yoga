@@ -73,14 +73,27 @@ settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a
 reviewer or a fresh cloner can see what the forge actually does to a merge without
 having to merge one to find out.
 
-Squash-only PRs, enforced by forge settings — which live on the server where no
-clone can see them, so they are declared as data in `rsc/forge.csv`: main carries
-one narrated commit per landed idea. If a PR can't be squashed, it was not atomic.
-The squash body is the branch commit message(s) (`squash_merge_commit_message:
-COMMIT_MESSAGES`), so **narrate in the commit** — the pull request description is
-review conversation, not the record. Each commit is signed
-`machine/provider/session` (the model dropped — it's derivable from the session);
-grammar and rationale in the hook's header, `src/test/prepare_commit_msg.sh`.
+Squash-only PRs (enforced by forge settings; `./yoga prerequisites` reconciles
+them against `rsc/forge.csv`). main carries one narrated commit per landed idea;
+if a PR can't be squashed, it was not atomic.
+
+Merge with the bare command — **no message flags**:
+
+```bash
+gh pr merge <n> --squash
+```
+
+Do NOT pass `--subject` or `--body`. The forge sets `squash_merge_commit_message:
+COMMIT_MESSAGES`, so GitHub composes the squash commit from the branch's commit
+messages — which carry each `Signature:` trailer. A custom body overrides that
+composition: the signature never reaches main, and the `Co-Authored-By` line the
+commit hook strips locally survives instead — an unsigned, co-authored commit on
+main. Write the record in the commits; the pull-request description is review
+conversation, not the record.
+
+Every commit is signed `Signature: machine/provider/session` by the local
+`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the
+model co-author (it is derivable from the session).
 
 ## The public surface
 
