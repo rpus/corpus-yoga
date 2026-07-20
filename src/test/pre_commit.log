@@ -1,4 +1,4 @@
-pre_commit.py: 1435/1435 (data: machine-local)
+pre_commit.py: 1430/1430 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -66,11 +66,6 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ cli: indexing: advertised verbs dispatch
   ✓ cli: indexing: target flags all advertised
   ✓ cli: indexing: help fits one screen (≤20 lines)
-  ✓ cli: library: target exists: src/main/chat-exports/library.py
-  ✓ cli: library: cited calculus defined
-  ✓ cli: library: advertised flags exist
-  ✓ cli: library: target flags all advertised
-  ✓ cli: library: help fits one screen (≤20 lines)
   ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
   ✓ cli: memories: cited calculus defined
   ✓ cli: memories: advertised flags exist
@@ -1463,9 +1458,9 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1435/1435; expected: 1435/1435
-  ✓ score[code]: 122/122; expected: 122/122
+  ✓ score[code+schema]: 1430/1430; expected: 1430/1430
+  ✓ score[code]: 117/117; expected: 117/117
   ✓ score[schema]: 1313/1313; expected: 1313/1313
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1435/1435 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1430/1430 match the committed expectation; nothing here vetoes a commit

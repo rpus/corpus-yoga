@@ -8,7 +8,6 @@
 "completions","src/main/cli/cli.py","project L5","","zsh tab-completion derived from the command table"
 "dashboard","src/main/chat-exports/dashboard.sh","capture project","","the corpus dashboard: paid capture, free render"
 "indexing","src/main/model/build_index.py","capture curate project","","Curate and build the book index over output/indexing/ (bare: status)"
-"library","src/main/chat-exports/library.py","normalise merge L1","","normalise artifact-library dir naming across vintages"
 "memories","src/main/chat-exports/accumulate_memories.py","accumulate normalise project L1 L4","accumulate_memories","Deposit every distinct chat-memory state; render the timeline"
 "model","src/main/model/gen_model.py","project","","per-schema definition catalogues, candidates for model.json"
 "prerequisites","PREREQUISITES.sh","L8","","Read-only machine report — bare shows what needs attention, --show-all the lot"
