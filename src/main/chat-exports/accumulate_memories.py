@@ -47,6 +47,9 @@ from markdown_projection import reconcile_dir  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[2]
+CHAT_EXPORTS_CACHE_DIR = REPO / 'cache' / 'chat-exports'
+MEMORIES_OUTPUT_DIR = REPO / 'output' / 'memories'
+MARKDOWN_DIR = REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'
 
 
 def stamp_vintages() -> list[dict]:
@@ -185,15 +188,12 @@ def main():
                     'every distinct state (immutable, content-deduplicated) and renders the '
                     'markdown timeline — free, local, idempotent.')
     sub = ap.add_subparsers(dest='verb')
-    sp = sub.add_parser('sync')
-    sp.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
-    sp.add_argument('--memories-output', default=str(REPO / 'output' / 'memories'))
-    sp.add_argument('--markdown', default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'))
+    sub.add_parser('sync')
     args = ap.parse_args()
     if args.verb == 'sync':
-        return sync(Path(args.chat_exports_cache), Path(args.memories_output), Path(args.markdown))
+        return sync(CHAT_EXPORTS_CACHE_DIR, MEMORIES_OUTPUT_DIR, MARKDOWN_DIR)
     # bare → status (read-only), against the canonical store
-    return status(REPO / 'output' / 'memories', REPO / 'cache' / 'chat-exports')
+    return status(MEMORIES_OUTPUT_DIR, CHAT_EXPORTS_CACHE_DIR)
 
 
 if __name__ == '__main__':

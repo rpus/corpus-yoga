@@ -575,11 +575,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='verb')
-    chk = sub.add_parser('check')
-    chk.add_argument('--out', default=str(DEFAULT_OUT))
+    sub.add_parser('check')
     args = parser.parse_args()
     # bare noun → status (read the committed table); only `check` rebuilds and writes
-    check(Path(args.out)) if args.verb == 'check' else status()
+    check(DEFAULT_OUT) if args.verb == 'check' else status()
 
 
 if __name__ == '__main__':
