@@ -2,13 +2,14 @@
 """
 cli.py — the machinery behind `./yoga`, the repo's terminal surface.
 
-One curated table (rsc/cli/commands.csv; format: rsc/cli/README.md) is the
-whole interface: a bare `./yoga` renders it as help, `./yoga <command> [args...]`
-execs the row's target with the args forwarded verbatim (so
-`./yoga <command> --help` prints the TARGET's help — each script stays the one
-authority on its own interface), and `./yoga completions` derives static zsh
-tab-completion from the same table. Presentation is re-derived on every
-invocation and stored nowhere (L5); the CLI adds no behaviour of its own.
+Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/commands.csv
+names each command and its target; rsc/cli/help.csv describes the arguments.
+`./yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
+`./yoga -h` lists the commands; `./yoga <command> -h` renders that command's help from
+the tables; a subcommand one level down (`./yoga <command> <subcommand> --help`) passes
+through to the target's own argparse. `./yoga completions` derives static zsh tab-completion from
+the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
+the CLI adds no behaviour of its own.
 
 The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 operations and laws its command performs, and the pre-commit code tier
@@ -22,7 +23,7 @@ never restated.
 Usage:
     ./yoga                       # render the table
     ./yoga <command> [args...]   # exec the target
-    ./yoga completions [--write]  # zsh completion to stdout, or written under cache/
+    ./yoga completions sync       # write the zsh tab-completion under cache/
     ./yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
@@ -33,18 +34,18 @@ run. Adding a third-party import here would silently break that.
 import csv
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
-COLUMNS = ('command', 'target', 'usage', 'calculus', 'step', 'summary')
+COLUMNS = ('command', 'target', 'calculus', 'step', 'summary')
 COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
-# The comment that tags the block --install writes into ~/.zshrc, and by which
-# --uninstall finds it again. One constant, so the write and its inverse can never
-# name the block differently — an already-installed machine (home-room) carries
-# exactly this text, so it must stay byte-stable to remain removable.
-COMPLETION_MARKER = '# yoga tab-completion (regenerate: ./yoga completions --write)'
+# The comment that tags the block `install` writes into ~/.zshrc, and by which
+# `uninstall` finds it again. One constant, so the write and its inverse can never
+# name the block differently.
+COMPLETION_MARKER = '# yoga tab-completion (regenerate: ./yoga completions sync)'
 
 
 def commands() -> list[dict]:
@@ -58,32 +59,41 @@ def commands() -> list[dict]:
         return list(reader)
 
 
-def flags_of(usage: str) -> list[str]:
-    """The --flags a usage sketch advertises — machine-read for completion and
-    for the flags-exist-in-target check. Brackets, pipes, AND parens are grouping
-    punctuation, never flag text — a '(--a|--b)' choice must not leak '--b)' into
-    the emitted completion (it did once: the zsh file failed to parse). Deduped
-    preserving order: a flag repeated across alternatives (agent's --session)
-    advertises once."""
-    toks = [t for t in re.sub(r'[\[\]|()]', ' ', usage).split() if t.startswith('--')]
-    return list(dict.fromkeys(toks))
+_HELP_ROWS: list[dict] | None = None
 
 
-def verbs_of(usage: str) -> list[str]:
-    """The subcommand verbs a usage sketch advertises: the first bare word of each
-    ' | '-separated alternative (not a --flag, not a <placeholder>). Alternatives
-    are spaced ' | '; an enum value like '--only a|b' uses an unspaced '|' and so is
-    not split. check_cli_surface verifies each against the TARGET'S OWN --help
-    output (argparse renders the live subparsers; shell targets print their real
-    usage) — a renamed or un-dispatched verb goes red even while the word survives
-    in the source, which a source grep could never catch (verbs are ordinary
-    words)."""
-    verbs = []
-    for alt in usage.split(' | '):
-        tok = alt.strip().lstrip('[').split(' ', 1)[0]
-        if re.fullmatch(r'[a-z][a-z-]*', tok):
-            verbs.append(tok)
-    return verbs
+def help_rows() -> list[dict]:
+    """All rsc/cli/help.csv rows (columns command, subcommand, arg-name, arg-type,
+    cardinality, help) — the SINGLE source for each command's subcommands, flags, and the
+    GENERATED usage. commands.csv holds no argument structure at all: usage is
+    derived here, so the two can never drift and there is nothing to reconcile."""
+    global _HELP_ROWS
+    if _HELP_ROWS is None:
+        with (REPO / 'rsc' / 'cli' / 'help.csv').open() as f:
+            _HELP_ROWS = list(csv.DictReader(f))
+    return _HELP_ROWS
+
+
+def command_rows(command: str) -> list[dict]:
+    return [r for r in help_rows() if r['command'] == command]
+
+
+def subcommands_of(command: str) -> list[str]:
+    """A command's distinct non-empty subcommands, in order."""
+    out: list[str] = []
+    for r in command_rows(command):
+        if r['subcommand'] and r['subcommand'] not in out:
+            out.append(r['subcommand'])
+    return out
+
+
+def flags_of(command: str) -> list[str]:
+    """The --flags a command advertises, across all its subcommands, deduped in order."""
+    out: list[str] = []
+    for r in command_rows(command):
+        if r['arg-name'].startswith('--') and r['arg-name'] not in out:
+            out.append(r['arg-name'])
+    return out
 
 
 def calculus_terms() -> set[str]:
@@ -103,72 +113,160 @@ def calculus_terms() -> set[str]:
     return terms
 
 
+def _render_arg(name: str, arg_type: str) -> str:
+    """One argument's usage fragment: a flag shows its name then its metavar; a
+    positional shows its metavar (arg-type) alone."""
+    if name.startswith('--'):
+        return f'{name} {arg_type}' if arg_type else name
+    return arg_type or name
+
+
+def _render_args(rows: list[dict]) -> str:
+    """The argument portion of a subcommand's usage, from its help.csv rows in order.
+    cardinality is a literal count: blank -> optional [x]; a bare count '1' -> required,
+    exactly that many x; 'N/<class>' -> N over the SET QUOTIENT <class> — the members
+    share that value (one equivalence class) and render as the exclusive choice (a | b),
+    emitted once at the first member."""
+    pieces, seen = [], set()
+    args = [r for r in rows if r['arg-name']]
+    for r in args:
+        card, frag = r['cardinality'], _render_arg(r['arg-name'], r['arg-type'])
+        if not card:
+            pieces.append(f'[{frag}]')
+        elif '/' in card:
+            if card in seen:
+                continue
+            seen.add(card)
+            members = ' | '.join(_render_arg(a['arg-name'], a['arg-type'])
+                                 for a in args if a['cardinality'] == card)
+            pieces.append(f'({members})')
+        else:  # a bare count -> required
+            pieces.append(frag)
+    return ' '.join(pieces)
+
+
+def _by_subcommand(command: str) -> tuple[list[str], dict[str, list[dict]]]:
+    """(ordered subcommands incl. '', {subcommand: rows}) for a command."""
+    order: list[str] = []
+    bysub: dict[str, list[dict]] = {}
+    for r in command_rows(command):
+        s = r['subcommand']
+        if s not in bysub:
+            bysub[s] = []
+            order.append(s)
+        bysub[s].append(r)
+    return order, bysub
+
+
+def _join(base: str, args: str) -> str:
+    return f'{base} {args}' if args else base
+
+
+def usage_of(command: str) -> str:
+    """The compact usage sketch (subcommands ' | '-joined), GENERATED from help.csv —
+    the string commands.csv used to store. One source now, so it cannot drift."""
+    order, bysub = _by_subcommand(command)
+    subcommands = [s for s in order if s]
+    if not subcommands:
+        return _render_args(bysub.get('', []))
+    return ' | '.join(_join(s, _render_args(bysub[s])) for s in subcommands)
+
+
+def command_forms(command: str) -> list[str]:
+    """`yoga <command> …` invocation forms, generated from help.csv: one per
+    subcommand (with its own args), or a single form carrying the command-level args
+    when there are no subcommands."""
+    order, bysub = _by_subcommand(command)
+    subcommands = [s for s in order if s]
+    base = f'yoga {command}'
+    if not subcommands:
+        return [_join(base, _render_args(bysub.get('', [])))]
+    return [_join(f'{base} {s}', _render_args(bysub[s])) for s in subcommands]
+
+
 def _forms(c: dict) -> list[str]:
-    """A row's invocation forms: the usage's ' | '-separated alternatives (the
-    same split verbs_of reads); an unspaced '|' is an enum inside one form."""
-    if not c['usage']:
-        return [f'yoga {c["command"]}']
-    return [f'yoga {c["command"]} {alt.strip()}' for alt in c['usage'].split(' | ')]
+    return command_forms(c['command'])
+
+
+def render_command_help(c: dict) -> str:
+    """The standard command help, shared by `yoga <cmd> -h` and `yoga commands
+    <cmd>`: the summary, every invocation form, then each subcommand with its own args
+    nested beneath it, command-level args flat. All generated from help.csv."""
+    command = c['command']
+    forms = ([f"yoga {command}   (status)"] if subcommands_of(command) else []) + command_forms(command)
+    out = [f"yoga {command} — {c['summary']}", '', *[f'  {f}' for f in forms]]
+    order, bysub = _by_subcommand(command)
+    argrows = [r for r in command_rows(command) if r['arg-name']]
+    if not argrows:
+        return '\n'.join(out) + '\n'
+    label = {(r['subcommand'], r['arg-name']): _render_arg(r['arg-name'], r['arg-type'])
+             for r in argrows}
+    w = max(len(v) for v in label.values())
+    out.append('')
+    for s in order:
+        desc = next((r['help'] for r in bysub[s] if not r['arg-name']), None)
+        rows = [r for r in bysub[s] if r['arg-name']]
+        if s:
+            out.append(f"  {s}" + (f" — {desc}" if desc else ''))
+            out += [f"      {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
+        else:
+            out += [f"  {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
+    return '\n'.join(out) + '\n'
 
 
 def render_synopsis(cmds: list[dict], name: str | None = None) -> str:
-    """`yoga commands [<command>]` — man-page entries derived from the table on
-    every invocation and stored nowhere (L5), so they can never drift from the
-    one authority. Bare: the full SYNOPSIS, one invocation form per line. With a
-    command: that command's whole entry — NAME, SYNOPSIS, its calculus citations
-    and run-step equivalence — so the terminal answers what a command alleges
-    without anyone reading source."""
+    """`yoga commands [<command>]` — from the table (L5). With a command: its
+    standard help. Bare: every command's forms, one per line."""
     if name:
         c = next((c for c in cmds if c['command'] == name), None)
         if c is None:
             return f'yoga commands: no command {name!r} — `yoga commands` lists them all\n'
-        out = ['NAME', f'  yoga {c["command"]} — {c["summary"]}', '', 'SYNOPSIS',
-               *[f'  {f}' for f in _forms(c)]]
-        if c['calculus']:
-            out += ['', 'CALCULUS', f'  {c["calculus"]}   (defined in `yoga calculus`)']
-        if c['step']:
-            out += ['', 'RUN STEP', f'  ≡ `yoga run` step {c["step"]}']
-        out += ['', 'SEE ALSO', f'  yoga {c["command"]} --help   (the target\'s own voice)', '']
-        return '\n'.join(out)
-    out = ['yoga(1) — claude-export-yoga', '', 'SYNOPSIS',
-           '  yoga',
-           '  yoga <command> -h|--help']
+        return render_command_help(c)
+    out = ['yoga — claude-export-yoga', '']
     for c in cmds:
         out += [f'  {f}' for f in _forms(c)]
-    out.append('')
-    return '\n'.join(out)
+    return '\n'.join(out) + '\n'
 
 
 def render_help(cmds: list[dict]) -> str:
-    out = ['yoga — the terminal surface of claude-export-yoga',
-           'table: rsc/cli/commands.csv · calculus: rsc/CALCULUS.md (`./yoga calculus`)',
-           '',
-           'usage: ./yoga <command> [args...]   # `./yoga <command> --help` asks the target itself',
-           '']
-    for c in cmds:
-        out.append(f'  {c["command"]}' + (f' {c["usage"]}' if c['usage'] else ''))
-        out.append(f'      {c["summary"]}'
-                   + (f'  ⟨{c["calculus"]}⟩' if c['calculus'] else '')
-                   + (f'  ≡ run step {c["step"]}' if c['step'] else ''))
-    out += ['',
-            'zsh completion: `./yoga completions --write`, then add the printed lines to ~/.zshrc',
-            '']
+    """`yoga -h` — the command menu: one line each, name and summary. Bare `yoga`
+    runs the machine report (prerequisites); `yoga <command> -h` is a command's forms."""
+    w = max(len(c['command']) for c in cmds)
+    out = ['yoga — claude-export-yoga', '',
+           *[f"  {c['command']:<{w}}  {c['summary']}" for c in cmds],
+           '', '→ `yoga <command> -h` for its forms · `yoga <command>` for its status', '']
     return '\n'.join(out)
 
 
+def _subcommand_desc(command: str, subcommand: str) -> str:
+    """A subcommand's one-line description — its blank-arg-name row in help.csv."""
+    return next((r['help'] for r in command_rows(command)
+                 if r['subcommand'] == subcommand and not r['arg-name']), '')
+
+
 def completion_script(cmds: list[dict]) -> str:
-    """A static zsh completion function derived from the table (regenerate via
+    """A static zsh completion function derived from the tables (regenerate via
     `./yoga completions`; never edit the emitted file). The command word completes
-    with summaries; after it, a word starting '-' completes the row's
-    advertised flags and anything else completes as a path."""
+    with summaries; a command's subcommands complete after it (also with summaries); a
+    word starting '-' completes that command's advertised flags; anything else is a path."""
     def esc(s: str) -> str:
         return (s.replace('\\', '\\\\').replace("'", "'\\''").replace(':', '\\:'))
+
+    def arm(command: str) -> str | None:
+        parts = []
+        if subcommands := subcommands_of(command):
+            slist = ' '.join(f"'{esc(s)}:{esc(_subcommand_desc(command, s))}'" for s in subcommands)
+            parts.append(f'subcommands=({slist})')
+        if flags := flags_of(command):
+            parts.append(f"opts=({' '.join(flags)})")
+        return f"    {command}) {'; '.join(parts)} ;;" if parts else None
+
     lines = [
         '#compdef yoga',
-        '# derived from rsc/cli/commands.csv by `./yoga completions` — regenerate, never edit',
+        '# derived from rsc/cli/commands.csv + help.csv by `./yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
-        '  local -a cmds opts',
+        '  local -a cmds subcommands opts',
         '  cmds=(',
         *[f"    '{esc(c['command'])}:{esc(c['summary'])}'" for c in cmds],
         '  )',
@@ -177,11 +275,12 @@ def completion_script(cmds: list[dict]) -> str:
         '    return',
         '  fi',
         '  case "${words[2]}" in',
-        *[f"    {c['command']}) opts=({' '.join(flags)}) ;;"
-          for c in cmds if (flags := flags_of(c['usage']))],
+        *[a for c in cmds if (a := arm(c['command']))],
         '  esac',
-        '  if [[ ${words[CURRENT]} == -* ]]; then',
-        '    (( ${#opts} )) && compadd -- "${opts[@]}"',
+        '  if (( CURRENT == 3 )) && (( ${#subcommands} )) && [[ ${words[CURRENT]} != -* ]]; then',
+        "    _describe -t subcommands 'subcommand' subcommands",
+        '  elif [[ ${words[CURRENT]} == -* ]] && (( ${#opts} )); then',
+        '    compadd -- "${opts[@]}"',
         '  else',
         '    _files',
         '  fi',
@@ -235,7 +334,7 @@ def install_completion() -> int:
     zshrc.write_text('\n'.join(lines) + '\n')
     print(f'{tilde(zshrc)}: {where}')
     print(f'    {fpath_line}')
-    print('  undo anytime: ./yoga completions --uninstall')
+    print('  undo anytime: ./yoga completions uninstall')
     print(f"→ start a new shell (exec zsh). Optional, for yoga from anywhere:\n"
           f"    alias yoga='{tilde(REPO / 'yoga')}'")
     return 0
@@ -277,27 +376,54 @@ def uninstall_completion() -> int:
     return 0
 
 
+def completion_status() -> int:
+    """The bare-noun default: show current state, write nothing. Whether the _yoga
+    file is written (and current with the table) and whether ~/.zshrc is wired."""
+    written = COMPLETION_OUT.exists()
+    current = written and COMPLETION_OUT.read_text() == completion_script(commands())
+    zshrc = Path.home() / '.zshrc'
+    wired = zshrc.exists() and any(l.strip() == COMPLETION_MARKER
+                                   for l in zshrc.read_text().splitlines())
+    state = ('not written — `yoga completions sync`' if not written else
+             'current' if current else 'STALE — `yoga completions sync`')
+    print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
+    print(f'  ~/.zshrc: ' + ('wired' if wired else 'not wired — `yoga completions install`'))
+    return 0
+
+
+def _sync_completion() -> None:
+    """The `sync` operation: (re-)write cache/completions/_yoga from the table.
+    `install` calls this before wiring, so it never wires a stale or absent file —
+    install IS sync, then wire."""
+    COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
+    COMPLETION_OUT.write_text(completion_script(commands()))
+    print(f'wrote {COMPLETION_OUT.relative_to(REPO)}')
+
+
 def completion(rest: list[str]) -> int:
     if any(a in rest for a in ('-h', '--help')):
         # a help request is a question, never an action — and never the product
-        print('yoga completions [--write | --install | --uninstall] — zsh tab-completion derived from rsc/cli/commands.csv\n'
-              '  bare: print to stdout; --write: write under cache/completions/;\n'
-              '  --install: --write, then wire it into ~/.zshrc above compinit (idempotent);\n'
-              '  --uninstall: remove that block from ~/.zshrc (the exact inverse — no file left behind)')
+        print('yoga completions — zsh tab-completion derived from rsc/cli/commands.csv + help.csv\n'
+              '  (bare)      status: whether _yoga is written/current and wired into ~/.zshrc\n'
+              '  sync        (re-)write cache/completions/_yoga from the table — idempotent\n'
+              '  install     sync, then wire it into ~/.zshrc above compinit (idempotent)\n'
+              '  uninstall   remove that block from ~/.zshrc (the exact inverse — no file left behind)')
         return 0
-    if '--uninstall' in rest:
+    verb = next((a for a in rest if not a.startswith('-')), None)
+    if verb is None:
+        return completion_status()                  # bare noun → status
+    if verb == 'sync':
+        _sync_completion()
+        print('→ wire it in: ./yoga completions install   (edits ~/.zshrc above compinit)')
+        return 0
+    if verb == 'install':
+        _sync_completion()          # install IS sync, then wire
+        return install_completion()
+    if verb == 'uninstall':
         return uninstall_completion()
-    text = completion_script(commands())
-    if '--write' in rest or '--install' in rest:
-        COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
-        COMPLETION_OUT.write_text(text)
-        print(f'wrote {COMPLETION_OUT.relative_to(REPO)}')
-        if '--install' in rest:
-            return install_completion()
-        print('→ wire it in: ./yoga completions --install   (edits ~/.zshrc above compinit)')
-        return 0
-    print(text, end='')
-    return 0
+    print(f'yoga completions: unknown verb {verb!r} — sync | install | uninstall (bare: status)',
+          file=sys.stderr)
+    return 2
 
 
 def dispatch(row: dict, rest: list[str]) -> int:
@@ -315,24 +441,68 @@ def dispatch(row: dict, rest: list[str]) -> int:
     return 1  # unreachable
 
 
+def usage_line(c: dict) -> str:
+    """The tail every bare noun-status carries: the command's usage, GENERATED from
+    help.csv. It names EVERY verb and flag that applies — so there is no need to
+    guess a unique 'next' (a noun with several verbs has none)."""
+    usage = usage_of(c['command'])
+    return f"usage: yoga {c['command']}" + (f" {usage}" if usage else '')
+
+
+def _run_status(row: dict) -> int:
+    """Run a noun's bare (status) invocation as a CHILD, so the CLI can print the
+    usage tail after it returns. Only ever reached for a read-only status — no verb,
+    no args — so subprocess (not the execv dispatch uses) is safe: nothing here is
+    interactive, and the child's exit code is forwarded."""
+    target = REPO / row['target']
+    if target.suffix == '.py':
+        return subprocess.run([str(REPO / 'src' / 'run_python_script.sh'),
+                               str(target)]).returncode
+    return subprocess.run([str(target)]).returncode
+
+
 def main() -> int:
     argv = sys.argv[1:]
     cmds = commands()
-    if not argv or argv[0] in ('-h', '--help', 'help'):
-        print(render_help(cmds), end='')
-        return 0
+    if not argv:
+        # bare `yoga` → the machine report: what still needs attention (failures-only;
+        # `yoga prerequisites --show-all` for the full report). The root obeys the same
+        # rule as every noun — bare shows status, -h shows help — and its status IS the
+        # prerequisites report, so there is nothing to invent here.
+        return dispatch(next(c for c in cmds if c['command'] == 'prerequisites'), [])
+    if argv[0] in ('-h', '--help'):
+        print(render_help(cmds), end='')      # help is the -h/--help flag, uniformly —
+        return 0                              # not a bareword `help` the table never declared
     row = next((c for c in cmds if c['command'] == argv[0]), None)
     if row is None:
         print(f'yoga: unknown command {argv[0]!r} — the table:\n', file=sys.stderr)
         print(render_help(cmds), file=sys.stderr, end='')
         return 2
-    if row['command'] == 'completions':
-        return completion(argv[1:])
+    rest = argv[1:]
+    # command-level help (`yoga <cmd> -h`, no verb before the flag) → the uniform
+    # standard help. A verb before it (`yoga <cmd> <verb> -h`) falls through to the
+    # target, whose argparse carries that verb's own flags.
+    if rest and rest[0] in ('-h', '--help'):
+        print(render_command_help(row), end='')
+        return 0
     if row['command'] == 'commands':
-        name = next((a for a in argv[1:] if not a.startswith('-')), None)
+        name = next((a for a in rest if not a.startswith('-')), None)
         print(render_synopsis(cmds, name), end='')
         return 0
-    return dispatch(row, argv[1:])
+    if row['command'] == 'completions':
+        rc = completion(rest)
+        if not rest:                              # bare noun → tail with the usage
+            print(usage_line(row))
+        return rc
+    # A bare noun (advertised verbs, no args) shows status, then tails with its usage
+    # — the one tail that works everywhere, naming every verb that applies. Verbs
+    # (check/run/supersede: no advertised verbs) act on a bare invocation, so they
+    # keep the plain execv path and no tail.
+    if not rest and subcommands_of(row['command']):
+        rc = _run_status(row)
+        print(usage_line(row))
+        return rc
+    return dispatch(row, rest)
 
 
 if __name__ == '__main__':

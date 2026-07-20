@@ -40,8 +40,8 @@ def ensure_assets() -> None:
     """Fetch any missing render library into STATIC_DIR. The core js/css are
     REQUIRED — a failure raises, so serve refuses to start half-rendered; the fonts/
     woff2 are progressive enhancement, fetched best-effort. Called at serve startup
-    and by --ensure-assets (the regen producer, which additionally tolerates the
-    required-libs raise so an offline regen still exits clean)."""
+    and by --ensure-assets (the sync producer, which additionally tolerates the
+    required-libs raise so an offline sync still exits clean)."""
     for dest_rel, url in assets():
         dest = STATIC_DIR / dest_rel
         if dest.exists():
@@ -303,16 +303,13 @@ def make_handler(markdown_dir: Path) -> type:
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('--markdown', metavar='DIR',
-                   help='Directory tree of markdown files to serve (e.g. output/markdown)')
-    p.add_argument('--port', type=int, default=8182, help='Port (default: 8182)')
-    p.add_argument('--ensure-assets', action='store_true',
-                   help='fetch the render libraries into cache/serve_markdown, then exit '
-                        '(the regen producer for that subtree — serve also self-heals them at startup)')
+    p.add_argument('--markdown', metavar='DIR')
+    p.add_argument('--port', type=int, default=8182)
+    p.add_argument('--ensure-assets', action='store_true')
     args = p.parse_args()
 
-    # The regen producer path: repopulate cache/serve_markdown and stop. Best-effort
-    # so an offline `yoga cache regen` still exits clean — serve itself hard-requires the
+    # The sync producer path: repopulate cache/serve_markdown and stop. Best-effort
+    # so an offline `yoga cache sync` still exits clean — serve itself hard-requires the
     # assets at startup (ensure_assets there is not caught), so a broken render can't
     # slip through; here we only warn and leave the subtree for the next online run.
     if args.ensure_assets:

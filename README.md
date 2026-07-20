@@ -14,8 +14,8 @@ corpus.
 ./yoga check                  # the three-tier gate suite
 ```
 
-`./yoga` lists every command with its summary; `./yoga commands [<command>]`
-prints man entries; `./yoga <command> --help` asks each target itself.
+`./yoga -h` lists every command with its summary; `./yoga commands [<command>]`
+prints man entries; `./yoga <command> <verb> --help` asks each target itself.
 
 ## The tiers
 
@@ -23,7 +23,7 @@ prints man entries; `./yoga <command> --help` asks each target itself.
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `input/` | input | iCloud | none — the medium carries it (sessions: once stashed via `yoga agent capture --all`) |
-| `cache/` | cache | local | none — `yoga cache regen` rebuilds it from the registry (`rsc/cache_io.csv`) |
+| `cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
 | `logs/` | run history | local | disposable |
 | `output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
@@ -36,25 +36,25 @@ prefix-gated store.
 
 ## Where facts live
 
-- the command surface: `rsc/cli/commands.csv` — grammar and gates: `rsc/cli/README.md`
+- the command surface: `rsc/cli/commands.csv` (arguments: `rsc/cli/help.csv`) — grammar and gates: `rsc/cli/README.md`
 - the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`yoga prerequisites` reports both)
 - commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
 - the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles them against the live forge and prints each drift's own `gh` remedy)
-- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref`
+- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref check` (bare `yoga xref` shows status)
 
 ## Getting data
 
 Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
 the emailed `data-*` into `input/claude/chat/bulk-export/`. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
-(or the macOS Shortcut: `open -a Terminal .../src/main/browser-captures/export.command`
+(or the macOS Shortcut: `open -a Terminal src/main/browser-captures/export.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
 Code sessions: `yoga agent capture --all`. Paid model readings:
-`ANTHROPIC_API_KEY=... yoga dashboard capture`, rendered free by
-`yoga dashboard present`. Batch disposal is computed, never assumed: `yoga supersede`.
+`yoga dashboard capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
+reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed, never assumed: `yoga supersede`.
 
 ## Prerequisites
 

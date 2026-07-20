@@ -24,7 +24,7 @@ Defaults: output/markdown, output/dashboard, cache/dashboard/presentation for th
 data tables, output/dashboard/presentation for the finished page (all repo-relative).
 The page is the human-facing artifact (library tier); the per-table JSON it is built
 from — machine feedstock, re-derived on every run — stay behind in the cache workshop.
-Called by dashboard.sh (`yoga dashboard present`) — free, local, re-derivable at will (L5).
+Called by dashboard.sh (`yoga dashboard sync`) — free, local, re-derivable at will (L5).
 """
 import argparse
 import json

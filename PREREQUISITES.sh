@@ -8,7 +8,8 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   ./PREREQUISITES.sh
+#   ./PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
+#   ./PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items
 #
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 
@@ -16,17 +17,29 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 
+SHOW_ALL=0
 parse_args() {
-  case "${1:-}" in
-    --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-  esac
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --show-all) SHOW_ALL=1; shift ;;
+      --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
+      *) shift ;;
+    esac
+  done
 }
 
 missing_required=0
 
-ok()   { echo "  ✓ $*"; }
-info() { echo "  – $*"; }
-bad()  { echo "  ✗ $*"; missing_required=1; }
+# Failures-only by default: ✓ (satisfied) lines are withheld unless --show-all, and a
+# section header prints lazily — only when its first shown line (– or ✗) appears — so an
+# all-satisfied section vanishes entirely. The bare `yoga` invocation shows this report,
+# so its default is the short "what still needs attention" list.
+_hdr=""
+sec()    { _hdr="$*"; }
+_flush() { if [[ -n "$_hdr" ]]; then echo "$_hdr"; _hdr=""; fi; }
+ok()     { if (( SHOW_ALL )); then _flush; echo "  ✓ $*"; fi; }
+info()   { _flush; echo "  – $*"; }
+bad()    { _flush; echo "  ✗ $*"; missing_required=1; }
 
 count_glob_dirs() {
   local n=0 d
@@ -37,7 +50,7 @@ count_glob_dirs() {
 }
 
 check_tools() {
-  echo "tools"
+  sec "tools"
   if command -v jq &>/dev/null; then
     ok "jq ($(jq --version 2>/dev/null))"
   else
@@ -48,11 +61,11 @@ check_tools() {
   else
     bad "Python 3 not found — install via: brew install python"
   fi
-  info "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
+  ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 
 check_venv() {
-  echo "venv ($VENV — override via VENV=...)"
+  sec "venv ($VENV — override via VENV=...)"
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1))"
   else
@@ -71,7 +84,7 @@ check_venv() {
 #   file existence check. Absence is only ever an informational –, never a ✗.
 check_dependencies() {
   local header="$1" manifest="$2" extract="$3" probe="$4" subject="$5" remediation="$6"
-  echo "$header"
+  sec "$header"
   if [[ ! -f "$manifest" ]]; then
     info "manifest not found (unexpected)"
     return
@@ -120,7 +133,7 @@ asset_probe() {  # $1 = dest, $2 = full line
 }
 
 check_optional_modes() {
-  echo "optional modes"
+  sec "optional modes"
   if [[ "$(uname)" == "Darwin" ]] && command -v osascript &>/dev/null; then
     ok "browser capture possible (yoga browser capture): macOS + osascript (Safari must be logged in to claude.ai / gemini.google.com)"
     # Modern Safari keeps this setting where `defaults` cannot see it, and the reliable
@@ -150,7 +163,7 @@ check_machine() {
   local binding="$SCRIPT_DIR/machine-name.txt"
   local rel="${binding#"$SCRIPT_DIR/"}"
   local registry="$SCRIPT_DIR/rsc/machine/machines.csv"
-  echo "machine (its own name for itself — never shared, never transported)"
+  sec "machine (its own name for itself — never shared, never transported)"
   # The pre-move location, built in pieces — for the very reason the rooted
   # binding no longer needs to be. This path must exist on NO clean clone, so a
   # committed literal naming it would be a dangling reference, and would resolve
@@ -188,20 +201,19 @@ check_machine() {
 }
 
 check_cli() {
-  echo "yoga CLI (./yoga — table: rsc/cli/commands.csv)"
-  local comp="$SCRIPT_DIR/cache/completions/_yoga"
-  if [[ -f "$comp" ]]; then
-    # Currency probe is read-only (`./yoga completions` without --write only
-    # prints); cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
-    if "$SCRIPT_DIR/yoga" completions 2>/dev/null | cmp -s - "$comp"; then
-      ok "zsh completion generated and current with rsc/cli/commands.csv"
-    elif "$SCRIPT_DIR/yoga" completions &>/dev/null; then
-      info "zsh completion stale vs rsc/cli/commands.csv — regenerate: ./yoga completions --write"
-    else
-      info "zsh completion generated; currency cannot be verified (running ./yoga needs Python 3)"
-    fi
+  sec "yoga CLI (./yoga — tables: rsc/cli/commands.csv + help.csv)"
+  # `yoga completions` (bare) is itself the read-only status — written/current/stale
+  # and wired-or-not — so defer to that one voice rather than re-deriving here.
+  # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
+  local comp_status
+  if comp_status="$("$SCRIPT_DIR/yoga" completions 2>/dev/null)"; then
+    case "$comp_status" in
+      *current*) ok   "zsh completion generated and current with rsc/cli/commands.csv + help.csv" ;;
+      *STALE*)   info "zsh completion stale vs rsc/cli/commands.csv + help.csv — regenerate: ./yoga completions sync" ;;
+      *)         info "zsh completion not generated — ./yoga completions sync (derived under cache/; safe any time)" ;;
+    esac
   else
-    info "zsh completion not generated — ./yoga completions --write (derived under cache/; safe to regenerate any time)"
+    info "zsh completion currency cannot be verified (running ./yoga needs Python 3)"
   fi
   # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
   # added after it is present in the file and does nothing — a grep for the string
@@ -214,7 +226,7 @@ check_cli() {
     ok "zsh resolves the yoga completion"
   else
     info "zsh does not resolve the yoga completion (an fpath line after compinit is inert)"
-    echo "    → run: ./yoga completions --install"
+    echo "    → run: ./yoga completions install"
   fi
 }
 
@@ -222,7 +234,7 @@ check_git_hook() {
   # The one voice for this fact: pre_commit.sh used to probe its own installation
   # too, and say so in its own words. Two probes, one fact — and its copy was
   # downgraded to advice on the very branches where nothing was vetting at all.
-  echo "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
+  sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
   local script="$SCRIPT_DIR/src/test/pre_commit.sh" hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
@@ -249,7 +261,7 @@ check_signature_hook() {
   # A convention, not a gate: it stamps the Signature: trailer and strips the model
   # co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry
   # no signature — never a failure, so this reports informationally even when installed.
-  echo "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
+  sec "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
   local script="$SCRIPT_DIR/src/test/prepare_commit_msg.sh" hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
     info "not a git clone — no hook to install"
@@ -279,7 +291,7 @@ check_forge() {
   # Network- and auth-dependent, so it NEVER fails the run — unverifiable is
   # reported, never vetoed (the deterministic gate must stay offline-reproducible,
   # which is why this check lives here and not in yoga check).
-  echo "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
+  sec "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
   local declared="$SCRIPT_DIR/rsc/forge.csv"
   if [[ ! -f "$declared" ]]; then
     info "no rsc/forge.csv — nothing declared to reconcile"
@@ -329,7 +341,7 @@ for r in csv.DictReader(open(sys.argv[1])):
 }
 
 check_pipeline_inputs() {
-  echo "pipeline inputs (this repo ships no data; you supply your own)"
+  sec "pipeline inputs (this repo ships no data; you supply your own)"
   local n
 
   n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/chat/browser-API"/*/)"
@@ -367,7 +379,9 @@ check_pipeline_inputs() {
 }
 
 notes() {
-  echo "notes"
+  # Commentary, not status — only in the full report.
+  (( SHOW_ALL )) || return 0
+  sec "notes"
   info "./yoga run writes only to input/, cache/, output/, logs/ (all git-ignored) and the venv; nothing else on this machine"
   info "./yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
@@ -403,7 +417,12 @@ main() {
     echo "missing required tools — install the ✗ items above, then re-run"
     exit 1
   fi
-  echo "ready — ./yoga run (pipelines without input data are skipped)"
+  if (( SHOW_ALL )); then
+    echo "ready — ./yoga run (pipelines without input data are skipped)"
+  else
+    # Default is failures-only; if we reach here nothing above needed attention.
+    echo "ready — ./yoga run · full report: ./yoga prerequisites --show-all · commands: ./yoga -h"
+  fi
 }
 
 main "$@"

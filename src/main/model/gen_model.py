@@ -1,11 +1,17 @@
 #!/usr/bin/env python
 """
-gen_model.py — Generate per-schema definition catalogues as candidates for rsc/schema/model.json.
-Output: cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring rsc/schema/{pipeline}/{schema}/).
-rsc/schema/model.json is hand-curated from these.
+gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json.
+Output: cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring
+rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
+
+`model` is a NOUN: the catalogues. A bare invocation shows their current state and
+writes nothing (so there is no `status` verb — the bare noun IS the status). Only
+the `sync` verb writes: it brings cache/model into agreement with the schemas, and
+re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
-    ./yoga model
+    ./yoga model         # status: which catalogues exist under cache/model/
+    ./yoga model sync    # (re-)generate every catalogue to agree with the schemas
 """
 
 import argparse
@@ -27,29 +33,55 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
     )
 
 
-def main():
-    # no arguments — but a --help must be a QUESTION, never a generation run
-    # (the yoga row targets this file directly, so argparse is the help surface)
-    argparse.ArgumentParser(
-        description='Generate per-schema definition catalogues (cache/model/<family>/vN.json) '
-                    'as candidates for the hand-curated rsc/schema/model.json.').parse_args()
+def _catalogues() -> list[tuple[str, Path]]:
+    """(family, schema-version file) for every versioned schema — the inventory
+    that `project` writes and `status` reports, so the two can never disagree."""
+    out = []
     for pipeline_dir in sorted(SCHEMA_DIR.iterdir()):
         if not pipeline_dir.is_dir() or pipeline_dir.name.startswith('_'):
             continue
         for schema_dir in sorted(pipeline_dir.iterdir()):
             if not schema_dir.is_dir():
                 continue
-            versions = _sorted_versions(schema_dir)
-            if not versions:
-                continue
-            name = schema_dir.name
-            out_dir = OUT_DIR / name
-            out_dir.mkdir(parents=True, exist_ok=True)
-            for schema in versions:
-                (out_dir / schema.name).write_text(generate(name, schema))
-                print(f'  ✓ cache/model/{name}/{schema.name}')
+            for version in _sorted_versions(schema_dir):
+                out.append((schema_dir.name, version))
+    return out
 
+
+def sync() -> None:
+    """The verb: bring cache/model into agreement with the schemas by (re-)generating
+    every catalogue. Idempotent (L1) — the ONLY path here that writes."""
+    for name, schema in _catalogues():
+        out_dir = OUT_DIR / name
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / schema.name).write_text(generate(name, schema))
+        print(f'  ✓ cache/model/{name}/{schema.name}')
     print('Review cache/model/ and update rsc/schema/model.json as needed.')
+
+
+def status() -> None:
+    """The bare-noun default: show current state, write nothing. Reports which
+    catalogues cache/model/ already holds and which a `project` would still mint."""
+    present, missing = [], []
+    for name, schema in _catalogues():
+        (present if (OUT_DIR / name / schema.name).exists() else missing).append(
+            f'{name}/{schema.name}')
+    total = len(present) + len(missing)
+    print(f'cache/model: {len(present)}/{total} catalogues present')
+    for m in missing:
+        print(f'  – {m} — not yet projected')
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description='Per-schema definition catalogues (cache/model/<family>/vN.json), '
+                    'candidates for the hand-curated rsc/schema/model.json. '
+                    'Bare shows status; `sync` regenerates them to agree with the schemas.')
+    sub = ap.add_subparsers(dest='verb')
+    sub.add_parser('sync')
+    args = ap.parse_args()
+    # bare → status (read-only); only `sync` writes
+    sync() if args.verb == 'sync' else status()
 
 
 if __name__ == '__main__':

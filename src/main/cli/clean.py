@@ -17,7 +17,7 @@ safe to remove (nothing regenerates it here); and even a mistaken removal of a
 LIVE subtree costs only a pipeline re-run, never data — that is the cache/
 contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
 
-The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with regen
+The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync
 and pre_commit's check_cache_io — one registry, three consumers.
 
 STDLIB-ONLY. One of --dry-run / --apply is REQUIRED: cleaning is deliberate,
@@ -33,6 +33,9 @@ import sys
 from pathlib import Path
 
 from cache_io import owned_paths
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from argparse_help import enrich
 
 REPO = Path(__file__).resolve().parents[3]
 CACHE = REPO / 'cache'
@@ -79,8 +82,9 @@ def _human(n: float) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description='remove orphaned cache/ subtrees (neither written nor read)')
     mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument('--dry-run', action='store_true', help='list orphaned cache/ subtrees; remove nothing')
-    mode.add_argument('--apply', action='store_true', help='remove the orphaned cache/ subtrees')
+    mode.add_argument('--dry-run', action='store_true')
+    mode.add_argument('--apply', action='store_true')
+    enrich(ap, 'cache', 'clean')
     args = ap.parse_args()
 
     if not CACHE.is_dir():

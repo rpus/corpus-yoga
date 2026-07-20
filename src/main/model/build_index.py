@@ -35,8 +35,8 @@ Usage (via ./yoga indexing):
   yoga indexing                                    # status: counts + pending queue
   yoga indexing candidates [--top N]               # derive cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
-  yoga indexing reject <concept> [--because <why>] # reject a concept
-  yoga indexing build                              # build output/markdown/index.md
+  yoga indexing reject [--reason <why>] <concept>  # reject a concept
+  yoga indexing sync                               # build output/markdown/index.md
 """
 import argparse
 import re
@@ -45,6 +45,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import REPO
+from argparse_help import enrich
+
+MARKDOWN_DIR = REPO / 'output' / 'markdown'                    # the corpus to index
+ACCEPTED_FILE = REPO / 'output' / 'indexing' / 'accepted.txt'  # curated headwords (read + written)
+REJECTED_FILE = REPO / 'output' / 'indexing' / 'rejected.txt'  # disposal record (read + written)
 
 TURN_RE = re.compile(
     r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
@@ -150,7 +155,7 @@ def build(markdown_root: Path, accepted_path: Path) -> str:
         '# Index',
         '',
         f'Headwords: `output/indexing/accepted.txt` (curated — edit and re-run '
-        f'`yoga indexing build`). Locators link to durable turn anchors; '
+        f'`yoga indexing sync`). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
     ]
@@ -298,7 +303,7 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
     return f'{term!r}: accepted' + (f' with alias(es) {", ".join(aliases)}' if aliases else '')
 
 
-def reject(accepted_path: Path, rejected_path: Path, concept: str, because: str) -> str:
+def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) -> str:
     """Record a rejection in the durable disposal record — unless the concept is
     already covered (accepted) or already rejected; disposals never duplicate."""
     if concept.lower() in parse_rejected(rejected_path):
@@ -308,9 +313,9 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, because: str)
         return f'{concept!r}: already covered by an accepted headword — no rejection needed'
     rejected_path.parent.mkdir(parents=True, exist_ok=True)  # bootstrap on a fresh machine
     lines = rejected_path.read_text().splitlines() if rejected_path.exists() else []
-    lines.append(f'{concept}' + (f'  # {because}' if because else ''))
+    lines.append(f'{concept}' + (f'  # {reason}' if reason else ''))
     rejected_path.write_text('\n'.join(lines) + '\n')
-    return f'{concept!r}: rejected' + (f' ({because})' if because else '')
+    return f'{concept!r}: rejected' + (f' ({reason})' if reason else '')
 
 
 def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
@@ -353,41 +358,36 @@ def status(accepted_path: Path, rejected_path: Path) -> None:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--markdown', default=str(REPO / 'output' / 'markdown'))
-    ap.add_argument('--accepted', default=str(REPO / 'output' / 'indexing' / 'accepted.txt'))
-    ap.add_argument('--rejected', default=str(REPO / 'output' / 'indexing' / 'rejected.txt'))
     sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
-    cand = sub.add_parser('candidates', help='derive cache/indexing/candidates.txt (the pending queue)')
+    cand = sub.add_parser('candidates')
     # --top belongs on the candidates subparser, not the parent — the advertised form
     # is `candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
-    cand.add_argument('--top', type=int, default=None, metavar='N',
-                      help='also print the frequent-uncovered-corpus-words advisory '
-                           '(top N; terminal only, machine-local; off unless asked)')
-    acc = sub.add_parser('accept', help='accept a concept as a headword (merge aliases into it)')
+    cand.add_argument('--top', type=int, default=None, metavar='N')
+    acc = sub.add_parser('accept')
     acc.add_argument('term')
     acc.add_argument('aliases', nargs='*')
-    rej = sub.add_parser('reject', help='reject a concept into the disposal record')
+    rej = sub.add_parser('reject')
     rej.add_argument('concept')
-    rej.add_argument('--because', default='', help='reason, kept as a # comment')
-    sub.add_parser('build', help='build output/markdown/index.md from accepted.txt')
-    sub.add_parser('status', help='the disposal-state report (also what a bare invocation prints)')
+    rej.add_argument('--reason', default='')
+    sub.add_parser('sync')
+    enrich(ap, 'indexing')
     args = ap.parse_args()
 
-    accepted_path, rejected_path = Path(args.accepted), Path(args.rejected)
+    accepted_path, rejected_path = ACCEPTED_FILE, REJECTED_FILE
 
     if args.verb == 'candidates':
-        candidates(Path(args.markdown), accepted_path, rejected_path, args.top)
+        candidates(MARKDOWN_DIR, accepted_path, rejected_path, args.top)
         return
     if args.verb == 'accept':
         print(accept(accepted_path, args.term, args.aliases))
         pending_report(accepted_path, rejected_path)
         return
     if args.verb == 'reject':
-        print(reject(accepted_path, rejected_path, args.concept, args.because))
+        print(reject(accepted_path, rejected_path, args.concept, args.reason))
         pending_report(accepted_path, rejected_path)
         return
-    if args.verb == 'build':
-        root = Path(args.markdown)
+    if args.verb == 'sync':
+        root = MARKDOWN_DIR
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)

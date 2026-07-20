@@ -1,12 +1,31 @@
 # The yoga CLI's command table
 
-`commands.csv` is the single authority for the `./yoga` terminal surface (machinery:
-`src/main/cli/cli.py`; launcher: the root `./yoga`). Everything a user meets is re-derived
-from this table on demand — the help text a bare `./yoga` prints, the zsh tab-completion
-`./yoga completions` emits — and stored nowhere, because presentation is never load-bearing
-(L5 of `rsc/CALCULUS.md`). The CLI adds no behaviour of its own: `./yoga <command> [args...]`
-execs the row's target with the args forwarded verbatim, so `./yoga <command> --help` prints
-the *target's* help and each script remains the one authority on its own interface.
+Two curated files describe the `./yoga` terminal surface (machinery: `src/main/cli/cli.py`;
+launcher: the root `./yoga`). `commands.csv` names each command — `command,target,calculus,
+step,summary` — and `help.csv` describes every argument, one row per
+`command,subcommand,arg-name,arg-type,cardinality,help`. The argument structure lives ONLY
+in `help.csv`: a command's verbs are its distinct subcommands, its flags are the `--arg-name`
+rows, and its whole usage sketch is GENERATED from those rows — `arg-type` is the value
+metavar (`<uuid8>`, blank for a boolean flag), and `cardinality` is a literal count: blank
+is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken over the SET QUOTIENT
+`<class>` — the mutually-exclusive args are one equivalence class (interchangeable in the slot
+they fill), so `1/agent-capture-1` is cardinality-1 in the quotient by that class, rendered as
+the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordinal>`. So the usage
+cannot drift from the helptext, because there is one source, not two — nothing to reconcile,
+no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
+prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
+describes the verb itself. Both files are written `QUOTE_ALL` so a comma in any cell is safe.
+
+Everything a user meets is re-derived on demand — the menu `./yoga -h`
+prints, each command's `./yoga <command> -h` (its summary, its generated invocation forms, and the
+`help.csv` lines as headed subparagraphs), the zsh tab-completion `./yoga completions` emits
+— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
+`./yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
+`./yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
+level down at `./yoga <command> <verb> -h`, which passes through to the target's argparse.
+That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
+`help.csv` each time the target runs, so the target's own `-h` reads the same wording whether
+reached via `yoga` or run directly — one source for the words, argparse still the authority on structure.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
 data lives outside git (durable in `output/`, rebuildable in `cache/`): `yoga dashboard` (model
@@ -32,7 +51,7 @@ from examples — one did, and misread design as sediment):
 - **Verbs.** `capture` is the acquisition verb everywhere it appears — `browser
   capture`, `dashboard capture`, `agent capture` all *bring data in* (from Safari,
   the paid model, the harness's session store respectively). `run` only processes
-  what `input/` already holds. `present` renders, free. `clean`/`regen` are the
+  what `input/` already holds. `present` renders, free. `clean`/`sync` are the
   cache lifecycle. `receive`/`demerge` move agents between machines and undo the move.
 - **Bare invocations are free and local** — never paid, never a browser. Bare is a
   *status report* where the summary says so (`dashboard`, `indexing`, `server`);

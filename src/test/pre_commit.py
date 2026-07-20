@@ -536,7 +536,7 @@ def check_index_curation(run, fix) -> None:
             fix('./yoga indexing candidates  # write the pending queue: cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
-                         '| ./yoga indexing reject <concept> [--because <why>]')
+                         '| ./yoga indexing reject [--reason <why>] <concept>')
 
 
 def check_cross_sources(run) -> None:
@@ -600,7 +600,7 @@ def check_cross_sources(run) -> None:
 
 def check_cache_io(run) -> None:
     """The declared cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it
-    covers every pipeline's gen root (so clean and regen know the pipelines),
+    covers every pipeline's gen root (so clean and sync know the pipelines),
     and — the catastrophe guard — no subtree is READ with no WRITER. A cache/ path
     the machinery consumes but nothing produces breaks the 'cache/ is reproducible
     from input/' contract: a fresh clone, or `yoga cache clean`, would strand the
@@ -682,9 +682,12 @@ def check_cli_surface(run) -> None:
         unknown = [t for t in c['calculus'].split() if t not in vocab]
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
             f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None)
-        flags = cli.flags_of(c['usage'])
-        verbs = cli.verbs_of(c['usage'])
-        if not (flags or verbs) or not target.exists():
+        # subcommands and flags are read from rsc/cli/help.csv — the single source the
+        # usage is generated from — so there is no usage cell to reconcile it against, and
+        # no help.csv-complete check: the two cannot drift because there is only one.
+        flags = cli.flags_of(c['command'])
+        subcommands = cli.subcommands_of(c['command'])
+        if not (flags or subcommands) or not target.exists():
             continue
         sources = [target] + [s for s in (target.with_suffix('.py'), target.with_suffix('.sh'))
                               if s != target and s.exists()]
@@ -701,14 +704,31 @@ def check_cli_surface(run) -> None:
                     else [str(target), '--help'])
         proc = subprocess.run(help_cmd, capture_output=True, text=True, cwd=REPO_ROOT)
         help_text = proc.stdout + proc.stderr
-        if verbs:
-            # verbs are ordinary words (build, accept), so a source grep is vacuous —
-            # argparse renders the live subparsers; the shell scripts print their real usage
-            missing_v = [v for v in verbs
-                         if not re.search(rf'\b{re.escape(v)}\b', help_text)]
-            run(f'cli: {c["command"]}: advertised verbs in target --help', not missing_v,
-                f'`{c["target"]} --help` does not mention: {", ".join(missing_v)}'
-                if missing_v else None)
+        if subcommands:
+            # An advertised subcommand must be REALLY dispatched, not a word in the help
+            # prose (2026-07-18: a `model project` once advertised a subcommand no
+            # subparser dispatched, and a bare-word grep could never tell). argparse
+            # renders its subparsers as a {a,b,c} choice block — parse it and require
+            # each advertised subcommand to be an actual choice. Shell targets carry no such
+            # block, so there we fall back to matching their printed usage.
+            choice_blocks = re.findall(r'\{([a-z0-9][a-z0-9,_-]*)\}', help_text)
+            if choice_blocks:
+                real = {v for blk in choice_blocks for v in blk.split(',')}
+                missing_sub = [s for s in subcommands if s not in real]
+                detail = (f'not real subcommands (target dispatches {sorted(real)}): '
+                          f'{", ".join(missing_sub)}') if missing_sub else None
+            else:
+                # No {…} block: a shell target (subcommands in its printed usage) or a
+                # cli.py-internal command whose subcommands are dispatched in code rather
+                # than by argparse (completions: `verb == 'sync'`). Accept a subcommand that
+                # appears as a word in the target's --help OR as a dispatch literal in
+                # its source — either is real evidence it is handled, not prose.
+                missing_sub = [s for s in subcommands
+                               if not re.search(rf'\b{re.escape(s)}\b', help_text)
+                               and not re.search(rf'\b{re.escape(s)}\b', text)]
+                detail = (f'{c["target"]} neither prints nor dispatches: {", ".join(missing_sub)}'
+                          if missing_sub else None)
+            run(f'cli: {c["command"]}: advertised subcommands dispatch', not missing_sub, detail)
         # The REVERSE direction (2026-07-16): every flag the target itself declares
         # must be advertised in the usage cell. The one-way check let the table
         # under-tell — `yoga commands` rendered a synopsis hiding memories' three
@@ -875,7 +895,9 @@ def check_mcp_schema(run):
 
 
 def check_xref(run):
-    _, output = _call(SRC / 'test' / 'xref.py')
+    # `check` is the writing verb (bare `xref` is read-only status now); the gate
+    # regenerates the committed table and compares, so it must call the verb.
+    _, output = _call(SRC / 'test' / 'xref.py', 'check')
     summary = output.splitlines()[-1] if output else ''
     m = re.search(r'(\d+ missing-file, \d+ bad-pointer, \d+ self-only, \d+ unreferenced)', summary)
     actual = m.group(1) if m else ''
@@ -897,8 +919,7 @@ def check_xref(run):
 def main():
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument('--fix', action='store_true',
-                    help='Run all fix commands; stages nothing — review and stage yourself')
+    ap.add_argument('--fix', action='store_true')
     args = ap.parse_args()
 
     results = []
