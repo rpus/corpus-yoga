@@ -23,7 +23,7 @@ never restated.
 Usage:
     ./yoga                       # render the table
     ./yoga <command> [args...]   # exec the target
-    ./yoga completions sync       # write the zsh tab-completion under cache/
+    ./yoga completions install-latest  # regenerate the zsh tab-completion and wire it
     ./yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
@@ -42,10 +42,13 @@ REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
 COLUMNS = ('command', 'target', 'calculus', 'step', 'summary')
 COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
-# The comment that tags the block `install` writes into ~/.zshrc, and by which
-# `uninstall` finds it again. One constant, so the write and its inverse can never
-# name the block differently.
-COMPLETION_MARKER = '# yoga tab-completion (regenerate: ./yoga completions sync)'
+# The comments that DELIMIT the block `install` writes into ~/.zshrc, and by which
+# `uninstall` finds it again. A start AND an end, so the block has an extent: uninstall
+# removes everything between them, and a line added inside it later leaves with it
+# without uninstall having to learn that line's shape. One pair of constants, so
+# install and uninstall can never disagree about where the block begins or ends.
+COMPLETION_MARKER = '# yoga tab-completion (refresh: ./yoga completions install-latest)'
+COMPLETION_END = '# end yoga tab-completion'
 
 
 def commands() -> list[dict]:
@@ -197,17 +200,22 @@ def render_command_help(c: dict) -> str:
     out = [f"yoga {command} — {c['summary']}", '', *[f'  {f}' for f in forms]]
     order, bysub = _by_subcommand(command)
     argrows = [r for r in command_rows(command) if r['arg-name']]
-    if not argrows:
+    descs = {s: next((r['help'] for r in bysub[s] if not r['arg-name']), None) for s in order}
+    # A subcommand's DESCRIPTION is worth printing even when it takes no arguments:
+    # for `completions install-latest`, `xref check` or `memories sync`, that line is
+    # the only place -h says what the subcommand does. Returning early on "no arg rows"
+    # dropped it silently — and dropped it for more commands each time an argument was
+    # removed, which is how memories and xref lost theirs.
+    if not argrows and not any(s and descs[s] for s in order):
         return '\n'.join(out) + '\n'
     label = {(r['subcommand'], r['arg-name']): _render_arg(r['arg-name'], r['arg-type'])
              for r in argrows}
-    w = max(len(v) for v in label.values())
+    w = max((len(v) for v in label.values()), default=0)
     out.append('')
     for s in order:
-        desc = next((r['help'] for r in bysub[s] if not r['arg-name']), None)
         rows = [r for r in bysub[s] if r['arg-name']]
         if s:
-            out.append(f"  {s}" + (f" — {desc}" if desc else ''))
+            out.append(f"  {s}" + (f" — {descs[s]}" if descs[s] else ''))
             out += [f"      {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
         else:
             out += [f"  {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
@@ -244,11 +252,35 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
                  if r['subcommand'] == subcommand and not r['arg-name']), '')
 
 
+# The arg-types whose value IS a filesystem path — the only values file completion
+# suits. Matched exactly against help.csv's arg-type, never by substring: a metavar
+# is a name, and reading meaning from its spelling would make <redirect> a directory.
+# An arg-type absent here simply gets no completion, which is the safe way to be wrong.
+PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
+
+
+def _path_flags(command: str) -> list[str]:
+    """The flags whose value is a filesystem path. A uuid8, a concept, an enum or a
+    number is not a file, so file completion has no business at those positions."""
+    typed = {r['arg-name'] for r in command_rows(command)
+             if r['arg-type'] in PATH_ARG_TYPES}
+    return [f for f in flags_of(command) if f in typed]
+
+
+def _takes_command_name(command: str) -> bool:
+    """True where a positional names another command (`yoga commands <command>`), so
+    that position can complete the command list rather than nothing."""
+    return any(r['arg-name'] and not r['arg-name'].startswith('--')
+               and r['arg-type'] == '<command>' for r in command_rows(command))
+
+
 def completion_script(cmds: list[dict]) -> str:
     """A static zsh completion function derived from the tables (regenerate via
-    `./yoga completions`; never edit the emitted file). The command word completes
-    with summaries; a command's subcommands complete after it (also with summaries); a
-    word starting '-' completes that command's advertised flags; anything else is a path."""
+    `./yoga completions`; never edit the emitted file). Each position offers only what
+    applies there: the command word, then that command's subcommands, then its flags
+    after a '-'. A FILE list is offered only as the value of a flag that takes a path;
+    where nothing takes an argument, nothing is offered — a stray listing of the
+    working directory is noise pretending to be help."""
     def esc(s: str) -> str:
         return (s.replace('\\', '\\\\').replace("'", "'\\''").replace(':', '\\:'))
 
@@ -259,6 +291,10 @@ def completion_script(cmds: list[dict]) -> str:
             parts.append(f'subcommands=({slist})')
         if flags := flags_of(command):
             parts.append(f"opts=({' '.join(flags)})")
+        if paths := _path_flags(command):
+            parts.append(f"pathopts=({' '.join(paths)})")
+        if _takes_command_name(command):
+            parts.append('wantcmd=1')
         return f"    {command}) {'; '.join(parts)} ;;" if parts else None
 
     lines = [
@@ -266,7 +302,8 @@ def completion_script(cmds: list[dict]) -> str:
         '# derived from rsc/cli/commands.csv + help.csv by `./yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
-        '  local -a cmds subcommands opts',
+        '  local -a cmds subcommands opts pathopts',
+        '  local wantcmd=0',
         '  cmds=(',
         *[f"    '{esc(c['command'])}:{esc(c['summary'])}'" for c in cmds],
         '  )',
@@ -277,13 +314,24 @@ def completion_script(cmds: list[dict]) -> str:
         '  case "${words[2]}" in',
         *[a for c in cmds if (a := arm(c['command']))],
         '  esac',
-        '  if (( CURRENT == 3 )) && (( ${#subcommands} )) && [[ ${words[CURRENT]} != -* ]]; then',
-        "    _describe -t subcommands 'subcommand' subcommands",
-        '  elif [[ ${words[CURRENT]} == -* ]] && (( ${#opts} )); then',
-        '    compadd -- "${opts[@]}"',
-        '  else',
+        '  # A file completes ONLY as the value of a flag that takes a path.',
+        '  if (( ${#pathopts} )) && (( ${pathopts[(I)${words[CURRENT-1]}]} )); then',
         '    _files',
+        '    return',
         '  fi',
+        '  if [[ ${words[CURRENT]} == -* ]]; then',
+        '    (( ${#opts} )) && compadd -- "${opts[@]}"',
+        '    return',
+        '  fi',
+        '  if (( CURRENT == 3 )) && (( ${#subcommands} )); then',
+        "    _describe -t subcommands 'subcommand' subcommands",
+        '    return',
+        '  fi',
+        '  if (( wantcmd )); then',
+        "    _describe -t commands 'command' cmds",
+        '    return',
+        '  fi',
+        '  # Nothing here takes an argument — offer nothing, not a stray file list.',
         '}',
         '',
         '_yoga "$@"',
@@ -300,6 +348,46 @@ def tilde(p: Path) -> str:
     return f'~/{p.relative_to(home)}' if p.is_relative_to(home) else str(p)
 
 
+def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
+    """~/.zshrc's lines with the yoga block gone; returns (kept, how many removed_indices).
+
+    Nothing is written here: it reads a list and returns a new one. Uninstall keeps
+    the result, install uses it to converge on exactly one current block, so the two
+    cannot drift apart on what "the block" means.
+
+    A DELIMITED block (marker … end marker) goes wholesale, so whatever sits inside
+    leaves with it — including lines added in later versions, which is the whole point
+    of having an end. A block written BEFORE the end marker existed has no extent to
+    scan, so its known lines are matched individually; that legacy path is why the
+    alias is named here once, and why nothing added after it will need to be. One
+    adjacent blank (install leaves one on a side) goes with the block."""
+    removed_indices: set[int] = set()
+    start = next((i for i, l in enumerate(lines) if l.strip() == COMPLETION_MARKER), None)
+    if start is not None:
+        end = next((i for i in range(start + 1, len(lines))
+                    if lines[i].strip() == COMPLETION_END), None)
+        if end is not None:
+            removed_indices.update(range(start, end + 1))
+    if not removed_indices:      # legacy block: no end marker to scan to
+        parent, parent_tilde = str(COMPLETION_OUT.parent), tilde(COMPLETION_OUT.parent)
+        launcher, launcher_tilde = str(REPO / 'yoga'), tilde(REPO / 'yoga')
+        for i, l in enumerate(lines):
+            stripped = l.lstrip()
+            if (l.strip() == COMPLETION_MARKER
+                    or (stripped.startswith('fpath=') and (parent in l or parent_tilde in l))
+                    or (stripped.startswith('alias yoga=')
+                        and (launcher in l or launcher_tilde in l))):
+                removed_indices.add(i)
+    if not removed_indices:
+        return lines, 0
+    first, last = min(removed_indices), max(removed_indices)
+    if last + 1 < len(lines) and lines[last + 1].strip() == '':
+        removed_indices.add(last + 1)
+    elif first > 0 and lines[first - 1].strip() == '':
+        removed_indices.add(first - 1)
+    return [l for i, l in enumerate(lines) if i not in removed_indices], len(removed_indices)
+
+
 def install_completion() -> int:
     """Wire cache/completions into ~/.zshrc — idempotently, and ABOVE compinit.
 
@@ -310,68 +398,69 @@ def install_completion() -> int:
     success. We insert above the first fpath=/compinit line, first backing up over
     its comment header so we land OUTSIDE a managed block — Docker Desktop rewrites
     its own block and would eat a line placed inside it.
+
+    The `yoga` alias is written INTO the block for the same reason the fpath line is:
+    printed advice does not survive a shell restart, because nothing ever persisted
+    it. That was this function's own first mistake, fixed for the fpath line and left
+    standing for the alias until someone noticed the alias kept vanishing.
+
+    Idempotence is by CONVERGENCE, not by bailing out: any existing block is removed
+    and the current one written, so a re-run repairs a block that predates the alias
+    rather than reporting "already wired" and leaving it short. The file is rewritten
+    only when that actually changes it.
     """
     zshrc = Path.home() / '.zshrc'
     fpath_line = f'fpath=({tilde(COMPLETION_OUT.parent)} $fpath)'
-    lines = zshrc.read_text().splitlines() if zshrc.exists() else []
-    if any(str(COMPLETION_OUT.parent) in l or tilde(COMPLETION_OUT.parent) in l for l in lines):
-        print(f'{tilde(zshrc)}: already wired — nothing to do')
-        return 0
+    alias_line = f"alias yoga='{tilde(REPO / 'yoga')}'"
+    block = [COMPLETION_MARKER, fpath_line, alias_line, COMPLETION_END]
+    before = zshrc.read_text() if zshrc.exists() else ''
+    lines, _ = without_yoga_block(before.splitlines())
     idx = next((i for i, l in enumerate(lines)
                 if re.match(r'\s*(compinit\b|fpath=)', l)), None)
     if idx is None:
-        lines += ['', COMPLETION_MARKER, fpath_line, 'autoload -Uz compinit', 'compinit']
+        lines += ['', *block, 'autoload -Uz compinit', 'compinit']
         where = 'appended, with its own compinit (this ~/.zshrc had none)'
     else:
         while idx > 0 and lines[idx - 1].lstrip().startswith('#'):
             idx -= 1                      # step above the block's comment header
-        lines[idx:idx] = [COMPLETION_MARKER, fpath_line, '']
+        lines[idx:idx] = [*block, '']
         where = f'inserted at line {idx + 1}, above compinit'
-    # No backup is written. The block is tagged (COMPLETION_MARKER) and positioned,
-    # so --uninstall is a precise inverse the tool owns — a better undo than a
-    # whole-file copy the user would have to remember to delete. Nothing lands
+    # No backup is written. The block is delimited (COMPLETION_MARKER … COMPLETION_END)
+    # and positioned, so uninstall is better
+    # than a whole-file copy the user would have to remember to delete. Nothing lands
     # outside ~/.zshrc itself.
-    zshrc.write_text('\n'.join(lines) + '\n')
+    text = '\n'.join(lines) + '\n'
+    if text == before:
+        print(f'{tilde(zshrc)}: already wired — nothing to do')
+        return 0
+    zshrc.write_text(text)
     print(f'{tilde(zshrc)}: {where}')
-    print(f'    {fpath_line}')
-    print('  undo anytime: ./yoga completions uninstall')
-    print(f"→ start a new shell (exec zsh). Optional, for yoga from anywhere:\n"
-          f"    alias yoga='{tilde(REPO / 'yoga')}'")
+    for line in block[1:-1]:
+        print(f'    {line}')
+    print('  remove anytime: ./yoga completions uninstall')
+    print('→ now start a new shell (exec zsh)')
     return 0
 
 
 def uninstall_completion() -> int:
-    """The exact inverse of install: remove the tagged yoga block from ~/.zshrc,
-    leaving everything else byte-identical. The marker comment and the fpath line
-    naming our completion dir are unambiguously ours; one adjacent blank (install
-    leaves one on a side) goes with them. A compinit install added to a ~/.zshrc
-    that had none is deliberately LEFT — it is generic zsh a later config may now
-    rely on, and an idle compinit harms nothing; removing it could break what was
-    built on top."""
+    """Removes the delimited yoga block from ~/.zshrc,
+    leaving everything else byte-identical. Because the block has an END, its whole
+    extent goes — fpath line, alias, and anything added between them — without this
+    function needing to know what any of those lines are; both directions share
+    without_yoga_block, so they cannot drift apart. A compinit that install added to a
+    ~/.zshrc which had none is deliberately LEFT (it sits outside the block): it is
+    generic zsh a later config may now rely on, and an idle compinit harms nothing;
+    removing it could break what was built on top."""
     zshrc = Path.home() / '.zshrc'
     if not zshrc.exists():
         print(f'{tilde(zshrc)}: no such file — nothing to remove')
         return 0
-    lines = zshrc.read_text().splitlines()
-    parent, tparent = str(COMPLETION_OUT.parent), tilde(COMPLETION_OUT.parent)
-    drop: set[int] = set()
-    for i, l in enumerate(lines):
-        if l.strip() == COMPLETION_MARKER:
-            drop.add(i)
-        elif l.lstrip().startswith('fpath=') and (parent in l or tparent in l):
-            drop.add(i)  # the fpath line, even if the marker was hand-removed
-    if not drop:
-        print(f'{tilde(zshrc)}: no yoga completion block found — nothing to remove')
+    kept, removed_line_count = without_yoga_block(zshrc.read_text().splitlines())
+    if not removed_line_count:
+        print(f'{tilde(zshrc)}: no yoga block found — nothing to remove')
         return 0
-    lo, hi = min(drop), max(drop)
-    if hi + 1 < len(lines) and lines[hi + 1].strip() == '':
-        drop.add(hi + 1)                  # the blank install left after an insert
-    elif lo > 0 and lines[lo - 1].strip() == '':
-        drop.add(lo - 1)                  # or the blank it left before an append
-    kept = [l for i, l in enumerate(lines) if i not in drop]
     zshrc.write_text('\n'.join(kept) + '\n')
-    print(f'{tilde(zshrc)}: removed the yoga completion block ({len(drop)} lines) — '
-          'nothing else touched')
+    print(f'{tilde(zshrc)}: removed the yoga block ({removed_line_count} lines) — nothing else touched')
     print('→ start a new shell (exec zsh) for it to take effect')
     return 0
 
@@ -384,10 +473,11 @@ def completion_status() -> int:
     zshrc = Path.home() / '.zshrc'
     wired = zshrc.exists() and any(l.strip() == COMPLETION_MARKER
                                    for l in zshrc.read_text().splitlines())
-    state = ('not written — `yoga completions sync`' if not written else
-             'current' if current else 'STALE — `yoga completions sync`')
+    state = ('not written — `yoga completions install-latest`' if not written else
+             'current' if current else 'STALE — `yoga completions install-latest`')
     print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
-    print(f'  ~/.zshrc: ' + ('wired' if wired else 'not wired — `yoga completions install`'))
+    print('  ~/.zshrc: ' + ('wired' if wired
+                            else 'not wired — `yoga completions install-latest`'))
     return 0
 
 
@@ -402,27 +492,27 @@ def _sync_completion() -> None:
 
 def completion(rest: list[str]) -> int:
     if any(a in rest for a in ('-h', '--help')):
-        # a help request is a question, never an action — and never the product
-        print('yoga completions — zsh tab-completion derived from rsc/cli/commands.csv + help.csv\n'
-              '  (bare)      status: whether _yoga is written/current and wired into ~/.zshrc\n'
-              '  sync        (re-)write cache/completions/_yoga from the table — idempotent\n'
-              '  install     sync, then wire it into ~/.zshrc above compinit (idempotent)\n'
-              '  uninstall   remove that block from ~/.zshrc (the exact inverse — no file left behind)')
+        # A help request is a question, never an action. The test is deliberately
+        # position-blind: -h AFTER a subcommand (`completions sync -h`) must not fall
+        # through to the dispatch below and RUN that subcommand. What it prints is the
+        # same table-derived help `yoga completions -h` gives — not a hand-written
+        # second copy, which is how the two came to disagree about install-latest.
+        print(render_command_help(next(c for c in commands()
+                                       if c['command'] == 'completions')), end='')
         return 0
     verb = next((a for a in rest if not a.startswith('-')), None)
     if verb is None:
         return completion_status()                  # bare noun → status
     if verb == 'sync':
-        _sync_completion()
-        print('→ wire it in: ./yoga completions install   (edits ~/.zshrc above compinit)')
+        _sync_completion()          # the registry's producer: writes the file, wires nothing
         return 0
-    if verb == 'install':
-        _sync_completion()          # install IS sync, then wire
+    if verb == 'install-latest':
+        _sync_completion()          # install-latest IS sync, then wire
         return install_completion()
     if verb == 'uninstall':
         return uninstall_completion()
-    print(f'yoga completions: unknown verb {verb!r} — sync | install | uninstall (bare: status)',
-          file=sys.stderr)
+    print(f'yoga completions: unknown verb {verb!r} — install-latest | uninstall | sync '
+          '(bare: status)', file=sys.stderr)
     return 2
 
 
