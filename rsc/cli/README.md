@@ -22,10 +22,13 @@ prints, each command's `./yoga <command> -h` (its summary, its generated invocat
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `./yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `./yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
-level down at `./yoga <command> <verb> -h`, which passes through to the target's argparse.
+level down at `./yoga <command> <verb> -h`, answered by argparse — the target's own, or the
+parser `cli.py` builds for a command it handles itself.
 That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
-`help.csv` each time the target runs, so the target's own `-h` reads the same wording whether
-reached via `yoga` or run directly — one source for the words, argparse still the authority on structure.
+`help.csv` each time the target runs, and names the parser for the command rather than the file
+implementing it (`usage: yoga agent capture`, never `agent.py capture`), so the target's own `-h`
+reads the same wording whether reached via `yoga` or run directly — one source for the words,
+argparse still the authority on structure.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
 data lives outside git (durable in `output/`, rebuildable in `cache/`): `yoga dashboard` (model

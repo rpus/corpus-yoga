@@ -208,9 +208,9 @@ check_cli() {
   local comp_status
   if comp_status="$("$SCRIPT_DIR/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
-      *current*) ok   "zsh completion generated and current with rsc/cli/commands.csv + help.csv" ;;
-      *STALE*)   info "zsh completion stale vs rsc/cli/commands.csv + help.csv — regenerate: ./yoga completions sync" ;;
-      *)         info "zsh completion not generated — ./yoga completions sync (derived under cache/; safe any time)" ;;
+      *current*) ok   "zsh completions generated and current with rsc/cli/commands.csv + help.csv" ;;
+      *STALE*)   info "zsh completions stale vs rsc/cli/commands.csv + help.csv → refresh: ./yoga completions install-latest (then restart terminal)" ;;
+      *)         info "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
     esac
   else
     info "zsh completion currency cannot be verified (running ./yoga needs Python 3)"
@@ -225,8 +225,8 @@ check_cli() {
   elif [[ "$(zsh -ic 'print -r -- ${+_comps[yoga]}' 2>/dev/null | tail -1)" == "1" ]]; then
     ok "zsh resolves the yoga completion"
   else
-    info "zsh does not resolve the yoga completion (an fpath line after compinit is inert)"
-    echo "    → run: ./yoga completions install"
+    info "zsh does not resolve the yoga completions"
+    echo "    → run: ./yoga completions install-latest (then restart terminal)"
   fi
 }
 

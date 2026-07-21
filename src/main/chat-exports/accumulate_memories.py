@@ -44,6 +44,7 @@ from compare_batches import batch_time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import reconcile_dir  # noqa: E402
+from argparse_help import enrich  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[2]
@@ -189,6 +190,7 @@ def main():
                     'markdown timeline — free, local, idempotent.')
     sub = ap.add_subparsers(dest='verb')
     sub.add_parser('sync')
+    enrich(ap, 'memories')
     args = ap.parse_args()
     if args.verb == 'sync':
         return sync(CHAT_EXPORTS_CACHE_DIR, MEMORIES_OUTPUT_DIR, MARKDOWN_DIR)

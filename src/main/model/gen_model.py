@@ -16,9 +16,13 @@ Usage:
 
 import argparse
 import re
+import sys
 from pathlib import Path
 
 from gen_model_candidate import generate
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from argparse_help import enrich  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
@@ -79,6 +83,7 @@ def main():
                     'Bare shows status; `sync` regenerates them to agree with the schemas.')
     sub = ap.add_subparsers(dest='verb')
     sub.add_parser('sync')
+    enrich(ap, 'model')
     args = ap.parse_args()
     # bare → status (read-only); only `sync` writes
     sync() if args.verb == 'sync' else status()

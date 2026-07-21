@@ -6,6 +6,9 @@ both when run directly and when reached via `yoga <command> <verb> -h`. This
 puts the words back without storing them twice: the parser still owns the
 structure (what arguments exist), help.csv owns the wording.
 
+It also sets prog, for the same reason: a parser reached as `yoga agent capture`
+should not print `usage: agent.py capture`, naming a file instead of the command.
+
 Call enrich(parser, command) once, after building the parser, before parse_args.
 Matching per help.csv row: a flag by its first option string (--session), a
 positional by its dest (term), a subcommand by its name; a row with a blank
@@ -41,12 +44,20 @@ def _fill(parser, rows: list[dict]) -> None:
 
 
 def enrich(parser, command: str, subcommand: str = '') -> None:
+    # The parser is reached as `yoga <command> [<subcommand>]`, so that is what its usage
+    # must name. argparse otherwise defaults prog to sys.argv[0], the implementation file
+    # — `usage: agent.py capture`, naming something the reader did not type and the table
+    # does not carry. Each subparser is set explicitly rather than left to inherit the
+    # correction: add_parser snapshots the parent's prog when the subparser is built, so
+    # assigning parser.prog here cannot reach one that already exists.
+    parser.prog = ' '.join(w for w in ('yoga', command, subcommand) if w)
     rows = _rows(command)
     _fill(parser, [r for r in rows if r['subcommand'] == subcommand])
     for action in parser._actions:
         if not isinstance(action, argparse._SubParsersAction):
             continue
         for verb, sub in action.choices.items():
+            sub.prog = f'{parser.prog} {verb}'
             verb_rows = [r for r in rows if r['subcommand'] == verb]
             for r in verb_rows:
                 if not r['arg-name'] and not sub.description:

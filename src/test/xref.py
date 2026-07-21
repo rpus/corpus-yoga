@@ -16,7 +16,11 @@ import ast
 import csv
 import json
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'main'))  # src/main/ on the path
+from argparse_help import enrich  # noqa: E402
 
 REPO_ROOT = Path(__file__).parents[2]
 
@@ -576,6 +580,7 @@ def main() -> None:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='verb')
     sub.add_parser('check')
+    enrich(parser, 'xref')
     args = parser.parse_args()
     # bare noun → status (read the committed table); only `check` rebuilds and writes
     check(DEFAULT_OUT) if args.verb == 'check' else status()
