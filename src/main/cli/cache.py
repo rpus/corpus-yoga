@@ -42,8 +42,10 @@ def main() -> int:
     verb = sys.argv[1]
     target = VERBS.get(verb)
     if target is None:
-        print(f"error: unknown verb {verb!r} — takes: clean (--dry-run|--apply) | sync [--dry-run]",
-              file=sys.stderr)
+        # Derived from VERBS, the dispatch itself — never a second hand-written copy.
+        # The flags belong to the verbs, so they are asked of the verbs, not restated here.
+        print(f"error: unknown verb {verb!r} — takes: {' | '.join(VERBS)} "
+              f"(bare: status; `yoga cache <verb> -h` for its flags)", file=sys.stderr)
         return 1
     # execv replaces the process — the verb's own exit status is the exit status
     os.execv(sys.executable, [sys.executable, str(HERE / target), *sys.argv[2:]])

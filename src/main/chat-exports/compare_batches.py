@@ -72,6 +72,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from argparse_help import enrich  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[3]
 
 
@@ -322,6 +325,7 @@ def main():
     ap.add_argument('--browser-api', metavar='DIR', default=None)
     ap.add_argument('--memories-output', metavar='DIR', default='output/memories')
     ap.add_argument('--summaries-output', metavar='DIR', default='output/markdown/claude/chat/summaries')
+    enrich(ap, 'supersede')
     args = ap.parse_args()
 
     root = Path(args.chat_exports_cache)

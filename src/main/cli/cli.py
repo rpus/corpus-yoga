@@ -6,8 +6,9 @@ Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/comman
 names each command and its target; rsc/cli/help.csv describes the arguments.
 `./yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
 `./yoga -h` lists the commands; `./yoga <command> -h` renders that command's help from
-the tables; a subcommand one level down (`./yoga <command> <subcommand> --help`) passes
-through to the target's own argparse. `./yoga completions` derives static zsh tab-completion from
+the tables; a subcommand one level down (`./yoga <command> <subcommand> --help`) is
+answered by argparse — the target's own, or the parser cli.py builds for a command it
+handles itself. `./yoga completions` derives static zsh tab-completion from
 the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
@@ -31,12 +32,16 @@ system python3 when the venv does not exist yet, so a fresh clone can render
 the table, print the calculus, and generate completion before ./RUNME.sh has
 run. Adding a third-party import here would silently break that.
 """
+import argparse
 import csv
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
 REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
@@ -491,29 +496,33 @@ def _sync_completion() -> None:
 
 
 def completion(rest: list[str]) -> int:
-    if any(a in rest for a in ('-h', '--help')):
-        # A help request is a question, never an action. The test is deliberately
-        # position-blind: -h AFTER a subcommand (`completions sync -h`) must not fall
-        # through to the dispatch below and RUN that subcommand. What it prints is the
-        # same table-derived help `yoga completions -h` gives — not a hand-written
-        # second copy, which is how the two came to disagree about install-latest.
-        print(render_command_help(next(c for c in commands()
-                                       if c['command'] == 'completions')), end='')
-        return 0
-    verb = next((a for a in rest if not a.startswith('-')), None)
-    if verb is None:
+    """`yoga completions` — bare shows status, each subcommand acts.
+
+    argparse owns the structure, help.csv the wording (enrich): the pattern every
+    other command's target already follows. That cli.py handles this command itself
+    instead of exec'ing a target is no reason to hand-roll the dispatch and a second
+    copy of the help — that copy is how the text came to disagree with the table
+    about install-latest. A parser cannot advertise a subcommand it does not
+    dispatch, and -h is argparse's own business at every level, so it can never fall
+    through and RUN the subcommand it was asked to describe. Command-level -h never
+    reaches here: main() renders it from the table, uniformly for every command."""
+    parser = argparse.ArgumentParser(          # prog is enrich's, for every command alike
+        description=next(c['summary'] for c in commands() if c['command'] == 'completions'))
+    subs = parser.add_subparsers(dest='subcommand', metavar='<subcommand>')
+    for s in subcommands_of('completions'):
+        subs.add_parser(s)
+    enrich(parser, 'completions')
+    args = parser.parse_args(rest)
+    if args.subcommand is None:
         return completion_status()                  # bare noun → status
-    if verb == 'sync':
+    if args.subcommand == 'sync':
         _sync_completion()          # the registry's producer: writes the file, wires nothing
         return 0
-    if verb == 'install-latest':
+    if args.subcommand == 'install-latest':
         _sync_completion()          # install-latest IS sync, then wire
         return install_completion()
-    if verb == 'uninstall':
-        return uninstall_completion()
-    print(f'yoga completions: unknown verb {verb!r} — install-latest | uninstall | sync '
-          '(bare: status)', file=sys.stderr)
-    return 2
+    assert args.subcommand == 'uninstall', args.subcommand   # argparse allows nothing else
+    return uninstall_completion()
 
 
 def dispatch(row: dict, rest: list[str]) -> int:
@@ -569,9 +578,10 @@ def main() -> int:
         print(render_help(cmds), file=sys.stderr, end='')
         return 2
     rest = argv[1:]
-    # command-level help (`yoga <cmd> -h`, no verb before the flag) → the uniform
-    # standard help. A verb before it (`yoga <cmd> <verb> -h`) falls through to the
-    # target, whose argparse carries that verb's own flags.
+    # command-level help (`yoga <cmd> -h`, no subcommand before the flag) → the uniform
+    # standard help. A subcommand before it (`yoga <cmd> <sub> -h`) falls through to
+    # argparse, which carries that subcommand's own flags: the target's parser, or the
+    # one cli.py builds for a command it handles itself.
     if rest and rest[0] in ('-h', '--help'):
         print(render_command_help(row), end='')
         return 0

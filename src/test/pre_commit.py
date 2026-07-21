@@ -718,11 +718,12 @@ def check_cli_surface(run) -> None:
                 detail = (f'not real subcommands (target dispatches {sorted(real)}): '
                           f'{", ".join(missing_sub)}') if missing_sub else None
             else:
-                # No {…} block: a shell target (subcommands in its printed usage) or a
-                # cli.py-internal command whose subcommands are dispatched in code rather
-                # than by argparse (completions: `verb == 'sync'`). Accept a subcommand that
-                # appears as a word in the target's --help OR as a dispatch literal in
-                # its source — either is real evidence it is handled, not prose.
+                # No {…} block: a shell target (subcommands in its printed usage), or a
+                # cli.py-targeted row — `cli.py --help` renders the command TABLE, not the
+                # parser cli.py builds for a command it handles itself, so that parser's
+                # choice block never reaches this text. Accept a subcommand that appears
+                # as a word in the target's --help OR as a dispatch literal in its source
+                # — either is real evidence it is handled, not prose.
                 missing_sub = [s for s in subcommands
                                if not re.search(rf'\b{re.escape(s)}\b', help_text)
                                and not re.search(rf'\b{re.escape(s)}\b', text)]
