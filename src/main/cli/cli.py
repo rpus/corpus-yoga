@@ -354,43 +354,28 @@ def tilde(p: Path) -> str:
 
 
 def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
-    """~/.zshrc's lines with the yoga block gone; returns (kept, how many removed_indices).
+    """~/.zshrc's lines with the yoga block gone; returns (kept, how many removed).
 
-    Nothing is written here: it reads a list and returns a new one. Uninstall keeps
-    the result, install uses it to converge on exactly one current block, so the two
-    cannot drift apart on what "the block" means.
+    Reads a list and returns a new one; nothing is written here. Uninstall keeps the
+    result, install uses it to converge on one current block.
 
-    A DELIMITED block (marker … end marker) goes wholesale, so whatever sits inside
-    leaves with it — including lines added in later versions, which is the whole point
-    of having an end. A block written BEFORE the end marker existed has no extent to
-    scan, so its known lines are matched individually; that legacy path is why the
-    alias is named here once, and why nothing added after it will need to be. One
-    adjacent blank (install leaves one on a side) goes with the block."""
-    removed_indices: set[int] = set()
+    The block is delimited (marker … end marker) and goes wholesale, so this never
+    needs to know what is inside it. Only COMPLETION_MARKER is recognised: a block
+    carrying any other marker, or none, is not a block here and is left untouched.
+    One adjacent blank (install leaves one on a side) goes with it."""
     start = next((i for i, l in enumerate(lines) if l.strip() == COMPLETION_MARKER), None)
-    if start is not None:
-        end = next((i for i in range(start + 1, len(lines))
-                    if lines[i].strip() == COMPLETION_END), None)
-        if end is not None:
-            removed_indices.update(range(start, end + 1))
-    if not removed_indices:      # legacy block: no end marker to scan to
-        parent, parent_tilde = str(COMPLETION_OUT.parent), tilde(COMPLETION_OUT.parent)
-        launcher, launcher_tilde = str(REPO / 'yoga'), tilde(REPO / 'yoga')
-        for i, l in enumerate(lines):
-            stripped = l.lstrip()
-            if (l.strip() == COMPLETION_MARKER
-                    or (stripped.startswith('fpath=') and (parent in l or parent_tilde in l))
-                    or (stripped.startswith('alias yoga=')
-                        and (launcher in l or launcher_tilde in l))):
-                removed_indices.add(i)
-    if not removed_indices:
+    if start is None:
         return lines, 0
-    first, last = min(removed_indices), max(removed_indices)
+    end = next((i for i in range(start + 1, len(lines))
+                if lines[i].strip() == COMPLETION_END), None)
+    if end is None:
+        return lines, 0
+    first, last = start, end
     if last + 1 < len(lines) and lines[last + 1].strip() == '':
-        removed_indices.add(last + 1)
+        last += 1
     elif first > 0 and lines[first - 1].strip() == '':
-        removed_indices.add(first - 1)
-    return [l for i, l in enumerate(lines) if i not in removed_indices], len(removed_indices)
+        first -= 1
+    return lines[:first] + lines[last + 1:], last - first + 1
 
 
 def install_completion() -> int:
@@ -410,9 +395,9 @@ def install_completion() -> int:
     standing for the alias until someone noticed the alias kept vanishing.
 
     Idempotence is by CONVERGENCE, not by bailing out: any existing block is removed
-    and the current one written, so a re-run repairs a block that predates the alias
-    rather than reporting "already wired" and leaving it short. The file is rewritten
-    only when that actually changes it.
+    and the current one written, so a re-run repairs a stale block rather than
+    reporting "already wired" and leaving it wrong. The file is rewritten only when
+    that actually changes it.
     """
     zshrc = Path.home() / '.zshrc'
     fpath_line = f'fpath=({tilde(COMPLETION_OUT.parent)} $fpath)'
