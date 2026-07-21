@@ -1192,8 +1192,10 @@ def main():
             for g in gs:
                 out.write(f'      ↳ {g}\n')
 
-    def _render(committed_only: bool):
+    def _render(committed_only: bool, include_body: bool = True):
         """Render one report variant; returns (text, runnable fix lines).
+        include_body=False drops the per-check ✓/✗ body, leaving header + tail —
+        the terminal variant, which points at the log for the per-check detail.
         The tail splits by GATE EFFECT (user specification, 2026-07-12): a
         penultimate WARN block carries the machine-local advisory facts (the
         data tier, score[data] included — they never veto anything), and the
@@ -1217,9 +1219,12 @@ def main():
             out.write(f'pre_commit.py: {det} ({data_note})\n')
 
         out.write('\n')
-        out.write(committed_buffer.getvalue())
-        if not committed_only:
-            out.write(machine_buffer.getvalue())
+        if include_body:
+            out.write(committed_buffer.getvalue())
+            if not committed_only:
+                out.write(machine_buffer.getvalue())
+        else:
+            out.write('  full per-check report → logs/src/test/pre_commit.log\n')
 
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
@@ -1236,7 +1241,8 @@ def main():
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if warn_idx:
             counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
-            out.write(f'\nWARN — machine-local facts, marked ⚠ above; they never gate a commit:\n')
+            where = 'above' if include_body else 'in the full report (logs/src/test/pre_commit.log)'
+            out.write(f'\nWARN — machine-local facts, marked ⚠ {where}; they never gate a commit:\n')
             for sec in warn_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
             warn_fails = [(results[i][0], results[i][2]) for i in warn_idx]
@@ -1277,13 +1283,14 @@ def main():
 
     committed_text, _         = _render(committed_only=True)
     full_text, full_fix_lines = _render(committed_only=False)
+    terminal_text, _          = _render(committed_only=False, include_body=False)
 
     (SRC / 'test' / 'pre_commit.log').write_text(committed_text)
     machine_log = REPO_ROOT / 'logs' / 'src' / 'test' / 'pre_commit.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
     machine_log.write_text(full_text)
 
-    print(full_text, end='')
+    print(terminal_text, end='')
 
     if failures and args.fix and full_fix_lines:
         print()
@@ -1312,7 +1319,7 @@ def main():
 
     # The data tier is machine-local ("not recorded"): a stale capture on this
     # machine is a fact about its data, not about the change being committed.
-    # Data failures are reported in full above but only code/schema/score
+    # Data failures are reported in the WARN tail and the log, but only code/schema/score
     # failures veto the exit status — otherwise local data drift would fail every
     # run everywhere. This tier rule is now the ONLY thing standing between local
     # data drift and a blocked commit: the veto used to soften itself on feature
