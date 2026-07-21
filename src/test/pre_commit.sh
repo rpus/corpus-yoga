@@ -45,9 +45,9 @@ main() {
   # Run once — pre_commit.py writes its own report artifacts: the COMMITTED
   # src/test/pre_commit.log (code+schema only, byte-identical on any clone — the
   # machine-local data tier never enters a committed file) plus the full report
-  # to logs/src/test/pre_commit.log; the full report also prints here. This run's
-  # status is unused (a failing report is still a report; the exit verdict comes
-  # from the second run) — || true, the idiom for exactly that.
+  # to logs/src/test/pre_commit.log; only the tail (score + WARN + verdict) prints
+  # to the terminal here. This run's status is unused (a failing report is still a
+  # report; the exit verdict comes from the second run) — || true, for exactly that.
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@" || true
 
   # Copy the first run's artifacts aside. This used to stage them and diff the
@@ -61,9 +61,11 @@ main() {
     cp "$REPO_DIR/$a" "$snap/$(basename "$a")" 2>/dev/null || true
   done
 
-  # Run again — must produce no further changes.
+  # Run again — must produce no further changes. Its report would just duplicate the
+  # first run's on the terminal, so its stdout is discarded; only its exit code (the
+  # verdict) and any stderr (a crash) matter here.
   local rc=0
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" || rc=$?
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" >/dev/null || rc=$?
 
   # --fix changed the world between the two writes: a failing first run and a
   # clean second one is the fixes WORKING, not an idempotence violation.
