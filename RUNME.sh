@@ -164,6 +164,18 @@ LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # index.md still cited a retired verb name). Same command-backed step
 # discipline as the pipeline tails: the plan speaks `indexing sync`, and the
 # gate holds it to command AND verb (help.csv step=corpus).
+#
+# Membership tests (the PR #18 review, reading-room):
+# - CLOSURE: a corpus-tail step's inputs must all be refreshed-by-this-run or
+#   stable curation — never a paid/external artifact run doesn't produce.
+#   indexing passes (projected markdown + accepted.txt); dashboard sync fails
+#   while its captures are paid and out-of-run: dropped in here it would
+#   render fresh-LOOKING pages over silently lagging semantics.
+# - NECESSITY: a machine-local, mechanically derived, CONSUMED artifact must
+#   have a run step, because run is its only possible freshness mechanism —
+#   the gate guards only committed derivations, the schema WORKFLOW only
+#   curated ones. index.md sat in exactly that unguarded cell, which is why
+#   it went stale: nothing was wired to its only mechanism.
 run_corpus_tail() {
   step indexing "$SCRIPT_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/src/main/model/build_index.py" sync
@@ -278,6 +290,7 @@ main() {
 # Args are parsed FIRST so the plan previews this exact invocation (--only
 # filters it; the capture flags resolve their conditional lines).
 parse_args "$@"
+# shellcheck disable=SC2031  # this reads parse_args' plan; print_plan's subshell plan=1 is deliberately confined
 if [[ -n "$plan" ]]; then print_plan; exit 0; fi
 mkdir -p "$(dirname "$LOG_FILE")"
 main "$@" 2>&1 | tee "$LOG_FILE"

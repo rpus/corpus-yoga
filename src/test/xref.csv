@@ -44,12 +44,12 @@ RUNME.sh,8,comment,RUNME.sh,Y,#   ./RUNME.sh [--plan] [--only <pipeline>] [--com
 RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$SCRIPT_DIR/src/main/steps.sh"""
 RUNME.sh,78,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-RUNME.sh,168,call,src/run_python_script.sh,Y,"step indexing ""$SCRIPT_DIR/src/run_python_script.sh"" \"
-RUNME.sh,169,call,src/main/model/build_index.py,Y,"""$SCRIPT_DIR/src/main/model/build_index.py"" sync"
-RUNME.sh,173,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-RUNME.sh,184,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,188,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,192,call,src/main/code-agents/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,180,call,src/run_python_script.sh,Y,"step indexing ""$SCRIPT_DIR/src/run_python_script.sh"" \"
+RUNME.sh,181,call,src/main/model/build_index.py,Y,"""$SCRIPT_DIR/src/main/model/build_index.py"" sync"
+RUNME.sh,185,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+RUNME.sh,196,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,200,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,204,call,src/main/code-agents/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
