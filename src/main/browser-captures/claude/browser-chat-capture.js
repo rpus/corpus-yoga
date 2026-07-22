@@ -33,7 +33,12 @@ function setupExporter() {
   const SELECTORS = {
     messageRow: '[data-test-render-count]',   // one per message; survives virtualization re-renders
     copyButton: 'button[data-testid="action-bar-copy"]',
-    feedbackButton: 'button[aria-label="Give positive feedback"]',
+    // both vintages: claude.ai renamed the label ~2026-07 (found 2026-07-22
+    // when every scrape of a 100-conversation recapture came out all-Human).
+    // The feedback buttons are the bar's ONLY testid-less buttons (surveyed
+    // 2026-07-22), so labels are all they offer — last-resort cue only.
+    feedbackButton: 'button[aria-label="Good response"], button[aria-label="Give positive feedback"]',
+    editButton: 'button[data-testid="action-bar-edit"]',   // human bars only; testid-grade
     messageContainer: '.mb-1.group',
     agentContainer: '.group',
     messageText: 'p.whitespace-pre-wrap',
@@ -153,9 +158,19 @@ function setupExporter() {
     return bar;
   }
 
-  // Human message ↔ agent response, per row: the agent action bar carries a feedback button.
+  // Human message ↔ agent response. Primary cue is STRUCTURAL: only agent rows
+  // render response-body paragraphs — the same selector content extraction
+  // trusts, so role and content can no longer fail independently (the 2026-07-22
+  // lesson: the feedback button's aria-label drifted and 100 conversations
+  // scraped all-Human with perfect content). The feedback button, both label
+  // vintages, stays as fallback for a row whose text kind is ambiguous.
   function roleOf(copyBtn) {
-    return actionBarOf(copyBtn).querySelector(SELECTORS.feedbackButton) ? AGENT : 'Human';
+    const row = copyBtn.closest(SELECTORS.messageRow);
+    if (row && row.querySelector(SELECTORS.responseText)) return AGENT;
+    if (row && row.querySelector(SELECTORS.messageText)) return 'Human';
+    const bar = actionBarOf(copyBtn);
+    if (bar.querySelector(SELECTORS.editButton)) return 'Human';   // testid-grade
+    return bar.querySelector(SELECTORS.feedbackButton) ? AGENT : 'Human';
   }
 
   // Message rows of the LIVE conversation frame only: during navigation transitions
@@ -290,6 +305,13 @@ function setupExporter() {
 
       const h = transcript.filter(t => t.role === 'Human').length;
       log('LOG', `📊 Captured ${transcript.length} messages (${h} human, ${transcript.length - h} ${AGENT.toLowerCase()})`);
+      // A real conversation alternates: one speaker owning EVERY turn means the
+      // role cue died, and a mis-roled scrape is worse than none (2026-07-22: a
+      // WARN here let 100 all-Human scrapes land silently). Fail, write nothing.
+      if (transcript.length >= 2 && (h === 0 || h === transcript.length)) {
+        throw new Error(`role detection broke: ${h} human of ${transcript.length} — ` +
+                        'selector drift? nothing written');
+      }
       if (Math.abs(h - (transcript.length - h)) > 1) {
         log('WARN', `⚠️ Unbalanced counts (${h} human vs ${transcript.length - h} ${AGENT.toLowerCase()}) — possible misclassification from selector drift`);
       }

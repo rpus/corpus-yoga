@@ -6,6 +6,35 @@ and git-ignored: each datum directory under `cache/` carries a `matrix.md` besid
 
 ---
 
+## v2
+
+The memory system began stamping update times. A fact edited after that
+carries a fourth metadata key — `modified`, ISO-8601 UTC with milliseconds
+— first observed in home-room's store 2026-07-18 and reading-room's
+2026-07-19; the 2026-07-22 survey found 3 of 25 facts across both rooms'
+stores carrying it, putting both rooms' repo-project memories outside v1
+(first noticed 2026-07-21, in the four-root migration's dry-run worktree).
+Every datum valid under v1 is valid under v2 unchanged: v1 now happens to
+reject only the key its era never showed.
+
+### Replaces
+
+[v1.json](./v1.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Metadata.modified` — new optional key: the fact's last-update time,
+  harness-stamped when a session edits an existing fact; absent on facts
+  never edited since the stamping began (22 of 25 observed).
+
+#### Refactored
+
+None.
+
 ## v1
 
 Inaugural version, minted 2026-07-11 from the two local projects carrying a

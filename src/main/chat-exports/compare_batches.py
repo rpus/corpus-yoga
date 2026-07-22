@@ -318,35 +318,58 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
         print(f'WARN: anomaly {cap_names.get(u, "")!r} ({u}) — unique messages on both sides — investigate')
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-cache', metavar='DIR', default='tmp/cache/chat-exports')
-    ap.add_argument('--bulk-exports', metavar='DIR', default='data/input/claude/chat/bulk-export')
-    ap.add_argument('--browser-api', metavar='DIR', default=None)
-    ap.add_argument('--memories-output', metavar='DIR', default='data/output/memories')
-    ap.add_argument('--summaries-output', metavar='DIR', default='data/output/markdown/claude/chat/summaries')
-    enrich(ap, 'supersede')
-    args = ap.parse_args()
-
-    root = Path(args.chat_exports_cache)
-    ext_root = Path(args.bulk_exports)
+def _gather(root, ext_root):
+    """The cheap shared prefix: the export dirs present (time-ordered), the orphaned
+    derivations among them, and any unparseable names. Directory reads only — no json,
+    no atomising — so bare `supersede` stays a fast read-only status."""
     batches = sorted((d for d in root.glob('data-*') if (d / 'json').is_dir()),
                      key=lambda d: (batch_time(d.name) or datetime.min.replace(tzinfo=timezone.utc)))
     unparseable = [d.name for d in batches if batch_time(d.name) is None]
+    orphans = [d for d in batches if not (ext_root / d.name).is_dir()]
+    live = [d for d in batches if (ext_root / d.name).is_dir()]
+    return live, orphans, unparseable
+
+
+def _warn_unparseable(unparseable):
     for n in unparseable:
         print(f'warning: cannot parse a time from batch name {n} — ordering may be wrong', file=sys.stderr)
 
-    # Orphaned derivations (docstring): a tmp/cache/ dir with no data/input/ datum beside it
-    # must not feed the comparison — its archive copies are complete, so it
-    # would keep passing for a live batch (and witnessing others) after the
-    # data it derives from was disposed of.
-    orphans = [d for d in batches if not (ext_root / d.name).is_dir()]
+
+def status(root, ext_root):
+    """Bare noun → read-only inventory: which export dirs exist, in what order, which
+    are orphaned derivations. Computes no coverage and writes nothing — `supersede
+    check` does the comparison."""
+    live, orphans, unparseable = _gather(root, ext_root)
+    _warn_unparseable(unparseable)
+    for d in orphans:
+        print(f'WARN: orphaned derivation {d.name} — no {_rel(ext_root / d.name)} beside it, '
+              f'excluded from any comparison; dispose the shadow with: rm -r {_rel(d)}')
+    if not live:
+        print(f'supersede: no export dirs with atomised json/ under {_rel(root)}')
+        return 0
+    print(f'supersede: {len(live)} export dir(s) with atomised json/ under {_rel(root)}; '
+          f'latest {live[-1].name}'
+          + (f'; {len(orphans)} orphaned derivation(s) excluded' if orphans else ''))
+    print('  run `yoga supersede check` to compute supersession')
+    return 0
+
+
+def check(args):
+    """The `check` verb: the full supersession comparison — for each earlier export dir,
+    whether every component is witnessed by a later batch or deposited, with the working
+    shown. Reads every batch's atoms; writes nothing. Exit 0 iff all covered."""
+    root = Path(args.chat_exports_cache)
+    ext_root = Path(args.bulk_exports)
+    batches, orphans, unparseable = _gather(root, ext_root)
+    _warn_unparseable(unparseable)
+    # Orphaned derivations (docstring): a tmp/cache/ dir with no data/input/ datum beside it must
+    # not feed the comparison — its archive copies are complete, so it would keep passing
+    # for a live batch (and witnessing others) after the data it derives from was disposed.
     for d in orphans:
         print(f'WARN: orphaned derivation {d.name} — no {_rel(ext_root / d.name)} beside it; '
               'excluded from comparison. If the export was deliberately deleted, this '
               'shadow is the disposal\'s one remaining step:')
         print(f'    → run: rm -r {_rel(d)}')
-    batches = [d for d in batches if (ext_root / d.name).is_dir()]
 
     if not batches:
         print(f'no export dirs with atomised json/ under {root} — nothing to compare')
@@ -430,6 +453,32 @@ def main():
         compare_vs_captures(latest, latest_units['conversations'], None, Path(args.browser_api))
 
     return 0 if sufficient else 1
+
+
+DEFAULT_CACHE = 'tmp/cache/chat-exports'
+DEFAULT_BULK = 'data/input/claude/chat/bulk-export'
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description='Do later bulk exports SUPERSEDE earlier ones? Bare shows the '
+                    'export-dir inventory; `check` computes coverage. Writes nothing.')
+    sub = ap.add_subparsers(dest='verb')
+    # The flags live on `check`, the verb that uses them — so the pipeline's
+    # `… check --browser-api …` parses, and the top-level --help stays short (just the
+    # {check} block) rather than unfurling five flags and tripping the one-screen gate.
+    # Bare status reads the standard dirs by default; overriding them is a check concern.
+    cp = sub.add_parser('check')
+    cp.add_argument('--chat-exports-cache', metavar='DIR', default=DEFAULT_CACHE)
+    cp.add_argument('--bulk-exports', metavar='DIR', default=DEFAULT_BULK)
+    cp.add_argument('--browser-api', metavar='DIR', default=None)
+    cp.add_argument('--memories-output', metavar='DIR', default='data/output/memories')
+    cp.add_argument('--summaries-output', metavar='DIR', default='data/output/markdown/claude/chat/summaries')
+    enrich(ap, 'supersede')
+    args = ap.parse_args()
+    if args.verb is None:
+        return status(Path(DEFAULT_CACHE), Path(DEFAULT_BULK))
+    return check(args)
 
 
 if __name__ == '__main__':

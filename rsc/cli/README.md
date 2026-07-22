@@ -2,8 +2,8 @@
 
 Two curated files describe the `./yoga` terminal surface (machinery: `src/main/cli/cli.py`;
 launcher: the root `./yoga`). `commands.csv` names each command — `command,target,calculus,
-step,summary` — and `help.csv` describes every argument, one row per
-`command,subcommand,arg-name,arg-type,cardinality,help`. The argument structure lives ONLY
+summary` — and `help.csv` describes every argument, one row per
+`command,subcommand,arg-name,arg-type,cardinality,help,step`. The argument structure lives ONLY
 in `help.csv`: a command's verbs are its distinct subcommands, its flags are the `--arg-name`
 rows, and its whole usage sketch is GENERATED from those rows — `arg-type` is the value
 metavar (`<uuid8>`, blank for a boolean flag), and `cardinality` is a literal count: blank
@@ -14,7 +14,11 @@ the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordi
 cannot drift from the helptext, because there is one source, not two — nothing to reconcile,
 no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
 prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
-describes the verb itself. Both files are written `QUOTE_ALL` so a comma in any cell is safe.
+describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
+as a step of the named run pipeline (`chat-exports`): the gate holds `src/RUNME.sh --plan` to
+invoking it by command AND verb, so the plan speaks the surface you would type and a step can
+never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
+files are written `QUOTE_ALL` so a comma in any cell is safe.
 
 Everything a user meets is re-derived on demand — the menu `./yoga -h`
 prints, each command's `./yoga <command> -h` (its summary, its generated invocation forms, and the
@@ -41,10 +45,11 @@ committed in `rsc/cli/readings.md`.
 | --- | --- |
 | `command` | the subcommand word (`./yoga <command>`), unique |
 | `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `src/run_python_script.sh`, a `.md` is printed |
-| `usage` | human-readable argument sketch shown in help; its `--flags` are also machine-read, both for completion and for the honesty check below |
 | `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the command is mere presentation of the doctrine itself |
-| `step` | the `src/RUNME.sh --plan` step this command re-runs standalone (empty where none); each value is checked to name a real plan step |
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |
+
+The argument sketch and each command's verbs, flags, and run-pipeline `step` all live in
+`help.csv` (above), never here — one source, nothing to reconcile.
 
 ## The grammar
 
@@ -57,10 +62,11 @@ from examples — one did, and misread design as sediment):
   what `data/input/` already holds. `present` renders, free. `clean`/`sync` are the
   cache lifecycle. `receive`/`demerge` move agents between machines and undo the move.
 - **Bare invocations are free and local** — never paid, never a browser. Bare is a
-  *status report* where the summary says so (`dashboard`, `indexing`, `server`);
-  the command's *whole act* where that act is one free idempotent step (`run`,
-  `memories`, `supersede`, `model`, `check`, `xref`, `prerequisites`); and a
-  *usage refusal* where a verb is required (`browser`, `cache`, `agent`).
+  *read-only status report* wherever the command has verbs, the write living in the
+  verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`, `model`,
+  `supersede`, `xref`); the command's *whole act* where it has no verb and that act
+  is one free idempotent step (`run`, `check`, `prerequisites`); and a *usage refusal*
+  where the verb is required and bare is meaningless (`browser`, `cache`, `agent`).
 - **Usage strings are a small grammar, machine-read.** A spaced ` | ` separates
   INVOCATION FORMS — each becomes its own line in `yoga commands` and its own
   verb for the honesty gate. An unspaced `|` is an enum inside one form
@@ -69,6 +75,11 @@ from examples — one did, and misread design as sediment):
   across all forms and deduplicated for the completion.
 - **Rows are alphabetical by command**, enforced (`cli: commands alphabetical`),
   so every derived surface lists commands in one findable order.
+- **A `step`-marked command is a corpus-wide operation**, never a per-batch one. The
+  chat-exports pipeline is a map over batches (`run_one`) then a reduce over all of them
+  (`run_tail`); the nouns live only in the reduce, because only a whole-corpus step is
+  meaningful to invoke standalone. `memories`, `summaries`, `supersede` are exactly the
+  `run_tail` steps. A per-batch stage earning a `step` row would be the tell of a mistake.
 
 ## Held honest by the gates
 
@@ -76,8 +87,9 @@ from examples — one did, and misread design as sediment):
 every row to: parseable table, unique + alphabetical commands, existing targets,
 calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the
 target, the target's own flags all advertised back (both directions), advertised
-verbs in the target's live `--help`, help ≤ 20 lines, claimed run-steps named in
-`src/RUNME.sh --plan`, and the emitted completion parsing under `zsh -n`.
+verbs in the target's live `--help`, help ≤ 20 lines, each `step`-marked command
+invoked by command and verb in `src/RUNME.sh --plan`, and the emitted completion parsing
+under `zsh -n`.
 
 The table is curated, not discovered: a script's absence here is a decision, not
 an omission.

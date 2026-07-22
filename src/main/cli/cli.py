@@ -45,7 +45,7 @@ from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bo
 
 REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
-COLUMNS = ('command', 'target', 'calculus', 'step', 'summary')
+COLUMNS = ('command', 'target', 'calculus', 'summary')
 COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # The comments that DELIMIT the block `install` writes into ~/.zshrc, and by which
 # `uninstall` finds it again. A start AND an end, so the block has an extent: uninstall
@@ -102,6 +102,16 @@ def flags_of(command: str) -> list[str]:
         if r['arg-name'].startswith('--') and r['arg-name'] not in out:
             out.append(r['arg-name'])
     return out
+
+
+def steps() -> list[dict]:
+    """The (command, subcommand) invocations the run pipeline executes as named plan
+    steps, declared by help.csv's `step` column (its value names the pipeline). The gate
+    holds `src/RUNME.sh --plan` to these: each must appear as a plan line naming the command
+    AND its verb — so the plan speaks the command surface, and a step can never invoke a
+    noun bare, which would silently become a status no-op."""
+    return [{'command': r['command'], 'subcommand': r['subcommand'], 'pipeline': r['step']}
+            for r in help_rows() if r.get('step')]
 
 
 def calculus_terms() -> set[str]:
@@ -422,12 +432,25 @@ def install_completion() -> int:
     text = '\n'.join(lines) + '\n'
     if text == before:
         print(f'{tilde(zshrc)}: already wired — nothing to do')
-        return 0
-    zshrc.write_text(text)
-    print(f'{tilde(zshrc)}: {where}')
-    for line in block[1:-1]:
-        print(f'    {line}')
-    print('  remove anytime: ./yoga completions uninstall')
+    else:
+        zshrc.write_text(text)
+        print(f'{tilde(zshrc)}: {where}')
+        for line in block[1:-1]:
+            print(f'    {line}')
+        print('  remove anytime: ./yoga completions uninstall')
+    # ~/.zcompdump is compinit's cache of which completion functions exist, and
+    # its staleness heuristic can judge a pre-install dump current — the first
+    # new terminal then falls back to filename completion while every LATER one
+    # works (observed 2026-07-22, home-room: _yoga written 09:43:56, the first
+    # fresh terminal stale, the dump only rebuilt at 09:46:34 by a later shell).
+    # Deleting the dump makes the restart the line below prescribes sufficient,
+    # not merely necessary. Runs even when the block was already wired: the
+    # freshly regenerated _yoga is exactly what a kept dump would not know.
+    dumps = sorted(Path.home().glob('.zcompdump*'))
+    for d in dumps:
+        d.unlink()
+    if dumps:
+        print(f'  ~/.zcompdump*: {len(dumps)} removed — the next shell\'s compinit rebuilds it')
     print('→ now start a new shell (exec zsh)')
     return 0
 

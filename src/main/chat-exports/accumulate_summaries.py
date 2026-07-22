@@ -26,8 +26,8 @@ Readings are content-deduplicated against the nearest earlier deposit (memories
 semantics); an <export-ts>.md, once written, is never modified. Everything derives
 from the local corpora — L1: re-running is silence on disk.
 
-Usage:
-  src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \\
+Usage (bare = status, the verb writes — the memories shape):
+  src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py [sync] \\
       [--chat-exports-cache tmp/cache/chat-exports] [--browser-api data/input/claude/chat/browser-API] \\
       [--conversations-output data/output/markdown/claude/chat/conversations] \\
       [--summaries-output data/output/markdown/claude/chat/summaries]
@@ -42,6 +42,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import REPO, find_api_json
 
+from argparse_help import enrich        # noqa: E402
 from compare_batches import batch_time  # noqa: E402 — the one batch-ordering authority
 
 
@@ -118,17 +119,45 @@ def index_text(uuid, stem, title, deposit_names):
     return '\n'.join(lines) + '\n'
 
 
+def status(root: Path) -> int:
+    """The bare-noun default: show the store's current state, write nothing.
+    Deliberately store-only (pure directory listing): computing what a sync
+    WOULD deposit means parsing every batch and capture — that is sync's job,
+    and its dedup makes running it the cheaper way to find out."""
+    folders = sorted(p for p in root.iterdir() if p.is_dir()) if root.is_dir() else []
+    readings = rolling = 0
+    for d in folders:
+        for f in d.glob('*.md'):
+            if f.name == 'index.md':
+                continue
+            rolling += (f.name == 'browser-capture.md')
+            readings += (f.name != 'browser-capture.md')
+    shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
+    print(f'summaries: {len(folders)} conversation folder(s), {readings} deposited '
+          f'reading(s), {rolling} rolling capture reading(s) in {shown}')
+    return 0
+
+
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-cache', default=str(REPO / 'tmp' / 'cache' / 'chat-exports'))
-    ap.add_argument('--browser-api', default=str(REPO / 'data' / 'input' / 'claude' / 'chat' / 'browser-API'))
-    ap.add_argument('--conversations-output',
+    ap = argparse.ArgumentParser(
+        description='The durable per-conversation summary store (memories semantics: '
+                    'immutable, content-deduplicated). Bare shows status; `sync` writes.')
+    sub = ap.add_subparsers(dest='verb')
+    sub.add_parser('sync')
+    ap.add_argument('--chat-exports-cache', metavar='DIR',
+                    default=str(REPO / 'tmp' / 'cache' / 'chat-exports'))
+    ap.add_argument('--browser-api', metavar='DIR',
+                    default=str(REPO / 'data' / 'input' / 'claude' / 'chat' / 'browser-API'))
+    ap.add_argument('--conversations-output', metavar='DIR',
                     default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'))
-    ap.add_argument('--summaries-output',
+    ap.add_argument('--summaries-output', metavar='DIR',
                     default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries'))
+    enrich(ap, 'summaries')
     args = ap.parse_args()
 
     root = Path(args.summaries_output)
+    if args.verb != 'sync':
+        return status(root)
     stems = stems_by_uuid(Path(args.conversations_output))
     if not stems:
         # L8: absence is a signal. No projected corpus means an upstream failure
