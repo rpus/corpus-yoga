@@ -33,9 +33,13 @@ from pathlib import Path
 
 from common import ROOT_MAP, SCRIPT_MOVES, write_moves
 
-# root entries that are NOT claimed by any move row: the machinery that stays
+# root entries that are NOT claimed by any move row: the machinery that stays,
+# plus the NEW roots themselves — a mid-transition room legitimately holds
+# both layouts (the branch checkout's own gate runs birth tmp/ before apply),
+# and the new roots are move TARGETS, never sources (found 2026-07-22,
+# home-room: gen_moves flagged the gate-born tmp/ as UNCLAIMED)
 MACHINERY = {'.git', '.gitignore', '.DS_Store', 'README.md', 'yoga',
-             'src', 'rsc', 'machine-name.txt', 'swap'}
+             'src', 'rsc', 'machine-name.txt', 'swap', 'data', 'tmp', 'ext'}
 
 
 def scan(repo: Path):

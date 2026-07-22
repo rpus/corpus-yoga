@@ -95,7 +95,15 @@ are the honest redirect granularity, so five vars become three:
     #    records are deleted with this whole directory after both rooms
     #    apply; history keeps them reachable.
 
-    # 5. when satisfied, execute (--apply is the point of no return; without it, a plan prints)
+    # 5. dispose of the gate-born tmp/ first: on a mid-transition checkout the
+    #    branch's own gate runs have already created tmp/logs/ (and cache syncs
+    #    may have made tmp/cache/), so apply's `logs -> tmp/logs` row reads
+    #    CONFLICT and refuses (observed home-room 2026-07-22, the five-state
+    #    lattice working). Everything under the born-early tmp/ is disposable
+    #    gate output — delete it and re-run the dry run before applying:
+    rm -rf tmp
+
+    # 6. when satisfied, execute (--apply is the point of no return; without it, a plan prints)
     python3 swap/dryrun/src/restructure/apply_moves.py --from . --moves swap/moves.csv \
         2>&1 | tee swap/reports/apply-plan.log
     python3 swap/dryrun/src/restructure/apply_moves.py --from . --moves swap/moves.csv --apply

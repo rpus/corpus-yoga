@@ -17,7 +17,7 @@ pre_commit.py: 1515/1515 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 63 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 64 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv

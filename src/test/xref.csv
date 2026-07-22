@@ -609,6 +609,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/restructure/gen_moves.py,Y,
 ,,,src/restructure/gen_refs.py,Y,
 ,,,src/restructure/rehearsals/home-room-2026-07-21.md,Y,
+,,,src/restructure/rehearsals/home-room-2026-07-22.md,Y,
 ,,self_only,src/test/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/code-agents/survey_code_session.py,Y,
 ,,,src/test/diagnostics/composition.base_not_used_directly.py,Y,
