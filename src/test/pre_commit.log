@@ -1,4 +1,4 @@
-pre_commit.py: 1435/1435 (data: machine-local)
+pre_commit.py: 1514/1514 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -214,12 +214,14 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ conversations: valid JSON + $schema: v14
   ✓ conversations: valid JSON + $schema: v15
   ✓ conversations: valid JSON + $schema: v16
+  ✓ conversations: valid JSON + $schema: v17
   ✓ markdownConversation: valid JSON + $schema: v1
   ✓ markdownConversation: valid JSON + $schema: v2
   ✓ markdownConversation: valid JSON + $schema: v3
   ✓ mcp: valid JSON + $schema: v1
   ✓ memories: valid JSON + $schema: v1
   ✓ projectMemory: valid JSON + $schema: v1
+  ✓ projectMemory: valid JSON + $schema: v2
   ✓ projects: valid JSON + $schema: v1
   ✓ projects: valid JSON + $schema: v2
   ✓ semanticConcepts: valid JSON + $schema: v1
@@ -234,6 +236,7 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ session: valid JSON + $schema: v8
   ✓ session: valid JSON + $schema: v9
   ✓ session: valid JSON + $schema: v10
+  ✓ session: valid JSON + $schema: v11
   ✓ sessionConversation: valid JSON + $schema: v1
   ✓ users: valid JSON + $schema: v1
 
@@ -290,6 +293,8 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ conversations: no_todo: v15
   ✓ conversations: changelog_narrative: v16
   ✓ conversations: no_todo: v16
+  ✓ conversations: changelog_narrative: v17
+  ✓ conversations: no_todo: v17
   ✓ markdownConversation: changelog_narrative: v1
   ✓ markdownConversation: no_todo: v1
   ✓ markdownConversation: changelog_narrative: v2
@@ -302,6 +307,8 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ memories: no_todo: v1
   ✓ projectMemory: changelog_narrative: v1
   ✓ projectMemory: no_todo: v1
+  ✓ projectMemory: changelog_narrative: v2
+  ✓ projectMemory: no_todo: v2
   ✓ projects: changelog_narrative: v1
   ✓ projects: no_todo: v1
   ✓ projects: changelog_narrative: v2
@@ -330,6 +337,8 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ session: no_todo: v9
   ✓ session: changelog_narrative: v10
   ✓ session: no_todo: v10
+  ✓ session: changelog_narrative: v11
+  ✓ session: no_todo: v11
   ✓ sessionConversation: changelog_narrative: v1
   ✓ sessionConversation: no_todo: v1
   ✓ users: changelog_narrative: v1
@@ -960,6 +969,30 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ conversations: structure.no_redundant_additional_properties_true: v16
   ✓ conversations: structure.pattern_constraints_enforced: v16
   ✓ conversations: structure.required_subset_of_properties: v16
+  ✓ conversations: composition.base_not_used_directly: v17
+  ✓ conversations: composition.base_schemas_closed: v17
+  ✓ conversations: composition.discriminator_values_disjoint: v17
+  ✓ conversations: composition.no_additional_properties_on_subtypes: v17
+  ✓ conversations: composition.wrapper_has_five_fields: v17
+  ✓ conversations: documentation.discriminator_fields_annotated: v17
+  ✓ conversations: documentation.every_definition_has_title_and_description: v17
+  ✓ conversations: documentation.null_only_fields_documented: v17
+  ✓ conversations: documentation.open_set_enums_documented: v17
+  ✓ conversations: empirical.nullable_fields_surveyed: v17
+  ✓ conversations: empirical.oneOf_branches_evidenced: v17
+  ✓ conversations: naming.property_keys_lowercase: v17
+  ✓ conversations: naming.title_matches_key: v17
+  ✓ conversations: naming.upper_camel_case: v17
+  ✓ conversations: structure.all_definitions_reachable: v17
+  ✓ conversations: structure.bfs_order: v17
+  ✓ conversations: structure.definitions_at_bottom: v17
+  ✓ conversations: structure.enum_refines_explicit_type: v17
+  ✓ conversations: structure.field_order: v17
+  ✓ conversations: structure.minItems_on_non_empty_arrays: v17
+  ✓ conversations: structure.no_dangling_refs: v17
+  ✓ conversations: structure.no_redundant_additional_properties_true: v17
+  ✓ conversations: structure.pattern_constraints_enforced: v17
+  ✓ conversations: structure.required_subset_of_properties: v17
   ✓ markdownConversation: composition.base_not_used_directly: v1
   ✓ markdownConversation: composition.base_schemas_closed: v1
   ✓ markdownConversation: composition.discriminator_values_disjoint: v1
@@ -1079,6 +1112,29 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ projectMemory: structure.no_redundant_additional_properties_true: v1
   ✓ projectMemory: structure.pattern_constraints_enforced: v1
   ✓ projectMemory: structure.required_subset_of_properties: v1
+  ✓ projectMemory: composition.base_not_used_directly: v2
+  ✓ projectMemory: composition.discriminator_values_disjoint: v2
+  ✓ projectMemory: composition.no_additional_properties_on_subtypes: v2
+  ✓ projectMemory: composition.wrapper_has_five_fields: v2
+  ✓ projectMemory: documentation.discriminator_fields_annotated: v2
+  ✓ projectMemory: documentation.every_definition_has_title_and_description: v2
+  ✓ projectMemory: documentation.null_only_fields_documented: v2
+  ✓ projectMemory: documentation.open_set_enums_documented: v2
+  ✓ projectMemory: empirical.nullable_fields_surveyed: v2
+  ✓ projectMemory: empirical.oneOf_branches_evidenced: v2
+  ✓ projectMemory: naming.property_keys_lowercase: v2
+  ✓ projectMemory: naming.title_matches_key: v2
+  ✓ projectMemory: naming.upper_camel_case: v2
+  ✓ projectMemory: structure.all_definitions_reachable: v2
+  ✓ projectMemory: structure.bfs_order: v2
+  ✓ projectMemory: structure.definitions_at_bottom: v2
+  ✓ projectMemory: structure.enum_refines_explicit_type: v2
+  ✓ projectMemory: structure.field_order: v2
+  ✓ projectMemory: structure.minItems_on_non_empty_arrays: v2
+  ✓ projectMemory: structure.no_dangling_refs: v2
+  ✓ projectMemory: structure.no_redundant_additional_properties_true: v2
+  ✓ projectMemory: structure.pattern_constraints_enforced: v2
+  ✓ projectMemory: structure.required_subset_of_properties: v2
   ✓ projects: composition.base_not_used_directly: v1
   ✓ projects: composition.base_schemas_closed: v1
   ✓ projects: composition.discriminator_values_disjoint: v1
@@ -1405,6 +1461,29 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ session: structure.no_redundant_additional_properties_true: v10
   ✓ session: structure.pattern_constraints_enforced: v10
   ✓ session: structure.required_subset_of_properties: v10
+  ✓ session: composition.base_not_used_directly: v11
+  ✓ session: composition.discriminator_values_disjoint: v11
+  ✓ session: composition.no_additional_properties_on_subtypes: v11
+  ✓ session: composition.wrapper_has_five_fields: v11
+  ✓ session: documentation.discriminator_fields_annotated: v11
+  ✓ session: documentation.every_definition_has_title_and_description: v11
+  ✓ session: documentation.null_only_fields_documented: v11
+  ✓ session: documentation.open_set_enums_documented: v11
+  ✓ session: empirical.nullable_fields_surveyed: v11
+  ✓ session: empirical.oneOf_branches_evidenced: v11
+  ✓ session: naming.property_keys_lowercase: v11
+  ✓ session: naming.title_matches_key: v11
+  ✓ session: naming.upper_camel_case: v11
+  ✓ session: structure.all_definitions_reachable: v11
+  ✓ session: structure.bfs_order: v11
+  ✓ session: structure.definitions_at_bottom: v11
+  ✓ session: structure.enum_refines_explicit_type: v11
+  ✓ session: structure.field_order: v11
+  ✓ session: structure.minItems_on_non_empty_arrays: v11
+  ✓ session: structure.no_dangling_refs: v11
+  ✓ session: structure.no_redundant_additional_properties_true: v11
+  ✓ session: structure.pattern_constraints_enforced: v11
+  ✓ session: structure.required_subset_of_properties: v11
   ✓ sessionConversation: composition.base_not_used_directly: v1
   ✓ sessionConversation: composition.discriminator_values_disjoint: v1
   ✓ sessionConversation: composition.no_additional_properties_on_subtypes: v1
@@ -1463,9 +1542,9 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1435/1435; expected: 1435/1435
+  ✓ score[code+schema]: 1514/1514; expected: 1514/1514
   ✓ score[code]: 122/122; expected: 122/122
-  ✓ score[schema]: 1313/1313; expected: 1313/1313
+  ✓ score[schema]: 1392/1392; expected: 1392/1392
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1435/1435 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1514/1514 match the committed expectation; nothing here vetoes a commit

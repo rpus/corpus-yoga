@@ -124,21 +124,22 @@ rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,50,doc,rsc/schema/
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../b
 rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
-rsc/schema/chat-exports/conversations/CHANGELOG.md,28,doc,rsc/schema/chat-exports/conversations/v15.json,Y,[v15.json](./v15.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,40,doc,rsc/schema/chat-exports/conversations/v14.json,Y,[v14.json](./v14.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,52,doc,rsc/schema/chat-exports/conversations/v13.json,Y,[v13.json](./v13.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,65,doc,rsc/schema/chat-exports/conversations/v12.json,Y,[v12.json](./v12.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,84,doc,rsc/schema/chat-exports/conversations/v11.json,Y,[v11.json](./v11.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,104,doc,rsc/schema/chat-exports/conversations/v10.json,Y,[v10.json](./v10.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,118,doc,rsc/schema/chat-exports/conversations/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,134,doc,rsc/schema/chat-exports/conversations/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,150,doc,rsc/schema/chat-exports/conversations/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,169,doc,rsc/schema/chat-exports/conversations/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,183,doc,rsc/schema/chat-exports/conversations/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,204,doc,rsc/schema/chat-exports/conversations/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,218,doc,rsc/schema/chat-exports/conversations/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,245,doc,rsc/schema/chat-exports/conversations/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,264,doc,rsc/schema/chat-exports/conversations/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,31,doc,rsc/schema/chat-exports/conversations/v16.json,Y,[v16.json](./v16.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,52,doc,rsc/schema/chat-exports/conversations/v15.json,Y,[v15.json](./v15.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,64,doc,rsc/schema/chat-exports/conversations/v14.json,Y,[v14.json](./v14.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,76,doc,rsc/schema/chat-exports/conversations/v13.json,Y,[v13.json](./v13.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,89,doc,rsc/schema/chat-exports/conversations/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,108,doc,rsc/schema/chat-exports/conversations/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,128,doc,rsc/schema/chat-exports/conversations/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,142,doc,rsc/schema/chat-exports/conversations/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,158,doc,rsc/schema/chat-exports/conversations/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,174,doc,rsc/schema/chat-exports/conversations/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,193,doc,rsc/schema/chat-exports/conversations/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,207,doc,rsc/schema/chat-exports/conversations/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,228,doc,rsc/schema/chat-exports/conversations/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,242,doc,rsc/schema/chat-exports/conversations/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,269,doc,rsc/schema/chat-exports/conversations/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,288,doc,rsc/schema/chat-exports/conversations/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/memories/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
 rsc/schema/chat-exports/memories/v1.json,20,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
@@ -151,17 +152,19 @@ rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`vali
 rsc/schema/chat-exports/users/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
 rsc/schema/chat-exports/users/v1.json,19,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,22,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/session/CHANGELOG.md,23,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/code-agents/session/CHANGELOG.md,55,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/code-agents/session/CHANGELOG.md,96,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/code-agents/session/CHANGELOG.md,138,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/code-agents/session/CHANGELOG.md,162,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/code-agents/session/CHANGELOG.md,189,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/code-agents/session/CHANGELOG.md,203,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/code-agents/session/CHANGELOG.md,215,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/code-agents/session/CHANGELOG.md,233,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/session/CHANGELOG.md,279,doc,src/main/code-agents/RUNME.sh,Y,discovered iteratively by running `src/main/code-agents/RUNME.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,24,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/code-agents/session/CHANGELOG.md,56,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/code-agents/session/CHANGELOG.md,88,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/code-agents/session/CHANGELOG.md,129,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/code-agents/session/CHANGELOG.md,171,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/code-agents/session/CHANGELOG.md,195,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/code-agents/session/CHANGELOG.md,222,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/code-agents/session/CHANGELOG.md,236,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/code-agents/session/CHANGELOG.md,248,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/session/CHANGELOG.md,266,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/session/CHANGELOG.md,312,doc,src/main/code-agents/RUNME.sh,Y,discovered iteratively by running `src/main/code-agents/RUNME.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -532,14 +535,14 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/browser-captures/apiConversation/v9.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,
-,,,rsc/schema/chat-exports/conversations/v16.json,Y,
+,,,rsc/schema/chat-exports/conversations/v17.json,Y,
 ,,,rsc/schema/chat-exports/memories/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/projects/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/users/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/projectMemory/CHANGELOG.md,Y,
-,,,rsc/schema/code-agents/projectMemory/v1.json,Y,
+,,,rsc/schema/code-agents/projectMemory/v2.json,Y,
 ,,,rsc/schema/code-agents/session/CHANGELOG.md,Y,
-,,,rsc/schema/code-agents/session/v10.json,Y,
+,,,rsc/schema/code-agents/session/v11.json,Y,
 ,,,rsc/schema/code-agents/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/sessionConversation/v1.json,Y,
 ,,,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,

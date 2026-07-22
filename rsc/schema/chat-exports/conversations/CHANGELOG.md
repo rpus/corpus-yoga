@@ -11,6 +11,30 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v17
+
+The 2026-07-22 bulk export adds `hidden_in_chat` to the two tool-block
+envelopes: batch 128fd3c8 (export epoch 1784702804, 101 conversations)
+failed v1–v16 wholesale (both bases are closed). The serializer stamps the
+field on EVERY `tool_use` and `tool_result` block — all 1843 of each,
+oldest conversations included — so v17 requires it, the `thinking_hidden`
+precedent (v16). Only null observed, so it is typed null: a non-null value
+is drift and fails loudly, exactly as this family already treats `flags`,
+`context`, and `tool_identifier`. The live API does NOT surface the field:
+the same-day browser recapture (2026-07-22, 100 conversations, 43 carrying
+tool blocks) shows it in none — bulk-export-only, the `tool_identifier`
+precedent (v15), not the `thinking_hidden` coupling (v16); apiConversation
+gets the field when a live capture first exhibits it, not before.
+
+### Replaces
+
+[v16.json](./v16.json)
+
+#### Restricted (material)
+
+- `ToolUseBlockBase.hidden_in_chat` — one NEW REQUIRED field. Observed null only.
+- `ToolResultBlockBase.hidden_in_chat` — the same field on the result envelope.
+
 ## v16
 
 The 2026-07 bulk export adds `thinking_hidden` to thinking blocks, beside the
