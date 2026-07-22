@@ -1,4 +1,4 @@
-pre_commit.py: 1428/1428 (data: machine-local)
+pre_commit.py: 1435/1435 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -92,6 +92,12 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: server: advertised subcommands dispatch
   ✓ cli: server: target flags all advertised
   ✓ cli: server: help fits one screen (≤20 lines)
+  ✓ cli: summaries: target exists: src/main/chat-exports/accumulate_summaries.py
+  ✓ cli: summaries: cited calculus defined
+  ✓ cli: summaries: advertised flags exist
+  ✓ cli: summaries: advertised subcommands dispatch
+  ✓ cli: summaries: target flags all advertised
+  ✓ cli: summaries: help fits one screen (≤20 lines)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
   ✓ cli: supersede: advertised flags exist
@@ -104,6 +110,7 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: xref: help fits one screen (≤20 lines)
   ✓ cli: completions: emitted script parses (zsh -n)
   ✓ cli: memories: run step exists in plan: accumulate_memories
+  ✓ cli: summaries: run step exists in plan: accumulate_summaries
   ✓ cli: supersede: run step exists in plan: compare_batches
 
 ── check_cache_io ────────────────────────────────────────────────────────────
@@ -1456,9 +1463,9 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1428/1428; expected: 1428/1428
-  ✓ score[code]: 115/115; expected: 115/115
+  ✓ score[code+schema]: 1435/1435; expected: 1435/1435
+  ✓ score[code]: 122/122; expected: 122/122
   ✓ score[schema]: 1313/1313; expected: 1313/1313
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1428/1428 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1435/1435 match the committed expectation; nothing here vetoes a commit

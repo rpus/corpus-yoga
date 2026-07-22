@@ -78,8 +78,9 @@ rsc/cli/commands.csv,10,path_str,src/main/model/build_index.py,Y,"indexing,src/m
 rsc/cli/commands.csv,11,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,accumulate normalise project L1 L4,accumulate_memories,Deposit eve"
 rsc/cli/commands.csv,12,path_str,src/main/model/gen_model.py,Y,"model,src/main/model/gen_model.py,project,,per-schema definition catalogues, candidates for model.json"
 rsc/cli/commands.csv,15,path_str,src/main/model/serve_markdown.sh,Y,"server,src/main/model/serve_markdown.sh,project,,serve the markdown corpus locally (LaTeX + turn deep links)"
-rsc/cli/commands.csv,16,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,supersession L3,compare_batches,Do later bulk exports supersede earli"
-rsc/cli/commands.csv,17,path_str,src/test/xref.py,Y,"xref,src/test/xref.py,validate,,Cross-reference integrity of every committed artifact"
+rsc/cli/commands.csv,16,path_str,src/main/chat-exports/accumulate_summaries.py,Y,"summaries,src/main/chat-exports/accumulate_summaries.py,accumulate project L1 L4,accumulate_summaries,Deposit every dist"
+rsc/cli/commands.csv,17,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,supersession L3,compare_batches,Do later bulk exports supersede earli"
+rsc/cli/commands.csv,18,path_str,src/test/xref.py,Y,"xref,src/test/xref.py,validate,,Cross-reference integrity of every committed artifact"
 rsc/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 rsc/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 rsc/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
@@ -245,16 +246,16 @@ src/main/chat-exports/RUNME.sh,76,call,src/main/model/project_markdown.py,Y,"""$
 src/main/chat-exports/RUNME.sh,82,call,src/run_python_script.sh,Y,"compare_sources    ""$REPO_DIR/src/run_python_script.sh"" \"
 src/main/chat-exports/RUNME.sh,83,call,src/main/model/compare_sources.py,Y,"""$REPO_DIR/src/main/model/compare_sources.py"" \"
 src/main/chat-exports/RUNME.sh,93,call,src/run_python_script.sh,Y,"step accumulate_memories ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,94,call,src/main/chat-exports/accumulate_memories.py,Y,"""$SCRIPT_DIR/accumulate_memories.py"""
+src/main/chat-exports/RUNME.sh,94,call,src/main/chat-exports/accumulate_memories.py,Y,"""$SCRIPT_DIR/accumulate_memories.py"" sync"
 src/main/chat-exports/RUNME.sh,101,call,src/run_python_script.sh,Y,"step accumulate_summaries ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,102,call,src/main/chat-exports/accumulate_summaries.py,Y,"""$SCRIPT_DIR/accumulate_summaries.py"""
+src/main/chat-exports/RUNME.sh,102,call,src/main/chat-exports/accumulate_summaries.py,Y,"""$SCRIPT_DIR/accumulate_summaries.py"" sync"
 src/main/chat-exports/RUNME.sh,112,call,src/run_python_script.sh,Y,"step_ok compare_batches  ""$REPO_DIR/src/run_python_script.sh"" \"
 src/main/chat-exports/RUNME.sh,113,call,src/main/chat-exports/compare_batches.py,Y,"""$SCRIPT_DIR/compare_batches.py"" \"
 src/main/chat-exports/accumulate_memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-cache cache/chat-exports] [-
 src/main/chat-exports/accumulate_memories.py,31,comment,src/main/chat-exports/accumulate_memories.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-cache cache/chat-exports] [-
 src/main/chat-exports/accumulate_memories.py,57,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
-src/main/chat-exports/accumulate_summaries.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \
-src/main/chat-exports/accumulate_summaries.py,30,comment,src/main/chat-exports/accumulate_summaries.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \
+src/main/chat-exports/accumulate_summaries.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py [sync] \
+src/main/chat-exports/accumulate_summaries.py,30,comment,src/main/chat-exports/accumulate_summaries.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py [sync] \
 src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export input/claude/chat/bulk-export/<
 src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export input/claude/chat/bulk-export/<
 src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export input/claude/chat/bulk-export/<batch>  

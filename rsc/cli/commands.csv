@@ -13,5 +13,6 @@
 "prerequisites","PREREQUISITES.sh","L8","","Read-only machine report — bare shows what needs attention, --show-all the lot"
 "run","RUNME.sh","atomise validate supersession accumulate project","","run every pipeline over input/ — processing only, never acquiring"
 "server","src/main/model/serve_markdown.sh","project","","serve the markdown corpus locally (LaTeX + turn deep links)"
+"summaries","src/main/chat-exports/accumulate_summaries.py","accumulate project L1 L4","accumulate_summaries","Deposit every distinct summary reading; render each conversation's index"
 "supersede","src/main/chat-exports/compare_batches.py","supersession L3","compare_batches","Do later bulk exports supersede earlier ones? Computed; never assumed"
 "xref","src/test/xref.py","validate","","Cross-reference integrity of every committed artifact"

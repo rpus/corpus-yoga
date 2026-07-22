@@ -91,7 +91,7 @@ run_tail() {
   # timeline renders to output/markdown/claude/chat/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
   step accumulate_memories "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/accumulate_memories.py"
+    "$SCRIPT_DIR/accumulate_memories.py" sync
   # accumulate_summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
   # refresh in place), so every distinct reading deposits into
@@ -99,7 +99,7 @@ run_tail() {
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
   step accumulate_summaries "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/accumulate_summaries.py"
+    "$SCRIPT_DIR/accumulate_summaries.py" sync
   # compare_batches: a batch is a synchronised snapshot of FOUR components
   # (conversations, memories, projects, users), licensed as FIVE — a conversation's
   # summary is a per-snapshot oracle reading, checked as its own component — each
