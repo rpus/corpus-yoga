@@ -497,8 +497,8 @@ src/restructure/README.md,29,doc,src/PREREQUISITES.sh,Y,PREREQUISITES.sh  → sr
 src/restructure/README.md,46,doc,src/restructure,Y,"- `src/restructure/` whole, rehearsal records included;"
 src/restructure/README.md,59,doc,rsc/cache_io.csv,Y,| `gen_refs.py` | review aid for a done-by-hand sweep | THE sweep is bigger this time (`input/ output/ cache/ logs/` lit
 src/restructure/README.md,59,doc,rsc/cli/help.csv,Y,| `gen_refs.py` | review aid for a done-by-hand sweep | THE sweep is bigger this time (`input/ output/ cache/ logs/` lit
-src/restructure/README.md,85,doc,src/RUNME.sh,Y,( cd swap/dryrun && ./src/RUNME.sh )               # note the new home
-src/restructure/README.md,91,doc,src/restructure/rehearsals,Y,#    src/restructure/rehearsals/<room>-<date>.md containing the room's
+src/restructure/README.md,95,doc,src/RUNME.sh,Y,( cd swap/dryrun && ./src/RUNME.sh )               # note the new home
+src/restructure/README.md,101,doc,src/restructure/rehearsals,Y,#    src/restructure/rehearsals/<room>-<date>.md containing the room's
 src/restructure/common.py,46,path_str,src/restructure,Y,"SWEEP_SKIP_PREFIXES = ('src/restructure/', 'rsc/schema/')"
 src/restructure/common.py,46,path_str,rsc/schema,Y,"SWEEP_SKIP_PREFIXES = ('src/restructure/', 'rsc/schema/')"
 src/restructure/common.py,47,path_str,src/test/xref.csv,Y,"SWEEP_SKIP_FILES = {'src/test/xref.csv', 'src/test/pre_commit.log', '.gitignore'}"

@@ -68,6 +68,16 @@ are the honest redirect granularity, so five vars become three:
 
 ## The recipe (per room)
 
+    # 0. PREREQUISITE, from a checkout of CURRENT MAIN: bring the real corpus
+    #    current with the code that will rebuild it in the worktree —
+    ./yoga run
+    #    Skipping this makes the comparer report stale-real differs that are
+    #    main's lag, not the migration's doing (observed home-room 2026-07-22:
+    #    index.md still carried a twice-retired verb name in its header).
+    #    And do NOT run yoga run from THIS branch's checkout before applying:
+    #    its code reads data/ and tmp/, which do not exist until apply — the
+    #    run fails on arrival (also observed, same day).
+
     # from the room's MAIN checkout (old layout), with this branch in a worktree:
     git worktree add swap/dryrun root-taxonomy
     mkdir -p swap/reports
