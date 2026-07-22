@@ -39,29 +39,29 @@ and each batch's report names the evidence per component — the WITNESSES
 (every later batch whose verified ⊑ covers it: a licence conditional on that
 witness's own retention; diachronic appending is checked per pair, never
 assumed) and the unconditional DEPOSITS that outlive every batch: for
-memories, the byte-identical copy in output/memories; for summaries, every
-reading held verbatim in output/markdown/claude/chat/summaries
+memories, the byte-identical copy in data/output/memories; for summaries, every
+reading held verbatim in data/output/markdown/claude/chat/summaries
 (accumulate_summaries.py). A component with no witness and no deposit is
 unique data — a loud WARN, and the batch is not deletable until it is
 deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
 licences it carried.
 
-A cache/ batch dir whose input/ datum is gone is an ORPHANED DERIVATION — the
+A tmp/cache/ batch dir whose data/input/ datum is gone is an ORPHANED DERIVATION — the
 shadow of a batch already disposed of, not a batch. Its archive copies are
 complete, so left in it would keep passing for a live batch (and witnessing
 others) indefinitely; it is excluded from the comparison and WARNed with its
-rm remedy — datum-scoped cache/ dirs die with their input/ datum (README), but
+rm remedy — datum-scoped tmp/cache/ dirs die with their data/input/ datum (README), but
 deletion stays deliberate, so the machinery names the orphan rather than
 resurrecting it.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
-    [--chat-exports-cache cache/chat-exports] [--bulk-exports input/claude/chat/bulk-export]
+    [--chat-exports-cache tmp/cache/chat-exports] [--bulk-exports data/input/claude/chat/bulk-export]
 
 Requires the batches' atomised json/ (written by the chat-exports pipeline);
-memories/projects/users are read from the batch's cache/ archive copies (written
-by archive_components.py; input/ raw fallback for cache dirs predating that step).
+memories/projects/users are read from the batch's tmp/cache/ archive copies (written
+by archive_components.py; data/input/ raw fallback for cache dirs predating that step).
 Exit 0 iff every earlier batch is covered (witnessed or deposited).
 """
 import argparse
@@ -143,8 +143,8 @@ def units_summaries(gen_dir, ext_dir):
 
 
 def _component_path(gen_dir, ext_dir, *rel):
-    """Prefer the batch's cache/ archive copy (written by archive_components.py);
-    fall back to the raw input/ batch dir for cache dirs predating the archive step."""
+    """Prefer the batch's tmp/cache/ archive copy (written by archive_components.py);
+    fall back to the raw data/input/ batch dir for cache dirs predating the archive step."""
     archived = gen_dir.joinpath(*rel)
     return archived if archived.exists() else ext_dir / rel[-1]
 
@@ -320,11 +320,11 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-cache', metavar='DIR', default='cache/chat-exports')
-    ap.add_argument('--bulk-exports', metavar='DIR', default='input/claude/chat/bulk-export')
+    ap.add_argument('--chat-exports-cache', metavar='DIR', default='tmp/cache/chat-exports')
+    ap.add_argument('--bulk-exports', metavar='DIR', default='data/input/claude/chat/bulk-export')
     ap.add_argument('--browser-api', metavar='DIR', default=None)
-    ap.add_argument('--memories-output', metavar='DIR', default='output/memories')
-    ap.add_argument('--summaries-output', metavar='DIR', default='output/markdown/claude/chat/summaries')
+    ap.add_argument('--memories-output', metavar='DIR', default='data/output/memories')
+    ap.add_argument('--summaries-output', metavar='DIR', default='data/output/markdown/claude/chat/summaries')
     enrich(ap, 'supersede')
     args = ap.parse_args()
 
@@ -336,7 +336,7 @@ def main():
     for n in unparseable:
         print(f'warning: cannot parse a time from batch name {n} — ordering may be wrong', file=sys.stderr)
 
-    # Orphaned derivations (docstring): a cache/ dir with no input/ datum beside it
+    # Orphaned derivations (docstring): a tmp/cache/ dir with no data/input/ datum beside it
     # must not feed the comparison — its archive copies are complete, so it
     # would keep passing for a live batch (and witnessing others) after the
     # data it derives from was disposed of.
@@ -366,7 +366,7 @@ def main():
     # somewhere durable that is KEPT — for each component, name the WITNESSES
     # (later batches whose verified ⊑ covers it: a licence conditional on the
     # witness's own retention) and the unconditional DEPOSITS (memories: the
-    # byte-identical output/memories copy; summaries: every reading held verbatim
+    # byte-identical data/output/memories copy; summaries: every reading held verbatim
     # in the summaries output — deposits outlive every batch). Witnessed-by-later
     # relies on nothing but per-pair verified subset — diachronic appending is
     # checked, never assumed. Verdicts describe what exists NOW: re-run after
@@ -419,7 +419,7 @@ def main():
             'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
             'not deletable until deposited or superseded'))
         # Each licensed disposal is its own INFO atom — the reason plus one
-        # runnable command over BOTH dirs (the export and its cache/ derivation
+        # runnable command over BOTH dirs (the export and its tmp/cache/ derivation
         # together, so no orphaned-derivation WARN ever follows a licensed deletion).
         for b in deletable:
             print(f'  INFO: {b.name} deletable — every atom witnessed or deposited; to dispose:')

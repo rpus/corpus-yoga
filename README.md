@@ -8,7 +8,7 @@ corpus.
 
 ```bash
 ./yoga prerequisites          # read-only: what this machine can run
-./yoga browser capture        # acquire: Safari sweep into input/ (claude API; add --DOM for gemini)
+./yoga browser capture        # acquire: Safari sweep into data/input/ (claude API; add --DOM for gemini)
 ./yoga run                    # process: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
 ./yoga check                  # the three-tier gate suite
@@ -22,15 +22,15 @@ prints man entries; `./yoga <command> <verb> --help` asks each target itself.
 | root | lifecycle | medium | loss cost |
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-| `input/` | input | iCloud | none — the medium carries it (sessions: once stashed via `yoga agent capture --all`) |
-| `cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `logs/` | run history | local | disposable |
-| `output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
+| `data/input/` | input | iCloud | none — the medium carries it (sessions: once stashed via `yoga agent capture --all`) |
+| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
+| `tmp/logs/` | run history | local | disposable |
+| `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-Inputs are typed `input/<provider>/<channel>/<capture>/` — providers `claude`,
+Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
 `gemini`; channels `chat`, `code`; captures `bulk-export`, `browser-API`,
 `browser-DOM`, `machine-transport`. The readable corpus is
-`output/markdown/<provider>/<channel>/`, and the pipelines never read
+`data/output/markdown/<provider>/<channel>/`, and the pipelines never read
 `~/.claude/projects` — sessions arrive via `yoga agent capture` through the
 prefix-gated store.
 
@@ -48,7 +48,7 @@ prefix-gated store.
 ## Getting data
 
 Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
-the emailed `data-*` into `input/claude/chat/bulk-export/`. Browser captures:
+the emailed `data-*` into `data/input/claude/chat/bulk-export/`. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
 (or the macOS Shortcut: `open -a Terminal src/main/browser-captures/export.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
@@ -58,9 +58,9 @@ reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed,
 
 ## Prerequisites
 
-`jq` and Python 3; `./RUNME.sh` creates the shared venv (`~/venvs/general`,
+`jq` and Python 3; `./src/RUNME.sh` creates the shared venv (`~/venvs/general`,
 override via `VENV=`). Browser capture needs macOS + Safari. The repo ships no
-data — `input/ cache/ output/ logs/` are git-ignored. Install the hook (required;
+data — `data/input/ tmp/cache/ data/output/ tmp/logs/` are git-ignored. Install the hook (required;
 `yoga prerequisites` reports whether it is):
 `ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
 signature hook (convention, optional; grammar in its own header):

@@ -31,7 +31,7 @@ reads the same wording whether reached via `yoga` or run directly — one source
 argparse still the authority on structure.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
-data lives outside git (durable in `output/`, rebuildable in `cache/`): `yoga dashboard` (model
+data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga dashboard` (model
 captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
 committed in `rsc/cli/readings.md`.
 
@@ -43,7 +43,7 @@ committed in `rsc/cli/readings.md`.
 | `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `src/run_python_script.sh`, a `.md` is printed |
 | `usage` | human-readable argument sketch shown in help; its `--flags` are also machine-read, both for completion and for the honesty check below |
 | `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the command is mere presentation of the doctrine itself |
-| `step` | the `RUNME.sh --plan` step this command re-runs standalone (empty where none); each value is checked to name a real plan step |
+| `step` | the `src/RUNME.sh --plan` step this command re-runs standalone (empty where none); each value is checked to name a real plan step |
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |
 
 ## The grammar
@@ -54,7 +54,7 @@ from examples — one did, and misread design as sediment):
 - **Verbs.** `capture` is the acquisition verb everywhere it appears — `browser
   capture`, `dashboard capture`, `agent capture` all *bring data in* (from Safari,
   the paid model, the harness's session store respectively). `run` only processes
-  what `input/` already holds. `present` renders, free. `clean`/`sync` are the
+  what `data/input/` already holds. `present` renders, free. `clean`/`sync` are the
   cache lifecycle. `receive`/`demerge` move agents between machines and undo the move.
 - **Bare invocations are free and local** — never paid, never a browser. Bare is a
   *status report* where the summary says so (`dashboard`, `indexing`, `server`);
@@ -77,7 +77,7 @@ every row to: parseable table, unique + alphabetical commands, existing targets,
 calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the
 target, the target's own flags all advertised back (both directions), advertised
 verbs in the target's live `--help`, help ≤ 20 lines, claimed run-steps named in
-`RUNME.sh --plan`, and the emitted completion parsing under `zsh -n`.
+`src/RUNME.sh --plan`, and the emitted completion parsing under `zsh -n`.
 
 The table is curated, not discovered: a script's absence here is a decision, not
 an omission.

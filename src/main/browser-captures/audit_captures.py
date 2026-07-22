@@ -28,7 +28,7 @@ Filesystem audit (always) — "are the captures I have any good?"
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/audit_captures.py \
-    [--input input] [--api output/markdown/claude/chat/conversations] [--live]
+    [--input input] [--api data/output/markdown/claude/chat/conversations] [--live]
 
 Exit status is non-zero iff anything actionable is found.
 """
@@ -88,7 +88,7 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
         print(f'claude: {unscraped} browser-API capture(s) have no browser-DOM scrape — '
               'optional; the api json is the record')
     if unprojected:
-        print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under output/markdown — '
+        print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under data/output/markdown — '
               'the browser-captures pipeline step project_markdown produces it')
     # show the working even on success: silence was load-bearing here once —
     # a clean audit and a skipped one printed identically (nothing)
@@ -238,7 +238,7 @@ def main():
     ap.add_argument('--input', default='input',
                     help='input root, typed <provider>/<channel>/<capture> — the audit '
                          'derives claude/chat/browser-{API,DOM} and gemini/chat/browser-DOM')
-    ap.add_argument('--api', default='output/markdown/claude/chat/conversations',
+    ap.add_argument('--api', default='data/output/markdown/claude/chat/conversations',
                     help='dir of api-sourced markdown (project_markdown output)')
     ap.add_argument('--live', action='store_true',
                     help='also drive Safari (work tab): claude listing updated_at check; '

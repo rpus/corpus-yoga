@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PREREQUISITES.sh — Report what this machine has and what ./yoga run would do.
+# src/PREREQUISITES.sh — Report what this machine has and what ./yoga run would do.
 #
 # Strictly read-only: no directories created, no symlinks, no venv, no installs
 # (unlike ./yoga run, which does all of those). Safe as the first command on a
@@ -8,13 +8,13 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   ./PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
-#   ./PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items
+#   ./src/PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
+#   ./src/PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items
 #
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 
 set -euo pipefail
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 
 SHOW_ALL=0
@@ -128,7 +128,7 @@ req_probe() {
 # and the pinned version comes from the line's /npm/<pkg>@<ver>/ URL.
 asset_extract() { printf '%s' "$1" | sed -E 's/^[[:space:]]+//; s/[[:space:]].*//'; }
 asset_probe() {  # $1 = dest, $2 = full line
-  [[ -f "$SCRIPT_DIR/cache/serve_markdown/$1" ]] || return 1
+  [[ -f "$REPO_ROOT/tmp/cache/serve_markdown/$1" ]] || return 1
   printf '%s' "$2" | grep -oE '/npm/[^/@]+@[^/]+' | sed 's#/npm/##' || true
 }
 
@@ -160,9 +160,9 @@ check_optional_modes() {
 check_machine() {
   # The binding names this machine (rsc/machine/README.md): rooted, gitignored,
   # and so spelt whole like anything else.
-  local binding="$SCRIPT_DIR/machine-name.txt"
-  local rel="${binding#"$SCRIPT_DIR/"}"
-  local registry="$SCRIPT_DIR/rsc/machine/machines.csv"
+  local binding="$REPO_ROOT/machine-name.txt"
+  local rel="${binding#"$REPO_ROOT/"}"
+  local registry="$REPO_ROOT/rsc/machine/machines.csv"
   sec "machine (its own name for itself — never shared, never transported)"
   # The pre-move location, built in pieces — for the very reason the rooted
   # binding no longer needs to be. This path must exist on NO clean clone, so a
@@ -175,9 +175,9 @@ check_machine() {
   # dangles on a migrated one — machine-dependent by the same rule. (The first
   # draft of this check split one component too low and xref said so.) A fragment
   # beginning '/' is never read as a repo path, so this names nothing that can go.
-  local legacy="$SCRIPT_DIR/rsc"; legacy+="/machines/self.txt"
+  local legacy="$REPO_ROOT/rsc"; legacy+="/machines/self.txt"
   if [[ -f "$legacy" ]]; then
-    local lrel="${legacy#"$SCRIPT_DIR/"}"
+    local lrel="${legacy#"$REPO_ROOT/"}"
     info "legacy binding at $lrel — the binding moved to $rel (2026-07-17); migrate it:"
     echo "    → run: mv $lrel $rel && rmdir $(dirname "$lrel")"
   fi
@@ -206,7 +206,7 @@ check_cli() {
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
   local comp_status
-  if comp_status="$("$SCRIPT_DIR/yoga" completions 2>/dev/null)"; then
+  if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with rsc/cli/commands.csv + help.csv" ;;
       *STALE*)   info "zsh completions stale vs rsc/cli/commands.csv + help.csv → refresh: ./yoga completions install-latest (then restart terminal)" ;;
@@ -235,12 +235,12 @@ check_git_hook() {
   # too, and say so in its own words. Two probes, one fact — and its copy was
   # downgraded to advice on the very branches where nothing was vetting at all.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
-  local script="$SCRIPT_DIR/src/test/pre_commit.sh" hook link dir
-  if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
+  local script="$REPO_ROOT/src/test/pre_commit.sh" hook link dir
+  if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
-  [[ "$hook" = /* ]] || hook="$SCRIPT_DIR/$hook"
+  [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
   if [[ -L "$hook" ]]; then
     link="$(readlink "$hook")"
     [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
@@ -262,12 +262,12 @@ check_signature_hook() {
   # co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry
   # no signature — never a failure, so this reports informationally even when installed.
   sec "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
-  local script="$SCRIPT_DIR/src/test/prepare_commit_msg.sh" hook link dir
-  if ! command -v git &>/dev/null || ! hook="$(git -C "$SCRIPT_DIR" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
+  local script="$REPO_ROOT/src/test/prepare_commit_msg.sh" hook link dir
+  if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
-  [[ "$hook" = /* ]] || hook="$SCRIPT_DIR/$hook"
+  [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
   if [[ -L "$hook" ]]; then
     link="$(readlink "$hook")"
     [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
@@ -292,7 +292,7 @@ check_forge() {
   # reported, never vetoed (the deterministic gate must stay offline-reproducible,
   # which is why this check lives here and not in yoga check).
   sec "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
-  local declared="$SCRIPT_DIR/rsc/forge.csv"
+  local declared="$REPO_ROOT/rsc/forge.csv"
   if [[ ! -f "$declared" ]]; then
     info "no rsc/forge.csv — nothing declared to reconcile"
     return
@@ -304,7 +304,7 @@ check_forge() {
   local live
   # quoted: {owner}/{repo} are gh's own placeholders, resolved from this checkout's
   # remote — never brace-expansion, and never a hard-coded (fork-specific) slug
-  if ! live="$(cd "$SCRIPT_DIR" && gh api "repos/{owner}/{repo}" 2>/dev/null)"; then
+  if ! live="$(cd "$REPO_ROOT" && gh api "repos/{owner}/{repo}" 2>/dev/null)"; then
     info "forge unreachable — settings unverified (offline, no GitHub remote, or: gh auth login)"
     return
   fi
@@ -344,34 +344,34 @@ check_pipeline_inputs() {
   sec "pipeline inputs (this repo ships no data; you supply your own)"
   local n
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/chat/browser-API"/*/)"
+  n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/browser-API"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n claude capture(s) in input/claude/chat/browser-API — will validate + project to markdown"
+    ok "browser-captures: $n claude capture(s) in data/input/claude/chat/browser-API — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in input/claude/chat/browser-API — will skip (populate via: yoga browser capture)"
+    info "browser-captures: no claude captures in data/input/claude/chat/browser-API — will skip (populate via: yoga browser capture)"
   fi
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/input/gemini/chat/browser-DOM"/*/)"
+  n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./yoga server start); not validated"
+    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./yoga server start); not validated"
   else
-    info "browser-captures: no gemini scrapes in input/gemini/chat/browser-DOM — captured only via: yoga browser capture --DOM (gemini is DOM-only); not processed further"
+    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: yoga browser capture --DOM (gemini is DOM-only); not processed further"
   fi
 
-  n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/chat/bulk-export"/data-*/)"
+  n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/bulk-export"/data-*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "chat-exports: $n bulk export(s) in input/claude/chat/bulk-export — will validate, extract, atomise, render"
+    ok "chat-exports: $n bulk export(s) in data/input/claude/chat/bulk-export — will validate, extract, atomise, render"
   else
-    info "chat-exports: no data-* bulk export in input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
+    info "chat-exports: no data-* bulk export in data/input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  if [[ -d "$SCRIPT_DIR/input/claude/code/machine-transport" ]]; then
-    n="$(count_glob_dirs "$SCRIPT_DIR/input/claude/code/machine-transport"/*/)"
+  if [[ -d "$REPO_ROOT/data/input/claude/code/machine-transport" ]]; then
+    n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/code/machine-transport"/*/)"
     local sessions
-    sessions="$(find -L "$SCRIPT_DIR/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-agents: input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into cache/"
+    sessions="$(find -L "$REPO_ROOT/data/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
+    ok "code-agents: data/input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
   else
-    info "code-agents: no input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
+    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
     info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./yoga agent capture --all"
@@ -382,7 +382,7 @@ notes() {
   # Commentary, not status — only in the full report.
   (( SHOW_ALL )) || return 0
   sec "notes"
-  info "./yoga run writes only to input/, cache/, output/, logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "./yoga run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
   info "./yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
@@ -395,15 +395,15 @@ main() {
   check_venv
   check_dependencies \
     "python requirements (yoga run — manifest: src/requirements.txt)" \
-    "$SCRIPT_DIR/src/requirements.txt" \
+    "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
     "pip install -r src/requirements.txt, or automatically on the next ./yoga run"
   check_dependencies \
     "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
-    "$SCRIPT_DIR/src/main/model/serve_assets.txt" \
+    "$REPO_ROOT/src/main/model/serve_assets.txt" \
     asset_extract asset_probe \
-    "render assets present in cache/serve_markdown" \
+    "render assets present in tmp/cache/serve_markdown" \
     "./yoga server ensure-assets, or automatically on the next ./yoga server start"
   check_optional_modes
   check_cli

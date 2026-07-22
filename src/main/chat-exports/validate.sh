@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/chat-exports"
-CACHE_DIR="$REPO_DIR/cache/chat-exports"
+CACHE_DIR="$REPO_DIR/tmp/cache/chat-exports"
 
 rel_path() {
   "$REPO_DIR/src/run_python_script.sh" -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$REPO_DIR"

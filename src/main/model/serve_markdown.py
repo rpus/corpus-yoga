@@ -16,16 +16,16 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 REPO_ROOT  = Path(__file__).resolve().parents[3]
-STATIC_DIR = REPO_ROOT / 'cache' / 'serve_markdown'
+STATIC_DIR = REPO_ROOT / 'tmp' / 'cache' / 'serve_markdown'
 # The viewer's render-lib dependency, declared like a requirements.txt (pinned
 # versions, one line per artifact) rather than buried in a dict here — so it is
-# visible and PREREQUISITES.sh can report against the same source.
+# visible and src/PREREQUISITES.sh can report against the same source.
 MANIFEST   = Path(__file__).resolve().parent / 'serve_assets.txt'
 
 
 def assets() -> list[tuple[str, str]]:
     """Parse serve_assets.txt into [(dest-relative-to-STATIC_DIR, url)] — the one
-    source shared by ensure_assets (fetch) and PREREQUISITES.sh (report)."""
+    source shared by ensure_assets (fetch) and src/PREREQUISITES.sh (report)."""
     out = []
     for line in MANIFEST.read_text().splitlines():
         line = line.strip()
@@ -308,7 +308,7 @@ if __name__ == '__main__':
     p.add_argument('--ensure-assets', action='store_true')
     args = p.parse_args()
 
-    # The sync producer path: repopulate cache/serve_markdown and stop. Best-effort
+    # The sync producer path: repopulate tmp/cache/serve_markdown and stop. Best-effort
     # so an offline `yoga cache sync` still exits clean — serve itself hard-requires the
     # assets at startup (ensure_assets there is not caught), so a broken render can't
     # slip through; here we only warn and leave the subtree for the next online run.
@@ -324,7 +324,7 @@ if __name__ == '__main__':
     if not args.markdown:
         p.error('--markdown is required to serve (or pass --ensure-assets to fetch them and exit)')
 
-    # Absolutize WITHOUT resolving symlinks: output/ is a symlink into the shared
+    # Absolutize WITHOUT resolving symlinks: data/output/ is a symlink into the shared
     # medium, and resolving through it strands every served file outside
     # REPO_ROOT — relative_to() then fails, and the /file/ route needs
     # repo-relative spellings that traverse the symlink, not physical paths

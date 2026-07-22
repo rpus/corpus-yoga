@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 # The BATCH presenter: one export's presentation under its own directory
-# (cache/chat-exports/<batch>/presentation — an export artifact, honestly filed).
+# (tmp/cache/chat-exports/<batch>/presentation — an export artifact, honestly filed).
 # The corpus dashboard is its sibling present_corpus.py (yoga dashboard sync).
 # Run from the repo root, e.g.:
-#   src/main/chat-exports/present.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
-#   src/main/chat-exports/present.sh --chat-exports input/claude/chat/bulk-export
+#   src/main/chat-exports/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
+#   src/main/chat-exports/present.sh --chat-exports data/input/claude/chat/bulk-export
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-CACHE_DIR="$REPO_DIR/cache/chat-exports"
+CACHE_DIR="$REPO_DIR/tmp/cache/chat-exports"
 TEMPLATE="$REPO_DIR/rsc/site/index.html"
 WORD_FREQ_SCRIPT="$SCRIPT_DIR/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 TIMELINE_SCRIPT="$SCRIPT_DIR/timeline.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
-DOWNLOADED_DIR="$REPO_DIR/output/artifacts/downloaded"
+DOWNLOADED_DIR="$REPO_DIR/data/output/artifacts/downloaded"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ DOWNLOADED_DIR="$REPO_DIR/output/artifacts/downloaded"
 # columnarises; the ordering/numbering lives in one place, shared with the atomised json/ names.
 timeline() { "$REPO_DIR/src/run_python_script.sh" "$TIMELINE_SCRIPT" "$1" --table "$2"; }
 
-# Tooltip: files sourced from output/artifacts/downloaded/ — pre-curated and
+# Tooltip: files sourced from data/output/artifacts/downloaded/ — pre-curated and
 # path-consistent. local_resource paths (what Claude reported) are unreliable.
 # The library is uuid8-keyed (identity); data-chats.json ($1) supplies the
 # uuid → current-ordinal join for this batch's presentation.
@@ -122,7 +122,7 @@ present_export() {
     printf '%s\n' "$json" > "$out_dir/data-spans.json"
     echo "  ✓ data-spans"
 
-    # data-files (tooltip): sourced from output/artifacts/downloaded/
+    # data-files (tooltip): sourced from data/output/artifacts/downloaded/
     json="$(files_from_downloaded "$out_dir/data-chats.json" | format_table)"
     inject "$out" "data-files" "$json"
     printf '%s\n' "$json" > "$out_dir/data-files.json"
@@ -145,7 +145,7 @@ present_export() {
       echo "  ⚠ data-literal-words: $(basename "$WORD_FREQ_SCRIPT") not found — skipped"
     fi
 
-    # claude-generated tables — BOTH are the durable, single-source output/dashboard/
+    # claude-generated tables — BOTH are the durable, single-source data/output/dashboard/
     # captures (refreshed by `yoga dashboard capture`), not per-batch. data-categories is
     # NOT here at all — its palette is authored, inlined static in the template (design,
     # not inference).
@@ -155,12 +155,12 @@ present_export() {
         data-chat-categories)
           cols='["chat", "category"]'
           desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `yoga dashboard capture`.'
-          inferred_file="$REPO_DIR/output/dashboard/chat-categories.json"
+          inferred_file="$REPO_DIR/data/output/dashboard/chat-categories.json"
           ;;
         data-semantic-concepts)
           cols='["word", "count"]'
-          desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (output/dashboard/semantic-concepts.json); refresh with `yoga dashboard capture`.'
-          inferred_file="$REPO_DIR/output/dashboard/semantic-concepts.json"
+          desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/dashboard/semantic-concepts.json); refresh with `yoga dashboard capture`.'
+          inferred_file="$REPO_DIR/data/output/dashboard/semantic-concepts.json"
           ;;
       esac
       if [[ -f "$inferred_file" ]]; then

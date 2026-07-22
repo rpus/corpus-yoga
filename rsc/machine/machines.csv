@@ -1,3 +1,3 @@
 machine,note
-home-room,a declared machine — its name keys input/claude/code/machine-transport/home-room/
-reading-room,a declared machine — its name keys input/claude/code/machine-transport/reading-room/
+home-room,a declared machine — its name keys data/input/claude/code/machine-transport/home-room/
+reading-room,a declared machine — its name keys data/input/claude/code/machine-transport/reading-room/

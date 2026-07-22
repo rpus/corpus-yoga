@@ -29,7 +29,7 @@ Usage:
 
 This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
-the table, print the calculus, and generate completion before ./RUNME.sh has
+the table, print the calculus, and generate completion before ./src/RUNME.sh has
 run. Adding a third-party import here would silently break that.
 """
 import argparse
@@ -46,7 +46,7 @@ from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bo
 REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
 COLUMNS = ('command', 'target', 'calculus', 'step', 'summary')
-COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
+COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # The comments that DELIMIT the block `install` writes into ~/.zshrc, and by which
 # `uninstall` finds it again. A start AND an end, so the block has an extent: uninstall
 # removes everything between them, and a line added inside it later leaves with it
@@ -379,7 +379,7 @@ def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
 
 
 def install_completion() -> int:
-    """Wire cache/completions into ~/.zshrc — idempotently, and ABOVE compinit.
+    """Wire tmp/cache/completions into ~/.zshrc — idempotently, and ABOVE compinit.
 
     Position is the whole difficulty, which is why this is a command and not
     printed advice: zsh scans fpath when compinit RUNS, so a line added after it
@@ -472,7 +472,7 @@ def completion_status() -> int:
 
 
 def _sync_completion() -> None:
-    """The `sync` operation: (re-)write cache/completions/_yoga from the table.
+    """The `sync` operation: (re-)write tmp/cache/completions/_yoga from the table.
     `install` calls this before wiring, so it never wires a stale or absent file —
     install IS sync, then wire."""
     COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)

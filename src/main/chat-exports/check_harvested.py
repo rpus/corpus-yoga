@@ -6,7 +6,7 @@ Cross-references data-files.json against extracted_files/ and
 extracted_heredocs/ to report files not yet harvested.
 
 Batch extraction dirs are joined by the canonical <ordinal>-<slug> name; the
-durable library output/artifacts/downloaded/ is joined by uuid (via
+durable library data/output/artifacts/downloaded/ is joined by uuid (via
 src/main/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive the (dressing-refreshed)
 renumbering that batch ordinals don't.
 
@@ -26,7 +26,7 @@ from markdown_projection import slug
 from library import find as find_library_dir
 
 SCRIPT_DIR = Path(__file__).parent
-CACHE_DIR = SCRIPT_DIR.parent.parent.parent / 'cache' / 'chat-exports'
+CACHE_DIR = SCRIPT_DIR.parent.parent.parent / 'tmp' / 'cache' / 'chat-exports'
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',

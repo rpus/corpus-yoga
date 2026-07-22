@@ -33,8 +33,8 @@ classification determines every operation's semantics.
 | identity scheme | used when | instances |
 | --- | --- | --- |
 | **uuid** | the unit persists while presentation shifts around it | conversations, messages, sessions, captures, projects, library dirs (`<ordinal>-<slug>-<uuid8>`, uuid8 suffix is the key) |
-| **snapshot time** | units are versions of ONE mutable thing — ordination *is* identity | memory deposits (`output/memories/<ISO>.json`), batch names (export epoch) |
-| **path / slug / ordinal** | presentation only — NEVER identity | filenames in `cache/`, ordinal prefixes, slug dressing |
+| **snapshot time** | units are versions of ONE mutable thing — ordination *is* identity | memory deposits (`data/output/memories/<ISO>.json`), batch names (export epoch) |
+| **path / slug / ordinal** | presentation only — NEVER identity | filenames in `tmp/cache/`, ordinal prefixes, slug dressing |
 
 The governing slogan (earned twice by duplicated library dirs): *the LLM speaks
 ordinals, storage speaks uuid, presentation re-derives ordinals.* The one deliberate
@@ -47,20 +47,20 @@ things — they are one thing at many times.
 | --- | --- | --- | --- | --- |
 | **append-only** | atom-subset: `A ⊑ B ⟺ atoms(A) ⊆ atoms(B)` | union, freshest-wins per unit | superseded ⇒ deletable | conversations (atoms = message uuids), sessions (atoms = records), captures |
 | **mutable document** | content equality ONLY — every distinct state is unique history | accumulate distinct states; same-key-different-content is a loud CONFLICT | deletable once its states are deposited (the licence) | `memories.json`, an agent's `memory/` folder |
-| **curated set** | n/a (grows by curation) | per-element union: move unique, drop byte-identical, CONFLICT on divergent | never (precious) | `output/artifacts/downloaded/` |
-| **derived** | n/a — regenerate | none needed: re-derive | always (rebuildable) | all of `cache/`, `output/markdown/` |
+| **curated set** | n/a (grows by curation) | per-element union: move unique, drop byte-identical, CONFLICT on divergent | never (precious) | `data/output/artifacts/downloaded/` |
+| **derived** | n/a — regenerate | none needed: re-derive | always (rebuildable) | all of `tmp/cache/`, `data/output/markdown/` |
 
-The lifecycle roots follow from the classes: `input/` holds supplied inputs, `cache/`
+The lifecycle roots follow from the classes: `data/input/` holds supplied inputs, `tmp/cache/`
 caches rebuildable derivations (coupled to no one pipeline — some subdirs are
-datum-scoped and die with their datum, others outlive any datum), `output/` holds what
-outlives any batch or run, `logs/` holds run-keyed diagnostics of the machinery. The
+datum-scoped and die with their datum, others outlive any datum), `data/output/` holds what
+outlives any batch or run, `tmp/logs/` holds run-keyed diagnostics of the machinery. The
 non-reproducible **readings** of the corpus by the intelligences that tend it live
-in `output/` alongside the rest of the durable corpus — curation is inference by a
-user (`output/indexing/accepted.txt`, `output/indexing/rejected.txt`) exactly as concept
-extraction is inference by a model (`output/dashboard/`); the repo privileges no
+in `data/output/` alongside the rest of the durable corpus — curation is inference by a
+user (`data/output/indexing/accepted.txt`, `data/output/indexing/rejected.txt`) exactly as concept
+extraction is inference by a model (`data/output/dashboard/`); the repo privileges no
 intelligence over another. They are corpus-derived and stay out of git with the
-rest of `output/` (shared across machines by the same means — e.g. iCloud — as `input/`);
-only their reproducible by-product, the pending queue, is a rebuildable `cache/`
+rest of `data/output/` (shared across machines by the same means — e.g. iCloud — as `data/input/`);
+only their reproducible by-product, the pending queue, is a rebuildable `tmp/cache/`
 derivation. (User insight, 2026-07-09.)
 
 ---
@@ -108,7 +108,7 @@ per-corpus code.
   folder, a merge that treats leaf NAMES as dressing (novelty copies, an appendix
   supersedes in place, true divergence keeps both with the incoming fact
   re-dressed by its machine and links following, the index unioning by
-  novelty-append). Transported agents live in the shared STORE (`input/claude/code/machine-transport`, one
+  novelty-append). Transported agents live in the shared STORE (`data/input/claude/code/machine-transport`, one
   hand-made symlink per machine), keyed machine-then-project under the ORIGIN machine's name — the
   rooted `machine-name.txt` binding — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
@@ -133,17 +133,17 @@ per-corpus code.
 
 - **capture** — acquire a non-reproducible reading from an oracle: a model
   re-reading the corpus into a weighted concept list and a chat→category
-  assignment (`yoga dashboard capture` → `output/dashboard/semantic-concepts.json`,
+  assignment (`yoga dashboard capture` → `data/output/dashboard/semantic-concepts.json`,
   `chat-categories.json`), a DOM scrape of a conversation, a memory snapshot
   from a bulk export. The result cannot be regenerated byte-for-byte — the
   oracle is stochastic or the source ephemeral — so a capture is PRECIOUS
-  (deposited durably, never disposable) and homed by vettability: `output/dashboard/`
-  and `output/indexing/` for the corpus readings (durable, corpus-derived, shared
-  across machines with the rest of `output/`); the `input/` browser-capture roots when large and
-  private; `output/memories/` when a versioned deposit. And *curation is capture of a
-  user decision* — the same act with a human oracle (`output/indexing/accepted.txt`,
-  `output/indexing/rejected.txt`), which is why they sit beside the model's readings in
-  `output/`; the repo privileges no intelligence over another (user insight,
+  (deposited durably, never disposable) and homed by vettability: `data/output/dashboard/`
+  and `data/output/indexing/` for the corpus readings (durable, corpus-derived, shared
+  across machines with the rest of `data/output/`); the `data/input/` browser-capture roots when large and
+  private; `data/output/memories/` when a versioned deposit. And *curation is capture of a
+  user decision* — the same act with a human oracle (`data/output/indexing/accepted.txt`,
+  `data/output/indexing/rejected.txt`), which is why they sit beside the model's readings in
+  `data/output/`; the repo privileges no intelligence over another (user insight,
   2026-07-09; sharpened 2026-07-13).
   (`yoga dashboard capture`; `yoga indexing accept`/`reject`; the browser-captures
   scrape; `accumulate_memories`.)
@@ -152,8 +152,8 @@ per-corpus code.
   as a derived report, a human disposes in committed files, a gate reports
   anything pending — never a disposal in prose. Two instances are converging:
   headword curation (the captured concepts → `yoga indexing accept` into
-  `output/indexing/accepted.txt` or `yoga indexing reject` into
-  `output/indexing/rejected.txt` → `check_index_curation`) and the schema
+  `data/output/indexing/accepted.txt` or `yoga indexing reject` into
+  `data/output/indexing/rejected.txt` → `check_index_curation`) and the schema
   WORKFLOW (a frontier failure proposes;
   a minted version narrated in its changelog disposes; the coverage and
   frontier gates report). Their shapes have not yet been unified in code, so
@@ -262,7 +262,7 @@ the same calculus as the corpus — classified on the same axes, operated on by
 the same operations, governed by the same laws. Code is not a second ontology.
 
 - **curated set (of code-facing data)** — `rsc/cli/commands.csv`,
-  `output/indexing/accepted.txt` with `output/indexing/rejected.txt` as its disposal
+  `data/output/indexing/accepted.txt` with `data/output/indexing/rejected.txt` as its disposal
   record: grow by curation, an absence is a decision, never auto-modified.
 - **append-only history** — the format-vintage tables
   (`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):
@@ -273,7 +273,7 @@ the same operations, governed by the same laws. Code is not a second ontology.
   completion is compared byte-wise against a regeneration — observed catching
   its own author's drift, 2026-07-07).
 - **committed derivation** — a class the corpus tables did not need:
-  regenerable like anything in `cache/`, but COMMITTED as the machine-invariant
+  regenerable like anything in `tmp/cache/`, but COMMITTED as the machine-invariant
   record other clones diff against — `src/test/pre_commit.log`,
   `src/test/xref.csv`, and the expected-score files beside them. Operations:
   re-run to regenerate (L1); drift from the committed state is loud (L6);

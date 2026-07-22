@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 render_corpus.py — render every projected session conversation
-(cache/code-agents/<machine>/<project>/<session>/conversation.json, the
+(tmp/cache/code-agents/<machine>/<project>/<session>/conversation.json, the
 sessionConversation data) into the served corpus:
-output/markdown/claude/code/conversations/<ordinal>-<slug>.md. Machines dedupe: the same
+data/output/markdown/claude/code/conversations/<ordinal>-<slug>.md. Machines dedupe: the same
 session held by several machines renders once, from its maximal copy.
 
 The code source joins the corpus exactly as claude and gemini do: files carry
@@ -60,11 +60,11 @@ def render_session(conv):
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='render session conversations into the corpus')
-    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'claude' / 'code' / 'conversations'))
+    ap.add_argument('--out', default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'code' / 'conversations'))
     args = ap.parse_args()
     out = Path(args.out)
 
-    cache = REPO / 'cache' / 'code-agents'
+    cache = REPO / 'tmp' / 'cache' / 'code-agents'
     # One file per SESSION, across machines: several machines may hold the same
     # session (cache is keyed <machine>/<project>/<session>); the maximal copy
     # renders — most turns, then latest activity — since by the prefix
@@ -78,7 +78,7 @@ def main() -> int:
             held[c['session_id']] = c
     convs = sorted(held.values(), key=lambda c: c['created'])
     if not convs:
-        print('code: no projected sessions under cache/code-agents — nothing to render')
+        print('code: no projected sessions under tmp/cache/code-agents — nothing to render')
         return 0
 
     width = len(str(len(convs)))  # ordered()'s width rule — the one enumeration style

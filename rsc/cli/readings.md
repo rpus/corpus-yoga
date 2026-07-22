@@ -1,9 +1,9 @@
 # The readings behind `yoga indexing` and `yoga dashboard`
 
 Two commands produce and consume the intelligences' *readings* of the corpus —
-the model's paid captures (`yoga dashboard capture` → `output/dashboard/`) and
-the user's curation (`yoga indexing` → `output/indexing/`). Corpus-derived, so
-outside git: durable in `output/`, rebuildable in `cache/`. A user's curation is
+the model's paid captures (`yoga dashboard capture` → `data/output/dashboard/`) and
+the user's curation (`yoga indexing` → `data/output/indexing/`). Corpus-derived, so
+outside git: durable in `data/output/`, rebuildable in `tmp/cache/`. A user's curation is
 inference exactly as a model's capture is; the repo privileges neither.
 
 The format authorities are the schemas, not this file:

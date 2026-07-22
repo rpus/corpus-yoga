@@ -7,11 +7,11 @@ tool calls,.
 
 Group output by conversation under:
 
-    cache/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
+    tmp/cache/<export-name>/extracted_files/<ordinal>-<slug>/<path_from_tool>
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
-The durable library output/artifacts/downloaded/ is keyed by identity instead
+The durable library data/output/artifacts/downloaded/ is keyed by identity instead
 (<ordinal>-<slug>-<uuid8>, resolved via src/main/chat-exports/library.py — ordinals renumber
 between batches, uuids don't); files new to the library are copied there and named
 individually in this run's log (the delta is information, not a second copy).
@@ -153,7 +153,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 # ── main ─────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR     = Path(__file__).parent
-CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'cache' / 'chat-exports'
+CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'tmp' / 'cache' / 'chat-exports'
 
 
 def main():

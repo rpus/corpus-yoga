@@ -9,9 +9,9 @@ accumulate by uuid (identity stable, ordinals drift); memory snapshots are
 versions of ONE document, so here snapshot time IS the identity — the dual
 keying (cf. library.py):
 
-    output/memories/<batch snapshot time, ISO-8601 UTC>.json   (verbatim memories.json)
+    data/output/memories/<batch snapshot time, ISO-8601 UTC>.json   (verbatim memories.json)
 
-Per pipeline run, every batch's archived memory state (cache/<batch>/memories/,
+Per pipeline run, every batch's archived memory state (tmp/cache/<batch>/memories/,
 written by archive_components.py) is deposited under its batch timestamp unless
 the nearest earlier deposit already carries identical content — so an unchanged
 memory costs nothing, a rewrite is preserved forever, and a reverted-then-back
@@ -21,16 +21,16 @@ deposited, the batch's memories-divergence no longer blocks its deletion
 (compare_batches stays unprejudiced — the deposit report here is the licence,
 not a carve-out there).
 
-The projection renders every deposit to output/markdown/claude/chat/memories/<stamp>.md (this
+The projection renders every deposit to data/output/markdown/claude/chat/memories/<stamp>.md (this
 stage owns that subtree). The memory content is already markdown inside the
 JSON string, so this is an unwrap, not a transformation — the served corpus
 gains a diffable timeline of what claude.ai believed about the user at each
 export.
 
-Usage (wired into RUNME.sh after the per-batch stages):
+Usage (wired into src/RUNME.sh after the per-batch stages):
     src/run_python_script.sh src/main/chat-exports/accumulate_memories.py \
-      [--chat-exports-cache cache/chat-exports] [--memories-output output/memories] \
-      [--markdown output/markdown/claude/chat/memories]
+      [--chat-exports-cache tmp/cache/chat-exports] [--memories-output data/output/memories] \
+      [--markdown data/output/markdown/claude/chat/memories]
 """
 import argparse
 import csv
@@ -48,9 +48,9 @@ from argparse_help import enrich  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[2]
-CHAT_EXPORTS_CACHE_DIR = REPO / 'cache' / 'chat-exports'
-MEMORIES_OUTPUT_DIR = REPO / 'output' / 'memories'
-MARKDOWN_DIR = REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'
+CHAT_EXPORTS_CACHE_DIR = REPO / 'tmp' / 'cache' / 'chat-exports'
+MEMORIES_OUTPUT_DIR = REPO / 'data' / 'output' / 'memories'
+MARKDOWN_DIR = REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'
 
 
 def stamp_vintages() -> list[dict]:
@@ -131,7 +131,7 @@ def deposit(states, lib_dir):
                 status = '✓ deposited (new)'
         print(f'  {batch}: memory state {stamp} {status}')
     deposits = sorted(lib_dir.glob('*.json'))
-    print(f'output/memories: {len(deposits)} deposit(s)')
+    print(f'data/output/memories: {len(deposits)} deposit(s)')
     return deposits, conflicts
 
 

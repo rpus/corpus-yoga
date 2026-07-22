@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 copy_gemini_markdown.py — copy gemini scrape markdown into the presentation tree
-(output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:
+(data/output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:
 
     ## Human (3)   ->   ## Human (3) <a id="human-3"></a>
 
@@ -9,11 +9,11 @@ Gemini has no API and so no message uuids; the role-count anchor is the best tur
 identity available, and gemini conversations are append-only (the audit tail-probe
 already relies on this), so an anchor never moves — later captures only add turns.
 Anchors ride the heading line, where compare_markdown.turn_seq's `## <Role> [^\\n]*`
-split ignores them. The input/ scrapes themselves are data and are left untouched;
+split ignores them. The data/input/ scrapes themselves are data and are left untouched;
 this derived copy is the navigable/indexable surface.
 
 Files are named '<NN>-<slug>.md', paralleling claude's ordinals: the numbering comes
-from the ordering CAPTURE (input/gemini/chat/browser-DOM/ordering.txt — the web-UI
+from the ordering CAPTURE (data/input/gemini/chat/browser-DOM/ordering.txt — the web-UI
 listing, reversed to ascending; refresh via the listing sweep), zero-padded to the
 corpus width so lexicographic order == conversation order. Ordinals are presentation
 and renumber as the corpus changes; the gemini app id (the <url> line) is the
@@ -22,7 +22,7 @@ id-sorted; a residual filename collision gets the id prefixed (the old rule).
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py \
-    [--browser-dom input/gemini/chat/browser-DOM] [--out cache/markdown/gemini]
+    [--browser-dom data/input/gemini/chat/browser-DOM] [--out tmp/cache/markdown/gemini]
 """
 import argparse
 import re
@@ -49,15 +49,15 @@ def ordering(captures_dir: Path) -> dict:
 def anchored(md):
     md = HEADING.sub(lambda m: f'## {m[1]} ({m[2]}) <a id="{m[1].lower()}-{m[2]}"></a>', md)
     # same lint pragma as render() emits, inserted after the title line (the scrapes in
-    # input/ stay pristine; only this derived copy carries presentation dressing)
+    # data/input/ stay pristine; only this derived copy carries presentation dressing)
     first, _, rest = md.partition('\n')
     return f'{first}\n\n{MD033_PRAGMA}\n\n{rest.lstrip()}'
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-dom', default=str(REPO / 'input' / 'gemini' / 'chat' / 'browser-DOM'))
-    ap.add_argument('--out', default=str(REPO / 'output' / 'markdown' / 'gemini' / 'chat' / 'conversations'))
+    ap.add_argument('--browser-dom', default=str(REPO / 'data' / 'input' / 'gemini' / 'chat' / 'browser-DOM'))
+    ap.add_argument('--out', default=str(REPO / 'data' / 'output' / 'markdown' / 'gemini' / 'chat' / 'conversations'))
     args = ap.parse_args()
 
     src = Path(args.browser_dom)

@@ -12,12 +12,12 @@ conversation), each distinct reading is deposited once, durably, so batches and
 captures may churn while no reading is ever lost — and compare_batches' summaries
 component recognises the deposits as its unconditional licence.
 
-Layout (output/markdown/claude/chat/summaries/):
-  <conversation-stem>/          # stem matches output/markdown/claude/chat/conversations/<stem>.md;
+Layout (data/output/markdown/claude/chat/summaries/):
+  <conversation-stem>/          # stem matches data/output/markdown/claude/chat/conversations/<stem>.md;
                                 # renamed when ordinals renumber (the index's uuid is the key)
     index.md                    # the map: uuid, conversation link, one line per reading
     <export-ts>.md              # a distinct reading, verbatim, named by the FIRST export
-                                # exhibiting it (ts format matches output/memories deposits)
+                                # exhibiting it (ts format matches data/output/memories deposits)
     browser-capture.md          # the capture's reading, only while it matches no export
                                 # deposit (rolling: recaptures refresh it; the export
                                 # deposits are the immutable record)
@@ -28,9 +28,9 @@ from the local corpora — L1: re-running is silence on disk.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py \\
-      [--chat-exports-cache cache/chat-exports] [--browser-api input/claude/chat/browser-API] \\
-      [--conversations-output output/markdown/claude/chat/conversations] \\
-      [--summaries-output output/markdown/claude/chat/summaries]
+      [--chat-exports-cache tmp/cache/chat-exports] [--browser-api data/input/claude/chat/browser-API] \\
+      [--conversations-output data/output/markdown/claude/chat/conversations] \\
+      [--summaries-output data/output/markdown/claude/chat/summaries]
 """
 import argparse
 import json
@@ -46,7 +46,7 @@ from compare_batches import batch_time  # noqa: E402 — the one batch-ordering 
 
 
 def _ts(batch_name):
-    """The batch's snapshot time in the output/memories deposit style (compact UTC)."""
+    """The batch's snapshot time in the data/output/memories deposit style (compact UTC)."""
     t = batch_time(batch_name)
     return t.strftime('%Y-%m-%dT%H%M%SZ') if t else None
 
@@ -120,12 +120,12 @@ def index_text(uuid, stem, title, deposit_names):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--chat-exports-cache', default=str(REPO / 'cache' / 'chat-exports'))
-    ap.add_argument('--browser-api', default=str(REPO / 'input' / 'claude' / 'chat' / 'browser-API'))
+    ap.add_argument('--chat-exports-cache', default=str(REPO / 'tmp' / 'cache' / 'chat-exports'))
+    ap.add_argument('--browser-api', default=str(REPO / 'data' / 'input' / 'claude' / 'chat' / 'browser-API'))
     ap.add_argument('--conversations-output',
-                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'))
+                    default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'))
     ap.add_argument('--summaries-output',
-                    default=str(REPO / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries'))
+                    default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries'))
     args = ap.parse_args()
 
     root = Path(args.summaries_output)

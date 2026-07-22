@@ -17,7 +17,7 @@ pre_commit.py: 1428/1428 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 55 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 64 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -76,12 +76,12 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ cli: model: advertised subcommands dispatch
   ✓ cli: model: target flags all advertised
   ✓ cli: model: help fits one screen (≤20 lines)
-  ✓ cli: prerequisites: target exists: PREREQUISITES.sh
+  ✓ cli: prerequisites: target exists: src/PREREQUISITES.sh
   ✓ cli: prerequisites: cited calculus defined
   ✓ cli: prerequisites: advertised flags exist
   ✓ cli: prerequisites: target flags all advertised
   ✓ cli: prerequisites: help fits one screen (≤20 lines)
-  ✓ cli: run: target exists: RUNME.sh
+  ✓ cli: run: target exists: src/RUNME.sh
   ✓ cli: run: cited calculus defined
   ✓ cli: run: advertised flags exist
   ✓ cli: run: target flags all advertised
@@ -109,22 +109,22 @@ pre_commit.py: 1428/1428 (data: machine-local)
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv
   ✓ cache_io: pipeline tags match PIPELINES
-  ✓ cache_io: cache/browser-captures/claude: read implies a writer
-  ✓ cache_io: cache/browser-captures/claude: producers/readers resolve
-  ✓ cache_io: cache/chat-exports: read implies a writer
-  ✓ cache_io: cache/chat-exports: producers/readers resolve
-  ✓ cache_io: cache/code-agents: read implies a writer
-  ✓ cache_io: cache/code-agents: producers/readers resolve
-  ✓ cache_io: cache/completions: read implies a writer
-  ✓ cache_io: cache/completions: producers/readers resolve
-  ✓ cache_io: cache/dashboard: read implies a writer
-  ✓ cache_io: cache/dashboard: producers/readers resolve
-  ✓ cache_io: cache/indexing: read implies a writer
-  ✓ cache_io: cache/indexing: producers/readers resolve
-  ✓ cache_io: cache/model: read implies a writer
-  ✓ cache_io: cache/model: producers/readers resolve
-  ✓ cache_io: cache/serve_markdown: read implies a writer
-  ✓ cache_io: cache/serve_markdown: producers/readers resolve
+  ✓ cache_io: tmp/cache/browser-captures/claude: read implies a writer
+  ✓ cache_io: tmp/cache/browser-captures/claude: producers/readers resolve
+  ✓ cache_io: tmp/cache/chat-exports: read implies a writer
+  ✓ cache_io: tmp/cache/chat-exports: producers/readers resolve
+  ✓ cache_io: tmp/cache/code-agents: read implies a writer
+  ✓ cache_io: tmp/cache/code-agents: producers/readers resolve
+  ✓ cache_io: tmp/cache/completions: read implies a writer
+  ✓ cache_io: tmp/cache/completions: producers/readers resolve
+  ✓ cache_io: tmp/cache/dashboard: read implies a writer
+  ✓ cache_io: tmp/cache/dashboard: producers/readers resolve
+  ✓ cache_io: tmp/cache/indexing: read implies a writer
+  ✓ cache_io: tmp/cache/indexing: producers/readers resolve
+  ✓ cache_io: tmp/cache/model: read implies a writer
+  ✓ cache_io: tmp/cache/model: producers/readers resolve
+  ✓ cache_io: tmp/cache/serve_markdown: read implies a writer
+  ✓ cache_io: tmp/cache/serve_markdown: producers/readers resolve
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -1459,6 +1459,6 @@ pre_commit.py: 1428/1428 (data: machine-local)
   ✓ score[code+schema]: 1428/1428; expected: 1428/1428
   ✓ score[code]: 115/115; expected: 115/115
   ✓ score[schema]: 1313/1313; expected: 1313/1313
-  – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
+  – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
 
 gate: PASS — code+schema 1428/1428 match the committed expectation; nothing here vetoes a commit

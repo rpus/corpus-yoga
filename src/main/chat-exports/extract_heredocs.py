@@ -11,11 +11,11 @@ bash_tool commands, i.e. patterns of the form:
 
 Groups output by conversation under:
 
-    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
-    cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
+    tmp/cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/outputs/<filename>   ← /mnt/user-data/outputs/
+    tmp/cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
-The durable library output/artifacts/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
+The durable library data/output/artifacts/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
 resolved via library.py); files new to the library are copied there and named individually
 in this run's log (the delta is information, not a second copy).
 
@@ -184,7 +184,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 
 SCRIPT_DIR     = Path(__file__).parent
-CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'cache' / 'chat-exports'
+CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'tmp' / 'cache' / 'chat-exports'
 
 
 def main():

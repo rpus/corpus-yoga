@@ -9,7 +9,7 @@ Two facts about machines, and deliberately no more.
 
 They live apart because they are opposites: the registry is the list every clone
 shares, the binding is the one thing no clone may share. So the binding sits at the
-root among the other machine-local entries (`cache/`, `input/`, `logs/`, `output/`),
+root among the other machine-local entries (`tmp/cache/`, `data/input/`, `tmp/logs/`, `data/output/`),
 which is what it is — and this directory is left wholly committed.
 
 `src/main/machine.py` reads both and is a library, not a command: `machines()` and
@@ -20,7 +20,7 @@ voice, and it says everything a report here would, in more detail.
 
 `bound_machine()` refuses a binding the registry does not declare. That refusal
 guards exactly one write: `yoga agent capture` keys the shared transport store by
-this name (`input/claude/code/machine-transport/<machine>/`), so a typo'd binding
+this name (`data/input/claude/code/machine-transport/<machine>/`), so a typo'd binding
 would mint a phantom machine in a store BOTH machines see. The gate lives in the one
 reader, so every consumer inherits it.
 

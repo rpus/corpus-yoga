@@ -11,7 +11,7 @@ Two facts, and only two:
                    at the repo root, REFUSED unless the registry declares it.
 
 That refusal is the whole point, and it guards exactly one write: agent.py keys the
-shared transport store by this name (input/claude/code/machine-transport/<machine>/),
+shared transport store by this name (data/input/claude/code/machine-transport/<machine>/),
 so a typo'd binding would mint a phantom machine in a store BOTH machines see. The
 gate lives here, in the one reader, so every consumer inherits it. Declare a machine
 in the registry first, then bind to it — never the other way round.
@@ -19,7 +19,7 @@ in the registry first, then bind to it — never the other way round.
 The two live apart because they are opposites. The registry is shared: every clone
 carries the same machines.csv. The binding is the machine naming ITSELF, and that
 name is never shared, never transported — so it sits at the repo root among the
-other machine-local entries (cache/, input/, logs/, output/), gitignored, and
+other machine-local entries (tmp/cache/, data/input/, tmp/logs/, data/output/), gitignored, and
 rsc/machine/ is left wholly committed. Until 2026-07-17 the binding lived INSIDE
 rsc/machine/, the one gitignored file in the committed tree, and that single
 exception cost more than it was worth: its path had to be built by arithmetic and

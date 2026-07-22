@@ -12,7 +12,7 @@
 		// siblings directly — python puts the script dir on sys.path; Pylance needs telling)
 		"python.analysis.extraPaths": ["src", "src/main", "src/main/browser-captures", "src/main/chat-exports", "src/main/cli", "src/main/code-agents", "src/main/model", "src/test"],
 		"python.analysis.typeCheckingMode": "standard",
-		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python", // mirrors the VENV default in run_python_script.sh / RUNME.sh
+		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python", // mirrors the VENV default in run_python_script.sh / src/RUNME.sh
 		"python.analysis.diagnosticMode": "workspace",
 		"python.terminal.activateEnvironment": false,
 		// Constant-titled CHANGELOG section headings (### Replaces, #### Restricted/

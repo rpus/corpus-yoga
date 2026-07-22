@@ -16,7 +16,7 @@ arg-name is that subcommand's own one-line description.
 
 Pass subcommand when the parser IS one verb rather than holding subparsers —
 cache routes clean and sync to separate flat scripts, so clean.py calls
-enrich(ap, 'cache', 'clean') and its flags match the cache/clean help.csv rows.
+enrich(ap, 'cache', 'clean') and its flags match the tmp/cache/clean help.csv rows.
 
 Stdlib only, and it reaches into argparse's _actions / _SubParsersAction — the
 usual way to post-process a parser; stable across CPython versions.

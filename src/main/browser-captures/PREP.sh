@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Capture conversations from browser-reachable providers into input/<provider>/chat/browser-{API,DOM}/,
+# Capture conversations from browser-reachable providers into data/input/<provider>/chat/browser-{API,DOM}/,
 # via Safari (requires it open and logged in to the provider sites). The `yoga browser` target.
 #
 # The mechanism set defaults to {API}; --DOM adds the DOM scrape. Each provider runs
@@ -26,7 +26,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 status() {
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/input" \
-    --api "$REPO_DIR/output/markdown/claude/chat/conversations"
+    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }
 
 main() {
@@ -56,14 +56,14 @@ main() {
   fi
 
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  mkdir -p "$REPO_DIR/input/claude/chat/browser-API"
-  mkdir -p "$REPO_DIR/input/gemini/chat/browser-DOM"
+  mkdir -p "$REPO_DIR/data/input/claude/chat/browser-API"
+  mkdir -p "$REPO_DIR/data/input/gemini/chat/browser-DOM"
 
   # Capture-health baseline before the run — the before/after delta lands in the same
   # log. Suspects here are the reason to capture, not an error.
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/input" \
-    --api "$REPO_DIR/output/markdown/claude/chat/conversations" || true
+    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations" || true
   # Capture each in-scope provider regardless of another failing, then surface a
   # non-zero exit if any did.
   local rc=0

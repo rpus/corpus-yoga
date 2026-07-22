@@ -18,13 +18,13 @@ human act — recorded in-folder rather than blocking the transport ("hone,
 not clone": the twins are the fork, made visible). Re-running either
 direction on an unchanged pair is silence (L1).
 
-Machines and projects: transported agents live in the STORE — input/claude/code/machine-transport,
+Machines and projects: transported agents live in the STORE — data/input/claude/code/machine-transport,
 a hand-made symlink on each machine to the same medium — keyed
 <machine>/<project>/<session>.jsonl + <machine>/<project>/<session-uuid>/ (the
 eponymous workspace: subagent transcripts and persisted tool-results the log
 REFERENCES, moved with log semantics per file) + <machine>/<project>/memory/.
 Provenance is spatial and sender-declared: capture takes no destination —
-it mirrors EVERY project in the projects root into input/claude/code/machine-transport/<own
+it mirrors EVERY project in the projects root into data/input/claude/code/machine-transport/<own
 machine>/, the machine read from the rooted machine-name.txt binding, which
 rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
@@ -33,13 +33,13 @@ capture MIRRORS each project's memory (updated in place, absentees
 removed); every merge subtlety lives in receive, where two agents actually
 meet.
 
-The projects root is input/claude-code-projects (PREP.sh's symlink to the Claude Code
+The projects root is ext/claude-code-projects (PREP.sh's symlink to the Claude Code
 projects folder) — HARNESS-OWNED state that Anthropic expires at will. The
 doctrine: capture is the one READER of it — sweep early, sweep often; receive is the one WRITER of it, and only ever by a user's
 explicit --apply, never a pipeline's. The pipelines source from the store,
 which the repo owns and the medium carries.
 
-input/claude/code/machine-transport is a git ORIGIN in all but name, and exactly so for append-only
+data/input/claude/code/machine-transport is a git ORIGIN in all but name, and exactly so for append-only
 artifacts: a session log contains every prior state of itself as a byte
 prefix, so the latest copy IS the whole history and place_log's prefix check
 is a fast-forward gate — no commit chain needed, a dumb file store suffices.
@@ -84,7 +84,7 @@ The endpoint asymmetry is the model, not an accident: capture takes NO
 destination — it pushes this machine's own ref, the only legal one
 (single-writer branches) — so --to is purely a scratch/test escape hatch and
 takes a bare directory, never a machine name. receive must NAME its source ref:
-a peer machine under input/claude/code/machine-transport, or (the same scratch affordance, symmetric) a
+a peer machine under data/input/claude/code/machine-transport, or (the same scratch affordance, symmetric) a
 directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a machine, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
@@ -115,8 +115,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
-PROJECTS = REPO / 'input' / 'claude-code-projects'
-AGENTS_DIR = REPO / 'input' / 'claude' / 'code' / 'machine-transport'
+PROJECTS = REPO / 'ext' / 'claude-code-projects'
+AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 from machine import bound_machine  # noqa: E402
@@ -134,10 +134,10 @@ def _sha_lines(text: str) -> str:
 
 
 def own_outbox() -> Path:
-    """The remote this machine writes: input/claude/code/machine-transport/<its machine-name.txt binding>.
-    input/claude/code/machine-transport itself is hand-made; the machine's subdirectory inside it is ours."""
+    """The remote this machine writes: data/input/claude/code/machine-transport/<its machine-name.txt binding>.
+    data/input/claude/code/machine-transport itself is hand-made; the machine's subdirectory inside it is ours."""
     if not AGENTS_DIR.is_dir():
-        sys.exit('error: input/claude/code/machine-transport missing — hand-make it as a symlink to the '
+        sys.exit('error: data/input/claude/code/machine-transport missing — hand-make it as a symlink to the '
                  'shared store (one subdirectory per machine name, projects nested within)')
     out = AGENTS_DIR / bound_machine()
     out.mkdir(exist_ok=True)
@@ -146,18 +146,18 @@ def own_outbox() -> Path:
 
 def peer_bundle(name: str) -> Path:
     """A source for receive: a MACHINE NAME or a DIRECTORY, distinguished by shape,
-    never by lookup — machines are names (bare tokens, resolved under input/claude/code/machine-transport,
+    never by lookup — machines are names (bare tokens, resolved under data/input/claude/code/machine-transport,
     loud error if absent), places are paths (anything containing '/' or starting
     '~'; a scratch dir beside you is spelled ./like-this). A bare token never
     consults the CWD, so what a command means cannot depend on where you stand
     (the old heuristic tried the CWD first: a local folder named like a machine
-    silently shadowed the machine's directory under input/claude/code/machine-transport)."""
+    silently shadowed the machine's directory under data/input/claude/code/machine-transport)."""
     if '/' in name or name.startswith('~'):
         return Path(name).expanduser()
     machine = AGENTS_DIR / name
     if not machine.is_dir():
         machines = sorted(d.name for d in AGENTS_DIR.iterdir() if d.is_dir()) if AGENTS_DIR.is_dir() else []
-        sys.exit(f"error: no input/claude/code/machine-transport/{name}/ — machines present: "
+        sys.exit(f"error: no data/input/claude/code/machine-transport/{name}/ — machines present: "
                  f"{', '.join(machines) or '(none)'} "
                  f"(a directory source is path-shaped: ./{name})")
     return machine
@@ -276,7 +276,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
     copy (novelty); identical → skip; the incoming extends the local
     (byte-prefix) → superseded in place (an appendix); true divergence → BOTH
     kept, the incoming fact re-dressed as <stem>.<machine>.md — machine is the
-    sender's ADDRESS under input/claude/code/machine-transport, sender-declared — with its [[links]]
+    sender's ADDRESS under data/input/claude/code/machine-transport, sender-declared — with its [[links]]
     following (nothing lost, nothing silently overwritten, nothing blocking —
     reconciliation stays a human act, recorded in-folder). MEMORY.md is the
     index, not a fact: it unions by novelty-append, with lines for re-dressed
@@ -395,7 +395,7 @@ def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> in
 
 def list_agents() -> int:
     """The sidebar-independent census: every session in this machine's project
-    and in each machine's store dir under input/claude/code/machine-transport, dressed with its LAST
+    and in each machine's store dir under data/input/claude/code/machine-transport, dressed with its LAST
     ai-title record — the title history rides the log, so this works
     identically on live and transported sessions, and the dressing is derived on demand,
     never stored (L5). Framing on stderr; data lines on stdout (pipeable)."""
@@ -429,7 +429,7 @@ def list_agents() -> int:
 def model_census() -> int:
     """Aggregate message.model over every "type":"assistant" record across ALL
     coding sessions in this machine's projects root — every project, main
-    sessions and their subagents. The copies under input/claude/code/machine-transport are of sessions
+    sessions and their subagents. The copies under data/input/claude/code/machine-transport are of sessions
     counted here (or in their origin machine), so they are not counted. The model is a
     per-RECORD fact, so a mid-session switch — elective /model or forced
     fallback — shows as a mixed session; '<synthetic>' rows are harness-authored
@@ -776,7 +776,7 @@ def main() -> int:
 
     bundle = peer_bundle(args.source)
     # the twin-dressing and marker label: the source's ADDRESS — the origin machine's
-    # name as it stands under input/claude/code/machine-transport (or the directory's own name for a path)
+    # name as it stands under data/input/claude/code/machine-transport (or the directory's own name for a path)
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
         return 1 if receive_all(bundle, PROJECTS, args.apply, machine) else 0

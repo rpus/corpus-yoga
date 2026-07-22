@@ -1,10 +1,26 @@
-# The machine-local tiers. NO trailing slash on any of them, deliberately: a
+# The machine-local roots. NO trailing slash on any of them, deliberately: a
 # trailing slash means "directory only", and git treats a symlink as a blob, not
-# a directory — so /output/ would NOT ignore output, which is a symlink into
-# iCloud here. Untracked, it would offer git an absolute path naming one machine.
-# Which tiers are symlinks is a per-machine fact (output is one here, input is
-# not), so no slash on any: without one a rule ignores a directory AND a symlink,
-# and stops depending on the shape a tier happens to have on whoever's disk.
+# a directory — so /data/ would NOT ignore data, which is a symlink into iCloud.
+# Untracked, it would offer git an absolute path naming one machine. Which roots
+# are symlinks is a per-machine fact (data is one by design, ext holds links, tmp
+# is a real dir), so no slash on any: without one a rule ignores a directory AND
+# a symlink, and stops depending on the shape a root happens to have on whoever's
+# disk. tmp/ knowingly reuses the name of the retired swap space: it is now a
+# real root (cache/ + logs/), disposable as ever.
+/data
+/tmp
+/ext
+
+# the four-root migration's transitional workspace (src/restructure/): manifests,
+# dry-run worktree, reports. Delete this rule when both rooms have applied and
+# src/restructure/ is dismantled.
+/swap
+
+# TRANSITIONAL: the OLD roots, still on disk (and still machine-local) until a
+# room's apply_moves retires them. Between merge and apply a machine honestly
+# holds both layouts; without these rules the old corpus floods git status and
+# the xref scan (whose skip-roots derive from this file). Delete these four
+# rules with /swap above, once both rooms have applied.
 /input
 /cache
 /output
@@ -15,6 +31,6 @@ __pycache__/
 
 # the machine binding: this machine names ITSELF here, and that name is never
 # shared, never transported. It sits at the root beside the other machine-local
-# entries above (cache/, input/, logs/, output/) because that is what it IS —
-# not inside rsc/machine/, where its name keys a registry every clone shares.
+# entries above (data/, tmp/, ext/) because that is what it IS — not inside
+# rsc/machine/, where its name keys a registry every clone shares.
 /machine-name.txt

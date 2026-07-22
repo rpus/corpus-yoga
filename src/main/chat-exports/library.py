@@ -2,7 +2,7 @@
 """
 library.py — uuid-keyed resolution of the durable artifact library.
 
-output/artifacts/downloaded/ outlives any one export batch, so its directories are
+data/output/artifacts/downloaded/ outlives any one export batch, so its directories are
 keyed by identity with presentation as dressing: <ordinal>-<slug>-<uuid8>, where
 <uuid8> (the first 8 hex digits of the conversation uuid) is the resolution key
 and <ordinal>-<slug> is the batch's canonical presentation name — carried for
@@ -23,7 +23,7 @@ rsc/naming/library_dir_vintages.csv.
 import sys
 from pathlib import Path
 
-LIBRARY = Path(__file__).resolve().parents[3] / 'output' / 'artifacts' / 'downloaded'
+LIBRARY = Path(__file__).resolve().parents[3] / 'data' / 'output' / 'artifacts' / 'downloaded'
 
 
 def assert_uuid8_unique(uuids) -> None:

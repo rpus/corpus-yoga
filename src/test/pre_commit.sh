@@ -45,7 +45,7 @@ main() {
   # Run once — pre_commit.py writes its own report artifacts: the COMMITTED
   # src/test/pre_commit.log (code+schema only, byte-identical on any clone — the
   # machine-local data tier never enters a committed file) plus the full report
-  # to logs/src/test/pre_commit.log; only the tail (score + WARN + verdict) prints
+  # to tmp/logs/src/test/pre_commit.log; only the tail (score + WARN + verdict) prints
   # to the terminal here. This run's status is unused (a failing report is still a
   # report; the exit verdict comes from the second run) — || true, for exactly that.
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@" || true
