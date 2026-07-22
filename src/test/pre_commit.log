@@ -1,4 +1,4 @@
-pre_commit.py: 1515/1515 (data: machine-local)
+pre_commit.py: 1516/1516 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -110,6 +110,7 @@ pre_commit.py: 1515/1515 (data: machine-local)
   ✓ cli: xref: target flags all advertised
   ✓ cli: xref: help fits one screen (≤20 lines)
   ✓ cli: completions: emitted script parses (zsh -n)
+  ✓ cli: indexing: run step invokes `indexing sync` in plan
   ✓ cli: memories: run step invokes `memories sync` in plan
   ✓ cli: summaries: run step invokes `summaries sync` in plan
   ✓ cli: supersede: run step invokes `supersede check` in plan
@@ -1543,9 +1544,9 @@ pre_commit.py: 1515/1515 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1515/1515; expected: 1515/1515
-  ✓ score[code]: 123/123; expected: 123/123
+  ✓ score[code+schema]: 1516/1516; expected: 1516/1516
+  ✓ score[code]: 124/124; expected: 124/124
   ✓ score[schema]: 1392/1392; expected: 1392/1392
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1515/1515 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1516/1516 match the committed expectation; nothing here vetoes a commit

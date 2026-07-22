@@ -15,6 +15,8 @@
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=src/main/steps.sh
+source "$SCRIPT_DIR/src/main/steps.sh"
 : "${VENV:=$HOME/venvs/general}"
 
 parse_args() {
@@ -154,6 +156,19 @@ prep_pipeline_safe() {
 
 LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 
+# The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
+# for operations whose input spans them all (the pipelines' own run_tails fold
+# one pipeline's corpus; this folds the union). First member: indexing sync,
+# whose locators span claude chat, code sessions, and gemini — and whose
+# staleness was previously invisible to run (found 2026-07-22: the real
+# index.md still cited a retired verb name). Same command-backed step
+# discipline as the pipeline tails: the plan speaks `indexing sync`, and the
+# gate holds it to command AND verb (help.csv step=corpus).
+run_corpus_tail() {
+  step indexing "$SCRIPT_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/src/main/model/build_index.py" sync
+}
+
 # The pipelines' own --plan output is the one authority on their step order
 # (each prints exactly the step list it executes — see src/main/steps.sh);
 # only this script's own frame (tooling, preps, tail) is narrated here, beside
@@ -176,6 +191,9 @@ print_plan() {
     echo "  code-agents/PREP.sh"
     "$SCRIPT_DIR/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
   fi
+  echo "  then once, over the whole corpus:"
+  # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
+  ( plan=1; run_corpus_tail ) | sed 's/^/  /'
   echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; pre_commit reminder; log path"
 }
 
@@ -202,6 +220,12 @@ main() {
   if should_run code-agents; then
     prep_pipeline_safe code-agents
     run_pipeline_safe  code-agents "$SCRIPT_DIR/input/claude/code/machine-transport"
+  fi
+
+  # the whole-corpus reduce: over whatever is projected — idempotent, so a
+  # --only run re-indexing the unchanged rest is silence, not distortion
+  if ! run_corpus_tail 2>&1 | tee -a "$LOG_FILE"; then
+    pipeline_failures+=("indexing (corpus tail)")
   fi
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
