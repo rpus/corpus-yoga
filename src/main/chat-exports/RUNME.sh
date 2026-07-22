@@ -85,22 +85,22 @@ run_one() {
 }
 
 run_tail() {
-  # accumulate_memories: every distinct memory state deposits into the durable
+  # memories: every distinct memory state deposits into the durable
   # output/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
   # is mutable and lossy between exports, and bulk exports are its only log) and the
   # timeline renders to output/markdown/claude/chat/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
-  step accumulate_memories "$REPO_DIR/src/run_python_script.sh" \
+  step memories "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/accumulate_memories.py" sync
-  # accumulate_summaries: the same deposit discipline per conversation — a summary is
+  # summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
   # refresh in place), so every distinct reading deposits into
   # output/markdown/claude/chat/summaries/<conversation>/ (export-snapshot-time-keyed,
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
-  step accumulate_summaries "$REPO_DIR/src/run_python_script.sh" \
+  step summaries "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/accumulate_summaries.py" sync
-  # compare_batches: a batch is a synchronised snapshot of FOUR components
+  # supersede: a batch is a synchronised snapshot of FOUR components
   # (conversations, memories, projects, users), licensed as FIVE — a conversation's
   # summary is a per-snapshot oracle reading, checked as its own component — each
   # put through the same unprejudiced unit/atom subset check; no component is
@@ -109,7 +109,7 @@ run_tail() {
   # live-capture corpus per conversation: capture-ahead is normal post-snapshot
   # growth; capture-stale names conversations to recapture in place. Divergence is
   # a fact, not an error.
-  step_ok compare_batches  "$REPO_DIR/src/run_python_script.sh" \
+  step_ok supersede  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_batches.py" check \
     --chat-exports-cache "$CACHE_DIR" --browser-api "$REPO_DIR/input/claude/chat/browser-API"
 }

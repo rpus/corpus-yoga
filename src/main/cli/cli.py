@@ -45,7 +45,7 @@ from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bo
 
 REPO = Path(__file__).resolve().parents[3]
 TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
-COLUMNS = ('command', 'target', 'calculus', 'step', 'summary')
+COLUMNS = ('command', 'target', 'calculus', 'summary')
 COMPLETION_OUT = REPO / 'cache' / 'completions' / '_yoga'
 # The comments that DELIMIT the block `install` writes into ~/.zshrc, and by which
 # `uninstall` finds it again. A start AND an end, so the block has an extent: uninstall
@@ -102,6 +102,16 @@ def flags_of(command: str) -> list[str]:
         if r['arg-name'].startswith('--') and r['arg-name'] not in out:
             out.append(r['arg-name'])
     return out
+
+
+def steps() -> list[dict]:
+    """The (command, subcommand) invocations the run pipeline executes as named plan
+    steps, declared by help.csv's `step` column (its value names the pipeline). The gate
+    holds `RUNME.sh --plan` to these: each must appear as a plan line naming the command
+    AND its verb — so the plan speaks the command surface, and a step can never invoke a
+    noun bare, which would silently become a status no-op."""
+    return [{'command': r['command'], 'subcommand': r['subcommand'], 'pipeline': r['step']}
+            for r in help_rows() if r.get('step')]
 
 
 def calculus_terms() -> set[str]:

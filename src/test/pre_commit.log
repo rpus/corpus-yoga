@@ -110,9 +110,9 @@ pre_commit.py: 1436/1436 (data: machine-local)
   ✓ cli: xref: target flags all advertised
   ✓ cli: xref: help fits one screen (≤20 lines)
   ✓ cli: completions: emitted script parses (zsh -n)
-  ✓ cli: memories: run step exists in plan: accumulate_memories
-  ✓ cli: summaries: run step exists in plan: accumulate_summaries
-  ✓ cli: supersede: run step exists in plan: compare_batches
+  ✓ cli: memories: run step invokes `memories sync` in plan
+  ✓ cli: summaries: run step invokes `summaries sync` in plan
+  ✓ cli: supersede: run step invokes `supersede check` in plan
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv

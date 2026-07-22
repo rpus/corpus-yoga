@@ -656,9 +656,10 @@ def check_cli_surface(run) -> None:
     appears in the target's source or its stem-sibling .py/.sh pair (wrapper
     and implementation share a stem — the repo idiom), every subcommand VERB it
     advertises appears in the target's own --help (the live dispatch surface —
-    a source grep is vacuous for ordinary words like build/accept), and every run-step
-    correspondence a row claims names a step in the RUNME.sh --plan output
-    (which is itself the executing list, so the chain cannot drift). Committed
+    a source grep is vacuous for ordinary words like build/accept), and every command
+    a help.csv `step` row marks is invoked BY COMMAND AND VERB in the RUNME.sh --plan
+    output (which is itself the executing list, so the chain cannot drift, and a step
+    cannot quietly drop to a bare noun that the bare=status convention no-ops). Committed
     files and the deterministic plan only, so deterministic on any clone:
     code tier."""
     try:
@@ -781,15 +782,23 @@ def check_cli_surface(run) -> None:
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None)
 
-    stepped = [c for c in cmds if c['step']]
+    # The run pipeline's command-backed steps (help.csv's `step` column). Each must
+    # appear in `RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
+    # plan speaks the command surface a reader would type, and a step can never invoke
+    # a noun bare, which the bare-noun=status convention silently turns into a no-op.
+    stepped = cli.steps()
     if not stepped:
         return
     plan = subprocess.run([str(REPO_ROOT / 'RUNME.sh'), '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
-    for c in stepped:
-        ok = bool(re.search(rf'^\s*{re.escape(c["step"])}\b', plan, re.M))
-        run(f'cli: {c["command"]}: run step exists in plan: {c["step"]}', ok,
-            None if ok else 'not a step name in `RUNME.sh --plan` output')
+    for s in stepped:
+        cmd, sub = s['command'], s['subcommand']
+        # the plan line is the step label then its non-path args (steps.sh): the label
+        # must BE the command, and the verb must be among the args after it
+        ok = bool(re.search(rf'^\s*{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
+        run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
+            None if ok else f'no `{cmd} … {sub}` line in `RUNME.sh --plan` — a bare '
+            f'`{cmd}` step would silently be a status no-op')
 
 
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
