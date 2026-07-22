@@ -84,6 +84,13 @@ run_one() {
     --browser-api "$REPO_DIR/input/claude/chat/browser-API" --bulk-export "$batch"
 }
 
+# run_tail: the once-after-all-batches REDUCE — steps that fold the whole corpus rather
+# than process one snapshot. This is where the yoga nouns live, and only here: a step is
+# eligible for a command (a help.csv `step` row) iff it is a corpus-wide operation
+# meaningful to invoke standalone — which is precisely the run_tail character. A run_one
+# per-batch stage (`--chat-export <batch>`) is internal machinery; giving it a noun would
+# be claiming a batch-scoped map step is a standalone corpus operation. The three here —
+# memories, summaries, supersede — are exactly cli.steps().
 run_tail() {
   # memories: every distinct memory state deposits into the durable
   # output/memories/ (snapshot-time-keyed, content-deduplicated — the memory document

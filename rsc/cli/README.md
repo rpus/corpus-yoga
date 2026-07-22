@@ -75,6 +75,11 @@ from examples — one did, and misread design as sediment):
   across all forms and deduplicated for the completion.
 - **Rows are alphabetical by command**, enforced (`cli: commands alphabetical`),
   so every derived surface lists commands in one findable order.
+- **A `step`-marked command is a corpus-wide operation**, never a per-batch one. The
+  chat-exports pipeline is a map over batches (`run_one`) then a reduce over all of them
+  (`run_tail`); the nouns live only in the reduce, because only a whole-corpus step is
+  meaningful to invoke standalone. `memories`, `summaries`, `supersede` are exactly the
+  `run_tail` steps. A per-batch stage earning a `step` row would be the tell of a mistake.
 
 ## Held honest by the gates
 
