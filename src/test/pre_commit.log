@@ -1,4 +1,4 @@
-pre_commit.py: 1514/1514 (data: machine-local)
+pre_commit.py: 1515/1515 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 1514/1514 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 55 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 54 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -101,6 +101,7 @@ pre_commit.py: 1514/1514 (data: machine-local)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
   ✓ cli: supersede: advertised flags exist
+  ✓ cli: supersede: advertised subcommands dispatch
   ✓ cli: supersede: target flags all advertised
   ✓ cli: supersede: help fits one screen (≤20 lines)
   ✓ cli: xref: target exists: src/test/xref.py
@@ -109,9 +110,9 @@ pre_commit.py: 1514/1514 (data: machine-local)
   ✓ cli: xref: target flags all advertised
   ✓ cli: xref: help fits one screen (≤20 lines)
   ✓ cli: completions: emitted script parses (zsh -n)
-  ✓ cli: memories: run step exists in plan: accumulate_memories
-  ✓ cli: summaries: run step exists in plan: accumulate_summaries
-  ✓ cli: supersede: run step exists in plan: compare_batches
+  ✓ cli: memories: run step invokes `memories sync` in plan
+  ✓ cli: summaries: run step invokes `summaries sync` in plan
+  ✓ cli: supersede: run step invokes `supersede check` in plan
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv
@@ -1542,9 +1543,9 @@ pre_commit.py: 1514/1514 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1514/1514; expected: 1514/1514
-  ✓ score[code]: 122/122; expected: 122/122
+  ✓ score[code+schema]: 1515/1515; expected: 1515/1515
+  ✓ score[code]: 123/123; expected: 123/123
   ✓ score[schema]: 1392/1392; expected: 1392/1392
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1514/1514 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1515/1515 match the committed expectation; nothing here vetoes a commit
