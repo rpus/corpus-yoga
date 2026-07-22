@@ -32,9 +32,14 @@ README.md,67,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepar
 README.md,72,doc,rsc/forge.csv,Y,"settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a"
 README.md,77,doc,rsc/forge.csv,Y,them against `rsc/forge.csv`). main carries one narrated commit per landed idea;
 README.md,95,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
-README.md,100,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,100,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,106,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,101,doc,src/test/pre_commit.log,Y,- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
+README.md,101,doc,src/test/pre_commit_expected_score,Y,- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
+README.md,102,doc,src/test/xref.csv,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
+README.md,102,doc,src/test/xref_expected_score,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
+README.md,112,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
+README.md,117,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,117,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,123,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,8,comment,RUNME.sh,Y,#   ./RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
 RUNME.sh,76,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
 RUNME.sh,158,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
@@ -598,5 +603,4 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,self_only,src/test/repairs/structure.no_redundant_additional_properties_true.py,Y,
 ,,self_only,src/test/repairs/structure.pattern_constraints_enforced.py,Y,
 ,,self_only,src/test/repairs/structure.required_subset_of_properties.py,Y,
-,,,src/test/xref_expected_score,Y,
 ,,,yoga,Y,

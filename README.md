@@ -95,6 +95,23 @@ Every commit is signed `Signature: machine/provider/session` by the local
 `prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the
 model co-author (it is derivable from the session).
 
+A merge conflict is almost always confined to the check's four regenerated artifacts,
+in two pairs — a derived file and the curated count beside it:
+
+- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
+- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
+
+Do not hand-merge any of them, and do not compute the counts. Take either side to clear
+each marker, then run `./yoga check`: it rewrites the two derived files, and reports the
+live counts the two curated ones should hold — `pre_commit` prints `expected X, got Y`,
+`xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
+check reports, stage what it rewrote, and run once more to confirm the gate is green. The
+check computes the merged numbers; your job is to run it.
+
+This works because the generated files absorb only the counting. A real conflict — two
+branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,
+a schema file), where git makes you look at it. The generated files never hide those.
+
 ## The public surface
 
 Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
