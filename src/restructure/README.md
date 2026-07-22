@@ -30,13 +30,22 @@ The moves, whole-root and enumerable (unlike last time, no per-file typing):
 
 Two decisions carried into the manifest rather than left in anyone's head:
 
-- **Single mooring** (lean, to confirm at review): `data/` is ONE symlink to an
-  iCloud parent that itself contains `input/` and `output/`. The medium-side
-  `mkdir data && mv input output data/` happens ONCE (shared medium, first
-  room to apply); each room then replaces its two moorings with one.
+- **Single mooring, ZERO medium bytes moved** (the PR #20 review's
+  simplification): the room's old moorings already point into one medium
+  parent that already contains `input/` + `output/` — that parent simply IS
+  the `data/` container. `data/` is ONE symlink to it (`data → <parent>`, not
+  `<parent>/data`); nothing moves on the medium, ever, and there is no
+  first-room/second-room medium step. `apply_moves` derives the parent from
+  the room's own moorings (they must agree — SPLIT-MEDIUM refuses otherwise)
+  and prints it ~-shortened. Because the link is additive, a room may
+  PRE-MOOR `data/` (and `ext/claude-code-projects`) any time before the
+  merge; apply then reports them `done`.
 - **The swap space cannot be `tmp/` this time** — `tmp/` is becoming a real
   tier. The swap is `swap/` at the root, gitignored transitionally with a rule
   that states its own deletion condition (the PR#11 pattern).
+
+Committed text, records, and printed plans write paths **~-shortened**, never
+`/Users/<name>/…` — portable across rooms, no usernames in the repo.
 
 This directory is scaffolding, not product: **dismantle it once both rooms
 have applied** (deletion keeps it reachable through history — this file is
@@ -59,7 +68,7 @@ dismantling commit removes, together:
 | `gen_refs.py` | review aid for a done-by-hand sweep | THE sweep is bigger this time (`input/ output/ cache/ logs/` literals across code, docs, csvs — `rsc/cache_io.csv`, `rsc/cli/help.csv` prose, `.gitignore` anchors); still generated per-checkout, applied on this branch, reviewed by row |
 | `build_harness.py` | seeded new-style roots into the worktree | same, under `data/`/`tmp/`; the `ext/` mount is pointed at the real harness root read-only (capture stays untested in rehearsal — it would write the real store) |
 | `compare_outputs.py` | byte-identical modulo `MARKDOWN_MAP` | byte-identical, full stop (identity map): the corpus must not notice the move |
-| `apply_moves.py` | shared-medium-once + per-room symlinks | same semantics; adds the mooring swap (two links → one `data/` link); nothing here touches shell config |
+| `apply_moves.py` | shared-medium-once + per-room symlinks | ALL-LOCAL: the medium is never touched (data → the existing parent); links + two tmp/ moves + old-root retirement; nothing here touches shell config |
 
 Post-migration follow-up (a separate arc, deliberately AFTER): the tier
 redirection contract re-applies over the new layout and SIMPLIFIES — parents
@@ -118,10 +127,11 @@ are the honest redirect granularity, so five vars become three:
         2>&1 | tee swap/reports/apply-plan.log
     python3 swap/dryrun/src/restructure/apply_moves.py --from . --moves swap/moves.csv --apply
 
-Whichever room applies first also performs the one shared-medium move
-(`mkdir data && mv input output data/` on iCloud); the second room's apply
-finds it `done` (absence of work is a signal, not an error) and performs only
-its local share: the single `data/` mooring, the `tmp/` locals, and the
-`ext/claude-code-projects` mount. Disposals go to `swap/disposed/`, never
-deleted. Every report lands under `swap/` — one folder tells the room's whole
-story.
+Every step is per-room and LOCAL — there is no shared-medium step and no
+ordering between the rooms. Each room's apply makes the single `data/`
+mooring (or finds a pre-moored one `done`), re-hangs the
+`ext/claude-code-projects` mount, moves its own `cache/`+`logs/` under
+`tmp/`, and retires the old moorings and roots (removed only when empty;
+residue reported, never destroyed). The corpus bytes on the medium are
+untouched throughout. Every report lands under `swap/` — one folder tells
+the room's whole story.
