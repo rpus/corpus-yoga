@@ -6,6 +6,39 @@ and git-ignored: each datum directory under `cache/` carries a `matrix.md` besid
 
 ---
 
+## v11
+
+The file-history ledger reaches outside the repo. Reading-room session
+`5d680541-…` (2026-07-21, the memory work) edited a memory fact under
+`~/.claude/projects/<project>/memory/` — a file OUTSIDE the session cwd —
+and the resulting `file-history-delta` is the store's first whose
+`trackingPath` is absolute and whose `backup` carries a fourth key:
+`realParentDir`, the tracked file's real parent directory (`backupFileName`
+null in the same record — no prior content to back up). The 2026-07-22
+survey found 73 deltas across both rooms' stores; this record alone carries
+the key. Every record valid under v10 is valid under v11 unchanged: v10 now
+happens to reject only the shape its era never showed.
+
+### Replaces
+
+[v10.json](./v10.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `FileHistoryBackup.realParentDir` — new optional key: absolute directory
+  of the tracked file when it lives outside the session cwd; absent on
+  ordinary in-repo edits (72 of 73 observed deltas).
+
+#### Refactored
+
+- `FileHistoryDelta.trackingPath` — description now records the absolute
+  form the out-of-cwd record showed; the type was already `string`, so no
+  validation change.
+
 ## v10
 
 The file-history ledger grows a second grain. Reading-room session `eeafe24c-…`
