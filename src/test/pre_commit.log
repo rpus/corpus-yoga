@@ -1,4 +1,4 @@
-pre_commit.py: 1435/1435 (data: machine-local)
+pre_commit.py: 1436/1436 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -101,6 +101,7 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
   ✓ cli: supersede: advertised flags exist
+  ✓ cli: supersede: advertised subcommands dispatch
   ✓ cli: supersede: target flags all advertised
   ✓ cli: supersede: help fits one screen (≤20 lines)
   ✓ cli: xref: target exists: src/test/xref.py
@@ -1463,9 +1464,9 @@ pre_commit.py: 1435/1435 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1435/1435; expected: 1435/1435
-  ✓ score[code]: 122/122; expected: 122/122
+  ✓ score[code+schema]: 1436/1436; expected: 1436/1436
+  ✓ score[code]: 123/123; expected: 123/123
   ✓ score[schema]: 1313/1313; expected: 1313/1313
   – score[data]: machine-local — reported on the terminal and in logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1435/1435 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1436/1436 match the committed expectation; nothing here vetoes a commit

@@ -250,7 +250,7 @@ src/main/chat-exports/RUNME.sh,94,call,src/main/chat-exports/accumulate_memories
 src/main/chat-exports/RUNME.sh,101,call,src/run_python_script.sh,Y,"step accumulate_summaries ""$REPO_DIR/src/run_python_script.sh"" \"
 src/main/chat-exports/RUNME.sh,102,call,src/main/chat-exports/accumulate_summaries.py,Y,"""$SCRIPT_DIR/accumulate_summaries.py"" sync"
 src/main/chat-exports/RUNME.sh,112,call,src/run_python_script.sh,Y,"step_ok compare_batches  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,113,call,src/main/chat-exports/compare_batches.py,Y,"""$SCRIPT_DIR/compare_batches.py"" \"
+src/main/chat-exports/RUNME.sh,113,call,src/main/chat-exports/compare_batches.py,Y,"""$SCRIPT_DIR/compare_batches.py"" check \"
 src/main/chat-exports/accumulate_memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-cache cache/chat-exports] [-
 src/main/chat-exports/accumulate_memories.py,31,comment,src/main/chat-exports/accumulate_memories.py,Y,src/run_python_script.sh src/main/chat-exports/accumulate_memories.py       [--chat-exports-cache cache/chat-exports] [-
 src/main/chat-exports/accumulate_memories.py,57,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv

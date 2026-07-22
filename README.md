@@ -54,7 +54,7 @@ Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
 Code sessions: `yoga agent capture --all`. Paid model readings:
 `yoga dashboard capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
-reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed, never assumed: `yoga supersede`.
+reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed, never assumed: `yoga supersede check`.
 
 ## Prerequisites
 

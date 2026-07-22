@@ -110,7 +110,7 @@ run_tail() {
   # growth; capture-stale names conversations to recapture in place. Divergence is
   # a fact, not an error.
   step_ok compare_batches  "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/compare_batches.py" \
+    "$SCRIPT_DIR/compare_batches.py" check \
     --chat-exports-cache "$CACHE_DIR" --browser-api "$REPO_DIR/input/claude/chat/browser-API"
 }
 
