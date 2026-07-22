@@ -41,11 +41,15 @@ README.md,117,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`;
 README.md,117,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 README.md,123,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 RUNME.sh,8,comment,RUNME.sh,Y,#   ./RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
-RUNME.sh,76,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
-RUNME.sh,158,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-RUNME.sh,169,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,173,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-RUNME.sh,177,call,src/main/code-agents/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$SCRIPT_DIR/src/main/steps.sh"""
+RUNME.sh,78,path_str,src/requirements.txt,Y,"pip install -q -r ""$SCRIPT_DIR/src/requirements.txt"""
+RUNME.sh,180,call,src/run_python_script.sh,Y,"step indexing ""$SCRIPT_DIR/src/run_python_script.sh"" \"
+RUNME.sh,181,call,src/main/model/build_index.py,Y,"""$SCRIPT_DIR/src/main/model/build_index.py"" sync"
+RUNME.sh,185,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+RUNME.sh,196,call,src/main/browser-captures/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,200,call,src/main/chat-exports/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+RUNME.sh,204,call,src/main/code-agents/RUNME.sh,Y,"""$SCRIPT_DIR/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
@@ -65,12 +69,12 @@ rsc/CALCULUS.md,314,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/ag
 rsc/CALCULUS.md,337,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture api"
 rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,Two curated files describe the `./yoga` terminal surface (machinery: `src/main/cli/cli.py`;
-rsc/cli/README.md,26,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
-rsc/cli/README.md,31,doc,src/main/argparse_help.py,Y,That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
-rsc/cli/README.md,40,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
-rsc/cli/README.md,47,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
-rsc/cli/README.md,48,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
-rsc/cli/README.md,88,doc,rsc/CALCULUS.md,Y,"calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the"
+rsc/cli/README.md,28,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
+rsc/cli/README.md,33,doc,src/main/argparse_help.py,Y,That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
+rsc/cli/README.md,42,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
+rsc/cli/README.md,49,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
+rsc/cli/README.md,50,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
+rsc/cli/README.md,90,doc,rsc/CALCULUS.md,Y,"calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the"
 rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,transport supersession merge L1 L3 L4 L6,code-agent sessions: the census, and transp"
 rsc/cli/commands.csv,3,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,capture,capture browser-reachable chats via Safari (claude API, gemini DOM)"
 rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,project,the rebuildable cache/ tier: clean orphans, sync rebuilds"
@@ -436,7 +440,7 @@ src/main/markdown_projection.py,11,comment,src/main/browser-captures/compare_mar
 src/main/markdown_projection.py,11,comment,src/main/chat-exports/atomise_bulk.py,Y,"browser-captures/compare_markdown.py (project+render to compare), chat-exports/atomise_bulk.py"
 src/main/model/build_index.py,5,comment,rsc/cli/commands.csv,Y,capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
 src/main/model/build_index.py,22,comment,rsc/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
-src/main/model/build_index.py,230,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
+src/main/model/build_index.py,234,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
 src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api input/claude/chat/browser-API     --bulk-ex
 src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,"gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."
