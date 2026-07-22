@@ -154,8 +154,12 @@ def build(markdown_root: Path, accepted_path: Path) -> str:
     lines = [
         '# Index',
         '',
-        f'Headwords: `data/output/indexing/accepted.txt` (curated — edit and re-run '
-        f'`yoga indexing sync`). Locators link to durable turn anchors; '
+        # No tier path here, deliberately: the index is a CORPUS artifact, and
+        # naming a machinery path in it couples corpus bytes to repo layout —
+        # any tier move would rewrite corpus content. The verb is the stable
+        # surface; `yoga indexing -h` says where things live.
+        f'Headwords are curated with `yoga indexing` (accept/reject; `sync` '
+        f'rebuilds this index). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
     ]

@@ -36,7 +36,7 @@
 "indexing","reject","","","","reject a concept into the disposal record",""
 "indexing","reject","--reason","<why>","","reason for the rejection, kept as a # comment",""
 "indexing","reject","concept","<concept>","1","the concept to reject",""
-"indexing","sync","","","","build data/output/markdown/index.md from accepted.txt — idempotent",""
+"indexing","sync","","","","build data/output/markdown/index.md from accepted.txt — idempotent","corpus"
 "memories","sync","","","","deposit new distinct states and re-render — idempotent (the only write)","chat-exports"
 "model","sync","","","","(re-)generate every catalogue to agree with the schemas — idempotent",""
 "prerequisites","","--show-all","","","show the full report, including satisfied (✓) items (default: only what needs attention)",""
