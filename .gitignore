@@ -11,21 +11,6 @@
 /tmp
 /ext
 
-# the four-root migration's transitional workspace (src/restructure/): manifests,
-# dry-run worktree, reports. Delete this rule when both rooms have applied and
-# src/restructure/ is dismantled.
-/swap
-
-# TRANSITIONAL: the OLD roots, still on disk (and still machine-local) until a
-# room's apply_moves retires them. Between merge and apply a machine honestly
-# holds both layouts; without these rules the old corpus floods git status and
-# the xref scan (whose skip-roots derive from this file). Delete these four
-# rules with /swap above, once both rooms have applied.
-/input
-/cache
-/output
-/logs
-
 **/.DS_Store
 __pycache__/
 
