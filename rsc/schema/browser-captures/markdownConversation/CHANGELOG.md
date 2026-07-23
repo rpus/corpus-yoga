@@ -2,7 +2,7 @@
 
 This schema has no machine-local validation matrix: markdownConversation instances are
 projections, not captured data — `project_markdown.py` validates each one in-memory at
-render time, rather than writing per-datum `vN.log` files under `cache/`
+render time, rather than writing per-datum `vN.log` files under `tmp/cache/`
 (see `rsc/schema/WORKFLOW.md`).
 
 ---
@@ -42,6 +42,14 @@ viewer. The rendered body is therefore title + source list + turns.
 the dressing before any cross-source comparison, exactly as `turn_seq` is
 anchor-blind. All frontmatter values derive from the local corpora — no wall-clock —
 so regeneration stays a no-op when nothing changed (L1).
+
+#### Refactored
+
+- `MarkdownConversation` and `MarkdownConversation.summary` descriptions (v3, in place) —
+  the summary deposit path re-rooted `output/markdown/…` → `data/output/markdown/…` for the
+  four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation
+  effect. The v3 narrative above and every earlier version keep the path as it stood when
+  they were written: their vintage is the record.
 
 ## v2
 

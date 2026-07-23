@@ -2,7 +2,7 @@
 
 This schema has no machine-local validation matrix: the capture is validated
 in-memory at capture time (dashboard.sh's validate_capture, before promotion to
-output/dashboard/) rather than writing per-datum `vN.log` files under `cache/`
+data/output/dashboard/) rather than writing per-datum `vN.log` files under `tmp/cache/`
 (see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 
 ---
@@ -23,6 +23,13 @@ output/dashboard/) rather than writing per-datum `vN.log` files under `cache/`
 ### Replaces
 
 [v1.json](./v1.json)
+
+#### Refactored
+
+- `SemanticConcepts` description (v2, in place) — the dashboard artifact path gained the
+  `data/` root (now `data/output/dashboard/semantic-concepts.json`) for the four-root
+  migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect.
+  v1 and the narrative above are left at their own vintage's paths.
 
 ## v1
 
