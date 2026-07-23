@@ -274,12 +274,21 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
 PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
 
 
-def _path_flags(command: str) -> list[str]:
-    """The flags whose value is a filesystem path. A uuid8, a concept, an enum or a
-    number is not a file, so file completion has no business at those positions."""
-    typed = {r['arg-name'] for r in command_rows(command)
-             if r['arg-type'] in PATH_ARG_TYPES}
-    return [f for f in flags_of(command) if f in typed]
+def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:
+    """(flags, path-flags) for ONE scope of a command: a verb's own rows, or the
+    command-level rows (subcommand ''). The completion offers exactly these at
+    that position — never the across-verbs union, which TAB-completed flags the
+    dispatched verb then rejects (found 2026-07-23: `cache sync --apply` was
+    offered, and dies in sync's argparse; --apply is clean's)."""
+    rows = [r for r in command_rows(command) if r['subcommand'] == subcommand]
+    flags, paths = [], []
+    for r in rows:
+        f = r['arg-name']
+        if f.startswith('--') and f not in flags:
+            flags.append(f)
+            if r['arg-type'] in PATH_ARG_TYPES:
+                paths.append(f)
+    return flags, paths
 
 
 def _takes_command_name(command: str) -> bool:
@@ -299,15 +308,40 @@ def completion_script(cmds: list[dict]) -> str:
     def esc(s: str) -> str:
         return (s.replace('\\', '\\\\').replace("'", "'\\''").replace(':', '\\:'))
 
+    def scope_parts(flags: list[str], paths: list[str]) -> str:
+        parts = []
+        if flags:
+            parts.append(f"opts=({' '.join(flags)})")
+        if paths:
+            parts.append(f"pathopts=({' '.join(paths)})")
+        return '; '.join(parts)
+
     def arm(command: str) -> str | None:
         parts = []
-        if subcommands := subcommands_of(command):
+        subcommands = subcommands_of(command)
+        if subcommands:
             slist = ' '.join(f"'{esc(s)}:{esc(_subcommand_desc(command, s))}'" for s in subcommands)
             parts.append(f'subcommands=({slist})')
-        if flags := flags_of(command):
-            parts.append(f"opts=({' '.join(flags)})")
-        if paths := _path_flags(command):
-            parts.append(f"pathopts=({' '.join(paths)})")
+        cmd_flags, cmd_paths = _scoped_flags(command, '')
+        verb_scopes = {s: _scoped_flags(command, s) for s in subcommands}
+        if any(f for f, _ in verb_scopes.values()):
+            # Flags are scoped to their verb (rsc/cli/README.md): offer each
+            # verb ONLY its own rows' flags — the across-verbs union completed
+            # flags the dispatched verb rejects. The *) scope is pre-verb: the
+            # command-level rows, which argparse accepts only BEFORE the verb.
+            inner = [f"      case \"${{words[3]}}\" in"]
+            for s in subcommands:
+                f, p = verb_scopes[s]
+                inner.append(f'        {s}) {scope_parts(f, p)} ;;' if f
+                             else f'        {s}) ;;')
+            inner.append(f'        *) {scope_parts(cmd_flags, cmd_paths)} ;;'
+                         if cmd_flags else '        *) ;;')
+            inner.append('      esac')
+            body = '; '.join(parts)
+            tail = ' wantcmd=1;' if _takes_command_name(command) else ''
+            return f"    {command}) {body}\n" + '\n'.join(inner) + f'\n     {tail} ;;'
+        if cmd_flags:
+            parts.append(scope_parts(cmd_flags, cmd_paths))
         if _takes_command_name(command):
             parts.append('wantcmd=1')
         return f"    {command}) {'; '.join(parts)} ;;" if parts else None
