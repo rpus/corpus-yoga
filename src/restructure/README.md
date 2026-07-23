@@ -57,7 +57,18 @@ dismantling commit removes, together:
   `/swap`, and the four OLD-root rules (`/input /cache /output /logs`) kept
   only because a machine between merge and apply honestly holds both
   layouts — and the xref scan's skip-roots derive from `.gitignore`, so
-  without them the not-yet-moved corpus floods the gate.
+  without them the not-yet-moved corpus floods the gate;
+- per machine, the vestige check those rules were HIDING (found in
+  home-room by eye, 2026-07-23 — empty `input/` and `cache/` re-minted by
+  pre-#26 stragglers sat invisible precisely because the transitional
+  rules gitignored them): `rmdir input cache logs 2>/dev/null` — empty
+  dirs only, `rmdir` refuses anything else — plus each machine's local
+  `rm -rf swap`;
+- the expectation files: deleting this directory and its five records
+  changes the xref inventory and the check counts, so the dismantling
+  commit updates `src/test/xref_expected_score` (and
+  `pre_commit_expected_score` if counts move) in the same commit, per the
+  gate's own remedies.
 
 ## Deltas from the first service (per script, the adaptation plan)
 

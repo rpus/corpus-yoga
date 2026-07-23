@@ -64,7 +64,7 @@ run_corpus() {
   # gate below decides pass/fail; PREP.sh printed the pre-run baseline)
   step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit_captures.py" \
-    --input "$REPO_DIR/input" \
+    --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
   # compare_markdown: diff the projection against the DOM scrape only when asked —
   # a fresh scrape (yoga browser capture --provider claude --DOM) is what makes the
