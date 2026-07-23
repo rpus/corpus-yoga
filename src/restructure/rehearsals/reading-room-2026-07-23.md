@@ -41,7 +41,7 @@ summary deposits, not 299, and `yoga summaries` reports no twins.
 ## The two-pass finding
 
 The bar is met **after a second worktree pass**. A single pass leaves all 100
-`claude/chat/conversations/*.md` differing in exactly two frontmatter lines:
+projections under the conversations tree differing in exactly two frontmatter lines:
 
     cross_checked_against: data-…-1784702804-…-batch-0000   →   none
     currency: in-sync                                       →   unchecked

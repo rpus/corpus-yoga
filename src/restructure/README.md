@@ -102,10 +102,17 @@ are the honest redirect granularity, so five vars become three:
     #    state (found 2026-07-23, reading-room)
     python3 swap/dryrun/src/restructure/gen_refs.py --from . --swap swap
 
-    # 3. dry-run the migrated code against the future layout
+    # 3. dry-run the migrated code against the future layout — TWO passes:
+    #    build_harness seeds tmp/ EMPTY (fresh-clone proof), so on pass 1
+    #    browser-captures projects conversations before chat-exports has
+    #    atomised anything to cross-check against, leaving every projection's
+    #    cross_checked_against/currency frontmatter at none/unchecked. Pass 2
+    #    runs against the warmed tmp/cache and records the batch; only then is
+    #    the compare meaningful (home-room's records always ran two passes;
+    #    the recipe said one — reading-room's 2026-07-23 rehearsal, defect 1).
     python3 swap/dryrun/src/restructure/build_harness.py --from . --moves swap/moves.csv \
         2>&1 | tee swap/reports/harness.log
-    ( cd swap/dryrun && ./src/RUNME.sh )               # note the new home
+    ( cd swap/dryrun && ./src/RUNME.sh && ./src/RUNME.sh )   # note the new home; twice
     python3 swap/dryrun/src/restructure/compare_outputs.py --from . --worktree swap/dryrun \
         2>&1 | tee swap/reports/equivalence.log        # identity map: byte-identical or bust
 
