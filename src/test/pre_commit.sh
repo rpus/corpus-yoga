@@ -41,8 +41,18 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # (toplevel == this repo). prepare_commit_msg stays home-anchored on purpose:
 # the machine binding it reads is machine-scoped and absent from worktrees.
 TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" && -x "$TOPLEVEL/src/test/pre_commit.sh" ]]; then
-  exec "$TOPLEVEL/src/test/pre_commit.sh" "$@"
+if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
+  if [[ -x "$TOPLEVEL/src/test/pre_commit.sh" ]]; then
+    exec "$TOPLEVEL/src/test/pre_commit.sh" "$@"
+  fi
+  # REFUSE, never fall through (PR #25 review): running the home gate against
+  # the home tree inside the other tree's git context is exactly the chimera
+  # this guard abolishes — a fallthrough would restore it silently, with the
+  # same unsatisfiable ERROR that cost a day. A loud refusal is recoverable.
+  echo "ERROR: cannot gate $TOPLEVEL — no executable src/test/pre_commit.sh there." >&2
+  echo "       Restore that tree's gate (or commit from a tree that has one);" >&2
+  echo "       this home gate will not gate a different tree." >&2
+  exit 1
 fi
 
 # The artifacts pre_commit.py rewrites on every run — the idempotence subject.
