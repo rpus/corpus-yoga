@@ -18,3 +18,12 @@ __pycache__/
 # entries above (cache/, input/, logs/, output/) because that is what it IS —
 # not inside rsc/machine/, where its name keys a registry every clone shares.
 /machine-name.txt
+
+# TRANSITIONAL: the four-root migration's swap space (see PR #20 /
+# src/restructure/README.md on the root-taxonomy branch). The recipe has each
+# room create swap/ IN ITS MAIN CHECKOUT (manifest, refs.csv, dryrun worktree,
+# reports) — unignored, its refs.csv floods the xref scan with migration paths
+# (found 2026-07-23: it corrupted reading-room's main). The branch already
+# ignores /swap; main needs it for exactly the rehearsal window. Delete this
+# rule with the branch's own transitional rules, once both rooms have applied.
+/swap
