@@ -56,8 +56,17 @@ if __name__ == '__main__':
     _ap = argparse.ArgumentParser()
     _ap.add_argument('--from', dest='repo', required=True,
                      help='the checkout whose committed files are scanned')
-    REPO = Path(_ap.parse_args().repo).resolve()
-    OUT = Path.cwd() / 'refs.csv'
+    # refs.csv lands under the swap space, NEVER the cwd: a refs.csv at the
+    # repo root is not gitignored, and the next `yoga check` scans it — its
+    # migration-path rows read as hundreds of missing-file references and
+    # rewrite xref.csv into a failing state (found 2026-07-23 by reading-room,
+    # whose main a cwd-written refs.csv corrupted).
+    _ap.add_argument('--swap', default='swap',
+                     help='where refs.csv lands (relative to cwd; gitignored)')
+    _args = _ap.parse_args()
+    REPO = Path(_args.repo).resolve()
+    OUT = Path(_args.swap).resolve() / 'refs.csv'
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     rows = []
     for rel in sweep_files(REPO):
         p = REPO / rel

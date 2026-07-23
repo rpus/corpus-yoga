@@ -95,8 +95,12 @@ are the honest redirect granularity, so five vars become three:
     python3 swap/dryrun/src/restructure/gen_moves.py --from . --swap swap \
         2>&1 | tee swap/reports/gen_moves.log
 
-    # 2. review: swap/moves.csv is the plan; swap/view/ is the plan rendered
-    python3 swap/dryrun/src/restructure/gen_refs.py --from .
+    # 2. review: swap/moves.csv is the plan; swap/view/ is the plan rendered.
+    #    refs.csv lands under swap/ (gitignored) — NEVER at the repo root,
+    #    where the next `yoga check` would scan its migration paths as
+    #    hundreds of missing references and rewrite xref.csv into a failing
+    #    state (found 2026-07-23, reading-room)
+    python3 swap/dryrun/src/restructure/gen_refs.py --from . --swap swap
 
     # 3. dry-run the migrated code against the future layout
     python3 swap/dryrun/src/restructure/build_harness.py --from . --moves swap/moves.csv \
@@ -105,26 +109,32 @@ are the honest redirect granularity, so five vars become three:
     python3 swap/dryrun/src/restructure/compare_outputs.py --from . --worktree swap/dryrun \
         2>&1 | tee swap/reports/equivalence.log        # identity map: byte-identical or bust
 
-    # 4. commit the room's rehearsal record (the merge decision must be
+    # 4. dispose of the gate-born tmp/, then take the apply DRY RUN (the plan
+    #    the record must quote): on a mid-transition checkout the branch's own
+    #    gate runs have already created tmp/logs/, so apply's `logs ->
+    #    tmp/logs` row reads CONFLICT and refuses (observed home-room
+    #    2026-07-22, the five-state lattice working). Everything under the
+    #    born-early tmp/ is disposable gate output:
+    rm -rf tmp
+    python3 swap/dryrun/src/restructure/apply_moves.py --from . --moves swap/moves.csv \
+        2>&1 | tee swap/reports/apply-plan.log
+
+    # 5. commit the room's rehearsal record (the merge decision must be
     #    reproducible from the repo, not from anyone's terminal): write
     #    src/restructure/rehearsals/<room>-<date>.md containing the room's
     #    moves.csv verbatim + totality line, the compare_outputs summary with
-    #    an explanation for every residual finding, and the apply dry-run
-    #    plan. Name the room and date in the text — no indexicals. The
+    #    an explanation for every residual finding, and step 4's apply
+    #    dry-run plan. Name the room and date in the text — no indexicals;
+    #    paths ~-shortened. The xref gate will count the new file, so EITHER
+    #    open the record with a header link to the latest prior record —
+    #    `Follow-up to [<prior>.md](./<prior>.md)` — which makes the prior
+    #    referenced and nets the count to zero (the 2f59e89 pattern), OR, for
+    #    a record with no prior to link, bump the last number in
+    #    src/test/xref_expected_score by one (the f968325 pattern). The
     #    records are deleted with this whole directory after both rooms
     #    apply; history keeps them reachable.
 
-    # 5. dispose of the gate-born tmp/ first: on a mid-transition checkout the
-    #    branch's own gate runs have already created tmp/logs/ (and cache syncs
-    #    may have made tmp/cache/), so apply's `logs -> tmp/logs` row reads
-    #    CONFLICT and refuses (observed home-room 2026-07-22, the five-state
-    #    lattice working). Everything under the born-early tmp/ is disposable
-    #    gate output — delete it and re-run the dry run before applying:
-    rm -rf tmp
-
-    # 6. when satisfied, execute (--apply is the point of no return; without it, a plan prints)
-    python3 swap/dryrun/src/restructure/apply_moves.py --from . --moves swap/moves.csv \
-        2>&1 | tee swap/reports/apply-plan.log
+    # 6. when satisfied, execute (--apply is the point of no return)
     python3 swap/dryrun/src/restructure/apply_moves.py --from . --moves swap/moves.csv --apply
 
 Every step is per-room and LOCAL — there is no shared-medium step and no
