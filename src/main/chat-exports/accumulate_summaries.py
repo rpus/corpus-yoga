@@ -200,11 +200,26 @@ def main():
         folder.mkdir(parents=True, exist_ok=True)
 
         texts = []
+        # Contents already deposited in this folder (durable stamps only —
+        # browser-capture.md is rolling, not a deposit). A reading is stamped
+        # by the FIRST SURVIVING batch exhibiting it, so disposing a batch
+        # re-stamps its readings under the next survivor; without this check
+        # the re-stamped reading deposits AGAIN, byte-identical under a new
+        # key (found 2026-07-23, reading-room's rehearsal: one disposed batch
+        # minted 100 redundant deposits in the worktree). Memories semantics,
+        # completed: dedup against what the STORE holds, not only the batch
+        # sequence, which forgets its own history at disposal.
+        held = {p.read_text() for p in folder.glob('*.md')
+                if p.name not in ('index.md', 'browser-capture.md')}
         for ts, s in readings.get(u, []):
             f = folder / f'{ts}.md'
             if not f.exists():
-                f.write_text(s)          # verbatim — the deposit IS the reading
-                deposited += 1
+                if s in held:
+                    unchanged += 1       # already deposited under an earlier stamp
+                else:
+                    f.write_text(s)      # verbatim — the deposit IS the reading
+                    held.add(s)
+                    deposited += 1
             elif f.read_text() != s:
                 print(f'  WARN {stem}/{ts}.md: existing deposit differs from this derivation — '
                       'left untouched (deposits are immutable)', file=sys.stderr)
