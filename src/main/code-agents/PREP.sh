@@ -19,7 +19,7 @@ parse_args() {
 }
 
 link_projects() {
-  mkdir -p "$REPO_DIR/input"
+  mkdir -p "$REPO_DIR/ext"
   ln -sfn ~/.claude/projects "$REPO_DIR/ext/claude-code-projects"
 }
 

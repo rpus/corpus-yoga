@@ -67,7 +67,7 @@ parse_args() {
 main() {
   parse_args "$@"
 
-  mkdir -p "$REPO_DIR/cache"
+  mkdir -p "$REPO_DIR/tmp/cache"
 
   local fix_mode=0
   if [[ "${1:-}" == "--fix" ]]; then fix_mode=1; fi

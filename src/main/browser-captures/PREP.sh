@@ -25,7 +25,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 # `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
 status() {
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
-    --input "$REPO_DIR/input" \
+    --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }
 
@@ -62,7 +62,7 @@ main() {
   # Capture-health baseline before the run — the before/after delta lands in the same
   # log. Suspects here are the reason to capture, not an error.
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
-    --input "$REPO_DIR/input" \
+    --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations" || true
   # Capture each in-scope provider regardless of another failing, then surface a
   # non-zero exit if any did.
