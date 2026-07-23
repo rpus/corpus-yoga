@@ -135,13 +135,11 @@ def nearest_earlier_deposit(folder: Path, stamp: str):
 
 
 def twins_of(folder: Path) -> list[Path]:
-    """The folder's bug-artifact deposits: each byte-identical to its nearest
-    earlier sibling — exactly what the sync loop's dedup (the same
-    nearest_earlier_deposit rule) would never write, so any such deposit is a
-    pre-existing artifact (the pre-fix loop minted one corpus-wide layer per
-    batch disposal; 196 measured in the shared store, 2026-07-23). A genuine
-    A→B→A recurrence is NOT a twin: its second A's nearest-earlier is B.
-    Callers: status, sync's WARN, and the one-shot prune_twin_deposits.py."""
+    """The folder's twin deposits: each byte-identical to its nearest earlier
+    sibling — exactly what the sync loop's dedup (the same
+    nearest_earlier_deposit rule) would never write, so any such deposit is
+    a defect in whatever wrote it. A genuine A→B→A recurrence is NOT a twin:
+    its second A's nearest-earlier is B. Callers: status and sync's WARN."""
     deps = sorted(p for p in folder.glob('*.md')
                   if p.name not in ('index.md', 'browser-capture.md'))
     out = []
@@ -153,17 +151,19 @@ def twins_of(folder: Path) -> list[Path]:
 
 
 def _warn_twins(root: Path) -> int:
-    """Report the store's twin count with the disposal remedy — the standing
-    detector (purge follows detect/report, and 'done' means this reads zero).
-    WARN-prefixed so the run tail's atom hoisting carries it into every
-    yoga run summary."""
+    """Report the store's twin count — the standing detector, kept permanently
+    now that the one-shot repair has retired. nearest_earlier_deposit cannot
+    write a twin, so a nonzero count is a NEW defect to investigate, not the
+    artifact class the repair cleared. WARN-prefixed so the run tail's atom
+    hoisting carries it into every yoga run summary."""
     twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
         if root.is_dir() else 0
     if twins:
         print(f'WARN: {twins} twin deposit(s) in the summaries store — byte-identical '
-              'to their nearest earlier sibling; bug artifacts, not readings:')
-        print('    → run: src/run_python_script.sh src/main/chat-exports/prune_twin_deposits.py'
-              '  # read-only census; --apply removes (rooms\' L4 decision, PR #21)')
+              'to their nearest earlier sibling, which the deposit rule never writes:')
+        print('    → investigate: this is a NEW defect in whatever wrote them. The '
+              're-stamp bug is fixed and its one-shot repair retired; nothing in the '
+              'current machinery can mint a twin.')
     return twins
 
 

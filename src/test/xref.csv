@@ -350,8 +350,6 @@ src/main/chat-exports/present.sh,140,call,src/main/chat-exports/word_freq_litera
 src/main/chat-exports/present.sh,145,path_str,src/main/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal-words: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
 src/main/chat-exports/present.sh,171,call,src/run_python_script.sh,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
 src/main/chat-exports/present.sh,171,call,src/main/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
-src/main/chat-exports/prune_twin_deposits.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/prune_twin_deposits.py \
-src/main/chat-exports/prune_twin_deposits.py,30,comment,src/main/chat-exports/prune_twin_deposits.py,Y,src/run_python_script.sh src/main/chat-exports/prune_twin_deposits.py \
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 src/main/chat-exports/rekey_chats.py,32,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
@@ -567,7 +565,6 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/main/browser-captures/gemini/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/safari_utils.py,Y,
 ,,self_only,src/main/chat-exports/PREP.sh,Y,
-,,self_only,src/main/chat-exports/prune_twin_deposits.py,Y,
 ,,,src/main/cli/cache_io.py,Y,
 ,,self_only,src/main/code-agents/PREP.sh,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
