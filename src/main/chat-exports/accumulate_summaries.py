@@ -119,6 +119,54 @@ def index_text(uuid, stem, title, deposit_names):
     return '\n'.join(lines) + '\n'
 
 
+def nearest_earlier_deposit(folder: Path, stamp: str):
+    """The deposit with the greatest stamp STRICTLY before `stamp`, or None.
+    THE one rule (PR #23 review): the WRITER (sync's deposit loop skips a
+    reading identical to it) and the DETECTOR (twins_of flags a deposit
+    identical to it) evaluate this same function — a writer/detector pair
+    with separate implementations diverges silently, and a diverged detector
+    under-reports exactly the damage it exists to announce. Strict '<' so a
+    deposit is never its own nearest-earlier. index.md and
+    browser-capture.md are not deposits."""
+    earlier = sorted(p for p in folder.glob('*.md')
+                     if p.name not in ('index.md', 'browser-capture.md')
+                     and p.stem < stamp)
+    return earlier[-1] if earlier else None
+
+
+def twins_of(folder: Path) -> list[Path]:
+    """The folder's twin deposits: each byte-identical to its nearest earlier
+    sibling — exactly what the sync loop's dedup (the same
+    nearest_earlier_deposit rule) would never write, so any such deposit is
+    a defect in whatever wrote it. A genuine A→B→A recurrence is NOT a twin:
+    its second A's nearest-earlier is B. Callers: status and sync's WARN."""
+    deps = sorted(p for p in folder.glob('*.md')
+                  if p.name not in ('index.md', 'browser-capture.md'))
+    out = []
+    for p in deps:
+        prior = nearest_earlier_deposit(folder, p.stem)
+        if prior is not None and p.read_bytes() == prior.read_bytes():
+            out.append(p)
+    return out
+
+
+def _warn_twins(root: Path) -> int:
+    """Report the store's twin count — the standing detector, kept permanently
+    now that the one-shot repair has retired. nearest_earlier_deposit cannot
+    write a twin, so a nonzero count is a NEW defect to investigate, not the
+    artifact class the repair cleared. WARN-prefixed so the run tail's atom
+    hoisting carries it into every yoga run summary."""
+    twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
+        if root.is_dir() else 0
+    if twins:
+        print(f'WARN: {twins} twin deposit(s) in the summaries store — byte-identical '
+              'to their nearest earlier sibling, which the deposit rule never writes:')
+        print('    → investigate: this is a NEW defect in whatever wrote them. The '
+              're-stamp bug is fixed and its one-shot repair retired; nothing in the '
+              'current machinery can mint a twin.')
+    return twins
+
+
 def status(root: Path) -> int:
     """The bare-noun default: show the store's current state, write nothing.
     Deliberately store-only (pure directory listing): computing what a sync
@@ -135,6 +183,7 @@ def status(root: Path) -> int:
     shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
     print(f'summaries: {len(folders)} conversation folder(s), {readings} deposited '
           f'reading(s), {rolling} rolling capture reading(s) in {shown}')
+    _warn_twins(root)
     return 0
 
 
@@ -179,7 +228,7 @@ def main():
                 if m:
                     existing[m.group(1)] = d
 
-    deposited = unchanged = renamed = 0
+    deposited = unchanged = renamed = conflicts = 0
     for u in sorted(set(readings) | set(captured)):
         stem, title = stems.get(u, (None, None))
         if stem is None:
@@ -200,14 +249,37 @@ def main():
         folder.mkdir(parents=True, exist_ok=True)
 
         texts = []
+        # A reading is stamped by the FIRST SURVIVING batch exhibiting it, so
+        # disposing a batch re-stamps its readings under the next survivor;
+        # without this check the re-stamped reading deposits AGAIN,
+        # byte-identical under a new key (found 2026-07-23, reading-room's
+        # rehearsal — and their census then showed 196 such twins already in
+        # the shared store from two earlier disposal layers). The check is
+        # NEAREST-EARLIER by stamp, exactly accumulate_memories.deposit():
+        # the store remembers what the batch sequence forgets at disposal,
+        # while a GENUINE recurrence (readings A→B→A: the oracle reverting
+        # to an earlier reading across an intervening different one) still
+        # deposits — a folder-wide content set would suppress that event.
+        # The rule is nearest_earlier_deposit, THE one shared function the
+        # twin detector also evaluates (PR #23 review): writer and detector
+        # with separate implementations diverge silently, and a diverged
+        # detector under-reports exactly what it exists to announce.
         for ts, s in readings.get(u, []):
             f = folder / f'{ts}.md'
             if not f.exists():
-                f.write_text(s)          # verbatim — the deposit IS the reading
-                deposited += 1
+                prior = nearest_earlier_deposit(folder, ts)
+                if prior is not None and prior.read_text() == s:
+                    unchanged += 1       # unchanged since its nearest earlier deposit
+                else:
+                    f.write_text(s)      # verbatim — the deposit IS the reading
+                    deposited += 1
             elif f.read_text() != s:
-                print(f'  WARN {stem}/{ts}.md: existing deposit differs from this derivation — '
-                      'left untouched (deposits are immutable)', file=sys.stderr)
+                # the calculus accumulate contract (issue #22): a same-stamp
+                # content mismatch is a CONFLICT, exit 1 — memories' semantics
+                # and vocabulary, not a stderr aside the run tail never saw
+                print(f'  ✗ CONFLICT {stem}/{ts}.md: existing deposit differs from this '
+                      'derivation — left untouched (deposits are immutable); investigate')
+                conflicts += 1
             else:
                 unchanged += 1
             texts.append(s)
@@ -224,8 +296,16 @@ def main():
         _write_if_changed(folder / 'index.md', index_text(u, stem, title, names))
 
     print(f'summaries: {deposited} reading(s) deposited, {unchanged} already held, '
-          f'{renamed} folder(s) renamed -> {root.relative_to(REPO) if root.is_relative_to(REPO) else root}')
+          f'{renamed} folder(s) renamed -> {root.relative_to(REPO) if root.is_relative_to(REPO) else root}'
+          + (f'; {conflicts} CONFLICT(S)' if conflicts else ''))
+    # the standing twin detector runs on every sync too — ambient in the run
+    # tail via WARN-atom hoisting, not only on an explicit status invocation
+    _warn_twins(root)
+    return 1 if conflicts else 0
 
 
 if __name__ == '__main__':
-    main()
+    # sys.exit, not a bare call: main()'s return IS the exit code, so a
+    # CONFLICT can actually fail the run step (issue #22 — the bare call made
+    # `yoga summaries sync` a step that could never exit non-zero, against L8)
+    sys.exit(main())
