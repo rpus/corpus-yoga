@@ -199,10 +199,10 @@ against the new latest.
 changes, regenerate the candidates:
 
 ```bash
-./yoga model
+./yoga model sync
 ```
 
-Review `cache/model/` for new or changed definitions and update `model.json` if any
+Review `tmp/cache/model/` for new or changed definitions and update `model.json` if any
 cross-pipeline types need documenting. Also bump any stale version references in the
 `default` section of `model.json`.
 
