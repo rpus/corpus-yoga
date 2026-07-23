@@ -516,6 +516,9 @@ src/restructure/rehearsals/reading-room-2026-07-23.md,3,doc,src/restructure/rehe
 src/restructure/rehearsals/reading-room-2026-07-23.md,17,doc,src/RUNME.sh,Y,"RUNME.sh,src/RUNME.sh,""excluded: git-tracked — moves with the branch, not with apply"""
 src/restructure/rehearsals/reading-room-2026-07-23.md,18,doc,src/PREREQUISITES.sh,Y,"PREREQUISITES.sh,src/PREREQUISITES.sh,""excluded: git-tracked — moves with the branch, not with apply"""
 src/restructure/rehearsals/reading-room-2026-07-23.md,55,doc,src/RUNME.sh,Y,Recipe step 3 prescribes a single `./src/RUNME.sh`; two are required from a cold cache.
+src/restructure/rehearsals/reading-room-2026-07-23b.md,3,doc,src/restructure/rehearsals/reading-room-2026-07-23.md,Y,Follow-up to [reading-room-2026-07-23.md](./reading-room-2026-07-23.md). That earlier
+src/restructure/rehearsals/reading-room-2026-07-23b.md,17,doc,src/RUNME.sh,Y,"RUNME.sh,src/RUNME.sh,""excluded: git-tracked — moves with the branch, not with apply"""
+src/restructure/rehearsals/reading-room-2026-07-23b.md,18,doc,src/PREREQUISITES.sh,Y,"PREREQUISITES.sh,src/PREREQUISITES.sh,""excluded: git-tracked — moves with the branch, not with apply"""
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -619,7 +622,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/restructure/gen_moves.py,Y,
 ,,,src/restructure/gen_refs.py,Y,
 ,,,src/restructure/rehearsals/home-room-2026-07-21.md,Y,
-,,,src/restructure/rehearsals/reading-room-2026-07-23.md,Y,
+,,,src/restructure/rehearsals/reading-room-2026-07-23b.md,Y,
 ,,self_only,src/test/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/code-agents/survey_code_session.py,Y,
 ,,,src/test/diagnostics/composition.base_not_used_directly.py,Y,
