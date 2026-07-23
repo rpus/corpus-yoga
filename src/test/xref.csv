@@ -551,11 +551,11 @@ src/test/pre_commit.py,1112,comment,src/test/pre_commit.log,Y,# any clone; this 
 src/test/pre_commit.sh,5,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install
 src/test/pre_commit.sh,21,comment,src/test/pre_commit.log,Y,# git diff src/test/pre_commit.log
-src/test/pre_commit.sh,46,comment,src/test/pre_commit.log,Y,"# src/test/pre_commit.log (code+schema only, byte-identical on any clone — the"
-src/test/pre_commit.sh,51,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
-src/test/pre_commit.sh,51,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
-src/test/pre_commit.sh,68,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" >/dev/null || rc=$?"
-src/test/pre_commit.sh,68,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" >/dev/null || rc=$?"
+src/test/pre_commit.sh,76,comment,src/test/pre_commit.log,Y,"# src/test/pre_commit.log (code+schema only, byte-identical on any clone — the"
+src/test/pre_commit.sh,81,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
+src/test/pre_commit.sh,81,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" ""$@"" || true"
+src/test/pre_commit.sh,98,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" >/dev/null || rc=$?"
+src/test/pre_commit.sh,98,call,src/test/pre_commit.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/pre_commit.py"" >/dev/null || rc=$?"
 src/test/prepare_commit_msg.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 src/test/prepare_commit_msg.sh,33,comment,rsc/forge.csv,Y,"# messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by"
 src/test/prepare_commit_msg.sh,34,comment,src/PREREQUISITES.sh,Y,# ./src/PREREQUISITES.sh. Under PR_BODY the message — trailers and all — is discarded whole.

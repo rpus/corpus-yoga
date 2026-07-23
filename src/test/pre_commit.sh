@@ -25,6 +25,36 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+# Gate the COMMITTING TREE, not this script's home. Worktrees share the main
+# checkout's hooks, and the hook symlink resolves HERE — so before this guard,
+# a worktree commit ran the main checkout's gate against the main checkout's
+# files inside the WORKTREE's git context (GIT_DIR env): a chimera that
+# regenerated one tree's artifacts, diffed them against another tree's index,
+# and refused with a demand no staging could satisfy (found 2026-07-23 by
+# reading-room, committing a rehearsal record inside the recipe's worktree —
+# their only route out was --no-verify). Re-exec the committing tree's OWN
+# vintage of this script: each tree self-gates. THE RULE, for hook and hand
+# alike: the COMMITTING TREE WINS — the gate follows the git context
+# (rev-parse), never the script's home, so even a manual cross-tree
+# invocation gates the tree you stand in: the only tree your git context
+# could be about to commit. Manual runs from this repo are unaffected
+# (toplevel == this repo). prepare_commit_msg stays home-anchored on purpose:
+# the machine binding it reads is machine-scoped and absent from worktrees.
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
+  if [[ -x "$TOPLEVEL/src/test/pre_commit.sh" ]]; then
+    exec "$TOPLEVEL/src/test/pre_commit.sh" "$@"
+  fi
+  # REFUSE, never fall through (PR #25 review): running the home gate against
+  # the home tree inside the other tree's git context is exactly the chimera
+  # this guard abolishes — a fallthrough would restore it silently, with the
+  # same unsatisfiable ERROR that cost a day. A loud refusal is recoverable.
+  echo "ERROR: cannot gate $TOPLEVEL — no executable src/test/pre_commit.sh there." >&2
+  echo "       Restore that tree's gate (or commit from a tree that has one);" >&2
+  echo "       this home gate will not gate a different tree." >&2
+  exit 1
+fi
+
 # The artifacts pre_commit.py rewrites on every run — the idempotence subject.
 ARTIFACTS=(src/test/pre_commit.log src/test/xref.csv)
 
