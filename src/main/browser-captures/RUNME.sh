@@ -3,8 +3,8 @@
 #
 # Usage:
 #   ./src/main/browser-captures/RUNME.sh
-#   ./src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
-#   ./src/main/browser-captures/RUNME.sh --browser-capture input/claude/chat/browser-API/<uuid>
+#   ./src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
+#   ./src/main/browser-captures/RUNME.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
 #   ./src/main/browser-captures/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step list below (run_corpus) is the ONE authority on order: --plan prints
@@ -20,15 +20,15 @@ source "$REPO_DIR/src/main/steps.sh"
 
 parse_args() {
   browser_capture=""
-  browser_api="$REPO_DIR/input/claude/chat/browser-API"
-  browser_dom="$REPO_DIR/input/claude/chat/browser-DOM"
+  browser_api="$REPO_DIR/data/input/claude/chat/browser-API"
+  browser_dom="$REPO_DIR/data/input/claude/chat/browser-DOM"
   compare_scrape="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --browser-capture)  browser_capture="$2";  shift 2 ;;
       --browser-dom)      browser_dom="$2";      shift 2 ;;
-      # --browser-captures is the eponymous pipeline flag the root ./RUNME.sh
+      # --browser-captures is the eponymous pipeline flag the root ./src/RUNME.sh
       # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
       --compare-scrape)       compare_scrape="1"; shift ;;
@@ -56,7 +56,7 @@ run_corpus() {
   step project_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/project_markdown.py" --browser-api "$root"
   # copy_gemini_markdown: gemini's scrapes ARE markdown already — copy them into the
-  # presentation tree beside claude's projections (output/markdown/{claude,gemini}),
+  # presentation tree beside claude's projections (data/output/markdown/{claude,gemini}),
   # anchoring each turn heading; a slug collision gets the conversation id prefixed.
   step copy_gemini_markdown  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/copy_gemini_markdown.py"
@@ -65,14 +65,14 @@ run_corpus() {
   step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/input" \
-    --api "$REPO_DIR/output/markdown/claude/chat/conversations"
+    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
   # compare_markdown: diff the projection against the DOM scrape only when asked —
   # a fresh scrape (yoga browser capture --provider claude --DOM) is what makes the
   # comparison meaningful; against the resting legacy scrapes it is noise.
   step_if "$compare_scrape" 'with --compare-scrape' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \
-    --api "$REPO_DIR/output/markdown/claude/chat/conversations" --scrape "$browser_dom"
+    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations" --scrape "$browser_dom"
 }
 
 print_plan() {

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Convert and validate Claude Code CLI session transcripts, from the STORE.
 #
-# The pipeline sources input/claude/code/machine-transport — the repo-owned, medium-carried store
+# The pipeline sources data/input/claude/code/machine-transport — the repo-owned, medium-carried store
 # (<machine>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
 # the harness-owned ~/.claude/projects, which Anthropic expires at will.
 # `yoga agent capture --all` is the capture step that populates the store
 # from the live projects root; run it early and often.
 #
 # Usage:
-#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: input/claude/code/machine-transport/<machine>/<project>
-#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: input/claude/code/machine-transport
+#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machine>/<project>
+#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
 #   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (machine_housekeeping, run_one, run_memory, corpus) are the
@@ -20,7 +20,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-CACHE_DIR="$REPO_DIR/cache/code-agents"
+CACHE_DIR="$REPO_DIR/tmp/cache/code-agents"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -46,14 +46,14 @@ parse_args() {
     echo "       $0 --code-agents <path/to/store-root>"
     echo
     echo "  project-directory: a machine's project under the store, e.g.:"
-    echo "    input/claude/code/machine-transport/<machine>/\$(pwd | tr '/' '-')"
+    echo "    data/input/claude/code/machine-transport/<machine>/\$(pwd | tr '/' '-')"
     echo "Pass --help for more information."
     exit 1
   fi
 }
 
 prune_departed() {
-  # No blanket wipe: the validation logs under cache/ ARE the memoisation (an
+  # No blanket wipe: the validation logs under tmp/cache/ ARE the memoisation (an
   # unchanged session revalidates against nothing), and jsonl_to_json keeps
   # session.json's mtime when content is unchanged for the same reason. cache
   # derivations die with their STORE datum — and the store is repo-owned, so
@@ -166,7 +166,7 @@ main() {
   fi
 
   if [[ ! -d "$code_projects" ]]; then
-    echo "no store at $code_projects (hand-make input/claude/code/machine-transport as a symlink to the shared store;"
+    echo "no store at $code_projects (hand-make data/input/claude/code/machine-transport as a symlink to the shared store;"
     echo "populate it via: ./yoga agent capture --all)"
     exit 0
   fi

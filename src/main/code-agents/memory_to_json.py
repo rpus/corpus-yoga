@@ -3,7 +3,7 @@
 memory_to_json.py — JSONify one project's memory/ directory into memory.json,
 the projectMemory datum (rsc/schema/code-agents/projectMemory).
 
-A project's memory/ (under input/claude/code/machine-transport/<machine>/<project>/, the repo-owned
+A project's memory/ (under data/input/claude/code/machine-transport/<machine>/<project>/, the repo-owned
 store transport populates) is an index (MEMORY.md, one '- [Title](file.md) — hook'
 line per fact) plus one markdown file per fact: YAML frontmatter (name,
 description, metadata) and a body that may [[link]] other facts by name. This

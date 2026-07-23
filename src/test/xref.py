@@ -33,7 +33,7 @@ REPO_ROOT = Path(__file__).parents[2]
 def _gitignored_roots() -> frozenset:
     roots = set()
     for line in (REPO_ROOT / '.gitignore').read_text().splitlines():
-        m = re.fullmatch(r'/([^/]+)/?', line.strip())  # anchored top-level dir: /cache/, /output
+        m = re.fullmatch(r'/([^/]+)/?', line.strip())  # anchored top-level dir: /tmp/cache/, /output
         if m:
             roots.add(m.group(1))
     return frozenset(roots)
@@ -57,8 +57,8 @@ STDLIB_MODULES = {
 # The DECLARED lifecycle roots, statically — never derived from the live
 # filesystem. Deriving them from iterdir() made the committed xref.csv depend
 # on which git-ignored dirs happened to exist at run time (found 2026-07-13:
-# a machine whose gate had already created logs/ swallowed `logs/src/...`
-# tokens whole and skipped them; a fresh worktree without logs/ matched the
+# a machine whose gate had already created tmp/logs/ swallowed `tmp/logs/src/...`
+# tokens whole and skipped them; a fresh worktree without tmp/logs/ matched the
 # same text from `src/` inward and emitted a row — two machines, two artifacts,
 # one byte-identical tree). Freshness is the wrong invariant for a committed
 # artifact; machine-invariance is the right one.
@@ -140,7 +140,7 @@ def looks_like_repo_path(s: str) -> bool:
         if base.endswith(_DOT_EXTS):
             return True
         s = s[2:]
-    # Must be more than a bare fragment like "cache/data-" with no filename
+    # Must be more than a bare fragment like "tmp/cache/data-" with no filename
     if not Path(s).suffix and not any(s.rstrip('/') == p.rstrip('/') for p in REPO_PREFIXES):
         has_name = bool(Path(s).name) and len(Path(s).name) > 3
         if not has_name:
@@ -308,9 +308,13 @@ def shell_vars(f: Path) -> dict[str, Path]:
             continue
         var, val = m.group(1), m.group(2)
 
-        # Pattern 1: BASH_SOURCE[0] — the script's own directory
+        # Pattern 1: BASH_SOURCE[0] — the script's own directory, minus any
+        # trailing /.. hops (src/RUNME.sh anchors REPO_ROOT at its parent)
         if 'BASH_SOURCE' in val or 'dirname' in val:
-            env[var] = script_dir
+            d = script_dir
+            for _ in range(val.count('/..')):
+                d = d.parent
+            env[var] = d
             continue
 
         # Pattern 2: $(cd "$OTHER/subpath" && pwd) — resolve path

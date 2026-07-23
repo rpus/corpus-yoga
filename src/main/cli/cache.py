@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 """
-cache.py — the `yoga cache` dispatcher. `cache` is a NOUN: the rebuildable cache/
+cache.py — the `yoga cache` dispatcher. `cache` is a NOUN: the rebuildable tmp/cache/
 tier. Bare shows its state and writes nothing; the verbs do the work.
 
-    ./yoga cache                    # status: the cache/ subtrees present
-    ./yoga cache clean --dry-run    # report orphaned cache/ subtrees (neither written nor read)
+    ./yoga cache                    # status: the tmp/cache/ subtrees present
+    ./yoga cache clean --dry-run    # report orphaned tmp/cache/ subtrees (neither written nor read)
     ./yoga cache clean --apply      # remove them
-    ./yoga cache sync [--dry-run]   # rebuild cache/ by running each registry row's producers
+    ./yoga cache sync [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
 
 Thin verb router over the sibling implementations — src/main/cli/clean.py and
 src/main/cli/sync.py — so the CLI table carries one `cache` command whose verbs
 are the two halves of the reproduction ritual: `yoga cache clean --apply &&
-yoga cache sync` gives a fresh cache/ from input/ + output/ alone. `sync` is the
+yoga cache sync` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
 idempotent regenerator (L1); `clean` is the only destructive verb.
 STDLIB-ONLY, like everything it routes to.
 """
@@ -27,9 +27,9 @@ USAGE = (__doc__ or '').strip()
 
 def status() -> int:
     """The bare-noun default: show current state, write nothing."""
-    cache = REPO / 'cache'
+    cache = REPO / 'tmp' / 'cache'
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
-    print(f'cache/: {len(subs)} subtree(s) present' + (f': {", ".join(subs)}' if subs else ' (empty)'))
+    print(f'tmp/cache/: {len(subs)} subtree(s) present' + (f': {", ".join(subs)}' if subs else ' (empty)'))
     return 0
 
 

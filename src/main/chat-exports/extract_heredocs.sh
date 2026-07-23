@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Run from the repo root, e.g.:
-#   src/main/chat-exports/extract_heredocs.sh --chat-export input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
-#   src/main/chat-exports/extract_heredocs.sh --chat-exports input/claude/chat/bulk-export
+#   src/main/chat-exports/extract_heredocs.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
+#   src/main/chat-exports/extract_heredocs.sh --chat-exports data/input/claude/chat/bulk-export
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-CACHE_DIR="$REPO_DIR/cache/chat-exports"
+CACHE_DIR="$REPO_DIR/tmp/cache/chat-exports"
 
 run_one() {
   local d="${1%/}"

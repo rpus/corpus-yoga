@@ -2,9 +2,9 @@
 """
 query_files.py — Run the standard SQL queries against files_audit.csv.
 
-Loads cache/<export>/presentation/files_audit.csv into an in-memory SQLite
+Loads tmp/cache/<export>/presentation/files_audit.csv into an in-memory SQLite
 database and runs each of the five documented queries, writing results to
-cache/<export>/audit_queries/.
+tmp/cache/<export>/audit_queries/.
 
 Usage:
     python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
@@ -31,7 +31,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-CACHE_DIR    = REPO_ROOT / 'cache' / 'chat-exports'
+CACHE_DIR    = REPO_ROOT / 'tmp' / 'cache' / 'chat-exports'
 
 QUERIES: list[tuple[str, str, str]] = [
     (

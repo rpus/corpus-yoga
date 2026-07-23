@@ -166,7 +166,7 @@ def process_chain() -> str:
 
 def collect_md_and_log(after_time, dest_dir, log_dir):
     """Move freshly-downloaded .md files into dest_dir (the capture's data directory under
-    input/) and the .log into log_dir (under logs/ -- input/ holds data only). The .log holds
+    data/input/) and the .log into log_dir (under tmp/logs/ -- data/input/ holds data only). The .log holds
     the in-browser capture log -- including errors like 'No copy buttons found!' -- so it
     is PERSISTED (and printed), not discarded: a failed scrape must leave its error in the
     filesystem, not merely scroll past the terminal. An empty return means the scrape

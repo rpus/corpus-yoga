@@ -14,7 +14,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
-CACHE_DIR="$REPO_DIR/cache/browser-captures/claude"
+CACHE_DIR="$REPO_DIR/tmp/cache/browser-captures/claude"
 
 validate_conversation() {
   local uuid_dir="${1%/}"

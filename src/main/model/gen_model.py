@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 """
 gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json.
-Output: cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring
+Output: tmp/cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring
 rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
 
 `model` is a NOUN: the catalogues. A bare invocation shows their current state and
 writes nothing (so there is no `status` verb — the bare noun IS the status). Only
-the `sync` verb writes: it brings cache/model into agreement with the schemas, and
+the `sync` verb writes: it brings tmp/cache/model into agreement with the schemas, and
 re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
-    ./yoga model         # status: which catalogues exist under cache/model/
+    ./yoga model         # status: which catalogues exist under tmp/cache/model/
     ./yoga model sync    # (re-)generate every catalogue to agree with the schemas
 """
 
@@ -27,7 +27,7 @@ from argparse_help import enrich  # noqa: E402
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
-OUT_DIR    = REPO_ROOT / 'cache' / 'model'
+OUT_DIR    = REPO_ROOT / 'tmp' / 'cache' / 'model'
 
 
 def _sorted_versions(schema_dir: Path) -> list[Path]:
@@ -53,32 +53,32 @@ def _catalogues() -> list[tuple[str, Path]]:
 
 
 def sync() -> None:
-    """The verb: bring cache/model into agreement with the schemas by (re-)generating
+    """The verb: bring tmp/cache/model into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
     for name, schema in _catalogues():
         out_dir = OUT_DIR / name
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / schema.name).write_text(generate(name, schema))
-        print(f'  ✓ cache/model/{name}/{schema.name}')
-    print('Review cache/model/ and update rsc/schema/model.json as needed.')
+        print(f'  ✓ tmp/cache/model/{name}/{schema.name}')
+    print('Review tmp/cache/model/ and update rsc/schema/model.json as needed.')
 
 
 def status() -> None:
     """The bare-noun default: show current state, write nothing. Reports which
-    catalogues cache/model/ already holds and which a `project` would still mint."""
+    catalogues tmp/cache/model/ already holds and which a `project` would still mint."""
     present, missing = [], []
     for name, schema in _catalogues():
         (present if (OUT_DIR / name / schema.name).exists() else missing).append(
             f'{name}/{schema.name}')
     total = len(present) + len(missing)
-    print(f'cache/model: {len(present)}/{total} catalogues present')
+    print(f'tmp/cache/model: {len(present)}/{total} catalogues present')
     for m in missing:
         print(f'  – {m} — not yet projected')
 
 
 def main():
     ap = argparse.ArgumentParser(
-        description='Per-schema definition catalogues (cache/model/<family>/vN.json), '
+        description='Per-schema definition catalogues (tmp/cache/model/<family>/vN.json), '
                     'candidates for the hand-curated rsc/schema/model.json. '
                     'Bare shows status; `sync` regenerates them to agree with the schemas.')
     sub = ap.add_subparsers(dest='verb')

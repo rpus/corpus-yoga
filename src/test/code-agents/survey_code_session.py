@@ -8,7 +8,7 @@ extending it, following the same approach as the conversations schema diagnostic
 
 Usage:
     python src/test/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-    python src/test/code-agents/survey_code_session.py input/claude/code/machine-transport/{machine}/{project-slug}/*.jsonl
+    python src/test/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}/*.jsonl
 
 Output: a human-readable report to stdout covering:
   - Record counts per type across all files

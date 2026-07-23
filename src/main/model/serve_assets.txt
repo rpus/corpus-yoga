@@ -1,14 +1,14 @@
 # serve_assets.txt — the markdown viewer's render libraries, pinned.
 #
 # The requirements.txt of `yoga server`: serve_markdown.py fetches each artifact
-# below into cache/serve_markdown/ on the first `yoga server start` (or `yoga server ensure-assets`),
-# and PREREQUISITES.sh reports how many are present. Two upstreams — marked 9 and
+# below into tmp/cache/serve_markdown/ on the first `yoga server start` (or `yoga server ensure-assets`),
+# and src/PREREQUISITES.sh reports how many are present. Two upstreams — marked 9 and
 # KaTeX 0.16.9 — the js/css plus the woff2 webfonts KaTeX needs to render maths.
 #
-# Format: one artifact per line, "<dest> <url>", dest relative to cache/serve_markdown/.
+# Format: one artifact per line, "<dest> <url>", dest relative to tmp/cache/serve_markdown/.
 # The core js/css are REQUIRED (serve refuses to start without them); the fonts/ are
 # progressive enhancement, fetched best-effort. To bump a version, edit the URLs here
-# and `yoga clean --apply && yoga regen` (or delete cache/serve_markdown and re-serve).
+# and `yoga clean --apply && yoga regen` (or delete tmp/cache/serve_markdown and re-serve).
 
 marked.min.js       https://cdn.jsdelivr.net/npm/marked@9/marked.min.js
 katex.min.js        https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js

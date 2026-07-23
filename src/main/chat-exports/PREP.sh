@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify that input/claude/chat/bulk-export/ contains at least one bulk export.
+# Verify that data/input/claude/chat/bulk-export/ contains at least one bulk export.
 #
 # If no exports are found, prints a skip notice and exits zero — a missing bulk
 # export is not an error; the pipeline simply has nothing to do.
@@ -9,7 +9,7 @@
 #   1. Log in to https://claude.ai
 #   2. Settings → Privacy → Export Data → Export (All)
 #   3. Click the download link in the emailed confirmation
-#   4. Extract the downloaded archive into input/claude/chat/bulk-export/
+#   4. Extract the downloaded archive into data/input/claude/chat/bulk-export/
 #
 # Usage:
 #   src/main/chat-exports/PREP.sh
@@ -29,11 +29,11 @@ parse_args() {
 }
 
 check_exports() {
-  local ext_dir="$REPO_DIR/input/claude/chat/bulk-export"
+  local ext_dir="$REPO_DIR/data/input/claude/chat/bulk-export"
   for d in "$ext_dir"/data-*/; do
     [[ -d "$d" ]] && return 0
   done
-  echo "skipping chat-exports (no bulk export in input/claude/chat/bulk-export/ — download from https://claude.ai/settings/data-privacy-controls)"
+  echo "skipping chat-exports (no bulk export in data/input/claude/chat/bulk-export/ — download from https://claude.ai/settings/data-privacy-controls)"
 }
 
 main() {

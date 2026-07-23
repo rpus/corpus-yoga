@@ -21,8 +21,8 @@ sets the exit status.
 
 Usage:
   src/run_python_script.sh src/main/model/compare_sources.py \
-    --browser-api input/claude/chat/browser-API \
-    --bulk-export input/claude/chat/bulk-export/<batch> [--diff]
+    --browser-api data/input/claude/chat/browser-API \
+    --bulk-export data/input/claude/chat/bulk-export/<batch> [--diff]
 
 Exit status is non-zero iff any shared conversation's TRANSCRIPT differs.
 """
@@ -59,8 +59,8 @@ def api_by_uuid(captures_dir):
 
 def bulk_by_uuid(batch_dir):
     """The bulk side, read from the per-conversation json/ pieces project_markdown atomised out of
-    the array (cache/chat-exports/<batch>/json/) -- the 24 MB array itself is never re-read here."""
-    json_dir = REPO / 'cache' / 'chat-exports' / Path(batch_dir).name / 'json'
+    the array (tmp/cache/chat-exports/<batch>/json/) -- the 24 MB array itself is never re-read here."""
+    json_dir = REPO / 'tmp' / 'cache' / 'chat-exports' / Path(batch_dir).name / 'json'
     if not json_dir.is_dir():
         sys.exit(f"no atomised json/ at {json_dir}; "
                  f"run project_markdown.py --bulk-export {batch_dir} first")

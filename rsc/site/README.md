@@ -8,12 +8,12 @@ the matching URL:
   not a finished page — both presenters copy it and inject the data tables (the
   category palette is authored inline here — design, never filled). The corpus-wide
   page is what deploys: `present_corpus.py` (`yoga dashboard sync`) writes it to
-  `output/dashboard/presentation/index.html`, a library artifact beside the
-  `output/dashboard/` captures it summarises. The per-batch pages (`present.sh`) are
-  export-scoped and stay in the workshop under `cache/chat-exports/<batch>/presentation/`.
+  `data/output/dashboard/presentation/index.html`, a library artifact beside the
+  `data/output/dashboard/` captures it summarises. The per-batch pages (`present.sh`) are
+  export-scoped and stay in the workshop under `tmp/cache/chat-exports/<batch>/presentation/`.
   The tables the page is built from are self-contained inside it (inlined `<script>`
   blocks); it fetches nothing at runtime — this repo only ever projects the corpus as
-  it stands in `input/`.
+  it stands in `data/input/`.
 - **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already
   complete page.
 
@@ -33,5 +33,5 @@ push in that repo:
 
 Netlify builds on push; `rpus.co/yoga/` serves the directory index. The site
 repo's location is machine-local (it is not this repo's business) — a
-hand-made `input/site` symlink to its clone is the conventional binding if a
+hand-made `data/input/site` symlink to its clone is the conventional binding if a
 `yoga`-verb deploy step is ever wanted.

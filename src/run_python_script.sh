@@ -18,7 +18,7 @@ main() {
   parse_args "$@"
 
   if [[ ! -f "$VENV/bin/python" ]]; then
-    echo "error: venv not found at $VENV — ./RUNME.sh creates it (override location via VENV=...)" >&2
+    echo "error: venv not found at $VENV — ./src/RUNME.sh creates it (override location via VENV=...)" >&2
     exit 1
   fi
   "$VENV/bin/python" "$@"

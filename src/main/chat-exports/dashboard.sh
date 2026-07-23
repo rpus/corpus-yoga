@@ -3,13 +3,13 @@
 #
 # Usage:
 #   yoga dashboard [status]     # what is captured (read-only, free)
-#   yoga dashboard sync         # FREE: render output/dashboard/presentation/index.html (idempotent)
-#                               #   from output/markdown + the durable captures
+#   yoga dashboard sync         # FREE: render data/output/dashboard/presentation/index.html (idempotent)
+#                               #   from data/output/markdown + the durable captures
 #   yoga dashboard capture      # PAID (needs ANTHROPIC_API_KEY): re-read the corpus
 #     [--conversations <path>]  #   source override: markdown corpus dir | json/ dir | conversations.json
 #     [--only semantic-concepts|chat-categories]   # refresh one file (default: both)
 #
-# Captures land durable in output/dashboard/ (shared across machines); the category
+# Captures land durable in data/output/dashboard/ (shared across machines); the category
 # palette is authored in rsc/site/index.html; the capture schemas live under
 # rsc/schema/dashboard/.
 
@@ -24,7 +24,7 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
-# The default source is the projected corpus itself (output/markdown — every source's
+# The default source is the projected corpus itself (data/output/markdown — every source's
 # conversations dir combined, claude first), whose filenames carry the cached
 # ordering — read back by markdown_projection.corpus_index, the format authority.
 # Each line carries a [source] marker: the stem's <source> dir prefix on a
@@ -159,24 +159,24 @@ validate_capture() {
 # weighted concept list (word cloud) and the chat→category assignment. Run once
 # over the corpus; both machines share the result.
 #
-# capture is DERIVE-then-DEPOSIT: both readings are captured into cache/dashboard
-# (the workshop, git-ignored, corpus-scoped like cache/indexing) and validated there, then
-# PROMOTED into the durable output/dashboard/ only once both succeed. A failed or
+# capture is DERIVE-then-DEPOSIT: both readings are captured into tmp/cache/dashboard
+# (the workshop, git-ignored, corpus-scoped like tmp/cache/indexing) and validated there, then
+# PROMOTED into the durable data/output/dashboard/ only once both succeed. A failed or
 # malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
 # untouched; set -e aborts before the promotion step. Promotion is `mv` (an atomic
 # rename within the repo's one filesystem), the two adjacent so the mixed-vintage
 # window is two syscalls rather than a paid API round-trip.
 # capture_dashboard <conversations_json> <only> — <only> is "" (both),
 # "semantic-concepts", or "chat-categories". Whatever is requested is captured and
-# validated in cache/ FIRST, then all of it promoted — so the default two-file refresh
+# validated in tmp/cache/ FIRST, then all of it promoted — so the default two-file refresh
 # never leaves the durable pair at mixed vintages if the second capture fails.
 capture_dashboard() {
   local conv="$1" only="${2:-}"
   local src_label; src_label="$(basename "$(dirname "$conv")")/$(basename "$conv")"
-  # corpus-scoped staging (like cache/indexing): the capture is a reading of the
+  # corpus-scoped staging (like tmp/cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
-  local stage="$REPO_DIR/cache/dashboard"
-  local dest="$REPO_DIR/output/dashboard"
+  local stage="$REPO_DIR/tmp/cache/dashboard"
+  local dest="$REPO_DIR/data/output/dashboard"
   mkdir -p "$stage" "$dest"
 
   local want_concepts=1 want_categories=1
@@ -193,7 +193,7 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → cache/dashboard (promoted to output/dashboard/ on success)"
+  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → tmp/cache/dashboard (promoted to data/output/dashboard/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/semantic-concepts.json"
     validate_capture "$stage/semantic-concepts.json" semanticConcepts
@@ -216,13 +216,13 @@ capture_dashboard() {
 
   [[ "$want_concepts"   == 1 ]] && mv "$stage/semantic-concepts.json" "$dest/semantic-concepts.json"
   [[ "$want_categories" == 1 ]] && mv "$stage/chat-categories.json"   "$dest/chat-categories.json"
-  echo "promoted → output/dashboard/ — both machines share it (output/ is iCloud, not git)"
+  echo "promoted → data/output/dashboard/ — both machines share it (data/output/ is iCloud, not git)"
 }
 
 # ── read-only status (bare `yoga dashboard`) ──────────────────────────────────
 status() {
-  local d="$REPO_DIR/output/dashboard" f
-  echo "output/dashboard/ — the paid model captures the dashboard renders"
+  local d="$REPO_DIR/data/output/dashboard" f
+  echo "data/output/dashboard/ — the paid model captures the dashboard renders"
   for f in semantic-concepts.json chat-categories.json; do
     if [[ -f "$d/$f" ]]; then
       echo "  ✓ $f ($(jq '.rows | length' "$d/$f") rows)"
@@ -235,17 +235,17 @@ status() {
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
-# The corpus itself: output/markdown/claude/chat/conversations — the projected
+# The corpus itself: data/output/markdown/claude/chat/conversations — the projected
 # markdownConversation corpus, source-agnostic by construction (whatever projects
 # into it — captures today, gemini tomorrow — is what the model reads), and the
 # very thing the dashboard describes. Its filenames carry ordered()'s canonical
 # numbering and its frontmatter the uuids, so the chat list and the rekey map read
 # straight off the OUTPUT layer: no batch selection, no atomise-first coupling —
 # capture works the moment the corpus exists. (Sourced from the frontier batch's
-# cache/<batch>/json/ before 2026-07-10; from input/conversations.json before that —
+# tmp/cache/<batch>/json/ before 2026-07-10; from data/input/conversations.json before that —
 # each move one layer further down the input→cache→output lifecycle.)
 corpus_conversations() {
-  local d="$REPO_DIR/output/markdown"
+  local d="$REPO_DIR/data/output/markdown"
   [[ -d "$d" ]] && compgen -G "$d/*/conversations/*.md" > /dev/null && echo "$d"
 }
 
@@ -265,7 +265,7 @@ capture() {
   [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   local conv="${conversations:-$(corpus_conversations)}"
-  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under output/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under data/output/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   capture_dashboard "$conv" "$only"
 }
 

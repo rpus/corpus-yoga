@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# RUNME.sh (yoga run) — process what input/ already holds; never acquire.
+# src/RUNME.sh (yoga run) — process what data/input/ already holds; never acquire.
 # Three pipelines (browser-captures, chat-exports, code-agents) each validate their
 # inputs against all schema versions, then extract, project, and present.
 # Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
 #
 # Usage:
-#   ./RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
+#   ./src/RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
 #     --plan            print the ordered step plan; run nothing
 #     --only <p>        one pipeline: browser-captures | chat-exports | code-agents
 #     --compare-scrape  also compare the claude projection against a fresh DOM scrape
 #
-# Inputs live under input/<provider>/<channel>/<capture>/ (any entry may be a
+# Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga check.
 
 set -euo pipefail
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=src/main/steps.sh
-source "$SCRIPT_DIR/src/main/steps.sh"
+source "$REPO_ROOT/src/main/steps.sh"
 : "${VENV:=$HOME/venvs/general}"
 
 parse_args() {
@@ -75,14 +75,14 @@ install_deps() {
   source "$VENV/bin/activate"
   echo "checking for pip upgrade"
   pip install --upgrade pip
-  pip install -q -r "$SCRIPT_DIR/src/requirements.txt"
+  pip install -q -r "$REPO_ROOT/src/requirements.txt"
 }
 
 prep_pipeline() {
   local name="$1"; shift
   echo "── prep: ${name} ────────────────────────────────────────────────────────────"
   local rc=0
-  "$SCRIPT_DIR/src/main/${name}/PREP.sh" "$@" || rc=$?
+  "$REPO_ROOT/src/main/${name}/PREP.sh" "$@" || rc=$?
   echo ""
   return $rc
 }
@@ -91,7 +91,7 @@ run_pipeline() {
   local name="$1"; shift
   echo "── ${name} ──────────────────────────────────────────────────────────────────"
   local rc=0
-  "$SCRIPT_DIR/src/main/$name/RUNME.sh" "--${name}" "$@" || rc=$?
+  "$REPO_ROOT/src/main/$name/RUNME.sh" "--${name}" "$@" || rc=$?
   echo ""
   return $rc
 }
@@ -154,7 +154,7 @@ prep_pipeline_safe() {
   fi
 }
 
-LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+LOG_FILE="$REPO_ROOT/tmp/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -177,8 +177,8 @@ LOG_FILE="$SCRIPT_DIR/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 #   curated ones. index.md sat in exactly that unguarded cell, which is why
 #   it went stale: nothing was wired to its only mechanism.
 run_corpus_tail() {
-  step indexing "$SCRIPT_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/src/main/model/build_index.py" sync
+  step indexing "$REPO_ROOT/src/run_python_script.sh" \
+    "$REPO_ROOT/src/main/model/build_index.py" sync
 }
 
 # The pipelines' own --plan output is the one authority on their step order
@@ -190,18 +190,18 @@ print_plan() {
   # capture-sweep line resolves against the flags given instead of staying
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
-  echo "RUNME.sh — the ordered plan${only:+ (--only $only)} (conditional steps annotated; nothing executed):"
+  echo "src/RUNME.sh — the ordered plan${only:+ (--only $only)} (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
   if should_run browser-captures; then
-    "$SCRIPT_DIR/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
   fi
   if should_run chat-exports; then
     echo "  chat-exports/PREP.sh"
-    "$SCRIPT_DIR/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
   fi
   if should_run code-agents; then
     echo "  code-agents/PREP.sh"
-    "$SCRIPT_DIR/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
   fi
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
@@ -221,17 +221,17 @@ main() {
   local -a pipeline_failures=()
 
   if should_run browser-captures; then
-    run_pipeline_safe  browser-captures "$SCRIPT_DIR/input/claude/chat/browser-API" ${compare_scrape:+"$compare_scrape"}
+    run_pipeline_safe  browser-captures "$REPO_ROOT/data/input/claude/chat/browser-API" ${compare_scrape:+"$compare_scrape"}
   fi
 
   if should_run chat-exports; then
     prep_pipeline_safe chat-exports
-    run_pipeline_safe  chat-exports "$SCRIPT_DIR/input/claude/chat/bulk-export"
+    run_pipeline_safe  chat-exports "$REPO_ROOT/data/input/claude/chat/bulk-export"
   fi
 
   if should_run code-agents; then
     prep_pipeline_safe code-agents
-    run_pipeline_safe  code-agents "$SCRIPT_DIR/input/claude/code/machine-transport"
+    run_pipeline_safe  code-agents "$REPO_ROOT/data/input/claude/code/machine-transport"
   fi
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
@@ -276,8 +276,8 @@ main() {
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
-        "chat-exports (prep)")   echo "    → populate input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
-        "code-agents (prep)")  echo "    → check input/claude/code/machine-transport/ (the store) and input/claude-code-projects/ (transport's source) symlinks" ;;
+        "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
+        "code-agents (prep)")  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/claude-code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done

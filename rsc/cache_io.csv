@@ -1,9 +1,9 @@
 cache_path,pipeline,written_by,read_by,note
-cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture apiConversation validation logs and matrix (browser-captures pipeline)
-cache/chat-exports,chat-exports,./yoga run --only chat-exports,src/main/chat-exports/compare_batches.py; src/test/pre_commit.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
-cache/code-agents,code-agents,./yoga run --only code-agents,src/main/code-agents/render_corpus.py; src/test/pre_commit.py,converted sessions; conversation.json; memory.json; validation logs; matrices
-cache/completions,,./yoga completions sync,external:zsh; PREREQUISITES.sh,static zsh tab-completion derived from rsc/cli/commands.csv + rsc/cli/help.csv
-cache/dashboard,,./yoga dashboard sync,,the data tables feeding the corpus dashboard (sync render) — feedstock only (re-derived each run; the finished page now lands in output/dashboard/presentation/). The paid capture also stages here transiently before promotion to output/dashboard
-cache/indexing,,./yoga indexing candidates,external:human,the pending-concept queue (candidates.txt); a rebuildable derivation of output/dashboard minus output/indexing curation
-cache/model,,./yoga model,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/schema/model.json
-cache/serve_markdown,,./yoga server ensure-assets,external:browser,the markdown viewer's third-party render libraries — KaTeX + marked + pinned fonts — fetched from the CDN by ensure_assets; browser-read via /static/; the server self-heals them at startup and this producer lets sync repopulate them too
+tmp/cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture apiConversation validation logs and matrix (browser-captures pipeline)
+tmp/cache/chat-exports,chat-exports,./yoga run --only chat-exports,src/main/chat-exports/compare_batches.py; src/test/pre_commit.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
+tmp/cache/code-agents,code-agents,./yoga run --only code-agents,src/main/code-agents/render_corpus.py; src/test/pre_commit.py,converted sessions; conversation.json; memory.json; validation logs; matrices
+tmp/cache/completions,,./yoga completions sync,external:zsh; src/PREREQUISITES.sh,static zsh tab-completion derived from rsc/cli/commands.csv + rsc/cli/help.csv
+tmp/cache/dashboard,,./yoga dashboard sync,,the data tables feeding the corpus dashboard (sync render) — feedstock only (re-derived each run; the finished page now lands in data/output/dashboard/presentation/). The paid capture also stages here transiently before promotion to data/output/dashboard
+tmp/cache/indexing,,./yoga indexing candidates,external:human,the pending-concept queue (candidates.txt); a rebuildable derivation of data/output/dashboard minus data/output/indexing curation
+tmp/cache/model,,./yoga model,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/schema/model.json
+tmp/cache/serve_markdown,,./yoga server ensure-assets,external:browser,the markdown viewer's third-party render libraries — KaTeX + marked + pinned fonts — fetched from the CDN by ensure_assets; browser-read via /static/; the server self-heals them at startup and this producer lets sync repopulate them too

@@ -2,7 +2,7 @@
 """
 validation_matrix.py — render a datum's machine-local validation matrix from its logs.
 
-Each datum directory under cache/ whose validation/ holds vN.log files gets a single
+Each datum directory under tmp/cache/ whose validation/ holds vN.log files gets a single
 sibling matrix.md summarising them (schema × version → ✓/✗, bytes). The matrix is
 derived state: git-ignored, co-located with its datum, and written by validation
 itself (validate_versions.py) whenever the logs change — so it can never be stale.

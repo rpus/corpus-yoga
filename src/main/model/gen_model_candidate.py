@@ -15,7 +15,7 @@ Examples:
     python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v1.json
     python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 
-Output: JSON to stdout. Redirect to cache/model/<schema-type>/<version>.json for review.
+Output: JSON to stdout. Redirect to tmp/cache/model/<schema-type>/<version>.json for review.
 Normally invoked via ./yoga model which handles all schemas automatically.
 """
 

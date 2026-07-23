@@ -17,7 +17,7 @@ prints producer commands under `sync`); `subcommand` blank is command-level, `ar
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
 as a step of the named run pipeline (`chat-exports`), or of the root RUNME's whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
-input spans them all): the gate holds `RUNME.sh --plan` to
+input spans them all): the gate holds `src/RUNME.sh --plan` to
 invoking it by command AND verb, so the plan speaks the surface you would type and a step can
 never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
 files are written `QUOTE_ALL` so a comma in any cell is safe.
@@ -37,7 +37,7 @@ reads the same wording whether reached via `yoga` or run directly — one source
 argparse still the authority on structure.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
-data lives outside git (durable in `output/`, rebuildable in `cache/`): `yoga dashboard` (model
+data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga dashboard` (model
 captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
 committed in `rsc/cli/readings.md`.
 
@@ -61,7 +61,7 @@ from examples — one did, and misread design as sediment):
 - **Verbs.** `capture` is the acquisition verb everywhere it appears — `browser
   capture`, `dashboard capture`, `agent capture` all *bring data in* (from Safari,
   the paid model, the harness's session store respectively). `run` only processes
-  what `input/` already holds. `present` renders, free. `clean`/`sync` are the
+  what `data/input/` already holds. `present` renders, free. `clean`/`sync` are the
   cache lifecycle. `receive`/`demerge` move agents between machines and undo the move.
 - **Bare invocations are free and local** — never paid, never a browser. Bare is a
   *read-only status report* wherever the command has verbs, the write living in the
@@ -90,7 +90,7 @@ every row to: parseable table, unique + alphabetical commands, existing targets,
 calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the
 target, the target's own flags all advertised back (both directions), advertised
 verbs in the target's live `--help`, help ≤ 20 lines, each `step`-marked command
-invoked by command and verb in `RUNME.sh --plan`, and the emitted completion parsing
+invoked by command and verb in `src/RUNME.sh --plan`, and the emitted completion parsing
 under `zsh -n`.
 
 The table is curated, not discovered: a script's absence here is a decision, not

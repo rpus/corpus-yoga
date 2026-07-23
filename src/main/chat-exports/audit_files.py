@@ -2,22 +2,22 @@
 """
 audit_files.py — Full-outer-join file audit for one export.
 
-Writes a CSV to cache/chat-exports/<export>/audit_queries/files_audit.csv with one row per
+Writes a CSV to tmp/cache/chat-exports/<export>/audit_queries/files_audit.csv with one row per
 (source, file-path) covering every file known about for the export across five
 sources:
 
     source   description
     ───────  ─────────────────────────────────────────────────────────────────
     tooltip  Paths from data-files.json, which is derived from
-             output/artifacts/downloaded/ by files_from_downloaded.py.
+             data/output/artifacts/downloaded/ by files_from_downloaded.py.
              This is what the index.html tooltip shows.
-    ef       Files written to cache/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
+    ef       Files written to tmp/cache/<export>/extracted_files/ by src/main/chat-exports/extract_files.py
              (from create_file tool calls).
-    eh_out   Files written to cache/<export>/extracted_heredocs/<chat>/outputs/
+    eh_out   Files written to tmp/cache/<export>/extracted_heredocs/<chat>/outputs/
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
-    eh_wrk   Files written to cache/<export>/extracted_heredocs/<chat>/working/
+    eh_wrk   Files written to tmp/cache/<export>/extracted_heredocs/<chat>/working/
              by src/main/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
-    dl       Files in the durable library output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/
+    dl       Files in the durable library data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/
              (manually downloaded from the claude.ai UI; joined by uuid via
              library.py and the uuid column of data-chats.json — library names
              survive the renumbering that batch ordinals don't).
@@ -30,7 +30,7 @@ Columns
     path          Path as it appears in this source (relative to the chat/bucket
                   root; no container prefix).
     in_dl         For ef/eh_out/eh_wrk rows: Y if a counterpart exists in
-                  output/artifacts/downloaded at the expected path; N otherwise.
+                  data/output/artifacts/downloaded at the expected path; N otherwise.
                   Empty for tooltip and dl rows.
     dl_compare    For ef/eh_out/eh_wrk rows: comparison result against the
                   downloaded counterpart —
@@ -42,9 +42,9 @@ Columns
 
 Downloaded path conventions
 ────────────────────────────
-    ef      output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
-    eh_out  output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
-    eh_wrk  output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/working/<path>  (bucket preserved)
+    ef      data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
+    eh_out  data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
+    eh_wrk  data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/working/<path>  (bucket preserved)
 
 Usage
 ─────
@@ -53,7 +53,7 @@ Usage
 
     Example:
         src/main/chat-exports/audit_files.sh --chat-export \\
-            input/claude/chat/bulk-export/data-0fc4c1e0-...-batch-0000
+            data/input/claude/chat/bulk-export/data-0fc4c1e0-...-batch-0000
 
 SQL queries
 ───────────
@@ -76,7 +76,7 @@ from library import dir_for
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
-CACHE_DIR    = REPO_ROOT / 'cache' / 'chat-exports'
+CACHE_DIR    = REPO_ROOT / 'tmp' / 'cache' / 'chat-exports'
 
 
 def compare(src_path, dl_path):

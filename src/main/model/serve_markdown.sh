@@ -5,17 +5,17 @@
 #   src/main/model/serve_markdown.sh                 # status: daemon + render-asset presence
 #   src/main/model/serve_markdown.sh start [--markdown <dir>] [--port <n>] [--daemon]
 #   src/main/model/serve_markdown.sh stop
-#   src/main/model/serve_markdown.sh ensure-assets   # fetch the render libs into cache/, then exit
+#   src/main/model/serve_markdown.sh ensure-assets   # fetch the render libs into tmp/cache/, then exit
 #
-# Defaults: --markdown output/markdown (the corpus the server exists to serve), --port 8182.
+# Defaults: --markdown data/output/markdown (the corpus the server exists to serve), --port 8182.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-# run diagnostics live under logs/ (time-keyed, human-facing); cache/ holds only
+# run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
-LOG_FILE="$REPO_DIR/logs/src/main/model/serve_markdown.log"
+LOG_FILE="$REPO_DIR/tmp/logs/src/main/model/serve_markdown.log"
 PY=("$SCRIPT_DIR/../../run_python_script.sh" "$SCRIPT_DIR/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),
@@ -31,15 +31,15 @@ status() {
     echo "serve_markdown daemon: not running"
   fi
   # render-asset presence — a bare file tally against the manifest (the authoritative
-  # readiness report, with versions, is PREREQUISITES.sh's check_dependencies)
-  local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/cache/serve_markdown"
+  # readiness report, with versions, is src/PREREQUISITES.sh's check_dependencies)
+  local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/tmp/cache/serve_markdown"
   local total=0 present=0 line f
   while IFS= read -r line; do
     line="${line%%#*}"; f="${line%%[[:space:]]*}"
     [[ -z "$f" ]] && continue
     total=$((total + 1)); [[ -f "$dir/$f" ]] && present=$((present + 1))
   done < "$manifest"
-  echo "render assets: $present/$total present in cache/serve_markdown"
+  echo "render assets: $present/$total present in tmp/cache/serve_markdown"
   echo "verbs: start | stop | ensure-assets    (./yoga server --help)"
 }
 
@@ -51,7 +51,7 @@ start() {
       *) [[ "$1" == "--markdown" ]] && have_md=1; pyargs+=("$1"); shift ;;
     esac
   done
-  [[ "$have_md" -eq 0 ]] && pyargs+=(--markdown "$REPO_DIR/output/markdown")
+  [[ "$have_md" -eq 0 ]] && pyargs+=(--markdown "$REPO_DIR/data/output/markdown")
   mkdir -p "$(dirname "$LOG_FILE")"
   export PYTHONUNBUFFERED=1
   if [[ "$daemon" -eq 1 ]]; then

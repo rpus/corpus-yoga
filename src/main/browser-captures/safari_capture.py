@@ -10,9 +10,9 @@ the projection against it. Claude's scrape is otherwise retired (slow, brittle, 
 markdown is derived from the JSON by project_markdown).
 
 Each mechanism deposits under its own root — the capture axis of the corpus type
-system (input/<provider>/<channel>/<capture>/):
-  browser-API : input/<agent>/chat/browser-API/<id>/<id>.json     (claude only)
-  browser-DOM : input/<agent>/chat/browser-DOM/<id>/<title>.md    (+ gemini's ordering.txt)
+system (data/input/<provider>/<channel>/<capture>/):
+  browser-API : data/input/<agent>/chat/browser-API/<id>/<id>.json     (claude only)
+  browser-DOM : data/input/<agent>/chat/browser-DOM/<id>/<title>.md    (+ gemini's ordering.txt)
 The same conversation id names the capture dir under both roots — the id is the join.
 
 Discovery (the conversation-id listing) is shared: navigate to the agent's listing URL and scroll.
@@ -30,9 +30,9 @@ Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --agent claude            [--browser-api  input/claude/chat/browser-API]
-    python safari_capture.py --agent claude --scrape   [--browser-dom  input/claude/chat/browser-DOM]
-    python safari_capture.py --agent gemini --id <id>  [--browser-dom  input/gemini/chat/browser-DOM]
+    python safari_capture.py --agent claude            [--browser-api  data/input/claude/chat/browser-API]
+    python safari_capture.py --agent claude --scrape   [--browser-dom  data/input/claude/chat/browser-DOM]
+    python safari_capture.py --agent gemini --id <id>  [--browser-dom  data/input/gemini/chat/browser-DOM]
 """
 import argparse
 import json
@@ -118,7 +118,7 @@ def outcome(do_api, do_scrape, files, had_md):
     if do_api and not has_json:
         return 'apiConversation JSON fetch failed — the FAIL: line above carries the remedy', None
     if do_scrape and not has_md:
-        why = 'no markdown — see the scrape log under logs/.../safari_capture/<agent>/scrape/'
+        why = 'no markdown — see the scrape log under tmp/logs/.../safari_capture/<agent>/scrape/'
         if had_md:
             why += ' (previous .md retained, now STALE)'
         return (None, why) if do_api else (why, None)
@@ -276,8 +276,8 @@ def capture_all(agent, ids, api_root, dom_root, navigate=True, also_scrape=False
     do_api = cfg['api']
     do_scrape = cfg['scrape'] or also_scrape
     js_script = SCRIPT_DIR / agent / 'browser-chat-capture.js'
-    # per-conversation scrape diagnostics go under logs/ (input/ holds captured data only)
-    scrape_log_dir = REPO_DIR / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / agent / 'scrape'
+    # per-conversation scrape diagnostics go under tmp/logs/ (data/input/ holds captured data only)
+    scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / agent / 'scrape'
     label = 'discover' if navigate else 'capture'
     methods = '+'.join(m for m, on in (('api', do_api), ('scrape', do_scrape)) if on)
     if not ids:
@@ -340,9 +340,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
     ap.add_argument('--browser-api', default=None,
-                    help='browser-API root (default: input/<agent>/chat/browser-API; claude only)')
+                    help='browser-API root (default: data/input/<agent>/chat/browser-API; claude only)')
     ap.add_argument('--browser-dom', default=None,
-                    help='browser-DOM root (default: input/<agent>/chat/browser-DOM)')
+                    help='browser-DOM root (default: data/input/<agent>/chat/browser-DOM)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -358,8 +358,8 @@ def main():
             raise SystemExit(1)
 
     # one root per mechanism this agent performs; dirs appear only when captured into
-    api_root = Path(args.browser_api or REPO_DIR / 'input' / args.agent / 'chat' / 'browser-API').resolve()
-    dom_root = Path(args.browser_dom or REPO_DIR / 'input' / args.agent / 'chat' / 'browser-DOM').resolve()
+    api_root = Path(args.browser_api or REPO_DIR / 'data' / 'input' / args.agent / 'chat' / 'browser-API').resolve()
+    dom_root = Path(args.browser_dom or REPO_DIR / 'data' / 'input' / args.agent / 'chat' / 'browser-DOM').resolve()
     if cfg['api']:
         api_root.mkdir(parents=True, exist_ok=True)
     if cfg['scrape'] or args.scrape:
