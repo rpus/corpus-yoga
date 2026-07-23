@@ -163,3 +163,26 @@ mooring (or finds a pre-moored one `done`), re-hangs the
 residue reported, never destroyed). The corpus bytes on the medium are
 untouched throughout. Every report lands under `swap/` — one folder tells
 the room's whole story.
+
+## After the apply (per machine)
+
+The apply moves tiers out from under state that was WRITTEN against the old
+paths; each machine settles that state itself, immediately:
+
+- **`yoga completions install-latest`** — the `~/.zshrc` block any
+  pre-migration install wrote points `fpath` at `cache/completions`, which
+  the apply just moved to `tmp/cache/completions`: tab completion silently
+  vanishes until the block converges (found in home-room 2026-07-23,
+  minutes after applying — nothing announces it; TAB just stops). The
+  installer rewrites the delimited block to the new path, regenerates
+  `_yoga` there, and clears `~/.zcompdump*` so the next terminal's first
+  TAB works.
+- **The vestige `rmdir` from the dismantling list can run now** — empty
+  `input/ cache/ logs/` re-minted by any pre-#26 stragglers sit hidden by
+  the transitional ignore rules either way; `rmdir` refuses non-empties,
+  so it is safe whenever.
+- **`tmp/` is now a REAL tier.** The transition-era habit of disposing a
+  gate-born `tmp/` (recipe steps 0 and 4) DIES here: post-apply it holds
+  the room's cache memoisation and logs, and deleting it costs a full
+  revalidation (done once in home-room by exactly that reflex,
+  2026-07-23). Disposal there is `yoga cache clean` or nothing.
