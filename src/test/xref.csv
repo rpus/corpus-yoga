@@ -26,9 +26,9 @@ README.md,101,doc,src/test/pre_commit_expected_score,Y,- `src/test/pre_commit.lo
 README.md,102,doc,src/test/xref.csv,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
 README.md,102,doc,src/test/xref_expected_score,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
 README.md,112,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
-README.md,117,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,117,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,123,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,131,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,131,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,137,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
