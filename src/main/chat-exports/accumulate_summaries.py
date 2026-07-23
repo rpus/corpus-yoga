@@ -119,6 +119,35 @@ def index_text(uuid, stem, title, deposit_names):
     return '\n'.join(lines) + '\n'
 
 
+def twins_of(folder: Path) -> list[Path]:
+    """The folder's bug-artifact deposits: each byte-identical to its NEAREST
+    EARLIER sibling in stamp order — exactly what the sync loop's dedup would
+    never write, so any such deposit is a pre-existing artifact (the pre-fix
+    loop minted one corpus-wide layer per batch disposal; 196 measured in the
+    shared store, 2026-07-23). A genuine A→B→A recurrence is NOT a twin: its
+    second A follows B. ONE authority for the criterion — status, sync's
+    WARN, and the one-shot prune_twin_deposits.py all call this function."""
+    deps = sorted(p for p in folder.glob('*.md')
+                  if p.name not in ('index.md', 'browser-capture.md'))
+    return [p for prev, p in zip(deps, deps[1:])
+            if p.read_bytes() == prev.read_bytes()]
+
+
+def _warn_twins(root: Path) -> int:
+    """Report the store's twin count with the disposal remedy — the standing
+    detector (purge follows detect/report, and 'done' means this reads zero).
+    WARN-prefixed so the run tail's atom hoisting carries it into every
+    yoga run summary."""
+    twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
+        if root.is_dir() else 0
+    if twins:
+        print(f'WARN: {twins} twin deposit(s) in the summaries store — byte-identical '
+              'to their nearest earlier sibling; bug artifacts, not readings:')
+        print('    → run: src/run_python_script.sh src/main/chat-exports/prune_twin_deposits.py'
+              '  # read-only census; --apply removes (rooms\' L4 decision, PR #21)')
+    return twins
+
+
 def status(root: Path) -> int:
     """The bare-noun default: show the store's current state, write nothing.
     Deliberately store-only (pure directory listing): computing what a sync
@@ -135,6 +164,7 @@ def status(root: Path) -> int:
     shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
     print(f'summaries: {len(folders)} conversation folder(s), {readings} deposited '
           f'reading(s), {rolling} rolling capture reading(s) in {shown}')
+    _warn_twins(root)
     return 0
 
 
@@ -246,6 +276,9 @@ def main():
 
     print(f'summaries: {deposited} reading(s) deposited, {unchanged} already held, '
           f'{renamed} folder(s) renamed -> {root.relative_to(REPO) if root.is_relative_to(REPO) else root}')
+    # the standing twin detector runs on every sync too — ambient in the run
+    # tail via WARN-atom hoisting, not only on an explicit status invocation
+    _warn_twins(root)
 
 
 if __name__ == '__main__':
