@@ -119,18 +119,37 @@ def index_text(uuid, stem, title, deposit_names):
     return '\n'.join(lines) + '\n'
 
 
+def nearest_earlier_deposit(folder: Path, stamp: str):
+    """The deposit with the greatest stamp STRICTLY before `stamp`, or None.
+    THE one rule (PR #23 review): the WRITER (sync's deposit loop skips a
+    reading identical to it) and the DETECTOR (twins_of flags a deposit
+    identical to it) evaluate this same function — a writer/detector pair
+    with separate implementations diverges silently, and a diverged detector
+    under-reports exactly the damage it exists to announce. Strict '<' so a
+    deposit is never its own nearest-earlier. index.md and
+    browser-capture.md are not deposits."""
+    earlier = sorted(p for p in folder.glob('*.md')
+                     if p.name not in ('index.md', 'browser-capture.md')
+                     and p.stem < stamp)
+    return earlier[-1] if earlier else None
+
+
 def twins_of(folder: Path) -> list[Path]:
-    """The folder's bug-artifact deposits: each byte-identical to its NEAREST
-    EARLIER sibling in stamp order — exactly what the sync loop's dedup would
-    never write, so any such deposit is a pre-existing artifact (the pre-fix
-    loop minted one corpus-wide layer per batch disposal; 196 measured in the
-    shared store, 2026-07-23). A genuine A→B→A recurrence is NOT a twin: its
-    second A follows B. ONE authority for the criterion — status, sync's
-    WARN, and the one-shot prune_twin_deposits.py all call this function."""
+    """The folder's bug-artifact deposits: each byte-identical to its nearest
+    earlier sibling — exactly what the sync loop's dedup (the same
+    nearest_earlier_deposit rule) would never write, so any such deposit is a
+    pre-existing artifact (the pre-fix loop minted one corpus-wide layer per
+    batch disposal; 196 measured in the shared store, 2026-07-23). A genuine
+    A→B→A recurrence is NOT a twin: its second A's nearest-earlier is B.
+    Callers: status, sync's WARN, and the one-shot prune_twin_deposits.py."""
     deps = sorted(p for p in folder.glob('*.md')
                   if p.name not in ('index.md', 'browser-capture.md'))
-    return [p for prev, p in zip(deps, deps[1:])
-            if p.read_bytes() == prev.read_bytes()]
+    out = []
+    for p in deps:
+        prior = nearest_earlier_deposit(folder, p.stem)
+        if prior is not None and p.read_bytes() == prior.read_bytes():
+            out.append(p)
+    return out
 
 
 def _warn_twins(root: Path) -> int:
@@ -241,16 +260,14 @@ def main():
         # while a GENUINE recurrence (readings A→B→A: the oracle reverting
         # to an earlier reading across an intervening different one) still
         # deposits — a folder-wide content set would suppress that event.
-        # browser-capture.md and index.md are not deposits and play no part.
-        def _nearest_earlier(ts):
-            earlier = sorted(p for p in folder.glob('*.md')
-                             if p.name not in ('index.md', 'browser-capture.md')
-                             and p.stem <= ts)
-            return earlier[-1] if earlier else None
+        # The rule is nearest_earlier_deposit, THE one shared function the
+        # twin detector also evaluates (PR #23 review): writer and detector
+        # with separate implementations diverge silently, and a diverged
+        # detector under-reports exactly what it exists to announce.
         for ts, s in readings.get(u, []):
             f = folder / f'{ts}.md'
             if not f.exists():
-                prior = _nearest_earlier(ts)
+                prior = nearest_earlier_deposit(folder, ts)
                 if prior is not None and prior.read_text() == s:
                     unchanged += 1       # unchanged since its nearest earlier deposit
                 else:
