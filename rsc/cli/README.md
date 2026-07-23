@@ -73,8 +73,12 @@ from examples — one did, and misread design as sediment):
   INVOCATION FORMS — each becomes its own line in `yoga commands` and its own
   verb for the honesty gate. An unspaced `|` is an enum inside one form
   (`--provider claude|gemini`). Parens group a required choice
-  (`(--dry-run|--apply)`); brackets mark the optional. `--flags` are harvested
-  across all forms and deduplicated for the completion.
+  (`(--dry-run|--apply)`); brackets mark the optional. The completion offers
+  `--flags` at VERB scope, exactly the verb's own help.csv rows — never the
+  across-verbs union, which TAB-completed flags the dispatched verb then
+  rejected (`cache sync --apply`, found 2026-07-23); command-level rows
+  (`subcommand` blank) complete only before a verb, where argparse accepts
+  them.
 - **Rows are alphabetical by command**, enforced (`cli: commands alphabetical`),
   so every derived surface lists commands in one findable order.
 - **A `step`-marked command is a corpus-wide operation**, never a per-batch one. The
