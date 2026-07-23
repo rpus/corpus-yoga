@@ -26,9 +26,9 @@ README.md,101,doc,src/test/pre_commit_expected_score,Y,- `src/test/pre_commit.lo
 README.md,102,doc,src/test/xref.csv,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
 README.md,102,doc,src/test/xref_expected_score,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
 README.md,112,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
-README.md,117,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,117,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,123,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,131,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,131,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,137,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
@@ -489,38 +489,6 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
-src/restructure/README.md,8,doc,src,Y,"| `src/` + `rsc/` | machinery (now including `RUNME.sh`, `PREREQUISITES.sh`) | git | ours |"
-src/restructure/README.md,8,doc,rsc,Y,"| `src/` + `rsc/` | machinery (now including `RUNME.sh`, `PREREQUISITES.sh`) | git | ours |"
-src/restructure/README.md,15,doc,rsc/forge.csv,Y,declared-not-implicit doctrine as `rsc/forge.csv` and `rsc/machine/machines.csv`.
-src/restructure/README.md,15,doc,rsc/machine/machines.csv,Y,declared-not-implicit doctrine as `rsc/forge.csv` and `rsc/machine/machines.csv`.
-src/restructure/README.md,28,doc,src/RUNME.sh,Y,RUNME.sh          → src/RUNME.sh
-src/restructure/README.md,29,doc,src/PREREQUISITES.sh,Y,PREREQUISITES.sh  → src/PREREQUISITES.sh
-src/restructure/README.md,55,doc,src/restructure,Y,"- `src/restructure/` whole, rehearsal records included;"
-src/restructure/README.md,69,doc,src/test/xref_expected_score,Y,commit updates `src/test/xref_expected_score` (and
-src/restructure/README.md,79,doc,rsc/cache_io.csv,Y,| `gen_refs.py` | review aid for a done-by-hand sweep | THE sweep is bigger this time (`input/ output/ cache/ logs/` lit
-src/restructure/README.md,79,doc,rsc/cli/help.csv,Y,| `gen_refs.py` | review aid for a done-by-hand sweep | THE sweep is bigger this time (`input/ output/ cache/ logs/` lit
-src/restructure/README.md,126,doc,src/RUNME.sh,Y,( cd swap/dryrun && ./src/RUNME.sh && ./src/RUNME.sh )   # note the new home; twice
-src/restructure/README.md,142,doc,src/restructure/rehearsals,Y,#    src/restructure/rehearsals/<room>-<date>.md containing the room's
-src/restructure/README.md,151,doc,src/test/xref_expected_score,Y,#    src/test/xref_expected_score by one (the f968325 pattern). The
-src/restructure/common.py,46,path_str,src/restructure,Y,"SWEEP_SKIP_PREFIXES = ('src/restructure/', 'rsc/schema/')"
-src/restructure/common.py,46,path_str,rsc/schema,Y,"SWEEP_SKIP_PREFIXES = ('src/restructure/', 'rsc/schema/')"
-src/restructure/common.py,47,path_str,src/test/xref.csv,Y,"SWEEP_SKIP_FILES = {'src/test/xref.csv', 'src/test/pre_commit.log', '.gitignore'}"
-src/restructure/common.py,47,path_str,src/test/pre_commit.log,Y,"SWEEP_SKIP_FILES = {'src/test/xref.csv', 'src/test/pre_commit.log', '.gitignore'}"
-src/restructure/common.py,24,path_str,src/RUNME.sh,Y,"('RUNME.sh',         'src/RUNME.sh'),"
-src/restructure/common.py,25,path_str,src/PREREQUISITES.sh,Y,"('PREREQUISITES.sh', 'src/PREREQUISITES.sh'),"
-src/restructure/gen_refs.py,40,path_str,src/RUNME.sh,Y,"'src/RUNME.sh (invocation forms vary: ./RUNME.sh, bare, prose)', 'decide'),"
-src/restructure/gen_refs.py,42,path_str,src/PREREQUISITES.sh,Y,"'src/PREREQUISITES.sh (invocation forms vary)', 'decide'),"
-src/restructure/gen_refs.py,38,comment,src/RUNME.sh,Y,"# (src/RUNME.sh, src/main/<pipeline>/RUNME.sh) are legitimately excluded"
-src/restructure/rehearsals/home-room-2026-07-21.md,16,doc,src/RUNME.sh,Y,"RUNME.sh,src/RUNME.sh,""excluded: git-tracked — moves with the branch, not with apply"""
-src/restructure/rehearsals/home-room-2026-07-21.md,17,doc,src/PREREQUISITES.sh,Y,"PREREQUISITES.sh,src/PREREQUISITES.sh,""excluded: git-tracked — moves with the branch, not with apply"""
-src/restructure/rehearsals/home-room-2026-07-22-clean.md,3,doc,src/restructure/rehearsals/home-room-2026-07-22.md,Y,"Follow-up to [home-room-2026-07-22.md](./home-room-2026-07-22.md), after two"
-src/restructure/rehearsals/reading-room-2026-07-23.md,3,doc,src/restructure/rehearsals/home-room-2026-07-22-clean.md,Y,Follow-up to [home-room-2026-07-22-clean.md](./home-room-2026-07-22-clean.md).
-src/restructure/rehearsals/reading-room-2026-07-23.md,17,doc,src/RUNME.sh,Y,"RUNME.sh,src/RUNME.sh,""excluded: git-tracked — moves with the branch, not with apply"""
-src/restructure/rehearsals/reading-room-2026-07-23.md,18,doc,src/PREREQUISITES.sh,Y,"PREREQUISITES.sh,src/PREREQUISITES.sh,""excluded: git-tracked — moves with the branch, not with apply"""
-src/restructure/rehearsals/reading-room-2026-07-23.md,55,doc,src/RUNME.sh,Y,Recipe step 3 prescribes a single `./src/RUNME.sh`; two are required from a cold cache.
-src/restructure/rehearsals/reading-room-2026-07-23b.md,3,doc,src/restructure/rehearsals/reading-room-2026-07-23.md,Y,Follow-up to [reading-room-2026-07-23.md](./reading-room-2026-07-23.md). That earlier
-src/restructure/rehearsals/reading-room-2026-07-23b.md,17,doc,src/RUNME.sh,Y,"RUNME.sh,src/RUNME.sh,""excluded: git-tracked — moves with the branch, not with apply"""
-src/restructure/rehearsals/reading-room-2026-07-23b.md,18,doc,src/PREREQUISITES.sh,Y,"PREREQUISITES.sh,src/PREREQUISITES.sh,""excluded: git-tracked — moves with the branch, not with apply"""
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -615,16 +583,6 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/main/cli/cache_io.py,Y,
 ,,self_only,src/main/code-agents/PREP.sh,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
-,,,src/restructure/README.md,Y,
-,,,src/restructure/apply_moves.py,Y,
-,,,src/restructure/apply_refs.py,Y,
-,,,src/restructure/build_harness.py,Y,
-,,,src/restructure/common.py,Y,
-,,,src/restructure/compare_outputs.py,Y,
-,,,src/restructure/gen_moves.py,Y,
-,,,src/restructure/gen_refs.py,Y,
-,,,src/restructure/rehearsals/home-room-2026-07-21.md,Y,
-,,,src/restructure/rehearsals/reading-room-2026-07-23b.md,Y,
 ,,self_only,src/test/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/code-agents/survey_code_session.py,Y,
 ,,,src/test/diagnostics/composition.base_not_used_directly.py,Y,

@@ -112,6 +112,20 @@ This works because the generated files absorb only the counting. A real conflict
 branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,
 a schema file), where git makes you look at it. The generated files never hide those.
 
+When a change's correctness depends on what a *fresh clone* sees — the expectation files
+above, the xref counts, or anything deriving from `.gitignore` (the xref scan's skip-roots
+do) — build it in a worktree outside the repo and run the gate from there rather than from
+your working checkout. A checkout carries machine-local leftovers the scan can see; a fresh
+worktree carries none, so the counts it reports are what a clone would report and not what
+one disk happens to hold. It also keeps the evidence independent: the PR text asserts, the
+diff shows, and the counts come from machinery that has read neither.
+
+The corollary matters more than the technique: **never delete local files to make a gate
+pass.** If a change would expose a machine's untracked leftovers to its own gate — dropping
+an ignore rule does exactly that — say so in the pull request and let each machine clear its
+own before the merge. Deleting state to get a green check destroys evidence and hides the
+obligation from the room that owes it.
+
 ## The public surface
 
 Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
