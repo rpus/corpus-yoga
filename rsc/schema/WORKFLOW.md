@@ -16,9 +16,57 @@ Create `vN+1.json` (copy of `vN.json`) when the schema change is:
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
 
+That entry goes under the heading of **the version you amended** — the one whose file you
+edited, which is not always the newest. An in-place edit spanning two versions is filed once,
+under the newer of them, and names both. The sections run newest-first, so appending to the
+end of the file files the note under the *oldest* version instead: done wrongly in three of
+five families during the 2026-07-23 re-rooting, and caught only by checking placement
+afterwards. Some families pre-seed the section with `None.`; fill that rather than adding a
+second `#### Refactored` under the same version. The `RichLink.source` entry in
+`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,
+in which versions, "No validation effect", and what was deliberately left untouched.
+
 If a new export or capture fails validation against the current latest version, that is the
 signal to create a new version. Run the item-level validate command from the pre_commit fix
 hints to see the exact error before changing the schema.
+
+---
+
+## What here is live text, and what is frozen
+
+This directory holds two kinds of prose, and they take opposite treatment when the world
+moves under them — a root migration, a renamed tier, a retired command:
+
+- **Never edited: validating content, in any version.** Enums, required fields, types — a
+  superseded version must keep accepting and rejecting exactly what it did, or the vintage
+  it records stops being a fact. This is why the `RichLink.source` anonymisation left the
+  closed site enums of v11 and earlier untouched while rewording the descriptions above them.
+- **Frozen by intent: CHANGELOG version entries.** "stages to cache/dashboard and promotes to
+  output/dashboard/. Minted 2026-07-10" is a true sentence about 2026-07-10 and a false one
+  about today; correcting it would falsify the record the entry exists to keep.
+- **Live: the CHANGELOG preamble and the current version's `description` fields.** The
+  preamble above the version history (the shared "each datum directory under `tmp/cache/`
+  carries a `matrix.md`" line) and the current descriptions state present mechanics, so a
+  stale one is simply wrong. Correcting it is `#### Refactored` work per the rule above.
+- **Judgement: a superseded version's prose.** Precedent runs both ways. `RichLink.source`
+  was reworded in place across v12 and v13 because a repo-wide policy — anonymisation once
+  the user-specific matrices moved out of the repo — made the old text wrong to keep
+  standing. The 2026-07-23 re-rooting did the opposite, leaving superseded descriptions
+  naming pre-migration roots as the record of their vintage. The question to ask is whether
+  the old text is *misleading* or merely *dated*: a path that has moved is dated, and a
+  sentence that would now leak or deceive is misleading.
+
+This distinction carries weight because **this directory is excluded from automated path
+sweeps** — the four-root migration held it in `SWEEP_SKIP_PREFIXES`, rightly, since a sweep
+cannot tell a frozen sentence from a live one. The cost is that the live half must be updated
+by hand and nothing will remind you: that migration left this file's own commands naming an
+`input/` root that no longer existed, and the six broken invocations were found by reading,
+not by any check.
+
+When writing a CHANGELOG entry about a path that has moved or gone, **do not quote the old
+path as a code span**. `xref` reads a backticked path as a live reference, finds it missing,
+and the gate vetoes the commit. Describe the change instead — "gained the `data/` root (now
+`data/output/dashboard/…`)" rather than the old path in backticks beside the new one.
 
 ---
 
