@@ -25,6 +25,22 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
+# Gate the COMMITTING TREE, not this script's home. Worktrees share the main
+# checkout's hooks, and the hook symlink resolves HERE — so before this guard,
+# a worktree commit ran the main checkout's gate against the main checkout's
+# files inside the WORKTREE's git context (GIT_DIR env): a chimera that
+# regenerated one tree's artifacts, diffed them against another tree's index,
+# and refused with a demand no staging could satisfy (found 2026-07-23 by
+# reading-room, committing a rehearsal record inside the recipe's worktree —
+# their only route out was --no-verify). Re-exec the committing tree's OWN
+# vintage of this script: each tree self-gates. Manual runs are unaffected
+# (toplevel == this repo). prepare_commit_msg stays home-anchored on purpose:
+# the machine binding it reads is machine-scoped and absent from worktrees.
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" && -x "$TOPLEVEL/src/test/pre_commit.sh" ]]; then
+  exec "$TOPLEVEL/src/test/pre_commit.sh" "$@"
+fi
+
 # The artifacts pre_commit.py rewrites on every run — the idempotence subject.
 ARTIFACTS=(src/test/pre_commit.log src/test/xref.csv)
 
