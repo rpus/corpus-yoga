@@ -209,7 +209,7 @@ def main():
                 if m:
                     existing[m.group(1)] = d
 
-    deposited = unchanged = renamed = 0
+    deposited = unchanged = renamed = conflicts = 0
     for u in sorted(set(readings) | set(captured)):
         stem, title = stems.get(u, (None, None))
         if stem is None:
@@ -257,8 +257,12 @@ def main():
                     f.write_text(s)      # verbatim — the deposit IS the reading
                     deposited += 1
             elif f.read_text() != s:
-                print(f'  WARN {stem}/{ts}.md: existing deposit differs from this derivation — '
-                      'left untouched (deposits are immutable)', file=sys.stderr)
+                # the calculus accumulate contract (issue #22): a same-stamp
+                # content mismatch is a CONFLICT, exit 1 — memories' semantics
+                # and vocabulary, not a stderr aside the run tail never saw
+                print(f'  ✗ CONFLICT {stem}/{ts}.md: existing deposit differs from this '
+                      'derivation — left untouched (deposits are immutable); investigate')
+                conflicts += 1
             else:
                 unchanged += 1
             texts.append(s)
@@ -275,11 +279,16 @@ def main():
         _write_if_changed(folder / 'index.md', index_text(u, stem, title, names))
 
     print(f'summaries: {deposited} reading(s) deposited, {unchanged} already held, '
-          f'{renamed} folder(s) renamed -> {root.relative_to(REPO) if root.is_relative_to(REPO) else root}')
+          f'{renamed} folder(s) renamed -> {root.relative_to(REPO) if root.is_relative_to(REPO) else root}'
+          + (f'; {conflicts} CONFLICT(S)' if conflicts else ''))
     # the standing twin detector runs on every sync too — ambient in the run
     # tail via WARN-atom hoisting, not only on an explicit status invocation
     _warn_twins(root)
+    return 1 if conflicts else 0
 
 
 if __name__ == '__main__':
-    main()
+    # sys.exit, not a bare call: main()'s return IS the exit code, so a
+    # CONFLICT can actually fail the run step (issue #22 — the bare call made
+    # `yoga summaries sync` a step that could never exit non-zero, against L8)
+    sys.exit(main())
