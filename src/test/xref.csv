@@ -77,18 +77,18 @@ rsc/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-c
 rsc/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 rsc/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
-rsc/schema/WORKFLOW.md,39,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
-rsc/schema/WORKFLOW.md,40,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
-rsc/schema/WORKFLOW.md,41,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<machine>/<project>
+rsc/schema/WORKFLOW.md,39,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+rsc/schema/WORKFLOW.md,40,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+rsc/schema/WORKFLOW.md,41,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
 rsc/schema/WORKFLOW.md,52,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,59,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,69,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,69,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,69,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,75,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,83,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
-rsc/schema/WORKFLOW.md,84,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     input/claude/chat/bulk-export
-rsc/schema/WORKFLOW.md,85,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    input/claude/code/machine-transport
+rsc/schema/WORKFLOW.md,83,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
+rsc/schema/WORKFLOW.md,84,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     data/input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,85,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    data/input/claude/code/machine-transport
 rsc/schema/WORKFLOW.md,90,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 rsc/schema/WORKFLOW.md,97,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,97,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
@@ -112,7 +112,8 @@ rsc/schema/browser-captures/apiConversation/CHANGELOG.md,120,doc,rsc/schema/brow
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,135,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,14,doc,rsc/schema/browser-captures/markdownConversation/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,50,doc,rsc/schema/browser-captures/markdownConversation/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,50,doc,rsc/schema,Y,"four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation"
+rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,58,doc,rsc/schema/browser-captures/markdownConversation/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../b
 rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
@@ -145,6 +146,7 @@ rsc/schema/chat-exports/users/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(again
 rsc/schema/chat-exports/users/v1.json,19,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,22,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,38,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/session/CHANGELOG.md,24,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
 rsc/schema/code-agents/session/CHANGELOG.md,56,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
@@ -158,9 +160,12 @@ rsc/schema/code-agents/session/CHANGELOG.md,248,doc,rsc/schema/code-agents/sessi
 rsc/schema/code-agents/session/CHANGELOG.md,266,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/session/CHANGELOG.md,312,doc,src/main/code-agents/RUNME.sh,Y,discovered iteratively by running `src/main/code-agents/RUNME.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
+rsc/schema/dashboard/chatCategories/CHANGELOG.md,23,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,25,doc,rsc/schema/dashboard/semanticConcepts/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,31,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""

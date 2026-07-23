@@ -1,7 +1,7 @@
 # sessionConversation schema changelog
 
 The validation matrix (which local datum validates against which version) is machine-local
-and git-ignored: each datum directory under `cache/` carries a `matrix.md` beside its
+and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` beside its
 `validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
@@ -35,3 +35,10 @@ Evidence notes:
 - Whether any real session projects to zero messages (all observed have talk).
 - Whether `thinking` blocks should ever project (currently working-not-talk,
   like tool blocks; the session family retains them in full).
+
+#### Refactored
+
+- `SessionConversation` and `.uuid` descriptions (v1, in place) — the render path re-rooted
+  `output/markdown/claude/code/conversations/` → `data/output/…`, and the cache reference
+  `cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was
+  excluded from sweeping. No validation effect.

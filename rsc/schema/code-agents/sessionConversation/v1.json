@@ -1,7 +1,7 @@
 {
  "$schema": "http://json-schema.org/draft-04/schema#",
  "title": "sessionConversation",
- "description": "A Claude Code session read as TALK: the conversation projection of a converted session (session.json), written beside it as conversation.json by project_conversation.py. Only user and assistant records project — no sidechain records (a subagent's transcript is its own session), no meta records, no tool-result carrier records (a user record with toolUseResult is the harness returning a tool's output, not the user speaking) — and each turn is the record's visible text: text blocks joined, while thinking, tool_use and tool_result blocks are working, not talk, and remain in session.json. A record whose projection is empty (a pure tool step) contributes no turn, so messages may legitimately be empty for a session that is all tool work. Roles use the corpus vocabulary ('human'/'assistant', as in browser-captures/markdownConversation), because this shape is the projection source for the session corpus render under output/markdown/claude/code/conversations/. See model_join.csv for field correspondences with the session and markdownConversation families.",
+ "description": "A Claude Code session read as TALK: the conversation projection of a converted session (session.json), written beside it as conversation.json by project_conversation.py. Only user and assistant records project — no sidechain records (a subagent's transcript is its own session), no meta records, no tool-result carrier records (a user record with toolUseResult is the harness returning a tool's output, not the user speaking) — and each turn is the record's visible text: text blocks joined, while thinking, tool_use and tool_result blocks are working, not talk, and remain in session.json. A record whose projection is empty (a pure tool step) contributes no turn, so messages may legitimately be empty for a session that is all tool work. Roles use the corpus vocabulary ('human'/'assistant', as in browser-captures/markdownConversation), because this shape is the projection source for the session corpus render under data/output/markdown/claude/code/conversations/. See model_join.csv for field correspondences with the session and markdownConversation families.",
  "allOf": [
   {
    "$ref": "#/definitions/SessionConversation"
@@ -31,7 +31,7 @@
      "type": "string"
     },
     "session_id": {
-     "description": "The session's uuid — the .jsonl stem, the session's identity everywhere (cache/ dirs, transported copies, corpus frontmatter).",
+     "description": "The session's uuid — the .jsonl stem, the session's identity everywhere (tmp/cache/ dirs, transported copies, corpus frontmatter).",
      "$ref": "#/definitions/UuidV4"
     },
     "created": {

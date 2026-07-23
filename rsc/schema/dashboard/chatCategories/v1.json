@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "ChatCategories",
-  "description": "The chat \u2192 category assignment behind the dashboard timeline colouring (output/dashboard/chat-categories.json): a paid model reading of the whole projected corpus, staged to cache/dashboard and validated against this schema before promotion (dashboard.sh, in-memory via validate.py \u2014 no per-datum matrix, the markdownConversation precedent). Stored id-keyed so it survives corpus renumbering; presentation re-derives ordinals at injection time (rekey_chats.py). The category \u2192 hue palette is a design decision authored in rsc/site/index.html, and category \u2208 palette is a cross-file JOIN constraint beyond this schema \u2014 the capture checks it separately before promoting.",
+  "description": "The chat \u2192 category assignment behind the dashboard timeline colouring (data/output/dashboard/chat-categories.json): a paid model reading of the whole projected corpus, staged to cache/dashboard and validated against this schema before promotion (dashboard.sh, in-memory via validate.py \u2014 no per-datum matrix, the markdownConversation precedent). Stored id-keyed so it survives corpus renumbering; presentation re-derives ordinals at injection time (rekey_chats.py). The category \u2192 hue palette is a design decision authored in rsc/site/index.html, and category \u2208 palette is a cross-file JOIN constraint beyond this schema \u2014 the capture checks it separately before promoting.",
   "allOf": [
     {
       "$ref": "#/definitions/ChatCategories"

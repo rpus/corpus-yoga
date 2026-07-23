@@ -36,15 +36,15 @@ the bulk export's whole array), a **singular** family validates *one unit*
 ### 1. Identify the failure
 
 ```bash
-src/main/browser-captures/claude/validate.sh --browser-capture input/claude/chat/browser-API/<uuid>
-src/main/chat-exports/validate.sh      --chat-export   input/claude/chat/bulk-export/<batch>
-src/main/code-agents/RUNME.sh        --code-agent  input/claude/code/machine-transport/<machine>/<project>
+src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+src/main/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+src/main/code-agents/RUNME.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
 (code-agents converts each `.jsonl` before validating, so its runnable unit is the
-project RUNME; `validate.sh --code-agent-session` takes the *cache/* session dir, not input/.)
+project RUNME; `validate.sh --code-agent-session` takes the *tmp/cache/* session dir, not data/input/.)
 
-Read the validation log in `cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
+Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
 ### 2. Create the new schema version
 
@@ -80,13 +80,13 @@ src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_sche
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-api input/claude/chat/browser-API
-src/main/chat-exports/RUNME.sh     --chat-exports     input/claude/chat/bulk-export
-src/main/code-agents/RUNME.sh    --code-agents    input/claude/code/machine-transport
+src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
+src/main/chat-exports/RUNME.sh     --chat-exports     data/input/claude/chat/bulk-export
+src/main/code-agents/RUNME.sh    --code-agents    data/input/claude/code/machine-transport
 ```
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
-in the datum's directory under `cache/`, beside its `validation/` logs, written by
+in the datum's directory under `tmp/cache/`, beside its `validation/` logs, written by
 `validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 the logs change, so it can never lag them. Git-ignored, because which data sits on which
 machine is a local fact; the committed CHANGELOG.md beside the schema records only the

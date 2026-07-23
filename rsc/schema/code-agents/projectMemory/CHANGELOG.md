@@ -1,7 +1,7 @@
 # projectMemory schema changelog
 
 The validation matrix (which local datum validates against which version) is machine-local
-and git-ignored: each datum directory under `cache/` carries a `matrix.md` beside its
+and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` beside its
 `validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`).
 
 ---
@@ -33,7 +33,10 @@ None.
 
 #### Refactored
 
-None.
+- `ProjectMemory` description (v2, in place) — the transport store path re-rooted
+  `input/claude/code/machine-transport/…` → `data/input/claude/…` for the four-root
+  migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect.
+  v1 and the narratives above are left as written, at their own vintage's layout.
 
 ## v1
 
