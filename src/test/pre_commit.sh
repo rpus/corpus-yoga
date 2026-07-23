@@ -33,7 +33,11 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # and refused with a demand no staging could satisfy (found 2026-07-23 by
 # reading-room, committing a rehearsal record inside the recipe's worktree —
 # their only route out was --no-verify). Re-exec the committing tree's OWN
-# vintage of this script: each tree self-gates. Manual runs are unaffected
+# vintage of this script: each tree self-gates. THE RULE, for hook and hand
+# alike: the COMMITTING TREE WINS — the gate follows the git context
+# (rev-parse), never the script's home, so even a manual cross-tree
+# invocation gates the tree you stand in: the only tree your git context
+# could be about to commit. Manual runs from this repo are unaffected
 # (toplevel == this repo). prepare_commit_msg stays home-anchored on purpose:
 # the machine binding it reads is machine-scoped and absent from worktrees.
 TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
