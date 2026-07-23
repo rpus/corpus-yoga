@@ -44,7 +44,7 @@ from compare_batches import batch_time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import reconcile_dir  # noqa: E402
-from argparse_help import enrich  # noqa: E402
+from argparse_help import enrich, inherit_flags  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[2]
@@ -189,13 +189,17 @@ def main():
                     'every distinct state (immutable, content-deduplicated) and renders the '
                     'markdown timeline — free, local, idempotent.')
     sub = ap.add_subparsers(dest='verb')
-    sub.add_parser('sync')
+    sync_p = sub.add_parser('sync')
+    ap.add_argument('--chat-exports-cache', metavar='DIR', default=str(CHAT_EXPORTS_CACHE_DIR))
+    ap.add_argument('--memories-output', metavar='DIR', default=str(MEMORIES_OUTPUT_DIR))
+    ap.add_argument('--markdown', metavar='DIR', default=str(MARKDOWN_DIR))
+    inherit_flags(ap, sync_p)
     enrich(ap, 'memories')
     args = ap.parse_args()
     if args.verb == 'sync':
-        return sync(CHAT_EXPORTS_CACHE_DIR, MEMORIES_OUTPUT_DIR, MARKDOWN_DIR)
-    # bare → status (read-only), against the canonical store
-    return status(MEMORIES_OUTPUT_DIR, CHAT_EXPORTS_CACHE_DIR)
+        return sync(Path(args.chat_exports_cache), Path(args.memories_output), Path(args.markdown))
+    # bare → status (read-only)
+    return status(Path(args.memories_output), Path(args.chat_exports_cache))
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-pre_commit.py: 1516/1516 (data: machine-local)
+pre_commit.py: 1534/1534 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -26,18 +26,21 @@ pre_commit.py: 1516/1516 (data: machine-local)
   ✓ cli: agent: target exists: src/main/code-agents/agent.py
   ✓ cli: agent: cited calculus defined
   ✓ cli: agent: advertised flags exist
+  ✓ cli: agent: docstring Usage flags advertised
   ✓ cli: agent: advertised subcommands dispatch
   ✓ cli: agent: target flags all advertised
   ✓ cli: agent: help fits one screen (≤20 lines)
   ✓ cli: browser: target exists: src/main/browser-captures/PREP.sh
   ✓ cli: browser: cited calculus defined
   ✓ cli: browser: advertised flags exist
+  ✓ cli: browser: docstring Usage flags advertised
   ✓ cli: browser: advertised subcommands dispatch
   ✓ cli: browser: target flags all advertised
   ✓ cli: browser: help fits one screen (≤20 lines)
   ✓ cli: cache: target exists: src/main/cli/cache.py
   ✓ cli: cache: cited calculus defined
   ✓ cli: cache: advertised flags exist
+  ✓ cli: cache: docstring Usage flags advertised
   ✓ cli: cache: advertised subcommands dispatch
   ✓ cli: cache: target flags all advertised
   ✓ cli: cache: help fits one screen (≤20 lines)
@@ -46,66 +49,81 @@ pre_commit.py: 1516/1516 (data: machine-local)
   ✓ cli: check: target exists: src/test/pre_commit.sh
   ✓ cli: check: cited calculus defined
   ✓ cli: check: advertised flags exist
+  ✓ cli: check: docstring Usage flags advertised
   ✓ cli: check: target flags all advertised
   ✓ cli: check: help fits one screen (≤20 lines)
   ✓ cli: commands: target exists: src/main/cli/cli.py
   ✓ cli: commands: cited calculus defined
   ✓ cli: completions: target exists: src/main/cli/cli.py
   ✓ cli: completions: cited calculus defined
+  ✓ cli: completions: docstring Usage flags advertised
   ✓ cli: completions: advertised subcommands dispatch
   ✓ cli: completions: target flags all advertised
   ✓ cli: dashboard: target exists: src/main/chat-exports/dashboard.sh
   ✓ cli: dashboard: cited calculus defined
   ✓ cli: dashboard: advertised flags exist
+  ✓ cli: dashboard: docstring Usage flags advertised
   ✓ cli: dashboard: advertised subcommands dispatch
   ✓ cli: dashboard: target flags all advertised
   ✓ cli: dashboard: help fits one screen (≤20 lines)
   ✓ cli: indexing: target exists: src/main/model/build_index.py
   ✓ cli: indexing: cited calculus defined
   ✓ cli: indexing: advertised flags exist
+  ✓ cli: indexing: docstring Usage flags advertised
   ✓ cli: indexing: advertised subcommands dispatch
   ✓ cli: indexing: target flags all advertised
   ✓ cli: indexing: help fits one screen (≤20 lines)
   ✓ cli: memories: target exists: src/main/chat-exports/accumulate_memories.py
   ✓ cli: memories: cited calculus defined
+  ✓ cli: memories: advertised flags exist
+  ✓ cli: memories: docstring Usage flags advertised
   ✓ cli: memories: advertised subcommands dispatch
   ✓ cli: memories: target flags all advertised
+  ✓ cli: memories: sync accepts the command-level flags
   ✓ cli: memories: help fits one screen (≤20 lines)
   ✓ cli: model: target exists: src/main/model/gen_model.py
   ✓ cli: model: cited calculus defined
+  ✓ cli: model: docstring Usage flags advertised
   ✓ cli: model: advertised subcommands dispatch
   ✓ cli: model: target flags all advertised
   ✓ cli: model: help fits one screen (≤20 lines)
   ✓ cli: prerequisites: target exists: src/PREREQUISITES.sh
   ✓ cli: prerequisites: cited calculus defined
   ✓ cli: prerequisites: advertised flags exist
+  ✓ cli: prerequisites: docstring Usage flags advertised
   ✓ cli: prerequisites: target flags all advertised
   ✓ cli: prerequisites: help fits one screen (≤20 lines)
   ✓ cli: run: target exists: src/RUNME.sh
   ✓ cli: run: cited calculus defined
   ✓ cli: run: advertised flags exist
+  ✓ cli: run: docstring Usage flags advertised
   ✓ cli: run: target flags all advertised
   ✓ cli: run: help fits one screen (≤20 lines)
   ✓ cli: server: target exists: src/main/model/serve_markdown.sh
   ✓ cli: server: cited calculus defined
   ✓ cli: server: advertised flags exist
+  ✓ cli: server: docstring Usage flags advertised
   ✓ cli: server: advertised subcommands dispatch
   ✓ cli: server: target flags all advertised
   ✓ cli: server: help fits one screen (≤20 lines)
   ✓ cli: summaries: target exists: src/main/chat-exports/accumulate_summaries.py
   ✓ cli: summaries: cited calculus defined
   ✓ cli: summaries: advertised flags exist
+  ✓ cli: summaries: docstring Usage flags advertised
   ✓ cli: summaries: advertised subcommands dispatch
   ✓ cli: summaries: target flags all advertised
+  ✓ cli: summaries: sync accepts the command-level flags
   ✓ cli: summaries: help fits one screen (≤20 lines)
   ✓ cli: supersede: target exists: src/main/chat-exports/compare_batches.py
   ✓ cli: supersede: cited calculus defined
   ✓ cli: supersede: advertised flags exist
+  ✓ cli: supersede: docstring Usage flags advertised
   ✓ cli: supersede: advertised subcommands dispatch
   ✓ cli: supersede: target flags all advertised
   ✓ cli: supersede: help fits one screen (≤20 lines)
   ✓ cli: xref: target exists: src/test/xref.py
   ✓ cli: xref: cited calculus defined
+  ✓ cli: xref: docstring Usage flags advertised
   ✓ cli: xref: advertised subcommands dispatch
   ✓ cli: xref: target flags all advertised
   ✓ cli: xref: help fits one screen (≤20 lines)
@@ -1544,9 +1562,9 @@ pre_commit.py: 1516/1516 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1516/1516; expected: 1516/1516
-  ✓ score[code]: 124/124; expected: 124/124
+  ✓ score[code+schema]: 1534/1534; expected: 1534/1534
+  ✓ score[code]: 142/142; expected: 142/142
   ✓ score[schema]: 1392/1392; expected: 1392/1392
   – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1516/1516 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1534/1534 match the committed expectation; nothing here vetoes a commit
