@@ -260,6 +260,18 @@ Each law names its current enforcement (or the incident that taught it).
   where the honest state is "unknown" (gemini's missing ordinals; PREREQUISITES'
   "cannot verify").
 
+- **L9 — Currency.** A consumed derivation is kept current, by the mechanism its
+  cell of the freshness matrix (committed × mechanical, issue #19) dictates:
+  committed and mechanical → the gate regenerates and byte-compares;
+  machine-local, mechanical, machine-consumed → a `run` step (NECESSITY: `run`
+  is the only mechanism that can reach it); machine-local, mechanical,
+  human-consumed → a `run` step iff CLOSURE holds (every input is refreshed by
+  that same run or is stable curation), else the owning noun's status surfaces
+  the lag, the safe remedy beside it; curated → the disposal loop (see
+  `curate`). Staleness is never silent: an artifact no mechanism can refresh
+  automatically is an artifact whose status says so (the dashboard render over
+  paid captures — the outlier that forced this law).
+
 ---
 
 ## Reflexivity: a corpus and some yogic code

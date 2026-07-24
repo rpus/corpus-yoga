@@ -2,7 +2,7 @@
 # dashboard.sh (yoga dashboard) — the corpus dashboard: paid captures, free render.
 #
 # Usage:
-#   yoga dashboard [status]     # what is captured (read-only, free)
+#   yoga dashboard [status]     # what is captured + currency of render and captures (read-only, free)
 #   yoga dashboard sync         # FREE: render data/output/dashboard/presentation/index.html (idempotent)
 #                               #   from data/output/markdown + the durable captures
 #   yoga dashboard capture      # PAID (needs ANTHROPIC_API_KEY): re-read the corpus
@@ -230,7 +230,48 @@ status() {
       echo "  ○ $f — not captured yet"
     fi
   done
-  echo "refresh (PAID): yoga dashboard capture"
+  currency
+}
+
+# The noun's own currency report (issue #19, outlier 2). The dashboard is
+# human-consumed and its captures are paid: CLOSURE fails and NECESSITY does not
+# apply, so no `run` step may keep it fresh — this status is its one honest
+# freshness mechanism (L9). Two layers, each with the safe verb beside it:
+# render vs corpus+captures (free sync), captures vs corpus (paid capture).
+# Both are INFO atoms — normal conditions, not defects (the render lags because
+# the corpus grew; the captures lag because they are paid and deliberately out
+# of `run`) — so the run tail's hoisting carries them into every `yoga run`.
+currency() {
+  local corpus="$REPO_DIR/data/output/markdown"
+  local render="$REPO_DIR/data/output/dashboard/presentation/index.html"
+  local d="$REPO_DIR/data/output/dashboard"
+  local n m=0 f render_state
+  [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
+  n="$(find "$corpus" -path '*/conversations/*.md' 2>/dev/null | wc -l | tr -d ' ')"
+  [[ "$n" -gt 0 ]] || return 0
+  [[ -f "$d/chat-categories.json" ]] && m="$(jq '.rows | length' "$d/chat-categories.json")"
+  if [[ ! -f "$render" ]]; then
+    render_state='absent'
+  else
+    # the render's inputs are the corpus AND the captures — either newer means behind
+    local behind=''
+    [[ -n "$(find "$corpus" -path '*/conversations/*.md' -newer "$render" -print -quit 2>/dev/null)" ]] \
+      && behind='corpus'
+    for f in semantic-concepts.json chat-categories.json; do
+      [[ "$d/$f" -nt "$render" ]] && { [[ "$behind" == *captures* ]] || behind="${behind:+$behind and }captures"; }
+    done
+    render_state="${behind:+behind ($behind changed since the render)}"
+    render_state="${render_state:-current}"
+  fi
+  echo "corpus: $n conversation(s) · captures cover ~$m · render: $render_state"
+  if [[ "$render_state" != current ]]; then
+    echo "INFO: the dashboard render is $render_state — free to fix:"
+    echo "    → run: ./yoga dashboard sync   # FREE — re-render from the current corpus + captures"
+  fi
+  if [[ "$m" -lt "$n" ]]; then
+    echo "INFO: the captures cover ~$m of $n conversation(s) — the paid layer lags the corpus; sync does NOT fix this:"
+    echo "    → run: ./yoga dashboard capture   # PAID — the model re-reads the corpus"
+  fi
 }
 
 # ── entry point ───────────────────────────────────────────────────────────────
@@ -247,6 +288,29 @@ status() {
 corpus_conversations() {
   local d="$REPO_DIR/data/output/markdown"
   [[ -d "$d" ]] && compgen -G "$d/*/conversations/*.md" > /dev/null && echo "$d"
+}
+
+# The EXACT coverage join, computed where it is already free: the capture walks
+# the corpus for its chat list anyway, so before a cent is spent it names the
+# gap the status only estimates — status quantifies the lag with the cheap
+# row-count proxy (~M, no id join); the effecting verb reports captured ∩
+# corpus exactly, with the never-captured count the paid re-read is about to
+# close and any captured-but-gone ids the proxy silently counts as coverage.
+# (The user's shape: status is; effecting; status is.) Corpus-dir sources only
+# — a batch source has no corpus_index — and no prior capture means no join.
+coverage_report() {
+  local conv="$1" cat="$REPO_DIR/data/output/dashboard/chat-categories.json"
+  [[ -f "$cat" && -d "$conv" ]] || return 0
+  "$REPO_DIR/src/run_python_script.sh" -c "
+import json, sys
+sys.path.insert(0, '$REPO_DIR/src/main')
+from markdown_projection import corpus_index
+corpus = {cid for _, _, _, cid in corpus_index('$conv')}
+captured = {r[0] for r in json.load(open('$cat')).get('rows', [])}
+print(f'coverage (exact): {len(corpus & captured)} captured · '
+      f'{len(corpus - captured)} never captured · '
+      f'{len(captured - corpus)} captured-but-gone — this capture re-reads all {len(corpus)}')
+"
 }
 
 capture() {
@@ -266,6 +330,7 @@ capture() {
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   local conv="${conversations:-$(corpus_conversations)}"
   [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under data/output/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  coverage_report "$conv"
   capture_dashboard "$conv" "$only"
 }
 
