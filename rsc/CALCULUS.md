@@ -306,8 +306,8 @@ the same operations, governed by the same laws. Code is not a second ontology.
   its own author's drift, 2026-07-07).
 - **committed derivation** — a class the corpus tables did not need:
   regenerable like anything in `tmp/cache/`, but COMMITTED as the machine-invariant
-  record other clones diff against — `src/test/pre_commit.log`,
-  `src/test/xref.csv`, and the expected-score files beside them. Operations:
+  record other clones diff against — `rsc/test/pre_commit.log`,
+  `rsc/test/xref.csv`, and the expected-score files beside them. Operations:
   re-run to regenerate (L1); drift from the committed state is loud (L6);
   byte-identity on any clone is the invariant (L2). The deletion licence
   inverts: never hand-edited, only ever regenerated-and-recommitted.

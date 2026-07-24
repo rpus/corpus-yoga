@@ -10,8 +10,8 @@ pre_commit.py: 1555/1555 (data: machine-local)
   ✓ exists: src/main/validate.py
   ✓ exists: src/main/model/gen_model_candidate.py
   ✓ exists: src/main/model/gen_model.py
-  ✓ exists: src/test/pre_commit_expected_score
-  ✓ exists: src/test/xref_expected_score
+  ✓ exists: rsc/test/pre_commit_expected_score
+  ✓ exists: rsc/test/xref_expected_score
   ✓ exists: src/test/schema_recommendations.py
   ✓ exists: src/run_python_script.sh
 
@@ -1592,6 +1592,6 @@ pre_commit.py: 1555/1555 (data: machine-local)
   ✓ score[code+schema]: 1555/1555; expected: 1555/1555
   ✓ score[code]: 143/143; expected: 143/143
   ✓ score[schema]: 1412/1412; expected: 1412/1412
-  – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
+  – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
 gate: PASS — code+schema 1555/1555 match the committed expectation; nothing here vetoes a commit
