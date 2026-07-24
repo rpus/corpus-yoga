@@ -172,7 +172,13 @@ per-corpus code.
   so model.json documents exactly what model_join asserts, minus rejections —
   no unmet obligation, no orphan documentation). Promoted from candidate to
   doctrine by the third instance (issue #19) — exactly the condition the
-  candidate entry had set for itself.
+  candidate entry had set for itself. Two properties of the loop have since
+  met the same two-implementations bar (model.json, PR #36; indexing's
+  zero-locator headwords, PR #37): the loop runs BOTH directions — every
+  proposal disposed, and every disposal grounded, no orphan record — and its
+  pressure follows the INPUT tier, not the instance: committed inputs gate
+  (model.json), machine-local inputs advise (indexing) — L2's determinism
+  split, read as enforcement policy.
 
 - **validate** — datum × schema-version → the machine-local matrix. Two gates:
   *coverage* (every datum modelled by some version) and *frontier* (the newest
