@@ -551,9 +551,9 @@ def check_index_curation(run, fix) -> None:
     if markdown_root.is_dir():
         for h in orphan_headwords(markdown_root,
                                   REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt'):
-            run(f'indexing: headword located: {h}', False)
+            run(f'indexing: headword grounded: {h}', False)
             fix('./yoga indexing   # status names each orphan headword',
-                problem=f'indexing: headword unlocated: {h} (zero corpus locators)',
+                problem=f'indexing: headword ungrounded: {h} (zero corpus locators)',
                 guidance='fix the aliases on its accepted.txt line, or remove the line '
                          'and reject the concept with a reason')
 
