@@ -339,7 +339,24 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
           + (f' — next: {pending[0]!r}' if pending else ' — fully disposed'))
 
 
-def status(accepted_path: Path, rejected_path: Path) -> None:
+def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
+    """Accepted headwords with ZERO corpus locators — the disposal record's
+    orphan documentation, the reverse direction of the curate discipline (the
+    model.json precedent, PR #36: a curation record must be grounded both ways).
+    build() has always computed this — the located/total ratio in the sync
+    line — but as an aggregate; a dead index entry (its concept left the
+    corpus, or its aliases never matched) was a count, not a name. Same scan
+    build() runs, so the two can never disagree."""
+    entries = parse_accepted(accepted_path)
+    corpus = scan(markdown_root)
+    return sorted((h for h in entries
+                   if not any(term_regex(entries[h]).search(body)
+                              for _source, _stem, _rel, turns in corpus
+                              for _role, _n, _anchor, body in turns)),
+                  key=str.lower)
+
+
+def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
     """Read-only state of data/output/indexing/ (bare `yoga indexing`): counts on
     stderr, the pending queue as pure lines on stdout — human-amenable at the
     terminal (both interleave), agent-amenable in a pipe (queue only)."""
@@ -348,6 +365,12 @@ def status(accepted_path: Path, rejected_path: Path) -> None:
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
     print(f'accepted: {n_accepted} entries ({a_rel}); rejected: {n_rejected} ({r_rel})',
           file=sys.stderr)
+    if markdown_root.is_dir() and n_accepted:
+        orphans = orphan_headwords(markdown_root, accepted_path)
+        print(f'orphans: {len(orphans)} accepted headword(s) with zero corpus locators'
+              + (f' — {", ".join(orphans)} (fix the aliases, or remove the line and '
+                 f'reject the concept with a reason)' if orphans else ''),
+              file=sys.stderr)
     if not inferred_concepts():
         print('pending queue: unknown — no concept capture on this machine '
               '(yoga dashboard capture)', file=sys.stderr)
@@ -400,7 +423,7 @@ def main():
         return
 
     # bare `yoga indexing`: read-only status of the curation surface
-    status(accepted_path, rejected_path)
+    status(accepted_path, rejected_path, MARKDOWN_DIR)
 
 
 if __name__ == '__main__':

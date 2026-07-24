@@ -64,7 +64,7 @@ sys.path.insert(0, str(SRC / 'main' / 'chat-exports'))  # the shared deposit rul
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
-from build_index import inferred_concepts, pending_concepts  # noqa: E402
+from build_index import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
 import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
@@ -541,6 +541,21 @@ def check_index_curation(run, fix) -> None:
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
                          '| ./yoga indexing reject [--reason <why>] <concept>')
+    # The REVERSE direction (the curate symmetry, PR #36's model.json precedent:
+    # a curation record must be grounded both ways). An accepted headword with
+    # ZERO corpus locators is orphan documentation — a dead index entry whose
+    # concept left the corpus or whose aliases never matched. build_index's sync
+    # line has always carried the located/total ratio; this names the orphans.
+    # Advisory like the rest of this section: the corpus is machine-local data.
+    markdown_root = REPO_ROOT / 'data' / 'output' / 'markdown'
+    if markdown_root.is_dir():
+        for h in orphan_headwords(markdown_root,
+                                  REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt'):
+            run(f'indexing: headword located: {h}', False)
+            fix('./yoga indexing   # status names each orphan headword',
+                problem=f'indexing: headword unlocated: {h} (zero corpus locators)',
+                guidance='fix the aliases on its accepted.txt line, or remove the line '
+                         'and reject the concept with a reason')
 
 
 def check_cross_sources(run) -> None:
