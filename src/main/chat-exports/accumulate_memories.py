@@ -41,6 +41,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from compare_batches import batch_time
+from accumulate import accumulate  # the one deposit rule (issue #22)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import reconcile_dir  # noqa: E402
@@ -110,25 +111,21 @@ def memory_states(gen_root):
 
 def deposit(states, lib_dir):
     """Deposit each state under its stamp unless the nearest earlier deposit is
-    identical. Existing deposits are immutable; a same-stamp content mismatch is
-    reported loudly and left alone."""
+    identical, via the shared CALCULUS accumulate rule (accumulate.py). Existing
+    deposits are immutable; a same-stamp content mismatch is a CONFLICT, reported
+    loudly and left alone. normalise_stamps first heals legacy filenames so the
+    stamp comparison sees one vintage."""
     lib_dir.mkdir(parents=True, exist_ok=True)
     conflicts = normalise_stamps(lib_dir)
     for stamp, batch, text in states:
-        dest = lib_dir / f'{stamp}.json'
-        if dest.exists():
-            if dest.read_text() == text:
-                status = '✓ deposited'
-            else:
-                status = '✗ CONFLICT: deposit exists with different content — investigate'
-                conflicts += 1
+        result = accumulate(lib_dir, stamp, text, suffix='.json')
+        if result == 'conflict':
+            conflicts += 1
+            status = '✗ CONFLICT: deposit exists with different content — investigate'
+        elif result == 'deposited':
+            status = '✓ deposited (new)'
         else:
-            earlier = sorted(p for p in lib_dir.glob('*.json') if p.stem <= stamp)
-            if earlier and earlier[-1].read_text() == text:
-                status = f'unchanged since {earlier[-1].stem} — no deposit'
-            else:
-                dest.write_text(text)
-                status = '✓ deposited (new)'
+            status = 'unchanged — no new deposit'
         print(f'  {batch}: memory state {stamp} {status}')
     deposits = sorted(lib_dir.glob('*.json'))
     print(f'data/output/memories: {len(deposits)} deposit(s)')

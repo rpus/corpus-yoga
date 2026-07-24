@@ -6,11 +6,14 @@ The summary is a per-snapshot oracle READING of a conversation (a nondeterminist
 emission: the same transcript has been observed to re-read differently — №99,
 two exports ten hours apart, identical updated_at), carried by every bulk export
 and every browser capture, and lossy between snapshots: the backend regenerates it
-at will, exports supersede each other, captures refresh in place. Like the
-chat-memory document (accumulate_memories.py — whose pattern this repeats per
-conversation), each distinct reading is deposited once, durably, so batches and
-captures may churn while no reading is ever lost — and compare_batches' summaries
-component recognises the deposits as its unconditional licence.
+at will, exports supersede each other, captures refresh in place. Each distinct
+reading is deposited once, durably, so batches and captures may churn while no
+reading is ever lost — and compare_batches' summaries component recognises the
+deposits as its unconditional licence.
+
+The summary store and the chat-memory library are the two callers of the shared
+CALCULUS accumulate operation (accumulate.py); this one keys deposits per
+conversation, the library keys them per snapshot.
 
 Layout (data/output/markdown/claude/chat/summaries/):
   <conversation-stem>/          # stem matches data/output/markdown/claude/chat/conversations/<stem>.md;
@@ -22,9 +25,11 @@ Layout (data/output/markdown/claude/chat/summaries/):
                                 # deposit (rolling: recaptures refresh it; the export
                                 # deposits are the immutable record)
 
-Readings are content-deduplicated against the nearest earlier deposit (memories
-semantics); an <export-ts>.md, once written, is never modified. Everything derives
-from the local corpora — L1: re-running is silence on disk.
+Readings are deposited by the shared CALCULUS accumulate rule (accumulate.py):
+content-deduplicated against the nearest earlier deposit, so a re-stamped unchanged
+reading costs nothing while a genuine return still records. An <export-ts>.md, once
+written, is never modified. Everything derives from the local corpora — L1:
+re-running is silence on disk.
 
 Usage (bare = status, the verb writes — the memories shape):
   src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py [sync] \\
@@ -44,6 +49,13 @@ from markdown_projection import REPO, find_api_json
 
 from argparse_help import enrich, inherit_flags  # noqa: E402
 from compare_batches import batch_time  # noqa: E402 — the one batch-ordering authority
+from accumulate import accumulate, nearest_earlier_deposit  # noqa: E402 — the one deposit rule
+
+# A summary folder holds <stamp>.md deposits beside two non-deposits: index.md
+# (the map) and browser-capture.md (rolling). Both are held out of the accumulate
+# comparison and the twin scan.
+SUFFIX = '.md'
+NON_DEPOSITS = {'index.md', 'browser-capture.md'}
 
 
 def _ts(batch_name):
@@ -67,8 +79,10 @@ def stems_by_uuid(conversations_output: Path):
 
 def readings_by_uuid(gen_root: Path):
     """{uuid: [(ts, summary), …]} across all atomised batches in snapshot order,
-    deduplicated against the nearest earlier reading (memories semantics) — each
-    surviving pair is one distinct reading, stamped with the FIRST batch exhibiting it."""
+    collapsing each run of consecutive-identical readings to its first — each
+    surviving pair is one distinct reading, stamped with the FIRST batch exhibiting
+    it. (This pre-filters the reading STREAM; the durable deposit rule is the shared
+    accumulate, applied per folder in sync.)"""
     floor = datetime.min.replace(tzinfo=timezone.utc)
     batches = sorted((d for d in gen_root.glob('data-*') if (d / 'json').is_dir()),
                      key=lambda d: batch_time(d.name) or floor)
@@ -119,32 +133,16 @@ def index_text(uuid, stem, title, deposit_names):
     return '\n'.join(lines) + '\n'
 
 
-def nearest_earlier_deposit(folder: Path, stamp: str):
-    """The deposit with the greatest stamp STRICTLY before `stamp`, or None.
-    THE one rule (PR #23 review): the WRITER (sync's deposit loop skips a
-    reading identical to it) and the DETECTOR (twins_of flags a deposit
-    identical to it) evaluate this same function — a writer/detector pair
-    with separate implementations diverges silently, and a diverged detector
-    under-reports exactly the damage it exists to announce. Strict '<' so a
-    deposit is never its own nearest-earlier. index.md and
-    browser-capture.md are not deposits."""
-    earlier = sorted(p for p in folder.glob('*.md')
-                     if p.name not in ('index.md', 'browser-capture.md')
-                     and p.stem < stamp)
-    return earlier[-1] if earlier else None
-
-
 def twins_of(folder: Path) -> list[Path]:
     """The folder's twin deposits: each byte-identical to its nearest earlier
-    sibling — exactly what the sync loop's dedup (the same
-    nearest_earlier_deposit rule) would never write, so any such deposit is
-    a defect in whatever wrote it. A genuine A→B→A recurrence is NOT a twin:
-    its second A's nearest-earlier is B. Callers: status and sync's WARN."""
-    deps = sorted(p for p in folder.glob('*.md')
-                  if p.name not in ('index.md', 'browser-capture.md'))
+    sibling — exactly what the shared accumulate rule would never write, so any
+    such deposit is a defect in whatever wrote it. A genuine A→B→A recurrence is
+    NOT a twin: its second A's nearest-earlier is B. Callers: status and sync's
+    WARN."""
+    deps = sorted(p for p in folder.glob('*.md') if p.name not in NON_DEPOSITS)
     out = []
     for p in deps:
-        prior = nearest_earlier_deposit(folder, p.stem)
+        prior = nearest_earlier_deposit(folder, p.stem, suffix=SUFFIX, exclude=NON_DEPOSITS)
         if prior is not None and p.read_bytes() == prior.read_bytes():
             out.append(p)
     return out
@@ -250,34 +248,21 @@ def main():
         folder.mkdir(parents=True, exist_ok=True)
 
         texts = []
-        # A reading is stamped by the FIRST SURVIVING batch exhibiting it, so
-        # disposing a batch re-stamps its readings under the next survivor;
-        # without this check the re-stamped reading deposits AGAIN,
-        # byte-identical under a new key (found 2026-07-23, reading-room's
-        # rehearsal — and their census then showed 196 such twins already in
-        # the shared store from two earlier disposal layers). The check is
-        # NEAREST-EARLIER by stamp, exactly accumulate_memories.deposit():
-        # the store remembers what the batch sequence forgets at disposal,
-        # while a GENUINE recurrence (readings A→B→A: the oracle reverting
-        # to an earlier reading across an intervening different one) still
-        # deposits — a folder-wide content set would suppress that event.
-        # The rule is nearest_earlier_deposit, THE one shared function the
-        # twin detector also evaluates (PR #23 review): writer and detector
-        # with separate implementations diverge silently, and a diverged
-        # detector under-reports exactly what it exists to announce.
+        # Each reading is stamped by the FIRST SURVIVING batch exhibiting it, so
+        # disposing a batch re-stamps its readings under the next survivor. The
+        # shared accumulate rule (nearest-earlier) suppresses the re-stamp — the
+        # store remembers what the batch sequence forgets at disposal — while a
+        # genuine A→B→A return still deposits, because A's nearest-earlier is then
+        # B, not A. Without it the re-stamped reading deposited again, byte-
+        # identical under a new key: 196 such twins accreted before the fix
+        # (found 2026-07-23, reading-room's rehearsal; issue #22).
         for ts, s in readings.get(u, []):
-            f = folder / f'{ts}.md'
-            if not f.exists():
-                prior = nearest_earlier_deposit(folder, ts)
-                if prior is not None and prior.read_text() == s:
-                    unchanged += 1       # unchanged since its nearest earlier deposit
-                else:
-                    f.write_text(s)      # verbatim — the deposit IS the reading
-                    deposited += 1
-            elif f.read_text() != s:
+            result = accumulate(folder, ts, s, suffix=SUFFIX, exclude=NON_DEPOSITS)
+            if result == 'deposited':
+                deposited += 1          # verbatim — the deposit IS the reading
+            elif result == 'conflict':
                 # the calculus accumulate contract (issue #22): a same-stamp
-                # content mismatch is a CONFLICT, exit 1 — memories' semantics
-                # and vocabulary, not a stderr aside the run tail never saw
+                # content mismatch is a CONFLICT, exit 1 — not a stderr aside
                 print(f'  ✗ CONFLICT {stem}/{ts}.md: existing deposit differs from this '
                       'derivation — left untouched (deposits are immutable); investigate')
                 conflicts += 1

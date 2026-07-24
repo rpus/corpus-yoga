@@ -1,4 +1,4 @@
-pre_commit.py: 1534/1534 (data: machine-local)
+pre_commit.py: 1535/1535 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -152,6 +152,9 @@ pre_commit.py: 1534/1534 (data: machine-local)
   ✓ cache_io: tmp/cache/model: producers/readers resolve
   ✓ cache_io: tmp/cache/serve_markdown: read implies a writer
   ✓ cache_io: tmp/cache/serve_markdown: producers/readers resolve
+
+── check_accumulate_contract ─────────────────────────────────────────────────
+  ✓ accumulate: the CALCULUS trajectory contract (#22)
 
 ════ schema tier ══════════════════════════════════════════════════════════════
 
@@ -1562,9 +1565,9 @@ pre_commit.py: 1534/1534 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1534/1534; expected: 1534/1534
-  ✓ score[code]: 142/142; expected: 142/142
+  ✓ score[code+schema]: 1535/1535; expected: 1535/1535
+  ✓ score[code]: 143/143; expected: 143/143
   ✓ score[schema]: 1392/1392; expected: 1392/1392
   – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1534/1534 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1535/1535 match the committed expectation; nothing here vetoes a commit

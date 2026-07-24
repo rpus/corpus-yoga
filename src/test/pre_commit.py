@@ -60,6 +60,9 @@ sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch 
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 
+sys.path.insert(0, str(SRC / 'main' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
+import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
+
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from build_index import inferred_concepts, pending_concepts  # noqa: E402
 
@@ -958,6 +961,50 @@ def check_xref(run):
         if actual != expected else None)
 
 
+def check_accumulate_contract(run) -> None:
+    """The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+    the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+    the content differs from the NEAREST EARLIER deposit, so the store records a
+    trajectory, not a set. The design turns on cases a byte-set would get wrong —
+    above all that a genuine A→B→A return deposits while a re-stamp of an unchanged
+    reading does not (the 196-twin bug). CALCULUS.md holds the sentence; this holds
+    it to account. Deterministic, tempdir-only, committed code — code tier: the
+    guarantee is guarded in the repo, not only in a PR's prose (issue #22)."""
+    import tempfile
+    import shutil
+    d = Path(tempfile.mkdtemp())
+    try:
+        def acc(stamp, content):
+            return _accumulate.accumulate(d, stamp, content,
+                                          suffix='.md', exclude={'index.md'})
+        # A→B→A: every leg is a trajectory event, so all three deposit — the
+        # return is exactly what a folder-wide content set would erase.
+        cases = [
+            ('A deposits',              acc('2026-01-01T000000Z', 'A') == 'deposited'),
+            ('B deposits',              acc('2026-01-02T000000Z', 'B') == 'deposited'),
+            ('A→B→A return deposits',   acc('2026-01-03T000000Z', 'A') == 'deposited'),
+            # a re-stamp of an unchanged reading (A again, nothing between) is not
+            # an event — suppressed; this is the re-stamp bug's fix.
+            ('re-stamp suppressed',     acc('2026-01-04T000000Z', 'A') == 'unchanged'),
+            # re-run of an existing stamp with identical content is idempotent.
+            ('idempotent re-run',       acc('2026-01-03T000000Z', 'A') == 'unchanged'),
+            # same stamp, different content: conflict, and nothing is written.
+            ('same-stamp mismatch → conflict',
+                                        acc('2026-01-03T000000Z', 'Z') == 'conflict'),
+            ('conflict leaves deposit immutable',
+                (d / '2026-01-03T000000Z.md').read_text() == 'A'),
+        ]
+        # a non-deposit sibling never enters the comparison.
+        (d / 'index.md').write_text('B')
+        cases.append(('non-deposit sibling excluded',
+                      acc('2026-01-06T000000Z', 'A') == 'unchanged'))
+        failed = [name for name, ok in cases if not ok]
+        run('accumulate: the CALCULUS trajectory contract (#22)',
+            not failed, 'cases failed: ' + '; '.join(failed) if failed else None)
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 
@@ -1037,6 +1084,7 @@ def main():
         run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
         run_section(check_cache_io, tier='code')
+        run_section(check_accumulate_contract, tier='code')
 
         run_section(check_root_schema_diagnostics, tier='schema')
 

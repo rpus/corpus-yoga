@@ -92,9 +92,17 @@ per-corpus code.
 
 - **accumulate** — deposit a state iff it differs from the nearest earlier
   deposit; deposits are immutable and outlive their producers; a same-stamp
-  content mismatch is a CONFLICT, exit 1. Accumulation is what converts a
-  mutable document's batch-retention problem into a deletion licence.
-  (`src/main/chat-exports/accumulate_memories.py`.)
+  content mismatch is a CONFLICT, exit 1. The comparison is nearest-earlier, not
+  a folder-wide set, because these stores record a *trajectory*: an unchanged
+  reading deposits nothing and each deposit is named by the snapshot that first
+  exhibited it, so a repeat with nothing between it and its twin is a re-stamp of
+  an unchanged reading (suppress) while a repeat after an intervening different
+  reading is a genuine return the history must keep (deposit) — position is the
+  semantics, not a proxy. Accumulation is what converts a mutable document's
+  batch-retention problem into a deletion licence. One operation, one
+  implementation: `accumulate()` in `src/main/chat-exports/accumulate.py`, called
+  by both the chat-memory library (`accumulate_memories.py`) and the
+  per-conversation summary store (`accumulate_summaries.py`).
 
 - **transport** — identity-preserving copy between machines. Because identity is
   global and classes determine reconciliation, transport is `cp`: a session

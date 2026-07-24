@@ -77,6 +77,17 @@ Squash-only PRs (enforced by forge settings; `./yoga prerequisites` reconciles
 them against `rsc/forge.csv`). main carries one narrated commit per landed idea;
 if a PR can't be squashed, it was not atomic.
 
+An issue states what *should* be true; a PR that closes it reads as the claim that it
+now is. Where that claim is a standing property the code must keep — not a one-off
+change — make it a named check in `src/test/pre_commit.py`, labelled for the property
+and the issue, so the PR asserts a compliance the gate can see and a later regression
+trips a check that names what it broke. #22 is the worked example: the issue states the
+`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and
+`check_accumulate_contract` (labelled `accumulate: the CALCULUS trajectory contract
+(#22)`) holds the code to it — its own commit verified it by breaking the rule and
+watching the check fail. A guarantee whose only witness is a pull-request description is
+not guarded.
+
 Merge with the bare command — **no message flags**:
 
 ```bash
