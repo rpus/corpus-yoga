@@ -1,4 +1,4 @@
-pre_commit.py: 1546/1546 (data: machine-local)
+pre_commit.py: 1554/1554 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -1569,20 +1569,28 @@ pre_commit.py: 1546/1546 (data: machine-local)
   ✓ model: shared type disposed: ApiTextBlock/TextContent
   ✓ model: shared type disposed: ApiToolResultBlockBase/ToolResultContent
   ✓ model: shared type disposed: ApiToolUseBlockBase/ToolUseContent
+  ✓ model: shared type disposed: Conversation
   ✓ model: shared type disposed: ImageBlock/ImageContent
   ✓ model: shared type disposed: MarkdownMessage/Message
   ✓ model: shared type disposed: TextBlock/TextContent
   ✓ model: shared type disposed: ThinkingBlock
   ✓ model: shared type disposed: ToolResultBlock/ToolResultBlockBase/ToolResultContent
   ✓ model: shared type disposed: ToolUseBlock/ToolUseBlockBase/ToolUseContent
+  ✓ model: documented type grounded: ImageContent
+  ✓ model: documented type grounded: Message
+  ✓ model: documented type grounded: TextContent
+  ✓ model: documented type grounded: ThinkingBlock
+  ✓ model: documented type grounded: ToolResultContent
+  ✓ model: documented type grounded: ToolUseContent
+  ✓ model: documented type grounded: UserUUID
 
 ── check_mcp_schema ──────────────────────────────────────────────────────────
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1546/1546; expected: 1546/1546
+  ✓ score[code+schema]: 1554/1554; expected: 1554/1554
   ✓ score[code]: 143/143; expected: 143/143
-  ✓ score[schema]: 1403/1403; expected: 1403/1403
+  ✓ score[schema]: 1411/1411; expected: 1411/1411
   – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1546/1546 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1554/1554 match the committed expectation; nothing here vetoes a commit

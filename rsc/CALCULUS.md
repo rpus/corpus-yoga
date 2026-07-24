@@ -168,7 +168,9 @@ per-corpus code.
   `rsc/schema/model_join.csv` edges at leisure; an edge asserting one shared
   type — `identical`, `snake_cased` — obligates: document in
   `rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
-  `check_model_obligations` gates per type). Promoted from candidate to
+  `check_model_obligations` gates BOTH directions of the grounding relation,
+  so model.json documents exactly what model_join asserts, minus rejections —
+  no unmet obligation, no orphan documentation). Promoted from candidate to
   doctrine by the third instance (issue #19) — exactly the condition the
   candidate entry had set for itself.
 

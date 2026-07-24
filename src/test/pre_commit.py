@@ -986,22 +986,39 @@ def check_model_occurrences(run):
 
 def check_model_obligations(run) -> None:
     """The blocking half of model.json's curate discipline (issue #19; the PR
-    #36 review, reading-room, directed by the user): every model_join edge whose
-    relationship kind asserts ONE shared type (identical, snake_cased) obligates
-    model.json — that type must be DOCUMENTED there or REJECTED with a reason
-    in rsc/schema/model_rejected.txt. One check per distinct shared type, so a
-    regression names what it broke. GATES (schema tier): unlike the raw name
-    scan — which stays as `yoga model`'s leisurely advisory pointed at
-    model_join, since a name_collision is a false friend no scan can tell from
-    a shared type — an edge here is a human-asserted identity, and an
-    undocumented asserted identity is a defect, not a queue."""
+    #36 review, reading-room, directed by the user), BOTH directions of the one
+    grounding relation (model_curation.grounds — by containing-definition name,
+    or by property trail for inline field types whose semantic name no schema
+    definition can supply, e.g. UserUUID's account uuid):
+
+    - edge→doc: every model_join edge whose relationship kind asserts ONE
+      shared type (identical, snake_cased) is grounded by a documented entry or
+      covered by a rejection in rsc/schema/model_rejected.txt. One check per
+      distinct shared type, so a regression names what it broke.
+    - doc→edge: every documented type is grounded by >=1 obligating edge — no
+      orphan documentation (the review's gap: UserUUID passed the
+      one-directional gate on no recorded basis).
+
+    Together: model.json documents exactly the shared types model_join asserts,
+    minus rejections. GATES (schema tier): an edge is a human-asserted
+    identity, and an undocumented asserted identity — or a documented type no
+    edge asserts — is a defect, not a queue. The raw name scan stays `yoga
+    model`'s leisurely advisory pointed at model_join, since a name_collision
+    is a false friend no scan can tell from a shared type."""
+    queue = model_curation.edge_queue()
     for names, rows in sorted(model_curation.shared_types().items(),
                               key=lambda kv: sorted(kv[0])):
-        disposed = bool(names & (model_curation.documented() | model_curation.rejected()))
-        run(f'model: shared type disposed: {"/".join(sorted(names))}', disposed,
-            None if disposed else
-            f'model_join row(s) {", ".join(map(str, rows))} assert one shared type: '
+        pending = queue.get(names)
+        run(f'model: shared type disposed: {"/".join(sorted(names))}', not pending,
+            None if not pending else
+            f'model_join row(s) {", ".join(map(str, pending))} assert one shared type: '
             'document it in rsc/schema/model.json or reject it in rsc/schema/model_rejected.txt')
+    orphans = set(model_curation.orphan_entries())
+    for name in sorted(model_curation.documented()):
+        run(f'model: documented type grounded: {name}', name not in orphans,
+            None if name not in orphans else
+            'no model_join edge asserts this type: curate the asserting edge '
+            '(relationship identical | snake_cased), or retire the entry')
 
 
 def check_mcp_schema(run):

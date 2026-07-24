@@ -86,11 +86,33 @@ def unrecorded_collisions() -> dict:
     return {n: f for n, f in name_scan().items() if n not in recorded}
 
 
+STRUCTURAL_TOKENS = {'definitions', 'properties', 'items', 'prefixItems',
+                     'oneOf', 'anyOf', 'allOf'}
+
+
+def _schema_trail(fragment: str) -> tuple:
+    """A schema path's property trail — the field names below its containing
+    definition (or below the root, for inline shapes), structural tokens
+    dropped: '#/definitions/Conversation/properties/account/properties/uuid'
+    → ('account', 'uuid'); '#/items/properties/account_uuid' → ('account_uuid',)."""
+    toks = [t for t in fragment.lstrip('#/').split('/') if t]
+    if toks[:1] == ['definitions']:
+        toks = toks[2:]
+    return tuple(t for t in toks if t not in STRUCTURAL_TOKENS and not t.isdigit())
+
+
+def _instance_trail(pointer: str) -> tuple:
+    """An instance pointer's key trail, array indices dropped:
+    '#/0/account/uuid' → ('account', 'uuid')."""
+    return tuple(t for t in pointer.lstrip('#/').split('/') if t and not t.isdigit())
+
+
 def obligating_edges() -> list:
-    """[(csv row number, relationship, frozenset of definition names)] for every
-    cross-pipeline edge whose kind asserts one shared type. The names are the
-    containing definitions of each filled path (a property-level identical edge
-    obligates its containing type)."""
+    """[(csv row number, relationship, frozenset of names, {family: trail})] for
+    every edge whose kind asserts one shared type. Names are the containing
+    definitions of each filled path (a property-level identical edge obligates
+    its containing type); trails carry the field identity for inline shapes a
+    definition name cannot (the account-uuid edge)."""
     out = []
     for i, row in enumerate(_join_rows(), 2):
         filled = [row[c] for c in JOIN_PATH_COLUMNS if (row[c] or '').strip()]
@@ -98,18 +120,75 @@ def obligating_edges() -> list:
             continue
         names = frozenset(m.group(1) for v in filled
                           if (m := re.search(r'#/definitions/([^/]+)', v)))
-        if names:
-            out.append((i, row['relationship'], names))
+        trails = {}
+        for v in filled:
+            fam, _, frag = v.partition('#')
+            trails[fam] = _schema_trail(frag)
+        if names or any(trails.values()):
+            out.append((i, row['relationship'], names, trails))
     return out
 
 
+def entries() -> dict:
+    """{documented name: {family: [instance trails]}} from model.json."""
+    doc = json.loads(MODEL_JSON.read_text()).get('default', {})
+    return {name: {fam: [_instance_trail(p) for p in ptrs]
+                   for fam, ptrs in e.get('occurrences', {}).items()}
+            for name, e in doc.items()}
+
+
+def grounds(edge, name: str, occ: dict) -> bool:
+    """THE grounding relation, one rule read in both directions: an edge and an
+    entry correspond iff the entry's name is one of the edge's containing
+    definitions (definition-level types: TextContent), or some family carries
+    equal trails on both sides (inline field types: the account uuid, whose
+    semantic name — UserUUID — no schema definition can supply)."""
+    _i, _kind, names, trails = edge
+    if name in names:
+        return True
+    return any(fam in occ and trails[fam] and trails[fam] in occ[fam]
+               for fam in trails)
+
+
+def _edge_key(names: frozenset, trails: dict) -> frozenset:
+    return names or frozenset('/'.join(t) for t in trails.values() if t)
+
+
 def shared_types() -> dict:
-    """{frozenset of names: [edge row numbers]} — the blocking loop's units: one
-    obligation per distinct shared type, however many edges assert it."""
+    """{frozenset of names (or trail labels): [edge row numbers]} — the
+    edge→doc direction's units: one obligation per distinct shared type,
+    however many edges assert it."""
     out = defaultdict(list)
-    for i, _kind, names in obligating_edges():
-        out[names].append(i)
+    for i, _kind, names, trails in obligating_edges():
+        out[_edge_key(names, trails)].append(i)
     return dict(out)
+
+
+def edge_queue() -> dict:
+    """edge→doc: shared types no documented entry grounds and no rejection
+    covers — the blocking queue."""
+    ents = entries()
+    rej = rejected()
+    out = defaultdict(list)
+    for edge in obligating_edges():
+        i, _kind, names, trails = edge
+        if names & rej:
+            continue
+        if any(grounds(edge, n, occ) for n, occ in ents.items()):
+            continue
+        out[_edge_key(names, trails)].append(i)
+    return dict(out)
+
+
+def orphan_entries() -> list:
+    """doc→edge: documented types no obligating edge grounds — orphan
+    documentation, the reverse direction (the PR #36 review's gap: UserUUID
+    passed the one-directional gate on no recorded basis). With edge_queue
+    empty and this empty, model.json documents exactly what model_join
+    asserts, minus rejections."""
+    edges = obligating_edges()
+    return sorted(name for name, occ in entries().items()
+                  if not any(grounds(e, name, occ) for e in edges))
 
 
 def documented() -> set:
@@ -130,10 +209,3 @@ def rejected() -> set:
     return out
 
 
-def obligation_queue() -> dict:
-    """Shared types with NO name documented or rejected — the blocking queue.
-    Any name of the set disposes it (a snake_cased pair is one type under two
-    dressings; documenting either is documenting the type)."""
-    done = documented() | rejected()
-    return {names: rows for names, rows in shared_types().items()
-            if not (names & done)}

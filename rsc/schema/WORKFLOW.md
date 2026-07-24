@@ -251,11 +251,15 @@ pressure, both computed by `src/main/model/model_curation.py` from committed fil
   ≥2 families' latest versions) surfaces collisions; a human curates each into a
   `model_join` edge with its `relationship` kind — `name_collision` records a false
   friend — or ignores it. Anyone, anytime, no gate pressure.
-- **blocking, gated `model_join` → `model.json`**: an edge whose kind asserts one shared
+- **blocking, gated `model_join` ↔ `model.json`**: an edge whose kind asserts one shared
   type (`identical`, `snake_cased`) obligates `model.json` — the type is DOCUMENTED
-  there or REJECTED with a reason in `rsc/schema/model_rejected.txt`.
-  `check_model_obligations` gates per shared type: an undocumented asserted identity is
-  a defect, not a queue.
+  there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+  documented type must be grounded by such an edge (no orphan documentation).
+  `check_model_obligations` gates both directions of the one grounding relation (by
+  containing-definition name, or by property trail for inline field types like the
+  account uuid), so the invariant is an equality: model.json documents exactly the
+  shared types model_join asserts, minus rejections. An undocumented asserted identity —
+  or a documented type no edge asserts — is a defect, not a queue.
 
 After schema changes:
 
