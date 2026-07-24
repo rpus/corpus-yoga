@@ -984,26 +984,24 @@ def check_model_occurrences(run):
         '\n    '.join(bad[:5]) if bad else None)
 
 
-def check_model_curation(run, fix) -> None:
-    """model.json obeys the curate discipline (issue #19, outlier 1): every
-    cross-pipeline candidate — a definition name in >=2 families' latest
-    versions (model_curation.py) — is either DOCUMENTED in rsc/schema/model.json
-    or DISMISSED with a reason in rsc/schema/model_dismissed.txt; anything else
-    is pending curation and says so here, which is what turns WORKFLOW step 6
-    from 'update if needed' into 'N undisposed — here they are'. Inputs are all
-    COMMITTED, so unlike its data-tier neighbours the queue is identical on any
-    clone; it sits in the data tier anyway because pending curation is an
-    advisory condition that must never gate an unrelated commit — the
-    check_index_curation precedent, at the WARN tier the issue specifies."""
-    done = model_curation.documented() | model_curation.dismissed()
-    for name, fams_of in model_curation.candidates().items():
-        disposed = name in done
-        run(f'model: candidate disposed: {name}', disposed)
-        if not disposed:
-            fix('./yoga model   # the queue: candidates − documented − dismissed',
-                problem=f'model: candidate undisposed: {name} ({", ".join(fams_of)})',
-                guidance='dispose each pending candidate: document it in rsc/schema/model.json '
-                         '| add it to rsc/schema/model_dismissed.txt with a # reason')
+def check_model_obligations(run) -> None:
+    """The blocking half of model.json's curate discipline (issue #19; the PR
+    #36 review, reading-room, directed by the user): every model_join edge whose
+    relationship kind asserts ONE shared type (identical, snake_cased) obligates
+    model.json — that type must be DOCUMENTED there or REJECTED with a reason
+    in rsc/schema/model_rejected.txt. One check per distinct shared type, so a
+    regression names what it broke. GATES (schema tier): unlike the raw name
+    scan — which stays as `yoga model`'s leisurely advisory pointed at
+    model_join, since a name_collision is a false friend no scan can tell from
+    a shared type — an edge here is a human-asserted identity, and an
+    undocumented asserted identity is a defect, not a queue."""
+    for names, rows in sorted(model_curation.shared_types().items(),
+                              key=lambda kv: sorted(kv[0])):
+        disposed = bool(names & (model_curation.documented() | model_curation.rejected()))
+        run(f'model: shared type disposed: {"/".join(sorted(names))}', disposed,
+            None if disposed else
+            f'model_join row(s) {", ".join(map(str, rows))} assert one shared type: '
+            'document it in rsc/schema/model.json or reject it in rsc/schema/model_rejected.txt')
 
 
 def check_mcp_schema(run):
@@ -1193,6 +1191,7 @@ def main():
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')
         run_section(check_model_occurrences, tier='schema')
+        run_section(check_model_obligations, tier='schema')
         run_section(check_mcp_schema, tier='schema')
 
         for _name, _pipeline in PIPELINES.items():
@@ -1219,8 +1218,6 @@ def main():
         run_section(check_cross_sources, tier='data')
         run_section(lambda run, _fix=fix: check_index_curation(run, _fix),
                     label='check_index_curation', tier='data')
-        run_section(lambda run, _fix=fix: check_model_curation(run, _fix),
-                    label='check_model_curation', tier='data')
     finally:
         sys.stdout = sys.__stdout__
 

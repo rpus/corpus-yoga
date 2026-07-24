@@ -1,4 +1,4 @@
-pre_commit.py: 1537/1537 (data: machine-local)
+pre_commit.py: 1546/1546 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -1565,13 +1565,24 @@ pre_commit.py: 1537/1537 (data: machine-local)
   ✓ model: occurrences use family-dir grammar (no vN.json pins)
   ✓ model: occurrence pointers resolve against latest versions
 
+── check_model_obligations ───────────────────────────────────────────────────
+  ✓ model: shared type disposed: ApiTextBlock/TextContent
+  ✓ model: shared type disposed: ApiToolResultBlockBase/ToolResultContent
+  ✓ model: shared type disposed: ApiToolUseBlockBase/ToolUseContent
+  ✓ model: shared type disposed: ImageBlock/ImageContent
+  ✓ model: shared type disposed: MarkdownMessage/Message
+  ✓ model: shared type disposed: TextBlock/TextContent
+  ✓ model: shared type disposed: ThinkingBlock
+  ✓ model: shared type disposed: ToolResultBlock/ToolResultBlockBase/ToolResultContent
+  ✓ model: shared type disposed: ToolUseBlock/ToolUseBlockBase/ToolUseContent
+
 ── check_mcp_schema ──────────────────────────────────────────────────────────
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1537/1537; expected: 1537/1537
+  ✓ score[code+schema]: 1546/1546; expected: 1546/1546
   ✓ score[code]: 143/143; expected: 143/143
-  ✓ score[schema]: 1394/1394; expected: 1394/1394
+  ✓ score[schema]: 1403/1403; expected: 1403/1403
   – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1537/1537 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1546/1546 match the committed expectation; nothing here vetoes a commit

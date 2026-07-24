@@ -164,11 +164,13 @@ per-corpus code.
   `data/output/indexing/rejected.txt` → `check_index_curation`); the schema
   WORKFLOW (a frontier failure proposes; a minted version narrated in its
   changelog disposes; the coverage and frontier gates report); and the
-  model.json reference (cross-pipeline definition names from the schema
-  catalogues propose → document in `rsc/schema/model.json` or dismiss in
-  `rsc/schema/model_dismissed.txt` → `check_model_curation`). Promoted from
-  candidate to doctrine by the third instance (issue #19) — exactly the
-  condition the candidate entry had set for itself.
+  model.json reference (the name scan proposes collisions a human curates into
+  `rsc/schema/model_join.csv` edges at leisure; an edge asserting one shared
+  type — `identical`, `snake_cased` — obligates: document in
+  `rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
+  `check_model_obligations` gates per type). Promoted from candidate to
+  doctrine by the third instance (issue #19) — exactly the condition the
+  candidate entry had set for itself.
 
 - **validate** — datum × schema-version → the machine-local matrix. Two gates:
   *coverage* (every datum modelled by some version) and *frontier* (the newest

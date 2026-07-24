@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 from gen_model_candidate import generate
-from model_curation import dismissed, documented, pending
+from model_curation import documented, rejected, obligation_queue, unrecorded_collisions
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from argparse_help import enrich  # noqa: E402
@@ -54,18 +54,21 @@ def _catalogues() -> list[tuple[str, Path]]:
 
 
 def curation_report() -> None:
-    """The disposal queue, in numbers (issue #19): the step that used to read
-    'update model.json if needed' now reports whether it IS needed. Candidates,
-    disposals, and the queue all come from model_curation.py — the same
-    computation the pre_commit advisory (check_model_curation) reports per name."""
-    p = pending()
-    print(f'rsc/schema/model.json — {len(documented())} documented · {len(dismissed())} dismissed · '
-          f'{len(p)} cross-pipeline candidate(s) pending')
-    if p:
-        print('  dispose each: document it in rsc/schema/model.json | '
-              'add it to rsc/schema/model_dismissed.txt with a # reason')
-        print('  the per-name queue: pre_commit (check_model_curation); '
-              'the review aid: tmp/cache/model/ catalogues')
+    """Both disposal loops, in numbers (issue #19; model_curation.py): the step
+    that used to read 'update model.json if needed' now reports whether it IS
+    needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
+    shrug — no gate pressure); loop 2 blocks (shared-type edges obligate
+    model.json, gated per type by pre_commit's check_model_obligations)."""
+    queue = obligation_queue()
+    print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
+          f'{len(queue)} shared type(s) obligated by model_join and undisposed'
+          + (' (GATES)' if queue else ''))
+    for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0])):
+        print(f'  ✗ {"/".join(sorted(names))} — model_join row(s) {", ".join(map(str, rows))}: '
+              'document in rsc/schema/model.json | reject into rsc/schema/model_rejected.txt')
+    collisions = unrecorded_collisions()
+    print(f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
+          'not yet recorded there (leisurely: curate an edge with its relationship kind, or ignore)')
 
 
 def sync() -> None:
