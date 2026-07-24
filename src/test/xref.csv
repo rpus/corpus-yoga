@@ -20,15 +20,17 @@ README.md,65,doc,src/test/pre_commit.sh,Y,`ln -sfn ../../src/test/pre_commit.sh 
 README.md,67,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 README.md,72,doc,rsc/forge.csv,Y,"settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a"
 README.md,77,doc,rsc/forge.csv,Y,them against `rsc/forge.csv`). main carries one narrated commit per landed idea;
-README.md,95,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
-README.md,101,doc,src/test/pre_commit.log,Y,- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
-README.md,101,doc,src/test/pre_commit_expected_score,Y,- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
-README.md,102,doc,src/test/xref.csv,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
-README.md,102,doc,src/test/xref_expected_score,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
-README.md,112,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
-README.md,131,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,131,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,137,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,82,doc,src/test/pre_commit.py,Y,"change — make it a named check in `src/test/pre_commit.py`, labelled for the property"
+README.md,85,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+README.md,106,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
+README.md,112,doc,src/test/pre_commit.log,Y,- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
+README.md,112,doc,src/test/pre_commit_expected_score,Y,- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
+README.md,113,doc,src/test/xref.csv,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
+README.md,113,doc,src/test/xref_expected_score,Y,- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
+README.md,123,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
+README.md,142,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,142,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,148,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
