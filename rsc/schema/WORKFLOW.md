@@ -243,7 +243,7 @@ against the new latest.
 
 ### 6. Dispose the model.json obligations
 
-`rsc/schema/model.json` is the hand-curated cross-pipeline type reference, under the
+`rsc/schema/model.json` is the hand-curated cross-family type reference, under the
 `curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
 pressure, both computed by `src/main/model/model_curation.py` from committed files only:
 

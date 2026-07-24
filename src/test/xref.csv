@@ -103,7 +103,7 @@ rsc/schema/WORKFLOW.md,180,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conv
 rsc/schema/WORKFLOW.md,211,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
 rsc/schema/WORKFLOW.md,223,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
 rsc/schema/WORKFLOW.md,224,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
-rsc/schema/WORKFLOW.md,246,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-pipeline type reference, under the"
+rsc/schema/WORKFLOW.md,246,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
 rsc/schema/WORKFLOW.md,247,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
 rsc/schema/WORKFLOW.md,248,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
 rsc/schema/WORKFLOW.md,256,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
@@ -480,7 +480,7 @@ src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candid
 src/main/model/gen_model_candidate.py,15,comment,rsc/schema/code-agents/session/v1.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v1.json
 src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
-src/main/model/model_curation.py,4,comment,rsc/schema/model.json,Y,"rsc/schema/model.json is the hand-curated cross-pipeline type reference, and its"
+src/main/model/model_curation.py,4,comment,rsc/schema/model.json,Y,"rsc/schema/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/schema/model_rejected.txt,Y,rsc/schema/model_rejected.txt. Reported per shared type by pre_commit's
 src/main/model/project_markdown.py,9,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
 src/main/model/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v3.json,Y,validated against rsc/schema/browser-captures/markdownConversation/v3.json. Splitting the bulk

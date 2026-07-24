@@ -1,7 +1,7 @@
 """
 model_curation.py — the model.json disposal loops' shared computation (issue #19).
 
-rsc/schema/model.json is the hand-curated cross-pipeline type reference, and its
+rsc/schema/model.json is the hand-curated cross-family type reference, and its
 WORKFLOW step read "update if needed" — unfalsifiable: nothing reported that it
 WAS needed, which is how the reference held one entry while model_join.csv grew
 to 144 correspondence rows. The discipline is TWO loops with different pressure
@@ -37,9 +37,11 @@ MODEL_JOIN = SCHEMA_DIR / 'model_join.csv'
 REJECTED = SCHEMA_DIR / 'model_rejected.txt'
 
 JOIN_PATH_COLUMNS = ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')
-# The obligating predicates: kinds that assert ONE type shared across pipelines.
-# subset is deliberately absent (related, not one type — a judgment call per
-# edge); name_collision emphatically so (its notes record false friends).
+# The obligating predicates: kinds that assert ONE type shared across families
+# (usually across pipelines, but the account-uuid edge is intra-chat-exports —
+# family is the grain, the PR #36 review's surviving nit). subset is
+# deliberately absent (related, not one type — a judgment call per edge);
+# name_collision emphatically so (its notes record false friends).
 OBLIGATING_KINDS = ('identical', 'snake_cased')
 
 

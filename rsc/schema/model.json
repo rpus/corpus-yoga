@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-04/schema#",
   "title": "model",
-  "description": "Cross-pipeline type reference: named types, their descriptions, and occurrence paths across all schemas. Occurrence keys use the de-versioned family-dir grammar (model_join.csv's): '<pipeline>/<family>', resolved against the family's latest version; values are instance JSON Pointers into a datum of that family. Curated under the two-loop disposal discipline of issue #19: the name scan feeds model_join.csv at leisure; a model_join edge asserting one shared type obligates an entry here or a rejection in model_rejected.txt, gated by check_model_obligations; check_model_occurrences holds these pointers to the schemas.",
+  "description": "Cross-family type reference: named types, their descriptions, and occurrence paths across all schemas. Occurrence keys use the de-versioned family-dir grammar (model_join.csv's): '<pipeline>/<family>', resolved against the family's latest version; values are instance JSON Pointers into a datum of that family. Curated under the two-loop disposal discipline of issue #19: the name scan feeds model_join.csv at leisure; a model_join edge asserting one shared type obligates an entry here or a rejection in model_rejected.txt, gated by check_model_obligations; check_model_occurrences holds these pointers to the schemas.",
   "type": "object",
   "additionalProperties": {
     "type": "object",
