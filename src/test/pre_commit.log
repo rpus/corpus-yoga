@@ -1,4 +1,4 @@
-pre_commit.py: 1535/1535 (data: machine-local)
+pre_commit.py: 1554/1554 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -17,7 +17,7 @@ pre_commit.py: 1535/1535 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref: no bad pointers
-  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 53 unreferenced
+  ✓ xref: 0 missing-file, 0 bad-pointer, 16 self-only, 55 unreferenced
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli: table parses: rsc/cli/commands.csv
@@ -1561,13 +1561,36 @@ pre_commit.py: 1535/1535 (data: machine-local)
 ── check_model_join_versions ─────────────────────────────────────────────────
   ✓ model_join: de-versioned pointer grammar (family dirs, no vN.json pins)
 
+── check_model_occurrences ───────────────────────────────────────────────────
+  ✓ model: occurrences use family-dir grammar (no vN.json pins)
+  ✓ model: occurrence pointers resolve against latest versions
+
+── check_model_obligations ───────────────────────────────────────────────────
+  ✓ model: shared type disposed: ApiTextBlock/TextContent
+  ✓ model: shared type disposed: ApiToolResultBlockBase/ToolResultContent
+  ✓ model: shared type disposed: ApiToolUseBlockBase/ToolUseContent
+  ✓ model: shared type disposed: Conversation
+  ✓ model: shared type disposed: ImageBlock/ImageContent
+  ✓ model: shared type disposed: MarkdownMessage/Message
+  ✓ model: shared type disposed: TextBlock/TextContent
+  ✓ model: shared type disposed: ThinkingBlock
+  ✓ model: shared type disposed: ToolResultBlock/ToolResultBlockBase/ToolResultContent
+  ✓ model: shared type disposed: ToolUseBlock/ToolUseBlockBase/ToolUseContent
+  ✓ model: documented type grounded: ImageContent
+  ✓ model: documented type grounded: Message
+  ✓ model: documented type grounded: TextContent
+  ✓ model: documented type grounded: ThinkingBlock
+  ✓ model: documented type grounded: ToolResultContent
+  ✓ model: documented type grounded: ToolUseContent
+  ✓ model: documented type grounded: UserUUID
+
 ── check_mcp_schema ──────────────────────────────────────────────────────────
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1535/1535; expected: 1535/1535
+  ✓ score[code+schema]: 1554/1554; expected: 1554/1554
   ✓ score[code]: 143/143; expected: 143/143
-  ✓ score[schema]: 1392/1392; expected: 1392/1392
+  ✓ score[schema]: 1411/1411; expected: 1411/1411
   – score[data]: machine-local — reported on the terminal and in tmp/logs/src/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1535/1535 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1554/1554 match the committed expectation; nothing here vetoes a commit

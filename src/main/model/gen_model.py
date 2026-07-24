@@ -20,6 +20,7 @@ import sys
 from pathlib import Path
 
 from gen_model_candidate import generate
+from model_curation import documented, rejected, edge_queue, orphan_entries, unrecorded_collisions
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from argparse_help import enrich  # noqa: E402
@@ -52,6 +53,29 @@ def _catalogues() -> list[tuple[str, Path]]:
     return out
 
 
+def curation_report() -> None:
+    """Both disposal loops, in numbers (issue #19; model_curation.py): the step
+    that used to read 'update model.json if needed' now reports whether it IS
+    needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
+    shrug — no gate pressure); loop 2 blocks (shared-type edges obligate
+    model.json, gated per type by pre_commit's check_model_obligations)."""
+    queue = edge_queue()
+    orphans = orphan_entries()
+    print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
+          f'{len(queue)} shared type(s) obligated by model_join and undisposed · '
+          f'{len(orphans)} documented but ungrounded'
+          + (' (GATES)' if queue or orphans else ''))
+    for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0])):
+        print(f'  ✗ {"/".join(sorted(names))} — model_join row(s) {", ".join(map(str, rows))}: '
+              'document in rsc/schema/model.json | reject into rsc/schema/model_rejected.txt')
+    for name in orphans:
+        print(f'  ✗ {name} — documented with no grounding model_join edge: '
+              'curate the asserting edge, or retire the entry')
+    collisions = unrecorded_collisions()
+    print(f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
+          'not yet recorded there (leisurely: curate an edge with its relationship kind, or ignore)')
+
+
 def sync() -> None:
     """The verb: bring tmp/cache/model into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
@@ -60,12 +84,13 @@ def sync() -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / schema.name).write_text(generate(name, schema))
         print(f'  ✓ tmp/cache/model/{name}/{schema.name}')
-    print('Review tmp/cache/model/ and update rsc/schema/model.json as needed.')
+    curation_report()
 
 
 def status() -> None:
     """The bare-noun default: show current state, write nothing. Reports which
-    catalogues tmp/cache/model/ already holds and which a `project` would still mint."""
+    catalogues tmp/cache/model/ already holds and which a `project` would still
+    mint, then the model.json disposal queue."""
     present, missing = [], []
     for name, schema in _catalogues():
         (present if (OUT_DIR / name / schema.name).exists() else missing).append(
@@ -74,6 +99,7 @@ def status() -> None:
     print(f'tmp/cache/model: {len(present)}/{total} catalogues present')
     for m in missing:
         print(f'  – {m} — not yet projected')
+    curation_report()
 
 
 def main():

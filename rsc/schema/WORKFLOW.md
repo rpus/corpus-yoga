@@ -241,18 +241,38 @@ snapshot in place (its history is data; the old update-in-place remedy destroyed
 it). Then re-run `pre_commit` to verify all `model_join.csv` pointers still resolve
 against the new latest.
 
-### 6. Update model.json if needed
+### 6. Dispose the model.json obligations
 
-`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
-changes, regenerate the candidates:
+`rsc/schema/model.json` is the hand-curated cross-family type reference, under the
+`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
+pressure, both computed by `src/main/model/model_curation.py` from committed files only:
+
+- **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
+  ≥2 families' latest versions) surfaces collisions; a human curates each into a
+  `model_join` edge with its `relationship` kind — `name_collision` records a false
+  friend — or ignores it. Anyone, anytime, no gate pressure.
+- **blocking, gated `model_join` ↔ `model.json`**: an edge whose kind asserts one shared
+  type (`identical`, `snake_cased`) obligates `model.json` — the type is DOCUMENTED
+  there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+  documented type must be grounded by such an edge (no orphan documentation).
+  `check_model_obligations` gates both directions of the one grounding relation (by
+  containing-definition name, or by property trail for inline field types like the
+  account uuid), so the invariant is an equality: model.json documents exactly the
+  shared types model_join asserts, minus rejections. An undocumented asserted identity —
+  or a documented type no edge asserts — is a defect, not a queue.
+
+After schema changes:
 
 ```bash
-./yoga model sync
+./yoga model sync   # regenerate the per-schema catalogues (the review aid)
+./yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
 ```
 
-Review `tmp/cache/model/` for new or changed definitions and update `model.json` if any
-cross-pipeline types need documenting. Also bump any stale version references in the
-`default` section of `model.json`.
+This step is falsifiable, not "if needed". Occurrence paths use the de-versioned
+family-dir grammar (`chat-exports/conversations`, resolved against the family's latest
+version — `model_join.csv`'s grammar), and `check_model_occurrences` gates both the
+grammar and that every instance pointer still resolves — a mint that renames a
+documented field fails there, the review prompt.
 
 ### 7. Run pre_commit
 

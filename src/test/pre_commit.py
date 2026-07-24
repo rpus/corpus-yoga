@@ -65,6 +65,7 @@ import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate opera
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from build_index import inferred_concepts, pending_concepts  # noqa: E402
+import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
@@ -908,6 +909,118 @@ def check_model_join_versions(run):
         '\n    '.join(pins[:5]) if pins else None)
 
 
+def _deref(node, root, _seen=None):
+    """Follow $ref chains ('#/definitions/X') within one schema document."""
+    seen = _seen or set()
+    while isinstance(node, dict) and '$ref' in node and node['$ref'] not in seen:
+        seen.add(node['$ref'])
+        target: Any = root
+        for tok in node['$ref'].lstrip('#/').split('/'):
+            target = target.get(tok) if isinstance(target, dict) else None
+        if target is None:
+            return node
+        node = target
+    return node
+
+
+def _admits_instance_pointer(schema, pointer: str) -> bool:
+    """Does the schema's structure admit this INSTANCE pointer ('#/0/account/uuid')?
+    An integer token steps into items, a key token into properties or
+    additionalProperties; $ref is followed and oneOf/anyOf/allOf branches are
+    searched — any branch admitting the remainder admits it."""
+    def admits(node, tokens) -> bool:
+        node = _deref(node, schema)
+        if not tokens:
+            return True
+        if not isinstance(node, dict):
+            return False
+        t, rest = tokens[0], tokens[1:]
+        if t.isdigit():
+            items = node.get('items')
+            if isinstance(items, dict) and admits(items, rest):
+                return True
+            if isinstance(items, list) and int(t) < len(items) and admits(items[int(t)], rest):
+                return True
+        else:
+            props = node.get('properties', {})
+            if t in props and admits(props[t], rest):
+                return True
+            extra = node.get('additionalProperties')
+            if isinstance(extra, dict) and admits(extra, rest):
+                return True
+        return any(admits(b, tokens)
+                   for comb in ('oneOf', 'anyOf', 'allOf') for b in node.get(comb, []))
+    return admits(schema, pointer.lstrip('#/').split('/'))
+
+
+def check_model_occurrences(run):
+    """model.json's occurrence paths obey the de-versioned family-dir grammar
+    model_join.csv earned (check_model_join_versions) and RESOLVE (issue #19):
+    each occurrences key is '<pipeline>/<family>' — the pinned grammar was drift
+    already in progress, v15 pins under a v17 corpus, and unlike model_join
+    nothing validated them — and each instance pointer must resolve against the
+    family's LATEST version by walking the schema's structure. A mint that
+    renames a documented field fails here, the model_join review prompt; one
+    that keeps it costs nothing."""
+    doc = json.loads((RSC_SCHEMA / 'model.json').read_text()).get('default', {})
+    fams = model_curation.latest_versions()
+    pins, bad = [], []
+    for tname, entry in doc.items():
+        for key, pointers in entry.get('occurrences', {}).items():
+            if re.search(r'v\d+\.json$', key.partition('#')[0]):
+                pins.append(f'{tname}: {key}')
+                continue
+            latest = fams.get(key)
+            if latest is None:
+                bad.append(f'{tname}: no such family dir: {key}')
+                continue
+            schema = json.loads(latest.read_text())
+            for ptr in pointers:
+                if not _admits_instance_pointer(schema, ptr):
+                    bad.append(f'{tname}: {key} {ptr} does not resolve against {latest.name}')
+    run('model: occurrences use family-dir grammar (no vN.json pins)', not pins,
+        '\n    '.join(pins[:5]) if pins else None)
+    run('model: occurrence pointers resolve against latest versions', not bad,
+        '\n    '.join(bad[:5]) if bad else None)
+
+
+def check_model_obligations(run) -> None:
+    """The blocking half of model.json's curate discipline (issue #19; the PR
+    #36 review, reading-room, directed by the user), BOTH directions of the one
+    grounding relation (model_curation.grounds — by containing-definition name,
+    or by property trail for inline field types whose semantic name no schema
+    definition can supply, e.g. UserUUID's account uuid):
+
+    - edge→doc: every model_join edge whose relationship kind asserts ONE
+      shared type (identical, snake_cased) is grounded by a documented entry or
+      covered by a rejection in rsc/schema/model_rejected.txt. One check per
+      distinct shared type, so a regression names what it broke.
+    - doc→edge: every documented type is grounded by >=1 obligating edge — no
+      orphan documentation (the review's gap: UserUUID passed the
+      one-directional gate on no recorded basis).
+
+    Together: model.json documents exactly the shared types model_join asserts,
+    minus rejections. GATES (schema tier): an edge is a human-asserted
+    identity, and an undocumented asserted identity — or a documented type no
+    edge asserts — is a defect, not a queue. The raw name scan stays `yoga
+    model`'s leisurely advisory pointed at model_join, since a name_collision
+    is a false friend no scan can tell from a shared type."""
+    queue = model_curation.edge_queue()
+    for names, rows in sorted(model_curation.shared_types().items(),
+                              key=lambda kv: sorted(kv[0])):
+        pending = queue.get(names)
+        run(f'model: shared type disposed: {"/".join(sorted(names))}', not pending,
+            None if not pending else
+            f'model_join row(s) {", ".join(map(str, pending))} assert one shared type: '
+            'document it in rsc/schema/model.json or reject it in rsc/schema/model_rejected.txt')
+    orphans = set(model_curation.orphan_entries())
+    for name in sorted(model_curation.documented()):
+        run(f'model: documented type grounded: {name}', name not in orphans,
+            None if name not in orphans else
+            'no model_join edge asserts this type: curate the asserting edge '
+            '(relationship identical | snake_cased), or retire the entry')
+
+
 def check_mcp_schema(run):
     """The LATEST _reference/mcp/vN.json must match the upstream schema at the raw
     URL in its description. Upstream drift is answered by MINTING the next version
@@ -1094,6 +1207,8 @@ def main():
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')
+        run_section(check_model_occurrences, tier='schema')
+        run_section(check_model_obligations, tier='schema')
         run_section(check_mcp_schema, tier='schema')
 
         for _name, _pipeline in PIPELINES.items():
