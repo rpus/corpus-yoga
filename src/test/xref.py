@@ -2,13 +2,13 @@
 """
 xref.py — the cross-reference table of the repo. `xref` is a NOUN: the table. A bare
 invocation shows its status (the committed table's tallies) and writes nothing; the
-`check` verb rebuilds it, writes src/test/xref.csv, and reports. Every non-generated
+`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated
 file is scanned for references to other repo files, one CSV row per reference (columns
-are the header of src/test/xref.csv; exists=N marks a stale reference).
+are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 
     ./yoga xref                            # status of the committed table
     ./yoga xref check                      # rebuild + write + report
-    awk -F, '$5=="N"' src/test/xref.csv    # the stale references
+    awk -F, '$5=="N"' rsc/test/xref.csv    # the stale references
 """
 
 import argparse
@@ -41,7 +41,7 @@ def _gitignored_roots() -> frozenset:
 _IGNORED_ROOTS = _gitignored_roots()
 SKIP_DIRS  = _IGNORED_ROOTS | {'__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
-SKIP_FILES = {'src/test/pre_commit.log', 'src/test/xref.csv'}
+SKIP_FILES = {'rsc/test/pre_commit.log', 'rsc/test/xref.csv'}
 
 # Python stdlib and known third-party modules — not repo files
 STDLIB_MODULES = {
@@ -506,7 +506,7 @@ EXTRACTORS = {
 }
 
 
-DEFAULT_OUT = REPO_ROOT / 'src' / 'test' / 'xref.csv'
+DEFAULT_OUT = REPO_ROOT / 'rsc' / 'test' / 'xref.csv'
 HEADER = ['referring_file', 'line', 'ref_type', 'referred_file', 'exists', 'line_text']
 
 

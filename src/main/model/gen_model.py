@@ -20,7 +20,8 @@ import sys
 from pathlib import Path
 
 from gen_model_candidate import generate
-from model_curation import documented, rejected, edge_queue, orphan_entries, unrecorded_collisions
+from model_curation import (documented, rejected, edge_queue, orphan_entries,
+                             coverage_gaps, unrecorded_collisions)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from argparse_help import enrich  # noqa: E402
@@ -61,16 +62,20 @@ def curation_report() -> None:
     model.json, gated per type by pre_commit's check_model_obligations)."""
     queue = edge_queue()
     orphans = orphan_entries()
+    gaps = coverage_gaps()
     print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
           f'{len(queue)} shared type(s) obligated by model_join and undisposed · '
-          f'{len(orphans)} documented but ungrounded'
-          + (' (GATES)' if queue or orphans else ''))
+          f'{len(orphans)} documented but ungrounded · {len(gaps)} documented incompletely'
+          + (' (GATES)' if queue or orphans or gaps else ''))
     for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0])):
         print(f'  ✗ {"/".join(sorted(names))} — model_join row(s) {", ".join(map(str, rows))}: '
               'document in rsc/schema/model.json | reject into rsc/schema/model_rejected.txt')
     for name in orphans:
         print(f'  ✗ {name} — documented with no grounding model_join edge: '
               'curate the asserting edge, or retire the entry')
+    for name, fams in sorted(gaps.items()):
+        print(f'  ✗ {name} — occurrences omit data famil(y/ies) its edge asserts: '
+              f'{", ".join(fams)} — add the occurrence(s)')
     collisions = unrecorded_collisions()
     print(f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
           'not yet recorded there (leisurely: curate an edge with its relationship kind, or ignore)')

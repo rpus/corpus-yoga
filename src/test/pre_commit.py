@@ -18,7 +18,7 @@ Checks are grouped into three tiers, run in order:
     data    — local data/input//tmp/cache/ data vs the committed record (validation outputs, coverage,
               frontier); machine-local, skipped per pipeline where no local data exists
 
-The committed expected score (src/test/pre_commit_expected_score) records the code and
+The committed expected score (rsc/test/pre_commit_expected_score) records the code and
 schema tiers only — their counts are identical on every clone. Its first line is the
 combined code+schema total, which also matches the score in the log's head line. The
 data tier's subtotal is machine-local and never recorded; its failures are reported in
@@ -299,8 +299,8 @@ def check_required_files(run):
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
         SRC  / 'main' / 'model' / 'gen_model.py',
-        SRC  / 'test' / 'pre_commit_expected_score',
-        SRC  / 'test' / 'xref_expected_score',
+        RSC  / 'test' / 'pre_commit_expected_score',
+        RSC  / 'test' / 'xref_expected_score',
         SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
     ]
@@ -997,6 +997,17 @@ def check_model_occurrences(run):
         '\n    '.join(pins[:5]) if pins else None)
     run('model: occurrence pointers resolve against latest versions', not bad,
         '\n    '.join(bad[:5]) if bad else None)
+    # Completeness (issue #19 follow-up, the foolproof-index fix, user + reading-room):
+    # grounds() needs one family to match, so a type can be documented with a
+    # dressing missing and still ground — model.json would then answer "where does
+    # this type occur" incompletely, the non-foolproof grep the account-uuid thread
+    # exposed. Every DATA family a grounding edge asserts must be an occurrence, so
+    # the index is the complete, reliable answer the four-dressing schemas cannot be.
+    gaps = model_curation.coverage_gaps()
+    run('model: documented types occur completely (occurrences cover their edges\' data families)',
+        not gaps,
+        '\n    '.join(f'{n}: grounding edge asserts {", ".join(f)} — not in occurrences'
+                      for n, f in list(gaps.items())[:5]) if gaps else None)
 
 
 def check_model_obligations(run) -> None:
@@ -1080,7 +1091,7 @@ def check_xref(run):
     m_bad  = re.search(r'(\d+) bad-pointer', actual)
     bad    = int(m_bad.group(1)) if m_bad else 0
 
-    score_file = SRC / 'test' / 'xref_expected_score'
+    score_file = RSC / 'test' / 'xref_expected_score'
     expected   = score_file.read_text().strip()
 
     run('xref: no bad pointers', bad == 0, summary if bad else None)
@@ -1144,10 +1155,10 @@ def main():
 
     results = []
     # The report splits by DETERMINISM, mirroring the tiers: code+schema output is
-    # identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+    # identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
     # data tier describes THIS MACHINE's data (uuids, batch names, home-dir-derived
     # paths) and must never enter a committed artifact — it goes to the terminal and
-    # to tmp/logs/src/test/pre_commit.log (machine-facing, like the serve daemon's log).
+    # to tmp/logs/rsc/test/pre_commit.log (machine-facing, like the serve daemon's log).
     committed_buffer = io.StringIO()   # code + schema tiers
     machine_buffer   = io.StringIO()   # data tier
 
@@ -1269,7 +1280,7 @@ def main():
     det_tot = sum(tier_counts.get(t, [0, 0])[1] for t in ('code', 'schema'))
     det     = f'{det_got}/{det_tot}'
 
-    score_file = SRC / 'test' / 'pre_commit_expected_score'
+    score_file = RSC / 'test' / 'pre_commit_expected_score'
     expected: dict[str, str] = {}
     expected_total = None
     for line in score_file.read_text().splitlines():
@@ -1322,9 +1333,9 @@ def main():
     # ── report rendering ─────────────────────────────────────────────────────
     # Two renderings of one result set, split by determinism exactly as the tiers
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
-    # any clone; this script writes it to src/test/pre_commit.log itself) and the
+    # any clone; this script writes it to rsc/test/pre_commit.log itself) and the
     # FULL report (adds the machine-local data tier — printed to stdout and written
-    # to tmp/logs/src/test/pre_commit.log, run-facing like the serve daemon's log).
+    # to tmp/logs/rsc/test/pre_commit.log, run-facing like the serve daemon's log).
 
     def _in_committed(i: int) -> bool:
         return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
@@ -1447,14 +1458,14 @@ def main():
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
-            out.write('  full per-check report → tmp/logs/src/test/pre_commit.log\n')
+            out.write('  full per-check report → tmp/logs/rsc/test/pre_commit.log\n')
 
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
         for label, ok, detail in score_rows:
             if committed_only and label.startswith('score[data]'):
                 out.write('  – score[data]: machine-local — reported on the terminal '
-                          'and in tmp/logs/src/test/pre_commit.log, never committed\n')
+                          'and in tmp/logs/rsc/test/pre_commit.log, never committed\n')
                 continue
             mark = '✓' if ok else ('⚠' if label.startswith('score[data]') else '✗')
             out.write(f'  {mark} {label}' +
@@ -1464,7 +1475,7 @@ def main():
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if warn_idx:
             counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
-            where = 'above' if include_body else 'in the full report (tmp/logs/src/test/pre_commit.log)'
+            where = 'above' if include_body else 'in the full report (tmp/logs/rsc/test/pre_commit.log)'
             out.write(f'\nWARN — machine-local facts, marked ⚠ {where}; they never gate a commit:\n')
             for sec in warn_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
@@ -1508,8 +1519,8 @@ def main():
     full_text, full_fix_lines = _render(committed_only=False)
     terminal_text, _          = _render(committed_only=False, include_body=False)
 
-    (SRC / 'test' / 'pre_commit.log').write_text(committed_text)
-    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'src' / 'test' / 'pre_commit.log'
+    (RSC / 'test' / 'pre_commit.log').write_text(committed_text)
+    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'rsc' / 'test' / 'pre_commit.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
     machine_log.write_text(full_text)
 

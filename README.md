@@ -109,11 +109,13 @@ model co-author (it is derivable from the session).
 A merge conflict is almost always confined to the check's four regenerated artifacts,
 in two pairs — a derived file and the curated count beside it:
 
-- `src/test/pre_commit.log` (derived) and `src/test/pre_commit_expected_score` (curated)
-- `src/test/xref.csv` (derived) and `src/test/xref_expected_score` (curated)
+- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_score` (curated)
+- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
 
-Do not hand-merge any of them, and do not compute the counts. Take either side to clear
-each marker, then run `./yoga check`: it rewrites the two derived files, and reports the
+Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds
+nothing but these four, the resolution is **syntactic** — take either side of the whole
+directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+markers, then run `./yoga check`: it rewrites the two derived files, and reports the
 live counts the two curated ones should hold — `pre_commit` prints `expected X, got Y`,
 `xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
 check reports, stage what it rewrote, and run once more to confirm the gate is green. The
@@ -121,7 +123,9 @@ check computes the merged numbers; your job is to run it.
 
 This works because the generated files absorb only the counting. A real conflict — two
 branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,
-a schema file), where git makes you look at it. The generated files never hide those.
+a schema file), where git makes you look at it, never inside `rsc/test/`. Since the
+artifacts have their own directory now, the two cases are told apart by path: a conflict in
+`rsc/test/` is syntactic; one outside it is real.
 
 When a change's correctness depends on what a *fresh clone* sees — the expectation files
 above, the xref counts, or anything deriving from `.gitignore` (the xref scan's skip-roots

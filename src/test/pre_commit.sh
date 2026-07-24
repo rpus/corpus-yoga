@@ -18,7 +18,7 @@
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
 # machine-local fact and `yoga prerequisites` is its one voice. Read a failure:
-# git diff src/test/pre_commit.log
+# git diff rsc/test/pre_commit.log
 
 set -euo pipefail
 
@@ -56,7 +56,7 @@ if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
 fi
 
 # The artifacts pre_commit.py rewrites on every run — the idempotence subject.
-ARTIFACTS=(src/test/pre_commit.log src/test/xref.csv)
+ARTIFACTS=(rsc/test/pre_commit.log rsc/test/xref.csv)
 
 parse_args() {
   case "${1:-}" in
@@ -73,9 +73,9 @@ main() {
   if [[ "${1:-}" == "--fix" ]]; then fix_mode=1; fi
 
   # Run once — pre_commit.py writes its own report artifacts: the COMMITTED
-  # src/test/pre_commit.log (code+schema only, byte-identical on any clone — the
+  # rsc/test/pre_commit.log (code+schema only, byte-identical on any clone — the
   # machine-local data tier never enters a committed file) plus the full report
-  # to tmp/logs/src/test/pre_commit.log; only the tail (score + WARN + verdict) prints
+  # to tmp/logs/rsc/test/pre_commit.log; only the tail (score + WARN + verdict) prints
   # to the terminal here. This run's status is unused (a failing report is still a
   # report; the exit verdict comes from the second run) — || true, for exactly that.
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@" || true
