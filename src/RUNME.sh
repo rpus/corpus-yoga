@@ -165,20 +165,20 @@ LOG_FILE="$REPO_ROOT/tmp/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # discipline as the pipeline tails: the plan speaks `indexing sync`, and the
 # gate holds it to command AND verb (help.csv step=corpus).
 #
-# Membership tests (the PR #18 review, reading-room):
-# - CLOSURE: a corpus-tail step's inputs must all be refreshed-by-this-run or
-#   stable curation — never a paid/external artifact run doesn't produce.
-#   indexing passes (projected markdown + accepted.txt); dashboard sync fails
-#   while its captures are paid and out-of-run: dropped in here it would
-#   render fresh-LOOKING pages over silently lagging semantics.
-# - NECESSITY: a machine-local, mechanically derived, CONSUMED artifact must
-#   have a run step, because run is its only possible freshness mechanism —
-#   the gate guards only committed derivations, the schema WORKFLOW only
-#   curated ones. index.md sat in exactly that unguarded cell, which is why
-#   it went stale: nothing was wired to its only mechanism.
+# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and
+# NECESSITY tests this comment used to carry (the PR #18 review, reading-room;
+# elevated to law by issue #19). indexing sync is here because its cell says
+# run (machine-local, mechanical, CLOSURE holds); dashboard sync is NOT,
+# because its captures are paid and out-of-run — CLOSURE fails, and a step
+# here would render fresh-LOOKING pages over silently lagging semantics.
 run_corpus_tail() {
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/model/build_index.py" sync
+  # Bare noun DELIBERATELY (not the dropped-verb bug class the plan gate
+  # guards): dashboard's read-only status IS its L9 mechanism, probed here so
+  # its INFO currency atoms (re-render is free; captures lag the corpus) reach
+  # the tail via hoisting. step_ok: a currency nudge informs, never gates.
+  step_ok dashboard "$REPO_ROOT/src/main/chat-exports/dashboard.sh"
 }
 
 # The pipelines' own --plan output is the one authority on their step order
