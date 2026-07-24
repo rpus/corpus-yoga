@@ -193,6 +193,31 @@ def orphan_entries() -> list:
                   if not any(grounds(e, name, occ) for e in edges))
 
 
+def coverage_gaps() -> dict:
+    """{documented name: sorted [data families a grounding edge asserts but the
+    entry's occurrences omit]}. grounds() needs only ONE family to match, so a
+    type can ground with a dressing missing and still pass — and then model.json
+    answers "where does this type occur" incompletely, which is the non-foolproof
+    grep the user named: the account uuid wears four dressings (account.uuid /
+    account_uuid / uuid / creator.uuid), no substring search unifies them, so the
+    index must be the reliable answer the schemas cannot be. Completeness is over
+    DATA families only — an occurrence is an instance pointer into a datum, and a
+    _reference schema (mcp) has no datum, so its correspondence lives in the edge,
+    not here (latest_versions() already excludes _-prefixed reference schemas).
+    With edge_queue, orphan_entries, and this all empty, model.json is the
+    complete, foolproof type-occurrence index."""
+    data_families = set(latest_versions())
+    ents = entries()
+    gaps = defaultdict(set)
+    for edge in obligating_edges():
+        _i, _kind, _names, trails = edge
+        asserted = set(trails) & data_families
+        for name, occ in ents.items():
+            if grounds(edge, name, occ):
+                gaps[name] |= asserted - set(occ)
+    return {n: sorted(f) for n, f in gaps.items() if f}
+
+
 def documented() -> set:
     """Type names model.json documents (its `default` keys)."""
     return set(json.loads(MODEL_JSON.read_text()).get('default', {}))

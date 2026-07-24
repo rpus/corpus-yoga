@@ -997,6 +997,17 @@ def check_model_occurrences(run):
         '\n    '.join(pins[:5]) if pins else None)
     run('model: occurrence pointers resolve against latest versions', not bad,
         '\n    '.join(bad[:5]) if bad else None)
+    # Completeness (issue #19 follow-up, the foolproof-index fix, user + reading-room):
+    # grounds() needs one family to match, so a type can be documented with a
+    # dressing missing and still ground — model.json would then answer "where does
+    # this type occur" incompletely, the non-foolproof grep the account-uuid thread
+    # exposed. Every DATA family a grounding edge asserts must be an occurrence, so
+    # the index is the complete, reliable answer the four-dressing schemas cannot be.
+    gaps = model_curation.coverage_gaps()
+    run('model: documented types occur completely (occurrences cover their edges\' data families)',
+        not gaps,
+        '\n    '.join(f'{n}: grounding edge asserts {", ".join(f)} — not in occurrences'
+                      for n, f in list(gaps.items())[:5]) if gaps else None)
 
 
 def check_model_obligations(run) -> None:

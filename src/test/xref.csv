@@ -41,16 +41,16 @@ rsc/CALCULUS.md,136,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/me
 rsc/CALCULUS.md,168,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` edges at leisure; an edge asserting one shared
 rsc/CALCULUS.md,170,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
 rsc/CALCULUS.md,170,doc,rsc/schema/model_rejected.txt,Y,`rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
-rsc/CALCULUS.md,245,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
-rsc/CALCULUS.md,296,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
-rsc/CALCULUS.md,300,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,300,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
-rsc/CALCULUS.md,309,doc,src/test/pre_commit.log,Y,"record other clones diff against — `src/test/pre_commit.log`,"
-rsc/CALCULUS.md,310,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expected-score files beside them. Operations:"
-rsc/CALCULUS.md,315,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
-rsc/CALCULUS.md,326,doc,rsc/cli/help.csv,Y,"GENERATED from `rsc/cli/help.csv`, not stored in a `usage` column: a projection"
-rsc/CALCULUS.md,346,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
-rsc/CALCULUS.md,369,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
+rsc/CALCULUS.md,239,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
+rsc/CALCULUS.md,290,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
+rsc/CALCULUS.md,294,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,294,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
+rsc/CALCULUS.md,303,doc,src/test/pre_commit.log,Y,"record other clones diff against — `src/test/pre_commit.log`,"
+rsc/CALCULUS.md,304,doc,src/test/xref.csv,Y,"`src/test/xref.csv`, and the expected-score files beside them. Operations:"
+rsc/CALCULUS.md,309,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
+rsc/CALCULUS.md,320,doc,rsc/cli/help.csv,Y,"GENERATED from `rsc/cli/help.csv`, not stored in a `usage` column: a projection"
+rsc/CALCULUS.md,340,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
+rsc/CALCULUS.md,363,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"tmp/cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture"
 rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,Two curated files describe the `./yoga` terminal surface (machinery: `src/main/cli/cli.py`;
 rsc/cli/README.md,20,doc,src/RUNME.sh,Y,input spans them all): the gate holds `src/RUNME.sh --plan` to
@@ -468,8 +468,8 @@ src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_
 src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/gen_model.py,3,comment,rsc/schema/model.json,Y,"gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."
 src/main/model/gen_model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
-src/main/model/gen_model.py,75,path_str,rsc/schema/model_join.csv,Y,print(f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
-src/main/model/gen_model.py,64,path_str,rsc/schema/model.json,Y,print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
+src/main/model/gen_model.py,80,path_str,rsc/schema/model_join.csv,Y,print(f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
+src/main/model/gen_model.py,66,path_str,rsc/schema/model.json,Y,print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
@@ -522,26 +522,26 @@ src/test/gen_changelog_matrix.py,15,comment,src/test/gen_changelog_matrix.py,Y,s
 src/test/pre_commit.py,6,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh
 src/test/pre_commit.py,7,comment,src/test/pre_commit.sh,Y,src/test/pre_commit.sh --fix   # run all fix commands; stages nothing
 src/test/pre_commit.py,10,comment,src/test/pre_commit.sh,Y,ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
-src/test/pre_commit.py,621,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/pre_commit.py,671,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
-src/test/pre_commit.py,673,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/pre_commit.py,679,comment,src/RUNME.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/RUNME.sh --plan
-src/test/pre_commit.py,1011,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/pre_commit.py,1093,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/pre_commit.py,1094,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/pre_commit.py,606,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
+src/test/pre_commit.py,656,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
+src/test/pre_commit.py,658,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/pre_commit.py,664,comment,src/RUNME.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/RUNME.sh --plan
+src/test/pre_commit.py,1007,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/pre_commit.py,1089,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/pre_commit.py,1090,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/pre_commit.py,372,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,99,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,108,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,122,path_str,src/main/code-agents/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',"
-src/test/pre_commit.py,608,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
-src/test/pre_commit.py,1364,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1366,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1374,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1376,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,705,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
-src/test/pre_commit.py,840,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/pre_commit.py,1147,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
-src/test/pre_commit.py,1325,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
+src/test/pre_commit.py,593,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
+src/test/pre_commit.py,1360,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1362,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1370,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1372,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,690,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
+src/test/pre_commit.py,825,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/pre_commit.py,1143,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+src/test/pre_commit.py,1321,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,5,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install
 src/test/pre_commit.sh,21,comment,src/test/pre_commit.log,Y,# git diff src/test/pre_commit.log
