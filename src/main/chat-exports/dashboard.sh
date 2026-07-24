@@ -290,6 +290,29 @@ corpus_conversations() {
   [[ -d "$d" ]] && compgen -G "$d/*/conversations/*.md" > /dev/null && echo "$d"
 }
 
+# The EXACT coverage join, computed where it is already free: the capture walks
+# the corpus for its chat list anyway, so before a cent is spent it names the
+# gap the status only estimates — status quantifies the lag with the cheap
+# row-count proxy (~M, no id join); the effecting verb reports captured ∩
+# corpus exactly, with the never-captured count the paid re-read is about to
+# close and any captured-but-gone ids the proxy silently counts as coverage.
+# (The user's shape: status is; effecting; status is.) Corpus-dir sources only
+# — a batch source has no corpus_index — and no prior capture means no join.
+coverage_report() {
+  local conv="$1" cat="$REPO_DIR/data/output/dashboard/chat-categories.json"
+  [[ -f "$cat" && -d "$conv" ]] || return 0
+  "$REPO_DIR/src/run_python_script.sh" -c "
+import json, sys
+sys.path.insert(0, '$REPO_DIR/src/main')
+from markdown_projection import corpus_index
+corpus = {cid for _, _, _, cid in corpus_index('$conv')}
+captured = {r[0] for r in json.load(open('$cat')).get('rows', [])}
+print(f'coverage (exact): {len(corpus & captured)} captured · '
+      f'{len(corpus - captured)} never captured · '
+      f'{len(captured - corpus)} captured-but-gone — this capture re-reads all {len(corpus)}')
+"
+}
+
 capture() {
   local conversations="" only=""
   while [[ $# -gt 0 ]]; do
@@ -307,6 +330,7 @@ capture() {
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   local conv="${conversations:-$(corpus_conversations)}"
   [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under data/output/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  coverage_report "$conv"
   capture_dashboard "$conv" "$only"
 }
 
