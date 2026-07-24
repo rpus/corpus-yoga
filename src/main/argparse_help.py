@@ -43,6 +43,23 @@ def _fill(parser, rows: list[dict]) -> None:
             a.help = r['help']
 
 
+def inherit_flags(parser, verb_parser) -> None:
+    """Re-accept the command parser's own --flags on a verb subparser, so the
+    position help.csv renders and completion offers — after the verb — parses
+    too (issue #33: the flags lived only on the command parser, and argparse
+    hands a subparser everything after the verb token). Derived from the
+    parser's declared actions, never restated: the parser stays the one place
+    the structure exists. The copies default to SUPPRESS because a subparser
+    writes its defaults into the shared namespace AFTER the command parser has
+    parsed — a real default here would overwrite a value given before the
+    verb. Call after the command parser's flags are declared, before enrich
+    (which words the copies from the command-level rows)."""
+    for a in parser._actions:
+        if a.option_strings and not isinstance(a, argparse._HelpAction):
+            verb_parser.add_argument(*a.option_strings, metavar=a.metavar,
+                                     default=argparse.SUPPRESS)
+
+
 def enrich(parser, command: str, subcommand: str = '') -> None:
     # The parser is reached as `yoga <command> [<subcommand>]`, so that is what its usage
     # must name. argparse otherwise defaults prog to sys.argv[0], the implementation file
@@ -62,4 +79,7 @@ def enrich(parser, command: str, subcommand: str = '') -> None:
             for r in verb_rows:
                 if not r['arg-name'] and not sub.description:
                     sub.description = r['help']
-            _fill(sub, verb_rows)
+            # Inherited flags (add_dir_flags on a verb subparser) carry their
+            # command-level wording; command rows go first so a verb's own row
+            # wins in _fill's by_name dict (later rows overwrite earlier).
+            _fill(sub, [r for r in rows if not r['subcommand']] + verb_rows)

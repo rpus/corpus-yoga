@@ -57,7 +57,10 @@ resurrecting it.
 
 Usage:
   src/run_python_script.sh src/main/chat-exports/compare_batches.py \
-    [--chat-exports-cache tmp/cache/chat-exports] [--bulk-exports data/input/claude/chat/bulk-export]
+    [--chat-exports-cache tmp/cache/chat-exports] [--bulk-exports data/input/claude/chat/bulk-export] \
+    [--memories-output data/output/memories] \
+    [--summaries-output data/output/markdown/claude/chat/summaries] \
+    [--browser-api <browser-API root; no default — when given, also compares the latest batch against live captures, informationally>]
 
 Requires the batches' atomised json/ (written by the chat-exports pipeline);
 memories/projects/users are read from the batch's tmp/cache/ archive copies (written

@@ -698,6 +698,21 @@ def check_cli_surface(run) -> None:
             missing = [f for f in flags if f not in text]
             run(f'cli: {c["command"]}: advertised flags exist', not missing,
                 (where + ', '.join(missing)) if missing else None)
+        # Docstring honesty (issue #33): a module docstring's Usage block is a
+        # declared surface too, and nothing read it against the parser —
+        # memories' documented three flags no parser defined, and both checks
+        # here were satisfied (help.csv honestly advertised none; the lie lived
+        # only in the docstring). Every --flag a Usage block cites must be
+        # advertised; real ⊆ advertised is held below, so advertised is the one
+        # universe a documented flag can exist in.
+        doc: set[str] = set()
+        for m in re.finditer(r'^Usage.*?(?=\n"""|\n\'\'\'|\Z)', text, flags=re.M | re.S):
+            doc.update(re.findall(r'--[a-z][\w-]+', m.group(0)))
+        doc.discard('--help')
+        undeclared = sorted(doc - set(flags))
+        run(f'cli: {c["command"]}: docstring Usage flags advertised', not undeclared,
+            f'documented in a Usage block but not in help.csv: {", ".join(undeclared)}'
+            if undeclared else None)
         # the target's own --help is the authority on its live surface — fetched
         # once here for both directions of the honesty check
         runner = REPO_ROOT / 'src' / 'run_python_script.sh'
@@ -753,6 +768,26 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
             if unadvertised else None)
+        # Positionally usable where advertised (issue #33): help.csv renders a
+        # command-level flag beside the verbs and completion offers it after
+        # them, but summaries' four lived only on the command parser — argparse
+        # hands a subparser everything after the verb token, so the advertised
+        # `yoga summaries sync --summaries-output …` died with `unrecognized
+        # arguments`. The observable: an argparse verb's own --help lists every
+        # flag that verb accepts, so each command-level flag must appear there
+        # (argparse_help.add_dir_flags wires the inherited copies). cli.py
+        # targets are excluded as above; shell targets parse no verbs.
+        cmd_level = [r['arg-name'] for r in cli.command_rows(c['command'])
+                     if not r['subcommand'] and r['arg-name'].startswith('--')]
+        if cmd_level and subcommands and target.suffix == '.py' and not c['target'].endswith('cli.py'):
+            for verb in subcommands:
+                vproc = subprocess.run([str(runner), str(target), verb, '--help'],
+                                       capture_output=True, text=True, cwd=REPO_ROOT)
+                vhelp = vproc.stdout + vproc.stderr
+                rejected = [f for f in cmd_level if f not in vhelp]
+                run(f'cli: {c["command"]}: {verb} accepts the command-level flags', not rejected,
+                    f'`yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
+                    if rejected else None)
         # Uniform SHAPE, enforced (2026-07-16): a --help is a man entry — name,
         # what, usage, flags — and fits one screen. Length is the cheapest proxy
         # a gate can hold; the essays this bound evicted live on in code

@@ -519,14 +519,14 @@ src/test/pre_commit.py,95,path_str,src/main/browser-captures/claude/validate.sh,
 src/test/pre_commit.py,104,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,118,path_str,src/main/code-agents/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',"
 src/test/pre_commit.py,589,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
-src/test/pre_commit.py,1151,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1153,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1161,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1163,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1186,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1188,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1196,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1198,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,686,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
-src/test/pre_commit.py,786,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/pre_commit.py,937,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
-src/test/pre_commit.py,1112,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
+src/test/pre_commit.py,821,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/pre_commit.py,972,comment,src/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED src/test/pre_commit.log; the
+src/test/pre_commit.py,1147,comment,src/test/pre_commit.log,Y,# any clone; this script writes it to src/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,5,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install
 src/test/pre_commit.sh,21,comment,src/test/pre_commit.log,Y,# git diff src/test/pre_commit.log

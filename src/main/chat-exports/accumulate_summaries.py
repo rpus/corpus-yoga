@@ -42,7 +42,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import REPO, find_api_json
 
-from argparse_help import enrich        # noqa: E402
+from argparse_help import enrich, inherit_flags  # noqa: E402
 from compare_batches import batch_time  # noqa: E402 — the one batch-ordering authority
 
 
@@ -192,7 +192,7 @@ def main():
         description='The durable per-conversation summary store (memories semantics: '
                     'immutable, content-deduplicated). Bare shows status; `sync` writes.')
     sub = ap.add_subparsers(dest='verb')
-    sub.add_parser('sync')
+    sync_p = sub.add_parser('sync')
     ap.add_argument('--chat-exports-cache', metavar='DIR',
                     default=str(REPO / 'tmp' / 'cache' / 'chat-exports'))
     ap.add_argument('--browser-api', metavar='DIR',
@@ -201,6 +201,7 @@ def main():
                     default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'))
     ap.add_argument('--summaries-output', metavar='DIR',
                     default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries'))
+    inherit_flags(ap, sync_p)
     enrich(ap, 'summaries')
     args = ap.parse_args()
 
