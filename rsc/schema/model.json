@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft-04/schema#",
   "title": "model",
-  "description": "Cross-pipeline type reference: named types, their descriptions, and occurrence paths across all schemas.",
+  "description": "Cross-pipeline type reference: named types, their descriptions, and occurrence paths across all schemas. Occurrence keys use the de-versioned family-dir grammar (model_join.csv's): '<pipeline>/<family>', resolved against the family's latest version; values are instance JSON Pointers into a datum of that family. Curated under the disposal discipline of issue #19: candidates from the schema catalogues, dismissals in model_dismissed.txt, the pending queue reported by `yoga model` and check_model_curation.",
   "type": "object",
   "additionalProperties": {
     "type": "object",
@@ -29,16 +29,16 @@
     "UserUUID": {
       "description": "The UUID of data export's user",
       "occurrences": {
-        "./chat-exports/memories/v1.json": [
+        "chat-exports/memories": [
           "#/0/account_uuid"
         ],
-        "./chat-exports/projects/v2.json": [
-          "#/0/creator/uuid"
+        "chat-exports/projects": [
+          "#/creator/uuid"
         ],
-        "./chat-exports/users/v1.json": [
+        "chat-exports/users": [
           "#/0/uuid"
         ],
-        "./chat-exports/conversations/v15.json": [
+        "chat-exports/conversations": [
           "#/0/account/uuid"
         ]
       }

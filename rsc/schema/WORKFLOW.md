@@ -241,18 +241,26 @@ snapshot in place (its history is data; the old update-in-place remedy destroyed
 it). Then re-run `pre_commit` to verify all `model_join.csv` pointers still resolve
 against the new latest.
 
-### 6. Update model.json if needed
+### 6. Dispose the model.json queue
 
-`rsc/schema/model.json` is a hand-curated cross-pipeline type reference. After schema
-changes, regenerate the candidates:
+`rsc/schema/model.json` is the hand-curated cross-pipeline type reference, under the
+`curate` disposal discipline (issue #19; rsc/CALCULUS.md). The candidates are the
+definition names shared across ≥2 families' latest versions (computed by
+`src/main/model/model_curation.py` from committed schemas only, so the queue is identical
+on any clone); every candidate is either DOCUMENTED in `model.json` or DISMISSED with a
+reason in `rsc/schema/model_dismissed.txt`. After schema changes:
 
 ```bash
-./yoga model sync
+./yoga model sync   # regenerate the per-schema catalogues (the review aid)
+./yoga model        # the queue: N pending — here they are
 ```
 
-Review `tmp/cache/model/` for new or changed definitions and update `model.json` if any
-cross-pipeline types need documenting. Also bump any stale version references in the
-`default` section of `model.json`.
+The pre_commit advisory (`check_model_curation`) reports the same queue per name, so a
+pending candidate is never silent — this step is falsifiable, not "if needed". Occurrence
+paths use the de-versioned family-dir grammar (`chat-exports/conversations`, resolved
+against the family's latest version — `model_join.csv`'s grammar), and
+`check_model_occurrences` gates both the grammar and that every instance pointer still
+resolves — a mint that renames a documented field fails there, the review prompt.
 
 ### 7. Run pre_commit
 

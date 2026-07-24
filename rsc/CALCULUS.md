@@ -156,17 +156,19 @@ per-corpus code.
   (`yoga dashboard capture`; `yoga indexing accept`/`reject`; the browser-captures
   scrape; `accumulate_memories`.)
 
-- **curate** (candidate) — the disposal loop: the machine proposes candidates
-  as a derived report, a human disposes in committed files, a gate reports
-  anything pending — never a disposal in prose. Two instances are converging:
-  headword curation (the captured concepts → `yoga indexing accept` into
+- **curate** — the disposal loop: the machine proposes candidates as a derived
+  report, a human disposes in durable files, a gate reports anything pending —
+  never a disposal in prose. Three instances share the shape: headword curation
+  (the captured concepts → `yoga indexing accept` into
   `data/output/indexing/accepted.txt` or `yoga indexing reject` into
-  `data/output/indexing/rejected.txt` → `check_index_curation`) and the schema
-  WORKFLOW (a frontier failure proposes;
-  a minted version narrated in its changelog disposes; the coverage and
-  frontier gates report). Their shapes have not yet been unified in code, so
-  this entry is a candidate, not doctrine — written down where the next
-  instance can find it.
+  `data/output/indexing/rejected.txt` → `check_index_curation`); the schema
+  WORKFLOW (a frontier failure proposes; a minted version narrated in its
+  changelog disposes; the coverage and frontier gates report); and the
+  model.json reference (cross-pipeline definition names from the schema
+  catalogues propose → document in `rsc/schema/model.json` or dismiss in
+  `rsc/schema/model_dismissed.txt` → `check_model_curation`). Promoted from
+  candidate to doctrine by the third instance (issue #19) — exactly the
+  condition the candidate entry had set for itself.
 
 - **validate** — datum × schema-version → the machine-local matrix. Two gates:
   *coverage* (every datum modelled by some version) and *frontier* (the newest

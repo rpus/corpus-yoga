@@ -1,0 +1,5 @@
+# model.json disposal record (issue #19). One cross-pipeline candidate name per
+# line, optional trailing "# reason"; full-line comments ignored. The OTHER
+# disposal is documenting the name in model.json itself. The queue — candidates
+# (definition names in >=2 families' latest versions) minus documented minus
+# dismissed — is reported by `yoga model` and pre_commit's check_model_curation.
