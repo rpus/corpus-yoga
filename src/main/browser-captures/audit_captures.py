@@ -99,8 +99,8 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
     for uuid, name, kind, detail in suspects:
         print(f'WARN: {name} ({uuid[:8]}): {kind}'
               + (f' — {detail}' if detail else ''))
-        print('    → run: ./yoga browser capture --provider claude --DOM'
-              '  # re-capture claude by DOM (Safari, minutes) — or delete the DOM capture')
+        print(f'    → run: ./yoga browser capture --provider claude --DOM --id {uuid}'
+              '  # re-capture just this one (Safari) — or delete its DOM capture')
     unscraped = sum(1 for d in api_capture_dir.iterdir()
                     if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
     if unscraped:
@@ -142,8 +142,8 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
         print(f'WARN: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns — '
               f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
               'likely missing from this DOM capture; to recapture:')
-        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent gemini --id {cid}'
-              '  # walks the page — takes a couple of minutes (no yoga route captures one id)')
+        print(f'    → run: ./yoga browser capture --provider gemini --DOM --id {cid}'
+              '  # walks the page — takes a couple of minutes')
     if placeholder_convs:
         print(f'gemini: {placeholder_convs} DOM capture(s) contain "[no capture" placeholder text')
     checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
