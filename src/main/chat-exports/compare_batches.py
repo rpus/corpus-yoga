@@ -308,14 +308,14 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
                   'the export holds its complete record; nothing to capture')
             continue
         print(f'WARN: export-only {latest_convs[u][0]} ({u}) — no capture of it here; to capture:')
-        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --id {u}'
+        print(f'    → run: ./yoga browser capture --provider claude --id {u}'
               f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in capture_only:
         print(f'  capture-only {cap_names.get(u, "")!r} ({u}): in the captures, absent from this export')
     for u in stale:
         print(f'WARN: capture-stale {cap_names.get(u, "")!r} ({u}) — the export holds '
               f'{len(latest_convs[u][1] - caps[u])} message(s) the capture lacks — to recapture:')
-        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --id {u}'
+        print(f'    → run: ./yoga browser capture --provider claude --id {u}'
               f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in anomalies:
         print(f'WARN: anomaly {cap_names.get(u, "")!r} ({u}) — unique messages on both sides — investigate')

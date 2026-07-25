@@ -66,13 +66,13 @@ run_corpus() {
     "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
-  # compare_markdown: diff the projection against the DOM scrape only when asked —
-  # a fresh scrape (yoga browser capture --provider claude --DOM) is what makes the
-  # comparison meaningful; against the resting legacy scrapes it is noise.
+  # compare_markdown: diff the projection of the API capture against the DOM capture,
+  # only when asked — a fresh DOM capture (yoga browser capture --provider claude --DOM)
+  # is what makes the comparison meaningful; against resting ones it is noise.
   step_if "$compare_scrape" 'with --compare-scrape' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \
-    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations" --scrape "$browser_dom"
+    --projection "$REPO_DIR/data/output/markdown/claude/chat/conversations" --dom "$browser_dom"
 }
 
 print_plan() {

@@ -7,12 +7,13 @@ conversation, the user recaptures it (Shortcut / --id); this tool says which
 captures need attention. Two independent questions, two modes:
 
 Filesystem audit (always) — "are the captures I have any good?"
-  claude — every scrape .md is checked against the api projection (project_markdown
-  output) with compare_markdown's turn-sequence classifier; any regression kind marks
-  the scrape suspect. Captures without a scrape .md are fine (the scrape is optional;
-  the api JSON is the primary artifact) and counted informationally.
-  gemini — no api side exists, so heuristics: a scrape with exactly RENDER_CEILING
-  human turns is flagged as likely truncated (the pre-walking-scraper window), and
+  claude — every DOM capture is checked against the projection of the API capture
+  (project_markdown output) with compare_markdown's turn-sequence classifier; any
+  regression kind marks the DOM capture suspect. A conversation with no DOM capture is
+  fine (DOM is optional for claude; the API capture is the record) and counted
+  informationally.
+  gemini — no API capture exists, so heuristics: a DOM capture with exactly
+  RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
 
 --live (drives Safari, in a work tab) — "which conversations have moved on?"
@@ -41,64 +42,90 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
-from compare_markdown import classify
+from compare_markdown import classify, turn_labels
 
-# Gemini renders only the last N exchanges until scrolled; a scrape sitting exactly
-# at the ceiling is overwhelmingly likely to be a truncated pre-walking-scraper one.
+# Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
+# at the ceiling is overwhelmingly likely to be a truncated pre-walking one.
 RENDER_CEILING = 10
 
 
 def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[str]:
     """Scrapes live under browser-DOM/, api json under browser-API/ — the
-    conversation id is the join. A capture with no scrape is found by that join,
-    not by an empty dir: the DOM root only holds ids that were scraped."""
+    conversation id is the join. An API capture with no DOM capture is found by that
+    join, not by an empty dir: the DOM root only holds ids that were captured."""
     suspects = []
-    api_md = {}
+    # The projection's FILENAME is the humane identity — data/output/markdown names every
+    # conversation <NNN>-<title>.md, stable and sortable. Keeping only the text threw that
+    # away and left the WARN citing a 36-char uuid and a slug with the ordinal stripped:
+    # the machine half kept, the human half mangled, when the file carried both.
+    projected = {}
     for f in api_dir.glob('*.md'):
         text = f.read_text()
         cid = conv_id(text)
         if cid:
-            api_md[cid] = text
+            projected[cid] = (text, f.stem)
     unprojected = 0
-    scraped = set()
+    have_dom = set()
     for d in sorted(dom_dir.iterdir()) if dom_dir.is_dir() else []:
         mds = sorted(d.glob('*.md')) if d.is_dir() else []
         if not mds:
             continue
-        scraped.add(d.name)
+        have_dom.add(d.name)
         s = mds[0].read_text()
         cid = conv_id(s) or d.name
-        if cid not in api_md:
+        if cid not in projected:
             unprojected += 1
             continue
-        kind, _ = classify(turn_seq(s), turn_seq(api_md[cid]))
+        text, name = projected[cid]
+        kind, detail = classify(turn_seq(s), turn_seq(text), turn_labels(s), turn_labels(text))
         if kind not in ('exact', 'improved'):
-            suspects.append((d.name, mds[0].stem, kind))
-    # One WARN per disagreeing scrape, its recapture command beside it; counts
-    # that are zero say nothing, and optional-by-design facts are plain lines.
-    for uuid, stem, kind in suspects:
-        print(f'WARN: claude .md scrape {uuid} ({stem}) disagrees with its api json — {kind}. '
-              "claude's scrape is retired (the api json is the record): delete the scrape .md, "
-              'or refresh it:')
-        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent claude --scrape --id {uuid}'
-              '  # needs Safari logged in; the scrape walk takes minutes')
+            # `detail` names the turns that differ — discarded until now, which left the
+            # reader with a count and no way to judge it without re-running the comparison
+            suspects.append((d.name, name, kind, detail))
+    # One WARN per disagreeing DOM capture, naming the conversation the way the corpus
+    # does (<NNN>-<title>, uuid8 beside it) and the turns that differ. Both sides compared
+    # are MARKDOWN — the projection of the API capture, and the DOM capture — so the
+    # difference may belong to project_markdown's rendering rather than to either capture,
+    # and the WARN says so instead of prescribing a re-capture as though it could not.
+    # projection-missing first: it is the one that can mean content outside the record
+    suspects.sort(key=lambda x: (not x[2].startswith('projection missing'), x[1]))
+    if suspects:
+        # said ONCE, not per WARN: it is the same fact about the comparison every time,
+        # and three copies of a paragraph is how a report teaches its reader to skim.
+        print('claude: the comparison is markdown vs markdown — the projection of the API '
+              'capture against the DOM capture — so a difference may be in project_markdown '
+              "rather than in either capture. claude's DOM capture is retired; the API "
+              'capture is the record.')
+    for uuid, name, kind, detail in suspects:
+        print(f'WARN: {name} ({uuid[:8]}): {kind}'
+              + (f' — {detail}' if detail else ''))
+        print(f'    → run: ./yoga browser capture --provider claude --DOM --id {uuid}'
+              '  # re-capture just this one (Safari) — or delete its DOM capture')
     unscraped = sum(1 for d in api_capture_dir.iterdir()
-                    if d.is_dir() and d.name not in scraped) if api_capture_dir.is_dir() else 0
+                    if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
     if unscraped:
-        print(f'claude: {unscraped} browser-API capture(s) have no browser-DOM scrape — '
-              'optional; the api json is the record')
+        print(f'claude: {unscraped} API capture(s) have no DOM capture — '
+              'optional; the API capture is the record')
     if unprojected:
-        print(f'WARN: claude: {unprojected} scrape(s) have no rendered api markdown under data/output/markdown — '
+        print(f'WARN: claude: {unprojected} DOM capture(s) have no projection under data/output/markdown — '
               'the browser-captures pipeline step project_markdown produces it')
     # show the working even on success: silence was load-bearing here once —
     # a clean audit and a skipped one printed identically (nothing)
-    checked = len(scraped)
-    print(f'claude: {checked} scrape(s) checked against api projections — '
+    checked = len(have_dom)
+    print(f'claude: {checked} DOM capture(s) checked against their projections — '
           + ('all aligned' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
-    return [f'{u} ({s}): {k}' for u, s, k in suspects]
+    return [f'{name} ({uuid[:8]}): {kind}' for uuid, name, kind, _ in suspects]
 
 
-def audit_gemini(captures_dir: Path) -> list[str]:
+def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list[str]:
+    # gemini has no API capture, so the DOM capture IS the record — but its projection
+    # is numbered like every other conversation, so the WARN can still name it the way
+    # the corpus does rather than by uuid alone.
+    projected = {}
+    for f in (projection_dir.glob('*.md') if projection_dir and projection_dir.is_dir() else []):
+        cid = conv_id(f.read_text())
+        if cid:
+            projected[cid] = f.stem
     suspects = []
     placeholder_convs = 0
     for d in sorted(captures_dir.iterdir()):
@@ -108,21 +135,22 @@ def audit_gemini(captures_dir: Path) -> list[str]:
         s = mds[0].read_text()
         humans = sum(1 for r, _ in turn_seq(s) if r == 'H')
         if humans == RENDER_CEILING:
-            suspects.append((d.name, mds[0].stem))
+            suspects.append((d.name, projected.get(conv_id(s) or d.name, mds[0].stem)))
         if '[no capture' in s:
             placeholder_convs += 1
-    for cid, stem in suspects:
-        print(f'WARN: gemini scrape {cid} ({stem}) shows exactly {RENDER_CEILING} human turns — '
+    for cid, name in suspects:
+        print(f'WARN: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns — '
               f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
-              'likely missing from this scrape; to recapture:')
-        print(f'    → run: src/main/browser-captures/safari_capture.sh --agent gemini --id {cid}'
-              '  # a full scrape walks the page — takes a couple of minutes')
+              'likely missing from this DOM capture; to recapture:')
+        print(f'    → run: ./yoga browser capture --provider gemini --DOM --id {cid}'
+              '  # walks the page — takes a couple of minutes')
     if placeholder_convs:
-        print(f'gemini: {placeholder_convs} scrape(s) contain "[no capture" placeholder text')
+        print(f'gemini: {placeholder_convs} DOM capture(s) contain "[no capture" placeholder text')
     checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
-    print(f'gemini: {checked} scrape(s) health-checked (no api side exists — heuristics only) — '
+    print(f'gemini: {checked} DOM capture(s) health-checked (no API capture exists — '
+          'heuristics only) — '
           + ('nothing flagged' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
-    return [f'{c} ({s})' for c, s in suspects]
+    return [f'{n} ({c[:8]})' for c, n in suspects]
 
 
 def _alnum(s: str) -> str:
@@ -258,7 +286,10 @@ def main():
         print(f'claude: skipped ({claude_api} or {api_dir} absent)')
 
     if gemini_dom.is_dir():
-        suspects += audit_gemini(gemini_dom)
+        # every provider's projection sits under the one corpus root, so gemini's is
+        # named from it rather than guessed: --api gives claude's, three levels down
+        corpus_root = Path(args.api).parents[2]
+        suspects += audit_gemini(gemini_dom, corpus_root / 'gemini' / 'chat' / 'conversations')
     else:
         print(f'gemini: skipped ({gemini_dom} absent)')
 
