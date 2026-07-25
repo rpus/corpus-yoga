@@ -1,4 +1,4 @@
-pre_commit.py: 1580/1580 (data: machine-local)
+pre_commit.py: 1577/1577 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -137,7 +137,6 @@ pre_commit.py: 1580/1580 (data: machine-local)
   ✓ grammar: laws parse: rsc/cli/README.md
   ✓ grammar: every citation names a stated law
   ✓ grammar: every law declares a state
-  ✓ grammar: G1: unenforced law names its issue
   ✓ grammar: G2: unenforced law names its issue
   ✓ grammar: G4: gated law is cited by a check
   ✓ grammar: G5: gated law is cited by a check
@@ -150,15 +149,13 @@ pre_commit.py: 1580/1580 (data: machine-local)
   ✓ grammar: G12: unenforced law names its issue
   ✓ grammar: G13: unenforced law names its issue
   ✓ grammar: G14: unenforced law names its issue
-  ✓ grammar: G15: unenforced law names its issue
   ✓ grammar: G16: unenforced law names its issue
   ✓ grammar: G17: unenforced law names its issue
-  ✓ grammar: G18: unenforced law names its issue
   ✓ grammar: G1: cited corpus law L1 is defined
   ✓ grammar: G3: cited corpus law L5 is defined
   ✓ grammar: G10: cited corpus law L9 is defined
   ✓ grammar: G16: cited corpus law L2 is defined
-  ✓ grammar: 18 laws — by construction: 1; gated: 7; unenforced: 10
+  ✓ grammar: 18 laws — by construction: 1; doctrine: 3; gated: 7; unenforced: 7
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv
@@ -1616,9 +1613,9 @@ pre_commit.py: 1580/1580 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1580/1580; expected: 1580/1580
-  ✓ score[code]: 168/168; expected: 168/168
+  ✓ score[code+schema]: 1577/1577; expected: 1577/1577
+  ✓ score[code]: 165/165; expected: 165/165
   ✓ score[schema]: 1412/1412; expected: 1412/1412
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1580/1580 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1577/1577 match the committed expectation; nothing here vetoes a commit

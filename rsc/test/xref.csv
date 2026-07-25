@@ -65,9 +65,9 @@ rsc/cli/README.md,49,doc,src/run_python_script.sh,Y,"| `target` | repo-relative 
 rsc/cli/README.md,50,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
 rsc/cli/README.md,59,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws()` in `src/main/cli/cli.py` parses every `**G<n> — …**` lead
 rsc/cli/README.md,60,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
-rsc/cli/README.md,72,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
-rsc/cli/README.md,77,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-rsc/cli/README.md,115,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
+rsc/cli/README.md,73,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
+rsc/cli/README.md,78,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
+rsc/cli/README.md,121,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,transport supersession merge L1 L3 L4 L6,code-agent sessions: the census, and transp"
 rsc/cli/commands.csv,3,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,capture,capture browser-reachable chats via Safari (claude API, gemini DOM)"
 rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,project,the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds"
@@ -417,10 +417,10 @@ src/main/cli/cli.py,32,comment,src/RUNME.sh,Y,"the table, print the calculus, an
 src/main/cli/cli.py,74,comment,rsc/cli/help.csv,Y,"All rsc/cli/help.csv rows (columns command, subcommand, arg-name, arg-type,"
 src/main/cli/cli.py,110,comment,src/RUNME.sh,Y,holds `src/RUNME.sh --plan` to these: each must appear as a plan line naming the command
 src/main/cli/cli.py,118,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
-src/main/cli/cli.py,143,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
-src/main/cli/cli.py,144,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
-src/main/cli/cli.py,148,comment,rsc/CALCULUS.md,Y,"and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased."
-src/main/cli/cli.py,363,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
+src/main/cli/cli.py,149,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
+src/main/cli/cli.py,150,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
+src/main/cli/cli.py,154,comment,rsc/CALCULUS.md,Y,"and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased."
+src/main/cli/cli.py,369,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<mach
@@ -537,25 +537,25 @@ src/test/pre_commit.py,671,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (
 src/test/pre_commit.py,673,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/pre_commit.py,679,comment,src/RUNME.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/RUNME.sh --plan
 src/test/pre_commit.py,864,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/pre_commit.py,883,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/pre_commit.py,1105,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/pre_commit.py,1187,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/pre_commit.py,1188,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/pre_commit.py,885,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/pre_commit.py,1108,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/pre_commit.py,1190,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/pre_commit.py,1191,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/pre_commit.py,372,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,99,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,108,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,122,path_str,src/main/code-agents/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',"
 src/test/pre_commit.py,608,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent claude --id
-src/test/pre_commit.py,1467,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1469,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1477,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1479,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1470,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1472,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1480,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1482,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,708,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
 src/test/pre_commit.py,845,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/pre_commit.py,922,comment,rsc/CALCULUS.md,Y,"# point: G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for"
-src/test/pre_commit.py,1241,comment,rsc/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
-src/test/pre_commit.py,1250,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
-src/test/pre_commit.py,1428,comment,rsc/test/pre_commit.log,Y,# any clone; this script writes it to rsc/test/pre_commit.log itself) and the
+src/test/pre_commit.py,925,comment,rsc/CALCULUS.md,Y,"# point: G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for"
+src/test/pre_commit.py,1244,comment,rsc/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
+src/test/pre_commit.py,1253,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
+src/test/pre_commit.py,1431,comment,rsc/test/pre_commit.log,Y,# any clone; this script writes it to rsc/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,5,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install
 src/test/pre_commit.sh,21,comment,rsc/test/pre_commit.log,Y,# git diff rsc/test/pre_commit.log

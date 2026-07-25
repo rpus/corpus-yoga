@@ -874,10 +874,12 @@ def check_grammar_laws(run, cited: dict) -> None:
     not a discovery made during an outage.
 
     A law must declare a state at all: `gated`, `by construction` (the shape admits no
-    violation — there is no second source to check), or `unenforced (#N)` naming the issue
-    that will hold it. Silence is not a state, because silence is how an unheld law passes
-    for a held one. `unenforced` must name an issue, so the gap is tracked rather than
-    merely noted.
+    violation — there is no second source to check), `unenforced (#N)` naming the issue that
+    will hold it, or `doctrine` (stated deliberately, with no check). Silence is not a state,
+    because silence is how an unheld law passes for a held one. `unenforced` must name an
+    issue, so the gap is tracked rather than merely noted; `doctrine` need not, because it
+    promises nothing — it is the state that keeps a law from obliging a check that would
+    need a curated vocabulary invented just to make it codable.
 
     A law may declare a parent corpus law (`from L5`) — it is that law applied to the
     surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),
@@ -914,9 +916,10 @@ def check_grammar_laws(run, cited: dict) -> None:
             run(f'grammar: {gid}: unenforced law names its issue', bool(law['issues']),
                 None if law['issues'] else
                 f'declares `unenforced` with no #issue — {law["title"]}')
-            if gid in cited:
-                run(f'grammar: {gid}: unenforced law is not cited', False,
-                    f'declares `unenforced` but is cited by: {", ".join(cited[gid])}')
+        if law['state'] in ('unenforced', 'doctrine') and gid in cited:
+            # A cited law is held, whatever it claims: the claim is what is wrong.
+            run(f'grammar: {gid}: {law["state"]} law is not cited', False,
+                f'declares `{law["state"]}` but is cited by: {", ".join(cited[gid])}')
 
     # A law citing a parent corpus law must cite one that exists. The bridge is the
     # point: G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for

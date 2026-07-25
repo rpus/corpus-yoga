@@ -68,6 +68,7 @@ absent:
 | `gated` | at least one check cites it; a violation vetoes the commit |
 | `by construction` | the shape makes violation impossible — there is no second source to check |
 | `unenforced (#N)` | stated but not yet held; the issue that will hold it |
+| `doctrine` | stated deliberately with no check: none is feasible, or none is worth its cost |
 
 A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 surface, and that document is the authority for the principle — cited, never paraphrased.
@@ -80,15 +81,20 @@ artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws
 `gated` law is really cited by a check that ran. So the enforcement map is derived from
 the laws rather than maintained as prose beside them.
 
+A law marked `doctrine` is not a gap awaiting a check. Three of these — a verb's single
+meaning, a comment's obligation, a command word's part of speech — could only be checked by
+first curating a vocabulary to check against, which is maintenance added to police prose.
+They are stated, followed, and reviewed by people.
+
 ### The table
 
-- **G1 — A verb means one thing everywhere it appears.** `unenforced (#49)` `from L1` — `capture` acquires
+- **G1 — A verb means one thing everywhere it appears.** `doctrine (#49)` `from L1` — `capture` acquires
   (`browser capture`, `dashboard capture`, `agent capture` all *bring data in*, from
   Safari, the paid model, and the harness's session store); `sync` regenerates
   idempotently; `clean` destroys; `run` only processes what `data/input/` already holds;
   `present` renders, free; `receive`/`demerge` move agents between machines and undo the
   move.
-- **G2 — Bare is status: free, local, and read-only.** `unenforced (#47)` — never paid,
+- **G2 — Bare is status: free, local, and read-only.** `unenforced (#47, #52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
   `model`, `supersede`, `xref`); the command's *whole act* where it has no verb and that
@@ -143,13 +149,13 @@ here so that a check can cite them as they land (see #39).
 - **G14 — A name is derived from what it denotes, and one referent has one name.**
   `unenforced (#43)` — a path constant is named for the tail of the path it holds.
 - **G15 — A comment states a constraint that an otherwise-correct edit would violate.**
-  `unenforced (#44)` — and never asserts a date or a count. History goes to the changelog.
+  `doctrine (#44)` — and never asserts a date or a count. History goes to the changelog.
 - **G16 — A printed line names both sides concretely.** `unenforced (#45)` `from L2` — a plan line
   names its operation, whether it is typeable, and the file it lives in; no line stands in
   for something it does not name.
 - **G17 — The only invocation any output or document prescribes is a `yoga` command.**
   `unenforced (#46)` — never `run_python_script.sh`, never a script path.
-- **G18 — Every command is a noun.** `unenforced (#47)` — no command word is a verb, and
+- **G18 — Every command is a noun.** `doctrine (#47)` — no command word is a verb, and
   no flag names what the command grammar already addresses as a noun.
 
 The table is curated, not discovered: a script's absence here is a decision, not

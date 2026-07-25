@@ -132,11 +132,17 @@ def calculus_terms() -> set[str]:
 
 
 GRAMMAR = REPO / 'rsc' / 'cli' / 'README.md'
-# The three states a law may declare. `gated` obliges a check to cite the law;
-# `by construction` asserts the shape admits no violation; `unenforced` names the
-# issue that will hold it. A law declaring none of them is an error, not a default:
-# silence is how an unheld law passes for a held one.
-LAW_STATES = ('gated', 'by construction', 'unenforced')
+# The four states a law may declare. `gated` obliges a check to cite the law;
+# `by construction` asserts the shape admits no violation; `unenforced` names the issue
+# that will hold it; `doctrine` states it deliberately WITHOUT a check, because none is
+# feasible or none is worth its cost. A law declaring none of them is an error, not a
+# default: silence is how an unheld law passes for a held one.
+#
+# `doctrine` exists so that stating a law does not oblige inventing a check for it. Without
+# it every law must promise enforcement, which pressures the repo into checks that need a
+# curated vocabulary just to be codable — maintenance added to police prose. A law nobody
+# can check honestly is better marked than left as a permanent promise.
+LAW_STATES = ('gated', 'by construction', 'unenforced', 'doctrine')
 
 
 def grammar_laws() -> dict[str, dict]:
