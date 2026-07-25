@@ -286,7 +286,7 @@ main() {
       esac
     done
   fi
-  echo "Run src/test/pre_commit.sh, then: git diff rsc/test/pre_commit.log"
+  echo "Run yoga check, then: git diff rsc/test/pre_commit.log"
   echo "Log: $LOG_FILE"
 }
 
