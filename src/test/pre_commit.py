@@ -684,24 +684,27 @@ def check_cli_surface(run) -> None:
     try:
         cmds = cli.commands()
     except Exception as e:
-        run('cli: table parses: rsc/cli/commands.csv', False, str(e))
+        run('cli: table parses: rsc/cli/commands.csv', False, str(e), law='G4')
         return
-    run('cli: table parses: rsc/cli/commands.csv', True)
+    run('cli: table parses: rsc/cli/commands.csv', True, law='G4')
     names = [c['command'] for c in cmds]
     dupes = sorted({n for n in names if names.count(n) > 1})
-    run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None)
+    run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None,
+        law='G4')
     # alphabetical by contract (2026-07-15): every surface derived from the table
     # (help, synopsis, completion) inherits its order, so the table carries it
     run('cli: commands alphabetical', names == sorted(names),
         None if names == sorted(names) else
-        f'first out of order: {next(a for a, b in zip(names, sorted(names)) if a != b)}')
+        f'first out of order: {next(a for a, b in zip(names, sorted(names)) if a != b)}',
+        law='G4')
     vocab = cli.calculus_terms()
     for c in cmds:
         target = REPO_ROOT / c['target']
-        run(f'cli: {c["command"]}: target exists: {c["target"]}', target.exists())
+        run(f'cli: {c["command"]}: target exists: {c["target"]}', target.exists(), law='G7')
         unknown = [t for t in c['calculus'].split() if t not in vocab]
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
-            f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None)
+            f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None,
+            law='G6')
         # subcommands and flags are read from rsc/cli/help.csv — the single source the
         # usage is generated from — so there is no usage cell to reconcile it against, and
         # no help.csv-complete check: the two cannot drift because there is only one.
@@ -716,7 +719,7 @@ def check_cli_surface(run) -> None:
         if flags:
             missing = [f for f in flags if f not in text]
             run(f'cli: {c["command"]}: advertised flags exist', not missing,
-                (where + ', '.join(missing)) if missing else None)
+                (where + ', '.join(missing)) if missing else None, law='G5')
         # Docstring honesty (issue #33): a module docstring's Usage block is a
         # declared surface too, and nothing read it against the parser —
         # memories' documented three flags no parser defined, and both checks
@@ -731,7 +734,7 @@ def check_cli_surface(run) -> None:
         undeclared = sorted(doc - set(flags))
         run(f'cli: {c["command"]}: docstring Usage flags advertised', not undeclared,
             f'documented in a Usage block but not in help.csv: {", ".join(undeclared)}'
-            if undeclared else None)
+            if undeclared else None, law='G5')
         # the target's own --help is the authority on its live surface — fetched
         # once here for both directions of the honesty check
         runner = REPO_ROOT / 'src' / 'run_python_script.sh'
@@ -764,7 +767,8 @@ def check_cli_surface(run) -> None:
                                and not re.search(rf'\b{re.escape(s)}\b', text)]
                 detail = (f'{c["target"]} neither prints nor dispatches: {", ".join(missing_sub)}'
                           if missing_sub else None)
-            run(f'cli: {c["command"]}: advertised subcommands dispatch', not missing_sub, detail)
+            run(f'cli: {c["command"]}: advertised subcommands dispatch', not missing_sub, detail,
+                law='G5')
         # The REVERSE direction (2026-07-16): every flag the target itself declares
         # must be advertised in the usage cell. The one-way check let the table
         # under-tell — `yoga commands` rendered a synopsis hiding memories' three
@@ -786,7 +790,7 @@ def check_cli_surface(run) -> None:
         unadvertised = sorted(real - set(flags))
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
-            if unadvertised else None)
+            if unadvertised else None, law='G5')
         # Positionally usable where advertised (issue #33): help.csv renders a
         # command-level flag beside the verbs and completion offers it after
         # them, but summaries' four lived only on the command parser — argparse
@@ -806,7 +810,7 @@ def check_cli_surface(run) -> None:
                 rejected = [f for f in cmd_level if f not in vhelp]
                 run(f'cli: {c["command"]}: {verb} accepts the command-level flags', not rejected,
                     f'`yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
-                    if rejected else None)
+                    if rejected else None, law='G5')
         # Uniform SHAPE, enforced (2026-07-16): a --help is a man entry — name,
         # what, usage, flags — and fits one screen. Length is the cheapest proxy
         # a gate can hold; the essays this bound evicted live on in code
@@ -816,7 +820,8 @@ def check_cli_surface(run) -> None:
             # whole derived surface — their help IS the product, unbounded by design
             n_lines = len(help_text.rstrip().splitlines())
             run(f'cli: {c["command"]}: help fits one screen (≤20 lines)', n_lines <= 20,
-                f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 20 else None)
+                f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 20 else None,
+                law='G8')
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. The
     # 2026-07-15 lesson: a '(--a|--b)' usage leaked '--b)' through flags_of and
     # the installed file failed to load, silently costing completion entirely;
@@ -834,7 +839,7 @@ def check_cli_surface(run) -> None:
         Path(tmp).unlink()
         parse_ok, parse_err = proc.returncode == 0, (proc.stderr.strip() or None)
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
-        parse_err if not parse_ok else None)
+        parse_err if not parse_ok else None, law='G9')
 
     # The run pipeline's command-backed steps (help.csv's `step` column). Each must
     # appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
@@ -852,7 +857,85 @@ def check_cli_surface(run) -> None:
         ok = bool(re.search(rf'^\s*{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
             None if ok else f'no `{cmd} … {sub}` line in `src/RUNME.sh --plan` — a bare '
-            f'`{cmd}` step would silently be a status no-op')
+            f'`{cmd}` step would silently be a status no-op', law='G10')
+
+
+def check_grammar_laws(run, cited: dict) -> None:
+    """The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+    it are held to each other, in both directions — so neither can drift into fiction.
+
+    Forward: a citation must name a law the document states. A check citing G99 is
+    enforcing something nobody wrote down.
+
+    Backward: a law declaring itself `gated` must really be cited by a check that ran.
+    This is the direction that rots silently — the prose list this replaced said nine
+    things were held, and the law it did NOT mention (bare is status) was the one whose
+    violation became four incidents (#29). A law with no check is now a failing check,
+    not a discovery made during an outage.
+
+    A law must declare a state at all: `gated`, `by construction` (the shape admits no
+    violation — there is no second source to check), or `unenforced (#N)` naming the issue
+    that will hold it. Silence is not a state, because silence is how an unheld law passes
+    for a held one. `unenforced` must name an issue, so the gap is tracked rather than
+    merely noted.
+
+    A law may declare a parent corpus law (`from L5`) — it is that law applied to the
+    surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),
+    so the grammar cites the principle instead of paraphrasing it.
+
+    Committed files only (the document, and the citations of this same run): code tier."""
+    try:
+        laws = cli.grammar_laws()
+    except Exception as e:
+        run('grammar: laws parse: rsc/cli/README.md', False, str(e))
+        return
+    run('grammar: laws parse: rsc/cli/README.md', bool(laws),
+        None if laws else 'no `- **G<n> — …**` law bullets found')
+    if not laws:
+        return
+
+    orphans = sorted(set(cited) - set(laws))
+    run('grammar: every citation names a stated law', not orphans,
+        f'cited by a check but not stated in the grammar: {", ".join(orphans)}'
+        if orphans else None)
+
+    stateless = sorted(g for g, law in laws.items() if law['state'] not in cli.LAW_STATES)
+    run('grammar: every law declares a state', not stateless,
+        f'no `gated`/`by construction`/`unenforced` marker: {", ".join(stateless)}'
+        if stateless else None)
+
+    for gid in sorted(laws, key=lambda g: int(g[1:])):
+        law = laws[gid]
+        if law['state'] == 'gated':
+            run(f'grammar: {gid}: gated law is cited by a check', gid in cited,
+                None if gid in cited else
+                f'declares `gated` but no check cites it — {law["title"]}')
+        elif law['state'] == 'unenforced':
+            run(f'grammar: {gid}: unenforced law names its issue', bool(law['issues']),
+                None if law['issues'] else
+                f'declares `unenforced` with no #issue — {law["title"]}')
+            if gid in cited:
+                run(f'grammar: {gid}: unenforced law is not cited', False,
+                    f'declares `unenforced` but is cited by: {", ".join(cited[gid])}')
+
+    # A law citing a parent corpus law must cite one that exists. The bridge is the
+    # point: G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for
+    # the principle and the grammar paraphrases nothing. A dangling `from L99` would put
+    # the paraphrase back, silently.
+    vocab = cli.calculus_terms()
+    for gid in sorted((g for g, law in laws.items() if law['from']), key=lambda g: int(g[1:])):
+        parent = laws[gid]['from']
+        run(f'grammar: {gid}: cited corpus law {parent} is defined', parent in vocab,
+            None if parent in vocab else
+            f'`from {parent}` names no law in rsc/CALCULUS.md')
+
+    # The enforcement map, printed rather than maintained as prose: this IS the
+    # "held honest by the gates" list the README used to carry by hand.
+    by_state: dict[str, list[str]] = {}
+    for gid, law in laws.items():
+        by_state.setdefault(str(law['state']), []).append(gid)
+    summary = '; '.join(f'{st}: {len(ids)}' for st, ids in sorted(by_state.items()))
+    run(f'grammar: {len(laws)} laws — {summary}', True)
 
 
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
@@ -1161,9 +1244,15 @@ def main():
     # to tmp/logs/rsc/test/pre_commit.log (machine-facing, like the serve daemon's log).
     committed_buffer = io.StringIO()   # code + schema tiers
     machine_buffer   = io.StringIO()   # data tier
+    cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
 
-    def run(label, passed, detail=None):
+    def run(label, passed, detail=None, law=None):
+        # `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
+        # Recorded, not printed: check_grammar_laws reads the citations to hold the
+        # document and the checks to each other, in both directions.
         results.append((label, passed, detail))
+        if law:
+            cited_laws.setdefault(law, []).append(label)
         # Data-tier facts are advisory (they never veto — see the exit) and
         # carry the WARN sigil ⚠, never the gating ✗ (user specification,
         # 2026-07-12: a "final summary" must not LOOK failed where nothing
@@ -1222,6 +1311,9 @@ def main():
         run_section(check_required_files, tier='code')
         run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
+        # after check_cli_surface: it reads that run's citations
+        run_section(lambda run, _c=cited_laws: check_grammar_laws(run, _c),
+                    label='check_grammar_laws', tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
 
