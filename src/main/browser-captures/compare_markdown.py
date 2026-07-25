@@ -1,28 +1,35 @@
 #!/usr/bin/env python
 """
-compare_markdown.py — Diff two saved sets of markdown, per conversation, pairing by filename:
-  --api     the api-sourced markdown (project_markdown's output, rendered from apiConversation JSON)
-  --scrape  the legacy DOM-scrape markdown (<id>/<title>.md under a captures dir)
+compare_markdown.py — Diff two saved sets of markdown, per conversation, pairing by conversation id:
+  --projection  the PROJECTION of the API capture (project_markdown's output under data/output/markdown)
+  --dom         the DOM capture's own markdown (<id>/<title>.md under a captures dir)
 
-Pure markdown-vs-markdown: it reads the two directories and compares the files. It does NOT
-project anything itself (project_markdown already wrote the api side). While both sets exist,
-this certifies that the projection and the scrape agree — each is the other's independent check.
+A conversation has two CAPTURES — API and DOM. Neither is read here. What is compared is
+markdown against markdown: the projection of the API capture against the DOM capture. No
+JSON is opened by this file, so a difference it reports may belong to project_markdown's
+RENDERING rather than to either capture — which is why the messages name the projection and
+not the API capture, and why "refresh the capture" is not automatically the remedy.
+
+While both capture kinds exist, this certifies that the projection and the DOM capture
+agree — each is the other's independent check.
 
 Gate on the aligned TURN SEQUENCE (role + content prefix), which is machine-robust; full
 content always differs in intended ways (better titles, trimmed leading spaces, separated
 run-on blocks, attachment rendering) — use --diff to eyeball content, not to gate.
 
-Turns are aligned scrape→api with difflib. Per conversation:
-  turn-exact        = same turn sequence; aligned pairs may differ in content rendering
-  api-more-complete = api has extra turns, within the scrape's [no capture] placeholder
-                      budget (a placeholder licenses at most one extra api turn)
-  REGRESSION        = api dropped turns present in the scrape, OR api has extra turns beyond
-                      the placeholder budget, OR aligned turns disagree on role, OR the same
-                      turns appear in a different order
+Turns are aligned DOM-capture→projection with difflib. Per conversation:
+  turn-exact               = same turn sequence; aligned pairs may differ in content rendering
+  projection-more-complete = the projection has extra turns, within the DOM capture's
+                             [no capture] placeholder budget (a placeholder licenses at most
+                             one extra projected turn)
+  REGRESSION               = the projection dropped turns present in the DOM capture, OR has
+                             extra turns beyond the placeholder budget, OR aligned turns
+                             disagree on role, OR the same turns appear in a different order
 
 Usage:
   src/run_python_script.sh src/main/browser-captures/compare_markdown.py \
-    --api data/output/markdown/claude/chat/conversations --scrape data/input/claude/chat/browser-DOM [--diff]
+    --projection data/output/markdown/claude/chat/conversations \
+    --dom data/input/claude/chat/browser-DOM [--diff]
 
 Exit status is non-zero iff a regression is found (suitable for pipeline gating).
 """
@@ -48,14 +55,14 @@ def _is_placeholder(turn):
 
 
 def classify(s_seq, a_seq) -> tuple[str, Any]:
-    """Align scrape→api turn sequences; return (kind, detail).
+    """Align DOM-capture→projection turn sequences; return (kind, detail).
     kind: 'exact' | 'improved' | regression string. detail is kind-dependent:
     an int (content-diff pair count) for 'exact', a message otherwise."""
     sm = difflib.SequenceMatcher(None, [_key(t) for t in s_seq], [_key(t) for t in a_seq],
                                  autojunk=False)
-    dropped = []   # scrape turns with no api alignment
-    extra = []     # api turns with no scrape alignment
-    pairs = []     # head-to-head aligned (scrape, api) turns from replace segments
+    dropped = []   # DOM-capture turns with no projection alignment
+    extra = []     # projection turns with no DOM-capture alignment
+    pairs = []     # head-to-head aligned (dom, projection) turns from replace segments
     for tag, i1, i2, j1, j2 in sm.get_opcodes():
         if tag == 'equal':
             continue
@@ -82,20 +89,23 @@ def classify(s_seq, a_seq) -> tuple[str, Any]:
     unpaired_placeholders = sum(1 for t in dropped if _is_placeholder(t))
     real_dropped = [t for t in dropped if not _is_placeholder(t)]
     # An EMPTY api-only turn is uncapturable by construction: it renders nothing and
-    # carries no copy button, so no scrape can ever contain it. Not an extra.
+    # carries no copy button, so no DOM capture can ever contain it. Not an extra.
     extra = [t for t in extra if t[1].strip()]
 
     if reordered:
-        return (f'{len(reordered)} turn(s) appear in a different order than in the api json',
+        return (f'{len(reordered)} turn(s) appear in a different order than in the projection',
                 '; '.join(f'[{r}] {b}' for r, b in sorted(reordered)[:3]))
     if role_mismatch:
         return f'{role_mismatch} aligned turn(s) disagree on speaker role', None
     if real_dropped:
-        return (f'the scrape has {len(real_dropped)} turn(s) the api json lacks',
+        return (f'the DOM capture has {len(real_dropped)} turn(s) the projection lacks',
                 '; '.join(f'[{t[0]}] {t[1][:60]}' for t in real_dropped[:3]))
     if len(extra) > placeholders:
-        return (f'the api json has {len(extra)} turn(s) the scrape lacks '
-                f'({placeholders} excusable as "[no capture" placeholder(s))',
+        # the placeholder budget is only worth naming when there IS one: "0 excusable"
+        # is a clause that reports the absence of an exception nobody claimed
+        budget = (f' ({placeholders} excusable as "[no capture" placeholder(s))'
+                  if placeholders else '')
+        return (f'the projection has {len(extra)} turn(s) the DOM capture lacks{budget}',
                 '; '.join(f'[{t[0]}] {t[1][:60]}' for t in extra[:3]))
     if extra or unpaired_placeholders:
         return 'improved', None
@@ -103,33 +113,36 @@ def classify(s_seq, a_seq) -> tuple[str, Any]:
 
 
 def _index(paths):
+    """conversation id -> (markdown, filename stem). The stem is kept because the
+    projection's filename is the humane identity — data/output/markdown names every
+    conversation <NNN>-<title>.md — and a report keyed only by uuid cannot be looked up."""
     out = {}
     for f in paths:
         text = f.read_text()
         cid = conv_id(text)
         if cid:
-            out[cid] = text
+            out[cid] = (text, f.stem)
     return out
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--api', required=True,
-                    help='dir of api-sourced <title>.md (project_markdown output)')
-    ap.add_argument('--scrape', required=True,
-                    help='captures dir of <id>/<title>.md DOM scrapes')
+    ap.add_argument('--projection', required=True,
+                    help='dir of projected <NNN>-<title>.md (project_markdown output)')
+    ap.add_argument('--dom', required=True,
+                    help='captures dir of <id>/<title>.md DOM captures')
     ap.add_argument('--diff', action='store_true', help='print full per-conversation unified diffs')
     args = ap.parse_args()
 
-    api_md = _index(Path(args.api).glob('*.md'))
-    scrape_md = _index(Path(args.scrape).glob('*/*.md'))
+    projected = _index(Path(args.projection).glob('*.md'))
+    dom = _index(Path(args.dom).glob('*/*.md'))
 
     exact = improved = content_diff_pairs = 0
     regressions = []
-    paired = sorted(set(api_md) & set(scrape_md))
-    for name in paired:
-        a = api_md[name]
-        s = scrape_md[name]
+    paired = sorted(set(projected) & set(dom))
+    for cid in paired:
+        a, name = projected[cid]        # name: the corpus filename, <NNN>-<title>
+        s, _ = dom[cid]
         kind, detail = classify(turn_seq(s), turn_seq(a))
         if kind == 'exact':
             exact += 1
@@ -137,22 +150,22 @@ def main():
         elif kind == 'improved':
             improved += 1
         else:
-            regressions.append((name, kind, detail))
+            regressions.append((f'{name} ({cid[:8]})', kind, detail))
         if args.diff:
-            print(f"===== {name} =====")
+            print(f"===== {name} ({cid[:8]}) =====")
             print('\n'.join(difflib.unified_diff(s.splitlines(), a.splitlines(),
-                                                 'scraped', 'api', lineterm='')))
+                                                 'dom-capture', 'projection', lineterm='')))
 
-    api_only = sorted(set(api_md) - set(scrape_md))
-    scrape_only = sorted(set(scrape_md) - set(api_md))
-    print(f"compared {len(paired)}: {exact} turn-exact, {improved} api-more-complete "
-          f"(filled scrape gaps), {len(regressions)} regression(s)")
+    api_only = sorted(set(projected) - set(dom))
+    dom_only = sorted(set(dom) - set(projected))
+    print(f"compared {len(paired)}: {exact} turn-exact, {improved} projection-more-complete "
+          f"(filled DOM-capture gaps), {len(regressions)} regression(s)")
     if content_diff_pairs:
         print(f"  {content_diff_pairs} aligned pair(s) differ in content rendering only (use --diff to eyeball)")
     if api_only:
-        print(f"  {len(api_only)} api md(s) with no scrape counterpart (not compared)", file=sys.stderr)
-    if scrape_only:
-        print(f"  {len(scrape_only)} scrape md(s) with no api counterpart (not compared)", file=sys.stderr)
+        print(f"  {len(api_only)} projected md(s) with no DOM capture (not compared)", file=sys.stderr)
+    if dom_only:
+        print(f"  {len(dom_only)} DOM capture(s) with no projection (not compared)", file=sys.stderr)
     for name, kind, detail in regressions:
         print(f"  REGRESSION {name}: {kind}" + (f" — {detail}" if detail else ''), file=sys.stderr)
     return 1 if regressions else 0
