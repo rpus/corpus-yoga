@@ -81,6 +81,9 @@ artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws
 `gated` law is really cited by a check that ran. So the enforcement map is derived from
 the laws rather than maintained as prose beside them.
 
+Ids are permanent, assigned when a law is first stated, so they need not run in document
+order: a law is cited by id, and moving it in the text must never change what a check cites.
+
 A law marked `doctrine` is not a gap awaiting a check. Three of these — a verb's single
 meaning, a comment's obligation, a command word's part of speech — could only be checked by
 first curating a vocabulary to check against, which is maintenance added to police prose.
@@ -101,6 +104,13 @@ They are stated, followed, and reviewed by people.
   act is one free idempotent step (`run`, `check`, `prerequisites` — a set #47 reduces to
   `prerequisites` alone, or to nothing); and a *usage refusal* where the verb is required
   and bare is meaningless (`browser`, `cache`, `agent`).
+- **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the
+  state it is about to change, then effects, then reports the state it left. The bracket is
+  what makes an effect auditable without a log, and what stops a verb reporting success it
+  has not earned: `yoga dashboard capture` prints an exact coverage join before spending and
+  nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
+  counted rows. Stated first, and for a long time only, as a parenthetical in
+  `src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
   INVOCATION FORMS, each becoming its own line in `yoga commands` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);

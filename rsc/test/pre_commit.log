@@ -155,7 +155,7 @@ pre_commit.py: 1577/1577 (data: machine-local)
   ✓ grammar: G3: cited corpus law L5 is defined
   ✓ grammar: G10: cited corpus law L9 is defined
   ✓ grammar: G16: cited corpus law L2 is defined
-  ✓ grammar: 18 laws — by construction: 1; doctrine: 3; gated: 7; unenforced: 7
+  ✓ grammar: 19 laws — by construction: 1; doctrine: 4; gated: 7; unenforced: 7
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv
