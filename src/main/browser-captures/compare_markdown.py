@@ -35,6 +35,7 @@ Exit status is non-zero iff a regression is found (suitable for pipeline gating)
 """
 import argparse
 import difflib
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
 
 KEY_PREFIX = 80   # chars of normalized content used as a turn's alignment identity
+
+
+HEADING = re.compile(r'^## (Human|Claude|Gemini) \((\d+)\)', re.M)
+
+
+def turn_labels(md):
+    """The turn headings as the file itself writes them — 'Human (12)' — in turn_seq order.
+    A locator beats an excerpt: it can be grepped, it is what the projection's anchors and
+    the markdown server's deep links key on, and it does not go stale when a turn is edited.
+    Empty if the headings carry no ordinal, in which case callers fall back to content."""
+    return [f'{who} ({n})' for who, n in HEADING.findall(md)]
 
 
 def _key(turn):
@@ -54,14 +66,19 @@ def _is_placeholder(turn):
     return turn[1].startswith('[no capture')
 
 
-def classify(s_seq, a_seq) -> tuple[str, Any]:
+def classify(s_seq, a_seq, s_labels=(), a_labels=()) -> tuple[str, Any]:
     """Align DOM-capture→projection turn sequences; return (kind, detail).
     kind: 'exact' | 'improved' | regression string. detail is kind-dependent:
-    an int (content-diff pair count) for 'exact', a message otherwise."""
+    an int (content-diff pair count) for 'exact', a message otherwise.
+
+    s_labels/a_labels are the two sides' turn headings (turn_labels). Given them, a
+    regression cites WHERE — 'Human (2), Human (3)' — instead of quoting the first 60
+    characters of each turn; without them it falls back to the excerpt."""
     sm = difflib.SequenceMatcher(None, [_key(t) for t in s_seq], [_key(t) for t in a_seq],
                                  autojunk=False)
-    dropped = []   # DOM-capture turns with no projection alignment
-    extra = []     # projection turns with no DOM-capture alignment
+    # indices, not turns: the report cites each turn's heading, which is positional
+    dropped = []   # DOM-capture turn indices with no projection alignment
+    extra = []     # projection turn indices with no DOM-capture alignment
     pairs = []     # head-to-head aligned (dom, projection) turns from replace segments
     for tag, i1, i2, j1, j2 in sm.get_opcodes():
         if tag == 'equal':
@@ -69,28 +86,36 @@ def classify(s_seq, a_seq) -> tuple[str, Any]:
         if tag == 'replace':
             n = min(i2 - i1, j2 - j1)
             pairs.extend(zip(s_seq[i1:i1 + n], a_seq[j1:j1 + n]))
-            dropped.extend(s_seq[i1 + n:i2])
-            extra.extend(a_seq[j1 + n:j2])
+            dropped.extend(range(i1 + n, i2))
+            extra.extend(range(j1 + n, j2))
         elif tag == 'delete':
-            dropped.extend(s_seq[i1:i2])
+            dropped.extend(range(i1, i2))
         elif tag == 'insert':
-            extra.extend(a_seq[j1:j2])
+            extra.extend(range(j1, j2))
 
     # Reordering: the same content unmatched on BOTH sides (checked on the raw
     # unmatched turns, before head-to-head pairing — a same-role adjacent swap
     # must not be mistaken for a content rendering difference).
-    s_unmatched_keys = {_key(t) for t in dropped + [s for s, _ in pairs] if not _is_placeholder(t)}
-    a_unmatched_keys = {_key(t) for t in extra + [a for _, a in pairs]}
+    s_unmatched_keys = {_key(t) for t in [s_seq[i] for i in dropped] + [s for s, _ in pairs]
+                        if not _is_placeholder(t)}
+    a_unmatched_keys = {_key(t) for t in [a_seq[j] for j in extra] + [a for _, a in pairs]}
     reordered = s_unmatched_keys & a_unmatched_keys
 
     role_mismatch = sum(1 for s, a in pairs if s[0] != a[0])
     paired_diff = len(pairs) - role_mismatch
     placeholders = sum(1 for t in s_seq if _is_placeholder(t))
-    unpaired_placeholders = sum(1 for t in dropped if _is_placeholder(t))
-    real_dropped = [t for t in dropped if not _is_placeholder(t)]
-    # An EMPTY api-only turn is uncapturable by construction: it renders nothing and
+    unpaired_placeholders = sum(1 for i in dropped if _is_placeholder(s_seq[i]))
+    real_dropped = [i for i in dropped if not _is_placeholder(s_seq[i])]
+    # An EMPTY projection-only turn is uncapturable by construction: it renders nothing and
     # carries no copy button, so no DOM capture can ever contain it. Not an extra.
-    extra = [t for t in extra if t[1].strip()]
+    extra = [j for j in extra if a_seq[j][1].strip()]
+
+    def where(idx, labels, seq):
+        """Cite the turns by heading; fall back to their text where headings carry no
+        ordinal (an older capture, or a format that never wrote one)."""
+        if labels and all(i < len(labels) for i in idx[:3]):
+            return ', '.join(labels[i] for i in idx[:3]) + ('  …' if len(idx) > 3 else '')
+        return '; '.join(f'[{seq[i][0]}] {seq[i][1][:60]}' for i in idx[:3])
 
     if reordered:
         return (f'{len(reordered)} turn(s) appear in a different order than in the projection',
@@ -99,14 +124,14 @@ def classify(s_seq, a_seq) -> tuple[str, Any]:
         return f'{role_mismatch} aligned turn(s) disagree on speaker role', None
     if real_dropped:
         return (f'the DOM capture has {len(real_dropped)} turn(s) the projection lacks',
-                '; '.join(f'[{t[0]}] {t[1][:60]}' for t in real_dropped[:3]))
+                where(real_dropped, s_labels, s_seq))
     if len(extra) > placeholders:
         # the placeholder budget is only worth naming when there IS one: "0 excusable"
         # is a clause that reports the absence of an exception nobody claimed
         budget = (f' ({placeholders} excusable as "[no capture" placeholder(s))'
                   if placeholders else '')
         return (f'the projection has {len(extra)} turn(s) the DOM capture lacks{budget}',
-                '; '.join(f'[{t[0]}] {t[1][:60]}' for t in extra[:3]))
+                where(extra, a_labels, a_seq))
     if extra or unpaired_placeholders:
         return 'improved', None
     return 'exact', paired_diff
@@ -143,7 +168,7 @@ def main():
     for cid in paired:
         a, name = projected[cid]        # name: the corpus filename, <NNN>-<title>
         s, _ = dom[cid]
-        kind, detail = classify(turn_seq(s), turn_seq(a))
+        kind, detail = classify(turn_seq(s), turn_seq(a), turn_labels(s), turn_labels(a))
         if kind == 'exact':
             exact += 1
             content_diff_pairs += detail

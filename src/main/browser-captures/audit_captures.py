@@ -42,7 +42,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
-from compare_markdown import classify
+from compare_markdown import classify, turn_labels
 
 # Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking one.
@@ -77,7 +77,7 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
             unprojected += 1
             continue
         text, name = projected[cid]
-        kind, detail = classify(turn_seq(s), turn_seq(text))
+        kind, detail = classify(turn_seq(s), turn_seq(text), turn_labels(s), turn_labels(text))
         if kind not in ('exact', 'improved'):
             # `detail` names the turns that differ — discarded until now, which left the
             # reader with a count and no way to judge it without re-running the comparison
