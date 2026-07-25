@@ -1,4 +1,4 @@
-pre_commit.py: 1577/1577 (data: machine-local)
+pre_commit.py: 1563/1563 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -137,24 +137,10 @@ pre_commit.py: 1577/1577 (data: machine-local)
   ✓ grammar: laws parse: rsc/cli/README.md
   ✓ grammar: every citation names a stated law
   ✓ grammar: every law declares a state
-  ✓ grammar: G2: unenforced law names its issue
-  ✓ grammar: G4: gated law is cited by a check
-  ✓ grammar: G5: gated law is cited by a check
-  ✓ grammar: G6: gated law is cited by a check
-  ✓ grammar: G7: gated law is cited by a check
-  ✓ grammar: G8: gated law is cited by a check
-  ✓ grammar: G9: gated law is cited by a check
-  ✓ grammar: G10: gated law is cited by a check
-  ✓ grammar: G11: unenforced law names its issue
-  ✓ grammar: G12: unenforced law names its issue
-  ✓ grammar: G13: unenforced law names its issue
-  ✓ grammar: G14: unenforced law names its issue
-  ✓ grammar: G16: unenforced law names its issue
-  ✓ grammar: G17: unenforced law names its issue
-  ✓ grammar: G1: cited corpus law L1 is defined
-  ✓ grammar: G3: cited corpus law L5 is defined
-  ✓ grammar: G10: cited corpus law L9 is defined
-  ✓ grammar: G16: cited corpus law L2 is defined
+  ✓ grammar: every gated law is cited by a check (7/7)
+  ✓ grammar: every unenforced law names its issue (7/7)
+  ✓ grammar: no unenforced or doctrine law is cited
+  ✓ grammar: every cited corpus law is defined (4/4)
   ✓ grammar: 19 laws — by construction: 1; doctrine: 4; gated: 7; unenforced: 7
 
 ── check_cache_io ────────────────────────────────────────────────────────────
@@ -1613,9 +1599,9 @@ pre_commit.py: 1577/1577 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1577/1577; expected: 1577/1577
-  ✓ score[code]: 165/165; expected: 165/165
+  ✓ score[code+schema]: 1563/1563; expected: 1563/1563
+  ✓ score[code]: 151/151; expected: 151/151
   ✓ score[schema]: 1412/1412; expected: 1412/1412
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1577/1577 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1563/1563 match the committed expectation; nothing here vetoes a commit

@@ -903,41 +903,52 @@ def check_grammar_laws(run, cited: dict) -> None:
 
     stateless = sorted(g for g, law in laws.items() if law['state'] not in cli.LAW_STATES)
     run('grammar: every law declares a state', not stateless,
-        f'no `gated`/`by construction`/`unenforced` marker: {", ".join(stateless)}'
+        f'no `gated`/`by construction`/`unenforced`/`doctrine` marker: {", ".join(stateless)}'
         if stateless else None)
 
-    for gid in sorted(laws, key=lambda g: int(g[1:])):
-        law = laws[gid]
-        if law['state'] == 'gated':
-            run(f'grammar: {gid}: gated law is cited by a check', gid in cited,
-                None if gid in cited else
-                f'declares `gated` but no check cites it — {law["title"]}')
-        elif law['state'] == 'unenforced':
-            run(f'grammar: {gid}: unenforced law names its issue', bool(law['issues']),
-                None if law['issues'] else
-                f'declares `unenforced` with no #issue — {law["title"]}')
-        if law['state'] in ('unenforced', 'doctrine') and gid in cited:
-            # A cited law is held, whatever it claims: the claim is what is wrong.
-            run(f'grammar: {gid}: {law["state"]} law is not cited', False,
-                f'declares `{law["state"]}` but is cited by: {", ".join(cited[gid])}')
+    # AGGREGATE, not one check per law: nineteen lines saying "G7 is cited" carry the same
+    # fact as one saying "7/7 gated laws are cited", and the failing ids belong in a detail
+    # line rather than in nineteen labels. A report is read by someone deciding whether to
+    # look closer; per-law rows make that decision harder, not easier.
+    ids = lambda gs: ', '.join(sorted(gs, key=lambda g: int(g[1:])))
 
-    # A law citing a parent corpus law must cite one that exists. The bridge is the
-    # point: G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for
-    # the principle and the grammar paraphrases nothing. A dangling `from L99` would put
-    # the paraphrase back, silently.
+    gated = {g for g, law in laws.items() if law['state'] == 'gated'}
+    uncited = gated - set(cited)
+    run(f'grammar: every gated law is cited by a check ({len(gated) - len(uncited)}/{len(gated)})',
+        not uncited,
+        f'declares `gated` but no check cites it: {ids(uncited)}' if uncited else None)
+
+    unenforced = {g for g, law in laws.items() if law['state'] == 'unenforced'}
+    issueless = {g for g in unenforced if not laws[g]['issues']}
+    run(f'grammar: every unenforced law names its issue ({len(unenforced) - len(issueless)}/{len(unenforced)})',
+        not issueless,
+        f'declares `unenforced` with no #issue: {ids(issueless)}' if issueless else None)
+
+    # a cited law is held, whatever it claims: the claim is what is wrong
+    miscited = {g for g, law in laws.items()
+                if law['state'] in ('unenforced', 'doctrine') and g in cited}
+    run('grammar: no unenforced or doctrine law is cited', not miscited,
+        '; '.join(f'{g} declares `{laws[g]["state"]}` but is cited by: '
+                  f'{", ".join(cited[g])}' for g in sorted(miscited)) if miscited else None)
+
+    # A law citing a parent corpus law must cite one that exists. The bridge is the point:
+    # G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the
+    # principle and the grammar paraphrases nothing. A dangling `from L99` would put the
+    # paraphrase back, silently.
     vocab = cli.calculus_terms()
-    for gid in sorted((g for g, law in laws.items() if law['from']), key=lambda g: int(g[1:])):
-        parent = laws[gid]['from']
-        run(f'grammar: {gid}: cited corpus law {parent} is defined', parent in vocab,
-            None if parent in vocab else
-            f'`from {parent}` names no law in rsc/CALCULUS.md')
+    bridged = {g: laws[g]['from'] for g in laws if laws[g]['from']}
+    dangling = {g: parent for g, parent in bridged.items() if parent not in vocab}
+    run(f'grammar: every cited corpus law is defined ({len(bridged) - len(dangling)}/{len(bridged)})',
+        not dangling,
+        '; '.join(f'{g}: `from {parent}` names no law in rsc/CALCULUS.md'
+                  for g, parent in sorted(dangling.items())) if dangling else None)
 
     # The enforcement map, printed rather than maintained as prose: this IS the
     # "held honest by the gates" list the README used to carry by hand.
     by_state: dict[str, list[str]] = {}
     for gid, law in laws.items():
         by_state.setdefault(str(law['state']), []).append(gid)
-    summary = '; '.join(f'{st}: {len(ids)}' for st, ids in sorted(by_state.items()))
+    summary = '; '.join(f'{st}: {len(g)}' for st, g in sorted(by_state.items()))
     run(f'grammar: {len(laws)} laws — {summary}', True)
 
 
