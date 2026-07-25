@@ -20,7 +20,7 @@
    "additionalProperties": false,
    "properties": {
     "project": {
-     "description": "The project directory name the memory belongs to — the harness's cwd encoding.",
+     "description": "The project directory name the memory belongs to — the harness's lossy cwd encoding (/ replaced by -).",
      "type": "string"
     },
     "facts": {

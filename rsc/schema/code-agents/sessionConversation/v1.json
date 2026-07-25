@@ -27,7 +27,7 @@
      "type": "string"
     },
     "project": {
-     "description": "The project directory name the session belongs to — the harness's cwd encoding.",
+     "description": "The project directory name the session belongs to — the harness's lossy cwd encoding (/ replaced by -).",
      "type": "string"
     },
     "session_id": {
