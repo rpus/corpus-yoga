@@ -261,7 +261,7 @@ main() {
   atoms="$(hoist_atoms)"   # non-empty iff some FAIL/WARN/INFO occurred
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
     if [[ -n "$atoms" ]]; then
-      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN, $n_info INFO — grouped by severity, each reason with its command (body order within each):"
+      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN, $n_info INFO:"
       printf '%s\n' "$atoms"
     else
       echo "All pipelines completed successfully."
