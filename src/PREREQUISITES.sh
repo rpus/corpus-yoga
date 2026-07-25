@@ -285,59 +285,23 @@ check_signature_hook() {
 }
 
 check_forge() {
-  # The forge's merge settings decide how main's history is composed, yet they live
-  # on the server: no clone can see them and no git config holds them. rsc/forge.csv
-  # is the declaration; this is the only thing that reconciles it with reality.
-  # Network- and auth-dependent, so it NEVER fails the run — unverifiable is
-  # reported, never vetoed (the deterministic gate must stay offline-reproducible,
-  # which is why this check lives here and not in yoga check).
+  # The forge's merge settings decide how main's history is composed, yet they live on
+  # the server: no clone can see them and no git config holds them. rsc/forge.csv is the
+  # declaration; `yoga forge` is the ONE thing that reconciles it with reality, and this
+  # renders its rows in the machine report's voice — the reconciliation is derived once,
+  # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
+  # unverifiable is reported, never vetoed (the deterministic gate stays offline-
+  # reproducible, which is why this lives here and not in yoga check).
   sec "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
-  local declared="$REPO_ROOT/rsc/forge.csv"
-  if [[ ! -f "$declared" ]]; then
-    info "no rsc/forge.csv — nothing declared to reconcile"
-    return
-  fi
-  if ! command -v gh &>/dev/null; then
-    info "gh not found — settings unverified (install: brew install gh)"
-    return
-  fi
-  local live
-  # quoted: {owner}/{repo} are gh's own placeholders, resolved from this checkout's
-  # remote — never brace-expansion, and never a hard-coded (fork-specific) slug
-  if ! live="$(cd "$REPO_ROOT" && gh api "repos/{owner}/{repo}" 2>/dev/null)"; then
-    info "forge unreachable — settings unverified (offline, no GitHub remote, or: gh auth login)"
-    return
-  fi
-  # Each drifting row carries its OWN remedy, filled in: the repo's slug from the live
-  # response, and the single setting at issue. A finding that points at a command rail
-  # elsewhere is a button with its reason torn off — the atom is reason + run.
-  local out
-  out="$(printf '%s' "$live" | python3 -c '
-import csv, json, sys
-live = json.load(sys.stdin)
-slug = live.get("full_name") or "{owner}/{repo}"
-def norm(v):
-    return "true" if v is True else "false" if v is False else str(v)
-for r in csv.DictReader(open(sys.argv[1])):
-    key, want = r["setting"], r["value"]
-    got = norm(live.get(key))
-    if got == want:
-        print("OK", key, want, "", sep="\t")
-    else:
-        flag = "-F" if want in ("true", "false") else "-f"   # -F types booleans, -f strings
-        print("DRIFT", key, "declared " + want + ", live " + got,
-              "gh api -X PATCH repos/" + slug + " " + flag + " " + key + "=" + want, sep="\t")
-' "$declared" 2>/dev/null)" || { info "could not compare — rsc/forge.csv unreadable or malformed"; return; }
   local status key detail remedy
   while IFS=$'\t' read -r status key detail remedy; do
     [[ -z "$status" ]] && continue
-    if [[ "$status" == "OK" ]]; then
-      ok "$key: $detail"
-    else
-      info "$key: $detail"
-      echo "    → run: $remedy"
-    fi
-  done <<< "$out"
+    case "$status" in
+      OK)    ok   "$key: $detail" ;;
+      DRIFT) info "$key: $detail"; echo "    → run: $remedy" ;;
+      *)     info "$key: $detail" ;;
+    esac
+  done < <("$REPO_ROOT/src/main/cli/forge.sh" --tsv 2>/dev/null)
 }
 
 check_pipeline_inputs() {

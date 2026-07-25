@@ -68,14 +68,22 @@ signature hook (convention, optional; grammar in its own header):
 
 ## Contributing
 
-Before merging anything, run `./yoga prerequisites`: it reconciles the forge's
-settings against `rsc/forge.csv` and prints the `gh` command for any drift, so a
-reviewer or a fresh cloner can see what the forge actually does to a merge without
-having to merge one to find out.
+Merge with `./yoga forge merge <pr>`. It reconciles the forge's settings against
+`rsc/forge.csv` first and refuses on drift — so main's history is never composed by
+rules nobody declared — and then squash-merges with **no message flags**, because
+`squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
+branch's commits and keeps each one's `Signature:` line, the join key into the
+captured session corpus. A hand-written `--body` discards them all.
 
-Squash-only PRs (enforced by forge settings; `./yoga prerequisites` reconciles
-them against `rsc/forge.csv`). main carries one narrated commit per landed idea;
-if a PR can't be squashed, it was not atomic.
+`./yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
+can see what the forge does to a merge without having to merge one to find out; and
+`./yoga forge sync --apply` makes the forge agree with `rsc/forge.csv` rather than
+printing a `gh` command for someone to copy. It is `--apply`-gated because it writes
+outside the repo, to a server other people see.
+
+Squash-only PRs (enforced by forge settings). main carries one narrated commit per
+landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
+commits — the squash keeps every one of their messages and signatures.
 
 An issue states what *should* be true; a PR that closes it reads as the claim that it
 now is. Where that claim is a standing property the code must keep — not a one-off
