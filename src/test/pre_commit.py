@@ -1278,7 +1278,10 @@ def main():
         # 2026-07-12: a "final summary" must not LOOK failed where nothing
         # blocks).
         mark = '✓' if passed else ('⚠' if current_tier[0] == 'data' else '✗')
-        print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''))
+        # per-INVOCATION, and only to the machine log: the committed body is grouped by
+        # type (_by_type), so printing each instance there would defeat the point
+        print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''),
+              file=machine_buffer)
 
     # Each hint is deduplicated but remembers the tier it was raised in (the
     # committed log carries only deterministic-tier hints), every problem it
@@ -1308,7 +1311,7 @@ def main():
 
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
-        sys.stdout = machine_buffer if tier == 'data' else committed_buffer
+        sys.stdout = machine_buffer
         if tier != current_tier[0]:
             current_tier[0] = tier
             print(f'\n════ {tier} tier {"═" * (68 - len(tier))}')
@@ -1436,6 +1439,7 @@ def main():
 
     for label, ok, detail in score_rows:
         results.append((label, ok, detail))
+        check_types.append(label.split(':')[0])   # keeps the parallel lists in step
         sections.append('check_score')
         # score[data] carries the data tier's advisory nature: it is reported but,
         # like the tier it summarises, must not gate commits (see exit below).
@@ -1539,6 +1543,38 @@ def main():
             for g in gs:
                 out.write(f'      ↳ {g}\n')
 
+    def _by_type(idxs) -> str:
+        """The body, one line per CHECK rather than one per invocation — with failures
+        enumerated beneath their type.
+
+        The collapse is deliberately ASYMMETRIC. Fifty identical ticks say what one tick and
+        a count say, so a passing type is one line; a failing type lists the instances that
+        failed, and only those. The noise removed is the ✓s, which are the whole reason the
+        ✗s were hard to find. The count carries what the old body could not: `(16/17)` is one
+        command misbehaving, `(3/17)` is something structural.
+
+        Every invocation stays in the machine-local log (tmp/logs/rsc/test/pre_commit.log),
+        where evidence belongs; this is the file a human reads in a diff."""
+        out, seen_section = io.StringIO(), None
+        order: dict[tuple, list] = {}
+        for i in idxs:
+            order.setdefault((sections[i], check_types[i] or results[i][0]), []).append(i)
+        for (section, ctype), members in order.items():
+            if section != seen_section:
+                seen_section = section
+                out.write(f'\n── {section} {"─" * max(0, 74 - len(section))}\n')
+            failed = [i for i in members if not results[i][1]]
+            mark = '✓' if not failed else ('⚠' if all(_is_advisory(i) for i in failed) else '✗')
+            n = len(members)
+            count = f'  ({n - len(failed)}/{n})' if n > 1 else ''
+            out.write(f'  {mark} {ctype}{count}\n')
+            for i in failed:                      # only the failures are named
+                label, _, detail = results[i]
+                out.write(f'      {label}\n')
+                if detail:
+                    out.write(f'          {detail}\n')
+        return out.getvalue()
+
     def _render(committed_only: bool, include_body: bool = True):
         """Render one report variant; returns (text, runnable fix lines).
         include_body=False drops the per-check ✓/✗ body, leaving header + tail —
@@ -1567,7 +1603,7 @@ def main():
 
         out.write('\n')
         if include_body:
-            out.write(committed_buffer.getvalue())
+            out.write(_by_type(idxs))
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
