@@ -25,8 +25,8 @@ producer here and are never touched.
 STDLIB-ONLY.
 
 Usage:
-    ./yoga cache sync              # run every producer
-    ./yoga cache sync --dry-run    # print the producer commands; run nothing
+    yoga cache sync              # run every producer
+    yoga cache sync --dry-run    # print the producer commands; run nothing
 """
 import argparse
 import subprocess

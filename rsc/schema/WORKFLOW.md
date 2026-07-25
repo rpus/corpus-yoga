@@ -264,8 +264,8 @@ pressure, both computed by `src/main/model/model_curation.py` from committed fil
 After schema changes:
 
 ```bash
-./yoga model sync   # regenerate the per-schema catalogues (the review aid)
-./yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
+yoga model sync   # regenerate the per-schema catalogues (the review aid)
+yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
 ```
 
 This step is falsifiable, not "if needed". Occurrence paths use the de-versioned

@@ -40,7 +40,7 @@ status() {
     total=$((total + 1)); [[ -f "$dir/$f" ]] && present=$((present + 1))
   done < "$manifest"
   echo "render assets: $present/$total present in tmp/cache/serve_markdown"
-  echo "verbs: start | stop | ensure-assets    (./yoga server --help)"
+  echo "verbs: start | stop | ensure-assets    (yoga server --help)"
 }
 
 start() {
@@ -58,7 +58,7 @@ start() {
     nohup "${PY[@]}" "${pyargs[@]}" > "$LOG_FILE" 2>&1 &
     sleep 1
     head -1 "$LOG_FILE"
-    echo "Stop with: ./yoga server stop"
+    echo "Stop with: yoga server stop"
     echo "Logs: $LOG_FILE"
   else
     "${PY[@]}" "${pyargs[@]}"

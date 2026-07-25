@@ -6,8 +6,8 @@ invocation shows its status (the committed table's tallies) and writes nothing; 
 file is scanned for references to other repo files, one CSV row per reference (columns
 are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 
-    ./yoga xref                            # status of the committed table
-    ./yoga xref check                      # rebuild + write + report
+    yoga xref                            # status of the committed table
+    yoga xref check                      # rebuild + write + report
     awk -F, '$5=="N"' rsc/test/xref.csv    # the stale references
 """
 

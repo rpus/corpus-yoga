@@ -2,7 +2,7 @@
 """
 build_index.py — the book-style index over the corpus (headword → turn locators)
 and the curation surface behind it: accept / reject / candidates over the concept
-capture. Driven by `./yoga indexing` (see rsc/cli/commands.csv).
+capture. Driven by `yoga indexing` (see rsc/cli/commands.csv).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
 It scans the readable markdown library (data/output/markdown/{claude,gemini}/conversations/),
@@ -31,7 +31,7 @@ The disposal acts (accept / reject) are verbs too: the judgment stays human; the
 verb only writes the durable line-lists with format discipline, then reports how
 many concepts remain pending.
 
-Usage (via ./yoga indexing):
+Usage (via yoga indexing):
   yoga indexing                                    # status: counts + pending queue
   yoga indexing candidates [--top N]               # derive tmp/cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)

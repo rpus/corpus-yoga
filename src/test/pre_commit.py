@@ -537,10 +537,10 @@ def check_index_curation(run, fix) -> None:
         disposed = c not in pending
         run(f'indexing: concept disposed: {c}', disposed)
         if not disposed:
-            fix('./yoga indexing candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
+            fix('yoga indexing candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
-                guidance='dispose each pending concept: ./yoga indexing accept <term> [alias ...] '
-                         '| ./yoga indexing reject [--reason <why>] <concept>')
+                guidance='dispose each pending concept: yoga indexing accept <term> [alias ...] '
+                         '| yoga indexing reject [--reason <why>] <concept>')
     # The REVERSE direction (the curate symmetry, PR #36's model.json precedent:
     # a curation record must be grounded both ways). An accepted headword with
     # ZERO corpus locators is orphan documentation — a dead index entry whose
@@ -552,7 +552,7 @@ def check_index_curation(run, fix) -> None:
         for h in orphan_headwords(markdown_root,
                                   REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt'):
             run(f'indexing: headword grounded: {h}', False)
-            fix('./yoga indexing   # status names each orphan headword',
+            fix('yoga indexing   # status names each orphan headword',
                 problem=f'indexing: headword ungrounded: {h} (zero corpus locators)',
                 guidance='fix the aliases on its accepted.txt line, or remove the line '
                          'and reject the concept with a reason')
@@ -605,7 +605,7 @@ def check_cross_sources(run) -> None:
         for cid, name in stale[:5]:
             detail_parts.append(
                 f"capture-stale {name!r} ({cid}) — the export extends the capture; to recapture:"
-                f"\n        → run: ./yoga browser capture --provider claude --id {cid}"
+                f"\n        → run: yoga browser capture --provider claude --id {cid}"
                 f"  # first front https://claude.ai/chat/{cid} in Safari (logged in)")
         if divergent:
             detail_parts.append('divergent (projection bug, corruption, or post-export edit): '
@@ -658,11 +658,11 @@ def check_cache_io(run) -> None:
 
 def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     """A cache_io written_by/read_by entry resolves iff it is an `external:*` reader
-    (exempt), a `./yoga <cmd>` whose command is in the table, or a path (its first
+    (exempt), a `yoga <cmd>` whose command is in the table, or a path (its first
     token) that exists in the repo."""
     if entry.startswith('external:'):
         return True
-    if entry.startswith('./yoga '):
+    if entry.startswith('yoga '):
         return entry.split()[1] in commands
     return (REPO_ROOT / entry.lstrip('./').split()[0]).exists()
 
