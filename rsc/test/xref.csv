@@ -19,21 +19,22 @@ README.md,61,doc,src/RUNME.sh,Y,"`jq` and Python 3; `./src/RUNME.sh` creates the
 README.md,65,doc,src/test/pre_commit.sh,Y,`ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
 README.md,67,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 README.md,72,doc,rsc/forge.csv,Y,`rsc/forge.csv` first and refuses on drift — so main's history is never composed by
-README.md,88,doc,src/test/pre_commit.py,Y,"change — make it a named check in `src/test/pre_commit.py`, labelled for the property"
-README.md,91,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-README.md,112,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
-README.md,118,doc,rsc/test/pre_commit.log,Y,- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_checks` (curated)
-README.md,118,doc,rsc/test/pre_commit_expected_checks,Y,- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_checks` (curated)
-README.md,119,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-README.md,119,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-README.md,121,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
-README.md,123,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-README.md,131,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
-README.md,132,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
-README.md,134,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
-README.md,152,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,152,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,158,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,80,doc,rsc/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `rsc/forge.csv` rather than
+README.md,90,doc,src/test/pre_commit.py,Y,"change — make it a named check in `src/test/pre_commit.py`, labelled for the property"
+README.md,93,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+README.md,114,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
+README.md,120,doc,rsc/test/pre_commit.log,Y,- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_checks` (curated)
+README.md,120,doc,rsc/test/pre_commit_expected_checks,Y,- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_checks` (curated)
+README.md,121,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+README.md,121,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+README.md,123,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
+README.md,125,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+README.md,133,doc,src/test/pre_commit.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,"
+README.md,134,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
+README.md,136,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
+README.md,154,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,154,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,160,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/compare_batches.py,Y,equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
@@ -424,10 +425,11 @@ src/main/cli/cli.py,149,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from
 src/main/cli/cli.py,150,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
 src/main/cli/cli.py,154,comment,rsc/CALCULUS.md,Y,"and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased."
 src/main/cli/cli.py,369,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
-src/main/cli/forge.sh,5,comment,rsc/forge.csv,Y,"# can see them, no git config holds them. rsc/forge.csv declares them; this reconciles"
-src/main/cli/forge.sh,24,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forge.csv"""
-src/main/cli/forge.sh,29,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { echo -e ""UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t""; return; }"
-src/main/cli/forge.sh,53,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
+src/main/cli/forge.sh,5,comment,rsc/forge.csv,Y,"# see them, no git config holds them. rsc/forge.csv declares them."
+src/main/cli/forge.sh,10,comment,rsc/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
+src/main/cli/forge.sh,26,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forge.csv"""
+src/main/cli/forge.sh,31,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { echo -e ""UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t""; return; }"
+src/main/cli/forge.sh,55,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<mach

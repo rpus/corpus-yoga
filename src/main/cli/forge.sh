@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
-# forge.sh (yoga forge) — the forge's merge settings, and the merge that obeys them.
+# forge.sh (yoga forge) — the forge's merge settings, and the operations that obey them.
 #
-# The settings decide how main's history is composed and live on the SERVER: no clone
-# can see them, no git config holds them. rsc/forge.csv declares them; this reconciles
-# the declaration with reality, and performs the one merge shape they permit.
+# The settings decide how main's history is composed and live on the SERVER: no clone can
+# see them, no git config holds them. rsc/forge.csv declares them.
 #
 # Usage:
-#   yoga forge              # read-only: declared vs live, with the gh command for any drift
-#   yoga forge --tsv        # the same reconciliation as rows (status/key/detail/remedy)
-#   yoga forge merge <pr>   # reconcile, then squash-merge that PR
+#   yoga forge                 # declared vs live
+#   yoga forge --tsv           # the same rows, for a reader that is a program
+#   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
+#   yoga forge merge <pr>      # reconcile, then squash-merge that PR
 #
-# `merge` passes NO message flags, deliberately. squash_merge_commit_message is
-# COMMIT_MESSAGES: the body is assembled from the branch's commits, each keeping its
-# `Signature: <machine>/<provider>/<session>` — the join key into the captured session
-# corpus. A hand-written --body discards every one of them, which is how seven merges
-# landed on 2026-07-25 carrying no signature at all while the branch commits beneath
-# them were correctly stamped. The procedure was prose in README.md; prose is what got
-# skipped. It is a command now.
+# sync is --apply-gated because it writes OUTSIDE the repo, to a server other people see —
+# the consent `agent receive` requires, for the same reason.
+#
+# merge passes NO message flags. squash_merge_commit_message is COMMIT_MESSAGES: the body
+# is assembled from the branch's commits, each keeping its Signature line — the join key
+# into the captured session corpus. A hand-written --body discards every one of them,
+# which is how seven merges landed unsigned on 2026-07-25 while the branch commits beneath
+# them were correctly stamped.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -67,6 +69,38 @@ status() {
   return $drift
 }
 
+sync() {
+  local apply=""
+  [[ "${1-}" == "--apply" ]] && apply=1
+  # G19: the extent before, the effect, the extent after — so the run says what it changed
+  # rather than asserting that it did.
+  local rows drift=0
+  rows="$(reconcile)"
+  echo "before:"
+  printf '%s\n' "$rows" | while IFS=$'\t' read -r st key detail _; do
+    [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
+  done
+  while IFS=$'\t' read -r st key detail remedy; do
+    [[ "$st" == DRIFT ]] || continue
+    drift=1
+    if [[ -n "$apply" ]]; then
+      echo "  → $remedy"
+      (cd "$REPO_DIR" && eval "$remedy" >/dev/null) || { echo "yoga forge sync: $key failed — settings unchanged for it" >&2; exit 1; }
+    else
+      echo "  would run: $remedy"
+    fi
+  done <<< "$rows"
+  if [[ "$drift" == 0 ]]; then
+    echo "no drift — the forge already agrees with rsc/forge.csv; nothing to do"
+    return 0
+  fi
+  [[ -n "$apply" ]] || { echo "--dry-run by default: nothing changed. Re-run with --apply."; return 0; }
+  echo "after:"
+  reconcile | while IFS=$'\t' read -r st key detail _; do
+    [[ -n "$st" ]] && echo "  $([[ "$st" == OK ]] && echo ✓ || echo ✗) $key: $detail"
+  done
+}
+
 merge() {
   local pr="${1-}"
   [[ -n "$pr" ]] || { echo "yoga forge merge: which PR? (a number, a URL, or a branch)" >&2; exit 1; }
@@ -80,6 +114,7 @@ merge() {
 case "${1-}" in
   '')        status ;;
   --tsv)     reconcile ;;
+  sync)      shift; sync "$@" ;;
   merge)     shift; merge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;

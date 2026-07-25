@@ -75,9 +75,11 @@ rules nobody declared — and then squash-merges with **no message flags**, beca
 branch's commits and keeps each one's `Signature:` line, the join key into the
 captured session corpus. A hand-written `--body` discards them all.
 
-`./yoga forge` alone is the read-only reconciliation, with the `gh` command for any
-drift beside it, so a reviewer or a fresh cloner can see what the forge does to a
-merge without having to merge one to find out.
+`./yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
+can see what the forge does to a merge without having to merge one to find out; and
+`./yoga forge sync --apply` makes the forge agree with `rsc/forge.csv` rather than
+printing a `gh` command for someone to copy. It is `--apply`-gated because it writes
+outside the repo, to a server other people see.
 
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many

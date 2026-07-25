@@ -32,6 +32,8 @@
 "dashboard","capture","--dry-run","","","print the coverage this capture would re-read, and stop — spends nothing, needs no API key",""
 "dashboard","sync","","","","FREE — render the dashboard page from the captures + markdown corpus — idempotent",""
 "forge","","--tsv","","","the same reconciliation as rows (status/key/detail/remedy) — for a reader that is a program, as PREREQUISITES is",""
+"forge","sync","","","","make the forge agree with rsc/forge.csv — a dry run unless --apply, because it writes outside the repo",""
+"forge","sync","--apply","","","perform the PATCHes — without it, the drift and the commands are only reported",""
 "forge","merge","","","","reconcile the forge settings, then squash-merge that PR — no message flags, so the body is assembled from the branch's commits and keeps their signatures",""
 "forge","merge","pr","<pr>","1","the PR to merge: a number, a URL, or a branch",""
 "indexing","accept","","","","accept a concept as a headword (merge any aliases into it)",""
