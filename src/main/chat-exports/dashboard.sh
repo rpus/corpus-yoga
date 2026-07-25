@@ -359,13 +359,17 @@ corpus_conversations() {
 # the exact id join, never the ~M row-count proxy the status uses.
 coverage_of() {
   local conv="$1" cat="$2"
-  [[ -f "$cat" && -d "$conv" ]] || return 1
+  # A MISSING capture file is a measurement, not a failure: nothing captured, everything
+  # uncovered. Returning early printed nothing at all for a first-ever capture — no extent,
+  # and no intent either, which is the one thing that IS knowable then.
+  [[ -d "$conv" ]] || return 1
   "$REPO_DIR/src/run_python_script.sh" -c "
-import json, sys
+import json, os, sys
 sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
 corpus = {cid for _, _, _, cid in corpus_index('$conv')}
-captured = {r[0] for r in json.load(open('$cat')).get('rows', [])}
+captured = ({r[0] for r in json.load(open('$cat')).get('rows', [])}
+            if os.path.isfile('$cat') else set())
 print(len(corpus & captured), len(corpus - captured), len(captured - corpus), len(corpus))
 "
 }
@@ -377,7 +381,11 @@ coverage_report() {
   local conv="$1" out captured never gone total
   out="$(coverage_of "$conv" "$REPO_DIR/data/output/dashboard/chat-categories.json")" || return 0
   read -r captured never gone total <<< "$out"
-  echo "coverage (exact): $captured captured · $never never captured · $gone captured-but-gone"
+  if [[ -f "$REPO_DIR/data/output/dashboard/chat-categories.json" ]]; then
+    echo "coverage (exact): $captured captured · $never never captured · $gone captured-but-gone"
+  else
+    echo "coverage (exact): no prior capture — $never conversation(s) uncovered"
+  fi
   echo "intent: re-read all $total conversation(s)"
 }
 
@@ -556,37 +564,13 @@ corpus_conversations() {
   has_conversations "$d" && echo "$d"
 }
 
-# The EXACT coverage join, computed where it is already free: the capture walks
-# the corpus for its chat list anyway, so before a cent is spent it names the
-# gap the status only estimates — status quantifies the lag with the cheap
-# row-count proxy (~M, no id join); the effecting verb reports captured ∩
-# corpus exactly, with the never-captured count the paid re-read is about to
-# close and any captured-but-gone ids the proxy silently counts as coverage.
-# (The user's shape: status is; effecting; status is.) Corpus-dir sources only
-# — a batch source has no corpus_index — and no prior capture means no join.
-# coverage_of <conversations-dir> <chat-categories.json> → "captured never-captured gone total"
-# ONE measurement, taken of whichever file is named: the durable one before the effect, the
-# staged one after it. G19's bracket is only readable if both ends measure the same thing —
-# the exact id join, never the ~M row-count proxy the status uses.
-coverage_of() {
-  local conv="$1" cat="$2"
-  [[ -f "$cat" && -d "$conv" ]] || return 1
-  "$REPO_DIR/src/run_python_script.sh" -c "
-import json, sys
-sys.path.insert(0, '$REPO_DIR/src/main')
-from markdown_projection import corpus_index
-corpus = {cid for _, _, _, cid in corpus_index('$conv')}
-captured = {r[0] for r in json.load(open('$cat')).get('rows', [])}
-print(len(corpus & captured), len(corpus - captured), len(captured - corpus), len(corpus))
-"
-}
-
 capture() {
-  local conversations="" only=""
+  local conversations="" only="" dry_run=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --conversations) conversations="$2"; shift 2 ;;
       --only)          only="$2";          shift 2 ;;
+      --dry-run)       dry_run=1;          shift ;;
       *) echo "yoga dashboard capture: unknown argument: $1" >&2; exit 1 ;;
     esac
   done
@@ -594,7 +578,9 @@ capture() {
     ''|semantic-concepts|chat-categories) ;;
     *) echo "yoga dashboard capture --only: expected 'semantic-concepts' or 'chat-categories', got '$only'" >&2; exit 1 ;;
   esac
-  [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
+  # the key is the EFFECT's prerequisite, not the preview's: --dry-run must work on a
+  # machine that cannot spend, or it cannot answer "what would this cost me?" there
+  [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money left no record of what it bought: terminal scrollback
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
   # convenience here — it is the only evidence. Path per the command/verb rule (#54).
@@ -606,6 +592,14 @@ capture() {
   [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`yoga run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
+  # A dry run is the leading half, run alone: the extent and the intent, and nothing else.
+  # It needs no separate implementation because it IS the bracket's first call — which is
+  # also why it cannot lie about an effect it did not perform. Worth most on this verb of
+  # all: the others preview a free or reversible act, this one previews a purchase.
+  if [[ -n "$dry_run" ]]; then
+    echo "--dry-run: nothing captured, nothing promoted, nothing spent"
+    return 0
+  fi
   capture_dashboard "$conv" "$only"
 }
 
