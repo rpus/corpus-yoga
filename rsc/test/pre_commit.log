@@ -1,4 +1,4 @@
-pre_commit.py: 1563/1563 (data: machine-local)
+pre_commit.py: 1570/1570 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,13 +12,13 @@ pre_commit.py: 1563/1563 (data: machine-local)
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (17/17)
-  ✓ cli.calculus_defined  (17/17)
-  ✓ cli.advertised_flags_exist  (12/12)
-  ✓ cli.docstring_flags_advertised  (15/15)
-  ✓ cli.subcommands_dispatch  (12/12)
-  ✓ cli.target_flags_advertised  (15/15)
-  ✓ cli.help_one_screen  (14/14)
+  ✓ cli.target_exists  (18/18)
+  ✓ cli.calculus_defined  (18/18)
+  ✓ cli.advertised_flags_exist  (13/13)
+  ✓ cli.docstring_flags_advertised  (16/16)
+  ✓ cli.subcommands_dispatch  (13/13)
+  ✓ cli.target_flags_advertised  (16/16)
+  ✓ cli.help_one_screen  (15/15)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
   ✓ cli.step_invokes_verb  (4/4)
@@ -127,11 +127,11 @@ pre_commit.py: 1563/1563 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 65 types, 1563/1563 invocations passing
+  ✓ checks[code+schema]: 65 types, 1570/1570 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 29 types, 151/151 invocations passing
+  ✓ checks[code]: 29 types, 158/158 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1563/1563 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1570/1570 match the committed expectation; nothing here vetoes a commit
