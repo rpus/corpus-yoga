@@ -49,6 +49,28 @@ from compare_markdown import classify, turn_labels
 RENDER_CEILING = 10
 
 
+def _attribute(kind: str, evidence: list, capture: Path) -> str:
+    """Re-word a projection-side shortfall once the API capture has been consulted:
+    absent from the record is `API capture missing N`; present in it is a rendering
+    difference, which is not a loss and should not read like one."""
+    if not capture.is_file():
+        return kind + ' (API capture not on this machine — cause unattributed)'
+    try:
+        blob = json.loads(capture.read_text())
+    except Exception:
+        return kind + ' (API capture unreadable — cause unattributed)'
+    record = ' '.join(re.sub(r'\s+', ' ', c.get('text', ''))
+                      for m in blob.get('chat_messages', [])
+                      for c in (m.get('content') or []) if isinstance(c, dict))
+    absent = [body for _, body in evidence if body[:60].strip() and body[:60] not in record]
+    n = len(evidence)
+    if not absent:
+        return (f'projection renders {n} turn(s) differently — the content IS in the API '
+                f'capture, so nothing is missing from the record')
+    return f'API capture missing {len(absent)} of {n} turn(s)' if len(absent) < n \
+        else f'API capture missing {n} turn(s)'
+
+
 def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[str]:
     """Scrapes live under browser-DOM/, api json under browser-API/ — the
     conversation id is the join. An API capture with no DOM capture is found by that
@@ -77,7 +99,14 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
             unprojected += 1
             continue
         text, name = projected[cid]
-        kind, detail = classify(turn_seq(s), turn_seq(text), turn_labels(s), turn_labels(text))
+        kind, detail, evidence = classify(turn_seq(s), turn_seq(text),
+                                          turn_labels(s), turn_labels(text))
+        if kind.startswith('projection missing') and evidence:
+            # The comparison is markdown vs markdown and cannot tell a turn the RECORD
+            # lacks from a turn project_markdown rendered differently. We hold the record,
+            # so we ask it — the difference decides whether this is content loss or a
+            # rendering artifact, which want opposite responses from a reader.
+            kind = _attribute(kind, evidence, api_capture_dir / d.name / f'{d.name}.json')
         if kind not in ('exact', 'improved'):
             # `detail` names the turns that differ — discarded until now, which left the
             # reader with a count and no way to judge it without re-running the comparison
@@ -87,8 +116,10 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
     # are MARKDOWN — the projection of the API capture, and the DOM capture — so the
     # difference may belong to project_markdown's rendering rather than to either capture,
     # and the WARN says so instead of prescribing a re-capture as though it could not.
-    # projection-missing first: it is the one that can mean content outside the record
-    suspects.sort(key=lambda x: (not x[2].startswith('projection missing'), x[1]))
+    # The record first. Attribution decides severity and order: content absent from the API
+    # capture is the only kind that means anything is LOST — the others are a retired
+    # mechanism lagging, or a rendering difference over a record that is intact.
+    suspects.sort(key=lambda x: (not x[2].startswith('API capture missing'), x[1]))
     if suspects:
         # said ONCE, not per WARN: it is the same fact about the comparison every time,
         # and three copies of a paragraph is how a report teaches its reader to skim.
@@ -97,10 +128,21 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
               "rather than in either capture. claude's DOM capture is retired; the API "
               'capture is the record.')
     for uuid, name, kind, detail in suspects:
-        print(f'WARN: {name} ({uuid[:8]}): {kind}'
-              + (f' — {detail}' if detail else ''))
-        print(f'    → run: ./yoga browser capture --provider claude --DOM --id {uuid}'
-              '  # re-capture just this one (Safari) — or delete its DOM capture')
+        # identity leads, on its own line; the finding and its remedy are the body, aligned
+        # (RUNME's hoist_atoms carries an atom's indented continuation).
+        #
+        # Severity and remedy both follow the ATTRIBUTION. A rendering difference over an
+        # intact record is not a warning and has nothing to re-capture — saying WARN and
+        # offering a Safari walk would be the noise this reporting was rebuilt to remove.
+        intact = kind.startswith('projection renders')
+        print(f'{"INFO" if intact else "WARN"}: {name} ({uuid[:8]}):')
+        print(f'    {kind}' + (f' — {detail}' if detail else ''))
+        if intact:
+            print('    nothing to re-capture: the record holds the content. The DOM capture '
+                  'is retired — delete it to retire the difference with it.')
+        else:
+            print(f'    → run: ./yoga browser capture --provider claude --DOM --id {uuid}'
+                  '  # re-capture just this one (Safari) — or delete its DOM capture')
     unscraped = sum(1 for d in api_capture_dir.iterdir()
                     if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
     if unscraped:

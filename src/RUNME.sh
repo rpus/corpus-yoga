@@ -121,10 +121,14 @@ section_error_lines() {
 
 # Every FAIL:/WARN:/INFO: ATOM, hoisted whole and GROUPED by severity — the
 # FAIL group, then WARN, then INFO — with the original log-BODY ORDER preserved
-# WITHIN each group. An atom is a reason line plus the "→ run:" command(s)
-# directly beneath it, kept together (the body already pairs them; the tail must
-# never tear them into a reason-list and a separate command-rail — a pile of
-# buttons, pressed in some order, for reasons not stated). The grouping is safe
+# WITHIN each group. An atom is a reason line plus its INDENTED CONTINUATION: every
+# following line indented four or more, of which "→ run:" is one kind. It used to be
+# the reason plus "→ run:" lines alone, which meant an atom could not have a body —
+# a producer that put its detail on a second line lost the detail AND, because any
+# unmatched line closed the atom, the remedy beneath it. Silently: nothing reported
+# that the tail had eaten half a finding. Kept together (the body already pairs them;
+# the tail must never tear them into a reason-list and a separate command-rail — a
+# pile of buttons, pressed in some order, for reasons not stated). The grouping is safe
 # and purely ADDITIVE: the body is the source of truth (full context, true step
 # order), and messages are emitted in step order, so we rely on the script's step
 # authorship for cross-message sanity — the tail only hoists and sorts by
@@ -137,7 +141,7 @@ hoist_atoms() {
     /^[[:space:]]*FAIL:/ { s=$0; sub(/^[[:space:]]+/,"",s); fail=fail "  " s "\n"; b="F"; in_atom=1; next }
     /^[[:space:]]*WARN:/ { s=$0; sub(/^[[:space:]]+/,"",s); warn=warn "  " s "\n"; b="W"; in_atom=1; next }
     /^[[:space:]]*INFO:/ { s=$0; sub(/^[[:space:]]+/,"",s); info=info "  " s "\n"; b="I"; in_atom=1; next }
-    /→ run:/ {
+    /^    / || /→ run:/ {
       if (in_atom) { s=$0; sub(/^[[:space:]]+/,"",s); r="    " s "\n";
                      if (b=="F") fail=fail r; else if (b=="W") warn=warn r; else info=info r }
       next

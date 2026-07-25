@@ -66,14 +66,20 @@ def _is_placeholder(turn):
     return turn[1].startswith('[no capture')
 
 
-def classify(s_seq, a_seq, s_labels=(), a_labels=()) -> tuple[str, Any]:
+def classify(s_seq, a_seq, s_labels=(), a_labels=()) -> tuple[str, Any, list]:
     """Align DOM-capture→projection turn sequences; return (kind, detail).
     kind: 'exact' | 'improved' | regression string. detail is kind-dependent:
     an int (content-diff pair count) for 'exact', a message otherwise.
 
     s_labels/a_labels are the two sides' turn headings (turn_labels). Given them, a
     regression cites WHERE — 'Human (2), Human (3)' — instead of quoting the first 60
-    characters of each turn; without them it falls back to the excerpt."""
+    characters of each turn; without them it falls back to the excerpt.
+
+    The third return value is the DEFICIENT TURNS as (label, body) — the evidence, handed
+    to a caller that can check it. This file compares two markdowns and never opens a
+    capture, so it cannot say whether a turn the projection lacks is missing from the API
+    CAPTURE or merely rendered differently by project_markdown. audit_captures holds the
+    API capture and can; nobody else should guess."""
     sm = difflib.SequenceMatcher(None, [_key(t) for t in s_seq], [_key(t) for t in a_seq],
                                  autojunk=False)
     # indices, not turns: the report cites each turn's heading, which is positional
@@ -125,24 +131,28 @@ def classify(s_seq, a_seq, s_labels=(), a_labels=()) -> tuple[str, Any]:
     def turns(n):
         return f'{n} turn' if n == 1 else f'{n} turns'
 
+    def evidence(idx, labels, seq):
+        return [(labels[i] if labels and i < len(labels) else None, seq[i][1]) for i in idx]
+
     if reordered:
         return (f'turn order disagrees: {turns(len(reordered))} in a different position',
-                '; '.join(f'[{r}] {b}' for r, b in sorted(reordered)[:3]))
+                '; '.join(f'[{r}] {b}' for r, b in sorted(reordered)[:3]), [])
     if role_mismatch:
-        return f'speaker role disagrees on {turns(role_mismatch)}', None
+        return f'speaker role disagrees on {turns(role_mismatch)}', None, []
     if real_dropped:
         return (f'projection missing {turns(len(real_dropped))}',
-                where(real_dropped, s_labels, s_seq))
+                where(real_dropped, s_labels, s_seq),
+                evidence(real_dropped, s_labels, s_seq))
     if len(extra) > placeholders:
         # the placeholder budget is only worth naming when there IS one: "0 excusable"
         # is a clause that reports the absence of an exception nobody claimed
         budget = (f' ({placeholders} excusable as "[no capture" placeholder(s))'
                   if placeholders else '')
         return (f'DOM capture missing {turns(len(extra))}{budget}',
-                where(extra, a_labels, a_seq))
+                where(extra, a_labels, a_seq), evidence(extra, a_labels, a_seq))
     if extra or unpaired_placeholders:
-        return 'improved', None
-    return 'exact', paired_diff
+        return 'improved', None, []
+    return 'exact', paired_diff, []
 
 
 def _index(paths):
@@ -176,7 +186,7 @@ def main():
     for cid in paired:
         a, name = projected[cid]        # name: the corpus filename, <NNN>-<title>
         s, _ = dom[cid]
-        kind, detail = classify(turn_seq(s), turn_seq(a), turn_labels(s), turn_labels(a))
+        kind, detail, _ = classify(turn_seq(s), turn_seq(a), turn_labels(s), turn_labels(a))
         if kind == 'exact':
             exact += 1
             content_diff_pairs += detail
