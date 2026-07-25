@@ -107,9 +107,9 @@ Every commit is signed `Signature: machine/provider/session` by the local
 model co-author (it is derivable from the session).
 
 A merge conflict is almost always confined to the check's four regenerated artifacts,
-in two pairs — a derived file and the curated count beside it:
+in two pairs — a derived file and the curated expectation beside it:
 
-- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_score` (curated)
+- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_checks` (curated)
 - `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
 
 Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds

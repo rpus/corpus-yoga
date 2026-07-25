@@ -284,9 +284,9 @@ git diff rsc/test/pre_commit.log
 All checks should pass. The diff to `pre_commit.log` is the final record of what
 changed — read it in the worktree, and stage it yourself when it says what you meant.
 Nothing stages on your behalf.
-Update `rsc/test/pre_commit_expected_score` if a tier's check count changed — its first
-line is the combined code+schema total (matching the score in the log's head line),
-followed by `code:` and `schema:` tier lines only; the `data` tier subtotal is
-machine-local and never recorded.
+Update `rsc/test/pre_commit_expected_checks` only if you WROTE or REMOVED a check — it
+lists the check types the code and schema tiers run, one per line. Adding a schema version
+multiplies invocations of existing checks and adds no check, so this file does not move for
+it. A name that stops running, or a name that runs and is not listed, fails the gate.
 
 ---

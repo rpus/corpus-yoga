@@ -10,7 +10,7 @@ pre_commit.py: 1563/1563 (data: machine-local)
   ✓ exists: src/main/validate.py
   ✓ exists: src/main/model/gen_model_candidate.py
   ✓ exists: src/main/model/gen_model.py
-  ✓ exists: rsc/test/pre_commit_expected_score
+  ✓ exists: rsc/test/pre_commit_expected_checks
   ✓ exists: rsc/test/xref_expected_score
   ✓ exists: src/test/schema_recommendations.py
   ✓ exists: src/run_python_script.sh
@@ -1599,9 +1599,11 @@ pre_commit.py: 1563/1563 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1563/1563; expected: 1563/1563
-  ✓ score[code]: 151/151; expected: 151/151
-  ✓ score[schema]: 1412/1412; expected: 1412/1412
+  ✓ checks[code+schema]: 65 types, 1563/1563 invocations passing
+  ✓ checks: every expected check ran
+  ✓ checks: every check that ran is expected
+  ✓ checks[code]: 29 types, 151/151 invocations passing
+  ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
 gate: PASS — code+schema 1563/1563 match the committed expectation; nothing here vetoes a commit

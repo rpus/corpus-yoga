@@ -18,7 +18,7 @@ Checks are grouped into three tiers, run in order:
     data    — local data/input//tmp/cache/ data vs the committed record (validation outputs, coverage,
               frontier); machine-local, skipped per pipeline where no local data exists
 
-The committed expected score (rsc/test/pre_commit_expected_score) records the code and
+The committed expected checks (rsc/test/pre_commit_expected_checks) record the code and
 schema tiers only — their counts are identical on every clone. Its first line is the
 combined code+schema total, which also matches the score in the log's head line. The
 data tier's subtotal is machine-local and never recorded; its failures are reported in
@@ -299,13 +299,13 @@ def check_required_files(run):
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
         SRC  / 'main' / 'model' / 'gen_model.py',
-        RSC  / 'test' / 'pre_commit_expected_score',
+        RSC  / 'test' / 'pre_commit_expected_checks',
         RSC  / 'test' / 'xref_expected_score',
         SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
     ]
     for path in required:
-        run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists())
+        run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists(), check='files.required_exists')
 
 
 def check_root_schema_diagnostics(run):
@@ -317,7 +317,7 @@ def check_root_schema_diagnostics(run):
             diag = script.stem
             passed, output = _call(script, str(schema_path))
             run(f'{diag}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
-                _diag_detail(output) if not passed else None)
+                _diag_detail(output) if not passed else None, check=diag)
 
 
 def _schema_families() -> dict:
@@ -338,9 +338,9 @@ def check_schema_validity(run) -> None:
             try:
                 schema = json.loads(path.read_text())
                 run(f'{schema_name}: valid JSON + $schema: {v}', '$schema' in schema,
-                    'Missing $schema field' if '$schema' not in schema else None)
+                    'Missing $schema field' if '$schema' not in schema else None, check='schema.valid_json_with_schema')
             except json.JSONDecodeError as e:
-                run(f'{schema_name}: valid JSON: {v}', False, str(e))
+                run(f'{schema_name}: valid JSON: {v}', False, str(e), check='schema.valid_json')
 
 
 def check_schema_changelogs(run) -> None:
@@ -356,12 +356,12 @@ def check_schema_changelogs(run) -> None:
             run(f'{schema_name}: changelog_narrative: {v}',
                 f'## {v}' in changelog_text,
                 f'Add a ## {v} section to {changelog.relative_to(REPO_ROOT)}'
-                if f'## {v}' not in changelog_text else None)
+                if f'## {v}' not in changelog_text else None, check='schema.changelog_narrative')
             schema_text = path.read_text()
             run(f'{schema_name}: no_todo: {v}',
                 '"TODO' not in schema_text,
                 f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)}'
-                if '"TODO' in schema_text else None)
+                if '"TODO' in schema_text else None, check='schema.changelog_no_todo')
 
 
 def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -> None:
@@ -385,14 +385,14 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
             fix(run_cmd, problem=f'matrix.written: {_leaf(subject)} — matrix.md missing')
-            run(f'matrix.written: {_leaf(subject)}', False, str(mfile.relative_to(REPO_ROOT)))
+            run(f'matrix.written: {_leaf(subject)}', False, str(mfile.relative_to(REPO_ROOT)), check='data.matrix_written')
             continue
         actual = _parse_matrix_file(mfile)
         ok = actual == {k: sym for k, (sym, _) in expected.items()}
         if not ok:
             fix(run_cmd, problem=f'matrix.current: {_leaf(subject)} — matrix.md disagrees with validation logs')
         run(f'matrix.current: {_leaf(subject)}', ok,
-            None if ok else f'matrix.md disagrees with validation logs — regenerate: {run_cmd}')
+            None if ok else f'matrix.md disagrees with validation logs — regenerate: {run_cmd}', check='data.matrix_current')
 
     # Every schema version must be registered by some local datum — no version minted
     # without data validated against it. Data-tier counterpart of the narrative check.
@@ -404,7 +404,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
                 fix(pipe_cmd, problem=f'{schema}: matrix.version_registered: {v} — '
                                       f'no local datum has validated against {v}')
                 fix(f'then: {run_cmd}')
-            run(f'{schema}: matrix.version_registered: {v}', ok)
+            run(f'{schema}: matrix.version_registered: {v}', ok, check='data.version_registered')
 
     print(f'\n  every {pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} entry should have validation output in {gen_rel}/')
     raw_input = _input_subjects(pipeline)
@@ -416,7 +416,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
         if subject not in processed_subjects:
             fix(pipe_cmd, problem=f'unprocessed input: {_leaf(subject)} — no validation output in {gen_rel}/')
             fix(f'then: {run_cmd}')
-            run(f'unprocessed input: {_leaf(subject)}', False)
+            run(f'unprocessed input: {_leaf(subject)}', False, check='data.input_processed')
 
 
 def _gen_subject_dirs(gen_dir, depth):
@@ -483,7 +483,7 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
                 problem=f'{label} — validates against no schema version',
                 guidance='if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
                          'schema version — current evidence means only a schema change can clear it')
-        run(label, passing, None if passing else 'validates against no schema version')
+        run(label, passing, None if passing else 'validates against no schema version', check='data.validates_against_a_version')
 
 
 def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
@@ -512,7 +512,7 @@ def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
             problem=label,
             guidance='if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
                      'schema version — current evidence means only a schema change can clear it')
-    run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)))
+    run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)), check='data.frontier_current')
 
 
 def check_index_curation(run, fix) -> None:
@@ -535,7 +535,7 @@ def check_index_curation(run, fix) -> None:
     # remedies were the mumble; the single fix hint below carries it once.
     for c in concepts:
         disposed = c not in pending
-        run(f'indexing: concept disposed: {c}', disposed)
+        run(f'indexing: concept disposed: {c}', disposed, check='indexing.concept_disposed')
         if not disposed:
             fix('yoga indexing candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
@@ -551,7 +551,7 @@ def check_index_curation(run, fix) -> None:
     if markdown_root.is_dir():
         for h in orphan_headwords(markdown_root,
                                   REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt'):
-            run(f'indexing: headword grounded: {h}', False)
+            run(f'indexing: headword grounded: {h}', False, check='indexing.headword_grounded')
             fix('yoga indexing   # status names each orphan headword',
                 problem=f'indexing: headword ungrounded: {h} (zero corpus locators)',
                 guidance='fix the aliases on its accepted.txt line, or remove the line '
@@ -614,7 +614,7 @@ def check_cross_sources(run) -> None:
             f'{identical} identical, {appended} appended-to'
             + (f', {len(stale)} capture-stale' if stale else ''),
             not (stale or divergent),
-            '\n      '.join(detail_parts) if detail_parts else None)
+            '\n      '.join(detail_parts) if detail_parts else None, check='data.cross_source_transcripts_agree')
 
 
 def check_cache_io(run) -> None:
@@ -629,9 +629,9 @@ def check_cache_io(run) -> None:
     try:
         rows = cache_io.rows()
     except Exception as e:
-        run('cache_io: registry parses: rsc/cache_io.csv', False, str(e))
+        run('cache_io: registry parses: rsc/cache_io.csv', False, str(e), check='cache_io.registry_parses')
         return
-    run('cache_io: registry parses: rsc/cache_io.csv', True)
+    run('cache_io: registry parses: rsc/cache_io.csv', True, check='cache_io.registry_parses')
 
     # PIPELINES now derives cache_output from cache_io.path_for(), so a pipeline
     # missing its row fails loudly at import; this catches the reverse — a
@@ -639,7 +639,7 @@ def check_cache_io(run) -> None:
     tagged = cache_io.pipelines()
     run('cache_io: pipeline tags match PIPELINES', tagged == set(PIPELINES),
         f'cache_io tags {sorted(tagged)} != PIPELINES {sorted(PIPELINES)}'
-        if tagged != set(PIPELINES) else None)
+        if tagged != set(PIPELINES) else None, check='cache_io.pipeline_tags_match')
 
     commands = {c['command'] for c in cli.commands()}
     for r in rows:
@@ -647,13 +647,13 @@ def check_cache_io(run) -> None:
         read_no_writer = bool(r['read_by']) and not r['written_by']
         run(f'cache_io: {r["cache_path"]}: read implies a writer', not read_no_writer,
             'READ but not WRITTEN — a tmp/cache/ dependency nothing produces; name its '
-            'producer in written_by, or the tmp/cache/ contract breaks' if read_no_writer else None)
+            'producer in written_by, or the tmp/cache/ contract breaks' if read_no_writer else None, check='cache_io.read_implies_writer')
         # Every producer/reader RESOLVES — a rename that strands one (how
         # tmp/cache/browser-captures/markdown happened) fails here, not silently.
         unresolved = [e for e in r['written_by'] + r['read_by']
                       if not _cache_io_resolves(e, commands)]
         run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,
-            f'unresolved: {", ".join(unresolved)}' if unresolved else None)
+            f'unresolved: {", ".join(unresolved)}' if unresolved else None, check='cache_io.paths_resolve')
 
 
 def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
@@ -684,27 +684,27 @@ def check_cli_surface(run) -> None:
     try:
         cmds = cli.commands()
     except Exception as e:
-        run('cli: table parses: rsc/cli/commands.csv', False, str(e), law='G4')
+        run('cli: table parses: rsc/cli/commands.csv', False, str(e), law='G4', check='cli.table_parses')
         return
-    run('cli: table parses: rsc/cli/commands.csv', True, law='G4')
+    run('cli: table parses: rsc/cli/commands.csv', True, law='G4', check='cli.table_parses')
     names = [c['command'] for c in cmds]
     dupes = sorted({n for n in names if names.count(n) > 1})
     run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None,
-        law='G4')
+        law='G4', check='cli.commands_unique')
     # alphabetical by contract (2026-07-15): every surface derived from the table
     # (help, synopsis, completion) inherits its order, so the table carries it
     run('cli: commands alphabetical', names == sorted(names),
         None if names == sorted(names) else
         f'first out of order: {next(a for a, b in zip(names, sorted(names)) if a != b)}',
-        law='G4')
+        law='G4', check='cli.commands_alphabetical')
     vocab = cli.calculus_terms()
     for c in cmds:
         target = REPO_ROOT / c['target']
-        run(f'cli: {c["command"]}: target exists: {c["target"]}', target.exists(), law='G7')
+        run(f'cli: {c["command"]}: target exists: {c["target"]}', target.exists(), law='G7', check='cli.target_exists')
         unknown = [t for t in c['calculus'].split() if t not in vocab]
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
             f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None,
-            law='G6')
+            law='G6', check='cli.calculus_defined')
         # subcommands and flags are read from rsc/cli/help.csv — the single source the
         # usage is generated from — so there is no usage cell to reconcile it against, and
         # no help.csv-complete check: the two cannot drift because there is only one.
@@ -719,7 +719,7 @@ def check_cli_surface(run) -> None:
         if flags:
             missing = [f for f in flags if f not in text]
             run(f'cli: {c["command"]}: advertised flags exist', not missing,
-                (where + ', '.join(missing)) if missing else None, law='G5')
+                (where + ', '.join(missing)) if missing else None, law='G5', check='cli.advertised_flags_exist')
         # Docstring honesty (issue #33): a module docstring's Usage block is a
         # declared surface too, and nothing read it against the parser —
         # memories' documented three flags no parser defined, and both checks
@@ -734,7 +734,7 @@ def check_cli_surface(run) -> None:
         undeclared = sorted(doc - set(flags))
         run(f'cli: {c["command"]}: docstring Usage flags advertised', not undeclared,
             f'documented in a Usage block but not in help.csv: {", ".join(undeclared)}'
-            if undeclared else None, law='G5')
+            if undeclared else None, law='G5', check='cli.docstring_flags_advertised')
         # the target's own --help is the authority on its live surface — fetched
         # once here for both directions of the honesty check
         runner = REPO_ROOT / 'src' / 'run_python_script.sh'
@@ -768,7 +768,7 @@ def check_cli_surface(run) -> None:
                 detail = (f'{c["target"]} neither prints nor dispatches: {", ".join(missing_sub)}'
                           if missing_sub else None)
             run(f'cli: {c["command"]}: advertised subcommands dispatch', not missing_sub, detail,
-                law='G5')
+                law='G5', check='cli.subcommands_dispatch')
         # The REVERSE direction (2026-07-16): every flag the target itself declares
         # must be advertised in the usage cell. The one-way check let the table
         # under-tell — `yoga commands` rendered a synopsis hiding memories' three
@@ -790,7 +790,7 @@ def check_cli_surface(run) -> None:
         unadvertised = sorted(real - set(flags))
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
-            if unadvertised else None, law='G5')
+            if unadvertised else None, law='G5', check='cli.target_flags_advertised')
         # Positionally usable where advertised (issue #33): help.csv renders a
         # command-level flag beside the verbs and completion offers it after
         # them, but summaries' four lived only on the command parser — argparse
@@ -810,7 +810,7 @@ def check_cli_surface(run) -> None:
                 rejected = [f for f in cmd_level if f not in vhelp]
                 run(f'cli: {c["command"]}: {verb} accepts the command-level flags', not rejected,
                     f'`yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
-                    if rejected else None, law='G5')
+                    if rejected else None, law='G5', check='cli.verb_accepts_command_flags')
         # Uniform SHAPE, enforced (2026-07-16): a --help is a man entry — name,
         # what, usage, flags — and fits one screen. Length is the cheapest proxy
         # a gate can hold; the essays this bound evicted live on in code
@@ -821,7 +821,7 @@ def check_cli_surface(run) -> None:
             n_lines = len(help_text.rstrip().splitlines())
             run(f'cli: {c["command"]}: help fits one screen (≤20 lines)', n_lines <= 20,
                 f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 20 else None,
-                law='G8')
+                law='G8', check='cli.help_one_screen')
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. The
     # 2026-07-15 lesson: a '(--a|--b)' usage leaked '--b)' through flags_of and
     # the installed file failed to load, silently costing completion entirely;
@@ -839,7 +839,7 @@ def check_cli_surface(run) -> None:
         Path(tmp).unlink()
         parse_ok, parse_err = proc.returncode == 0, (proc.stderr.strip() or None)
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
-        parse_err if not parse_ok else None, law='G9')
+        parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
 
     # The run pipeline's command-backed steps (help.csv's `step` column). Each must
     # appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
@@ -857,7 +857,7 @@ def check_cli_surface(run) -> None:
         ok = bool(re.search(rf'^\s*{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
             None if ok else f'no `{cmd} … {sub}` line in `src/RUNME.sh --plan` — a bare '
-            f'`{cmd}` step would silently be a status no-op', law='G10')
+            f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')
 
 
 def check_grammar_laws(run, cited: dict) -> None:
@@ -889,22 +889,22 @@ def check_grammar_laws(run, cited: dict) -> None:
     try:
         laws = cli.grammar_laws()
     except Exception as e:
-        run('grammar: laws parse: rsc/cli/README.md', False, str(e))
+        run('grammar: laws parse: rsc/cli/README.md', False, str(e), check='grammar.laws_parse')
         return
     run('grammar: laws parse: rsc/cli/README.md', bool(laws),
-        None if laws else 'no `- **G<n> — …**` law bullets found')
+        None if laws else 'no `- **G<n> — …**` law bullets found', check='grammar.laws_parse')
     if not laws:
         return
 
     orphans = sorted(set(cited) - set(laws))
     run('grammar: every citation names a stated law', not orphans,
         f'cited by a check but not stated in the grammar: {", ".join(orphans)}'
-        if orphans else None)
+        if orphans else None, check='grammar.citation_is_stated')
 
     stateless = sorted(g for g, law in laws.items() if law['state'] not in cli.LAW_STATES)
     run('grammar: every law declares a state', not stateless,
         f'no `gated`/`by construction`/`unenforced`/`doctrine` marker: {", ".join(stateless)}'
-        if stateless else None)
+        if stateless else None, check='grammar.state_declared')
 
     # AGGREGATE, not one check per law: nineteen lines saying "G7 is cited" carry the same
     # fact as one saying "7/7 gated laws are cited", and the failing ids belong in a detail
@@ -916,20 +916,20 @@ def check_grammar_laws(run, cited: dict) -> None:
     uncited = gated - set(cited)
     run(f'grammar: every gated law is cited by a check ({len(gated) - len(uncited)}/{len(gated)})',
         not uncited,
-        f'declares `gated` but no check cites it: {ids(uncited)}' if uncited else None)
+        f'declares `gated` but no check cites it: {ids(uncited)}' if uncited else None, check='grammar.gated_is_cited')
 
     unenforced = {g for g, law in laws.items() if law['state'] == 'unenforced'}
     issueless = {g for g in unenforced if not laws[g]['issues']}
     run(f'grammar: every unenforced law names its issue ({len(unenforced) - len(issueless)}/{len(unenforced)})',
         not issueless,
-        f'declares `unenforced` with no #issue: {ids(issueless)}' if issueless else None)
+        f'declares `unenforced` with no #issue: {ids(issueless)}' if issueless else None, check='grammar.unenforced_names_issue')
 
     # a cited law is held, whatever it claims: the claim is what is wrong
     miscited = {g for g, law in laws.items()
                 if law['state'] in ('unenforced', 'doctrine') and g in cited}
     run('grammar: no unenforced or doctrine law is cited', not miscited,
         '; '.join(f'{g} declares `{laws[g]["state"]}` but is cited by: '
-                  f'{", ".join(cited[g])}' for g in sorted(miscited)) if miscited else None)
+                  f'{", ".join(cited[g])}' for g in sorted(miscited)) if miscited else None, check='grammar.unenforced_not_cited')
 
     # A law citing a parent corpus law must cite one that exists. The bridge is the point:
     # G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the
@@ -941,7 +941,7 @@ def check_grammar_laws(run, cited: dict) -> None:
     run(f'grammar: every cited corpus law is defined ({len(bridged) - len(dangling)}/{len(bridged)})',
         not dangling,
         '; '.join(f'{g}: `from {parent}` names no law in rsc/CALCULUS.md'
-                  for g, parent in sorted(dangling.items())) if dangling else None)
+                  for g, parent in sorted(dangling.items())) if dangling else None, check='grammar.parent_law_defined')
 
     # The enforcement map, printed rather than maintained as prose: this IS the
     # "held honest by the gates" list the README used to carry by hand.
@@ -949,7 +949,7 @@ def check_grammar_laws(run, cited: dict) -> None:
     for gid, law in laws.items():
         by_state.setdefault(str(law['state']), []).append(gid)
     summary = '; '.join(f'{st}: {len(g)}' for st, g in sorted(by_state.items()))
-    run(f'grammar: {len(laws)} laws — {summary}', True)
+    run(f'grammar: {len(laws)} laws — {summary}', True, check='grammar.enforcement_map')
 
 
 _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
@@ -972,19 +972,19 @@ def check_versioned_schema_diagnostics(run):
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
             run(f'{schema_name}: no versions', False,
-                f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files')
+                f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files', check='schema.has_versions')
             continue
         for version in versions:
             for script in diagnostics:
                 passed, output = _call(script, str(version))
                 run(f'{schema_name}: {script.stem}: {version.stem}', passed,
-                    _diag_detail(output) if not passed else None)
+                    _diag_detail(output) if not passed else None, check=script.stem)
 
 
 def check_schema_join(run):
     join = RSC_SCHEMA / 'model_join.csv'
     if not join.exists():
-        run('schema model_join.csv exists', False)
+        run('schema model_join.csv exists', False, check='model.join_exists')
         return
     fails: list[str] = []
     # One grammar, one base: every cell is a versioned family dir relative to
@@ -995,7 +995,7 @@ def check_schema_join(run):
                         {c: RSC_SCHEMA for c in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')},
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
-        '\n    '.join(fails[:5]) if fails else None)
+        '\n    '.join(fails[:5]) if fails else None, check='model.join_pointers_valid')
 
 
 def check_model_join_versions(run):
@@ -1018,7 +1018,7 @@ def check_model_join_versions(run):
                     pins.append(f'row {i} {col}: {file_part}')
     run('model_join: de-versioned pointer grammar (family dirs, no vN.json pins)',
         not pins,
-        '\n    '.join(pins[:5]) if pins else None)
+        '\n    '.join(pins[:5]) if pins else None, check='model.join_family_grammar')
 
 
 def _deref(node, root, _seen=None):
@@ -1091,9 +1091,9 @@ def check_model_occurrences(run):
                 if not _admits_instance_pointer(schema, ptr):
                     bad.append(f'{tname}: {key} {ptr} does not resolve against {latest.name}')
     run('model: occurrences use family-dir grammar (no vN.json pins)', not pins,
-        '\n    '.join(pins[:5]) if pins else None)
+        '\n    '.join(pins[:5]) if pins else None, check='model.occurrence_family_grammar')
     run('model: occurrence pointers resolve against latest versions', not bad,
-        '\n    '.join(bad[:5]) if bad else None)
+        '\n    '.join(bad[:5]) if bad else None, check='model.occurrence_pointers_resolve')
     # Completeness (issue #19 follow-up, the foolproof-index fix, user + reading-room):
     # grounds() needs one family to match, so a type can be documented with a
     # dressing missing and still ground — model.json would then answer "where does
@@ -1104,7 +1104,7 @@ def check_model_occurrences(run):
     run('model: documented types occur completely (occurrences cover their edges\' data families)',
         not gaps,
         '\n    '.join(f'{n}: grounding edge asserts {", ".join(f)} — not in occurrences'
-                      for n, f in list(gaps.items())[:5]) if gaps else None)
+                      for n, f in list(gaps.items())[:5]) if gaps else None, check='model.occurrences_cover_edges')
 
 
 def check_model_obligations(run) -> None:
@@ -1135,13 +1135,13 @@ def check_model_obligations(run) -> None:
         run(f'model: shared type disposed: {"/".join(sorted(names))}', not pending,
             None if not pending else
             f'model_join row(s) {", ".join(map(str, pending))} assert one shared type: '
-            'document it in rsc/schema/model.json or reject it in rsc/schema/model_rejected.txt')
+            'document it in rsc/schema/model.json or reject it in rsc/schema/model_rejected.txt', check='model.shared_type_disposed')
     orphans = set(model_curation.orphan_entries())
     for name in sorted(model_curation.documented()):
         run(f'model: documented type grounded: {name}', name not in orphans,
             None if name not in orphans else
             'no model_join edge asserts this type: curate the asserting edge '
-            '(relationship identical | snake_cased), or retire the entry')
+            '(relationship identical | snake_cased), or retire the entry', check='model.documented_type_grounded')
 
 
 def check_mcp_schema(run):
@@ -1152,7 +1152,7 @@ def check_mcp_schema(run):
     mcp_dir  = RSC_SCHEMA / '_reference' / 'mcp'
     versions = _sorted_versions(mcp_dir) if mcp_dir.is_dir() else []
     if not versions:
-        run('mcp schema: _reference/mcp/ has versions', False)
+        run('mcp schema: _reference/mcp/ has versions', False, check='mcp.has_versions')
         return
     latest = versions[-1]
     rel    = latest.relative_to(REPO_ROOT)
@@ -1161,7 +1161,7 @@ def check_mcp_schema(run):
     m_hash = re.search(r'upstream SHA256:\s*([0-9a-f]{64})', desc)
     if not m_url or not m_hash:
         run('mcp schema: description has raw URL and upstream SHA256', False,
-            f'Add raw URL and "upstream SHA256: <hex>" to the description field in {rel}')
+            f'Add raw URL and "upstream SHA256: <hex>" to the description field in {rel}', check='mcp.description_pins_upstream')
         return
     raw_url     = m_url.group(1)
     stored_hash = m_hash.group(1)
@@ -1172,9 +1172,9 @@ def check_mcp_schema(run):
             stored_hash == live_hash,
             f'upstream changed — mint _reference/mcp/v{len(versions) + 1}.json from {raw_url} '
             f'(convert to draft-04, set its description commit URL + SHA256, narrate in the family '
-            f'CHANGELOG); {rel} stays as history')
+            f'CHANGELOG); {rel} stays as history', check='mcp.up_to_date')
     except Exception as e:
-        run('mcp schema: upstream reachable', False, f'{e}')
+        run('mcp schema: upstream reachable', False, f'{e}', check='mcp.upstream_reachable')
 
 
 
@@ -1191,10 +1191,10 @@ def check_xref(run):
     score_file = RSC / 'test' / 'xref_expected_score'
     expected   = score_file.read_text().strip()
 
-    run('xref: no bad pointers', bad == 0, summary if bad else None)
+    run('xref: no bad pointers', bad == 0, summary if bad else None, check='xref.no_bad_pointers')
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
-        if actual != expected else None)
+        if actual != expected else None, check='xref.score_matches_expectation')
 
 
 def check_accumulate_contract(run) -> None:
@@ -1236,7 +1236,7 @@ def check_accumulate_contract(run) -> None:
                       acc('2026-01-06T000000Z', 'A') == 'unchanged'))
         failed = [name for name, ok in cases if not ok]
         run('accumulate: the CALCULUS trajectory contract (#22)',
-            not failed, 'cases failed: ' + '; '.join(failed) if failed else None)
+            not failed, 'cases failed: ' + '; '.join(failed) if failed else None, check='accumulate.trajectory_contract')
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -1259,12 +1259,18 @@ def main():
     committed_buffer = io.StringIO()   # code + schema tiers
     machine_buffer   = io.StringIO()   # data tier
     cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
+    check_types: list[str | None] = []     # per result: which TYPE of check it is an instance of
 
-    def run(label, passed, detail=None, law=None):
+    def run(label, passed, detail=None, law=None, check=None):
         # `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
         # Recorded, not printed: check_grammar_laws reads the citations to hold the
         # document and the checks to each other, in both directions.
         results.append((label, passed, detail))
+        # `check` is the check's TYPE — the thing a reader means by "a check". The label is
+        # one INVOCATION of it, over one schema, command or conversation. Adding a schema
+        # multiplies invocations and adds no check, which is why the committed expectation
+        # is the set of types and not a count of lines.
+        check_types.append(check)
         if law:
             cited_laws.setdefault(law, []).append(label)
         # Data-tier facts are advisory (they never veto — see the exit) and
@@ -1386,38 +1392,39 @@ def main():
     det_tot = sum(tier_counts.get(t, [0, 0])[1] for t in ('code', 'schema'))
     det     = f'{det_got}/{det_tot}'
 
-    score_file = RSC / 'test' / 'pre_commit_expected_score'
-    expected: dict[str, str] = {}
-    expected_total = None
-    for line in score_file.read_text().splitlines():
-        m = re.match(r'([a-z]+):\s*(\d+/\d+)$', line.strip())
-        if m:
-            expected[m.group(1)] = m.group(2)
-        elif expected_total is None and (m := re.match(r'(\d+/\d+)$', line.strip())):
-            expected_total = m.group(1)
+    # The committed expectation is the SET OF CHECK TYPES, not a count of invocations.
+    # A count moved whenever a schema version, a command or a conversation was added — work
+    # that adds no check — so the file was updated reflexively, which is how the failure it
+    # exists to catch (a check that silently stopped running) would have been waved through.
+    # A type leaving the set is that failure, and nothing else produces it.
+    checks_file = RSC / 'test' / 'pre_commit_expected_checks'
+    expected_types = {l.strip() for l in checks_file.read_text().splitlines()
+                      if l.strip() and not l.startswith('#')} if checks_file.exists() else set()
+    seen_types = {t for t, tier in zip(check_types, tiers)
+                  if t and tier in ('code', 'schema')}
 
     score_rows: list[tuple] = []
 
-    exp = expected_total or '(none)'
-    ok  = det_got == det_tot and det == exp
-    detail = (
-        'Fix failures in the code and schema tiers first' if det_got != det_tot else
-        f'Consider updating the first line of {score_file.relative_to(REPO_ROOT)} to {det}'
-        if det != exp else None
-    )
-    score_rows.append((f'score[code+schema]: {det}; expected: {exp}', ok, detail))
+    ok = det_got == det_tot
+    score_rows.append((f'checks[code+schema]: {len(seen_types)} types, {det} invocations passing',
+                       ok, 'Fix failures in the code and schema tiers first' if not ok else None))
+
+    gone = sorted(expected_types - seen_types)
+    score_rows.append(('checks: every expected check ran', not gone,
+                       f'expected but never ran — deleted, renamed, or skipped: {", ".join(gone)}'
+                       if gone else None))
+
+    added = sorted(seen_types - expected_types)
+    score_rows.append(('checks: every check that ran is expected', not added,
+                       f'new: {", ".join(added)} — add to '
+                       f'{checks_file.relative_to(REPO_ROOT)} deliberately'
+                       if added else None))
 
     for t in ('code', 'schema'):
         got, tot = tier_counts.get(t, [0, 0])
-        sub = f'{got}/{tot}'
-        exp = expected.get(t, '(none)')
-        ok  = got == tot and sub == exp
-        detail = (
-            'Fix failures in this tier first' if got != tot else
-            f'Consider updating {score_file.relative_to(REPO_ROOT)}: "{t}: {sub}"'
-            if sub != exp else None
-        )
-        score_rows.append((f'score[{t}]: {sub}; expected: {exp}', ok, detail))
+        n_types = len({ty for ty, tier in zip(check_types, tiers) if ty and tier == t})
+        score_rows.append((f'checks[{t}]: {n_types} types, {got}/{tot} invocations passing',
+                           got == tot, 'Fix failures in this tier first' if got != tot else None))
 
     got, tot = tier_counts.get('data', [0, 0])
     skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
