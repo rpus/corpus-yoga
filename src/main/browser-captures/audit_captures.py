@@ -131,16 +131,22 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
         # identity leads, on its own line; the finding and its remedy are the body, aligned
         # (RUNME's hoist_atoms carries an atom's indented continuation).
         #
-        # Severity and remedy both follow the ATTRIBUTION. A rendering difference over an
-        # intact record is not a warning and has nothing to re-capture — saying WARN and
-        # offering a Safari walk would be the noise this reporting was rebuilt to remove.
+        # Severity follows the ATTRIBUTION, and the test is: was anything LOST? For claude
+        # the API capture is the record and the DOM capture is retired, so a DOM capture
+        # that lags leaves the corpus complete — INFO, like a rendering difference. WARN is
+        # left meaning one thing only: content absent from the record. That the WARN class
+        # is presently EMPTY is itself the report — a fact this output could not state while
+        # every difference was a warning.
+        lost = kind.startswith('API capture missing')
         intact = kind.startswith('projection renders')
-        print(f'{"INFO" if intact else "WARN"}: {name} ({uuid[:8]}):')
+        print(f'{"WARN" if lost else "INFO"}: {name} ({uuid[:8]}):')
         print(f'    {kind}' + (f' — {detail}' if detail else ''))
         if intact:
             print('    nothing to re-capture: the record holds the content. The DOM capture '
                   'is retired — delete it to retire the difference with it.')
         else:
+            # a lagging DOM capture is not a loss, but re-capturing IS the action if you
+            # want it current — so the remedy stays, at INFO
             print(f'    → run: ./yoga browser capture --provider claude --DOM --id {uuid}'
                   '  # re-capture just this one (Safari) — or delete its DOM capture')
     unscraped = sum(1 for d in api_capture_dir.iterdir()
