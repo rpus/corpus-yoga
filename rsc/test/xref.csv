@@ -192,7 +192,7 @@ rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as 
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
 rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
 rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
-src/PREREQUISITES.sh,2,comment,src/PREREQUISITES.sh,Y,# src/PREREQUISITES.sh — Report what this machine has and what ./yoga run would do.
+src/PREREQUISITES.sh,2,comment,src/PREREQUISITES.sh,Y,# src/PREREQUISITES.sh — Report what this machine has and what yoga run would do.
 src/PREREQUISITES.sh,11,comment,src/PREREQUISITES.sh,Y,#   ./src/PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
 src/PREREQUISITES.sh,12,comment,src/PREREQUISITES.sh,Y,"#   ./src/PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items"
 src/PREREQUISITES.sh,161,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
