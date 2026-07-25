@@ -1,0 +1,75 @@
+# The check TYPES the code and schema tiers run — the committed expectation.
+#
+# A check is a type; a line in the report is one INVOCATION of it, over one schema,
+# command or conversation. Adding a schema multiplies invocations and adds no check, so
+# this file does not move when the corpus or the schema set grows — it moves only when
+# a check is written or removed, which is the event worth a deliberate edit.
+#
+# A name here that never runs is the failure this file exists to catch: a check deleted,
+# renamed, or skipped. A name that runs and is absent here is a new check, to be added
+# on purpose rather than by reflex.
+accumulate.trajectory_contract
+cache_io.paths_resolve
+cache_io.pipeline_tags_match
+cache_io.read_implies_writer
+cache_io.registry_parses
+cli.advertised_flags_exist
+cli.calculus_defined
+cli.commands_alphabetical
+cli.commands_unique
+cli.completions_parse
+cli.docstring_flags_advertised
+cli.help_one_screen
+cli.step_invokes_verb
+cli.subcommands_dispatch
+cli.table_parses
+cli.target_exists
+cli.target_flags_advertised
+cli.verb_accepts_command_flags
+composition.base_not_used_directly
+composition.base_schemas_closed
+composition.discriminator_values_disjoint
+composition.no_additional_properties_on_subtypes
+composition.wrapper_has_five_fields
+documentation.discriminator_fields_annotated
+documentation.every_definition_has_title_and_description
+documentation.null_only_fields_documented
+documentation.open_set_enums_documented
+empirical.nullable_fields_surveyed
+empirical.oneOf_branches_evidenced
+files.required_exists
+grammar.citation_is_stated
+grammar.enforcement_map
+grammar.gated_is_cited
+grammar.laws_parse
+grammar.parent_law_defined
+grammar.state_declared
+grammar.unenforced_names_issue
+grammar.unenforced_not_cited
+mcp.up_to_date
+model.documented_type_grounded
+model.join_family_grammar
+model.join_pointers_valid
+model.occurrence_family_grammar
+model.occurrence_pointers_resolve
+model.occurrences_cover_edges
+model.shared_type_disposed
+naming.property_keys_lowercase
+naming.root_schema_title_matches_filename
+naming.title_matches_key
+naming.upper_camel_case
+schema.changelog_narrative
+schema.changelog_no_todo
+schema.valid_json_with_schema
+structure.all_definitions_reachable
+structure.bfs_order
+structure.definitions_at_bottom
+structure.enum_refines_explicit_type
+structure.field_order
+structure.minItems_on_non_empty_arrays
+structure.no_dangling_refs
+structure.no_redundant_additional_properties_true
+structure.pattern_constraints_enforced
+structure.required_subset_of_properties
+xref.no_bad_pointers
+xref.score_matches_expectation
