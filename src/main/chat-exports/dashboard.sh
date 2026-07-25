@@ -23,6 +23,23 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
+# The corpus's shape, stated ONCE: conversation markdown at any depth under a root.
+# Three call sites used to each decide this for themselves and disagreed — status counted
+# 137 conversations with `find -path`, chat_list matched two directory levels, and
+# corpus_conversations matched one. The corpus is two deep
+# (data/output/markdown/<source>/<kind>/conversations/), so capture reported "no projected
+# corpus" about the directory status had just counted, and told the reader to re-run a
+# pipeline that had already produced it. Depth belongs to the layout, not to each caller.
+CONVERSATIONS_GLOB='*/conversations/*.md'
+
+has_conversations() {   # a root holding conversation markdown at any depth
+  [[ -d "$1" ]] && [[ -n "$(find "$1" -path "$CONVERSATIONS_GLOB" -print -quit 2>/dev/null)" ]]
+}
+
+count_conversations() {
+  find "$1" -path "$CONVERSATIONS_GLOB" 2>/dev/null | wc -l | tr -d ' '
+}
+
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
 # The default source is the projected corpus itself (data/output/markdown — every source's
 # conversations dir combined, claude first), whose filenames carry the cached
@@ -36,7 +53,7 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # batch is claude by construction, and the prompt says so).
 chat_list() {
   local src="$1"
-  if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || compgen -G "$src/*/*/conversations/*.md" > /dev/null; }; then
+  if [[ -d "$src" ]] && { compgen -G "$src/*.md" > /dev/null || has_conversations "$src"; }; then
     "$REPO_DIR/src/run_python_script.sh" -c "
 import sys
 sys.path.insert(0, '$REPO_DIR/src/main')
@@ -247,7 +264,7 @@ currency() {
   local d="$REPO_DIR/data/output/dashboard"
   local n m=0 f render_state
   [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
-  n="$(find "$corpus" -path '*/conversations/*.md' 2>/dev/null | wc -l | tr -d ' ')"
+  n="$(count_conversations "$corpus")"
   [[ "$n" -gt 0 ]] || return 0
   [[ -f "$d/chat-categories.json" ]] && m="$(jq '.rows | length' "$d/chat-categories.json")"
   if [[ ! -f "$render" ]]; then
@@ -255,7 +272,7 @@ currency() {
   else
     # the render's inputs are the corpus AND the captures — either newer means behind
     local behind=''
-    [[ -n "$(find "$corpus" -path '*/conversations/*.md' -newer "$render" -print -quit 2>/dev/null)" ]] \
+    [[ -n "$(find "$corpus" -path "$CONVERSATIONS_GLOB" -newer "$render" -print -quit 2>/dev/null)" ]] \
       && behind='corpus'
     for f in semantic-concepts.json chat-categories.json; do
       [[ "$d/$f" -nt "$render" ]] && { [[ "$behind" == *captures* ]] || behind="${behind:+$behind and }captures"; }
@@ -287,7 +304,7 @@ currency() {
 # each move one layer further down the input→cache→output lifecycle.)
 corpus_conversations() {
   local d="$REPO_DIR/data/output/markdown"
-  [[ -d "$d" ]] && compgen -G "$d/*/conversations/*.md" > /dev/null && echo "$d"
+  has_conversations "$d" && echo "$d"
 }
 
 # The EXACT coverage join, computed where it is already free: the capture walks
@@ -329,7 +346,7 @@ capture() {
   [[ -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
   local conv="${conversations:-$(corpus_conversations)}"
-  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no projected corpus under data/output/markdown — run the browser-captures pipeline first (yoga run), or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`yoga run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   coverage_report "$conv"
   capture_dashboard "$conv" "$only"
 }
