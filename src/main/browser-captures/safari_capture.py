@@ -181,8 +181,8 @@ def fetch_api(conv_id, out_dir):
               'Security; Full Disk Access takes manual additions where Files and Folders '
               f'shows nothing). The fetched json is stranded in ~/Downloads — move it '
               f'into {out_dir} by hand, or recapture from an already-granted Terminal:\n'
-              f'    → run: src/main/browser-captures/safari_capture.sh --agent claude '
-              f'--id {conv_id}  # first front https://claude.ai/chat/{conv_id} in Safari',
+              f'    → run: ./yoga browser capture --provider claude --id {conv_id}'
+              f'  # first front https://claude.ai/chat/{conv_id} in Safari',
               file=sys.stderr)
         return None
     return f'{conv_id}.json'

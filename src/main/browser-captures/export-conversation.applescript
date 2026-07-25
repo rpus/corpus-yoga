@@ -1,5 +1,5 @@
 -- Capture the current Claude or Gemini conversation into data/input/<provider>/chat/browser-{API,DOM}/.
--- Delegates to safari_capture.sh --agent <claude|gemini> --id, which handles JS injection,
+-- Delegates to safari_capture.sh --provider <claude|gemini> --id, which handles JS injection,
 -- file moving, API JSON fetch, and logging.
 --
 -- Prerequisite (one-time): Safari > Develop > Allow JavaScript from Apple Events

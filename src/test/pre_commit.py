@@ -605,7 +605,7 @@ def check_cross_sources(run) -> None:
         for cid, name in stale[:5]:
             detail_parts.append(
                 f"capture-stale {name!r} ({cid}) — the export extends the capture; to recapture:"
-                f"\n        → run: src/main/browser-captures/safari_capture.sh --agent claude --id {cid}"
+                f"\n        → run: ./yoga browser capture --provider claude --id {cid}"
                 f"  # first front https://claude.ai/chat/{cid} in Safari (logged in)")
         if divergent:
             detail_parts.append('divergent (projection bug, corruption, or post-export edit): '
