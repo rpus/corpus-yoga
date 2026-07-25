@@ -1,7 +1,7 @@
 # The yoga CLI's command table
 
-Two curated files describe the `./yoga` terminal surface (machinery: `src/main/cli/cli.py`;
-launcher: the root `./yoga`). `commands.csv` names each command — `command,target,calculus,
+Two curated files describe the `yoga` terminal surface (machinery: `src/main/cli/cli.py`;
+launcher: the root `yoga`). `commands.csv` names each command — `command,target,calculus,
 summary` — and `help.csv` describes every argument, one row per
 `command,subcommand,arg-name,arg-type,cardinality,help,step`. The argument structure lives ONLY
 in `help.csv`: a command's verbs are its distinct subcommands, its flags are the `--arg-name`
@@ -22,13 +22,13 @@ invoking it by command AND verb, so the plan speaks the surface you would type a
 never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
 files are written `QUOTE_ALL` so a comma in any cell is safe.
 
-Everything a user meets is re-derived on demand — the menu `./yoga -h`
-prints, each command's `./yoga <command> -h` (its summary, its generated invocation forms, and the
-`help.csv` lines as headed subparagraphs), the zsh tab-completion `./yoga completions` emits
+Everything a user meets is re-derived on demand — the menu `yoga -h`
+prints, each command's `yoga <command> -h` (its summary, its generated invocation forms, and the
+`help.csv` lines as headed subparagraphs), the zsh tab-completion `yoga completions` emits
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
-`./yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
-`./yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
-level down at `./yoga <command> <verb> -h`, answered by argparse — the target's own, or the
+`yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
+`yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
+level down at `yoga <command> <verb> -h`, answered by argparse — the target's own, or the
 parser `cli.py` builds for a command it handles itself.
 That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
 `help.csv` each time the target runs, and names the parser for the command rather than the file
@@ -45,7 +45,7 @@ committed in `rsc/cli/readings.md`.
 
 | column | meaning |
 | --- | --- |
-| `command` | the subcommand word (`./yoga <command>`), unique |
+| `command` | the subcommand word (`yoga <command>`), unique |
 | `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `src/run_python_script.sh`, a `.md` is printed |
 | `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the command is mere presentation of the doctrine itself |
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |

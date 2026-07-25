@@ -321,11 +321,11 @@ currency() {
   echo "corpus: $n conversation(s) · captures cover ~$m · render: $render_state"
   if [[ "$render_state" != current ]]; then
     echo "INFO: the dashboard render is $render_state — free to fix:"
-    echo "    → run: ./yoga dashboard sync   # FREE — re-render from the current corpus + captures"
+    echo "    → run: yoga dashboard sync   # FREE — re-render from the current corpus + captures"
   fi
   if [[ "$m" -lt "$n" ]]; then
     echo "INFO: the captures cover ~$m of $n conversation(s) — the paid layer lags the corpus; sync does NOT fix this:"
-    echo "    → run: ./yoga dashboard capture   # PAID — the model re-reads the corpus"
+    echo "    → run: yoga dashboard capture   # PAID — the model re-reads the corpus"
   fi
 }
 
@@ -540,11 +540,11 @@ currency() {
   echo "corpus: $n conversation(s) · captures cover ~$m · render: $render_state"
   if [[ "$render_state" != current ]]; then
     echo "INFO: the dashboard render is $render_state — free to fix:"
-    echo "    → run: ./yoga dashboard sync   # FREE — re-render from the current corpus + captures"
+    echo "    → run: yoga dashboard sync   # FREE — re-render from the current corpus + captures"
   fi
   if [[ "$m" -lt "$n" ]]; then
     echo "INFO: the captures cover ~$m of $n conversation(s) — the paid layer lags the corpus; sync does NOT fix this:"
-    echo "    → run: ./yoga dashboard capture   # PAID — the model re-reads the corpus"
+    echo "    → run: yoga dashboard capture   # PAID — the model re-reads the corpus"
   fi
 }
 

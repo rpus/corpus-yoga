@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """
-cli.py — the machinery behind `./yoga`, the repo's terminal surface.
+cli.py — the machinery behind `yoga`, the repo's terminal surface.
 
 Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/commands.csv
 names each command and its target; rsc/cli/help.csv describes the arguments.
-`./yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
-`./yoga -h` lists the commands; `./yoga <command> -h` renders that command's help from
-the tables; a subcommand one level down (`./yoga <command> <subcommand> --help`) is
+`yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
+`yoga -h` lists the commands; `yoga <command> -h` renders that command's help from
+the tables; a subcommand one level down (`yoga <command> <subcommand> --help`) is
 answered by argparse — the target's own, or the parser cli.py builds for a command it
-handles itself. `./yoga completions` derives static zsh tab-completion from
+handles itself. `yoga completions` derives static zsh tab-completion from
 the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
@@ -22,12 +22,12 @@ The vocabulary is parsed from the calculus document itself (calculus_terms),
 never restated.
 
 Usage:
-    ./yoga                       # render the table
-    ./yoga <command> [args...]   # exec the target
-    ./yoga completions install-latest  # regenerate the zsh tab-completion and wire it
-    ./yoga commands              # every command's syntax: a SYNOPSIS derived from the table
+    yoga                       # render the table
+    yoga <command> [args...]   # exec the target
+    yoga completions install-latest  # regenerate the zsh tab-completion and wire it
+    yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
-This module is deliberately STDLIB-ONLY: the ./yoga launcher falls back to
+This module is deliberately STDLIB-ONLY: the yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
 the table, print the calculus, and generate completion before ./src/RUNME.sh has
 run. Adding a third-party import here would silently break that.
@@ -52,7 +52,7 @@ COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # removes everything between them, and a line added inside it later leaves with it
 # without uninstall having to learn that line's shape. One pair of constants, so
 # install and uninstall can never disagree about where the block begins or ends.
-COMPLETION_MARKER = '# yoga tab-completion (refresh: ./yoga completions install-latest)'
+COMPLETION_MARKER = '# yoga tab-completion (refresh: yoga completions install-latest)'
 COMPLETION_END = '# end yoga tab-completion'
 
 
@@ -341,7 +341,7 @@ def _takes_command_name(command: str) -> bool:
 
 def completion_script(cmds: list[dict]) -> str:
     """A static zsh completion function derived from the tables (regenerate via
-    `./yoga completions`; never edit the emitted file). Each position offers only what
+    `yoga completions`; never edit the emitted file). Each position offers only what
     applies there: the command word, then that command's subcommands, then its flags
     after a '-'. A FILE list is offered only as the value of a flag that takes a path;
     where nothing takes an argument, nothing is offered — a stray listing of the
@@ -389,7 +389,7 @@ def completion_script(cmds: list[dict]) -> str:
 
     lines = [
         '#compdef yoga',
-        '# derived from rsc/cli/commands.csv + help.csv by `./yoga completions` — regenerate, never edit',
+        '# derived from rsc/cli/commands.csv + help.csv by `yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
         '  local -a cmds subcommands opts pathopts',
@@ -512,7 +512,7 @@ def install_completion() -> int:
         print(f'{tilde(zshrc)}: {where}')
         for line in block[1:-1]:
             print(f'    {line}')
-        print('  remove anytime: ./yoga completions uninstall')
+        print('  remove anytime: yoga completions uninstall')
     # ~/.zcompdump is compinit's cache of which completion functions exist, and
     # its staleness heuristic can judge a pre-install dump current — the first
     # new terminal then falls back to filename completion while every LATER one

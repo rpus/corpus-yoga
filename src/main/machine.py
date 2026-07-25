@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 machine.py — the machine registry and this machine's binding to it. A LIBRARY,
-not a command: nothing here reports. `./yoga prerequisites` is the one machine
+not a command: nothing here reports. `yoga prerequisites` is the one machine
 voice, and it says everything this ever said, in more detail.
 
 Two facts, and only two:

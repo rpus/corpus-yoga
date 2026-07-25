@@ -62,13 +62,13 @@ anything was edited since the merge: the record licenses the undo (L3). This
 is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
-    ./yoga agent
-    ./yoga agent models
-    ./yoga agent capture --session <uuid8> [--to <scratch-dir>]
-    ./yoga agent receive   --session <uuid8> --from <machine|dir> [--apply]
-    ./yoga agent capture --all [--to <scratch-dir>]
-    ./yoga agent receive   --all --from <machine|dir> [--apply]
-    ./yoga agent demerge [--apply]
+    yoga agent
+    yoga agent models
+    yoga agent capture --session <uuid8> [--to <scratch-dir>]
+    yoga agent receive   --session <uuid8> --from <machine|dir> [--apply]
+    yoga agent capture --all [--to <scratch-dir>]
+    yoga agent receive   --all --from <machine|dir> [--apply]
+    yoga agent demerge [--apply]
 
 capture and receive each take --session <uuid8> (matches by uuid prefix,
 exactly one) or --all: a NAMED agent or the named TOTALITY — git push --all /

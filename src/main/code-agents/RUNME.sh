@@ -167,7 +167,7 @@ main() {
 
   if [[ ! -d "$code_projects" ]]; then
     echo "no store at $code_projects (hand-make data/input/claude/code/machine-transport as a symlink to the shared store;"
-    echo "populate it via: ./yoga agent capture --all)"
+    echo "populate it via: yoga agent capture --all)"
     exit 0
   fi
   local store_root; store_root="$(cd "$code_projects" && pwd)"

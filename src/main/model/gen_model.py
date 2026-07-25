@@ -10,8 +10,8 @@ the `sync` verb writes: it brings tmp/cache/model into agreement with the schema
 re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
-    ./yoga model         # status: which catalogues exist under tmp/cache/model/
-    ./yoga model sync    # (re-)generate every catalogue to agree with the schemas
+    yoga model         # status: which catalogues exist under tmp/cache/model/
+    yoga model sync    # (re-)generate every catalogue to agree with the schemas
 """
 
 import argparse

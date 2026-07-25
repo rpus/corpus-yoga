@@ -147,7 +147,7 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
         else:
             # a lagging DOM capture is not a loss, but re-capturing IS the action if you
             # want it current — so the remedy stays, at INFO
-            print(f'    → run: ./yoga browser capture --provider claude --DOM --id {uuid}'
+            print(f'    → run: yoga browser capture --provider claude --DOM --id {uuid}'
                   '  # re-capture just this one (Safari) — or delete its DOM capture')
     unscraped = sum(1 for d in api_capture_dir.iterdir()
                     if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
@@ -190,7 +190,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
         print(f'WARN: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns — '
               f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
               'likely missing from this DOM capture; to recapture:')
-        print(f'    → run: ./yoga browser capture --provider gemini --DOM --id {cid}'
+        print(f'    → run: yoga browser capture --provider gemini --DOM --id {cid}'
               '  # walks the page — takes a couple of minutes')
     if placeholder_convs:
         print(f'gemini: {placeholder_convs} DOM capture(s) contain "[no capture" placeholder text')

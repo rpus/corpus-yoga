@@ -3,10 +3,10 @@
 cache.py — the `yoga cache` dispatcher. `cache` is a NOUN: the rebuildable tmp/cache/
 tier. Bare shows its state and writes nothing; the verbs do the work.
 
-    ./yoga cache                    # status: the tmp/cache/ subtrees present
-    ./yoga cache clean --dry-run    # report orphaned tmp/cache/ subtrees (neither written nor read)
-    ./yoga cache clean --apply      # remove them
-    ./yoga cache sync [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
+    yoga cache                    # status: the tmp/cache/ subtrees present
+    yoga cache clean --dry-run    # report orphaned tmp/cache/ subtrees (neither written nor read)
+    yoga cache clean --apply      # remove them
+    yoga cache sync [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
 
 Thin verb router over the sibling implementations — src/main/cli/clean.py and
 src/main/cli/sync.py — so the CLI table carries one `cache` command whose verbs

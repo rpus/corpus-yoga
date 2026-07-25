@@ -343,6 +343,6 @@ if __name__ == '__main__':
         if e.errno == 48:
             print(f'Port {args.port} already in use.', flush=True)
             print(f'To fix: lsof -ti :{args.port} | xargs kill', flush=True)
-            print('     or: ./yoga server stop', flush=True)
+            print('     or: yoga server stop', flush=True)
             sys.exit(1)
         raise
