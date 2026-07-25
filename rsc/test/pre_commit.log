@@ -1,4 +1,4 @@
-pre_commit.py: 1555/1555 (data: machine-local)
+pre_commit.py: 1563/1563 (data: machine-local)
 
 
 ════ code tier ════════════════════════════════════════════════════════════════
@@ -132,6 +132,16 @@ pre_commit.py: 1555/1555 (data: machine-local)
   ✓ cli: memories: run step invokes `memories sync` in plan
   ✓ cli: summaries: run step invokes `summaries sync` in plan
   ✓ cli: supersede: run step invokes `supersede check` in plan
+
+── check_grammar_laws ────────────────────────────────────────────────────────
+  ✓ grammar: laws parse: rsc/cli/README.md
+  ✓ grammar: every citation names a stated law
+  ✓ grammar: every law declares a state
+  ✓ grammar: every gated law is cited by a check (7/7)
+  ✓ grammar: every unenforced law names its issue (7/7)
+  ✓ grammar: no unenforced or doctrine law is cited
+  ✓ grammar: every cited corpus law is defined (4/4)
+  ✓ grammar: 19 laws — by construction: 1; doctrine: 4; gated: 7; unenforced: 7
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io: registry parses: rsc/cache_io.csv
@@ -1589,9 +1599,9 @@ pre_commit.py: 1555/1555 (data: machine-local)
   ✓ mcp schema: v1 up to date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ score[code+schema]: 1555/1555; expected: 1555/1555
-  ✓ score[code]: 143/143; expected: 143/143
+  ✓ score[code+schema]: 1563/1563; expected: 1563/1563
+  ✓ score[code]: 151/151; expected: 151/151
   ✓ score[schema]: 1412/1412; expected: 1412/1412
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1555/1555 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1563/1563 match the committed expectation; nothing here vetoes a commit

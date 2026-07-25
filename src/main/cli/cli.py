@@ -131,6 +131,47 @@ def calculus_terms() -> set[str]:
     return terms
 
 
+GRAMMAR = REPO / 'rsc' / 'cli' / 'README.md'
+# The four states a law may declare. `gated` obliges a check to cite the law;
+# `by construction` asserts the shape admits no violation; `unenforced` names the issue
+# that will hold it; `doctrine` states it deliberately WITHOUT a check, because none is
+# feasible or none is worth its cost. A law declaring none of them is an error, not a
+# default: silence is how an unheld law passes for a held one.
+#
+# `doctrine` exists so that stating a law does not oblige inventing a check for it. Without
+# it every law must promise enforcement, which pressures the repo into checks that need a
+# curated vocabulary just to be codable — maintenance added to police prose. A law nobody
+# can check honestly is better marked than left as a permanent promise.
+LAW_STATES = ('gated', 'by construction', 'unenforced', 'doctrine')
+
+
+def grammar_laws() -> dict[str, dict]:
+    """The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->
+    {title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the
+    document is the authority, and a check cites a law rather than restating it.
+
+    A law may cite a parent corpus law (`from L5`): it is that law applied to the surface,
+    and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased.
+
+    A law reads `- **G4 — Rows are unique and ordered.** `gated` — …`; the state is the
+    first backticked token after the lead, and any #N inside it are the issues that will
+    hold an unenforced law. A lead may WRAP across lines (markdown reflows prose, and a
+    law whose title is long is not a law the parser may skip), so the match runs to the
+    next bullet rather than to end-of-line."""
+    text = GRAMMAR.read_text()
+    laws: dict[str, dict] = {}
+    for m in re.finditer(r'^- \*\*(G\d+) — (.+?)\*\*(.*?)(?=\n- \*\*|\n#|\Z)',
+                         text, re.M | re.S):
+        gid, title, rest = m.group(1), ' '.join(m.group(2).split()), m.group(3)
+        marker = re.search(r'`(' + '|'.join(LAW_STATES) + r')([^`]*)`', rest)
+        parent = re.search(r'`from (L\d+)`', rest)
+        laws[gid] = {'title': title,
+                     'state': marker.group(1) if marker else None,
+                     'issues': re.findall(r'#(\d+)', marker.group(2)) if marker else [],
+                     'from': parent.group(1) if parent else None}
+    return laws
+
+
 def _render_arg(name: str, arg_type: str) -> str:
     """One argument's usage fragment: a flag shows its name then its metavar; a
     positional shows its metavar (arg-type) alone."""

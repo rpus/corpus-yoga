@@ -55,47 +55,118 @@ The argument sketch and each command's verbs, flags, and run-pipeline `step` all
 
 ## The grammar
 
-Rules that govern every row, stated once (a reader should never have to infer them
-from examples — one did, and misread design as sediment):
+The laws governing the CLI — the table, and the tree it points into — stated once and
+machine-read. `grammar_laws()` in `src/main/cli/cli.py` parses every `**G<n> — …**` lead
+below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it
+enforces (`run(..., law='G4')`) and cannot cite a law this document does not state.
 
-- **Verbs.** `capture` is the acquisition verb everywhere it appears — `browser
-  capture`, `dashboard capture`, `agent capture` all *bring data in* (from Safari,
-  the paid model, the harness's session store respectively). `run` only processes
-  what `data/input/` already holds. `present` renders, free. `clean`/`sync` are the
-  cache lifecycle. `receive`/`demerge` move agents between machines and undo the move.
-- **Bare invocations are free and local** — never paid, never a browser. Bare is a
-  *read-only status report* wherever the command has verbs, the write living in the
-  verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`, `model`,
-  `supersede`, `xref`); the command's *whole act* where it has no verb and that act
-  is one free idempotent step (`run`, `check`, `prerequisites`); and a *usage refusal*
-  where the verb is required and bare is meaningless (`browser`, `cache`, `agent`).
-- **Usage strings are a small grammar, machine-read.** A spaced ` | ` separates
-  INVOCATION FORMS — each becomes its own line in `yoga commands` and its own
-  verb for the honesty gate. An unspaced `|` is an enum inside one form
-  (`--provider claude|gemini`). Parens group a required choice
-  (`(--dry-run|--apply)`); brackets mark the optional. The completion offers
-  `--flags` at VERB scope, exactly the verb's own help.csv rows — never the
-  across-verbs union, which TAB-completed flags the dispatched verb then
-  rejected (`cache sync --apply`, found 2026-07-23); command-level rows
-  (`subcommand` blank) complete only before a verb, where argparse accepts
-  them.
-- **Rows are alphabetical by command**, enforced (`cli: commands alphabetical`),
-  so every derived surface lists commands in one findable order.
-- **A `step`-marked command is a corpus-wide operation**, never a per-batch one. The
-  chat-exports pipeline is a map over batches (`run_one`) then a reduce over all of them
-  (`run_tail`); the nouns live only in the reduce, because only a whole-corpus step is
-  meaningful to invoke standalone. `memories`, `summaries`, `supersede` are exactly the
-  `run_tail` steps. A per-batch stage earning a `step` row would be the tell of a mistake.
+Each law carries its enforcement state, so an unenforced law is visible rather than
+absent:
 
-## Held honest by the gates
+| state | meaning |
+| --- | --- |
+| `gated` | at least one check cites it; a violation vetoes the commit |
+| `by construction` | the shape makes violation impossible — there is no second source to check |
+| `unenforced (#N)` | stated but not yet held; the issue that will hold it |
+| `doctrine` | stated deliberately with no check: none is feasible, or none is worth its cost |
 
-`check_cli_surface` (pre-commit code tier — its docstring is the authority) holds
-every row to: parseable table, unique + alphabetical commands, existing targets,
-calculus terms defined in `rsc/CALCULUS.md`, advertised flags present in the
-target, the target's own flags all advertised back (both directions), advertised
-verbs in the target's live `--help`, help ≤ 20 lines, each `step`-marked command
-invoked by command and verb in `src/RUNME.sh --plan`, and the emitted completion parsing
-under `zsh -n`.
+A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
+surface, and that document is the authority for the principle — cited, never paraphrased.
+G3 is L5 (presentation is re-derivable) applied to usage; G10 implements L9's `run`-step
+mechanism; G1's `sync` clause is L1; G16 is bounded by L2, which is why a plan line must
+name a REPO-RELATIVE path (an absolute one would put a machine fact in a committed
+artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
+
+`check_grammar_laws` holds this both ways: every citation names a stated law, and every
+`gated` law is really cited by a check that ran. So the enforcement map is derived from
+the laws rather than maintained as prose beside them.
+
+Ids are permanent, assigned when a law is first stated, so they need not run in document
+order: a law is cited by id, and moving it in the text must never change what a check cites.
+
+A law marked `doctrine` is not a gap awaiting a check. Three of these — a verb's single
+meaning, a comment's obligation, a command word's part of speech — could only be checked by
+first curating a vocabulary to check against, which is maintenance added to police prose.
+They are stated, followed, and reviewed by people.
+
+### The table
+
+- **G1 — A verb means one thing everywhere it appears.** `doctrine (#49)` `from L1` — `capture` acquires
+  (`browser capture`, `dashboard capture`, `agent capture` all *bring data in*, from
+  Safari, the paid model, and the harness's session store); `sync` regenerates
+  idempotently; `clean` destroys; `run` only processes what `data/input/` already holds;
+  `present` renders, free; `receive`/`demerge` move agents between machines and undo the
+  move.
+- **G2 — Bare is status: free, local, and read-only.** `unenforced (#47, #52)` — never paid,
+  never a browser. Bare is a *read-only status report* wherever the command has verbs, the
+  write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
+  `model`, `supersede`, `xref`); the command's *whole act* where it has no verb and that
+  act is one free idempotent step (`run`, `check`, `prerequisites` — a set #47 reduces to
+  `prerequisites` alone, or to nothing); and a *usage refusal* where the verb is required
+  and bare is meaningless (`browser`, `cache`, `agent`).
+- **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the
+  state it is about to change, then effects, then reports the state it left. The bracket is
+  what makes an effect auditable without a log, and what stops a verb reporting success it
+  has not earned: `yoga dashboard capture` prints an exact coverage join before spending and
+  nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
+  counted rows. Stated first, and for a long time only, as a parenthetical in
+  `src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
+- **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
+  INVOCATION FORMS, each becoming its own line in `yoga commands` and its own verb for the
+  honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
+  parens group a required choice (`(--dry-run|--apply)`); brackets mark the optional. The
+  usage sketch is GENERATED from `help.csv`, so there is no second source to reconcile.
+  The completion offers `--flags` at VERB scope — exactly the verb's own rows, never the
+  across-verbs union, which would TAB-complete flags the dispatched verb rejects;
+  command-level rows (`subcommand` blank) complete only before a verb, where argparse
+  accepts them.
+- **G4 — The table is unique and ordered.** `gated` — command words are unique and rows
+  alphabetical, so every derived surface lists commands in one findable order.
+- **G5 — What the table advertises, the target accepts; and what the target accepts, the
+  table advertises.** `gated` — both directions, against the target's live `--help` rather
+  than a source grep: an advertised verb must really be dispatched, an advertised flag must
+  really be accepted (including by the verb, not merely by the command parser), and a flag
+  the target declares must be advertised back.
+- **G6 — A row cites only defined vocabulary.** `gated` — every term in the `calculus`
+  cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than
+  restated here.
+- **G7 — A command's target exists.** `gated` — and #40 strengthens this: the target's
+  stem must equal the command word, so the column becomes verification rather than
+  curation.
+- **G8 — Help is bounded: one screen, one shape.** `gated` — name, what, usage, flags, in
+  ≤ 20 lines. Essays live in changelogs.
+- **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
+  what the install ritual writes.
+- **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
+  verb.** `gated` `from L9` — never a per-batch one. The chat-exports pipeline is a map over batches
+  (`run_one`) then a reduce over all of them (`run_tail`); the nouns live only in the
+  reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`,
+  `summaries`, `supersede` are exactly the `run_tail` steps, and the plan must name each
+  by command AND verb — a bare noun would silently be a status no-op under G2.
+
+### The tree
+
+The laws above govern the rows. These govern what the rows point into, and are stated
+here so that a check can cite them as they land (see #39).
+
+- **G11 — A command determines its target's name, and a file is named for the operation it
+  performs.** `unenforced (#40)` — never for its caller, its occasion, or its reader.
+  `yoga <noun> <verb>` ⇒ `<noun-dir>/<verb>.<ext>`.
+- **G12 — A file lives at the level of its subject.** `unenforced (#41)` — a module used
+  from more than one tier lives above them; one used within a tier lives in it.
+- **G13 — Help is the table, rendered once.** `unenforced (#42)` — no target renders help
+  of its own, in any language.
+- **G14 — A name is derived from what it denotes, and one referent has one name.**
+  `unenforced (#43)` — a path constant is named for the tail of the path it holds.
+- **G15 — A comment states a constraint that an otherwise-correct edit would violate.**
+  `doctrine (#44)` — and never asserts a date or a count. History goes to the changelog.
+- **G16 — A printed line names both sides concretely.** `unenforced (#45)` `from L2` — a plan line
+  names its operation, whether it is typeable, and the file it lives in; no line stands in
+  for something it does not name.
+- **G17 — The only invocation any output or document prescribes is a `yoga` command.**
+  `unenforced (#46)` — never `run_python_script.sh`, never a script path.
+- **G18 — Every command is a noun.** `doctrine (#47)` — no command word is a verb, and
+  no flag names what the command grammar already addresses as a noun.
 
 The table is curated, not discovered: a script's absence here is a decision, not
 an omission.
