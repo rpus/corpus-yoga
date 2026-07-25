@@ -87,6 +87,8 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
     # are MARKDOWN — the projection of the API capture, and the DOM capture — so the
     # difference may belong to project_markdown's rendering rather than to either capture,
     # and the WARN says so instead of prescribing a re-capture as though it could not.
+    # projection-missing first: it is the one that can mean content outside the record
+    suspects.sort(key=lambda x: (not x[2].startswith('projection missing'), x[1]))
     if suspects:
         # said ONCE, not per WARN: it is the same fact about the comparison every time,
         # and three copies of a paragraph is how a report teaches its reader to skim.

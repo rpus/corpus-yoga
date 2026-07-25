@@ -117,20 +117,28 @@ def classify(s_seq, a_seq, s_labels=(), a_labels=()) -> tuple[str, Any]:
             return ', '.join(labels[i] for i in idx[:3]) + ('  …' if len(idx) > 3 else '')
         return '; '.join(f'[{seq[i][0]}] {seq[i][1][:60]}' for i in idx[:3])
 
+    # The DEFICIENT side leads, always in the same slot, so three WARNs can be read at a
+    # glance instead of parsed: two sentences differing only in subject/object order do not
+    # scan, and the direction is the whole point — a projection missing a turn the capture
+    # holds is content outside the record, while a DOM capture missing one is a retired
+    # mechanism lagging, which is a non-event.
+    def turns(n):
+        return f'{n} turn' if n == 1 else f'{n} turns'
+
     if reordered:
-        return (f'{len(reordered)} turn(s) appear in a different order than in the projection',
+        return (f'turn order disagrees: {turns(len(reordered))} in a different position',
                 '; '.join(f'[{r}] {b}' for r, b in sorted(reordered)[:3]))
     if role_mismatch:
-        return f'{role_mismatch} aligned turn(s) disagree on speaker role', None
+        return f'speaker role disagrees on {turns(role_mismatch)}', None
     if real_dropped:
-        return (f'the DOM capture has {len(real_dropped)} turn(s) the projection lacks',
+        return (f'projection missing {turns(len(real_dropped))}',
                 where(real_dropped, s_labels, s_seq))
     if len(extra) > placeholders:
         # the placeholder budget is only worth naming when there IS one: "0 excusable"
         # is a clause that reports the absence of an exception nobody claimed
         budget = (f' ({placeholders} excusable as "[no capture" placeholder(s))'
                   if placeholders else '')
-        return (f'the projection has {len(extra)} turn(s) the DOM capture lacks{budget}',
+        return (f'DOM capture missing {turns(len(extra))}{budget}',
                 where(extra, a_labels, a_seq))
     if extra or unpaired_placeholders:
         return 'improved', None
