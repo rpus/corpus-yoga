@@ -27,7 +27,7 @@
      "type": "string"
     },
     "project": {
-     "description": "The project directory name the session belongs to — the harness's cwd encoding, e.g. '-Users-khalidkhan-dev-github-rpus-claude-export-yoga'.",
+     "description": "The project directory name the session belongs to — the harness's cwd encoding.",
      "type": "string"
     },
     "session_id": {
