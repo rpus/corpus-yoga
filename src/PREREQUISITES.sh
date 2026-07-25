@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# src/PREREQUISITES.sh — Report what this machine has and what ./yoga run would do.
+# src/PREREQUISITES.sh — Report what this machine has and what yoga run would do.
 #
 # Strictly read-only: no directories created, no symlinks, no venv, no installs
-# (unlike ./yoga run, which does all of those). Safe as the first command on a
+# (unlike yoga run, which does all of those). Safe as the first command on a
 # fresh clone.
 #
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
@@ -69,7 +69,7 @@ check_venv() {
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1))"
   else
-    info "not found — ./yoga run creates it and installs src/requirements.txt"
+    info "not found — yoga run creates it and installs src/requirements.txt"
   fi
 }
 
@@ -201,7 +201,7 @@ check_machine() {
 }
 
 check_cli() {
-  sec "yoga CLI (./yoga — tables: rsc/cli/commands.csv + help.csv)"
+  sec "yoga CLI (tables: rsc/cli/commands.csv + help.csv)"
   # `yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
@@ -317,7 +317,7 @@ check_pipeline_inputs() {
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./yoga server start); not validated"
+    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via yoga server start); not validated"
   else
     info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: yoga browser capture --DOM (gemini is DOM-only); not processed further"
   fi
@@ -335,10 +335,10 @@ check_pipeline_inputs() {
     sessions="$(find -L "$REPO_ROOT/data/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
     ok "code-agents: data/input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
   else
-    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via ./yoga agent capture --all)"
+    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via yoga agent capture --all)"
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
-    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./yoga agent capture --all"
+    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: yoga agent capture --all"
   fi
 }
 
@@ -346,8 +346,8 @@ notes() {
   # Commentary, not status — only in the full report.
   (( SHOW_ALL )) || return 0
   sec "notes"
-  info "./yoga run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
-  info "./yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
+  info "yoga run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
 main() {
@@ -362,13 +362,13 @@ main() {
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "pip install -r src/requirements.txt, or automatically on the next ./yoga run"
+    "pip install -r src/requirements.txt, or automatically on the next yoga run"
   check_dependencies \
     "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
     asset_extract asset_probe \
     "render assets present in tmp/cache/serve_markdown" \
-    "./yoga server ensure-assets, or automatically on the next ./yoga server start"
+    "yoga server ensure-assets, or automatically on the next yoga server start"
   check_optional_modes
   check_cli
   check_git_hook
@@ -382,10 +382,10 @@ main() {
     exit 1
   fi
   if (( SHOW_ALL )); then
-    echo "ready — ./yoga run (pipelines without input data are skipped)"
+    echo "ready — yoga run (pipelines without input data are skipped)"
   else
     # Default is failures-only; if we reach here nothing above needed attention.
-    echo "ready — ./yoga run · full report: ./yoga prerequisites --show-all · commands: ./yoga -h"
+    echo "ready — yoga run · full report: yoga prerequisites --show-all · commands: yoga -h"
   fi
 }
 
