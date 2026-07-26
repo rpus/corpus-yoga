@@ -64,7 +64,7 @@ def _declared_modules() -> set[str]:
     req = REPO_ROOT / 'src' / 'requirements.txt'
     if not req.is_file():
         return set()
-    declared = {re.split(r'[=<>\[;]', line, 1)[0].strip().lower()
+    declared = {re.split(r'[=<>\[;]', line, maxsplit=1)[0].strip().lower()
                 for line in req.read_text().splitlines()
                 if line.strip() and not line.lstrip().startswith('#')}
     try:
