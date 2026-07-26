@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import REPO, MD033_PRAGMA, reconcile_dir
+from markdown_projection import REPO, MD033_PRAGMA, reconcile_dir, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 
@@ -81,10 +81,37 @@ def main():
             if name in files:
                 name = f'{prefix}{d.name}-{f.name}'
             files[name] = anchored(f.read_text())
+    # L4, one step down from the capture guard: the projection never shrinks either.
+    # Matched by conversation id and not by filename, because the ordinal prefix
+    # renumbers as the corpus grows -- a shorter rendering would otherwise arrive under
+    # a new name and the longer one be pruned as an orphan, which is the same loss with
+    # an extra step. Keeping the longer text under the NEW name preserves the
+    # renumbering while refusing the shrink.
+    standing = {}
+    for f in (out.glob('*.md') if out.is_dir() else []):
+        text = f.read_text()
+        cid = conv_id(text)
+        if cid:
+            standing[cid] = text
+    for name, text in list(files.items()):
+        was = standing.get(conv_id(text) or '')
+        if was is None:
+            continue
+        old_extent, new_extent = turn_extent(was), turn_extent(text)
+        if new_extent[0] < old_extent[0] or new_extent[1] < old_extent[1]:
+            files[name] = was
+            print(f'REFUSED: {name}: the capture renders {new_extent[0]} human turns of '
+                  f'{new_extent[1]}, against {old_extent[0]} of {old_extent[1]} already '
+                  f'projected — an append-only conversation cannot shrink, so the capture '
+                  f'under data/input/ is short. The projection is left as it stands; '
+                  f'recapture before trusting either.')
+
     # reconcile, not wipe: unchanged scrapes keep their mtime (no needless iCloud
     # re-upload of the whole tree each run); departed ones are pruned as orphans
     w, u, r = reconcile_dir(out, files)
-    print(f'gemini: {len(files)} scrape(s) to {out.relative_to(REPO)} (anchored) — '
+    # --out takes any path, so the summary cannot assume this one is inside the repo
+    shown = out.relative_to(REPO) if out.resolve().is_relative_to(REPO) else out
+    print(f'gemini: {len(files)} scrape(s) to {shown} (anchored) — '
           f'{w} written, {u} unchanged, {r} pruned')
 
 

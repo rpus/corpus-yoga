@@ -206,6 +206,19 @@ def turn_seq(md):
     return seq
 
 
+def turn_extent(md):
+    """(human turns, total turns) — how much conversation a rendered markdown holds.
+
+    The monotone measure of an append-only conversation (L4). Gemini has no API, so its
+    DOM capture IS the record, and the page renders only its last few human turns before
+    a walk reaches the top: a capture that ends up SHORTER than the one it would replace
+    is a failed walk, not a shrunken conversation. Every writer on that path compares
+    with this, so "shorter" means one thing in the capture, in the projection, and in
+    the audit that reports on both."""
+    seq = turn_seq(md)
+    return sum(1 for r, _ in seq if r == 'H'), len(seq)
+
+
 def conv_id(md):
     """The conversation id: the frontmatter uuid item render()'s provenance dressing
     carries (claude projections), else the <url> line's last path segment (gemini

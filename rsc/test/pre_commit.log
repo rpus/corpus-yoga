@@ -1,4 +1,4 @@
-pre_commit.py: 1591/1591 (data: machine-local)
+pre_commit.py: 1595/1595 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -44,6 +44,9 @@ pre_commit.py: 1591/1591 (data: machine-local)
 
 ── check_accumulate_contract ─────────────────────────────────────────────────
   ✓ accumulate.trajectory_contract
+
+── check_capture_monotone ────────────────────────────────────────────────────
+  ✓ capture.monotone_record  (4/4)
 
 ── check_root_schema_diagnostics ─────────────────────────────────────────────
   ✓ composition.base_not_used_directly  (2/2)
@@ -130,11 +133,11 @@ pre_commit.py: 1591/1591 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 68 types, 1591/1591 invocations passing
+  ✓ checks[code+schema]: 69 types, 1595/1595 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 32 types, 179/179 invocations passing
+  ✓ checks[code]: 33 types, 183/183 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1591/1591 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1595/1595 match the committed expectation; nothing here vetoes a commit

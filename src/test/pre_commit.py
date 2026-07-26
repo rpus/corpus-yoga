@@ -1261,6 +1261,71 @@ def check_xref(run):
         if actual != expected else None, check='xref.score_matches_expectation')
 
 
+def check_capture_monotone(run) -> None:
+    """L4 where a browser capture BECOMES the record. Gemini has no API, so its DOM
+    capture is the only copy, and the page renders just its last few human turns until
+    a walk reaches the top — so a walk that ends up shorter than what is already on disk
+    failed partway. Held over a temporary tree, never the machine's own captures: the
+    property is about the write, and the write must be exercised to test it.
+
+    The growth case is checked beside the refusal, because a guard that also blocks the
+    normal path would pass a refusal-only test while breaking every real capture."""
+    import contextlib
+    import shutil
+    import tempfile
+    import time
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'browser-captures'))
+    import safari_utils
+    real_downloads = safari_utils.DOWNLOADS
+
+    def turns(n):
+        return ''.join(f'## Human ({i})\nq{i}\n\n## Gemini ({i})\na{i}\n\n' for i in range(1, n))
+
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            dl = base / 'downloads'
+            dest = base / 'input' / 'gemini' / 'chat' / 'browser-DOM' / 'abc123'
+            logs = base / 'logs'
+            for d in (dl, dest, logs):
+                d.mkdir(parents=True)
+            safari_utils.DOWNLOADS = dl
+
+            long_md = turns(10)
+            (dest / 'standing.md').write_text(long_md)
+            (dl / 'standing.md').write_text(turns(3))
+            after = time.time() - 1
+            # the guard reports loudly, as it must in a real capture; here the verdicts
+            # below are the report, so its output does not belong in the check log
+            with contextlib.redirect_stdout(io.StringIO()):
+                moved = safari_utils.collect_md_and_log(after, dest, logs)
+            kept = (dest / 'standing.md').read_text()
+            run('capture: a shorter walk never replaces a longer record', kept == long_md,
+                None if kept == long_md else
+                f'the record was replaced by a walk holding {len(turn_seq(kept))} turns',
+                check='capture.monotone_record')
+            run('capture: a refused walk reports no markdown', moved == [],
+                None if moved == [] else f'returned {moved} — the caller would file it as a '
+                f'successful capture', check='capture.monotone_record')
+            evidence = (logs / 'abc123.short.md')
+            run('capture: the refused walk is kept as evidence', evidence.exists(),
+                None if evidence.exists() else 'the short capture was discarded, so the '
+                'reason for the refusal cannot be inspected', check='capture.monotone_record')
+
+            shutil.rmtree(dl)
+            dl.mkdir()
+            (dl / 'grown.md').write_text(turns(20))
+            after = time.time() - 1
+            with contextlib.redirect_stdout(io.StringIO()):
+                moved = safari_utils.collect_md_and_log(after, dest, logs)
+            grew = moved == ['grown.md'] and not (dest / 'standing.md').exists()
+            run('capture: a longer walk still supersedes', grew,
+                None if grew else f'moved={moved}, dir={sorted(f.name for f in dest.glob("*.md"))} '
+                f'— the guard is blocking the normal path', check='capture.monotone_record')
+    finally:
+        safari_utils.DOWNLOADS = real_downloads
+
+
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
@@ -1403,6 +1468,7 @@ def main():
                     label='check_grammar_laws', tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
+        run_section(check_capture_monotone, tier='code')
 
         run_section(check_root_schema_diagnostics, tier='schema')
 

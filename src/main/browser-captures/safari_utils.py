@@ -9,6 +9,9 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from markdown_projection import turn_extent  # noqa: E402 — the format authority owns the parsers
+
 
 class SendRefused(RuntimeError):
     """Raised in place of an outward call when YOGA_NO_SEND=1."""
@@ -215,6 +218,7 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
               '  # first front the conversation in Safari',
               file=sys.stderr)
         return moved
+    fresh_md = []
     for f in downloads:
         if f.stat().st_mtime <= after_time:
             continue
@@ -224,8 +228,35 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
             # failed scrape the title is junk, and a stable name overwrites rather than accumulates
             shutil.move(str(f), log_dir / f'{dest_dir.name}.log')
         elif f.suffix == '.md':
-            shutil.move(str(f), dest_dir / f.name)
-            moved.append(f.name)
+            fresh_md.append(f)
+
+    # L4 at the one point a capture BECOMES the record. These conversations are
+    # append-only, so a walk that ends up shorter than what is already here did not
+    # shrink the conversation -- it failed partway (the page renders only its last few
+    # human turns until the walk reaches the top). Both writes below destroy turns: the
+    # move overwrites a same-named .md, and the supersession unlink removes the previous
+    # one outright when the title slug has changed. So the comparison happens before
+    # either, over the whole directory, and a short capture is treated as the failed
+    # scrape it is -- which already has correct behaviour here: nothing is touched, and
+    # the existing .md is retained as STALE.
+    if fresh_md:
+        before = max((turn_extent(m.read_text()) for m in dest_dir.glob('*.md')), default=(0, 0))
+        after = max((turn_extent(m.read_text()) for m in fresh_md), default=(0, 0))
+        if before > (0, 0) and (after[0] < before[0] or after[1] < before[1]):
+            # kept, not discarded: the short capture is the evidence for why this failed
+            for m in fresh_md:
+                shutil.move(str(m), log_dir / f'{dest_dir.name}.short.md')
+            print(f'  REFUSED: this walk captured {after[0]} human turns of {after[1]}, '
+                  f'against {before[0]} of {before[1]} already recorded — an append-only '
+                  f'conversation cannot shrink, so the walk failed partway. The record is '
+                  f'untouched; the short capture is kept at '
+                  f'{log_dir / f"{dest_dir.name}.short.md"}')
+            print(f'    → run: yoga browser capture --provider {dest_dir.parent.parent.parent.name} '
+                  f'--id {dest_dir.name}  # retry the walk')
+            return []
+        for m in fresh_md:
+            shutil.move(str(m), dest_dir / m.name)
+            moved.append(m.name)
     if moved:
         # a successful scrape supersedes any previous .md whose title slug has since
         # changed — remove it, or downstream globs would see two markdowns per datum.

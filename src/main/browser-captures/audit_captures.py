@@ -41,7 +41,7 @@ import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
-from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
+from markdown_projection import turn_seq, conv_id, turn_extent  # the format authority owns the parsers
 from compare_markdown import classify, turn_labels
 from safari_utils import SendRefused   # --live sends; the refusal has to be catchable here
 
@@ -170,11 +170,13 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
     # gemini has no API capture, so the DOM capture IS the record — but its projection
     # is numbered like every other conversation, so the WARN can still name it the way
     # the corpus does rather than by uuid alone.
-    projected = {}
+    projected, projected_text = {}, {}
     for f in (projection_dir.glob('*.md') if projection_dir and projection_dir.is_dir() else []):
-        cid = conv_id(f.read_text())
+        text = f.read_text()
+        cid = conv_id(text)
         if cid:
             projected[cid] = f.stem
+            projected_text[cid] = text
     suspects = []
     placeholder_convs = 0
     for d in sorted(captures_dir.iterdir()):
@@ -195,9 +197,46 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
               '  # walks the page — takes a couple of minutes')
     if placeholder_convs:
         print(f'gemini: {placeholder_convs} DOM capture(s) contain "[no capture" placeholder text')
+    # The capture against the rendering derived FROM it. gemini has no API, so nothing
+    # else corroborates either one -- and `yoga pipeline run` rewrites the projection from
+    # the capture every time, so a divergence means the two have already parted company.
+    # The capture is a copy plus turn anchors, so they must agree turn for turn.
+    if projected_text:
+        for d in sorted(captures_dir.iterdir()):
+            mds = sorted(d.glob('*.md')) if d.is_dir() else []
+            if not mds:
+                continue
+            text = mds[0].read_text()
+            cid = conv_id(text) or d.name
+            if cid not in projected_text:
+                print(f'WARN: {mds[0].stem} ({cid[:8]}): captured but not projected — '
+                      f'the gemini step of `yoga pipeline run` produces it')
+                suspects.append((cid, mds[0].stem))
+                continue
+            cap, proj = turn_seq(text), turn_seq(projected_text[cid])
+            if len(cap) != len(proj):
+                print(f'WARN: {projected[cid]} ({cid[:8]}): capture holds {len(cap)} turns, '
+                      f'its projection {len(proj)} — the projection is derived from the '
+                      f'capture, so they cannot legitimately differ')
+                suspects.append((cid, projected[cid]))
+            elif any(a != b for a, b in zip(cap, proj)):
+                first = next(i for i, (a, b) in enumerate(zip(cap, proj)) if a != b)
+                print(f'WARN: {projected[cid]} ({cid[:8]}): capture and projection differ '
+                      f'from turn {first + 1} of {len(cap)} — the projection is derived from '
+                      f'the capture, so they cannot legitimately differ')
+                suspects.append((cid, projected[cid]))
+        unprojected = sorted(set(projected_text) -
+                             {conv_id(sorted(d.glob('*.md'))[0].read_text()) or d.name
+                              for d in captures_dir.iterdir()
+                              if d.is_dir() and list(d.glob('*.md'))})
+        for cid in unprojected:
+            print(f'WARN: {projected[cid]} ({cid[:8]}): projected but no capture remains — '
+                  f'the rendering has outlived the record it was derived from')
+            suspects.append((cid, projected[cid]))
+
     checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
-    print(f'gemini: {checked} DOM capture(s) health-checked (no API capture exists — '
-          'heuristics only) — '
+    print(f'gemini: {checked} DOM capture(s) checked against their projections '
+          f'(no API capture exists, so nothing corroborates the record itself) — '
           + ('nothing flagged' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
     return [f'{n} ({c[:8]})' for c, n in suspects]
 
