@@ -230,6 +230,16 @@ GEMINI_TAIL_JS = """(function(){
 })()"""
 
 
+def report_live(provider: str, findings: list[tuple[str, str, str]]) -> list[str]:
+    """Print each finding under the provider that produced it, with the command that acts
+    on it — never a bare id in a list that has left its provider behind. Returns the
+    findings for the caller's exit status."""
+    for kind, cid, detail in findings:
+        print(f'  {provider} {kind} {cid}: {detail}')
+        print(f'    → run: yoga browser capture --provider {provider} --id {cid}')
+    return [f'{provider} {kind} {cid}' for kind, cid, _ in findings]
+
+
 def live_claude(captures_dir: Path) -> list[str]:
     """One listing fetch: every conversation's updated_at vs the captured JSONs'."""
     from safari_utils import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
@@ -253,18 +263,18 @@ def live_claude(captures_dir: Path) -> list[str]:
         if j and j.exists():
             captured[d.name] = json.load(j.open()).get('updated_at', '')
 
-    actionable = []
+    found = []
     for uuid, updated in sorted(listing.items()):
         if uuid not in captured:
-            actionable.append(f'NEW {uuid}: never captured')
+            found.append(('NEW', uuid, 'never captured'))
         elif updated > captured[uuid]:
-            actionable.append(f'PROGRESSED {uuid}: captured {captured[uuid]} < updated {updated}')
+            found.append(('PROGRESSED', uuid, f'captured {captured[uuid]} < updated {updated}'))
     unlisted = sorted(set(captured) - set(listing))
     print(f'claude live: {len(listing)} conversations listed; '
-          f'{sum(1 for a in actionable if a.startswith("NEW"))} new, '
-          f'{sum(1 for a in actionable if a.startswith("PROGRESSED"))} progressed, '
+          f'{sum(1 for k, _, _ in found if k == "NEW")} new, '
+          f'{sum(1 for k, _, _ in found if k == "PROGRESSED")} progressed, '
           f'{len(unlisted)} captured-but-no-longer-listed (deleted/archived?)')
-    return actionable
+    return report_live('claude', found)
 
 
 def live_gemini(captures_dir: Path) -> list[str]:
@@ -276,7 +286,7 @@ def live_gemini(captures_dir: Path) -> list[str]:
     ids = ids_from_safari(cfg)
     captured_dirs = {d.name: d for d in captures_dir.iterdir() if d.is_dir()}
 
-    actionable = [f'NEW {i}: never captured' for i in ids if i not in captured_dirs]
+    found = [('NEW', i, 'never captured') for i in ids if i not in captured_dirs]
     checked = 0
     for cid in (i for i in ids if i in captured_dirs):
         mds = sorted(captured_dirs[cid].glob('*.md'))
@@ -300,14 +310,14 @@ def live_gemini(captures_dir: Path) -> list[str]:
         checked += 1
         page = _alnum(safari_eval_js(GEMINI_TAIL_JS))
         if not any(p in page for p in probes):
-            actionable.append(f'PROGRESSED {cid} ({mds[0].stem}): rendered tail no longer '
-                              f'matches the captured last turns')
+            found.append(('PROGRESSED', cid, f'"{mds[0].stem}" — rendered tail no longer '
+                                             f'matches the captured last turns'))
     unlisted = sorted(set(captured_dirs) - set(ids))
     print(f'gemini live: {len(ids)} conversations listed; '
-          f'{sum(1 for a in actionable if a.startswith("NEW"))} new, '
-          f'{sum(1 for a in actionable if a.startswith("PROGRESSED"))} progressed '
+          f'{sum(1 for k, _, _ in found if k == "NEW")} new, '
+          f'{sum(1 for k, _, _ in found if k == "PROGRESSED")} progressed '
           f'(tail-checked {checked}), {len(unlisted)} captured-but-no-longer-listed')
-    return actionable
+    return report_live('gemini', found)
 
 
 def main():
@@ -320,6 +330,11 @@ def main():
     ap.add_argument('--live', action='store_true',
                     help='also drive Safari (work tab): claude listing updated_at check; '
                          'gemini listing + rendered-tail checks')
+    ap.add_argument('--provider', choices=['claude', 'gemini'], default=None,
+                    help='restrict to one provider (default: every provider). The live pass '
+                         'costs wildly different amounts per provider — claude is one listing '
+                         'fetch, gemini navigates to every captured conversation in turn — so '
+                         'which to pay for is the reader\'s to choose')
     args = ap.parse_args()
 
     root = Path(args.input)
@@ -329,17 +344,23 @@ def main():
     gemini_dom = root / 'gemini' / 'chat' / 'browser-DOM'
     suspects = []
 
-    if claude_api.is_dir() and api_dir.is_dir():
-        suspects += audit_claude(claude_dom, claude_api, api_dir)
-    else:
-        print(f'claude: skipped ({claude_api} or {api_dir} absent)')
+    # one restriction, applied wherever the audit is partitioned by provider — the
+    # offline pass included, so `--provider claude` means the same thing throughout
+    def want(provider):
+        return args.provider in (None, provider)
 
-    if gemini_dom.is_dir():
+    if want('claude'):
+        if claude_api.is_dir() and api_dir.is_dir():
+            suspects += audit_claude(claude_dom, claude_api, api_dir)
+        else:
+            print(f'claude: skipped ({claude_api} or {api_dir} absent)')
+
+    if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
         # named from it rather than guessed: --api gives claude's, three levels down
         corpus_root = Path(args.api).parents[2]
         suspects += audit_gemini(gemini_dom, corpus_root / 'gemini' / 'chat' / 'conversations')
-    else:
+    elif want('gemini'):
         print(f'gemini: skipped ({gemini_dom} absent)')
 
     actionable = []
@@ -347,14 +368,14 @@ def main():
         from safari_utils import safari_open_work_tab, safari_close_work_tab
         prev_tab = safari_open_work_tab()
         try:
-            if claude_api.is_dir():
+            # each pass prints its own findings as it completes them, so no id ever
+            # appears in a list that has left the provider which produced it behind
+            if claude_api.is_dir() and want('claude'):
                 actionable += live_claude(claude_api)
-            if gemini_dom.is_dir():
+            if gemini_dom.is_dir() and want('gemini'):
                 actionable += live_gemini(gemini_dom)
         finally:
             safari_close_work_tab(prev_tab)
-        for a in actionable:
-            print(f'  {a}')
 
     return 1 if (suspects or actionable) else 0
 
