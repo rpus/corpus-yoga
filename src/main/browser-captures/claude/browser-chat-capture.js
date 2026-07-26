@@ -289,10 +289,14 @@ function setupExporter() {
     try {
       if (!liveRows().length) {
         const rawCopy = document.querySelectorAll(SELECTORS.copyButton).length;
+        const matched = document.querySelectorAll(SELECTORS.messageRow).length;
         throw new Error(
-          rawCopy === 0
-            ? `No message rows or copy buttons in DOM. Page not loaded, wrong page, or selectors "${SELECTORS.messageRow}" / "${SELECTORS.copyButton}" drifted.`
-            : `No "${SELECTORS.messageRow}" rows but ${rawCopy} copy button(s) — the row selector drifted, not the page.`
+          `No live message rows at ${location.pathname} — ` + (
+            rawCopy
+              ? `nothing matched "${SELECTORS.messageRow}" but ${rawCopy} copy button(s) are present: the row selector drifted, not the page`
+              : matched
+                ? `${matched} matched "${SELECTORS.messageRow}" but every one is inert: this is the previous conversation, still on screen while the new one loads`
+                : `nothing matched "${SELECTORS.messageRow}" or "${SELECTORS.copyButton}": either the page never rendered this conversation, or both selectors have drifted`)
         );
       }
 

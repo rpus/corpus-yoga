@@ -1,12 +1,31 @@
 """
 Shared Safari automation utilities for browser-captures scripts.
-Called by safari_capture.py and safari_fetch_api_json.py — do not invoke directly.
+Called by safari_capture.py and audit_captures.py — do not invoke directly.
 """
+import os
 import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
+
+
+class SendRefused(RuntimeError):
+    """Raised in place of an outward call when YOGA_NO_SEND=1."""
+
+
+def assert_may_send(what):
+    """A SEND — driving Safari, fetching over a logged-in session — is the one effect with
+    no scratch form. A read can be pointed at a fixture and a write at a temp tree, but
+    redirecting where a capture LANDS does not stop the call going out: the account is
+    reached either way. So the only way to exercise a capture path without performing it is
+    to refuse it, and refusal has to live here, at the single point every outward call
+    passes through, where no path argument can route around it.
+
+    YOGA_NO_SEND=1 makes every one of them fail loudly instead of reaching the account."""
+    if os.environ.get('YOGA_NO_SEND') == '1':
+        raise SendRefused(f'YOGA_NO_SEND=1 refuses this send: {what}')
+
 
 DOWNLOADS        = Path.home() / 'Downloads'
 PAGE_LOAD_WAIT   = 3
@@ -31,6 +50,7 @@ FETCH_API_JSON_JS = """
 
 
 def osascript(code):
+    assert_may_send(f'osascript: {code[:60]}')
     r = subprocess.run(['osascript', '-e', code], capture_output=True, text=True)
     return r.stdout.strip()
 
@@ -87,6 +107,7 @@ def safari_close_work_tab(prev_index):
 
 
 def safari_run_js_file(js_path):
+    assert_may_send(f'inject {js_path}')
     code = (
         f'set jsCode to read POSIX file "{js_path}" as «class utf8»\n'
         'tell application "Safari" to do JavaScript jsCode in front document'
@@ -96,6 +117,7 @@ def safari_run_js_file(js_path):
 
 def safari_eval_js(js_code):
     """Evaluate a JS string in Safari's front document and return the result."""
+    assert_may_send(f'evaluate JS: {js_code[:60]}')
     escaped = js_code.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ')
     r = subprocess.run(
         ['osascript', '-e', f'tell application "Safari" to do JavaScript "{escaped}" in front document'],
@@ -107,6 +129,7 @@ def safari_eval_js(js_code):
 
 
 def safari_fetch_api_json(uuid, timeout=DOWNLOAD_TIMEOUT):
+    assert_may_send(f'fetch the API JSON of conversation {uuid}')
     escaped = FETCH_API_JSON_JS.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ')
     start = time.time()
     osascript(f'tell application "Safari" to do JavaScript "{escaped}" in front document')
@@ -188,7 +211,7 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
               f'.md into {dest_dir} and the .log into {log_dir} by hand, or recapture '
               'from an already-granted Terminal:\n'
               f'    → run: src/main/browser-captures/safari_capture.sh '
-              f'--agent {dest_dir.parent.name} --id {dest_dir.name}'
+              f'--provider {dest_dir.parent.name} --id {dest_dir.name}'
               '  # first front the conversation in Safari',
               file=sys.stderr)
         return moved

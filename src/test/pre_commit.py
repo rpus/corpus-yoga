@@ -860,6 +860,21 @@ def check_cli_surface(run) -> None:
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
 
+    # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
+    # its values reads as a restriction to that value while behaving as an addition. Held
+    # per command, over help.csv alone — the same table the surface is derived from.
+    for cmd in sorted({r['command'] for r in cli.help_rows()}):
+        rows = [r for r in cli.help_rows() if r['command'] == cmd]
+        values = {v.strip().lower() for r in rows for v in (r['arg-type'] or '').split('|')
+                  if v.strip() and '<' not in v}
+        flags = [r['arg-name'] for r in rows if (r['arg-name'] or '').startswith('--')]
+        clash = sorted(f for f in flags if f.lstrip('-').lower() in values)
+        run(f'cli: {cmd}: no flag names a value of its own axis', not clash,
+            None if not clash else
+            f'{", ".join(clash)} names a value the command already enumerates — a reader '
+            f'takes it for a restriction to that value, and the restriction it displaces '
+            f'becomes unsayable', law='G21', check='cli.flag_not_axis_value')
+
     # G20, over a SYNTHETIC ~/.zshrc — the property is about the pure function, and the
     # gate must not read (much less converge) the machine's real shell config. The stale
     # marker below is the exact wording an earlier version wrote; it is the case that

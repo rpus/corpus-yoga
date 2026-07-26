@@ -2,20 +2,21 @@
 """
 safari_capture.py — Capture conversations from claude.ai or gemini.google.com via Safari.
 
-One script, dispatched on --agent. Each agent declares what it can capture:
-  claude : api=True  (fetch the apiConversation JSON — the reliable source), scrape opt-in
-  gemini : api=False, scrape=True (no API; the DOM scrape is the only source)
---scrape additionally runs the DOM scrape for an api agent (Claude) so compare_markdown can check
-the projection against it. Claude's scrape is otherwise retired (slow, brittle, redundant —
-markdown is derived from the JSON by project_markdown).
+Scope is two independent restrictions, and the run is their intersection:
+  --provider  <p>   claude | gemini      (default: every provider)
+  --mechanism API|DOM                    (default: every mechanism the provider has)
+Neither adds. A provider has the mechanisms PROVIDERS declares — claude API and DOM,
+gemini DOM — and a restriction can only take mechanisms away. Asking for one a
+provider lacks selects nothing, which is reported rather than substituted for.
 
 Each mechanism deposits under its own root — the capture axis of the corpus type
 system (data/input/<provider>/<channel>/<capture>/):
-  browser-API : data/input/<agent>/chat/browser-API/<id>/<id>.json     (claude only)
-  browser-DOM : data/input/<agent>/chat/browser-DOM/<id>/<title>.md    (+ gemini's ordering.txt)
+  browser-API : data/input/<provider>/chat/browser-API/<id>/<id>.json
+  browser-DOM : data/input/<provider>/chat/browser-DOM/<id>/<title>.md  (+ gemini's ordering.txt)
 The same conversation id names the capture dir under both roots — the id is the join.
+Claude's DOM capture is also what compare_markdown checks the projection against.
 
-Discovery (the conversation-id listing) is shared: navigate to the agent's listing URL and scroll.
+Discovery (the conversation-id listing) is shared: navigate to the provider's listing URL and scroll.
 
 Two orthogonal behaviours, selected by targeting (the invoker — CLI, PREP.sh, or the
 macOS Shortcut — is independent of the mode):
@@ -30,9 +31,9 @@ Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
-    python safari_capture.py --agent claude            [--browser-api  data/input/claude/chat/browser-API]
-    python safari_capture.py --agent claude --scrape   [--browser-dom  data/input/claude/chat/browser-DOM]
-    python safari_capture.py --agent gemini --id <id>  [--browser-dom  data/input/gemini/chat/browser-DOM]
+    python safari_capture.py --provider claude                   [--browser-api  data/input/claude/chat/browser-API]
+    python safari_capture.py --provider claude --mechanism DOM   [--browser-dom  data/input/claude/chat/browser-DOM]
+    python safari_capture.py --provider gemini --id <id>         [--browser-dom  data/input/gemini/chat/browser-DOM]
 """
 import argparse
 import json
@@ -45,13 +46,14 @@ from safari_utils import (  # type: ignore[import-not-found]
     osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_open_work_tab, safari_close_work_tab,
     safari_fetch_api_json, collect_md_and_log, process_chain,
+    SendRefused,
     PAGE_LOAD_WAIT,
 )
 
 REPO_DIR       = Path(__file__).resolve().parents[3]
 SCRIPT_DIR     = Path(__file__).resolve().parent
 SETTLE_PAUSE   = 2
-READY_TIMEOUT  = 15   # max wait for a conversation to render / its URL to commit, before capturing
+READY_TIMEOUT  = 15   # first wait for a render; the caller retries 4x longer (see wait_for_ready)
 SCRAPE_START_TIMEOUT = 5    # the scrape JS must signal window.__scrape within this, else it never ran
 SCRAPE_STALL_TIMEOUT = 20   # max time with no newly-captured message before giving up on a scrape
 SCROLL_PAUSE   = 2    # wait between scroll-to-bottom ticks while loading the conversation list
@@ -59,10 +61,14 @@ SCROLL_STABLE  = 3    # consecutive no-growth ticks before the list is deemed fu
 MAX_SCROLLS    = 80   # safety cap on scroll iterations
 
 
-AGENTS = {
+# What each provider HAS, and nothing about what runs. These two must not be
+# conflated: a mechanism listed here can be asked for, and asking is a restriction
+# (--mechanism), never an addition. The axis is the corpus's own — the third path
+# component of data/input/<provider>/chat/browser-{API,DOM}/ — so the values here
+# are the values on disk.
+PROVIDERS = {
     'claude': {
-        'api':          True,
-        'scrape':       False,   # opt-in via --scrape; otherwise api-only
+        'mechanisms':   ('API', 'DOM'),
         'chat_url':     'https://claude.ai/chat/{id}',
         'discover_url': 'https://claude.ai/recents',
         'link_sel':     'a[href*="/chat/"]',
@@ -70,8 +76,7 @@ AGENTS = {
         'ready_sel':    'button[data-testid="action-bar-copy"]',
     },
     'gemini': {
-        'api':          False,
-        'scrape':       True,
+        'mechanisms':   ('DOM',),
         'chat_url':     'https://gemini.google.com/app/{id}',
         'discover_url': 'https://gemini.google.com/app',
         'link_sel':     'a[href*="/app/"]',
@@ -111,14 +116,14 @@ def write_ordering(cfg, ids, dom_root):
 
 def outcome(do_api, do_scrape, files, had_md):
     """Per-conversation success/failure. The apiConversation JSON is the reliable artifact; when
-    both are captured a missing scrape .md is only a note. For a scrape-only agent (Gemini) a
+    both are captured a missing scrape .md is only a note. For a DOM-only provider (Gemini) a
     missing .md is the failure."""
     has_json = any(f.endswith('.json') for f in files)
     has_md = any(f.endswith('.md') for f in files)
     if do_api and not has_json:
         return 'apiConversation JSON fetch failed — the FAIL: line above carries the remedy', None
     if do_scrape and not has_md:
-        why = 'no markdown — see the scrape log under tmp/logs/.../safari_capture/<agent>/scrape/'
+        why = 'no markdown — see the scrape log under tmp/logs/.../safari_capture/<provider>/scrape/'
         if had_md:
             why += ' (previous .md retained, now STALE)'
         return (None, why) if do_api else (why, None)
@@ -126,7 +131,7 @@ def outcome(do_api, do_scrape, files, had_md):
 
 
 def discover_js(cfg):
-    """Build the conversation-id discovery snippet for this agent's link selector / id filter."""
+    """Build the conversation-id discovery snippet for this provider's link selector / id filter."""
     sel = cfg['link_sel']
     test = f'/{cfg["id_re"]}/.test(id) && ' if cfg['id_re'] else ''
     return (
@@ -140,7 +145,12 @@ def discover_js(cfg):
 
 def wait_for_ready(selector, timeout=READY_TIMEOUT):
     """Poll until the conversation has rendered (>=1 `selector`, e.g. a copy button) or timeout --
-    so slow (citation/LaTeX-heavy) conversations aren't scraped before their DOM exists."""
+    so slow (citation/LaTeX-heavy) conversations aren't scraped before their DOM exists.
+
+    The caller waits again rather than scraping a page it has just decided is not ready:
+    exports that DO succeed here take minutes (276s, 341s, 699s in one 27-conversation gemini
+    run), so a 15-second verdict is a guess, and proceeding on it costs a whole walk to
+    produce the failure it predicted."""
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
@@ -271,15 +281,15 @@ def ids_from_safari(cfg):
     return ids
 
 
-def capture_all(agent, ids, api_root, dom_root, navigate=True, also_scrape=False):
-    cfg = AGENTS[agent]
-    do_api = cfg['api']
-    do_scrape = cfg['scrape'] or also_scrape
-    js_script = SCRIPT_DIR / agent / 'browser-chat-capture.js'
+def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=()):
+    cfg = PROVIDERS[provider]
+    do_api = 'API' in mechanisms
+    do_scrape = 'DOM' in mechanisms
+    js_script = SCRIPT_DIR / provider / 'browser-chat-capture.js'
     # per-conversation scrape diagnostics go under tmp/logs/ (data/input/ holds captured data only)
-    scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / agent / 'scrape'
+    scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / provider / 'scrape'
     label = 'discover' if navigate else 'capture'
-    methods = '+'.join(m for m, on in (('api', do_api), ('scrape', do_scrape)) if on)
+    methods = '+'.join(m for m, on in (('API', do_api), ('DOM', do_scrape)) if on)
     if not ids:
         print(f'{label}: nothing to do')
         return []
@@ -312,7 +322,12 @@ def capture_all(agent, ids, api_root, dom_root, navigate=True, also_scrape=False
             if navigate:
                 wait_for_url(conv_id)   # confirm the NEW conversation loaded, not a stale/transitioning page
                 if not wait_for_ready(cfg['ready_sel']):
-                    print(f'  not rendered after {READY_TIMEOUT}s — scraping anyway (likely to fail)')
+                    print(f'  not rendered after {READY_TIMEOUT}s — waiting {READY_TIMEOUT * 4}s more')
+                    if not wait_for_ready(cfg['ready_sel'], timeout=READY_TIMEOUT * 4):
+                        # Name the page it is actually on. The scrape is about to fail and say
+                        # "wrong page?" as one of three guesses; the URL settles which it is.
+                        where = safari_eval_js('String(location.pathname)') or '(URL unreadable)'
+                        print(f'  still no {cfg["ready_sel"]} after {READY_TIMEOUT * 5}s at {where} — scraping anyway')
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
             files += scrape_one(dom_dir, js_script, scrape_log_dir) or []
         print(f'  done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}')
@@ -338,31 +353,59 @@ def capture_all(agent, ids, api_root, dom_root, navigate=True, also_scrape=False
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--agent', required=True, choices=['claude', 'gemini'])
+    ap.add_argument('--provider', choices=sorted(PROVIDERS),
+                    help='restrict to one provider (default: every provider)')
+    ap.add_argument('--scope', action='store_true',
+                    help='print the providers and mechanisms the restrictions select, then stop — '
+                         'so a caller reads the scope off the declaration instead of restating it')
     ap.add_argument('--browser-api', default=None,
-                    help='browser-API root (default: data/input/<agent>/chat/browser-API; claude only)')
+                    help='browser-API root (default: data/input/<provider>/chat/browser-API)')
     ap.add_argument('--browser-dom', default=None,
-                    help='browser-DOM root (default: data/input/<agent>/chat/browser-DOM)')
+                    help='browser-DOM root (default: data/input/<provider>/chat/browser-DOM)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
-    ap.add_argument('--scrape', action='store_true',
-                    help='also run the DOM scrape (Claude; feeds compare_markdown). No effect for Gemini.')
+    ap.add_argument('--mechanism', choices=['API', 'DOM'], default=None,
+                    help='restrict to one mechanism (default: every mechanism this provider has)')
     args = ap.parse_args()
 
-    cfg = AGENTS[args.agent]
-    if cfg['scrape'] or args.scrape:
-        js_script = SCRIPT_DIR / args.agent / 'browser-chat-capture.js'
+    # `<provider> <mechanism>+…` per provider the restrictions leave non-empty. The one
+    # place the declaration is read by anyone but this file: PREP.sh loops over these
+    # lines rather than holding a second copy of which provider has what.
+    if args.scope:
+        for name, cfg in sorted(PROVIDERS.items()):
+            if args.provider and name != args.provider:
+                continue
+            selected = [m for m in cfg['mechanisms']
+                        if args.mechanism is None or m == args.mechanism]
+            if selected:
+                print(f'{name} {"+".join(selected)}')
+        return
+    if not args.provider:
+        ap.error('--provider is required to capture (--scope reports without capturing)')
+
+    cfg = PROVIDERS[args.provider]
+    # Two independent restrictions, intersected. Neither one adds: a mechanism the
+    # provider does not have cannot be requested into existence, and an unrestricted
+    # run is every mechanism it has. Empty is a real answer, and is said, not guessed.
+    mechanisms = tuple(m for m in cfg['mechanisms']
+                       if args.mechanism is None or m == args.mechanism)
+    if not mechanisms:
+        print(f'{args.provider} has no {args.mechanism} mechanism — it has '
+              f'{", ".join(cfg["mechanisms"])}; nothing to capture', file=sys.stderr)
+        raise SystemExit(1)
+    if 'DOM' in mechanisms:
+        js_script = SCRIPT_DIR / args.provider / 'browser-chat-capture.js'
         if not js_script.exists():
             print(f'Error: {js_script} not found', file=sys.stderr)
             raise SystemExit(1)
 
-    # one root per mechanism this agent performs; dirs appear only when captured into
-    api_root = Path(args.browser_api or REPO_DIR / 'data' / 'input' / args.agent / 'chat' / 'browser-API').resolve()
-    dom_root = Path(args.browser_dom or REPO_DIR / 'data' / 'input' / args.agent / 'chat' / 'browser-DOM').resolve()
-    if cfg['api']:
+    # one root per mechanism in scope; dirs appear only when captured into
+    api_root = Path(args.browser_api or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'browser-API').resolve()
+    dom_root = Path(args.browser_dom or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'browser-DOM').resolve()
+    if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
-    if cfg['scrape'] or args.scrape:
+    if 'DOM' in mechanisms:
         dom_root.mkdir(parents=True, exist_ok=True)
 
     if args.id:
@@ -374,12 +417,13 @@ def main():
         # navigating path), never trusted.
         front_url = osascript('tell application "Safari" to get URL of front document')
         if args.id in front_url:
-            failed = capture_all(args.agent, [args.id], api_root, dom_root, navigate=False, also_scrape=args.scrape)
+            failed = capture_all(args.provider, [args.id], api_root, dom_root,
+                                 navigate=False, mechanisms=mechanisms)
         else:
             prev_tab = safari_open_work_tab()
             try:
-                failed = capture_all(args.agent, [args.id], api_root, dom_root,
-                                     navigate=True, also_scrape=args.scrape)
+                failed = capture_all(args.provider, [args.id], api_root, dom_root,
+                                     navigate=True, mechanisms=mechanisms)
             finally:
                 safari_close_work_tab(prev_tab)
     else:
@@ -389,8 +433,8 @@ def main():
         try:
             ids = ids_from_safari(cfg)
             write_ordering(cfg, ids, dom_root)
-            failed = capture_all(args.agent, ids, api_root, dom_root,
-                                 navigate=True, also_scrape=args.scrape)
+            failed = capture_all(args.provider, ids, api_root, dom_root,
+                                 navigate=True, mechanisms=mechanisms)
         finally:
             safari_close_work_tab(prev_tab)
     if failed:
@@ -398,4 +442,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except SendRefused as e:
+        # Exit 3, distinct from 1 (captures failed): nothing was attempted, so the run has
+        # no result to report -- it was refused before reaching the account.
+        print(f'refused: {e}', file=sys.stderr)
+        raise SystemExit(3)

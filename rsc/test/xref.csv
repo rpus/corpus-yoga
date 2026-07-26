@@ -217,14 +217,17 @@ src/RUNME.sh,260,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/mai
 src/RUNME.sh,264,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
 src/RUNME.sh,268,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
-src/main/browser-captures/PREP.sh,30,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,30,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,45,call,src/run_python_script.sh,Y,"exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,45,call,src/main/browser-captures/audit_captures.py,Y,"exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,90,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,90,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,97,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider claude ${dom:+--scrape} ${id:+--id ""$id""} || rc=$?"
-src/main/browser-captures/PREP.sh,101,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider gemini ${id:+--id ""$id""} || rc=$?"
+src/main/browser-captures/PREP.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,32,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,48,call,src/run_python_script.sh,Y,"exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,48,call,src/main/browser-captures/audit_captures.py,Y,"exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,94,call,src/run_python_script.sh,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/browser-captures/PREP.sh,94,call,src/main/browser-captures/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/browser-captures/PREP.sh,98,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/browser-captures/PREP.sh,98,call,src/main/browser-captures/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/browser-captures/PREP.sh,104,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,104,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/PREP.sh,116,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
 src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
@@ -256,13 +259,14 @@ src/main/browser-captures/compare_markdown.py,30,comment,src/main/browser-captur
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/export.command,19,path_str,src/main/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
-src/main/browser-captures/safari_capture.sh,12,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude
-src/main/browser-captures/safari_capture.sh,13,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --id <uuid>
-src/main/browser-captures/safari_capture.sh,14,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider gemini
-src/main/browser-captures/safari_capture.sh,15,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider gemini --id <id>
-src/main/browser-captures/safari_capture.sh,40,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --agent ""$provider"" ""$@"" \"
-src/main/browser-captures/safari_capture.sh,40,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --agent ""$provider"" ""$@"" \"
-src/main/browser-captures/safari_utils.py,189,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --agent
+src/main/browser-captures/safari_capture.sh,14,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude
+src/main/browser-captures/safari_capture.sh,15,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --mechanism DOM
+src/main/browser-captures/safari_capture.sh,16,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --id <uuid>
+src/main/browser-captures/safari_capture.sh,17,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider gemini
+src/main/browser-captures/safari_capture.sh,18,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider gemini --id <id>
+src/main/browser-captures/safari_capture.sh,43,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
+src/main/browser-captures/safari_capture.sh,43,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
+src/main/browser-captures/safari_utils.py,212,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --provider
 src/main/chat-exports/PREP.sh,15,comment,src/main/chat-exports/PREP.sh,Y,#   src/main/chat-exports/PREP.sh
 src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
 src/main/chat-exports/RUNME.sh,6,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports data/input/claude/chat/bulk-export
@@ -542,25 +546,25 @@ src/test/pre_commit.py,640,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ I
 src/test/pre_commit.py,690,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
 src/test/pre_commit.py,692,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/pre_commit.py,698,comment,src/RUNME.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/RUNME.sh --plan
-src/test/pre_commit.py,914,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/pre_commit.py,935,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/pre_commit.py,1168,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/pre_commit.py,1250,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/pre_commit.py,1251,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/pre_commit.py,929,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/pre_commit.py,950,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/pre_commit.py,1183,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/pre_commit.py,1265,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/pre_commit.py,1266,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/pre_commit.py,391,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,100,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,109,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/pre_commit.py,123,path_str,src/main/code-agents/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',"
-src/test/pre_commit.py,1541,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1543,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1551,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/pre_commit.py,1553,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1556,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1558,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1566,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/pre_commit.py,1568,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,727,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
-src/test/pre_commit.py,895,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/pre_commit.py,985,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/pre_commit.py,1304,comment,rsc/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
-src/test/pre_commit.py,1314,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
-src/test/pre_commit.py,1502,comment,rsc/test/pre_commit.log,Y,# any clone; this script writes it to rsc/test/pre_commit.log itself) and the
+src/test/pre_commit.py,910,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/pre_commit.py,1000,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/pre_commit.py,1319,comment,rsc/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
+src/test/pre_commit.py,1329,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
+src/test/pre_commit.py,1517,comment,rsc/test/pre_commit.log,Y,# any clone; this script writes it to rsc/test/pre_commit.log itself) and the
 src/test/pre_commit.sh,5,comment,src/test/pre_commit.sh,Y,#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/pre_commit.sh,6,comment,src/test/pre_commit.sh,Y,#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install
 src/test/pre_commit.sh,21,comment,rsc/test/pre_commit.log,Y,# git diff rsc/test/pre_commit.log

@@ -152,6 +152,13 @@ They are stated, followed, and reviewed by people.
   could not remove it, and status called a wired shell unwired. Convergence therefore
   removes EVERY recognised block, not the first — removing one and writing one is not
   idempotence when two exist, and the survivor's `fpath` entry shadows the current one.
+- **G21 — A flag never names a value of an axis the command already has.** `gated` — an
+  axis is a restriction (`--mechanism API|DOM`) and a flag named for one of its values reads
+  as a restriction to it while behaving as an addition. `--DOM` meant "also walk the DOM",
+  so the only restriction anyone wanted — API alone, skip the walk — was unsayable, and the
+  default it would have named was hard-coded instead. Both flags are now restrictions on
+  independent axes, and the run is their intersection; an empty intersection is reported,
+  never quietly replaced by a default.
 
 ### The tree
 

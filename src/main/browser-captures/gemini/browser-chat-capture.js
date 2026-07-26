@@ -248,7 +248,15 @@ function setupExporter() {
   async function startExport() {
     try {
       if (!liveRows().length) {
-        throw new Error(`No message rows in DOM — page not loaded, wrong page, or selector "${SELECTORS.messageRow}" drifted.`);
+        // Three guesses used to be offered here and none of them chosen, while the DOM held
+        // the evidence that separates them: WHICH page this is, and whether the selector
+        // matched anything at all before liveRows() dropped the inert ones.
+        const matched = document.querySelectorAll(SELECTORS.messageRow).length;
+        throw new Error(
+          `No live message rows at ${location.pathname} — ` + (matched
+            ? `${matched} matched "${SELECTORS.messageRow}" but every one is inert: this is the previous conversation, still on screen while the new one loads`
+            : `nothing matched "${SELECTORS.messageRow}": either the page never rendered this conversation, or the selector has drifted`)
+        );
       }
 
       setStatus('Loading full history (walking to top)...');
