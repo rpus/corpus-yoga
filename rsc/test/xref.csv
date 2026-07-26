@@ -205,17 +205,17 @@ src/PREREQUISITES.sh,304,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src
 src/PREREQUISITES.sh,362,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
 src/PREREQUISITES.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/RUNME.sh,2,comment,src/RUNME.sh,Y,"# src/RUNME.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
-src/RUNME.sh,22,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/RUNME.sh,23,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
-src/RUNME.sh,144,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/RUNME.sh,238,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
-src/RUNME.sh,245,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/RUNME.sh,246,call,src/main/model/build_index.py,Y,"""$REPO_ROOT/src/main/model/build_index.py"" sync"
-src/RUNME.sh,251,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
-src/RUNME.sh,255,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/RUNME.sh,266,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,270,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,274,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/RUNME.sh,22,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
+src/RUNME.sh,138,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/RUNME.sh,232,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
+src/RUNME.sh,239,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/RUNME.sh,240,call,src/main/model/build_index.py,Y,"""$REPO_ROOT/src/main/model/build_index.py"" sync"
+src/RUNME.sh,245,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
+src/RUNME.sh,249,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/RUNME.sh,260,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,264,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,268,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/PREP.sh,30,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/browser-captures/PREP.sh,30,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -233,16 +233,16 @@ src/main/browser-captures/RUNME.sh,11,comment,src/main/steps.sh,Y,# exactly the 
 src/main/browser-captures/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser-captures/RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
 src/main/browser-captures/RUNME.sh,31,comment,src/RUNME.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./src/RUNME.sh
-src/main/browser-captures/RUNME.sh,47,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/RUNME.sh,54,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
-src/main/browser-captures/RUNME.sh,56,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,57,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
-src/main/browser-captures/RUNME.sh,61,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,62,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/browser-captures/RUNME.sh,65,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,66,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/RUNME.sh,73,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,74,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,46,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
+src/main/browser-captures/RUNME.sh,53,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
+src/main/browser-captures/RUNME.sh,55,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,56,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
+src/main/browser-captures/RUNME.sh,60,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,61,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/browser-captures/RUNME.sh,66,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,67,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,79,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,80,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>

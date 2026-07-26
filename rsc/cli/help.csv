@@ -55,7 +55,6 @@
 "pipeline","run","","","","run every pipeline over data/input/, or the one named — processing only, never acquiring",""
 "pipeline","run","pipeline","<pipeline>","","one pipeline by name (bare: all of them); validated against the pipelines that exist",""
 "pipeline","run","--plan","","","print the ordered step plan; run nothing",""
-"pipeline","run","--compare-dom","","","also compare the claude projection against a fresh DOM capture",""
 "prerequisites","","--show-all","","","show the full report, including satisfied (✓) items (default: only what needs attention)",""
 "server","ensure-assets","","","","fetch the render libraries into tmp/cache/serve_markdown, then exit",""
 "server","start","","","","start the markdown server (LaTeX rendering + turn deep links)",""

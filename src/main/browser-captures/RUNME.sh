@@ -22,7 +22,7 @@ parse_args() {
   browser_capture=""
   browser_api="$REPO_DIR/data/input/claude/chat/browser-API"
   browser_dom="$REPO_DIR/data/input/claude/chat/browser-DOM"
-  compare_dom="0"
+  has_dom="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -31,7 +31,6 @@ parse_args() {
       # --browser-captures is the eponymous pipeline flag the root ./src/RUNME.sh
       # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
-      --compare-dom)       compare_dom="1"; shift ;;
       --plan)             plan="1"; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
@@ -62,14 +61,21 @@ run_corpus() {
     "$SCRIPT_DIR/copy_gemini_markdown.py"
   # audit_captures: capture-health report against the fresh projections (the compare
   # gate below decides pass/fail; PREP.sh printed the pre-run baseline)
+  # set here, where browser_dom is final (a --browser-dom override lands before this)
+  [[ -n "$(find "$browser_dom" -mindepth 2 -name '*.md' -print -quit 2>/dev/null)" ]] && has_dom="1"
   step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
   # compare_markdown: diff the projection of the API capture against the DOM capture,
-  # only when asked — a fresh DOM capture (yoga browser capture --provider claude --DOM)
-  # is what makes the comparison meaningful; against resting ones it is noise.
-  step_if "$compare_dom" 'with --compare-dom' \
+  # whenever there IS a DOM capture. It was opt-in behind --compare-scrape because every
+  # difference read as a WARN with a remedy that could not fix it, so running it on resting
+  # captures was noise. #61 removed that: a difference is now attributed — `API capture
+  # missing` is a loss, `projection renders differently` is not — and severity follows, so
+  # there is nothing left to opt out of. The comparison is local, free, and each side is the
+  # other's independent check; the reason to skip it was the reporting, and the reporting is
+  # fixed. Absent DOM captures skip informatively (L8), which is what a guard is for.
+  step_if "$has_dom" 'when data/input/claude/chat/browser-DOM holds captures' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \
     --projection "$REPO_DIR/data/output/markdown/claude/chat/conversations" --dom "$browser_dom"
