@@ -207,15 +207,15 @@ src/PREREQUISITES.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/sr
 src/RUNME.sh,2,comment,src/RUNME.sh,Y,"# src/RUNME.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/RUNME.sh,22,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/RUNME.sh,23,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
-src/RUNME.sh,122,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/RUNME.sh,216,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
-src/RUNME.sh,223,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/RUNME.sh,224,call,src/main/model/build_index.py,Y,"""$REPO_ROOT/src/main/model/build_index.py"" sync"
-src/RUNME.sh,229,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
-src/RUNME.sh,233,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/RUNME.sh,244,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,248,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,252,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,141,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/RUNME.sh,235,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
+src/RUNME.sh,242,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/RUNME.sh,243,call,src/main/model/build_index.py,Y,"""$REPO_ROOT/src/main/model/build_index.py"" sync"
+src/RUNME.sh,248,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
+src/RUNME.sh,252,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/RUNME.sh,263,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,267,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,271,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/PREP.sh,30,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/browser-captures/PREP.sh,30,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"

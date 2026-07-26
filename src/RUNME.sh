@@ -28,8 +28,13 @@ source "$REPO_ROOT/src/main/steps.sh"
 pipelines() {
   local d
   for d in "$REPO_ROOT"/src/main/*/; do
-    [[ -f "$d/RUNME.sh" ]] && basename "$d"
+    if [[ -f "$d/RUNME.sh" ]]; then basename "$d"; fi
   done
+  # `[[ … ]] && basename` would leave the LAST directory's test as the function's status, so
+  # a final non-pipeline directory (src/main/cli, src/main/model) returned 1 — and under
+  # `set -e` that killed `yoga pipeline --names` before its `exit 0` could run. A listing
+  # that succeeds must say so.
+  return 0
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
@@ -42,12 +47,26 @@ pipelines() {
 # neither is derived from the other's text.
 status() {
   echo "pipelines (src/main/<name>/ implementing run; processing only — acquisition is yoga browser|agent|dashboard capture):"
-  local name phases
+  local name phases nested v
   for name in $(pipelines); do
     phases=""
-    [[ -f "$REPO_ROOT/src/main/$name/PREP.sh"     ]] && phases+="prep "
-    [[ -f "$REPO_ROOT/src/main/$name/RUNME.sh"    ]] && phases+="run "
-    [[ -f "$REPO_ROOT/src/main/$name/validate.sh" ]] && phases+="validate"
+    [[ -f "$REPO_ROOT/src/main/$name/PREP.sh"  ]] && phases+="prep "
+    [[ -f "$REPO_ROOT/src/main/$name/RUNME.sh" ]] && phases+="run "
+    if [[ -f "$REPO_ROOT/src/main/$name/validate.sh" ]]; then
+      phases+="validate"
+    else
+      # A phase may be NESTED. browser-captures validates per provider, because only claude
+      # has an API with a schema (apiConversation) and gemini is DOM-only with nothing to
+      # validate against — so its validate.sh lives at browser-captures/claude/. Reporting
+      # "no validate" there would be false, and pre_commit already carries a hand-written
+      # exception for the same file (check_required_files), which is the tell.
+      nested=""
+      for v in "$REPO_ROOT/src/main/$name"/*/validate.sh; do
+        [[ -f "$v" ]] || continue
+        v="${v%/validate.sh}"; nested+="${nested:+,}$(basename "$v")"
+      done
+      [[ -n "$nested" ]] && phases+="validate($nested)"
+    fi
     printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `yoga pipeline | awk '{print $1}'` works
   done
   echo "  → local input state: yoga prerequisites · each pipeline's steps: yoga pipeline run --plan"
