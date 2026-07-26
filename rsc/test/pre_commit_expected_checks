@@ -59,6 +59,7 @@ model.occurrences_cover_edges
 model.shared_type_disposed
 naming.property_keys_lowercase
 naming.root_schema_title_matches_filename
+naming.target_stem_matches_command
 naming.title_matches_key
 naming.upper_camel_case
 schema.changelog_narrative

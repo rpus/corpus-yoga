@@ -65,7 +65,7 @@ sys.path.insert(0, str(SRC / 'main' / 'chat-exports'))  # the shared deposit rul
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
-from build_index import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
+from indexing import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
 import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
@@ -319,7 +319,7 @@ def check_required_files(run):
         SRC / 'main' / 'browser-captures' / 'claude' / 'validate.sh',
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
-        SRC  / 'main' / 'model' / 'gen_model.py',
+        SRC  / 'main' / 'model' / 'model.py',
         RSC  / 'test' / 'pre_commit_expected_checks',
         RSC  / 'test' / 'xref_expected_score',
         SRC  / 'test' / 'schema_recommendations.py',
@@ -563,7 +563,7 @@ def check_index_curation(run, fix) -> None:
     # The REVERSE direction (the curate symmetry, PR #36's model.json precedent:
     # a curation record must be grounded both ways). An accepted headword with
     # ZERO corpus locators is orphan documentation — a dead index entry whose
-    # concept left the corpus or whose aliases never matched. build_index's sync
+    # concept left the corpus or whose aliases never matched. indexing's sync
     # line has always carried the located/total ratio; this names the orphans.
     # Advisory like the rest of this section: the corpus is machine-local data.
     markdown_root = REPO_ROOT / 'data' / 'output' / 'markdown'
@@ -859,6 +859,41 @@ def check_cli_surface(run) -> None:
         parse_ok, parse_err = proc.returncode == 0, (proc.stderr.strip() or None)
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
+
+    # A command determines its target's name (#40): the target column becomes verification
+    # rather than curation. What is NOT yet named for its command is declared in
+    # target_naming_pending.csv with the issue that will name it — a disposal record, so a
+    # row that stays non-compliant is a tracked decision and a NEW one is a failure. The
+    # second direction matters as much: a pending row that has since been fixed must leave
+    # the file, or the record becomes a place where compliance goes unnoticed.
+    pending_path = REPO_ROOT / 'rsc' / 'cli' / 'target_naming_pending.csv'
+    with pending_path.open() as fh:
+        pending = {r['command']: r for r in csv.DictReader(fh)}
+    for c in cmds:
+        stem = Path(c['target']).stem
+        matches = stem.lower() == c['command'].lower()
+        declared = c['command'] in pending
+        # a compliant row and a declared one are different facts, so they are different
+        # lines: one ✓ covering both would hide which of the two a reader is looking at
+        if declared and not matches:
+            run(f'cli: {c["command"]}: target naming pending, declared (#'
+                f'{pending[c["command"]]["issue"]}) — {c["target"]}', True,
+                check='naming.target_stem_matches_command')
+        else:
+            run(f'cli: {c["command"]}: target is named for the command', matches,
+                None if matches else
+                f'target {c["target"]} has stem `{stem}`, not `{c["command"]}` — rename it, or '
+                f'declare it in rsc/cli/target_naming_pending.csv with the issue that will',
+                check='naming.target_stem_matches_command')
+        if declared and matches:
+            run(f'cli: {c["command"]}: pending row is still needed', False,
+                f'target {c["target"]} now matches its command — remove the '
+                f'rsc/cli/target_naming_pending.csv row (issue #{pending[c["command"]]["issue"]})',
+                check='naming.target_stem_matches_command')
+    unknown = sorted(set(pending) - {c['command'] for c in cmds})
+    run('cli: every pending-naming row names a command that exists', not unknown,
+        None if not unknown else f'rsc/cli/target_naming_pending.csv names {", ".join(unknown)}, '
+        f'which commands.csv does not', check='naming.target_stem_matches_command')
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
     # its values reads as a restriction to that value while behaving as an addition. Held

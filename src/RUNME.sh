@@ -237,7 +237,7 @@ LOG_FILE="$REPO_ROOT/tmp/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # here would render fresh-LOOKING pages over silently lagging semantics.
 run_corpus_tail() {
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
-    "$REPO_ROOT/src/main/model/build_index.py" sync
+    "$REPO_ROOT/src/main/model/indexing.py" sync
   # Bare noun DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): dashboard's read-only status IS its L9 mechanism, probed here so
   # its INFO currency atoms (re-render is free; captures lag the corpus) reach

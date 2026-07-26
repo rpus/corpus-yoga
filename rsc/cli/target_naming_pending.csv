@@ -1,0 +1,6 @@
+"command","target","issue","why"
+"browser","src/main/browser-captures/PREP.sh","40","named for a phase in a sequence, which is how one name came to cover three incompatible contracts; each becomes what it does"
+"check","src/test/pre_commit.sh","40","named for the git hook that invokes it; folds into `yoga test run` with #49"
+"commands","src/main/cli/cli.py","58","the CLI machinery answers this itself — main() intercepts before dispatch, so there is no target to exec"
+"completions","src/main/cli/cli.py","58","the CLI machinery answers this itself — main() intercepts before dispatch, so there is no target to exec"
+"pipeline","src/RUNME.sh","40","RUNME is an instruction to the reader; all four become run.sh, and the collision dissolves because the noun is carried in the command"

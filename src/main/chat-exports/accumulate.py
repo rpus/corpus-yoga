@@ -6,8 +6,8 @@ accumulate.py — the CALCULUS `accumulate` operation, once.
     deposit; deposits are immutable and outlive their producers; a same-stamp
     content mismatch is a CONFLICT.
 
-Two stores accumulate: the chat-memory library (accumulate_memories.py) and the
-per-conversation summary store (accumulate_summaries.py). Before this module they
+Two stores accumulate: the chat-memory library (memories.py) and the
+per-conversation summary store (summaries.py). Before this module they
 each carried their own copy of the rule; the drift between them cost 196 redundant
 summary deposits (issue #22). One implementation removes the class of bug —
 including the writer/detector split, since the summary twin-detector evaluates the

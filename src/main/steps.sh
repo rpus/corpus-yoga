@@ -10,7 +10,7 @@
 # shows the whole program, not the current flags. Each step prints its name
 # plus its non-path arguments (verbs, flags): an argument is part of the
 # program, and a plan that hides argv can lie at the verb level while telling
-# the truth at the name level (found 2026-07-22: accumulate_memories had
+# the truth at the name level (found 2026-07-22: memories.py had
 # silently become a bare status call when its script grew a sync verb — the
 # plan looked unchanged). Machine paths are still never printed, so plan
 # output stays deterministic; --plan needs no inputs, writes nothing, exits 0.

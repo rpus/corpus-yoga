@@ -57,7 +57,7 @@ run_one() {
   step validate           "$SCRIPT_DIR/validate.sh" --chat-export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
   # users) verbatim into tmp/cache/<batch>/ — the cache dir is then the complete record of
-  # the four-component snapshot, and compare_batches reads all four from that root
+  # the four-component snapshot, and supersede reads all four from that root
   step archive_components "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
@@ -98,7 +98,7 @@ run_tail() {
   # timeline renders to data/output/markdown/claude/chat/memories/. A deposited state is the
   # licence to delete a memories-divergent batch; the verdict below stays unprejudiced.
   step memories "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/accumulate_memories.py" sync
+    "$SCRIPT_DIR/memories.py" sync
   # summaries: the same deposit discipline per conversation — a summary is
   # a per-snapshot oracle reading (stochastic; lossy between exports, and captures
   # refresh in place), so every distinct reading deposits into
@@ -106,7 +106,7 @@ run_tail() {
   # content-deduplicated). A deposited reading is the licence to delete a
   # summaries-divergent batch; the verdict below stays unprejudiced.
   step summaries "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/accumulate_summaries.py" sync
+    "$SCRIPT_DIR/summaries.py" sync
   # supersede: a batch is a synchronised snapshot of FOUR components
   # (conversations, memories, projects, users), licensed as FIVE — a conversation's
   # summary is a per-snapshot oracle reading, checked as its own component — each
@@ -117,7 +117,7 @@ run_tail() {
   # growth; capture-stale names conversations to recapture in place. Divergence is
   # a fact, not an error.
   step_ok supersede  "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/compare_batches.py" check \
+    "$SCRIPT_DIR/supersede.py" check \
     --chat-exports-cache "$CACHE_DIR" --browser-api "$REPO_DIR/data/input/claude/chat/browser-API"
 }
 

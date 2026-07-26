@@ -8,7 +8,7 @@ derives everything conversations-related into tmp/cache/chat-exports/<batch>/ (j
 markdown/, extracted_*, presentation/), but the other three components used to
 exist only inside data/input/. Copying them beside the derived content makes the cache
 batch directory the complete processed record of the snapshot — one root to
-read, index, or serve any component — and compare_batches.py reads all four
+read, index, or serve any component — and supersede.py reads all four
 component loaders from that same root. Copies are byte-verbatim: these are
 data, not projections (bulk exports are the only log of chat memories).
 

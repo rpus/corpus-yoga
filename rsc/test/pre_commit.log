@@ -1,4 +1,4 @@
-pre_commit.py: 1595/1595 (data: machine-local)
+pre_commit.py: 1614/1614 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -21,6 +21,7 @@ pre_commit.py: 1595/1595 (data: machine-local)
   ✓ cli.help_one_screen  (15/15)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
+  ✓ naming.target_stem_matches_command  (19/19)
   ✓ cli.flag_not_axis_value  (17/17)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
@@ -133,11 +134,11 @@ pre_commit.py: 1595/1595 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 69 types, 1595/1595 invocations passing
+  ✓ checks[code+schema]: 70 types, 1614/1614 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 33 types, 183/183 invocations passing
+  ✓ checks[code]: 34 types, 202/202 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1595/1595 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1614/1614 match the committed expectation; nothing here vetoes a commit

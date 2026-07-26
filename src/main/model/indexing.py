@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-build_index.py — the book-style index over the corpus (headword → turn locators)
+indexing.py — the book-style index over the corpus (headword → turn locators)
 and the curation surface behind it: accept / reject / candidates over the concept
 capture. Driven by `yoga indexing` (see rsc/cli/commands.csv).
 
