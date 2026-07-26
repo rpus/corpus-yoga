@@ -170,10 +170,14 @@ merge() {
     /^worktree /{w=$2} /^branch /{ if ($2==b) print w }')"
   if [[ -n "$holder" ]]; then
     echo "local: $head kept — still checked out at $holder"
-  elif [[ "$local_tip" == "$oid" ]]; then
-    git -C "$REPO_DIR" branch -D "$head" >/dev/null && echo "local: $head deleted (was ${oid:0:8}, the head just merged)"
+  elif git -C "$REPO_DIR" merge-base --is-ancestor "$local_tip" "$oid"; then
+    # ANCESTOR, not equal: a local branch merely BEHIND the merged head is entirely inside
+    # the squash, so deleting it loses nothing. Testing equality kept such a branch and
+    # said it "holds commits the squash did not" — which was simply false.
+    git -C "$REPO_DIR" branch -D "$head" >/dev/null \
+      && echo "local: $head deleted — ${local_tip:0:8} is contained in the merged head ${oid:0:8}"
   else
-    echo "local: $head KEPT at ${local_tip:0:8} — the merged head was ${oid:0:8}, so it holds commits the squash did not"
+    echo "local: $head KEPT at ${local_tip:0:8} — not an ancestor of the merged head ${oid:0:8}, so it holds commits the squash did not"
   fi
 }
 
