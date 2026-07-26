@@ -9,7 +9,7 @@ corpus.
 ```bash
 ./yoga prerequisites          # read-only: what this machine can run
 ./yoga browser capture        # acquire: Safari sweep into data/input/ (claude API; add --DOM for gemini)
-./yoga run                    # process: validate, extract, project (--plan previews)
+./yoga pipeline run                    # process: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
 ./yoga check                  # the three-tier gate suite
 ```

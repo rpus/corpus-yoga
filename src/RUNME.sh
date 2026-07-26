@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# src/RUNME.sh (yoga run) — process what data/input/ already holds; never acquire.
-# Three pipelines (browser-captures, chat-exports, code-agents) each validate their
-# inputs against all schema versions, then extract, project, and present.
-# Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
+# src/RUNME.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
+# acquires. Each pipeline validates its inputs against all schema versions, then extracts,
+# projects and presents. Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
 #
 # Usage:
-#   ./src/RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
+#   yoga pipeline                          # the pipelines this repo has (bare: status)
+#   yoga pipeline --names                  # their names alone, one per line
+#   yoga pipeline run [<pipeline>]         # run what bare lists, or one of them by name
 #     --plan            print the ordered step plan; run nothing
-#     --only <p>        one pipeline: browser-captures | chat-exports | code-agents
-#     --compare-scrape  also compare the claude projection against a fresh DOM scrape
+#
+# The pipeline LIST is derived, not declared: a directory under src/main/ holding a
+# RUNME.sh is a pipeline. It was written out in five places before, so adding one meant
+# remembering all five; now the positional is validated against what exists.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga check.
@@ -19,21 +22,78 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$REPO_ROOT/src/main/steps.sh"
 : "${VENV:=$HOME/venvs/general}"
 
+# The pipelines: a directory under src/main/ that implements the run phase. Derived, so
+# adding a pipeline is adding a directory rather than editing five lists.
+pipelines() {
+  local d
+  for d in "$REPO_ROOT"/src/main/*/; do
+    if [[ -f "$d/RUNME.sh" ]]; then basename "$d"; fi
+  done
+  # `[[ … ]] && basename` would leave the LAST directory's test as the function's status, so
+  # a final non-pipeline directory (src/main/cli, src/main/model) returned 1 — and under
+  # `set -e` that killed `yoga pipeline --names` before its `exit 0` could run. A listing
+  # that succeeds must say so.
+  return 0
+}
+
+# The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
+# verb's domain IS the noun's output — `yoga pipeline run` with no name runs exactly the
+# names bare printed, and cannot drift from them.
+#
+# --names prints them alone, one per line, for a reader that is a program:
+#   for p in $(yoga pipeline --names); do yoga pipeline run "$p"; done
+# is the same work as `yoga pipeline run`, spelled out. The decorated status is for people;
+# neither is derived from the other's text.
+status() {
+  echo "pipelines (src/main/<name>/ implementing run; processing only — acquisition is yoga browser|agent|dashboard capture):"
+  local name phases nested v
+  for name in $(pipelines); do
+    phases=""
+    [[ -f "$REPO_ROOT/src/main/$name/PREP.sh"  ]] && phases+="prep "
+    [[ -f "$REPO_ROOT/src/main/$name/RUNME.sh" ]] && phases+="run "
+    if [[ -f "$REPO_ROOT/src/main/$name/validate.sh" ]]; then
+      phases+="validate"
+    else
+      # A phase may be NESTED. browser-captures validates per provider, because only claude
+      # has an API with a schema (apiConversation) and gemini is DOM-only with nothing to
+      # validate against — so its validate.sh lives at browser-captures/claude/. Reporting
+      # "no validate" there would be false, and pre_commit already carries a hand-written
+      # exception for the same file (check_required_files), which is the tell.
+      nested=""
+      for v in "$REPO_ROOT/src/main/$name"/*/validate.sh; do
+        [[ -f "$v" ]] || continue
+        v="${v%/validate.sh}"; nested+="${nested:+,}$(basename "$v")"
+      done
+      [[ -n "$nested" ]] && phases+="validate($nested)"
+    fi
+    printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `yoga pipeline | awk '{print $1}'` works
+  done
+  echo "  → local input state: yoga prerequisites · each pipeline's steps: yoga pipeline run --plan"
+}
+
 parse_args() {
-  compare_scrape=""
   only=""
   plan=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --plan) plan="1";                                               shift ;;
-      --compare-scrape) compare_scrape="--compare-scrape";            shift ;;
-      --only)
-        case "${2-}" in
-          browser-captures|chat-exports|code-agents) only="$2"; shift 2 ;;
-          *) echo "error: --only takes browser-captures | chat-exports | code-agents (got: ${2-})"; exit 1 ;;
-        esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 [--plan] [--only <pipeline>] [--compare-scrape]"; echo "Pass --help for more information."; exit 1 ;;
+      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan]"; echo "Pass --help for more information."; exit 1 ;;
+      # A POSITIONAL names the pipeline, where --only used to. One way to say one thing:
+      # the noun-verb-object the surface already reads as, validated against the pipelines
+      # that exist rather than against a list someone maintains.
+      *)
+        if [[ -n "$only" ]]; then
+          echo "error: one pipeline at a time (already have $only, then $1)" >&2; exit 1
+        fi
+        # No pipe to grep: under `set -o pipefail`, grep -q exits at the first match and
+        # the producer dies of SIGPIPE, so a SUCCESSFUL match reads as a failed pipeline.
+        local known="" candidate
+        for candidate in $(pipelines); do [[ "$candidate" == "$1" ]] && known=1; done
+        if [[ -z "$known" ]]; then
+          echo "error: no pipeline $1 — this repo has: $(pipelines | tr '\n' ' ')" >&2; exit 1
+        fi
+        only="$1"; shift ;;
     esac
   done
 }
@@ -194,7 +254,7 @@ print_plan() {
   # capture-sweep line resolves against the flags given instead of staying
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
-  echo "src/RUNME.sh — the ordered plan${only:+ (--only $only)} (conditional steps annotated; nothing executed):"
+  echo "yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
   if should_run browser-captures; then
     "$REPO_ROOT/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
@@ -225,7 +285,7 @@ main() {
   local -a pipeline_failures=()
 
   if should_run browser-captures; then
-    run_pipeline_safe  browser-captures "$REPO_ROOT/data/input/claude/chat/browser-API" ${compare_scrape:+"$compare_scrape"}
+    run_pipeline_safe  browser-captures "$REPO_ROOT/data/input/claude/chat/browser-API"
   fi
 
   if should_run chat-exports; then
@@ -290,8 +350,23 @@ main() {
   echo "Log: $LOG_FILE"
 }
 
+# The noun's own dispatch. Bare is STATUS — read-only, writes nothing, runs no pipeline —
+# which is the convention every other command already keeps and which `run` broke by acting
+# on a bare invocation. `run` is the verb that acts.
+case "${1-}" in
+  '')        status; exit 0 ;;
+  --names)   pipelines; exit 0 ;;
+  run)       shift ;;
+  --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
+  # The pipeline RUNMEs call this file's siblings with their own --<name> flag; a bare
+  # a bare --plan reaching here without `run` is a caller from before the verb existed,
+  # and is accepted rather than failed: the flag says what was meant.
+  --plan) ;;
+  *) echo "yoga pipeline: unknown verb ${1} — takes: run (bare: status)" >&2; exit 1 ;;
+esac
+
 # --plan runs before the log exists: it writes nothing, not even a log file.
-# Args are parsed FIRST so the plan previews this exact invocation (--only
+# Args are parsed FIRST so the plan previews this exact invocation (the positional
 # filters it; the capture flags resolve their conditional lines).
 parse_args "$@"
 # shellcheck disable=SC2031  # this reads parse_args' plan; print_plan's subshell plan=1 is deliberately confined

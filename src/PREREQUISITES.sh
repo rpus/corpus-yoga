@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# src/PREREQUISITES.sh — Report what this machine has and what yoga run would do.
+# src/PREREQUISITES.sh — Report what this machine has and what yoga pipeline run would do.
 #
 # Strictly read-only: no directories created, no symlinks, no venv, no installs
-# (unlike yoga run, which does all of those). Safe as the first command on a
+# (unlike yoga pipeline run, which does all of those). Safe as the first command on a
 # fresh clone.
 #
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
@@ -69,7 +69,7 @@ check_venv() {
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1))"
   else
-    info "not found — yoga run creates it and installs src/requirements.txt"
+    info "not found — yoga pipeline run creates it and installs src/requirements.txt"
   fi
 }
 
@@ -346,7 +346,7 @@ notes() {
   # Commentary, not status — only in the full report.
   (( SHOW_ALL )) || return 0
   sec "notes"
-  info "yoga run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "yoga pipeline run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
   info "yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
@@ -358,11 +358,11 @@ main() {
   check_tools
   check_venv
   check_dependencies \
-    "python requirements (yoga run — manifest: src/requirements.txt)" \
+    "python requirements (yoga pipeline run — manifest: src/requirements.txt)" \
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "pip install -r src/requirements.txt, or automatically on the next yoga run"
+    "pip install -r src/requirements.txt, or automatically on the next yoga pipeline run"
   check_dependencies \
     "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
@@ -382,10 +382,10 @@ main() {
     exit 1
   fi
   if (( SHOW_ALL )); then
-    echo "ready — yoga run (pipelines without input data are skipped)"
+    echo "ready — yoga pipeline run (pipelines without input data are skipped)"
   else
     # Default is failures-only; if we reach here nothing above needed attention.
-    echo "ready — yoga run · full report: yoga prerequisites --show-all · commands: yoga -h"
+    echo "ready — yoga pipeline run · full report: yoga prerequisites --show-all · commands: yoga -h"
   fi
 }
 

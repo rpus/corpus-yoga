@@ -55,7 +55,7 @@ rsc/CALCULUS.md,315,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is 
 rsc/CALCULUS.md,326,doc,rsc/cli/help.csv,Y,"GENERATED from `rsc/cli/help.csv`, not stored in a `usage` column: a projection"
 rsc/CALCULUS.md,346,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 rsc/CALCULUS.md,369,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
-rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"tmp/cache/browser-captures/claude,browser-captures,./yoga run --only browser-captures,src/test/pre_commit.py,per-capture"
+rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"tmp/cache/browser-captures/claude,browser-captures,./yoga pipeline run browser-captures,src/test/pre_commit.py,per-captu"
 rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,Two curated files describe the `yoga` terminal surface (machinery: `src/main/cli/cli.py`;
 rsc/cli/README.md,20,doc,src/RUNME.sh,Y,input spans them all): the gate holds `src/RUNME.sh --plan` to
 rsc/cli/README.md,28,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
@@ -67,8 +67,8 @@ rsc/cli/README.md,59,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws()` in
 rsc/cli/README.md,60,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
 rsc/cli/README.md,73,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 rsc/cli/README.md,78,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-rsc/cli/README.md,113,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
-rsc/cli/README.md,131,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
+rsc/cli/README.md,114,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
+rsc/cli/README.md,132,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,transport supersession merge L1 L3 L4 L6,code-agent sessions: the census, and transp"
 rsc/cli/commands.csv,3,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,capture,capture browser-reachable chats via Safari (claude API, gemini DOM)"
 rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,project,the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds"
@@ -81,8 +81,8 @@ rsc/cli/commands.csv,10,path_str,src/main/cli/forge.sh,Y,"forge,src/main/cli/for
 rsc/cli/commands.csv,11,path_str,src/main/model/build_index.py,Y,"indexing,src/main/model/build_index.py,capture curate project,Curate and build the book index over data/output/indexing/"
 rsc/cli/commands.csv,12,path_str,src/main/chat-exports/accumulate_memories.py,Y,"memories,src/main/chat-exports/accumulate_memories.py,accumulate normalise project L1 L4,Deposit every distinct chat-mem"
 rsc/cli/commands.csv,13,path_str,src/main/model/gen_model.py,Y,"model,src/main/model/gen_model.py,project,per-schema definition catalogues, candidates for model.json"
-rsc/cli/commands.csv,14,path_str,src/PREREQUISITES.sh,Y,"prerequisites,src/PREREQUISITES.sh,L8,Read-only machine report — bare shows what needs attention, --show-all the lot"
-rsc/cli/commands.csv,15,path_str,src/RUNME.sh,Y,"run,src/RUNME.sh,atomise validate supersession accumulate project,run every pipeline over data/input/ — processing only,"
+rsc/cli/commands.csv,14,path_str,src/RUNME.sh,Y,"pipeline,src/RUNME.sh,atomise validate supersession accumulate project,the pipelines, and the run over data/input/ that "
+rsc/cli/commands.csv,15,path_str,src/PREREQUISITES.sh,Y,"prerequisites,src/PREREQUISITES.sh,L8,Read-only machine report — bare shows what needs attention, --show-all the lot"
 rsc/cli/commands.csv,16,path_str,src/main/model/serve_markdown.sh,Y,"server,src/main/model/serve_markdown.sh,project,serve the markdown corpus locally (LaTeX + turn deep links)"
 rsc/cli/commands.csv,17,path_str,src/main/chat-exports/accumulate_summaries.py,Y,"summaries,src/main/chat-exports/accumulate_summaries.py,accumulate project L1 L4,Deposit every distinct summary reading;"
 rsc/cli/commands.csv,18,path_str,src/main/chat-exports/compare_batches.py,Y,"supersede,src/main/chat-exports/compare_batches.py,supersession L3,Do later bulk exports supersede earlier ones? Compute"
@@ -192,7 +192,7 @@ rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as 
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
 rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
 rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
-src/PREREQUISITES.sh,2,comment,src/PREREQUISITES.sh,Y,# src/PREREQUISITES.sh — Report what this machine has and what yoga run would do.
+src/PREREQUISITES.sh,2,comment,src/PREREQUISITES.sh,Y,# src/PREREQUISITES.sh — Report what this machine has and what yoga pipeline run would do.
 src/PREREQUISITES.sh,11,comment,src/PREREQUISITES.sh,Y,#   ./src/PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
 src/PREREQUISITES.sh,12,comment,src/PREREQUISITES.sh,Y,"#   ./src/PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items"
 src/PREREQUISITES.sh,161,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
@@ -204,19 +204,18 @@ src/PREREQUISITES.sh,289,comment,rsc/forge.csv,Y,# the server: no clone can see 
 src/PREREQUISITES.sh,304,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
 src/PREREQUISITES.sh,362,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
 src/PREREQUISITES.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
-src/RUNME.sh,2,comment,src/RUNME.sh,Y,# src/RUNME.sh (yoga run) — process what data/input/ already holds; never acquire.
-src/RUNME.sh,8,comment,src/RUNME.sh,Y,#   ./src/RUNME.sh [--plan] [--only <pipeline>] [--compare-scrape]
-src/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
-src/RUNME.sh,78,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/RUNME.sh,172,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
-src/RUNME.sh,179,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/RUNME.sh,180,call,src/main/model/build_index.py,Y,"""$REPO_ROOT/src/main/model/build_index.py"" sync"
-src/RUNME.sh,185,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
-src/RUNME.sh,189,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/RUNME.sh,200,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,204,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,208,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,2,comment,src/RUNME.sh,Y,"# src/RUNME.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
+src/RUNME.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/RUNME.sh,22,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
+src/RUNME.sh,138,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/RUNME.sh,232,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
+src/RUNME.sh,239,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/RUNME.sh,240,call,src/main/model/build_index.py,Y,"""$REPO_ROOT/src/main/model/build_index.py"" sync"
+src/RUNME.sh,245,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
+src/RUNME.sh,249,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/RUNME.sh,260,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,264,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
+src/RUNME.sh,268,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/PREP.sh,30,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/browser-captures/PREP.sh,30,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -234,16 +233,16 @@ src/main/browser-captures/RUNME.sh,11,comment,src/main/steps.sh,Y,# exactly the 
 src/main/browser-captures/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser-captures/RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
 src/main/browser-captures/RUNME.sh,31,comment,src/RUNME.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./src/RUNME.sh
-src/main/browser-captures/RUNME.sh,47,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/RUNME.sh,54,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
-src/main/browser-captures/RUNME.sh,56,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,57,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
-src/main/browser-captures/RUNME.sh,61,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,62,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/browser-captures/RUNME.sh,65,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,66,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/RUNME.sh,73,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,74,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/RUNME.sh,46,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
+src/main/browser-captures/RUNME.sh,53,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
+src/main/browser-captures/RUNME.sh,55,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,56,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
+src/main/browser-captures/RUNME.sh,60,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,61,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/browser-captures/RUNME.sh,66,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,67,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/RUNME.sh,79,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/RUNME.sh,80,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>

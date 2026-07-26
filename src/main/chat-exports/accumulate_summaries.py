@@ -153,7 +153,7 @@ def _warn_twins(root: Path) -> int:
     now that the one-shot repair has retired. nearest_earlier_deposit cannot
     write a twin, so a nonzero count is a NEW defect to investigate, not the
     artifact class the repair cleared. WARN-prefixed so the run tail's atom
-    hoisting carries it into every yoga run summary."""
+    hoisting carries it into every yoga pipeline run summary."""
     twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
         if root.is_dir() else 0
     if twins:
