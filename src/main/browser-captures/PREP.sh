@@ -3,20 +3,20 @@
 # data/input/<provider>/chat/browser-{API,DOM}/, via Safari (open and logged in).
 # The `yoga browser` target.
 #
-# Scope is two independent restrictions, and the run is their intersection. Neither adds:
-# a provider has the mechanisms it has (claude API and DOM, gemini DOM), and a restriction
-# can only take some away. Unrestricted means all of it.
+# Scope is two independent restrictions, intersected. Neither adds: a provider has the
+# mechanisms it has (claude API and DOM, gemini DOM); a restriction only takes some away.
 #
 # Usage:
 #   yoga browser                                      # free, local: are the captures any good?
-#   yoga browser check                                # LIVE: which conversations have moved on?
 #   yoga browser capture                              # every provider, every mechanism it has
 #   yoga browser capture --mechanism API              # only what an API can give: claude
 #   yoga browser capture --provider gemini            # gemini, by the DOM walk it has
+#   yoga browser capture --provider claude --dry-run  # LIVE extent: what has moved on, no capture
 #   yoga browser capture --provider claude --id <id>  # one conversation
 #
-#   --id requires --provider: an id's shape cannot say whose it is.
-#   Restrictions that intersect to nothing are reported, not defaulted around.
+#   --id requires --provider: an id's shape cannot say whose it is, and restrictions that
+#   intersect to nothing are reported rather than defaulted around. --dry-run fetches
+#   listings (a send) and captures nothing: the extent, then stop.
 #   YOGA_NO_SEND=1 refuses every outward call: a capture has no scratch form, so refusing
 #   it is the only way to exercise these paths without reaching the account.
 
@@ -37,22 +37,11 @@ status() {
 main() {
   case "${1-}" in
     capture) shift ;;
-    # `check` is audit_captures --live: the question the filesystem audit cannot answer,
-    # and until now the CLI had no route to it at all — the flag existed, the surface did
-    # not. Read-only (it fetches listings and compares; it writes nothing), so `check`,
-    # the verb that already means exactly that on supersede and xref. A verb and not a
-    # flag on the bare noun, because it drives Safari: bare is status, free and local.
-    check)
-      shift
-      [[ $# -eq 0 ]] || { echo "yoga browser check takes no arguments (got: $1)" >&2; exit 1; }
-      exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
-        --input "$REPO_DIR/data/input" \
-        --api "$REPO_DIR/data/output/markdown/claude/chat/conversations" --live ;;
     '') status; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: $0 capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] | check  (--help for details)" >&2; exit 1 ;;
+    *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (yoga browser -h for details)" >&2; exit 1 ;;
   esac
-  local provider="" mechanism="" id=""
+  local provider="" mechanism="" id="" dry_run=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --provider)
@@ -65,13 +54,14 @@ main() {
           API|DOM) mechanism="$2"; shift 2 ;;
           *) echo "error: --mechanism takes API | DOM (got: ${2-})" >&2; exit 1 ;;
         esac ;;
+      --dry-run) dry_run="1"; shift ;;
       --id)
         case "${2-}" in
           ''|--*) echo "error: --id takes a conversation id (got: ${2-})" >&2; exit 1 ;;
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: $0 capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>]"; echo "Pass --help for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass yoga browser -h for more information."; exit 1 ;;
     esac
   done
 
@@ -101,9 +91,23 @@ main() {
 
   # Capture-health baseline before the run — the before/after delta lands in the same
   # log. Suspects here are the reason to capture, not an error.
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
-    --input "$REPO_DIR/data/input" \
-    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations" || true
+  #
+  # Under --dry-run this is the WHOLE command: the extent, then stop. It needs no separate
+  # implementation because it IS the bracket's first call (G19), which is also why it
+  # cannot lie about an effect it did not perform. --live is what the retired `browser
+  # check` verb ran; as a flag on capture it inherits capture's restrictions, so the
+  # gemini walk — a page load per captured conversation — can be declined by naming
+  # claude, which no separate verb allowed.
+  local audit=(--input "$REPO_DIR/data/input"
+               --api "$REPO_DIR/data/output/markdown/claude/chat/conversations")
+  [[ -n "$provider" ]] && audit+=(--provider "$provider")
+  if [[ -n "$dry_run" ]]; then
+    local rc_audit=0
+    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" "${audit[@]}" --live || rc_audit=$?
+    echo "--dry-run: nothing captured — the extent above is what \`capture\` would act on"
+    return $rc_audit
+  fi
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" "${audit[@]}" || true
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
   # safari_capture.py's declaration, so this loop holds no second copy of which

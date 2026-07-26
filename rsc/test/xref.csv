@@ -219,15 +219,15 @@ src/RUNME.sh,268,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/cod
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/PREP.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/browser-captures/PREP.sh,32,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,48,call,src/run_python_script.sh,Y,"exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,48,call,src/main/browser-captures/audit_captures.py,Y,"exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,94,call,src/run_python_script.sh,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
-src/main/browser-captures/PREP.sh,94,call,src/main/browser-captures/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
-src/main/browser-captures/PREP.sh,98,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
-src/main/browser-captures/PREP.sh,98,call,src/main/browser-captures/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
-src/main/browser-captures/PREP.sh,104,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,104,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,116,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
+src/main/browser-captures/PREP.sh,84,call,src/run_python_script.sh,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/browser-captures/PREP.sh,84,call,src/main/browser-captures/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/browser-captures/PREP.sh,88,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/browser-captures/PREP.sh,88,call,src/main/browser-captures/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/browser-captures/PREP.sh,106,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
+src/main/browser-captures/PREP.sh,106,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
+src/main/browser-captures/PREP.sh,110,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
+src/main/browser-captures/PREP.sh,110,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
+src/main/browser-captures/PREP.sh,120,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh
 src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
 src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
