@@ -22,7 +22,7 @@ parse_args() {
   browser_capture=""
   browser_api="$REPO_DIR/data/input/claude/chat/browser-API"
   browser_dom="$REPO_DIR/data/input/claude/chat/browser-DOM"
-  compare_scrape="0"
+  compare_dom="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -31,7 +31,7 @@ parse_args() {
       # --browser-captures is the eponymous pipeline flag the root ./src/RUNME.sh
       # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
-      --compare-scrape)       compare_scrape="1"; shift ;;
+      --compare-dom)       compare_dom="1"; shift ;;
       --plan)             plan="1"; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
@@ -69,7 +69,7 @@ run_corpus() {
   # compare_markdown: diff the projection of the API capture against the DOM capture,
   # only when asked — a fresh DOM capture (yoga browser capture --provider claude --DOM)
   # is what makes the comparison meaningful; against resting ones it is noise.
-  step_if "$compare_scrape" 'with --compare-scrape' \
+  step_if "$compare_dom" 'with --compare-dom' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \
     --projection "$REPO_DIR/data/output/markdown/claude/chat/conversations" --dom "$browser_dom"

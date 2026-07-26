@@ -8,7 +8,7 @@
 #   yoga pipeline --names                  # their names alone, one per line
 #   yoga pipeline run [<pipeline>]         # run what bare lists, or one of them by name
 #     --plan            print the ordered step plan; run nothing
-#     --compare-scrape  also compare the claude projection against a fresh DOM capture
+#     --compare-dom  also compare the claude projection against a fresh DOM capture
 #
 # The pipeline LIST is derived, not declared: a directory under src/main/ holding a
 # RUNME.sh is a pipeline. It was written out in five places before, so adding one meant
@@ -73,15 +73,18 @@ status() {
 }
 
 parse_args() {
-  compare_scrape=""
+  compare_dom=""
   only=""
   plan=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --plan) plan="1";                                               shift ;;
-      --compare-scrape) compare_scrape="--compare-scrape";            shift ;;
+      # --compare-scrape until #70: the last `scrape` on the surface, after #57 retired the
+      # word. A conversation has two CAPTURES, API and DOM; this compares the projection
+      # of the API capture against the DOM one, which is what the flag now says.
+      --compare-dom) compare_dom="--compare-dom";            shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan] [--compare-scrape]"; echo "Pass --help for more information."; exit 1 ;;
+      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan] [--compare-dom]"; echo "Pass --help for more information."; exit 1 ;;
       # A POSITIONAL names the pipeline, where --only used to. One way to say one thing:
       # the noun-verb-object the surface already reads as, validated against the pipelines
       # that exist rather than against a list someone maintains.
@@ -288,7 +291,7 @@ main() {
   local -a pipeline_failures=()
 
   if should_run browser-captures; then
-    run_pipeline_safe  browser-captures "$REPO_ROOT/data/input/claude/chat/browser-API" ${compare_scrape:+"$compare_scrape"}
+    run_pipeline_safe  browser-captures "$REPO_ROOT/data/input/claude/chat/browser-API" ${compare_dom:+"$compare_dom"}
   fi
 
   if should_run chat-exports; then
@@ -362,9 +365,9 @@ case "${1-}" in
   run)       shift ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   # The pipeline RUNMEs call this file's siblings with their own --<name> flag; a bare
-  # --plan or --compare-scrape reaching here without `run` is a caller from before the
+  # --plan or --compare-dom reaching here without `run` is a caller from before the
   # verb existed, and is accepted rather than failed: the flags say what was meant.
-  --plan|--compare-scrape) ;;
+  --plan|--compare-dom) ;;
   *) echo "yoga pipeline: unknown verb ${1} — takes: run (bare: status)" >&2; exit 1 ;;
 esac
 
