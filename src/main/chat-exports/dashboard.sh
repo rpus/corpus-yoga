@@ -414,11 +414,13 @@ capture() {
   # The one command that spends money left no record of what it bought: terminal scrollback
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
   # convenience here — it is the only evidence. Path per the command/verb rule (#54).
-  local log="$REPO_DIR/tmp/logs/dashboard/capture/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+  local log
+  log="$REPO_DIR/tmp/logs/dashboard/capture/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
   mkdir -p "$(dirname "$log")"
   exec > >(tee -a "$log") 2>&1
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-  local conv="${conversations:-$(corpus_conversations)}"
+  local conv
+  conv="${conversations:-$(corpus_conversations)}"
   [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`yoga pipeline run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
