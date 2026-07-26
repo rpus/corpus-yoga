@@ -52,8 +52,25 @@ COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # removes everything between them, and a line added inside it later leaves with it
 # without uninstall having to learn that line's shape. One pair of constants, so
 # install and uninstall can never disagree about where the block begins or ends.
-COMPLETION_MARKER = '# yoga tab-completion (refresh: yoga completions install-latest)'
+#
+# IDENTITY is COMPLETION_ID alone, and it is matched as a PREFIX. The written marker
+# carries advice after it, and advice is editable: when `./yoga` became bare `yoga`,
+# equality on the whole line stopped recognising every block the earlier version had
+# written — so install could not converge on it (it inserted a second block beside it),
+# uninstall could not remove it, and status reported "not wired" about a shell that was.
+# A token that doubles as documentation cannot serve as identity when the documentation
+# is the part that changes.
+COMPLETION_ID = '# yoga tab-completion'
+COMPLETION_MARKER = f'{COMPLETION_ID} (refresh: yoga completions install-latest)'
 COMPLETION_END = '# end yoga tab-completion'
+
+
+def is_completion_marker(line: str) -> bool:
+    """Does this line open a yoga block? — the one recogniser install, uninstall and
+    status share, so they cannot disagree about what is already there. Prefix, not
+    equality: everything after COMPLETION_ID is advice to the reader, not identity.
+    COMPLETION_END is excluded because it starts with '# end'."""
+    return line.strip().startswith(COMPLETION_ID)
 
 
 def commands() -> list[dict]:
@@ -445,22 +462,30 @@ def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
     result, install uses it to converge on one current block.
 
     The block is delimited (marker … end marker) and goes wholesale, so this never
-    needs to know what is inside it. Only COMPLETION_MARKER is recognised: a block
-    carrying any other marker, or none, is not a block here and is left untouched.
-    One adjacent blank (install leaves one on a side) goes with it."""
-    start = next((i for i, l in enumerate(lines) if l.strip() == COMPLETION_MARKER), None)
-    if start is None:
-        return lines, 0
-    end = next((i for i in range(start + 1, len(lines))
-                if lines[i].strip() == COMPLETION_END), None)
-    if end is None:
-        return lines, 0
-    first, last = start, end
-    if last + 1 < len(lines) and lines[last + 1].strip() == '':
-        last += 1
-    elif first > 0 and lines[first - 1].strip() == '':
-        first -= 1
-    return lines[:first] + lines[last + 1:], last - first + 1
+    needs to know what is inside it. A block is recognised by is_completion_marker,
+    so blocks written by earlier versions — whose marker carried different advice —
+    are found too. Anything else is not a block here and is left untouched.
+    One adjacent blank (install leaves one on a side) goes with it.
+
+    EVERY block goes, not the first. Removing one and writing one is not convergence
+    if two exist: whichever install did not recognise survived every re-run, and the
+    surviving fpath entry went on shadowing the current one."""
+    kept, removed = list(lines), 0
+    while True:
+        start = next((i for i, l in enumerate(kept) if is_completion_marker(l)), None)
+        if start is None:
+            return kept, removed
+        end = next((i for i in range(start + 1, len(kept))
+                    if kept[i].strip() == COMPLETION_END), None)
+        if end is None:
+            return kept, removed
+        first, last = start, end
+        if last + 1 < len(kept) and kept[last + 1].strip() == '':
+            last += 1
+        elif first > 0 and kept[first - 1].strip() == '':
+            first -= 1
+        removed += last - first + 1
+        kept = kept[:first] + kept[last + 1:]
 
 
 def install_completion() -> int:
@@ -559,13 +584,19 @@ def completion_status() -> int:
     written = COMPLETION_OUT.exists()
     current = written and COMPLETION_OUT.read_text() == completion_script(commands())
     zshrc = Path.home() / '.zshrc'
-    wired = zshrc.exists() and any(l.strip() == COMPLETION_MARKER
-                                   for l in zshrc.read_text().splitlines())
+    # the same recogniser install and uninstall use, so status cannot report "not
+    # wired" about a block those two can see (or would refuse to see)
+    blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
+                 if is_completion_marker(l))
     state = ('not written — `yoga completions install-latest`' if not written else
              'current' if current else 'STALE — `yoga completions install-latest`')
     print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
-    print('  ~/.zshrc: ' + ('wired' if wired
-                            else 'not wired — `yoga completions install-latest`'))
+    # A count, not a yes/no: two blocks is a state the file can reach and the reader
+    # cannot see from here, and the second one's fpath entry shadows the first.
+    print('  ~/.zshrc: ' + ('not wired — `yoga completions install-latest`' if not blocks
+                            else 'wired' if blocks == 1
+                            else f'wired {blocks} times — `yoga completions install-latest` '
+                                 f'removes every block and writes one'))
     return 0
 
 

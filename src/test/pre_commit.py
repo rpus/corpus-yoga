@@ -860,6 +860,37 @@ def check_cli_surface(run) -> None:
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
 
+    # G20, over a SYNTHETIC ~/.zshrc — the property is about the pure function, and the
+    # gate must not read (much less converge) the machine's real shell config. The stale
+    # marker below is the exact wording an earlier version wrote; it is the case that
+    # actually escaped, so it is the case the check holds.
+    stale = '# yoga tab-completion (refresh: ./yoga completions install-latest)'
+    block = ['fpath=(~/x $fpath)', "alias yoga='~/x/yoga'", cli.COMPLETION_END]
+    synthetic = ['# unrelated', '', stale, *block, '', cli.COMPLETION_MARKER, *block, '',
+                 'autoload -Uz compinit', 'compinit']
+    kept, _ = cli.without_yoga_block(synthetic)
+    # survivors counted by a LITERAL test-side predicate, never by the function under
+    # test: asking cli.is_completion_marker what survived is asking the bug whether it
+    # is present, and the answer under the old code was "converged" while the stale
+    # block sat in the file
+    left = [line for line in kept if line.startswith('# yoga tab-completion')]
+    run('cli: completions: a marker with different advice is still the block',
+        cli.is_completion_marker(stale),
+        None if cli.is_completion_marker(stale) else
+        f'{stale!r} is not recognised — identity is matching advice, so every block an '
+        f'earlier version wrote is orphaned: install duplicates it, uninstall leaves it, '
+        f'status calls a wired shell unwired', law='G20', check='cli.block_identity_stable')
+    run('cli: completions: install converges on ONE block', not left,
+        None if not left else f'{len(left)} block(s) survive removal: {left} — removing one '
+        f'and writing one is not idempotence when two exist',
+        law='G20', check='cli.block_convergence')
+    run('cli: completions: the end marker does not open a block',
+        not cli.is_completion_marker(cli.COMPLETION_END),
+        None if not cli.is_completion_marker(cli.COMPLETION_END) else
+        f'{cli.COMPLETION_END!r} matches the start-marker test — a block would end where it '
+        f'begins and removal would take the wrong extent',
+        law='G20', check='cli.block_identity_stable')
+
     # The run pipeline's command-backed steps (help.csv's `step` column). Each must
     # appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
     # plan speaks the command surface a reader would type, and a step can never invoke
