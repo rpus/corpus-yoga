@@ -8,7 +8,7 @@
 #   yoga forge                 # declared vs live
 #   yoga forge --tsv           # the same rows, for a reader that is a program
 #   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
-#   yoga forge merge <pr>      # reconcile, then squash-merge that PR
+#   yoga forge merge <pr> [--dry-run]   # check everything, then squash-merge that PR
 #
 # sync is --apply-gated because it writes OUTSIDE the repo, to a server other people see —
 # the consent `agent receive` requires, for the same reason.
@@ -101,14 +101,57 @@ sync() {
   done
 }
 
+# Everything checkable, BEFORE the irreversible step. gh squashes server-side, so nothing
+# local is half-done — but delete_branch_on_merge means the branch and its individual
+# commits stop being reachable the moment it succeeds. A check after that is worthless, and
+# the assembled message is the one thing that cannot be inspected afterwards.
 merge() {
-  local pr="${1-}"
+  local pr="${1-}" dry=""
+  [[ "${2-}" == "--dry-run" ]] && dry=1
+  [[ "$pr" == "--dry-run" ]] && { echo "yoga forge merge: --dry-run comes after the PR" >&2; exit 1; }
   [[ -n "$pr" ]] || { echo "yoga forge merge: which PR? (a number, a URL, or a branch)" >&2; exit 1; }
-  status || { echo "yoga forge merge: forge settings drift — reconcile first (commands above); merging now would compose main's history by rules nobody declared" >&2; exit 1; }
+
+  # 1. the forge itself: merging under undeclared settings composes main by rules nobody wrote
+  status || { echo "yoga forge merge: forge settings drift — reconcile first (yoga forge sync --apply)" >&2; exit 1; }
+
+  # 2. the PR's own state, from the forge rather than from optimism
+  local json
+  json="$(cd "$REPO_DIR" && gh pr view "$pr" \
+    --json number,title,state,isDraft,mergeable,mergeStateStatus,headRefName,headRefOid,commits 2>/dev/null)" \
+    || { echo "yoga forge merge: no such PR: $pr" >&2; exit 1; }
+  local n title state draft mergeable mstate head oid
+  n=$(jq -r .number <<< "$json");        title=$(jq -r .title <<< "$json")
+  state=$(jq -r .state <<< "$json");     draft=$(jq -r .isDraft <<< "$json")
+  mergeable=$(jq -r .mergeable <<< "$json"); mstate=$(jq -r .mergeStateStatus <<< "$json")
+  head=$(jq -r .headRefName <<< "$json"); oid=$(jq -r .headRefOid <<< "$json")
   echo
-  # No --subject, no --body: the forge assembles the message from the branch's commits,
-  # which is where the signatures are.
-  cd "$REPO_DIR" && gh pr merge "$pr" --squash
+  echo "PR #$n $title"
+  echo "  head: $head @ ${oid:0:8} · state: $state · mergeable: $mergeable/$mstate"
+  [[ "$state"     == OPEN      ]] || { echo "yoga forge merge: #$n is $state — nothing to merge" >&2; exit 1; }
+  [[ "$draft"     == false     ]] || { echo "yoga forge merge: #$n is a draft — mark it ready first" >&2; exit 1; }
+  [[ "$mergeable" == MERGEABLE ]] || { echo "yoga forge merge: #$n is $mergeable ($mstate) — resolve that first; gh would fail or prompt" >&2; exit 1; }
+  # BEHIND matters for more than tidiness: a squash of an up-to-date branch lands exactly
+  # the branch's tree, which its own pre-commit hook already gated. Behind main, the merged
+  # tree is a combination nothing has ever checked.
+  [[ "$mstate"    == CLEAN     ]] || { echo "yoga forge merge: #$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first" >&2; exit 1; }
+
+  # 3. the INTENT: exactly what will land, since afterwards the parts are unreachable
+  echo
+  echo "the message the forge will assemble (squash_merge_commit_message: COMMIT_MESSAGES):"
+  echo "  $title (#$n)"
+  jq -r '.commits[] | "  * " + (.messageHeadline)' <<< "$json"
+  local sigs
+  sigs=$(jq -r '[.commits[] | select(.messageBody | test("(^|\n)Signature:"))] | length' <<< "$json")
+  echo "  — $(jq -r '.commits | length' <<< "$json") commit(s), $sigs carrying a Signature"
+  [[ "$sigs" -gt 0 ]] || echo "  ⚠ no commit carries a Signature: main would gain history no session can be joined to"
+
+  [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; return 0; }
+
+  # 4. the effect. No --subject, no --body: the forge assembles the message from the
+  # commits, which is where the signatures are. --match-head-commit closes the race
+  # between the head just inspected and the head merged.
+  echo
+  cd "$REPO_DIR" && gh pr merge "$n" --squash --match-head-commit "$oid"
 }
 
 case "${1-}" in
