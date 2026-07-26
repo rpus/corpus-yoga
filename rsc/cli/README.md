@@ -101,8 +101,9 @@ They are stated, followed, and reviewed by people.
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
   `model`, `supersede`, `xref`); the command's *whole act* where it has no verb and that
-  act is one free idempotent step (`run`, `check`, `prerequisites` — a set #47 reduces to
-  `prerequisites` alone, or to nothing); and a *usage refusal* where the verb is required
+  act is one free idempotent step (`check`, `prerequisites` — `run` left this set when it
+  became `pipeline run`, and #40 takes `check` to `test run`, leaving `prerequisites` alone
+  or nothing); and a *usage refusal* where the verb is required
   and bare is meaningless (`browser`, `cache`, `agent`).
 - **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the
   state it is about to change, then effects, then reports the state it left. The bracket is
@@ -165,7 +166,7 @@ here so that a check can cite them as they land (see #39).
   for something it does not name.
 - **G17 — The only invocation any output or document prescribes is a `yoga` command.**
   `unenforced (#46)` — never `run_python_script.sh`, never a script path.
-- **G18 — Every command is a noun.** `doctrine (#47)` — no command word is a verb, and
+- **G18 — Every command is a noun.** `doctrine (#47)` — `run` became `pipeline run`; `check` and `xref` remain, and #40 takes them to `test`. — no command word is a verb, and
   no flag names what the command grammar already addresses as a noun.
 
 The table is curated, not discovered: a script's absence here is a decision, not

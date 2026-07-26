@@ -344,7 +344,7 @@ status() {
 # render vs corpus+captures (free sync), captures vs corpus (paid capture).
 # Both are INFO atoms — normal conditions, not defects (the render lags because
 # the corpus grew; the captures lag because they are paid and deliberately out
-# of `run`) — so the run tail's hoisting carries them into every `yoga run`.
+# of `run`) — so the run tail's hoisting carries them into every `yoga pipeline run`.
 currency() {
   local corpus="$REPO_DIR/data/output/markdown"
   local render="$REPO_DIR/data/output/dashboard/presentation/index.html"
@@ -419,7 +419,7 @@ capture() {
   exec > >(tee -a "$log") 2>&1
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   local conv="${conversations:-$(corpus_conversations)}"
-  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`yoga run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`yoga pipeline run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
   # A dry run is the leading half, run alone: the extent and the intent, and nothing else.
