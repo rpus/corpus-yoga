@@ -151,7 +151,30 @@ merge() {
   # commits, which is where the signatures are. --match-head-commit closes the race
   # between the head just inspected and the head merged.
   echo
-  cd "$REPO_DIR" && gh pr merge "$n" --squash --match-head-commit "$oid"
+  cd "$REPO_DIR" && gh pr merge "$n" --squash --match-head-commit "$oid" || return $?
+
+  # 5. the extent afterwards. delete_branch_on_merge removes the REMOTE branch; the local
+  # one survives, and a squash makes it look unmerged to git — so `git branch -d` refuses
+  # and only -D will do it. The safety therefore cannot come from git's opinion: it comes
+  # from comparing the local tip with the head we just merged. Equal means everything local
+  # is in the squash; different means unpushed work, and the branch stays.
+  echo
+  git -C "$REPO_DIR" fetch --quiet --prune origin || true
+  local local_tip
+  if ! local_tip="$(git -C "$REPO_DIR" rev-parse --verify --quiet "refs/heads/$head")"; then
+    echo "local: no branch $head here — nothing to prune"
+    return 0
+  fi
+  local holder
+  holder="$(git -C "$REPO_DIR" worktree list --porcelain | awk -v b="refs/heads/$head" '
+    /^worktree /{w=$2} /^branch /{ if ($2==b) print w }')"
+  if [[ -n "$holder" ]]; then
+    echo "local: $head kept — still checked out at $holder"
+  elif [[ "$local_tip" == "$oid" ]]; then
+    git -C "$REPO_DIR" branch -D "$head" >/dev/null && echo "local: $head deleted (was ${oid:0:8}, the head just merged)"
+  else
+    echo "local: $head KEPT at ${local_tip:0:8} — the merged head was ${oid:0:8}, so it holds commits the squash did not"
+  fi
 }
 
 case "${1-}" in
