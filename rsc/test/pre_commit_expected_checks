@@ -1,5 +1,4 @@
 #
-#
 # A check is a type; a line in the report is one INVOCATION of it, over one schema,
 # A name here that never runs is the failure this file exists to catch: a check deleted,
 # The check TYPES the code and schema tiers run — the committed expectation.
@@ -13,6 +12,7 @@ cache_io.paths_resolve
 cache_io.pipeline_tags_match
 cache_io.read_implies_writer
 cache_io.registry_parses
+capture.monotone_record
 cli.advertised_flags_exist
 cli.block_convergence
 cli.block_identity_stable
