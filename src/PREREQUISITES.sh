@@ -319,7 +319,7 @@ check_pipeline_inputs() {
   if [[ "$n" -gt 0 ]]; then
     ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via yoga server start); not validated"
   else
-    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: yoga browser capture --DOM (gemini is DOM-only); not processed further"
+    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
   fi
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/bulk-export"/data-*/)"

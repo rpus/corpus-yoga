@@ -17,9 +17,9 @@ tell application "Safari"
 
 	set captureScript to scriptDir & "/safari_capture.sh"
 	if currentURL starts with "https://claude.ai/chat/" then
-		set agentFlag to "--agent claude"
+		set providerFlag to "--provider claude"
 	else if currentURL starts with "https://gemini.google.com/app/" and currentURL is not "https://gemini.google.com/app/" then
-		set agentFlag to "--agent gemini"
+		set providerFlag to "--provider gemini"
 	else
 		display alert "Navigate to a specific conversation first." & return & return & "For bulk capture, run from Terminal at the repo root: src/main/browser-captures/PREP.sh — or run export-all-conversations.applescript from the recents page." buttons {"OK"} default button "OK"
 		return
@@ -37,4 +37,4 @@ tell application "Safari"
 	set AppleScript's text item delimiters to oldDelimiters
 end tell
 
-do shell script quoted form of captureScript & " " & agentFlag & " --id " & quoted form of convId
+do shell script quoted form of captureScript & " " & providerFlag & " --id " & quoted form of convId
