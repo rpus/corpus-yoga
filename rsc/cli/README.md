@@ -144,6 +144,14 @@ They are stated, followed, and reviewed by people.
   reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`,
   `summaries`, `supersede` are exactly the `run_tail` steps, and the plan must name each
   by command AND verb — a bare noun would silently be a status no-op under G2.
+- **G20 — What a command installs outside the repo is identified by a stable token, and
+  every instance of it is removed.** `gated` `from L1` — the marker delimiting an installed
+  block carries advice to the reader, and advice is edited; identity is the part that must
+  not be. Matching the whole line made a wording change (`./yoga` → `yoga`) orphan every
+  block the earlier version had written: install inserted a second beside it, uninstall
+  could not remove it, and status called a wired shell unwired. Convergence therefore
+  removes EVERY recognised block, not the first — removing one and writing one is not
+  idempotence when two exist, and the survivor's `fpath` entry shadows the current one.
 
 ### The tree
 
