@@ -44,17 +44,39 @@ SKIP_DIRS  = _IGNORED_ROOTS | {'__pycache__'}
 SKIP_FILES = {'rsc/test/pre_commit.log', 'rsc/test/xref.csv'}
 
 # Python stdlib and known third-party modules — not repo files
-# A module name that is not a repo path. The stdlib half comes from the INTERPRETER
-# (sys.stdlib_module_names, exhaustive and current by construction) rather than from a list
-# someone maintains: the hand-written one omitted `concurrent`, so
-# a dotted stdlib import was read as a pointer into the repo and reported as a missing file.
-# A curated vocabulary that must keep pace with the stdlib is one that will not. (Written
-# without spelling the offending path, because this scanner reads comments too — the first
-# draft of this very comment was the next missing pointer.)
-THIRD_PARTY_MODULES = {
-    'jsonschema', 'referencing', 'requests', 'yaml', 'toml', 'pytest',
-}
-STDLIB_MODULES = sys.stdlib_module_names | THIRD_PARTY_MODULES
+# A module name that is not a repo path — derived, both halves.
+#
+# The stdlib half comes from the INTERPRETER (sys.stdlib_module_names): the hand-written list
+# it replaced omitted `concurrent`, so a dotted stdlib import was read as a pointer into the
+# repo and reported as a missing file. (Written without spelling that path, because this
+# scanner reads comments too — the first draft of this comment was the next missing pointer.)
+#
+# The third-party half comes from the DECLARATION, src/requirements.txt. Its hand-written
+# predecessor listed six names where two are declared: requests, yaml, toml and pytest were
+# neither declared nor installed, so `import yaml` would have passed this check as
+# "third party" and then failed at runtime — the checker complicit in the break.
+#
+# requirements name DISTRIBUTIONS, imports name MODULES, and they differ (PyYAML provides
+# yaml), so the correspondence is read from installed metadata rather than assumed. Falling
+# back to the declared names keeps the scan working on a machine whose venv is not built yet
+# — a state PREREQUISITES reports.
+def _declared_modules() -> set[str]:
+    req = REPO_ROOT / 'src' / 'requirements.txt'
+    if not req.is_file():
+        return set()
+    declared = {re.split(r'[=<>\[;]', line, 1)[0].strip().lower()
+                for line in req.read_text().splitlines()
+                if line.strip() and not line.lstrip().startswith('#')}
+    try:
+        from importlib.metadata import packages_distributions
+        provided = {m for m, dists in packages_distributions().items()
+                    if any(d.lower() in declared for d in dists)}
+        return provided or declared
+    except Exception:
+        return declared
+
+
+STDLIB_MODULES = sys.stdlib_module_names | _declared_modules()
 
 # The DECLARED lifecycle roots, statically — never derived from the live
 # filesystem. Deriving them from iterdir() made the committed xref.csv depend

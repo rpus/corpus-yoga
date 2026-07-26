@@ -1,4 +1,4 @@
-pre_commit.py: 1570/1570 (data: machine-local)
+`src/test/pre_commit.py`: 1569/1570 (data: machine-local; 2 gating / 0 advisory section(s) failing)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -6,7 +6,9 @@ pre_commit.py: 1570/1570 (data: machine-local)
 
 ── check_xref ────────────────────────────────────────────────────────────────
   ✓ xref.no_bad_pointers
-  ✓ xref.score_matches_expectation
+  ✗ xref.score_matches_expectation
+      xref: 
+          expected: 0 missing-file, 0 bad-pointer, 16 self-only, 55 unreferenced  →  consider updating rsc/test/xref_expected_score
 
 ── check_cli_surface ─────────────────────────────────────────────────────────
   ✓ cli.table_parses
@@ -121,17 +123,25 @@ pre_commit.py: 1570/1570 (data: machine-local)
   ✓ mcp.up_to_date
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]
+  ✗ checks[code+schema]
+      checks[code+schema]: 65 types, 1569/1570 invocations passing
+          Fix failures in the code and schema tiers first
   ✓ checks  (2/2)
-  ✓ checks[code]
+  ✗ checks[code]
+      checks[code]: 29 types, 157/158 invocations passing
+          Fix failures in this tier first
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 65 types, 1570/1570 invocations passing
+  ✗ checks[code+schema]: 65 types, 1569/1570 invocations passing
+      Fix failures in the code and schema tiers first
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 29 types, 158/158 invocations passing
+  ✗ checks[code]: 29 types, 157/158 invocations passing
+      Fix failures in this tier first
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/pre_commit.log, never committed
 
-gate: PASS — code+schema 1570/1570 match the committed expectation; nothing here vetoes a commit
+FAIL — these gate: the hook vetoes the commit, and any run exits non-zero:
+  check_xref (1)
+  check_score (2)
