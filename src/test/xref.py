@@ -44,15 +44,17 @@ SKIP_DIRS  = _IGNORED_ROOTS | {'__pycache__'}
 SKIP_FILES = {'rsc/test/pre_commit.log', 'rsc/test/xref.csv'}
 
 # Python stdlib and known third-party modules — not repo files
-STDLIB_MODULES = {
-    'ast', 'csv', 'json', 're', 'sys', 'os', 'io', 'math', 'time', 'datetime',
-    'pathlib', 'collections', 'itertools', 'functools', 'typing', 'types',
-    'argparse', 'shutil', 'subprocess', 'hashlib', 'base64', 'copy', 'abc',
-    'dataclasses', 'enum', 'logging', 'warnings', 'traceback', 'inspect',
-    'textwrap', 'string', 'struct', 'socket', 'http', 'urllib', 'email',
-    'difflib', 'sqlite3', 'contextlib', 'threading', 'multiprocessing',
+# A module name that is not a repo path. The stdlib half comes from the INTERPRETER
+# (sys.stdlib_module_names, exhaustive and current by construction) rather than from a list
+# someone maintains: the hand-written one omitted `concurrent`, so
+# a dotted stdlib import was read as a pointer into the repo and reported as a missing file.
+# A curated vocabulary that must keep pace with the stdlib is one that will not. (Written
+# without spelling the offending path, because this scanner reads comments too — the first
+# draft of this very comment was the next missing pointer.)
+THIRD_PARTY_MODULES = {
     'jsonschema', 'referencing', 'requests', 'yaml', 'toml', 'pytest',
 }
+STDLIB_MODULES = sys.stdlib_module_names | THIRD_PARTY_MODULES
 
 # The DECLARED lifecycle roots, statically — never derived from the live
 # filesystem. Deriving them from iterdir() made the committed xref.csv depend

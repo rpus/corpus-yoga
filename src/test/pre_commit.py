@@ -34,6 +34,7 @@ Each diagnostic takes a schema path as argv[1], exits 0 on pass, 1 on fail.
 import csv
 import io
 import json
+import os
 import re
 import subprocess
 import sys
@@ -188,6 +189,26 @@ def _call(script, *args):
     return result.returncode == 0, output
 
 
+def _call_many(jobs):
+    """[(script, arg)] -> [(passed, output)] in JOB ORDER, run concurrently.
+
+    Each diagnostic is a separate interpreter start (~30ms), and the suite makes ~1400 of
+    them: that WAS the runtime — 44s wall at 95% of one core, while nine sat idle. The
+    children are independent by construction (each reads one schema and writes nothing), so
+    the only thing serialising them was the loop.
+
+    Order is restored before anything is reported, so the committed log is unchanged and the
+    parallelism is invisible in the artifact. run() is still called from one thread, in
+    sequence — a report assembled in completion order would differ run to run, which is
+    exactly what the committed log must not do (L2)."""
+    if not jobs:
+        return []
+    from concurrent.futures import ThreadPoolExecutor
+    workers = min(len(jobs), (os.cpu_count() or 4))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(lambda j: _call(j[0], str(j[1])), jobs))
+
+
 def _walk_pointer(doc: object, pointer: str) -> bool:
     node: Any = doc
     for tok in pointer.lstrip('/').split('/'):
@@ -312,12 +333,10 @@ def check_root_schema_diagnostics(run):
     root_schemas = sorted(RSC_SCHEMA.glob('*.json'))
     diagnostics  = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
 
-    for schema_path in root_schemas:
-        for script in diagnostics:
-            diag = script.stem
-            passed, output = _call(script, str(schema_path))
-            run(f'{diag}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
-                _diag_detail(output) if not passed else None, check=diag)
+    jobs = [(script, schema_path) for schema_path in root_schemas for script in diagnostics]
+    for (script, schema_path), (passed, output) in zip(jobs, _call_many(jobs)):
+        run(f'{script.stem}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
+            _diag_detail(output) if not passed else None, check=script.stem)
 
 
 def _schema_families() -> dict:
@@ -974,11 +993,10 @@ def check_versioned_schema_diagnostics(run):
             run(f'{schema_name}: no versions', False,
                 f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files', check='schema.has_versions')
             continue
-        for version in versions:
-            for script in diagnostics:
-                passed, output = _call(script, str(version))
-                run(f'{schema_name}: {script.stem}: {version.stem}', passed,
-                    _diag_detail(output) if not passed else None, check=script.stem)
+        jobs = [(script, version) for version in versions for script in diagnostics]
+        for (script, version), (passed, output) in zip(jobs, _call_many(jobs)):
+            run(f'{schema_name}: {script.stem}: {version.stem}', passed,
+                _diag_detail(output) if not passed else None, check=script.stem)
 
 
 def check_schema_join(run):
