@@ -27,7 +27,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 DECLARED="$REPO_DIR/rsc/forge.csv"
 
 # rows: STATUS \t key \t detail \t remedy — the ONE derivation, rendered by two callers
-# (this script's status, and PREREQUISITES' machine report).
+# (this script's status, and `yoga prerequisites`' machine report).
 reconcile() {
   [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\tgh not found (install: brew install gh)\t"; return; }

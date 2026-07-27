@@ -80,7 +80,7 @@ rsc/cli/commands.csv,10,path_str,src/main/model/indexing.py,Y,"indexing,src/main
 rsc/cli/commands.csv,11,path_str,src/main/chat-exports/memories.py,Y,"memories,src/main/chat-exports/memories.py,accumulate normalise project L1 L4,Deposit every distinct chat-memory state; "
 rsc/cli/commands.csv,12,path_str,src/main/model/model.py,Y,"model,src/main/model/model.py,project,per-schema definition catalogues, candidates for model.json"
 rsc/cli/commands.csv,13,path_str,src/main/pipeline.sh,Y,"pipeline,src/main/pipeline.sh,atomise validate supersession accumulate project,the pipelines, and the run over data/inpu"
-rsc/cli/commands.csv,14,path_str,src/PREREQUISITES.sh,Y,"prerequisites,src/PREREQUISITES.sh,L8,Read-only machine report — bare shows what needs attention, --show-all the lot"
+rsc/cli/commands.csv,14,path_str,src/prerequisites.sh,Y,"prerequisites,src/prerequisites.sh,L8,Read-only machine report — bare shows what needs attention, --show-all the lot"
 rsc/cli/commands.csv,15,path_str,src/main/model/server.sh,Y,"server,src/main/model/server.sh,project,serve the markdown corpus locally (LaTeX + turn deep links)"
 rsc/cli/commands.csv,16,path_str,src/main/chat-exports/summaries.py,Y,"summaries,src/main/chat-exports/summaries.py,accumulate project L1 L4,Deposit every distinct summary reading; render eac"
 rsc/cli/commands.csv,17,path_str,src/main/chat-exports/supersede.py,Y,"supersede,src/main/chat-exports/supersede.py,supersession L3,Do later bulk exports supersede earlier ones? Computed; nev"
@@ -192,18 +192,6 @@ rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as 
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
 rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
 rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
-src/PREREQUISITES.sh,2,comment,src/PREREQUISITES.sh,Y,# src/PREREQUISITES.sh — Report what this machine has and what yoga pipeline run would do.
-src/PREREQUISITES.sh,11,comment,src/PREREQUISITES.sh,Y,#   ./src/PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
-src/PREREQUISITES.sh,12,comment,src/PREREQUISITES.sh,Y,"#   ./src/PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items"
-src/PREREQUISITES.sh,161,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
-src/PREREQUISITES.sh,165,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
-src/PREREQUISITES.sh,238,call,src/test/run.sh,Y,"local script=""$REPO_ROOT/src/test/run.sh"" hook link dir"
-src/PREREQUISITES.sh,262,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-src/PREREQUISITES.sh,265,call,src/test/prepare_commit_msg.sh,Y,"local script=""$REPO_ROOT/src/test/prepare_commit_msg.sh"" hook link dir"
-src/PREREQUISITES.sh,289,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
-src/PREREQUISITES.sh,304,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
-src/PREREQUISITES.sh,362,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/PREREQUISITES.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
@@ -497,14 +485,14 @@ src/main/model/project_markdown.py,16,comment,src/run_python_script.sh,Y,src/run
 src/main/model/project_markdown.py,16,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-api data/input/claude/chat/browser-API        
 src/main/model/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>
 src/main/model/project_markdown.py,17,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>
-src/main/model/serve_markdown.py,28,comment,src/PREREQUISITES.sh,Y,source shared by ensure_assets (fetch) and src/PREREQUISITES.sh (report).
-src/main/model/serve_markdown.py,22,comment,src/PREREQUISITES.sh,Y,# visible and src/PREREQUISITES.sh can report against the same source.
+src/main/model/serve_markdown.py,28,comment,src/prerequisites.sh,Y,source shared by ensure_assets (fetch) and src/prerequisites.sh (report).
+src/main/model/serve_markdown.py,22,comment,src/prerequisites.sh,Y,# visible and src/prerequisites.sh can report against the same source.
 src/main/model/server.sh,5,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh                 # status: daemon + render-asset presence
 src/main/model/server.sh,6,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
 src/main/model/server.sh,7,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh stop
 src/main/model/server.sh,8,comment,src/main/model/server.sh,Y,"#   src/main/model/server.sh ensure-assets   # fetch the render libs into tmp/cache/, then exit"
 src/main/model/server.sh,19,call,src/main/model/serve_markdown.py,Y,"PY=(""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"")"
-src/main/model/server.sh,34,comment,src/PREREQUISITES.sh,Y,"# readiness report, with versions, is src/PREREQUISITES.sh's check_dependencies)"
+src/main/model/server.sh,34,comment,src/prerequisites.sh,Y,"# readiness report, with versions, is src/prerequisites.sh's check_dependencies)"
 src/main/model/server.sh,35,path_str,src/main/model/serve_assets.txt,Y,"local manifest=""$SCRIPT_DIR/serve_assets.txt"" dir=""$REPO_DIR/tmp/cache/serve_markdown"""
 src/main/pipeline.sh,2,comment,src/main/pipeline.sh,Y,"# src/main/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/pipeline.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -528,6 +516,18 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
+src/prerequisites.sh,2,comment,src/prerequisites.sh,Y,# src/prerequisites.sh — Report what this machine has and what yoga pipeline run would do.
+src/prerequisites.sh,11,comment,src/prerequisites.sh,Y,#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+src/prerequisites.sh,12,comment,src/prerequisites.sh,Y,"#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
+src/prerequisites.sh,161,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
+src/prerequisites.sh,165,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
+src/prerequisites.sh,238,call,src/test/run.sh,Y,"local script=""$REPO_ROOT/src/test/run.sh"" hook link dir"
+src/prerequisites.sh,262,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+src/prerequisites.sh,265,call,src/test/prepare_commit_msg.sh,Y,"local script=""$REPO_ROOT/src/test/prepare_commit_msg.sh"" hook link dir"
+src/prerequisites.sh,289,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
+src/prerequisites.sh,304,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
+src/prerequisites.sh,362,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -542,7 +542,7 @@ src/test/gen_changelog_matrix.py,15,comment,src/run_python_script.sh,Y,src/run_p
 src/test/gen_changelog_matrix.py,15,comment,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
 src/test/prepare_commit_msg.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 src/test/prepare_commit_msg.sh,33,comment,rsc/forge.csv,Y,"# messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by"
-src/test/prepare_commit_msg.sh,34,comment,src/PREREQUISITES.sh,Y,# ./src/PREREQUISITES.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+src/test/prepare_commit_msg.sh,34,comment,src/prerequisites.sh,Y,# ./src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
 src/test/prepare_commit_msg.sh,37,comment,src/test/prepare_commit_msg.sh,Y,#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
@@ -561,26 +561,27 @@ src/test/run.py,640,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO regis
 src/test/run.py,690,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
 src/test/run.py,692,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/run.py,698,comment,src/main/pipeline.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
-src/test/run.py,991,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/run.py,1012,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/run.py,1245,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/run.py,1392,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/run.py,1393,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/run.py,1000,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/run.py,1021,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/run.py,1254,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/run.py,1401,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/run.py,1402,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/run.py,391,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/run.py,100,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/run.py,109,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/run.py,123,path_str,src/main/code-agents/run.sh,Y,"fix_item_cmd      = 'src/main/code-agents/run.sh --code-agent',"
-src/test/run.py,895,path_str,rsc/cli/target_naming_pending.csv,Y,"None if not unknown else f'rsc/cli/target_naming_pending.csv names {"", "".join(unknown)}, '"
-src/test/run.py,1684,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1686,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1694,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1696,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,904,path_str,rsc/cli/target_naming_pending.csv,Y,"None if not unknown else f'rsc/cli/target_naming_pending.csv names {"", "".join(unknown)}, '"
+src/test/run.py,1693,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1695,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1703,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1705,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/run.py,727,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
-src/test/run.py,972,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/run.py,1062,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/run.py,1446,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/run.py,1456,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
-src/test/run.py,1645,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,876,comment,src/PREREQUISITES.sh,Y,"# comparison, which passed src/PREREQUISITES.sh (the last of the SHOUTING dialect"
+src/test/run.py,981,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/run.py,1071,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/run.py,1455,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/run.py,1465,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
+src/test/run.py,1654,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,21,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/run.sh,76,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"

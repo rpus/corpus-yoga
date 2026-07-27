@@ -269,7 +269,7 @@ Each law names its current enforcement (or the incident that taught it).
 - **L8 — Absence is a signal; failure surfaces.** Missing optional input =
   informative skip + exit 0; a crashed step must propagate (the corpus-mode
   silent-success regression, found and fixed in PR #1). Never fabricate a value
-  where the honest state is "unknown" (gemini's missing ordinals; PREREQUISITES'
+  where the honest state is "unknown" (gemini's missing ordinals; `yoga prerequisites`'
   "cannot verify").
 
 - **L9 — Currency.** A consumed derivation is kept current, by the mechanism its
