@@ -23,7 +23,7 @@ from gen_model_candidate import generate
 from model_curation import (documented, rejected, edge_queue, orphan_entries,
                              coverage_gaps, unrecorded_collisions)
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
 from argparse_help import enrich  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
