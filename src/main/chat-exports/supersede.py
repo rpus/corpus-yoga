@@ -283,8 +283,8 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
     export_only = sorted(set(latest_convs) - set(caps))
     capture_only = sorted(set(caps) - set(latest_convs))
     # The summary is a plain line: every noteworthy class below emits its own
-    # per-item WARN, so a WARN prefix here would always double-count one fact
-    # (observed as "2 WARN" for one ghost conversation, 2026-07-08).
+    # per-item WARN, so a WARN prefix here would always double-count one fact:
+    # one ghost conversation would be reported as two.
     print(f'{latest.name} vs captures: {len(shared)} shared — {in_sync} in-sync, '
           f'{ahead} capture-ahead, {len(stale)} capture-stale, {len(anomalies)} anomalies; '
           f'{len(export_only)} export-only (no local capture), '

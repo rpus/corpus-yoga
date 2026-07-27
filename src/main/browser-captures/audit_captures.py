@@ -109,8 +109,8 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
             # rendering artifact, which want opposite responses from a reader.
             kind = _attribute(kind, evidence, api_capture_dir / d.name / f'{d.name}.json')
         if kind not in ('exact', 'improved'):
-            # `detail` names the turns that differ — discarded until now, which left the
-            # reader with a count and no way to judge it without re-running the comparison
+            # `detail` names the turns that differ — discarded, it leaves the reader
+            # with a count and no way to judge it without re-running the comparison
             suspects.append((d.name, name, kind, detail))
     # One WARN per disagreeing DOM capture, naming the conversation the way the corpus
     # does (<NNN>-<title>, uuid8 beside it) and the turns that differ. Both sides compared

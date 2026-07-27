@@ -13,8 +13,8 @@
 #                                          # vN.log files beside it
 #
 # The pipeline LIST is derived, not declared: a directory under src/main/ holding a
-# run.sh is a pipeline. It was written out in five places before, so adding one meant
-# remembering all five; now the positional is validated against what exists.
+# run.sh is a pipeline. Written out as a list instead, adding a pipeline means finding
+# every place that list appears; the positional is validated against what exists.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga test run.
@@ -83,7 +83,7 @@ parse_args() {
       --plan) plan="1";                                               shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan]"; echo "Pass --help for more information."; exit 1 ;;
-      # A POSITIONAL names the pipeline, where --only used to. One way to say one thing:
+      # A POSITIONAL names the pipeline. One way to say one thing:
       # the noun-verb-object the surface already reads as, validated against the pipelines
       # that exist rather than against a list someone maintains.
       *)
@@ -232,11 +232,11 @@ section_error_lines() {
 # Every FAIL:/WARN:/INFO: ATOM, hoisted whole and GROUPED by severity — the
 # FAIL group, then WARN, then INFO — with the original log-BODY ORDER preserved
 # WITHIN each group. An atom is a reason line plus its INDENTED CONTINUATION: every
-# following line indented four or more, of which "→ run:" is one kind. It used to be
-# the reason plus "→ run:" lines alone, which meant an atom could not have a body —
-# a producer that put its detail on a second line lost the detail AND, because any
-# unmatched line closed the atom, the remedy beneath it. Silently: nothing reported
-# that the tail had eaten half a finding. Kept together (the body already pairs them;
+# following line indented four or more, of which "→ run:" is one kind. Taking the
+# reason plus "→ run:" lines alone would mean an atom cannot have a body: a producer
+# putting its detail on a second line loses the detail AND, because any unmatched line
+# closes the atom, the remedy beneath it — silently, since nothing reports that the
+# tail ate half a finding. Kept together (the body already pairs them;
 # the tail must never tear them into a reason-list and a separate command-rail — a
 # pile of buttons, pressed in some order, for reasons not stated). The grouping is safe
 # and purely ADDITIVE: the body is the source of truth (full context, true step
@@ -274,14 +274,13 @@ LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # for operations whose input spans them all (the pipelines' own run_tails fold
 # one pipeline's corpus; this folds the union). First member: indexing sync,
 # whose locators span claude chat, code sessions, and gemini — and whose
-# staleness was previously invisible to run (found 2026-07-22: the real
-# index.md still cited a retired verb name). Same command-backed step
+# staleness is invisible to a run that does not fold it — index.md goes on citing
+# whatever it cited when it was last built. Same command-backed step
 # discipline as the pipeline tails: the plan speaks `indexing sync`, and the
 # gate holds it to command AND verb (a declared step=corpus).
 #
-# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and
-# NECESSITY tests this comment used to carry (the PR #18 review, reading-room;
-# elevated to law by issue #19). indexing sync is here because its cell says
+# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
+# NECESSITY tests. indexing sync is here because its cell says
 # run (machine-local, mechanical, CLOSURE holds); dashboard sync is NOT,
 # because its captures are paid and out-of-run — CLOSURE fails, and a step
 # here would render fresh-LOOKING pages over silently lagging semantics.

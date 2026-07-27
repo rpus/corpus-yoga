@@ -27,8 +27,8 @@ REPO_ROOT = Path(__file__).parents[2]
 # The git-ignored lifecycle roots to skip — parsed from the committed .gitignore
 # (its one authority) rather than restated by hand. .gitignore is a committed source,
 # so this stays machine-invariant (L2) — unlike iterdir(); see the REF_EXTS note below.
-# Found 2026-07-14: the hand-kept copy still carried 'tmp' after its .gitignore line
-# was retired — two sources, already drifted. __pycache__ stays explicit: a universal
+# A hand-kept copy is a second source, free to go on naming a root the .gitignore
+# line has retired. __pycache__ stays explicit: a universal
 # Python artifact, always skipped whatever .gitignore says, not a repo lifecycle root.
 def _gitignored_roots() -> frozenset:
     roots = set()
@@ -80,15 +80,15 @@ STDLIB_MODULES = sys.stdlib_module_names | _declared_modules()
 
 # The DECLARED lifecycle roots, statically — never derived from the live
 # filesystem. Deriving them from iterdir() made the committed xref.csv depend
-# on which git-ignored dirs happened to exist at run time (found 2026-07-13:
-# a machine whose gate had already created a log root swallowed the whole token and
-# skipped it, while a fresh worktree without that root matched the same text from
-# `src/` inward and emitted a row — two machines, two artifacts,
-# one byte-identical tree). Freshness is the wrong invariant for a committed
+# on which git-ignored dirs happen to exist at run time: a machine whose gate has
+# already created a log root swallows the whole token and skips it, while a fresh
+# worktree without that root matches the same text from `src/` inward and emits a
+# row — two machines, two artifacts, one byte-identical tree. Freshness is the
+# wrong invariant for a committed
 # artifact; machine-invariance is the right one.
 # The artifact extensions xref recognises — ONE authority: every extractor's
-# token pattern and looks_like_repo_path derive from it. Before this constant,
-# eight sites carried five drifted vintages of the list. (The subprocess/exec
+# token pattern and looks_like_repo_path derive from it. Restated at each site, the
+# list drifts a vintage per site. (The subprocess/exec
 # scan stays narrower on purpose: only executables run.)
 REF_EXTS = ('py', 'sh', 'json', 'md', 'html', 'g4', 'txt', 'csv', 'log')
 _DOT_EXTS = tuple(f'.{e}' for e in REF_EXTS)
@@ -153,9 +153,8 @@ def looks_like_repo_path(s: str) -> bool:
     if lead:
         # leading ../ hops from a nested file are ordinary intra-repo relative
         # links — resolve() checks them against the referring file and rejects
-        # true escapes. Until 2026-07-13 this branch rejected them wholesale,
-        # which let a born-broken ../ext/ link in a schema CHANGELOG sail
-        # through unflagged.
+        # true escapes. Rejecting them wholesale lets a born-broken ../ext/ link
+        # in a schema CHANGELOG sail through unflagged.
         base = body.split('#')[0]
         return base.endswith(_DOT_EXTS) or (base.endswith('/') and '/' in base.rstrip('/'))
     # Explicit relative reference ./name.ext or ./name.ext#fragment

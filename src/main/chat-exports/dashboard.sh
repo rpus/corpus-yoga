@@ -24,9 +24,8 @@ FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 # The corpus's shape, stated ONCE: conversation markdown at any depth under a root.
-# Three call sites used to each decide this for themselves and disagreed — status counted
-# 137 conversations with `find -path`, chat_list matched two directory levels, and
-# corpus_conversations matched one. The corpus is two deep
+# Left to each call site, the depth is decided once per caller and they disagree — one
+# matching any depth, one two directory levels, one a single level. The corpus is two deep
 # (data/output/markdown/<source>/<kind>/conversations/), so capture reported "no projected
 # corpus" about the directory status had just counted, and told the reader to re-run a
 # pipeline that had already produced it. Depth belongs to the layout, not to each caller.
@@ -386,9 +385,8 @@ currency() {
 # very thing the dashboard describes. Its filenames carry ordered()'s canonical
 # numbering and its frontmatter the uuids, so the chat list and the rekey map read
 # straight off the OUTPUT layer: no batch selection, no atomise-first coupling —
-# capture works the moment the corpus exists. (Sourced from the frontier batch's
-# tmp/cache/<batch>/json/ before 2026-07-10; from data/input/conversations.json before that —
-# each move one layer further down the input→cache→output lifecycle.)
+# capture works the moment the corpus exists. Reading from a batch's cache, or from
+# an input file, couples the dashboard to a layer above the output it describes.
 corpus_conversations() {
   local d="$REPO_DIR/data/output/markdown"
   has_conversations "$d" && echo "$d"
