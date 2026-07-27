@@ -1709,6 +1709,10 @@ def check_xref(run):
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
         if actual != expected else None, law='L9', check='xref.score_matches_expectation')
+    # L9 is cited ONLY from here, never from mcp.up_to_date: that run() sits inside a
+    # network fetch, and when the fetch fails control leaves for the except branch and
+    # the citation never happens. A law must not look unenforced because a request timed
+    # out, so its citation lives on a check that cannot be skipped.
 
 
 def check_capture_monotone(run) -> None:
