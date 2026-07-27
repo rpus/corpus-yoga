@@ -1,11 +1,17 @@
 {
-  "help": "run every pipeline over data/input/, or the one named — processing only, never acquiring",
+  "help": "run every pipeline over data/input/, the one named, or one input item of it — processing only, never acquiring",
   "args": [
     {
       "name": "pipeline",
       "type": "<pipeline>",
       "cardinality": "",
       "help": "one pipeline by name (bare: all of them); validated against the pipelines that exist"
+    },
+    {
+      "name": "item",
+      "type": "<item>",
+      "cardinality": "",
+      "help": "one input item under that pipeline's root (bare: the whole root); passed to the pipeline's own singular flag"
     },
     {
       "name": "--plan",

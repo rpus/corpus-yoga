@@ -102,7 +102,7 @@ PIPELINES: dict[str, Pipeline] = {
         input             = INPUT / 'claude' / 'chat' / 'browser-API',
         input_glob        = '*/',
         subject_depth     = 1,
-        fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',
+        fix_item_cmd      = 'yoga pipeline run browser-captures',
     ),
     'chat-exports': Pipeline(
         schemas           = ['conversations', 'memories', 'projects', 'users'],
@@ -111,7 +111,7 @@ PIPELINES: dict[str, Pipeline] = {
         input             = INPUT / 'claude' / 'chat' / 'bulk-export',
         input_glob        = 'data-*/',
         subject_depth     = 1,
-        fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',
+        fix_item_cmd      = 'yoga pipeline run chat-exports',
     ),
     'code-agents': Pipeline(
         schemas           = ['session', 'sessionConversation', 'projectMemory'],
@@ -125,7 +125,7 @@ PIPELINES: dict[str, Pipeline] = {
         subject_depth     = 3,
         # validate.sh --code-agent-session consumes the tmp/cache/ session dir (conversion
         # from .jsonl comes first), so the runnable store-rooted unit is the project run.sh.
-        fix_item_cmd      = 'src/main/code-agents/run.sh --code-agent',
+        fix_item_cmd      = 'yoga pipeline run code-agents',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
         # Each project's memory/ is its own datum (projectMemory), a subject beside
         # the project's sessions: tmp/cache/code-agents/<machine>/<project>/memory/.
@@ -393,8 +393,8 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
     every schema version must be registered by some datum; every input entry must
     have been processed. Matrices are co-located with their data, so stale rows for
     departed data cannot exist — deleting a datum deletes its matrix."""
-    run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-    pipe_cmd = f'Run: src/main/{name}/run.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}'
+    run_cmd  = f'yoga pipeline sync {name}'
+    pipe_cmd = f'yoga pipeline run {name}'
     gen_rel  = pipeline.cache_output.relative_to(REPO_ROOT)
 
     print(f'\n  each {gen_rel}/<datum>/matrix.md must match the vN.log files under its validation/')
@@ -966,6 +966,35 @@ def check_cli_surface(run) -> None:
     run('prescriptions: some line prescribes something', bool(prescriptions),
         None if prescriptions else 'no `→ run:` line found — the scan is looking in the wrong place',
         law='G17', check='output.prescriptions_are_commands')
+
+    # Those prescriptions are lines this repo PRINTS, and the scan sees only the ones a
+    # clone prints. The data tier's remedies need data to print, so a remedy naming a
+    # script by path is invisible to any scan of output on a repo that ships none. They
+    # are read from the source instead: every `*_cmd` a remedy is built from must name a
+    # yoga command, whether or not this machine can print it.
+    for node in ast.walk(ast.parse((SRC / 'test' / 'run.py').read_text())):
+        if isinstance(node, ast.Assign) and node.targets and \
+                isinstance(node.targets[0], ast.Name) and node.targets[0].id.endswith('_cmd'):
+            name, val = node.targets[0].id, node.value
+        elif isinstance(node, ast.keyword) and (node.arg or '').endswith('_cmd'):
+            name, val = node.arg, node.value
+        else:
+            continue
+        if isinstance(val, ast.Constant) and isinstance(val.value, str):
+            head = val.value.split()[:1]
+        elif isinstance(val, ast.JoinedStr) and val.values and isinstance(val.values[0], ast.Constant):
+            head = str(val.values[0].value).split()[:1]
+        else:
+            continue                      # computed elsewhere; nothing to read here
+        if not head:
+            continue
+        ok = head[0] == 'yoga'
+        run(f'remedy: {name} at src/test/run.py:{val.lineno} names a yoga command', ok,
+            None if ok else
+            f'`{head[0]}` is a path, not a command a reader types — and this remedy prints '
+            f'only on a machine with data, where no scan of output can reach it',
+            law='G17', check='output.prescriptions_are_commands')
+
     declared = {c['command'] for c in cmds}
     # The scan reads SOURCE, so a token can carry the quoting and punctuation of the
     # string it sits in, and a remedy can be interpolated at run time. Neither is a
@@ -2279,7 +2308,11 @@ def main():
                     print(f'      ↳ {g}')
                 continue
             print(f'  {cmd}')
-            subprocess.run(cmd, shell=True, cwd=REPO_ROOT)
+            # A hint names the command a reader types, which is `yoga` — on a PATH only an
+            # installed clone has. Run it through this repo's own entrypoint, so the hint
+            # stays typeable prose and still executes in a clone that installed nothing.
+            run_as = f'./{cmd}' if cmd.startswith('yoga ') else cmd
+            subprocess.run(run_as, shell=True, cwd=REPO_ROOT)
             for g in gs:
                 print(f'      ↳ {g}')
         print()
