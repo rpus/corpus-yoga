@@ -1065,9 +1065,8 @@ def check_cli_surface(run) -> None:
         check='output.remedy_lines_are_todos')
 
     # One venv, declared in several shell entrypoints and once more for the editor —
-    # so they are read and compared rather than described. The comment that used to
-    # carry this named two of the three files that set it, which is how a list-shaped
-    # comment rots: the third was added and nothing pointed at it.
+    # so they are read and compared here rather than described. A comment naming which
+    # files set it is a list that rots: a file is added and nothing points at it.
     venv_defaults = {}
     for sh in sorted((REPO_ROOT / 'src').rglob('*.sh')):
         for m in re.finditer(r'\$\{VENV:=([^}]+)\}', sh.read_text()):
@@ -1169,10 +1168,10 @@ def check_cli_surface(run) -> None:
                 for d in diags[:4])
     run('python: pyright reports nothing', py_ok, py_detail, check='python.pyright_clean')
 
-    # Every printed plan line names where its step is implemented (#45). The plan is
-    # the one place the whole program is listed, and it named no file at all: `validate`
-    # alone had four candidates. The label is no longer asked to resolve — the line
-    # carries the path, so a reader needs no rule about which namespace a label is in.
+    # Every printed plan line names where its step is implemented (#45). The plan is the
+    # one place the whole program is listed, and a bare label does not resolve there:
+    # `validate` alone has four candidates. The line carries the path, so a reader needs
+    # no rule about which namespace a label is in.
     plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     # ONE pattern, matched once. A filter and an extractor written separately can
@@ -1725,12 +1724,11 @@ def check_mcp_schema(run):
     # with no scratch form (#29). It is refusable like every other send here, through the
     # one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
     #
-    # An unreachable upstream is NOT a failure. It used to raise its own check, so an
-    # offline run failed three ways at once — the expected mcp.up_to_date never ran, an
-    # unexpected mcp.upstream_reachable did, and the schema tier lost a point — which meant
-    # no commit was possible without the internet. The label is CONSTANT and the result
-    # passes when the send did not happen, so the committed report is byte-identical on a
-    # machine that cannot reach github (the shellcheck and pyright precedent, and L2).
+    # An unreachable upstream is NOT a failure: raising on it makes the report depend on
+    # the network, and an offline machine unable to commit at all. The label is CONSTANT
+    # and the result passes when the send did not happen, so the committed report is
+    # byte-identical on a machine that cannot reach github (shellcheck and pyright skip
+    # the same way, and L2 requires it).
     drift = None
     if may_send():
         try:

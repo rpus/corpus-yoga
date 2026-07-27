@@ -277,9 +277,9 @@ check_cli() {
 }
 
 check_git_hook() {
-  # The one voice for this fact: run.sh used to probe its own installation
-  # too, and say so in its own words. Two probes, one fact — and its copy was
-  # downgraded to advice on the very branches where nothing was vetting at all.
+  # The one voice for this fact. A second probe — run.sh reporting on its own
+  # installation, in its own words — is two answers to one question, and the copy
+  # is free to soften into advice on the very branches where nothing is vetting.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
   local script="$REPO_ROOT/src/test/run.sh" hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then

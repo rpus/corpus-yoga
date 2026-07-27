@@ -81,10 +81,9 @@ branches() {
     n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); oid=$(jq -r .headRefOid <<< "$pr_json")
     if [[ "$st" == CLOSED ]]; then
       # A closed PR is not an abandoned branch. It may hold the only copy of that work, or
-      # it may have been folded into another PR and closed as redundant — and prune refused
-      # both alike, saying only "#N is CLOSED", which is the one fact that does not answer
-      # the question. Containment does, and git can be asked: ancestry first, then patch-id,
-      # which a rebase or a cherry-pick preserves where the hash does not.
+      # it may have been folded into another PR and closed as redundant, and "#N is CLOSED"
+      # does not distinguish them. Containment does, and git can be asked: ancestry first,
+      # then patch-id, which a rebase or a cherry-pick preserves where the hash does not.
       if [[ -n "$holder" ]]; then
         echo -e "KEPT\t$b\t#$n is CLOSED, but the branch is checked out at $holder"
       elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "refs/heads/$base" 2>/dev/null; then
@@ -130,8 +129,8 @@ status() {
   done < <(reconcile)
 
   # The branches this checkout still holds. A merged branch surviving here is drift of the
-  # same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state that
-  # nothing named until now.
+  # same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state, and
+  # this is where it is named.
   local rows
   rows="$(branches)"
   if [[ -n "$rows" ]]; then
