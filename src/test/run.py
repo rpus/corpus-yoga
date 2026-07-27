@@ -939,6 +939,24 @@ def check_cli_surface(run) -> None:
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
 
+    # A report line that prescribes a REMEDY is a to-do, and must be emitted as one:
+    # `sync` lists the to-dos, so an actionable line left as `info` is invisible there
+    # while the report still shows it — and `sync` then says "every prerequisite is
+    # satisfied" about a machine that has work outstanding. Four lines were exactly that
+    # when sync landed, two of them inside case arms my reclassification pass never
+    # matched. The markers below are the unambiguous ones: "populate via" and "stash it"
+    # sit on lines describing absent DATA, which is context, not a task.
+    prereq = (REPO_ROOT / 'src' / 'prerequisites.sh').read_text()
+    REMEDY = ('→ run:', 'install via:', 'reinstall:', 'refresh:')
+    mislabelled = [line.strip()[:80] for line in prereq.splitlines()
+                   if 'info "' in line and any(m in line for m in REMEDY)]
+    run('prerequisites: every line prescribing a remedy is emitted as a to-do',
+        not mislabelled,
+        None if not mislabelled else
+        f'{len(mislabelled)} info line(s) carry a remedy and so never reach `sync`: '
+        + '; '.join(mislabelled[:2]),
+        check='output.remedy_lines_are_todos')
+
     # One venv, declared in several shell entrypoints and once more for the editor —
     # so they are read and compared rather than described. The comment that used to
     # carry this named two of the three files that set it, which is how a list-shaped
