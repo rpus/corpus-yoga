@@ -303,9 +303,9 @@ def command_forms(command: str) -> list[str]:
     subcommands = [s for s in order if s]
     base = f'yoga {command}'
     # ALWAYS the bare form first, then one per subcommand. It is not conditional in the
-    # grammar, so it is not conditional here: `yoga commands` used to print it for a
-    # command without subcommands and omit it for one with them, disagreeing with
-    # `yoga commands <one>`, which added it back separately.
+    # grammar, so it is not conditional here: making it depend on whether a command has
+    # subcommands puts `yoga commands` at odds with `yoga commands <one>`, which lists the
+    # bare form either way.
     forms = [_join(base, _render_args(bysub.get('', [])))]
     return forms + [_join(f'{base} {s}', _render_args(bysub[s])) for s in subcommands]
 

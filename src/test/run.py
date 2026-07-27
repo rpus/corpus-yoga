@@ -1065,9 +1065,8 @@ def check_cli_surface(run) -> None:
         check='output.remedy_lines_are_todos')
 
     # One venv, declared in several shell entrypoints and once more for the editor —
-    # so they are read and compared rather than described. The comment that used to
-    # carry this named two of the three files that set it, which is how a list-shaped
-    # comment rots: the third was added and nothing pointed at it.
+    # so they are read and compared here rather than described. A comment naming which
+    # files set it is a list that rots: a file is added and nothing points at it.
     venv_defaults = {}
     for sh in sorted((REPO_ROOT / 'src').rglob('*.sh')):
         for m in re.finditer(r'\$\{VENV:=([^}]+)\}', sh.read_text()):
@@ -1088,24 +1087,49 @@ def check_cli_surface(run) -> None:
             f'{want} — an editor resolving against a different venv sees different packages',
             check='naming.venv_default_agrees')
 
-    # A send is refusable through one switch, and src/main/send.py is the only place that reads
-    # it. Two readings is how the polarity of `== '1'` and `!= '1'` gets to disagree, and
-    # that is not hypothetical: the capture surface and this gate each read the environment
-    # for themselves, and disagreed about whether refusal was an error or a pass without
-    # anything saying so. Naming the switch in prose is fine anywhere; reading it is what
-    # is confined here.
-    reads = (rf"environ\.get\(\s*['\"]{SEND_SWITCH}", rf"environ\[\s*['\"]{SEND_SWITCH}",
-             rf"getenv\(\s*['\"]{SEND_SWITCH}", rf"\$\{{?{SEND_SWITCH}")
-    readers = [str(f.relative_to(REPO_ROOT))
-               for f in sorted((REPO_ROOT / 'src').rglob('*'))
-               if f.is_file() and f.suffix in ('.py', '.sh')
-               and f != REPO_ROOT / 'src' / 'main' / 'send.py'
-               and any(re.search(pat, f.read_text()) for pat in reads)]
+    # A send is refusable through one switch, and src/main/send.py is the only place that
+    # reads it out of the environment. One reading means refusal cannot come to mean two
+    # things: raise for a send that IS the work, skip for one that only checks stored data.
+    #
+    # Read by AST, not by pattern. A regex over the literal name is blind to the reading
+    # that imports SWITCH and passes it as a variable — which is the reading a second
+    # module would most naturally write, having found the constant. Naming the switch in
+    # prose stays free; only reaching into the environment for it is confined.
+    def _reads_switch(path):
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:
+            return False
+        aliases = {SEND_SWITCH}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module == 'send':
+                for a in node.names:
+                    if a.name == 'SWITCH':
+                        aliases.add(a.asname or a.name)
+        for node in ast.walk(tree):
+            arg = None
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+                    and node.func.attr in ('get', 'getenv') and node.args:
+                arg = node.args[0]
+            elif isinstance(node, ast.Subscript):
+                arg = node.slice
+            if isinstance(arg, ast.Constant) and arg.value == SEND_SWITCH:
+                return True
+            if isinstance(arg, ast.Name) and arg.id in aliases:
+                return True
+        return False
+
+    holder = REPO_ROOT / 'src' / 'main' / 'send.py'
+    readers = sorted(str(f.relative_to(REPO_ROOT))
+                     for f in (REPO_ROOT / 'src').rglob('*')
+                     if f.is_file() and f != holder
+                     and (_reads_switch(f) if f.suffix == '.py' else
+                          f.suffix == '.sh' and re.search(rf'\$\{{?{SEND_SWITCH}', f.read_text())))
     run(f'send: only src/main/send.py reads {SEND_SWITCH}', not readers,
         None if not readers else
         f'{", ".join(readers)} reads the switch directly — import may_send (skip and pass) '
-        f'or assert_may_send (raise) from src/main/send.py, so refusal cannot come to mean two '
-        f'things by accident',
+        f'or assert_may_send (raise) from src/main/send.py, so refusal cannot come to mean '
+        f'two things by accident',
         check='effects.send_switch_read_once')
 
     # Python is type-checked by pyright — Pylance's own engine — against
@@ -1144,10 +1168,10 @@ def check_cli_surface(run) -> None:
                 for d in diags[:4])
     run('python: pyright reports nothing', py_ok, py_detail, check='python.pyright_clean')
 
-    # Every printed plan line names where its step is implemented (#45). The plan is
-    # the one place the whole program is listed, and it named no file at all: `validate`
-    # alone had four candidates. The label is no longer asked to resolve — the line
-    # carries the path, so a reader needs no rule about which namespace a label is in.
+    # Every printed plan line names where its step is implemented (#45). The plan is the
+    # one place the whole program is listed, and a bare label does not resolve there:
+    # `validate` alone has four candidates. The line carries the path, so a reader needs
+    # no rule about which namespace a label is in.
     plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     # ONE pattern, matched once. A filter and an extractor written separately can
@@ -1700,12 +1724,11 @@ def check_mcp_schema(run):
     # with no scratch form (#29). It is refusable like every other send here, through the
     # one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
     #
-    # An unreachable upstream is NOT a failure. It used to raise its own check, so an
-    # offline run failed three ways at once — the expected mcp.up_to_date never ran, an
-    # unexpected mcp.upstream_reachable did, and the schema tier lost a point — which meant
-    # no commit was possible without the internet. The label is CONSTANT and the result
-    # passes when the send did not happen, so the committed report is byte-identical on a
-    # machine that cannot reach github (the shellcheck and pyright precedent, and L2).
+    # An unreachable upstream is NOT a failure: raising on it makes the report depend on
+    # the network, and an offline machine unable to commit at all. The label is CONSTANT
+    # and the result passes when the send did not happen, so the committed report is
+    # byte-identical on a machine that cannot reach github (shellcheck and pyright skip
+    # the same way, and L2 requires it).
     drift = None
     if may_send():
         try:

@@ -24,9 +24,9 @@ STEPS_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # the step's argv minus anything path-shaped: the verbs and flags that are part of the
 # program, without the machine paths that would break plan determinism. Called with the
-# arguments ONLY — never the command, which used to be included and leaked whenever the
-# command was not a path: `ensure_session_dir mkdir -p`, `prune_departed_gen
-# prune_departed_projects` (#45).
+# arguments ONLY — never the command: a command that is not path-shaped survives the
+# filter and lands in the plan as an argument of itself (`ensure_session_dir mkdir -p`,
+# `prune_departed_gen prune_departed_projects`) (#45).
 plan_args() {
   local arg out=''
   for arg in "$@"; do [[ "$arg" == */* ]] || out+=" $arg"; done

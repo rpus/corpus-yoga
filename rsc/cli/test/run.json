@@ -1,11 +1,11 @@
 {
-  "help": "the three-tier check suite — code and schema on any clone, data machine-local (also what the pre-commit hook runs)",
+  "help": "the three-tier check suite \u2014 code and schema on any clone, data machine-local (also what the pre-commit hook runs); SENDS one request to github to check the pinned MCP schema, which YOGA_NO_SEND=1 refuses without failing the run",
   "args": [
     {
       "name": "--fix",
       "type": "",
       "cardinality": "",
-      "help": "run every fix command, then stop — stages nothing (review and stage yourself)"
+      "help": "run every fix command, then stop \u2014 stages nothing (review and stage yourself)"
     }
   ]
 }

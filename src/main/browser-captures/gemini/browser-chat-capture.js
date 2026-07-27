@@ -248,9 +248,9 @@ function setupExporter() {
   async function startExport() {
     try {
       if (!liveRows().length) {
-        // Three guesses used to be offered here and none of them chosen, while the DOM held
-        // the evidence that separates them: WHICH page this is, and whether the selector
-        // matched anything at all before liveRows() dropped the inert ones.
+        // The DOM holds the evidence that separates the causes — WHICH page this is, and
+        // whether the selector matched anything at all before liveRows() dropped the inert
+        // ones. Read it and say which; a list of guesses leaves that work to the reader.
         const matched = document.querySelectorAll(SELECTORS.messageRow).length;
         throw new Error(
           `No live message rows at ${location.pathname} — ` + (matched
