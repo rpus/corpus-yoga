@@ -446,5 +446,5 @@ if __name__ == '__main__':
     except SendRefused as e:
         # Exit 3, distinct from 1 (captures failed): nothing was attempted, so the run has
         # no result to report -- it was refused before reaching the account.
-        print(f'refused: {e}', file=sys.stderr)
+        print(e, file=sys.stderr)
         raise SystemExit(3)
