@@ -973,10 +973,15 @@ def check_cli_surface(run) -> None:
     # --pythonpath names the venv explicitly: without it pyright resolves imports from
     # whatever python is on PATH, and a run without the venv reports 25 errors that are
     # nothing but unresolved third-party packages.
-    pyright = shutil.which('pyright')
+    # The VENV the repo builds, ONE resolution for both halves: which pyright runs, and
+    # which interpreter it analyses with. Looking pyright up on PATH alone made the check
+    # depend on the reader's shell — it ran here only because that shell happens to put
+    # the venv first, which is the same accident --pythonpath was added to avoid.
+    venv = Path(os.environ.get('VENV', str(Path.home() / 'venvs' / 'general')))
+    venv_pyright, venv_python = venv / 'bin' / 'pyright', venv / 'bin' / 'python'
+    pyright = str(venv_pyright) if venv_pyright.exists() else shutil.which('pyright')
     py_ok, py_detail = True, None
     if pyright:
-        venv_python = Path(os.environ.get('VENV', str(Path.home() / 'venvs' / 'general'))) / 'bin' / 'python'
         cmd = [pyright, '--outputjson']
         if venv_python.exists():
             cmd += ['--pythonpath', str(venv_python)]
