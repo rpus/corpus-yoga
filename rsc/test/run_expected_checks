@@ -1,12 +1,17 @@
 #
-# A check is a type; a line in the report is one INVOCATION of it, over one schema,
-# A name here that never runs is the failure this file exists to catch: a check deleted,
 # The check TYPES the code and schema tiers run — the committed expectation.
-# a check is written or removed, which is the event worth a deliberate edit.
+#
+# A check is a type; a line in the report is one INVOCATION of it, over one schema,
 # command or conversation. Adding a schema multiplies invocations and adds no check, so
-# on purpose rather than by reflex.
-# renamed, or skipped. A name that runs and is absent here is a new check, to be added
 # this file does not move when the corpus or the schema set grows — it moves only when
+# a check is written or removed, which is the event worth a deliberate edit.
+#
+# A name here that never runs is the failure this file exists to catch: a check deleted,
+# renamed, or skipped. A name that runs and is absent here is a new check, to be added
+# on purpose rather than by reflex.
+#
+# The names are sorted; the prose above is not a list and must not be sorted with them.
+#
 accumulate.trajectory_contract
 cache_io.paths_resolve
 cache_io.pipeline_tags_match
@@ -39,6 +44,7 @@ documentation.discriminator_fields_annotated
 documentation.every_definition_has_title_and_description
 documentation.null_only_fields_documented
 documentation.open_set_enums_documented
+effects.send_switch_read_once
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
 files.required_exists

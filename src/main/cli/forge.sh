@@ -323,16 +323,7 @@ merge() {
   # block the next pull, and nothing said so until the pull failed.
   echo
   echo "this checkout, now:"
-  echo "  branch: $(git -C "$REPO_DIR" branch --show-current) @ $(git -C "$REPO_DIR" rev-parse --short HEAD)"
-  local after
-  after="$(git -C "$REPO_DIR" status --porcelain)"
-  if [[ -z "$after" ]]; then
-    echo "  working tree: clean"
-  else
-    echo "  working tree:"
-    local f
-    while IFS= read -r f; do echo "    $f"; done <<< "$after"
-  fi
+  git -C "$REPO_DIR" status
 }
 
 case "${1-}" in

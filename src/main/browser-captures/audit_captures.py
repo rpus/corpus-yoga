@@ -424,5 +424,5 @@ if __name__ == '__main__':
         sys.exit(main())
     except SendRefused as e:
         # --live is a send; the filesystem audit is not. Exit 3 says refused, not "failed".
-        print(f'refused: {e}', file=sys.stderr)
+        print(e, file=sys.stderr)
         sys.exit(3)
