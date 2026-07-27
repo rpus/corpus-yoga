@@ -281,12 +281,18 @@ check_git_hook() {
   # installation, in its own words — is two answers to one question, and the copy
   # is free to soften into advice on the very branches where nothing is vetting.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
-  local script="$REPO_ROOT/src/test/run.sh" hook link dir
+  local script hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
   [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
+  # The hook lives in the git COMMON dir, which every worktree shares, and its link is
+  # relative to that dir — so it names the tree owning the git dir, which need not be this
+  # one. That is correct as it stands: run.sh re-execs the committing tree's own gate
+  # (src/test/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
+  # a to-do in every worktree and prescribe a reinstall that writes the identical link.
+  script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/src/test/run.sh"
   if [[ -L "$hook" ]]; then
     link="$(readlink "$hook")"
     [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
@@ -308,12 +314,18 @@ check_signature_hook() {
   # co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry
   # no signature — never a failure, so this reports informationally even when installed.
   sec "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
-  local script="$REPO_ROOT/src/test/prepare_commit_msg.sh" hook link dir
+  local script hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
   [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
+  # The hook lives in the git COMMON dir, which every worktree shares, and its link is
+  # relative to that dir — so it names the tree owning the git dir, which need not be this
+  # one. That is correct as it stands: run.sh re-execs the committing tree's own gate
+  # (src/test/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
+  # a to-do in every worktree and prescribe a reinstall that writes the identical link.
+  script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/src/test/prepare_commit_msg.sh"
   if [[ -L "$hook" ]]; then
     link="$(readlink "$hook")"
     [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
