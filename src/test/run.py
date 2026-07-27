@@ -1174,15 +1174,28 @@ def check_cli_surface(run) -> None:
     # no rule about which namespace a label is in.
     plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
-    # ONE pattern, matched once. A filter and an extractor written separately can
-    # disagree — these two did, on whether a non-space must precede the gap — and the
-    # extractor was then indexing a None the filter had promised could not occur.
-    named = r'\S\s{2,}((?:src|rsc)/\S+?)(?:\s|$)'
-    step_lines = [(l, m) for l in plan.splitlines() if (m := re.search(named, l))]
-    run('plan: every step line names an implementation', bool(step_lines),
-        None if step_lines else 'no plan line carries a repo-relative path',
+    # A STEP LINE is identified by its SHAPE, not by what it happens to carry: plan_line
+    # pads the label into a column, so a line with a gap of two or more spaces between two
+    # non-space tokens is a step. Selecting instead on "carries a src/ path" would let a
+    # step line naming no file pass by never being looked at — which is how two prep-phase
+    # lines printed a script path in the label column, with no file column at all, for as
+    # long as this check has existed.
+    step_lines = [l for l in plan.splitlines() if re.search(r'\S {2,}\S', l)]
+    run('plan: some line is a step', bool(step_lines),
+        None if step_lines else 'no plan line has the padded shape plan_line prints',
         law='G16', check='output.plan_lines_name_their_target')
-    for line, match in step_lines:
+    named = r'\S\s{2,}((?:src|rsc)/\S+?)(?:\s|$)'
+    for line in step_lines:
+        match = re.search(named, line)
+        typeable = line.strip().startswith('yoga ')
+        ok = bool(match) or typeable
+        run(f'plan: `{line.strip()[:44]}` says where it is implemented', ok,
+            None if ok else
+            f'`{line.strip()}` is a step line naming neither a repo-relative file nor a '
+            f'yoga command — a reader cannot tell whether to type it or where to find it',
+            law='G16', check='output.plan_lines_name_their_target')
+        if not match:
+            continue
         impl = match.group(1)
         exists = (REPO_ROOT / impl).is_file()
         run(f'plan: {impl}: the file the line names exists', exists,

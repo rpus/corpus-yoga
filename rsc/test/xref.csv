@@ -498,14 +498,14 @@ src/main/pipeline.sh,25,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/s
 src/main/pipeline.sh,119,call,src/run_python_script.sh,Y,"""$REPO_ROOT/src/run_python_script.sh"" ""$REPO_ROOT/src/test/gen_changelog_matrix.py"" \"
 src/main/pipeline.sh,119,call,src/test/gen_changelog_matrix.py,Y,"""$REPO_ROOT/src/run_python_script.sh"" ""$REPO_ROOT/src/test/gen_changelog_matrix.py"" \"
 src/main/pipeline.sh,161,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/main/pipeline.sh,271,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
-src/main/pipeline.sh,278,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/main/pipeline.sh,279,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
-src/main/pipeline.sh,284,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
-src/main/pipeline.sh,288,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/main/pipeline.sh,299,call,src/main/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/browser-captures/run.sh"" --plan | sed 's/^/  /'"
-src/main/pipeline.sh,303,call,src/main/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/chat-exports/run.sh"" --plan | sed 's/^/  /'"
-src/main/pipeline.sh,307,call,src/main/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/code-agents/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,279,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
+src/main/pipeline.sh,286,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/main/pipeline.sh,287,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
+src/main/pipeline.sh,292,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
+src/main/pipeline.sh,296,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/pipeline.sh,307,call,src/main/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/browser-captures/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,312,call,src/main/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/chat-exports/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,317,call,src/main/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/code-agents/run.sh"" --plan | sed 's/^/  /'"
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_occurrences.py,8,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_occurrences.py ""#/definitions/MessageFile"" \"
@@ -563,25 +563,25 @@ src/test/run.py,7,comment,src/test/run.sh,Y,src/test/run.sh --fix   # run all fi
 src/test/run.py,645,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
 src/test/run.py,697,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/run.py,703,comment,src/main/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
-src/test/run.py,1396,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/run.py,1417,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/run.py,1674,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/run.py,1836,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/run.py,1837,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/run.py,1409,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/run.py,1430,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/run.py,1687,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/run.py,1849,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/run.py,1850,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/run.py,960,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
-src/test/run.py,2136,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2138,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2146,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2148,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2149,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2151,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2159,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2161,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/run.py,1090,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/run.py,1375,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/run.py,1432,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/run.py,1491,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/run.py,1725,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
-src/test/run.py,1890,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/run.py,1901,comment,rsc/cli/README.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/run.py,1901,comment,rsc/CALCULUS.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/run.py,2097,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,1388,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/run.py,1445,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/run.py,1504,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/run.py,1738,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
+src/test/run.py,1903,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/run.py,1914,comment,rsc/cli/README.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/run.py,1914,comment,rsc/CALCULUS.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/run.py,2110,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,21,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/run.sh,76,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"
