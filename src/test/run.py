@@ -682,13 +682,22 @@ def check_cache_io(run) -> None:
 
 def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     """A cache_io written_by/read_by entry resolves iff it is an `external:*` reader
-    (exempt), a `yoga <cmd>` whose command is in the table, or a path (its first
-    token) that exists in the repo."""
+    (exempt), a `[./]yoga` invocation whose command AND verb exist in the
+    declaration tree, or a path (its first token) that exists in the repo. The
+    verb is checked since the PR #109 review: a cell naming `indexing candidates`
+    read as clean after the verb became `list-candidates` — the command resolved,
+    the verb was never looked at, and `./yoga` entries dodged even that by
+    resolving as the launcher file's path. Tokens after the verb (a pipeline
+    name, a flag) are arguments, not resolution targets."""
     if entry.startswith('external:'):
         return True
-    if entry.startswith('yoga '):
-        return entry.split()[1] in commands
-    return (REPO_ROOT / entry.lstrip('./').split()[0]).exists()
+    words = entry.lstrip('./').split()
+    if words and words[0] == 'yoga':
+        if len(words) < 2 or words[1] not in commands:
+            return False
+        verb = words[2] if len(words) > 2 and not words[2].startswith('-') else None
+        return verb is None or verb in cli.subcommands_of(words[1])
+    return (REPO_ROOT / words[0]).exists() if words else False
 
 
 def check_cli_surface(run) -> None:
