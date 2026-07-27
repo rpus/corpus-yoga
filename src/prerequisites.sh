@@ -63,11 +63,13 @@ check_tools() {
   fi
   # Informational, never a ✗: absent, the gate skips its type check and still gates
   # deterministically. pyright is Pylance's own engine and reads the same
-  # pyrightconfig.json the editor does — one declaration, three readers.
+  # pyrightconfig.json the editor does — one declaration, three readers. It is a python
+  # package, so the venv this repo builds carries it; shellcheck below is not, which is
+  # why one arrives with `yoga pipeline run` and the other needs brew.
   if command -v pyright &>/dev/null; then
     ok "pyright ($(pyright --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
   else
-    info "pyright not found — yoga test run skips its type check; install into \$VENV via: pip install pyright"
+    info "pyright not found — yoga test run skips its type check; it is in src/requirements.txt, so: yoga pipeline run"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
