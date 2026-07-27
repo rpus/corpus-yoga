@@ -6,8 +6,11 @@
 # Usage:
 #   yoga pipeline                          # the pipelines this repo has (bare: status)
 #   yoga pipeline --names                  # their names alone, one per line
-#   yoga pipeline run [<pipeline>]         # run what bare lists, or one of them by name
+#   yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
+#                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
+#   yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from the
+#                                          # vN.log files beside it
 #
 # The pipeline LIST is derived, not declared: a directory under src/main/ holding a
 # run.sh is a pipeline. It was written out in five places before, so adding one meant
@@ -73,6 +76,7 @@ status() {
 
 parse_args() {
   only=""
+  item=""
   plan=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -83,8 +87,14 @@ parse_args() {
       # the noun-verb-object the surface already reads as, validated against the pipelines
       # that exist rather than against a list someone maintains.
       *)
+        # A SECOND positional is the one item to process, which every pipeline's run.sh
+        # already takes under its singular flag. Without it the pipeline runs over its
+        # whole input root, which is the only other thing a run can be about.
         if [[ -n "$only" ]]; then
-          echo "error: one pipeline at a time (already have $only, then $1)" >&2; exit 1
+          if [[ -n "$item" ]]; then
+            echo "error: one item at a time (already have $item, then $1)" >&2; exit 1
+          fi
+          item="$1"; shift; continue
         fi
         # No pipe to grep: under `set -o pipefail`, grep -q exits at the first match and
         # the producer dies of SIGPIPE, so a SUCCESSFUL match reads as a failed pipeline.
@@ -95,6 +105,19 @@ parse_args() {
         fi
         only="$1"; shift ;;
     esac
+  done
+}
+
+# sync REGENERATES (the verb's one meaning): each datum's matrix.md is re-rendered from
+# the vN.log files beside it, so the summary agrees with the logs it summarises.
+sync_matrices() {
+  parse_args "$@"
+  [[ -z "$item" ]] || { echo "yoga pipeline sync: takes a pipeline, not an item ($item)" >&2; exit 1; }
+  local p
+  for p in $(pipelines); do
+    should_run "$p" || continue
+    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/test/gen_changelog_matrix.py" \
+      --pipeline "$p" --write
   done
 }
 
@@ -298,6 +321,15 @@ main() {
   ensure_venv "$python"
   install_deps
 
+  # One item: the pipeline's own singular flag — browser-captures takes --browser-capture,
+  # chat-exports --chat-export, code-agents --code-agent. Derived by dropping the plural's
+  # 's' rather than listed, so a fourth pipeline needs no edit here. The corpus tail is not
+  # run: it reduces over everything, and this invocation is about one datum.
+  if [[ -n "$item" ]]; then
+    "$REPO_ROOT/src/main/$only/run.sh" "--${only%s}" "$item"
+    return $?
+  fi
+
   local -a pipeline_failures=()
 
   if should_run browser-captures; then
@@ -373,6 +405,7 @@ case "${1-}" in
   '')        status; exit 0 ;;
   --names)   pipelines; exit 0 ;;
   run)       shift ;;
+  sync)      shift; sync_matrices "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   # The pipeline runners call this file's siblings with their own --<name> flag; a bare
   # a bare --plan reaching here without `run` is a caller from before the verb existed,

@@ -1,0 +1,11 @@
+{
+  "help": "re-render each datum's matrix.md from the vN.log files beside it, so the summary agrees with the logs it summarises — every pipeline, or the one named",
+  "args": [
+    {
+      "name": "pipeline",
+      "type": "<pipeline>",
+      "cardinality": "",
+      "help": "one pipeline by name (bare: all of them)"
+    }
+  ]
+}
