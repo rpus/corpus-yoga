@@ -58,6 +58,7 @@ from validation_matrix import rows_from_logs  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
+from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
 sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + standalone commands)
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
@@ -1058,6 +1059,26 @@ def check_cli_surface(run) -> None:
             f'{want} — an editor resolving against a different venv sees different packages',
             check='naming.venv_default_agrees')
 
+    # A send is refusable through one switch, and src/main/send.py is the only place that reads
+    # it. Two readings is how the polarity of `== '1'` and `!= '1'` gets to disagree, and
+    # that is not hypothetical: the capture surface and this gate each read the environment
+    # for themselves, and disagreed about whether refusal was an error or a pass without
+    # anything saying so. Naming the switch in prose is fine anywhere; reading it is what
+    # is confined here.
+    reads = (rf"environ\.get\(\s*['\"]{SEND_SWITCH}", rf"environ\[\s*['\"]{SEND_SWITCH}",
+             rf"getenv\(\s*['\"]{SEND_SWITCH}", rf"\$\{{?{SEND_SWITCH}")
+    readers = [str(f.relative_to(REPO_ROOT))
+               for f in sorted((REPO_ROOT / 'src').rglob('*'))
+               if f.is_file() and f.suffix in ('.py', '.sh')
+               and f != REPO_ROOT / 'src' / 'main' / 'send.py'
+               and any(re.search(pat, f.read_text()) for pat in reads)]
+    run(f'send: only src/main/send.py reads {SEND_SWITCH}', not readers,
+        None if not readers else
+        f'{", ".join(readers)} reads the switch directly — import may_send (skip and pass) '
+        f'or assert_may_send (raise) from src/main/send.py, so refusal cannot come to mean two '
+        f'things by accident',
+        check='effects.send_switch_read_once')
+
     # Python is type-checked by pyright — Pylance's own engine — against
     # pyrightconfig.json, the ONE declaration of the import roots that the editor, this
     # gate and any CLI all read. `standard` mode, matching what an editor reports today;
@@ -1623,8 +1644,8 @@ def check_mcp_schema(run):
     raw_url     = m_url.group(1)
     stored_hash = m_hash.group(1)
     # This is the gate's only SEND — an outward call over the network, and the one effect
-    # with no scratch form (#29). It is declared here and refusable, like every other send
-    # in this repo: YOGA_NO_SEND=1 skips it.
+    # with no scratch form (#29). It is refusable like every other send here, through the
+    # one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
     #
     # An unreachable upstream is NOT a failure. It used to raise its own check, so an
     # offline run failed three ways at once — the expected mcp.up_to_date never ran, an
@@ -1633,7 +1654,7 @@ def check_mcp_schema(run):
     # passes when the send did not happen, so the committed report is byte-identical on a
     # machine that cannot reach github (the shellcheck and pyright precedent, and L2).
     drift = None
-    if os.environ.get('YOGA_NO_SEND') != '1':
+    if may_send():
         try:
             with urllib.request.urlopen(raw_url, timeout=15) as resp:
                 live_hash = hashlib.sha256(resp.read()).hexdigest()

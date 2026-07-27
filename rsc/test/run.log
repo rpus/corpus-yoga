@@ -1,4 +1,4 @@
-run.py: 1825/1825 (data: machine-local)
+run.py: 1827/1827 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -27,9 +27,10 @@ run.py: 1825/1825 (data: machine-local)
   ✓ output.prescriptions_are_commands  (47/47)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
+  ✓ effects.send_switch_read_once
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (33/33)
-  ✓ structure.file_at_level_of_subject  (18/18)
+  ✓ structure.file_at_level_of_subject  (19/19)
   ✓ structure.cli_declaration_mirrors_the_api  (18/18)
   ✓ structure.cli_declaration_validates  (48/48)
   ✓ cli.every_form_listed  (34/34)
@@ -145,11 +146,11 @@ run.py: 1825/1825 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 81 types, 1825/1825 invocations passing
+  ✓ checks[code+schema]: 82 types, 1827/1827 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 45 types, 413/413 invocations passing
+  ✓ checks[code]: 46 types, 415/415 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1825/1825 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1827/1827 match the committed expectation; nothing here vetoes a commit

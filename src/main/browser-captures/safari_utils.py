@@ -11,30 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import turn_extent  # noqa: E402 — the format authority owns the parsers
-
-
-class SendRefused(RuntimeError):
-    """Raised in place of an outward call when YOGA_NO_SEND=1, naming the send refused.
-
-    The sentence is composed here, once, so no raise site can word the refusal
-    differently and every catcher can print the exception unadorned."""
-
-    def __init__(self, what):
-        super().__init__(f'YOGA_NO_SEND=1 refuses this send: {what}')
-        self.what = what          # the subject alone, for a caller that wants to name it
-
-
-def assert_may_send(what):
-    """A SEND — driving Safari, fetching over a logged-in session — is the one effect with
-    no scratch form. A read can be pointed at a fixture and a write at a temp tree, but
-    redirecting where a capture LANDS does not stop the call going out: the account is
-    reached either way. So the only way to exercise a capture path without performing it is
-    to refuse it, and refusal has to live here, at the single point every outward call
-    passes through, where no path argument can route around it.
-
-    YOGA_NO_SEND=1 makes every one of them fail loudly instead of reaching the account."""
-    if os.environ.get('YOGA_NO_SEND') == '1':
-        raise SendRefused(what)
+from send import SendRefused, assert_may_send  # noqa: E402,F401 — every outward call below passes through it
 
 
 DOWNLOADS        = Path.home() / 'Downloads'
