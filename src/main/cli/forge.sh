@@ -240,8 +240,9 @@ merge() {
   local base current
   base="$(base_branch)"
   current="$(git -C "$REPO_DIR" branch --show-current)"
-  local dirty=""
-  [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]] || dirty=1
+  local dirty="" dirty_files=""
+  dirty_files="$(git -C "$REPO_DIR" status --porcelain)"
+  [[ -z "$dirty_files" ]] || dirty=1
 
   # 3. the INTENT: exactly what will land, since afterwards the parts are unreachable
   echo
@@ -261,7 +262,11 @@ merge() {
                              || echo "  this checkout stays on $current"
   echo "  $base fast-forwarded to include it"
   echo "  $head deleted here, if the merged head contains it"
-  [[ -z "$dirty" ]] || echo "  ⚠ this checkout has uncommitted changes — a real run refuses here"
+  if [[ -n "$dirty" ]]; then
+    echo "  ⚠ this checkout has uncommitted changes — a real run refuses here:"
+    local f
+    while IFS= read -r f; do echo "      $f"; done <<< "$dirty_files"
+  fi
 
   [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; return 0; }
 
@@ -312,6 +317,22 @@ merge() {
     fi
   done < <(branches)
   [[ -n "$found" ]] || echo "local: no branch $head here — nothing to prune"
+
+  # The trailing half of the bracket (G19), shown rather than asserted: which branch you
+  # are on and what the tree holds. A merge that leaves a modified artifact behind will
+  # block the next pull, and nothing said so until the pull failed.
+  echo
+  echo "this checkout, now:"
+  echo "  branch: $(git -C "$REPO_DIR" branch --show-current) @ $(git -C "$REPO_DIR" rev-parse --short HEAD)"
+  local after
+  after="$(git -C "$REPO_DIR" status --porcelain)"
+  if [[ -z "$after" ]]; then
+    echo "  working tree: clean"
+  else
+    echo "  working tree:"
+    local f
+    while IFS= read -r f; do echo "    $f"; done <<< "$after"
+  fi
 }
 
 case "${1-}" in
