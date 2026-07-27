@@ -6,13 +6,13 @@
 		}
 	],
 	"settings": {
-		"python.analysis.include": ["src"],
-		// mirrors the runtime import roots: shared modules at src/ (sys.path.insert in consumers),
-		// src/main/ (the parents[1] insert idiom), and each script's own directory (scripts import
-		// siblings directly — python puts the script dir on sys.path; Pylance needs telling)
-		"python.analysis.extraPaths": ["src", "src/main", "src/main/browser-captures", "src/main/chat-exports", "src/main/cli", "src/main/code-agents", "src/main/model", "src/test"],
-		"python.analysis.typeCheckingMode": "standard",
-		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python", // mirrors the VENV default in run_python_script.sh / src/main/pipeline.sh
+		// must name the same interpreter as the VENV default every shell entrypoint sets;
+		// held by check_venv_default, which reads them rather than trusting this line
+		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python",
+		// The import roots and type-checking mode live in pyrightconfig.json, which
+		// Pylance reads INSTEAD of python.analysis.* — so one declaration serves the
+		// editor, the pyright CLI, and `yoga test run`. Splitting them is what broke
+		// resolution when a partial config once shadowed eight paths with one.
 		"python.analysis.diagnosticMode": "workspace",
 		"python.terminal.activateEnvironment": false,
 		// Constant-titled CHANGELOG section headings (### Replaces, #### Restricted/

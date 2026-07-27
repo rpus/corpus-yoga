@@ -37,6 +37,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -913,6 +914,61 @@ def check_cli_surface(run) -> None:
                 f'{rel} writes or names tmp/logs/{seg}/, and `{seg}` is no command — a '
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
+
+    # One venv, declared in several shell entrypoints and once more for the editor —
+    # so they are read and compared rather than described. The comment that used to
+    # carry this named two of the three files that set it, which is how a list-shaped
+    # comment rots: the third was added and nothing pointed at it.
+    venv_defaults = {}
+    for sh in sorted((REPO_ROOT / 'src').rglob('*.sh')):
+        for m in re.finditer(r'\$\{VENV:=([^}]+)\}', sh.read_text()):
+            venv_defaults.setdefault(m.group(1), []).append(str(sh.relative_to(REPO_ROOT)))
+    agree = len(venv_defaults) == 1
+    run('venv: every entrypoint defaults it to the same place', agree,
+        None if agree else '; '.join(f'{v} in {", ".join(f_)}' for v, f_ in venv_defaults.items()),
+        check='naming.venv_default_agrees')
+    if agree:
+        declared = next(iter(venv_defaults)).replace('$HOME', '${env:HOME}')
+        want = f'{declared}/bin/python'
+        ws_text = (REPO_ROOT / 'claude-export-yoga.code-workspace').read_text()
+        found = re.search(r'"python\.defaultInterpreterPath":\s*"([^"]+)"', ws_text)
+        editor_ok = bool(found) and found.group(1) == want
+        run('venv: the editor interpreter is that same venv', editor_ok,
+            None if editor_ok else
+            f'the workspace names {found.group(1) if found else "(nothing)"}, the entrypoints '
+            f'{want} — an editor resolving against a different venv sees different packages',
+            check='naming.venv_default_agrees')
+
+    # Python is type-checked by pyright — Pylance's own engine — against
+    # pyrightconfig.json, the ONE declaration of the import roots that the editor, this
+    # gate and any CLI all read. `standard` mode, matching what an editor reports today;
+    # strict would demand ~4000 annotations to surface a tail that is currently all
+    # false positives (a heterogeneous PROVIDERS dict, and a call dispatched by
+    # inspect.signature, neither of which a type checker can follow).
+    #
+    # --pythonpath names the venv explicitly: without it pyright resolves imports from
+    # whatever python is on PATH, and a run without the venv reports 25 errors that are
+    # nothing but unresolved third-party packages.
+    pyright = shutil.which('pyright')
+    py_ok, py_detail = True, None
+    if pyright:
+        venv_python = Path(os.environ.get('VENV', str(Path.home() / 'venvs' / 'general'))) / 'bin' / 'python'
+        cmd = [pyright, '--outputjson']
+        if venv_python.exists():
+            cmd += ['--pythonpath', str(venv_python)]
+        proc = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT)
+        try:
+            report = json.loads(proc.stdout)
+        except json.JSONDecodeError:
+            report = None
+        if report is not None:
+            diags = [d for d in report['generalDiagnostics'] if d['severity'] == 'error']
+            py_ok = not diags
+            py_detail = None if py_ok else '; '.join(
+                f"{d['file'].replace(str(REPO_ROOT) + '/', '')}:"
+                f"{d['range']['start']['line'] + 1} {d['message'].splitlines()[0][:60]}"
+                for d in diags[:4])
+    run('python: pyright reports nothing', py_ok, py_detail, check='python.pyright_clean')
 
     # Every printed plan line names where its step is implemented (#45). The plan is
     # the one place the whole program is listed, and it named no file at all: `validate`

@@ -1,0 +1,16 @@
+{
+  "include": [
+    "src"
+  ],
+  "extraPaths": [
+    "src",
+    "src/main",
+    "src/main/browser-captures",
+    "src/main/chat-exports",
+    "src/main/cli",
+    "src/main/code-agents",
+    "src/main/model",
+    "src/test"
+  ],
+  "typeCheckingMode": "standard"
+}
