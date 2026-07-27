@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Capture Claude.ai or Gemini conversations via Safari automation.
 #
-# Two modes (orthogonal to the invoker — CLI, PREP.sh, or the macOS Shortcut):
+# Two modes (orthogonal to the invoker — CLI, browser.sh, or the macOS Shortcut):
 #   (no args)     Discover and capture all conversations, navigating in a work tab.
 #   --provider <p>  claude | gemini. Named provider, not "agent": `yoga agent` is the
 #                   code-agent session store, an unrelated thing, and one word cannot

@@ -1,6 +1,6 @@
 "command","target","calculus","summary"
 "agent","src/main/code-agents/agent.py","transport supersession merge L1 L3 L4 L6","code-agent sessions: the census, and transport between machines"
-"browser","src/main/browser-captures/PREP.sh","capture","capture browser-reachable chats via Safari (claude API, gemini DOM)"
+"browser","src/main/browser-captures/browser.sh","capture","capture browser-reachable chats via Safari (claude API, gemini DOM)"
 "cache","src/main/cli/cache.py","project","the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds"
 "calculus","rsc/CALCULUS.md","","Print the corpus calculus — the doctrine this table cites"
 "commands","src/main/cli/cli.py","project L5","each command's standard help (bare: every command's forms)"

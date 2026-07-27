@@ -18,7 +18,7 @@ Claude's DOM capture is also what compare_markdown checks the projection against
 
 Discovery (the conversation-id listing) is shared: navigate to the provider's listing URL and scroll.
 
-Two orthogonal behaviours, selected by targeting (the invoker — CLI, PREP.sh, or the
+Two orthogonal behaviours, selected by targeting (the invoker — CLI, browser.sh, or the
 macOS Shortcut — is independent of the mode):
   (no args)   Discover every conversation from the listing, then navigate through and
               capture all of them — in a dedicated work tab; the user's front tab is
@@ -342,10 +342,9 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
         for cid, why in failed:
             print(f'    {cid}: {why}', file=sys.stderr)
         if len(ids) > 1:
-            # a sweep's bulk remedy, beside the per-item ones above: fix the
-            # cause the FAIL lines name, then re-sweep (runnable, full path —
-            # a bare 'PREP.sh' names four different scripts in this repo)
-            print('    → run: src/main/browser-captures/PREP.sh'
+            # a sweep's bulk remedy, beside the per-item ones above: fix the cause
+            # the FAIL lines name, then re-sweep — named as the command a reader types
+            print('    → run: yoga browser capture'
                   '  # re-sweep after fixing the cause(s) the FAIL lines above name',
                   file=sys.stderr)
     return failed
@@ -370,7 +369,7 @@ def main():
     args = ap.parse_args()
 
     # `<provider> <mechanism>+…` per provider the restrictions leave non-empty. The one
-    # place the declaration is read by anyone but this file: PREP.sh loops over these
+    # place the declaration is read by anyone but this file: browser.sh loops over these
     # lines rather than holding a second copy of which provider has what.
     if args.scope:
         for name, cfg in sorted(PROVIDERS.items()):

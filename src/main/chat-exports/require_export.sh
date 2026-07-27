@@ -12,7 +12,7 @@
 #   4. Extract the downloaded archive into data/input/claude/chat/bulk-export/
 #
 # Usage:
-#   src/main/chat-exports/PREP.sh
+#   src/main/chat-exports/require_export.sh
 
 set -euo pipefail
 
