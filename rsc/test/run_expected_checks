@@ -66,6 +66,7 @@ naming.title_matches_key
 naming.upper_camel_case
 naming.venv_default_agrees
 output.plan_lines_name_their_target
+output.prescriptions_are_commands
 output.remedy_lines_are_todos
 python.pyright_clean
 schema.changelog_narrative

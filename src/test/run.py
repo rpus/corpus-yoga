@@ -939,6 +939,83 @@ def check_cli_surface(run) -> None:
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
 
+    # What the repo PRESCRIBES, in both the senses #46 and #76 ask for: the form of an
+    # invocation (a yoga command, never a script path) and its validity (flags the
+    # command actually advertises). One scan serves both — they are two halves of one
+    # sentence about prescribed invocations, and splitting them would mean writing the
+    # scanner twice.
+    #
+    # A PRESCRIPTION is a line carrying one of the repo's markers for "type this":
+    # → run:, reinstall:, replace:, refresh:, install via:. The same set the to-do check
+    # keys on, because a line that prescribes a remedy and a line that IS a remedy are
+    # the same line. Code that merely calls a script is not prescribing it, so an
+    # invocation elsewhere in a line is left alone — the distinction a grep for `src/`
+    # could not make.
+    prescriptions = []
+    for path in sorted(REPO_ROOT.rglob('*')):
+        if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json', '.applescript'):
+            continue
+        rel = path.relative_to(REPO_ROOT)
+        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':
+            continue
+        for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
+            m = re.search(r'(?:→ run:|reinstall:|replace:|refresh:|install via:)\s+(\S+)(.*)', line)
+            if m:
+                prescriptions.append((rel, i, m.group(1), m.group(2)))
+    run('prescriptions: some line prescribes something', bool(prescriptions),
+        None if prescriptions else 'no `→ run:` line found — the scan is looking in the wrong place',
+        law='G17', check='output.prescriptions_are_commands')
+    declared = {c['command'] for c in cmds}
+    # The scan reads SOURCE, so a token can carry the quoting and punctuation of the
+    # string it sits in, and a remedy can be interpolated at run time. Neither is a
+    # defect in the prescription, so both are handled rather than reported:
+    #   `browser capture'`   the closing quote of the python literal
+    #   `$remedy`, `{c}`     the invocation is computed, and cannot be read here
+    # And a STANDARD tool is not what #46 objects to — its complaint is a repo script
+    # prescribed by path, which a reader cannot type and cannot find.
+    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'brew', 'echo', 'mkdir', 'open', 'pip'}
+    def clean(tok):
+        return tok.strip('`\'",;)').lstrip('./')
+
+    def unreadable(tok):
+        # a regex or a format string, not an invocation — including this scanner's own
+        # pattern, which it finds in its own source and cannot be expected to parse
+        return not tok or any(c in tok for c in '$({\\')
+    for rel, i, head, rest in prescriptions:
+        head = clean(head)
+        if unreadable(head):
+            continue                      # computed at run time, or not an invocation
+        if head in STANDARD:
+            continue
+        ok = head == 'yoga' or head in declared
+        run(f'prescription: {rel}:{i} names a yoga command', ok,
+            None if ok else f'`→ run: {head}` prescribes a path, not a command a reader types',
+            law='G17', check='output.prescriptions_are_commands')
+        if not ok:
+            continue
+        words = [clean(w) for w in (rest if head == 'yoga' else f' {head}{rest}').split()]
+        words = [w for w in words if not unreadable(w)]
+        cmd = next((w for w in words if not w.startswith('-')), None)
+        if cmd is None or cmd not in declared:
+            continue
+        verbs = set(cli.subcommands_of(cmd))
+        after = words[words.index(cmd) + 1:]
+        verb = after[0] if after and not after[0].startswith('-') else ''
+        if verb and verb not in verbs:
+            run(f'prescription: {rel}:{i} names a verb `{cmd}` has', False,
+                f'`{cmd} {verb}` — its verbs are {sorted(verbs) or "(none)"}',
+                law='G17', check='output.prescriptions_are_commands')
+            continue
+        advertised = {r['arg-name'] for r in cli.command_rows(cmd)
+                      if r['arg-name'].startswith('--') and r['subcommand'] in ('', verb)}
+        used = [w for w in after if w.startswith('--')]
+        unknown = [f for f in used if f not in advertised]
+        form = f'{cmd} {verb}'.strip()
+        run(f'prescription: {rel}:{i} names flags `{form}` advertises', not unknown,
+            None if not unknown else
+            f'{", ".join(unknown)} — advertised: {sorted(advertised) or "(none)"}',
+            law='G17', check='output.prescriptions_are_commands')
+
     # A report line that prescribes a REMEDY is a to-do, and must be emitted as one:
     # `sync` lists the to-dos, so an actionable line left as `info` is invisible there
     # while the report still shows it — and `sync` then says "every prerequisite is

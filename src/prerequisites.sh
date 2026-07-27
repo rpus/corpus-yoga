@@ -242,7 +242,7 @@ check_machine() {
     # the same declaredness gate machine.py gives every consumer: an undeclared
     # binding would mint a phantom machine in the shared transport store
     info "bound: $name — but rsc/machine/machines.csv does not declare it (declared: ${declared:-none})"
-    echo "    → run: add a '$name' row to rsc/machine/machines.csv, or fix $rel"
+    echo "    ↳ add a \"$name\" row to rsc/machine/machines.csv, or fix $rel"
   fi
 }
 
@@ -321,12 +321,12 @@ check_signature_hook() {
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
       ok "installed: the symlink to src/test/prepare_commit_msg.sh"
     else
-      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
     fi
   elif [[ -e "$hook" ]]; then
-    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: yoga test install-hook"
   else
-    todo signature-hook "not installed — ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+    todo signature-hook "not installed — yoga test install-hook"
   fi
 }
 
