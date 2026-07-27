@@ -77,13 +77,13 @@ per-corpus code.
   collision caveat — user simplification, 2026-07-08), fingerprints only where
   content is unbounded (project doc bodies).
   Envelope timestamps are excluded: supersession claims retained *data*, not byte
-  equality of snapshots. (`src/main/chat-exports/compare_batches.py` atomisers.)
+  equality of snapshots. (`src/main/chat-exports/supersede.py` atomisers.)
 
 - **supersession (⊑)** — per unit: `subset` / `ORPHANED` (unit absent later —
   unique data) / `DIVERGENT` (atoms missing later — unique data). Per product:
   the conjunction over components. Verdicts are **computed, never assumed** — no
   component's class is encoded into the verdict logic (the *unprejudiced
-  principle*; user-stated, 2026-07-05). (`compare_batches.py`.)
+  principle*; user-stated, 2026-07-05). (`supersede.py`.)
 
 - **merge / union** — per class, as tabled above. Identity-keyed sets union
   trivially because keys are global; the only genuine collisions (overlapping
@@ -101,8 +101,8 @@ per-corpus code.
   semantics, not a proxy. Accumulation is what converts a mutable document's
   batch-retention problem into a deletion licence. One operation, one
   implementation: `accumulate()` in `src/main/chat-exports/accumulate.py`, called
-  by both the chat-memory library (`accumulate_memories.py`) and the
-  per-conversation summary store (`accumulate_summaries.py`).
+  by both the chat-memory library (`memories.py`) and the
+  per-conversation summary store (`summaries.py`).
 
 - **transport** — identity-preserving copy between machines. Because identity is
   global and classes determine reconciliation, transport is `cp`: a session
@@ -136,7 +136,7 @@ per-corpus code.
   `rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and
   maintenance are one operation, and running it on a current corpus proves
   itself by silence. (`library.py`'s `dir_for()` dressing refresh and its
-  normalise CLI; `accumulate_memories.py`'s `normalise_stamps` — converged
+  normalise CLI; `memories.py`'s `normalise_stamps` — converged
   independently, 2026-07-06.)
 
 - **capture** — acquire a non-reproducible reading from an oracle: a model
@@ -154,7 +154,7 @@ per-corpus code.
   `data/output/`; the repo privileges no intelligence over another (user insight,
   2026-07-09; sharpened 2026-07-13).
   (`yoga dashboard capture`; `yoga indexing accept`/`reject`; the browser-captures
-  scrape; `accumulate_memories`.)
+  scrape; `memories.py`.)
 
 - **curate** — the disposal loop: the machine proposes candidates as a derived
   report, a human disposes in durable files, a gate reports anything pending —
@@ -340,9 +340,9 @@ the fact.
 ## Encoding roadmap
 
 The generic interface already exists in embryo, four times:
-`compare_batches.py`'s `COMPONENTS` (atomisers + one generic comparator),
+`supersede.py`'s `COMPONENTS` (atomisers + one generic comparator),
 `library.py` (identity resolution + dressing normalisation + set merge),
-`accumulate_memories.py` (mutable-document accumulation), and
+`memories.py` (mutable-document accumulation), and
 `src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 merge). The spectre they jointly raise is a `Mergeable` protocol (user-named,
 2026-07-07): a resource class supplies its merge, and the laws supply the

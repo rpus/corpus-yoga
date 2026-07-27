@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-accumulate_summaries.py — deposit every distinct conversation summary durably.
+summaries.py — deposit every distinct conversation summary durably.
 
 The summary is a per-snapshot oracle READING of a conversation (a nondeterministic
 emission: the same transcript has been observed to re-read differently — №99,
@@ -8,7 +8,7 @@ two exports ten hours apart, identical updated_at), carried by every bulk export
 and every browser capture, and lossy between snapshots: the backend regenerates it
 at will, exports supersede each other, captures refresh in place. Each distinct
 reading is deposited once, durably, so batches and captures may churn while no
-reading is ever lost — and compare_batches' summaries component recognises the
+reading is ever lost — and supersede' summaries component recognises the
 deposits as its unconditional licence.
 
 The summary store and the chat-memory library are the two callers of the shared
@@ -32,7 +32,7 @@ written, is never modified. Everything derives from the local corpora — L1:
 re-running is silence on disk.
 
 Usage (bare = status, the verb writes — the memories shape):
-  src/run_python_script.sh src/main/chat-exports/accumulate_summaries.py [sync] \\
+  src/run_python_script.sh src/main/chat-exports/summaries.py [sync] \\
       [--chat-exports-cache tmp/cache/chat-exports] [--browser-api data/input/claude/chat/browser-API] \\
       [--conversations-output data/output/markdown/claude/chat/conversations] \\
       [--summaries-output data/output/markdown/claude/chat/summaries]
@@ -48,7 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from markdown_projection import REPO, find_api_json
 
 from argparse_help import enrich, inherit_flags  # noqa: E402
-from compare_batches import batch_time  # noqa: E402 — the one batch-ordering authority
+from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
 from accumulate import accumulate, nearest_earlier_deposit  # noqa: E402 — the one deposit rule
 
 # A summary folder holds <stamp>.md deposits beside two non-deposits: index.md

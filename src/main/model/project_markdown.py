@@ -28,7 +28,7 @@ from markdown_projection import (REPO, project, ordered, find_api_json, render,
                                  md_validator, tree_problems, reconcile_dir)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'chat-exports'))
-from compare_batches import batch_time  # noqa: E402 — the one batch-ordering authority
+from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
 
 
 def _newest_batch_json():
@@ -52,7 +52,7 @@ def _msg_index(convs):
 
 def _currency(mine, other, label):
     """One line of KNOWN staleness for the frontmatter, from message-uuid sets (the
-    calculus's atom-subset — the same per-conversation comparison compare_batches
+    calculus's atom-subset — the same per-conversation comparison supersede
     --captures reports corpus-wide). `other` is None when the conversation is absent
     from the other corpus; `label` names that corpus."""
     if other is None:

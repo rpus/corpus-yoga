@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-accumulate_memories.py — accumulate every distinct chat-memory state into the
+memories.py — accumulate every distinct chat-memory state into the
 durable library, and project the accumulated timeline to markdown.
 
 Bulk exports are the ONLY log of chat memories, and the memory document is a
@@ -18,7 +18,7 @@ memory costs nothing, a rewrite is preserved forever, and a reverted-then-back
 document redeposits honestly. Deposits are never modified or removed; they
 outlive their batches, which is the point: once a batch's memory state is
 deposited, the batch's memories-divergence no longer blocks its deletion
-(compare_batches stays unprejudiced — the deposit report here is the licence,
+(supersede stays unprejudiced — the deposit report here is the licence,
 not a carve-out there).
 
 The projection renders every deposit to data/output/markdown/claude/chat/memories/<stamp>.md (this
@@ -28,7 +28,7 @@ gains a diffable timeline of what claude.ai believed about the user at each
 export.
 
 Usage (wired into src/RUNME.sh after the per-batch stages):
-    src/run_python_script.sh src/main/chat-exports/accumulate_memories.py \
+    src/run_python_script.sh src/main/chat-exports/memories.py \
       [--chat-exports-cache tmp/cache/chat-exports] [--memories-output data/output/memories] \
       [--markdown data/output/markdown/claude/chat/memories]
 """
@@ -40,7 +40,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from compare_batches import batch_time
+from supersede import batch_time
 from accumulate import accumulate  # the one deposit rule (issue #22)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path

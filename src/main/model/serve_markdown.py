@@ -2,7 +2,7 @@
 """
 Local HTTP server for browsing and searching markdown files.
 
-Driven by serve_markdown.sh (the `yoga server` verbs: start / stop / ensure-assets /
+Driven by server.sh (the `yoga server` verbs: start / stop / ensure-assets /
 bare status). This module's own flags — used by that wrapper — are --markdown DIR
 (required to serve), --port, and --ensure-assets (fetch the render libs, then exit).
 """

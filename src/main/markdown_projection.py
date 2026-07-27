@@ -114,7 +114,7 @@ def render(conv, frontmatter=None, summaries_link=None):
     file's outbound links as proper named hyperlinks (clickable in any markdown
     renderer, not just the serve viewer): the conversation's claude.ai URL always, and
     — when `summaries_link` is given (the data/output/ render) — the conversation's summary
-    readings index (accumulate_summaries.py's deposits). The summary itself is DATA
+    readings index (summaries.py's deposits). The summary itself is DATA
     carried but never body-rendered; the preamble holds no bare URLs and no headings,
     so the file's only ## headings are the turns."""
     label = {'human': 'Human', 'assistant': 'Claude'}

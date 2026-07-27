@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-gen_model.py — per-schema definition catalogues, candidates for rsc/schema/model.json.
+model.py — per-schema definition catalogues, candidates for rsc/schema/model.json.
 Output: tmp/cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring
 rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
 

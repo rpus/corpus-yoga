@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-compare_batches.py — do later bulk exports SUPERSEDE earlier ones?
+supersede.py — do later bulk exports SUPERSEDE earlier ones?
 
 A bulk export is a synchronised snapshot of FOUR components: conversations,
 memories, projects, users — licensed here as FIVE, because a conversation
@@ -41,7 +41,7 @@ witness's own retention; diachronic appending is checked per pair, never
 assumed) and the unconditional DEPOSITS that outlive every batch: for
 memories, the byte-identical copy in data/output/memories; for summaries, every
 reading held verbatim in data/output/markdown/claude/chat/summaries
-(accumulate_summaries.py). A component with no witness and no deposit is
+(summaries.py). A component with no witness and no deposit is
 unique data — a loud WARN, and the batch is not deletable until it is
 deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
@@ -56,7 +56,7 @@ deletion stays deliberate, so the machinery names the orphan rather than
 resurrecting it.
 
 Usage:
-  src/run_python_script.sh src/main/chat-exports/compare_batches.py \
+  src/run_python_script.sh src/main/chat-exports/supersede.py \
     [--chat-exports-cache tmp/cache/chat-exports] [--bulk-exports data/input/claude/chat/bulk-export] \
     [--memories-output data/output/memories] \
     [--summaries-output data/output/markdown/claude/chat/summaries] \
@@ -235,7 +235,7 @@ def deposit_witness(gen_dir, ext_dir, lib_dir: Path):
 
 
 def summaries_deposit_fps(lib_dir: Path):
-    """Fingerprints of every deposited summary reading (accumulate_summaries.py's
+    """Fingerprints of every deposited summary reading (summaries.py's
     verbatim <ts>.md / browser-capture.md files) — the summaries component's
     unconditional licence: deposits outlive every batch and every capture refresh."""
     fps = set()

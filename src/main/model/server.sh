@@ -2,10 +2,10 @@
 # Local HTTP server for browsing and searching markdown files, with LaTeX rendering.
 #
 # Usage:
-#   src/main/model/serve_markdown.sh                 # status: daemon + render-asset presence
-#   src/main/model/serve_markdown.sh start [--markdown <dir>] [--port <n>] [--daemon]
-#   src/main/model/serve_markdown.sh stop
-#   src/main/model/serve_markdown.sh ensure-assets   # fetch the render libs into tmp/cache/, then exit
+#   src/main/model/server.sh                 # status: daemon + render-asset presence
+#   src/main/model/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
+#   src/main/model/server.sh stop
+#   src/main/model/server.sh ensure-assets   # fetch the render libs into tmp/cache/, then exit
 #
 # Defaults: --markdown data/output/markdown (the corpus the server exists to serve), --port 8182.
 
