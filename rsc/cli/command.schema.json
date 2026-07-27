@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CliCommand",
+  "description": "A command's own declaration: rsc/cli/<command>.json, or rsc/cli/<command>/<command>.json when the command has subcommands and is therefore a directory. Its FILENAME is the command word, so the name is not a field here — a directory cannot hold two entries of one name, which is how uniqueness stops being a check. This schema lives beside what it describes rather than under rsc/schema/, which is the data domain: the CLI declaration is this repo's own interface, not corpus data.",
+  "type": "object",
+  "required": ["summary", "target", "args"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The one-line description shown against the command in `yoga -h`."
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The repo-relative file the command execs, or prints when it is a .md. Its stem is the command word (#40) — held by naming.target_stem_matches_command, exactly for an executable and uppercased for a document."
+    },
+    "calculus": {
+      "type": "string",
+      "description": "Space-separated corpus-calculus terms and laws this command implements, each of which rsc/CALCULUS.md must define. Empty when it implements none."
+    },
+    "step": {
+      "type": "string",
+      "description": "Names the pipeline this command is a corpus-wide step of, when it is one. Absent otherwise."
+    },
+    "args": {
+      "type": "array",
+      "description": "Arguments accepted before any subcommand — the flags that attach to the bare noun, in the order they render.",
+      "items": {"$ref": "argument.schema.json#"}
+    }
+  }
+}

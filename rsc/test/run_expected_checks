@@ -69,6 +69,7 @@ schema.valid_json_with_schema
 structure.all_definitions_reachable
 structure.bfs_order
 structure.cli_declaration_mirrors_the_api
+structure.cli_declaration_validates
 structure.definitions_at_bottom
 structure.enum_refines_explicit_type
 structure.field_order

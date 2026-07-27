@@ -11,7 +11,11 @@ name, and a listing has no out-of-order state to be in. Subcommands therefore ap
 listing order, which is alphabetical — the filesystem offers no other.
 
 A command file carries `summary`, `target`, `calculus` and its command-level `args`; a
-subcommand file carries `help`, its `args`, and a `step` when it is one. Each argument is
+subcommand file carries `help`, its `args`, and a `step` when it is one. The three
+`*.schema.json` files here describe those shapes and are checked against every
+declaration — they sit beside what they describe rather than under `rsc/schema/`, which is
+the data domain; this is the repo's own interface, not corpus data. `additionalProperties`
+is false in all three, so a field nobody reads cannot accumulate unnoticed. Each argument is
 `{name, type, cardinality, help}`: `type` is the value metavar (`<uuid8>`, empty for a
 boolean flag), and `cardinality` is a literal count: empty
 is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken over the SET QUOTIENT

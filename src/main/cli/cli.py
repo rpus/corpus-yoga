@@ -90,7 +90,9 @@ def _declared_commands() -> list[str]:
     for p in CLI.iterdir():
         if p.is_dir():
             names.add(p.name)
-        elif p.suffix == '.json':
+        elif p.suffix == '.json' and not p.name.endswith('.schema.json'):
+            # the schemas describing these files live beside them (rsc/schema/ is the
+            # data domain), so the suffix is what tells a description from a declaration
             names.add(p.stem)
     return sorted(names)
 

@@ -913,6 +913,7 @@ def check_cli_surface(run) -> None:
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
                    if p.name not in ('README.md', 'readings.md', 'target_naming_pending.csv')
+                   and not p.name.endswith('.schema.json')
                    and (p.stem if p.suffix == '.json' else p.name) not in declared)
     run('cli: rsc/cli/ holds declarations and nothing else', not stray,
         None if not stray else f'{", ".join(stray)} is neither a command nor a known document',
@@ -933,6 +934,36 @@ def check_cli_surface(run) -> None:
             run(f'cli: {name}: declared as one file, having no subcommands', f.is_file(),
                 None if f.is_file() else f'{f.relative_to(REPO_ROOT)} is not a file',
                 law='G3', check='structure.cli_declaration_mirrors_the_api')
+
+    # Every declaration validates against the schema beside it. The schemas live in
+    # rsc/cli/ and not under rsc/schema/, which is the DATA domain: this is the repo's
+    # own interface, not corpus data. additionalProperties is false in all three, so a
+    # field nobody reads cannot accumulate in a file nobody would notice it in.
+    import jsonschema
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT4
+    schemas = {k: json.loads((cli_root / f'{k}.schema.json').read_text())
+               for k in ('command', 'subcommand', 'argument')}
+    # the same resolution idiom validate.py uses — RefResolver is deprecated and warns,
+    # and a warning on stderr would land in a committed report that must stay byte-stable
+    registry = Registry().with_resource(
+        'argument.schema.json',
+        Resource.from_contents(schemas['argument'], default_specification=DRAFT4))
+    for c in cmds:
+        name = c['command']
+        d = cli_root / name
+        decl = [(d / f'{name}.json', 'command')] if d.is_dir() else [(cli_root / f'{name}.json', 'command')]
+        if d.is_dir():
+            decl += [(f, 'subcommand') for f in sorted(d.glob('*.json')) if f.stem != name]
+        for path, kind in decl:
+            validator = jsonschema.Draft4Validator(schemas[kind], registry=registry)
+            errors = sorted(validator.iter_errors(json.loads(path.read_text())),
+                            key=lambda e: list(e.path))
+            run(f'cli: {path.relative_to(cli_root)}: validates as a {kind} declaration',
+                not errors,
+                None if not errors else
+                f'{errors[0].message} at {"/".join(str(x) for x in errors[0].path) or "(root)"}',
+                law='G3', check='structure.cli_declaration_validates')
 
     # Every typeable form is listed (#85). The bare noun is an alternative like any
     # other, so the forms number one per subcommand PLUS one — and the whole-table

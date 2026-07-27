@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "CliArgument",
+  "description": "One argument of a command or a verb. An argument is a FIELD of what declares it, not a thing with its own identity — which is where the declaration tree stops: a directory per flag would be fragmentation rather than structure.",
+  "type": "object",
+  "required": ["name", "type", "cardinality", "help"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The flag as typed (--session) or the positional's name. A flag never names a value of an axis its command already enumerates (G21)."
+    },
+    "type": {
+      "type": "string",
+      "description": "The value metavar — <uuid8>, claude|gemini — and empty for a boolean flag, which is how a flag is told from an option."
+    },
+    "cardinality": {
+      "type": "string",
+      "description": "Empty is optional; `1` is exactly one, required; `N/<class>` is N over the set quotient by <class>, the mutually-exclusive args sharing that class being one equivalence class."
+    },
+    "help": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The wording argparse shows for this argument; the target declares the structure, this the words."
+    }
+  }
+}
