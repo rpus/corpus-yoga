@@ -915,6 +915,30 @@ def check_cli_surface(run) -> None:
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
 
+    # One venv, declared in several shell entrypoints and once more for the editor —
+    # so they are read and compared rather than described. The comment that used to
+    # carry this named two of the three files that set it, which is how a list-shaped
+    # comment rots: the third was added and nothing pointed at it.
+    venv_defaults = {}
+    for sh in sorted((REPO_ROOT / 'src').rglob('*.sh')):
+        for m in re.finditer(r'\$\{VENV:=([^}]+)\}', sh.read_text()):
+            venv_defaults.setdefault(m.group(1), []).append(str(sh.relative_to(REPO_ROOT)))
+    agree = len(venv_defaults) == 1
+    run('venv: every entrypoint defaults it to the same place', agree,
+        None if agree else '; '.join(f'{v} in {", ".join(f_)}' for v, f_ in venv_defaults.items()),
+        check='naming.venv_default_agrees')
+    if agree:
+        declared = next(iter(venv_defaults)).replace('$HOME', '${env:HOME}')
+        want = f'{declared}/bin/python'
+        ws_text = (REPO_ROOT / 'claude-export-yoga.code-workspace').read_text()
+        found = re.search(r'"python\.defaultInterpreterPath":\s*"([^"]+)"', ws_text)
+        editor_ok = bool(found) and found.group(1) == want
+        run('venv: the editor interpreter is that same venv', editor_ok,
+            None if editor_ok else
+            f'the workspace names {found.group(1) if found else "(nothing)"}, the entrypoints '
+            f'{want} — an editor resolving against a different venv sees different packages',
+            check='naming.venv_default_agrees')
+
     # Python is type-checked by pyright — Pylance's own engine — against
     # pyrightconfig.json, the ONE declaration of the import roots that the editor, this
     # gate and any CLI all read. `standard` mode, matching what an editor reports today;

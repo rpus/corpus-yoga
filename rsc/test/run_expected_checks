@@ -64,6 +64,7 @@ naming.root_schema_title_matches_filename
 naming.target_stem_matches_command
 naming.title_matches_key
 naming.upper_camel_case
+naming.venv_default_agrees
 output.plan_lines_name_their_target
 python.pyright_clean
 schema.changelog_narrative

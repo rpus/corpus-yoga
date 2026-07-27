@@ -6,7 +6,9 @@
 		}
 	],
 	"settings": {
-		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python", // mirrors the VENV default in run_python_script.sh / src/main/pipeline.sh
+		// must name the same interpreter as the VENV default every shell entrypoint sets;
+		// held by check_venv_default, which reads them rather than trusting this line
+		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python",
 		// The import roots and type-checking mode live in pyrightconfig.json, which
 		// Pylance reads INSTEAD of python.analysis.* — so one declaration serves the
 		// editor, the pyright CLI, and `yoga test run`. Splitting them is what broke
