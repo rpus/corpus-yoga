@@ -63,6 +63,7 @@ naming.root_schema_title_matches_filename
 naming.target_stem_matches_command
 naming.title_matches_key
 naming.upper_camel_case
+output.plan_lines_name_their_target
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.valid_json_with_schema
