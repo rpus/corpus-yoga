@@ -83,7 +83,7 @@ REPO = Path(__file__).resolve().parents[3]
 
 def _rel(p: Path) -> Path:
     """Repo-relative spelling for printed paths — symmetric and brief whatever
-    spelling the caller passed (RUNME passes cache absolute, input relative), and
+    spelling the caller passed (run.sh passes cache absolute, input relative), and
     runnable from the repo root, where every printed command runs."""
     try:
         return p.relative_to(REPO)
@@ -289,7 +289,7 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
           f'{ahead} capture-ahead, {len(stale)} capture-stale, {len(anomalies)} anomalies; '
           f'{len(export_only)} export-only (no local capture), '
           f'{len(capture_only)} capture-only (absent from this export)')
-    # Each mismatched conversation is its own WARN: line — the top-level RUNME
+    # Each mismatched conversation is its own WARN: line — pipeline.sh
     # gathers WARN: (and "→ run:") lines verbatim into its tail, so the NAMES
     # reach the part of the log that gets read, not just the counts.
     def _blank(stem: str) -> bool:

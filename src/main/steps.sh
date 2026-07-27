@@ -1,10 +1,10 @@
 # shellcheck shell=bash
-# steps.sh — the step vocabulary shared by the RUNME entry points (sourced,
+# steps.sh — the step vocabulary shared by the pipeline runners (sourced,
 # not executed — hence a shell directive rather than a shebang).
 #
-# A RUNME body is a FLAT list of step calls — first-order style: no nesting,
+# A runner's body is a FLAT list of step calls — first-order style: no nesting,
 # just named calls — and that ONE list is both the executor and the plan.
-# With plan=1 (each RUNME's --plan flag) every step prints its name instead of
+# With plan=1 (each runner's --plan flag) every step prints its name instead of
 # running, so the printed plan can never drift from what executes. Conditional
 # steps always appear in the plan, annotated with their condition — the plan
 # shows the whole program, not the current flags. Each step prints its name

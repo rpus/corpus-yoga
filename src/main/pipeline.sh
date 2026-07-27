@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/RUNME.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
+# src/main/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
 # acquires. Each pipeline validates its inputs against all schema versions, then extracts,
 # projects and presents. Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
 #
@@ -10,14 +10,14 @@
 #     --plan            print the ordered step plan; run nothing
 #
 # The pipeline LIST is derived, not declared: a directory under src/main/ holding a
-# RUNME.sh is a pipeline. It was written out in five places before, so adding one meant
+# run.sh is a pipeline. It was written out in five places before, so adding one meant
 # remembering all five; now the positional is validated against what exists.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga check.
 
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 : "${VENV:=$HOME/venvs/general}"
@@ -27,7 +27,7 @@ source "$REPO_ROOT/src/main/steps.sh"
 pipelines() {
   local d
   for d in "$REPO_ROOT"/src/main/*/; do
-    if [[ -f "$d/RUNME.sh" ]]; then basename "$d"; fi
+    if [[ -f "$d/run.sh" ]]; then basename "$d"; fi
   done
   # `[[ … ]] && basename` would leave the LAST directory's test as the function's status, so
   # a final non-pipeline directory (src/main/cli, src/main/model) returned 1 — and under
@@ -50,7 +50,7 @@ status() {
   for name in $(pipelines); do
     phases=""
     [[ -f "$REPO_ROOT/src/main/$name/PREP.sh"  ]] && phases+="prep "
-    [[ -f "$REPO_ROOT/src/main/$name/RUNME.sh" ]] && phases+="run "
+    [[ -f "$REPO_ROOT/src/main/$name/run.sh" ]] && phases+="run "
     if [[ -f "$REPO_ROOT/src/main/$name/validate.sh" ]]; then
       phases+="validate"
     else
@@ -151,7 +151,7 @@ run_pipeline() {
   local name="$1"; shift
   echo "── ${name} ──────────────────────────────────────────────────────────────────"
   local rc=0
-  "$REPO_ROOT/src/main/$name/RUNME.sh" "--${name}" "$@" || rc=$?
+  "$REPO_ROOT/src/main/$name/run.sh" "--${name}" "$@" || rc=$?
   echo ""
   return $rc
 }
@@ -218,7 +218,7 @@ prep_pipeline_safe() {
   fi
 }
 
-LOG_FILE="$REPO_ROOT/tmp/logs/RUNME/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -257,15 +257,15 @@ print_plan() {
   echo "yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
   if should_run browser-captures; then
-    "$REPO_ROOT/src/main/browser-captures/RUNME.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/browser-captures/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run chat-exports; then
     echo "  chat-exports/PREP.sh"
-    "$REPO_ROOT/src/main/chat-exports/RUNME.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/chat-exports/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run code-agents; then
     echo "  code-agents/PREP.sh"
-    "$REPO_ROOT/src/main/code-agents/RUNME.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/code-agents/run.sh" --plan | sed 's/^/  /'
   fi
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
@@ -358,7 +358,7 @@ case "${1-}" in
   --names)   pipelines; exit 0 ;;
   run)       shift ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-  # The pipeline RUNMEs call this file's siblings with their own --<name> flag; a bare
+  # The pipeline runners call this file's siblings with their own --<name> flag; a bare
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;

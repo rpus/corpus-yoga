@@ -15,9 +15,9 @@ cannot drift from the helptext, because there is one source, not two — nothing
 no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
 prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
-as a step of the named run pipeline (`chat-exports`), or of the root RUNME's whole-corpus
+as a step of the named run pipeline (`chat-exports`), or of `pipeline.sh`'s whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
-input spans them all): the gate holds `src/RUNME.sh --plan` to
+input spans them all): the gate holds `src/main/pipeline.sh --plan` to
 invoking it by command AND verb, so the plan speaks the surface you would type and a step can
 never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
 files are written `QUOTE_ALL` so a comma in any cell is safe.

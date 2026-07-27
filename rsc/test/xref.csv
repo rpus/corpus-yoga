@@ -15,7 +15,7 @@ README.md,44,doc,src/test/prepare_commit_msg.sh,Y,- commit trailers (the `Signat
 README.md,45,doc,rsc/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles t"
 README.md,46,doc,src/test/pre_commit.py,Y,- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref check` (bare `yoga xref` shows statu
 README.md,53,doc,src/main/browser-captures/export.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/browser-captures/export.command`
-README.md,61,doc,src/RUNME.sh,Y,"`jq` and Python 3; `./src/RUNME.sh` creates the shared venv (`~/venvs/general`,"
+README.md,62,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
 README.md,65,doc,src/test/pre_commit.sh,Y,`ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
 README.md,67,doc,src/test/prepare_commit_msg.sh,Y,`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 README.md,72,doc,rsc/forge.csv,Y,`rsc/forge.csv` first and refuses on drift — so main's history is never composed by
@@ -57,7 +57,7 @@ rsc/CALCULUS.md,346,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/ag
 rsc/CALCULUS.md,369,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/cache_io.csv,2,path_str,src/test/pre_commit.py,Y,"tmp/cache/browser-captures/claude,browser-captures,./yoga pipeline run browser-captures,src/test/pre_commit.py,per-captu"
 rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,Two curated files describe the `yoga` terminal surface (machinery: `src/main/cli/cli.py`;
-rsc/cli/README.md,20,doc,src/RUNME.sh,Y,input spans them all): the gate holds `src/RUNME.sh --plan` to
+rsc/cli/README.md,20,doc,src/main/pipeline.sh,Y,input spans them all): the gate holds `src/main/pipeline.sh --plan` to
 rsc/cli/README.md,28,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
 rsc/cli/README.md,33,doc,src/main/argparse_help.py,Y,That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
 rsc/cli/README.md,42,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
@@ -81,7 +81,7 @@ rsc/cli/commands.csv,10,path_str,src/main/cli/forge.sh,Y,"forge,src/main/cli/for
 rsc/cli/commands.csv,11,path_str,src/main/model/indexing.py,Y,"indexing,src/main/model/indexing.py,capture curate project,Curate and build the book index over data/output/indexing/ (b"
 rsc/cli/commands.csv,12,path_str,src/main/chat-exports/memories.py,Y,"memories,src/main/chat-exports/memories.py,accumulate normalise project L1 L4,Deposit every distinct chat-memory state; "
 rsc/cli/commands.csv,13,path_str,src/main/model/model.py,Y,"model,src/main/model/model.py,project,per-schema definition catalogues, candidates for model.json"
-rsc/cli/commands.csv,14,path_str,src/RUNME.sh,Y,"pipeline,src/RUNME.sh,atomise validate supersession accumulate project,the pipelines, and the run over data/input/ that "
+rsc/cli/commands.csv,14,path_str,src/main/pipeline.sh,Y,"pipeline,src/main/pipeline.sh,atomise validate supersession accumulate project,the pipelines, and the run over data/inpu"
 rsc/cli/commands.csv,15,path_str,src/PREREQUISITES.sh,Y,"prerequisites,src/PREREQUISITES.sh,L8,Read-only machine report — bare shows what needs attention, --show-all the lot"
 rsc/cli/commands.csv,16,path_str,src/main/model/server.sh,Y,"server,src/main/model/server.sh,project,serve the markdown corpus locally (LaTeX + turn deep links)"
 rsc/cli/commands.csv,17,path_str,src/main/chat-exports/summaries.py,Y,"summaries,src/main/chat-exports/summaries.py,accumulate project L1 L4,Deposit every distinct summary reading; render eac"
@@ -94,21 +94,20 @@ rsc/cli/target_naming_pending.csv,2,path_str,src/main/browser-captures/PREP.sh,Y
 rsc/cli/target_naming_pending.csv,3,path_str,src/test/pre_commit.sh,Y,"check,src/test/pre_commit.sh,40,named for the git hook that invokes it; folds into `yoga test run` with #49"
 rsc/cli/target_naming_pending.csv,4,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there is n"
 rsc/cli/target_naming_pending.csv,5,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there i"
-rsc/cli/target_naming_pending.csv,6,path_str,src/RUNME.sh,Y,"pipeline,src/RUNME.sh,40,RUNME is an instruction to the reader; all four become run.sh, and the collision dissolves beca"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
 rsc/schema/WORKFLOW.md,26,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
 rsc/schema/WORKFLOW.md,87,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
 rsc/schema/WORKFLOW.md,88,doc,src/main/chat-exports/validate.sh,Y,src/main/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-rsc/schema/WORKFLOW.md,89,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
+rsc/schema/WORKFLOW.md,89,doc,src/main/code-agents/run.sh,Y,src/main/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
 rsc/schema/WORKFLOW.md,100,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,107,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,117,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,117,doc,src/test/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,117,doc,rsc/schema,Y,src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 rsc/schema/WORKFLOW.md,123,doc,src/test/pre_commit.sh,Y,src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,131,doc,src/main/browser-captures/RUNME.sh,Y,src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
-rsc/schema/WORKFLOW.md,132,doc,src/main/chat-exports/RUNME.sh,Y,src/main/chat-exports/RUNME.sh     --chat-exports     data/input/claude/chat/bulk-export
-rsc/schema/WORKFLOW.md,133,doc,src/main/code-agents/RUNME.sh,Y,src/main/code-agents/RUNME.sh    --code-agents    data/input/claude/code/machine-transport
+rsc/schema/WORKFLOW.md,131,doc,src/main/browser-captures/run.sh,Y,src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+rsc/schema/WORKFLOW.md,132,doc,src/main/chat-exports/run.sh,Y,src/main/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,133,doc,src/main/code-agents/run.sh,Y,src/main/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
 rsc/schema/WORKFLOW.md,138,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 rsc/schema/WORKFLOW.md,145,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,145,doc,src/test/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
@@ -181,7 +180,7 @@ rsc/schema/code-agents/session/CHANGELOG.md,222,doc,rsc/schema/code-agents/sessi
 rsc/schema/code-agents/session/CHANGELOG.md,236,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
 rsc/schema/code-agents/session/CHANGELOG.md,248,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
 rsc/schema/code-agents/session/CHANGELOG.md,266,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/session/CHANGELOG.md,312,doc,src/main/code-agents/RUNME.sh,Y,discovered iteratively by running `src/main/code-agents/RUNME.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,312,doc,src/main/code-agents/run.sh,Y,discovered iteratively by running `src/main/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -209,18 +208,6 @@ src/PREREQUISITES.sh,289,comment,rsc/forge.csv,Y,# the server: no clone can see 
 src/PREREQUISITES.sh,304,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
 src/PREREQUISITES.sh,362,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
 src/PREREQUISITES.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
-src/RUNME.sh,2,comment,src/RUNME.sh,Y,"# src/RUNME.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
-src/RUNME.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/RUNME.sh,22,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
-src/RUNME.sh,138,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/RUNME.sh,232,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
-src/RUNME.sh,239,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/RUNME.sh,240,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
-src/RUNME.sh,245,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
-src/RUNME.sh,249,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/RUNME.sh,260,call,src/main/browser-captures/RUNME.sh,Y,"""$REPO_ROOT/src/main/browser-captures/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,264,call,src/main/chat-exports/RUNME.sh,Y,"""$REPO_ROOT/src/main/chat-exports/RUNME.sh"" --plan | sed 's/^/  /'"
-src/RUNME.sh,268,call,src/main/code-agents/RUNME.sh,Y,"""$REPO_ROOT/src/main/code-agents/RUNME.sh"" --plan | sed 's/^/  /'"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/PREP.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/browser-captures/PREP.sh,32,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -233,24 +220,6 @@ src/main/browser-captures/PREP.sh,106,call,src/main/browser-captures/audit_captu
 src/main/browser-captures/PREP.sh,110,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
 src/main/browser-captures/PREP.sh,110,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
 src/main/browser-captures/PREP.sh,120,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
-src/main/browser-captures/RUNME.sh,5,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh
-src/main/browser-captures/RUNME.sh,6,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
-src/main/browser-captures/RUNME.sh,7,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-src/main/browser-captures/RUNME.sh,8,comment,src/main/browser-captures/RUNME.sh,Y,#   ./src/main/browser-captures/RUNME.sh --plan   # print the ordered step list; run nothing
-src/main/browser-captures/RUNME.sh,11,comment,src/main/steps.sh,Y,# exactly the list that executes (see src/main/steps.sh).
-src/main/browser-captures/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/browser-captures/RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
-src/main/browser-captures/RUNME.sh,31,comment,src/RUNME.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./src/RUNME.sh
-src/main/browser-captures/RUNME.sh,46,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/browser-captures/RUNME.sh,53,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
-src/main/browser-captures/RUNME.sh,55,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,56,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
-src/main/browser-captures/RUNME.sh,60,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,61,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/browser-captures/RUNME.sh,66,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,67,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/RUNME.sh,79,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/RUNME.sh,80,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
@@ -264,6 +233,24 @@ src/main/browser-captures/compare_markdown.py,30,comment,src/main/browser-captur
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/export.command,19,path_str,src/main/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
+src/main/browser-captures/run.sh,5,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh
+src/main/browser-captures/run.sh,6,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+src/main/browser-captures/run.sh,7,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+src/main/browser-captures/run.sh,8,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
+src/main/browser-captures/run.sh,11,comment,src/main/steps.sh,Y,# exactly the list that executes (see src/main/steps.sh).
+src/main/browser-captures/run.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/browser-captures/run.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
+src/main/browser-captures/run.sh,31,comment,src/main/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./src/main/pipeline.sh
+src/main/browser-captures/run.sh,46,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
+src/main/browser-captures/run.sh,53,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
+src/main/browser-captures/run.sh,55,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/run.sh,56,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --browser-api ""$root"""
+src/main/browser-captures/run.sh,60,call,src/run_python_script.sh,Y,"step copy_gemini_markdown  ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/run.sh,61,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/browser-captures/run.sh,66,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/run.sh,67,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/run.sh,79,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/run.sh,80,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
 src/main/browser-captures/safari_capture.sh,14,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude
 src/main/browser-captures/safari_capture.sh,15,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --mechanism DOM
 src/main/browser-captures/safari_capture.sh,16,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --id <uuid>
@@ -273,31 +260,6 @@ src/main/browser-captures/safari_capture.sh,43,call,src/run_python_script.sh,Y,"
 src/main/browser-captures/safari_capture.sh,43,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
 src/main/browser-captures/safari_utils.py,215,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --provider
 src/main/chat-exports/PREP.sh,15,comment,src/main/chat-exports/PREP.sh,Y,#   src/main/chat-exports/PREP.sh
-src/main/chat-exports/RUNME.sh,5,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
-src/main/chat-exports/RUNME.sh,6,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --chat-exports data/input/claude/chat/bulk-export
-src/main/chat-exports/RUNME.sh,7,comment,src/main/chat-exports/RUNME.sh,Y,#   ./src/main/chat-exports/RUNME.sh --plan   # print the ordered step list; run nothing
-src/main/chat-exports/RUNME.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
-src/main/chat-exports/RUNME.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/chat-exports/RUNME.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
-src/main/chat-exports/RUNME.sh,57,call,src/main/chat-exports/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --chat-export ""$batch"""
-src/main/chat-exports/RUNME.sh,61,call,src/run_python_script.sh,Y,"step archive_components ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,62,call,src/main/chat-exports/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --chat-export ""$batch"""
-src/main/chat-exports/RUNME.sh,63,call,src/main/chat-exports/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --chat-export ""$batch"""
-src/main/chat-exports/RUNME.sh,64,call,src/main/chat-exports/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --chat-export ""$batch"""
-src/main/chat-exports/RUNME.sh,68,call,src/main/chat-exports/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
-src/main/chat-exports/RUNME.sh,69,call,src/main/chat-exports/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
-src/main/chat-exports/RUNME.sh,73,call,src/run_python_script.sh,Y,"step atomise_bulk       ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,74,call,src/main/chat-exports/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
-src/main/chat-exports/RUNME.sh,75,call,src/run_python_script.sh,Y,"step project_markdown   ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,76,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --bulk-export ""$batch"""
-src/main/chat-exports/RUNME.sh,82,call,src/run_python_script.sh,Y,"compare_sources    ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,83,call,src/main/model/compare_sources.py,Y,"""$REPO_DIR/src/main/model/compare_sources.py"" \"
-src/main/chat-exports/RUNME.sh,100,call,src/run_python_script.sh,Y,"step memories ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,101,call,src/main/chat-exports/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
-src/main/chat-exports/RUNME.sh,108,call,src/run_python_script.sh,Y,"step summaries ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,109,call,src/main/chat-exports/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
-src/main/chat-exports/RUNME.sh,119,call,src/run_python_script.sh,Y,"step_ok supersede  ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/chat-exports/RUNME.sh,120,call,src/main/chat-exports/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" check \"
 src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export data/input/claude/chat/bulk-exp
 src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export data/input/claude/chat/bulk-exp
 src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-export/<bat
@@ -351,7 +313,7 @@ src/main/chat-exports/extract_heredocs.sh,4,comment,src/main/chat-exports/extrac
 src/main/chat-exports/extract_heredocs.sh,17,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/extract_heredocs.sh,17,call,src/main/chat-exports/extract_heredocs.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
 src/main/chat-exports/library.py,21,comment,rsc/naming/library_dir_vintages.csv,Y,rsc/naming/library_dir_vintages.csv.
-src/main/chat-exports/memories.py,30,comment,src/RUNME.sh,Y,Usage (wired into src/RUNME.sh after the per-batch stages):
+src/main/chat-exports/memories.py,30,comment,src/main/pipeline.sh,Y,Usage (wired into src/main/pipeline.sh after the per-batch stages):
 src/main/chat-exports/memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/memories.py       [--chat-exports-cache tmp/cache/chat-exports] [--memori
 src/main/chat-exports/memories.py,31,comment,src/main/chat-exports/memories.py,Y,src/run_python_script.sh src/main/chat-exports/memories.py       [--chat-exports-cache tmp/cache/chat-exports] [--memori
 src/main/chat-exports/memories.py,58,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
@@ -387,6 +349,31 @@ src/main/chat-exports/present.sh,171,call,src/main/chat-exports/rekey_chats.py,Y
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 src/main/chat-exports/rekey_chats.py,32,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
+src/main/chat-exports/run.sh,5,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
+src/main/chat-exports/run.sh,6,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
+src/main/chat-exports/run.sh,7,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
+src/main/chat-exports/run.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
+src/main/chat-exports/run.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/chat-exports/run.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
+src/main/chat-exports/run.sh,57,call,src/main/chat-exports/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --chat-export ""$batch"""
+src/main/chat-exports/run.sh,61,call,src/run_python_script.sh,Y,"step archive_components ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,62,call,src/main/chat-exports/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --chat-export ""$batch"""
+src/main/chat-exports/run.sh,63,call,src/main/chat-exports/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --chat-export ""$batch"""
+src/main/chat-exports/run.sh,64,call,src/main/chat-exports/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --chat-export ""$batch"""
+src/main/chat-exports/run.sh,68,call,src/main/chat-exports/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
+src/main/chat-exports/run.sh,69,call,src/main/chat-exports/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
+src/main/chat-exports/run.sh,73,call,src/run_python_script.sh,Y,"step atomise_bulk       ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,74,call,src/main/chat-exports/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
+src/main/chat-exports/run.sh,75,call,src/run_python_script.sh,Y,"step project_markdown   ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,76,call,src/main/model/project_markdown.py,Y,"""$REPO_DIR/src/main/model/project_markdown.py"" --bulk-export ""$batch"""
+src/main/chat-exports/run.sh,82,call,src/run_python_script.sh,Y,"compare_sources    ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,83,call,src/main/model/compare_sources.py,Y,"""$REPO_DIR/src/main/model/compare_sources.py"" \"
+src/main/chat-exports/run.sh,100,call,src/run_python_script.sh,Y,"step memories ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,101,call,src/main/chat-exports/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
+src/main/chat-exports/run.sh,108,call,src/run_python_script.sh,Y,"step summaries ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,109,call,src/main/chat-exports/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
+src/main/chat-exports/run.sh,119,call,src/run_python_script.sh,Y,"step_ok supersede  ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/chat-exports/run.sh,120,call,src/main/chat-exports/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" check \"
 src/main/chat-exports/summaries.py,35,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/summaries.py [sync] \
 src/main/chat-exports/summaries.py,35,comment,src/main/chat-exports/summaries.py,Y,src/run_python_script.sh src/main/chat-exports/summaries.py [sync] \
 src/main/chat-exports/supersede.py,59,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/supersede.py     [--chat-exports-cache tmp/cache/chat-exports] [--bulk-ex
@@ -423,9 +410,9 @@ src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,Two curated tables are the int
 src/main/cli/cli.py,5,comment,rsc/cli/commands.csv,Y,Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/commands.csv
 src/main/cli/cli.py,6,comment,rsc/cli/help.csv,Y,names each command and its target; rsc/cli/help.csv describes the arguments.
 src/main/cli/cli.py,15,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
-src/main/cli/cli.py,32,comment,src/RUNME.sh,Y,"the table, print the calculus, and generate completion before ./src/RUNME.sh has"
+src/main/cli/cli.py,32,comment,src/main/pipeline.sh,Y,"the table, print the calculus, and generate completion before ./src/main/pipeline.sh has"
 src/main/cli/cli.py,91,comment,rsc/cli/help.csv,Y,"All rsc/cli/help.csv rows (columns command, subcommand, arg-name, arg-type,"
-src/main/cli/cli.py,127,comment,src/RUNME.sh,Y,holds `src/RUNME.sh --plan` to these: each must appear as a plan line naming the command
+src/main/cli/cli.py,127,comment,src/main/pipeline.sh,Y,holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
 src/main/cli/cli.py,135,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
 src/main/cli/cli.py,166,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
 src/main/cli/cli.py,167,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
@@ -438,26 +425,6 @@ src/main/cli/forge.sh,31,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { e
 src/main/cli/forge.sh,55,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
-src/main/code-agents/RUNME.sh,11,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<mach
-src/main/code-agents/RUNME.sh,12,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
-src/main/code-agents/RUNME.sh,13,comment,src/main/code-agents/RUNME.sh,Y,#   ./src/main/code-agents/RUNME.sh --plan   # print the ordered step list; run nothing
-src/main/code-agents/RUNME.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
-src/main/code-agents/RUNME.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/code-agents/RUNME.sh,26,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
-src/main/code-agents/RUNME.sh,106,call,src/main/code-agents/jsonl_to_json.sh,Y,"step jsonl_to_json        ""$SCRIPT_DIR/jsonl_to_json.sh"" ""$jsonl"" ""$out_dir/session.json"""
-src/main/code-agents/RUNME.sh,107,call,src/run_python_script.sh,Y,"step project_conversation ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/project_conversation.py"" ""$out_dir"""
-src/main/code-agents/RUNME.sh,107,call,src/main/code-agents/project_conversation.py,Y,"step project_conversation ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/project_conversation.py"" ""$out_dir"""
-src/main/code-agents/RUNME.sh,108,call,src/main/code-agents/validate.sh,Y,"step validate             ""$SCRIPT_DIR/validate.sh"" --code-agent-session ""$out_dir"""
-src/main/code-agents/RUNME.sh,115,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/memory_to_json.py"" ""${project_dir%/}/memory"" ""$out_dir/memory.json"""
-src/main/code-agents/RUNME.sh,115,call,src/main/code-agents/memory_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/memory_to_json.py"" ""${project_dir%/}/memory"" ""$out_dir/memory.json"""
-src/main/code-agents/RUNME.sh,117,call,src/main/code-agents/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --code-agent-memory ""$out_dir"""
-src/main/code-agents/RUNME.sh,121,call,src/run_python_script.sh,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
-src/main/code-agents/RUNME.sh,121,call,src/main/code-agents/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
-src/main/code-agents/RUNME.sh,128,path_str,src/main/code-agents,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"""
-src/main/code-agents/RUNME.sh,133,path_str,src/main/code-agents,Y,"run_one ""$jsonl"" ""$machine"" ""$name"""
-src/main/code-agents/RUNME.sh,138,path_str,src/main/code-agents,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" ""$has_memory"""
-src/main/code-agents/RUNME.sh,163,path_str,src/main/code-agents,Y,"run_project ""$project_dir"" ""$machine"""
-src/main/code-agents/RUNME.sh,180,path_str,src/main/code-agents,Y,"run_project ""${project_dir%/}"" ""$machine"""
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
 src/main/code-agents/jsonl_to_json.sh,5,comment,src/main/code-agents/jsonl_to_json.sh,Y,#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
@@ -469,6 +436,26 @@ src/main/code-agents/project_conversation.py,23,comment,src/run_python_script.sh
 src/main/code-agents/project_conversation.py,23,comment,src/main/code-agents/project_conversation.py,Y,src/run_python_script.sh src/main/code-agents/project_conversation.py         <session-dir>    # reads <session-dir>/ses
 src/main/code-agents/render_corpus.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/render_corpus.py [--out <dir>]
 src/main/code-agents/render_corpus.py,24,comment,src/main/code-agents/render_corpus.py,Y,src/run_python_script.sh src/main/code-agents/render_corpus.py [--out <dir>]
+src/main/code-agents/run.sh,11,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machin
+src/main/code-agents/run.sh,12,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
+src/main/code-agents/run.sh,13,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
+src/main/code-agents/run.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
+src/main/code-agents/run.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/code-agents/run.sh,26,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
+src/main/code-agents/run.sh,106,call,src/main/code-agents/jsonl_to_json.sh,Y,"step jsonl_to_json        ""$SCRIPT_DIR/jsonl_to_json.sh"" ""$jsonl"" ""$out_dir/session.json"""
+src/main/code-agents/run.sh,107,call,src/run_python_script.sh,Y,"step project_conversation ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/project_conversation.py"" ""$out_dir"""
+src/main/code-agents/run.sh,107,call,src/main/code-agents/project_conversation.py,Y,"step project_conversation ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/project_conversation.py"" ""$out_dir"""
+src/main/code-agents/run.sh,108,call,src/main/code-agents/validate.sh,Y,"step validate             ""$SCRIPT_DIR/validate.sh"" --code-agent-session ""$out_dir"""
+src/main/code-agents/run.sh,115,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/memory_to_json.py"" ""${project_dir%/}/memory"" ""$out_dir/memory.json"""
+src/main/code-agents/run.sh,115,call,src/main/code-agents/memory_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/memory_to_json.py"" ""${project_dir%/}/memory"" ""$out_dir/memory.json"""
+src/main/code-agents/run.sh,117,call,src/main/code-agents/validate.sh,Y,"""$SCRIPT_DIR/validate.sh"" --code-agent-memory ""$out_dir"""
+src/main/code-agents/run.sh,121,call,src/run_python_script.sh,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
+src/main/code-agents/run.sh,121,call,src/main/code-agents/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
+src/main/code-agents/run.sh,128,path_str,src/main/code-agents,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"""
+src/main/code-agents/run.sh,133,path_str,src/main/code-agents,Y,"run_one ""$jsonl"" ""$machine"" ""$name"""
+src/main/code-agents/run.sh,138,path_str,src/main/code-agents,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" ""$has_memory"""
+src/main/code-agents/run.sh,163,path_str,src/main/code-agents,Y,"run_project ""$project_dir"" ""$machine"""
+src/main/code-agents/run.sh,180,path_str,src/main/code-agents,Y,"run_project ""${project_dir%/}"" ""$machine"""
 src/main/code-agents/validate.sh,5,comment,src/main/code-agents/validate.sh,Y,#   src/main/code-agents/validate.sh --code-agent-session <path/to/session-dir>
 src/main/code-agents/validate.sh,6,comment,src/main/code-agents/validate.sh,Y,#   src/main/code-agents/validate.sh --code-agent-memory  <path/to/cache-memory-dir>
 src/main/code-agents/validate.sh,16,path_str,rsc/schema/code-agents,Y,"SCHEMA_ROOT=""$REPO_DIR/rsc/schema/code-agents"""
@@ -522,6 +509,18 @@ src/main/model/server.sh,8,comment,src/main/model/server.sh,Y,"#   src/main/mode
 src/main/model/server.sh,19,call,src/main/model/serve_markdown.py,Y,"PY=(""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"")"
 src/main/model/server.sh,34,comment,src/PREREQUISITES.sh,Y,"# readiness report, with versions, is src/PREREQUISITES.sh's check_dependencies)"
 src/main/model/server.sh,35,path_str,src/main/model/serve_assets.txt,Y,"local manifest=""$SCRIPT_DIR/serve_assets.txt"" dir=""$REPO_DIR/tmp/cache/serve_markdown"""
+src/main/pipeline.sh,2,comment,src/main/pipeline.sh,Y,"# src/main/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
+src/main/pipeline.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/pipeline.sh,22,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
+src/main/pipeline.sh,138,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/main/pipeline.sh,232,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
+src/main/pipeline.sh,239,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/main/pipeline.sh,240,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
+src/main/pipeline.sh,245,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
+src/main/pipeline.sh,249,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/pipeline.sh,260,call,src/main/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/browser-captures/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,264,call,src/main/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/chat-exports/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,268,call,src/main/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/code-agents/run.sh"" --plan | sed 's/^/  /'"
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_occurrences.py,8,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_occurrences.py ""#/definitions/MessageFile"" \"
@@ -550,7 +549,7 @@ src/test/pre_commit.py,10,comment,src/test/pre_commit.sh,Y,ln -sfn ../../src/tes
 src/test/pre_commit.py,640,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
 src/test/pre_commit.py,690,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
 src/test/pre_commit.py,692,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/pre_commit.py,698,comment,src/RUNME.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/RUNME.sh --plan
+src/test/pre_commit.py,698,comment,src/main/pipeline.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
 src/test/pre_commit.py,964,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
 src/test/pre_commit.py,985,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
 src/test/pre_commit.py,1218,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
@@ -559,14 +558,14 @@ src/test/pre_commit.py,1366,comment,rsc/CALCULUS.md,Y,the contract issue #22 uni
 src/test/pre_commit.py,391,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/pre_commit.py,100,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/pre_commit.py,109,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
-src/test/pre_commit.py,123,path_str,src/main/code-agents/RUNME.sh,Y,"fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',"
+src/test/pre_commit.py,123,path_str,src/main/code-agents/run.sh,Y,"fix_item_cmd      = 'src/main/code-agents/run.sh --code-agent',"
 src/test/pre_commit.py,895,path_str,rsc/cli/target_naming_pending.csv,Y,"None if not unknown else f'rsc/cli/target_naming_pending.csv names {"", "".join(unknown)}, '"
 src/test/pre_commit.py,1657,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,1659,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,1667,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,1669,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/pre_commit.py,727,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
-src/test/pre_commit.py,945,comment,src/RUNME.sh,Y,# appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/pre_commit.py,945,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
 src/test/pre_commit.py,1035,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
 src/test/pre_commit.py,1419,comment,rsc/test/pre_commit.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
 src/test/pre_commit.py,1429,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
@@ -602,7 +601,7 @@ src/test/xref.py,11,comment,rsc/test/xref.csv,Y,"awk -F, '$5==""N""' rsc/test/xr
 src/test/xref.py,44,path_str,rsc/test/pre_commit.log,Y,"SKIP_FILES = {'rsc/test/pre_commit.log', 'rsc/test/xref.csv'}"
 src/test/xref.py,44,path_str,rsc/test/xref.csv,Y,"SKIP_FILES = {'rsc/test/pre_commit.log', 'rsc/test/xref.csv'}"
 src/test/xref.py,54,comment,src/requirements.txt,Y,"# The third-party half comes from the DECLARATION, src/requirements.txt. Its hand-written"
-src/test/xref.py,336,comment,src/RUNME.sh,Y,# trailing /.. hops (src/RUNME.sh anchors REPO_ROOT at its parent)
+src/test/xref.py,336,comment,src/main/pipeline.sh,Y,# trailing /.. hops (src/main/pipeline.sh anchors REPO_ROOT at its parent)
 src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,

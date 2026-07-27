@@ -86,11 +86,11 @@ the bulk export's whole array), a **singular** family validates *one unit*
 ```bash
 src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
 src/main/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-src/main/code-agents/RUNME.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
+src/main/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
 (code-agents converts each `.jsonl` before validating, so its runnable unit is the
-project RUNME; `validate.sh --code-agent-session` takes the *tmp/cache/* session dir, not data/input/.)
+project run.sh; `validate.sh --code-agent-session` takes the *tmp/cache/* session dir, not data/input/.)
 
 Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
@@ -128,9 +128,9 @@ src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_sche
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/RUNME.sh --browser-api data/input/claude/chat/browser-API
-src/main/chat-exports/RUNME.sh     --chat-exports     data/input/claude/chat/bulk-export
-src/main/code-agents/RUNME.sh    --code-agents    data/input/claude/code/machine-transport
+src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+src/main/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
+src/main/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
 ```
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`

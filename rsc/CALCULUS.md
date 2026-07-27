@@ -311,7 +311,7 @@ the same operations, governed by the same laws. Code is not a second ontology.
   re-run to regenerate (L1); drift from the committed state is loud (L6);
   byte-identity on any clone is the invariant (L2). The deletion licence
   inverts: never hand-edited, only ever regenerated-and-recommitted.
-- **atomisation of code** — a RUNME unit atomises to named steps
+- **atomisation of code** — a pipeline runner atomises to named steps
   (`src/main/steps.sh`), `--plan` is the projection of that atomisation, and
   the CLI table's step column is checked against it — a cross-source
   comparison, with the executing list as the senior source.
