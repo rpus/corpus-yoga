@@ -9,7 +9,7 @@ corpus.
 ```bash
 ./yoga prerequisites          # read-only: what this machine can run
 ./yoga browser capture        # acquire: Safari sweep into data/input/
-./yoga pipeline run                    # process: validate, extract, project (--plan previews)
+./yoga pipeline run           # process: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
 ./yoga check                  # the three-tier gate suite
 ```
@@ -58,7 +58,7 @@ reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed,
 
 ## Prerequisites
 
-`jq` and Python 3; `yoga pipeline run` creates the shared venv (`~/venvs/general`,
+`jq` and Python 3; `./yoga pipeline run` creates the shared venv (`~/venvs/general`,
 override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
 data — `data/input/ tmp/cache/ data/output/ tmp/logs/` are git-ignored. Install the hook (required;
 `yoga prerequisites` reports whether it is):
