@@ -69,6 +69,14 @@ check_tools() {
   else
     info "pyright not found — yoga test run skips its type check; install into \$VENV via: pip install pyright"
   fi
+  # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
+  # so a clone without it still gates deterministically — it simply lints nothing, and
+  # this is the one place that says so.
+  if command -v shellcheck &>/dev/null; then
+    ok "shellcheck ($(shellcheck --version | awk '/^version:/ {print $2}')) — yoga test run lints every src/**/*.sh"
+  else
+    info "shellcheck not found — yoga test run skips its shell lint; install via: brew install shellcheck"
+  fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 

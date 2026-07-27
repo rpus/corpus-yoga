@@ -154,11 +154,15 @@ present_export() {
       case "$key" in
         data-chat-categories)
           cols='["chat", "category"]'
+          # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
+          # single-quoted description — the string is data, never a substitution
           desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `yoga dashboard capture`.'
           inferred_file="$REPO_DIR/data/output/dashboard/chat-categories.json"
           ;;
         data-semantic-concepts)
           cols='["word", "count"]'
+          # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
+          # single-quoted description — the string is data, never a substitution
           desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/dashboard/semantic-concepts.json); refresh with `yoga dashboard capture`.'
           inferred_file="$REPO_DIR/data/output/dashboard/semantic-concepts.json"
           ;;

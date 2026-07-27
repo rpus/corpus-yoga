@@ -81,7 +81,7 @@ plan_line() {
 
 step() {
   local name="$1"; shift
-  if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@")"; return 0; fi
+  if [[ "${plan:-0}" == "1" ]]; then plan_line "${BASH_SOURCE[1]}" "$name" "$@"; echo; return 0; fi
   "$@"
 }
 
