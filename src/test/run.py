@@ -883,6 +883,31 @@ def check_cli_surface(run) -> None:
             f'its target\'s name, so rename the target or the command',
             check='naming.target_stem_matches_command')
 
+    # Every printed plan line names where its step is implemented (#45). The plan is
+    # the one place the whole program is listed, and it named no file at all: `validate`
+    # alone had four candidates. The label is no longer asked to resolve — the line
+    # carries the path, so a reader needs no rule about which namespace a label is in.
+    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
+                          capture_output=True, text=True, cwd=REPO_ROOT).stdout
+    step_lines = [l for l in plan.splitlines() if re.search(r'\S\s{2,}(src|rsc)/\S+', l)]
+    run('plan: every step line names an implementation', bool(step_lines),
+        None if step_lines else 'no plan line carries a repo-relative path',
+        law='G16', check='output.plan_lines_name_their_target')
+    for line in step_lines:
+        impl = re.search(r'\s{2,}((?:src|rsc)/\S+?)(?:\s|$)', line).group(1)
+        exists = (REPO_ROOT / impl).is_file()
+        run(f'plan: {impl}: the file the line names exists', exists,
+            None if exists else f'`{line.strip()}` names {impl}, which is not a file',
+            law='G16', check='output.plan_lines_name_their_target')
+    # A step that is also a command prints AS that command — the line says it is typeable
+    # by being typeable, rather than by a marker a legend would have to explain.
+    for st in cli.steps():
+        want = f'yoga {st["command"]} {st["subcommand"]}'
+        run(f'plan: `{want}` is printed as the command it is', want in plan,
+            None if want in plan else f'the plan names {st["command"]} without `yoga`, so '
+            f'nothing distinguishes it from a label you cannot type',
+            law='G16', check='output.plan_lines_name_their_target')
+
     # A file lives at the level of its subject (#41). Which tier imports a module is a
     # fact about the import graph, not a curated list — so this needs no vocabulary: a
     # module both tiers import belongs at src/, one only its own tier imports belongs in
@@ -1073,7 +1098,9 @@ def check_cli_surface(run) -> None:
         cmd, sub = s['command'], s['subcommand']
         # the plan line is the step label then its non-path args (steps.sh): the label
         # must BE the command, and the verb must be among the args after it
-        ok = bool(re.search(rf'^\s*{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
+        # `yoga ` prefixes a step that IS a command (#45), which is how the plan says the
+        # line is typeable — so the invocation it must name is the command form
+        ok = bool(re.search(rf'^\s*(yoga )?{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
             None if ok else f'no `{cmd} … {sub}` line in `src/main/pipeline.sh --plan` — a bare '
             f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')

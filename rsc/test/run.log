@@ -1,4 +1,4 @@
-run.py: 1724/1724 (data: machine-local)
+run.py: 1757/1757 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -22,6 +22,7 @@ run.py: 1724/1724 (data: machine-local)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (17/17)
+  ✓ output.plan_lines_name_their_target  (33/33)
   ✓ structure.file_at_level_of_subject  (18/18)
   ✓ structure.cli_declaration_mirrors_the_api  (18/18)
   ✓ structure.cli_declaration_validates  (47/47)
@@ -138,11 +139,11 @@ run.py: 1724/1724 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 74 types, 1724/1724 invocations passing
+  ✓ checks[code+schema]: 75 types, 1757/1757 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 38 types, 312/312 invocations passing
+  ✓ checks[code]: 39 types, 345/345 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/rsc/test/run.log, never committed
 
-gate: PASS — code+schema 1724/1724 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1757/1757 match the committed expectation; nothing here vetoes a commit

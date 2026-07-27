@@ -191,9 +191,12 @@ here so that a check can cite them as they land (see #39).
   `unenforced (#43)` — a path constant is named for the tail of the path it holds.
 - **G15 — A comment states a constraint that an otherwise-correct edit would violate.**
   `doctrine (#44)` — and never asserts a date or a count. History goes to the changelog.
-- **G16 — A printed line names both sides concretely.** `unenforced (#45)` `from L2` — a plan line
+- **G16 — A printed line names both sides concretely.** `gated` `from L2` — a plan line
   names its operation, whether it is typeable, and the file it lives in; no line stands in
-  for something it does not name.
+  for something it does not name. A step that is also a command prints AS that command, so
+  the line says it is typeable by being typeable rather than by a marker needing a legend.
+  Repo-relative paths are deterministic — only absolute ones were ever the risk, and
+  dropping the argument threw away the location instead of stripping the machine part.
 - **G17 — The only invocation any output or document prescribes is a `yoga` command.**
   `unenforced (#46)` — never `run_python_script.sh`, never a script path.
 - **G18 — Every command is a noun.** `doctrine (#47)` — `run` became `pipeline run`; `check` and `xref` remain, and #40 takes them to `test`. — no command word is a verb, and
