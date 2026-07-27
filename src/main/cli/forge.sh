@@ -9,7 +9,7 @@
 #   yoga forge --tsv           # the same rows, for a reader that is a program
 #   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
 #   yoga forge merge <pr> [--dry-run]   # check everything, then squash-merge that PR
-#   yoga forge prune [--apply] # delete local branches whose PR is merged and contained
+#   yoga forge prune [--apply] # delete local branches whose work the base already holds
 #
 # merge names a POSTCONDITION — PR merged, this checkout on the base, the base holding the
 # squash, the head branch gone from here — and converges on it, logging the run.
@@ -66,7 +66,8 @@ branches() {
   local prs
   prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
     --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
-  local b tip pr_json n st oid holder
+  local b tip pr_json n st oid holder base
+  base="$(base_branch)"
   while read -r b; do
     [[ -n "$b" ]] || continue
     tip="$(git -C "$REPO_DIR" rev-parse "refs/heads/$b")"
@@ -78,7 +79,26 @@ branches() {
       continue
     fi
     n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); oid=$(jq -r .headRefOid <<< "$pr_json")
-    if [[ "$st" != MERGED ]]; then
+    if [[ "$st" == CLOSED ]]; then
+      # A closed PR is not an abandoned branch. It may hold the only copy of that work, or
+      # it may have been folded into another PR and closed as redundant — and prune refused
+      # both alike, saying only "#N is CLOSED", which is the one fact that does not answer
+      # the question. Containment does, and git can be asked: ancestry first, then patch-id,
+      # which a rebase or a cherry-pick preserves where the hash does not.
+      if [[ -n "$holder" ]]; then
+        echo -e "KEPT\t$b\t#$n is CLOSED, but the branch is checked out at $holder"
+      elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "refs/heads/$base" 2>/dev/null; then
+        echo -e "DELETABLE\t$b\t#$n is CLOSED, and ${tip:0:8} is contained in $base"
+      else
+        local unique
+        unique="$(git -C "$REPO_DIR" cherry "$base" "$b" 2>/dev/null | grep -c '^+' || true)"
+        if [[ "$unique" == 0 ]]; then
+          echo -e "DELETABLE\t$b\t#$n is CLOSED, and every commit of it is in $base by patch"
+        else
+          echo -e "KEPT\t$b\t#$n is CLOSED, and $unique commit(s) of it are not in $base — folded into another PR, or the only copy; git log $base..$b says which"
+        fi
+      fi
+    elif [[ "$st" != MERGED ]]; then
       echo -e "KEPT\t$b\t#$n is $st"
     elif [[ -n "$holder" ]]; then
       echo -e "KEPT\t$b\t#$n merged, but the branch is checked out at $holder"
@@ -88,7 +108,7 @@ branches() {
       echo -e "KEPT\t$b\t#$n merged, but ${tip:0:8} is not contained in it — it holds commits the squash did not"
     fi
   done < <(git -C "$REPO_DIR" for-each-ref --format='%(refname:short)' refs/heads/ \
-             | grep -v "^$(base_branch)\$")
+             | grep -v "^$base\$")
 }
 
 # the branch a merge lands on, and the one `merge` returns you to — asked of the forge, not
