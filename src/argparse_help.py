@@ -29,7 +29,7 @@ def _rows(command: str) -> list[dict]:
     """The command's declared rows — asked of cli, which is the one reader of rsc/cli/.
     Imported at CALL time, not module level: cli imports enrich() from here, so a
     module-level import would close the cycle."""
-    sys.path.insert(0, str(Path(__file__).resolve().parent / 'cli'))
+    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
     from cli import command_rows
     return command_rows(command)
 

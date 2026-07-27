@@ -34,7 +34,7 @@ from pathlib import Path
 
 from cache_io import owned_paths
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
 from argparse_help import enrich
 
 REPO = Path(__file__).resolve().parents[3]

@@ -73,6 +73,7 @@ structure.cli_declaration_validates
 structure.definitions_at_bottom
 structure.enum_refines_explicit_type
 structure.field_order
+structure.file_at_level_of_subject
 structure.minItems_on_non_empty_arrays
 structure.no_dangling_refs
 structure.no_redundant_additional_properties_true

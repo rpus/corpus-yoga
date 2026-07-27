@@ -44,6 +44,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import REPO, find_api_json
 

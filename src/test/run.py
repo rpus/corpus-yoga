@@ -31,6 +31,7 @@ Atomic repair scripts live in src/test/repairs/{principle_id}.py.
 Each diagnostic takes a schema path as argv[1], exits 0 on pass, 1 on fail.
 """
 
+import ast
 import csv
 import io
 import json
@@ -881,6 +882,49 @@ def check_cli_surface(run) -> None:
             f'target {c["target"]} has stem `{stem}`, not `{want}` — a command determines '
             f'its target\'s name, so rename the target or the command',
             check='naming.target_stem_matches_command')
+
+    # A file lives at the level of its subject (#41). Which tier imports a module is a
+    # fact about the import graph, not a curated list — so this needs no vocabulary: a
+    # module both tiers import belongs at src/, one only its own tier imports belongs in
+    # that tier. src/ was holding validation_matrix by instinct and argparse_help one
+    # level down, with the same cross-tier subject and the opposite placement.
+    src_root = REPO_ROOT / 'src'
+    modules = {p.stem: p for p in src_root.rglob('*.py')
+               if '__pycache__' not in p.parts}
+    importers: dict[str, set[str]] = {name: set() for name in modules}
+    for path in modules.values():
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:
+            continue
+        rel = path.relative_to(src_root)
+        if rel.name == 'run.py' and rel.parts[0] == 'test':
+            continue   # the gate imports what it CHECKS, which is not a dependency: it
+                       # reaches into markdown_projection, cli and safari_utils to hold
+                       # them to their contracts, and counting that as use would put
+                       # every checked module at src/
+        tier = 'test' if rel.parts[0] == 'test' else 'main'
+        for node in ast.walk(tree):
+            names = ([node.module] if isinstance(node, ast.ImportFrom) and node.module else
+                     [a.name for a in node.names] if isinstance(node, ast.Import) else [])
+            for n in names:
+                if n in importers and modules[n] != path:
+                    importers[n].add(tier)
+    for name, tiers in sorted(importers.items()):
+        if not tiers:
+            continue                      # imported by nothing: its own entrypoint
+        rel = modules[name].relative_to(src_root)
+        at_root = len(rel.parts) == 1
+        shared = len(tiers) > 1
+        ok = at_root == shared
+        run(f'src: {rel}: lives at the level of its subject', ok,
+            None if ok else
+            (f'imported from {" and ".join(sorted(tiers))} but sits inside one tier — a '
+             f'module both tiers import belongs at src/'
+             if shared else
+             f'imported only from the {tiers.pop()} tier but sits at src/, which is for '
+             f'modules both tiers import'),
+            check='structure.file_at_level_of_subject')
 
     # The declaration tree IS the API (#58): every command is a file or a directory
     # under rsc/cli/, every directory holds its own <command>.json plus one file per

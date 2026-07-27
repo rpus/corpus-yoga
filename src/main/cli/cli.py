@@ -42,7 +42,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
 from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
 REPO = Path(__file__).resolve().parents[3]

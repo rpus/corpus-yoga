@@ -43,6 +43,7 @@ from pathlib import Path
 from supersede import batch_time
 from accumulate import accumulate  # the one deposit rule (issue #22)
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
 from markdown_projection import reconcile_dir  # noqa: E402
 from argparse_help import enrich, inherit_flags  # noqa: E402

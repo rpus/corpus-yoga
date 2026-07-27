@@ -118,6 +118,7 @@ REPO = Path(__file__).resolve().parents[3]
 PROJECTS = REPO / 'ext' / 'claude-code-projects'
 AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 
+sys.path.insert(0, str(REPO / 'src'))  # argparse_help — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 from machine import bound_machine  # noqa: E402
 from argparse_help import enrich  # noqa: E402
