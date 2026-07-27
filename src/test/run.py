@@ -1088,24 +1088,49 @@ def check_cli_surface(run) -> None:
             f'{want} — an editor resolving against a different venv sees different packages',
             check='naming.venv_default_agrees')
 
-    # A send is refusable through one switch, and src/main/send.py is the only place that reads
-    # it. Two readings is how the polarity of `== '1'` and `!= '1'` gets to disagree, and
-    # that is not hypothetical: the capture surface and this gate each read the environment
-    # for themselves, and disagreed about whether refusal was an error or a pass without
-    # anything saying so. Naming the switch in prose is fine anywhere; reading it is what
-    # is confined here.
-    reads = (rf"environ\.get\(\s*['\"]{SEND_SWITCH}", rf"environ\[\s*['\"]{SEND_SWITCH}",
-             rf"getenv\(\s*['\"]{SEND_SWITCH}", rf"\$\{{?{SEND_SWITCH}")
-    readers = [str(f.relative_to(REPO_ROOT))
-               for f in sorted((REPO_ROOT / 'src').rglob('*'))
-               if f.is_file() and f.suffix in ('.py', '.sh')
-               and f != REPO_ROOT / 'src' / 'main' / 'send.py'
-               and any(re.search(pat, f.read_text()) for pat in reads)]
+    # A send is refusable through one switch, and src/main/send.py is the only place that
+    # reads it out of the environment. One reading means refusal cannot come to mean two
+    # things: raise for a send that IS the work, skip for one that only checks stored data.
+    #
+    # Read by AST, not by pattern. A regex over the literal name is blind to the reading
+    # that imports SWITCH and passes it as a variable — which is the reading a second
+    # module would most naturally write, having found the constant. Naming the switch in
+    # prose stays free; only reaching into the environment for it is confined.
+    def _reads_switch(path):
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:
+            return False
+        aliases = {SEND_SWITCH}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module == 'send':
+                for a in node.names:
+                    if a.name == 'SWITCH':
+                        aliases.add(a.asname or a.name)
+        for node in ast.walk(tree):
+            arg = None
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+                    and node.func.attr in ('get', 'getenv') and node.args:
+                arg = node.args[0]
+            elif isinstance(node, ast.Subscript):
+                arg = node.slice
+            if isinstance(arg, ast.Constant) and arg.value == SEND_SWITCH:
+                return True
+            if isinstance(arg, ast.Name) and arg.id in aliases:
+                return True
+        return False
+
+    holder = REPO_ROOT / 'src' / 'main' / 'send.py'
+    readers = sorted(str(f.relative_to(REPO_ROOT))
+                     for f in (REPO_ROOT / 'src').rglob('*')
+                     if f.is_file() and f != holder
+                     and (_reads_switch(f) if f.suffix == '.py' else
+                          f.suffix == '.sh' and re.search(rf'\$\{{?{SEND_SWITCH}', f.read_text())))
     run(f'send: only src/main/send.py reads {SEND_SWITCH}', not readers,
         None if not readers else
         f'{", ".join(readers)} reads the switch directly — import may_send (skip and pass) '
-        f'or assert_may_send (raise) from src/main/send.py, so refusal cannot come to mean two '
-        f'things by accident',
+        f'or assert_may_send (raise) from src/main/send.py, so refusal cannot come to mean '
+        f'two things by accident',
         check='effects.send_switch_read_once')
 
     # Python is type-checked by pyright — Pylance's own engine — against
