@@ -59,6 +59,8 @@ from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + standalone commands)
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
+import commands as cli_commands  # noqa: E402 — `yoga commands` answers itself here
+import completions as cli_completions  # noqa: E402 — and `yoga completions` here
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 
 sys.path.insert(0, str(SRC / 'main' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
@@ -852,7 +854,7 @@ def check_cli_surface(run) -> None:
     parse_ok, parse_err = True, None
     if zsh:
         with tempfile.NamedTemporaryFile('w', suffix='_yoga', delete=False) as f:
-            f.write(cli.completion_script(cmds))
+            f.write(cli_completions.completion_script(cmds))
             tmp = f.name
         proc = subprocess.run([zsh, '-n', tmp], capture_output=True, text=True)
         Path(tmp).unlink()
@@ -860,49 +862,25 @@ def check_cli_surface(run) -> None:
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
 
-    # A command determines its target's name (#40): the target column becomes verification
-    # rather than curation. What is NOT yet named for its command is declared in
-    # target_naming_pending.csv with the issue that will name it — a disposal record, so a
-    # row that stays non-compliant is a tracked decision and a NEW one is a failure. The
-    # second direction matters as much: a pending row that has since been fixed must leave
-    # the file, or the record becomes a place where compliance goes unnoticed.
-    pending_path = REPO_ROOT / 'rsc' / 'cli' / 'target_naming_pending.csv'
-    with pending_path.open() as fh:
-        pending = {r['command']: r for r in csv.DictReader(fh)}
+    # A command determines its target's name (#40): the target column is verification
+    # rather than curation. Every row complies, so the record that declared the ones that
+    # did not is gone — the last two left it when `yoga commands` and `yoga completions`
+    # were extracted to files of their own, and a disposal record with nothing to dispose
+    # of is a file that can only rot.
     for c in cmds:
         stem = Path(c['target']).stem
-        # Case is part of a name, and the two kinds of target carry different
-        # conventions — so each is held to ITS OWN rather than both to a case-folded
-        # comparison, which passed src/PREREQUISITES.sh (the last of the SHOUTING dialect
-        # #40's evidence names) through a check written to retire that dialect.
+        # Case is part of a name, and the two kinds of target carry different conventions,
+        # so each is held to ITS OWN rather than both to a case-folded comparison:
         #   executable → named for its command exactly:      prerequisites.sh
         #   document   → the repo's SHOUTING doc convention: CALCULUS.md
         # A .md target is PRINTED, not executed (see dispatch), and all 18 markdown
         # documents here are uppercase — four READMEs, eleven CHANGELOGs, WORKFLOW.
         want = c['command'].upper() if Path(c['target']).suffix == '.md' else c['command']
-        matches = stem == want
-        declared = c['command'] in pending
-        # a compliant row and a declared one are different facts, so they are different
-        # lines: one ✓ covering both would hide which of the two a reader is looking at
-        if declared and not matches:
-            run(f'cli: {c["command"]}: target naming pending, declared (#'
-                f'{pending[c["command"]]["issue"]}) — {c["target"]}', True,
-                check='naming.target_stem_matches_command')
-        else:
-            run(f'cli: {c["command"]}: target is named for the command', matches,
-                None if matches else
-                f'target {c["target"]} has stem `{stem}`, not `{want}` — rename it, or '
-                f'declare it in rsc/cli/target_naming_pending.csv with the issue that will',
-                check='naming.target_stem_matches_command')
-        if declared and matches:
-            run(f'cli: {c["command"]}: pending row is still needed', False,
-                f'target {c["target"]} now matches its command — remove the '
-                f'rsc/cli/target_naming_pending.csv row (issue #{pending[c["command"]]["issue"]})',
-                check='naming.target_stem_matches_command')
-    unknown = sorted(set(pending) - {c['command'] for c in cmds})
-    run('cli: every pending-naming row names a command that exists', not unknown,
-        None if not unknown else f'rsc/cli/target_naming_pending.csv names {", ".join(unknown)}, '
-        f'which rsc/cli/ does not', check='naming.target_stem_matches_command')
+        run(f'cli: {c["command"]}: target is named for the command', stem == want,
+            None if stem == want else
+            f'target {c["target"]} has stem `{stem}`, not `{want}` — a command determines '
+            f'its target\'s name, so rename the target or the command',
+            check='naming.target_stem_matches_command')
 
     # The declaration tree IS the API (#58): every command is a file or a directory
     # under rsc/cli/, every directory holds its own <command>.json plus one file per
@@ -912,7 +890,7 @@ def check_cli_surface(run) -> None:
     cli_root = REPO_ROOT / 'rsc' / 'cli'
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
-                   if p.name not in ('README.md', 'readings.md', 'target_naming_pending.csv')
+                   if p.name not in ('README.md', 'readings.md')
                    and not p.name.endswith('.schema.json')
                    and (p.stem if p.suffix == '.json' else p.name) not in declared)
     run('cli: rsc/cli/ holds declarations and nothing else', not stray,
@@ -969,7 +947,7 @@ def check_cli_surface(run) -> None:
     # other, so the forms number one per subcommand PLUS one — and the whole-table
     # listing must contain every form the per-command view shows, because the second is
     # derived from the first rather than rebuilt beside it.
-    listing = cli.render_synopsis(cmds)
+    listing = cli_commands.render_synopsis(cmds)
     for c in cmds:
         forms = cli.command_forms(c['command'])
         expected = len([s for s in cli.subcommands_of(c['command'])]) + 1
@@ -1012,18 +990,18 @@ def check_cli_surface(run) -> None:
     # marker below is the exact wording an earlier version wrote; it is the case that
     # actually escaped, so it is the case the check holds.
     stale = '# yoga tab-completion (refresh: ./yoga completions install-latest)'
-    block = ['fpath=(~/x $fpath)', "alias yoga='~/x/yoga'", cli.COMPLETION_END]
-    synthetic = ['# unrelated', '', stale, *block, '', cli.COMPLETION_MARKER, *block, '',
+    block = ['fpath=(~/x $fpath)', "alias yoga='~/x/yoga'", cli_completions.COMPLETION_END]
+    synthetic = ['# unrelated', '', stale, *block, '', cli_completions.COMPLETION_MARKER, *block, '',
                  'autoload -Uz compinit', 'compinit']
-    kept, _ = cli.without_yoga_block(synthetic)
+    kept, _ = cli_completions.without_yoga_block(synthetic)
     # survivors counted by a LITERAL test-side predicate, never by the function under
     # test: asking cli.is_completion_marker what survived is asking the bug whether it
     # is present, and the answer under the old code was "converged" while the stale
     # block sat in the file
     left = [line for line in kept if line.startswith('# yoga tab-completion')]
     run('cli: completions: a marker with different advice is still the block',
-        cli.is_completion_marker(stale),
-        None if cli.is_completion_marker(stale) else
+        cli_completions.is_completion_marker(stale),
+        None if cli_completions.is_completion_marker(stale) else
         f'{stale!r} is not recognised — identity is matching advice, so every block an '
         f'earlier version wrote is orphaned: install duplicates it, uninstall leaves it, '
         f'status calls a wired shell unwired', law='G20', check='cli.block_identity_stable')
@@ -1032,9 +1010,9 @@ def check_cli_surface(run) -> None:
         f'and writing one is not idempotence when two exist',
         law='G20', check='cli.block_convergence')
     run('cli: completions: the end marker does not open a block',
-        not cli.is_completion_marker(cli.COMPLETION_END),
-        None if not cli.is_completion_marker(cli.COMPLETION_END) else
-        f'{cli.COMPLETION_END!r} matches the start-marker test — a block would end where it '
+        not cli_completions.is_completion_marker(cli_completions.COMPLETION_END),
+        None if not cli_completions.is_completion_marker(cli_completions.COMPLETION_END) else
+        f'{cli_completions.COMPLETION_END!r} matches the start-marker test — a block would end where it '
         f'begins and removal would take the wrong extent',
         law='G20', check='cli.block_identity_stable')
 

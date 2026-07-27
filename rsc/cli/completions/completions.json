@@ -1,6 +1,6 @@
 {
   "summary": "zsh tab-completion derived from the command table",
-  "target": "src/main/cli/cli.py",
+  "target": "src/main/cli/completions.py",
   "calculus": "project L5",
   "args": []
 }
