@@ -65,6 +65,7 @@ naming.target_stem_matches_command
 naming.title_matches_key
 naming.upper_camel_case
 output.plan_lines_name_their_target
+python.pyright_clean
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.valid_json_with_schema

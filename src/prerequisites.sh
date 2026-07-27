@@ -61,6 +61,14 @@ check_tools() {
   else
     bad "Python 3 not found — install via: brew install python"
   fi
+  # Informational, never a ✗: absent, the gate skips its type check and still gates
+  # deterministically. pyright is Pylance's own engine and reads the same
+  # pyrightconfig.json the editor does — one declaration, three readers.
+  if command -v pyright &>/dev/null; then
+    ok "pyright ($(pyright --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
+  else
+    info "pyright not found — yoga test run skips its type check; install into \$VENV via: pip install pyright"
+  fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 

@@ -37,6 +37,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -913,6 +914,37 @@ def check_cli_surface(run) -> None:
                 f'{rel} writes or names tmp/logs/{seg}/, and `{seg}` is no command — a '
                 f"reader cannot derive it from what they typed",
                 check='naming.log_path_derives_from_command')
+
+    # Python is type-checked by pyright — Pylance's own engine — against
+    # pyrightconfig.json, the ONE declaration of the import roots that the editor, this
+    # gate and any CLI all read. `standard` mode, matching what an editor reports today;
+    # strict would demand ~4000 annotations to surface a tail that is currently all
+    # false positives (a heterogeneous PROVIDERS dict, and a call dispatched by
+    # inspect.signature, neither of which a type checker can follow).
+    #
+    # --pythonpath names the venv explicitly: without it pyright resolves imports from
+    # whatever python is on PATH, and a run without the venv reports 25 errors that are
+    # nothing but unresolved third-party packages.
+    pyright = shutil.which('pyright')
+    py_ok, py_detail = True, None
+    if pyright:
+        venv_python = Path(os.environ.get('VENV', str(Path.home() / 'venvs' / 'general'))) / 'bin' / 'python'
+        cmd = [pyright, '--outputjson']
+        if venv_python.exists():
+            cmd += ['--pythonpath', str(venv_python)]
+        proc = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO_ROOT)
+        try:
+            report = json.loads(proc.stdout)
+        except json.JSONDecodeError:
+            report = None
+        if report is not None:
+            diags = [d for d in report['generalDiagnostics'] if d['severity'] == 'error']
+            py_ok = not diags
+            py_detail = None if py_ok else '; '.join(
+                f"{d['file'].replace(str(REPO_ROOT) + '/', '')}:"
+                f"{d['range']['start']['line'] + 1} {d['message'].splitlines()[0][:60]}"
+                for d in diags[:4])
+    run('python: pyright reports nothing', py_ok, py_detail, check='python.pyright_clean')
 
     # Every printed plan line names where its step is implemented (#45). The plan is
     # the one place the whole program is listed, and it named no file at all: `validate`
