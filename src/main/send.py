@@ -32,7 +32,6 @@ class SendRefused(RuntimeError):
 
     def __init__(self, what):
         super().__init__(f'{SWITCH}=1 refuses this send: {what}')
-        self.what = what          # the subject alone, for a caller that wants to name it
 
 
 def may_send():
