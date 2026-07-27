@@ -1,3 +1,0 @@
-"command","target","issue","why"
-"commands","src/main/cli/cli.py","58","answered by the CLI itself — main() intercepts before dispatch, so there is no target to exec and what `target` should name is undecided"
-"completions","src/main/cli/cli.py","58","answered by the CLI itself — main() intercepts before dispatch, so there is no target to exec and what `target` should name is undecided"
