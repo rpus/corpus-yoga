@@ -109,10 +109,14 @@ They are stated, followed, and reviewed by people.
 
 - **G1 — A verb means one thing everywhere it appears.** `doctrine (#49)` `from L1` — `capture` acquires
   (`browser capture`, `dashboard capture`, `agent capture` all *bring data in*, from
-  Safari, the paid model, and the harness's session store); `sync` regenerates
-  idempotently; `clean` destroys; `run` only processes what `data/input/` already holds;
-  `present` renders, free; `receive`/`demerge` move agents between machines and undo the
-  move.
+  Safari, the paid model, and the harness's session store); `sync` makes its target agree
+  with its authority, idempotently — one meaning by definition, not by catalogue (user
+  ruling, 2026-07-27: the instances are open-ended, so enumerating shapes would be a
+  second surface to drift); what and where a sync writes — a re-derivation, a monotone
+  deposit, a surface outside the repo — are declared effects (#29), not senses of the
+  verb; `list-<noun>` enumerates and reports that collection; `clean` destroys; `run`
+  only processes what `data/input/` already holds; `present` renders, free;
+  `receive`/`demerge` move agents between machines and undo the move.
 - **G2 — Bare is status: free, local, and read-only.** `unenforced (#47, #52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,

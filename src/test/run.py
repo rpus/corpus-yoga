@@ -561,7 +561,7 @@ def check_index_curation(run, fix) -> None:
         disposed = c not in pending
         run(f'indexing: concept disposed: {c}', disposed, check='indexing.concept_disposed')
         if not disposed:
-            fix('yoga indexing candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
+            fix('yoga indexing list-candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: yoga indexing accept <term> [alias ...] '
                          '| yoga indexing reject [--reason <why>] <concept>')

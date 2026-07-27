@@ -69,8 +69,8 @@ rsc/cli/README.md,75,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws()` in
 rsc/cli/README.md,76,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
 rsc/cli/README.md,89,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 rsc/cli/README.md,94,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-rsc/cli/README.md,130,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
-rsc/cli/README.md,148,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
+rsc/cli/README.md,134,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
+rsc/cli/README.md,152,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 rsc/cli/agent/agent.json,3,path_str,src/main/code-agents/agent.py,Y,"""target"": ""src/main/code-agents/agent.py"","
 rsc/cli/browser/browser.json,3,path_str,src/main/browser-captures/browser.sh,Y,"""target"": ""src/main/browser-captures/browser.sh"","
 rsc/cli/cache/cache.json,3,path_str,src/main/cli/cache.py,Y,"""target"": ""src/main/cli/cache.py"","
@@ -607,7 +607,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/agent/agent.json,Y,
 ,,,rsc/cli/agent/capture.json,Y,
 ,,,rsc/cli/agent/demerge.json,Y,
-,,,rsc/cli/agent/models.json,Y,
+,,,rsc/cli/agent/list-models.json,Y,
 ,,,rsc/cli/agent/receive.json,Y,
 ,,,rsc/cli/browser/browser.json,Y,
 ,,,rsc/cli/cache/cache.json,Y,
@@ -628,8 +628,8 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/forge/prune.json,Y,
 ,,,rsc/cli/forge/sync.json,Y,
 ,,,rsc/cli/indexing/accept.json,Y,
-,,,rsc/cli/indexing/candidates.json,Y,
 ,,,rsc/cli/indexing/indexing.json,Y,
+,,,rsc/cli/indexing/list-candidates.json,Y,
 ,,,rsc/cli/indexing/reject.json,Y,
 ,,,rsc/cli/indexing/sync.json,Y,
 ,,,rsc/cli/memories/memories.json,Y,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 indexing.py — the book-style index over the corpus (headword → turn locators)
-and the curation surface behind it: accept / reject / candidates over the concept
+and the curation surface behind it: accept / reject / list-candidates over the concept
 capture. Driven by `yoga indexing` (see rsc/cli/).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
@@ -21,7 +21,7 @@ so regeneration is a no-op when nothing changed, per CALCULUS L1).
 Curation is reproducible from the repo, on the schema system's template
 (candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
 for the three line-list formats (accepted.txt, rejected.txt, candidates.txt) and
-the loop. `candidates` derives the pending report into a rebuildable tmp/cache/ file
+the loop. `list-candidates` derives the pending report into a rebuildable tmp/cache/ file
 (tmp/cache/indexing/candidates.txt) from the single-source concept capture
 (data/output/dashboard/semantic-concepts.json); every captured concept must end up
 accepted or rejected — anything else is PENDING, reported here and by the
@@ -33,7 +33,7 @@ many concepts remain pending.
 
 Usage (via yoga indexing):
   yoga indexing                                    # status: counts + pending queue
-  yoga indexing candidates [--top N]               # derive tmp/cache/indexing/candidates.txt
+  yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
   yoga indexing reject [--reason <why>] <concept>  # reject a concept
   yoga indexing sync                               # build data/output/markdown/index.md
@@ -387,9 +387,9 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
-    cand = sub.add_parser('candidates')
-    # --top belongs on the candidates subparser, not the parent — the advertised form
-    # is `candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
+    cand = sub.add_parser('list-candidates')
+    # --top belongs on the list-candidates subparser, not the parent — the advertised form
+    # is `list-candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
     cand.add_argument('--top', type=int, default=None, metavar='N')
     acc = sub.add_parser('accept')
     acc.add_argument('term')
@@ -403,7 +403,7 @@ def main():
 
     accepted_path, rejected_path = ACCEPTED_FILE, REJECTED_FILE
 
-    if args.verb == 'candidates':
+    if args.verb == 'list-candidates':
         candidates(MARKDOWN_DIR, accepted_path, rejected_path, args.top)
         return
     if args.verb == 'accept':
