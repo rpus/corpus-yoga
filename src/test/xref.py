@@ -81,9 +81,9 @@ STDLIB_MODULES = sys.stdlib_module_names | _declared_modules()
 # The DECLARED lifecycle roots, statically — never derived from the live
 # filesystem. Deriving them from iterdir() made the committed xref.csv depend
 # on which git-ignored dirs happened to exist at run time (found 2026-07-13:
-# a machine whose gate had already created tmp/logs/ swallowed `tmp/logs/src/...`
-# tokens whole and skipped them; a fresh worktree without tmp/logs/ matched the
-# same text from `src/` inward and emitted a row — two machines, two artifacts,
+# a machine whose gate had already created a log root swallowed the whole token and
+# skipped it, while a fresh worktree without that root matched the same text from
+# `src/` inward and emitted a row — two machines, two artifacts,
 # one byte-identical tree). Freshness is the wrong invariant for a committed
 # artifact; machine-invariance is the right one.
 # The artifact extensions xref recognises — ONE authority: every extractor's

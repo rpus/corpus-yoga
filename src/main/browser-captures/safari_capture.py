@@ -123,7 +123,7 @@ def outcome(do_api, do_scrape, files, had_md):
     if do_api and not has_json:
         return 'apiConversation JSON fetch failed — the FAIL: line above carries the remedy', None
     if do_scrape and not has_md:
-        why = 'no markdown — see the scrape log under tmp/logs/.../safari_capture/<provider>/scrape/'
+        why = 'no markdown — see the scrape log under tmp/logs/browser/capture/<provider>/scrape/'
         if had_md:
             why += ' (previous .md retained, now STALE)'
         return (None, why) if do_api else (why, None)
@@ -287,7 +287,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
     do_scrape = 'DOM' in mechanisms
     js_script = SCRIPT_DIR / provider / 'browser-chat-capture.js'
     # per-conversation scrape diagnostics go under tmp/logs/ (data/input/ holds captured data only)
-    scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'src' / 'main' / 'browser-captures' / 'safari_capture' / provider / 'scrape'
+    scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'browser' / 'capture' / provider / 'scrape'
     label = 'discover' if navigate else 'capture'
     methods = '+'.join(m for m, on in (('API', do_api), ('DOM', do_scrape)) if on)
     if not ids:

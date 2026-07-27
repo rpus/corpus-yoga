@@ -883,6 +883,37 @@ def check_cli_surface(run) -> None:
             f'its target\'s name, so rename the target or the command',
             check='naming.target_stem_matches_command')
 
+    # A command's log path derives from the command (#54): having typed `yoga <noun>
+    # <verb>`, a reader can guess where the log went without reading the script that
+    # wrote it. Held over the SOURCE — every tmp/logs/ path any file names must open
+    # with a command word — because the directories themselves exist only on a machine
+    # that has run something, and a check that passes for want of evidence is worse
+    # than none. Validation logs are exempt by living under tmp/cache/ beside the datum
+    # they memoise: the log IS the memoisation (L1), not run history.
+    commands_words = {c['command'] for c in cmds}
+    for path in sorted(REPO_ROOT.rglob('*')):
+        if not path.is_file() or path.suffix not in ('.py', '.sh', '.applescript', '.md'):
+            continue
+        # RELATIVE to the repo: an absolute-parts test excluded every file whenever the
+        # checkout itself sat under a directory called tmp — which a scratch worktree
+        # does, so the check examined nothing and passed. `every expected check ran`
+        # caught it; a vacuous check that reports success is worse than no check.
+        rel = path.relative_to(REPO_ROOT)
+        if rel.parts[0] in ('tmp', '.git', 'data'):
+            continue
+        try:
+            text = path.read_text()
+        except (UnicodeDecodeError, OSError):
+            continue
+        for m in re.finditer(r"tmp/logs/([A-Za-z0-9_.-]+)", text):
+            seg = m.group(1)
+            ok = seg in commands_words or seg in ('...', '<command>')
+            run(f'logs: {rel}: tmp/logs/{seg}/ opens with a command word', ok,
+                None if ok else
+                f'{rel} writes or names tmp/logs/{seg}/, and `{seg}` is no command — a '
+                f"reader cannot derive it from what they typed",
+                check='naming.log_path_derives_from_command')
+
     # Every printed plan line names where its step is implemented (#45). The plan is
     # the one place the whole program is listed, and it named no file at all: `validate`
     # alone had four candidates. The label is no longer asked to resolve — the line
@@ -1569,7 +1600,7 @@ def main():
     # identical on any clone and becomes the COMMITTED rsc/test/run.log; the
     # data tier describes THIS MACHINE's data (uuids, batch names, home-dir-derived
     # paths) and must never enter a committed artifact — it goes to the terminal and
-    # to tmp/logs/rsc/test/run.log (machine-facing, like the serve daemon's log).
+    # to tmp/logs/test/run.log (machine-facing, like the serve daemon's log).
     committed_buffer = io.StringIO()   # code + schema tiers
     machine_buffer   = io.StringIO()   # data tier
     cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
@@ -1767,7 +1798,7 @@ def main():
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
     # any clone; this script writes it to rsc/test/run.log itself) and the
     # FULL report (adds the machine-local data tier — printed to stdout and written
-    # to tmp/logs/rsc/test/run.log, run-facing like the serve daemon's log).
+    # to tmp/logs/test/run.log, run-facing like the serve daemon's log).
 
     def _in_committed(i: int) -> bool:
         return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
@@ -1868,7 +1899,7 @@ def main():
         ✗s were hard to find. The count carries what the old body could not: `(16/17)` is one
         command misbehaving, `(3/17)` is something structural.
 
-        Every invocation stays in the machine-local log (tmp/logs/rsc/test/run.log),
+        Every invocation stays in the machine-local log (tmp/logs/test/run.log),
         where evidence belongs; this is the file a human reads in a diff."""
         out, seen_section = io.StringIO(), None
         order: dict[tuple, list] = {}
@@ -1922,14 +1953,14 @@ def main():
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
-            out.write('  full per-check report → tmp/logs/rsc/test/run.log\n')
+            out.write('  full per-check report → tmp/logs/test/run.log\n')
 
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
         for label, ok, detail in score_rows:
             if committed_only and label.startswith('score[data]'):
                 out.write('  – score[data]: machine-local — reported on the terminal '
-                          'and in tmp/logs/rsc/test/run.log, never committed\n')
+                          'and in tmp/logs/test/run.log, never committed\n')
                 continue
             mark = '✓' if ok else ('⚠' if label.startswith('score[data]') else '✗')
             out.write(f'  {mark} {label}' +
@@ -1939,7 +1970,7 @@ def main():
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if warn_idx:
             counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
-            where = 'above' if include_body else 'in the full report (tmp/logs/rsc/test/run.log)'
+            where = 'above' if include_body else 'in the full report (tmp/logs/test/run.log)'
             out.write(f'\nWARN — machine-local facts, marked ⚠ {where}; they never gate a commit:\n')
             for sec in warn_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
@@ -1984,7 +2015,7 @@ def main():
     terminal_text, _          = _render(committed_only=False, include_body=False)
 
     (RSC / 'test' / 'run.log').write_text(committed_text)
-    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'rsc' / 'test' / 'run.log'
+    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
     machine_log.write_text(full_text)
 

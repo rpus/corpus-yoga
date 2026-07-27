@@ -34,7 +34,7 @@ main() {
   fi
   echo "src/main/browser-captures/$(basename "$0") ($provider)"
   local log rc=0
-  log="$REPO_DIR/tmp/logs/src/main/browser-captures/safari_capture/$provider/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+  log="$REPO_DIR/tmp/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
   mkdir -p "$(dirname "$log")"
   # Name the log FIRST: a Shortcut invocation shows this output in a transient
   # dialog (if at all), and any 'see the run log' advice is useless unless the

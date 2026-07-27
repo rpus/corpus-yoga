@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 # run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
-LOG_FILE="$REPO_DIR/tmp/logs/src/main/model/serve_markdown.log"
+LOG_FILE="$REPO_DIR/tmp/logs/server/start.log"
 PY=("$SCRIPT_DIR/../../run_python_script.sh" "$SCRIPT_DIR/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),
