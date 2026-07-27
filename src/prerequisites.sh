@@ -84,8 +84,18 @@ check_tools() {
   # pyrightconfig.json the editor does — one declaration, three readers. It is a python
   # package, so the venv this repo builds carries it; shellcheck below is not, which is
   # why one arrives with `yoga pipeline run` and the other needs brew.
-  if command -v pyright &>/dev/null; then
-    ok "pyright ($(pyright --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
+  # Where the GATE looks, in the same order: $VENV/bin first, then PATH. Asking
+  # `command -v` alone reported "not found" on any shell without the venv activated —
+  # while the venv held it and yoga test run used it — so the report contradicted both
+  # the gate and its own requirements line a few rows below.
+  local pyright_bin=""
+  if [[ -x "$VENV/bin/pyright" ]]; then
+    pyright_bin="$VENV/bin/pyright"
+  elif command -v pyright &>/dev/null; then
+    pyright_bin="$(command -v pyright)"
+  fi
+  if [[ -n "$pyright_bin" ]]; then
+    ok "pyright ($("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
   else
     todo venv "pyright not found — yoga test run skips its type check; it is in src/requirements.txt: yoga prerequisites sync --apply"
   fi
