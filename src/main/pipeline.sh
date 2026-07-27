@@ -187,8 +187,11 @@ prep_call() {
 prep_pipeline() {
   local name="$1"; shift
   echo "── prep: ${name} ──────────────────────────────────────────────────────────"
-  local rc=0 op impl
-  read -r op impl <<< "$(prep_call "$name")" || { echo "no prep step for $name"; return 0; }
+  local rc=0 op impl pair
+  # The failure has to be caught on prep_call, not on `read`: a herestring always supplies
+  # a newline, so `read` succeeds on empty input and would hand `step` two empty arguments.
+  pair="$(prep_call "$name")" || { echo "no prep step for $name"; return 0; }
+  read -r op impl <<< "$pair"
   step "$op" "$impl" "$@" || rc=$?
   echo ""
   return $rc
@@ -308,12 +311,12 @@ print_plan() {
   fi
   if should_run chat-exports; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
-    ( plan=1; read -r op impl <<< "$(prep_call chat-exports)"; step "$op" "$impl" ) | sed 's/^/  /'
+    ( plan=1; pair="$(prep_call chat-exports)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
     "$REPO_ROOT/src/main/chat-exports/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run code-agents; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
-    ( plan=1; read -r op impl <<< "$(prep_call code-agents)"; step "$op" "$impl" ) | sed 's/^/  /'
+    ( plan=1; pair="$(prep_call code-agents)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
     "$REPO_ROOT/src/main/code-agents/run.sh" --plan | sed 's/^/  /'
   fi
   echo "  then once, over the whole corpus:"
