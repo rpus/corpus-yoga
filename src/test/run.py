@@ -889,12 +889,16 @@ def check_cli_surface(run) -> None:
     # carries the path, so a reader needs no rule about which namespace a label is in.
     plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
-    step_lines = [l for l in plan.splitlines() if re.search(r'\S\s{2,}(src|rsc)/\S+', l)]
+    # ONE pattern, matched once. A filter and an extractor written separately can
+    # disagree — these two did, on whether a non-space must precede the gap — and the
+    # extractor was then indexing a None the filter had promised could not occur.
+    named = r'\S\s{2,}((?:src|rsc)/\S+?)(?:\s|$)'
+    step_lines = [(l, m) for l in plan.splitlines() if (m := re.search(named, l))]
     run('plan: every step line names an implementation', bool(step_lines),
         None if step_lines else 'no plan line carries a repo-relative path',
         law='G16', check='output.plan_lines_name_their_target')
-    for line in step_lines:
-        impl = re.search(r'\s{2,}((?:src|rsc)/\S+?)(?:\s|$)', line).group(1)
+    for line, match in step_lines:
+        impl = match.group(1)
         exists = (REPO_ROOT / impl).is_file()
         run(f'plan: {impl}: the file the line names exists', exists,
             None if exists else f'`{line.strip()}` names {impl}, which is not a file',
