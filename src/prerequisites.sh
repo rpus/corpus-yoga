@@ -254,11 +254,11 @@ check_cli() {
   if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with rsc/cli/" ;;
-      *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: ./yoga completions install-latest (then restart terminal)" ;;
-      *)         todo reader "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
+      *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: yoga completions install-latest (then restart terminal)" ;;
+      *)         todo reader "zsh completions not generated → run: yoga completions install-latest (then restart terminal)" ;;
     esac
   else
-    info "zsh completion currency cannot be verified (running ./yoga needs Python 3)"
+    info "zsh completion currency cannot be verified (running yoga needs Python 3)"
   fi
   # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
   # added after it is present in the file and does nothing — a grep for the string
@@ -271,7 +271,7 @@ check_cli() {
     ok "zsh resolves the yoga completion"
   else
     info "zsh does not resolve the yoga completions"
-    echo "    → run: ./yoga completions install-latest (then restart terminal)"
+    echo "    → run: yoga completions install-latest (then restart terminal)"
   fi
 }
 
