@@ -1,0 +1,31 @@
+{
+  "summary": "Deposit every distinct summary reading; render each conversation's index",
+  "target": "src/main/chat-exports/summaries.py",
+  "calculus": "accumulate project L1 L4",
+  "args": [
+    {
+      "name": "--chat-exports-cache",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "atomised batch cache — the export reading source"
+    },
+    {
+      "name": "--browser-api",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "browser-API root — the rolling capture source"
+    },
+    {
+      "name": "--conversations-output",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "projected conversations the folders key on"
+    },
+    {
+      "name": "--summaries-output",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "the summary deposit store — the write target"
+    }
+  ]
+}

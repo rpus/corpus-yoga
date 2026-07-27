@@ -1,0 +1,25 @@
+{
+  "summary": "Deposit every distinct chat-memory state; render the timeline",
+  "target": "src/main/chat-exports/memories.py",
+  "calculus": "accumulate normalise project L1 L4",
+  "args": [
+    {
+      "name": "--chat-exports-cache",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "atomised batch cache — the archived memory-state source"
+    },
+    {
+      "name": "--memories-output",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "the memory deposit store — the write target"
+    },
+    {
+      "name": "--markdown",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "the rendered markdown timeline — one file per deposit"
+    }
+  ]
+}

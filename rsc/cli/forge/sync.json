@@ -1,0 +1,11 @@
+{
+  "help": "make the forge settings agree with rsc/forge.csv — a dry run unless --apply, because it writes outside the repo",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "perform the PATCHes — without it, the drift and the commands are only reported"
+    }
+  ]
+}

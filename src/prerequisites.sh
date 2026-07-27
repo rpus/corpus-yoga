@@ -201,15 +201,15 @@ check_machine() {
 }
 
 check_cli() {
-  sec "yoga CLI (tables: rsc/cli/commands.csv + help.csv)"
+  sec "yoga CLI (tables: rsc/cli/)"
   # `yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
   local comp_status
   if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
-      *current*) ok   "zsh completions generated and current with rsc/cli/commands.csv + help.csv" ;;
-      *STALE*)   info "zsh completions stale vs rsc/cli/commands.csv + help.csv → refresh: ./yoga completions install-latest (then restart terminal)" ;;
+      *current*) ok   "zsh completions generated and current with rsc/cli/" ;;
+      *STALE*)   info "zsh completions stale vs rsc/cli/ → refresh: ./yoga completions install-latest (then restart terminal)" ;;
       *)         info "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
     esac
   else

@@ -1,0 +1,23 @@
+{
+  "help": "start the markdown server (LaTeX rendering + turn deep links)",
+  "args": [
+    {
+      "name": "--markdown",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "the markdown tree to serve (default: data/output/markdown)"
+    },
+    {
+      "name": "--port",
+      "type": "<n>",
+      "cardinality": "",
+      "help": "port to serve on (default: 8182)"
+    },
+    {
+      "name": "--daemon",
+      "type": "",
+      "cardinality": "",
+      "help": "run in the background (detached), rather than in the foreground"
+    }
+  ]
+}

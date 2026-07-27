@@ -1,0 +1,11 @@
+{
+  "help": "the three-tier check suite — code and schema on any clone, data machine-local (also what the pre-commit hook runs)",
+  "args": [
+    {
+      "name": "--fix",
+      "type": "",
+      "cardinality": "",
+      "help": "run every fix command, then stop — stages nothing (review and stage yourself)"
+    }
+  ]
+}

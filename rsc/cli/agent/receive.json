@@ -1,0 +1,29 @@
+{
+  "help": "install a peer machine's transported sessions (the one deliberate writer of ~/.claude/projects)",
+  "args": [
+    {
+      "name": "--session",
+      "type": "<uuid8>",
+      "cardinality": "1/agent-receive-1",
+      "help": "uuid(8) prefix of the agent to install — identity is never guessed"
+    },
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "1/agent-receive-1",
+      "help": "install every session the peer transported (pull --all from one machine)"
+    },
+    {
+      "name": "--from",
+      "type": "<machine|dir>",
+      "cardinality": "1",
+      "help": "the peer to receive from — a machine name (bare token) or a directory (./dir), by shape not CWD lookup"
+    },
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "perform the merge — without it, a dry run that only reports"
+    }
+  ]
+}

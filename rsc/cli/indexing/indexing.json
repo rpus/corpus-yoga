@@ -1,0 +1,6 @@
+{
+  "summary": "Curate and build the book index over data/output/indexing/ (bare: status)",
+  "target": "src/main/model/indexing.py",
+  "calculus": "capture curate project",
+  "args": []
+}

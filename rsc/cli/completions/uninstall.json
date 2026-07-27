@@ -1,0 +1,4 @@
+{
+  "help": "removes the completions block from ~/.zshrc",
+  "args": []
+}

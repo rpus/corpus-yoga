@@ -243,7 +243,7 @@ LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # staleness was previously invisible to run (found 2026-07-22: the real
 # index.md still cited a retired verb name). Same command-backed step
 # discipline as the pipeline tails: the plan speaks `indexing sync`, and the
-# gate holds it to command AND verb (help.csv step=corpus).
+# gate holds it to command AND verb (a declared step=corpus).
 #
 # Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and
 # NECESSITY tests this comment used to carry (the PR #18 review, reading-room;

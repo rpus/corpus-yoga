@@ -1,0 +1,6 @@
+{
+  "summary": "code-agent sessions: the census, and transport between machines",
+  "target": "src/main/code-agents/agent.py",
+  "calculus": "transport supersession merge L1 L3 L4 L6",
+  "args": []
+}

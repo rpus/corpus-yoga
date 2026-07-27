@@ -1,36 +1,37 @@
-"""Fill an argparse parser's help text from rsc/cli/help.csv.
+"""Fill an argparse parser's help text from rsc/cli/.
 
-A target deleted its help= strings when help.csv became the single source for
+A target deleted its help= strings when the declaration became the single source for
 argument wording. That left the target's own `-h` mute (bare flags, no prose) —
 both when run directly and when reached via `yoga <command> <verb> -h`. This
 puts the words back without storing them twice: the parser still owns the
-structure (what arguments exist), help.csv owns the wording.
+structure (what arguments exist), the declaration owns the wording.
 
 It also sets prog, for the same reason: a parser reached as `yoga agent capture`
 should not print `usage: agent.py capture`, naming a file instead of the command.
 
 Call enrich(parser, command) once, after building the parser, before parse_args.
-Matching per help.csv row: a flag by its first option string (--session), a
+Matching per declared row: a flag by its first option string (--session), a
 positional by its dest (term), a subcommand by its name; a row with a blank
 arg-name is that subcommand's own one-line description.
 
 Pass subcommand when the parser IS one verb rather than holding subparsers —
 cache routes clean and sync to separate flat scripts, so clean.py calls
-enrich(ap, 'cache', 'clean') and its flags match the tmp/cache/clean help.csv rows.
+enrich(ap, 'cache', 'clean') and its flags match the tmp/cache/clean declared rows.
 
 Stdlib only, and it reaches into argparse's _actions / _SubParsersAction — the
 usual way to post-process a parser; stable across CPython versions.
 """
 import argparse
-import csv
+import sys
 from pathlib import Path
 
-_HELP_CSV = Path(__file__).resolve().parents[2] / 'rsc' / 'cli' / 'help.csv'
-
-
 def _rows(command: str) -> list[dict]:
-    with _HELP_CSV.open() as f:
-        return [r for r in csv.DictReader(f) if r['command'] == command]
+    """The command's declared rows — asked of cli, which is the one reader of rsc/cli/.
+    Imported at CALL time, not module level: cli imports enrich() from here, so a
+    module-level import would close the cycle."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / 'cli'))
+    from cli import command_rows
+    return command_rows(command)
 
 
 def _fill(parser, rows: list[dict]) -> None:
@@ -45,7 +46,7 @@ def _fill(parser, rows: list[dict]) -> None:
 
 def inherit_flags(parser, verb_parser) -> None:
     """Re-accept the command parser's own --flags on a verb subparser, so the
-    position help.csv renders and completion offers — after the verb — parses
+    position the declaration renders and completion offers — after the verb — parses
     too (issue #33: the flags lived only on the command parser, and argparse
     hands a subparser everything after the verb token). Derived from the
     parser's declared actions, never restated: the parser stays the one place

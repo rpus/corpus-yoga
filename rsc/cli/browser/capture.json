@@ -1,0 +1,29 @@
+{
+  "help": "capture browser-reachable chats via Safari into data/input/ (a bare `yoga browser` audits capture-health)",
+  "args": [
+    {
+      "name": "--provider",
+      "type": "claude|gemini",
+      "cardinality": "",
+      "help": "restrict to one provider: claude | gemini (default: every provider)"
+    },
+    {
+      "name": "--mechanism",
+      "type": "API|DOM",
+      "cardinality": "",
+      "help": "restrict to one mechanism: API | DOM (default: every mechanism the provider has)"
+    },
+    {
+      "name": "--id",
+      "type": "<id>",
+      "cardinality": "",
+      "help": "capture ONE conversation (the audit WARNs name it); requires --provider — an id's shape does not say whose it is"
+    },
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "",
+      "help": "LIVE: fetch each provider's listing, name what is NEW and PROGRESSED, and stop — captures nothing (a send: it reaches the listings)"
+    }
+  ]
+}

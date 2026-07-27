@@ -1,0 +1,6 @@
+{
+  "summary": "per-schema definition catalogues, candidates for model.json",
+  "target": "src/main/model/model.py",
+  "calculus": "project",
+  "args": []
+}

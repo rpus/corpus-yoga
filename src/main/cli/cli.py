@@ -2,8 +2,8 @@
 """
 cli.py — the machinery behind `yoga`, the repo's terminal surface.
 
-Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/commands.csv
-names each command and its target; rsc/cli/help.csv describes the arguments.
+Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/
+names each command and its target; rsc/cli/ describes the arguments.
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
 `yoga -h` lists the commands; `yoga <command> -h` renders that command's help from
 the tables; a subcommand one level down (`yoga <command> <subcommand> --help`) is
@@ -34,6 +34,8 @@ run. Adding a third-party import here would silently break that.
 """
 import argparse
 import csv
+import json
+import pathlib
 import os
 import re
 import subprocess
@@ -44,7 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
 REPO = Path(__file__).resolve().parents[3]
-TABLE = REPO / 'rsc' / 'cli' / 'commands.csv'
+CLI = REPO / 'rsc' / 'cli'
 COLUMNS = ('command', 'target', 'calculus', 'summary')
 COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # The comments that DELIMIT the block `install` writes into ~/.zshrc, and by which
@@ -73,30 +75,82 @@ def is_completion_marker(line: str) -> bool:
     return line.strip().startswith(COMPLETION_ID)
 
 
+def _declaration(command: str) -> pathlib.Path:
+    """Where a command declares itself: <command>.json, or <command>/<command>.json when
+    it has subcommands and is therefore a directory."""
+    d = CLI / command / f'{command}.json'
+    return d if d.exists() else CLI / f'{command}.json'
+
+
+def _declared_commands() -> list[str]:
+    """Every command, from the tree itself — a directory or a .json file directly under
+    rsc/cli/. Sorted, because a listing has no other order to be in; uniqueness needs no
+    check because a directory cannot hold two entries of one name (G4, by construction)."""
+    names = set()
+    for p in CLI.iterdir():
+        if p.is_dir():
+            names.add(p.name)
+        elif p.suffix == '.json' and not p.name.endswith('.schema.json'):
+            # the schemas describing these files live beside them (rsc/schema/ is the
+            # data domain), so the suffix is what tells a description from a declaration
+            names.add(p.stem)
+    return sorted(names)
+
+
 def commands() -> list[dict]:
-    """The curated command table. Raises if the columns drift from COLUMNS —
-    the table is an interface, not a suggestion."""
-    with TABLE.open() as f:
-        reader = csv.DictReader(f)
-        if tuple(reader.fieldnames or ()) != COLUMNS:
-            raise ValueError(f'{TABLE.relative_to(REPO)}: '
-                             f'columns {reader.fieldnames} != {list(COLUMNS)}')
-        return list(reader)
+    """The command table, walked from rsc/cli/ rather than parsed from a CSV. The shape
+    returned is unchanged — command, target, calculus, summary — so every consumer of it
+    is untouched by where it now comes from."""
+    out = []
+    for name in _declared_commands():
+        d = json.loads(_declaration(name).read_text())
+        out.append({'command': name, 'target': d['target'],
+                    'calculus': d.get('calculus', ''), 'summary': d['summary']})
+    return out
 
 
 _HELP_ROWS: list[dict] | None = None
 
 
 def help_rows() -> list[dict]:
-    """All rsc/cli/help.csv rows (columns command, subcommand, arg-name, arg-type,
-    cardinality, help) — the SINGLE source for each command's subcommands, flags, and the
-    GENERATED usage. commands.csv holds no argument structure at all: usage is
-    derived here, so the two can never drift and there is nothing to reconcile."""
+    """Every declared argument and subcommand, in the row shape the renderers already
+    speak — command, subcommand, arg-name, arg-type, cardinality, help, step. The rows
+    are now FLATTENED from rsc/cli/<command>[/<verb>].json rather than read from a CSV,
+    so a subcommand's declaration sits beside its siblings instead of being row 14 of a
+    shared file, and adding one is adding a file.
+
+    Subcommands come in listing order, which is alphabetical: the filesystem has no other
+    order to offer, and that is the point — there is no out-of-order state for a check to
+    assert against (G4, by construction)."""
     global _HELP_ROWS
     if _HELP_ROWS is None:
-        with (REPO / 'rsc' / 'cli' / 'help.csv').open() as f:
-            _HELP_ROWS = list(csv.DictReader(f))
+        rows: list[dict] = []
+        for name in _declared_commands():
+            top = json.loads(_declaration(name).read_text())
+            rows += _rows_for(name, '', top)
+            d = CLI / name
+            if d.is_dir():
+                for f in sorted(d.glob('*.json')):
+                    if f.stem != name:
+                        rows += _rows_for(name, f.stem, json.loads(f.read_text()))
+        _HELP_ROWS = rows
     return _HELP_ROWS
+
+
+def _rows_for(command: str, subcommand: str, d: dict) -> list[dict]:
+    """One declaration file → the rows the renderers expect: a describing row when it has
+    a help line, then one per argument."""
+    # `step` belongs to the subcommand, so it rides its DESCRIBING row only — spreading it
+    # over the argument rows too would make one step look like several to cli.steps()
+    base = {'command': command, 'subcommand': subcommand, 'step': ''}
+    rows = []
+    if d.get('help'):
+        rows.append({**base, 'arg-name': '', 'arg-type': '', 'cardinality': '',
+                     'help': d['help'], 'step': d.get('step', '')})
+    for a in d.get('args', []):
+        rows.append({**base, 'arg-name': a['name'], 'arg-type': a.get('type', ''),
+                     'cardinality': a.get('cardinality', ''), 'help': a.get('help', '')})
+    return rows
 
 
 def command_rows(command: str) -> list[dict]:
@@ -123,7 +177,7 @@ def flags_of(command: str) -> list[str]:
 
 def steps() -> list[dict]:
     """The (command, subcommand) invocations the run pipeline executes as named plan
-    steps, declared by help.csv's `step` column (its value names the pipeline). The gate
+    steps, declared by the declared `step` (its value names the pipeline). The gate
     holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
     AND its verb — so the plan speaks the command surface, and a step can never invoke a
     noun bare, which would silently become a status no-op."""
@@ -198,7 +252,7 @@ def _render_arg(name: str, arg_type: str) -> str:
 
 
 def _render_args(rows: list[dict]) -> str:
-    """The argument portion of a subcommand's usage, from its help.csv rows in order.
+    """The argument portion of a subcommand's usage, from its declared rows in order.
     cardinality is a literal count: blank -> optional [x]; a bare count '1' -> required,
     exactly that many x; 'N/<class>' -> N over the SET QUOTIENT <class> — the members
     share that value (one equivalence class) and render as the exclusive choice (a | b),
@@ -239,8 +293,8 @@ def _join(base: str, args: str) -> str:
 
 
 def usage_of(command: str) -> str:
-    """The compact usage sketch (subcommands ' | '-joined), GENERATED from help.csv —
-    the string commands.csv used to store. One source now, so it cannot drift."""
+    """The compact usage sketch (subcommands ' | '-joined), GENERATED from the declaration —
+    the string the command table used to store. One source now, so it cannot drift."""
     order, bysub = _by_subcommand(command)
     subcommands = [s for s in order if s]
     bare = _render_args(bysub.get('', []))
@@ -254,7 +308,7 @@ def usage_of(command: str) -> str:
 
 
 def command_forms(command: str) -> list[str]:
-    """`yoga <command> …` invocation forms, generated from help.csv: one per
+    """`yoga <command> …` invocation forms, generated from the declaration: one per
     subcommand (with its own args), or a single form carrying the command-level args
     when there are no subcommands."""
     order, bysub = _by_subcommand(command)
@@ -275,7 +329,7 @@ def _forms(c: dict) -> list[str]:
 def render_command_help(c: dict) -> str:
     """The standard command help, shared by `yoga <cmd> -h` and `yoga commands
     <cmd>`: the summary, every invocation form, then each subcommand with its own args
-    nested beneath it, command-level args flat. All generated from help.csv."""
+    nested beneath it, command-level args flat. All generated from the declaration."""
     command = c['command']
     forms = command_forms(command)
     if subcommands_of(command):
@@ -330,13 +384,13 @@ def render_help(cmds: list[dict]) -> str:
 
 
 def _subcommand_desc(command: str, subcommand: str) -> str:
-    """A subcommand's one-line description — its blank-arg-name row in help.csv."""
+    """A subcommand's one-line description — the `help` line of its declaration."""
     return next((r['help'] for r in command_rows(command)
                  if r['subcommand'] == subcommand and not r['arg-name']), '')
 
 
 # The arg-types whose value IS a filesystem path — the only values file completion
-# suits. Matched exactly against help.csv's arg-type, never by substring: a metavar
+# suits. Matched exactly against the declared arg-type, never by substring: a metavar
 # is a name, and reading meaning from its spelling would make <redirect> a directory.
 # An arg-type absent here simply gets no completion, which is the safe way to be wrong.
 PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
@@ -416,7 +470,7 @@ def completion_script(cmds: list[dict]) -> str:
 
     lines = [
         '#compdef yoga',
-        '# derived from rsc/cli/commands.csv + help.csv by `yoga completions` — regenerate, never edit',
+        '# derived from rsc/cli/ by `yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
         '  local -a cmds subcommands opts pathopts',
@@ -622,7 +676,7 @@ def _sync_completion() -> None:
 def completion(rest: list[str]) -> int:
     """`yoga completions` — bare shows status, each subcommand acts.
 
-    argparse owns the structure, help.csv the wording (enrich): the pattern every
+    argparse owns the structure, the declaration the wording (enrich): the pattern every
     other command's target already follows. That cli.py handles this command itself
     instead of exec'ing a target is no reason to hand-roll the dispatch and a second
     copy of the help — that copy is how the text came to disagree with the table
@@ -666,7 +720,7 @@ def dispatch(row: dict, rest: list[str]) -> int:
 
 def usage_line(c: dict) -> str:
     """The tail every bare noun-status carries: the command's usage, GENERATED from
-    help.csv. It names EVERY verb and flag that applies — so there is no need to
+    the declaration. It names EVERY verb and flag that applies — so there is no need to
     guess a unique 'next' (a noun with several verbs has none)."""
     usage = usage_of(c['command'])
     return f"usage: yoga {c['command']}" + (f" {usage}" if usage else '')

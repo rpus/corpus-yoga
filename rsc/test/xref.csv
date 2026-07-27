@@ -2,9 +2,7 @@ referring_file,line,ref_type,referred_file,exists,line_text
 README.md,24,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,24,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,26,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-README.md,39,doc,rsc/cli/commands.csv,Y,- the command surface: `rsc/cli/commands.csv` (arguments: `rsc/cli/help.csv`) — grammar and gates: `rsc/cli/README.md`
-README.md,39,doc,rsc/cli/help.csv,Y,- the command surface: `rsc/cli/commands.csv` (arguments: `rsc/cli/help.csv`) — grammar and gates: `rsc/cli/README.md`
-README.md,39,doc,rsc/cli/README.md,Y,- the command surface: `rsc/cli/commands.csv` (arguments: `rsc/cli/help.csv`) — grammar and gates: `rsc/cli/README.md`
+README.md,39,doc,rsc/cli/README.md,Y,"- the command surface: `rsc/cli/` (one file per command, one per subcommand) — grammar and gates: `rsc/cli/README.md`"
 README.md,40,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)"
 README.md,41,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
 README.md,41,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
@@ -35,7 +33,6 @@ README.md,154,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`;
 README.md,154,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 README.md,160,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
-rsc/CALCULUS.md,19,doc,rsc/cli/commands.csv,Y,"table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any"
 rsc/CALCULUS.md,80,doc,src/main/chat-exports/supersede.py,Y,equality of snapshots. (`src/main/chat-exports/supersede.py` atomisers.)
 rsc/CALCULUS.md,103,doc,src/main/chat-exports/accumulate.py,Y,"implementation: `accumulate()` in `src/main/chat-exports/accumulate.py`, called"
 rsc/CALCULUS.md,112,doc,src/main/code-agents/agent.py,Y,semantics checked: `src/main/code-agents/agent.py` (`yoga agent`) —
@@ -45,51 +42,54 @@ rsc/CALCULUS.md,168,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` 
 rsc/CALCULUS.md,170,doc,rsc/schema/model.json,Y,`rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
 rsc/CALCULUS.md,170,doc,rsc/schema/model_rejected.txt,Y,`rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
 rsc/CALCULUS.md,245,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
-rsc/CALCULUS.md,296,doc,rsc/cli/commands.csv,Y,"- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,"
 rsc/CALCULUS.md,300,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
 rsc/CALCULUS.md,300,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
 rsc/CALCULUS.md,309,doc,rsc/test/run.log,Y,"record other clones diff against — `rsc/test/run.log`,"
 rsc/CALCULUS.md,310,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expected-score files beside them. Operations:"
 rsc/CALCULUS.md,315,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
-rsc/CALCULUS.md,326,doc,rsc/cli/help.csv,Y,"GENERATED from `rsc/cli/help.csv`, not stored in a `usage` column: a projection"
 rsc/CALCULUS.md,346,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 rsc/CALCULUS.md,369,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/cache_io.csv,2,path_str,src/test/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,./yoga pipeline run browser-captures,src/test/run.py,per-capture apiC"
-rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,Two curated files describe the `yoga` terminal surface (machinery: `src/main/cli/cli.py`;
-rsc/cli/README.md,20,doc,src/main/pipeline.sh,Y,input spans them all): the gate holds `src/main/pipeline.sh --plan` to
-rsc/cli/README.md,28,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
-rsc/cli/README.md,33,doc,src/main/argparse_help.py,Y,That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
-rsc/cli/README.md,42,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
-rsc/cli/README.md,49,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
-rsc/cli/README.md,50,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
-rsc/cli/README.md,59,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws()` in `src/main/cli/cli.py` parses every `**G<n> — …**` lead
-rsc/cli/README.md,60,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
-rsc/cli/README.md,73,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
-rsc/cli/README.md,78,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-rsc/cli/README.md,114,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
-rsc/cli/README.md,132,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
-rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,transport supersession merge L1 L3 L4 L6,code-agent sessions: the census, and transp"
-rsc/cli/commands.csv,3,path_str,src/main/browser-captures/browser.sh,Y,"browser,src/main/browser-captures/browser.sh,capture,capture browser-reachable chats via Safari (claude API, gemini DOM)"
-rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,project,the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds"
-rsc/cli/commands.csv,5,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,Print the corpus calculus — the doctrine this table cites"
-rsc/cli/commands.csv,6,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,project L5,each command's standard help (bare: every command's forms)"
-rsc/cli/commands.csv,7,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,project L5,zsh tab-completion derived from the command table"
-rsc/cli/commands.csv,8,path_str,src/main/chat-exports/dashboard.sh,Y,"dashboard,src/main/chat-exports/dashboard.sh,capture project,the corpus dashboard: paid capture, free render"
-rsc/cli/commands.csv,9,path_str,src/main/cli/forge.sh,Y,"forge,src/main/cli/forge.sh,validate,the forge's merge settings, and the merge that obeys them"
-rsc/cli/commands.csv,10,path_str,src/main/model/indexing.py,Y,"indexing,src/main/model/indexing.py,capture curate project,Curate and build the book index over data/output/indexing/ (b"
-rsc/cli/commands.csv,11,path_str,src/main/chat-exports/memories.py,Y,"memories,src/main/chat-exports/memories.py,accumulate normalise project L1 L4,Deposit every distinct chat-memory state; "
-rsc/cli/commands.csv,12,path_str,src/main/model/model.py,Y,"model,src/main/model/model.py,project,per-schema definition catalogues, candidates for model.json"
-rsc/cli/commands.csv,13,path_str,src/main/pipeline.sh,Y,"pipeline,src/main/pipeline.sh,atomise validate supersession accumulate project,the pipelines, and the run over data/inpu"
-rsc/cli/commands.csv,14,path_str,src/prerequisites.sh,Y,"prerequisites,src/prerequisites.sh,L8,Read-only machine report — bare shows what needs attention, --show-all the lot"
-rsc/cli/commands.csv,15,path_str,src/main/model/server.sh,Y,"server,src/main/model/server.sh,project,serve the markdown corpus locally (LaTeX + turn deep links)"
-rsc/cli/commands.csv,16,path_str,src/main/chat-exports/summaries.py,Y,"summaries,src/main/chat-exports/summaries.py,accumulate project L1 L4,Deposit every distinct summary reading; render eac"
-rsc/cli/commands.csv,17,path_str,src/main/chat-exports/supersede.py,Y,"supersede,src/main/chat-exports/supersede.py,supersession L3,Do later bulk exports supersede earlier ones? Computed; nev"
-rsc/cli/commands.csv,18,path_str,src/test/test.sh,Y,"test,src/test/test.sh,validate L2,the checks over this repo, and the hook that runs them"
+rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
+rsc/cli/README.md,6,doc,rsc/cli/browser,Y,"`ls rsc/cli/` is the command list, `ls rsc/cli/browser/` is its verb list, and what a verb"
+rsc/cli/README.md,7,doc,rsc/cli/browser/capture.json,Y,"accepts is `cat rsc/cli/browser/capture.json` — no parser, no column headers, no join."
+rsc/cli/README.md,16,doc,rsc/schema,Y,"declaration — they sit beside what they describe rather than under `rsc/schema/`, which is"
+rsc/cli/README.md,35,doc,src/main/pipeline.sh,Y,input spans them all): the gate holds `src/main/pipeline.sh --plan` to
+rsc/cli/README.md,43,doc,rsc/CALCULUS.md,Y,"— and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`)."
+rsc/cli/README.md,48,doc,src/main/argparse_help.py,Y,That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
+rsc/cli/README.md,57,doc,rsc/cli/readings.md,Y,committed in `rsc/cli/readings.md`.
+rsc/cli/README.md,64,doc,src/run_python_script.sh,Y,"| `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `sr"
+rsc/cli/README.md,65,doc,rsc/CALCULUS.md,Y,| `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the com
+rsc/cli/README.md,74,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws()` in `src/main/cli/cli.py` parses every `**G<n> — …**` lead
+rsc/cli/README.md,75,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
+rsc/cli/README.md,88,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
+rsc/cli/README.md,93,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
+rsc/cli/README.md,129,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
+rsc/cli/README.md,147,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
+rsc/cli/agent/agent.json,3,path_str,src/main/code-agents/agent.py,Y,"""target"": ""src/main/code-agents/agent.py"","
+rsc/cli/browser/browser.json,3,path_str,src/main/browser-captures/browser.sh,Y,"""target"": ""src/main/browser-captures/browser.sh"","
+rsc/cli/cache/cache.json,3,path_str,src/main/cli/cache.py,Y,"""target"": ""src/main/cli/cache.py"","
+rsc/cli/calculus.json,3,path_str,rsc/CALCULUS.md,Y,"""target"": ""rsc/CALCULUS.md"","
+rsc/cli/command.schema.json,30,$ref,rsc/cli/argument.schema.json,Y,"""items"": {""$ref"": ""argument.schema.json#""}"
+rsc/cli/commands.json,3,path_str,src/main/cli/cli.py,Y,"""target"": ""src/main/cli/cli.py"","
+rsc/cli/completions/completions.json,3,path_str,src/main/cli/cli.py,Y,"""target"": ""src/main/cli/cli.py"","
+rsc/cli/dashboard/dashboard.json,3,path_str,src/main/chat-exports/dashboard.sh,Y,"""target"": ""src/main/chat-exports/dashboard.sh"","
+rsc/cli/forge/forge.json,3,path_str,src/main/cli/forge.sh,Y,"""target"": ""src/main/cli/forge.sh"","
+rsc/cli/indexing/indexing.json,3,path_str,src/main/model/indexing.py,Y,"""target"": ""src/main/model/indexing.py"","
+rsc/cli/memories/memories.json,3,path_str,src/main/chat-exports/memories.py,Y,"""target"": ""src/main/chat-exports/memories.py"","
+rsc/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
+rsc/cli/pipeline/pipeline.json,3,path_str,src/main/pipeline.sh,Y,"""target"": ""src/main/pipeline.sh"","
+rsc/cli/prerequisites.json,3,path_str,src/prerequisites.sh,Y,"""target"": ""src/prerequisites.sh"","
 rsc/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 rsc/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 rsc/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
-rsc/cli/target_naming_pending.csv,2,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there is n"
-rsc/cli/target_naming_pending.csv,3,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there i"
+rsc/cli/server/server.json,3,path_str,src/main/model/server.sh,Y,"""target"": ""src/main/model/server.sh"","
+rsc/cli/subcommand.schema.json,21,$ref,rsc/cli/argument.schema.json,Y,"""items"": {""$ref"": ""argument.schema.json#""}"
+rsc/cli/summaries/summaries.json,3,path_str,src/main/chat-exports/summaries.py,Y,"""target"": ""src/main/chat-exports/summaries.py"","
+rsc/cli/supersede/supersede.json,3,path_str,src/main/chat-exports/supersede.py,Y,"""target"": ""src/main/chat-exports/supersede.py"","
+rsc/cli/target_naming_pending.csv,2,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,58,answered by the CLI itself — main() intercepts before dispatch, so there is no target to"
+rsc/cli/target_naming_pending.csv,3,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,58,answered by the CLI itself — main() intercepts before dispatch, so there is no target"
+rsc/cli/test/test.json,3,path_str,src/test/test.sh,Y,"""target"": ""src/test/test.sh"","
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
 rsc/schema/WORKFLOW.md,26,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
 rsc/schema/WORKFLOW.md,87,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
@@ -192,7 +192,6 @@ rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as 
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
 rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
 rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
-src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/browser.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -390,18 +389,15 @@ src/main/cli/cache_io.py,3,comment,rsc/cache_io.csv,Y,"cache_io.py — the reade
 src/main/cli/clean.py,18,comment,rsc/CALCULUS.md,Y,"contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable)."
 src/main/cli/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync"
 src/main/cli/clean.py,46,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
-src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/commands.csv
-src/main/cli/cli.py,5,comment,rsc/cli/commands.csv,Y,Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/commands.csv
-src/main/cli/cli.py,6,comment,rsc/cli/help.csv,Y,names each command and its target; rsc/cli/help.csv describes the arguments.
+src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/
 src/main/cli/cli.py,15,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
 src/main/cli/cli.py,32,comment,src/main/pipeline.sh,Y,"the table, print the calculus, and generate completion before ./src/main/pipeline.sh has"
-src/main/cli/cli.py,91,comment,rsc/cli/help.csv,Y,"All rsc/cli/help.csv rows (columns command, subcommand, arg-name, arg-type,"
-src/main/cli/cli.py,127,comment,src/main/pipeline.sh,Y,holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
-src/main/cli/cli.py,135,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
-src/main/cli/cli.py,166,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
-src/main/cli/cli.py,167,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
-src/main/cli/cli.py,171,comment,rsc/CALCULUS.md,Y,"and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased."
-src/main/cli/cli.py,396,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
+src/main/cli/cli.py,181,comment,src/main/pipeline.sh,Y,holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
+src/main/cli/cli.py,189,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
+src/main/cli/cli.py,220,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
+src/main/cli/cli.py,221,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
+src/main/cli/cli.py,225,comment,rsc/CALCULUS.md,Y,"and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased."
+src/main/cli/cli.py,450,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
 src/main/cli/forge.sh,5,comment,rsc/forge.csv,Y,# sees them and no git config holds them; rsc/forge.csv declares them.
 src/main/cli/forge.sh,10,comment,rsc/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
 src/main/cli/forge.sh,27,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forge.csv"""
@@ -470,7 +466,6 @@ src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candid
 src/main/model/gen_model_candidate.py,15,comment,rsc/schema/code-agents/session/v1.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v1.json
 src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
-src/main/model/indexing.py,5,comment,rsc/cli/commands.csv,Y,capture. Driven by `yoga indexing` (see rsc/cli/commands.csv).
 src/main/model/indexing.py,22,comment,rsc/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
 src/main/model/indexing.py,234,comment,rsc/cli/readings.md,Y,rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
 src/main/model/model.py,3,comment,rsc/schema/model.json,Y,"model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."
@@ -558,30 +553,28 @@ src/test/repairs/structure.required_subset_of_properties.py,4,comment,src/test/r
 src/test/run.py,6,comment,src/test/run.sh,Y,src/test/run.sh
 src/test/run.py,7,comment,src/test/run.sh,Y,src/test/run.sh --fix   # run all fix commands; stages nothing
 src/test/run.py,640,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/run.py,690,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
 src/test/run.py,692,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/run.py,698,comment,src/main/pipeline.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
-src/test/run.py,1000,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/run.py,1021,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/run.py,1254,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/run.py,1401,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/run.py,1402,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/run.py,698,comment,src/main/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
+src/test/run.py,1061,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/run.py,1082,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/run.py,1315,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/run.py,1462,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/run.py,1463,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/run.py,391,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/run.py,100,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/run.py,109,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/run.py,123,path_str,src/main/code-agents/run.sh,Y,"fix_item_cmd      = 'src/main/code-agents/run.sh --code-agent',"
 src/test/run.py,904,path_str,rsc/cli/target_naming_pending.csv,Y,"None if not unknown else f'rsc/cli/target_naming_pending.csv names {"", "".join(unknown)}, '"
-src/test/run.py,1693,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1695,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1703,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1705,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,727,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
+src/test/run.py,1754,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1756,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1764,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1766,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/run.py,876,comment,src/PREREQUISITES.sh,Y,"# comparison, which passed src/PREREQUISITES.sh (the last of the SHOUTING dialect"
-src/test/run.py,981,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/run.py,1071,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/run.py,1455,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/run.py,1465,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
-src/test/run.py,1654,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,1042,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/run.py,1132,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/run.py,1516,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/run.py,1526,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
+src/test/run.py,1715,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,21,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/run.sh,76,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"
@@ -605,6 +598,54 @@ src/test/xref.py,336,comment,src/main/pipeline.sh,Y,# trailing /.. hops (src/mai
 src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
+,,,rsc/cli/agent/agent.json,Y,
+,,,rsc/cli/agent/capture.json,Y,
+,,,rsc/cli/agent/demerge.json,Y,
+,,,rsc/cli/agent/models.json,Y,
+,,,rsc/cli/agent/receive.json,Y,
+,,,rsc/cli/browser/browser.json,Y,
+,,,rsc/cli/cache/cache.json,Y,
+,,,rsc/cli/cache/clean.json,Y,
+,,,rsc/cli/cache/sync.json,Y,
+,,,rsc/cli/calculus.json,Y,
+,,,rsc/cli/command.schema.json,Y,
+,,,rsc/cli/commands.json,Y,
+,,,rsc/cli/completions/completions.json,Y,
+,,,rsc/cli/completions/install-latest.json,Y,
+,,,rsc/cli/completions/sync.json,Y,
+,,,rsc/cli/completions/uninstall.json,Y,
+,,,rsc/cli/dashboard/capture.json,Y,
+,,,rsc/cli/dashboard/dashboard.json,Y,
+,,,rsc/cli/dashboard/sync.json,Y,
+,,,rsc/cli/forge/forge.json,Y,
+,,,rsc/cli/forge/merge.json,Y,
+,,,rsc/cli/forge/prune.json,Y,
+,,,rsc/cli/forge/sync.json,Y,
+,,,rsc/cli/indexing/accept.json,Y,
+,,,rsc/cli/indexing/candidates.json,Y,
+,,,rsc/cli/indexing/indexing.json,Y,
+,,,rsc/cli/indexing/reject.json,Y,
+,,,rsc/cli/indexing/sync.json,Y,
+,,,rsc/cli/memories/memories.json,Y,
+,,,rsc/cli/memories/sync.json,Y,
+,,,rsc/cli/model/model.json,Y,
+,,,rsc/cli/model/sync.json,Y,
+,,,rsc/cli/pipeline/pipeline.json,Y,
+,,,rsc/cli/pipeline/run.json,Y,
+,,,rsc/cli/prerequisites.json,Y,
+,,,rsc/cli/server/ensure-assets.json,Y,
+,,,rsc/cli/server/server.json,Y,
+,,,rsc/cli/server/start.json,Y,
+,,,rsc/cli/server/stop.json,Y,
+,,,rsc/cli/subcommand.schema.json,Y,
+,,,rsc/cli/summaries/summaries.json,Y,
+,,,rsc/cli/summaries/sync.json,Y,
+,,,rsc/cli/supersede/check.json,Y,
+,,,rsc/cli/supersede/supersede.json,Y,
+,,,rsc/cli/test/install-hook.json,Y,
+,,,rsc/cli/test/run.json,Y,
+,,,rsc/cli/test/test.json,Y,
+,,,rsc/cli/test/xref.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/apiConversation/v9.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,

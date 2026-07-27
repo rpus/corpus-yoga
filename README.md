@@ -36,7 +36,7 @@ prefix-gated store.
 
 ## Where facts live
 
-- the command surface: `rsc/cli/commands.csv` (arguments: `rsc/cli/help.csv`) — grammar and gates: `rsc/cli/README.md`
+- the command surface: `rsc/cli/` (one file per command, one per subcommand) — grammar and gates: `rsc/cli/README.md`
 - the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`

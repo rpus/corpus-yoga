@@ -1,0 +1,6 @@
+{
+  "summary": "serve the markdown corpus locally (LaTeX + turn deep links)",
+  "target": "src/main/model/server.sh",
+  "calculus": "project",
+  "args": []
+}

@@ -1,0 +1,17 @@
+{
+  "help": "reconcile the forge settings, then squash-merge that PR — no message flags, so the body is assembled from the branch's commits and keeps their signatures",
+  "args": [
+    {
+      "name": "pr",
+      "type": "<pr>",
+      "cardinality": "1",
+      "help": "the PR to merge: a number, a URL, or a branch"
+    },
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "",
+      "help": "check everything and print the message that would land; merge nothing"
+    }
+  ]
+}

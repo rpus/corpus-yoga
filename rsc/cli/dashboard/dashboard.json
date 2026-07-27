@@ -1,0 +1,6 @@
+{
+  "summary": "the corpus dashboard: paid capture, free render",
+  "target": "src/main/chat-exports/dashboard.sh",
+  "calculus": "capture project",
+  "args": []
+}

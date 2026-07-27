@@ -1,0 +1,13 @@
+{
+  "summary": "Read-only machine report — bare shows what needs attention, --show-all the lot",
+  "target": "src/prerequisites.sh",
+  "calculus": "L8",
+  "args": [
+    {
+      "name": "--show-all",
+      "type": "",
+      "cardinality": "",
+      "help": "show the full report, including satisfied (✓) items (default: only what needs attention)"
+    }
+  ]
+}

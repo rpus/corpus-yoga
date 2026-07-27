@@ -1,0 +1,4 @@
+{
+  "help": "rebuild the cross-reference table, write it, and report — idempotent (the only write)",
+  "args": []
+}

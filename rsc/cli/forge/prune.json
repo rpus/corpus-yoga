@@ -1,0 +1,11 @@
+{
+  "help": "delete local branches whose PR is merged and whose tip the merge contains — a dry run unless --apply",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "perform the deletions — without it, the branches and reasons are only reported"
+    }
+  ]
+}

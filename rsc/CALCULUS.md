@@ -16,7 +16,7 @@ narrative, the code holds the shape, and the laws are the testable seam between.
 This document is also an INTERFACE, not only a narrative: the bolded leads of
 the operation and law bullets below are machine-read as the citable vocabulary
 for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
-table: `rsc/cli/commands.csv`), and the pre-commit code tier rejects any
+table: `rsc/cli/`), and the pre-commit code tier rejects any
 citation not defined here. Reformatting a bullet therefore shrinks the
 vocabulary — loudly, never silently.
 
@@ -293,7 +293,7 @@ section records a discovered fact, not a design: the code, once reified, obeys
 the same calculus as the corpus — classified on the same axes, operated on by
 the same operations, governed by the same laws. Code is not a second ontology.
 
-- **curated set (of code-facing data)** — `rsc/cli/commands.csv`,
+- **curated set (of code-facing data)** — `rsc/cli/`,
   `data/output/indexing/accepted.txt` with `data/output/indexing/rejected.txt` as its disposal
   record: grow by curation, an absence is a decision, never auto-modified.
 - **append-only history** — the format-vintage tables
@@ -323,10 +323,10 @@ the same operations, governed by the same laws. Code is not a second ontology.
   noun can never mutate the tree. Help is a third thing, a projection QUERY —
   `-h`/`--help` answered from the table, never an act — so it left the bare
   invocation and the `help` command both. And the usage each command prints is
-  GENERATED from `rsc/cli/help.csv`, not stored in a `usage` column: a projection
+  GENERATED from `rsc/cli/`, not stored in a `usage` column: a projection
   kept independently of its source is a projection that can drift, so generating it
   is L5 carried to its end, where the reconciling check has nothing left to
-  reconcile (the help.csv-complete check deleted itself, and the score went down).
+  reconcile (the completeness check deleted itself, and the score went down).
   Drawn to stop a bare noun writing; seen only afterwards to be the operation/read
   split the corpus already keeps.
 

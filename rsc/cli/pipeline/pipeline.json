@@ -1,0 +1,13 @@
+{
+  "summary": "the pipelines, and the run over data/input/ that never acquires",
+  "target": "src/main/pipeline.sh",
+  "calculus": "atomise validate supersession accumulate project",
+  "args": [
+    {
+      "name": "--names",
+      "type": "",
+      "cardinality": "",
+      "help": "the pipeline names alone, one per line — for a reader that is a program; `run` runs exactly these"
+    }
+  ]
+}

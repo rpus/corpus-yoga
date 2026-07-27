@@ -1,0 +1,23 @@
+{
+  "help": "mirror this machine's own sessions into its store dir (what a machine pushes to the shared store)",
+  "args": [
+    {
+      "name": "--session",
+      "type": "<uuid8>",
+      "cardinality": "1/agent-capture-1",
+      "help": "uuid(8) prefix of the agent to capture — identity is never guessed"
+    },
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "1/agent-capture-1",
+      "help": "mirror every session of every project (the whole outbox)"
+    },
+    {
+      "name": "--to",
+      "type": "<scratch-dir>",
+      "cardinality": "",
+      "help": "capture to a scratch dir instead of the store (test escape hatch — a directory, never a machine name)"
+    }
+  ]
+}
