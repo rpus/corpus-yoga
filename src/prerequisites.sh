@@ -105,7 +105,7 @@ check_tools() {
   if command -v shellcheck &>/dev/null; then
     ok "shellcheck ($(shellcheck --version | awk '/^version:/ {print $2}')) — yoga test run lints every src/**/*.sh"
   else
-    info "shellcheck not found — yoga test run skips its shell lint; install via: brew install shellcheck"
+    todo reader "shellcheck not found — yoga test run skips its shell lint; install via: brew install shellcheck"
   fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
@@ -255,8 +255,8 @@ check_cli() {
   if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with rsc/cli/" ;;
-      *STALE*)   info "zsh completions stale vs rsc/cli/ → refresh: ./yoga completions install-latest (then restart terminal)" ;;
-      *)         info "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
+      *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: ./yoga completions install-latest (then restart terminal)" ;;
+      *)         todo reader "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
     esac
   else
     info "zsh completion currency cannot be verified (running ./yoga needs Python 3)"
@@ -344,7 +344,7 @@ check_forge() {
     [[ -z "$status" ]] && continue
     case "$status" in
       OK)    ok   "$key: $detail" ;;
-      DRIFT) info "$key: $detail"; echo "    → run: $remedy" ;;
+      DRIFT) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
       *)     info "$key: $detail" ;;
     esac
   done < <("$REPO_ROOT/src/main/cli/forge.sh" --tsv 2>/dev/null)
