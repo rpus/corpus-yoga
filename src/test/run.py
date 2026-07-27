@@ -1375,10 +1375,34 @@ def check_grammar_laws(run, cited: dict) -> None:
     if not laws:
         return
 
-    orphans = sorted(set(cited) - set(laws))
+    # TWO vocabularies, one citation field (#50): a check enforces either a surface law
+    # from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if
+    # either document states it.
+    corpus = cli.calculus_laws()
+    orphans = sorted(set(cited) - set(laws) - set(corpus))
     run('grammar: every citation names a stated law', not orphans,
-        f'cited by a check but not stated in the grammar: {", ".join(orphans)}'
-        if orphans else None, check='grammar.citation_is_stated')
+        f'cited by a check but stated in neither the grammar nor the calculus: '
+        f'{", ".join(orphans)}' if orphans else None, check='grammar.citation_is_stated')
+
+    # The same three questions the G-laws answer, asked of the laws that govern the DATA
+    # — which is where the stakes are higher and the gap was identical: the Laws section
+    # promised "each law names its current enforcement" in prose, and nothing read it.
+    run('calculus: laws parse: rsc/CALCULUS.md', bool(corpus),
+        None if corpus else 'no `- **L<n> — …**` law bullets found', check='calculus.laws_parse')
+    stateless_l = sorted(l for l, law in corpus.items() if law['state'] not in cli.LAW_STATES)
+    run('calculus: every law declares a state', not stateless_l,
+        f'no `gated` / `by construction` / `unenforced (#N)` / `doctrine`: '
+        f'{", ".join(stateless_l)}' if stateless_l else None, check='calculus.state_declared')
+    uncited_l = sorted(l for l, law in corpus.items()
+                       if law['state'] == 'gated' and l not in cited)
+    run('calculus: every gated law is cited by a check that ran', not uncited_l,
+        f'declares `gated` but no check cites it: {", ".join(uncited_l)}'
+        if uncited_l else None, check='calculus.gated_is_cited')
+    issueless_l = sorted(l for l, law in corpus.items()
+                         if law['state'] == 'unenforced' and not law['issues'])
+    run('calculus: every unenforced law names the issue that will hold it', not issueless_l,
+        f'declares `unenforced` with no #issue: {", ".join(issueless_l)}'
+        if issueless_l else None, check='calculus.unenforced_names_issue')
 
     stateless = sorted(g for g, law in laws.items() if law['state'] not in cli.LAW_STATES)
     run('grammar: every law declares a state', not stateless,
@@ -1684,7 +1708,11 @@ def check_xref(run):
     run('xref: no bad pointers', bad == 0, summary if bad else None, check='xref.no_bad_pointers')
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
-        if actual != expected else None, check='xref.score_matches_expectation')
+        if actual != expected else None, law='L9', check='xref.score_matches_expectation')
+    # L9 is cited ONLY from here, never from mcp.up_to_date: that run() sits inside a
+    # network fetch, and when the fetch fails control leaves for the except branch and
+    # the citation never happens. A law must not look unenforced because a request timed
+    # out, so its citation lives on a check that cannot be skipped.
 
 
 def check_capture_monotone(run) -> None:
@@ -1729,14 +1757,14 @@ def check_capture_monotone(run) -> None:
             run('capture: a shorter walk never replaces a longer record', kept == long_md,
                 None if kept == long_md else
                 f'the record was replaced by a walk holding {len(turn_seq(kept))} turns',
-                check='capture.monotone_record')
+                law='L4', check='capture.monotone_record')
             run('capture: a refused walk reports no markdown', moved == [],
                 None if moved == [] else f'returned {moved} — the caller would file it as a '
-                f'successful capture', check='capture.monotone_record')
+                f'successful capture', law='L4', check='capture.monotone_record')
             evidence = (logs / 'abc123.short.md')
             run('capture: the refused walk is kept as evidence', evidence.exists(),
                 None if evidence.exists() else 'the short capture was discarded, so the '
-                'reason for the refusal cannot be inspected', check='capture.monotone_record')
+                'reason for the refusal cannot be inspected', law='L4', check='capture.monotone_record')
 
             shutil.rmtree(dl)
             dl.mkdir()
@@ -1747,7 +1775,7 @@ def check_capture_monotone(run) -> None:
             grew = moved == ['grown.md'] and not (dest / 'standing.md').exists()
             run('capture: a longer walk still supersedes', grew,
                 None if grew else f'moved={moved}, dir={sorted(f.name for f in dest.glob("*.md"))} '
-                f'— the guard is blocking the normal path', check='capture.monotone_record')
+                f'— the guard is blocking the normal path', law='L4', check='capture.monotone_record')
     finally:
         safari_utils.DOWNLOADS = real_downloads
 
@@ -1791,7 +1819,7 @@ def check_accumulate_contract(run) -> None:
                       acc('2026-01-06T000000Z', 'A') == 'unchanged'))
         failed = [name for name, ok in cases if not ok]
         run('accumulate: the CALCULUS trajectory contract (#22)',
-            not failed, 'cases failed: ' + '; '.join(failed) if failed else None, check='accumulate.trajectory_contract')
+            not failed, 'cases failed: ' + '; '.join(failed) if failed else None, law='L1 L6', check='accumulate.trajectory_contract')
     finally:
         shutil.rmtree(d, ignore_errors=True)
 
@@ -1817,17 +1845,21 @@ def main():
     check_types: list[str | None] = []     # per result: which TYPE of check it is an instance of
 
     def run(label, passed, detail=None, law=None, check=None):
-        # `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
-        # Recorded, not printed: check_grammar_laws reads the citations to hold the
-        # document and the checks to each other, in both directions.
+        # `law` cites the law this fact enforces — a CLI grammar law from
+        # rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two
+        # vocabularies because a check enforces either a surface law or a corpus one.
+        # Space-separated when a check enforces more than one: accumulate's contract is
+        # both L1 (re-deposit is silence) and L6 (a same-stamp mismatch is loud).
+        # Recorded, not printed: the law checks read the citations to hold the documents
+        # and the checks to each other, in both directions.
         results.append((label, passed, detail))
         # `check` is the check's TYPE — the thing a reader means by "a check". The label is
         # one INVOCATION of it, over one schema, command or conversation. Adding a schema
         # multiplies invocations and adds no check, which is why the committed expectation
         # is the set of types and not a count of lines.
         check_types.append(check)
-        if law:
-            cited_laws.setdefault(law, []).append(label)
+        for cited in (law.split() if law else []):
+            cited_laws.setdefault(cited, []).append(label)
         # Data-tier facts are advisory (they never veto — see the exit) and
         # carry the WARN sigil ⚠, never the gating ✗ (user specification,
         # 2026-07-12: a "final summary" must not LOOK failed where nothing
@@ -1889,12 +1921,16 @@ def main():
         run_section(check_required_files, tier='code')
         run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
-        # after check_cli_surface: it reads that run's citations
-        run_section(lambda run, _c=cited_laws: check_grammar_laws(run, _c),
-                    label='check_grammar_laws', tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')
+        # LAST of the code tier, because it reads the citation ledger: a law is held by
+        # whichever check cites it, and until every section has run the ledger is partial.
+        # Registered after check_cli_surface alone, it saw the G-citations (all raised
+        # there) and none of the L-citations, which are raised by the sections that
+        # enforce the corpus laws — so three gated laws looked uncited.
+        run_section(lambda run, _c=cited_laws: check_grammar_laws(run, _c),
+                    label='check_grammar_laws', tier='code')
 
         run_section(check_root_schema_diagnostics, tier='schema')
 

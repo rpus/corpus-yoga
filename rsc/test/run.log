@@ -1,4 +1,4 @@
-run.py: 1827/1827 (data: machine-local)
+run.py: 1831/1831 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -39,16 +39,6 @@ run.py: 1827/1827 (data: machine-local)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
 
-── check_grammar_laws ────────────────────────────────────────────────────────
-  ✓ grammar.laws_parse
-  ✓ grammar.citation_is_stated
-  ✓ grammar.state_declared
-  ✓ grammar.gated_is_cited
-  ✓ grammar.unenforced_names_issue
-  ✓ grammar.unenforced_not_cited
-  ✓ grammar.parent_law_defined
-  ✓ grammar.enforcement_map
-
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
@@ -60,6 +50,20 @@ run.py: 1827/1827 (data: machine-local)
 
 ── check_capture_monotone ────────────────────────────────────────────────────
   ✓ capture.monotone_record  (4/4)
+
+── check_grammar_laws ────────────────────────────────────────────────────────
+  ✓ grammar.laws_parse
+  ✓ grammar.citation_is_stated
+  ✓ calculus.laws_parse
+  ✓ calculus.state_declared
+  ✓ calculus.gated_is_cited
+  ✓ calculus.unenforced_names_issue
+  ✓ grammar.state_declared
+  ✓ grammar.gated_is_cited
+  ✓ grammar.unenforced_names_issue
+  ✓ grammar.unenforced_not_cited
+  ✓ grammar.parent_law_defined
+  ✓ grammar.enforcement_map
 
 ── check_root_schema_diagnostics ─────────────────────────────────────────────
   ✓ composition.base_not_used_directly  (2/2)
@@ -146,11 +150,11 @@ run.py: 1827/1827 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 82 types, 1827/1827 invocations passing
+  ✓ checks[code+schema]: 86 types, 1831/1831 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 46 types, 415/415 invocations passing
+  ✓ checks[code]: 50 types, 419/419 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1827/1827 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1831/1831 match the committed expectation; nothing here vetoes a commit

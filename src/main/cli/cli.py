@@ -210,6 +210,27 @@ def grammar_laws() -> dict[str, dict]:
     return laws
 
 
+def calculus_laws() -> dict[str, dict]:
+    """The corpus laws, parsed from rsc/CALCULUS.md — id -> {title, state, issues}. The
+    SAME shape and the same marker as grammar_laws(), because it is the same mechanism one
+    level up: #48 built it for the surface laws, and the laws that govern the data had the
+    identical gap with higher stakes.
+
+    The Laws section already promised this in prose — "Each law names its current
+    enforcement (or the incident that taught it)" — and nothing read it, so a law could
+    quietly stop being held and the document would still say it was."""
+    text = (REPO / 'rsc' / 'CALCULUS.md').read_text()
+    laws: dict[str, dict] = {}
+    for m in re.finditer(r'^- \*\*(L\d+) — (.+?)\*\*(.*?)(?=\n- \*\*|\n#|\Z)',
+                         text, re.M | re.S):
+        lid, title, rest = m.group(1), ' '.join(m.group(2).split()), m.group(3)
+        marker = re.search(r'`(' + '|'.join(LAW_STATES) + r')([^`]*)`', rest)
+        laws[lid] = {'title': title,
+                     'state': marker.group(1) if marker else None,
+                     'issues': re.findall(r'#(\d+)', marker.group(2)) if marker else []}
+    return laws
+
+
 def _render_arg(name: str, arg_type: str) -> str:
     """One argument's usage fragment: a flag shows its name then its metavar; a
     positional shows its metavar (arg-type) alone."""
