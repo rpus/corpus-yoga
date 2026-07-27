@@ -2,7 +2,7 @@
 # Ensures ext/claude-code-projects is a symlink to ~/.claude/projects.
 #
 # Usage:
-#   src/main/code-agents/PREP.sh
+#   src/main/code-agents/link_projects.sh
 
 set -euo pipefail
 

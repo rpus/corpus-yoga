@@ -33,7 +33,7 @@ capture MIRRORS each project's memory (updated in place, absentees
 removed); every merge subtlety lives in receive, where two agents actually
 meet.
 
-The projects root is ext/claude-code-projects (PREP.sh's symlink to the Claude Code
+The projects root is ext/claude-code-projects (link_projects.sh's symlink to the Claude Code
 projects folder) — HARNESS-OWNED state that Anthropic expires at will. The
 doctrine: capture is the one READER of it — sweep early, sweep often; receive is the one WRITER of it, and only ever by a user's
 explicit --apply, never a pipeline's. The pipelines source from the store,
@@ -746,7 +746,7 @@ def main() -> int:
         return list_agents()   # bare noun → the census (local + store sessions), read-only status
 
     if not PROJECTS.is_dir():
-        sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/code-agents/PREP.sh creates the symlink')
+        sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/code-agents/link_projects.sh creates the symlink')
 
     if args.direction == 'models':
         return model_census()

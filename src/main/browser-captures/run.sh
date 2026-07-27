@@ -60,7 +60,7 @@ run_corpus() {
   step copy_gemini_markdown  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/copy_gemini_markdown.py"
   # audit_captures: capture-health report against the fresh projections (the compare
-  # gate below decides pass/fail; PREP.sh printed the pre-run baseline)
+  # gate below decides pass/fail; browser.sh printed the pre-run baseline)
   # set here, where browser_dom is final (a --browser-dom override lands before this)
   [[ -n "$(find "$browser_dom" -mindepth 2 -name '*.md' -print -quit 2>/dev/null)" ]] && has_dom="1"
   step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \

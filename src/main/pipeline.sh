@@ -49,7 +49,7 @@ status() {
   local name phases nested v
   for name in $(pipelines); do
     phases=""
-    [[ -f "$REPO_ROOT/src/main/$name/PREP.sh"  ]] && phases+="prep "
+    prep_step "$name" >/dev/null 2>&1 && phases+="prep "
     [[ -f "$REPO_ROOT/src/main/$name/run.sh" ]] && phases+="run "
     if [[ -f "$REPO_ROOT/src/main/$name/validate.sh" ]]; then
       phases+="validate"
@@ -138,11 +138,27 @@ install_deps() {
   pip install -q -r "$REPO_ROOT/src/requirements.txt"
 }
 
+# Which pipelines have a prep step, and what each is called. DECLARED, not globbed for a
+# shared filename: the prep scripts do different things — chat-exports requires an input,
+# code-agents links a directory — and browser-captures' is a CAPTURE, the `yoga browser`
+# target, which a pipeline run must never perform. Globbing one name listed a prep phase
+# for browser-captures that `run` has never executed, which is a status line stating
+# something untrue about what the command does.
+prep_step() {
+  case "$1" in
+    chat-exports) echo require_export.sh ;;
+    code-agents)  echo link_projects.sh ;;
+    *)            return 1 ;;
+  esac
+}
+
 prep_pipeline() {
   local name="$1"; shift
   echo "── prep: ${name} ────────────────────────────────────────────────────────────"
   local rc=0
-  "$REPO_ROOT/src/main/${name}/PREP.sh" "$@" || rc=$?
+  local step
+  step="$(prep_step "$name")" || { echo "no prep step for $name"; return 0; }
+  "$REPO_ROOT/src/main/${name}/${step}" "$@" || rc=$?
   echo ""
   return $rc
 }
@@ -260,11 +276,11 @@ print_plan() {
     "$REPO_ROOT/src/main/browser-captures/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run chat-exports; then
-    echo "  chat-exports/PREP.sh"
+    echo "  chat-exports/$(prep_step chat-exports)  # require a bulk export under data/input/, else skip"
     "$REPO_ROOT/src/main/chat-exports/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run code-agents; then
-    echo "  code-agents/PREP.sh"
+    echo "  code-agents/$(prep_step code-agents)  # link ext/claude-code-projects to ~/.claude/projects"
     "$REPO_ROOT/src/main/code-agents/run.sh" --plan | sed 's/^/  /'
   fi
   echo "  then once, over the whole corpus:"
@@ -340,7 +356,7 @@ main() {
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
-        "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/PREP.sh --help)" ;;
+        "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/require_export.sh --help)" ;;
         "code-agents (prep)")  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/claude-code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac

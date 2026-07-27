@@ -1,4 +1,3 @@
 "command","target","issue","why"
-"browser","src/main/browser-captures/PREP.sh","40","named for a phase in a sequence, which is how one name came to cover three incompatible contracts; each becomes what it does"
 "commands","src/main/cli/cli.py","58","the CLI machinery answers this itself — main() intercepts before dispatch, so there is no target to exec"
 "completions","src/main/cli/cli.py","58","the CLI machinery answers this itself — main() intercepts before dispatch, so there is no target to exec"

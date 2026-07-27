@@ -69,7 +69,7 @@ rsc/cli/README.md,78,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist i
 rsc/cli/README.md,114,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
 rsc/cli/README.md,132,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 rsc/cli/commands.csv,2,path_str,src/main/code-agents/agent.py,Y,"agent,src/main/code-agents/agent.py,transport supersession merge L1 L3 L4 L6,code-agent sessions: the census, and transp"
-rsc/cli/commands.csv,3,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,capture,capture browser-reachable chats via Safari (claude API, gemini DOM)"
+rsc/cli/commands.csv,3,path_str,src/main/browser-captures/browser.sh,Y,"browser,src/main/browser-captures/browser.sh,capture,capture browser-reachable chats via Safari (claude API, gemini DOM)"
 rsc/cli/commands.csv,4,path_str,src/main/cli/cache.py,Y,"cache,src/main/cli/cache.py,project,the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds"
 rsc/cli/commands.csv,5,path_str,rsc/CALCULUS.md,Y,"calculus,rsc/CALCULUS.md,,Print the corpus calculus — the doctrine this table cites"
 rsc/cli/commands.csv,6,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,project L5,each command's standard help (bare: every command's forms)"
@@ -88,9 +88,8 @@ rsc/cli/commands.csv,18,path_str,src/test/test.sh,Y,"test,src/test/test.sh,valid
 rsc/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 rsc/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 rsc/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
-rsc/cli/target_naming_pending.csv,2,path_str,src/main/browser-captures/PREP.sh,Y,"browser,src/main/browser-captures/PREP.sh,40,named for a phase in a sequence, which is how one name came to cover three "
-rsc/cli/target_naming_pending.csv,3,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there is n"
-rsc/cli/target_naming_pending.csv,4,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there i"
+rsc/cli/target_naming_pending.csv,2,path_str,src/main/cli/cli.py,Y,"commands,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there is n"
+rsc/cli/target_naming_pending.csv,3,path_str,src/main/cli/cli.py,Y,"completions,src/main/cli/cli.py,58,the CLI machinery answers this itself — main() intercepts before dispatch, so there i"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
 rsc/schema/WORKFLOW.md,26,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
 rsc/schema/WORKFLOW.md,87,doc,src/main/browser-captures/claude/validate.sh,Y,src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
@@ -206,19 +205,19 @@ src/PREREQUISITES.sh,304,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src
 src/PREREQUISITES.sh,362,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
 src/PREREQUISITES.sh,368,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/main/argparse_help.py,1,comment,rsc/cli/help.csv,Y,Fill an argparse parser's help text from rsc/cli/help.csv.
-src/main/browser-captures/PREP.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,32,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/PREP.sh,84,call,src/run_python_script.sh,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
-src/main/browser-captures/PREP.sh,84,call,src/main/browser-captures/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
-src/main/browser-captures/PREP.sh,88,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
-src/main/browser-captures/PREP.sh,88,call,src/main/browser-captures/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
-src/main/browser-captures/PREP.sh,106,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
-src/main/browser-captures/PREP.sh,106,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
-src/main/browser-captures/PREP.sh,110,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
-src/main/browser-captures/PREP.sh,110,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
-src/main/browser-captures/PREP.sh,120,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
+src/main/browser-captures/browser.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/browser.sh,32,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
+src/main/browser-captures/browser.sh,84,call,src/run_python_script.sh,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/browser-captures/browser.sh,84,call,src/main/browser-captures/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/browser-captures/browser.sh,88,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/browser-captures/browser.sh,88,call,src/main/browser-captures/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/browser-captures/browser.sh,106,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
+src/main/browser-captures/browser.sh,106,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
+src/main/browser-captures/browser.sh,110,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
+src/main/browser-captures/browser.sh,110,call,src/main/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
+src/main/browser-captures/browser.sh,120,call,src/main/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/browser-captures/claude/validate.sh,5,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 src/main/browser-captures/claude/validate.sh,6,comment,src/main/browser-captures/claude/validate.sh,Y,#   src/main/browser-captures/claude/validate.sh --browser-api <path/to/browser-API-root>
 src/main/browser-captures/claude/validate.sh,16,path_str,rsc/schema/browser-captures/apiConversation,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/browser-captures/apiConversation"""
@@ -256,7 +255,6 @@ src/main/browser-captures/safari_capture.sh,18,comment,src/main/browser-captures
 src/main/browser-captures/safari_capture.sh,43,call,src/run_python_script.sh,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
 src/main/browser-captures/safari_capture.sh,43,call,src/main/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
 src/main/browser-captures/safari_utils.py,215,comment,src/main/browser-captures/safari_capture.sh,Y,→ run: src/main/browser-captures/safari_capture.sh --provider
-src/main/chat-exports/PREP.sh,15,comment,src/main/chat-exports/PREP.sh,Y,#   src/main/chat-exports/PREP.sh
 src/main/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export data/input/claude/chat/bulk-exp
 src/main/chat-exports/archive_components.py,24,comment,src/main/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/chat-exports/archive_components.py       --chat-export data/input/claude/chat/bulk-exp
 src/main/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/chat-exports/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-export/<bat
@@ -346,6 +344,7 @@ src/main/chat-exports/present.sh,171,call,src/main/chat-exports/rekey_chats.py,Y
 src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 src/main/chat-exports/rekey_chats.py,32,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
+src/main/chat-exports/require_export.sh,15,comment,src/main/chat-exports/require_export.sh,Y,#   src/main/chat-exports/require_export.sh
 src/main/chat-exports/run.sh,5,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
 src/main/chat-exports/run.sh,6,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
 src/main/chat-exports/run.sh,7,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
@@ -422,12 +421,12 @@ src/main/cli/forge.sh,32,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { e
 src/main/cli/forge.sh,56,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
 src/main/cli/forge.sh,113,comment,rsc/forge.csv,Y,# same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state that
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
-src/main/code-agents/PREP.sh,5,comment,src/main/code-agents/PREP.sh,Y,#   src/main/code-agents/PREP.sh
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
 src/main/code-agents/jsonl_to_json.sh,5,comment,src/main/code-agents/jsonl_to_json.sh,Y,#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/code-agents/jsonl_to_json.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
 src/main/code-agents/jsonl_to_json.sh,28,call,src/main/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
+src/main/code-agents/link_projects.sh,5,comment,src/main/code-agents/link_projects.sh,Y,#   src/main/code-agents/link_projects.sh
 src/main/code-agents/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/code-agents/memory_to_json.py,24,comment,src/main/code-agents/memory_to_json.py,Y,src/run_python_script.sh src/main/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/code-agents/project_conversation.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/project_conversation.py         <session-dir>    # reads <session-dir>/ses
@@ -511,14 +510,14 @@ src/main/pipeline.sh,2,comment,src/main/pipeline.sh,Y,"# src/main/pipeline.sh (y
 src/main/pipeline.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/pipeline.sh,22,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
 src/main/pipeline.sh,138,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/main/pipeline.sh,232,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
-src/main/pipeline.sh,239,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/main/pipeline.sh,240,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
-src/main/pipeline.sh,245,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
-src/main/pipeline.sh,249,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/main/pipeline.sh,260,call,src/main/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/browser-captures/run.sh"" --plan | sed 's/^/  /'"
-src/main/pipeline.sh,264,call,src/main/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/chat-exports/run.sh"" --plan | sed 's/^/  /'"
-src/main/pipeline.sh,268,call,src/main/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/code-agents/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,248,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which subsumes the CLOSURE and"
+src/main/pipeline.sh,255,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/main/pipeline.sh,256,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
+src/main/pipeline.sh,261,call,src/main/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/chat-exports/dashboard.sh"""
+src/main/pipeline.sh,265,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/pipeline.sh,276,call,src/main/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/browser-captures/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,280,call,src/main/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/chat-exports/run.sh"" --plan | sed 's/^/  /'"
+src/main/pipeline.sh,284,call,src/main/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/code-agents/run.sh"" --plan | sed 's/^/  /'"
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_occurrences.py,8,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_occurrences.py ""#/definitions/MessageFile"" \"
@@ -630,9 +629,9 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/main/browser-captures/export-conversation.applescript,Y,
 ,,,src/main/browser-captures/gemini/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/safari_utils.py,Y,
-,,self_only,src/main/chat-exports/PREP.sh,Y,
+,,self_only,src/main/chat-exports/require_export.sh,Y,
 ,,,src/main/cli/cache_io.py,Y,
-,,self_only,src/main/code-agents/PREP.sh,Y,
+,,self_only,src/main/code-agents/link_projects.sh,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
 ,,self_only,src/test/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/code-agents/survey_code_session.py,Y,
