@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 # forge.sh (yoga forge) — the forge's merge settings, and the operations that obey them.
 #
-# The settings decide how main's history is composed and live on the SERVER: no clone can
-# see them, no git config holds them. rsc/forge.csv declares them.
+# The settings decide how main's history is composed and live on the SERVER, where no clone
+# sees them and no git config holds them; rsc/forge.csv declares them.
 #
 # Usage:
 #   yoga forge                 # declared vs live
 #   yoga forge --tsv           # the same rows, for a reader that is a program
 #   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
 #   yoga forge merge <pr> [--dry-run]   # check everything, then squash-merge that PR
+#   yoga forge prune [--apply] # delete local branches whose PR is merged and contained
 #
-# sync is --apply-gated because it writes OUTSIDE the repo, to a server other people see —
-# the consent `agent receive` requires, for the same reason.
+# merge names a POSTCONDITION — PR merged, this checkout on the base, the base holding the
+# squash, the head branch gone from here — and converges on it, logging the run.
 #
-# merge passes NO message flags. squash_merge_commit_message is COMMIT_MESSAGES: the body
-# is assembled from the branch's commits, each keeping its Signature line — the join key
-# into the captured session corpus. A hand-written --body discards every one of them,
-# which is how seven merges landed unsigned on 2026-07-25 while the branch commits beneath
-# them were correctly stamped.
+# sync and prune are --apply-gated: sync writes to a server other people see, prune to refs
+# git itself will not delete after a squash.
+#
+# merge passes NO message flags: under COMMIT_MESSAGES the body is assembled from the
+# branch's commits, keeping the Signature lines a hand-written --body would discard.
 
 set -euo pipefail
 
@@ -55,6 +56,47 @@ for r in csv.DictReader(open(sys.argv[1])):
 ' "$DECLARED" 2>/dev/null || echo -e "UNVERIFIED\tforge.csv\tunreadable or malformed\t"
 }
 
+# rows: STATUS \t branch \t detail — every LOCAL branch, and what the forge says about it.
+# Discovery runs branch → PR, not PR → branch: a branch you had forgotten is exactly the one
+# whose PR number you cannot recall, so a listing keyed on the PR is unreachable when it is
+# needed. One `gh pr list` indexes every PR by its head branch; per-branch queries would cost
+# a round trip each to answer the same question.
+branches() {
+  command -v gh &>/dev/null || return 0
+  local prs
+  prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
+    --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
+  local b tip pr_json n st oid holder
+  while read -r b; do
+    [[ -n "$b" ]] || continue
+    tip="$(git -C "$REPO_DIR" rev-parse "refs/heads/$b")"
+    holder="$(git -C "$REPO_DIR" worktree list --porcelain | awk -v r="refs/heads/$b" '
+      /^worktree /{w=$2} /^branch /{ if ($2==r) print w }')"
+    pr_json="$(jq -c --arg b "$b" 'map(select(.headRefName == $b)) | sort_by(.number) | last // empty' <<< "$prs")"
+    if [[ -z "$pr_json" ]]; then
+      echo -e "KEPT\t$b\tno PR on the forge refers to it"
+      continue
+    fi
+    n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); oid=$(jq -r .headRefOid <<< "$pr_json")
+    if [[ "$st" != MERGED ]]; then
+      echo -e "KEPT\t$b\t#$n is $st"
+    elif [[ -n "$holder" ]]; then
+      echo -e "KEPT\t$b\t#$n merged, but the branch is checked out at $holder"
+    elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
+      echo -e "DELETABLE\t$b\t#$n merged, and ${tip:0:8} is contained in the merged head ${oid:0:8}"
+    else
+      echo -e "KEPT\t$b\t#$n merged, but ${tip:0:8} is not contained in it — it holds commits the squash did not"
+    fi
+  done < <(git -C "$REPO_DIR" for-each-ref --format='%(refname:short)' refs/heads/ \
+             | grep -v "^$(base_branch)\$")
+}
+
+# the branch a merge lands on, and the one `merge` returns you to — asked of the forge, not
+# assumed to be `main`
+base_branch() {
+  (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
+}
+
 status() {
   echo "forge settings — declared: rsc/forge.csv; live: this checkout's remote"
   local st key detail remedy drift=0
@@ -66,7 +108,48 @@ status() {
       *)     echo "  – $key: $detail" ;;
     esac
   done < <(reconcile)
+
+  # The branches this checkout still holds. A merged branch surviving here is drift of the
+  # same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state that
+  # nothing named until now.
+  local rows
+  rows="$(branches)"
+  if [[ -n "$rows" ]]; then
+    echo "local branches — what the forge says about each"
+    local d
+    while IFS=$'\t' read -r st key detail; do
+      [[ -z "$st" ]] && continue
+      case "$st" in
+        DELETABLE) echo "  ✗ $key: $detail"; d=1 ;;
+        *)         echo "  – $key: $detail" ;;
+      esac
+    done <<< "$rows"
+    [[ -z "${d:-}" ]] || echo "    → run: yoga forge prune"
+  fi
   return $drift
+}
+
+# Delete exactly what `status` marked DELETABLE — one predicate, so what is listed and what
+# is removed cannot disagree. A squash makes a merged branch look unmerged to git, so
+# `git branch -d` refuses and only -D will do it; the safety is the containment test above,
+# never git's opinion.
+prune() {
+  local apply="" st key detail n=0
+  [[ "${1-}" == "--apply" ]] && apply=1
+  while IFS=$'\t' read -r st key detail; do
+    [[ "$st" == DELETABLE ]] || continue
+    n=$((n + 1))
+    if [[ -n "$apply" ]]; then
+      git -C "$REPO_DIR" branch -D "$key" >/dev/null && echo "deleted $key — $detail"
+    else
+      echo "would delete $key — $detail"
+    fi
+  done < <(branches)
+  if [[ "$n" == 0 ]]; then
+    echo 'no local branch is deletable — yoga forge says why for each'
+  elif [[ -z "$apply" ]]; then
+    echo "--- $n branch(es); nothing deleted. Add --apply to delete them"
+  fi
 }
 
 sync() {
@@ -111,6 +194,14 @@ merge() {
   [[ "$pr" == "--dry-run" ]] && { echo "yoga forge merge: --dry-run comes after the PR" >&2; exit 1; }
   [[ -n "$pr" ]] || { echo "yoga forge merge: which PR? (a number, a URL, or a branch)" >&2; exit 1; }
 
+  # The one operation here that writes to a server other people see, and its whole audit
+  # trail was terminal scrollback. Path per the command/verb rule (#54).
+  local log
+  log="$REPO_DIR/tmp/logs/forge/merge/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+  mkdir -p "$(dirname "$log")"
+  exec > >(tee -a "$log") 2>&1
+  echo "yoga forge merge $pr — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
   # 1. the forge itself: merging under undeclared settings composes main by rules nobody wrote
   status || { echo "yoga forge merge: forge settings drift — reconcile first (yoga forge sync --apply)" >&2; exit 1; }
 
@@ -127,13 +218,30 @@ merge() {
   echo
   echo "PR #$n $title"
   echo "  head: $head @ ${oid:0:8} · state: $state · mergeable: $mergeable/$mstate"
-  [[ "$state"     == OPEN      ]] || { echo "yoga forge merge: #$n is $state — nothing to merge" >&2; exit 1; }
-  [[ "$draft"     == false     ]] || { echo "yoga forge merge: #$n is a draft — mark it ready first" >&2; exit 1; }
-  [[ "$mergeable" == MERGEABLE ]] || { echo "yoga forge merge: #$n is $mergeable ($mstate) — resolve that first; gh would fail or prompt" >&2; exit 1; }
+  # merge names a POSTCONDITION, so an already-merged PR is not an error: the forge half is
+  # done and the local half may not be. Converge the rest rather than refusing and leaving
+  # the caller to finish it by hand — which is how four merged branches came to sit here.
+  local already=""
+  if [[ "$state" == MERGED ]]; then
+    already=1
+    echo "  already merged on the forge — converging the local half"
+  else
+    [[ "$state"     == OPEN      ]] || { echo "yoga forge merge: #$n is $state — nothing to merge" >&2; exit 1; }
+    [[ "$draft"     == false     ]] || { echo "yoga forge merge: #$n is a draft — mark it ready first" >&2; exit 1; }
+    [[ "$mergeable" == MERGEABLE ]] || { echo "yoga forge merge: #$n is $mergeable ($mstate) — resolve that first; gh would fail or prompt" >&2; exit 1; }
+  fi
   # BEHIND matters for more than tidiness: a squash of an up-to-date branch lands exactly
   # the branch's tree, which its own pre-commit hook already gated. Behind main, the merged
   # tree is a combination nothing has ever checked.
-  [[ "$mstate"    == CLEAN     ]] || { echo "yoga forge merge: #$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first" >&2; exit 1; }
+  [[ -n "$already" || "$mstate" == CLEAN ]] || { echo "yoga forge merge: #$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first" >&2; exit 1; }
+
+  # 2b. the postcondition moves HEAD to the base branch, so the tree must be clean FIRST:
+  # a merge that lands and then cannot tidy up is worse than one that refuses early.
+  local base current
+  base="$(base_branch)"
+  current="$(git -C "$REPO_DIR" branch --show-current)"
+  local dirty=""
+  [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]] || dirty=1
 
   # 3. the INTENT: exactly what will land, since afterwards the parts are unreachable
   echo
@@ -145,13 +253,36 @@ merge() {
   echo "  — $(jq -r '.commits | length' <<< "$json") commit(s), $sigs carrying a Signature"
   [[ "$sigs" -gt 0 ]] || echo "  ⚠ no commit carries a Signature: main would gain history no session can be joined to"
 
+  echo
+  echo "the state this leaves behind:"
+  [[ -n "$already" ]] && echo "  #$n is merged into $base (already)" \
+                      || echo "  #$n merged into $base"
+  [[ "$current" == "$head" ]] && echo "  this checkout moves from $head to $base" \
+                             || echo "  this checkout stays on $current"
+  echo "  $base fast-forwarded to include it"
+  echo "  $head deleted here, if the merged head contains it"
+  [[ -z "$dirty" ]] || echo "  ⚠ this checkout has uncommitted changes — a real run refuses here"
+
   [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; return 0; }
+
+  # a dry run reports the dirty tree; a real one refuses on it, because the postcondition
+  # moves HEAD, and a merge that lands and then cannot tidy up is worse than one that stops
+  [[ -z "$dirty" ]] || { echo "yoga forge merge: this checkout has uncommitted changes — the merge ends on $base, and moving HEAD would carry or refuse them; commit or stash first" >&2; exit 1; }
 
   # 4. the effect. No --subject, no --body: the forge assembles the message from the
   # commits, which is where the signatures are. --match-head-commit closes the race
   # between the head just inspected and the head merged.
   echo
-  cd "$REPO_DIR" && gh pr merge "$n" --squash --match-head-commit "$oid" || return $?
+  # off the branch BEFORE merging: a branch checked out here cannot be deleted, and the
+  # tidy-up is part of what `merge` promises, not a courtesy attempted afterwards
+  if [[ "$current" == "$head" ]]; then
+    git -C "$REPO_DIR" checkout --quiet "$base" || {
+      echo "yoga forge merge: could not switch to $base — nothing merged" >&2; exit 1; }
+    echo "switched to $base"
+  fi
+  if [[ -z "$already" ]]; then
+    cd "$REPO_DIR" && gh pr merge "$n" --squash --match-head-commit "$oid" || return $?
+  fi
 
   # 5. the extent afterwards. delete_branch_on_merge removes the REMOTE branch; the local
   # one survives, and a squash makes it look unmerged to git — so `git branch -d` refuses
@@ -160,31 +291,34 @@ merge() {
   # is in the squash; different means unpushed work, and the branch stays.
   echo
   git -C "$REPO_DIR" fetch --quiet --prune origin || true
-  local local_tip
-  if ! local_tip="$(git -C "$REPO_DIR" rev-parse --verify --quiet "refs/heads/$head")"; then
-    echo "local: no branch $head here — nothing to prune"
-    return 0
-  fi
-  local holder
-  holder="$(git -C "$REPO_DIR" worktree list --porcelain | awk -v b="refs/heads/$head" '
-    /^worktree /{w=$2} /^branch /{ if ($2==b) print w }')"
-  if [[ -n "$holder" ]]; then
-    echo "local: $head kept — still checked out at $holder"
-  elif git -C "$REPO_DIR" merge-base --is-ancestor "$local_tip" "$oid"; then
-    # ANCESTOR, not equal: a local branch merely BEHIND the merged head is entirely inside
-    # the squash, so deleting it loses nothing. Testing equality kept such a branch and
-    # said it "holds commits the squash did not" — which was simply false.
-    git -C "$REPO_DIR" branch -D "$head" >/dev/null \
-      && echo "local: $head deleted — ${local_tip:0:8} is contained in the merged head ${oid:0:8}"
+  # the base must actually HOLD the squash here, or the next thing anyone types is a manual
+  # pull — the same residue in another shape
+  if git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base" 2>/dev/null; then
+    echo "local: $base fast-forwarded to $(git -C "$REPO_DIR" rev-parse --short HEAD)"
   else
-    echo "local: $head KEPT at ${local_tip:0:8} — not an ancestor of the merged head ${oid:0:8}, so it holds commits the squash did not"
+    echo "local: $base NOT fast-forwarded — it has diverged from origin/$base; reconcile it yourself"
   fi
+
+  # the head branch, judged by the SAME derivation `yoga forge` and `prune` use, so what is
+  # listed, what is pruned, and what a merge tidies cannot disagree
+  local st key detail found=""
+  while IFS=$'\t' read -r st key detail; do
+    [[ "$key" == "$head" ]] || continue
+    found=1
+    if [[ "$st" == DELETABLE ]]; then
+      git -C "$REPO_DIR" branch -D "$head" >/dev/null && echo "local: $head deleted — $detail"
+    else
+      echo "local: $head kept — $detail"
+    fi
+  done < <(branches)
+  [[ -n "$found" ]] || echo "local: no branch $head here — nothing to prune"
 }
 
 case "${1-}" in
   '')        status ;;
   --tsv)     reconcile ;;
   sync)      shift; sync "$@" ;;
+  prune)     shift; prune "$@" ;;
   merge)     shift; merge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;

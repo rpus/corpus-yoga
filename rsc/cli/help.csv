@@ -37,6 +37,8 @@
 "forge","merge","","","","reconcile the forge settings, then squash-merge that PR — no message flags, so the body is assembled from the branch's commits and keeps their signatures",""
 "forge","merge","pr","<pr>","1","the PR to merge: a number, a URL, or a branch",""
 "forge","merge","--dry-run","","","check everything and print the message that would land; merge nothing",""
+"forge","prune","","","","delete local branches whose PR is merged and whose tip the merge contains — a dry run unless --apply",""
+"forge","prune","--apply","","","perform the deletions — without it, the branches and reasons are only reported",""
 "indexing","accept","","","","accept a concept as a headword (merge any aliases into it)",""
 "indexing","accept","term","<term>","1","the concept to accept as a headword",""
 "indexing","accept","aliases","<alias-list>","","zero or more concepts to fold into the headword",""
