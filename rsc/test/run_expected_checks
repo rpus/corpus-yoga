@@ -17,6 +17,10 @@ cache_io.paths_resolve
 cache_io.pipeline_tags_match
 cache_io.read_implies_writer
 cache_io.registry_parses
+calculus.gated_is_cited
+calculus.laws_parse
+calculus.state_declared
+calculus.unenforced_names_issue
 capture.monotone_record
 cli.advertised_flags_exist
 cli.block_convergence

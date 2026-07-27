@@ -235,7 +235,7 @@ which structure the source withholds, not which code is unfinished.
 
 Each law names its current enforcement (or the incident that taught it).
 
-- **L1 — Idempotence.** Every operation, re-run, is a no-op: validation
+- **L1 — Idempotence.** `gated` — Every operation, re-run, is a no-op: validation
   memoisation ("the log IS the memoisation"), deposit dedup, dressing refresh,
   the normalise CLI's fixpoint, the hook's double-run check. An operation that
   isn't idempotent is either wrong or not yet finished being designed.
@@ -245,34 +245,34 @@ Each law names its current enforcement (or the incident that taught it).
   and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so
   migration, healing, and maintenance are the same safely-rerunnable operation
   and running it on a current corpus proves itself by silence.
-- **L2 — Determinism split.** Committed artifacts are machine-invariant; machine
+- **L2 — Determinism split.** `by construction` — Committed artifacts are machine-invariant; machine
   facts (data-tier reports, usernames, local paths) never enter them. Enforced
   structurally by the split report (`run.py` writes the committed log
   itself, code+schema only). Corollary: the deterministic tiers read identically
   on every machine — observed as both machines at 953/12/941 with differing data tiers.
-- **L3 — Supersession is a partial order; deletion is licensed, never assumed.**
+- **L3 — Supersession is a partial order; deletion is licensed, never assumed.** `doctrine` —
   ⊑ is transitive across batches; a deletion is justified by a SUPERSEDED verdict
   or by an accumulation licence (states deposited), and by nothing else.
-- **L4 — Accumulation is monotone.** Deposits are never modified or removed; they
+- **L4 — Accumulation is monotone.** `gated` — Deposits are never modified or removed; they
   outlive their producing batches (observed: three of five memory deposits
   outliving their batches, then reconciling byte-exactly with a restored one).
-- **L5 — Presentation is re-derivable and never load-bearing.** Any displayed
+- **L5 — Presentation is re-derivable and never load-bearing.** `by construction` — Any displayed
   value (ordinal, slug, matrix row) is recomputable from durable identity plus
   the current corpus. Nothing resolves by presentation (the `74-helpdesk_query`
   duplication is the museum piece).
-- **L6 — Conflicts are loud.** No operation silently overwrites divergent
+- **L6 — Conflicts are loud.** `gated` — No operation silently overwrites divergent
   content: CONFLICT + nonzero exit, content left in place, human judgement
   summoned. (Deposit stamps, library merges, memory-folder merges.)
-- **L7 — Ownership.** Each pipeline stage owns exactly one output subtree, which
+- **L7 — Ownership.** `unenforced (#52)` — Each pipeline stage owns exactly one output subtree, which
   it may wipe wholesale; nothing else touches it. Blanket wipes above the owned
   leaf are forbidden (the destroyed inferred-tables incident).
-- **L8 — Absence is a signal; failure surfaces.** Missing optional input =
+- **L8 — Absence is a signal; failure surfaces.** `doctrine` — Missing optional input =
   informative skip + exit 0; a crashed step must propagate (the corpus-mode
   silent-success regression, found and fixed in PR #1). Never fabricate a value
   where the honest state is "unknown" (gemini's missing ordinals; `yoga prerequisites`'
   "cannot verify").
 
-- **L9 — Currency.** A consumed derivation is kept current, by the mechanism its
+- **L9 — Currency.** `gated` — A consumed derivation is kept current, by the mechanism its
   cell of the freshness matrix (committed × mechanical, issue #19) dictates:
   committed and mechanical → the gate regenerates and byte-compares;
   machine-local, mechanical, machine-consumed → a `run` step (NECESSITY: `run`
