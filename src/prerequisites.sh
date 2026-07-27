@@ -255,12 +255,12 @@ check_cli() {
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with rsc/cli/" ;;
       *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: yoga completions install-latest (then restart terminal)" ;;
-      # ./yoga DELIBERATELY (the one bootstrap prescription): install-latest is what
-      # writes the alias, so in the not-generated case the bare name resolves for
-      # nobody — the prescription must be typed in a spelling the reader's shell has,
-      # and they arrived at the repo root via README. The refresh: case above is bare
-      # because by the time completions are STALE the alias exists. (PR #109 review.)
-      *)         todo reader "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
+      # The one BOOTSTRAP prescription (PR #109 review): install-latest is what writes
+      # the alias, so in the not-generated case the bare name resolves for nobody. The
+      # prescription stays canonical (G17: a prescription names a yoga command); the
+      # spelling a fresh clone must type is ADVICE, in the prose after it. The refresh:
+      # case above needs no advice — by the time completions are STALE the alias exists.
+      *)         todo reader "zsh completions not generated → run: yoga completions install-latest (fresh clone: the alias does not exist yet, type it as ./yoga from the repo root; then restart terminal)" ;;
     esac
   else
     info "zsh completion currency cannot be verified (running yoga needs Python 3)"
@@ -276,9 +276,9 @@ check_cli() {
     ok "zsh resolves the yoga completion"
   else
     info "zsh does not resolve the yoga completions"
-    # ./yoga: same bootstrap case as above — no resolving completion may well mean
-    # no alias either, and ./yoga works in both worlds; bare yoga only in one.
-    echo "    → run: ./yoga completions install-latest (then restart terminal)"
+    # Same bootstrap case as above: no resolving completion may well mean no alias
+    # either, so the canonical prescription carries the fresh-clone spelling as advice.
+    echo "    → run: yoga completions install-latest (fresh clone: type it as ./yoga from the repo root; then restart terminal)"
   fi
 }
 
