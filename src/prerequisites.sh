@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/PREREQUISITES.sh — Report what this machine has and what yoga pipeline run would do.
+# src/prerequisites.sh — Report what this machine has and what yoga pipeline run would do.
 #
 # Strictly read-only: no directories created, no symlinks, no venv, no installs
 # (unlike yoga pipeline run, which does all of those). Safe as the first command on a
@@ -8,8 +8,8 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   ./src/PREREQUISITES.sh              # what still needs attention (– and ✗); all-green sections hidden
-#   ./src/PREREQUISITES.sh --show-all   # the full report, including satisfied (✓) items
+#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
 #
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 

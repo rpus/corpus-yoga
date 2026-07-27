@@ -871,7 +871,16 @@ def check_cli_surface(run) -> None:
         pending = {r['command']: r for r in csv.DictReader(fh)}
     for c in cmds:
         stem = Path(c['target']).stem
-        matches = stem.lower() == c['command'].lower()
+        # Case is part of a name, and the two kinds of target carry different
+        # conventions — so each is held to ITS OWN rather than both to a case-folded
+        # comparison, which passed src/PREREQUISITES.sh (the last of the SHOUTING dialect
+        # #40's evidence names) through a check written to retire that dialect.
+        #   executable → named for its command exactly:      prerequisites.sh
+        #   document   → the repo's SHOUTING doc convention: CALCULUS.md
+        # A .md target is PRINTED, not executed (see dispatch), and all 18 markdown
+        # documents here are uppercase — four READMEs, eleven CHANGELOGs, WORKFLOW.
+        want = c['command'].upper() if Path(c['target']).suffix == '.md' else c['command']
+        matches = stem == want
         declared = c['command'] in pending
         # a compliant row and a declared one are different facts, so they are different
         # lines: one ✓ covering both would hide which of the two a reader is looking at
@@ -882,7 +891,7 @@ def check_cli_surface(run) -> None:
         else:
             run(f'cli: {c["command"]}: target is named for the command', matches,
                 None if matches else
-                f'target {c["target"]} has stem `{stem}`, not `{c["command"]}` — rename it, or '
+                f'target {c["target"]} has stem `{stem}`, not `{want}` — rename it, or '
                 f'declare it in rsc/cli/target_naming_pending.csv with the issue that will',
                 check='naming.target_stem_matches_command')
         if declared and matches:

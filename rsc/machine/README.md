@@ -51,7 +51,7 @@ with it the discipline that existed only to survive it.
 There was one — `_base.csv` layered under `<machine>.csv`, docker-style — and it is
 gone. Machines do not diverge: every `<machine>.csv` was empty from the day it was
 made, because "this machine might not have X" is already expressed by
-`PREREQUISITES` as *optional*, not by giving each machine its own list. A machine is
+`yoga prerequisites` as *optional*, not by giving each machine its own list. A machine is
 an **identity**, not a configuration variant. The requirements it declared were also
 checked, better, by `yoga prerequisites` — with versions and counts a manifest row
 cannot carry — so the manifest was a second, poorer telling of facts already told.

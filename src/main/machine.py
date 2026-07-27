@@ -28,7 +28,7 @@ a file that exists only on bound machines. Rooted, it is spelled outright here â
 its own .gitignore rule is what makes that safe.
 
 There is no per-machine manifest and no layering: machines do not diverge. What a
-machine may or may not have is expressed by PREREQUISITES as optional, not by giving
+machine may or may not have is expressed by `yoga prerequisites` as optional, not by giving
 each machine its own list. A machine is an IDENTITY, not a configuration variant.
 
 STDLIB-ONLY, like cli.py: importable on a fresh clone before the venv exists.

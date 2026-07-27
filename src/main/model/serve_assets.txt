@@ -2,7 +2,7 @@
 #
 # The requirements.txt of `yoga server`: serve_markdown.py fetches each artifact
 # below into tmp/cache/serve_markdown/ on the first `yoga server start` (or `yoga server ensure-assets`),
-# and src/PREREQUISITES.sh reports how many are present. Two upstreams — marked 9 and
+# and src/prerequisites.sh reports how many are present. Two upstreams — marked 9 and
 # KaTeX 0.16.9 — the js/css plus the woff2 webfonts KaTeX needs to render maths.
 #
 # Format: one artifact per line, "<dest> <url>", dest relative to tmp/cache/serve_markdown/.
