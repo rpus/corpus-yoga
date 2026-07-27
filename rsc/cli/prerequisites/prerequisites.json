@@ -1,5 +1,5 @@
 {
-  "summary": "Read-only machine report — bare shows what needs attention, --show-all the lot",
+  "summary": "what this machine has and what it still needs — bare reports, sync installs what is the repos to install",
   "target": "src/prerequisites.sh",
   "calculus": "L8",
   "args": [

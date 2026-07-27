@@ -1,0 +1,11 @@
+{
+  "help": "make this machine satisfy what the report names — a dry run unless --apply, because it writes outside the repo (the venv, the hook)",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "perform the installs — without it, the distilled to-do list and what would be done"
+    }
+  ]
+}

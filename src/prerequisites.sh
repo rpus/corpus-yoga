@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-# src/prerequisites.sh — Report what this machine has and what yoga pipeline run would do.
+# src/prerequisites.sh — what this machine has, and what it still needs.
 #
-# Strictly read-only: no directories created, no symlinks, no venv, no installs
-# (unlike yoga pipeline run, which does all of those). Safe as the first command on a
-# fresh clone.
+# The BARE noun is strictly read-only: no directories created, no symlinks, no venv, no
+# installs. Safe as the first command on a fresh clone, which is the whole point of it.
+#
+# `sync` is the effecting verb, and prints the distilled to-do list rather than the
+# report: only the lines a reader must act on, without the sections, the ✓ rows and the
+# context between them. It is --apply-gated because it writes outside the repo, and it
+# fixes only what is the repo's to fix — its venv from its own requirements, and the hook
+# that gates its own commits. A brew install is not ours to perform; the machine binding
+# is a decision, not a derivation.
 #
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
@@ -18,9 +24,13 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 
 SHOW_ALL=0
+SYNC=0
+APPLY=0
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      sync)       SYNC=1; shift ;;
+      --apply)    APPLY=1; shift ;;
       --show-all) SHOW_ALL=1; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *) shift ;;
@@ -29,6 +39,7 @@ parse_args() {
 }
 
 missing_required=0
+_todo=()
 
 # Failures-only by default: ✓ (satisfied) lines are withheld unless --show-all, and a
 # section header prints lazily — only when its first shown line (– or ✗) appears — so an
@@ -39,6 +50,13 @@ sec()    { _hdr="$*"; }
 _flush() { if [[ -n "$_hdr" ]]; then echo "$_hdr"; _hdr=""; fi; }
 ok()     { if (( SHOW_ALL )); then _flush; echo "  ✓ $*"; fi; }
 info()   { _flush; echo "  – $*"; }
+# A line the reader should ACT on, as against one that merely says how things stand.
+# Both render as – in the report; only these reach `sync`, which is why the distinction
+# lives here rather than in a filter downstream trying to guess from the wording.
+# todo <tag> <message> — the tag says WHO can fix it: `venv` and `hook` are the repo's
+# own, anything else is the reader's. sync matches on the tag, never on the wording,
+# because a message is prose and prose gets rewritten.
+todo()   { local tag="$1"; shift; _flush; echo "  – $*"; _todo+=("$tag"$'\t'"$*"); }
 bad()    { _flush; echo "  ✗ $*"; missing_required=1; }
 
 count_glob_dirs() {
@@ -69,7 +87,7 @@ check_tools() {
   if command -v pyright &>/dev/null; then
     ok "pyright ($(pyright --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
   else
-    info "pyright not found — yoga test run skips its type check; it is in src/requirements.txt, so: yoga pipeline run"
+    todo venv "pyright not found — yoga test run skips its type check; it is in src/requirements.txt: yoga prerequisites sync --apply"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
@@ -87,7 +105,7 @@ check_venv() {
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1))"
   else
-    info "not found — yoga pipeline run creates it and installs src/requirements.txt"
+    todo venv "not found — yoga prerequisites sync --apply creates it and installs src/requirements.txt"
   fi
 }
 
@@ -202,7 +220,7 @@ check_machine() {
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    info "unbound — declare it in rsc/machine/machines.csv first, then bind:"
+    todo machine "unbound — declare it in rsc/machine/machines.csv first, then bind:"
     echo "    → run: echo <declared-machine-name> > $rel"
     info "declared: ${declared:-none}"
     return
@@ -266,12 +284,12 @@ check_git_hook() {
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
       ok "installed: the load-bearing symlink to src/test/run.sh"
     else
-      info "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
+      todo hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
     fi
   elif [[ -e "$hook" ]]; then
-    info "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: yoga test install-hook"
+    todo hook "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: yoga test install-hook"
   else
-    info "not installed — yoga test install-hook"
+    todo hook "not installed — yoga test install-hook"
   fi
 }
 
@@ -293,12 +311,12 @@ check_signature_hook() {
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
       ok "installed: the symlink to src/test/prepare_commit_msg.sh"
     else
-      info "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
     fi
   elif [[ -e "$hook" ]]; then
-    info "a prepare-commit-msg hook exists but is not the symlink — replace: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
   else
-    info "not installed — ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
+    todo signature-hook "not installed — ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg"
   fi
 }
 
@@ -368,8 +386,67 @@ notes() {
   info "yoga test run: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
-main() {
-  parse_args "$@"
+# What the report named, with nothing else: its ✗ and – lines and their remedies, and
+# none of the section headers, ✓ rows or prose between them. Derived by FILTERING the one
+# report rather than asking the machine a second set of questions — two derivations of
+# "what needs doing" would be free to disagree, and the one that disagreed silently would
+# be this one.
+# The report is run for its EFFECT: it records each actionable line in _todo as it
+# prints. Run HERE, never in a command substitution — that is a subshell, and the array
+# would be populated in it and lost on the way out.
+_todo_has() {
+  local t
+  for t in ${_todo[@]+"${_todo[@]}"}; do [[ "${t%%$'\t'*}" == "$1" ]] && return 0; done
+  return 1
+}
+
+# The subset a repo may fix on its own machine: its venv, from its own requirements, and
+# the hook that gates its own commits. NOT brew installs (not ours to perform) and NOT
+# the machine binding (a decision, not a derivation) — those stay in the list, named and
+# unfixed, each carrying the remedy the report already wrote for it.
+sync() {
+  report >/dev/null
+  echo "yoga prerequisites sync — what this machine still needs:"
+  if [[ ${#_todo[@]} -eq 0 ]]; then
+    echo "  nothing — every prerequisite is satisfied"
+    return 0
+  fi
+  local t
+  for t in "${_todo[@]}"; do echo "  – ${t#*$'\t'}"; done
+  echo
+
+  local acts=()
+  _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
+  _todo_has hook && acts+=("install the pre-commit hook (yoga test install-hook)")
+  if [[ ${#acts[@]} -eq 0 ]]; then
+    echo "none of these is mine to fix — each names its own remedy above"
+    return 0
+  fi
+  local a
+  if [[ "$APPLY" != 1 ]]; then
+    echo "--apply would:"
+    for a in "${acts[@]}"; do echo "  $a"; done
+    [[ ${#_todo[@]} -gt ${#acts[@]} ]] && echo "the rest are not mine to fix — each names its own remedy above"
+    return 0
+  fi
+  for a in "${acts[@]}"; do echo "→ $a"; done
+  if _todo_has venv; then
+    [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
+    "$VENV/bin/pip" install -q --upgrade pip
+    "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
+    echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
+  fi
+  _todo_has hook && "$REPO_ROOT/src/test/test.sh" install-hook
+  echo
+  echo "what remains — re-derived, not assumed:"
+  _todo=()
+  report >/dev/null
+  if [[ ${#_todo[@]} -eq 0 ]]; then echo "  nothing"; else
+    for t in "${_todo[@]}"; do echo "  – ${t#*$'\t'}"; done
+  fi
+}
+
+report() {
   echo "$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
   check_machine
@@ -380,7 +457,7 @@ main() {
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "pip install -r src/requirements.txt, or automatically on the next yoga pipeline run"
+    "yoga prerequisites sync --apply, or automatically on the next yoga pipeline run"
   check_dependencies \
     "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
@@ -405,6 +482,11 @@ main() {
     # Default is failures-only; if we reach here nothing above needed attention.
     echo "ready — yoga pipeline run · full report: yoga prerequisites --show-all · commands: yoga -h"
   fi
+}
+
+main() {
+  parse_args "$@"
+  if [[ "$SYNC" == 1 ]]; then sync; else report; fi
 }
 
 main "$@"

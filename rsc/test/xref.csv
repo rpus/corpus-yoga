@@ -85,7 +85,7 @@ rsc/cli/indexing/indexing.json,3,path_str,src/main/model/indexing.py,Y,"""target
 rsc/cli/memories/memories.json,3,path_str,src/main/chat-exports/memories.py,Y,"""target"": ""src/main/chat-exports/memories.py"","
 rsc/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
 rsc/cli/pipeline/pipeline.json,3,path_str,src/main/pipeline.sh,Y,"""target"": ""src/main/pipeline.sh"","
-rsc/cli/prerequisites.json,3,path_str,src/prerequisites.sh,Y,"""target"": ""src/prerequisites.sh"","
+rsc/cli/prerequisites/prerequisites.json,3,path_str,src/prerequisites.sh,Y,"""target"": ""src/prerequisites.sh"","
 rsc/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 rsc/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 rsc/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
@@ -515,18 +515,20 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
-src/prerequisites.sh,2,comment,src/prerequisites.sh,Y,# src/prerequisites.sh — Report what this machine has and what yoga pipeline run would do.
-src/prerequisites.sh,11,comment,src/prerequisites.sh,Y,#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
-src/prerequisites.sh,12,comment,src/prerequisites.sh,Y,"#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
-src/prerequisites.sh,179,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
-src/prerequisites.sh,183,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
-src/prerequisites.sh,256,call,src/test/run.sh,Y,"local script=""$REPO_ROOT/src/test/run.sh"" hook link dir"
-src/prerequisites.sh,280,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-src/prerequisites.sh,283,call,src/test/prepare_commit_msg.sh,Y,"local script=""$REPO_ROOT/src/test/prepare_commit_msg.sh"" hook link dir"
-src/prerequisites.sh,307,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
-src/prerequisites.sh,322,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
-src/prerequisites.sh,380,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/prerequisites.sh,386,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
+src/prerequisites.sh,2,comment,src/prerequisites.sh,Y,"# src/prerequisites.sh — what this machine has, and what it still needs."
+src/prerequisites.sh,17,comment,src/prerequisites.sh,Y,#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+src/prerequisites.sh,18,comment,src/prerequisites.sh,Y,"#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
+src/prerequisites.sh,197,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
+src/prerequisites.sh,201,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
+src/prerequisites.sh,274,call,src/test/run.sh,Y,"local script=""$REPO_ROOT/src/test/run.sh"" hook link dir"
+src/prerequisites.sh,298,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+src/prerequisites.sh,301,call,src/test/prepare_commit_msg.sh,Y,"local script=""$REPO_ROOT/src/test/prepare_commit_msg.sh"" hook link dir"
+src/prerequisites.sh,325,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
+src/prerequisites.sh,340,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
+src/prerequisites.sh,436,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/prerequisites.sh,439,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,457,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,463,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -635,7 +637,8 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/model/sync.json,Y,
 ,,,rsc/cli/pipeline/pipeline.json,Y,
 ,,,rsc/cli/pipeline/run.json,Y,
-,,,rsc/cli/prerequisites.json,Y,
+,,,rsc/cli/prerequisites/prerequisites.json,Y,
+,,,rsc/cli/prerequisites/sync.json,Y,
 ,,,rsc/cli/server/ensure-assets.json,Y,
 ,,,rsc/cli/server/server.json,Y,
 ,,,rsc/cli/server/start.json,Y,

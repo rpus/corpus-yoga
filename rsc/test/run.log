@@ -1,4 +1,4 @@
-run.py: 1775/1775 (data: machine-local)
+run.py: 1777/1777 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ run.py: 1775/1775 (data: machine-local)
   ✓ cli.calculus_defined  (17/17)
   ✓ cli.advertised_flags_exist  (13/13)
   ✓ cli.docstring_flags_advertised  (15/15)
-  ✓ cli.subcommands_dispatch  (14/14)
+  ✓ cli.subcommands_dispatch  (15/15)
   ✓ cli.target_flags_advertised  (15/15)
   ✓ cli.help_one_screen  (15/15)
   ✓ cli.verb_accepts_command_flags  (2/2)
@@ -29,7 +29,7 @@ run.py: 1775/1775 (data: machine-local)
   ✓ output.plan_lines_name_their_target  (33/33)
   ✓ structure.file_at_level_of_subject  (18/18)
   ✓ structure.cli_declaration_mirrors_the_api  (18/18)
-  ✓ structure.cli_declaration_validates  (47/47)
+  ✓ structure.cli_declaration_validates  (48/48)
   ✓ cli.every_form_listed  (34/34)
   ✓ cli.flag_not_axis_value  (16/16)
   ✓ cli.block_identity_stable  (2/2)
@@ -143,11 +143,11 @@ run.py: 1775/1775 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 79 types, 1775/1775 invocations passing
+  ✓ checks[code+schema]: 79 types, 1777/1777 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 43 types, 363/363 invocations passing
+  ✓ checks[code]: 43 types, 365/365 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1775/1775 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1777/1777 match the committed expectation; nothing here vetoes a commit
