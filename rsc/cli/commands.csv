@@ -3,7 +3,6 @@
 "browser","src/main/browser-captures/PREP.sh","capture","capture browser-reachable chats via Safari (claude API, gemini DOM)"
 "cache","src/main/cli/cache.py","project","the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds"
 "calculus","rsc/CALCULUS.md","","Print the corpus calculus — the doctrine this table cites"
-"check","src/test/pre_commit.sh","validate L2","the pre-commit check suite (also the installed git hook)"
 "commands","src/main/cli/cli.py","project L5","each command's standard help (bare: every command's forms)"
 "completions","src/main/cli/cli.py","project L5","zsh tab-completion derived from the command table"
 "dashboard","src/main/chat-exports/dashboard.sh","capture project","the corpus dashboard: paid capture, free render"
@@ -16,4 +15,4 @@
 "server","src/main/model/server.sh","project","serve the markdown corpus locally (LaTeX + turn deep links)"
 "summaries","src/main/chat-exports/summaries.py","accumulate project L1 L4","Deposit every distinct summary reading; render each conversation's index"
 "supersede","src/main/chat-exports/supersede.py","supersession L3","Do later bulk exports supersede earlier ones? Computed; never assumed"
-"xref","src/test/xref.py","validate","Cross-reference integrity of every committed artifact"
+"test","src/test/test.sh","validate L2","the checks over this repo, and the hook that runs them"

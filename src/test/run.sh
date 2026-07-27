@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# pre_commit.sh (yoga check) — the three-tier check suite; also the pre-commit hook.
+# run.sh (yoga test run) — the three-tier check suite; also the pre-commit hook.
 #
 # Usage:
-#   src/test/pre_commit.sh [--fix]    # --fix runs every fix command; stages nothing
-#   ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit    # install
+#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
+#   yoga test install-hook                        # install as the hook
 #
 # ONE behaviour, however it is called: it asks neither what it was invoked as nor
-# which branch you are on. A failure exits non-zero — as `yoga check`, as the hook,
+# which branch you are on. A failure exits non-zero — as `yoga test run`, as the hook,
 # on trunk, on a branch, detached. Deliberate WIP is `git commit --no-verify`, said
 # out loud, not inferred from your branch name.
 #
 # It NEVER touches your index. `git add` cannot be undone — it cannot tell "the tool
 # staged this" from "this was already staged, differently", so staging over a
 # `git add -p` hunk destroys it with nothing to restore from. The artifacts it rewrites
-# (pre_commit.log, xref.csv) are yours to stage; stale, it refuses and says so.
+# (run.log, xref.csv) are yours to stage; stale, it refuses and says so.
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
 # machine-local fact and `yoga prerequisites` is its one voice. Read a failure:
-# git diff rsc/test/pre_commit.log
+# git diff rsc/test/run.log
 
 set -euo pipefail
 
@@ -42,21 +42,21 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # the machine binding it reads is machine-scoped and absent from worktrees.
 TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
-  if [[ -x "$TOPLEVEL/src/test/pre_commit.sh" ]]; then
-    exec "$TOPLEVEL/src/test/pre_commit.sh" "$@"
+  if [[ -x "$TOPLEVEL/src/test/run.sh" ]]; then
+    exec "$TOPLEVEL/src/test/run.sh" "$@"
   fi
   # REFUSE, never fall through (PR #25 review): running the home gate against
   # the home tree inside the other tree's git context is exactly the chimera
   # this guard abolishes — a fallthrough would restore it silently, with the
   # same unsatisfiable ERROR that cost a day. A loud refusal is recoverable.
-  echo "ERROR: cannot gate $TOPLEVEL — no executable src/test/pre_commit.sh there." >&2
+  echo "ERROR: cannot gate $TOPLEVEL — no executable src/test/run.sh there." >&2
   echo "       Restore that tree's gate (or commit from a tree that has one);" >&2
   echo "       this home gate will not gate a different tree." >&2
   exit 1
 fi
 
-# The artifacts pre_commit.py rewrites on every run — the idempotence subject.
-ARTIFACTS=(rsc/test/pre_commit.log rsc/test/xref.csv)
+# The artifacts run.py rewrites on every run — the idempotence subject.
+ARTIFACTS=(rsc/test/run.log rsc/test/xref.csv)
 
 parse_args() {
   case "${1:-}" in
@@ -72,13 +72,13 @@ main() {
   local fix_mode=0
   if [[ "${1:-}" == "--fix" ]]; then fix_mode=1; fi
 
-  # Run once — pre_commit.py writes its own report artifacts: the COMMITTED
-  # rsc/test/pre_commit.log (code+schema only, byte-identical on any clone — the
+  # Run once — run.py writes its own report artifacts: the COMMITTED
+  # rsc/test/run.log (code+schema only, byte-identical on any clone — the
   # machine-local data tier never enters a committed file) plus the full report
-  # to tmp/logs/rsc/test/pre_commit.log; only the tail (score + WARN + verdict) prints
+  # to tmp/logs/rsc/test/run.log; only the tail (score + WARN + verdict) prints
   # to the terminal here. This run's status is unused (a failing report is still a
   # report; the exit verdict comes from the second run) — || true, for exactly that.
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" "$@" || true
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" "$@" || true
 
   # Copy the first run's artifacts aside. This used to stage them and diff the
   # worktree against the index, which made a QUESTION mutate your index to answer
@@ -95,14 +95,14 @@ main() {
   # first run's on the terminal, so its stdout is discarded; only its exit code (the
   # verdict) and any stderr (a crash) matter here.
   local rc=0
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/pre_commit.py" >/dev/null || rc=$?
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" >/dev/null || rc=$?
 
   # --fix changed the world between the two writes: a failing first run and a
   # clean second one is the fixes WORKING, not an idempotence violation.
   if [[ $fix_mode -eq 0 ]]; then
     for a in "${ARTIFACTS[@]}"; do
       if ! diff -q "$snap/$(basename "$a")" "$REPO_DIR/$a" >/dev/null 2>&1; then
-        echo "ERROR: pre_commit is not idempotent — $a changed on the second run." >&2
+        echo "ERROR: the check suite is not idempotent — $a changed on the second run." >&2
         diff -u "$snap/$(basename "$a")" "$REPO_DIR/$a" >&2 || true
         exit 1
       fi

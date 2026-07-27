@@ -14,7 +14,7 @@ Usage:
     src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
     src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
 
-Where <pipeline> is any key from PIPELINES in pre_commit.py.
+Where <pipeline> is any key from PIPELINES in run.py.
 """
 
 import argparse
@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
 
-from pre_commit import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs  # noqa: E402
+from run import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs  # noqa: E402
 from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402
 
 

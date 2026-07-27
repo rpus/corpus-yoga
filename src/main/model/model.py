@@ -59,7 +59,7 @@ def curation_report() -> None:
     that used to read 'update model.json if needed' now reports whether it IS
     needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
     shrug — no gate pressure); loop 2 blocks (shared-type edges obligate
-    model.json, gated per type by pre_commit's check_model_obligations)."""
+    model.json, gated per type by `yoga test run`'s check_model_obligations)."""
     queue = edge_queue()
     orphans = orphan_entries()
     gaps = coverage_gaps()

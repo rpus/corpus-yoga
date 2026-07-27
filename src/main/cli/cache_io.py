@@ -11,7 +11,7 @@ you can cd to or rm. Three consumers share it:
   clean  — a tmp/cache/ subtree ABSENT from the registry is residue (neither written
            nor read): removable (yoga cache clean).
   sync   — every row's producer commands rebuild tmp/cache/ (yoga cache sync).
-  check  — pre_commit's check_cache_io blocks the catastrophe: a path READ with
+  check  — `yoga test run`'s check_cache_io blocks the catastrophe: a path READ with
            no WRITER (a tmp/cache/ dependency nothing produces) breaks the "tmp/cache/ is
            reproducible from data/input/" contract. Written-but-not-read is fine (a
            terminal output — a page a browser reads); only the read side,

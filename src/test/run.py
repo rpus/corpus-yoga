@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-pre_commit.py — Pre-commit checks for the repo.
+run.py — Pre-commit checks for the repo.
 
 Usage (direct):
-    src/test/pre_commit.sh
-    src/test/pre_commit.sh --fix   # run all fix commands; stages nothing
+    src/test/run.sh
+    src/test/run.sh --fix   # run all fix commands; stages nothing
 
 As a git hook, install the wrapper:
-    ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit
+    yoga test install-hook
 
 Exits 0 if all checks pass, 1 if any fail.
 
@@ -18,13 +18,13 @@ Checks are grouped into three tiers, run in order:
     data    — local data/input//tmp/cache/ data vs the committed record (validation outputs, coverage,
               frontier); machine-local, skipped per pipeline where no local data exists
 
-The committed expected checks (rsc/test/pre_commit_expected_checks) record the code and
+The committed expected checks (rsc/test/run_expected_checks) record the code and
 schema tiers only — their counts are identical on every clone. Its first line is the
 combined code+schema total, which also matches the score in the log's head line. The
 data tier's subtotal is machine-local and never recorded; its failures are reported in
 full but never veto the exit — a fact about this machine's data must not gate an
 unrelated commit. Machine state that SHOULD gate — the hook's own installation — is
-enforced by the wrapper (pre_commit.sh), never by a tier.
+enforced by the wrapper (run.sh), never by a tier.
 
 Atomic diagnostic scripts live in src/test/diagnostics/{principle_id}.py.
 Atomic repair scripts live in src/test/repairs/{principle_id}.py.
@@ -156,7 +156,7 @@ def _leaf(subject: str) -> str:
     """Check-label form of a subject: the leaf (uuid/name) only. Depth-2 subjects are
     '<project-slug> / <uuid>' internally (the slug is needed to reconstruct paths), but
     labels use just the uuid — uniform with the depth-1 pipelines, and the committed
-    pre_commit.log then carries no machine-derived slugs (they embed the username)."""
+    run.log then carries no machine-derived slugs (they embed the username)."""
     return subject.split(' / ')[-1]
 
 
@@ -320,7 +320,7 @@ def check_required_files(run):
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
         SRC  / 'main' / 'model' / 'model.py',
-        RSC  / 'test' / 'pre_commit_expected_checks',
+        RSC  / 'test' / 'run_expected_checks',
         RSC  / 'test' / 'xref_expected_score',
         SRC  / 'test' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
@@ -1416,10 +1416,10 @@ def main():
 
     results = []
     # The report splits by DETERMINISM, mirroring the tiers: code+schema output is
-    # identical on any clone and becomes the COMMITTED rsc/test/pre_commit.log; the
+    # identical on any clone and becomes the COMMITTED rsc/test/run.log; the
     # data tier describes THIS MACHINE's data (uuids, batch names, home-dir-derived
     # paths) and must never enter a committed artifact — it goes to the terminal and
-    # to tmp/logs/rsc/test/pre_commit.log (machine-facing, like the serve daemon's log).
+    # to tmp/logs/rsc/test/run.log (machine-facing, like the serve daemon's log).
     committed_buffer = io.StringIO()   # code + schema tiers
     machine_buffer   = io.StringIO()   # data tier
     cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
@@ -1565,7 +1565,7 @@ def main():
     # that adds no check — so the file was updated reflexively, which is how the failure it
     # exists to catch (a check that silently stopped running) would have been waved through.
     # A type leaving the set is that failure, and nothing else produces it.
-    checks_file = RSC / 'test' / 'pre_commit_expected_checks'
+    checks_file = RSC / 'test' / 'run_expected_checks'
     expected_types = {l.strip() for l in checks_file.read_text().splitlines()
                       if l.strip() and not l.startswith('#')} if checks_file.exists() else set()
     seen_types = {t for t, tier in zip(check_types, tiers)
@@ -1615,9 +1615,9 @@ def main():
     # ── report rendering ─────────────────────────────────────────────────────
     # Two renderings of one result set, split by determinism exactly as the tiers
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
-    # any clone; this script writes it to rsc/test/pre_commit.log itself) and the
+    # any clone; this script writes it to rsc/test/run.log itself) and the
     # FULL report (adds the machine-local data tier — printed to stdout and written
-    # to tmp/logs/rsc/test/pre_commit.log, run-facing like the serve daemon's log).
+    # to tmp/logs/rsc/test/run.log, run-facing like the serve daemon's log).
 
     def _in_committed(i: int) -> bool:
         return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
@@ -1718,7 +1718,7 @@ def main():
         ✗s were hard to find. The count carries what the old body could not: `(16/17)` is one
         command misbehaving, `(3/17)` is something structural.
 
-        Every invocation stays in the machine-local log (tmp/logs/rsc/test/pre_commit.log),
+        Every invocation stays in the machine-local log (tmp/logs/rsc/test/run.log),
         where evidence belongs; this is the file a human reads in a diff."""
         out, seen_section = io.StringIO(), None
         order: dict[tuple, list] = {}
@@ -1761,10 +1761,10 @@ def main():
         data_note = ('data: machine-local' if committed_only else
                      'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
         if fail_idx:
-            out.write(f'`src/test/pre_commit.py`: {det} ({data_note}; '
+            out.write(f'`src/test/run.py`: {det} ({data_note}; '
                       f'{len(gate_sections)} gating / {len(warn_sections)} advisory section(s) failing)\n')
         else:
-            out.write(f'pre_commit.py: {det} ({data_note})\n')
+            out.write(f'run.py: {det} ({data_note})\n')
 
         out.write('\n')
         if include_body:
@@ -1772,14 +1772,14 @@ def main():
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
-            out.write('  full per-check report → tmp/logs/rsc/test/pre_commit.log\n')
+            out.write('  full per-check report → tmp/logs/rsc/test/run.log\n')
 
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
         for label, ok, detail in score_rows:
             if committed_only and label.startswith('score[data]'):
                 out.write('  – score[data]: machine-local — reported on the terminal '
-                          'and in tmp/logs/rsc/test/pre_commit.log, never committed\n')
+                          'and in tmp/logs/rsc/test/run.log, never committed\n')
                 continue
             mark = '✓' if ok else ('⚠' if label.startswith('score[data]') else '✗')
             out.write(f'  {mark} {label}' +
@@ -1789,7 +1789,7 @@ def main():
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if warn_idx:
             counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
-            where = 'above' if include_body else 'in the full report (tmp/logs/rsc/test/pre_commit.log)'
+            where = 'above' if include_body else 'in the full report (tmp/logs/rsc/test/run.log)'
             out.write(f'\nWARN — machine-local facts, marked ⚠ {where}; they never gate a commit:\n')
             for sec in warn_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
@@ -1833,8 +1833,8 @@ def main():
     full_text, full_fix_lines = _render(committed_only=False)
     terminal_text, _          = _render(committed_only=False, include_body=False)
 
-    (RSC / 'test' / 'pre_commit.log').write_text(committed_text)
-    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'rsc' / 'test' / 'pre_commit.log'
+    (RSC / 'test' / 'run.log').write_text(committed_text)
+    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'rsc' / 'test' / 'run.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
     machine_log.write_text(full_text)
 
@@ -1863,7 +1863,7 @@ def main():
         # fixes are in the worktree; what enters the commit stays the operator's
         # to say.
         print('Fixes applied to the worktree — nothing staged. Review with '
-              '`git diff`, stage what you meant, then re-run pre_commit.sh to verify.')
+              '`git diff`, stage what you meant, then re-run run.sh to verify.')
 
     # The data tier is machine-local ("not recorded"): a stale capture on this
     # machine is a fact about its data, not about the change being committed.

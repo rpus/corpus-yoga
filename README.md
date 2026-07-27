@@ -11,7 +11,7 @@ corpus.
 ./yoga browser capture        # acquire: Safari sweep into data/input/
 ./yoga pipeline run           # process: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
-./yoga check                  # the three-tier gate suite
+./yoga test run               # the three-tier gate suite
 ```
 
 `./yoga -h` lists every command with its summary; `./yoga commands [<command>]`
@@ -43,7 +43,7 @@ prefix-gated store.
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`yoga prerequisites` reports both)
 - commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
 - the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles them against the live forge and prints each drift's own `gh` remedy)
-- the checks: `src/test/pre_commit.py` (`yoga check`); cross-references: `yoga xref check` (bare `yoga xref` shows status)
+- the checks: `src/test/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status)
 
 ## Getting data
 
@@ -62,7 +62,7 @@ reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed,
 override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
 data — `data/input/ tmp/cache/ data/output/ tmp/logs/` are git-ignored. Install the hook (required;
 `yoga prerequisites` reports whether it is):
-`ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit`. And the
+`./yoga test install-hook`. And the
 signature hook (convention, optional; grammar in its own header):
 `ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
 
@@ -87,7 +87,7 @@ commits — the squash keeps every one of their messages and signatures.
 
 An issue states what *should* be true; a PR that closes it reads as the claim that it
 now is. Where that claim is a standing property the code must keep — not a one-off
-change — make it a named check in `src/test/pre_commit.py`, labelled for the property
+change — make it a named check in `src/test/run.py`, labelled for the property
 and the issue, so the PR asserts a compliance the gate can see and a later regression
 trips a check that names what it broke. #22 is the worked example: the issue states the
 `accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and
@@ -117,20 +117,20 @@ model co-author (it is derivable from the session).
 A merge conflict is almost always confined to the check's four regenerated artifacts,
 in two pairs — a derived file and the curated expectation beside it:
 
-- `rsc/test/pre_commit.log` (derived) and `rsc/test/pre_commit_expected_checks` (curated)
+- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
 - `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
 
 Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds
 nothing but these four, the resolution is **syntactic** — take either side of the whole
 directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-markers, then run `./yoga check`: it rewrites the two derived files, and reports the
-live counts the two curated ones should hold — `pre_commit` prints `expected X, got Y`,
+markers, then run `./yoga test run`: it rewrites the two derived files, and reports the
+live counts the two curated ones should hold — `yoga test run` prints `expected X, got Y`,
 `xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
 check reports, stage what it rewrote, and run once more to confirm the gate is green. The
 check computes the merged numbers; your job is to run it.
 
 This works because the generated files absorb only the counting. A real conflict — two
-branches changing what a check *asserts* — lands in the source (`src/test/pre_commit.py`,
+branches changing what a check *asserts* — lands in the source (`src/test/run.py`,
 a schema file), where git makes you look at it, never inside `rsc/test/`. Since the
 artifacts have their own directory now, the two cases are told apart by path: a conflict in
 `rsc/test/` is syntactic; one outside it is real.
