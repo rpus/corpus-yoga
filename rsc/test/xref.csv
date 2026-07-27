@@ -414,7 +414,7 @@ src/main/cli/cli.py,135,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parse
 src/main/cli/cli.py,166,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
 src/main/cli/cli.py,167,comment,rsc/CALCULUS.md,Y,"{title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the"
 src/main/cli/cli.py,171,comment,rsc/CALCULUS.md,Y,"and rsc/CALCULUS.md stays the authority for the principle — cited, never paraphrased."
-src/main/cli/cli.py,386,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
+src/main/cli/cli.py,396,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
 src/main/cli/forge.sh,5,comment,rsc/forge.csv,Y,# sees them and no git config holds them; rsc/forge.csv declares them.
 src/main/cli/forge.sh,10,comment,rsc/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
 src/main/cli/forge.sh,27,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forge.csv"""
@@ -562,26 +562,26 @@ src/test/run.py,640,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO regis
 src/test/run.py,690,comment,rsc/cli/commands.csv,Y,The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
 src/test/run.py,692,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/run.py,698,comment,src/main/pipeline.sh,Y,a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
-src/test/run.py,964,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/run.py,985,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/run.py,1218,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/run.py,1365,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/run.py,1366,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/run.py,991,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/run.py,1012,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/run.py,1245,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/run.py,1392,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/run.py,1393,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
 src/test/run.py,391,path_str,src/run_python_script.sh,Y,run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
 src/test/run.py,100,path_str,src/main/browser-captures/claude/validate.sh,Y,"fix_item_cmd      = 'src/main/browser-captures/claude/validate.sh --browser-capture',"
 src/test/run.py,109,path_str,src/main/chat-exports/validate.sh,Y,"fix_item_cmd      = 'src/main/chat-exports/validate.sh --chat-export',"
 src/test/run.py,123,path_str,src/main/code-agents/run.sh,Y,"fix_item_cmd      = 'src/main/code-agents/run.sh --code-agent',"
 src/test/run.py,895,path_str,rsc/cli/target_naming_pending.csv,Y,"None if not unknown else f'rsc/cli/target_naming_pending.csv names {"", "".join(unknown)}, '"
-src/test/run.py,1657,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1659,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1667,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1669,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1684,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1686,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1694,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1696,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/run.py,727,comment,rsc/cli/help.csv,Y,# subcommands and flags are read from rsc/cli/help.csv — the single source the
-src/test/run.py,945,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/run.py,1035,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/run.py,1419,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/run.py,1429,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
-src/test/run.py,1618,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,972,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/run.py,1062,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/run.py,1446,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/run.py,1456,comment,rsc/cli/README.md,Y,# `law` cites the rsc/cli/README.md grammar law this fact enforces (G<n>).
+src/test/run.py,1645,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,21,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/run.sh,76,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"
