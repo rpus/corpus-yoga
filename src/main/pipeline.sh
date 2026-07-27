@@ -286,7 +286,7 @@ print_plan() {
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; `yoga test run` reminder; log path"
+  echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; the yoga test run reminder; log path"
 }
 
 main() {

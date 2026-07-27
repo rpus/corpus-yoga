@@ -70,6 +70,7 @@ python.pyright_clean
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.valid_json_with_schema
+shell.shellcheck_clean
 structure.all_definitions_reachable
 structure.bfs_order
 structure.cli_declaration_mirrors_the_api

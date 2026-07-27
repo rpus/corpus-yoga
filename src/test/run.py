@@ -884,6 +884,30 @@ def check_cli_surface(run) -> None:
             f'its target\'s name, so rename the target or the command',
             check='naming.target_stem_matches_command')
 
+    # Shell files are linted by shellcheck rather than by anything hand-rolled here: a
+    # second vocabulary to police a first is exactly what a check should not be. It found
+    # `yoga test run` written in backticks inside a double-quoted echo — command
+    # substitution, not quoting, so the plan RAN the gate it was describing while
+    # promising "nothing executed" — and an `echo "$(cmd)"` wrapping a command that
+    # already prints.
+    #
+    # Absent, it skips with a CONSTANT label and no detail, so the committed report stays
+    # byte-identical on a clone without it (the zsh -n precedent). `yoga prerequisites`
+    # is the one voice that says whether this machine has it.
+    shellcheck = shutil.which('shellcheck')
+    sh_files = sorted(str(f) for f in (REPO_ROOT / 'src').rglob('*.sh'))
+    sc_ok, sc_detail = True, None
+    if shellcheck and sh_files:
+        # -x follows the `# shellcheck source=` directives five files already write;
+        # without it those lines are decoration and the sourced vocabulary is unknown
+        proc = subprocess.run([shellcheck, '-x', '-f', 'gcc', *sh_files],
+                              capture_output=True, text=True, cwd=REPO_ROOT)
+        findings = [l for l in proc.stdout.splitlines() if l.strip()]
+        sc_ok = not findings
+        sc_detail = None if sc_ok else '; '.join(
+            f.replace(str(REPO_ROOT) + '/', '') for f in findings[:4])
+    run('shell: shellcheck reports nothing', sc_ok, sc_detail,
+        check='shell.shellcheck_clean')
     # A command's log path derives from the command (#54): having typed `yoga <noun>
     # <verb>`, a reader can guess where the log went without reading the script that
     # wrote it. Held over the SOURCE — every tmp/logs/ path any file names must open
