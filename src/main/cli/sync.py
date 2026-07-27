@@ -47,26 +47,26 @@ def main() -> int:
     enrich(ap, 'cache', 'sync')
     args = ap.parse_args()
 
-    # The registry stores canonical NAMES ('yoga model sync' — one referent,
-    # one name, G14); the runnable form is presentation, derived here (L5):
-    # yoga is not on PATH, so a yoga invocation runs as ./yoga from the repo
-    # root. Storing './yoga …' in the cells was what let them dodge the
-    # resolver's command branch entirely (the PR #109 review).
-    def runnable(c: str) -> str:
+    # The registry stores canonical NAMES ('yoga model sync' — one referent, one
+    # name, G14), and every printed line speaks the name too: './yoga' is no more
+    # runnable for a reader than bare 'yoga' — one presumes cwd, the other PATH
+    # (user ruling, PR #109). The './' spelling exists at exactly ONE point, the
+    # exec boundary below, where it is valid because the same call pins cwd=REPO.
+    def executable(c: str) -> str:
         return f'./{c}' if c.startswith('yoga ') else c
 
     cmds = producers()
     if args.dry_run:
         print(f'sync plan — {len(cmds)} producer run(s), in registry-row order:')
         for c in cmds:
-            print(f'    → run: {runnable(c)}')
+            print(f'    → run: {c}')
         print('DONE — dry run: pass no flag to execute')
         return 0
 
     failures = []
     for c in cmds:
-        print(f'── sync: {runnable(c)} ────────────────────────────────')
-        rc = subprocess.run(runnable(c), shell=True, cwd=REPO).returncode
+        print(f'── sync: {c} ────────────────────────────────')
+        rc = subprocess.run(executable(c), shell=True, cwd=REPO).returncode
         if rc != 0:
             failures.append((c, rc))
         print()
