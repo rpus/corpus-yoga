@@ -1,10 +1,11 @@
 # The yoga CLI's declaration
 
 This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
-`yoga`). One filesystem object per command: `<command>.json` when it has no subcommands, and
-`<command>/` holding `<command>.json` plus one `<verb>.json` per subcommand when it does. So
-`ls rsc/cli/` is the command list, `ls rsc/cli/browser/` is its verb list, and what a verb
-accepts is `cat rsc/cli/browser/capture.json` — no parser, no column headers, no join.
+`yoga`). One directory per command, holding `<command>.json` and one `<verb>.json` per verb — the
+same shape whether or not it has any, so gaining a first verb is adding a file rather than
+converting a file into a directory first. So `ls rsc/cli/` is the command list,
+`ls rsc/cli/browser/` is its verb list, and what a verb accepts is
+`cat rsc/cli/browser/capture.json` — no parser, no column headers, no join.
 
 Two properties come free rather than checked: a directory cannot hold two entries of one
 name, and a listing has no out-of-order state to be in. Subcommands therefore appear in

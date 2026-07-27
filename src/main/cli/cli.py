@@ -50,25 +50,18 @@ CLI = REPO / 'rsc' / 'cli'
 COLUMNS = ('command', 'target', 'calculus', 'summary')
 COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 def _declaration(command: str) -> pathlib.Path:
-    """Where a command declares itself: <command>.json, or <command>/<command>.json when
-    it has subcommands and is therefore a directory."""
-    d = CLI / command / f'{command}.json'
-    return d if d.exists() else CLI / f'{command}.json'
+    """Where a command declares itself: <command>/<command>.json, always. EVERY command is
+    a directory, including one with no subcommands — so gaining a verb is adding a file
+    beside its siblings, not converting a file into a directory first."""
+    return CLI / command / f'{command}.json'
 
 
 def _declared_commands() -> list[str]:
-    """Every command, from the tree itself — a directory or a .json file directly under
-    rsc/cli/. Sorted, because a listing has no other order to be in; uniqueness needs no
-    check because a directory cannot hold two entries of one name (G4, by construction)."""
-    names = set()
-    for p in CLI.iterdir():
-        if p.is_dir():
-            names.add(p.name)
-        elif p.suffix == '.json' and not p.name.endswith('.schema.json'):
-            # the schemas describing these files live beside them (rsc/schema/ is the
-            # data domain), so the suffix is what tells a description from a declaration
-            names.add(p.stem)
-    return sorted(names)
+    """Every command, from the tree itself — one directory each. Sorted, because a listing
+    has no other order to be in; uniqueness needs no check because a directory cannot hold
+    two entries of one name (G4, by construction). The only files at this level are the
+    schemas describing these declarations and the two documents."""
+    return sorted(p.name for p in CLI.iterdir() if p.is_dir())
 
 
 def commands() -> list[dict]:

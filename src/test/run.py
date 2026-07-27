@@ -1081,26 +1081,23 @@ def check_cli_surface(run) -> None:
     stray = sorted(p.name for p in cli_root.iterdir()
                    if p.name not in ('README.md', 'readings.md')
                    and not p.name.endswith('.schema.json')
-                   and (p.stem if p.suffix == '.json' else p.name) not in declared)
+                   and p.name not in declared)
     run('cli: rsc/cli/ holds declarations and nothing else', not stray,
         None if not stray else f'{", ".join(stray)} is neither a command nor a known document',
         law='G3', check='structure.cli_declaration_mirrors_the_api')
+    # ONE shape, whether or not the command has verbs: a directory holding its own
+    # declaration and one file per verb. Two shapes meant gaining a first verb converted
+    # a file into a directory before the verb could be added — against the whole point,
+    # which is that adding a verb is adding a file.
     for c in cmds:
         name = c['command']
         d = cli_root / name
-        subs = set(cli.subcommands_of(name))
-        if subs:
-            want = {f'{name}.json'} | {f'{s}.json' for s in subs}
-            have = {f.name for f in d.glob('*.json')} if d.is_dir() else set()
-            run(f'cli: {name}: its directory holds exactly its declarations', have == want,
-                None if have == want else
-                f'{d.relative_to(REPO_ROOT)} holds {sorted(have)}, declared {sorted(want)}',
-                law='G3', check='structure.cli_declaration_mirrors_the_api')
-        else:
-            f = cli_root / f'{name}.json'
-            run(f'cli: {name}: declared as one file, having no subcommands', f.is_file(),
-                None if f.is_file() else f'{f.relative_to(REPO_ROOT)} is not a file',
-                law='G3', check='structure.cli_declaration_mirrors_the_api')
+        want = {f'{name}.json'} | {f'{v}.json' for v in cli.subcommands_of(name)}
+        have = {f.name for f in d.glob('*.json')} if d.is_dir() else set()
+        run(f'cli: {name}: its directory holds exactly its declarations', have == want,
+            None if have == want else
+            f'{d.relative_to(REPO_ROOT)} holds {sorted(have)}, declared {sorted(want)}',
+            law='G3', check='structure.cli_declaration_mirrors_the_api')
 
     # Every declaration validates against the schema beside it. The schemas live in
     # rsc/cli/ and not under rsc/schema/, which is the DATA domain: this is the repo's

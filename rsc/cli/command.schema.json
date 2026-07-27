@@ -1,9 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "CliCommand",
-  "description": "A command's own declaration: rsc/cli/<command>.json, or rsc/cli/<command>/<command>.json when the command has subcommands and is therefore a directory. Its FILENAME is the command word, so the name is not a field here — a directory cannot hold two entries of one name, which is how uniqueness stops being a check. This schema lives beside what it describes rather than under rsc/schema/, which is the data domain: the CLI declaration is this repo's own interface, not corpus data.",
+  "description": "A command's own declaration: rsc/cli/<command>/<command>.json. EVERY command is a directory, whether or not it has verbs, so gaining a first verb is adding a file beside this one rather than converting a file into a directory first. Its DIRECTORY is the command word, so the name is not a field here — and a directory cannot hold two entries of one name, which is how uniqueness stops being a check. This schema lives beside what it describes rather than under rsc/schema/, which is the data domain: the CLI declaration is this repo's own interface, not corpus data.",
   "type": "object",
-  "required": ["summary", "target", "args"],
+  "required": [
+    "summary",
+    "target",
+    "args"
+  ],
   "additionalProperties": false,
   "properties": {
     "summary": {
@@ -27,7 +31,9 @@
     "args": {
       "type": "array",
       "description": "Arguments accepted before any subcommand — the flags that attach to the bare noun, in the order they render.",
-      "items": {"$ref": "argument.schema.json#"}
+      "items": {
+        "$ref": "argument.schema.json#"
+      }
     }
   }
 }
