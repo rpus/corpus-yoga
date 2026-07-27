@@ -119,8 +119,8 @@ PIPELINES: dict[str, Pipeline] = {
         input_glob        = '*/-Users-*/*.jsonl',
         subject_depth     = 3,
         # validate.sh --code-agent-session consumes the tmp/cache/ session dir (conversion
-        # from .jsonl comes first), so the runnable store-rooted unit is the project RUNME.
-        fix_item_cmd      = 'src/main/code-agents/RUNME.sh --code-agent',
+        # from .jsonl comes first), so the runnable store-rooted unit is the project run.sh.
+        fix_item_cmd      = 'src/main/code-agents/run.sh --code-agent',
         diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
         # Each project's memory/ is its own datum (projectMemory), a subject beside
         # the project's sessions: tmp/cache/code-agents/<machine>/<project>/memory/.
@@ -389,7 +389,7 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
     have been processed. Matrices are co-located with their data, so stale rows for
     departed data cannot exist — deleting a datum deletes its matrix."""
     run_cmd  = f'src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline {name} --write'
-    pipe_cmd = f'Run: src/main/{name}/RUNME.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}'
+    pipe_cmd = f'Run: src/main/{name}/run.sh --{name} {pipeline.input.relative_to(REPO_ROOT)}'
     gen_rel  = pipeline.cache_output.relative_to(REPO_ROOT)
 
     print(f'\n  each {gen_rel}/<datum>/matrix.md must match the vN.log files under its validation/')
@@ -695,7 +695,7 @@ def check_cli_surface(run) -> None:
     and implementation share a stem — the repo idiom), every subcommand VERB it
     advertises appears in the target's own --help (the live dispatch surface —
     a source grep is vacuous for ordinary words like build/accept), and every command
-    a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/RUNME.sh --plan
+    a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
     output (which is itself the executing list, so the chain cannot drift, and a step
     cannot quietly drop to a bare noun that the bare=status convention no-ops). Committed
     files and the deterministic plan only, so deterministic on any clone:
@@ -942,13 +942,13 @@ def check_cli_surface(run) -> None:
         law='G20', check='cli.block_identity_stable')
 
     # The run pipeline's command-backed steps (help.csv's `step` column). Each must
-    # appear in `src/RUNME.sh --plan` as a line naming the COMMAND and its VERB — so the
+    # appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
     # plan speaks the command surface a reader would type, and a step can never invoke
     # a noun bare, which the bare-noun=status convention silently turns into a no-op.
     stepped = cli.steps()
     if not stepped:
         return
-    plan = subprocess.run([str(REPO_ROOT / 'src' / 'RUNME.sh'), '--plan'],
+    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     for s in stepped:
         cmd, sub = s['command'], s['subcommand']
@@ -956,7 +956,7 @@ def check_cli_surface(run) -> None:
         # must BE the command, and the verb must be among the args after it
         ok = bool(re.search(rf'^\s*{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
-            None if ok else f'no `{cmd} … {sub}` line in `src/RUNME.sh --plan` — a bare '
+            None if ok else f'no `{cmd} … {sub}` line in `src/main/pipeline.sh --plan` — a bare '
             f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')
 
 

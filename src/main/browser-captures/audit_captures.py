@@ -130,7 +130,7 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
               'capture is the record.')
     for uuid, name, kind, detail in suspects:
         # identity leads, on its own line; the finding and its remedy are the body, aligned
-        # (RUNME's hoist_atoms carries an atom's indented continuation).
+        # (pipeline.sh's hoist_atoms carries an atom's indented continuation).
         #
         # Severity follows the ATTRIBUTION, and the test is: was anything LOST? For claude
         # the API capture is the record and the DOM capture is retired, so a DOM capture

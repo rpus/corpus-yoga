@@ -27,7 +27,7 @@ JSON string, so this is an unwrap, not a transformation — the served corpus
 gains a diffable timeline of what claude.ai believed about the user at each
 export.
 
-Usage (wired into src/RUNME.sh after the per-batch stages):
+Usage (wired into src/main/pipeline.sh after the per-batch stages):
     src/run_python_script.sh src/main/chat-exports/memories.py \
       [--chat-exports-cache tmp/cache/chat-exports] [--memories-output data/output/memories] \
       [--markdown data/output/markdown/claude/chat/memories]

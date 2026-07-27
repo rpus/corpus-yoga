@@ -40,7 +40,7 @@ def main():
     datum_dirs = _datum_dirs(pipeline)
     if not datum_dirs:
         sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
-                 f'run src/main/{args.pipeline}/RUNME.sh first')
+                 f'run src/main/{args.pipeline}/run.sh first')
 
     if args.write:
         for datum_dir in datum_dirs:

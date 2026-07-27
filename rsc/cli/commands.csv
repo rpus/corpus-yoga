@@ -11,7 +11,7 @@
 "indexing","src/main/model/indexing.py","capture curate project","Curate and build the book index over data/output/indexing/ (bare: status)"
 "memories","src/main/chat-exports/memories.py","accumulate normalise project L1 L4","Deposit every distinct chat-memory state; render the timeline"
 "model","src/main/model/model.py","project","per-schema definition catalogues, candidates for model.json"
-"pipeline","src/RUNME.sh","atomise validate supersession accumulate project","the pipelines, and the run over data/input/ that never acquires"
+"pipeline","src/main/pipeline.sh","atomise validate supersession accumulate project","the pipelines, and the run over data/input/ that never acquires"
 "prerequisites","src/PREREQUISITES.sh","L8","Read-only machine report — bare shows what needs attention, --show-all the lot"
 "server","src/main/model/server.sh","project","serve the markdown corpus locally (LaTeX + turn deep links)"
 "summaries","src/main/chat-exports/summaries.py","accumulate project L1 L4","Deposit every distinct summary reading; render each conversation's index"
