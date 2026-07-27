@@ -83,9 +83,9 @@ def validate_versions(input_file, schema_dir, log_dir, label):
     else:
         # Every version validated THIS RUN failed — but the denominator of
         # "NOT modelled" is ALL versions: a skipped-current log still records
-        # its verdict, and a datum those logs model is healthy. (2026-07-12:
-        # a new REQUIRED field revalidated every old capture against just the
-        # new version — a false-alarm FAIL storm over perfectly modelled data.)
+        # its verdict, and a datum those logs model is healthy. A new REQUIRED
+        # field revalidates every old capture against the new version alone, which
+        # against the wrong denominator reads as a FAIL storm over modelled data.
         current_valid = []
         for schema_path in schemas:
             version = os.path.splitext(os.path.basename(schema_path))[0]

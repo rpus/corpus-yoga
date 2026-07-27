@@ -234,9 +234,9 @@ def main():
         if stem is None:
             # never captured: name by the newest batch's piece OWNING it — exact
             # uuid match, never substring (a conversation's text can cite other
-            # conversations' uuids; first-substring-wins once mis-filed ~55
-            # readings into one folder, found 2026-07-13 when an upstream
-            # failure emptied the stems map)
+            # conversations' uuids, so first-substring-wins files a batch of
+            # readings under whichever conversation quoted a uuid first —
+            # visible only once an upstream failure empties the stems map)
             stem = title = next((f.stem for b in sorted(Path(args.chat_exports_cache).glob('data-*'),
                                                         key=lambda d: d.name, reverse=True)
                                  for f in (b / 'json').glob('*.json')
@@ -254,9 +254,8 @@ def main():
         # shared accumulate rule (nearest-earlier) suppresses the re-stamp — the
         # store remembers what the batch sequence forgets at disposal — while a
         # genuine A→B→A return still deposits, because A's nearest-earlier is then
-        # B, not A. Without it the re-stamped reading deposited again, byte-
-        # identical under a new key: 196 such twins accreted before the fix
-        # (found 2026-07-23, reading-room's rehearsal; issue #22).
+        # B, not A. Without it a re-stamped reading deposits again, byte-identical
+        # under a new key, and the twins accrete once per disposal (issue #22).
         for ts, s in readings.get(u, []):
             result = accumulate(folder, ts, s, suffix=SUFFIX, exclude=NON_DEPOSITS)
             if result == 'deposited':

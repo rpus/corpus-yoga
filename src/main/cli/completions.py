@@ -261,9 +261,8 @@ def install_completion() -> int:
     # ~/.zcompdump is compinit's cache of which completion functions exist, and
     # its staleness heuristic can judge a pre-install dump current — the first
     # new terminal then falls back to filename completion while every LATER one
-    # works (observed 2026-07-22, home-room: _yoga written 09:43:56, the first
-    # fresh terminal stale, the dump only rebuilt at 09:46:34 by a later shell).
-    # Deleting the dump makes the restart the line below prescribes sufficient,
+    # works — the dump is rebuilt by some shell after the one the user opened to
+    # test it. Deleting the dump makes the restart the line below prescribes sufficient,
     # not merely necessary. Runs even when the block was already wired: the
     # freshly regenerated _yoga is exactly what a kept dump would not know.
     dumps = sorted(Path.home().glob('.zcompdump*'))

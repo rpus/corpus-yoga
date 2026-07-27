@@ -33,10 +33,9 @@ function setupExporter() {
   const SELECTORS = {
     messageRow: '[data-test-render-count]',   // one per message; survives virtualization re-renders
     copyButton: 'button[data-testid="action-bar-copy"]',
-    // both vintages: claude.ai renamed the label ~2026-07 (found 2026-07-22
-    // when every scrape of a 100-conversation recapture came out all-Human).
-    // The feedback buttons are the bar's ONLY testid-less buttons (surveyed
-    // 2026-07-22), so labels are all they offer — last-resort cue only.
+    // both vintages: claude.ai has renamed this label, and a scrape trusting one
+    // vintage comes out all-Human. The feedback buttons are the bar's ONLY
+    // testid-less buttons, so labels are all they offer — last-resort cue only.
     feedbackButton: 'button[aria-label="Good response"], button[aria-label="Give positive feedback"]',
     editButton: 'button[data-testid="action-bar-edit"]',   // human bars only; testid-grade
     messageContainer: '.mb-1.group',
@@ -160,9 +159,9 @@ function setupExporter() {
 
   // Human message ↔ agent response. Primary cue is STRUCTURAL: only agent rows
   // render response-body paragraphs — the same selector content extraction
-  // trusts, so role and content can no longer fail independently (the 2026-07-22
-  // lesson: the feedback button's aria-label drifted and 100 conversations
-  // scraped all-Human with perfect content). The feedback button, both label
+  // trusts, so role and content cannot fail independently: an aria-label that
+  // drifts otherwise yields perfect content under one uniform wrong role. The
+  // feedback button, both label
   // vintages, stays as fallback for a row whose text kind is ambiguous.
   function roleOf(copyBtn) {
     const row = copyBtn.closest(SELECTORS.messageRow);
@@ -310,8 +309,8 @@ function setupExporter() {
       const h = transcript.filter(t => t.role === 'Human').length;
       log('LOG', `📊 Captured ${transcript.length} messages (${h} human, ${transcript.length - h} ${AGENT.toLowerCase()})`);
       // A real conversation alternates: one speaker owning EVERY turn means the
-      // role cue died, and a mis-roled scrape is worse than none (2026-07-22: a
-      // WARN here let 100 all-Human scrapes land silently). Fail, write nothing.
+      // role cue died, and a mis-roled scrape is worse than none: a WARN here lets
+      // an all-Human scrape land silently. Fail, write nothing.
       if (transcript.length >= 2 && (h === 0 || h === transcript.length)) {
         throw new Error(`role detection broke: ${h} human of ${transcript.length} — ` +
                         'selector drift? nothing written');

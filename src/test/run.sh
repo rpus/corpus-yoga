@@ -30,9 +30,8 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # a worktree commit ran the main checkout's gate against the main checkout's
 # files inside the WORKTREE's git context (GIT_DIR env): a chimera that
 # regenerated one tree's artifacts, diffed them against another tree's index,
-# and refused with a demand no staging could satisfy (found 2026-07-23 by
-# reading-room, committing a rehearsal record inside the recipe's worktree —
-# their only route out was --no-verify). Re-exec the committing tree's OWN
+# and refused with a demand no staging could satisfy, leaving --no-verify as the
+# only way out. Re-exec the committing tree's OWN
 # vintage of this script: each tree self-gates. THE RULE, for hook and hand
 # alike: the COMMITTING TREE WINS — the gate follows the git context
 # (rev-parse), never the script's home, so even a manual cross-tree
@@ -80,10 +79,10 @@ main() {
   # report; the exit verdict comes from the second run) — || true, for exactly that.
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" "$@" || true
 
-  # Copy the first run's artifacts aside. This used to stage them and diff the
-  # worktree against the index, which made a QUESTION mutate your index to answer
-  # itself. The claim is only ever "run 1 and run 2 agree", so compare the two
-  # runs directly and leave git out of it.
+  # Copy the first run's artifacts aside. Staging them and diffing the worktree
+  # against the index would make a QUESTION mutate the index to answer itself. The
+  # claim is only ever "run 1 and run 2 agree", so compare the two runs directly and
+  # leave git out of it.
   local snap; snap="$(mktemp -d)"
   trap 'rm -rf "$snap"' EXIT
   local a

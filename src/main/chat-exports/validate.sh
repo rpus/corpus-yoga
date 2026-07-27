@@ -130,9 +130,8 @@ validate_export() {
 
   # A component modelled by NO version is a schema-frontier event and must say
   # FAIL: — the tail hoists that sigil. validate_versions.py already shouts for
-  # the capture pipelines; this wrapper's roll-up must not stay quiet (the
-  # 2026-07 batch failed every conversations version and the tail showed
-  # nothing until the next `yoga test run`).
+  # the capture pipelines; this wrapper's roll-up must not stay quiet, or a batch
+  # failing every conversations version shows nothing until the next `yoga test run`.
   local family fam_dir
   for fam_dir in "$SCHEMA_DIR"/*/; do
     [[ -d "$fam_dir" ]] || continue

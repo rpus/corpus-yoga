@@ -188,8 +188,8 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
         downloads = sorted(DOWNLOADS.iterdir())
     except PermissionError:
         # macOS TCC: the same wall fetch_api hits — word it identically (the
-        # claude path's curated FAIL), never a bare traceback: the 2026-07-11
-        # shortcut run died raw here while claude's error explained itself.
+        # claude path's curated FAIL), never a bare traceback: an uncaught failure
+        # here dies raw while the claude path's error explains itself.
         print(f'FAIL: macOS denied reading {DOWNLOADS} from this process chain:\n'
               f'    {process_chain()}\n'
               '    grant the outermost app Downloads access (System Settings → Privacy & '

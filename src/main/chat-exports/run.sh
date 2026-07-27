@@ -62,9 +62,9 @@ run_one() {
     "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
   step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
-  # inference is no longer per-batch: the dashboard's captures are the durable
+  # inference is not per-batch: the dashboard's captures are the durable
   # single-source data/output/dashboard/ (refreshed deliberately by `yoga dashboard
-  # capture`), which present reads. Nothing paid runs on every export now.
+  # capture`), which present reads. Nothing paid runs on every export.
   step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
   step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"
   # atomise_bulk: split the bulk array into verbatim per-conversation json/ pieces

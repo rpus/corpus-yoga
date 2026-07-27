@@ -715,7 +715,7 @@ def check_cli_surface(run) -> None:
     dupes = sorted({n for n in names if names.count(n) > 1})
     run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None,
         law='G4', check='cli.commands_unique')
-    # alphabetical by contract (2026-07-15): every surface derived from the table
+    # alphabetical by contract: every surface derived from the table
     # (help, synopsis, completion) inherits its order, so the table carries it
     run('cli: commands alphabetical', names == sorted(names),
         None if names == sorted(names) else
@@ -768,8 +768,7 @@ def check_cli_surface(run) -> None:
         help_text = proc.stdout + proc.stderr
         if subcommands:
             # An advertised subcommand must be REALLY dispatched, not a word in the help
-            # prose (2026-07-18: a `model project` once advertised a subcommand no
-            # subparser dispatched, and a bare-word grep could never tell). argparse
+            # prose, and a bare-word grep cannot tell the two apart. argparse
             # renders its subparsers as a {a,b,c} choice block — parse it and require
             # each advertised subcommand to be an actual choice. Shell targets carry no such
             # block, so there we fall back to matching their printed usage.
@@ -793,11 +792,10 @@ def check_cli_surface(run) -> None:
                           if missing_sub else None)
             run(f'cli: {c["command"]}: advertised subcommands dispatch', not missing_sub, detail,
                 law='G5', check='cli.subcommands_dispatch')
-        # The REVERSE direction (2026-07-16): every flag the target itself declares
-        # must be advertised in the usage cell. The one-way check let the table
-        # under-tell — `yoga commands` rendered a synopsis hiding memories' three
-        # flags, xref's --out, supersede's four — and nothing cared until a reader
-        # did. Harvest only DECLARING lines: argparse option lines (leading
+        # The REVERSE direction: every flag the target itself declares must be
+        # advertised in the usage cell. Checked one way only, the table may under-tell
+        # — a synopsis hiding flags the target accepts — and nothing notices until a
+        # reader types one that is not there. Harvest only DECLARING lines: argparse option lines (leading
         # whitespace, then --flag) and invocation lines naming the command or
         # target, with trailing '# …' comments stripped (prose cites foreign
         # flags: `git diff --cached`). Under-harvest is safe — the claim is
@@ -835,7 +833,7 @@ def check_cli_surface(run) -> None:
                 run(f'cli: {c["command"]}: {verb} accepts the command-level flags', not rejected,
                     f'`yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
                     if rejected else None, law='G5', check='cli.verb_accepts_command_flags')
-        # Uniform SHAPE, enforced (2026-07-16): a --help is a man entry — name,
+        # Uniform SHAPE, enforced: a --help is a man entry — name,
         # what, usage, flags — and fits one screen. Length is the cheapest proxy
         # a gate can hold; the essays this bound evicted live on in code
         # comments and changelogs, where they belong.
@@ -846,10 +844,10 @@ def check_cli_surface(run) -> None:
             run(f'cli: {c["command"]}: help fits one screen (≤20 lines)', n_lines <= 20,
                 f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 20 else None,
                 law='G8', check='cli.help_one_screen')
-    # The emitted completion is a zsh PROGRAM, not prose — it must parse. The
-    # 2026-07-15 lesson: a '(--a|--b)' usage leaked '--b)' through flags_of and
-    # the installed file failed to load, silently costing completion entirely;
-    # no gate parsed what the ritual installs. zsh-less clones skip the parse
+    # The emitted completion is a zsh PROGRAM, not prose — it must parse. A
+    # '(--a|--b)' usage can leak '--b)' through flags_of, and the installed file then
+    # fails to load: completion is lost silently, because nothing else parses what the
+    # install writes. zsh-less clones skip the parse
     # invisibly (constant label, no detail) so the committed log stays
     # byte-identical; every machine runs macOS, where the check is real.
     import shutil, tempfile
@@ -899,7 +897,7 @@ def check_cli_surface(run) -> None:
     sh_files = sorted(str(f) for f in (REPO_ROOT / 'src').rglob('*.sh'))
     sc_ok, sc_detail = True, None
     if shellcheck and sh_files:
-        # -x follows the `# shellcheck source=` directives five files already write;
+        # -x follows the `# shellcheck source=` directives the sourcing files write;
         # without it those lines are decoration and the sourced vocabulary is unknown
         proc = subprocess.run([shellcheck, '-x', '-f', 'gcc', *sh_files],
                               capture_output=True, text=True, cwd=REPO_ROOT)
@@ -1191,7 +1189,7 @@ def check_cli_surface(run) -> None:
 
     # Every printed plan line names where its step is implemented (#45). The plan is the
     # one place the whole program is listed, and a bare label does not resolve there:
-    # `validate` alone has four candidates. The line carries the path, so a reader needs
+    # `validate` names a file in more than one pipeline. The line carries the path, so a reader needs
     # no rule about which namespace a label is in.
     plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
@@ -1496,7 +1494,7 @@ def check_grammar_laws(run, cited: dict) -> None:
         f'no `gated`/`by construction`/`unenforced`/`doctrine` marker: {", ".join(stateless)}'
         if stateless else None, check='grammar.state_declared')
 
-    # AGGREGATE, not one check per law: nineteen lines saying "G7 is cited" carry the same
+    # AGGREGATE, not one check per law: a line per law saying "G7 is cited" carries the same
     # fact as one saying "7/7 gated laws are cited", and the failing ids belong in a detail
     # line rather than in nineteen labels. A report is read by someone deciding whether to
     # look closer; per-law rows make that decision harder, not easier.
@@ -1534,7 +1532,7 @@ def check_grammar_laws(run, cited: dict) -> None:
                   for g, parent in sorted(dangling.items())) if dangling else None, check='grammar.parent_law_defined')
 
     # The enforcement map, printed rather than maintained as prose: this IS the
-    # "held honest by the gates" list the README used to carry by hand.
+    # "held honest by the gates" list, which prose can only carry by hand.
     by_state: dict[str, list[str]] = {}
     for gid, law in laws.items():
         by_state.setdefault(str(law['state']), []).append(gid)
@@ -1947,9 +1945,8 @@ def main():
         for cited in (law.split() if law else []):
             cited_laws.setdefault(cited, []).append(label)
         # Data-tier facts are advisory (they never veto — see the exit) and
-        # carry the WARN sigil ⚠, never the gating ✗ (user specification,
-        # 2026-07-12: a "final summary" must not LOOK failed where nothing
-        # blocks).
+        # carry the WARN sigil ⚠, never the gating ✗: a final summary must not
+        # LOOK failed where nothing blocks.
         mark = '✓' if passed else ('⚠' if current_tier[0] == 'data' else '✗')
         # per-INVOCATION, and only to the machine log: the committed body is grouped by
         # type (_by_type), so printing each instance there would defeat the point
@@ -2333,11 +2330,11 @@ def main():
         # The verdict is the terminal word — no trailing offer after it. The
         # remediation each finding needs is already printed beside it (WARN's
         # "to address, at leisure"; the gate's "To fix"). We do NOT append a
-        # blanket "or run with --fix to apply and stage automatically": it fired
-        # even on a clean PASS (lines includes non-gating advisories), sat after
-        # the verdict where its "or" had no antecedent, and over-promised — the
-        # surviving items here are cmd-less curation advice --fix never executes.
-        # It also offered to stage, which --fix no longer does at all. --fix stays available
+        # blanket "or run with --fix to apply and stage automatically": it would fire
+        # even on a clean PASS (lines includes non-gating advisories), sit after the
+        # verdict where its "or" has no antecedent, and over-promise — the surviving
+        # items here are cmd-less curation advice --fix never executes, and --fix does
+        # not stage. --fix stays available
         # for anyone who invokes it deliberately (see --help); it just isn't
         # advertised after every run.
         return out.getvalue(), lines
@@ -2387,9 +2384,9 @@ def main():
     # Data failures are reported in the WARN tail and the log, but only code/schema/score
     # failures veto the exit status — otherwise local data drift would fail every
     # run everywhere. This tier rule is now the ONLY thing standing between local
-    # data drift and a blocked commit: the veto used to soften itself on feature
-    # branches, and no longer does (2026-07-17 — a check that reads your branch
-    # name to decide how much to mean it). What is machine-local never gates;
+    # data drift and a blocked commit. A veto that softens on feature branches reads
+    # the branch name to decide how much to mean it, which puts the axis in the wrong
+    # place. What is machine-local never gates;
     # what is deterministic always does. The axis is the tier, not the branch.
     gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
     sys.exit(1 if gating else 0)
