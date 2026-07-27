@@ -64,7 +64,7 @@ data — `data/input/ tmp/cache/ data/output/ tmp/logs/` are git-ignored. Instal
 `yoga prerequisites` reports whether it is):
 `./yoga test install-hook`. And the
 signature hook (convention, optional; grammar in its own header):
-`ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg`.
+the same `./yoga test install-hook` — it installs both.
 
 ## Contributing
 

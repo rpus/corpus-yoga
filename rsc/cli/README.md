@@ -199,7 +199,10 @@ here so that a check can cite them as they land (see #39).
   Repo-relative paths are deterministic — only absolute ones were ever the risk, and
   dropping the argument threw away the location instead of stripping the machine part.
 - **G17 — The only invocation any output or document prescribes is a `yoga` command.**
-  `unenforced (#46)` — never `run_python_script.sh`, never a script path.
+  `gated` — never `run_python_script.sh`, never a script path. Held over every `→ run:`
+  line, the repo's own marker for "type this": the head must be a command or a standard
+  tool, and any flags it names must be ones that command advertises (#76). A remedy
+  computed at run time cannot be read from source and is skipped rather than guessed at.
 - **G18 — Every command is a noun.** `doctrine (#47)` — `run` became `pipeline run`; `check` and `xref` remain, and #40 takes them to `test`. — no command word is a verb, and
   no flag names what the command grammar already addresses as a noun.
 
