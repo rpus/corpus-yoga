@@ -1,11 +1,22 @@
-# The yoga CLI's command table
+# The yoga CLI's declaration
 
-Two curated files describe the `yoga` terminal surface (machinery: `src/main/cli/cli.py`;
-launcher: the root `yoga`). `commands.csv` names each command — `command,target,calculus,
-summary` — and `help.csv` describes every argument, one row per
-`command,subcommand,arg-name,arg-type,cardinality,help,step`. The argument structure lives ONLY
-in `help.csv`: a command's verbs are its distinct subcommands, its flags are the `--arg-name`
-rows, and its whole usage sketch is GENERATED from those rows — `arg-type` is the value
+This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
+`yoga`). One filesystem object per command: `<command>.json` when it has no subcommands, and
+`<command>/` holding `<command>.json` plus one `<verb>.json` per subcommand when it does. So
+`ls rsc/cli/` is the command list, `ls rsc/cli/browser/` is its verb list, and what a verb
+accepts is `cat rsc/cli/browser/capture.json` — no parser, no column headers, no join.
+
+Two properties come free rather than checked: a directory cannot hold two entries of one
+name, and a listing has no out-of-order state to be in. Subcommands therefore appear in
+listing order, which is alphabetical — the filesystem offers no other.
+
+A command file carries `summary`, `target`, `calculus` and its command-level `args`; a
+subcommand file carries `help`, its `args`, and a `step` when it is one. Each argument is
+`{name, type, cardinality, help}`: `type` is the value metavar (`<uuid8>`, empty for a
+boolean flag), and `cardinality` is a literal count: empty
+is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken over the SET QUOTIENT
+`<class>` — the mutually-exclusive args are one equivalence class (interchangeable in the slot
+they fill), so `1/agent-capture-1` is cardinality-1 in the quotient by that class, rendered as and its whole usage sketch is GENERATED from those rows — `arg-type` is the value
 metavar (`<uuid8>`, blank for a boolean flag), and `cardinality` is a literal count: blank
 is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken over the SET QUOTIENT
 `<class>` — the mutually-exclusive args are one equivalence class (interchangeable in the slot
@@ -24,14 +35,14 @@ files are written `QUOTE_ALL` so a comma in any cell is safe.
 
 Everything a user meets is re-derived on demand — the menu `yoga -h`
 prints, each command's `yoga <command> -h` (its summary, its generated invocation forms, and the
-`help.csv` lines as headed subparagraphs), the zsh tab-completion `yoga completions` emits
+declared help lines as headed subparagraphs), the zsh tab-completion `yoga completions` emits
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
 level down at `yoga <command> <verb> -h`, answered by argparse — the target's own, or the
 parser `cli.py` builds for a command it handles itself.
 That argparse carries no help strings of its own; `src/main/argparse_help.py` fills them from
-`help.csv` each time the target runs, and names the parser for the command rather than the file
+the declaration each time the target runs, and names the parser for the command rather than the file
 implementing it (`usage: yoga agent capture`, never `agent.py capture`), so the target's own `-h`
 reads the same wording whether reached via `yoga` or run directly — one source for the words,
 argparse still the authority on structure.
@@ -51,7 +62,7 @@ committed in `rsc/cli/readings.md`.
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |
 
 The argument sketch and each command's verbs, flags, and run-pipeline `step` all live in
-`help.csv` (above), never here — one source, nothing to reconcile.
+the declaration (above), never here — one source, nothing to reconcile.
 
 ## The grammar
 
@@ -116,7 +127,7 @@ They are stated, followed, and reviewed by people.
   INVOCATION FORMS, each becoming its own line in `yoga commands` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
   parens group a required choice (`(--dry-run|--apply)`); brackets mark the optional. The
-  usage sketch is GENERATED from `help.csv`, so there is no second source to reconcile.
+  usage sketch is GENERATED from the declaration, so there is no second source to reconcile.
   The completion offers `--flags` at VERB scope — exactly the verb's own rows, never the
   across-verbs union, which would TAB-complete flags the dispatched verb rejects;
   command-level rows (`subcommand` blank) complete only before a verb, where argparse

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # yoga — the repo's terminal CLI: curated subcommands with zsh tab-completion.
-# The table is rsc/cli/commands.csv; the machinery is src/main/cli.py.
+# The table is rsc/cli/; the machinery is src/main/cli.py.
 # Run bare for the table; `yoga <command> --help` asks the target itself.
 #
 # cli.py is deliberately stdlib-only, so the CLI itself runs on any Python 3 —

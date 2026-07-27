@@ -1,0 +1,11 @@
+{
+  "help": "rebuild tmp/cache/ from data/input/ + data/output/ by running each registry producer — idempotent",
+  "args": [
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "",
+      "help": "print the producer commands; run nothing"
+    }
+  ]
+}

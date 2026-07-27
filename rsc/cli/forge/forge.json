@@ -1,0 +1,13 @@
+{
+  "summary": "the forge's merge settings, and the merge that obeys them",
+  "target": "src/main/cli/forge.sh",
+  "calculus": "validate",
+  "args": [
+    {
+      "name": "--tsv",
+      "type": "",
+      "cardinality": "",
+      "help": "the same reconciliation as rows (status/key/detail/remedy) — for a reader that is a program, as yoga prerequisites is"
+    }
+  ]
+}

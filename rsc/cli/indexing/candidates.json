@@ -1,0 +1,11 @@
+{
+  "help": "derive tmp/cache/indexing/candidates.txt (the pending queue of undisposed concepts)",
+  "args": [
+    {
+      "name": "--top",
+      "type": "<n>",
+      "cardinality": "",
+      "help": "also print the frequent-uncovered-corpus-words advisory (top N; terminal only, machine-local)"
+    }
+  ]
+}

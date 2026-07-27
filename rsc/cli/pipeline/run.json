@@ -1,0 +1,17 @@
+{
+  "help": "run every pipeline over data/input/, or the one named — processing only, never acquiring",
+  "args": [
+    {
+      "name": "pipeline",
+      "type": "<pipeline>",
+      "cardinality": "",
+      "help": "one pipeline by name (bare: all of them); validated against the pipelines that exist"
+    },
+    {
+      "name": "--plan",
+      "type": "",
+      "cardinality": "",
+      "help": "print the ordered step plan; run nothing"
+    }
+  ]
+}

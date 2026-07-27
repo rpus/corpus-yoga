@@ -1,0 +1,17 @@
+{
+  "help": "reject a concept into the disposal record",
+  "args": [
+    {
+      "name": "--reason",
+      "type": "<why>",
+      "cardinality": "",
+      "help": "reason for the rejection, kept as a # comment"
+    },
+    {
+      "name": "concept",
+      "type": "<concept>",
+      "cardinality": "1",
+      "help": "the concept to reject"
+    }
+  ]
+}

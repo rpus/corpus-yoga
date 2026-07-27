@@ -1,0 +1,13 @@
+{
+  "summary": "each command's standard help (bare: every command's forms)",
+  "target": "src/main/cli/cli.py",
+  "calculus": "project L5",
+  "args": [
+    {
+      "name": "command",
+      "type": "<command>",
+      "cardinality": "",
+      "help": "the command whose forms to show; bare lists every command"
+    }
+  ]
+}

@@ -687,7 +687,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
 
 
 def check_cli_surface(run) -> None:
-    """The yoga CLI's table (rsc/cli/commands.csv) is an interface and must not
+    """The yoga CLI's table (rsc/cli/) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
     calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
     parsed from the document itself), every flag a usage sketch advertises
@@ -695,7 +695,7 @@ def check_cli_surface(run) -> None:
     and implementation share a stem — the repo idiom), every subcommand VERB it
     advertises appears in the target's own --help (the live dispatch surface —
     a source grep is vacuous for ordinary words like build/accept), and every command
-    a help.csv `step` row marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
+    a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
     output (which is itself the executing list, so the chain cannot drift, and a step
     cannot quietly drop to a bare noun that the bare=status convention no-ops). Committed
     files and the deterministic plan only, so deterministic on any clone:
@@ -703,9 +703,9 @@ def check_cli_surface(run) -> None:
     try:
         cmds = cli.commands()
     except Exception as e:
-        run('cli: table parses: rsc/cli/commands.csv', False, str(e), law='G4', check='cli.table_parses')
+        run('cli: table parses: rsc/cli/', False, str(e), law='G4', check='cli.table_parses')
         return
-    run('cli: table parses: rsc/cli/commands.csv', True, law='G4', check='cli.table_parses')
+    run('cli: table parses: rsc/cli/', True, law='G4', check='cli.table_parses')
     names = [c['command'] for c in cmds]
     dupes = sorted({n for n in names if names.count(n) > 1})
     run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None,
@@ -724,9 +724,9 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
             f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None,
             law='G6', check='cli.calculus_defined')
-        # subcommands and flags are read from rsc/cli/help.csv — the single source the
+        # subcommands and flags are read from rsc/cli/ — the single source the
         # usage is generated from — so there is no usage cell to reconcile it against, and
-        # no help.csv-complete check: the two cannot drift because there is only one.
+        # no completeness check: the two cannot drift because there is only one.
         flags = cli.flags_of(c['command'])
         subcommands = cli.subcommands_of(c['command'])
         if not (flags or subcommands) or not target.exists():
@@ -742,7 +742,7 @@ def check_cli_surface(run) -> None:
         # Docstring honesty (issue #33): a module docstring's Usage block is a
         # declared surface too, and nothing read it against the parser —
         # memories' documented three flags no parser defined, and both checks
-        # here were satisfied (help.csv honestly advertised none; the lie lived
+        # here were satisfied (the declaration honestly advertised none; the lie lived
         # only in the docstring). Every --flag a Usage block cites must be
         # advertised; real ⊆ advertised is held below, so advertised is the one
         # universe a documented flag can exist in.
@@ -752,7 +752,7 @@ def check_cli_surface(run) -> None:
         doc.discard('--help')
         undeclared = sorted(doc - set(flags))
         run(f'cli: {c["command"]}: docstring Usage flags advertised', not undeclared,
-            f'documented in a Usage block but not in help.csv: {", ".join(undeclared)}'
+            f'documented in a Usage block but not declared: {", ".join(undeclared)}'
             if undeclared else None, law='G5', check='cli.docstring_flags_advertised')
         # the target's own --help is the authority on its live surface — fetched
         # once here for both directions of the honesty check
@@ -810,7 +810,7 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: target flags all advertised', not unadvertised,
             f'target --help declares flags the usage cell omits: {", ".join(unadvertised)}'
             if unadvertised else None, law='G5', check='cli.target_flags_advertised')
-        # Positionally usable where advertised (issue #33): help.csv renders a
+        # Positionally usable where advertised (issue #33): the declaration renders a
         # command-level flag beside the verbs and completion offers it after
         # them, but summaries' four lived only on the command parser — argparse
         # hands a subparser everything after the verb token, so the advertised
@@ -902,7 +902,37 @@ def check_cli_surface(run) -> None:
     unknown = sorted(set(pending) - {c['command'] for c in cmds})
     run('cli: every pending-naming row names a command that exists', not unknown,
         None if not unknown else f'rsc/cli/target_naming_pending.csv names {", ".join(unknown)}, '
-        f'which commands.csv does not', check='naming.target_stem_matches_command')
+        f'which rsc/cli/ does not', check='naming.target_stem_matches_command')
+
+    # The declaration tree IS the API (#58): every command is a file or a directory
+    # under rsc/cli/, every directory holds its own <command>.json plus one file per
+    # subcommand, and nothing else lives there. Uniqueness and ordering need no check —
+    # a directory cannot hold two entries of one name, and a listing has no out-of-order
+    # state to be in (G4, by construction rather than by assertion).
+    cli_root = REPO_ROOT / 'rsc' / 'cli'
+    declared = {c['command'] for c in cmds}
+    stray = sorted(p.name for p in cli_root.iterdir()
+                   if p.name not in ('README.md', 'readings.md', 'target_naming_pending.csv')
+                   and (p.stem if p.suffix == '.json' else p.name) not in declared)
+    run('cli: rsc/cli/ holds declarations and nothing else', not stray,
+        None if not stray else f'{", ".join(stray)} is neither a command nor a known document',
+        law='G3', check='structure.cli_declaration_mirrors_the_api')
+    for c in cmds:
+        name = c['command']
+        d = cli_root / name
+        subs = set(cli.subcommands_of(name))
+        if subs:
+            want = {f'{name}.json'} | {f'{s}.json' for s in subs}
+            have = {f.name for f in d.glob('*.json')} if d.is_dir() else set()
+            run(f'cli: {name}: its directory holds exactly its declarations', have == want,
+                None if have == want else
+                f'{d.relative_to(REPO_ROOT)} holds {sorted(have)}, declared {sorted(want)}',
+                law='G3', check='structure.cli_declaration_mirrors_the_api')
+        else:
+            f = cli_root / f'{name}.json'
+            run(f'cli: {name}: declared as one file, having no subcommands', f.is_file(),
+                None if f.is_file() else f'{f.relative_to(REPO_ROOT)} is not a file',
+                law='G3', check='structure.cli_declaration_mirrors_the_api')
 
     # Every typeable form is listed (#85). The bare noun is an alternative like any
     # other, so the forms number one per subcommand PLUS one — and the whole-table
@@ -933,7 +963,7 @@ def check_cli_surface(run) -> None:
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
     # its values reads as a restriction to that value while behaving as an addition. Held
-    # per command, over help.csv alone — the same table the surface is derived from.
+    # per command, over the declaration alone — the same table the surface is derived from.
     for cmd in sorted({r['command'] for r in cli.help_rows()}):
         rows = [r for r in cli.help_rows() if r['command'] == cmd]
         values = {v.strip().lower() for r in rows for v in (r['arg-type'] or '').split('|')
@@ -977,7 +1007,7 @@ def check_cli_surface(run) -> None:
         f'begins and removal would take the wrong extent',
         law='G20', check='cli.block_identity_stable')
 
-    # The run pipeline's command-backed steps (help.csv's `step` column). Each must
+    # The run pipeline's command-backed steps (the declared `step`). Each must
     # appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
     # plan speaks the command surface a reader would type, and a step can never invoke
     # a noun bare, which the bare-noun=status convention silently turns into a no-op.

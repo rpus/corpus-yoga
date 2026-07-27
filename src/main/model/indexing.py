@@ -2,7 +2,7 @@
 """
 indexing.py — the book-style index over the corpus (headword → turn locators)
 and the curation surface behind it: accept / reject / candidates over the concept
-capture. Driven by `yoga indexing` (see rsc/cli/commands.csv).
+capture. Driven by `yoga indexing` (see rsc/cli/).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
 It scans the readable markdown library (data/output/markdown/{claude,gemini}/conversations/),

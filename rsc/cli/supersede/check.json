@@ -1,0 +1,36 @@
+{
+  "help": "compute supersession — which earlier export dirs are covered (witnessed or deposited); reports, writes nothing",
+  "args": [
+    {
+      "name": "--chat-exports-cache",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "cache root holding <batch>/json/ atomised pieces"
+    },
+    {
+      "name": "--bulk-exports",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "input root holding the raw batch dirs (memories/projects/users)"
+    },
+    {
+      "name": "--browser-api",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "browser-API root: also compare the latest batch against live captures (informational)"
+    },
+    {
+      "name": "--memories-output",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "the memory deposit store (a deposit is the unconditional licence)"
+    },
+    {
+      "name": "--summaries-output",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "the summary deposit store (a deposit is the unconditional licence)"
+    }
+  ],
+  "step": "chat-exports"
+}

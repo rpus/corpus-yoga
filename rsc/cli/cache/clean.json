@@ -1,0 +1,17 @@
+{
+  "help": "remove orphaned tmp/cache/ subtrees (neither written nor read by any registry producer)",
+  "args": [
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "1/cache-clean-1",
+      "help": "list the orphaned subtrees; remove nothing"
+    },
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "1/cache-clean-1",
+      "help": "remove the orphaned subtrees"
+    }
+  ]
+}

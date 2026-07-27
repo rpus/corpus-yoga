@@ -1,0 +1,17 @@
+{
+  "help": "accept a concept as a headword (merge any aliases into it)",
+  "args": [
+    {
+      "name": "term",
+      "type": "<term>",
+      "cardinality": "1",
+      "help": "the concept to accept as a headword"
+    },
+    {
+      "name": "aliases",
+      "type": "<alias-list>",
+      "cardinality": "",
+      "help": "zero or more concepts to fold into the headword"
+    }
+  ]
+}

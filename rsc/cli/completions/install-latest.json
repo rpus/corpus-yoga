@@ -1,0 +1,4 @@
+{
+  "help": "regenerates _yoga and wires it into ~/.zshrc - idempotent (and then requires terminal restart)",
+  "args": []
+}
