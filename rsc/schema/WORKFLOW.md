@@ -27,7 +27,7 @@ second `#### Refactored` under the same version. The `RichLink.source` entry in
 in which versions, "No validation effect", and what was deliberately left untouched.
 
 If a new export or capture fails validation against the current latest version, that is the
-signal to create a new version. Run the item-level validate command from the pre_commit fix
+signal to create a new version. Run the item-level validate command from the `yoga test run` fix
 hints to see the exact error before changing the schema.
 
 ---
@@ -120,7 +120,7 @@ src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pip
 Then run all diagnostics to catch principle violations:
 
 ```bash
-src/test/pre_commit.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+src/test/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
 ```
 
 ### 3. Validate and register
@@ -208,7 +208,7 @@ Open `rsc/schema/model_join.csv` and:
 5. **Verify pointers and grammar** by running:
 
    ```bash
-   src/test/pre_commit.sh   # check_schema_join: pointer validity (family dirs → latest version)
+   src/test/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
                             # check_model_join_versions: no version-pinned cells
    ```
 
@@ -230,7 +230,7 @@ from, and a SHA256 of the upstream file at that point:
 ... (as at https://github.com/.../commit/<hash>; upstream SHA256: <hex>)
 ```
 
-`pre_commit` checks currency automatically (`check_mcp_schema`) by fetching the raw
+`yoga test run` checks currency automatically (`check_mcp_schema`) by fetching the raw
 schema URL from the LATEST version's description and comparing its SHA256 to the
 stored value. If the upstream file has changed, the check fails.
 
@@ -238,7 +238,7 @@ If `check_mcp_schema` fails: MINT the next version — download the updated sche
 convert it to Draft-04 if needed, set its `description` to the new commit URL and
 SHA256, narrate the upstream change in the family CHANGELOG, and leave the old
 snapshot in place (its history is data; the old update-in-place remedy destroyed
-it). Then re-run `pre_commit` to verify all `model_join.csv` pointers still resolve
+it). Then re-run `yoga test run` to verify all `model_join.csv` pointers still resolve
 against the new latest.
 
 ### 6. Dispose the model.json obligations
@@ -274,17 +274,17 @@ version — `model_join.csv`'s grammar), and `check_model_occurrences` gates bot
 grammar and that every instance pointer still resolves — a mint that renames a
 documented field fails there, the review prompt.
 
-### 7. Run pre_commit
+### 7. Run `yoga test run`
 
 ```bash
-src/test/pre_commit.sh
-git diff rsc/test/pre_commit.log
+src/test/run.sh
+git diff rsc/test/run.log
 ```
 
-All checks should pass. The diff to `pre_commit.log` is the final record of what
+All checks should pass. The diff to `run.log` is the final record of what
 changed — read it in the worktree, and stage it yourself when it says what you meant.
 Nothing stages on your behalf.
-Update `rsc/test/pre_commit_expected_checks` only if you WROTE or REMOVED a check — it
+Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 lists the check types the code and schema tiers run, one per line. Adding a schema version
 multiplies invocations of existing checks and adds no check, so this file does not move for
 it. A name that stops running, or a name that runs and is not listed, fails the gate.

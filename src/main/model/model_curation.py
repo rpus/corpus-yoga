@@ -16,7 +16,7 @@ committed files only, so every number is identical on any clone:
   2. blocking, gated model_join → model.json. An edge whose relationship kind
      denotes ONE shared type (identical, snake_cased) obligates model.json:
      the type is DOCUMENTED there or REJECTED with a reason in
-     rsc/schema/model_rejected.txt. Reported per shared type by pre_commit's
+     rsc/schema/model_rejected.txt. Reported per shared type by `yoga test run`'s
      check_model_obligations (schema tier, gating) and by `yoga model`.
 
 model_join is a typed relation — a small linked-data graph over the schema

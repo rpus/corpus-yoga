@@ -6,8 +6,8 @@ invocation shows its status (the committed table's tallies) and writes nothing; 
 file is scanned for references to other repo files, one CSV row per reference (columns
 are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 
-    yoga xref                            # status of the committed table
-    yoga xref check                      # rebuild + write + report
+    yoga test                            # status, including this table
+    yoga test xref                       # rebuild + write + report
     awk -F, '$5=="N"' rsc/test/xref.csv    # the stale references
 """
 
@@ -41,7 +41,7 @@ def _gitignored_roots() -> frozenset:
 _IGNORED_ROOTS = _gitignored_roots()
 SKIP_DIRS  = _IGNORED_ROOTS | {'__pycache__'}
 # Generated output files that live in src/test/ — skip to avoid scanning their contents
-SKIP_FILES = {'rsc/test/pre_commit.log', 'rsc/test/xref.csv'}
+SKIP_FILES = {'rsc/test/run.log', 'rsc/test/xref.csv'}
 
 # Python stdlib and known third-party modules — not repo files
 # A module name that is not a repo path — derived, both halves.
@@ -596,7 +596,7 @@ def check(out: Path) -> None:
 def status() -> None:
     """The bare-noun default: summarise the committed table, write nothing."""
     if not DEFAULT_OUT.exists():
-        print(f'{DEFAULT_OUT.relative_to(REPO_ROOT)} not present — `yoga xref check` builds it')
+        print(f'{DEFAULT_OUT.relative_to(REPO_ROOT)} not present — `yoga test xref` builds it')
         return
     with DEFAULT_OUT.open(newline='') as fh:
         rows = list(csv.reader(fh))[1:]   # drop header

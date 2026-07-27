@@ -14,7 +14,7 @@
 # remembering all five; now the positional is validated against what exists.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
-# hand-made symlink); --plan names each pipeline's exact steps. After: yoga check.
+# hand-made symlink); --plan names each pipeline's exact steps. After: yoga test run.
 
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -57,7 +57,7 @@ status() {
       # A phase may be NESTED. browser-captures validates per provider, because only claude
       # has an API with a schema (apiConversation) and gemini is DOM-only with nothing to
       # validate against — so its validate.sh lives at browser-captures/claude/. Reporting
-      # "no validate" there would be false, and pre_commit already carries a hand-written
+      # "no validate" there would be false, and `yoga test run` already carries a hand-written
       # exception for the same file (check_required_files), which is the tell.
       nested=""
       for v in "$REPO_ROOT/src/main/$name"/*/validate.sh; do
@@ -270,7 +270,7 @@ print_plan() {
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; pre_commit reminder; log path"
+  echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; `yoga test run` reminder; log path"
 }
 
 main() {
@@ -346,7 +346,7 @@ main() {
       esac
     done
   fi
-  echo "Run yoga check, then: git diff rsc/test/pre_commit.log"
+  echo "Run yoga test run, then: git diff rsc/test/run.log"
   echo "Log: $LOG_FILE"
 }
 

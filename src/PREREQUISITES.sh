@@ -231,11 +231,11 @@ check_cli() {
 }
 
 check_git_hook() {
-  # The one voice for this fact: pre_commit.sh used to probe its own installation
+  # The one voice for this fact: run.sh used to probe its own installation
   # too, and say so in its own words. Two probes, one fact — and its copy was
   # downgraded to advice on the very branches where nothing was vetting at all.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
-  local script="$REPO_ROOT/src/test/pre_commit.sh" hook link dir
+  local script="$REPO_ROOT/src/test/run.sh" hook link dir
   if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
@@ -246,14 +246,14 @@ check_git_hook() {
     [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
     dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd || true)"
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
-      ok "installed: the load-bearing symlink to src/test/pre_commit.sh"
+      ok "installed: the load-bearing symlink to src/test/run.sh"
     else
-      info "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+      info "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
     fi
   elif [[ -e "$hook" ]]; then
-    info "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+    info "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: yoga test install-hook"
   else
-    info "not installed — ln -sfn ../../src/test/pre_commit.sh .git/hooks/pre-commit"
+    info "not installed — yoga test install-hook"
   fi
 }
 
@@ -291,7 +291,7 @@ check_forge() {
   # renders its rows in the machine report's voice — the reconciliation is derived once,
   # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
   # unverifiable is reported, never vetoed (the deterministic gate stays offline-
-  # reproducible, which is why this lives here and not in yoga check).
+  # reproducible, which is why this lives here and not in yoga test run).
   sec "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
   local status key detail remedy
   while IFS=$'\t' read -r status key detail remedy; do
@@ -347,7 +347,7 @@ notes() {
   (( SHOW_ALL )) || return 0
   sec "notes"
   info "yoga pipeline run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
-  info "yoga check: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
+  info "yoga test run: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
 main() {
