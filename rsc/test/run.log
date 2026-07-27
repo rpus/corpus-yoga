@@ -1,4 +1,4 @@
-run.py: 1869/1869 (data: machine-local)
+run.py: 1871/1871 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ run.py: 1869/1869 (data: machine-local)
   ✓ naming.target_stem_matches_command  (17/17)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (14/14)
-  ✓ output.prescriptions_are_commands  (52/52)
+  ✓ output.prescriptions_are_commands  (54/54)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -150,11 +150,11 @@ run.py: 1869/1869 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 86 types, 1869/1869 invocations passing
+  ✓ checks[code+schema]: 86 types, 1871/1871 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 50 types, 457/457 invocations passing
+  ✓ checks[code]: 50 types, 459/459 invocations passing
   ✓ checks[schema]: 36 types, 1412/1412 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1869/1869 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1871/1871 match the committed expectation; nothing here vetoes a commit

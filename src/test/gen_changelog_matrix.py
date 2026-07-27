@@ -11,8 +11,7 @@ this tool is never required after a pipeline run. It remains useful to:
     renderer's format changes.
 
 Usage:
-    src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline>
-    src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> --write
+    yoga pipeline sync <pipeline>        # this file, with --write, over that pipeline
 
 Where <pipeline> is any key from PIPELINES in run.py.
 """
@@ -40,7 +39,7 @@ def main():
     datum_dirs = _datum_dirs(pipeline)
     if not datum_dirs:
         sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
-                 f'run src/main/{args.pipeline}/run.sh first')
+                 f'→ run: yoga pipeline run {args.pipeline}')
 
     if args.write:
         for datum_dir in datum_dirs:

@@ -995,6 +995,27 @@ def check_cli_surface(run) -> None:
             f'only on a machine with data, where no scan of output can reach it',
             law='G17', check='output.prescriptions_are_commands')
 
+    # A prescription need not carry a marker to be one: "run src/main/<p>/run.sh first" is
+    # an instruction to type a path, in prose, and neither the markers above nor the *_cmd
+    # scan below looks at it. The imperative is what identifies it — `run` followed by a
+    # repo script — which is narrow on purpose: a line that merely MENTIONS a path (see
+    # src/…, defined in src/…) prescribes nothing and is left alone.
+    imperative = re.compile(r'\b[Rr]un\s+\.?/?((?:src|rsc)/\S+\.(?:sh|py))')
+    for path in sorted(REPO_ROOT.rglob('*')):
+        if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json'):
+            continue
+        rel = path.relative_to(REPO_ROOT)
+        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):
+            continue
+        for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
+            m = imperative.search(line)
+            if not m:
+                continue
+            run(f'prescription: {rel}:{i} tells you to run a command, not a path', False,
+                f'`{line.strip()[:90]}` tells a reader to run {m.group(1)} — name the yoga '
+                f'command that does it, or there is none and that is the defect',
+                law='G17', check='output.prescriptions_are_commands')
+
     declared = {c['command'] for c in cmds}
     # The scan reads SOURCE, so a token can carry the quoting and punctuation of the
     # string it sits in, and a remedy can be interpolated at run time. Neither is a
