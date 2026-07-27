@@ -2,10 +2,10 @@
 # Validate browser-captured API JSON files against the apiConversation schema.
 #
 # Usage:
-#   ./src/main/browser-captures/run.sh
-#   ./src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-#   ./src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-#   ./src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
+#   src/main/browser-captures/run.sh
+#   src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+#   src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+#   src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
 #
 # The step list below (run_corpus) is the ONE authority on order: --plan prints
 # exactly the list that executes (see src/main/steps.sh).
@@ -28,7 +28,7 @@ parse_args() {
     case "$1" in
       --browser-capture)  browser_capture="$2";  shift 2 ;;
       --browser-dom)      browser_dom="$2";      shift 2 ;;
-      # --browser-captures is the eponymous pipeline flag the root ./src/main/pipeline.sh
+      # --browser-captures is the eponymous pipeline flag the root src/main/pipeline.sh
       # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
       --plan)             plan="1"; shift ;;

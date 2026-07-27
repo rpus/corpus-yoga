@@ -2,9 +2,9 @@
 # Run the chat-exports pipeline against one or all exports.
 #
 # Usage:
-#   ./src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
-#   ./src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
-#   ./src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
+#   src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
+#   src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
+#   src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (run_one, run_tail) are the ONE authority on order:
 # --plan prints exactly the lists that execute (see src/main/steps.sh).

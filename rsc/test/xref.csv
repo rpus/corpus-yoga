@@ -219,14 +219,14 @@ src/main/browser-captures/compare_markdown.py,30,comment,src/main/browser-captur
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/export.command,19,path_str,src/main/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
-src/main/browser-captures/run.sh,5,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh
-src/main/browser-captures/run.sh,6,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-src/main/browser-captures/run.sh,7,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-src/main/browser-captures/run.sh,8,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
+src/main/browser-captures/run.sh,5,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh
+src/main/browser-captures/run.sh,6,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+src/main/browser-captures/run.sh,7,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+src/main/browser-captures/run.sh,8,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
 src/main/browser-captures/run.sh,11,comment,src/main/steps.sh,Y,# exactly the list that executes (see src/main/steps.sh).
 src/main/browser-captures/run.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser-captures/run.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
-src/main/browser-captures/run.sh,31,comment,src/main/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./src/main/pipeline.sh
+src/main/browser-captures/run.sh,31,comment,src/main/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root src/main/pipeline.sh
 src/main/browser-captures/run.sh,46,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
 src/main/browser-captures/run.sh,53,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
 src/main/browser-captures/run.sh,55,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
@@ -334,9 +334,9 @@ src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_file
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 src/main/chat-exports/rekey_chats.py,32,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
 src/main/chat-exports/require_export.sh,15,comment,src/main/chat-exports/require_export.sh,Y,#   src/main/chat-exports/require_export.sh
-src/main/chat-exports/run.sh,5,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
-src/main/chat-exports/run.sh,6,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
-src/main/chat-exports/run.sh,7,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
+src/main/chat-exports/run.sh,5,comment,src/main/chat-exports/run.sh,Y,#   src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
+src/main/chat-exports/run.sh,6,comment,src/main/chat-exports/run.sh,Y,#   src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
+src/main/chat-exports/run.sh,7,comment,src/main/chat-exports/run.sh,Y,#   src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
 src/main/chat-exports/run.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
 src/main/chat-exports/run.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/chat-exports/run.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
@@ -393,7 +393,7 @@ src/main/cli/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED i
 src/main/cli/clean.py,46,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
 src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/
 src/main/cli/cli.py,15,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
-src/main/cli/cli.py,32,comment,src/main/pipeline.sh,Y,"the table, print the calculus, and generate completion before ./src/main/pipeline.sh has"
+src/main/cli/cli.py,32,comment,src/main/pipeline.sh,Y,"the table, print the calculus, and generate completion before src/main/pipeline.sh has"
 src/main/cli/cli.py,148,comment,src/main/pipeline.sh,Y,holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
 src/main/cli/cli.py,156,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
 src/main/cli/cli.py,187,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
@@ -420,9 +420,9 @@ src/main/code-agents/project_conversation.py,23,comment,src/run_python_script.sh
 src/main/code-agents/project_conversation.py,23,comment,src/main/code-agents/project_conversation.py,Y,src/run_python_script.sh src/main/code-agents/project_conversation.py         <session-dir>    # reads <session-dir>/ses
 src/main/code-agents/render_corpus.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/render_corpus.py [--out <dir>]
 src/main/code-agents/render_corpus.py,24,comment,src/main/code-agents/render_corpus.py,Y,src/run_python_script.sh src/main/code-agents/render_corpus.py [--out <dir>]
-src/main/code-agents/run.sh,11,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machin
-src/main/code-agents/run.sh,12,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
-src/main/code-agents/run.sh,13,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
+src/main/code-agents/run.sh,11,comment,src/main/code-agents/run.sh,Y,#   src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machine>
+src/main/code-agents/run.sh,12,comment,src/main/code-agents/run.sh,Y,#   src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
+src/main/code-agents/run.sh,13,comment,src/main/code-agents/run.sh,Y,#   src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
 src/main/code-agents/run.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
 src/main/code-agents/run.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/code-agents/run.sh,26,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
@@ -518,8 +518,8 @@ src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh s
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/prerequisites.sh,2,comment,src/prerequisites.sh,Y,"# src/prerequisites.sh — what this machine has, and what it still needs."
-src/prerequisites.sh,17,comment,src/prerequisites.sh,Y,#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
-src/prerequisites.sh,18,comment,src/prerequisites.sh,Y,"#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
+src/prerequisites.sh,17,comment,src/prerequisites.sh,Y,#   src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+src/prerequisites.sh,18,comment,src/prerequisites.sh,Y,"#   src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
 src/prerequisites.sh,207,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
 src/prerequisites.sh,211,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
 src/prerequisites.sh,292,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
@@ -541,7 +541,7 @@ src/test/code-agents/survey_code_session.py,10,comment,src/test/code-agents/surv
 src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}/*.j
 src/test/prepare_commit_msg.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 src/test/prepare_commit_msg.sh,33,comment,rsc/forge.csv,Y,"# messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by"
-src/test/prepare_commit_msg.sh,34,comment,src/prerequisites.sh,Y,# ./src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+src/test/prepare_commit_msg.sh,34,comment,src/prerequisites.sh,Y,# src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
 src/test/prepare_commit_msg.sh,37,comment,src/test/prepare_commit_msg.sh,Y,#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>

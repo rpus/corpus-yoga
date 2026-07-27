@@ -14,8 +14,8 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
-#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
+#   src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+#   src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
 #
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 
