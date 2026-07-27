@@ -1622,16 +1622,28 @@ def check_mcp_schema(run):
         return
     raw_url     = m_url.group(1)
     stored_hash = m_hash.group(1)
-    try:
-        with urllib.request.urlopen(raw_url, timeout=15) as resp:
-            live_hash = hashlib.sha256(resp.read()).hexdigest()
-        run(f'mcp schema: {latest.stem} up to date',
-            stored_hash == live_hash,
-            f'upstream changed — mint _reference/mcp/v{len(versions) + 1}.json from {raw_url} '
-            f'(convert to draft-04, set its description commit URL + SHA256, narrate in the family '
-            f'CHANGELOG); {rel} stays as history', check='mcp.up_to_date')
-    except Exception as e:
-        run('mcp schema: upstream reachable', False, f'{e}', check='mcp.upstream_reachable')
+    # This is the gate's only SEND — an outward call over the network, and the one effect
+    # with no scratch form (#29). It is declared here and refusable, like every other send
+    # in this repo: YOGA_NO_SEND=1 skips it.
+    #
+    # An unreachable upstream is NOT a failure. It used to raise its own check, so an
+    # offline run failed three ways at once — the expected mcp.up_to_date never ran, an
+    # unexpected mcp.upstream_reachable did, and the schema tier lost a point — which meant
+    # no commit was possible without the internet. The label is CONSTANT and the result
+    # passes when the send did not happen, so the committed report is byte-identical on a
+    # machine that cannot reach github (the shellcheck and pyright precedent, and L2).
+    drift = None
+    if os.environ.get('YOGA_NO_SEND') != '1':
+        try:
+            with urllib.request.urlopen(raw_url, timeout=15) as resp:
+                live_hash = hashlib.sha256(resp.read()).hexdigest()
+            if stored_hash != live_hash:
+                drift = (f'upstream changed — mint _reference/mcp/v{len(versions) + 1}.json '
+                         f'from {raw_url} (convert to draft-04, set its description commit URL '
+                         f'+ SHA256, narrate in the family CHANGELOG); {rel} stays as history')
+        except Exception:
+            pass          # unreached: the currency of the copy is simply unknown this run
+    run(f'mcp schema: {latest.stem} up to date', drift is None, drift, check='mcp.up_to_date')
 
 
 
