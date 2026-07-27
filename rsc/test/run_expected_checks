@@ -21,6 +21,7 @@ cli.commands_alphabetical
 cli.commands_unique
 cli.completions_parse
 cli.docstring_flags_advertised
+cli.every_form_listed
 cli.flag_not_axis_value
 cli.help_one_screen
 cli.step_invokes_verb

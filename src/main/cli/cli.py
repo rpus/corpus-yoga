@@ -243,9 +243,14 @@ def usage_of(command: str) -> str:
     the string commands.csv used to store. One source now, so it cannot drift."""
     order, bysub = _by_subcommand(command)
     subcommands = [s for s in order if s]
+    bare = _render_args(bysub.get('', []))
     if not subcommands:
-        return _render_args(bysub.get('', []))
-    return ' | '.join(_join(s, _render_args(bysub[s])) for s in subcommands)
+        return bare
+    # The bare noun is an alternative like any other (G2: bare is status), and the flags
+    # that attach to it — `forge --tsv`, `pipeline --names` — are typeable. Dropping the
+    # command-level rows once a subcommand exists left both unsayable in the one place
+    # the whole surface is listed.
+    return ' | '.join([bare or '(status)'] + [_join(s, _render_args(bysub[s])) for s in subcommands])
 
 
 def command_forms(command: str) -> list[str]:
@@ -255,9 +260,12 @@ def command_forms(command: str) -> list[str]:
     order, bysub = _by_subcommand(command)
     subcommands = [s for s in order if s]
     base = f'yoga {command}'
-    if not subcommands:
-        return [_join(base, _render_args(bysub.get('', [])))]
-    return [_join(f'{base} {s}', _render_args(bysub[s])) for s in subcommands]
+    # ALWAYS the bare form first, then one per subcommand. It is not conditional in the
+    # grammar, so it is not conditional here: `yoga commands` used to print it for a
+    # command without subcommands and omit it for one with them, disagreeing with
+    # `yoga commands <one>`, which added it back separately.
+    forms = [_join(base, _render_args(bysub.get('', [])))]
+    return forms + [_join(f'{base} {s}', _render_args(bysub[s])) for s in subcommands]
 
 
 def _forms(c: dict) -> list[str]:
@@ -269,7 +277,9 @@ def render_command_help(c: dict) -> str:
     <cmd>`: the summary, every invocation form, then each subcommand with its own args
     nested beneath it, command-level args flat. All generated from help.csv."""
     command = c['command']
-    forms = ([f"yoga {command}   (status)"] if subcommands_of(command) else []) + command_forms(command)
+    forms = command_forms(command)
+    if subcommands_of(command):
+        forms[0] += '   (status)'   # the same first form, annotated — never a second one
     out = [f"yoga {command} — {c['summary']}", '', *[f'  {f}' for f in forms]]
     order, bysub = _by_subcommand(command)
     argrows = [r for r in command_rows(command) if r['arg-name']]

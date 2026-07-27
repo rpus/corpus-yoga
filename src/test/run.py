@@ -895,6 +895,33 @@ def check_cli_surface(run) -> None:
         None if not unknown else f'rsc/cli/target_naming_pending.csv names {", ".join(unknown)}, '
         f'which commands.csv does not', check='naming.target_stem_matches_command')
 
+    # Every typeable form is listed (#85). The bare noun is an alternative like any
+    # other, so the forms number one per subcommand PLUS one — and the whole-table
+    # listing must contain every form the per-command view shows, because the second is
+    # derived from the first rather than rebuilt beside it.
+    listing = cli.render_synopsis(cmds)
+    for c in cmds:
+        forms = cli.command_forms(c['command'])
+        expected = len([s for s in cli.subcommands_of(c['command'])]) + 1
+        run(f'cli: {c["command"]}: every form is rendered (bare + one per subcommand)',
+            len(forms) == expected,
+            None if len(forms) == expected else
+            f'{len(forms)} form(s) for {expected} expected — the bare noun is not '
+            f'conditional in the grammar, so it cannot be conditional in the derivation',
+            law='G3', check='cli.every_form_listed')
+        # the RENDERED views, not the helper both are supposed to use: asking
+        # command_forms whether the two agree cannot detect a view that adds a form of
+        # its own, which is exactly the drift this replaces
+        shown = [line.strip().replace('   (status)', '')
+                 for line in cli.render_command_help(c).splitlines()
+                 if line.startswith(f'  yoga {c["command"]}')]
+        missing = [f for f in shown if f not in listing]
+        run(f'cli: {c["command"]}: every form appears in the whole-table listing', not missing,
+            None if not missing else
+            f'{", ".join(missing)} is shown by `yoga commands {c["command"]}` but not by '
+            f'`yoga commands` — two renderings of one table disagreeing',
+            law='G3', check='cli.every_form_listed')
+
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
     # its values reads as a restriction to that value while behaving as an addition. Held
     # per command, over help.csv alone — the same table the surface is derived from.
