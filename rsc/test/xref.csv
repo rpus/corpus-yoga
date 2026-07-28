@@ -407,6 +407,8 @@ src/main/cli/forge.sh,27,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forg
 src/main/cli/forge.sh,32,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { echo -e ""UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t""; return; }"
 src/main/cli/forge.sh,56,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
 src/main/cli/forge.sh,132,comment,rsc/forge.csv,Y,"# same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state, and"
+src/main/cli/forge.sh,152,comment,rsc/test/pre-commit-hook.sh,Y,"# rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the gate compare"
+src/main/cli/forge.sh,155,call,rsc/test/pre-commit-hook.sh,Y,"local hook accepted=""$REPO_DIR/rsc/test/pre-commit-hook.sh"""
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
