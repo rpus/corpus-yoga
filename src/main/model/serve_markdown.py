@@ -323,7 +323,7 @@ if __name__ == '__main__':
     if args.ensure_assets:
         try:
             ensure_assets()
-            print(f'fetched render assets → {STATIC_DIR.relative_to(REPO_ROOT)}/', flush=True)
+            print(f'render assets present → {STATIC_DIR.relative_to(REPO_ROOT)}/', flush=True)
         except Exception as e:
             print(f'Warning: could not fetch render assets ({e}); '
                   f'serve will retry at startup', flush=True)
