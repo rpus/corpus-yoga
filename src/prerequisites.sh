@@ -303,10 +303,10 @@ check_git_hook() {
   # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
     bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: yoga test install-hook"
-  elif cmp -s "$hook" "$REPO_ROOT/src/test/pre-commit-hook.sh"; then
-    ok "installed: a copy of src/test/pre-commit-hook.sh, which runs yoga test run"
+  elif cmp -s "$hook" "$REPO_ROOT/rsc/test/pre-commit-hook.sh"; then
+    ok "installed: a copy of rsc/test/pre-commit-hook.sh, which runs yoga test run"
   elif [[ -e "$hook" ]]; then
-    bad "a pre-commit hook exists but is not src/test/pre-commit-hook.sh — replace: yoga test install-hook"
+    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: yoga test install-hook"
   else
     bad "not installed — nothing vets a commit; install via: yoga test install-hook"
   fi

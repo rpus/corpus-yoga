@@ -22,7 +22,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # nags for both. Naming which to install would put a flag on an axis the command already
 # is (G21), and the answer would always be "both".
 #
-# pre-commit is a COPY of src/test/pre-commit-hook.sh, which is the one authority on what
+# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what
 # an installed hook must be: install writes it, prerequisites and the gate compare against
 # it. A copy that drifts is caught by that comparison rather than trusted — the objection
 # to copies is silent drift, and nothing here is silent.
@@ -42,9 +42,9 @@ install_hook() {
   # FOLLOWS a symlink — copying onto it would write through the link and destroy the file
   # it points at, on exactly the machines that are upgrading.
   rm -f "$git_dir/pre-commit"
-  cp "$SCRIPT_DIR/pre-commit-hook.sh" "$git_dir/pre-commit"
+  cp "$REPO_DIR/rsc/test/pre-commit-hook.sh" "$git_dir/pre-commit"
   chmod +x "$git_dir/pre-commit"
-  echo "hook: $git_dir/pre-commit ← src/test/pre-commit-hook.sh"
+  echo "hook: $git_dir/pre-commit ← rsc/test/pre-commit-hook.sh"
 
   ln -sfn "../../src/test/prepare_commit_msg.sh" "$git_dir/prepare-commit-msg"
   echo "hook: $git_dir/prepare-commit-msg → $(readlink "$git_dir/prepare-commit-msg")"

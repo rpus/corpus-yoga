@@ -908,7 +908,10 @@ def check_cli_surface(run) -> None:
     # byte-identical on a clone without it (the zsh -n precedent). `yoga prerequisites`
     # is the one voice that says whether this machine has it.
     shellcheck = shutil.which('shellcheck')
-    sh_files = sorted(str(f) for f in (REPO_ROOT / 'src').rglob('*.sh'))
+    # src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and
+    # a lint scoped to src/ would leave the one file whose breakage surfaces only at commit
+    # time unchecked.
+    sh_files = sorted(str(f) for d in ('src', 'rsc') for f in (REPO_ROOT / d).rglob('*.sh'))
     sc_ok, sc_detail = True, None
     if shellcheck and sh_files:
         # -x follows the `# shellcheck source=` directives the sourcing files write;

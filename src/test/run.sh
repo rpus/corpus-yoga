@@ -62,14 +62,14 @@ fi
 # says nothing, so the gate fails OPEN. While such a hook is in place, refuse. The only
 # thing still executing is the one that can say so, and the remedy is one command.
 #
-# The test is EQUALITY with src/test/pre-commit-hook.sh, the one authority on what an
+# The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an
 # installed hook is — not a pattern, which a longer or conditional hook would satisfy
 # while doing something else entirely. `yoga prerequisites` asks the same question of the
 # same file.
 if [[ -n "${GIT_INDEX_FILE:-}" ]]; then
   hook_path="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
   [[ -z "$hook_path" || "$hook_path" = /* ]] || hook_path="$REPO_DIR/$hook_path"
-  if [[ -n "$hook_path" ]] && ! cmp -s "$hook_path" "$REPO_DIR/src/test/pre-commit-hook.sh"; then
+  if [[ -n "$hook_path" ]] && ! cmp -s "$hook_path" "$REPO_DIR/rsc/test/pre-commit-hook.sh"; then
     echo "ERROR: this commit ran an OUTDATED pre-commit hook." >&2
     echo "       It points at a file rather than naming \`yoga test run\`, so renaming that" >&2
     echo "       file would disarm the gate in silence. Nothing is wrong with the change." >&2
