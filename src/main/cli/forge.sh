@@ -6,19 +6,18 @@
 #
 # Usage:
 #   yoga forge                 # declared vs live
-#   yoga forge --tsv           # the same rows, for a reader that is a program
+#   yoga forge --tsv           # every row bare forge shows, section-tagged, for a program
 #   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
 #   yoga forge merge <pr> [--dry-run]   # check everything, then squash-merge that PR
-#   yoga forge prune [--apply] # delete local branches whose work the base already holds
+#   yoga forge prune [--apply] # forget what the forge no longer has
 #
 # merge names a POSTCONDITION — PR merged, this checkout on the base, the base holding the
 # squash, the head branch gone from here — and converges on it, logging the run.
 #
-# sync and prune are --apply-gated: sync writes to a server other people see, prune to refs
-# git itself will not delete after a squash.
-#
-# merge passes NO message flags: under COMMIT_MESSAGES the body is assembled from the
-# branch's commits, keeping the Signature lines a hand-written --body would discard.
+# prune forgets both leavings of a squash-and-delete: a local branch whose work the base
+# holds, and a tracking ref for a branch the forge deleted. sync and prune are
+# --apply-gated. merge passes NO message flags: under COMMIT_MESSAGES the body comes from
+# the branch's commits, keeping the Signature lines a hand-written --body would discard.
 
 set -euo pipefail
 
@@ -110,6 +109,41 @@ branches() {
              | grep -v "^$base\$")
 }
 
+# rows: STATUS \t ref \t detail — the remote-tracking refs this checkout still holds for
+# branches the forge no longer has. delete_branch_on_merge removes the branch server-side
+# the moment a PR lands, and nothing local notices: `refs/remotes/origin/<gone>` survives
+# until some `git fetch --prune`. It is the same drift as a merged local branch surviving —
+# state this checkout holds about a thing that is gone — so forge names it in the same voice.
+stale_tracking() {
+  local out line ref
+  # Asking git costs a round trip to the remote, and a failure must not read as "nothing
+  # stale": an absent section is indistinguishable from a clean one. Say UNVERIFIED, as
+  # reconcile does for the settings it cannot see.
+  if ! out="$(git -C "$REPO_DIR" remote prune --dry-run origin 2>/dev/null)"; then
+    echo -e "UNVERIFIED\torigin\tunreachable — cannot tell which tracking refs the forge has dropped"
+    return
+  fi
+  while read -r line; do
+    [[ "$line" == *"[would prune]"* ]] || continue
+    ref="${line##* }"
+    echo -e "STALE\t$ref\tthe forge no longer has this branch; this checkout still tracks it"
+  done <<< "$out"
+}
+
+# rows: STATUS \t key \t detail \t remedy — whether this checkout can gate what it commits.
+# The AUTHORITY is rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the
+# gate compare against; this reads it rather than holding a second opinion.
+gate() {
+  local hook accepted="$REPO_DIR/rsc/test/pre-commit-hook.sh"
+  hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
+  [[ -z "$hook" || "$hook" = /* ]] || hook="$REPO_DIR/$hook"
+  if [[ -n "$hook" ]] && cmp -s "$hook" "$accepted"; then
+    echo -e "OK\tpre-commit\ta copy of rsc/test/pre-commit-hook.sh\t"
+  else
+    echo -e "WRONG\tpre-commit\tnot the accepted hook — commits from here are not being vetted\tyoga test install-hook"
+  fi
+}
+
 # the branch a merge lands on, and the one `merge` returns you to — asked of the forge, not
 # assumed to be `main`
 base_branch() {
@@ -146,22 +180,35 @@ status() {
     [[ -z "${d:-}" ]] || echo "    → run: yoga forge prune"
   fi
 
+  local stale
+  stale="$(stale_tracking)"
+  if [[ -n "$stale" ]]; then
+    echo "remote-tracking refs — branches the forge has deleted"
+    local any=""
+    while IFS=$'\t' read -r st key detail; do
+      [[ -z "$st" ]] && continue
+      case "$st" in
+        STALE) echo "  ✗ $key: $detail"; any=1 ;;
+        *)     echo "  – $key: $detail" ;;
+      esac
+    done <<< "$stale"
+    [[ -z "$any" ]] || { echo "    → run: yoga forge prune"; drift=1; }
+  fi
+
   # Whether this checkout can gate is forge business: merging lands work on a base every
   # clone pulls, and a machine whose pre-commit hook is absent or outdated has been
   # committing unvetted — so what it is about to land was never checked. The AUTHORITY is
   # rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the gate compare
   # against; this reads that file rather than holding a second opinion about it.
   echo "this checkout's gate — the hook that vets what you commit"
-  local hook accepted="$REPO_DIR/rsc/test/pre-commit-hook.sh"
-  hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
-  [[ -z "$hook" || "$hook" = /* ]] || hook="$REPO_DIR/$hook"
-  if [[ -n "$hook" ]] && cmp -s "$hook" "$accepted"; then
-    echo "  ✓ pre-commit: a copy of rsc/test/pre-commit-hook.sh"
-  else
-    echo "  ✗ pre-commit: not the accepted hook — commits from here are not being vetted"
-    echo "    → run: yoga test install-hook"
-    drift=1
-  fi
+  while IFS=$'\t' read -r st key detail remedy; do
+    [[ -z "$st" ]] && continue
+    if [[ "$st" == OK ]]; then
+      echo "  ✓ $key: $detail"
+    else
+      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; drift=1
+    fi
+  done < <(gate)
   return $drift
 }
 
@@ -181,10 +228,22 @@ prune() {
       echo "would delete $key — $detail"
     fi
   done < <(branches)
+  local stale_rows ref
+  stale_rows="$(stale_tracking)"
+  while IFS=$'\t' read -r st ref _; do
+    [[ "$st" == STALE ]] || continue
+    n=$((n + 1))
+    if [[ -n "$apply" ]]; then
+      git -C "$REPO_DIR" update-ref -d "refs/remotes/$ref" && echo "forgot $ref — the forge no longer has it"
+    else
+      echo "would forget $ref — the forge no longer has it"
+    fi
+  done <<< "$stale_rows"
+
   if [[ "$n" == 0 ]]; then
-    echo 'no local branch is deletable — yoga forge says why for each'
+    echo 'nothing to prune — yoga forge says why for each branch it keeps'
   elif [[ -z "$apply" ]]; then
-    echo "--- $n branch(es); nothing deleted. Add --apply to delete them"
+    echo "--- $n item(s); nothing removed. Add --apply to remove them"
   fi
 }
 
@@ -364,7 +423,10 @@ merge() {
 
 case "${1-}" in
   '')        status ;;
-  --tsv)     reconcile ;;
+  --tsv)     reconcile     | sed 's/^/settings\t/'
+             branches      | sed 's/^/branch\t/'
+             stale_tracking| sed 's/^/tracking\t/'
+             gate          | sed 's/^/gate\t/' ;;
   sync)      shift; sync "$@" ;;
   prune)     shift; prune "$@" ;;
   merge)     shift; merge "$@" ;;
