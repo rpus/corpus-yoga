@@ -911,7 +911,7 @@ def check_cli_surface(run) -> None:
     # src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and
     # a lint scoped to src/ would leave the one file whose breakage surfaces only at commit
     # time unchecked.
-    sh_files = sorted(str(f) for d in ('src', 'rsc') for f in (REPO_ROOT / d).rglob('*.sh'))
+    sh_files = sorted(str(f) for d in ('rsc', 'src') for f in (REPO_ROOT / d).rglob('*.sh'))
     sc_ok, sc_detail = True, None
     if shellcheck and sh_files:
         # -x follows the `# shellcheck source=` directives the sourcing files write;
