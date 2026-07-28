@@ -974,7 +974,10 @@ def check_cli_surface(run) -> None:
         for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
             m = re.search(r'(?:→ run:|reinstall:|replace:|refresh:|install via:)\s+(\S+)(.*)', line)
             if m:
-                prescriptions.append((rel, i, m.group(1), m.group(2)))
+                # Carry the marker that MATCHED. Reporting a constant one quotes a line
+                # that is not in the file, and the reader goes looking for it: a rejected
+                # `refresh:` two lines from a `→ run:` reads as a rejection of the `→ run:`.
+                prescriptions.append((rel, i, m.group(1), m.group(2), line[m.start():m.start(1)].strip()))
     run('prescriptions: some line prescribes something', bool(prescriptions),
         None if prescriptions else 'no `→ run:` line found — the scan is looking in the wrong place',
         law='G17', check='output.prescriptions_are_commands')
@@ -1044,7 +1047,7 @@ def check_cli_surface(run) -> None:
         # a regex or a format string, not an invocation — including this scanner's own
         # pattern, which it finds in its own source and cannot be expected to parse
         return not tok or any(c in tok for c in '$({\\')
-    for rel, i, head, rest in prescriptions:
+    for rel, i, head, rest, marker in prescriptions:
         head = clean(head)
         if unreadable(head):
             continue                      # computed at run time, or not an invocation
@@ -1052,7 +1055,7 @@ def check_cli_surface(run) -> None:
             continue
         ok = head == 'yoga' or head in declared
         run(f'prescription: {rel}:{i} names a yoga command', ok,
-            None if ok else f'`→ run: {head}` prescribes a path, not a command a reader types',
+            None if ok else f'`{marker} {head}` prescribes a path, not a command a reader types',
             law='G17', check='output.prescriptions_are_commands')
         if not ok:
             continue
