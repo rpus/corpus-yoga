@@ -9,5 +9,11 @@
       "cardinality": "",
       "help": "the same reconciliation as rows (status/key/detail/remedy) — for a reader that is a program, as yoga prerequisites is"
     }
+  ],
+  "sends": [
+    "gh api repos/{owner}/{repo} — reads the live settings (bare, sync, merge)",
+    "gh pr list --state all — reads every PR (bare, merge, prune)",
+    "gh repo view — reads the default branch",
+    "git remote prune --dry-run origin — asks the remote which tracking refs are gone"
   ]
 }

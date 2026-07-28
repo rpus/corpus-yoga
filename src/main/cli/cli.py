@@ -124,6 +124,16 @@ def command_rows(command: str) -> list[dict]:
     return [r for r in help_rows() if r['command'] == command]
 
 
+def sends_of(command: str, subcommand: str = '') -> list[str]:
+    """The declared outward calls of one declaration file (#29): the command's own for
+    subcommand '', a verb's for its name. Read from the tree directly — sends are not
+    argument rows, and flattening them into row shape would be a second vocabulary."""
+    f = _declaration(command) if not subcommand else CLI / command / f'{subcommand}.json'
+    if not f.exists():
+        return []
+    return json.loads(f.read_text()).get('sends', [])
+
+
 def subcommands_of(command: str) -> list[str]:
     """A command's distinct non-empty subcommands, in order."""
     out: list[str] = []
@@ -344,6 +354,10 @@ def render_command_help(c: dict) -> str:
             out += [f"      {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
         else:
             out += [f"  {label[(s, r['arg-name'])]:<{w}}  {r['help']}" for r in rows]
+        # Declared sends render where the reader decides to run the verb (#29): an
+        # outward call is part of what the invocation DOES, not an implementation note.
+        for line in sends_of(command, s):
+            out.append(f"      {'sends:':<{max(w, 6)}}  {line}" if s else f"  sends: {line}")
     return '\n'.join(out) + '\n'
 
 

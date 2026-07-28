@@ -49,6 +49,7 @@ documentation.every_definition_has_title_and_description
 documentation.null_only_fields_documented
 documentation.open_set_enums_documented
 effects.send_switch_read_once
+effects.sends_declared
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
 files.required_exists

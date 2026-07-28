@@ -24,12 +24,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 DECLARED="$REPO_DIR/rsc/forge.csv"
+# shellcheck source=src/main/send.sh
+source "$REPO_DIR/src/main/send.sh"   # may_send / assert_may_send — the shell face (#29)
 
 # rows: STATUS \t key \t detail \t remedy — the ONE derivation, rendered by two callers
 # (this script's status, and `yoga prerequisites`' machine report).
 reconcile() {
   [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\tgh not found (install: brew install gh)\t"; return; }
+  may_send || { echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses this send: gh api (live settings unread)\t"; return; }
   local live
   # quoted: {owner}/{repo} are gh's own placeholders, resolved from this checkout's
   # remote — never brace-expansion, and never a hard-coded (fork-specific) slug
@@ -62,6 +65,7 @@ for r in csv.DictReader(open(sys.argv[1])):
 # a round trip each to answer the same question.
 branches() {
   command -v gh &>/dev/null || return 0
+  may_send || return 0
   local prs
   prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
     --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
@@ -119,6 +123,10 @@ stale_tracking() {
   # Asking git costs a round trip to the remote, and a failure must not read as "nothing
   # stale": an absent section is indistinguishable from a clean one. Say UNVERIFIED, as
   # reconcile does for the settings it cannot see.
+  if ! may_send; then
+    echo -e "UNVERIFIED\torigin\tYOGA_NO_SEND=1 refuses this send: git remote prune --dry-run (tracking refs unverified)"
+    return
+  fi
   if ! out="$(git -C "$REPO_DIR" remote prune --dry-run origin 2>/dev/null)"; then
     echo -e "UNVERIFIED\torigin\tunreachable — cannot tell which tracking refs the forge has dropped"
     return
@@ -147,6 +155,7 @@ gate() {
 # the branch a merge lands on, and the one `merge` returns you to — asked of the forge, not
 # assumed to be `main`
 base_branch() {
+  may_send || { echo main; return; }
   (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
 }
 
@@ -252,6 +261,9 @@ sync() {
   [[ "${1-}" == "--apply" ]] && apply=1
   # G19: the extent before, the effect, the extent after — so the run says what it changed
   # rather than asserting that it did.
+  # The write IS the work under --apply: refuse loudly before any extent is shown,
+  # as assert_may_send does in python (#29). The dry run is a read and degrades below.
+  [[ "${1-}" == "--apply" ]] && ! assert_may_send "gh api -X PATCH (forge sync --apply)" && exit 1
   local rows drift=0
   rows="$(reconcile)"
   echo "before:"
@@ -269,6 +281,12 @@ sync() {
     fi
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
+    # An extent of UNVERIFIED rows is not agreement: saying "no drift" over settings
+    # nobody read would be a lie (G19 needs a real extent). Refused/offline exits loudly.
+    if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
+      echo "yoga forge sync: the live settings could not be read — nothing verified, nothing to agree" >&2
+      return 1
+    fi
     echo "no drift — the forge already agrees with rsc/forge.csv; nothing to do"
     return 0
   fi
@@ -296,6 +314,9 @@ merge() {
   mkdir -p "$(dirname "$log")"
   exec > >(tee -a "$log") 2>&1
   echo "yoga forge merge $pr — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
+  # 0. the sends ARE the work here (gh pr view, gh pr merge): refuse loudly, first (#29)
+  assert_may_send "gh pr view / gh pr merge (yoga forge merge)" || exit 1
 
   # 1. the forge itself: merging under undeclared settings composes main by rules nobody wrote
   status || { echo "yoga forge merge: refused — settle the ✗ lines above first; each names its own remedy" >&2; exit 1; }

@@ -25,5 +25,8 @@
       "cardinality": "",
       "help": "LIVE: fetch each provider's listing, name what is NEW and PROGRESSED, and stop — captures nothing (a send: it reaches the listings)"
     }
+  ],
+  "sends": [
+    "drives Safari against the logged-in session and fetches over the authenticated API (refused loudly under YOGA_NO_SEND)"
   ]
 }
