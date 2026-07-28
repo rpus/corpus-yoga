@@ -6,6 +6,44 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v12
+
+The model enum meets the model family it was built to catch. Reading-room
+session `dabe819e-…` (2026-07-25, harness 2.1.220, entrypoint claude-vscode)
+carried assistant turns authored by `claude-opus-5` — and v9's closed
+`ModelId` did exactly what it was minted for: the new model failed validation
+by name instead of sliding through a string. The 2026-07-28 survey found
+3,588 such records, all in reading-room's store; home-room shows none. Every
+datum valid under v11 is valid under v12 unchanged: v11 now happens to
+reject only the id its era never showed.
+
+Recorded from the same survey, observed but not modelled: the era's records
+carry turn-level keys the open turn object admits without a version boundary
+— `effort` (8,134 records across both rooms, value `high` only),
+`attributionSkill` (138), `attributionMcpTool`/`attributionMcpServer` (31
+each), `errorDetails` (2). They pass every version silently, so no mint
+marks their arrival; closing the turn object would give fields the same
+drift-fails-loudly property `ModelId` gives models, and that judgment is
+left open here.
+
+### Replaces
+
+[v11.json](./v11.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `ModelId` — gains `claude-opus-5` (reading-room's sessions, first observed
+  2026-07-25T10:29Z). `FallbackBlock.from.model` / `.to.model` widen with it,
+  as they reference `ModelId`; no opus-5 fallback is yet observed.
+
+#### Refactored
+
+None.
+
 ## v11
 
 The file-history ledger reaches outside the repo. Reading-room session

@@ -1,4 +1,4 @@
-run.py: 1880/1880 (data: machine-local)
+run.py: 1906/1906 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -94,37 +94,37 @@ run.py: 1880/1880 (data: machine-local)
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (51/51)
+  ✓ schema.valid_json_with_schema  (52/52)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (51/51)
-  ✓ schema.changelog_no_todo  (51/51)
+  ✓ schema.changelog_narrative  (52/52)
+  ✓ schema.changelog_no_todo  (52/52)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
-  ✓ composition.base_not_used_directly  (50/50)
+  ✓ composition.base_not_used_directly  (51/51)
   ✓ composition.base_schemas_closed  (36/36)
-  ✓ composition.discriminator_values_disjoint  (50/50)
-  ✓ composition.no_additional_properties_on_subtypes  (50/50)
-  ✓ composition.wrapper_has_five_fields  (50/50)
-  ✓ documentation.discriminator_fields_annotated  (50/50)
-  ✓ documentation.every_definition_has_title_and_description  (50/50)
-  ✓ documentation.null_only_fields_documented  (50/50)
-  ✓ documentation.open_set_enums_documented  (50/50)
-  ✓ empirical.nullable_fields_surveyed  (50/50)
-  ✓ empirical.oneOf_branches_evidenced  (50/50)
-  ✓ naming.property_keys_lowercase  (50/50)
-  ✓ naming.title_matches_key  (50/50)
-  ✓ naming.upper_camel_case  (50/50)
-  ✓ structure.all_definitions_reachable  (50/50)
-  ✓ structure.bfs_order  (50/50)
-  ✓ structure.definitions_at_bottom  (50/50)
-  ✓ structure.enum_refines_explicit_type  (50/50)
-  ✓ structure.field_order  (50/50)
-  ✓ structure.minItems_on_non_empty_arrays  (50/50)
-  ✓ structure.no_dangling_refs  (50/50)
-  ✓ structure.no_redundant_additional_properties_true  (50/50)
-  ✓ structure.pattern_constraints_enforced  (50/50)
-  ✓ structure.required_subset_of_properties  (50/50)
+  ✓ composition.discriminator_values_disjoint  (51/51)
+  ✓ composition.no_additional_properties_on_subtypes  (51/51)
+  ✓ composition.wrapper_has_five_fields  (51/51)
+  ✓ documentation.discriminator_fields_annotated  (51/51)
+  ✓ documentation.every_definition_has_title_and_description  (51/51)
+  ✓ documentation.null_only_fields_documented  (51/51)
+  ✓ documentation.open_set_enums_documented  (51/51)
+  ✓ empirical.nullable_fields_surveyed  (51/51)
+  ✓ empirical.oneOf_branches_evidenced  (51/51)
+  ✓ naming.property_keys_lowercase  (51/51)
+  ✓ naming.title_matches_key  (51/51)
+  ✓ naming.upper_camel_case  (51/51)
+  ✓ structure.all_definitions_reachable  (51/51)
+  ✓ structure.bfs_order  (51/51)
+  ✓ structure.definitions_at_bottom  (51/51)
+  ✓ structure.enum_refines_explicit_type  (51/51)
+  ✓ structure.field_order  (51/51)
+  ✓ structure.minItems_on_non_empty_arrays  (51/51)
+  ✓ structure.no_dangling_refs  (51/51)
+  ✓ structure.no_redundant_additional_properties_true  (51/51)
+  ✓ structure.pattern_constraints_enforced  (51/51)
+  ✓ structure.required_subset_of_properties  (51/51)
 
 ── check_schema_join ─────────────────────────────────────────────────────────
   ✓ model.join_pointers_valid
@@ -151,11 +151,11 @@ run.py: 1880/1880 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 87 types, 1880/1880 invocations passing
+  ✓ checks[code+schema]: 87 types, 1906/1906 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
   ✓ checks[code]: 51 types, 468/468 invocations passing
-  ✓ checks[schema]: 36 types, 1412/1412 invocations passing
+  ✓ checks[schema]: 36 types, 1438/1438 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1880/1880 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1906/1906 match the committed expectation; nothing here vetoes a commit

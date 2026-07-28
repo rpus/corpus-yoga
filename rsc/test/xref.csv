@@ -169,17 +169,18 @@ rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,22,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,38,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/session/CHANGELOG.md,24,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
-rsc/schema/code-agents/session/CHANGELOG.md,56,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/code-agents/session/CHANGELOG.md,88,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/code-agents/session/CHANGELOG.md,129,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/code-agents/session/CHANGELOG.md,171,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/code-agents/session/CHANGELOG.md,195,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/code-agents/session/CHANGELOG.md,222,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/code-agents/session/CHANGELOG.md,236,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/code-agents/session/CHANGELOG.md,248,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/code-agents/session/CHANGELOG.md,266,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/session/CHANGELOG.md,312,doc,src/main/code-agents/run.sh,Y,discovered iteratively by running `src/main/code-agents/run.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,31,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/code-agents/session/CHANGELOG.md,62,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/code-agents/session/CHANGELOG.md,94,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/code-agents/session/CHANGELOG.md,126,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/code-agents/session/CHANGELOG.md,167,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/code-agents/session/CHANGELOG.md,209,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/code-agents/session/CHANGELOG.md,233,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/code-agents/session/CHANGELOG.md,260,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/code-agents/session/CHANGELOG.md,274,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/code-agents/session/CHANGELOG.md,286,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/session/CHANGELOG.md,304,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/session/CHANGELOG.md,350,doc,src/main/code-agents/run.sh,Y,discovered iteratively by running `src/main/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -683,7 +684,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/code-agents/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/projectMemory/v2.json,Y,
 ,,,rsc/schema/code-agents/session/CHANGELOG.md,Y,
-,,,rsc/schema/code-agents/session/v11.json,Y,
+,,,rsc/schema/code-agents/session/v12.json,Y,
 ,,,rsc/schema/code-agents/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/sessionConversation/v1.json,Y,
 ,,,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,
