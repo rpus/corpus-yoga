@@ -22,6 +22,8 @@
 set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 : "${VENV:=$HOME/venvs/general}"
+# shellcheck source=src/main/send.sh
+source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)
 
 SHOW_ALL=0
 SYNC=0
@@ -456,6 +458,8 @@ sync() {
   fi
   for a in "${acts[@]}"; do echo "→ $a"; done
   if _todo_has venv; then
+    # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
+    assert_may_send "pip install from PyPI (yoga prerequisites sync --apply)" || exit 1
     [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
     "$VENV/bin/pip" install -q --upgrade pip
     "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"

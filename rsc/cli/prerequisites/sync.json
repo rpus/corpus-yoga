@@ -9,6 +9,6 @@
     }
   ],
   "sends": [
-    "pip install from PyPI when the venv lacks packages (--apply only; not yet refusal-wired — stated per the PR #113 precedent)"
+    "pip install from PyPI when the venv lacks packages (--apply only; refused loudly under YOGA_NO_SEND)"
   ]
 }

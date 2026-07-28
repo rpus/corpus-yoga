@@ -19,5 +19,8 @@
       "cardinality": "",
       "help": "print the ordered step plan; run nothing"
     }
+  ],
+  "sends": [
+    "pip reaches PyPI on every run (upgrade check + requirements) — skipped with a note under YOGA_NO_SEND; a fresh venv then fails at first import, visibly"
   ]
 }

@@ -1181,10 +1181,14 @@ def check_cli_surface(run) -> None:
         check='effects.send_switch_read_once')
 
     # The forward half of declared sends (#29): a target that holds a send face performs
-    # sends, and its command must SAY so in the declaration tree. Conservative by
-    # construction — helpers reached through imports are not traced, so an under-catch is
-    # possible and safe; the reverse (every send primitive behind a face) is the arc's
-    # next slice, not a scan of call sites here.
+    # sends, and its command must SAY so in the declaration tree. TWO tolerances, both
+    # deliberate and both to be retired by the arc's primitives-behind-faces slice:
+    # helpers reached through imports are untraced (under-catch, safe), and the hold is
+    # COMMAND-level — any one file under rsc/cli/<command>/ carrying `sends` satisfies
+    # it, so a single VERB can lose its declaration unnoticed while its siblings keep
+    # the command green (the PR #114 review's finding: rsc/cli/forge/sync.json's
+    # PATCH-write line, deleted alone, does not trip this). Per-verb needs the check to know which
+    # verb sends, which is exactly what declared doors will make knowable.
     undeclared_senders = []
     for c in cli.commands():
         target = REPO_ROOT / c['target']

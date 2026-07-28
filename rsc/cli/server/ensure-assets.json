@@ -1,4 +1,7 @@
 {
   "help": "fetch the render libraries into tmp/cache/serve_markdown, then exit",
-  "args": []
+  "args": [],
+  "sends": [
+    "downloads the 18 render libs named in src/main/model/serve_assets.txt — MISSING files only, so a warmed cache sends nothing (refused loudly under YOGA_NO_SEND; an offline or refused cache sync tolerates it)"
+  ]
 }
