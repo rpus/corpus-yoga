@@ -13,5 +13,9 @@
       "cardinality": "",
       "help": "check everything and print the message that would land; merge nothing"
     }
+  ],
+  "sends": [
+    "gh pr view — reads the PR before anything irreversible",
+    "gh pr merge --squash — WRITES the merge (refused loudly under YOGA_NO_SEND)"
   ]
 }

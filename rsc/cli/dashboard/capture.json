@@ -19,5 +19,8 @@
       "cardinality": "",
       "help": "print the coverage this capture would re-read, and stop — spends nothing, needs no API key"
     }
+  ],
+  "sends": [
+    "PAID: POSTs the corpus to api.anthropic.com, twice (semantic-concepts, chat-categories); --dry-run sends nothing and works under YOGA_NO_SEND (refused loudly otherwise)"
   ]
 }

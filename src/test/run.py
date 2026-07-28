@@ -1162,18 +1162,51 @@ def check_cli_surface(run) -> None:
                 return True
         return False
 
-    holder = REPO_ROOT / 'src' / 'main' / 'send.py'
+    # ONE fact, one face per language (the PR #113 census, carried to #29): bash cannot
+    # import a python module, so before send.sh existed no shell command could honour the
+    # switch at all. Two DECLARED readers, each named here, is not the accidental pair
+    # this check exists to prevent — that pair is any reader beyond these two.
+    faces = {REPO_ROOT / 'src' / 'main' / 'send.py',
+             REPO_ROOT / 'src' / 'main' / 'send.sh'}
     readers = sorted(str(f.relative_to(REPO_ROOT))
                      for f in (REPO_ROOT / 'src').rglob('*')
-                     if f.is_file() and f != holder
+                     if f.is_file() and f not in faces
                      and (_reads_switch(f) if f.suffix == '.py' else
                           f.suffix == '.sh' and re.search(rf'\$\{{?{SEND_SWITCH}', f.read_text())))
-    run(f'send: only src/main/send.py reads {SEND_SWITCH}', not readers,
+    run(f'send: only the two send faces read {SEND_SWITCH}', not readers,
         None if not readers else
-        f'{", ".join(readers)} reads the switch directly — import may_send (skip and pass) '
-        f'or assert_may_send (raise) from src/main/send.py, so refusal cannot come to mean '
-        f'two things by accident',
+        f'{", ".join(readers)} reads the switch directly — python imports may_send (skip '
+        f'and pass) or assert_may_send (raise) from src/main/send.py; shell sources '
+        f'src/main/send.sh, so refusal cannot come to mean two things by accident',
         check='effects.send_switch_read_once')
+
+    # The forward half of declared sends (#29): a target that holds a send face performs
+    # sends, and its command must SAY so in the declaration tree. TWO tolerances, both
+    # deliberate and both to be retired by the arc's primitives-behind-faces slice:
+    # helpers reached through imports are untraced (under-catch, safe), and the hold is
+    # COMMAND-level — any one file under rsc/cli/<command>/ carrying `sends` satisfies
+    # it, so a single VERB can lose its declaration unnoticed while its siblings keep
+    # the command green (the PR #114 review's finding: rsc/cli/forge/sync.json's
+    # PATCH-write line, deleted alone, does not trip this). Per-verb needs the check to know which
+    # verb sends, which is exactly what declared doors will make knowable.
+    undeclared_senders = []
+    for c in cli.commands():
+        target = REPO_ROOT / c['target']
+        sources = [s for s in (target, target.with_suffix('.py'), target.with_suffix('.sh'))
+                   if s.exists()]
+        text = ''.join(dict.fromkeys(s.read_text() for s in sources))
+        if 'send.sh' not in text and 'from send import' not in text:
+            continue
+        declared = bool(cli.sends_of(c['command'])) or any(
+            cli.sends_of(c['command'], v) for v in cli.subcommands_of(c['command']))
+        if not declared:
+            undeclared_senders.append(c['command'])
+    run('send: every command holding a send face declares its sends', not undeclared_senders,
+        None if not undeclared_senders else
+        f'{", ".join(undeclared_senders)}: the target uses may_send/assert_may_send but no '
+        f'declaration in rsc/cli/<command>/ carries a `sends` field — declare each outward '
+        f'call where the reader decides to run the verb',
+        check='effects.sends_declared')
 
     # Python is type-checked by pyright — Pylance's own engine — against
     # pyrightconfig.json, the ONE declaration of the import roots that the editor, this

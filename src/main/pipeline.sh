@@ -23,6 +23,8 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
+# shellcheck source=src/main/send.sh
+source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of YOGA_NO_SEND (#29)
 : "${VENV:=$HOME/venvs/general}"
 
 # The pipelines: a directory under src/main/ that implements the run phase. Derived, so
@@ -156,6 +158,13 @@ ensure_venv() {
 install_deps() {
   # shellcheck source=/dev/null
   source "$VENV/bin/activate"
+  # pip reaches PyPI on every run (the upgrade check alone is a send), so refusal skips
+  # it with a note and the run proceeds on the venv as-is — a fresh venv then fails at
+  # its first import, visibly, with this line just above it in the log (#29).
+  if ! may_send; then
+    echo "YOGA_NO_SEND=1: skipping pip install — the venv serves as-is"
+    return 0
+  fi
   echo "checking for pip upgrade"
   pip install --upgrade pip
   pip install -q -r "$REPO_ROOT/src/requirements.txt"

@@ -20,6 +20,8 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
 API_URL="https://api.anthropic.com/v1/messages"
 FORMAT_TABLE_SCRIPT="$SCRIPT_DIR/format_table.py"
+# shellcheck source=src/main/send.sh
+source "$REPO_DIR/src/main/send.sh"   # the shell face of YOGA_NO_SEND (#29)
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -408,6 +410,10 @@ capture() {
   esac
   # the key is the EFFECT's prerequisite, not the preview's: --dry-run must work on a
   # machine that cannot spend, or it cannot answer "what would this cost me?" there
+  # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
+  # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
+  # working under YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
+  [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (yoga dashboard capture)" || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money left no record of what it bought: terminal scrollback
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a

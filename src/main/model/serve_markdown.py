@@ -15,6 +15,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+from send import assert_may_send  # noqa: E402 — the python face of YOGA_NO_SEND (#29)
+
 REPO_ROOT  = Path(__file__).resolve().parents[3]
 STATIC_DIR = REPO_ROOT / 'tmp' / 'cache' / 'serve_markdown'
 # The viewer's render-lib dependency, declared like a requirements.txt (pinned
@@ -49,6 +52,11 @@ def ensure_assets() -> None:
         dest.parent.mkdir(parents=True, exist_ok=True)
         optional = dest_rel.startswith('fonts/')
         try:
+            # The fetch IS the work (#29): refused, this raises — serve then refuses to
+            # start half-rendered, and the --ensure-assets caller tolerates it exactly as
+            # it tolerates offline. Reached only for MISSING files, so a warmed cache
+            # serves under YOGA_NO_SEND without a send.
+            assert_may_send(f'download {dest_rel} (yoga server ensure-assets)')
             print(f'Downloading {dest_rel}…', flush=True)
             urllib.request.urlretrieve(url, dest)
         except Exception as e:
@@ -315,7 +323,7 @@ if __name__ == '__main__':
     if args.ensure_assets:
         try:
             ensure_assets()
-            print(f'fetched render assets → {STATIC_DIR.relative_to(REPO_ROOT)}/', flush=True)
+            print(f'render assets present → {STATIC_DIR.relative_to(REPO_ROOT)}/', flush=True)
         except Exception as e:
             print(f'Warning: could not fetch render assets ({e}); '
                   f'serve will retry at startup', flush=True)

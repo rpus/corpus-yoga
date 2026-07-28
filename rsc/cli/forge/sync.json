@@ -7,5 +7,8 @@
       "cardinality": "",
       "help": "perform the PATCHes — without it, the drift and the commands are only reported"
     }
+  ],
+  "sends": [
+    "gh api -X PATCH repos/{owner}/{repo} — WRITES settings others see (--apply only; refused loudly under YOGA_NO_SEND)"
   ]
 }

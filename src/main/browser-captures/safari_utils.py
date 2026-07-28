@@ -55,6 +55,10 @@ def safari_assert_js_allowed():
     """Fail fast if Safari rejects 'do JavaScript' via Apple Events. Without this,
     every injection silently evaluates to '' and discovery 'finds' 0 conversations —
     a hard setup failure disguised as an empty result."""
+    # A preflight is still a SEND — an Apple Event driving the browser — and this was
+    # the one direct osascript call in the module without the assert its siblings
+    # carry (the 2026-07-28 python census, PR #114).
+    assert_may_send('Safari do-JavaScript preflight')
     r = subprocess.run(
         ['osascript', '-e', 'tell application "Safari" to do JavaScript "1+1" in front document'],
         capture_output=True, text=True,

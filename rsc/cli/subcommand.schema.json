@@ -1,9 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "CliSubcommand",
-  "description": "A verb's declaration: rsc/cli/<command>/<verb>.json. Its filename is the verb, and its directory is the command, so neither is a field here. Subcommands render in listing order, which is alphabetical — the filesystem offers no other, and that is why ordering stops being a check.",
+  "description": "A verb's declaration: rsc/cli/<command>/<verb>.json. Its filename is the verb, and its directory is the command, so neither is a field here. Subcommands render in listing order, which is alphabetical \u2014 the filesystem offers no other, and that is why ordering stops being a check.",
   "type": "object",
-  "required": ["help", "args"],
+  "required": [
+    "help",
+    "args"
+  ],
   "additionalProperties": false,
   "properties": {
     "help": {
@@ -18,7 +21,18 @@
     "args": {
       "type": "array",
       "description": "The verb's arguments, in the order they render in its usage.",
-      "items": {"$ref": "argument.schema.json#"}
+      "items": {
+        "$ref": "argument.schema.json#"
+      }
+    },
+    "sends": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Outward calls this declaration makes \u2014 one line per call, naming it and its effect (#29). A send has no scratch form: redirecting where the result lands does not stop the call going out, so YOGA_NO_SEND=1 refuses it \u2014 reads degrade to UNVERIFIED, writes refuse loudly (src/main/send.py, src/main/send.sh)."
     }
   }
 }

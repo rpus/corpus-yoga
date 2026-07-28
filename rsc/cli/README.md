@@ -7,6 +7,16 @@ converting a file into a directory first. So `ls rsc/cli/` is the command list,
 `ls rsc/cli/browser/` is its verb list, and what a verb accepts is
 `cat rsc/cli/browser/capture.json` — no parser, no column headers, no join.
 
+And the repo's whole outward surface — every declared send (#29), one line per call — is a
+query over the same tree (`forge forge` is the command file: command-level sends, reached
+by every verb):
+
+```bash
+jq -r 'select(.sends) | .sends[] as $s
+       | "\(input_filename | ltrimstr("rsc/cli/") | rtrimstr(".json") | sub("/"; " "))\t\($s)"' \
+   rsc/cli/*.json rsc/cli/*/*.json | column -t -s$'\t'
+```
+
 Two properties come free rather than checked: a directory cannot hold two entries of one
 name, and a listing has no out-of-order state to be in. Subcommands therefore appear in
 listing order, which is alphabetical — the filesystem offers no other.
