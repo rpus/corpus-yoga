@@ -14,8 +14,8 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
-#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
+#   src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+#   src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
 #
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 
@@ -254,11 +254,16 @@ check_cli() {
   if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with rsc/cli/" ;;
-      *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: ./yoga completions install-latest (then restart terminal)" ;;
+      *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: yoga completions install-latest (then restart terminal)" ;;
+      # ./yoga DELIBERATELY (the one bootstrap prescription): install-latest is what
+      # writes the alias, so in the not-generated case the bare name resolves for
+      # nobody — the prescription must be typed in a spelling the reader's shell has,
+      # and they arrived at the repo root via README. The "refresh" case above is bare
+      # because by the time completions are STALE the alias exists. (PR #109 review.)
       *)         todo reader "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
     esac
   else
-    info "zsh completion currency cannot be verified (running ./yoga needs Python 3)"
+    info "zsh completion currency cannot be verified (running yoga needs Python 3)"
   fi
   # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
   # added after it is present in the file and does nothing — a grep for the string
@@ -271,6 +276,8 @@ check_cli() {
     ok "zsh resolves the yoga completion"
   else
     info "zsh does not resolve the yoga completions"
+    # ./yoga: same bootstrap case as above — no resolving completion may well mean
+    # no alias either, and ./yoga works in both worlds; bare yoga only in one.
     echo "    → run: ./yoga completions install-latest (then restart terminal)"
   fi
 }

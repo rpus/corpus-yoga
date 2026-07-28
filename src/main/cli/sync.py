@@ -47,6 +47,14 @@ def main() -> int:
     enrich(ap, 'cache', 'sync')
     args = ap.parse_args()
 
+    # The registry stores canonical NAMES ('yoga model sync' — one referent, one
+    # name, G14), and every printed line speaks the name too: './yoga' is no more
+    # runnable for a reader than bare 'yoga' — one presumes cwd, the other PATH
+    # (user ruling, PR #109). The './' spelling exists at exactly ONE point, the
+    # exec boundary below, where it is valid because the same call pins cwd=REPO.
+    def executable(c: str) -> str:
+        return f'./{c}' if c.startswith('yoga ') else c
+
     cmds = producers()
     if args.dry_run:
         print(f'sync plan — {len(cmds)} producer run(s), in registry-row order:')
@@ -58,7 +66,7 @@ def main() -> int:
     failures = []
     for c in cmds:
         print(f'── sync: {c} ────────────────────────────────')
-        rc = subprocess.run(c, shell=True, cwd=REPO).returncode
+        rc = subprocess.run(executable(c), shell=True, cwd=REPO).returncode
         if rc != 0:
             failures.append((c, rc))
         print()

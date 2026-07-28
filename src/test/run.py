@@ -561,7 +561,7 @@ def check_index_curation(run, fix) -> None:
         disposed = c not in pending
         run(f'indexing: concept disposed: {c}', disposed, check='indexing.concept_disposed')
         if not disposed:
-            fix('yoga indexing candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
+            fix('yoga indexing list-candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
                 guidance='dispose each pending concept: yoga indexing accept <term> [alias ...] '
                          '| yoga indexing reject [--reason <why>] <concept>')
@@ -682,13 +682,27 @@ def check_cache_io(run) -> None:
 
 def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     """A cache_io written_by/read_by entry resolves iff it is an `external:*` reader
-    (exempt), a `yoga <cmd>` whose command is in the table, or a path (its first
-    token) that exists in the repo."""
+    (exempt), a CANONICAL `yoga` invocation — `yoga <command> [<verb>]`, both
+    resolved against the declaration tree — or a path (its first token) that
+    exists in the repo. Two rules from the PR #109 review: the verb is checked
+    (a cell naming `indexing candidates` read as clean after the verb became
+    `list-candidates`), and `./yoga` is REJECTED, not tolerated — the cell is a
+    name (one referent, one name, G14); the runnable `./` form is presentation,
+    derived by `cache sync` at execution (L5). Tolerating both spellings is how
+    the old cells dodged the command branch and resolved as the launcher file's
+    path. Tokens after the verb (a pipeline name, a flag) are arguments, not
+    resolution targets."""
     if entry.startswith('external:'):
         return True
-    if entry.startswith('yoga '):
-        return entry.split()[1] in commands
-    return (REPO_ROOT / entry.lstrip('./').split()[0]).exists()
+    words = entry.split()
+    if not words:
+        return False
+    if words[0].lstrip('./') == 'yoga':
+        if words[0] != 'yoga' or len(words) < 2 or words[1] not in commands:
+            return False
+        verb = words[2] if len(words) > 2 and not words[2].startswith('-') else None
+        return verb is None or verb in cli.subcommands_of(words[1])
+    return (REPO_ROOT / words[0].lstrip('./')).exists()
 
 
 def check_cli_surface(run) -> None:

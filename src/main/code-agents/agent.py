@@ -63,7 +63,7 @@ is what makes safe VISITS possible — an agent received while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
     yoga agent
-    yoga agent models
+    yoga agent list-models
     yoga agent capture --session <uuid8> [--to <scratch-dir>]
     yoga agent receive   --session <uuid8> --from <machine|dir> [--apply]
     yoga agent capture --all [--to <scratch-dir>]
@@ -739,7 +739,7 @@ def main() -> int:
     r.add_argument('--apply', action='store_true')
     d = sub.add_parser('demerge')
     d.add_argument('--apply', action='store_true')
-    sub.add_parser('models')
+    sub.add_parser('list-models')
     enrich(ap, 'agent')
     args = ap.parse_args()
 
@@ -749,7 +749,7 @@ def main() -> int:
     if not PROJECTS.is_dir():
         sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/code-agents/link_projects.sh creates the symlink')
 
-    if args.direction == 'models':
+    if args.direction == 'list-models':
         return model_census()
 
     if args.direction == 'demerge':

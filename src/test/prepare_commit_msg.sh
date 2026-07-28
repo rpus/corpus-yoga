@@ -13,7 +13,7 @@
 # session  — the agent session id (uuid8) that drafted it, from CLAUDE_CODE_SESSION_ID.
 #            It is the JOIN KEY into the captured session corpus
 #            (data/input/<provider>/code/machine-transport/); the MODEL that did the work
-#            is DERIVABLE from it (yoga agent models), accurately and plurally — so it
+#            is DERIVABLE from it (yoga agent list-models), accurately and plurally — so it
 #            is never asserted here. This retired `Co-Authored-By: <model>`.
 #
 # Attest ONLY what the environment positively provides: absence of a session is not
@@ -31,7 +31,7 @@
 #     parses; earlier ones survive as body text. A fair hint the PR was not atomic.
 # And none of it reaches main unless the forge composes the squash body from the commit
 # messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by
-# ./src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+# src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
 #
 # Install (a convention, not a gate, so optional unlike the pre-commit hook):
 #   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg

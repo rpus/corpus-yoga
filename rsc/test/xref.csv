@@ -54,7 +54,7 @@ rsc/CALCULUS.md,310,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expect
 rsc/CALCULUS.md,315,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
 rsc/CALCULUS.md,346,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 rsc/CALCULUS.md,369,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
-rsc/cache_io.csv,2,path_str,src/test/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,./yoga pipeline run browser-captures,src/test/run.py,per-capture apiC"
+rsc/cache_io.csv,2,path_str,src/test/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,yoga pipeline run browser-captures,src/test/run.py,per-capture apiCon"
 rsc/cli/README.md,3,doc,src/main/cli/cli.py,Y,This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
 rsc/cli/README.md,7,doc,rsc/cli/browser,Y,"`ls rsc/cli/browser/` is its verb list, and what a verb accepts is"
 rsc/cli/README.md,8,doc,rsc/cli/browser/capture.json,Y,"`cat rsc/cli/browser/capture.json` — no parser, no column headers, no join."
@@ -69,8 +69,8 @@ rsc/cli/README.md,75,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws()` in
 rsc/cli/README.md,76,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
 rsc/cli/README.md,89,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 rsc/cli/README.md,94,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-rsc/cli/README.md,130,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
-rsc/cli/README.md,148,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
+rsc/cli/README.md,134,doc,src/main/chat-exports/dashboard.sh,Y,`src/main/chat-exports/dashboard.sh` — the same file that implements half of it.
+rsc/cli/README.md,152,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 rsc/cli/agent/agent.json,3,path_str,src/main/code-agents/agent.py,Y,"""target"": ""src/main/code-agents/agent.py"","
 rsc/cli/browser/browser.json,3,path_str,src/main/browser-captures/browser.sh,Y,"""target"": ""src/main/browser-captures/browser.sh"","
 rsc/cli/cache/cache.json,3,path_str,src/main/cli/cache.py,Y,"""target"": ""src/main/cli/cache.py"","
@@ -219,14 +219,14 @@ src/main/browser-captures/compare_markdown.py,30,comment,src/main/browser-captur
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/export.command,19,path_str,src/main/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
-src/main/browser-captures/run.sh,5,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh
-src/main/browser-captures/run.sh,6,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-src/main/browser-captures/run.sh,7,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-src/main/browser-captures/run.sh,8,comment,src/main/browser-captures/run.sh,Y,#   ./src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
+src/main/browser-captures/run.sh,5,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh
+src/main/browser-captures/run.sh,6,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+src/main/browser-captures/run.sh,7,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+src/main/browser-captures/run.sh,8,comment,src/main/browser-captures/run.sh,Y,#   src/main/browser-captures/run.sh --plan   # print the ordered step list; run nothing
 src/main/browser-captures/run.sh,11,comment,src/main/steps.sh,Y,# exactly the list that executes (see src/main/steps.sh).
 src/main/browser-captures/run.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/browser-captures/run.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
-src/main/browser-captures/run.sh,31,comment,src/main/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root ./src/main/pipeline.sh
+src/main/browser-captures/run.sh,31,comment,src/main/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root src/main/pipeline.sh
 src/main/browser-captures/run.sh,46,call,src/main/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
 src/main/browser-captures/run.sh,53,call,src/main/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
 src/main/browser-captures/run.sh,55,call,src/run_python_script.sh,Y,"step project_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
@@ -334,9 +334,9 @@ src/main/chat-exports/query_files.py,10,comment,src/main/chat-exports/query_file
 src/main/chat-exports/query_files.py,11,comment,src/main/chat-exports/query_files.py,Y,python src/main/chat-exports/query_files.py --chat-exports <path-to-exports>
 src/main/chat-exports/rekey_chats.py,32,comment,src/main/chat-exports/rekey_chats.py,Y,src/main/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
 src/main/chat-exports/require_export.sh,15,comment,src/main/chat-exports/require_export.sh,Y,#   src/main/chat-exports/require_export.sh
-src/main/chat-exports/run.sh,5,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
-src/main/chat-exports/run.sh,6,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
-src/main/chat-exports/run.sh,7,comment,src/main/chat-exports/run.sh,Y,#   ./src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
+src/main/chat-exports/run.sh,5,comment,src/main/chat-exports/run.sh,Y,#   src/main/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
+src/main/chat-exports/run.sh,6,comment,src/main/chat-exports/run.sh,Y,#   src/main/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
+src/main/chat-exports/run.sh,7,comment,src/main/chat-exports/run.sh,Y,#   src/main/chat-exports/run.sh --plan   # print the ordered step list; run nothing
 src/main/chat-exports/run.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
 src/main/chat-exports/run.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/chat-exports/run.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
@@ -393,7 +393,7 @@ src/main/cli/clean.py,20,comment,rsc/cache_io.csv,Y,"The owned-set is DECLARED i
 src/main/cli/clean.py,46,comment,rsc/cache_io.csv,Y,"when it is owned (declared in rsc/cache_io.csv), inside an owned subtree (we"
 src/main/cli/cli.py,5,comment,rsc/cli/README.md,Y,Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/
 src/main/cli/cli.py,15,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
-src/main/cli/cli.py,32,comment,src/main/pipeline.sh,Y,"the table, print the calculus, and generate completion before ./src/main/pipeline.sh has"
+src/main/cli/cli.py,32,comment,src/main/pipeline.sh,Y,"the table, print the calculus, and generate completion before src/main/pipeline.sh has"
 src/main/cli/cli.py,148,comment,src/main/pipeline.sh,Y,holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
 src/main/cli/cli.py,156,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
 src/main/cli/cli.py,187,comment,rsc/cli/README.md,Y,"The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->"
@@ -420,9 +420,9 @@ src/main/code-agents/project_conversation.py,23,comment,src/run_python_script.sh
 src/main/code-agents/project_conversation.py,23,comment,src/main/code-agents/project_conversation.py,Y,src/run_python_script.sh src/main/code-agents/project_conversation.py         <session-dir>    # reads <session-dir>/ses
 src/main/code-agents/render_corpus.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/render_corpus.py [--out <dir>]
 src/main/code-agents/render_corpus.py,24,comment,src/main/code-agents/render_corpus.py,Y,src/run_python_script.sh src/main/code-agents/render_corpus.py [--out <dir>]
-src/main/code-agents/run.sh,11,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machin
-src/main/code-agents/run.sh,12,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
-src/main/code-agents/run.sh,13,comment,src/main/code-agents/run.sh,Y,#   ./src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
+src/main/code-agents/run.sh,11,comment,src/main/code-agents/run.sh,Y,#   src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machine>
+src/main/code-agents/run.sh,12,comment,src/main/code-agents/run.sh,Y,#   src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
+src/main/code-agents/run.sh,13,comment,src/main/code-agents/run.sh,Y,#   src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
 src/main/code-agents/run.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
 src/main/code-agents/run.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/code-agents/run.sh,26,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh"""
@@ -518,19 +518,19 @@ src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh s
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/prerequisites.sh,2,comment,src/prerequisites.sh,Y,"# src/prerequisites.sh — what this machine has, and what it still needs."
-src/prerequisites.sh,17,comment,src/prerequisites.sh,Y,#   ./src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
-src/prerequisites.sh,18,comment,src/prerequisites.sh,Y,"#   ./src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
+src/prerequisites.sh,17,comment,src/prerequisites.sh,Y,#   src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+src/prerequisites.sh,18,comment,src/prerequisites.sh,Y,"#   src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
 src/prerequisites.sh,207,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
 src/prerequisites.sh,211,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
-src/prerequisites.sh,292,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/prerequisites.sh,313,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-src/prerequisites.sh,325,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/prerequisites.sh,346,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
-src/prerequisites.sh,361,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
-src/prerequisites.sh,457,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/prerequisites.sh,460,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
-src/prerequisites.sh,478,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/prerequisites.sh,484,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
+src/prerequisites.sh,299,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
+src/prerequisites.sh,320,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+src/prerequisites.sh,332,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
+src/prerequisites.sh,353,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
+src/prerequisites.sh,368,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
+src/prerequisites.sh,464,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/prerequisites.sh,467,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,485,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,491,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -541,7 +541,7 @@ src/test/code-agents/survey_code_session.py,10,comment,src/test/code-agents/surv
 src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}/*.j
 src/test/prepare_commit_msg.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 src/test/prepare_commit_msg.sh,33,comment,rsc/forge.csv,Y,"# messages: squash_merge_commit_message, declared in rsc/forge.csv and reconciled by"
-src/test/prepare_commit_msg.sh,34,comment,src/prerequisites.sh,Y,# ./src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+src/test/prepare_commit_msg.sh,34,comment,src/prerequisites.sh,Y,# src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
 src/test/prepare_commit_msg.sh,37,comment,src/test/prepare_commit_msg.sh,Y,#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
@@ -557,29 +557,29 @@ src/test/repairs/structure.required_subset_of_properties.py,4,comment,src/test/r
 src/test/run.py,6,comment,src/test/run.sh,Y,src/test/run.sh
 src/test/run.py,7,comment,src/test/run.sh,Y,src/test/run.sh --fix   # run all fix commands; stages nothing
 src/test/run.py,645,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/run.py,697,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/run.py,703,comment,src/main/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
-src/test/run.py,1428,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/run.py,1449,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/run.py,1706,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/run.py,1868,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/run.py,1869,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/run.py,958,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
-src/test/run.py,1006,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
-src/test/run.py,1006,path_str,src/test/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
-src/test/run.py,2167,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2169,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2177,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2179,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1109,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/run.py,1407,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/run.py,1464,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/run.py,1523,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/run.py,1757,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
-src/test/run.py,1922,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/run.py,1933,comment,rsc/cli/README.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/run.py,1933,comment,rsc/CALCULUS.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/run.py,2128,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,711,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/run.py,717,comment,src/main/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
+src/test/run.py,1442,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/run.py,1463,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/run.py,1720,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/run.py,1882,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/run.py,1883,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/run.py,972,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
+src/test/run.py,1020,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
+src/test/run.py,1020,path_str,src/test/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
+src/test/run.py,2181,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2183,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2191,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2193,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,1123,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/run.py,1421,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/run.py,1478,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/run.py,1537,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/run.py,1771,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
+src/test/run.py,1936,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/run.py,1947,comment,rsc/cli/README.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/run.py,1947,comment,rsc/CALCULUS.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/run.py,2142,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,21,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/run.sh,75,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"
@@ -607,7 +607,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/agent/agent.json,Y,
 ,,,rsc/cli/agent/capture.json,Y,
 ,,,rsc/cli/agent/demerge.json,Y,
-,,,rsc/cli/agent/models.json,Y,
+,,,rsc/cli/agent/list-models.json,Y,
 ,,,rsc/cli/agent/receive.json,Y,
 ,,,rsc/cli/browser/browser.json,Y,
 ,,,rsc/cli/cache/cache.json,Y,
@@ -628,8 +628,8 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/forge/prune.json,Y,
 ,,,rsc/cli/forge/sync.json,Y,
 ,,,rsc/cli/indexing/accept.json,Y,
-,,,rsc/cli/indexing/candidates.json,Y,
 ,,,rsc/cli/indexing/indexing.json,Y,
+,,,rsc/cli/indexing/list-candidates.json,Y,
 ,,,rsc/cli/indexing/reject.json,Y,
 ,,,rsc/cli/indexing/sync.json,Y,
 ,,,rsc/cli/memories/memories.json,Y,

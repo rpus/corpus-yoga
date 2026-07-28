@@ -19,6 +19,6 @@ The format authorities are the schemas, not this file:
 The disposal loop:
 
     yoga dashboard capture → concepts   (model reads the corpus, paid)
-    yoga indexing candidates            (pending = concepts − accepted − rejected)
+    yoga indexing list-candidates            (pending = concepts − accepted − rejected)
     accept <term> / reject <concept>    (your judgement, one per concept)
     yoga indexing sync                  (the book index over durable turn anchors)

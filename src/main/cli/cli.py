@@ -29,7 +29,7 @@ Usage:
 
 This module is deliberately STDLIB-ONLY: the yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
-the table, print the calculus, and generate completion before ./src/main/pipeline.sh has
+the table, print the calculus, and generate completion before src/main/pipeline.sh has
 run. Adding a third-party import here would silently break that.
 """
 import argparse

@@ -8,9 +8,9 @@
 # from the live projects root; run it early and often.
 #
 # Usage:
-#   ./src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machine>/<project>
-#   ./src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
-#   ./src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
+#   src/main/code-agents/run.sh --code-agent  <path>   # one project: data/input/claude/code/machine-transport/<machine>/<project>
+#   src/main/code-agents/run.sh --code-agents <path>   # the whole store: data/input/claude/code/machine-transport
+#   src/main/code-agents/run.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (machine_housekeeping, run_one, run_memory, corpus) are the
 # ONE authority on order: --plan prints exactly the lists that execute (see
