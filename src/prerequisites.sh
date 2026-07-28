@@ -287,31 +287,28 @@ check_git_hook() {
   # installation, in its own words — is two answers to one question, and the copy
   # is free to soften into advice on the very branches where nothing is vetting.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
-  local script hook link dir
+  local hook
   if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
   [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
-  # The hook lives in the git COMMON dir, which every worktree shares, and its link is
-  # relative to that dir — so it names the tree owning the git dir, which need not be this
-  # one. That is correct as it stands: run.sh re-execs the committing tree's own gate
-  # (src/test/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
-  # a to-do in every worktree and prescribe a reinstall that writes the identical link.
-  script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/src/test/run.sh"
+  # An ERROR, not a to-do: an absent or outdated hook means commits are landing unvetted
+  # RIGHT NOW, which is not a thing to get round to. ✗ sets missing_required, so the run
+  # exits non-zero and any caller can gate on it.
+  #
+  # The hook must name the COMMAND. A symlink to an implementation is not merely older
+  # style: git skips a hook it cannot resolve and says nothing, so renaming the file it
+  # points at disarms the gate in silence and every commit lands unchecked until someone
+  # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
-    link="$(readlink "$hook")"
-    [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
-    dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd || true)"
-    if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
-      ok "installed: the load-bearing symlink to src/test/run.sh"
-    else
-      todo hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
-    fi
+    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: yoga test install-hook"
+  elif cmp -s "$hook" "$REPO_ROOT/rsc/test/pre-commit-hook.sh"; then
+    ok "installed: a copy of rsc/test/pre-commit-hook.sh, which runs yoga test run"
   elif [[ -e "$hook" ]]; then
-    todo hook "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: yoga test install-hook"
+    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: yoga test install-hook"
   else
-    todo hook "not installed — yoga test install-hook"
+    bad "not installed — nothing vets a commit; install via: yoga test install-hook"
   fi
 }
 
@@ -501,7 +498,7 @@ report() {
   notes
 
   if [[ "$missing_required" -eq 1 ]]; then
-    echo "missing required tools — install the ✗ items above, then re-run"
+    echo "unmet requirements — fix the ✗ items above, then re-run"
     exit 1
   fi
   if (( SHOW_ALL )); then

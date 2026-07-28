@@ -522,15 +522,15 @@ src/prerequisites.sh,17,comment,src/prerequisites.sh,Y,#   src/prerequisites.sh 
 src/prerequisites.sh,18,comment,src/prerequisites.sh,Y,"#   src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
 src/prerequisites.sh,207,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
 src/prerequisites.sh,211,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
-src/prerequisites.sh,299,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/prerequisites.sh,320,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-src/prerequisites.sh,332,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/prerequisites.sh,353,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
-src/prerequisites.sh,368,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
-src/prerequisites.sh,464,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/prerequisites.sh,467,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
-src/prerequisites.sh,485,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/prerequisites.sh,491,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
+src/prerequisites.sh,306,call,rsc/test/pre-commit-hook.sh,Y,"elif cmp -s ""$hook"" ""$REPO_ROOT/rsc/test/pre-commit-hook.sh""; then"
+src/prerequisites.sh,317,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+src/prerequisites.sh,329,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
+src/prerequisites.sh,350,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
+src/prerequisites.sh,365,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
+src/prerequisites.sh,461,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/prerequisites.sh,464,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,482,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,488,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -559,40 +559,45 @@ src/test/run.py,7,comment,src/test/run.sh,Y,src/test/run.sh --fix   # run all fi
 src/test/run.py,645,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
 src/test/run.py,711,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/run.py,717,comment,src/main/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
-src/test/run.py,1445,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
-src/test/run.py,1466,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/run.py,1723,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/run.py,1885,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
-src/test/run.py,1886,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/run.py,972,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
-src/test/run.py,1023,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
-src/test/run.py,1023,path_str,src/test/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
-src/test/run.py,2184,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2186,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2194,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,2196,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/run.py,1126,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/run.py,1424,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/run.py,1481,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/run.py,1540,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/run.py,1774,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
-src/test/run.py,1939,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/run.py,1950,comment,rsc/cli/README.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/run.py,1950,comment,rsc/CALCULUS.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/run.py,2145,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,1452,comment,rsc/cli/README.md,Y,The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+src/test/run.py,1473,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/run.py,1730,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/run.py,1892,comment,src/main/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+src/test/run.py,1893,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/run.py,975,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
+src/test/run.py,1026,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
+src/test/run.py,1026,path_str,src/test/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):"
+src/test/run.py,2191,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2193,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2201,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,2203,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/run.py,911,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
+src/test/run.py,1133,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/run.py,1431,comment,src/main/pipeline.sh,Y,# appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/run.py,1488,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/run.py,1547,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/run.py,1781,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
+src/test/run.py,1946,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/run.py,1957,comment,rsc/cli/README.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/run.py,1957,comment,rsc/CALCULUS.md,Y,"# rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/run.py,2152,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
-src/test/run.sh,21,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
-src/test/run.sh,75,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"
-src/test/run.sh,80,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || true"
-src/test/run.sh,80,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || true"
-src/test/run.sh,97,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" >/dev/null || rc=$?"
-src/test/run.sh,97,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" >/dev/null || rc=$?"
+src/test/run.sh,23,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
+src/test/run.sh,65,comment,rsc/test/pre-commit-hook.sh,Y,"# The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an"
+src/test/run.sh,72,call,rsc/test/pre-commit-hook.sh,Y,"if [[ -n ""$hook_path"" ]] && ! cmp -s ""$hook_path"" ""$REPO_DIR/rsc/test/pre-commit-hook.sh""; then"
+src/test/run.sh,99,comment,rsc/test/run.log,Y,"# rsc/test/run.log (code+schema only, byte-identical on any clone — the"
+src/test/run.sh,104,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || true"
+src/test/run.sh,104,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || true"
+src/test/run.sh,121,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" >/dev/null || rc=$?"
+src/test/run.sh,121,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" >/dev/null || rc=$?"
 src/test/schema_recommendations.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
 src/test/schema_recommendations.py,7,comment,src/test/schema_recommendations.py,Y,src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
-src/test/test.sh,44,path_str,src/test/run.py,Y,"echo ""checks: src/test/run.py — $(grep -c '^def check_' ""$SCRIPT_DIR/run.py"") check sections"""
-src/test/test.sh,56,call,src/test/run.sh,Y,"run)          shift; exec ""$SCRIPT_DIR/run.sh"" ""$@"" ;;"
-src/test/test.sh,57,call,src/run_python_script.sh,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"" ;;"
-src/test/test.sh,57,call,src/test/xref.py,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"" ;;"
+src/test/test.sh,25,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
+src/test/test.sh,45,call,rsc/test/pre-commit-hook.sh,Y,"cp ""$REPO_DIR/rsc/test/pre-commit-hook.sh"" ""$git_dir/pre-commit"""
+src/test/test.sh,57,path_str,src/test/run.py,Y,"echo ""checks: src/test/run.py — $(grep -c '^def check_' ""$SCRIPT_DIR/run.py"") check sections"""
+src/test/test.sh,69,call,src/test/run.sh,Y,"run)          shift; exec ""$SCRIPT_DIR/run.sh"" ""$@"" ;;"
+src/test/test.sh,70,call,src/run_python_script.sh,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"" ;;"
+src/test/test.sh,70,call,src/test/xref.py,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"" ;;"
 src/test/xref.py,5,comment,rsc/test/xref.csv,Y,"`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated"
 src/test/xref.py,7,comment,rsc/test/xref.csv,Y,are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 src/test/xref.py,11,comment,rsc/test/xref.csv,Y,"awk -F, '$5==""N""' rsc/test/xref.csv    # the stale references"

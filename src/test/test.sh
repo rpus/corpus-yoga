@@ -22,20 +22,33 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # nags for both. Naming which to install would put a flag on an axis the command already
 # is (G21), and the answer would always be "both".
 #
-# A SYMLINK, never a copy: a copy drifts silently from the file it was copied from, and
-# nothing would report the divergence. Idempotent by construction — `ln -sfn` replaces
-# whatever is there, including a dangling link left by a rename.
+# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what
+# an installed hook must be: install writes it, prerequisites and the gate compare against
+# it. A copy that drifts is caught by that comparison rather than trusted — the objection
+# to copies is silent drift, and nothing here is silent.
+#
+# prepare-commit-msg stays a SYMLINK, home-anchored. It reads the machine binding, which
+# is machine-scoped and absent from worktrees, so it must NOT follow the committing tree.
+#
+# Both, always: they are the same machinery on the same event, and installing one without
+# the other has no reason (G21 — naming which would flag an axis the command already is).
 install_hook() {
   local git_dir
   git_dir="$(git -C "$REPO_DIR" rev-parse --git-path hooks)" || {
     echo "yoga test install-hook: not a git checkout" >&2; exit 1; }
   mkdir -p "$git_dir"
-  local pair
-  for pair in "pre-commit:run.sh" "prepare-commit-msg:prepare_commit_msg.sh"; do
-    local event="${pair%%:*}" script="${pair##*:}"
-    ln -sfn "../../src/test/$script" "$git_dir/$event"
-    echo "hook: $git_dir/$event → $(readlink "$git_dir/$event")"
-  done
+
+  # UNLINK first: every clone installed before this carries a symlink here, and `cp`
+  # FOLLOWS a symlink — copying onto it would write through the link and destroy the file
+  # it points at, on exactly the machines that are upgrading.
+  rm -f "$git_dir/pre-commit"
+  cp "$REPO_DIR/rsc/test/pre-commit-hook.sh" "$git_dir/pre-commit"
+  chmod +x "$git_dir/pre-commit"
+  echo "hook: $git_dir/pre-commit ← rsc/test/pre-commit-hook.sh"
+
+  ln -sfn "../../src/test/prepare_commit_msg.sh" "$git_dir/prepare-commit-msg"
+  echo "hook: $git_dir/prepare-commit-msg → $(readlink "$git_dir/prepare-commit-msg")"
+
   echo "  every commit now runs yoga test run and is stamped with its Signature;"
   echo "  deliberate WIP is git commit --no-verify"
 }
