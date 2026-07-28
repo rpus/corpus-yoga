@@ -17,7 +17,9 @@
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
-# machine-local fact and `yoga prerequisites` is its one voice. Read a failure:
+# machine-local fact that `yoga prerequisites` reports as an ERROR; a hook that RUNS
+# while being the outdated form is refused below, since only a running hook can say so.
+# Read a failure:
 # git diff rsc/test/run.log
 
 set -euo pipefail
@@ -52,6 +54,27 @@ if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
   echo "       Restore that tree's gate (or commit from a tree that has one);" >&2
   echo "       this home gate will not gate a different tree." >&2
   exit 1
+fi
+
+# Running AS the pre-commit hook (git exports GIT_INDEX_FILE to it). An OUTDATED hook —
+# a symlink to this file, or a copy of it — still runs, and is exactly the form that
+# dangles in silence when this file is renamed: git skips a hook it cannot resolve and
+# says nothing, so the gate fails OPEN. While such a hook is in place, refuse. The only
+# thing still executing is the one that can say so, and the remedy is one command.
+#
+# The marker asserted here is also asserted by `yoga prerequisites` (its one voice for
+# machine state). Duplicated deliberately: if the shim's wording ever changes, both
+# report the hook as outdated — a loud false alarm, never a silent pass.
+if [[ -n "${GIT_INDEX_FILE:-}" ]]; then
+  hook_path="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
+  [[ -z "$hook_path" || "$hook_path" = /* ]] || hook_path="$REPO_DIR/$hook_path"
+  if [[ -n "$hook_path" ]] && { [[ -L "$hook_path" ]] || ! grep -q 'yoga" test run' "$hook_path" 2>/dev/null; }; then
+    echo "ERROR: this commit ran an OUTDATED pre-commit hook." >&2
+    echo "       It points at a file rather than naming \`yoga test run\`, so renaming that" >&2
+    echo "       file would disarm the gate in silence. Nothing is wrong with the change." >&2
+    echo "       → run: yoga test install-hook" >&2
+    exit 1
+  fi
 fi
 
 # The artifacts run.py rewrites on every run — the idempotence subject.

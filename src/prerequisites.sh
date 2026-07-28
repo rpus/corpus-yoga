@@ -293,18 +293,22 @@ check_git_hook() {
     return
   fi
   [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
+  # An ERROR, not a to-do: an absent or outdated hook means commits are landing unvetted
+  # RIGHT NOW, which is not a thing to get round to. ✗ sets missing_required, so the run
+  # exits non-zero and any caller can gate on it.
+  #
   # The hook must name the COMMAND. A symlink to an implementation is not merely older
   # style: git skips a hook it cannot resolve and says nothing, so renaming the file it
   # points at disarms the gate in silence and every commit lands unchecked until someone
   # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
-    todo hook "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: yoga test install-hook"
+    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: yoga test install-hook"
   elif [[ -f "$hook" ]] && grep -q 'yoga" test run' "$hook"; then
     ok "installed: the shim that runs yoga test run"
   elif [[ -e "$hook" ]]; then
-    todo hook "a pre-commit hook exists but does not run yoga test run — replace: yoga test install-hook"
+    bad "a pre-commit hook exists but does not run yoga test run — replace: yoga test install-hook"
   else
-    todo hook "not installed — yoga test install-hook"
+    bad "not installed — nothing vets a commit; install via: yoga test install-hook"
   fi
 }
 
@@ -494,7 +498,7 @@ report() {
   notes
 
   if [[ "$missing_required" -eq 1 ]]; then
-    echo "missing required tools — install the ✗ items above, then re-run"
+    echo "unmet requirements — fix the ✗ items above, then re-run"
     exit 1
   fi
   if (( SHOW_ALL )); then
