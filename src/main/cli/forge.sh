@@ -411,7 +411,9 @@ merge() {
   # from comparing the local tip with the head we just merged. Equal means everything local
   # is in the squash; different means unpushed work, and the branch stays.
   echo
-  git -C "$REPO_DIR" fetch --quiet --prune origin || true
+  # fetch WITHOUT pruning: the fast-forward below needs origin/$base, but pruning here
+  # asks the server before it has finished deleting the head branch (see the end).
+  git -C "$REPO_DIR" fetch --quiet origin || true
   # the base must actually HOLD the squash here, or the next thing anyone types is a manual
   # pull — the same residue in another shape
   if git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base" 2>/dev/null; then
@@ -433,6 +435,22 @@ merge() {
     fi
   done < <(branches)
   [[ -n "$found" ]] || echo "local: no branch $head here — nothing to prune"
+
+  # ONE prune, at the LATEST moment. delete_branch_on_merge removes the remote branch
+  # ASYNCHRONOUSLY after the squash: a prune taken earlier asks while the branch still
+  # exists, keeps the tracking ref, and leaves behind exactly the drift `yoga forge`
+  # reports — the merge creating the mess its own command exists to clear. By here the
+  # deletion has had the squash, the fetch, the fast-forward and the local delete to land.
+  local tracked=""
+  git -C "$REPO_DIR" show-ref --verify --quiet "refs/remotes/origin/$head" && tracked=1
+  git -C "$REPO_DIR" remote prune origin >/dev/null 2>&1 || true
+  if [[ -n "$tracked" ]]; then
+    if git -C "$REPO_DIR" show-ref --verify --quiet "refs/remotes/origin/$head"; then
+      echo "local: origin/$head still tracked — the forge had not dropped it yet; yoga forge prune"
+    else
+      echo "local: origin/$head forgotten — the forge has dropped it"
+    fi
+  fi
 
   # The trailing half of the bracket (G19), shown rather than asserted: which branch you
   # are on and what the tree holds. A merge that leaves a modified artifact behind will
