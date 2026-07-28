@@ -254,6 +254,21 @@ merge() {
   # tree is a combination nothing has ever checked.
   [[ -n "$already" || "$mstate" == CLEAN ]] || { echo "yoga forge merge: #$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first" >&2; exit 1; }
 
+  # This machine is about to land work on a base every clone pulls. `yoga forge merge`
+  # makes no local commit — it squashes server-side and fast-forwards — so no pre-commit
+  # hook ever fires here, and the assumption above (the branch's own hook gated its tree)
+  # is only as good as that hook. A dangling one gates nothing and says nothing.
+  #
+  # So the machine's own requirements are checked instead, at the one step that is
+  # irreversible. `yoga prerequisites` exits non-zero on its ✗ class — an absent or
+  # outdated hook among them — and its report says which.
+  if ! "$REPO_DIR/yoga" prerequisites >/dev/null 2>&1; then
+    echo "yoga forge merge: this machine has unmet requirements, so what it committed may" >&2
+    echo "never have been gated — merging would land it on $(base_branch) regardless." >&2
+    echo "  → run: yoga prerequisites" >&2
+    exit 1
+  fi
+
   # 2b. the postcondition moves HEAD to the base branch, so the tree must be clean FIRST:
   # a merge that lands and then cannot tidy up is worse than one that refuses early.
   local base current

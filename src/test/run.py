@@ -1059,7 +1059,11 @@ def check_cli_surface(run) -> None:
             law='G17', check='output.prescriptions_are_commands')
         if not ok:
             continue
-        words = [clean(w) for w in (rest if head == 'yoga' else f' {head}{rest}').split()]
+        # A prescription ends where the SHELL takes over: `→ run: yoga prerequisites" >&2`
+        # prescribes `yoga prerequisites`, and `>&2` is the redirection of the echo that
+        # prints it, not a verb the reader types.
+        tail = re.split(r'[|;&<>]|\)\s*$', rest, maxsplit=1)[0]
+        words = [clean(w) for w in (tail if head == 'yoga' else f' {head}{tail}').split()]
         words = [w for w in words if not unreadable(w)]
         cmd = next((w for w in words if not w.startswith('-')), None)
         if cmd is None or cmd not in declared:
