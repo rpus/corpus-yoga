@@ -145,6 +145,23 @@ status() {
     done <<< "$rows"
     [[ -z "${d:-}" ]] || echo "    → run: yoga forge prune"
   fi
+
+  # Whether this checkout can gate is forge business: merging lands work on a base every
+  # clone pulls, and a machine whose pre-commit hook is absent or outdated has been
+  # committing unvetted — so what it is about to land was never checked. The AUTHORITY is
+  # rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the gate compare
+  # against; this reads that file rather than holding a second opinion about it.
+  echo "this checkout's gate — the hook that vets what you commit"
+  local hook accepted="$REPO_DIR/rsc/test/pre-commit-hook.sh"
+  hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
+  [[ -z "$hook" || "$hook" = /* ]] || hook="$REPO_DIR/$hook"
+  if [[ -n "$hook" ]] && cmp -s "$hook" "$accepted"; then
+    echo "  ✓ pre-commit: a copy of rsc/test/pre-commit-hook.sh"
+  else
+    echo "  ✗ pre-commit: not the accepted hook — commits from here are not being vetted"
+    echo "    → run: yoga test install-hook"
+    drift=1
+  fi
   return $drift
 }
 
@@ -222,7 +239,7 @@ merge() {
   echo "yoga forge merge $pr — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
   # 1. the forge itself: merging under undeclared settings composes main by rules nobody wrote
-  status || { echo "yoga forge merge: forge settings drift — reconcile first (yoga forge sync --apply)" >&2; exit 1; }
+  status || { echo "yoga forge merge: refused — settle the ✗ lines above first; each names its own remedy" >&2; exit 1; }
 
   # 2. the PR's own state, from the forge rather than from optimism
   local json
@@ -253,21 +270,6 @@ merge() {
   # the branch's tree, which its own pre-commit hook already gated. Behind main, the merged
   # tree is a combination nothing has ever checked.
   [[ -n "$already" || "$mstate" == CLEAN ]] || { echo "yoga forge merge: #$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first" >&2; exit 1; }
-
-  # This machine is about to land work on a base every clone pulls. `yoga forge merge`
-  # makes no local commit — it squashes server-side and fast-forwards — so no pre-commit
-  # hook ever fires here, and the assumption above (the branch's own hook gated its tree)
-  # is only as good as that hook. A dangling one gates nothing and says nothing.
-  #
-  # So the machine's own requirements are checked instead, at the one step that is
-  # irreversible. `yoga prerequisites` exits non-zero on its ✗ class — an absent or
-  # outdated hook among them — and its report says which.
-  if ! "$REPO_DIR/yoga" prerequisites >/dev/null 2>&1; then
-    echo "yoga forge merge: this machine has unmet requirements, so what it committed may" >&2
-    echo "never have been gated — merging would land it on $(base_branch) regardless." >&2
-    echo "  → run: yoga prerequisites" >&2
-    exit 1
-  fi
 
   # 2b. the postcondition moves HEAD to the base branch, so the tree must be clean FIRST:
   # a merge that lands and then cannot tidy up is worse than one that refuses early.
