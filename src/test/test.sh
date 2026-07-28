@@ -22,20 +22,43 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # nags for both. Naming which to install would put a flag on an axis the command already
 # is (G21), and the answer would always be "both".
 #
-# A SYMLINK, never a copy: a copy drifts silently from the file it was copied from, and
-# nothing would report the divergence. Idempotent by construction — `ln -sfn` replaces
-# whatever is there, including a dangling link left by a rename.
+# pre-commit names the COMMAND, not the file behind it. A symlink to an implementation
+# dangles the moment that file is renamed, and git treats a hook it cannot resolve as no
+# hook at all — silently, so the gate fails OPEN and every commit lands unchecked until
+# someone runs `yoga prerequisites`. `yoga test run` is the name; which file serves it is
+# the CLI's business (#46: what you are told to run is a command, never a repo script by
+# path). A shim of one line cannot drift the way a copied script would: its content is an
+# invocation, and that the invocation resolves is what the declaration tree already holds.
+#
+# prepare-commit-msg stays a SYMLINK, home-anchored. It reads the machine binding, which
+# is machine-scoped and absent from worktrees, so it must NOT follow the committing tree
+# the way `git rev-parse --show-toplevel` would make it.
+#
+# Both, always: they are the same machinery on the same event, and installing one without
+# the other has no reason (G21 — naming which would flag an axis the command already is).
 install_hook() {
   local git_dir
   git_dir="$(git -C "$REPO_DIR" rev-parse --git-path hooks)" || {
     echo "yoga test install-hook: not a git checkout" >&2; exit 1; }
   mkdir -p "$git_dir"
-  local pair
-  for pair in "pre-commit:run.sh" "prepare-commit-msg:prepare_commit_msg.sh"; do
-    local event="${pair%%:*}" script="${pair##*:}"
-    ln -sfn "../../src/test/$script" "$git_dir/$event"
-    echo "hook: $git_dir/$event → $(readlink "$git_dir/$event")"
-  done
+
+  # UNLINK first. Every clone installed before this carries a symlink here, and `>`
+  # FOLLOWS a symlink: redirecting onto it would write the shim through the link and
+  # destroy src/test/run.sh, on exactly the machines that are upgrading.
+  rm -f "$git_dir/pre-commit"
+  # shellcheck disable=SC2016  # the shim resolves its own toplevel AT COMMIT TIME, in the
+  # committing tree — expanding it here would nail the hook to this checkout
+  printf '%s\n' '#!/usr/bin/env bash' \
+    '# yoga test install-hook wrote this. It names the COMMAND: a symlink to an' \
+    '# implementation dangles when that file is renamed, and git skips an unresolvable' \
+    '# hook without a word.' \
+    'exec "$(git rev-parse --show-toplevel)/yoga" test run "$@"' > "$git_dir/pre-commit"
+  chmod +x "$git_dir/pre-commit"
+  echo "hook: $git_dir/pre-commit → yoga test run"
+
+  ln -sfn "../../src/test/prepare_commit_msg.sh" "$git_dir/prepare-commit-msg"
+  echo "hook: $git_dir/prepare-commit-msg → $(readlink "$git_dir/prepare-commit-msg")"
+
   echo "  every commit now runs yoga test run and is stamped with its Signature;"
   echo "  deliberate WIP is git commit --no-verify"
 }

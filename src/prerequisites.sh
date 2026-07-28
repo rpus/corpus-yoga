@@ -287,29 +287,22 @@ check_git_hook() {
   # installation, in its own words — is two answers to one question, and the copy
   # is free to soften into advice on the very branches where nothing is vetting.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
-  local script hook link dir
+  local hook
   if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
   [[ "$hook" = /* ]] || hook="$REPO_ROOT/$hook"
-  # The hook lives in the git COMMON dir, which every worktree shares, and its link is
-  # relative to that dir — so it names the tree owning the git dir, which need not be this
-  # one. That is correct as it stands: run.sh re-execs the committing tree's own gate
-  # (src/test/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
-  # a to-do in every worktree and prescribe a reinstall that writes the identical link.
-  script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/src/test/run.sh"
+  # The hook must name the COMMAND. A symlink to an implementation is not merely older
+  # style: git skips a hook it cannot resolve and says nothing, so renaming the file it
+  # points at disarms the gate in silence and every commit lands unchecked until someone
+  # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
-    link="$(readlink "$hook")"
-    [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
-    dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd || true)"
-    if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
-      ok "installed: the load-bearing symlink to src/test/run.sh"
-    else
-      todo hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
-    fi
+    todo hook "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: yoga test install-hook"
+  elif [[ -f "$hook" ]] && grep -q 'yoga" test run' "$hook"; then
+    ok "installed: the shim that runs yoga test run"
   elif [[ -e "$hook" ]]; then
-    todo hook "a pre-commit hook exists but is not the load-bearing symlink (a copy drifts silently) — replace: yoga test install-hook"
+    todo hook "a pre-commit hook exists but does not run yoga test run — replace: yoga test install-hook"
   else
     todo hook "not installed — yoga test install-hook"
   fi
