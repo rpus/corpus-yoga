@@ -362,7 +362,7 @@ check_forge() {
       DRIFT) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
       *)     info "$key: $detail" ;;
     esac
-  done < <("$REPO_ROOT/src/main/cli/forge.sh" --tsv 2>/dev/null)
+  done < <("$REPO_ROOT/src/main/cli/forge.sh" --tsv 2>/dev/null | awk -F'\t' '$1=="settings"{sub(/^settings\t/,""); print}')
 }
 
 check_pipeline_inputs() {

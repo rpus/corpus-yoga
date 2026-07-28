@@ -1,11 +1,11 @@
 {
-  "help": "delete local branches whose work the base already holds \u2014 merged, or closed with every commit in the base \u2014 a dry run unless --apply",
+  "help": "forget what the forge no longer has — local branches whose work the base already holds, and remote-tracking refs for branches it has deleted — a dry run unless --apply",
   "args": [
     {
       "name": "--apply",
       "type": "",
       "cardinality": "",
-      "help": "perform the deletions \u2014 without it, the branches and reasons are only reported"
+      "help": "perform the deletions — without it, the branches and reasons are only reported"
     }
   ]
 }

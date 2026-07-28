@@ -403,12 +403,13 @@ src/main/cli/cli.py,214,comment,rsc/CALCULUS.md,Y,"The corpus laws, parsed from 
 src/main/cli/completions.py,106,comment,rsc/cli/README.md,Y,# Flags are scoped to their verb (rsc/cli/README.md): offer each
 src/main/cli/forge.sh,5,comment,rsc/forge.csv,Y,# sees them and no git config holds them; rsc/forge.csv declares them.
 src/main/cli/forge.sh,10,comment,rsc/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
-src/main/cli/forge.sh,27,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forge.csv"""
-src/main/cli/forge.sh,32,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { echo -e ""UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t""; return; }"
-src/main/cli/forge.sh,56,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
-src/main/cli/forge.sh,132,comment,rsc/forge.csv,Y,"# same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state, and"
-src/main/cli/forge.sh,152,comment,rsc/test/pre-commit-hook.sh,Y,"# rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the gate compare"
-src/main/cli/forge.sh,155,call,rsc/test/pre-commit-hook.sh,Y,"local hook accepted=""$REPO_DIR/rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge.sh,26,path_str,rsc/forge.csv,Y,"DECLARED=""$REPO_DIR/rsc/forge.csv"""
+src/main/cli/forge.sh,31,path_str,rsc/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { echo -e ""UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t""; return; }"
+src/main/cli/forge.sh,55,path_str,rsc/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
+src/main/cli/forge.sh,134,comment,rsc/test/pre-commit-hook.sh,Y,"# The AUTHORITY is rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the"
+src/main/cli/forge.sh,137,call,rsc/test/pre-commit-hook.sh,Y,"local hook accepted=""$REPO_DIR/rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge.sh,166,comment,rsc/forge.csv,Y,"# same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state, and"
+src/main/cli/forge.sh,201,comment,rsc/test/pre-commit-hook.sh,Y,"# rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the gate compare"
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
@@ -528,7 +529,7 @@ src/prerequisites.sh,306,call,rsc/test/pre-commit-hook.sh,Y,"elif cmp -s ""$hook
 src/prerequisites.sh,317,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
 src/prerequisites.sh,329,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
 src/prerequisites.sh,350,comment,rsc/forge.csv,Y,# the server: no clone can see them and no git config holds them. rsc/forge.csv is the
-src/prerequisites.sh,365,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null)"
+src/prerequisites.sh,365,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null | awk -F'\t' '$1==""settings""{sub(/^settings\t/,""""); print}"
 src/prerequisites.sh,461,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
 src/prerequisites.sh,464,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
 src/prerequisites.sh,482,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
