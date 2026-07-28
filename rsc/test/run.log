@@ -1,4 +1,4 @@
-run.py: 1906/1906 (data: machine-local)
+run.py: 1909/1909 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -94,11 +94,11 @@ run.py: 1906/1906 (data: machine-local)
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (52/52)
+  ✓ schema.valid_json_with_schema  (53/53)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (52/52)
-  ✓ schema.changelog_no_todo  (52/52)
+  ✓ schema.changelog_narrative  (53/53)
+  ✓ schema.changelog_no_todo  (53/53)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (51/51)
@@ -151,11 +151,11 @@ run.py: 1906/1906 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 87 types, 1906/1906 invocations passing
+  ✓ checks[code+schema]: 87 types, 1909/1909 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
   ✓ checks[code]: 51 types, 468/468 invocations passing
-  ✓ checks[schema]: 36 types, 1438/1438 invocations passing
+  ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1906/1906 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1909/1909 match the committed expectation; nothing here vetoes a commit

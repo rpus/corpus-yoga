@@ -16,6 +16,19 @@ the matching URL:
   it stands in `data/input/`.
 - **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already
   complete page.
+- **`rsc/site/yoga/dataflow.dot`** → `rpus.co/yoga/dataflow.svg` — the repo's dataflow
+  map: tiers as clusters, one edge per writing command. Black is the
+  feed-forward kernel (input →pipeline→ cache →pipeline→ output, `rsc/`
+  parameterizing every arrow); red dashed is the reflexive layer (the corpus
+  reading and curating itself — dashboard readings, indexing curation,
+  presentation); blue is the sends; green is the human's own writes. The `.dot`
+  is the one committed source — hand-curated until the resource registry can
+  derive it. The renderings are derived presentation (L5), generated on demand
+  and never committed; the deploy generates before it copies:
+
+```bash
+cd rsc/site/yoga && dot -Tsvg dataflow.dot -o dataflow.svg && dot -Tpng dataflow.dot -o dataflow.png
+```
 
 Self-contained by construction (no external fonts, scripts, or images), light/dark
 via `prefers-color-scheme`, and honest about affordances: nothing renders as a
@@ -28,8 +41,10 @@ its root is the publish directory (the same repo the presented dashboard
 `index.html` is copied into). Deploying a page from here is a copy plus a
 push in that repo:
 
+```bash
     cp -R rsc/site/yoga <path-to-site-repo>/
     cd <path-to-site-repo> && git add yoga && git commit -m "yoga landing" && git push
+```
 
 Netlify builds on push; `rpus.co/yoga/` serves the directory index. The site
 repo's location is machine-local (it is not this repo's business) — a

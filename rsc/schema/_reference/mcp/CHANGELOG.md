@@ -14,6 +14,35 @@ update-in-place remedy, which destroyed it).
 
 ---
 
+## v2
+
+Upstream fixed its own generator: commit `c4c367f` ("schema: fix 2025-11-25
+NumberSchema min/max/default to number in generated JSON") retypes
+`NumberSchema.minimum` / `.maximum` / `.default` from `integer` to `number` —
+three lines, nothing else. The snapshot follows: same conversion as v1
+(`$defs` → `definitions`, refs rewritten, draft-04 `$schema`), proven by
+reproducing v1 byte-for-byte from the old upstream before converting the new.
+Every definition name survives, so every `model_join.csv` `mcp_path` pointer
+resolves against v2 unchanged.
+
+### Replaces
+
+[v1.json](./v1.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `NumberSchema.minimum` / `.maximum` / `.default` — `integer` → `number`,
+  upstream's own correction; a fractional bound or default is now admitted,
+  as the protocol always intended.
+
+#### Refactored
+
+None.
+
 ## v1
 
 The MCP schema of 2025-11-25, taken at upstream commit `357adac` and converted

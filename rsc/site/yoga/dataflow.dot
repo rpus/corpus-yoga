@@ -1,0 +1,93 @@
+// The repo's dataflow: tiers as clusters, one edge per writing command.
+//   black solid = the feed-forward kernel: input -(pipeline)-> cache -(pipeline)-> output
+//   red dashed  = the reflexive layer: the corpus reading and curating itself
+//   blue        = sends (wire crossings: what YOGA_NO_SEND refuses)
+//   green       = the human's own writes
+// Edges are labeled with the COMMAND that writes them, never a file path.
+digraph yoga {
+  rankdir=LR;
+  fontname="Helvetica"; fontsize=11;
+  node [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
+  edge [fontname="Helvetica", fontsize=9];
+
+  // ── outside the repo ─────────────────────────────────────────
+  subgraph cluster_world {
+    label="outside"; style=dashed; color=gray60;
+    claudeai   [label="claude.ai / Safari\n(logged-in session)"];
+    anthropic  [label="api.anthropic.com\n(PAID)"];
+    cdn        [label="CDN / PyPI\n(vendor)"];
+    forge      [label="GitHub forge"];
+    human      [label="the human", shape=ellipse, color=darkgreen, fontcolor=darkgreen];
+    peer       [label="peer machine\n(same store, iCloud)"];
+    liveproj   [label="ext/ → ~/.claude\n(live session store)"];
+  }
+
+  // ── rsc/ (committed) ─────────────────────────────────────────
+  subgraph cluster_rsc {
+    label="rsc/  (committed: parameterizes every arrow)"; color=gray40;
+    schemas [label="schema/ (families,\nmodel.json, model_join)"];
+    clidecl [label="cli/ (declaration tree,\nG-laws)"];
+  }
+
+  // ── data/input/ ──────────────────────────────────────────────
+  subgraph cluster_input {
+    label="data/input/  (acquired)"; color=black;
+    bulk    [label="bulk-export/"];
+    brapi   [label="browser-API/ + DOM/"];
+    store   [label="machine-transport/\n(the agent store)"];
+  }
+
+  // ── tmp/cache/ ───────────────────────────────────────────────
+  subgraph cluster_cache {
+    label="tmp/cache/  (machine-local, rebuildable)"; color=black;
+    pipec   [label="browser-captures/\nchat-exports/  code-agents/\n(atomised, validated, matrices)"];
+    dashc   [label="dashboard/ (tables)", color=red3];
+    idxc    [label="indexing/ (pending queue)", color=red3];
+    modelc  [label="model/ (catalogues)"];
+    compc   [label="completions/"];
+    vendc   [label="serve_markdown/ (VENDOR:\nonline-only rebuild)", color=red3];
+  }
+
+  // ── data/output/ ─────────────────────────────────────────────
+  subgraph cluster_output {
+    label="data/output/  (durable, iCloud-shared)"; color=black;
+    corpus  [label="markdown/ corpus\n(+ index.md, summaries stores)"];
+    deposits[label="memories/ deposits\n(L4 monotone)"];
+    reading [label="dashboard/ captures\n(model READINGS)", color=red3];
+    curation[label="indexing/ accepted+rejected\n(user READINGS)", color=red3];
+    page    [label="dashboard/ presentation\n(the page)", color=red3];
+    artifacts[label="artifacts/downloaded\n(precious)", color=darkgreen];
+  }
+
+  // ── the KERNEL: input →(pipeline)→ cache →(pipeline)→ output ─
+  claudeai -> brapi   [label="browser capture", color=blue, fontcolor=blue];
+  liveproj -> store   [label="agent capture"];
+  peer     -> liveproj[label="agent receive --apply"];
+  human    -> bulk    [label="downloads", color=darkgreen, fontcolor=darkgreen];
+  bulk  -> pipec  [label="pipeline run"];
+  brapi -> pipec  [label="pipeline run"];
+  store -> pipec  [label="pipeline run"];
+  schemas -> pipec [label="validate", style=dotted];
+  pipec -> corpus   [label="pipeline run (project)"];
+  pipec -> deposits [label="memories/summaries sync (steps)"];
+
+  // ── support caches from rsc ──────────────────────────────────
+  clidecl -> compc  [label="completions sync"];
+  schemas -> modelc [label="model sync"];
+  modelc  -> schemas [label="curate: document/reject", color=darkgreen, fontcolor=darkgreen, style=dashed];
+
+  // ── the REFLEXIVE layer: output reads itself ─────────────────
+  corpus  -> anthropic [label="dashboard capture", color=blue, fontcolor=blue, style=dashed];
+  anthropic -> reading [label="promote", color=red3, fontcolor=red3, style=dashed];
+  corpus  -> dashc  [label="dashboard sync", color=red3, fontcolor=red3, style=dashed];
+  reading -> dashc  [color=red3, style=dashed];
+  dashc   -> page   [label="dashboard sync", color=red3, fontcolor=red3, style=dashed];
+  reading -> idxc   [label="indexing list-candidates", color=red3, fontcolor=red3, style=dashed];
+  idxc    -> curation [label="indexing accept/reject", color=darkgreen, fontcolor=darkgreen];
+  curation -> corpus [label="indexing sync (corpus tail):\nindex.md", color=red3, fontcolor=red3, style=dashed];
+  corpus  -> corpus  [label="summaries keys on projection", color=red3, fontcolor=red3, style=dashed];
+
+  // ── vendor + forge ───────────────────────────────────────────
+  cdn   -> vendc [label="server ensure-assets", color=blue, fontcolor=blue];
+  clidecl -> forge [label="forge sync --apply / merge", color=blue, fontcolor=blue];
+}

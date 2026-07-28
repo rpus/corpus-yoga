@@ -122,6 +122,7 @@ rsc/schema/WORKFLOW.md,256,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED
 rsc/schema/WORKFLOW.md,280,doc,src/test/run.sh,Y,src/test/run.sh
 rsc/schema/WORKFLOW.md,281,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
 rsc/schema/WORKFLOW.md,287,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/_reference/mcp/CHANGELOG.md,30,doc,rsc/schema/_reference/mcp/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,24,doc,rsc/schema/browser-captures/apiConversation/v8.json,Y,[v8.json](./v8.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,36,doc,rsc/schema/browser-captures/apiConversation/v7.json,Y,[v7.json](./v7.json)
@@ -195,7 +196,10 @@ rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as committed data"
 rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
 rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
-rsc/site/README.md,31,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
+rsc/site/README.md,19,doc,rsc/site/yoga/dataflow.dot,Y,- **`rsc/site/yoga/dataflow.dot`** → `rpus.co/yoga/dataflow.svg` — the repo's dataflow
+rsc/site/README.md,21,doc,rsc,Y,"feed-forward kernel (input →pipeline→ cache →pipeline→ output, `rsc/`"
+rsc/site/README.md,30,doc,rsc/site/yoga,Y,cd rsc/site/yoga && dot -Tsvg dataflow.dot -o dataflow.svg && dot -Tpng dataflow.dot -o dataflow.png
+rsc/site/README.md,45,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/browser.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -672,6 +676,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/test/run.json,Y,
 ,,,rsc/cli/test/test.json,Y,
 ,,,rsc/cli/test/xref.json,Y,
+,,,rsc/schema/_reference/mcp/v2.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/apiConversation/v9.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
