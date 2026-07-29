@@ -26,7 +26,13 @@ digraph yoga {
   subgraph cluster_rsc {
     label="rsc/  (committed: parameterizes every arrow)"; color=gray40;
     schemas [label="schema/ (families,\nmodel.json, model_join)"];
-    clidecl [label="cli/ (declaration tree,\nG-laws)"];
+    sitesrc [label="site/ (authored pages,\ndataflow.dot, template)"];
+  }
+
+  // ── src/main/cli/ (committed) ────────────────────────────────
+  subgraph cluster_cli {
+    label="src/main/cli/  (the program's self-description)"; color=gray40;
+    clidecl [label="declaration tree,\nG-laws, forge.csv"];
   }
 
   // ── data/input/ ──────────────────────────────────────────────
@@ -55,14 +61,14 @@ digraph yoga {
     deposits[label="memories/ deposits\n(L4 monotone)"];
     reading [label="dashboard/ captures\n(model READINGS)", color=red3];
     curation[label="indexing/ accepted+rejected\n(user READINGS)", color=red3];
-    page    [label="dashboard/ presentation\n(the page)", color=red3];
+    site    [label="site/ (publish tree:\nindex.html + page dirs)", color=red3];
     artifacts[label="artifacts/downloaded\n(precious)", color=darkgreen];
   }
 
   // ── the KERNEL: input →(pipeline)→ cache →(pipeline)→ output ─
   claudeai -> brapi   [label="browser capture", color=blue, fontcolor=blue];
   liveproj -> store   [label="agent capture"];
-  peer     -> liveproj[label="agent receive --apply"];
+  peer     -> liveproj[label="agent install --apply"];
   human    -> bulk    [label="downloads", color=darkgreen, fontcolor=darkgreen];
   bulk  -> pipec  [label="pipeline run"];
   brapi -> pipec  [label="pipeline run"];
@@ -81,7 +87,8 @@ digraph yoga {
   anthropic -> reading [label="promote", color=red3, fontcolor=red3, style=dashed];
   corpus  -> dashc  [label="dashboard sync", color=red3, fontcolor=red3, style=dashed];
   reading -> dashc  [color=red3, style=dashed];
-  dashc   -> page   [label="dashboard sync", color=red3, fontcolor=red3, style=dashed];
+  dashc   -> site   [label="dashboard sync", color=red3, fontcolor=red3, style=dashed];
+  sitesrc -> site   [label="site sync", color=red3, fontcolor=red3, style=dashed];
   reading -> idxc   [label="indexing list-candidates", color=red3, fontcolor=red3, style=dashed];
   idxc    -> curation [label="indexing accept/reject", color=darkgreen, fontcolor=darkgreen];
   curation -> corpus [label="indexing sync (corpus tail):\nindex.md", color=red3, fontcolor=red3, style=dashed];

@@ -1,4 +1,4 @@
-run.py: 1909/1909 (data: machine-local)
+run.py: 1928/1928 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,19 +12,19 @@ run.py: 1909/1909 (data: machine-local)
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (17/17)
-  ✓ cli.calculus_defined  (17/17)
+  ✓ cli.target_exists  (18/18)
+  ✓ cli.calculus_defined  (18/18)
   ✓ cli.advertised_flags_exist  (13/13)
-  ✓ cli.docstring_flags_advertised  (15/15)
-  ✓ cli.subcommands_dispatch  (15/15)
-  ✓ cli.target_flags_advertised  (15/15)
-  ✓ cli.help_one_screen  (15/15)
+  ✓ cli.docstring_flags_advertised  (16/16)
+  ✓ cli.subcommands_dispatch  (16/16)
+  ✓ cli.target_flags_advertised  (16/16)
+  ✓ cli.help_one_screen  (16/16)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (17/17)
+  ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (14/14)
-  ✓ output.prescriptions_are_commands  (62/62)
+  ✓ output.prescriptions_are_commands  (68/68)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -32,10 +32,10 @@ run.py: 1909/1909 (data: machine-local)
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (65/65)
   ✓ structure.file_at_level_of_subject  (19/19)
-  ✓ structure.cli_declaration_mirrors_the_api  (18/18)
-  ✓ structure.cli_declaration_validates  (49/49)
-  ✓ cli.every_form_listed  (34/34)
-  ✓ cli.flag_not_axis_value  (16/16)
+  ✓ structure.cli_declaration_mirrors_the_api  (19/19)
+  ✓ structure.cli_declaration_validates  (51/51)
+  ✓ cli.every_form_listed  (36/36)
+  ✓ cli.flag_not_axis_value  (17/17)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
@@ -151,11 +151,11 @@ run.py: 1909/1909 (data: machine-local)
   ✓ checks[schema]
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 87 types, 1909/1909 invocations passing
+  ✓ checks[code+schema]: 87 types, 1928/1928 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 51 types, 468/468 invocations passing
+  ✓ checks[code]: 51 types, 487/487 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1909/1909 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1928/1928 match the committed expectation; nothing here vetoes a commit

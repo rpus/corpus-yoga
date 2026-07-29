@@ -155,13 +155,9 @@ rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": 
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
 rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
-rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as committed data"
-rsc/site/README.md,4,doc,rsc,Y,"in `rsc/`. The directory mirrors the site's path space, so a file here serves at"
-rsc/site/README.md,17,doc,rsc/site/yoga/index.html,Y,"- **`yoga/index.html`** → `rpus.co/yoga/` — the yoga landing, a static, already"
-rsc/site/README.md,19,doc,rsc/site/yoga/dataflow.dot,Y,- **`rsc/site/yoga/dataflow.dot`** → `rpus.co/yoga/dataflow.svg` — the repo's dataflow
-rsc/site/README.md,21,doc,rsc,Y,"feed-forward kernel (input →pipeline→ cache →pipeline→ output, `rsc/`"
-rsc/site/README.md,30,doc,rsc/site/yoga,Y,cd rsc/site/yoga && dot -Tsvg dataflow.dot -o dataflow.svg && dot -Tpng dataflow.dot -o dataflow.png
-rsc/site/README.md,45,doc,rsc/site/yoga,Y,cp -R rsc/site/yoga <path-to-site-repo>/
+rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as authored sources"
+rsc/site/README.md,19,doc,rsc/site/yoga/index.html,Y,"`rpus.co/yoga/`. `rsc/site/yoga/index.html` is the yoga landing, static and"
+rsc/site/README.md,20,doc,rsc/site/yoga/dataflow.dot,Y,complete. `rsc/site/yoga/dataflow.dot` is the repo's dataflow map: tiers as
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/browser.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -415,6 +411,15 @@ src/main/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `seman
 src/main/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
 src/main/cli/server/server.json,3,path_str,src/main/model/server.sh,Y,"""target"": ""src/main/model/server.sh"","
+src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.sh,18,path_str,rsc/site,Y,"SRC=""$REPO_DIR/rsc/site"""
+src/main/cli/site/site.sh,47,path_str,rsc/site,Y,"done < <(page_files ""$SRC"")"
+src/main/cli/site/site.sh,55,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep '\.dot$' || true)"
+src/main/cli/site/site.sh,71,path_str,rsc/site,Y,"for d in ""$SRC""/*/; do"
+src/main/cli/site/site.sh,77,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"")"
+src/main/cli/site/site.sh,81,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"" | grep '\.dot$' || true)"
+src/main/cli/site/site.sh,90,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"")"
+src/main/cli/site/site.sh,99,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"" | grep '\.dot$' || true)"
 src/main/cli/subcommand.schema.json,25,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/chat-exports/summaries.py,Y,"""target"": ""src/main/chat-exports/summaries.py"","
 src/main/cli/supersede/supersede.json,3,path_str,src/main/chat-exports/supersede.py,Y,"""target"": ""src/main/chat-exports/supersede.py"","
@@ -695,6 +700,8 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/main/cli/server/server.json,Y,
 ,,,src/main/cli/server/start.json,Y,
 ,,,src/main/cli/server/stop.json,Y,
+,,,src/main/cli/site/site.json,Y,
+,,,src/main/cli/site/sync.json,Y,
 ,,,src/main/cli/subcommand.schema.json,Y,
 ,,,src/main/cli/summaries/summaries.json,Y,
 ,,,src/main/cli/summaries/sync.json,Y,

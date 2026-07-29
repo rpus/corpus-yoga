@@ -1,0 +1,4 @@
+{
+  "help": "assemble data/output/site/ from rsc/site/ — page dirs copied, every .dot rendered to svg+png (skipped without graphviz) — idempotent; index.html stays dashboard sync's",
+  "args": []
+}

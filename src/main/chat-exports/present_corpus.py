@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-present_corpus.py — render THE CORPUS dashboard: data/output/dashboard/presentation/index.html.
+present_corpus.py — render THE CORPUS dashboard: data/output/site/index.html.
 
 The batch presenter (present.sh) renders ONE EXPORT's presentation under
 tmp/cache/chat-exports/<batch>/presentation — an export artifact, honestly filed under
@@ -21,7 +21,7 @@ Usage:
   present_corpus.py [--markdown <dir>] [--dashboard <dir>] [--out <dir>] [--page-out <dir>]
 
 Defaults: data/output/markdown, data/output/dashboard, tmp/cache/dashboard/presentation for the
-data tables, data/output/dashboard/presentation for the finished page (all repo-relative).
+data tables, data/output/site for the finished page (its URL position; all repo-relative).
 The page is the human-facing artifact (library tier); the per-table JSON it is built
 from — machine feedstock, re-derived on every run — stay behind in the cache workshop.
 Called by dashboard.sh (`yoga dashboard sync`) — free, local, re-derivable at will (L5).
@@ -94,8 +94,8 @@ def main() -> int:
     ap.add_argument('--dashboard', default=str(REPO / 'data' / 'output' / 'dashboard'))
     ap.add_argument('--out', default=str(REPO / 'tmp' / 'cache' / 'dashboard' / 'presentation'),
                     help='cache workshop dir for the data tables (feedstock)')
-    ap.add_argument('--page-out', default=str(REPO / 'data' / 'output' / 'dashboard' / 'presentation'),
-                    help='library dir the finished index.html lands in')
+    ap.add_argument('--page-out', default=str(REPO / 'data' / 'output' / 'site'),
+                    help='publish-tree dir the finished index.html lands in (its URL position)')
     args = ap.parse_args()
 
     md_root, dash = Path(args.markdown), Path(args.dashboard)
