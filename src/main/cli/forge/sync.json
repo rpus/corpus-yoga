@@ -1,5 +1,5 @@
 {
-  "help": "make the forge settings agree with rsc/forge.csv — a dry run unless --apply, because it writes outside the repo",
+  "help": "make the forge settings agree with src/main/cli/forge/forge.csv — a dry run unless --apply, because it writes outside the repo",
   "args": [
     {
       "name": "--apply",

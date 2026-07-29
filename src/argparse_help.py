@@ -1,4 +1,4 @@
-"""Fill an argparse parser's help text from rsc/cli/.
+"""Fill an argparse parser's help text from src/main/cli/.
 
 A target deleted its help= strings when the declaration became the single source for
 argument wording. That left the target's own `-h` mute (bare flags, no prose) —
@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 def _rows(command: str) -> list[dict]:
-    """The command's declared rows — asked of cli, which is the one reader of rsc/cli/.
+    """The command's declared rows — asked of cli, which is the one reader of src/main/cli/.
     Imported at CALL time, not module level: cli imports enrich() from here, so a
     module-level import would close the cycle."""
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))

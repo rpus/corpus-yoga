@@ -72,7 +72,7 @@ plan_line() {
   args="$(plan_args "$@")"
   impl="$(plan_impl "$caller" "$cmd" "$@")"
   local label="$name"
-  if [[ -f "$STEPS_REPO/rsc/cli/$name/$name.json" ]] || [[ -f "$STEPS_REPO/rsc/cli/$name.json" ]]; then
+  if [[ -f "$STEPS_REPO/src/main/cli/$name/$name.json" ]] || [[ -f "$STEPS_REPO/src/main/cli/$name.json" ]]; then
     label="yoga $name"
   fi
   printf '  %-58s %s' "$label$args" "$impl"

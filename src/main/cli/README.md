@@ -3,9 +3,9 @@
 This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
 `yoga`). One directory per command, holding `<command>.json` and one `<verb>.json` per verb — the
 same shape whether or not it has any, so gaining a first verb is adding a file rather than
-converting a file into a directory first. So `ls rsc/cli/` is the command list,
-`ls rsc/cli/browser/` is its verb list, and what a verb accepts is
-`cat rsc/cli/browser/capture.json` — no parser, no column headers, no join.
+converting a file into a directory first. So `ls src/main/cli/` is the command list,
+`ls src/main/cli/browser/` is its verb list, and what a verb accepts is
+`cat src/main/cli/browser/capture.json` — no parser, no column headers, no join.
 
 And the repo's whole outward surface — every declared send (#29), one line per call — is a
 query over the same tree (`forge forge` is the command file: command-level sends, reached
@@ -13,8 +13,8 @@ by every verb):
 
 ```bash
 jq -r 'select(.sends) | .sends[] as $s
-       | "\(input_filename | ltrimstr("rsc/cli/") | rtrimstr(".json") | sub("/"; " "))\t\($s)"' \
-   rsc/cli/*.json rsc/cli/*/*.json | column -t -s$'\t'
+       | "\(input_filename | ltrimstr("src/main/cli/") | rtrimstr(".json") | sub("/"; " "))\t\($s)"' \
+   src/main/cli/*.json src/main/cli/*/*.json | column -t -s$'\t'
 ```
 
 Two properties come free rather than checked: a directory cannot hold two entries of one
@@ -65,7 +65,7 @@ argparse still the authority on structure.
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
 data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga dashboard` (model
 captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
-committed in `rsc/cli/readings.md`.
+committed in `src/main/cli/readings.md`.
 
 ## Columns
 
