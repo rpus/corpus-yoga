@@ -618,10 +618,17 @@ def _capture_session(src_proj: Path, dest_proj: Path, session: Path, label: str,
 
 def capture_move(src_proj: Path, outbox: Path, session: Path) -> int:
     """Mirror ONE named session (and its project's memory) into the store:
-    <outbox>/<project>/."""
+    <outbox>/<project>/. The agent is the PRODUCT session × memory: a session
+    CONFLICT withholds the memory mirror, or the store would hold a memory
+    that reflects history its own session component does not contain."""
     dest_proj = outbox / src_proj.name
     conflicts, _, _ = _capture_session(src_proj, dest_proj, session,
                                          f'{outbox.name}/{src_proj.name}')
+    if conflicts:
+        print('  memory: WITHHELD — session CONFLICT above; the agent transports as a '
+              'product, so reconcile the session first')
+        print('DONE')
+        return conflicts
     mirror_memory(src_proj / 'memory', dest_proj / 'memory')
     print('DONE')
     return conflicts
@@ -648,14 +655,20 @@ def capture_all(src_root: Path, outbox: Path) -> int:
         label = f'{outbox.name}/{proj.name}'
         sessions = sorted(proj.glob('*.jsonl'))
         total += len(sessions)
+        proj_conflicts = 0
         for s in sessions:
             c, wrote, eventful = _capture_session(proj, outbox / proj.name, s,
                                                     label, quiet_noop=True)
             conflicts += c
+            proj_conflicts += c
             written += 1 if wrote else 0
             if not eventful:
                 quiet.append(s.stem[:8])
         if (proj / 'memory').is_dir():
+            if proj_conflicts:
+                print(f'capture → {label}: memory/ WITHHELD — session CONFLICT(S) in this '
+                      'project; the agent transports as a product, so reconcile first')
+                continue
             mem_narration = io.StringIO()
             with contextlib.redirect_stdout(mem_narration):
                 mem_eventful = mirror_memory(proj / 'memory',
@@ -676,7 +689,8 @@ def capture_all(src_root: Path, outbox: Path) -> int:
     if conflicts:
         print(f'DONE — effect: {written} of {total} session(s) written, '
               f'{conflicts} CONFLICT(S); postcondition: remote ({outbox.name}) does NOT '
-              'yet hold everything local holds — CONFLICT(S) above, left in place')
+              'yet hold everything local holds — CONFLICT(S) above left in place, '
+              'their projects\' memories withheld')
     elif written:
         print(f'DONE — effect: {written} of {total} session(s) written; '
               f'postcondition: remote ({outbox.name}) holds everything local holds')
