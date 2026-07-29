@@ -1,0 +1,6 @@
+{
+  "summary": "the rpus.co publish tree: data/output/site/ assembled from rsc/site/",
+  "target": "src/main/cli/site/site.sh",
+  "calculus": "project",
+  "args": []
+}

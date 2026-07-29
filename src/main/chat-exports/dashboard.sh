@@ -3,7 +3,7 @@
 #
 # Usage:
 #   yoga dashboard [status]     # what is captured + currency of render and captures (read-only, free)
-#   yoga dashboard sync         # FREE: render data/output/dashboard/presentation/index.html (idempotent)
+#   yoga dashboard sync         # FREE: render data/output/site/index.html (idempotent)
 #                               #   from data/output/markdown + the durable captures
 #   yoga dashboard capture      # PAID (needs ANTHROPIC_API_KEY): re-read the corpus
 #     [--conversations <path>]  #   source override: markdown corpus dir | json/ dir | conversations.json
@@ -348,7 +348,7 @@ status() {
 # of `run`) — so the run tail's hoisting carries them into every `yoga pipeline run`.
 currency() {
   local corpus="$REPO_DIR/data/output/markdown"
-  local render="$REPO_DIR/data/output/dashboard/presentation/index.html"
+  local render="$REPO_DIR/data/output/site/index.html"
   local d="$REPO_DIR/data/output/dashboard"
   local n m=0 f render_state
   [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
