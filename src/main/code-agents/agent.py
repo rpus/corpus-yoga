@@ -271,7 +271,7 @@ def move_workspace(src_ws: Path, dest_ws: Path, apply: bool,
 
 
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> int:
-    """Memory-folder merge — RECEIVE only, where two agents actually meet
+    """Memory-folder merge — INSTALL only, where two agents actually meet
     (capture mirrors its own outbox instead; see mirror_memory). A leaf
     file's NAME is dressing; the fact is the identity — so per leaf: absent →
     copy (novelty); identical → skip; the incoming extends the local
@@ -707,10 +707,17 @@ def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int
         return 1
     conflicts = total = 0
     for proj in projects:
+        proj_conflicts = 0
         for s in sorted(proj.glob('*.jsonl')):
             total += 1
-            conflicts += _install_session(proj, dest_root / proj.name, s, apply, machine)
+            proj_conflicts += _install_session(proj, dest_root / proj.name, s, apply, machine)
+        conflicts += proj_conflicts
         if (proj / 'memory').is_dir():
+            if proj_conflicts:
+                print(f'install ← {machine}/{proj.name}: memory/ WITHHELD — session '
+                      'CONFLICT(S) in this project; the agent transports as a product, '
+                      'so reconcile first')
+                continue
             conflicts += merge_memory(proj / 'memory', dest_root / proj.name / 'memory', apply, machine)
     print(f'{"DONE" if apply else "dry run — pass --apply to write into the projects root"}'
           f' — {total} session(s)' + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
@@ -719,7 +726,11 @@ def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int
 
 def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> int:
     conflicts = _install_session(bundle_proj, dest_root / bundle_proj.name, session, apply, machine)
-    conflicts += merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine)
+    if conflicts:
+        print('  memory: WITHHELD — session CONFLICT above; the agent transports as a '
+              'product, so reconcile the session first')
+    else:
+        conflicts += merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine)
     print('DONE' if apply else 'dry run — pass --apply to write into the projects root')
     return conflicts
 
