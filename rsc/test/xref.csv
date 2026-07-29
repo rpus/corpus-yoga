@@ -421,7 +421,7 @@ src/main/cli/forge.sh,175,comment,rsc/forge.csv,Y,"# same kind as a forge settin
 src/main/cli/forge.sh,210,comment,rsc/test/pre-commit-hook.sh,Y,"# rsc/test/pre-commit-hook.sh, the same file `yoga prerequisites` and the gate compare"
 src/main/cli/sync.py,6,comment,rsc/cache_io.csv,Y,"DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,"
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
-src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
+src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/code-agents/jsonl_to_json.sh,5,comment,src/main/code-agents/jsonl_to_json.sh,Y,#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/code-agents/jsonl_to_json.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
 src/main/code-agents/jsonl_to_json.sh,28,call,src/main/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
@@ -630,8 +630,8 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/cli/agent/agent.json,Y,
 ,,,rsc/cli/agent/capture.json,Y,
 ,,,rsc/cli/agent/demerge.json,Y,
+,,,rsc/cli/agent/install.json,Y,
 ,,,rsc/cli/agent/list-models.json,Y,
-,,,rsc/cli/agent/receive.json,Y,
 ,,,rsc/cli/browser/browser.json,Y,
 ,,,rsc/cli/cache/cache.json,Y,
 ,,,rsc/cli/cache/clean.json,Y,

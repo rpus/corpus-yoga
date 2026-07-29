@@ -1,23 +1,23 @@
 {
-  "help": "install a peer machine's transported sessions (the one deliberate writer of ~/.claude/projects)",
+  "help": "install a peer store's sessions into this machine's live session store (dry-run; --apply writes)",
   "args": [
     {
       "name": "--session",
       "type": "<uuid8>",
-      "cardinality": "1/agent-receive-1",
+      "cardinality": "1/agent-install-1",
       "help": "uuid(8) prefix of the agent to install — identity is never guessed"
     },
     {
       "name": "--all",
       "type": "",
-      "cardinality": "1/agent-receive-1",
+      "cardinality": "1/agent-install-1",
       "help": "install every session the peer transported (pull --all from one machine)"
     },
     {
       "name": "--from",
       "type": "<machine|dir>",
       "cardinality": "1",
-      "help": "the peer to receive from — a machine name (bare token) or a directory (./dir), by shape not CWD lookup"
+      "help": "the peer store to install from — a machine name (bare token) or a directory (./dir or a path)"
     },
     {
       "name": "--apply",

@@ -1,5 +1,5 @@
 {
-  "help": "undo the latest received merge (memory only, all-or-nothing per project)",
+  "help": "undo the latest installed merge (memory only, all-or-nothing per project)",
   "args": [
     {
       "name": "--apply",

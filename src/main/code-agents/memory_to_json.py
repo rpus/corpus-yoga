@@ -12,7 +12,7 @@ are, the body whole, links extracted — so the schema can hold the memory
 contract to account: every fact carries its identity and classification.
 
 Index lines that are not entries (headings, the merge marker comments
-agent.py's receive writes) are carried verbatim under 'unparsed' — data,
+agent.py's install writes) are carried verbatim under 'unparsed' — data,
 not discarded.
 
 The frontmatter parser is deliberately minimal (top-level 'key: value' pairs,
