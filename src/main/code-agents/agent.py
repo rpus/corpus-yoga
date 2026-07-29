@@ -8,7 +8,7 @@ with each component's class semantics enforced — and capture is that operation
 pointed homeward: live projects root → the store. A session is append-only, so a copy supersedes an
 existing one iff the existing bytes are a PREFIX of it; anything else is a
 loud CONFLICT. A memory folder is a set of one-fact-per-file documents whose
-NAMES are dressing (the fact is the identity) plus one index: on receive a
+NAMES are dressing (the fact is the identity) plus one index: on install a
 novel leaf copies in, an identical one skips, one the incoming EXTENDS is
 superseded in place (an appendix), and true divergence keeps BOTH — the
 incoming fact re-dressed as <stem>.<machine>.md with its [[links]] following —
@@ -26,16 +26,16 @@ REFERENCES, moved with log semantics per file) + <machine>/<project>/memory/.
 Provenance is spatial and sender-declared: capture takes no destination —
 it mirrors EVERY project in the projects root into data/input/claude/code/machine-transport/<own
 machine>/, the machine read from the rooted machine-name.txt binding, which
-rsc/machine/machines.csv must declare — and receive --from names the peer machine(s) whose sessions
+rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 to merge, the twin-dressing and marker label coming from that ADDRESS rather
 than the receiver's assertion. An outbox is single-writer by construction, so
 capture MIRRORS each project's memory (updated in place, absentees
-removed); every merge subtlety lives in receive, where two agents actually
+removed); every merge subtlety lives in install, where two agents actually
 meet.
 
 The projects root is ext/claude-code-projects (link_projects.sh's symlink to the Claude Code
 projects folder) — HARNESS-OWNED state that Anthropic expires at will. The
-doctrine: capture is the one READER of it — sweep early, sweep often; receive is the one WRITER of it, and only ever by a user's
+doctrine: capture is the one READER of it — sweep early, sweep often; install is the one WRITER of it, and only ever by a user's
 explicit --apply, never a pipeline's. The pipelines source from the store,
 which the repo owns and the medium carries.
 
@@ -45,7 +45,7 @@ prefix, so the latest copy IS the whole history and place_log's prefix check
 is a fast-forward gate — no commit chain needed, a dumb file store suffices.
 Each machine's dir is a single-writer branch (a machine pushes only its own ref);
 capture is a fast-forward-only push ('destination is ahead' is the refused
-stale force-push); receive is fetch-plus-merge, dry-run first; two machines
+stale force-push); install is fetch-plus-merge, dry-run first; two machines
 extending the same session are diverged branches, refused until a human
 merges. And memory/ is the actual REPOSITORY of the pair — the component
 where real merges happen: the marker block in MEMORY.md is the merge commit
@@ -53,44 +53,44 @@ where real merges happen: the marker block in MEMORY.md is the merge commit
 facts persist as machine-dressed twin branches, and the index unions like a
 tree merge. The session is history; the memory is the repo.
 
-Received merges are DETECTABLE and INVERTIBLE: a receive that changes the
+Installed merges are DETECTABLE and INVERTIBLE: an install that changes the
 memory writes a marker block into MEMORY.md — begin/end comments wrapping the
 unioned index lines, plus one act line per file action with content hash and
 lengths — and `demerge` undoes the LATEST block exactly (delete the additions,
 truncate the appendices, drop the block), all-or-nothing, refusing loudly if
 anything was edited since the merge: the record licenses the undo (L3). This
-is what makes safe VISITS possible — an agent received while the host is away
+is what makes safe VISITS possible — an agent installed while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
     yoga agent
     yoga agent list-models
     yoga agent capture --session <uuid8> [--to <scratch-dir>]
-    yoga agent receive   --session <uuid8> --from <machine|dir> [--apply]
+    yoga agent install   --session <uuid8> --from <machine|dir> [--apply]
     yoga agent capture --all [--to <scratch-dir>]
-    yoga agent receive   --all --from <machine|dir> [--apply]
+    yoga agent install   --all --from <machine|dir> [--apply]
     yoga agent demerge [--apply]
 
-capture and receive each take --session <uuid8> (matches by uuid prefix,
+capture and install each take --session <uuid8> (matches by uuid prefix,
 exactly one) or --all: a NAMED agent or the named TOTALITY — git push --all /
 pull --all, safe because each per-session placement independently lands on
 the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
 component moves ONCE either way (mirrored out; merged in under a single
-marker block, so `receive --all --from <machine>` is still one demerge). What is never
-accepted is an INFERENCE: no recency guessing, no automatic choice. receive
+marker block, so `install --all --from <machine>` is still one demerge). What is never
+accepted is an INFERENCE: no recency guessing, no automatic choice. install
 stays dry-run by default regardless — --apply is the write gate, totality or
 not.
 
 The endpoint asymmetry is the model, not an accident: capture takes NO
 destination — it pushes this machine's own ref, the only legal one
 (single-writer branches) — so --to is purely a scratch/test escape hatch and
-takes a bare directory, never a machine name. receive must NAME its source ref:
+takes a bare directory, never a machine name. install must NAME its source ref:
 a peer machine under data/input/claude/code/machine-transport, or (the same scratch affordance, symmetric) a
 directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a machine, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
 
 capture writes to the store immediately (it is not precious).
-receive and demerge are dry-run by default and only --apply writes into this
+install and demerge are dry-run by default and only --apply writes into this
 machine's projects root — that is harness-owned state. Exit 1 on any CONFLICT.
 
 Field note (2026-07-07, first scripted teleport): a received agent that does
@@ -146,7 +146,7 @@ def own_outbox() -> Path:
 
 
 def peer_bundle(name: str) -> Path:
-    """A source for receive: a MACHINE NAME or a DIRECTORY, distinguished by shape,
+    """A source for install: a MACHINE NAME or a DIRECTORY, distinguished by shape,
     never by lookup — machines are names (bare tokens, resolved under data/input/claude/code/machine-transport,
     loud error if absent), places are paths (anything containing '/' or starting
     '~'; a scratch dir beside you is spelled ./like-this). A bare token never
@@ -271,7 +271,7 @@ def move_workspace(src_ws: Path, dest_ws: Path, apply: bool,
 
 
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> int:
-    """Memory-folder merge — RECEIVE only, where two agents actually meet
+    """Memory-folder merge — INSTALL only, where two agents actually meet
     (capture mirrors its own outbox instead; see mirror_memory). A leaf
     file's NAME is dressing; the fact is the identity — so per leaf: absent →
     copy (novelty); identical → skip; the incoming extends the local
@@ -556,7 +556,7 @@ def mirror_memory(src_dir: Path, dest_dir: Path, quiet_noop: bool = False) -> bo
     so the memory folder is MIRRORED, not merged: the outbox is a faithful
     projection of the agent's current aggregate (new files added, changed ones
     updated in place, absentees removed). Every merge subtlety stays in
-    receive, where two agents meet. Returns eventful (anything beyond L1
+    install, where two agents meet. Returns eventful (anything beyond L1
     silence); with quiet_noop an all-identical mirror narrates nothing —
     the --all caller counts the silence instead."""
     files = {p.relative_to(src_dir): p for p in sorted(src_dir.rglob('*'))
@@ -699,8 +699,8 @@ def capture_all(src_root: Path, outbox: Path) -> int:
     return conflicts
 
 
-def _receive_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, machine: str) -> int:
-    print(f'receive ← {machine}/{bundle_proj.name}: {session.name}')
+def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, machine: str) -> int:
+    print(f'install ← {machine}/{bundle_proj.name}: {session.name}')
     kind, detail = place_session(session, dest_proj / session.name, apply)
     print(f'  session: {word_placement(kind, detail, "remote", "local")}')
     ws_conflicts, _, _ = move_workspace(bundle_proj / session.stem, dest_proj / session.stem, apply,
@@ -708,11 +708,11 @@ def _receive_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: b
     return (1 if kind == 'conflict' else 0) + ws_conflicts
 
 
-def receive_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int:
+def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int:
     """git pull --all from one peer: every session in every project the machine
     transported (and each project's memory, merged once per project — one
     marker block, one demerge, per project). The same lattice safety as
-    capture --all, plus receive's own guard: dry-run unless --apply. This
+    capture --all, plus install's own guard: dry-run unless --apply. This
     is the ONE deliberate writer of the harness-owned projects root — never
     run by any pipeline, only by a user's explicit command."""
     projects = sorted(d for d in bundle.glob('-Users-*') if d.is_dir())
@@ -721,32 +721,43 @@ def receive_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int
         return 1
     conflicts = total = 0
     for proj in projects:
+        proj_conflicts = 0
         for s in sorted(proj.glob('*.jsonl')):
             total += 1
-            conflicts += _receive_session(proj, dest_root / proj.name, s, apply, machine)
+            proj_conflicts += _install_session(proj, dest_root / proj.name, s, apply, machine)
+        conflicts += proj_conflicts
         if (proj / 'memory').is_dir():
+            if proj_conflicts:
+                print(f'install ← {machine}/{proj.name}: memory/ WITHHELD — session '
+                      'CONFLICT(S) in this project; the agent transports as a product, '
+                      'so reconcile first')
+                continue
             conflicts += merge_memory(proj / 'memory', dest_root / proj.name / 'memory', apply, machine)
     print(f'{"DONE" if apply else "dry run — pass --apply to write into the projects root"}'
           f' — {total} session(s)' + (f', {conflicts} CONFLICT(S)' if conflicts else ''))
     return conflicts
 
 
-def receive_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> int:
-    conflicts = _receive_session(bundle_proj, dest_root / bundle_proj.name, session, apply, machine)
-    conflicts += merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine)
+def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool, machine: str) -> int:
+    conflicts = _install_session(bundle_proj, dest_root / bundle_proj.name, session, apply, machine)
+    if conflicts:
+        print('  memory: WITHHELD — session CONFLICT above; the agent transports as a '
+              'product, so reconcile the session first')
+    else:
+        conflicts += merge_memory(bundle_proj / 'memory', dest_root / bundle_proj.name / 'memory', apply, machine)
     print('DONE' if apply else 'dry run — pass --apply to write into the projects root')
     return conflicts
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='capture agents into the store; receive from peer machines (session × memory)')
+    ap = argparse.ArgumentParser(description='capture agents into the store; install from peer machines (session × memory)')
     # bare noun → the census (status); not required, and there is no `list` verb (bare IS it)
     sub = ap.add_subparsers(dest='direction')
     t = sub.add_parser('capture')
     t.add_argument('--session')
     t.add_argument('--all', action='store_true')
     t.add_argument('--to', metavar='SCRATCH_DIR')
-    r = sub.add_parser('receive')
+    r = sub.add_parser('install')
     r.add_argument('--from', dest='source', required=True, metavar='MACHINE|DIR')
     r.add_argument('--session')
     r.add_argument('--all', action='store_true')
@@ -775,7 +786,7 @@ def main() -> int:
             rc = max(rc, 1 if demerge(proj, args.apply) else 0)
         return rc
 
-    if args.direction in ('capture', 'receive') and bool(args.session) == args.all:
+    if args.direction in ('capture', 'install') and bool(args.session) == args.all:
         ap.error(f'{args.direction}: name --session <uuid8> or --all — an agent or the totality, never an inference')
 
     if args.direction == 'capture':
@@ -794,9 +805,9 @@ def main() -> int:
     # name as it stands under data/input/claude/code/machine-transport (or the directory's own name for a path)
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
-        return 1 if receive_all(bundle, PROJECTS, args.apply, machine) else 0
+        return 1 if install_all(bundle, PROJECTS, args.apply, machine) else 0
     session = pick_session(bundle, args.session)
-    return 1 if receive_move(session.parent, PROJECTS, session, args.apply, machine) else 0
+    return 1 if install_move(session.parent, PROJECTS, session, args.apply, machine) else 0
 
 
 if __name__ == '__main__':

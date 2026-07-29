@@ -121,7 +121,7 @@ per-corpus code.
   rooted `machine-name.txt` binding — so provenance is spatial and sender-declared, never
   the receiver's assertion (user layout, 2026-07-08, superseding a dead-drop
   design): transport MIRRORS the agent into its own single-writer outbox, and
-  every merge subtlety lives in receive, where two agents actually meet.
+  every merge subtlety lives in install, where two agents actually meet.
 
 - **project / re-derive** — durable identity → presentation: ordinals, markdown,
   matrices, name dressing. Presentation converges to current without ever being
@@ -359,11 +359,11 @@ observable in the memory merge and should ride into the protocol:
   additions, truncate the extensions, drop the recorded lines. An annotation
   in MEMORY.md is the human-visible half of the same record; undo is then a
   deletion LICENSED by the record (L3), not an act of memory. Implemented for
-  agent transport (`agent.py`): receive writes a marker block into MEMORY.md
+  agent transport (`agent.py`): install writes a marker block into MEMORY.md
   (begin/end comments wrapping the unioned lines, one hash-carrying act line
   per file action) and `yoga agent demerge` peels the latest block —
   hash-verified, all-or-nothing, refusing anything edited since — which is
-  what makes safe VISITS possible: a guest agent received while the host is
+  what makes safe VISITS possible: a guest agent installed while the host is
   away extracts by transporting itself home, and the host demerges the residue.
 
 The planned protocol (a `corpus.py` under the shared `src/main/` root, per the
