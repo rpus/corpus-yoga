@@ -36,13 +36,13 @@ prefix-gated store.
 
 ## Where facts live
 
-- the command surface: `rsc/cli/` (one file per command, one per subcommand) — grammar and gates: `rsc/cli/README.md`
+- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/README.md`
 - the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`yoga prerequisites` reports both)
 - commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
-- the forge's merge settings (server-side, so declared here as data): `rsc/forge.csv` (`yoga prerequisites` reconciles them against the live forge and prints each drift's own `gh` remedy)
+- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisites` reconciles them against the live forge and prints each drift's own `gh` remedy)
 - the checks: `src/test/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status)
 
 ## Getting data
@@ -69,7 +69,7 @@ the same `./yoga test install-hook` — it installs both.
 ## Contributing
 
 Merge with `./yoga forge merge <pr>`. It reconciles the forge's settings against
-`rsc/forge.csv` first and refuses on drift — so main's history is never composed by
+`src/main/cli/forge/forge.csv` first and refuses on drift — so main's history is never composed by
 rules nobody declared — and then squash-merges with **no message flags**, because
 `squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
 branch's commits and keeps each one's `Signature:` line, the join key into the
@@ -77,7 +77,7 @@ captured session corpus. A hand-written `--body` discards them all.
 
 `./yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
 can see what the forge does to a merge without having to merge one to find out; and
-`./yoga forge sync --apply` makes the forge agree with `rsc/forge.csv` rather than
+`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 printing a `gh` command for someone to copy. It is `--apply`-gated because it writes
 outside the repo, to a server other people see.
 

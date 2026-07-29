@@ -2,7 +2,7 @@
 """
 indexing.py — the book-style index over the corpus (headword → turn locators)
 and the curation surface behind it: accept / reject / list-candidates over the concept
-capture. Driven by `yoga indexing` (see rsc/cli/).
+capture. Driven by `yoga indexing` (see src/main/cli/).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
 It scans the readable markdown library (data/output/markdown/{claude,gemini}/conversations/),
@@ -19,7 +19,7 @@ is derived dressing (regenerate at will; deterministic output — no timestamps 
 so regeneration is a no-op when nothing changed, per CALCULUS L1).
 
 Curation is reproducible from the repo, on the schema system's template
-(candidates -> disposal record -> coverage gate): see rsc/cli/readings.md
+(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 for the three line-list formats (accepted.txt, rejected.txt, candidates.txt) and
 the loop. `list-candidates` derives the pending report into a rebuildable tmp/cache/ file
 (tmp/cache/indexing/candidates.txt) from the single-source concept capture
@@ -232,7 +232,7 @@ def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
     """The pending queue as a bare line-list (one concept per line) — the third
     disposal state beside accepted.txt and rejected.txt, and a DETERMINISTIC,
     reproducible derivation of data/output/dashboard/semantic-concepts.json − accepted −
-    rejected. Its format doc lives in rsc/cli/readings.md; here it is just the
+    rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
     data. Reproducible, so it is a rebuildable tmp/cache/ file, regenerated on demand
     (not committed, not gated)."""
     pending = pending_concepts(accepted_path, rejected_path)

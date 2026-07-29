@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-completions.py (yoga completions) — the zsh tab-completion derived from rsc/cli/.
+completions.py (yoga completions) — the zsh tab-completion derived from src/main/cli/.
 
 Its own file because a command determines its target's name (#40): `yoga completions` is
 answered here, not by a branch inside the dispatcher. cli.py holds the declaration readers
@@ -103,7 +103,7 @@ def completion_script(cmds: list[dict]) -> str:
         cmd_flags, cmd_paths = _scoped_flags(command, '')
         verb_scopes = {s: _scoped_flags(command, s) for s in subcommands}
         if any(f for f, _ in verb_scopes.values()):
-            # Flags are scoped to their verb (rsc/cli/README.md): offer each
+            # Flags are scoped to their verb (src/main/cli/README.md): offer each
             # verb ONLY its own rows' flags — the across-verbs union completed
             # flags the dispatched verb rejects. The *) scope is pre-verb: the
             # command-level rows, which argparse accepts only BEFORE the verb.
@@ -126,7 +126,7 @@ def completion_script(cmds: list[dict]) -> str:
 
     lines = [
         '#compdef yoga',
-        '# derived from rsc/cli/ by `yoga completions` — regenerate, never edit',
+        '# derived from src/main/cli/ by `yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
         '  local -a cmds subcommands opts pathopts',

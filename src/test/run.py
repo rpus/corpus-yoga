@@ -706,7 +706,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
 
 
 def check_cli_surface(run) -> None:
-    """The yoga CLI's table (rsc/cli/) is an interface and must not
+    """The yoga CLI's table (src/main/cli/) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
     calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
     parsed from the document itself), every flag a usage sketch advertises
@@ -722,9 +722,9 @@ def check_cli_surface(run) -> None:
     try:
         cmds = cli.commands()
     except Exception as e:
-        run('cli: table parses: rsc/cli/', False, str(e), law='G4', check='cli.table_parses')
+        run('cli: table parses: src/main/cli/', False, str(e), law='G4', check='cli.table_parses')
         return
-    run('cli: table parses: rsc/cli/', True, law='G4', check='cli.table_parses')
+    run('cli: table parses: src/main/cli/', True, law='G4', check='cli.table_parses')
     names = [c['command'] for c in cmds]
     dupes = sorted({n for n in names if names.count(n) > 1})
     run('cli: command names unique', not dupes, ', '.join(dupes) if dupes else None,
@@ -743,7 +743,7 @@ def check_cli_surface(run) -> None:
         run(f'cli: {c["command"]}: cited calculus defined', not unknown,
             f'not defined in rsc/CALCULUS.md: {", ".join(unknown)}' if unknown else None,
             law='G6', check='cli.calculus_defined')
-        # subcommands and flags are read from rsc/cli/ — the single source the
+        # subcommands and flags are read from src/main/cli/ — the single source the
         # usage is generated from — so there is no usage cell to reconcile it against, and
         # no completeness check: the two cannot drift because there is only one.
         flags = cli.flags_of(c['command'])
@@ -1184,9 +1184,9 @@ def check_cli_surface(run) -> None:
     # sends, and its command must SAY so in the declaration tree. TWO tolerances, both
     # deliberate and both to be retired by the arc's primitives-behind-faces slice:
     # helpers reached through imports are untraced (under-catch, safe), and the hold is
-    # COMMAND-level — any one file under rsc/cli/<command>/ carrying `sends` satisfies
+    # COMMAND-level — any one file under src/main/cli/<command>/ carrying `sends` satisfies
     # it, so a single VERB can lose its declaration unnoticed while its siblings keep
-    # the command green (the PR #114 review's finding: rsc/cli/forge/sync.json's
+    # the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
     # PATCH-write line, deleted alone, does not trip this). Per-verb needs the check to know which
     # verb sends, which is exactly what declared doors will make knowable.
     undeclared_senders = []
@@ -1204,7 +1204,7 @@ def check_cli_surface(run) -> None:
     run('send: every command holding a send face declares its sends', not undeclared_senders,
         None if not undeclared_senders else
         f'{", ".join(undeclared_senders)}: the target uses may_send/assert_may_send but no '
-        f'declaration in rsc/cli/<command>/ carries a `sends` field — declare each outward '
+        f'declaration in src/main/cli/<command>/ carries a `sends` field — declare each outward '
         f'call where the reader decides to run the verb',
         check='effects.sends_declared')
 
@@ -1330,18 +1330,24 @@ def check_cli_surface(run) -> None:
             check='structure.file_at_level_of_subject')
 
     # The declaration tree IS the API (#58): every command is a file or a directory
-    # under rsc/cli/, every directory holds its own <command>.json plus one file per
+    # under src/main/cli/, every directory holds its own <command>.json plus one file per
     # subcommand, and nothing else lives there. Uniqueness and ordering need no check —
     # a directory cannot hold two entries of one name, and a listing has no out-of-order
     # state to be in (G4, by construction rather than by assertion).
-    cli_root = REPO_ROOT / 'rsc' / 'cli'
+    # The tree shares src/main/cli/ with the machinery that reads it (content type is
+    # not purpose: the declarations are the program's self-description, so they live
+    # with the program) — a stray is anything that is neither a declared command's
+    # directory, a schema, a known document, a machinery source file, nor python's cache.
+    cli_root = REPO_ROOT / 'src' / 'main' / 'cli'
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
-                   if p.name not in ('README.md', 'readings.md')
+                   if p.name not in ('README.md', 'readings.md', '__pycache__')
                    and not p.name.endswith('.schema.json')
+                   and p.suffix not in ('.py', '.sh')
                    and p.name not in declared)
-    run('cli: rsc/cli/ holds declarations and nothing else', not stray,
-        None if not stray else f'{", ".join(stray)} is neither a command nor a known document',
+    run('cli: src/main/cli/ holds declarations, machinery, and nothing else', not stray,
+        None if not stray else f'{", ".join(stray)} is neither a command, a known document, '
+        'nor machinery',
         law='G3', check='structure.cli_declaration_mirrors_the_api')
     # ONE shape, whether or not the command has verbs: a directory holding its own
     # declaration and one file per verb. Two shapes meant gaining a first verb converted
@@ -1358,7 +1364,7 @@ def check_cli_surface(run) -> None:
             law='G3', check='structure.cli_declaration_mirrors_the_api')
 
     # Every declaration validates against the schema beside it. The schemas live in
-    # rsc/cli/ and not under rsc/schema/, which is the DATA domain: this is the repo's
+    # src/main/cli/ and not under rsc/schema/, which is the DATA domain: this is the repo's
     # own interface, not corpus data. additionalProperties is false in all three, so a
     # field nobody reads cannot accumulate in a file nobody would notice it in.
     import jsonschema
@@ -1482,7 +1488,7 @@ def check_cli_surface(run) -> None:
 
 
 def check_grammar_laws(run, cited: dict) -> None:
-    """The CLI's grammar (the law list in rsc/cli/README.md) and the checks that enforce
+    """The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
     it are held to each other, in both directions — so neither can drift into fiction.
 
     Forward: a citation must name a law the document states. A check citing G99 is
@@ -1510,9 +1516,9 @@ def check_grammar_laws(run, cited: dict) -> None:
     try:
         laws = cli.grammar_laws()
     except Exception as e:
-        run('grammar: laws parse: rsc/cli/README.md', False, str(e), check='grammar.laws_parse')
+        run('grammar: laws parse: src/main/cli/README.md', False, str(e), check='grammar.laws_parse')
         return
-    run('grammar: laws parse: rsc/cli/README.md', bool(laws),
+    run('grammar: laws parse: src/main/cli/README.md', bool(laws),
         None if laws else 'no `- **G<n> — …**` law bullets found', check='grammar.laws_parse')
     if not laws:
         return
@@ -1987,7 +1993,7 @@ def main():
 
     def run(label, passed, detail=None, law=None, check=None):
         # `law` cites the law this fact enforces — a CLI grammar law from
-        # rsc/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two
+        # src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two
         # vocabularies because a check enforces either a surface law or a corpus one.
         # Space-separated when a check enforces more than one: accumulate's contract is
         # both L1 (re-deposit is silence) and L6 (a same-stamp mismatch is loud).

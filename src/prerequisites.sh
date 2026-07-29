@@ -248,15 +248,15 @@ check_machine() {
 }
 
 check_cli() {
-  sec "yoga CLI (tables: rsc/cli/)"
+  sec "yoga CLI (tables: src/main/cli/)"
   # `yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
   local comp_status
   if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
-      *current*) ok   "zsh completions generated and current with rsc/cli/" ;;
-      *STALE*)   todo reader "zsh completions stale vs rsc/cli/ → refresh: yoga completions install-latest (then restart terminal)" ;;
+      *current*) ok   "zsh completions generated and current with src/main/cli/" ;;
+      *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: yoga completions install-latest (then restart terminal)" ;;
       # ./yoga DELIBERATELY (the one bootstrap prescription): install-latest is what
       # writes the alias, so in the not-generated case the bare name resolves for
       # nobody — the prescription must be typed in a spelling the reader's shell has,
@@ -349,13 +349,13 @@ check_signature_hook() {
 
 check_forge() {
   # The forge's merge settings decide how main's history is composed, yet they live on
-  # the server: no clone can see them and no git config holds them. rsc/forge.csv is the
+  # the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
   # declaration; `yoga forge` is the ONE thing that reconciles it with reality, and this
   # renders its rows in the machine report's voice — the reconciliation is derived once,
   # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
   # unverifiable is reported, never vetoed (the deterministic gate stays offline-
   # reproducible, which is why this lives here and not in yoga test run).
-  sec "forge settings (declared: rsc/forge.csv; server-side, so unverifiable offline)"
+  sec "forge settings (declared: src/main/cli/forge/forge.csv; server-side, so unverifiable offline)"
   local status key detail remedy
   while IFS=$'\t' read -r status key detail remedy; do
     [[ -z "$status" ]] && continue

@@ -2,8 +2,8 @@
 """
 cli.py — the machinery behind `yoga`, the repo's terminal surface.
 
-Two curated tables are the interface (format: rsc/cli/README.md): rsc/cli/
-names each command and its target; rsc/cli/ describes the arguments.
+Two curated tables are the interface (format: src/main/cli/README.md): src/main/cli/
+names each command and its target; src/main/cli/ describes the arguments.
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
 `yoga -h` lists the commands; `yoga <command> -h` renders that command's help from
 the tables; a subcommand one level down (`yoga <command> <subcommand> --help`) is
@@ -46,7 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules
 from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
 REPO = Path(__file__).resolve().parents[3]
-CLI = REPO / 'rsc' / 'cli'
+CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
 COLUMNS = ('command', 'target', 'calculus', 'summary')
 COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 def _declaration(command: str) -> pathlib.Path:
@@ -59,13 +59,14 @@ def _declaration(command: str) -> pathlib.Path:
 def _declared_commands() -> list[str]:
     """Every command, from the tree itself — one directory each. Sorted, because a listing
     has no other order to be in; uniqueness needs no check because a directory cannot hold
-    two entries of one name (G4, by construction). The only files at this level are the
-    schemas describing these declarations and the two documents."""
-    return sorted(p.name for p in CLI.iterdir() if p.is_dir())
+    two entries of one name (G4, by construction). This level also holds the schemas, the
+    two documents, and the machinery sources; the one non-command DIRECTORY is python's
+    __pycache__, excluded by name — the gate polices any other stray."""
+    return sorted(p.name for p in CLI.iterdir() if p.is_dir() and p.name != '__pycache__')
 
 
 def commands() -> list[dict]:
-    """The command table, walked from rsc/cli/ rather than parsed from a CSV. The shape
+    """The command table, walked from src/main/cli/ rather than parsed from a CSV. The shape
     returned is unchanged — command, target, calculus, summary — so every consumer of it
     is untouched by where it now comes from."""
     out = []
@@ -82,7 +83,7 @@ _HELP_ROWS: list[dict] | None = None
 def help_rows() -> list[dict]:
     """Every declared argument and subcommand, in the row shape the renderers already
     speak — command, subcommand, arg-name, arg-type, cardinality, help, step. The rows
-    are now FLATTENED from rsc/cli/<command>[/<verb>].json rather than read from a CSV,
+    are now FLATTENED from src/main/cli/<command>[/<verb>].json rather than read from a CSV,
     so a subcommand's declaration sits beside its siblings instead of being row 14 of a
     shared file, and adding one is adding a file.
 
@@ -179,7 +180,7 @@ def calculus_terms() -> set[str]:
     return terms
 
 
-GRAMMAR = REPO / 'rsc' / 'cli' / 'README.md'
+GRAMMAR = CLI / 'README.md'
 # The four states a law may declare. `gated` obliges a check to cite the law;
 # `by construction` asserts the shape admits no violation; `unenforced` names the issue
 # that will hold it; `doctrine` states it deliberately WITHOUT a check, because none is
@@ -194,7 +195,7 @@ LAW_STATES = ('gated', 'by construction', 'unenforced', 'doctrine')
 
 
 def grammar_laws() -> dict[str, dict]:
-    """The CLI's laws, parsed from the grammar section of rsc/cli/README.md — id ->
+    """The CLI's laws, parsed from the grammar section of src/main/cli/README.md — id ->
     {title, state, issues}. Same shape as calculus_terms() over rsc/CALCULUS.md: the
     document is the authority, and a check cites a law rather than restating it.
 

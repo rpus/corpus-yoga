@@ -2,12 +2,12 @@
 # forge.sh (yoga forge) — the forge's merge settings, and the operations that obey them.
 #
 # The settings decide how main's history is composed and live on the SERVER, where no clone
-# sees them and no git config holds them; rsc/forge.csv declares them.
+# sees them and no git config holds them; src/main/cli/forge/forge.csv declares them.
 #
 # Usage:
 #   yoga forge                 # declared vs live
 #   yoga forge --tsv           # every row bare forge shows, section-tagged, for a program
-#   yoga forge sync [--apply]  # make the forge agree with rsc/forge.csv
+#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   yoga forge merge <pr> [--dry-run]   # check everything, then squash-merge that PR
 #   yoga forge prune [--apply] # forget what the forge no longer has
 #
@@ -23,14 +23,14 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-DECLARED="$REPO_DIR/rsc/forge.csv"
+DECLARED="$REPO_DIR/src/main/cli/forge/forge.csv"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # may_send / assert_may_send — the shell face (#29)
 
 # rows: STATUS \t key \t detail \t remedy — the ONE derivation, rendered by two callers
 # (this script's status, and `yoga prerequisites`' machine report).
 reconcile() {
-  [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno rsc/forge.csv — nothing declared\t"; return; }
+  [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno src/main/cli/forge/forge.csv — nothing declared\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\tgh not found (install: brew install gh)\t"; return; }
   may_send || { echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses this send: gh api (live settings unread)\t"; return; }
   local live
@@ -160,7 +160,7 @@ base_branch() {
 }
 
 status() {
-  echo "forge settings — declared: rsc/forge.csv; live: this checkout's remote"
+  echo "forge settings — declared: src/main/cli/forge/forge.csv; live: this checkout's remote"
   local st key detail remedy drift=0
   while IFS=$'\t' read -r st key detail remedy; do
     [[ -z "$st" ]] && continue
@@ -172,7 +172,7 @@ status() {
   done < <(reconcile)
 
   # The branches this checkout still holds. A merged branch surviving here is drift of the
-  # same kind as a forge setting that disagrees with rsc/forge.csv: reconcilable state, and
+  # same kind as a forge setting that disagrees with src/main/cli/forge/forge.csv: reconcilable state, and
   # this is where it is named.
   local rows
   rows="$(branches)"
@@ -287,7 +287,7 @@ sync() {
       echo "yoga forge sync: the live settings could not be read — nothing verified, nothing to agree" >&2
       return 1
     fi
-    echo "no drift — the forge already agrees with rsc/forge.csv; nothing to do"
+    echo "no drift — the forge already agrees with src/main/cli/forge/forge.csv; nothing to do"
     return 0
   fi
   [[ -n "$apply" ]] || { echo "--dry-run by default: nothing changed. Re-run with --apply."; return 0; }
