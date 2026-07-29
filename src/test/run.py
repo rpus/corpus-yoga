@@ -1338,6 +1338,9 @@ def check_cli_surface(run) -> None:
     # not purpose: the declarations are the program's self-description, so they live
     # with the program) — a stray is anything that is neither a declared command's
     # directory, a schema, a known document, a machinery source file, nor python's cache.
+    # Admitting .py/.sh leaves that species to xref: an unreferenced source moves the
+    # committed score, and THAT is the check that objects — absorb a stray into the
+    # xref expectation and nothing else here will.
     cli_root = REPO_ROOT / 'src' / 'main' / 'cli'
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
