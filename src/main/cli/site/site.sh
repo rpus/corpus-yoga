@@ -62,7 +62,15 @@ status() {
     fi
   fi
   command -v dot >/dev/null || echo "  – graphviz absent: sync will skip the .dot renders → install via: brew install graphviz"
-  echo "deploy: one copy of one tree — see rsc/site/README.md"
+  if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
+    echo "deploy: cp -R data/output/site/ ext/mnt/site/ — the mount is present (then commit + push there)"
+  elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
+    # a machine that once deployed and moved its clone — the reader most surprised by
+    # "no mount", and the one who least needs the convention; say what prerequisites says
+    echo "deploy: ext/mnt/site is a dangling link → $(readlink "$REPO_DIR/ext/mnt/site") — repoint it at the site repo's clone, or remove it"
+  else
+    echo "deploy: no ext/mnt/site mount on this machine — optional; yoga prerequisites shows the convention"
+  fi
 }
 
 sync() {

@@ -408,6 +408,20 @@ check_pipeline_inputs() {
       todo mount "ext/mnt/claude-code-projects absent — the live-session mount the census and capture read; yoga prerequisites sync --apply creates it"
     fi
   fi
+  # The deploy mount differs from the live-session mount in the one way that matters:
+  # its TARGET is unknowable here (the site repo's clone lives wherever the human put
+  # it), so sync --apply cannot create it and absence is not a todo — deploying is
+  # optional per machine. Present it is verified and named; absent it is stated as the
+  # optional affordance it is, with the hand-make convention the README declares.
+  if [[ -L "$REPO_ROOT/ext/mnt/site" || -d "$REPO_ROOT/ext/mnt/site" ]]; then
+    if [[ -d "$REPO_ROOT/ext/mnt/site/." ]]; then
+      ok "ext/mnt/site → $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null || echo "(a directory)") (the deploy target; yoga site's tree copies there)"
+    else
+      todo site_mount "ext/mnt/site is a dangling link → $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null) — repoint it at the site repo's clone, or remove it"
+    fi
+  else
+    info "ext/mnt/site absent — optional, only a deploying machine needs it; hand-make: ln -s <site-repo-clone> ext/mnt/site (rsc/site/README.md)"
+  fi
 }
 
 notes() {
