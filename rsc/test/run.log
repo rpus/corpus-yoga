@@ -24,7 +24,7 @@ run.py: 1928/1928 (data: machine-local)
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (14/14)
-  ✓ output.prescriptions_are_commands  (68/68)
+  ✓ output.prescriptions_are_commands  (70/70)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -43,8 +43,8 @@ run.py: 1928/1928 (data: machine-local)
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (8/8)
-  ✓ cache_io.paths_resolve  (8/8)
+  ✓ cache_io.read_implies_writer  (7/7)
+  ✓ cache_io.paths_resolve  (7/7)
 
 ── check_accumulate_contract ─────────────────────────────────────────────────
   ✓ accumulate.trajectory_contract
@@ -153,8 +153,8 @@ run.py: 1928/1928 (data: machine-local)
 stage                               pass  fail  warn   verdict   line
 check_required_files                  10     0     0   ok           4
 check_xref                             2     0     0   ok           7
-check_cli_surface                    440     0     0   ok          11
-check_cache_io                        18     0     0   ok          43
+check_cli_surface                    442     0     0   ok          11
+check_cache_io                        16     0     0   ok          43
 check_accumulate_contract              1     0     0   ok          49
 check_capture_monotone                 4     0     0   ok          52
 check_grammar_laws                    12     0     0   ok          55

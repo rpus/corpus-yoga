@@ -19,7 +19,13 @@ digraph yoga {
     forge      [label="GitHub forge"];
     human      [label="the human", shape=ellipse, color=darkgreen, fontcolor=darkgreen];
     peer       [label="peer machine\n(same store, iCloud)"];
-    liveproj   [label="ext/ → ~/.claude\n(live session store)"];
+  }
+
+  // ── ext/ (machine-local: the foreign register) ───────────────
+  subgraph cluster_ext {
+    label="ext/  (foreign: mnt/ by reference, lib/ by copy)"; color=gray40;
+    liveproj [label="mnt/claude-code-projects\n→ ~/.claude (live sessions)"];
+    vendlib  [label="lib/serve_markdown\n(pinned render libs)", color=red3];
   }
 
   // ── rsc/ (committed) ─────────────────────────────────────────
@@ -51,7 +57,6 @@ digraph yoga {
     idxc    [label="indexing/ (pending queue)", color=red3];
     modelc  [label="model/ (catalogues)"];
     compc   [label="completions/"];
-    vendc   [label="serve_markdown/ (VENDOR:\nonline-only rebuild)", color=red3];
   }
 
   // ── data/output/ ─────────────────────────────────────────────
@@ -95,6 +100,6 @@ digraph yoga {
   corpus  -> corpus  [label="summaries keys on projection", color=red3, fontcolor=red3, style=dashed];
 
   // ── vendor + forge ───────────────────────────────────────────
-  cdn   -> vendc [label="server ensure-assets", color=blue, fontcolor=blue];
+  cdn   -> vendlib [label="server ensure-assets", color=blue, fontcolor=blue];
   clidecl -> forge [label="forge sync --apply / merge", color=blue, fontcolor=blue];
 }

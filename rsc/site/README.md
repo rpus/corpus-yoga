@@ -44,6 +44,6 @@ in that repo:
 
 Netlify builds on push; `rpus.co/yoga/` serves the directory index. The site
 repo's location is machine-local (it is not this repo's business) — a
-hand-made `data/input/site` symlink to its clone is the conventional binding if
-a `yoga`-verb deploy step is ever wanted (post-#117 that mount arguably belongs
-in `ext/mnt/` with the other by-reference mounts).
+hand-made `ext/mnt/site` symlink to its clone is the conventional binding if a
+`yoga`-verb deploy step is ever wanted — a mount by reference, beside the other
+entries of that species.

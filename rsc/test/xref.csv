@@ -430,7 +430,7 @@ src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/
 src/main/code-agents/jsonl_to_json.sh,5,comment,src/main/code-agents/jsonl_to_json.sh,Y,#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/code-agents/jsonl_to_json.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
 src/main/code-agents/jsonl_to_json.sh,28,call,src/main/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
-src/main/code-agents/link_projects.sh,5,comment,src/main/code-agents/link_projects.sh,Y,#   src/main/code-agents/link_projects.sh
+src/main/code-agents/link_projects.sh,6,comment,src/main/code-agents/link_projects.sh,Y,#   src/main/code-agents/link_projects.sh
 src/main/code-agents/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/code-agents/memory_to_json.py,24,comment,src/main/code-agents/memory_to_json.py,Y,src/run_python_script.sh src/main/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/code-agents/project_conversation.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/code-agents/project_conversation.py         <session-dir>    # reads <session-dir>/ses
@@ -505,10 +505,10 @@ src/main/model/serve_markdown.py,25,comment,src/prerequisites.sh,Y,# visible and
 src/main/model/server.sh,5,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh                 # status: daemon + render-asset presence
 src/main/model/server.sh,6,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
 src/main/model/server.sh,7,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh stop
-src/main/model/server.sh,8,comment,src/main/model/server.sh,Y,"#   src/main/model/server.sh ensure-assets   # fetch the render libs into tmp/cache/, then exit"
+src/main/model/server.sh,8,comment,src/main/model/server.sh,Y,"#   src/main/model/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit"
 src/main/model/server.sh,19,call,src/main/model/serve_markdown.py,Y,"PY=(""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"")"
 src/main/model/server.sh,34,comment,src/prerequisites.sh,Y,"# readiness report, with versions, is src/prerequisites.sh's check_dependencies)"
-src/main/model/server.sh,35,path_str,src/main/model/serve_assets.txt,Y,"local manifest=""$SCRIPT_DIR/serve_assets.txt"" dir=""$REPO_DIR/tmp/cache/serve_markdown"""
+src/main/model/server.sh,35,path_str,src/main/model/serve_assets.txt,Y,"local manifest=""$SCRIPT_DIR/serve_assets.txt"" dir=""$REPO_DIR/ext/lib/serve_markdown"""
 src/main/pipeline.sh,2,comment,src/main/pipeline.sh,Y,"# src/main/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/pipeline.sh,24,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/pipeline.sh,25,call,src/main/steps.sh,Y,"source ""$REPO_ROOT/src/main/steps.sh"""
@@ -549,10 +549,11 @@ src/prerequisites.sh,319,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (
 src/prerequisites.sh,331,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
 src/prerequisites.sh,352,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/prerequisites.sh,367,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null | awk -F'\t' '$1==""settings""{sub(/^settings\t/,""""); print}"
-src/prerequisites.sh,465,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/prerequisites.sh,468,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
-src/prerequisites.sh,486,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/prerequisites.sh,492,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
+src/prerequisites.sh,471,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/prerequisites.sh,474,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,475,call,src/main/code-agents/link_projects.sh,Y,"_todo_has mount && ""$REPO_ROOT/src/main/code-agents/link_projects.sh"""
+src/prerequisites.sh,493,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,499,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
@@ -711,7 +712,6 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,src/main/cli/test/run.json,Y,
 ,,,src/main/cli/test/test.json,Y,
 ,,,src/main/cli/test/xref.json,Y,
-,,self_only,src/main/code-agents/link_projects.sh,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
 ,,self_only,src/test/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/code-agents/survey_code_session.py,Y,

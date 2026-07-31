@@ -176,7 +176,7 @@ req_probe() {
 # and the pinned version comes from the line's /npm/<pkg>@<ver>/ URL.
 asset_extract() { printf '%s' "$1" | sed -E 's/^[[:space:]]+//; s/[[:space:]].*//'; }
 asset_probe() {  # $1 = dest, $2 = full line
-  [[ -f "$REPO_ROOT/tmp/cache/serve_markdown/$1" ]] || return 1
+  [[ -f "$REPO_ROOT/ext/lib/serve_markdown/$1" ]] || return 1
   printf '%s' "$2" | grep -oE '/npm/[^/@]+@[^/]+' | sed 's#/npm/##' || true
 }
 
@@ -402,6 +402,11 @@ check_pipeline_inputs() {
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
     info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: yoga agent capture --all"
+    if [[ -d "$REPO_ROOT/ext/mnt/claude-code-projects" ]]; then
+      ok "ext/mnt/claude-code-projects → ~/.claude/projects (the census and capture read it)"
+    else
+      todo mount "ext/mnt/claude-code-projects absent — the live-session mount the census and capture read; yoga prerequisites sync --apply creates it"
+    fi
   fi
 }
 
@@ -445,6 +450,7 @@ sync() {
   local acts=()
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
   _todo_has hook && acts+=("install the pre-commit hook (yoga test install-hook)")
+  _todo_has mount && acts+=("create the ext/mnt/claude-code-projects mount (link_projects.sh)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"
     return 0
@@ -466,6 +472,7 @@ sync() {
     echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
   fi
   _todo_has hook && "$REPO_ROOT/src/test/test.sh" install-hook
+  _todo_has mount && "$REPO_ROOT/src/main/code-agents/link_projects.sh"
   echo
   echo "what remains — re-derived, not assumed:"
   _todo=()
@@ -491,7 +498,7 @@ report() {
     "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
     asset_extract asset_probe \
-    "render assets present in tmp/cache/serve_markdown" \
+    "render assets present in ext/lib/serve_markdown" \
     "yoga server ensure-assets, or automatically on the next yoga server start"
   check_optional_modes
   check_cli

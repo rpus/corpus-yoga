@@ -33,7 +33,7 @@ capture MIRRORS each project's memory (updated in place, absentees
 removed); every merge subtlety lives in install, where two agents actually
 meet.
 
-The projects root is ext/claude-code-projects (link_projects.sh's symlink to the Claude Code
+The projects root is ext/mnt/claude-code-projects (link_projects.sh's symlink to the Claude Code
 projects folder) — HARNESS-OWNED state that Anthropic expires at will. The
 doctrine: capture is the one READER of it — sweep early, sweep often; install is the one WRITER of it, and only ever by a user's
 explicit --apply, never a pipeline's. The pipelines source from the store,
@@ -115,7 +115,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[3]
-PROJECTS = REPO / 'ext' / 'claude-code-projects'
+PROJECTS = REPO / 'ext' / 'mnt' / 'claude-code-projects'
 AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 
 sys.path.insert(0, str(REPO / 'src'))  # argparse_help — modules both tiers import
@@ -414,8 +414,14 @@ def list_agents() -> int:
             st = f.stat()
             rows.append((f.stem[:8], where, st.st_size, st.st_mtime, title))
 
-    for proj in sorted(d for d in PROJECTS.glob('-Users-*') if d.is_dir()):
-        scan('local', proj)
+    if PROJECTS.is_dir():
+        for proj in sorted(d for d in PROJECTS.glob('-Users-*') if d.is_dir()):
+            scan('local', proj)
+    else:
+        # a census that silently omits a side is a lie of absence: say which rows
+        # cannot appear and how to make them appear
+        print(f'note: {PROJECTS.relative_to(REPO)} absent — no local rows '
+              '→ run: yoga prerequisites sync --apply', file=sys.stderr)
     if AGENTS_DIR.is_dir():
         for machine in sorted(p for p in AGENTS_DIR.iterdir() if p.is_dir()):
             for proj in sorted(d for d in machine.glob('-Users-*') if d.is_dir()):

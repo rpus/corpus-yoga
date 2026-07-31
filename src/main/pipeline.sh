@@ -445,7 +445,7 @@ main() {
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
         "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/require_export.sh --help)" ;;
-        "code-agents (prep)")  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/claude-code-projects/ (transport's source) symlinks" ;;
+        "code-agents (prep)")  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/mnt/claude-code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac
     done
