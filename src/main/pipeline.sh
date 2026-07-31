@@ -215,11 +215,32 @@ run_pipeline() {
   return $rc
 }
 
+# A pipeline that exits non-zero has gated on SOMETHING; if it never said so in the
+# vocabulary the table counts, the run cannot state why it failed and the row reads
+# `0 FAIL … failed`. That gap is the step's defect, and naming it is the only honest
+# repair available here: the runner states what it observed — a non-zero exit with no
+# finding — rather than inventing the finding the step withheld.
 run_pipeline_safe() {
   local name="$1"; shift
   if ! run_pipeline "$name" "$@"; then
     pipeline_failures+=("$name")
+    section_has_fail "$name" || echo "FAIL: $name exited non-zero without stating a finding — a step gated on something it did not report as FAIL:; its own output is above"
   fi
+}
+
+# Does this section already carry a FAIL: atom? Read from its banner to the end of what
+# has been logged so far — the section is complete by the time its runner has returned.
+#
+# `── prep: <name> ──` is OUTSIDE this: a prep banner closes the match, so a FAIL: printed
+# by a prep step would not be found here (and atom_table would count it under whichever
+# pipeline preceded it). No prep step emits atoms today — this is a recorded decision, not
+# an oversight, and the day one does, both readers need the prep section as its own row.
+section_has_fail() {
+  awk -v want="$1" '
+    /^── / { in_section = ($2 == want); next }
+    in_section && /^[[:space:]]*FAIL:/ { found = 1 }
+    END { exit found ? 0 : 1 }
+  ' "$LOG_FILE" 2>/dev/null
 }
 
 # The error:/FAIL: lines from one failed pipeline's section of the log — so the
@@ -238,35 +259,53 @@ section_error_lines() {
   ' "$LOG_FILE"
 }
 
-# Every FAIL:/WARN:/INFO: ATOM, hoisted whole and GROUPED by severity — the
-# FAIL group, then WARN, then INFO — with the original log-BODY ORDER preserved
-# WITHIN each group. An atom is a reason line plus its INDENTED CONTINUATION: every
-# following line indented four or more, of which "→ run:" is one kind. Taking the
-# reason plus "→ run:" lines alone would mean an atom cannot have a body: a producer
-# putting its detail on a second line loses the detail AND, because any unmatched line
-# closes the atom, the remedy beneath it — silently, since nothing reports that the
-# tail ate half a finding. Kept together (the body already pairs them;
-# the tail must never tear them into a reason-list and a separate command-rail — a
-# pile of buttons, pressed in some order, for reasons not stated). The grouping is safe
-# and purely ADDITIVE: the body is the source of truth (full context, true step
-# order), and messages are emitted in step order, so we rely on the script's step
-# authorship for cross-message sanity — the tail only hoists and sorts by
-# severity, destroying nothing. A reason with no command still shows; a "→ run:"
-# joins the reason above it (in_atom), never a flat pile. Leading whitespace is
-# normalised. (A FAIL in a pipeline that COMPLETED never enters
-# section_error_lines — that quoting is keyed on death — so the tail hoists it here.)
-hoist_atoms() {
-  awk '
-    /^[[:space:]]*FAIL:/ { s=$0; sub(/^[[:space:]]+/,"",s); fail=fail "  " s "\n"; b="F"; in_atom=1; next }
-    /^[[:space:]]*WARN:/ { s=$0; sub(/^[[:space:]]+/,"",s); warn=warn "  " s "\n"; b="W"; in_atom=1; next }
-    /^[[:space:]]*INFO:/ { s=$0; sub(/^[[:space:]]+/,"",s); info=info "  " s "\n"; b="I"; in_atom=1; next }
-    /^    / || /→ run:/ {
-      if (in_atom) { s=$0; sub(/^[[:space:]]+/,"",s); r="    " s "\n";
-                     if (b=="F") fail=fail r; else if (b=="W") warn=warn r; else info=info r }
+# The tail is a TABLE: one row per STAGE of the run — the three pipelines, each prep, and
+# the corpus reduce — counting the atoms that occurred inside it, beside its verdict. A
+# stage is a phase of the RUN, not a paragraph of the log: `browser-captures` is what you
+# type after `yoga pipeline run` to do that stage alone, and the banner is merely how the
+# log marks where it began. Two facts about one
+# pipeline, on one line, so they cannot disagree unnoticed — a row saying `failed` with
+# no FAIL is a defect of the step, and the table is where it becomes visible.
+#
+# Nothing is hoisted. An atom's context IS the section it sits in, and reprinting it
+# elsewhere loses that context while duplicating the text: a reader who wants the detail
+# greps the sigil, or diffs two logs. The body stays the one place a finding is stated.
+#
+# Sections are the `── name ───` banners the runners print; the corpus tail's atoms fall
+# after the last banner and are counted under `corpus`.
+atom_table() {
+  local failed_csv="$1"
+  awk -v failed="$failed_csv" '
+    function flush(  verdict) {
+      if (section == "") return
+      verdict = (index("," failed ",", "," section ",") > 0) ? "failed" : "ok"
+      # line = where the banner for this stage sits in this log: the anchor that turns
+      # a count back into the lines that produced it, with no grep to compose.
+      # Rows are held, not printed, because the stage column is as wide as the widest
+      # NAME and that is unknown until the last one is read — a width chosen by eye
+      # overflows the day a stage is added, shifting every column after it.
+      rows[++n_rows] = sprintf("%s\t%d\t%d\t%d\t%s\t%d", section, n_fail, n_warn, n_info, verdict, banner_line)
+      if (length(section) > width) width = length(section)
+    }
+    /^── prep: / { next }                       # prep is narrated under its pipeline
+    /^── / {
+      flush(); n_fail = n_warn = n_info = 0
+      section = $2; banner_line = NR
+      if (section == "done") { section = ""; next }
       next
     }
-    { in_atom=0 }
-    END { printf "%s%s%s", fail, warn, info }   # FAIL group, then WARN, then INFO
+    /^[[:space:]]*FAIL:/ { n_fail++; next }
+    /^[[:space:]]*WARN:/ { n_warn++; next }
+    /^[[:space:]]*INFO:/ { n_info++; next }
+    END {
+      flush()
+      if (width < length("stage")) width = length("stage")
+      printf "  %-*s %5s %5s %5s   %-7s %6s\n", width, "stage", "FAIL", "WARN", "INFO", "verdict", "line"
+      for (r = 1; r <= n_rows; r++) {
+        split(rows[r], f, "\t")
+        printf "  %-*s %5d %5d %5d   %-7s %6d\n", width, f[1], f[2], f[3], f[4], f[5], f[6]
+      }
+    }
   ' "$LOG_FILE" 2>/dev/null || true
 }
 
@@ -294,6 +333,11 @@ LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
 # because its captures are paid and out-of-run — CLOSURE fails, and a step
 # here would render fresh-LOOKING pages over silently lagging semantics.
 run_corpus_tail() {
+  # Its own banner, so its atoms are attributed to it rather than to whichever pipeline
+  # ran last — the table reads sections, and a reduce over everything is a section.
+  # Not under --plan: the plan lists STEPS, and a banner is a log boundary, not a step —
+  # the line above it ("then once, over the whole corpus") already says the same thing.
+  [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/model/indexing.py" sync
   # Bare noun DELIBERATELY (not the dropped-verb bug class the plan gate
@@ -330,7 +374,7 @@ print_plan() {
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: the FAIL/WARN/INFO atoms (each reason with its '→ run:' command beneath), grouped by severity with body order preserved within each; failed pipelines with their error:/FAIL: lines quoted; the yoga test run reminder; log path"
+  echo "  tail: one row per stage — FAIL/WARN/INFO counts, the verdict it exited with, and where it begins in the log; failed pipelines with their error:/FAIL: lines quoted; the yoga test run reminder; log path"
 }
 
 main() {
@@ -374,34 +418,25 @@ main() {
   fi
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
-  # The tail carries SUMMARIES only — the body already marks each fact at its
-  # source (FAIL: something that needs acting on, remedy beside it; WARN: a
-  # fact worth eyes that gates nothing; INFO: a computed conclusion) and is
-  # grep-able by those sigils. Here: the FAIL/WARN/INFO ATOMS — each reason with
-  # its "→ run:" command(s) beneath it, in source order (hoist_atoms; a FAIL
-  # inside a pipeline that COMPLETED reaches the tail too, not only a died
-  # pipeline's section_error_lines), and — when a pipeline died — its error:/FAIL:
-  # lines quoted under its name, so a failure is never just "scroll up". The log
-  # is safe to read mid-tee: those lines are long flushed.
-  local n_fail n_warn n_info atoms
-  n_fail="$(grep -cE '^[[:space:]]*FAIL:' "$LOG_FILE" 2>/dev/null || true)"
-  n_warn="$(grep -cE '^[[:space:]]*WARN:' "$LOG_FILE" 2>/dev/null || true)"
-  n_info="$(grep -cE '^[[:space:]]*INFO:' "$LOG_FILE" 2>/dev/null || true)"
-  atoms="$(hoist_atoms)"   # non-empty iff some FAIL/WARN/INFO occurred
+  # The tail is a TABLE and nothing else: one row per section, its atom counts beside the
+  # verdict it exited with. The body already states every finding where it happened, with
+  # the context of its section around it — reprinting those lines here would duplicate the
+  # text and lose the context, which is what hoisting them did. A reader who wants detail
+  # greps the sigil or diffs two logs; a reader who wants the shape of the run reads four
+  # columns. The row is also where the two notions of failure meet, so `0 FAIL … failed`
+  # is legible as the step defect it is rather than split across two paragraphs.
+  # bash 3.2 expands an EMPTY array under `set -u` as unbound, so the guard is not
+  # decoration: without it a clean run dies here, before printing its own summary.
+  local failed_csv="" one
+  if [[ ${#pipeline_failures[@]} -gt 0 ]]; then
+    for one in "${pipeline_failures[@]}"; do failed_csv="${failed_csv:+$failed_csv,}${one%% *}"; done
+  fi
+  atom_table "$failed_csv"
+  echo "  (each pipeline stage runs alone as: yoga pipeline run <stage>; corpus is the reduce over all)"
+  echo "  (line = where that stage begins in this log; each finding is stated there, in place)"
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
-    if [[ -n "$atoms" ]]; then
-      echo "All pipelines completed; $n_fail FAIL, $n_warn WARN, $n_info INFO:"
-      printf '%s\n' "$atoms"
-    else
-      echo "All pipelines completed successfully."
-    fi
+    echo "All pipelines completed."
   else
-    # FAIL summarises like WARN even when a pipeline died — the counts do not
-    # vanish on the runs that need them most.
-    if [[ -n "$atoms" ]]; then
-      echo "$n_fail FAIL, $n_warn WARN, $n_info INFO — grouped by severity, each reason with its command (body order within each):"
-      printf '%s\n' "$atoms"
-    fi
     echo "Failed pipelines:"
     local errs
     for f in "${pipeline_failures[@]}"; do
