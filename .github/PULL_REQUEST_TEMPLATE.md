@@ -43,5 +43,8 @@
      they believe they built; the defects live outside that belief. -->
 
 - **test** — <how a reviewer reproduces the verdicts: commands run, outputs seen>
-- **use** — <what a machine runs or expects after merge; retired addresses; refreshes>
+- **use** — <what a machine runs or expects after merge — spoken in yoga commands;
+  forge merge ends by running `yoga prerequisites`, so machine-local adoption belongs
+  in its report: state it cannot see is a species to add (the mount precedent), not
+  prose to remember>
 - **do** — <what this raises, advances, or leaves open, with its issue>
