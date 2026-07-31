@@ -8,9 +8,20 @@
      commit messages, oldest first, and nothing else survives into git history.
      This body teaches the same sections plus the review-facing half.
 
-     Relations vocabulary: enacts / advances / supersedes / reopens / leaves open.
-     NEVER a closing keyword beside an issue number, even quoted or negated — the
-     forge's parser reads free prose (writing "does NOT close #N" once closed #N). -->
+     Relations vocabulary: closes / enacts / advances / supersedes / reopens /
+     leaves open. The protection is LEXICAL: every relation but one only REFERS —
+     `#N` alone never enacts, whatever section it sits in. `closes #N` is the
+     vocabulary's one ENACTING word, parser-aligned: the forge executes it at
+     merge, atomically, wherever it appears (the parser is position-blind — the
+     why-section lead is style, not safety). Never spell the parser's other words
+     near an issue number, even quoted or negated: "does NOT close #N" once
+     closed #N. An issue completed by a PR that does not say closes is residue.
+     MOOD LAW: closes is indicative-only. A branch-birth commit must not carry
+     it — the promise would execute at merge regardless of what review decided
+     in between. Prospective notes phrase completion without the parser's words
+     ("aims to complete #N"); the pre-merge flip is what arms the close, which
+     makes the recompose load-bearing: if review narrowed the scope, removing
+     closes is not tidying prose, it is preventing a wrong close. -->
 
 ## why
 
