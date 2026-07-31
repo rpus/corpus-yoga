@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Ensures ext/claude-code-projects is a symlink to ~/.claude/projects.
+# Ensures ext/mnt/claude-code-projects is a symlink to ~/.claude/projects
+# (ext/mnt/ is the by-reference species: mounts of state other systems own).
 #
 # Usage:
 #   src/main/code-agents/link_projects.sh
@@ -19,8 +20,14 @@ parse_args() {
 }
 
 link_projects() {
-  mkdir -p "$REPO_DIR/ext"
-  ln -sfn ~/.claude/projects "$REPO_DIR/ext/claude-code-projects"
+  mkdir -p "$REPO_DIR/ext/mnt"
+  ln -sfn ~/.claude/projects "$REPO_DIR/ext/mnt/claude-code-projects"
+  # the pre-species address; a link is re-creatable state, so retiring it here is
+  # the script doing its one job at the new address rather than leaving two names
+  if [[ -L "$REPO_DIR/ext/claude-code-projects" ]]; then
+    rm "$REPO_DIR/ext/claude-code-projects"
+    echo "retired ext/claude-code-projects (now ext/mnt/claude-code-projects)"
+  fi
 }
 
 main() {

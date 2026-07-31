@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from send import assert_may_send  # noqa: E402 — the python face of YOGA_NO_SEND (#29)
 
 REPO_ROOT  = Path(__file__).resolve().parents[3]
-STATIC_DIR = REPO_ROOT / 'tmp' / 'cache' / 'serve_markdown'
+STATIC_DIR = REPO_ROOT / 'ext' / 'lib' / 'serve_markdown'  # pinned foreign artifacts, by copy
 # The viewer's render-lib dependency, declared like a requirements.txt (pinned
 # versions, one line per artifact) rather than buried in a dict here — so it is
 # visible and src/prerequisites.sh can report against the same source.
@@ -316,7 +316,7 @@ if __name__ == '__main__':
     p.add_argument('--ensure-assets', action='store_true')
     args = p.parse_args()
 
-    # The sync producer path: repopulate tmp/cache/serve_markdown and stop. Best-effort
+    # The sync producer path: repopulate ext/lib/serve_markdown and stop. Best-effort
     # so an offline `yoga cache sync` still exits clean — serve itself hard-requires the
     # assets at startup (ensure_assets there is not caught), so a broken render can't
     # slip through; here we only warn and leave the subtree for the next online run.

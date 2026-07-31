@@ -7,7 +7,7 @@ DECLARED in rsc/cache_io.csv (written_by); sync runs every row's producers,
 in registry-row order (no dedup — the row is the unit of the claim). Paired with clean, this is the reproduction the tmp/cache/
 contract promises: `yoga cache clean --apply && yoga cache sync` gives a fresh tmp/cache/ from
 data/input/ + data/output/ alone — plus, for the one fetched subtree, the pinned CDN it
-declares: `yoga server ensure-assets` fetches tmp/cache/serve_markdown's render
+declares: `yoga server ensure-assets` fetches ext/lib/serve_markdown's render
 libraries (KaTeX + marked), which live nowhere local. That producer is best-effort
 (it warns and exits clean if offline; serve re-fetches at startup), so an offline
 sync still rebuilds every other subtree.

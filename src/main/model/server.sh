@@ -5,7 +5,7 @@
 #   src/main/model/server.sh                 # status: daemon + render-asset presence
 #   src/main/model/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
 #   src/main/model/server.sh stop
-#   src/main/model/server.sh ensure-assets   # fetch the render libs into tmp/cache/, then exit
+#   src/main/model/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit
 #
 # Defaults: --markdown data/output/markdown (the corpus the server exists to serve), --port 8182.
 
@@ -32,14 +32,14 @@ status() {
   fi
   # render-asset presence — a bare file tally against the manifest (the authoritative
   # readiness report, with versions, is src/prerequisites.sh's check_dependencies)
-  local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/tmp/cache/serve_markdown"
+  local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/ext/lib/serve_markdown"
   local total=0 present=0 line f
   while IFS= read -r line; do
     line="${line%%#*}"; f="${line%%[[:space:]]*}"
     [[ -z "$f" ]] && continue
     total=$((total + 1)); [[ -f "$dir/$f" ]] && present=$((present + 1))
   done < "$manifest"
-  echo "render assets: $present/$total present in tmp/cache/serve_markdown"
+  echo "render assets: $present/$total present in ext/lib/serve_markdown"
   echo "verbs: start | stop | ensure-assets    (yoga server --help)"
 }
 
