@@ -383,7 +383,6 @@ merge() {
     local f
     while IFS= read -r f; do echo "      $f"; done <<< "$dirty_files"
   fi
-
   [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; return 0; }
 
   # a dry run reports the dirty tree; a real one refuses on it, because the postcondition
@@ -451,6 +450,15 @@ merge() {
       echo "local: origin/$head forgotten — the forge has dropped it"
     fi
   fi
+
+  # 6. adoption: the machine report, run rather than remembered. What a merged idea
+  # asks of THIS machine is machine-local state, and prerequisites is the surface that
+  # owns machine-local state end to end — report with remedies, sync --apply as the
+  # enacting verb the USER runs. The merge does not enact adoption; it surfaces it:
+  # a PR whose adoption prerequisites cannot see should have extended prerequisites.
+  echo
+  echo "the machine, post-merge — adoption lives in these prescriptions (yoga prerequisites):"
+  "$REPO_DIR/yoga" prerequisites || true
 
   # The trailing half of the bracket (G19), shown rather than asserted: which branch you
   # are on and what the tree holds. A merge that leaves a modified artifact behind will
