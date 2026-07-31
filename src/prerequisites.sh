@@ -72,14 +72,14 @@ count_glob_dirs() {
 check_tools() {
   sec "tools"
   if command -v jq &>/dev/null; then
-    ok "jq ($(jq --version 2>/dev/null))"
+    ok "jq ($(jq --version 2>/dev/null)) — every pipeline's json work runs through it"
   else
-    bad "jq not found — install via: brew install jq"
+    bad "jq not found — no pipeline runs without it; install via: brew install jq"
   fi
   if command -v python3 &>/dev/null; then
-    ok "python3 ($(python3 --version 2>&1))"
+    ok "python3 ($(python3 --version 2>&1)) — bootstraps the venv; the CLI's own machinery"
   else
-    bad "Python 3 not found — install via: brew install python"
+    bad "Python 3 not found — nothing runs without it, the CLI included; install via: brew install python"
   fi
   # Informational, never a ✗: absent, the gate skips its type check and still gates
   # deterministically. pyright is Pylance's own engine and reads the same
@@ -115,9 +115,9 @@ check_tools() {
 check_venv() {
   sec "venv ($VENV — override via VENV=...)"
   if [[ -x "$VENV/bin/python" ]]; then
-    ok "exists ($("$VENV/bin/python" --version 2>&1))"
+    ok "exists ($("$VENV/bin/python" --version 2>&1)) — every .py target runs in it"
   else
-    todo venv "not found — yoga prerequisites sync --apply creates it and installs src/requirements.txt"
+    todo venv "not found — no .py target runs (pipelines, census, server); yoga prerequisites sync --apply creates it and installs src/requirements.txt"
   fi
 }
 
@@ -134,7 +134,7 @@ check_dependencies() {
   local header="$1" manifest="$2" extract="$3" probe="$4" subject="$5" remediation="$6"
   sec "$header"
   if [[ ! -f "$manifest" ]]; then
-    info "manifest not found (unexpected)"
+    info "manifest not found (unexpected) — nothing can say what this machine is missing"
     return
   fi
   local detail="" seen="|" missing="" total=0 got=0 line item tok
@@ -231,7 +231,7 @@ check_machine() {
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo machine "unbound — declare it in rsc/machine/machines.csv first, then bind:"
+    todo machine "unbound — capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first, then bind:"
     echo "    → run: echo <declared-machine-name> > $rel"
     info "declared: ${declared:-none}"
     return
@@ -560,11 +560,15 @@ report() {
   check_pipeline_inputs
   notes
 
+  # A report is information: it exits 0 unless it could not BE produced. Severity
+  # lives in the rows; refusal lives at the acts (forge merge refuses on the gate
+  # row at merge time; a pipeline fails loudly on a missing tool at run time) —
+  # severity and consumability decouple by LOCATION, not by a role or a bit.
+  # Ruled 2026-07-31 (#141): the old exit-1-on-✗ made a pipelines-only machine
+  # scriptably blocked by a hook it will never trigger.
   if [[ "$missing_required" -eq 1 ]]; then
-    echo "unmet requirements — fix the ✗ items above, then re-run"
-    exit 1
-  fi
-  if (( SHOW_ALL )); then
+    echo "✗ item(s) above — each names what breaks and its remedy; this report only informs (exit 0)"
+  elif (( SHOW_ALL )); then
     echo "ready — yoga pipeline run (pipelines without input data are skipped)"
   else
     # Default is failures-only; if we reach here nothing above needed attention.
