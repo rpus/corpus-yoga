@@ -415,11 +415,11 @@ src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": 
 src/main/cli/site/site.sh,18,path_str,rsc/site,Y,"SRC=""$REPO_DIR/rsc/site"""
 src/main/cli/site/site.sh,47,path_str,rsc/site,Y,"done < <(page_files ""$SRC"")"
 src/main/cli/site/site.sh,55,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep '\.dot$' || true)"
-src/main/cli/site/site.sh,71,path_str,rsc/site,Y,"for d in ""$SRC""/*/; do"
-src/main/cli/site/site.sh,77,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"")"
-src/main/cli/site/site.sh,81,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"" | grep '\.dot$' || true)"
-src/main/cli/site/site.sh,90,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"")"
-src/main/cli/site/site.sh,99,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"" | grep '\.dot$' || true)"
+src/main/cli/site/site.sh,79,path_str,rsc/site,Y,"for d in ""$SRC""/*/; do"
+src/main/cli/site/site.sh,85,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"")"
+src/main/cli/site/site.sh,89,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"" | grep '\.dot$' || true)"
+src/main/cli/site/site.sh,98,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"")"
+src/main/cli/site/site.sh,107,path_str,rsc/site,Y,"done < <(page_files ""$SRC"" | grep ""^$name/"" | grep '\.dot$' || true)"
 src/main/cli/subcommand.schema.json,25,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/chat-exports/summaries.py,Y,"""target"": ""src/main/chat-exports/summaries.py"","
 src/main/cli/supersede/supersede.json,3,path_str,src/main/chat-exports/supersede.py,Y,"""target"": ""src/main/chat-exports/supersede.py"","
@@ -549,11 +549,11 @@ src/prerequisites.sh,319,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (
 src/prerequisites.sh,331,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
 src/prerequisites.sh,352,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/prerequisites.sh,367,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null | awk -F'\t' '$1==""settings""{sub(/^settings\t/,""""); print}"
-src/prerequisites.sh,471,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/prerequisites.sh,474,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
-src/prerequisites.sh,475,call,src/main/code-agents/link_projects.sh,Y,"_todo_has mount && ""$REPO_ROOT/src/main/code-agents/link_projects.sh"""
-src/prerequisites.sh,493,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/prerequisites.sh,499,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
+src/prerequisites.sh,485,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/prerequisites.sh,488,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,489,call,src/main/code-agents/link_projects.sh,Y,"_todo_has mount && ""$REPO_ROOT/src/main/code-agents/link_projects.sh"""
+src/prerequisites.sh,507,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,513,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu
