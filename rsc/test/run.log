@@ -150,6 +150,26 @@ run.py: 1928/1928 (data: machine-local)
   ✓ checks[code]
   ✓ checks[schema]
 
+stage                               pass  fail  warn   verdict   line
+check_required_files                  10     0     0   ok           4
+check_xref                             2     0     0   ok           7
+check_cli_surface                    440     0     0   ok          11
+check_cache_io                        18     0     0   ok          43
+check_accumulate_contract              1     0     0   ok          49
+check_capture_monotone                 4     0     0   ok          52
+check_grammar_laws                    12     0     0   ok          55
+check_root_schema_diagnostics         50     0     0   ok          69
+check_schema_validity                 53     0     0   ok          96
+check_schema_changelogs              106     0     0   ok          99
+check_versioned_schema_diagnostics  1209     0     0   ok         103
+check_schema_join                      1     0     0   ok         129
+check_model_join_versions              1     0     0   ok         132
+check_model_occurrences                3     0     0   ok         135
+check_model_obligations               17     0     0   ok         140
+check_mcp_schema                       1     0     0   ok         144
+check_score                            5     0     0   ok         147
+  (line = where that stage begins in this report; every check is listed there, in place)
+
 ── check_score ───────────────────────────────────────────────────────────────
   ✓ checks[code+schema]: 87 types, 1928/1928 invocations passing
   ✓ checks: every expected check ran

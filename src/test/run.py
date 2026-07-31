@@ -2350,6 +2350,34 @@ def main():
         else:
             out.write('  full per-check report → tmp/logs/test/run.log\n')
 
+        # One row per STAGE — the same shape `yoga pipeline run` prints, so a reader of
+        # either report answers the same question the same way: which stages ran, what
+        # each found, and where to look. A stage here is a check_* section: not typeable
+        # (unlike a pipeline stage), so the row anchors to the line instead of a command.
+        stage_rows: dict[str, list[int]] = {}
+        for i in idxs:
+            stage_rows.setdefault(sections[i], []).append(i)
+        body_lines = out.getvalue().splitlines()
+        banner_line = {}
+        for line_number, text in enumerate(body_lines, 1):
+            if text.startswith('── '):
+                banner_line[text.split()[1]] = line_number
+        # Width from the DATA, never a guess: check_versioned_schema_diagnostics is 34
+        # characters, and a column sized by eye pushes every field after it rightwards on
+        # exactly the rows a reader is scanning for.
+        stage_width = max([len('stage')] + [len(s) for s in stage_rows])
+        out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5} {"warn":>5}   '
+                  f'{"verdict":<7} {"line":>6}\n')
+        for stage, members in stage_rows.items():
+            failing  = [i for i in members if not results[i][1]]
+            advisory = [i for i in failing if _is_advisory(i)]
+            gating   = [i for i in failing if not _is_advisory(i)]
+            verdict  = 'failed' if gating else 'ok'
+            out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(gating):>5} '
+                      f'{len(advisory):>5}   {verdict:<7} {banner_line.get(stage, 0):>6}\n')
+        out.write('  (line = where that stage begins in this report; every check is '
+                  'listed there, in place)\n')
+
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
         for label, ok, detail in score_rows:
