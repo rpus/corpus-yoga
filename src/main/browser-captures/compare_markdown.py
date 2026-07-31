@@ -10,8 +10,17 @@ JSON is opened by this file, so a difference it reports may belong to project_ma
 RENDERING rather than to either capture — which is why the messages name the projection and
 not the API capture, and why "refresh the capture" is not automatically the remedy.
 
-While both capture kinds exist, this certifies that the projection and the DOM capture
-agree — each is the other's independent check.
+The PRECEDENT this file now enacts (ruled 2026-07-31): severity attaches to the
+RECORD, never to witness agreement. Of a conversation's two captures, one holds the
+record role (claude: the API capture — the DOM capture retired into a witness) and the
+other is a witness. A witness diverging from a complete record is DRIFT — stated,
+remedied (reconcile or discharge the witness), never gating; only a loss to the RECORD
+itself may fail a run, and that is the renderer's and validator's to catch, since the
+projection derives from the record. The rule is role-indexed, not mechanism-indexed:
+were the roles reversed (gemini's DOM capture IS its record), the same rule gates the
+same drift hard. So this reports DRIFT and always exits 0; the atom-voice for these
+findings is audit_captures' (atom and remedy in one voice), and stating them twice
+would double the table's counts.
 
 Gate on the aligned TURN SEQUENCE (role + content prefix), which is machine-robust; full
 content always differs in intended ways (better titles, trimmed leading spaces, separated
@@ -22,7 +31,7 @@ Turns are aligned DOM-capture→projection with difflib. Per conversation:
   projection-more-complete = the projection has extra turns, within the DOM capture's
                              [no capture] placeholder budget (a placeholder licenses at most
                              one extra projected turn)
-  REGRESSION               = the projection dropped turns present in the DOM capture, OR has
+  DRIFT                    = the projection dropped turns present in the DOM capture, OR has
                              extra turns beyond the placeholder budget, OR aligned turns
                              disagree on role, OR the same turns appear in a different order
 
@@ -202,7 +211,7 @@ def main():
     api_only = sorted(set(projected) - set(dom))
     dom_only = sorted(set(dom) - set(projected))
     print(f"compared {len(paired)}: {exact} turn-exact, {improved} projection-more-complete "
-          f"(filled DOM-capture gaps), {len(regressions)} regression(s)")
+          f"(filled DOM-capture gaps), {len(regressions)} drift(s)")
     if content_diff_pairs:
         print(f"  {content_diff_pairs} aligned pair(s) differ in content rendering only (use --diff to eyeball)")
     if api_only:
@@ -210,8 +219,8 @@ def main():
     if dom_only:
         print(f"  {len(dom_only)} DOM capture(s) with no projection (not compared)", file=sys.stderr)
     for name, kind, detail in regressions:
-        print(f"  REGRESSION {name}: {kind}" + (f" — {detail}" if detail else ''), file=sys.stderr)
-    return 1 if regressions else 0
+        print(f"  DRIFT {name}: {kind}" + (f" — {detail}" if detail else ''), file=sys.stderr)
+    return 0
 
 
 if __name__ == '__main__':
