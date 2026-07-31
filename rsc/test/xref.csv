@@ -544,16 +544,16 @@ src/prerequisites.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/main/
 src/prerequisites.sh,26,call,src/main/send.sh,Y,"source ""$REPO_ROOT/src/main/send.sh""   # assert_may_send — the shell face of YOGA_NO_SEND (#29)"
 src/prerequisites.sh,209,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
 src/prerequisites.sh,213,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
-src/prerequisites.sh,308,call,rsc/test/pre-commit-hook.sh,Y,"elif cmp -s ""$hook"" ""$REPO_ROOT/rsc/test/pre-commit-hook.sh""; then"
-src/prerequisites.sh,319,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
-src/prerequisites.sh,331,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/prerequisites.sh,352,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
-src/prerequisites.sh,367,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null | awk -F'\t' '$1==""settings""{sub(/^settings\t/,""""); print}"
-src/prerequisites.sh,485,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/prerequisites.sh,488,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
-src/prerequisites.sh,489,call,src/main/code-agents/link_projects.sh,Y,"_todo_has mount && ""$REPO_ROOT/src/main/code-agents/link_projects.sh"""
-src/prerequisites.sh,507,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
-src/prerequisites.sh,513,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
+src/prerequisites.sh,341,call,rsc/test/pre-commit-hook.sh,Y,"elif cmp -s ""$hook"" ""$REPO_ROOT/rsc/test/pre-commit-hook.sh""; then"
+src/prerequisites.sh,352,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+src/prerequisites.sh,368,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
+src/prerequisites.sh,389,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
+src/prerequisites.sh,404,call,src/main/cli/forge.sh,Y,"done < <(""$REPO_ROOT/src/main/cli/forge.sh"" --tsv 2>/dev/null | awk -F'\t' '$1==""settings""{sub(/^settings\t/,""""); print}"
+src/prerequisites.sh,522,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
+src/prerequisites.sh,525,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,526,call,src/main/code-agents/link_projects.sh,Y,"_todo_has mount && ""$REPO_ROOT/src/main/code-agents/link_projects.sh"""
+src/prerequisites.sh,544,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
+src/prerequisites.sh,550,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/code-agents/debug_code_session_record.py,15,comment,src/test/code-agents/debug_code_session_record.py,Y,python src/test/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slu

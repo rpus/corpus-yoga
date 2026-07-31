@@ -284,13 +284,46 @@ check_cli() {
   fi
 }
 
+check_git_identity() {
+  # The one git config committing requires. Machine-local and remediable, so a
+  # species — the report warns before git's own first-commit refusal would. Report
+  # only, never a sync act: a global identity is not this repo's to choose (the
+  # ext/mnt/site ruling — report where the value cannot be known), unlike the venv
+  # two lines below, whose contents ARE the repo's declaration.
+  sec "git (the tool, and the identity commits require)"
+  if ! command -v git &>/dev/null; then
+    todo reader "git not installed — nothing here works without it; install via: brew install git"
+    return
+  fi
+  ok "git $(git --version | awk '{print $3}')"
+  local n e
+  n="$(git -C "$REPO_ROOT" config user.name 2>/dev/null || true)"
+  e="$(git -C "$REPO_ROOT" config user.email 2>/dev/null || true)"
+  if [[ -n "$n" && -n "$e" ]]; then
+    # --show-scope (git 2.26+) names the scope AS the flag stem — the affordance
+    # --show-origin nearly served (a file path is a coordinate; the flag is the get)
+    local s1 s2 scope=""
+    s1="$(git -C "$REPO_ROOT" config --show-scope user.name 2>/dev/null | awk '{print $1; exit}' || true)"
+    s2="$(git -C "$REPO_ROOT" config --show-scope user.email 2>/dev/null | awk '{print $1; exit}' || true)"
+    if [[ -n "$s1" && "$s1" == "$s2" ]]; then scope=" (--$s1)"
+    elif [[ -n "$s1$s2" ]]; then scope=" (name: --$s1, email: --$s2)"; fi
+    ok "identity: $n <$e>$scope"
+  else
+    todo reader "git identity unset — the first commit refuses; set: git config --global user.name '<name>' && git config --global user.email '<email>'"
+  fi
+}
+
 check_git_hook() {
   # The one voice for this fact. A second probe — run.sh reporting on its own
   # installation, in its own words — is two answers to one question, and the copy
   # is free to soften into advice on the very branches where nothing is vetting.
   sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
   local hook
-  if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
+  if ! command -v git &>/dev/null; then
+    info "git not installed — reported with its remedy in the git section above"
+    return
+  fi
+  if ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/pre-commit 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
@@ -320,7 +353,11 @@ check_signature_hook() {
   # no signature — never a failure, so this reports informationally even when installed.
   sec "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
   local script hook link dir
-  if ! command -v git &>/dev/null || ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
+  if ! command -v git &>/dev/null; then
+    info "git not installed — reported with its remedy in the git section above"
+    return
+  fi
+  if ! hook="$(git -C "$REPO_ROOT" rev-parse --git-path hooks/prepare-commit-msg 2>/dev/null)"; then
     info "not a git clone — no hook to install"
     return
   fi
@@ -516,6 +553,7 @@ report() {
     "yoga server ensure-assets, or automatically on the next yoga server start"
   check_optional_modes
   check_cli
+  check_git_identity
   check_git_hook
   check_signature_hook
   check_forge
