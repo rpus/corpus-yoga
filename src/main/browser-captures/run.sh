@@ -75,6 +75,9 @@ run_corpus() {
   # there is nothing left to opt out of. The comparison is local, free, and each side is the
   # other's independent check; the reason to skip it was the reporting, and the reporting is
   # fixed. Absent DOM captures skip informatively (L8), which is what a guard is for.
+  # It never gates: severity attaches to the RECORD (claude: the API capture), and a
+  # witness diverging from a complete record is drift — stated, remedied by audit's INFO,
+  # never a run failure. Role-indexed, not mechanism-indexed.
   step_if "$has_dom" 'when data/input/claude/chat/browser-DOM holds captures' \
        compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/compare_markdown.py" \

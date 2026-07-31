@@ -177,8 +177,8 @@ src/main/browser-captures/claude/validate.sh,16,path_str,rsc/schema/browser-capt
 src/main/browser-captures/claude/validate.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,32,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/browser-captures/claude/validate.sh,33,path_str,rsc/schema/browser-captures/apiConversation,Y,"""$json"" ""$SCHEMA_DIR"" ""$out_dir/validation/apiConversation"" ""$uuid"" || rc=$?"
-src/main/browser-captures/compare_markdown.py,30,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --projection data/output/markdown/claude/chat
-src/main/browser-captures/compare_markdown.py,30,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --projection data/output/markdown/claude/chat
+src/main/browser-captures/compare_markdown.py,39,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --projection data/output/markdown/claude/chat
+src/main/browser-captures/compare_markdown.py,39,comment,src/main/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/compare_markdown.py     --projection data/output/markdown/claude/chat
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/copy_gemini_markdown.py,24,comment,src/main/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini/chat/bro
 src/main/browser-captures/export.command,19,path_str,src/main/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
@@ -198,8 +198,8 @@ src/main/browser-captures/run.sh,60,call,src/run_python_script.sh,Y,"step copy_g
 src/main/browser-captures/run.sh,61,call,src/main/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
 src/main/browser-captures/run.sh,66,call,src/run_python_script.sh,Y,"step_ok audit_captures     ""$REPO_DIR/src/run_python_script.sh"" \"
 src/main/browser-captures/run.sh,67,call,src/main/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/browser-captures/run.sh,79,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
-src/main/browser-captures/run.sh,80,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/browser-captures/run.sh,82,call,src/run_python_script.sh,Y,"compare_markdown      ""$REPO_DIR/src/run_python_script.sh"" \"
+src/main/browser-captures/run.sh,83,call,src/main/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
 src/main/browser-captures/safari_capture.sh,14,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude
 src/main/browser-captures/safari_capture.sh,15,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --mechanism DOM
 src/main/browser-captures/safari_capture.sh,16,comment,src/main/browser-captures/safari_capture.sh,Y,#   src/main/browser-captures/safari_capture.sh --provider claude --id <uuid>
