@@ -88,7 +88,7 @@ branches() {
       # does not distinguish them. Containment does, and git can be asked: ancestry first,
       # then patch-id, which a rebase or a cherry-pick preserves where the hash does not.
       if [[ -n "$holder" ]]; then
-        echo -e "KEPT\t$b\t#$n is CLOSED, but the branch is checked out at $holder"
+        echo -e "KEPT\t$b\t#$n is CLOSED, but the branch is checked out at $holder\tgit checkout $base"
       elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "refs/heads/$base" 2>/dev/null; then
         echo -e "DELETABLE\t$b\t#$n is CLOSED, and ${tip:0:8} is contained in $base"
       else
@@ -103,7 +103,7 @@ branches() {
     elif [[ "$st" != MERGED ]]; then
       echo -e "KEPT\t$b\t#$n is $st"
     elif [[ -n "$holder" ]]; then
-      echo -e "KEPT\t$b\t#$n merged, but the branch is checked out at $holder"
+      echo -e "KEPT\t$b\t#$n merged, but the branch is checked out at $holder\tgit checkout $base"
     elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
       echo -e "DELETABLE\t$b\t#$n merged, and ${tip:0:8} is contained in the merged head ${oid:0:8}"
     else
@@ -178,13 +178,17 @@ status() {
   rows="$(branches)"
   if [[ -n "$rows" ]]; then
     echo "local branches — what the forge says about each"
-    local d
-    while IFS=$'\t' read -r st key detail; do
+    # A row that names a remedy prints it, whatever its status: a branch KEPT because you
+    # are standing on it is the one state the reader cannot leave by reading — every other
+    # row here either needs nothing or is covered by the prune line below.
+    local d remedy
+    while IFS=$'\t' read -r st key detail remedy; do
       [[ -z "$st" ]] && continue
       case "$st" in
         DELETABLE) echo "  ✗ $key: $detail"; d=1 ;;
         *)         echo "  – $key: $detail" ;;
       esac
+      [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
     done <<< "$rows"
     [[ -z "${d:-}" ]] || echo "    → run: yoga forge prune"
   fi
