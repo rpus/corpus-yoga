@@ -16,6 +16,9 @@
      why-section lead is style, not safety). Never spell the parser's other words
      near an issue number, even quoted or negated: "does NOT close #N" once
      closed #N. An issue completed by a PR that does not say closes is residue.
+     MENTIONS wear backticks: to speak ABOUT a marker phrase or keyword without
+     using it, backtick it — checks strip backticked spans before matching, and
+     backticks are the one safe mark (quotes mis-pair on apostrophes).
      MOOD LAW: closes is indicative-only. A branch-birth commit must not carry
      it — the promise would execute at merge regardless of what review decided
      in between. Prospective notes phrase completion without the parser's words
