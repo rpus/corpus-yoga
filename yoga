@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # yoga — the repo's terminal CLI: curated subcommands with zsh tab-completion.
 # The table and the machinery share src/main/cli/ — cli.py reads the declarations beside it.
-# Run bare for the table; `yoga <command> --help` asks the target itself.
+# Bare `yoga` is the machine report (the root's status, like every noun); `yoga -h` is
+# the table; `yoga <command> --help` asks the target itself.
 #
 # cli.py is deliberately stdlib-only, so the CLI itself runs on any Python 3 —
 # system python3 when the venv does not exist yet (a fresh clone can read the
