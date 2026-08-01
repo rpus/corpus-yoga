@@ -380,6 +380,11 @@ merge() {
   exec > >(tee -a "$log") 2>&1
   echo "yoga forge merge $pr — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
+  # The G19 trailing bracket is TERMINAL — a trap on exit, not a line each path must
+  # remember: a terminal git status is always helpful, and per-path enactment is how
+  # half the exits ended bare (every refusal did). One mechanism, every ending.
+  trap 'echo; echo "this checkout, now:"; git -C "$REPO_DIR" status' EXIT
+
   # 0. the sends ARE the work here (gh pr view, gh pr merge): refuse loudly, first (#29)
   assert_may_send "gh pr view / gh pr merge (yoga forge merge)" || exit 1
 
@@ -410,6 +415,9 @@ merge() {
   else
     [[ "$state"     == OPEN      ]] || { echo "yoga forge merge: #$n is $state — nothing to merge" >&2; exit 1; }
     [[ "$draft"     == false     ]] || { echo "yoga forge merge: #$n is a draft — mark it ready first" >&2; exit 1; }
+    if [[ "$mergeable" == UNKNOWN ]]; then
+      echo "yoga forge merge: #$n is UNKNOWN — the forge is recomputing mergeability (usual after a push); retry in a moment" >&2; exit 1
+    fi
     [[ "$mergeable" == MERGEABLE ]] || { echo "yoga forge merge: #$n is $mergeable ($mstate) — resolve that first; gh would fail or prompt" >&2; exit 1; }
   fi
   # BEHIND matters for more than tidiness: a squash of an up-to-date branch lands exactly
@@ -475,15 +483,49 @@ merge() {
     echo "  surface roster: empty$base_note"
   fi
   jq -r '.body // ""' <<< "$json" | totest_check
+  # the parser's OWN reading of what this merge will close — shown before consent, so
+  # a declared closes that will not fire (or a stray that will) is seen while it is
+  # still a preview rather than an event (#146; the #29/#127 strikes are the incidents)
+  local will_close
+  will_close="$(cd "$REPO_DIR" && gh pr view "$n" --json closingIssuesReferences \
+    --jq '[.closingIssuesReferences[].number] | map("#\(.)") | join(", ")' 2>/dev/null || true)"
+  echo "  the forge will close: ${will_close:-nothing}"
 
   echo
-  echo "the state this leaves behind:"
-  [[ -n "$already" ]] && echo "  #$n is merged into $base (already)" \
-                      || echo "  #$n merged into $base"
-  [[ "$current" == "$head" ]] && echo "  this checkout moves from $head to $base" \
-                             || echo "  this checkout stays on $current"
-  echo "  $base fast-forwarded to include it"
-  echo "  $head deleted here, if the merged head contains it"
+  # A PREDICTION, so it speaks the prospective — and its MODAL follows the MODE:
+  # the dry run says "would" (its antecedent is the consent being withheld — the
+  # prune precedent: "would delete … pass --apply"); the real run says "will" (the
+  # command was typed; nothing conditional remains but the checks). And it EVALUATES
+  # its conditionals: the containment test is decidable now, and a printed "if"
+  # whose inputs are in hand is a hedge dressed as a fact (the specimens on #146:
+  # perfect-tense lines narrating a merge the next line refused; then a "would"
+  # offered for the real run, corrected by the maintainer with one word).
+  local modal="will"; [[ -z "$dry" ]] || modal="would"
+  echo "the state this $modal leave behind:"
+  [[ -n "$already" ]] && echo "  #$n — already merged into $base (the forge half is done)" \
+                      || echo "  #$n — merges into $base"
+  if [[ "$current" == "$head" ]]; then
+    echo "  this checkout — moves from $head to $base"
+  elif [[ -n "$current" ]]; then
+    echo "  this checkout — stays on $current"
+  else
+    # a detached HEAD has no name to stay on — say where it stands instead of
+    # rendering a blank where a name belongs (the review's first misstatement)
+    echo "  this checkout — stays detached at $(git -C "$REPO_DIR" rev-parse --short HEAD)"
+  fi
+  echo "  $base — fast-forwards to include it"
+  local head_tip=""
+  # --verify --quiet, or rev-parse ECHOES an unresolvable name to stdout — which
+  # filled head_tip with a literal refs/heads/ string and made the KEPT line assert
+  # a specific reason about a branch that does not exist (the review's second)
+  head_tip="$(git -C "$REPO_DIR" rev-parse --verify --quiet "refs/heads/$head" || true)"
+  if [[ -z "$head_tip" ]]; then
+    echo "  $head — is not here (nothing to delete)"
+  elif [[ "$head_tip" == "$oid" ]] || git -C "$REPO_DIR" merge-base --is-ancestor "$head_tip" "$oid" 2>/dev/null; then
+    echo "  $head — $modal be deleted here (its tip is contained in the merged head)"
+  else
+    echo "  $head — $modal be KEPT here (it holds commits the head being merged does not)"
+  fi
   if [[ -n "$dirty" ]]; then
     echo "  ⚠ this checkout has uncommitted changes — a real run refuses here:"
     local f
@@ -567,12 +609,35 @@ merge() {
   echo "the machine, post-merge — adoption lives in these prescriptions (yoga prerequisites):"
   "$REPO_DIR/yoga" prerequisites || true
 
-  # The trailing half of the bracket (G19), shown rather than asserted: which branch you
-  # are on and what the tree holds. A merge that leaves a modified artifact behind will
-  # block the next pull, and nothing said so until the pull failed.
-  echo
-  echo "this checkout, now:"
-  git -C "$REPO_DIR" status
+  # 7. issues, after this merge — verified from the forge, never assumed (#146). Every
+  # issue number the squash message mentions is queried and classified: closed-and-
+  # declared is the contract kept; declared-but-open is a close that failed to fire;
+  # closed-but-UNDECLARED is a parser strike (the #29/#127 class), caught in the same
+  # minute instead of six hours later. The declared set is read with mentions stripped
+  # (backticked spans), the same discipline the mood check uses.
+  # shellcheck disable=SC2016  # the backticks in the seds below are pattern, not expansion
+  local squash_msg declared_closes mentioned iss st_i
+  squash_msg="$(git -C "$REPO_DIR" show -s --format=%B "origin/$base" 2>/dev/null || true)"
+  # shellcheck disable=SC2016  # backticks are sed pattern, not expansion
+  declared_closes="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oiE 'closes #[0-9]+' | grep -oE '[0-9]+' | sort -u)"
+  # shellcheck disable=SC2016  # as above
+  mentioned="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oE '#[0-9]+' | grep -oE '[0-9]+' | sort -u)"
+  if [[ -n "$mentioned" ]]; then
+    echo
+    echo "issues, after this merge (verified from the forge):"
+    while read -r iss; do
+      [[ -n "$iss" ]] || continue
+      st_i="$(cd "$REPO_DIR" && gh issue view "$iss" --json state --jq .state 2>/dev/null || echo UNKNOWN)"
+      if grep -qx "$iss" <<< "$declared_closes"; then
+        [[ "$st_i" == CLOSED ]] && echo "  ✓ #$iss — declared closes, and CLOSED" \
+                                || echo "  ⚠ #$iss — declared closes, but $st_i: the close did not fire"
+      else
+        [[ "$st_i" == CLOSED ]] && echo "  ⚠⚠ #$iss — CLOSED but NOT declared: a parser strike; reopen if unintended" \
+                                || echo "  – #$iss — mentioned, $st_i (no close declared: a reference)"
+      fi
+    done <<< "$mentioned"
+  fi
+
 }
 
 case "${1-}" in
