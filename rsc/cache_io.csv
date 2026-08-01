@@ -6,3 +6,4 @@ tmp/cache/completions,,yoga completions sync,external:zsh; src/prerequisites.sh,
 tmp/cache/dashboard,,yoga dashboard sync,,the data tables feeding the corpus dashboard (sync render) — feedstock only (re-derived each run; the finished page lands in data/output/site/). The paid capture also stages here transiently before promotion to data/output/dashboard
 tmp/cache/indexing,,yoga indexing list-candidates,external:human,the pending-concept queue (candidates.txt); a rebuildable derivation of data/output/dashboard minus data/output/indexing curation
 tmp/cache/model,,yoga model sync,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/schema/model.json
+tmp/cache/test,,yoga test run,src/test/run.py,per-section replay cache (subject stat-hash + recorded contribution) — the incremental gate (#68); yoga test run --fresh bypasses it
