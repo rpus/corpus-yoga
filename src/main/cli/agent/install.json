@@ -25,5 +25,11 @@
       "cardinality": "",
       "help": "perform the merge — without it, a dry run that only reports"
     }
+  ],
+  "r": [
+    "data/input/claude/code/machine-transport"
+  ],
+  "w": [
+    "ext/mnt/claude-code-projects"
   ]
 }

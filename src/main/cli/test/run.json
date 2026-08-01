@@ -16,5 +16,21 @@
   ],
   "sends": [
     "one GET of the pinned MCP schema’s upstream URL — YOGA_NO_SEND=1 skips it without failing the run (may_send)"
+  ],
+  "r": [
+    "src",
+    "rsc",
+    "data",
+    "tmp/cache"
+  ],
+  "w": [
+    "tmp/cache/test",
+    "tmp/logs/test",
+    "rsc/test/run.log",
+    "rsc/test/xref.csv"
+  ],
+  "x": [
+    "shellcheck",
+    "pyright"
   ]
 }

@@ -22,5 +22,12 @@
   ],
   "sends": [
     "PAID: POSTs the corpus to api.anthropic.com, twice (semantic-concepts, chat-categories); --dry-run sends nothing and works under YOGA_NO_SEND (refused loudly otherwise)"
+  ],
+  "r": [
+    "data/output/markdown"
+  ],
+  "w": [
+    "tmp/cache/dashboard",
+    "data/output/dashboard"
   ]
 }

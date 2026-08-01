@@ -3,5 +3,11 @@
   "args": [],
   "sends": [
     "downloads the 18 render libs named in src/main/model/serve_assets.txt — MISSING files only, so a warmed cache sends nothing (refused loudly under YOGA_NO_SEND; an offline or refused cache sync tolerates it)"
+  ],
+  "r": [
+    "src/main/model/serve_assets.txt"
+  ],
+  "w": [
+    "ext/lib/serve_markdown"
   ]
 }

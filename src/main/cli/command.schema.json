@@ -35,6 +35,33 @@
         "$ref": "argument.schema.json#"
       }
     },
+    "r": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Reads (#29): repo-relative path prefixes this declaration reads - the r of the rwx triad. Conservative and coarse is correct; the entry is a claim the gate may hold."
+    },
+    "w": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Writes (#29): repo-relative path prefixes this declaration writes - the w of the triad. effects.writers_disjoint holds that no prefix is claimed by two commands, exactly or by containment."
+    },
+    "x": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Invokes (#29): canonical invocation forms this declaration executes - tools and parametrised commands, the x of the triad. Wire-class x's remain in sends until the census folds them in."
+    },
     "sends": {
       "type": "array",
       "minItems": 1,

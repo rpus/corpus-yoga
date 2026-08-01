@@ -22,5 +22,20 @@
   ],
   "sends": [
     "pip reaches PyPI on every run (upgrade check + requirements) — skipped with a note under YOGA_NO_SEND; a fresh venv then fails at first import, visibly"
+  ],
+  "r": [
+    "data/input",
+    "rsc"
+  ],
+  "w": [
+    "tmp/cache/browser-captures",
+    "tmp/cache/chat-exports",
+    "tmp/cache/code-agents",
+    "data/output/markdown",
+    "data/output/memories"
+  ],
+  "x": [
+    "jq",
+    "python3"
   ]
 }

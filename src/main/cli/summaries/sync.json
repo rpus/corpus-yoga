@@ -1,5 +1,11 @@
 {
   "help": "deposit new distinct readings and re-render each folder index — idempotent (the only write)",
   "args": [],
-  "step": "chat-exports"
+  "step": "chat-exports",
+  "r": [
+    "data/input"
+  ],
+  "w": [
+    "data/output/markdown/claude/chat/summaries"
+  ]
 }
