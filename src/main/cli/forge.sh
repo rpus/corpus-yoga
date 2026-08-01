@@ -159,14 +159,25 @@ base_branch() {
   (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
 }
 
+# The ✗ classes are not alike (#142): REFUSE-class means the merge would land badly
+# (settings drift — the squash under undeclared rules; a wrong hook — unvetted work);
+# TIDY-class means this checkout's bookkeeping is behind (a stale tracking ref, a
+# deletable merged branch) — a chore the merge's own tidy-up clears, never a danger.
+# status renders both identically (a ✗ is a ✗); the difference is who may proceed:
+# merge refuses only on refuse-class and says so for tidy. The classification is
+# carried in these two variables, set as the rows render — one derivation, one pass.
+STATUS_REFUSE=0
+STATUS_TIDY=0
+
 status() {
   echo "forge settings — declared: src/main/cli/forge/forge.csv; live: this checkout's remote"
+  STATUS_REFUSE=0; STATUS_TIDY=0
   local st key detail remedy drift=0
   while IFS=$'\t' read -r st key detail remedy; do
     [[ -z "$st" ]] && continue
     case "$st" in
       OK)    echo "  ✓ $key: $detail" ;;
-      DRIFT) echo "  ✗ $key: $detail"; echo "    → run: $remedy"; drift=1 ;;
+      DRIFT) echo "  ✗ $key: $detail"; echo "    → run: $remedy"; drift=1; STATUS_REFUSE=1 ;;
       *)     echo "  – $key: $detail" ;;
     esac
   done < <(reconcile)
@@ -185,7 +196,7 @@ status() {
     while IFS=$'\t' read -r st key detail remedy; do
       [[ -z "$st" ]] && continue
       case "$st" in
-        DELETABLE) echo "  ✗ $key: $detail"; d=1 ;;
+        DELETABLE) echo "  ✗ $key: $detail"; d=1; STATUS_TIDY=1 ;;
         *)         echo "  – $key: $detail" ;;
       esac
       [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
@@ -201,11 +212,11 @@ status() {
     while IFS=$'\t' read -r st key detail; do
       [[ -z "$st" ]] && continue
       case "$st" in
-        STALE) echo "  ✗ $key: $detail"; any=1 ;;
+        STALE) echo "  ✗ $key: $detail"; any=1; STATUS_TIDY=1 ;;
         *)     echo "  – $key: $detail" ;;
       esac
     done <<< "$stale"
-    [[ -z "$any" ]] || { echo "    → run: yoga forge prune"; drift=1; }
+    [[ -z "$any" ]] || echo "    → run: yoga forge prune"
   fi
 
   # Whether this checkout can gate is forge business: merging lands work on a base every
@@ -219,10 +230,13 @@ status() {
     if [[ "$st" == OK ]]; then
       echo "  ✓ $key: $detail"
     else
-      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; drift=1
+      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; drift=1; STATUS_REFUSE=1
     fi
   done < <(gate)
-  return $drift
+  # the exit carries the REFUSE class only: tidy-class ✗s inform and prescribe but do
+  # not fail the status — the same location-decoupling as prerequisites' exit (severity
+  # in the rows; refusal at the acts, and only for what would land badly)
+  return $((STATUS_REFUSE))
 }
 
 # Delete exactly what `status` marked DELETABLE — one predicate, so what is listed and what
@@ -370,7 +384,8 @@ merge() {
   assert_may_send "gh pr view / gh pr merge (yoga forge merge)" || exit 1
 
   # 1. the forge itself: merging under undeclared settings composes main by rules nobody wrote
-  status || { echo "yoga forge merge: refused — settle the ✗ lines above first; each names its own remedy" >&2; exit 1; }
+  status || { echo "yoga forge merge: refused — REFUSE-class ✗ above (settings drift or a wrong hook): the squash would land badly; each line names its remedy" >&2; exit 1; }
+  [[ "$STATUS_TIDY" -eq 0 ]] || echo "note: tidy-class ✗ above (stale refs / deletable branches) — bookkeeping, not danger; this merge's own tidy-up clears what it can, and yoga forge prune covers the rest"
 
   # 2. the PR's own state, from the forge rather than from optimism
   local json
