@@ -300,7 +300,7 @@ def usage_of(command: str) -> str:
     if not subcommands:
         return bare
     # The bare noun is an alternative like any other (G2: bare is status), and the flags
-    # that attach to it — `forge --tsv`, `pipeline --names` — are typeable. Dropping the
+    # that attach to it — `pipeline --names`, `prerequisites --show-all` — are typeable. Dropping the
     # command-level rows once a subcommand exists left both unsayable in the one place
     # the whole surface is listed.
     return ' | '.join([bare or '(status)'] + [_join(s, _render_args(bysub[s])) for s in subcommands])

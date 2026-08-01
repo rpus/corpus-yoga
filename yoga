@@ -8,14 +8,37 @@
 # system python3 when the venv does not exist yet (a fresh clone can read the
 # table, print the calculus, and generate completion before ./src/main/pipeline.sh);
 # .py TARGETS still run via src/run_python_script.sh, which requires the venv.
+#
+# Every command ends by saying where this checkout stands, and it is said here so that no
+# command has to remember it. When each script carried its own line, one script carried it
+# and seventeen did not.
+#
+# It is git's sentence, printed by git: the branch, the lag against the tracking ref and
+# its remedy, the dirty paths. A report reads the same refs git reads and can know nothing
+# git does not, so anything written here to say the same would be a worse copy of it.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 if [[ -f "$VENV/bin/python" ]]; then
-  exec "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
-fi
-if ! command -v python3 &>/dev/null; then
+  set -- "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
+elif command -v python3 &>/dev/null; then
+  set -- python3 "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
+else
   echo "error: Python 3 not found — install via: brew install python (see ./src/prerequisites.sh)" >&2
   exit 1
 fi
-exec python3 "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
+
+# Piped or redirected, stdout is a program's input and stays exactly what the command
+# wrote — `yoga pipeline | awk '{print $1}'` reads pipeline names, not a git status. That
+# path keeps exec too, so nothing sits between the reader and the command it is reading.
+[[ -t 1 ]] || exec "$@"
+
+# A terminal is reading: run the command and outlive it by one line. Signals still reach
+# it — it shares this shell's foreground process group — and its exit status is passed on
+# unchanged, so `yoga test run && git commit` behaves as it always did.
+status=0
+"$@" || status=$?
+echo
+echo "this checkout, now:"
+git -C "$SCRIPT_DIR" status
+exit "$status"

@@ -401,7 +401,10 @@ check_forge() {
       DRIFT) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
       *)     info "$key: $detail" ;;
     esac
-  done < <("$REPO_ROOT/src/main/cli/forge.sh" --tsv 2>/dev/null | awk -F'\t' '$1=="settings"{sub(/^settings\t/,""); print}')
+  # Sourced in the subshell this substitution already is: `reconcile` is the derivation
+  # wanted, and only it runs. The subshell also keeps the two files' namespaces apart —
+  # both define a `sync`, and forge.sh's must not become this script's.
+  done < <(source "$REPO_ROOT/src/main/cli/forge.sh"; reconcile 2>/dev/null)
 }
 
 check_pipeline_inputs() {
