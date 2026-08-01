@@ -6,7 +6,6 @@
 #
 # Usage:
 #   yoga forge                 # declared vs live
-#   yoga forge --tsv           # every row bare forge shows, section-tagged, for a program
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   yoga forge merge <pr> [--dry-run]   # check everything, then squash-merge that PR
 #   yoga forge prune [--apply] # forget what the forge no longer has
@@ -380,11 +379,6 @@ merge() {
   exec > >(tee -a "$log") 2>&1
   echo "yoga forge merge $pr — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
-  # The G19 trailing bracket is TERMINAL — a trap on exit, not a line each path must
-  # remember: a terminal git status is always helpful, and per-path enactment is how
-  # half the exits ended bare (every refusal did). One mechanism, every ending.
-  trap 'echo; echo "this checkout, now:"; git -C "$REPO_DIR" status' EXIT
-
   # 0. the sends ARE the work here (gh pr view, gh pr merge): refuse loudly, first (#29)
   assert_may_send "gh pr view / gh pr merge (yoga forge merge)" || exit 1
 
@@ -640,12 +634,15 @@ merge() {
 
 }
 
+# Sourced, this file is its derivations and nothing else: a caller that wants one row set
+# gets that one, at the cost of deriving it. Run, it dispatches. Without this line the two
+# uses were the same use — reaching `reconcile` meant running the program, so the machine
+# report paid for a `gh pr list --state all --limit 200` and a `git remote prune --dry-run`
+# whose rows it then discarded unread: 2.5s of which 2.4s was network it did not want.
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
+
 case "${1-}" in
   '')        status ;;
-  --tsv)     reconcile     | sed 's/^/settings\t/'
-             branches      | sed 's/^/branch\t/'
-             stale_tracking| sed 's/^/tracking\t/'
-             gate          | sed 's/^/gate\t/' ;;
   sync)      shift; sync "$@" ;;
   prune)     shift; prune "$@" ;;
   merge)     shift; merge "$@" ;;
