@@ -6,6 +6,12 @@
       "type": "",
       "cardinality": "",
       "help": "run every fix command, then stop — stages nothing (review and stage yourself)"
+    },
+    {
+      "name": "--fresh",
+      "type": "",
+      "cardinality": "",
+      "help": "ignore the section cache: re-run every check (the cache stat-hashes each section's declared subject; unchanged sections replay)"
     }
   ],
   "sends": [
