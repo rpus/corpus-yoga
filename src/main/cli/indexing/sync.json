@@ -1,5 +1,12 @@
 {
   "help": "build data/output/markdown/index.md from accepted.txt — idempotent",
   "args": [],
-  "step": "corpus"
+  "step": "corpus",
+  "r": [
+    "data/output/indexing",
+    "data/output/dashboard"
+  ],
+  "w": [
+    "data/output/markdown/index.md"
+  ]
 }

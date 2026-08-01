@@ -1,4 +1,13 @@
 {
   "help": "FREE — render the dashboard page from the captures + markdown corpus — idempotent",
-  "args": []
+  "args": [],
+  "r": [
+    "data/output/markdown",
+    "data/output/dashboard",
+    "rsc/site/index.html"
+  ],
+  "w": [
+    "tmp/cache/dashboard",
+    "data/output/site/index.html"
+  ]
 }

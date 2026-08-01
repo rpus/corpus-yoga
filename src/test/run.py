@@ -1844,6 +1844,40 @@ def check_mcp_schema(run):
 
 
 
+def check_effects(run):
+    """The rwx triad's first gate (#155, of the #29 ledger): every declared w prefix is
+    claimed by at most one COMMAND — exactly or by containment. Any verb carrying a
+    step tag may nest inside `pipeline run`'s w (the pipeline writes through its
+    steps; #157 will bind the tag to the pipeline it names); verbs of one command
+    share its workshop; every other containment is two hands on one file."""
+    cli_root = REPO_ROOT / 'src' / 'main' / 'cli'
+    claims = []
+    for f in sorted(cli_root.glob('*/*.json')):
+        d = json.loads(f.read_text())
+        owner = f'{f.parent.name} {f.stem}' if f.stem != f.parent.name else f.parent.name
+        for w in d.get('w', []):
+            claims.append((owner, w.rstrip('/'), bool(d.get('step')),
+                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name))
+    bad = []
+    for i in range(len(claims)):
+        for j in range(i + 1, len(claims)):
+            a, b = claims[i], claims[j]
+            if a[0] == b[0]:
+                continue
+            # ownership is per-COMMAND: two verbs of one command share its workshop
+            # (dashboard sync and capture both stage tmp/cache/dashboard — one owner)
+            if a[4] == b[4]:
+                continue
+            pa, pb = a[1], b[1]
+            if pa == pb or pa.startswith(pb + '/') or pb.startswith(pa + '/'):
+                if (a[3] and b[2]) or (b[3] and a[2]):
+                    continue   # a pipeline containing its own declared step's w
+                bad.append(f'{a[0]} w:{pa} ∩ {b[0]} w:{pb}')
+    run('effects: writers are disjoint (each w prefix claimed once)',
+        not bad, '; '.join(bad[:5]) if bad else None, law='L6',
+        check='effects.writers_disjoint')
+
+
 def check_xref(run):
     # `check` is the writing verb (bare `xref` is read-only status now); the gate
     # regenerates the committed table and compares, so it must call the verb.
@@ -1998,6 +2032,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_required_files': 'TREE',
     'check_xref': 'TREE',
     'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
+    'check_effects': ['src/main/cli'],
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
     'check_capture_monotone': ['src', 'data/output/dashboard'],
@@ -2213,6 +2248,7 @@ def main():
         run_section(check_required_files, tier='code')
         run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
+        run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')

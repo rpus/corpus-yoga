@@ -1,4 +1,10 @@
 {
   "help": "(re-)generate every catalogue to agree with the schemas — idempotent",
-  "args": []
+  "args": [],
+  "r": [
+    "rsc/schema"
+  ],
+  "w": [
+    "tmp/cache/model"
+  ]
 }

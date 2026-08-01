@@ -50,6 +50,7 @@ documentation.null_only_fields_documented
 documentation.open_set_enums_documented
 effects.send_switch_read_once
 effects.sends_declared
+effects.writers_disjoint
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
 files.required_exists

@@ -19,5 +19,11 @@
       "cardinality": "",
       "help": "capture to a scratch dir instead of the store (test escape hatch — a directory, never a machine name)"
     }
+  ],
+  "r": [
+    "ext/mnt/claude-code-projects"
+  ],
+  "w": [
+    "data/input/claude/code/machine-transport"
   ]
 }

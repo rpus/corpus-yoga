@@ -7,5 +7,12 @@
       "cardinality": "",
       "help": "also print the frequent-uncovered-corpus-words advisory (top N; terminal only, machine-local)"
     }
+  ],
+  "r": [
+    "data/output/dashboard",
+    "data/output/indexing"
+  ],
+  "w": [
+    "tmp/cache/indexing"
   ]
 }
