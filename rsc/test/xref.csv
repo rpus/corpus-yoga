@@ -413,7 +413,7 @@ src/main/cli/prerequisites/prerequisites.json,3,path_str,src/prerequisites.sh,Y,
 src/main/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 src/main/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
-src/main/cli/server/ensure-assets.json,4,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
+src/main/cli/server/ensure-assets.json,8,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
 src/main/cli/server/server.json,3,path_str,src/main/model/server.sh,Y,"""target"": ""src/main/model/server.sh"","
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
 src/main/cli/site/site.sh,18,path_str,rsc/site,Y,"SRC=""$REPO_DIR/rsc/site"""
