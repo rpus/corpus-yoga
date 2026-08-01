@@ -305,6 +305,53 @@ sync() {
 # local is half-done — but delete_branch_on_merge means the branch and its individual
 # commits stop being reachable the moment it succeeds. A check after that is worthless, and
 # the assembled message is the one thing that cannot be inspected afterwards.
+# The mechanical half of semver (#136): what happened to the COMMAND SURFACE, derived
+# by diffing the declaration tree across the merge — commands and verbs added, removed,
+# changed. The JUDGMENT (fracture vs fix) stays human, in the PR's what; this roster is
+# the part a reader should never have to compile by eye. Path shape: one dir deep only,
+# so the top-level schemas and documents never enter the roster.
+surface_roster() {  # <base-ref> <head-oid>
+  git -C "$REPO_DIR" diff --name-status "$1...$2" -- 'src/main/cli/*/*.json' 2>/dev/null |   awk -F'	' '{
+      n = split($2, seg, "/"); cmd = seg[n-1]; f = seg[n]; sub(/\.json$/, "", f)
+      what = (f == cmd) ? "yoga " cmd " (the command)" : "yoga " cmd " " f
+      if      ($1 == "A") print "    + " what
+      else if ($1 == "D") print "    - " what
+      else                print "    ~ " what
+    }'
+}
+
+# to test should name only commands that exist (#135): the prescriptions discipline
+# extended to the PR body's test section — a warning, never a gate over prose. Inline
+# backticked spans are stripped first (mentions wear backticks); a second token is
+# challenged only when the command HAS declared verbs and the token is not one (a
+# command with positional args tolerates anything).
+totest_check() {  # stdin: the PR body
+  local section cmd verb bad=""
+  section="$(awk '/^[[:space:]]*-[[:space:]]*\*?\*?test\*?\*?[[:space:]:—-]/{on=1} on && /^[[:space:]]*-[[:space:]]*\*?\*?(use|do)\*?\*?[[:space:]:—-]/{exit} on{print}')"
+  [[ -n "$section" ]] || { echo "  to test: no section found in the body (the template teaches one)"; return 0; }
+  # shellcheck disable=SC2016  # the backticks in the sed below are pattern, not expansion
+  while read -r cmd verb; do
+    [[ -n "$cmd" ]] || continue
+    if [[ ! -f "$REPO_DIR/src/main/cli/$cmd/$cmd.json" ]]; then
+      bad+="yoga $cmd (no such command) "
+    elif [[ -n "$verb" && ! -f "$REPO_DIR/src/main/cli/$cmd/$verb.json" ]]; then
+      # challenged only when the command has verbs at all
+      local f has_verbs=""
+      for f in "$REPO_DIR/src/main/cli/$cmd/"*.json; do
+        [[ "$(basename "$f")" == "$cmd.json" ]] || { has_verbs=1; break; }
+      done
+      [[ -z "$has_verbs" ]] || bad+="yoga $cmd $verb (no such verb) "
+    fi
+  done < <(printf '%s\n' "$section" | sed 's/`[^`]*`//g' \
+           | grep -oE 'yoga [a-z][a-z-]*( [a-z][a-z-]*)?' | sort -u \
+           | awk '{print $2, $3}')
+  if [[ -n "$bad" ]]; then
+    echo "  ⚠ to test names commands the surface lacks: $bad"
+  else
+    echo "  to test: every named command is on the surface"
+  fi
+}
+
 merge() {
   local pr="${1-}" dry=""
   [[ "${2-}" == "--dry-run" ]] && dry=1
@@ -328,7 +375,7 @@ merge() {
   # 2. the PR's own state, from the forge rather than from optimism
   local json
   json="$(cd "$REPO_DIR" && gh pr view "$pr" \
-    --json number,title,state,isDraft,mergeable,mergeStateStatus,headRefName,headRefOid,commits 2>/dev/null)" \
+    --json number,title,state,isDraft,mergeable,mergeStateStatus,headRefName,headRefOid,commits,body,baseRefOid 2>/dev/null)" \
     || { echo "yoga forge merge: no such PR: $pr" >&2; exit 1; }
   local n title state draft mergeable mstate head oid
   n=$(jq -r .number <<< "$json");        title=$(jq -r .title <<< "$json")
@@ -385,6 +432,34 @@ merge() {
   # cannot be the mark — the apostrophe is the same character and mis-pairs spans).
   moody="$(jq -r '[.commits[].messageHeadline, .commits[].messageBody] | join("\n")' <<< "$json"     | sed 's/`[^`]*`//g' | grep -icE 'aims to complete #[0-9]+|this branch should' || true)"
   [[ "$moody" -eq 0 ]] || echo "  ⚠ PROSPECTIVE mood in the branch's notes ('aims to complete'/'this branch should') — the flip has not happened; a real run refuses"
+  # the surface roster (#136) needs the head objects locally; the fetch is the same
+  # wire read step 5 performs after the merge, moved earlier and made quiet
+  git -C "$REPO_DIR" fetch --quiet origin "$head" 2>/dev/null || true
+  local roster base_at
+  roster="$(surface_roster "origin/$base" "$oid")"
+  # The roster diffs against origin/$base AS THIS CLONE KNOWS IT. The comparison
+  # below exists because of a two-round incident (PR #145 review): a stale clone
+  # produced a phantom roster row; the first fix NAMED the base used — and did not
+  # diagnose the reviewer's own case, because naming a value helps only a reader
+  # who already knows what it should be. So the forge's answer (in the json already
+  # fetched) is COMPARED: agreement stays silent, disagreement names the fix — and
+  # the warning prints even on an EMPTY roster, whose "changes no commands" is the
+  # most deceptive claim a stale base can make. Do not simplify this back to
+  # printing the value: that was round one, and it failed its own incident.
+  base_at="$(git -C "$REPO_DIR" rev-parse --short "origin/$base" 2>/dev/null || echo '?')"
+  local forge_base
+  forge_base="$(jq -r '.baseRefOid // empty' <<< "$json")"
+  local base_note=""
+  if [[ -n "$forge_base" && "$forge_base" != "$base_at"* ]]; then
+    base_note=" — ⚠ the forge says the base is ${forge_base:0:8}; this clone is stale: git fetch origin"
+  fi
+  if [[ -n "$roster" ]]; then
+    echo "  the command surface, after this merge (diffed against origin/$base@$base_at$base_note; judgment stays the PR's what):"
+    printf '%s\n' "$roster"
+  elif [[ -n "$base_note" ]]; then
+    echo "  surface roster: empty$base_note"
+  fi
+  jq -r '.body // ""' <<< "$json" | totest_check
 
   echo
   echo "the state this leaves behind:"
