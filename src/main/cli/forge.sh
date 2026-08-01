@@ -437,18 +437,6 @@ merge() {
   sigs=$(jq -r '[.commits[] | select(.messageBody | test("(^|\n)Signature:"))] | length' <<< "$json")
   echo "  — $(jq -r '.commits | length' <<< "$json") commit(s), $sigs carrying a Signature"
   [[ "$sigs" -gt 0 ]] || echo "  ⚠ no commit carries a Signature: main would gain history no session can be joined to"
-  # The MOOD of what will land (#134's check): the squash publishes these messages, and
-  # the template's law is indicative-only at merge — a prospective first commit is a
-  # promise executing unreviewed, and an unarmed close never fires. The markers are the
-  # template's own declared forms, not guessed prose; the check reads the same commits
-  # the squash will publish, so it cannot be outrun by the merge button.
-  local moody
-  # shellcheck disable=SC2016  # the backticks are sed pattern, not expansion
-  # Mentions wear backticks and are stripped before matching (use/mention: a check
-  # that reads quotations refuses the very branch that documents it; single quotes
-  # cannot be the mark — the apostrophe is the same character and mis-pairs spans).
-  moody="$(jq -r '[.commits[].messageHeadline, .commits[].messageBody] | join("\n")' <<< "$json"     | sed 's/`[^`]*`//g' | grep -icE 'aims to complete #[0-9]+|this branch should' || true)"
-  [[ "$moody" -eq 0 ]] || echo "  ⚠ PROSPECTIVE mood in the branch's notes ('aims to complete'/'this branch should') — the flip has not happened; a real run refuses"
   # the surface roster (#136) needs the head objects locally; the fetch is the same
   # wire read step 5 performs after the merge, moved earlier and made quiet
   git -C "$REPO_DIR" fetch --quiet origin "$head" 2>/dev/null || true
@@ -477,13 +465,17 @@ merge() {
     echo "  surface roster: empty$base_note"
   fi
   jq -r '.body // ""' <<< "$json" | totest_check
-  # the parser's OWN reading of what this merge will close — shown before consent, so
-  # a declared closes that will not fire (or a stray that will) is seen while it is
-  # still a preview rather than an event (#146; the #29/#127 strikes are the incidents)
+  # THE mood check (#153, superseding the phrase-sniffing the maintainer condemned):
+  # the forge already wrote the one closing parser that will act, so consult IT and
+  # nothing else. Under the law that every PR closes an issue, "their parser sees no
+  # close" means the branch is still prospective (or mis-armed) — either way, not
+  # mergeable. No phrases, no dialects, no mention-stripping: prose is free; the
+  # field decides. (#146: shown before consent; #29/#127: the strikes it catches.)
   local will_close
   will_close="$(cd "$REPO_DIR" && gh pr view "$n" --json closingIssuesReferences \
     --jq '[.closingIssuesReferences[].number] | map("#\(.)") | join(", ")' 2>/dev/null || true)"
   echo "  the forge will close: ${will_close:-nothing}"
+  [[ -n "$will_close" || -n "$already" ]] || echo "  ⚠ nothing closes — every PR closes an issue; a real run refuses until closes #N is armed and pushed"
 
   echo
   # A PREDICTION, so it speaks the prospective — and its MODAL follows the MODE:
@@ -530,7 +522,7 @@ merge() {
   # a dry run reports the dirty tree; a real one refuses on it, because the postcondition
   # moves HEAD, and a merge that lands and then cannot tidy up is worse than one that stops
   [[ -z "$dirty" ]] || { echo "yoga forge merge: this checkout has uncommitted changes — the merge ends on $base, and moving HEAD would carry or refuse them; commit or stash first" >&2; exit 1; }
-  [[ "$moody" -eq 0 || -n "$already" ]] || { echo "yoga forge merge: refused — the branch's notes are still PROSPECTIVE; recompose to the indicative (arming closes #N if this completes an issue) and push the flip BEFORE merging: the squash publishes what the commits say now" >&2; exit 1; }
+  [[ -n "$will_close" || -n "$already" ]] || { echo "yoga forge merge: refused — the forge's own parser will close nothing, and every PR closes an issue: arm closes #N (or link the issue on the forge) and push before merging" >&2; exit 1; }
 
   # 4. the effect. No --subject, no --body: the forge assembles the message from the
   # commits, which is where the signatures are. --match-head-commit closes the race
