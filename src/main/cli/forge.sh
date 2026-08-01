@@ -58,6 +58,25 @@ for r in csv.DictReader(open(sys.argv[1])):
 ' "$DECLARED" 2>/dev/null || echo -e "UNVERIFIED\tforge.csv\tunreadable or malformed\t"
 }
 
+# rows: BEHIND \t branch \t detail \t remedy — every local branch behind its UPSTREAM.
+# The commonest lag (#149) and the one neither surface reported: git knew, nothing
+# repeated it. Distinct from the surface roster's stale-base warning — that detects
+# origin/<base> behind the FORGE (unfetched); this detects a local branch behind its
+# origin/ ref (fetched, unpulled). Two facts, two remedies. Tidy-class: bookkeeping,
+# never a reason to refuse.
+upstream_lag() {
+  local b track behind cur remedy
+  cur="$(git -C "$REPO_DIR" branch --show-current 2>/dev/null || true)"
+  while IFS='|' read -r b track; do
+    [[ "$track" == *behind* ]] || continue
+    behind="${track##*behind }"; behind="${behind%%]*}"; behind="${behind%%,*}"
+    # the remedy follows the stance: pull where you stand, fetch-refspec where you don't
+    remedy="git fetch origin $b:$b"
+    [[ "$b" != "$cur" ]] || remedy="git pull --ff-only"
+    echo -e "BEHIND\t$b\tbehind its upstream by $behind\t$remedy"
+  done < <(git -C "$REPO_DIR" for-each-ref --format='%(refname:short)|%(upstream:track)' refs/heads)
+}
+
 # rows: STATUS \t branch \t detail — every LOCAL branch, and what the forge says about it.
 # Discovery runs branch → PR, not PR → branch: a branch you had forgotten is exactly the one
 # whose PR number you cannot recall, so a listing keyed on the PR is unreachable when it is
@@ -185,10 +204,19 @@ status() {
   # The branches this checkout still holds. A merged branch surviving here is drift of the
   # same kind as a forge setting that disagrees with src/main/cli/forge/forge.csv: reconcilable state, and
   # this is where it is named.
-  local rows
+  local rows lag
   rows="$(branches)"
-  if [[ -n "$rows" ]]; then
+  lag="$(upstream_lag)"
+  if [[ -n "$rows" || -n "$lag" ]]; then
     echo "local branches — what the forge says about each"
+    if [[ -n "$lag" ]]; then
+      local lb ld lr
+      while IFS=$'\t' read -r st lb ld lr; do
+        [[ -z "$st" ]] && continue
+        echo "  – $lb: $ld — tidy: $lr"
+        STATUS_TIDY=1
+      done <<< "$lag"
+    fi
     # A row that names a remedy prints it, whatever its status: a branch KEPT because you
     # are standing on it is the one state the reader cannot leave by reading — every other
     # row here either needs nothing or is covered by the prune line below.
