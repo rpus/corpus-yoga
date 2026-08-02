@@ -1,4 +1,4 @@
-run.py: 1931/1931 (data: machine-local)
+run.py: 1929/1929 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -46,8 +46,8 @@ run.py: 1931/1931 (data: machine-local)
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (8/8)
-  ✓ cache_io.paths_resolve  (8/8)
+  ✓ cache_io.read_implies_writer  (7/7)
+  ✓ cache_io.paths_resolve  (7/7)
 
 ── check_accumulate_contract ─────────────────────────────────────────────────
   ✓ accumulate.trajectory_contract
@@ -158,7 +158,7 @@ check_required_files                  10     0     0   ok           4
 check_xref                             2     0     0   ok           7
 check_cli_surface                    442     0     0   ok          11
 check_effects                          1     0     0   ok          43
-check_cache_io                        18     0     0   ok          46
+check_cache_io                        16     0     0   ok          46
 check_accumulate_contract              1     0     0   ok          52
 check_capture_monotone                 4     0     0   ok          55
 check_grammar_laws                    12     0     0   ok          58
@@ -175,11 +175,11 @@ check_score                            5     0     0   ok         150
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 88 types, 1931/1931 invocations passing
+  ✓ checks[code+schema]: 88 types, 1929/1929 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 52 types, 490/490 invocations passing
+  ✓ checks[code]: 52 types, 488/488 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1931/1931 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1929/1929 match the committed expectation; nothing here vetoes a commit

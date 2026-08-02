@@ -3,7 +3,7 @@
 #
 # Usage:
 #   yoga test              # status: which checks exist, and whether the hook is installed
-#   yoga test run [--fix] [--fresh]  # the three-tier suite (--fresh ignores the section cache)
+#   yoga test run [--fix]  # the three-tier suite (also what the pre-commit hook runs)
 #   yoga test xref         # rebuild the cross-reference table, write it, and report
 #   yoga test install-hook # point .git/hooks at run.sh and prepare_commit_msg.sh
 #
@@ -70,5 +70,5 @@ case "${1-}" in
   xref)         shift; exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/xref.py" "$@" ;;
   install-hook) shift; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-  *) echo "Usage: yoga test [run [--fix] [--fresh] | xref | install-hook]  (yoga test -h for details)" >&2; exit 1 ;;
+  *) echo "Usage: yoga test [run [--fix] | xref | install-hook]  (yoga test -h for details)" >&2; exit 1 ;;
 esac

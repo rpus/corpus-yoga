@@ -3,7 +3,6 @@
 #
 # Usage:
 #   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
-#   src/test/run.sh --fresh     # ignore the section cache: re-run every check
 #   yoga test install-hook                        # install as the hook
 #
 # ONE behaviour, however it is called: it asks neither what it was invoked as nor
@@ -15,10 +14,6 @@
 # staged this" from "this was already staged, differently", so staging over a
 # `git add -p` hunk destroys it with nothing to restore from. The artifacts it rewrites
 # (run.log, xref.csv) are yours to stage; stale, it refuses and says so.
-#
-# Sections replay from tmp/cache/test/ when their declared SUBJECT (the files they
-# read) is stat-unchanged (#68) — the committed artifacts derive from replayed
-# results byte-identically, and the second run below becomes a total replay.
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a

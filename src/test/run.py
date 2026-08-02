@@ -33,7 +33,6 @@ Each diagnostic takes a schema path as argv[1], exits 0 on pass, 1 on fail.
 
 import ast
 import csv
-import hashlib
 import io
 import json
 import os
@@ -41,7 +40,6 @@ import re
 import shutil
 import subprocess
 import sys
-import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -2010,88 +2008,6 @@ def check_accumulate_contract(run) -> None:
         shutil.rmtree(d, ignore_errors=True)
 
 
-# ── Incremental sections (#68) ────────────────────────────────────────────────
-# A section re-runs only when its SUBJECT — the files it reads — has changed.
-# Subjects are declared conservatively as repo-relative globs; 'TREE' means every
-# tracked-or-untracked-unignored file. The two regenerated artifacts are excluded
-# from every subject (they are outputs; nothing reads them — run.sh's comments are
-# the authority), which is what makes run.sh's second run a total replay. The
-# gate's own sources and the committed expectations are in EVERY subject, so a
-# gate edit or an expectation edit re-runs everything. Escape hatch: --fresh.
-
-GATE_SOURCES = ['src/test/run.py', 'src/test/xref.py',
-                'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']
-ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}
-# the cache's own home: inside tmp/cache, hence inside the data tier's subjects —
-# without this exclusion every run would dirty the data sections forever
-CACHE_PREFIX = 'tmp/cache/test'
-SCHEMA = ['rsc/schema']
-DATA = ['tmp/cache', 'data/input', 'data/output', 'rsc']
-
-SUBJECTS: dict[str, list[str] | str] = {
-    'check_required_files': 'TREE',
-    'check_xref': 'TREE',
-    'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
-    'check_effects': ['src/main/cli'],
-    'check_cache_io': ['src', 'rsc/cache_io.csv'],
-    'check_accumulate_contract': ['src'],
-    'check_capture_monotone': ['src', 'data/output/dashboard'],
-    'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
-    'check_root_schema_diagnostics': SCHEMA,
-    'check_schema_validity': SCHEMA,
-    'check_schema_changelogs': SCHEMA,
-    'check_versioned_schema_diagnostics': SCHEMA,
-    'check_schema_join': SCHEMA,
-    'check_model_join_versions': SCHEMA,
-    'check_model_occurrences': SCHEMA + ['src'],
-    'check_model_obligations': SCHEMA + ['src'],
-    'check_mcp_schema': ['rsc/schema/_reference'],
-    'check_cross_sources': DATA,
-    'check_index_curation': DATA,
-}
-for _pipe in ('browser_captures', 'chat_exports', 'code_agents'):
-    for _kind in ('validation_outputs', 'coverage', 'frontier'):
-        SUBJECTS[f'check_{_pipe}_{_kind}'] = DATA
-
-SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
-
-
-def _tree_files():
-    out = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached',
-                          '--others', '--exclude-standard'],
-                         capture_output=True, text=True)
-    return [l for l in out.stdout.splitlines()
-            if l and l not in ARTIFACTS and not l.startswith(CACHE_PREFIX)]
-
-
-def subject_hash(spec) -> str:
-    """Stat-hash (path, size, mtime_ns) of the subject's files — the make tradeoff:
-    an mtime-preserving edit evades it, and --fresh exists. The gate's own sources
-    ride every subject."""
-    h = hashlib.sha256()
-    if spec == 'TREE':
-        rels = _tree_files()
-    else:
-        rels = list(GATE_SOURCES)
-        for g in spec:
-            root = REPO_ROOT / g
-            if root.is_file():
-                rels.append(g)
-            elif root.is_dir():
-                rels += [r for f in sorted(root.rglob('*'))
-                         if f.is_file() and '__pycache__' not in f.parts
-                         and not (r := str(f.relative_to(REPO_ROOT))).startswith(CACHE_PREFIX)
-                         and r not in ARTIFACTS]
-    for rel in sorted(set(rels)):
-        f = REPO_ROOT / rel
-        try:
-            st = f.stat()
-            h.update(f'{rel}\0{st.st_size}\0{st.st_mtime_ns}\n'.encode())
-        except OSError:
-            h.update(f'{rel}\0GONE\n'.encode())
-    return h.hexdigest()
-
-
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 
@@ -2099,18 +2015,8 @@ def main():
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument('--fix', action='store_true')
-    ap.add_argument('--fresh', action='store_true',
-                    help='ignore the section cache: re-run every check')
     args = ap.parse_args()
 
-    cache: dict = {}
-    if not args.fresh and SECTION_CACHE.exists():
-        try:
-            cache = json.loads(SECTION_CACHE.read_text())
-        except (ValueError, OSError):
-            cache = {}
-    fresh_cache: dict = {}
-    replayed: list[str] = []
 
     results = []
     # The report splits by DETERMINISM, mirroring the tiers: code+schema output is
@@ -2174,8 +2080,6 @@ def main():
     tiers:    list[str] = []
     current_tier: list = [None]
 
-    section_ms: dict[str, float] = {}
-
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
         sys.stdout = machine_buffer
@@ -2183,58 +2087,11 @@ def main():
             current_tier[0] = tier
             print(f'\n════ {tier} tier {"═" * (68 - len(tier))}')
         print(f'\n── {name} {"─" * (74 - len(name))}')
-        t0 = time.monotonic()
-        sh = subject_hash(SUBJECTS[name]) if name in SUBJECTS else None
-        entry = cache.get(name)
-        if sh and entry and entry.get('hash') == sh:
-            # REPLAY: the subject is unchanged, so the section's whole contribution —
-            # results, types, law citations, fix hints, machine-log text — is the
-            # recorded one. The committed log derives from results, so byte-stability
-            # follows; a section that WROTE an artifact (xref) left it at its fixpoint.
-            for label_, passed_, detail_ in entry['results']:
-                results.append((label_, passed_, detail_))
-            check_types.extend(entry['types'])
-            for law_, labels_ in entry['laws'].items():
-                cited_laws.setdefault(law_, []).extend(labels_)
-            for hint_, problem_, guidance_ in entry['fix']:
-                fix(hint_, problem_ or None, guidance_ or None)
-            machine_buffer.write(entry['chunk'])
-            n = len(entry['results'])
-            sections.extend([name] * n)
-            tiers.extend([tier] * n)
-            fresh_cache[name] = entry
-            replayed.append(name)
-            section_ms[name] = (time.monotonic() - t0) * 1000
-            return None
         before = len(results)
-        laws_before = {k: len(v) for k, v in cited_laws.items()}
-        fix_before = {h: (len(fix_problems[h]), len(fix_guidance[h])) for h in fix_hints}
-        chunk_from = machine_buffer.tell()
         ret = fn(run)
-        section_ms[name] = (time.monotonic() - t0) * 1000
         n = len(results) - before
         sections.extend([name] * n)
         tiers.extend([tier] * n)
-        if sh:
-            laws_delta = {k: v[laws_before.get(k, 0):] for k, v in cited_laws.items()
-                          if len(v) > laws_before.get(k, 0)}
-            fix_delta = []
-            for h in fix_hints:
-                pb, gb = fix_before.get(h, (0, 0))
-                for pr in fix_problems[h][pb:]:
-                    fix_delta.append((h, pr, ''))
-                for gd in fix_guidance[h][gb:]:
-                    fix_delta.append((h, '', gd))
-                if h not in fix_before and not fix_problems[h] and not fix_guidance[h]:
-                    fix_delta.append((h, '', ''))
-            fresh_cache[name] = {
-                'hash': sh,
-                'results': [list(r) for r in results[before:]],
-                'types': check_types[before:],
-                'laws': laws_delta,
-                'fix': fix_delta,
-                'chunk': machine_buffer.getvalue()[chunk_from:],
-            }
         return ret
 
     data_skipped = {n for n, p in PIPELINES.items() if not _has_local_data(p)}
@@ -2298,19 +2155,6 @@ def main():
                     label='check_index_curation', tier='data')
     finally:
         sys.stdout = sys.__stdout__
-
-    try:
-        SECTION_CACHE.parent.mkdir(parents=True, exist_ok=True)
-        SECTION_CACHE.write_text(json.dumps(fresh_cache))
-    except OSError:
-        pass
-    if replayed:
-        print(f'  {len(replayed)} section(s) replayed unchanged '
-              f'(subjects stat-hashed; --fresh re-runs all)', file=sys.stderr)
-    if os.environ.get('YOGA_GATE_TIMINGS'):
-        for _n, _ms in sorted(section_ms.items(), key=lambda kv: -kv[1]):
-            print(f'  {_ms:8.1f} ms  {_n}', file=sys.stderr)
-        print(f'  {sum(section_ms.values()):8.1f} ms  TOTAL (sections)', file=sys.stderr)
 
     failures = [(n, d) for n, p, d in results if not p]
 
