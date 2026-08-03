@@ -2025,6 +2025,84 @@ def check_render_purity(run) -> None:
         law='L1', check='render.purity_selftest')
 
 
+_ARTIFACT_ROOTS = {'REPO_ROOT': '', 'RSC': 'rsc', 'SRC': 'src'}
+
+
+def _path_literal(node: ast.AST) -> str | None:
+    """Best-effort reconstruction of a repo-relative path from a pathlib '/'-chain
+    of Name/Constant nodes — the send-switch check's own resolution
+    (effects.send_switch_read_once, above), applied to a path instead of a single
+    switch name. Not a general expression evaluator: a target reached through a
+    variable this cannot trace resolves to None and is left alone."""
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+        left = _path_literal(node.left)
+        if left is None or not (isinstance(node.right, ast.Constant)
+                                 and isinstance(node.right.value, str)):
+            return None
+        return f'{left}/{node.right.value}' if left else node.right.value
+    if isinstance(node, ast.Name) and node.id in _ARTIFACT_ROOTS:
+        return _ARTIFACT_ROOTS[node.id]
+    if isinstance(node, ast.Constant) and isinstance(node.value, str):
+        return node.value
+    return None
+
+
+def _write_mode(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and isinstance(node.value, str) \
+        and any(c in node.value for c in 'wax')
+
+
+def _artifact_write_target(node: ast.Call) -> str | None:
+    """The repo-relative path a WRITE-shaped call targets, if resolvable.
+    write_text/write_bytes always write; .open()/open() only write when passed a
+    write mode — status()'s read of the committed table must not count as a
+    writer of it. csv.writer's file-handle indirection is out of reach the same
+    way a traced-through variable is (under-catch, safe)."""
+    if isinstance(node.func, ast.Attribute) and node.func.attr in ('write_text', 'write_bytes'):
+        return _path_literal(node.func.value)
+    if isinstance(node.func, ast.Attribute) and node.func.attr == 'open' \
+            and node.args and _write_mode(node.args[0]):
+        return _path_literal(node.func.value)
+    if isinstance(node.func, ast.Name) and node.func.id == 'open' \
+            and len(node.args) > 1 and _write_mode(node.args[1]):
+        return _path_literal(node.args[0])
+    return None
+
+
+def check_render_write_confined(run) -> None:
+    """#259: checks should compute and only render should write. The ARTIFACTS set
+    (rsc/test/run.log, rsc/test/xref.csv) should be written at exactly one call
+    site in this gate — render's, inside main() — held here in the send-switch
+    check's shape (effects.send_switch_read_once, above): resolve a write call's
+    target back to a repo-relative path through a chain of Name/Constant nodes,
+    and name every top-level function in this file whose body contains a write
+    targeting either artifact, other than main() itself.
+
+    xref.py's standalone `check()` verb is #259's other licensed writer, for a
+    direct `yoga test xref` outside the gate; it is invisible to this resolver
+    because its target arrives through a parameter (`out: Path`), not a literal —
+    a stated limit, not a hole this check pretends to close, since #259 scopes
+    the property to the gate's own call sites, not a general points-to analysis.
+
+    L2 — Determinism split, whose own text names this mechanism: 'run.py writes
+    the committed log itself'; this check is what keeps that a fact about ONE
+    place rather than a claim about the file."""
+    tree = ast.parse((SRC / 'test' / 'run.py').read_text())
+    offenders: list[str] = []
+    for top in tree.body:
+        if not isinstance(top, ast.FunctionDef) or top.name == 'main':
+            continue
+        for node in ast.walk(top):
+            if not isinstance(node, ast.Call):
+                continue
+            target = _artifact_write_target(node)
+            if target in ARTIFACTS:
+                offenders.append(f'{top.name} (line {node.lineno}) writes {target}')
+    run('render: only main() writes the ARTIFACTS — checks compute, render writes',
+        not offenders, '; '.join(sorted(offenders)) if offenders else None,
+        law='L2', check='effects.only_render_writes')
+
+
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
@@ -2095,6 +2173,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
     'check_capture_monotone': ['src', 'data/output/dashboard'],
+    'check_render_write_confined': ['src/test/run.py'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
@@ -2332,6 +2411,7 @@ def main():
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')
         run_section(check_render_purity, tier='code')
+        run_section(check_render_write_confined, tier='code')
         # LAST of the code tier, because it reads the citation ledger: a law is held by
         # whichever check cites it, and until every section has run the ledger is partial.
         # Registered after check_cli_surface alone, it saw the G-citations (all raised
