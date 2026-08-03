@@ -59,21 +59,53 @@ for r in csv.DictReader(open(sys.argv[1])):
 ' "$DECLARED" 2>/dev/null || echo -e "UNVERIFIED\tforge.csv\tunreadable or malformed\t"
 }
 
-# rows: STATUS \t branch \t detail — every LOCAL branch, and what the forge says about it.
-# Discovery runs branch → PR, not PR → branch: a branch you had forgotten is exactly the one
-# whose PR number you cannot recall, so a listing keyed on the PR is unreachable when it is
-# needed. One `gh pr list` indexes every PR by its head branch; per-branch queries would cost
-# a round trip each to answer the same question.
+# A former head the forge's own record proves superseded (#286): sha-containment fails
+# for a rebase orphan exactly as it does for genuine divergence, but a force-push event
+# on the merged PR itself is the forge's proof the two are not the same defect. $tip
+# ancestor-or-equal of a recorded beforeCommit means the push that replaced it is on
+# the record, named here rather than assumed; a tip the record cannot vouch for is left
+# to the caller to report as KEPT.
+superseding_force_push() {  # <pr-number> <tip>
+  local n="$1" tip="$2" events event before
+  # shellcheck disable=SC2016  # $owner/$repo/$number are GraphQL variables, not bash expansion
+  events="$(quiet gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" -f query='
+    query($owner: String!, $repo: String!, $number: Int!) {
+      repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+          timelineItems(first: 100, itemTypes: [HEAD_REF_FORCE_PUSHED_EVENT]) {
+            nodes { ... on HeadRefForcePushedEvent { createdAt beforeCommit { oid } afterCommit { oid } } }
+          }
+        }
+      }
+    }' --jq '.data.repository.pullRequest.timelineItems.nodes[]')" || return 0
+  [[ -n "$events" ]] || return 0
+  while IFS= read -r event; do
+    [[ -n "$event" ]] || continue
+    before="$(jq -r .beforeCommit.oid <<< "$event")"
+    if [[ "$tip" == "$before" ]] || git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$before" 2>/dev/null; then
+      printf '%s\n' "$event"
+      return 0
+    fi
+  done <<< "$events"
+}
+
+# rows: STATUS \t branch \t detail — every branch the forge knows of, local or
+# server-only, and what it says about each. Discovery runs branch → PR, not PR →
+# branch: a branch you had forgotten is exactly the one whose PR number you cannot
+# recall, so a listing keyed on the PR is unreachable when it is needed. One
+# `gh pr list` indexes every PR by its head branch; per-branch queries would cost a
+# round trip each to answer the same question.
 branches() {
   command -v gh &>/dev/null || return 0
   may_send || return 0
   local prs
   prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
     --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
-  local b tip pr_json n st oid holder base
+  local b tip pr_json n st oid holder base locals_seen=""
   base="$(base_branch)"
   while read -r b; do
     [[ -n "$b" ]] || continue
+    locals_seen+="$b"$'\n'
     tip="$(git -C "$REPO_DIR" rev-parse "refs/heads/$b")"
     holder="$(git -C "$REPO_DIR" worktree list --porcelain | awk -v r="refs/heads/$b" '
       /^worktree /{w=$2} /^branch /{ if ($2==r) print w }')"
@@ -108,10 +140,38 @@ branches() {
     elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
       echo -e "DELETABLE\t$b\t#$n merged, and ${tip:0:8} is contained in the merged head ${oid:0:8}"
     else
-      echo -e "KEPT\t$b\t#$n merged, but ${tip:0:8} is not contained in it — it holds commits the squash did not"
+      local match after created
+      match="$(superseding_force_push "$n" "$tip")"
+      if [[ -n "$match" ]]; then
+        after="$(jq -r .afterCommit.oid <<< "$match")"
+        created="$(jq -r .createdAt <<< "$match")"
+        echo -e "DELETABLE\t$b\t#$n merged; ${tip:0:8} was a former head, force-pushed to ${after:0:8} at $created — superseded, not diverged"
+      else
+        echo -e "KEPT\t$b\t#$n merged, but ${tip:0:8} is not contained in it — it holds commits the squash did not"
+      fi
     fi
   done < <(git -C "$REPO_DIR" for-each-ref --format='%(refname:short)' refs/heads/ \
              | grep -v "^$base\$")
+
+  # Server-only residue (#285): a branch the forge still holds for a PR it closed
+  # WITHOUT merging. delete_branch_on_merge fires only on merge, so this branch has no
+  # local trace and, until now, no report — invisible to every broom prune ever swung.
+  # One wire read lists what the forge currently has; skip anything already reported
+  # above (a local branch's server twin is that branch's own row, not a second one).
+  local server_refs sb
+  if server_refs="$(quiet git -C "$REPO_DIR" ls-remote --heads origin)"; then
+    while read -r sb; do
+      [[ -n "$sb" && "$sb" != "$base" ]] || continue
+      grep -qxF "$sb" <<< "$locals_seen" && continue
+      pr_json="$(jq -c --arg b "$sb" 'map(select(.headRefName == $b)) | sort_by(.number) | last // empty' <<< "$prs")"
+      [[ -n "$pr_json" ]] || continue
+      n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json")
+      [[ "$st" == CLOSED ]] || continue
+      echo -e "SERVER_DELETABLE\t$sb\t#$n CLOSED unmerged — the forge still holds the branch"
+    done < <(printf '%s\n' "$server_refs" | awk '{print $2}' | sed 's#^refs/heads/##')
+  else
+    echo -e "UNVERIFIED\tforge\tgit ls-remote unreachable — a closed-unmerged PR's server branch would be invisible here"
+  fi
 }
 
 # rows: STATUS \t ref \t detail — the remote-tracking refs this checkout still holds for
@@ -183,13 +243,14 @@ status() {
     esac
   done < <(reconcile)
 
-  # The branches this checkout still holds. A merged branch surviving here is drift of the
-  # same kind as a forge setting that disagrees with src/main/cli/forge/forge.csv: reconcilable state, and
+  # The branches the forge knows of — local, and server-only residue it created itself
+  # (#285, #286). A merged branch surviving here is drift of the same kind as a forge
+  # setting that disagrees with src/main/cli/forge/forge.csv: reconcilable state, and
   # this is where it is named.
   local rows
   rows="$(branches)"
   if [[ -n "$rows" ]]; then
-    echo "local branches — what the forge says about each"
+    echo "branches — what the forge says about each"
     # A row that names a remedy prints it, whatever its status: a branch KEPT because you
     # are standing on it is the one state the reader cannot leave by reading — every other
     # row here either needs nothing or is covered by the prune line below.
@@ -197,8 +258,8 @@ status() {
     while IFS=$'\t' read -r st key detail remedy; do
       [[ -z "$st" ]] && continue
       case "$st" in
-        DELETABLE) echo "  ✗ $key: $detail"; d=1; STATUS_TIDY=1 ;;
-        *)         echo "  – $key: $detail" ;;
+        DELETABLE|SERVER_DELETABLE) echo "  ✗ $key: $detail"; d=1; STATUS_TIDY=1 ;;
+        *)                          echo "  – $key: $detail" ;;
       esac
       [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
     done <<< "$rows"
@@ -240,21 +301,43 @@ status() {
   return $((STATUS_REFUSE))
 }
 
-# Delete exactly what `status` marked DELETABLE — one predicate, so what is listed and what
-# is removed cannot disagree. A squash makes a merged branch look unmerged to git, so
-# `git branch -d` refuses and only -D will do it; the safety is the containment test above,
-# never git's opinion.
+# Delete exactly what `branches` marked DELETABLE or SERVER_DELETABLE — one predicate,
+# so what is listed and what is removed cannot disagree. Local: a squash makes a merged
+# branch look unmerged to git, so `git branch -d` refuses and only -D will do it; the
+# safety is the containment (or force-push) test above, never git's opinion. Server
+# (#285): a closed-unmerged PR's branch — deletable because the PR keeps its own commits
+# and diff on the forge independently of the branch, and the reasoning lives in its
+# thread, not in this checkout.
 prune() {
   local apply="" st key detail n=0
   [[ "${1-}" == "--apply" ]] && apply=1
   while IFS=$'\t' read -r st key detail; do
-    [[ "$st" == DELETABLE ]] || continue
-    n=$((n + 1))
-    if [[ -n "$apply" ]]; then
-      git -C "$REPO_DIR" branch -D "$key" >/dev/null && echo "deleted $key — $detail"
-    else
-      echo "would delete $key — $detail"
-    fi
+    case "$st" in
+      DELETABLE)
+        n=$((n + 1))
+        if [[ -n "$apply" ]]; then
+          enact git -C "$REPO_DIR" branch -D "$key" >/dev/null && echo "deleted $key — $detail"
+        else
+          echo "would delete $key — $detail"
+        fi
+        ;;
+      SERVER_DELETABLE)
+        n=$((n + 1))
+        if [[ -n "$apply" ]]; then
+          # A send that IS the work — refuse loudly rather than silently skip, per
+          # send.sh's assert_may_send contract; the item stays counted and reported,
+          # not vanished, so a refusal under YOGA_NO_SEND reads as "not done", never
+          # as "nothing to prune" (#285's own requirement, generalised from #200's).
+          if assert_may_send "git push origin --delete $key (forge prune --apply)"; then
+            enact git -C "$REPO_DIR" push origin --delete "$key" \
+              && echo "deleted $key on the forge — $detail; evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
+          fi
+        else
+          echo "would delete $key on the forge — $detail; evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
+        fi
+        ;;
+      *) continue ;;
+    esac
   done < <(branches)
   local stale_rows ref
   stale_rows="$(stale_tracking)"
@@ -262,7 +345,7 @@ prune() {
     [[ "$st" == STALE ]] || continue
     n=$((n + 1))
     if [[ -n "$apply" ]]; then
-      git -C "$REPO_DIR" update-ref -d "refs/remotes/$ref" && echo "forgot $ref — the forge no longer has it"
+      enact git -C "$REPO_DIR" update-ref -d "refs/remotes/$ref" && echo "forgot $ref — the forge no longer has it"
     else
       echo "would forget $ref — the forge no longer has it"
     fi
