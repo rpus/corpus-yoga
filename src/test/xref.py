@@ -14,9 +14,11 @@ are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 import argparse
 import ast
 import csv
+import io
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — modules both tiers import
@@ -570,26 +572,58 @@ def build_table() -> list[list]:
     return deduped
 
 
-def _summary(rows: list[list], where) -> str:
+@dataclass(frozen=True)
+class XrefCounts:
+    total:          int
+    live:           int
+    stale_file:     int
+    stale_pointer:  int
+    self_only:      int
+    unreferenced:   int
+
+
+def count(rows: list[list]) -> XrefCounts:
+    """Pure: the table's row classes, tallied — the comparable shape both the
+    gate's check_xref and the standalone `yoga test xref` report from."""
     stale_file    = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' not in r[3])
     stale_pointer = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' in r[3])
     self_only     = sum(1 for r in rows if not r[0] and r[2] == 'self_only')
     unreferenced  = sum(1 for r in rows if not r[0] and r[2] != 'self_only')
     live          = len(rows) - stale_file - stale_pointer - self_only - unreferenced
-    return (f'{len(rows)} rows: {live} live, {stale_file} missing-file, '
-            f'{stale_pointer} bad-pointer, {self_only} self-only, {unreferenced} unreferenced → {where}')
+    return XrefCounts(len(rows), live, stale_file, stale_pointer, self_only, unreferenced)
+
+
+def score_line(counts: XrefCounts) -> str:
+    """The fragment comparable against rsc/test/xref_expected_score — row counts
+    only, independent of where the table is being reported from."""
+    return (f'{counts.stale_file} missing-file, {counts.stale_pointer} bad-pointer, '
+            f'{counts.self_only} self-only, {counts.unreferenced} unreferenced')
+
+
+def summary_line(counts: XrefCounts, where) -> str:
+    return f'{counts.total} rows: {counts.live} live, {score_line(counts)} → {where}'
+
+
+def render_csv(rows: list[list]) -> str:
+    """Pure: rows -> the committed table's bytes. No file IO — the caller decides
+    whether and where to write. `check()` below writes directly for a standalone
+    `yoga test xref`; the gate's check_xref hands the same rows to render, which
+    owns the write to rsc/test/xref.csv there (#249's check/render/gate
+    separation — a check computes, only render writes)."""
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(HEADER)
+    writer.writerows(rows)
+    return buf.getvalue()
 
 
 def check(out: Path) -> None:
-    """The verb: rebuild the table, WRITE it, and report. The only writing path;
-    idempotent (L1) — a re-run reproduces the same bytes."""
-    deduped = build_table()
+    """The verb: rebuild the table, WRITE it, and report. The only writing path in
+    this module; idempotent (L1) — a re-run reproduces the same bytes."""
+    rows = build_table()
     out.parent.mkdir(parents=True, exist_ok=True)
-    with out.open('w', newline='') as fh:
-        w = csv.writer(fh)
-        w.writerow(HEADER)
-        w.writerows(deduped)
-    print(_summary(deduped, out.relative_to(REPO_ROOT)))
+    out.write_text(render_csv(rows), newline='')
+    print(summary_line(count(rows), out.relative_to(REPO_ROOT)))
 
 
 def status() -> None:
@@ -599,7 +633,7 @@ def status() -> None:
         return
     with DEFAULT_OUT.open(newline='') as fh:
         rows = list(csv.reader(fh))[1:]   # drop header
-    print(_summary(rows, DEFAULT_OUT.relative_to(REPO_ROOT)))
+    print(summary_line(count(rows), DEFAULT_OUT.relative_to(REPO_ROOT)))
 
 
 def main() -> None:

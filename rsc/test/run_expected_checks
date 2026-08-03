@@ -81,6 +81,7 @@ output.plan_lines_name_their_target
 output.prescriptions_are_commands
 output.remedy_lines_are_todos
 python.pyright_clean
+render.purity_selftest
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.valid_json_with_schema

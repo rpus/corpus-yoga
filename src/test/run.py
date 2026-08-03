@@ -75,6 +75,9 @@ sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from indexing import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
 import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 
+import xref  # the cross-reference table (check_xref) — a same-directory sibling, already
+             # on sys.path[0] when this script runs, so no path insert is needed
+
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
 @dataclass
@@ -1878,20 +1881,33 @@ def check_effects(run):
         check='effects.writers_disjoint')
 
 
+def _read_committed_xref(path: Path) -> list[list]:
+    """Rows in build_table()'s shape, read back from an already-committed
+    rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+    (TREE unchanged, so the file is already at its fixpoint) and so never built a
+    fresh table for render to write — the committed file IS this artifact's cache,
+    so nothing needs duplicating into sections.json to serve render on a replay."""
+    if not path.exists():
+        return []
+    with path.open(newline='') as fh:
+        rows = list(csv.reader(fh))
+    return rows[1:] if rows else []   # drop header
+
+
 def check_xref(run):
-    # `check` is the writing verb (bare `xref` is read-only status now); the gate
-    # regenerates the committed table and compares, so it must call the verb.
-    _, output = _call(SRC / 'test' / 'xref.py', 'check')
-    summary = output.splitlines()[-1] if output else ''
-    m = re.search(r'(\d+ missing-file, \d+ bad-pointer, \d+ self-only, \d+ unreferenced)', summary)
-    actual = m.group(1) if m else ''
-    m_bad  = re.search(r'(\d+) bad-pointer', actual)
-    bad    = int(m_bad.group(1)) if m_bad else 0
+    """The table is computed here, in-process; only render writes rsc/test/xref.csv
+    (#249's check/render/gate separation — a check computes, it never writes). `check`
+    stays xref.py's own writing verb for a standalone `yoga test xref`."""
+    rows   = xref.build_table()
+    counts = xref.count(rows)
+    actual = xref.score_line(counts)
 
     score_file = RSC / 'test' / 'xref_expected_score'
     expected   = score_file.read_text().strip()
 
-    run('xref: no bad pointers', bad == 0, summary if bad else None, check='xref.no_bad_pointers')
+    run('xref: no bad pointers', counts.stale_pointer == 0,
+        xref.summary_line(counts, xref.DEFAULT_OUT.relative_to(REPO_ROOT))
+        if counts.stale_pointer else None, check='xref.no_bad_pointers')
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
         if actual != expected else None, law='L9', check='xref.score_matches_expectation')
@@ -1899,6 +1915,7 @@ def check_xref(run):
     # network fetch, and when the fetch fails control leaves for the except branch and
     # the citation never happens. A law must not look unenforced because a request timed
     # out, so its citation lives on a check that cannot be skipped.
+    return rows
 
 
 def check_capture_monotone(run) -> None:
@@ -1964,6 +1981,43 @@ def check_capture_monotone(run) -> None:
                 f'— the guard is blocking the normal path', law='L4', check='capture.monotone_record')
     finally:
         safari_utils.DOWNLOADS = real_downloads
+
+
+def check_render_purity(run) -> None:
+    """The property (#191, retitled on the maintainer's correction): the gate's
+    artifacts are a pure function of its results, so idempotence holds BY
+    CONSTRUCTION and needs no second run to witness it operationally — the old
+    idempotence guard and run.sh's second full pass are deleted, not repaired, by
+    #249's check/render/gate separation. The double-render comparison (render_twice)
+    is the instrument that keeps this property checkable; a demo in a PR
+    description proves it once, so this is the standing self-test that proves it on
+    every gate run instead — poisoning a COPY of a render, never a real artifact,
+    with a manufactured non-determinism (a fresh clock reading per call), and
+    asserting the instrument both fires and names the poisoned artifact. Not
+    subject to the section cache — not in SUBJECTS, so it is never replayed."""
+    calls: list[int] = []
+
+    def poisoned_render() -> str:
+        calls.append(len(calls))
+        return f'render purity self-test probe {time.monotonic_ns()}'
+
+    artifact = 'render purity self-test (poisoned probe)'
+    fired, named, detail = False, False, None
+    try:
+        render_twice(artifact, poisoned_render)
+    except RenderNotPureError as exc:
+        fired = True
+        named = artifact in str(exc)
+    if not fired:
+        detail = 'render_twice did not raise on a deliberately non-deterministic render'
+    elif not named:
+        detail = 'render_twice raised but did not name the poisoned artifact'
+    elif len(calls) != 2:
+        detail = f'the poisoned render was called {len(calls)} times, not twice'
+        fired = named = False
+    run('render: artifacts are a pure function of results — idempotence by '
+        'construction, witnessed by double-render', fired and named, detail,
+        law='L1', check='render.purity_selftest')
 
 
 def check_accumulate_contract(run) -> None:
@@ -2090,6 +2144,26 @@ def subject_hash(spec) -> str:
         except OSError:
             h.update(f'{rel}\0GONE\n'.encode())
     return h.hexdigest()
+
+
+class RenderNotPureError(RuntimeError):
+    """Rendering an artifact twice in one process produced different bytes. Render
+    must be a pure function of results (#249) — this is the purity witness's
+    failure mode, exercised for real by check_render_purity on every gate run."""
+
+
+def render_twice(artifact: str, render):
+    """The purity witness: call a zero-argument render function twice and demand
+    an identical result. Doing this in-process (milliseconds) is what replaces
+    running the whole check suite a second time — the workaround this separation
+    retires (#249, #191) — and a mismatch names the artifact that broke."""
+    first = render()
+    second = render()
+    if first != second:
+        raise RenderNotPureError(
+            f'{artifact}: rendering it twice produced different results — '
+            'render is not a pure function of its results')
+    return first
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -2246,12 +2320,13 @@ def main():
 
     try:
         run_section(check_required_files, tier='code')
-        run_section(check_xref, tier='code')
+        xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
         run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')
+        run_section(check_render_purity, tier='code')
         # LAST of the code tier, because it reads the citation ledger: a law is held by
         # whichever check cites it, and until every section has run the ledger is partial.
         # Registered after check_cli_surface alone, it saw the G-citations (all raised
@@ -2298,6 +2373,13 @@ def main():
                     label='check_index_curation', tier='data')
     finally:
         sys.stdout = sys.__stdout__
+
+    # check_xref replayed: its subject (TREE) is unchanged, so it never ran and
+    # xref_rows is None. The committed rsc/test/xref.csv is already at that
+    # fixpoint — read it back rather than recomputing, so render still has a
+    # table to write.
+    if xref_rows is None:
+        xref_rows = _read_committed_xref(RSC / 'test' / 'xref.csv')
 
     try:
         SECTION_CACHE.parent.mkdir(parents=True, exist_ok=True)
@@ -2508,15 +2590,21 @@ def main():
                     out.write(f'          {detail}\n')
         return out.getvalue()
 
-    def _render(committed_only: bool, include_body: bool = True):
-        """Render one report variant; returns (text, runnable fix lines).
-        include_body=False drops the per-check ✓/✗ body, leaving header + tail —
-        the terminal variant, which points at the log for the per-check detail.
-        The tail splits by GATE EFFECT (user specification, 2026-07-12): a
-        penultimate WARN block carries the machine-local advisory facts (the
-        data tier, score[data] included — they never veto anything), and the
-        FINAL word states what the hook actually does — FAIL with the gating
+    def _render(surface: str, full_report: str | None = None):
+        """Render one report variant; returns (text, runnable fix lines) — results ->
+        artifact bytes, a pure function of (results, surface) (#249). Three surfaces:
+        'committed' is rsc/test/run.log (code+schema only, byte-identical on any
+        clone); 'full' is tmp/logs/test/run.log (adds the machine-local data tier);
+        'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
+        at the full report for detail — pass its already-rendered text as
+        full_report, since the terminal has no body of its own to anchor its stage
+        table into (#254). The tail splits by GATE EFFECT (user specification,
+        2026-07-12): a penultimate WARN block carries the machine-local advisory
+        facts (the data tier, score[data] included — they never veto anything), and
+        the FINAL word states what the hook actually does — FAIL with the gating
         sections and their remedies, or an explicit PASS."""
+        committed_only = surface == 'committed'
+        include_body   = surface != 'terminal'
         idxs       = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
         fail_idx   = [i for i in idxs if not results[i][1]]
         warn_idx   = [i for i in fail_idx if _is_advisory(i)]
@@ -2549,26 +2637,47 @@ def main():
         stage_rows: dict[str, list[int]] = {}
         for i in idxs:
             stage_rows.setdefault(sections[i], []).append(i)
-        body_lines = out.getvalue().splitlines()
-        banner_line = {}
-        for line_number, text in enumerate(body_lines, 1):
+
+        # The anchor is computed against the bytes of the surface it names, never
+        # against a surface's own text when that text has no banners to find (#254):
+        # 'committed' and 'full' both just wrote the per-check body above, so they
+        # anchor into themselves; 'terminal' wrote none, so it anchors into the full
+        # report instead, naming the file it points into. Every stage in stage_rows
+        # has a banner in its anchor source by construction — both are built from
+        # the same idxs — so a direct lookup, never a zero-defaulting fallback, is
+        # the honest form: a stage missing its banner is a bug to surface, not a
+        # line number to fake.
+        if surface == 'terminal':
+            assert full_report is not None, 'terminal render needs the full report to anchor into'
+            anchor_source, anchor_prefix = full_report, 'tmp/logs/test/run.log:'
+        else:
+            anchor_source, anchor_prefix = out.getvalue(), ''
+        banner_line: dict[str, int] = {}
+        for line_number, text in enumerate(anchor_source.splitlines(), 1):
             if text.startswith('── '):
                 banner_line[text.split()[1]] = line_number
+        anchors = {stage: f'{anchor_prefix}{banner_line[stage]}' for stage in stage_rows}
+
         # Width from the DATA, never a guess: check_versioned_schema_diagnostics is 34
         # characters, and a column sized by eye pushes every field after it rightwards on
         # exactly the rows a reader is scanning for.
-        stage_width = max([len('stage')] + [len(s) for s in stage_rows])
+        stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
+        anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5} {"warn":>5}   '
-                  f'{"verdict":<7} {"line":>6}\n')
+                  f'{"verdict":<7} {"line":>{anchor_width}}\n')
         for stage, members in stage_rows.items():
             failing  = [i for i in members if not results[i][1]]
             advisory = [i for i in failing if _is_advisory(i)]
             gating   = [i for i in failing if not _is_advisory(i)]
             verdict  = 'failed' if gating else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(gating):>5} '
-                      f'{len(advisory):>5}   {verdict:<7} {banner_line.get(stage, 0):>6}\n')
-        out.write('  (line = where that stage begins in this report; every check is '
-                  'listed there, in place)\n')
+                      f'{len(advisory):>5}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+        if surface == 'terminal':
+            out.write('  (line = tmp/logs/test/run.log:N, where that stage begins in the full '
+                      'report; the terminal carries no per-check body of its own)\n')
+        else:
+            out.write('  (line = where that stage begins in this report; every check is '
+                      'listed there, in place)\n')
 
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
@@ -2625,11 +2734,29 @@ def main():
         # advertised after every run.
         return out.getvalue(), lines
 
-    committed_text, _         = _render(committed_only=True)
-    full_text, full_fix_lines = _render(committed_only=False)
-    terminal_text, _          = _render(committed_only=False, include_body=False)
+    # GATE, by way of the purity witness (#249, #191): each surface — and the xref
+    # table — is rendered TWICE in-process and byte-compared before anything is
+    # written. Doing that here (milliseconds) is what retires run.sh's second full
+    # check pass: f(x) = f(x) needs no 11-second rerun to demonstrate, and a
+    # mismatch names the artifact that broke determinism instead of leaving the old
+    # idempotence guard to catch it, unreliably, two runs later.
+    try:
+        committed_text, _         = render_twice('rsc/test/run.log',
+                                                  lambda: _render('committed'))
+        full_text, full_fix_lines = render_twice('tmp/logs/test/run.log',
+                                                  lambda: _render('full'))
+        terminal_text, _          = render_twice('terminal report',
+                                                  lambda: _render('terminal', full_text))
+        xref_csv_text = render_twice('rsc/test/xref.csv', lambda: xref.render_csv(xref_rows))
+    except RenderNotPureError as exc:
+        print(f'ERROR: {exc}', file=sys.stderr)
+        sys.exit(1)
 
+    # Write the rendered committed-surface bytes. The staleness refusal (regenerated
+    # but unstaged) stays in run.sh, which diffs these against the index after this
+    # process exits.
     (RSC / 'test' / 'run.log').write_text(committed_text)
+    (RSC / 'test' / 'xref.csv').write_text(xref_csv_text, newline='')
     machine_log = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
     machine_log.write_text(full_text)
