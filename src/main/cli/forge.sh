@@ -369,14 +369,24 @@ totest_check() {  # stdin: the PR body
 
 # One envelope verdict (#266): every refusal path names it the same way, over whatever
 # reason (the wrapped authority's own words, relayed by enact above this line, or a
-# usage error with no command to relay).
+# usage error with no command to relay). ENVELOPE_SAID is a plain global, not a
+# merge()-local: the EXIT trap below that makes the envelope STRUCTURAL cannot see a
+# function's locals (traps run outside the call stack that set them), only globals.
+ENVELOPE_SAID=""
 refuse() {
   echo "NOT merged: $1" >&2
+  ENVELOPE_SAID=1
   exit 1
 }
 
 merge() {
   local pr="${1-}" dry=""
+  ENVELOPE_SAID=""
+  # The structural guarantee (#266): whatever ends this function — a refuse() above,
+  # an uncaught failure this sweep missed, a future edit that adds one — the envelope
+  # speaks. Cleared at every clean exit (the dry-run return, the merged: line); left
+  # armed, it is the last word instead of silence.
+  trap '[[ -n "$ENVELOPE_SAID" ]] || echo "NOT merged: merge() ended without a stated verdict — see the output above" >&2' EXIT
   [[ "${2-}" == "--dry-run" ]] && dry=1
   [[ "$pr" == "--dry-run" ]] && refuse "--dry-run comes after the PR"
   [[ -n "$pr" ]] || refuse "which PR? (a number, a URL, or a branch)"
@@ -485,7 +495,7 @@ merge() {
   else
     # a detached HEAD has no name to stay on — say where it stands instead of
     # rendering a blank where a name belongs (the review's first misstatement)
-    echo "  this checkout — stays detached at $(quiet git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "  this checkout — stays detached at $(quiet git -C "$REPO_DIR" rev-parse --short HEAD || echo '?')"
   fi
   echo "  $base — fast-forwards to include it"
   local head_tip=""
@@ -502,7 +512,7 @@ merge() {
   else
     echo "  $head — $modal be KEPT here (it holds commits the head being merged does not)"
   fi
-  [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; return 0; }
+  [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; ENVELOPE_SAID=1; trap - EXIT; return 0; }
 
   [[ -n "$will_close" || -n "$already" ]] || refuse "the forge's own parser will close nothing, and every PR closes an issue: arm closes #N (or link the issue on the forge) and push before merging"
 
@@ -534,7 +544,7 @@ merge() {
   # pull — the same residue in another shape. A skipped courtesy, not a refusal (#273 into
   # #274): a real run has already landed the squash by this point.
   if enact git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base"; then
-    echo "local: $base fast-forwarded to $(quiet git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "local: $base fast-forwarded to $(quiet git -C "$REPO_DIR" rev-parse --short HEAD || echo '?')"
   else
     echo "local: $base NOT fast-forwarded — it has diverged from origin/$base; reconcile it yourself"
   fi
@@ -580,19 +590,25 @@ merge() {
   echo "the machine, post-merge — adoption lives in these prescriptions (yoga prerequisites):"
   "$REPO_DIR/yoga" prerequisites || true
 
-  # 7. issues, after this merge — verified from the forge, never assumed (#146). Every
-  # issue number the squash message mentions is queried and classified: closed-and-
-  # declared is the contract kept; declared-but-open is a close that failed to fire;
-  # closed-but-UNDECLARED is a parser strike (the #29/#127 class), caught in the same
-  # minute instead of six hours later. The declared set is read with mentions stripped
-  # (backticked spans), the same discipline the mood check uses.
-  # shellcheck disable=SC2016  # the backticks in the seds below are pattern, not expansion
+  # 7. issues, after this merge — verified from the forge, never assumed (#146).
+  # Declared closes come from the parser's OWN declaration — closingIssuesReferences,
+  # already fetched pre-merge as will_close — never from the squash message: the mood
+  # law (#154) keeps every commit subject lawfully closes-free, so a squash-message
+  # grep for "closes #N" finds nothing on a lawful merge, every time (#278). Declared-
+  # and-CLOSED is the contract kept; declared-but-open is the failed close; CLOSED-
+  # but-undeclared is the parser strike (the #29/#127/#259 class) — a lawful merge
+  # alarms on neither. Checked is the union of what the squash message names (#N,
+  # mentions stripped of backticked spans) and what the parser declared: COMMIT_MESSAGES
+  # draws the squash text from commit subjects, not the PR body, so a declared close can
+  # be entirely absent from that text and still needs its checkmark. Every grep here can
+  # lawfully match nothing — piped to `|| true`, since no-match is an answer, not a
+  # failure (#278).
   local squash_msg declared_closes mentioned iss st_i
   squash_msg="$(quiet git -C "$REPO_DIR" show -s --format=%B "origin/$base" || true)"
+  declared_closes="$(grep -oE '[0-9]+' <<< "$will_close" || true)"
   # shellcheck disable=SC2016  # backticks are sed pattern, not expansion
-  declared_closes="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oiE 'closes #[0-9]+' | grep -oE '[0-9]+' | sort -u)"
-  # shellcheck disable=SC2016  # as above
-  mentioned="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oE '#[0-9]+' | grep -oE '[0-9]+' | sort -u)"
+  mentioned="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oE '#[0-9]+' | grep -oE '[0-9]+' || true)"
+  mentioned="$(sort -u <<< "$mentioned"$'\n'"$declared_closes" | sed '/^$/d')"
   if [[ -n "$mentioned" ]]; then
     echo
     echo "issues, after this merge (verified from the forge):"
@@ -613,9 +629,11 @@ merge() {
   # the forge's own answer — never inferred from the tidy-up above.
   echo
   local landed
-  landed="$(cd "$REPO_DIR" && enact gh pr view "$n" --json mergeCommitOid --jq '.mergeCommitOid // empty')"
+  landed="$(cd "$REPO_DIR" && quiet gh pr view "$n" --json mergeCommit --jq '.mergeCommit.oid // empty')"
   if [[ -n "$landed" ]]; then
     echo "merged: #$n as ${landed:0:8} on $base"
+    ENVELOPE_SAID=1
+    trap - EXIT
   else
     refuse "gh reports no merge commit for #$n (see above)"
   fi
