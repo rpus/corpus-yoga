@@ -7,6 +7,13 @@ else.
 
 The seam for the enactment-guard tier (#256): the one place a future policy would gate,
 warn, or attribute an act, because every act already passes through here. Not implemented.
+
+Success is silent: an act's own output is its evidence, and the consuming verb's closing
+envelope is the one done-line. query() is the read face: the answer returns to the caller
+AND is relayed to the narrative, so a transcript never shows an unresolved echo.
+
+CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr; silencing it
+(stderr to devnull) renders a wrapped act invisible and the wrap decorative.
 """
 import shlex
 import subprocess
@@ -17,6 +24,19 @@ def enact(*command: str) -> int:
     printed = ' '.join(shlex.quote(part) for part in command)
     print(f'enact: {printed}', file=sys.stderr)
     status = subprocess.call(command)
-    verdict = f'done: {printed}' if status == 0 else f'NOT done (exit {status}): {printed}'
-    print(verdict, file=sys.stderr)
+    if status != 0:
+        print(f'NOT done (exit {status}): {printed}', file=sys.stderr)
     return status
+
+
+def query(*command: str) -> str:
+    printed = ' '.join(shlex.quote(part) for part in command)
+    print(f'query: {printed}', file=sys.stderr)
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        sys.stderr.write(result.stderr)
+        print(f'NOT done (exit {result.returncode}): {printed}', file=sys.stderr)
+        raise subprocess.CalledProcessError(result.returncode, command)
+    answer = result.stdout.rstrip('\n')
+    print(f'= {answer}', file=sys.stderr)
+    return answer

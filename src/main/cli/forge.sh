@@ -431,7 +431,7 @@ merge() {
   # a merge that lands and then cannot tidy up is worse than one that refuses early.
   local base current
   base="$(base_branch)"
-  current="$(enact git -C "$REPO_DIR" branch --show-current)"
+  current="$(query git -C "$REPO_DIR" branch --show-current)"
 
   # 3. the INTENT: exactly what will land, since afterwards the parts are unreachable
   echo
@@ -485,7 +485,7 @@ merge() {
   else
     # a detached HEAD has no name to stay on — say where it stands instead of
     # rendering a blank where a name belongs (the review's first misstatement)
-    echo "  this checkout — stays detached at $(enact git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "  this checkout — stays detached at $(query git -C "$REPO_DIR" rev-parse --short HEAD)"
   fi
   echo "  $base — fast-forwards to include it"
   local head_tip=""
@@ -534,7 +534,7 @@ merge() {
   # pull — the same residue in another shape. A skipped courtesy, not a refusal (#273 into
   # #274): a real run has already landed the squash by this point.
   if enact git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base"; then
-    echo "local: $base fast-forwarded to $(enact git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "local: $base fast-forwarded to $(query git -C "$REPO_DIR" rev-parse --short HEAD)"
   else
     echo "local: $base NOT fast-forwarded — it has diverged from origin/$base; reconcile it yourself"
   fi
@@ -562,7 +562,7 @@ merge() {
   # merge-base --is-ancestor is above; only remote prune, the mutation, is wrapped.
   local tracked=""
   git -C "$REPO_DIR" show-ref --verify --quiet "refs/remotes/origin/$head" && tracked=1
-  enact git -C "$REPO_DIR" remote prune origin >/dev/null 2>&1 || true
+  enact git -C "$REPO_DIR" remote prune origin || true
   if [[ -n "$tracked" ]]; then
     if git -C "$REPO_DIR" show-ref --verify --quiet "refs/remotes/origin/$head"; then
       echo "local: origin/$head still tracked — the forge had not dropped it yet; yoga forge prune"
