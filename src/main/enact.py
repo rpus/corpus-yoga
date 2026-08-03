@@ -10,7 +10,9 @@ warn, or attribute an act, because every act already passes through here. Not im
 
 Success is silent: an act's own output is its evidence, and the consuming verb's closing
 envelope is the one done-line. query() is the read face: the answer returns to the caller
-AND is relayed to the narrative, so a transcript never shows an unresolved echo.
+AND is relayed to the narrative, so a transcript never shows an unresolved echo. On
+failure query raises; the shell face returns the status — the pair's one ruled
+asymmetry (#277); the relay words themselves are held identical by the gate.
 
 CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr; silencing it
 (stderr to devnull) renders a wrapped act invisible and the wrap decorative.

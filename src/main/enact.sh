@@ -16,6 +16,8 @@
 #
 # query() is the read face: the answer is captured for the caller AND relayed to the
 # narrative (`= <answer>`), so a transcript never shows an unresolved echo.
+# On failure query returns the status; the python face raises — the pair's one ruled
+# asymmetry (#277); the relay words themselves are held identical by the gate.
 #
 # CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr. A call
 # site that redirects stderr away (2>/dev/null, 2>&1 >/dev/null) silences the echo and
