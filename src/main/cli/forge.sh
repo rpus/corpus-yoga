@@ -398,7 +398,7 @@ merge() {
 
   # 2. the PR's own state, from the forge rather than from optimism
   local json
-  json="$(cd "$REPO_DIR" && enact gh pr view "$pr" \
+  json="$(cd "$REPO_DIR" && quiet gh pr view "$pr" \
     --json number,title,state,isDraft,mergeable,mergeStateStatus,headRefName,headRefOid,commits,body,baseRefOid)" \
     || refuse "no such PR: $pr"
   local n title state draft mergeable mstate head oid
@@ -431,7 +431,7 @@ merge() {
   # a merge that lands and then cannot tidy up is worse than one that refuses early.
   local base current
   base="$(base_branch)"
-  current="$(query git -C "$REPO_DIR" branch --show-current)"
+  current="$(quiet git -C "$REPO_DIR" branch --show-current)"
 
   # 3. the INTENT: exactly what will land, since afterwards the parts are unreachable
   echo
@@ -447,7 +447,7 @@ merge() {
   enact git -C "$REPO_DIR" fetch --quiet origin "$head" || true
   local roster base_at
   roster="$(surface_roster "origin/$base" "$oid")"
-  base_at="$(enact git -C "$REPO_DIR" rev-parse --short "origin/$base" || echo '?')"
+  base_at="$(quiet git -C "$REPO_DIR" rev-parse --short "origin/$base" || echo '?')"
   if [[ -n "$roster" ]]; then
     echo "  the command surface, after this merge (diffed against origin/$base@$base_at; judgment stays the PR's what):"
     printf '%s\n' "$roster"
@@ -460,7 +460,7 @@ merge() {
   # mergeable. No phrases, no dialects, no mention-stripping: prose is free; the
   # field decides. (#146: shown before consent; #29/#127: the strikes it catches.)
   local will_close
-  will_close="$(cd "$REPO_DIR" && enact gh pr view "$n" --json closingIssuesReferences \
+  will_close="$(cd "$REPO_DIR" && quiet gh pr view "$n" --json closingIssuesReferences \
     --jq '[.closingIssuesReferences[].number] | map("#\(.)") | join(", ")' || true)"
   echo "  the forge will close: ${will_close:-nothing}"
   [[ -n "$will_close" || -n "$already" ]] || echo "  ⚠ nothing closes — every PR closes an issue; a real run refuses until closes #N is armed and pushed"
@@ -485,7 +485,7 @@ merge() {
   else
     # a detached HEAD has no name to stay on — say where it stands instead of
     # rendering a blank where a name belongs (the review's first misstatement)
-    echo "  this checkout — stays detached at $(query git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "  this checkout — stays detached at $(quiet git -C "$REPO_DIR" rev-parse --short HEAD)"
   fi
   echo "  $base — fast-forwards to include it"
   local head_tip=""
@@ -534,7 +534,7 @@ merge() {
   # pull — the same residue in another shape. A skipped courtesy, not a refusal (#273 into
   # #274): a real run has already landed the squash by this point.
   if enact git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base"; then
-    echo "local: $base fast-forwarded to $(query git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "local: $base fast-forwarded to $(quiet git -C "$REPO_DIR" rev-parse --short HEAD)"
   else
     echo "local: $base NOT fast-forwarded — it has diverged from origin/$base; reconcile it yourself"
   fi
@@ -588,7 +588,7 @@ merge() {
   # (backticked spans), the same discipline the mood check uses.
   # shellcheck disable=SC2016  # the backticks in the seds below are pattern, not expansion
   local squash_msg declared_closes mentioned iss st_i
-  squash_msg="$(enact git -C "$REPO_DIR" show -s --format=%B "origin/$base" || true)"
+  squash_msg="$(quiet git -C "$REPO_DIR" show -s --format=%B "origin/$base" || true)"
   # shellcheck disable=SC2016  # backticks are sed pattern, not expansion
   declared_closes="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oiE 'closes #[0-9]+' | grep -oE '[0-9]+' | sort -u)"
   # shellcheck disable=SC2016  # as above
@@ -598,7 +598,7 @@ merge() {
     echo "issues, after this merge (verified from the forge):"
     while read -r iss; do
       [[ -n "$iss" ]] || continue
-      st_i="$(cd "$REPO_DIR" && enact gh issue view "$iss" --json state --jq .state || echo UNKNOWN)"
+      st_i="$(cd "$REPO_DIR" && quiet gh issue view "$iss" --json state --jq .state || echo UNKNOWN)"
       if grep -qx "$iss" <<< "$declared_closes"; then
         [[ "$st_i" == CLOSED ]] && echo "  ✓ #$iss — declared closes, and CLOSED" \
                                 || echo "  ⚠ #$iss — declared closes, but $st_i: the close did not fire"

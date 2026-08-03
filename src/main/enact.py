@@ -9,8 +9,10 @@ The seam for the enactment-guard tier (#256): the one place a future policy woul
 warn, or attribute an act, because every act already passes through here. Not implemented.
 
 Success is silent: an act's own output is its evidence, and the consuming verb's closing
-envelope is the one done-line. query() is the read face: the answer returns to the caller
-AND is relayed to the narrative, so a transcript never shows an unresolved echo. On
+envelope is the one done-line. query() and quiet() are the read faces: the answer
+returns to the caller; query relays it to the narrative, quiet elides the relay by
+name, declared at the call site for answers the verb's own report renders. Failure
+is never quiet in any face. On
 failure query raises; the shell face returns the status — the pair's one ruled
 asymmetry (#277); the relay words themselves are held identical by the gate.
 
@@ -42,3 +44,14 @@ def query(*command: str) -> str:
     answer = result.stdout.rstrip('\n')
     print(f'= {answer}', file=sys.stderr)
     return answer
+
+
+def quiet(*command: str) -> str:
+    printed = ' '.join(shlex.quote(part) for part in command)
+    print(f'quiet: {printed}', file=sys.stderr)
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        sys.stderr.write(result.stderr)
+        print(f'NOT done (exit {result.returncode}): {printed}', file=sys.stderr)
+        raise subprocess.CalledProcessError(result.returncode, command)
+    return result.stdout.rstrip('\n')

@@ -14,8 +14,10 @@
 # the relay, by the caller's rules. Success is silent: an act's own output is its
 # evidence, and the consuming verb's closing envelope is the one done-line.
 #
-# query() is the read face: the answer is captured for the caller AND relayed to the
-# narrative (`= <answer>`), so a transcript never shows an unresolved echo.
+# query() and quiet() are the read faces: the answer is captured for the caller;
+# query relays it to the narrative (`= <answer>`) so a transcript never shows an
+# unresolved echo; quiet elides the relay BY NAME, declared at the call site for
+# answers the verb's own report renders. Failure is never quiet in any face.
 # On failure query returns the status; the python face raises — the pair's one ruled
 # asymmetry (#277); the relay words themselves are held identical by the gate.
 #
@@ -44,6 +46,20 @@ query() {
   answer="$("$@")" && status=0 || status=$?
   if [[ "$status" -eq 0 ]]; then
     echo "= $answer" >&2
+    printf '%s\n' "$answer"
+  else
+    echo "NOT done (exit $status): $printed" >&2
+  fi
+  return "$status"
+}
+
+quiet() {
+  local printed answer status
+  printed="$(printf '%q ' "$@")"
+  printed="${printed% }"
+  echo "quiet: $printed" >&2
+  answer="$("$@")" && status=0 || status=$?
+  if [[ "$status" -eq 0 ]]; then
     printf '%s\n' "$answer"
   else
     echo "NOT done (exit $status): $printed" >&2
