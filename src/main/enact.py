@@ -27,10 +27,10 @@ import sys
 def enact(*command: str) -> int:
     printed = ' '.join(shlex.quote(part) for part in command)
     print(f'enact: {printed}', file=sys.stderr)
-    status = subprocess.call(command)
-    if status != 0:
-        print(f'NOT done (exit {status}): {printed}', file=sys.stderr)
-    return status
+    exit_status = subprocess.call(command)
+    if exit_status != 0:
+        print(f'NOT done (exit {exit_status}): {printed}', file=sys.stderr)
+    return exit_status
 
 
 def query(*command: str) -> str:
