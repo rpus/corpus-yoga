@@ -452,10 +452,7 @@ main() {
   fi
   echo "Run yoga test run, then: git diff rsc/test/run.log"
   echo "Log: $LOG_FILE"
-  # The verdict must LEAVE this function. Every failing pipeline's status was already
-  # collected here and printed; falling off the end returned the status of the last
-  # echo, so `yoga pipeline run && yoga test run` chained past failures as though the
-  # run had succeeded — printed and discarded is worse than unnoticed.
+  # The verdict must leave this function: callers chain on $?.
   return $(( ${#pipeline_failures[@]} > 0 ))
 }
 
