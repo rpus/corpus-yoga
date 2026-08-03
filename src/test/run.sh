@@ -106,13 +106,13 @@ main() {
 
   mkdir -p "$REPO_DIR/tmp/cache"
 
-  # One run. run.py checks, renders every surface — double-rendering each
-  # in-process and byte-comparing before writing anything (the purity witness,
-  # #249) — writes its own committed artifacts (rsc/test/run.log,
-  # rsc/test/xref.csv) plus the full report to tmp/logs/test/run.log, prints the
-  # terminal tail here, and exits with the verdict. There is no second full pass
-  # policing that verdict, and so no snapshot-diff guard to fall through if there
-  # were.
+  # One invocation. run.py settles internally (#249): every output is built in
+  # memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are
+  # written only when their bytes differ from disk, and a write stands only once
+  # a genuinely fresh recomputation agrees with it — at most three runs inside
+  # this one invocation, faulting if the results will not settle. The full
+  # report goes to tmp/logs/test/run.log, the terminal tail prints here, and
+  # the exit code is the verdict.
   local rc=0
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" "$@" || rc=$?
 

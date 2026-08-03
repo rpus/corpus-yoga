@@ -2740,9 +2740,8 @@ def main():
     committed_path = RSC / 'test' / 'run.log'
     xref_path      = RSC / 'test' / 'xref.csv'
 
-    # THE SETTLE LOOP (#249) — replaces both the deleted double-render witness
-    # and the deleted double-run guard with one discipline: check and render
-    # build every output in memory; a committed artifact is written only when
+    # THE SETTLE LOOP (#249), one discipline: check and render build every
+    # output in memory; a committed artifact is written only when
     # its bytes differ from what is already on disk, and a write is trusted
     # only once a GENUINELY FRESH recomputation (no section-cache replay, ever,
     # regardless of --fresh) agrees with what was just written. A clean tree
