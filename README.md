@@ -157,4 +157,5 @@ Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.
 
 - [ ] Create a new repo (to get clean/sane git history).
 - [ ] Add a LICENSE file.
+- [ ] Make the README a tour: paired tell and show, the shown output derived so it cannot drift (#71's should — the maintainer's own task).
 - [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `validate.sh` scripts on validation success

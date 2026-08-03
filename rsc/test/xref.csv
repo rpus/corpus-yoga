@@ -30,7 +30,7 @@ README.md,134,doc,rsc/test,Y,"a schema file), where git makes you look at it, ne
 README.md,136,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
 README.md,154,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 README.md,154,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,160,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
+README.md,161,doc,src/test/schema_recommendations.py,Y,"- [ ] `src/test/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `vali"
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/browser-captures,Y,"""src/main/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/chat-exports,Y,"""src/main/chat-exports"","
