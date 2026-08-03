@@ -1185,6 +1185,28 @@ def check_cli_surface(run) -> None:
         f'src/main/send.sh, so refusal cannot come to mean two things by accident',
         check='effects.send_switch_read_once')
 
+    # One contract, two faces (#277): enact.sh and enact.py speak the same relay
+    # words, and no third file speaks them. The pair's one ruled asymmetry is
+    # behavior, not words — sh's query returns the status, py's raises — stated in
+    # the faces' own headers; the WORDS are held here.
+    enact_faces = {REPO_ROOT / 'src' / 'main' / 'enact.sh',
+                   REPO_ROOT / 'src' / 'main' / 'enact.py'}
+    relay_words = ('enact: ', 'query: ', 'NOT done (exit ')
+    face_texts = {face: face.read_text() for face in enact_faces}
+    unspoken = sorted(f'{face.name} lacks {word!r}'
+                      for face, face_text in face_texts.items()
+                      for word in relay_words if word not in face_text)
+    third_speakers = sorted(str(f.relative_to(REPO_ROOT))
+                            for f in (REPO_ROOT / 'src').rglob('*')
+                            if f.is_file() and f not in enact_faces
+                            and f.suffix in ('.py', '.sh')
+                            and re.search(r'^(def (enact|query|quiet)\(|(enact|query|quiet)\(\)\s*\{)',
+                                          f.read_text(), re.M))
+    run('enact: the two faces speak identical relay words, and only they speak',
+        not unspoken and not third_speakers,
+        '; '.join(unspoken + [f'{speaker} defines a face' for speaker in third_speakers]) or None,
+        check='effects.enact_faces_agree')
+
     # The forward half of declared sends (#29): a target that holds a send face performs
     # sends, and its command must SAY so in the declaration tree. TWO tolerances, both
     # deliberate and both to be retired by the arc's primitives-behind-faces slice:
