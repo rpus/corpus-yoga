@@ -686,7 +686,16 @@ merge() {
   # be entirely absent from that text and still needs its checkmark. Every grep here can
   # lawfully match nothing — piped to `|| true`, since no-match is an answer, not a
   # failure (#278).
-  local squash_msg declared_closes mentioned iss st_i
+  # The strike verdict requires causation (#284): an issue counts as closed BY THIS
+  # MERGE only when its own timeline close event is stamped with this merge's squash
+  # sha — the exact forensic that convicted the real strike, #259, closed via a stale
+  # commit-subject whose close event carries #258's own squash sha. A close stamped
+  # with no commit, or another commit, is another actor's lawful act: reported at
+  # most as a reference, never accused of this merge's silence. Step 5's fetch
+  # already updated origin/$base locally; its tip IS the squash this merge landed,
+  # read here rather than asked of the forge a second time.
+  local squash_msg declared_closes mentioned iss st_i squash_sha
+  squash_sha="$(quiet git -C "$REPO_DIR" rev-parse "origin/$base" || true)"
   squash_msg="$(quiet git -C "$REPO_DIR" show -s --format=%B "origin/$base" || true)"
   declared_closes="$(grep -oE '[0-9]+' <<< "$will_close" || true)"
   # shellcheck disable=SC2016  # backticks are sed pattern, not expansion
@@ -701,9 +710,20 @@ merge() {
       if grep -qx "$iss" <<< "$declared_closes"; then
         [[ "$st_i" == CLOSED ]] && echo "  ✓ #$iss — declared closes, and CLOSED" \
                                 || echo "  ⚠ #$iss — declared closes, but $st_i: the close did not fire"
+      elif [[ "$st_i" == CLOSED ]]; then
+        # Who closed it: the timeline's own closed event names the commit, if any
+        # (--paginate follows a timeline longer than one page). No commit, or a
+        # different one, is a lawful act by another merge or the PR body directly.
+        local closed_by
+        closed_by="$(cd "$REPO_DIR" && quiet gh api "repos/{owner}/{repo}/issues/$iss/timeline" \
+          --paginate --jq '[.[] | select(.event == "closed")] | last | .commit_id // empty' || true)"
+        if [[ -n "$squash_sha" && "$closed_by" == "$squash_sha" ]]; then
+          echo "  ⚠⚠ #$iss — CLOSED but NOT declared: a parser strike; reopen if unintended"
+        else
+          echo "  – #$iss — mentioned, CLOSED elsewhere — a reference"
+        fi
       else
-        [[ "$st_i" == CLOSED ]] && echo "  ⚠⚠ #$iss — CLOSED but NOT declared: a parser strike; reopen if unintended" \
-                                || echo "  – #$iss — mentioned, $st_i (no close declared: a reference)"
+        echo "  – #$iss — mentioned, $st_i (no close declared: a reference)"
       fi
     done <<< "$mentioned"
   fi
