@@ -75,6 +75,9 @@ sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
 from indexing import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
 import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 
+import xref  # the cross-reference table (check_xref) — a same-directory sibling, already
+             # on sys.path[0] when this script runs, so no path insert is needed
+
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
 @dataclass
@@ -1878,20 +1881,33 @@ def check_effects(run):
         check='effects.writers_disjoint')
 
 
+def _read_committed_xref(path: Path) -> list[list]:
+    """Rows in build_table()'s shape, read back from an already-committed
+    rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+    (TREE unchanged, so the file is already at its fixpoint) and so never built a
+    fresh table for render to write — the committed file IS this artifact's cache,
+    so nothing needs duplicating into sections.json to serve render on a replay."""
+    if not path.exists():
+        return []
+    with path.open(newline='') as fh:
+        rows = list(csv.reader(fh))
+    return rows[1:] if rows else []   # drop header
+
+
 def check_xref(run):
-    # `check` is the writing verb (bare `xref` is read-only status now); the gate
-    # regenerates the committed table and compares, so it must call the verb.
-    _, output = _call(SRC / 'test' / 'xref.py', 'check')
-    summary = output.splitlines()[-1] if output else ''
-    m = re.search(r'(\d+ missing-file, \d+ bad-pointer, \d+ self-only, \d+ unreferenced)', summary)
-    actual = m.group(1) if m else ''
-    m_bad  = re.search(r'(\d+) bad-pointer', actual)
-    bad    = int(m_bad.group(1)) if m_bad else 0
+    """The table is computed here, in-process; only render writes rsc/test/xref.csv
+    (#249's check/render/gate separation — a check computes, it never writes). `check`
+    stays xref.py's own writing verb for a standalone `yoga test xref`."""
+    rows   = xref.build_table()
+    counts = xref.count(rows)
+    actual = xref.score_line(counts)
 
     score_file = RSC / 'test' / 'xref_expected_score'
     expected   = score_file.read_text().strip()
 
-    run('xref: no bad pointers', bad == 0, summary if bad else None, check='xref.no_bad_pointers')
+    run('xref: no bad pointers', counts.stale_pointer == 0,
+        xref.summary_line(counts, xref.DEFAULT_OUT.relative_to(REPO_ROOT))
+        if counts.stale_pointer else None, check='xref.no_bad_pointers')
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
         if actual != expected else None, law='L9', check='xref.score_matches_expectation')
@@ -1899,6 +1915,7 @@ def check_xref(run):
     # network fetch, and when the fetch fails control leaves for the except branch and
     # the citation never happens. A law must not look unenforced because a request timed
     # out, so its citation lives on a check that cannot be skipped.
+    return rows
 
 
 def check_capture_monotone(run) -> None:
@@ -2095,16 +2112,29 @@ def subject_hash(spec) -> str:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 
-def main():
-    import argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--fix', action='store_true')
-    ap.add_argument('--fresh', action='store_true',
-                    help='ignore the section cache: re-run every check')
-    args = ap.parse_args()
+@dataclass
+class RunOnce:
+    """One genuine pass over the check tier, plus its rendering — everything
+    main()'s settle loop (#249) needs to compare against disk and, at the end,
+    to write and print. Building this needs no knowledge of what is on disk;
+    that comparison, and the decision whether to write, belong to main() alone."""
+    committed_text:      str
+    xref_csv_text:       str
+    full_text:           str
+    terminal_text:       str
+    full_fix_lines:      list
+    has_failures:        bool   # any failure at all — drives whether --fix has work
+    has_gating_failures: bool   # a non-data-tier failure — drives the exit code
 
+
+def _run_once(allow_replay: bool) -> RunOnce:
+    """Check (tree -> results, section-cache replay iff allow_replay), then render
+    every surface from those results (#249's separation: a check computes, only
+    render builds bytes). Writes NOTHING — not the committed artifacts, not even
+    the machine-local log — because whether this run's bytes are new is a fact
+    only main()'s settle loop can see, by comparing them against disk."""
     cache: dict = {}
-    if not args.fresh and SECTION_CACHE.exists():
+    if allow_replay and SECTION_CACHE.exists():
         try:
             cache = json.loads(SECTION_CACHE.read_text())
         except (ValueError, OSError):
@@ -2246,7 +2276,7 @@ def main():
 
     try:
         run_section(check_required_files, tier='code')
-        run_section(check_xref, tier='code')
+        xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
         run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
@@ -2298,6 +2328,13 @@ def main():
                     label='check_index_curation', tier='data')
     finally:
         sys.stdout = sys.__stdout__
+
+    # check_xref replayed: its subject (TREE) is unchanged, so it never ran and
+    # xref_rows is None. The committed rsc/test/xref.csv is already at that
+    # fixpoint — read it back rather than recomputing, so render still has a
+    # table to write.
+    if xref_rows is None:
+        xref_rows = _read_committed_xref(RSC / 'test' / 'xref.csv')
 
     try:
         SECTION_CACHE.parent.mkdir(parents=True, exist_ok=True)
@@ -2508,15 +2545,21 @@ def main():
                     out.write(f'          {detail}\n')
         return out.getvalue()
 
-    def _render(committed_only: bool, include_body: bool = True):
-        """Render one report variant; returns (text, runnable fix lines).
-        include_body=False drops the per-check ✓/✗ body, leaving header + tail —
-        the terminal variant, which points at the log for the per-check detail.
-        The tail splits by GATE EFFECT (user specification, 2026-07-12): a
-        penultimate WARN block carries the machine-local advisory facts (the
-        data tier, score[data] included — they never veto anything), and the
-        FINAL word states what the hook actually does — FAIL with the gating
+    def _render(surface: str, full_report: str | None = None):
+        """Render one report variant; returns (text, runnable fix lines) — results ->
+        artifact bytes, a pure function of (results, surface) (#249). Three surfaces:
+        'committed' is rsc/test/run.log (code+schema only, byte-identical on any
+        clone); 'full' is tmp/logs/test/run.log (adds the machine-local data tier);
+        'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
+        at the full report for detail — pass its already-rendered text as
+        full_report, since the terminal has no body of its own to anchor its stage
+        table into (#254). The tail splits by GATE EFFECT (user specification,
+        2026-07-12): a penultimate WARN block carries the machine-local advisory
+        facts (the data tier, score[data] included — they never veto anything), and
+        the FINAL word states what the hook actually does — FAIL with the gating
         sections and their remedies, or an explicit PASS."""
+        committed_only = surface == 'committed'
+        include_body   = surface != 'terminal'
         idxs       = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
         fail_idx   = [i for i in idxs if not results[i][1]]
         warn_idx   = [i for i in fail_idx if _is_advisory(i)]
@@ -2549,26 +2592,47 @@ def main():
         stage_rows: dict[str, list[int]] = {}
         for i in idxs:
             stage_rows.setdefault(sections[i], []).append(i)
-        body_lines = out.getvalue().splitlines()
-        banner_line = {}
-        for line_number, text in enumerate(body_lines, 1):
+
+        # The anchor is computed against the bytes of the surface it names, never
+        # against a surface's own text when that text has no banners to find (#254):
+        # 'committed' and 'full' both just wrote the per-check body above, so they
+        # anchor into themselves; 'terminal' wrote none, so it anchors into the full
+        # report instead, naming the file it points into. Every stage in stage_rows
+        # has a banner in its anchor source by construction — both are built from
+        # the same idxs — so a direct lookup, never a zero-defaulting fallback, is
+        # the honest form: a stage missing its banner is a bug to surface, not a
+        # line number to fake.
+        if surface == 'terminal':
+            assert full_report is not None, 'terminal render needs the full report to anchor into'
+            anchor_source, anchor_prefix = full_report, 'tmp/logs/test/run.log:'
+        else:
+            anchor_source, anchor_prefix = out.getvalue(), ''
+        banner_line: dict[str, int] = {}
+        for line_number, text in enumerate(anchor_source.splitlines(), 1):
             if text.startswith('── '):
                 banner_line[text.split()[1]] = line_number
+        anchors = {stage: f'{anchor_prefix}{banner_line[stage]}' for stage in stage_rows}
+
         # Width from the DATA, never a guess: check_versioned_schema_diagnostics is 34
         # characters, and a column sized by eye pushes every field after it rightwards on
         # exactly the rows a reader is scanning for.
-        stage_width = max([len('stage')] + [len(s) for s in stage_rows])
+        stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
+        anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5} {"warn":>5}   '
-                  f'{"verdict":<7} {"line":>6}\n')
+                  f'{"verdict":<7} {"line":>{anchor_width}}\n')
         for stage, members in stage_rows.items():
             failing  = [i for i in members if not results[i][1]]
             advisory = [i for i in failing if _is_advisory(i)]
             gating   = [i for i in failing if not _is_advisory(i)]
             verdict  = 'failed' if gating else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(gating):>5} '
-                      f'{len(advisory):>5}   {verdict:<7} {banner_line.get(stage, 0):>6}\n')
-        out.write('  (line = where that stage begins in this report; every check is '
-                  'listed there, in place)\n')
+                      f'{len(advisory):>5}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+        if surface == 'terminal':
+            out.write('  (line = tmp/logs/test/run.log:N, where that stage begins in the full '
+                      'report; the terminal carries no per-check body of its own)\n')
+        else:
+            out.write('  (line = where that stage begins in this report; every check is '
+                      'listed there, in place)\n')
 
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
@@ -2625,21 +2689,118 @@ def main():
         # advertised after every run.
         return out.getvalue(), lines
 
-    committed_text, _         = _render(committed_only=True)
-    full_text, full_fix_lines = _render(committed_only=False)
-    terminal_text, _          = _render(committed_only=False, include_body=False)
+    # Render every surface from this run's results. Nothing is written here —
+    # not the committed artifacts, not the machine-local log — that decision
+    # belongs to main()'s settle loop (#249), which alone knows what is on disk.
+    committed_text, _         = _render('committed')
+    full_text, full_fix_lines = _render('full')
+    terminal_text, _          = _render('terminal', full_text)
+    xref_csv_text             = xref.render_csv(xref_rows)
 
-    (RSC / 'test' / 'run.log').write_text(committed_text)
+    # The data tier is machine-local ("not recorded"): a stale capture on this
+    # machine is a fact about its data, not about the change being committed.
+    # Data failures are reported in the WARN tail and the log, but only code/schema/score
+    # failures veto the exit status — otherwise local data drift would fail every
+    # run everywhere. This tier rule is now the ONLY thing standing between local
+    # data drift and a blocked commit. A veto that softens on feature branches reads
+    # the branch name to decide how much to mean it, which puts the axis in the wrong
+    # place. What is machine-local never gates;
+    # what is deterministic always does. The axis is the tier, not the branch.
+    gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
+
+    return RunOnce(
+        committed_text=committed_text,
+        xref_csv_text=xref_csv_text,
+        full_text=full_text,
+        terminal_text=terminal_text,
+        full_fix_lines=full_fix_lines,
+        has_failures=bool(failures),
+        has_gating_failures=bool(gating),
+    )
+
+
+def _on_disk(path: Path, newline: str | None) -> str | None:
+    """The committed artifact's current bytes, or None if it does not exist yet —
+    a missing file can never equal an in-memory result, so it always takes the
+    settle loop's write-and-confirm branch (#249)."""
+    try:
+        return path.read_text(newline=newline)
+    except OSError:
+        return None
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--fix', action='store_true')
+    ap.add_argument('--fresh', action='store_true',
+                    help='ignore the section cache: re-run every check')
+    args = ap.parse_args()
+
+    committed_path = RSC / 'test' / 'run.log'
+    xref_path      = RSC / 'test' / 'xref.csv'
+
+    # THE SETTLE LOOP (#249), one discipline: check and render build every
+    # output in memory; a committed artifact is written only when
+    # its bytes differ from what is already on disk, and a write is trusted
+    # only once a GENUINELY FRESH recomputation (no section-cache replay, ever,
+    # regardless of --fresh) agrees with what was just written. A clean tree
+    # settles on the first run, with zero writes and no mtime disturbed. A
+    # changed tree writes, confirms once; if the confirmation still differs it
+    # writes again and confirms a second time — at most three runs total, two
+    # stability diffs, short-circuiting at the first match either way. A result
+    # that still will not settle after that budget is a fault, not a commit:
+    # the run exits non-zero naming the file, and nothing further is written.
+    run_result = _run_once(allow_replay=not args.fresh)
+    disk_committed = _on_disk(committed_path, None)
+    disk_xref      = _on_disk(xref_path, '')
+
+    settled_result: RunOnce | None = None
+    written_committed, written_xref = disk_committed, disk_xref
+
+    if run_result.committed_text == disk_committed and run_result.xref_csv_text == disk_xref:
+        settled_result = run_result
+    else:
+        pending = run_result
+        for _ in range(2):   # at most two confirmation runs
+            committed_path.write_text(pending.committed_text)
+            xref_path.write_text(pending.xref_csv_text, newline='')
+            written_committed, written_xref = pending.committed_text, pending.xref_csv_text
+            confirmed = _run_once(allow_replay=False)
+            if confirmed.committed_text == written_committed \
+                    and confirmed.xref_csv_text == written_xref:
+                settled_result = confirmed
+                break
+            pending = confirmed
+        else:
+            run_result = pending   # unsettled — reported below, never staged
+
+    fault_files = [] if settled_result is not None else [
+        name for name, current, written in (
+            ('rsc/test/run.log', run_result.committed_text, written_committed),
+            ('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),
+        ) if current != written
+    ]
+    final = settled_result if settled_result is not None else run_result
+
+    # The machine-local log and the terminal report are per-run emissions —
+    # unlike the committed artifacts, nothing gates whether they are written;
+    # they always describe this invocation's final (settled or faulted) state.
     machine_log = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
-    machine_log.write_text(full_text)
+    machine_log.write_text(final.full_text)
 
-    print(terminal_text, end='')
+    print(final.terminal_text, end='')
 
-    if failures and args.fix and full_fix_lines:
+    if fault_files:
+        print(f"ERROR: these results will not settle: {', '.join(fault_files)}",
+              file=sys.stderr)
+        sys.exit(1)
+
+    if final.has_failures and args.fix and final.full_fix_lines:
         print()
         print('Running fixes:')
-        for ps, cmd, gs in full_fix_lines:
+        for ps, cmd, gs in final.full_fix_lines:
             for p in ps[:3]:
                 print(f'  ✗ {p}')
             if cmd is None:
@@ -2662,20 +2823,19 @@ def main():
         # `git add -p` destroys that state with nothing to restore it from. The
         # fixes are in the worktree; what enters the commit stays the operator's
         # to say.
+        #
+        # This run's own exit code and the artifacts it just wrote are the
+        # PRE-fix verdict — checking happens before this loop runs, and the
+        # settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+        # from that pre-fix state. A reader who stops at this terminal's exit
+        # code sees the failures the fixes just repaired, not the current
+        # truth — the prescription below is how they learn there is a truth
+        # still to check.
         print('Fixes applied to the worktree — nothing staged. Review with '
-              '`git diff`, stage what you meant, then re-run run.sh to verify.')
+              '`git diff`, stage what you meant, then verify:')
+        print('    → run: yoga test run')
 
-    # The data tier is machine-local ("not recorded"): a stale capture on this
-    # machine is a fact about its data, not about the change being committed.
-    # Data failures are reported in the WARN tail and the log, but only code/schema/score
-    # failures veto the exit status — otherwise local data drift would fail every
-    # run everywhere. This tier rule is now the ONLY thing standing between local
-    # data drift and a blocked commit. A veto that softens on feature branches reads
-    # the branch name to decide how much to mean it, which puts the axis in the wrong
-    # place. What is machine-local never gates;
-    # what is deterministic always does. The axis is the tier, not the branch.
-    gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
-    sys.exit(1 if gating else 0)
+    sys.exit(1 if final.has_gating_failures else 0)
 
 
 if __name__ == '__main__':

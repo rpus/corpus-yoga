@@ -17,8 +17,16 @@
 # (run.log, xref.csv) are yours to stage; stale, it refuses and says so.
 #
 # Sections replay from tmp/cache/test/ when their declared SUBJECT (the files they
-# read) is stat-unchanged (#68) — the committed artifacts derive from replayed
-# results byte-identically, and the second run below becomes a total replay.
+# read) is stat-unchanged (#68). run.py checks (tree -> results; a check writes no
+# artifacts), then renders every surface — the committed log, the terminal report,
+# the machine-local copy, and the xref table — as a pure function of the results.
+# The gate writes only when the results have changed, and only after a fresh
+# run agrees with what it wrote (#249): one run on a clean tree,
+# zero writes; a changed tree writes the new values and confirms with a genuinely
+# fresh run (the section cache bypassed internally, regardless of --fresh) — at
+# most three runs total, short-circuiting the moment a run agrees with what was
+# just written. Results that will not settle within that budget are a fault, not
+# a commit: the run exits non-zero naming the file. Nothing is ever staged.
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
@@ -83,7 +91,8 @@ if [[ -n "${GIT_INDEX_FILE:-}" ]]; then
   fi
 fi
 
-# The artifacts run.py rewrites on every run — the idempotence subject.
+# The artifacts run.py rewrites on every run — what the staleness check below
+# compares against the index.
 ARTIFACTS=(rsc/test/run.log rsc/test/xref.csv)
 
 parse_args() {
@@ -97,45 +106,15 @@ main() {
 
   mkdir -p "$REPO_DIR/tmp/cache"
 
-  local fix_mode=0
-  if [[ "${1:-}" == "--fix" ]]; then fix_mode=1; fi
-
-  # Run once — run.py writes its own report artifacts: the COMMITTED
-  # rsc/test/run.log (code+schema only, byte-identical on any clone — the
-  # machine-local data tier never enters a committed file) plus the full report
-  # to tmp/logs/test/run.log; only the tail (score + WARN + verdict) prints
-  # to the terminal here. This run's status is unused (a failing report is still a
-  # report; the exit verdict comes from the second run) — || true, for exactly that.
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" "$@" || true
-
-  # Copy the first run's artifacts aside. Staging them and diffing the worktree
-  # against the index would make a QUESTION mutate the index to answer itself. The
-  # claim is only ever "run 1 and run 2 agree", so compare the two runs directly and
-  # leave git out of it.
-  local snap; snap="$(mktemp -d)"
-  trap 'rm -rf "$snap"' EXIT
-  local a
-  for a in "${ARTIFACTS[@]}"; do
-    cp "$REPO_DIR/$a" "$snap/$(basename "$a")" 2>/dev/null || true
-  done
-
-  # Run again — must produce no further changes. Its report would just duplicate the
-  # first run's on the terminal, so its stdout is discarded; only its exit code (the
-  # verdict) and any stderr (a crash) matter here.
+  # One invocation. run.py settles internally (#249): every output is built in
+  # memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are
+  # written only when their bytes differ from disk, and a write stands only once
+  # a genuinely fresh recomputation agrees with it — at most three runs inside
+  # this one invocation, faulting if the results will not settle. The full
+  # report goes to tmp/logs/test/run.log, the terminal tail prints here, and
+  # the exit code is the verdict.
   local rc=0
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" >/dev/null || rc=$?
-
-  # --fix changed the world between the two writes: a failing first run and a
-  # clean second one is the fixes WORKING, not an idempotence violation.
-  if [[ $fix_mode -eq 0 ]]; then
-    for a in "${ARTIFACTS[@]}"; do
-      if ! diff -q "$snap/$(basename "$a")" "$REPO_DIR/$a" >/dev/null 2>&1; then
-        echo "ERROR: the check suite is not idempotent — $a changed on the second run." >&2
-        diff -u "$snap/$(basename "$a")" "$REPO_DIR/$a" >&2 || true
-        exit 1
-      fi
-    done
-  fi
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" "$@" || rc=$?
 
   # The artifacts' currency, guarded without touching anything. Deleting the old
   # `git add` deleted a guarantee along with the rudeness: it silently ensured
