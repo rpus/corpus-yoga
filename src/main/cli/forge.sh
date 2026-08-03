@@ -25,6 +25,8 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 DECLARED="$REPO_DIR/src/main/cli/forge/forge.csv"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # may_send / assert_may_send — the shell face (#29)
+# shellcheck source=src/main/enact.sh
+source "$REPO_DIR/src/main/enact.sh"  # enact — echo/execute/trap/relay (#275)
 
 # rows: STATUS \t key \t detail \t remedy — the ONE derivation, rendered by two callers
 # (this script's status, and `yoga prerequisites`' machine report).
@@ -365,11 +367,19 @@ totest_check() {  # stdin: the PR body
   fi
 }
 
+# One envelope verdict (#266): every refusal path names it the same way, over whatever
+# reason (the wrapped authority's own words, relayed by enact above this line, or a
+# usage error with no command to relay).
+refuse() {
+  echo "NOT merged: $1" >&2
+  exit 1
+}
+
 merge() {
   local pr="${1-}" dry=""
   [[ "${2-}" == "--dry-run" ]] && dry=1
-  [[ "$pr" == "--dry-run" ]] && { echo "yoga forge merge: --dry-run comes after the PR" >&2; exit 1; }
-  [[ -n "$pr" ]] || { echo "yoga forge merge: which PR? (a number, a URL, or a branch)" >&2; exit 1; }
+  [[ "$pr" == "--dry-run" ]] && refuse "--dry-run comes after the PR"
+  [[ -n "$pr" ]] || refuse "which PR? (a number, a URL, or a branch)"
 
   # The one operation here that writes to a server other people see, and its whole audit
   # trail was terminal scrollback. Path per the command/verb rule (#54).
@@ -380,17 +390,17 @@ merge() {
   echo "yoga forge merge $pr — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
   # 0. the sends ARE the work here (gh pr view, gh pr merge): refuse loudly, first (#29)
-  assert_may_send "gh pr view / gh pr merge (yoga forge merge)" || exit 1
+  assert_may_send "gh pr view / gh pr merge (yoga forge merge)" || refuse "sends refused (see above)"
 
   # 1. the forge itself: merging under undeclared settings composes main by rules nobody wrote
-  status || { echo "yoga forge merge: refused — REFUSE-class ✗ above (settings drift or a wrong hook): the squash would land badly; each line names its remedy" >&2; exit 1; }
+  status || refuse "REFUSE-class ✗ above (settings drift or a wrong hook): the squash would land badly; each line names its remedy"
   [[ "$STATUS_TIDY" -eq 0 ]] || echo "note: tidy-class ✗ above (stale refs / deletable branches) — bookkeeping, not danger; this merge's own tidy-up clears what it can, and yoga forge prune covers the rest"
 
   # 2. the PR's own state, from the forge rather than from optimism
   local json
-  json="$(cd "$REPO_DIR" && gh pr view "$pr" \
-    --json number,title,state,isDraft,mergeable,mergeStateStatus,headRefName,headRefOid,commits,body,baseRefOid 2>/dev/null)" \
-    || { echo "yoga forge merge: no such PR: $pr" >&2; exit 1; }
+  json="$(cd "$REPO_DIR" && enact gh pr view "$pr" \
+    --json number,title,state,isDraft,mergeable,mergeStateStatus,headRefName,headRefOid,commits,body,baseRefOid)" \
+    || refuse "no such PR: $pr"
   local n title state draft mergeable mstate head oid
   n=$(jq -r .number <<< "$json");        title=$(jq -r .title <<< "$json")
   state=$(jq -r .state <<< "$json");     draft=$(jq -r .isDraft <<< "$json")
@@ -407,26 +417,21 @@ merge() {
     already=1
     echo "  already merged on the forge — converging the local half"
   else
-    [[ "$state"     == OPEN      ]] || { echo "yoga forge merge: #$n is $state — nothing to merge" >&2; exit 1; }
-    [[ "$draft"     == false     ]] || { echo "yoga forge merge: #$n is a draft — mark it ready first" >&2; exit 1; }
-    if [[ "$mergeable" == UNKNOWN ]]; then
-      echo "yoga forge merge: #$n is UNKNOWN — the forge is recomputing mergeability (usual after a push); retry in a moment" >&2; exit 1
-    fi
-    [[ "$mergeable" == MERGEABLE ]] || { echo "yoga forge merge: #$n is $mergeable ($mstate) — resolve that first; gh would fail or prompt" >&2; exit 1; }
+    [[ "$state"     == OPEN      ]] || refuse "#$n is $state — nothing to merge"
+    [[ "$draft"     == false     ]] || refuse "#$n is a draft — mark it ready first"
+    [[ "$mergeable" != UNKNOWN    ]] || refuse "#$n is UNKNOWN — the forge is recomputing mergeability (usual after a push); retry in a moment"
+    [[ "$mergeable" == MERGEABLE ]] || refuse "#$n is $mergeable ($mstate) — resolve that first; gh would fail or prompt"
   fi
   # BEHIND matters for more than tidiness: a squash of an up-to-date branch lands exactly
   # the branch's tree, which its own pre-commit hook already gated. Behind main, the merged
   # tree is a combination nothing has ever checked.
-  [[ -n "$already" || "$mstate" == CLEAN ]] || { echo "yoga forge merge: #$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first" >&2; exit 1; }
+  [[ -n "$already" || "$mstate" == CLEAN ]] || refuse "#$n is $mstate — a squash of a branch that is not up to date lands a tree no gate has seen; rebase it onto main first"
 
   # 2b. the postcondition moves HEAD to the base branch, so the tree must be clean FIRST:
   # a merge that lands and then cannot tidy up is worse than one that refuses early.
   local base current
   base="$(base_branch)"
-  current="$(git -C "$REPO_DIR" branch --show-current)"
-  local dirty="" dirty_files=""
-  dirty_files="$(git -C "$REPO_DIR" status --porcelain)"
-  [[ -z "$dirty_files" ]] || dirty=1
+  current="$(enact git -C "$REPO_DIR" branch --show-current)"
 
   # 3. the INTENT: exactly what will land, since afterwards the parts are unreachable
   echo
@@ -438,31 +443,14 @@ merge() {
   echo "  — $(jq -r '.commits | length' <<< "$json") commit(s), $sigs carrying a Signature"
   [[ "$sigs" -gt 0 ]] || echo "  ⚠ no commit carries a Signature: main would gain history no session can be joined to"
   # the surface roster (#136) needs the head objects locally; the fetch is the same
-  # wire read step 5 performs after the merge, moved earlier and made quiet
-  git -C "$REPO_DIR" fetch --quiet origin "$head" 2>/dev/null || true
+  # wire read step 5 performs after the merge, moved earlier
+  enact git -C "$REPO_DIR" fetch --quiet origin "$head" || true
   local roster base_at
   roster="$(surface_roster "origin/$base" "$oid")"
-  # The roster diffs against origin/$base AS THIS CLONE KNOWS IT. The comparison
-  # below exists because of a two-round incident (PR #145 review): a stale clone
-  # produced a phantom roster row; the first fix NAMED the base used — and did not
-  # diagnose the reviewer's own case, because naming a value helps only a reader
-  # who already knows what it should be. So the forge's answer (in the json already
-  # fetched) is COMPARED: agreement stays silent, disagreement names the fix — and
-  # the warning prints even on an EMPTY roster, whose "changes no commands" is the
-  # most deceptive claim a stale base can make. Do not simplify this back to
-  # printing the value: that was round one, and it failed its own incident.
-  base_at="$(git -C "$REPO_DIR" rev-parse --short "origin/$base" 2>/dev/null || echo '?')"
-  local forge_base
-  forge_base="$(jq -r '.baseRefOid // empty' <<< "$json")"
-  local base_note=""
-  if [[ -n "$forge_base" && "$forge_base" != "$base_at"* ]]; then
-    base_note=" — ⚠ the forge says the base is ${forge_base:0:8}; this clone is stale: git fetch origin"
-  fi
+  base_at="$(enact git -C "$REPO_DIR" rev-parse --short "origin/$base" || echo '?')"
   if [[ -n "$roster" ]]; then
-    echo "  the command surface, after this merge (diffed against origin/$base@$base_at$base_note; judgment stays the PR's what):"
+    echo "  the command surface, after this merge (diffed against origin/$base@$base_at; judgment stays the PR's what):"
     printf '%s\n' "$roster"
-  elif [[ -n "$base_note" ]]; then
-    echo "  surface roster: empty$base_note"
   fi
   jq -r '.body // ""' <<< "$json" | totest_check
   # THE mood check (#153, superseding the phrase-sniffing the maintainer condemned):
@@ -472,8 +460,8 @@ merge() {
   # mergeable. No phrases, no dialects, no mention-stripping: prose is free; the
   # field decides. (#146: shown before consent; #29/#127: the strikes it catches.)
   local will_close
-  will_close="$(cd "$REPO_DIR" && gh pr view "$n" --json closingIssuesReferences \
-    --jq '[.closingIssuesReferences[].number] | map("#\(.)") | join(", ")' 2>/dev/null || true)"
+  will_close="$(cd "$REPO_DIR" && enact gh pr view "$n" --json closingIssuesReferences \
+    --jq '[.closingIssuesReferences[].number] | map("#\(.)") | join(", ")' || true)"
   echo "  the forge will close: ${will_close:-nothing}"
   [[ -n "$will_close" || -n "$already" ]] || echo "  ⚠ nothing closes — every PR closes an issue; a real run refuses until closes #N is armed and pushed"
 
@@ -497,13 +485,15 @@ merge() {
   else
     # a detached HEAD has no name to stay on — say where it stands instead of
     # rendering a blank where a name belongs (the review's first misstatement)
-    echo "  this checkout — stays detached at $(git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo "  this checkout — stays detached at $(enact git -C "$REPO_DIR" rev-parse --short HEAD)"
   fi
   echo "  $base — fast-forwards to include it"
   local head_tip=""
   # --verify --quiet, or rev-parse ECHOES an unresolvable name to stdout — which
   # filled head_tip with a literal refs/heads/ string and made the KEPT line assert
-  # a specific reason about a branch that does not exist (the review's second)
+  # a specific reason about a branch that does not exist (the review's second).
+  # A predicate over local refs, not an enactment: "no such ref" here is a normal
+  # answer, not a failure to relay.
   head_tip="$(git -C "$REPO_DIR" rev-parse --verify --quiet "refs/heads/$head" || true)"
   if [[ -z "$head_tip" ]]; then
     echo "  $head — is not here (nothing to delete)"
@@ -512,31 +502,23 @@ merge() {
   else
     echo "  $head — $modal be KEPT here (it holds commits the head being merged does not)"
   fi
-  if [[ -n "$dirty" ]]; then
-    echo "  ⚠ this checkout has uncommitted changes — a real run refuses here:"
-    local f
-    while IFS= read -r f; do echo "      $f"; done <<< "$dirty_files"
-  fi
   [[ -z "$dry" ]] || { echo; echo "--dry-run: nothing merged"; return 0; }
 
-  # a dry run reports the dirty tree; a real one refuses on it, because the postcondition
-  # moves HEAD, and a merge that lands and then cannot tidy up is worse than one that stops
-  [[ -z "$dirty" ]] || { echo "yoga forge merge: this checkout has uncommitted changes — the merge ends on $base, and moving HEAD would carry or refuse them; commit or stash first" >&2; exit 1; }
-  [[ -n "$will_close" || -n "$already" ]] || { echo "yoga forge merge: refused — the forge's own parser will close nothing, and every PR closes an issue: arm closes #N (or link the issue on the forge) and push before merging" >&2; exit 1; }
+  [[ -n "$will_close" || -n "$already" ]] || refuse "the forge's own parser will close nothing, and every PR closes an issue: arm closes #N (or link the issue on the forge) and push before merging"
 
   # 4. the effect. No --subject, no --body: the forge assembles the message from the
   # commits, which is where the signatures are. --match-head-commit closes the race
-  # between the head just inspected and the head merged.
+  # between the head just inspected and the head merged. Wrapped and echoed (#274):
+  # the refusal, if any, is git's or gh's own — relayed above, never re-diagnosed here.
   echo
   # off the branch BEFORE merging: a branch checked out here cannot be deleted, and the
   # tidy-up is part of what `merge` promises, not a courtesy attempted afterwards
   if [[ "$current" == "$head" ]]; then
-    git -C "$REPO_DIR" checkout --quiet "$base" || {
-      echo "yoga forge merge: could not switch to $base — nothing merged" >&2; exit 1; }
-    echo "switched to $base"
+    enact git -C "$REPO_DIR" checkout --quiet "$base" || refuse "could not switch to $base"
   fi
   if [[ -z "$already" ]]; then
-    cd "$REPO_DIR" && gh pr merge "$n" --squash --match-head-commit "$oid" || return $?
+    (cd "$REPO_DIR" && enact gh pr merge "$n" --squash --match-head-commit "$oid") \
+      || refuse "gh pr merge refused (see above)"
   fi
 
   # 5. the extent afterwards. delete_branch_on_merge removes the REMOTE branch; the local
@@ -547,11 +529,12 @@ merge() {
   echo
   # fetch WITHOUT pruning: the fast-forward below needs origin/$base, but pruning here
   # asks the server before it has finished deleting the head branch (see the end).
-  git -C "$REPO_DIR" fetch --quiet origin || true
+  enact git -C "$REPO_DIR" fetch --quiet origin || true
   # the base must actually HOLD the squash here, or the next thing anyone types is a manual
-  # pull — the same residue in another shape
-  if git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base" 2>/dev/null; then
-    echo "local: $base fast-forwarded to $(git -C "$REPO_DIR" rev-parse --short HEAD)"
+  # pull — the same residue in another shape. A skipped courtesy, not a refusal (#273 into
+  # #274): a real run has already landed the squash by this point.
+  if enact git -C "$REPO_DIR" merge --ff-only --quiet "origin/$base"; then
+    echo "local: $base fast-forwarded to $(enact git -C "$REPO_DIR" rev-parse --short HEAD)"
   else
     echo "local: $base NOT fast-forwarded — it has diverged from origin/$base; reconcile it yourself"
   fi
@@ -563,7 +546,7 @@ merge() {
     [[ "$key" == "$head" ]] || continue
     found=1
     if [[ "$st" == DELETABLE ]]; then
-      git -C "$REPO_DIR" branch -D "$head" >/dev/null && echo "local: $head deleted — $detail"
+      enact git -C "$REPO_DIR" branch -D "$head" >/dev/null && echo "local: $head deleted — $detail"
     else
       echo "local: $head kept — $detail"
     fi
@@ -575,9 +558,11 @@ merge() {
   # exists, keeps the tracking ref, and leaves behind exactly the drift `yoga forge`
   # reports — the merge creating the mess its own command exists to clear. By here the
   # deletion has had the squash, the fetch, the fast-forward and the local delete to land.
+  # show-ref is a predicate over local refs, not an enactment — left unwrapped, as
+  # merge-base --is-ancestor is above; only remote prune, the mutation, is wrapped.
   local tracked=""
   git -C "$REPO_DIR" show-ref --verify --quiet "refs/remotes/origin/$head" && tracked=1
-  git -C "$REPO_DIR" remote prune origin >/dev/null 2>&1 || true
+  enact git -C "$REPO_DIR" remote prune origin >/dev/null 2>&1 || true
   if [[ -n "$tracked" ]]; then
     if git -C "$REPO_DIR" show-ref --verify --quiet "refs/remotes/origin/$head"; then
       echo "local: origin/$head still tracked — the forge had not dropped it yet; yoga forge prune"
@@ -603,7 +588,7 @@ merge() {
   # (backticked spans), the same discipline the mood check uses.
   # shellcheck disable=SC2016  # the backticks in the seds below are pattern, not expansion
   local squash_msg declared_closes mentioned iss st_i
-  squash_msg="$(git -C "$REPO_DIR" show -s --format=%B "origin/$base" 2>/dev/null || true)"
+  squash_msg="$(enact git -C "$REPO_DIR" show -s --format=%B "origin/$base" || true)"
   # shellcheck disable=SC2016  # backticks are sed pattern, not expansion
   declared_closes="$(printf '%s' "$squash_msg" | sed 's/`[^`]*`//g' | grep -oiE 'closes #[0-9]+' | grep -oE '[0-9]+' | sort -u)"
   # shellcheck disable=SC2016  # as above
@@ -613,7 +598,7 @@ merge() {
     echo "issues, after this merge (verified from the forge):"
     while read -r iss; do
       [[ -n "$iss" ]] || continue
-      st_i="$(cd "$REPO_DIR" && gh issue view "$iss" --json state --jq .state 2>/dev/null || echo UNKNOWN)"
+      st_i="$(cd "$REPO_DIR" && enact gh issue view "$iss" --json state --jq .state || echo UNKNOWN)"
       if grep -qx "$iss" <<< "$declared_closes"; then
         [[ "$st_i" == CLOSED ]] && echo "  ✓ #$iss — declared closes, and CLOSED" \
                                 || echo "  ⚠ #$iss — declared closes, but $st_i: the close did not fire"
@@ -624,6 +609,16 @@ merge() {
     done <<< "$mentioned"
   fi
 
+  # 8. the enactment envelope (#266): the last line states what landed, sourced from
+  # the forge's own answer — never inferred from the tidy-up above.
+  echo
+  local landed
+  landed="$(cd "$REPO_DIR" && enact gh pr view "$n" --json mergeCommitOid --jq '.mergeCommitOid // empty')"
+  if [[ -n "$landed" ]]; then
+    echo "merged: #$n as ${landed:0:8} on $base"
+  else
+    refuse "gh reports no merge commit for #$n (see above)"
+  fi
 }
 
 # Sourced, this file is its derivations and nothing else: a caller that wants one row set
