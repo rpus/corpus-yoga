@@ -120,6 +120,7 @@ AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 
 sys.path.insert(0, str(REPO / 'src'))  # argparse_help — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
+from append_only import Relation, growth, may_replace, relate  # noqa: E402
 from machine import bound_machine  # noqa: E402
 from argparse_help import enrich  # noqa: E402
 
@@ -180,50 +181,36 @@ def pick_session(root: Path, uuid8: str) -> Path:
     return matches[0]
 
 
-def place_log(data: bytes, dest: Path, apply: bool) -> tuple[str, str]:
-    """Append-only placement — the five-state prefix lattice: new (absent →
-    written) / identical (L1 silence) / extends (existing is a strict prefix:
-    the fast-forward, superseded in place) / ahead (incoming is the prefix: a
-    stale stash never truncates — the refused force-push, so replaying old
-    transports is idempotent) / conflict (neither prefixes the other: diverged
-    twins, loud, nothing written, human merge). Successive stashes from one
-    source ratchet new → extends → … → identical; divergence is unreachable
-    from a single well-behaved writer. Returns (kind, detail): the lattice
-    state plus the byte counts for extends. The lattice is direction-blind;
-    the SENTENCE is not — wording is the caller's, via word_placement."""
-    if not dest.exists():
-        if apply:
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(data)
-        return 'new', ''
-    have = dest.read_bytes()
-    if have == data:
-        return 'identical', ''
-    if data[:len(have)] == have:
-        if apply:
-            dest.write_bytes(data)
-        return 'extends', f'{len(have)} → {len(data)} bytes'
-    if have[:len(data)] == data:
-        return 'ahead', ''
-    return 'conflict', ''
+def place_log(data: bytes, dest: Path, apply: bool) -> tuple[Relation, str]:
+    """Append-only placement: the relation decides, this writes. A destination
+    the incoming stream extends is superseded in place (the fast-forward); a
+    destination already ahead is never truncated, so replaying an old transport
+    is idempotent; divergence writes nothing and is the caller's to voice."""
+    existing = dest.read_bytes() if dest.exists() else None
+    relation = relate(data, existing)
+    if apply and may_replace(relation):
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
+    had, now = growth(data, existing)
+    return relation, f'{had} → {now} bytes' if relation is Relation.EXTENDS else ''
 
 
-def word_placement(kind: str, detail: str, src: str, dest: str) -> str:
+def word_placement(relation: Relation, detail: str, src: str, dest: str) -> str:
     """One lattice state as one sentence, both sides NAMED — noun extends noun
     (user specification, 2026-07-11): the opposition is local/remote, never a
     pronoun without an antecedent, never a metonym. A machine name is an ADDRESS
     (which remote), not a side — both sides of a transport belong to the same
     machine, so the name lives in the header/tail, not in the relation."""
     return {
-        'new':       f'nothing in {dest} yet — written',
-        'identical': f'{src} and {dest} hold identical bytes — no-op',
-        'extends':   f'{src} extends {dest} ({detail}) — {dest} copy superseded',
-        'ahead':     f'{dest} is ahead of {src} — no-op',
-        'conflict':  f'✗ CONFLICT: {src} and {dest} diverged — {dest} copy left in place',
-    }[kind]
+        Relation.ABSENT:    f'nothing in {dest} yet — written',
+        Relation.IDENTICAL: f'{src} and {dest} hold identical bytes — no-op',
+        Relation.EXTENDS:   f'{src} extends {dest} ({detail}) — {dest} copy superseded',
+        Relation.AHEAD:     f'{dest} is ahead of {src} — no-op',
+        Relation.DIVERGED:  f'✗ CONFLICT: {src} and {dest} diverged — {dest} copy left in place',
+    }[relation]
 
 
-def place_session(src: Path, dest: Path, apply: bool) -> tuple[str, str]:
+def place_session(src: Path, dest: Path, apply: bool) -> tuple[Relation, str]:
     return place_log(src.read_bytes(), dest, apply)
 
 
@@ -251,23 +238,23 @@ def move_workspace(src_ws: Path, dest_ws: Path, apply: bool,
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 dest.write_bytes(f.read_bytes())
         return 0, True, True
-    tally = {'new': 0, 'identical': 0, 'extends': 0, 'ahead': 0}
+    tally = {r: 0 for r in Relation}
     conflicts = 0
     for f in files:
         rel = f.relative_to(src_ws)
-        kind, detail = place_log(f.read_bytes(), dest_ws / rel, apply)
-        if kind == 'conflict':
-            print(f'  workspace/{rel}: {word_placement(kind, detail, src_label, dest_label)}')
+        relation, detail = place_log(f.read_bytes(), dest_ws / rel, apply)
+        if relation is Relation.DIVERGED:
+            print(f'  workspace/{rel}: {word_placement(relation, detail, src_label, dest_label)}')
             conflicts += 1
         else:
-            tally[kind] += 1
+            tally[relation] += 1
     print(f'  workspace {src_ws.name}/: '
           + ', '.join(f'{n} {k}' for k, n in tally.items() if n)
           + (f', {conflicts} CONFLICT(S)' if conflicts else '')
           if any(tally.values()) or conflicts else
           f'  workspace {src_ws.name}/: empty')
-    wrote = bool(tally['new'] or tally['extends'])
-    return conflicts, wrote, wrote or bool(conflicts or tally['ahead'])
+    wrote = bool(tally[Relation.ABSENT] or tally[Relation.EXTENDS])
+    return conflicts, wrote, wrote or bool(conflicts or tally[Relation.AHEAD])
 
 
 def merge_memory(src_dir: Path, dest_dir: Path, apply: bool, machine: str) -> int:
@@ -605,19 +592,19 @@ def _capture_session(src_proj: Path, dest_proj: Path, session: Path, label: str,
     silence (identical log, identical-or-absent workspace) narrates NOTHING —
     the --all caller names the silent ones in one line instead of three each.
     `label` is the header's destination spelling (<machine>/<project>)."""
-    kind, detail = place_session(session, dest_proj / session.name, apply=True)
-    conflicts = 1 if kind == 'conflict' else 0
+    relation, detail = place_session(session, dest_proj / session.name, apply=True)
+    conflicts = 1 if relation is Relation.DIVERGED else 0
     ws_narration = io.StringIO()
     with contextlib.redirect_stdout(ws_narration):
         ws_conflicts, ws_wrote, ws_eventful = move_workspace(
             src_proj / session.stem, dest_proj / session.stem, apply=True,
             src_label='local', dest_label='remote')
     conflicts += ws_conflicts
-    wrote = ws_wrote or kind in ('new', 'extends')
-    eventful = wrote or bool(conflicts) or ws_eventful or kind != 'identical'
+    wrote = ws_wrote or may_replace(relation)
+    eventful = wrote or bool(conflicts) or ws_eventful or relation is not Relation.IDENTICAL
     if eventful or not quiet_noop:
         print(f'capture → {label}: {session.name}')
-        print(f'  session: {word_placement(kind, detail, "local", "remote")}')
+        print(f'  session: {word_placement(relation, detail, "local", "remote")}')
         print(ws_narration.getvalue(), end='')
     return conflicts, wrote, eventful
 
@@ -707,11 +694,11 @@ def capture_all(src_root: Path, outbox: Path) -> int:
 
 def _install_session(bundle_proj: Path, dest_proj: Path, session: Path, apply: bool, machine: str) -> int:
     print(f'install ← {machine}/{bundle_proj.name}: {session.name}')
-    kind, detail = place_session(session, dest_proj / session.name, apply)
-    print(f'  session: {word_placement(kind, detail, "remote", "local")}')
+    relation, detail = place_session(session, dest_proj / session.name, apply)
+    print(f'  session: {word_placement(relation, detail, "remote", "local")}')
     ws_conflicts, _, _ = move_workspace(bundle_proj / session.stem, dest_proj / session.stem, apply,
                                         src_label='remote', dest_label='local')
-    return (1 if kind == 'conflict' else 0) + ws_conflicts
+    return (1 if relation is Relation.DIVERGED else 0) + ws_conflicts
 
 
 def install_all(bundle: Path, dest_root: Path, apply: bool, machine: str) -> int:

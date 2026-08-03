@@ -682,6 +682,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,Y,
 ,,,rsc/schema/dashboard/semanticConcepts/v2.json,Y,
 ,,self_only,rsc/schema/documenter.json,Y,
+,,,src/main/append_only.py,Y,
 ,,,src/main/browser-captures/claude/browser-chat-capture.js,Y,
 ,,,src/main/browser-captures/export-all-conversations.applescript,Y,
 ,,,src/main/browser-captures/export-conversation.applescript,Y,
