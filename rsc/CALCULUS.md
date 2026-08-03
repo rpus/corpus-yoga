@@ -237,8 +237,8 @@ Each law names its current enforcement (or the incident that taught it).
 
 - **L1 — Idempotence.** `gated` — Every operation, re-run, is a no-op: validation
   memoisation ("the log IS the memoisation"), deposit dedup, dressing refresh,
-  the normalise CLI's fixpoint, the gate's render purity witness (render, called
-  twice, agrees with itself — #249). An operation that
+  the normalise CLI's fixpoint, the gate's settle discipline: results
+  re-earned by fresh runs until disk and memory agree (#249). An operation that
   isn't idempotent is either wrong or not yet finished being designed.
   Corollary: there are no migrations, only normalisations — a one-shot
   state-A-to-state-B script is dead the moment it runs, while a normaliser

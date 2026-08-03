@@ -1,4 +1,4 @@
-run.py: 1939/1939 (data: machine-local)
+run.py: 1936/1936 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ run.py: 1939/1939 (data: machine-local)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (18/18)
+  ✓ naming.log_path_derives_from_command  (17/17)
   ✓ output.prescriptions_are_commands  (72/72)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
@@ -54,12 +54,6 @@ run.py: 1939/1939 (data: machine-local)
 
 ── check_capture_monotone ────────────────────────────────────────────────────
   ✓ capture.monotone_record  (4/4)
-
-── check_render_purity ───────────────────────────────────────────────────────
-  ✓ render.purity_selftest
-
-── check_render_write_confined ───────────────────────────────────────────────
-  ✓ effects.only_render_writes
 
 ── check_grammar_laws ────────────────────────────────────────────────────────
   ✓ grammar.laws_parse
@@ -162,32 +156,30 @@ run.py: 1939/1939 (data: machine-local)
 stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_xref                             2     0     0   ok         7
-check_cli_surface                    448     0     0   ok        11
+check_cli_surface                    447     0     0   ok        11
 check_effects                          1     0     0   ok        43
 check_cache_io                        18     0     0   ok        46
 check_accumulate_contract              1     0     0   ok        52
 check_capture_monotone                 4     0     0   ok        55
-check_render_purity                    1     0     0   ok        58
-check_render_write_confined            1     0     0   ok        61
-check_grammar_laws                    12     0     0   ok        64
-check_root_schema_diagnostics         50     0     0   ok        78
-check_schema_validity                 53     0     0   ok       105
-check_schema_changelogs              106     0     0   ok       108
-check_versioned_schema_diagnostics  1209     0     0   ok       112
-check_schema_join                      1     0     0   ok       138
-check_model_join_versions              1     0     0   ok       141
-check_model_occurrences                3     0     0   ok       144
-check_model_obligations               17     0     0   ok       149
-check_mcp_schema                       1     0     0   ok       153
-check_score                            5     0     0   ok       156
+check_grammar_laws                    12     0     0   ok        58
+check_root_schema_diagnostics         50     0     0   ok        72
+check_schema_validity                 53     0     0   ok        99
+check_schema_changelogs              106     0     0   ok       102
+check_versioned_schema_diagnostics  1209     0     0   ok       106
+check_schema_join                      1     0     0   ok       132
+check_model_join_versions              1     0     0   ok       135
+check_model_occurrences                3     0     0   ok       138
+check_model_obligations               17     0     0   ok       143
+check_mcp_schema                       1     0     0   ok       147
+check_score                            5     0     0   ok       150
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 90 types, 1939/1939 invocations passing
+  ✓ checks[code+schema]: 88 types, 1936/1936 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 54 types, 498/498 invocations passing
+  ✓ checks[code]: 52 types, 495/495 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1939/1939 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1936/1936 match the committed expectation; nothing here vetoes a commit

@@ -48,7 +48,6 @@ documentation.discriminator_fields_annotated
 documentation.every_definition_has_title_and_description
 documentation.null_only_fields_documented
 documentation.open_set_enums_documented
-effects.only_render_writes
 effects.send_switch_read_once
 effects.sends_declared
 effects.writers_disjoint
@@ -82,7 +81,6 @@ output.plan_lines_name_their_target
 output.prescriptions_are_commands
 output.remedy_lines_are_todos
 python.pyright_clean
-render.purity_selftest
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.valid_json_with_schema

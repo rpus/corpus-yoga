@@ -1983,126 +1983,6 @@ def check_capture_monotone(run) -> None:
         safari_utils.DOWNLOADS = real_downloads
 
 
-def check_render_purity(run) -> None:
-    """The property (#191, retitled on the maintainer's correction): the gate's
-    artifacts are a pure function of its results, so idempotence holds BY
-    CONSTRUCTION and needs no second run to witness it operationally — the old
-    idempotence guard and run.sh's second full pass are deleted, not repaired, by
-    #249's check/render/gate separation. The double-render comparison (render_twice)
-    is the instrument that keeps this property checkable; a demo in a PR
-    description proves it once, so this is the standing self-test that proves it on
-    every gate run instead — poisoning a COPY of a render, never a real artifact,
-    with a manufactured non-determinism (a fresh clock reading per call), and
-    asserting the instrument both fires and names the poisoned artifact. Not
-    subject to the section cache — not in SUBJECTS, so it is never replayed."""
-    calls: list[int] = []
-
-    def poisoned_render() -> str:
-        calls.append(len(calls))
-        # The call counter, not only the clock: on a coarse-clock platform two
-        # calls close enough together can read the same monotonic_ns(), which
-        # would make the probe agree with itself and fail the gate spuriously.
-        # The counter makes the difference deterministic; the clock stays for
-        # a human skimming the failure, not for the assertion's correctness.
-        return f'render purity self-test probe {len(calls)} {time.monotonic_ns()}'
-
-    artifact = 'render purity self-test (poisoned probe)'
-    fired, named, detail = False, False, None
-    try:
-        render_twice(artifact, poisoned_render)
-    except RenderNotPureError as exc:
-        fired = True
-        named = artifact in str(exc)
-    if not fired:
-        detail = 'render_twice did not raise on a deliberately non-deterministic render'
-    elif not named:
-        detail = 'render_twice raised but did not name the poisoned artifact'
-    elif len(calls) != 2:
-        detail = f'the poisoned render was called {len(calls)} times, not twice'
-        fired = named = False
-    run('render: artifacts are a pure function of results — idempotence by '
-        'construction, witnessed by double-render', fired and named, detail,
-        law='L1', check='render.purity_selftest')
-
-
-_ARTIFACT_ROOTS = {'REPO_ROOT': '', 'RSC': 'rsc', 'SRC': 'src'}
-
-
-def _path_literal(node: ast.AST) -> str | None:
-    """Best-effort reconstruction of a repo-relative path from a pathlib '/'-chain
-    of Name/Constant nodes — the send-switch check's own resolution
-    (effects.send_switch_read_once, above), applied to a path instead of a single
-    switch name. Not a general expression evaluator: a target reached through a
-    variable this cannot trace resolves to None and is left alone."""
-    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
-        left = _path_literal(node.left)
-        if left is None or not (isinstance(node.right, ast.Constant)
-                                 and isinstance(node.right.value, str)):
-            return None
-        return f'{left}/{node.right.value}' if left else node.right.value
-    if isinstance(node, ast.Name) and node.id in _ARTIFACT_ROOTS:
-        return _ARTIFACT_ROOTS[node.id]
-    if isinstance(node, ast.Constant) and isinstance(node.value, str):
-        return node.value
-    return None
-
-
-def _write_mode(node: ast.AST) -> bool:
-    return isinstance(node, ast.Constant) and isinstance(node.value, str) \
-        and any(c in node.value for c in 'wax')
-
-
-def _artifact_write_target(node: ast.Call) -> str | None:
-    """The repo-relative path a WRITE-shaped call targets, if resolvable.
-    write_text/write_bytes always write; .open()/open() only write when passed a
-    write mode — status()'s read of the committed table must not count as a
-    writer of it. csv.writer's file-handle indirection is out of reach the same
-    way a traced-through variable is (under-catch, safe)."""
-    if isinstance(node.func, ast.Attribute) and node.func.attr in ('write_text', 'write_bytes'):
-        return _path_literal(node.func.value)
-    if isinstance(node.func, ast.Attribute) and node.func.attr == 'open' \
-            and node.args and _write_mode(node.args[0]):
-        return _path_literal(node.func.value)
-    if isinstance(node.func, ast.Name) and node.func.id == 'open' \
-            and len(node.args) > 1 and _write_mode(node.args[1]):
-        return _path_literal(node.args[0])
-    return None
-
-
-def check_render_write_confined(run) -> None:
-    """#259: checks should compute and only render should write. The ARTIFACTS set
-    (rsc/test/run.log, rsc/test/xref.csv) should be written at exactly one call
-    site in this gate — render's, inside main() — held here in the send-switch
-    check's shape (effects.send_switch_read_once, above): resolve a write call's
-    target back to a repo-relative path through a chain of Name/Constant nodes,
-    and name every top-level function in this file whose body contains a write
-    targeting either artifact, other than main() itself.
-
-    xref.py's standalone `check()` verb is #259's other licensed writer, for a
-    direct `yoga test xref` outside the gate; it is invisible to this resolver
-    because its target arrives through a parameter (`out: Path`), not a literal —
-    a stated limit, not a hole this check pretends to close, since #259 scopes
-    the property to the gate's own call sites, not a general points-to analysis.
-
-    L2 — Determinism split, whose own text names this mechanism: 'run.py writes
-    the committed log itself'; this check is what keeps that a fact about ONE
-    place rather than a claim about the file."""
-    tree = ast.parse((SRC / 'test' / 'run.py').read_text())
-    offenders: list[str] = []
-    for top in tree.body:
-        if not isinstance(top, ast.FunctionDef) or top.name == 'main':
-            continue
-        for node in ast.walk(top):
-            if not isinstance(node, ast.Call):
-                continue
-            target = _artifact_write_target(node)
-            if target in ARTIFACTS:
-                offenders.append(f'{top.name} (line {node.lineno}) writes {target}')
-    run('render: only main() writes the ARTIFACTS — checks compute, render writes',
-        not offenders, '; '.join(sorted(offenders)) if offenders else None,
-        law='L2', check='effects.only_render_writes')
-
-
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
@@ -2173,7 +2053,6 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
     'check_capture_monotone': ['src', 'data/output/dashboard'],
-    'check_render_write_confined': ['src/test/run.py'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
@@ -2230,39 +2109,32 @@ def subject_hash(spec) -> str:
     return h.hexdigest()
 
 
-class RenderNotPureError(RuntimeError):
-    """Rendering an artifact twice in one process produced different bytes. Render
-    must be a pure function of results (#249) — this is the purity witness's
-    failure mode, exercised for real by check_render_purity on every gate run."""
-
-
-def render_twice(artifact: str, render):
-    """The purity witness: call a zero-argument render function twice and demand
-    an identical result. Doing this in-process (milliseconds) is what replaces
-    running the whole check suite a second time — the workaround this separation
-    retires (#249, #191) — and a mismatch names the artifact that broke."""
-    first = render()
-    second = render()
-    if first != second:
-        raise RenderNotPureError(
-            f'{artifact}: rendering it twice produced different results — '
-            'render is not a pure function of its results')
-    return first
-
-
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 
-def main():
-    import argparse
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--fix', action='store_true')
-    ap.add_argument('--fresh', action='store_true',
-                    help='ignore the section cache: re-run every check')
-    args = ap.parse_args()
+@dataclass
+class RunOnce:
+    """One genuine pass over the check tier, plus its rendering — everything
+    main()'s settle loop (#249) needs to compare against disk and, at the end,
+    to write and print. Building this needs no knowledge of what is on disk;
+    that comparison, and the decision whether to write, belong to main() alone."""
+    committed_text:      str
+    xref_csv_text:       str
+    full_text:           str
+    terminal_text:       str
+    full_fix_lines:      list
+    has_failures:        bool   # any failure at all — drives whether --fix has work
+    has_gating_failures: bool   # a non-data-tier failure — drives the exit code
 
+
+def _run_once(allow_replay: bool) -> RunOnce:
+    """Check (tree -> results, section-cache replay iff allow_replay), then render
+    every surface from those results (#249's separation: a check computes, only
+    render builds bytes). Writes NOTHING — not the committed artifacts, not even
+    the machine-local log — because whether this run's bytes are new is a fact
+    only main()'s settle loop can see, by comparing them against disk."""
     cache: dict = {}
-    if not args.fresh and SECTION_CACHE.exists():
+    if allow_replay and SECTION_CACHE.exists():
         try:
             cache = json.loads(SECTION_CACHE.read_text())
         except (ValueError, OSError):
@@ -2410,8 +2282,6 @@ def main():
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')
-        run_section(check_render_purity, tier='code')
-        run_section(check_render_write_confined, tier='code')
         # LAST of the code tier, because it reads the citation ledger: a law is held by
         # whichever check cites it, and until every section has run the ledger is partial.
         # Registered after check_cli_surface alone, it saw the G-citations (all raised
@@ -2819,39 +2689,119 @@ def main():
         # advertised after every run.
         return out.getvalue(), lines
 
-    # GATE, by way of the purity witness (#249, #191): each surface — and the xref
-    # table — is rendered TWICE in-process and byte-compared before anything is
-    # written. Doing that here (milliseconds) is what retires run.sh's second full
-    # check pass: f(x) = f(x) needs no 11-second rerun to demonstrate, and a
-    # mismatch names the artifact that broke determinism instead of leaving the old
-    # idempotence guard to catch it, unreliably, two runs later.
-    try:
-        committed_text, _         = render_twice('rsc/test/run.log',
-                                                  lambda: _render('committed'))
-        full_text, full_fix_lines = render_twice('tmp/logs/test/run.log',
-                                                  lambda: _render('full'))
-        terminal_text, _          = render_twice('terminal report',
-                                                  lambda: _render('terminal', full_text))
-        xref_csv_text = render_twice('rsc/test/xref.csv', lambda: xref.render_csv(xref_rows))
-    except RenderNotPureError as exc:
-        print(f'ERROR: {exc}', file=sys.stderr)
-        sys.exit(1)
+    # Render every surface from this run's results. Nothing is written here —
+    # not the committed artifacts, not the machine-local log — that decision
+    # belongs to main()'s settle loop (#249), which alone knows what is on disk.
+    committed_text, _         = _render('committed')
+    full_text, full_fix_lines = _render('full')
+    terminal_text, _          = _render('terminal', full_text)
+    xref_csv_text             = xref.render_csv(xref_rows)
 
-    # Write the rendered committed-surface bytes. The staleness refusal (regenerated
-    # but unstaged) stays in run.sh, which diffs these against the index after this
-    # process exits.
-    (RSC / 'test' / 'run.log').write_text(committed_text)
-    (RSC / 'test' / 'xref.csv').write_text(xref_csv_text, newline='')
+    # The data tier is machine-local ("not recorded"): a stale capture on this
+    # machine is a fact about its data, not about the change being committed.
+    # Data failures are reported in the WARN tail and the log, but only code/schema/score
+    # failures veto the exit status — otherwise local data drift would fail every
+    # run everywhere. This tier rule is now the ONLY thing standing between local
+    # data drift and a blocked commit. A veto that softens on feature branches reads
+    # the branch name to decide how much to mean it, which puts the axis in the wrong
+    # place. What is machine-local never gates;
+    # what is deterministic always does. The axis is the tier, not the branch.
+    gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
+
+    return RunOnce(
+        committed_text=committed_text,
+        xref_csv_text=xref_csv_text,
+        full_text=full_text,
+        terminal_text=terminal_text,
+        full_fix_lines=full_fix_lines,
+        has_failures=bool(failures),
+        has_gating_failures=bool(gating),
+    )
+
+
+def _on_disk(path: Path, newline: str | None) -> str | None:
+    """The committed artifact's current bytes, or None if it does not exist yet —
+    a missing file can never equal an in-memory result, so it always takes the
+    settle loop's write-and-confirm branch (#249)."""
+    try:
+        return path.read_text(newline=newline)
+    except OSError:
+        return None
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--fix', action='store_true')
+    ap.add_argument('--fresh', action='store_true',
+                    help='ignore the section cache: re-run every check')
+    args = ap.parse_args()
+
+    committed_path = RSC / 'test' / 'run.log'
+    xref_path      = RSC / 'test' / 'xref.csv'
+
+    # THE SETTLE LOOP (#249) — replaces both the deleted double-render witness
+    # and the deleted double-run guard with one discipline: check and render
+    # build every output in memory; a committed artifact is written only when
+    # its bytes differ from what is already on disk, and a write is trusted
+    # only once a GENUINELY FRESH recomputation (no section-cache replay, ever,
+    # regardless of --fresh) agrees with what was just written. A clean tree
+    # settles on the first run, with zero writes and no mtime disturbed. A
+    # changed tree writes, confirms once; if the confirmation still differs it
+    # writes again and confirms a second time — at most three runs total, two
+    # stability diffs, short-circuiting at the first match either way. A result
+    # that still will not settle after that budget is a fault, not a commit:
+    # the run exits non-zero naming the file, and nothing further is written.
+    run_result = _run_once(allow_replay=not args.fresh)
+    disk_committed = _on_disk(committed_path, None)
+    disk_xref      = _on_disk(xref_path, '')
+
+    settled_result: RunOnce | None = None
+    written_committed, written_xref = disk_committed, disk_xref
+
+    if run_result.committed_text == disk_committed and run_result.xref_csv_text == disk_xref:
+        settled_result = run_result
+    else:
+        pending = run_result
+        for _ in range(2):   # at most two confirmation runs
+            committed_path.write_text(pending.committed_text)
+            xref_path.write_text(pending.xref_csv_text, newline='')
+            written_committed, written_xref = pending.committed_text, pending.xref_csv_text
+            confirmed = _run_once(allow_replay=False)
+            if confirmed.committed_text == written_committed \
+                    and confirmed.xref_csv_text == written_xref:
+                settled_result = confirmed
+                break
+            pending = confirmed
+        else:
+            run_result = pending   # unsettled — reported below, never staged
+
+    fault_files = [] if settled_result is not None else [
+        name for name, current, written in (
+            ('rsc/test/run.log', run_result.committed_text, written_committed),
+            ('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),
+        ) if current != written
+    ]
+    final = settled_result if settled_result is not None else run_result
+
+    # The machine-local log and the terminal report are per-run emissions —
+    # unlike the committed artifacts, nothing gates whether they are written;
+    # they always describe this invocation's final (settled or faulted) state.
     machine_log = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run.log'
     machine_log.parent.mkdir(parents=True, exist_ok=True)
-    machine_log.write_text(full_text)
+    machine_log.write_text(final.full_text)
 
-    print(terminal_text, end='')
+    print(final.terminal_text, end='')
 
-    if failures and args.fix and full_fix_lines:
+    if fault_files:
+        print(f"ERROR: these results will not settle: {', '.join(fault_files)}",
+              file=sys.stderr)
+        sys.exit(1)
+
+    if final.has_failures and args.fix and final.full_fix_lines:
         print()
         print('Running fixes:')
-        for ps, cmd, gs in full_fix_lines:
+        for ps, cmd, gs in final.full_fix_lines:
             for p in ps[:3]:
                 print(f'  ✗ {p}')
             if cmd is None:
@@ -2876,27 +2826,17 @@ def main():
         # to say.
         #
         # This run's own exit code and the artifacts it just wrote are the
-        # PRE-fix verdict — checking happens before this loop runs, and render
-        # already wrote rsc/test/run.log and rsc/test/xref.csv from that
-        # pre-fix state (#249: one run, no second pass to re-check what the
-        # fixes changed). A reader who stops at this terminal's exit code sees
-        # the failures the fixes just repaired, not the current truth — the
-        # prescription below is how they learn there is a truth still to check.
+        # PRE-fix verdict — checking happens before this loop runs, and the
+        # settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+        # from that pre-fix state. A reader who stops at this terminal's exit
+        # code sees the failures the fixes just repaired, not the current
+        # truth — the prescription below is how they learn there is a truth
+        # still to check.
         print('Fixes applied to the worktree — nothing staged. Review with '
               '`git diff`, stage what you meant, then verify:')
         print('    → run: yoga test run')
 
-    # The data tier is machine-local ("not recorded"): a stale capture on this
-    # machine is a fact about its data, not about the change being committed.
-    # Data failures are reported in the WARN tail and the log, but only code/schema/score
-    # failures veto the exit status — otherwise local data drift would fail every
-    # run everywhere. This tier rule is now the ONLY thing standing between local
-    # data drift and a blocked commit. A veto that softens on feature branches reads
-    # the branch name to decide how much to mean it, which puts the axis in the wrong
-    # place. What is machine-local never gates;
-    # what is deterministic always does. The axis is the tier, not the branch.
-    gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
-    sys.exit(1 if gating else 0)
+    sys.exit(1 if final.has_gating_failures else 0)
 
 
 if __name__ == '__main__':
