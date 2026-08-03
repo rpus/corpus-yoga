@@ -9,16 +9,16 @@
 # The seam for the enactment-guard tier (#256): the one place a future policy would gate,
 # warn, or attribute an act, because every act already passes through here. Not implemented.
 #
-# The wrapper RETURNS the status; it never exits — the caller decides, `enact ... || ...`,
-# even under set -e.
+# The wrapper RETURNS the status; the relay always prints, bare or `||`-tested alike,
+# even under set -e — the caller's own errexit then applies AFTER the relay, by the
+# caller's rules.
 
 enact() {
-  local printed
+  local printed status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   echo "enact: $printed" >&2
-  "$@"
-  local status=$?
+  "$@" && status=0 || status=$?
   if [[ "$status" -eq 0 ]]; then
     echo "done: $printed" >&2
   else
