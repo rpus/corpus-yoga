@@ -8,8 +8,8 @@
      commit messages, oldest first, and nothing else survives into git history.
      This body teaches the same sections plus the review-facing half.
 
-     Relations vocabulary: closes / enacts / advances / supersedes / reopens /
-     leaves open. The protection is LEXICAL: every relation but one only REFERS —
+     Relations vocabulary: closes / enacts / advances / supersedes / reopens.
+     The protection is LEXICAL: every relation but one only REFERS —
      `#N` alone never enacts, whatever section it sits in. `closes #N` is the
      vocabulary's one ENACTING word, parser-aligned: the forge executes it at
      merge, atomically, wherever it appears (the parser is position-blind — the
@@ -61,4 +61,4 @@
   forge merge ends by running `yoga prerequisites`, so machine-local adoption belongs
   in its report: state it cannot see is a species to add (the mount precedent), not
   prose to remember>
-- **do** — <what this raises, advances, or leaves open, with its issue>
+- **do** — <what this raises or advances, with its issue>
