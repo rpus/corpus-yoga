@@ -1999,7 +1999,12 @@ def check_render_purity(run) -> None:
 
     def poisoned_render() -> str:
         calls.append(len(calls))
-        return f'render purity self-test probe {time.monotonic_ns()}'
+        # The call counter, not only the clock: on a coarse-clock platform two
+        # calls close enough together can read the same monotonic_ns(), which
+        # would make the probe agree with itself and fail the gate spuriously.
+        # The counter makes the difference deterministic; the clock stays for
+        # a human skimming the failure, not for the assertion's correctness.
+        return f'render purity self-test probe {len(calls)} {time.monotonic_ns()}'
 
     artifact = 'render purity self-test (poisoned probe)'
     fired, named, detail = False, False, None
