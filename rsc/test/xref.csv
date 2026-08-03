@@ -628,6 +628,8 @@ src/test/run.py,2202,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md 
 src/test/run.py,2202,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
 src/test/run.py,2378,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
 src/test/run.py,2468,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/run.py,2795,comment,rsc/test/run.log,Y,# already wrote rsc/test/run.log and rsc/test/xref.csv from that
+src/test/run.py,2795,comment,rsc/test/xref.csv,Y,# already wrote rsc/test/run.log and rsc/test/xref.csv from that
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,6,comment,src/test/run.sh,Y,#   src/test/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/run.sh,35,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log

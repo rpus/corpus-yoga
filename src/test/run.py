@@ -2789,8 +2789,17 @@ def main():
         # `git add -p` destroys that state with nothing to restore it from. The
         # fixes are in the worktree; what enters the commit stays the operator's
         # to say.
+        #
+        # This run's own exit code and the artifacts it just wrote are the
+        # PRE-fix verdict — checking happens before this loop runs, and render
+        # already wrote rsc/test/run.log and rsc/test/xref.csv from that
+        # pre-fix state (#249: one run, no second pass to re-check what the
+        # fixes changed). A reader who stops at this terminal's exit code sees
+        # the failures the fixes just repaired, not the current truth — the
+        # prescription below is how they learn there is a truth still to check.
         print('Fixes applied to the worktree — nothing staged. Review with '
-              '`git diff`, stage what you meant, then re-run run.sh to verify.')
+              '`git diff`, stage what you meant, then verify:')
+        print('    → run: yoga test run')
 
     # The data tier is machine-local ("not recorded"): a stale capture on this
     # machine is a fact about its data, not about the change being committed.

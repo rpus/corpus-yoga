@@ -1,4 +1,4 @@
-run.py: 1936/1936 (data: machine-local)
+run.py: 1938/1938 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ run.py: 1936/1936 (data: machine-local)
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
-  ✓ output.prescriptions_are_commands  (70/70)
+  ✓ output.prescriptions_are_commands  (72/72)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -159,7 +159,7 @@ run.py: 1936/1936 (data: machine-local)
 stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_xref                             2     0     0   ok         7
-check_cli_surface                    446     0     0   ok        11
+check_cli_surface                    448     0     0   ok        11
 check_effects                          1     0     0   ok        43
 check_cache_io                        18     0     0   ok        46
 check_accumulate_contract              1     0     0   ok        52
@@ -179,11 +179,11 @@ check_score                            5     0     0   ok       153
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 89 types, 1936/1936 invocations passing
+  ✓ checks[code+schema]: 89 types, 1938/1938 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 53 types, 495/495 invocations passing
+  ✓ checks[code]: 53 types, 497/497 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1936/1936 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1938/1938 match the committed expectation; nothing here vetoes a commit
