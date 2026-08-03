@@ -452,6 +452,11 @@ main() {
   fi
   echo "Run yoga test run, then: git diff rsc/test/run.log"
   echo "Log: $LOG_FILE"
+  # The verdict must LEAVE this function. Every failing pipeline's status was already
+  # collected here and printed; falling off the end returned the status of the last
+  # echo, so `yoga pipeline run && yoga test run` chained past failures as though the
+  # run had succeeded — printed and discarded is worse than unnoticed.
+  return $(( ${#pipeline_failures[@]} > 0 ))
 }
 
 # The noun's own dispatch. Bare is STATUS — read-only, writes nothing, runs no pipeline —
@@ -477,4 +482,6 @@ parse_args "$@"
 # shellcheck disable=SC2031  # this reads parse_args' plan; print_plan's subshell plan=1 is deliberately confined
 if [[ -n "$plan" ]]; then print_plan; exit 0; fi
 mkdir -p "$(dirname "$LOG_FILE")"
+# `set -o pipefail` makes the pipeline's status the first non-zero in it, so main's
+# verdict survives the tee rather than being replaced by tee's own success.
 main "$@" 2>&1 | tee "$LOG_FILE"
