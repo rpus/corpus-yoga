@@ -27,42 +27,42 @@
 # wrapped command's own streams if unwanted; never the narrative's.
 
 enact() {
-  local printed status
+  local printed exit_status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   echo "enact: $printed" >&2
-  "$@" && status=0 || status=$?
-  if [[ "$status" -ne 0 ]]; then
-    echo "NOT done (exit $status): $printed" >&2
+  "$@" && exit_status=0 || exit_status=$?
+  if [[ "$exit_status" -ne 0 ]]; then
+    echo "NOT done (exit $exit_status): $printed" >&2
   fi
-  return "$status"
+  return "$exit_status"
 }
 
 query() {
-  local printed answer status
+  local printed answer exit_status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   echo "query: $printed" >&2
-  answer="$("$@")" && status=0 || status=$?
-  if [[ "$status" -eq 0 ]]; then
+  answer="$("$@")" && exit_status=0 || exit_status=$?
+  if [[ "$exit_status" -eq 0 ]]; then
     echo "= $answer" >&2
     printf '%s\n' "$answer"
   else
-    echo "NOT done (exit $status): $printed" >&2
+    echo "NOT done (exit $exit_status): $printed" >&2
   fi
-  return "$status"
+  return "$exit_status"
 }
 
 quiet() {
-  local printed answer status
+  local printed answer exit_status
   printed="$(printf '%q ' "$@")"
   printed="${printed% }"
   echo "quiet: $printed" >&2
-  answer="$("$@")" && status=0 || status=$?
-  if [[ "$status" -eq 0 ]]; then
+  answer="$("$@")" && exit_status=0 || exit_status=$?
+  if [[ "$exit_status" -eq 0 ]]; then
     printf '%s\n' "$answer"
   else
-    echo "NOT done (exit $status): $printed" >&2
+    echo "NOT done (exit $exit_status): $printed" >&2
   fi
-  return "$status"
+  return "$exit_status"
 }
