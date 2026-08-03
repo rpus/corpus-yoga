@@ -30,16 +30,16 @@ class SendRefused(RuntimeError):
     The sentence is composed here, once, so no raise site can word the refusal
     differently and every catcher can print the exception unadorned."""
 
-    def __init__(self, what):
+    def __init__(self, what: str) -> None:
         super().__init__(f'{SWITCH}=1 refuses this send: {what}')
 
 
-def may_send():
+def may_send() -> bool:
     """Whether outward calls are permitted at all. The only reading of the environment."""
     return os.environ.get(SWITCH) != '1'
 
 
-def assert_may_send(what):
+def assert_may_send(what: str) -> None:
     """Refuse loudly, for a send that IS the work. `what` names the call being refused."""
     if not may_send():
         raise SendRefused(what)
