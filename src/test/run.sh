@@ -20,7 +20,8 @@
 # read) is stat-unchanged (#68). run.py checks (tree -> results; a check writes no
 # artifacts), then renders every surface — the committed log, the terminal report,
 # the machine-local copy, and the xref table — as a pure function of the results.
-# The gate SETTLES rather than double-rendering (#249): one run on a clean tree,
+# The gate writes only when the results have changed, and only after a fresh
+# run agrees with what it wrote (#249): one run on a clean tree,
 # zero writes; a changed tree writes the new values and confirms with a genuinely
 # fresh run (the section cache bypassed internally, regardless of --fresh) — at
 # most three runs total, short-circuiting the moment a run agrees with what was

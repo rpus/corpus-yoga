@@ -632,13 +632,13 @@ src/test/run.py,2830,comment,rsc/test/run.log,Y,# settle loop above already wrot
 src/test/run.py,2830,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/run.sh,5,comment,src/test/run.sh,Y,#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/run.sh,6,comment,src/test/run.sh,Y,#   src/test/run.sh --fresh     # ignore the section cache: re-run every check
-src/test/run.sh,35,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
-src/test/run.sh,77,comment,rsc/test/pre-commit-hook.sh,Y,"# The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an"
-src/test/run.sh,84,call,rsc/test/pre-commit-hook.sh,Y,"if [[ -n ""$hook_path"" ]] && ! cmp -s ""$hook_path"" ""$REPO_DIR/rsc/test/pre-commit-hook.sh""; then"
-src/test/run.sh,110,comment,rsc/test/run.log,Y,"# #249) — writes its own committed artifacts (rsc/test/run.log,"
-src/test/run.sh,111,comment,rsc/test/xref.csv,Y,"# rsc/test/xref.csv) plus the full report to tmp/logs/test/run.log, prints the"
-src/test/run.sh,116,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || rc=$?"
-src/test/run.sh,116,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || rc=$?"
+src/test/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
+src/test/run.sh,78,comment,rsc/test/pre-commit-hook.sh,Y,"# The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an"
+src/test/run.sh,85,call,rsc/test/pre-commit-hook.sh,Y,"if [[ -n ""$hook_path"" ]] && ! cmp -s ""$hook_path"" ""$REPO_DIR/rsc/test/pre-commit-hook.sh""; then"
+src/test/run.sh,111,comment,rsc/test/run.log,Y,"# #249) — writes its own committed artifacts (rsc/test/run.log,"
+src/test/run.sh,112,comment,rsc/test/xref.csv,Y,"# rsc/test/xref.csv) plus the full report to tmp/logs/test/run.log, prints the"
+src/test/run.sh,117,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || rc=$?"
+src/test/run.sh,117,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || rc=$?"
 src/test/schema_recommendations.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
 src/test/schema_recommendations.py,7,comment,src/test/schema_recommendations.py,Y,src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
 src/test/test.sh,25,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
