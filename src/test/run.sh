@@ -19,13 +19,13 @@
 # Sections replay from tmp/cache/test/ when their declared SUBJECT (the files they
 # read) is stat-unchanged (#68). run.py checks (tree -> results; a check writes no
 # artifacts), then renders every surface — the committed log, the terminal report,
-# the machine-local copy, and the xref table — as a pure function of the results,
-# double-rendering each in-process and byte-comparing before writing anything (the
-# purity witness, #249): a render that is not a pure function of its results names
-# itself and fails the run that finds it, which is what makes ONE run here enough —
-# idempotence needs no second full pass to witness it once render cannot see the
-# clock. check_render_purity poisons a copy of that witness on every run to prove
-# it still fires.
+# the machine-local copy, and the xref table — as a pure function of the results.
+# The gate SETTLES rather than double-rendering (#249): one run on a clean tree,
+# zero writes; a changed tree writes the new values and confirms with a genuinely
+# fresh run (the section cache bypassed internally, regardless of --fresh) — at
+# most three runs total, short-circuiting the moment a run agrees with what was
+# just written. Results that will not settle within that budget are a fault, not
+# a commit: the run exits non-zero naming the file. Nothing is ever staged.
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
