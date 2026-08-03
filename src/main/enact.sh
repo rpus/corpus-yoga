@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 # enact.sh — the shell face of the echo-execute-trap-relay primitive (sourced, not executed).
 #
-# The one function every external command runs through: echo it, execute it, trap its
+# The one function every external command should run through: echo it, execute it, trap its
 # status, relay the verdict. Verbatim streams — the wrapped command's stdout and stderr
 # flow to the caller's own, uncaptured. The narrative (the echo, the verdict) goes to
 # stderr, so `out=$(enact cmd...)` captures exactly the command's own stdout.
