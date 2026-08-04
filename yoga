@@ -28,17 +28,8 @@ else
   exit 1
 fi
 
-# Piped or redirected, stdout is a program's input and stays exactly what the command
-# wrote — `yoga pipeline | awk '{print $1}'` reads pipeline names, not a git status. That
-# path keeps exec too, so nothing sits between the reader and the command it is reading.
-[[ -t 1 ]] || exec "$@"
-
-# A terminal is reading: run the command and outlive it by one line. Signals still reach
-# it — it shares this shell's foreground process group — and its exit status is passed on
-# unchanged, so `yoga test run && git commit` behaves as it always did.
-status=0
-"$@" || status=$?
-echo
-echo "this checkout, now:"
-git -C "$SCRIPT_DIR" status
-exit "$status"
+# Nothing sits between the reader and the command it is reading: stdout is the command's
+# own, whether a terminal or a program is reading it, and the entrypoint outlives nothing.
+# A coda belongs to a verb that MOVED the checkout — forge merge ends with git status for
+# that reason — not to every command, most of which change nothing to report on (#324).
+exec "$@"
