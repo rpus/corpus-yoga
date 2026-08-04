@@ -4,8 +4,8 @@
   "calculus": "validate",
   "args": [],
   "sends": [
-    "gh api repos/{owner}/{repo} — reads the live settings (bare, sync, merge)",
-    "gh pr list --state all — reads every PR (bare, merge, prune)",
+    "gh api repos/{owner}/{repo} — reads the live settings (bare, sync)",
+    "gh pr list --state all — reads every PR (bare, prune)",
     "gh repo view — reads the default branch",
     "git remote prune --dry-run origin — asks the remote which tracking refs are gone"
   ]

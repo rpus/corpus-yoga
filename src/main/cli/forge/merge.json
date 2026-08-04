@@ -1,21 +1,16 @@
 {
-  "help": "reconcile the forge settings, then squash-merge that PR — no message flags, so the body is assembled from the branch's commits and keeps their signatures",
+  "help": "squash-merge that PR pinned to its inspected head, then converge this checkout: base checked out, fetched, fast-forwarded — no message flags, so the body is assembled from the branch's commits and keeps their signatures",
   "args": [
     {
       "name": "pr",
       "type": "<pr>",
       "cardinality": "1",
       "help": "the PR to merge: a number, a URL, or a branch"
-    },
-    {
-      "name": "--dry-run",
-      "type": "",
-      "cardinality": "",
-      "help": "check everything and print the message that would land; merge nothing"
     }
   ],
   "sends": [
-    "gh pr view — reads the PR before anything irreversible",
-    "gh pr merge --squash — WRITES the merge (refused loudly under YOGA_NO_SEND)"
+    "gh pr view — reads the PR's head before the irreversible step",
+    "gh pr merge --squash — WRITES the merge (refused loudly under YOGA_NO_SEND)",
+    "git fetch origin — reads the squash back so the base can fast-forward"
   ]
 }

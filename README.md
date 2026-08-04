@@ -68,9 +68,11 @@ the same `./yoga test install-hook` — it installs both.
 
 ## Contributing
 
-Merge with `./yoga forge merge <pr>`. It reconciles the forge's settings against
-`src/main/cli/forge/forge.csv` first and refuses on drift — so main's history is never composed by
-rules nobody declared — and then squash-merges with **no message flags**, because
+Merge with `./yoga forge merge <pr>`. It is a straight line of echoed commands — read
+the head, squash-merge pinned to it, return to the base, fetch, fast-forward — and every
+refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
+declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and
+`yoga forge sync`), never in the wrapper. It squash-merges with **no message flags**, because
 `squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
 branch's commits and keeps each one's `Signature:` line, the join key into the
 captured session corpus. A hand-written `--body` discards them all.
