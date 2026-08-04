@@ -401,7 +401,7 @@ merge() {
   && enact git -C "$REPO_DIR" fetch origin \
   && enact git -C "$REPO_DIR" merge --ff-only "$landed" \
   && prune --apply \
-  && quote git -C "$REPO_DIR" status --short --branch
+  && quote git -C "$REPO_DIR" status
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
