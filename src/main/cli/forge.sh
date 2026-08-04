@@ -385,17 +385,17 @@ merge() {
   local pr="${1:?yoga forge merge <pr>}"
   local oid base head landed
   status \
-    && assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)" \
-    && read -r oid base head < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName,headRefName --jq '"\(.headRefOid) \(.baseRefName) \(.headRefName)"') \
-    && enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
-    && enact git -C "$REPO_DIR" merge-base --is-ancestor "origin/$base" "$oid" \
-    && enact git -C "$REPO_DIR" checkout "$base" \
-    && (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") \
-    && landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)" \
-    && enact git -C "$REPO_DIR" fetch origin \
-    && enact git -C "$REPO_DIR" merge --ff-only "$landed" \
-    && prune --apply \
-    && quote git -C "$REPO_DIR" status --short --branch
+  && assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)" \
+  && read -r oid base head < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName,headRefName --jq '"\(.headRefOid) \(.baseRefName) \(.headRefName)"') \
+  && enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
+  && enact git -C "$REPO_DIR" merge-base --is-ancestor "origin/$base" "$oid" \
+  && enact git -C "$REPO_DIR" checkout "$base" \
+  && (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") \
+  && landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)" \
+  && enact git -C "$REPO_DIR" fetch origin \
+  && enact git -C "$REPO_DIR" merge --ff-only "$landed" \
+  && prune --apply \
+  && quote git -C "$REPO_DIR" status --short --branch
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
