@@ -3,11 +3,21 @@
   "target": "src/main/cli/forge/forge.sh",
   "calculus": "validate",
   "args": [],
-  "sends": [
-    "gh api repos/{owner}/{repo} — reads the live settings (bare, sync)",
-    "gh pr list --state all — reads every PR (bare, prune)",
-    "gh repo view — reads the default branch",
-    "git remote prune --dry-run origin — asks the remote which tracking refs are gone",
-    "git fetch --quiet origin <branch> — reads this checkout's own upstream (status)"
-  ]
+  "sends": {
+    "gh api repos/{owner}/{repo}": [
+      "reads the live settings, for the report and for sync"
+    ],
+    "gh pr list --state all": [
+      "reads every PR, for the branch roster the report and prune share"
+    ],
+    "gh repo view": [
+      "reads the default branch, when the base is not given"
+    ],
+    "git remote prune --dry-run origin": [
+      "asks the remote which tracking refs it has dropped"
+    ],
+    "git fetch --quiet origin <branch>": [
+      "reads this checkout's own upstream, for the checkout row"
+    ]
+  }
 }

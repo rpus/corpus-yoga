@@ -1,14 +1,16 @@
 {
-  "help": "make the forge settings agree with src/main/cli/forge/forge.csv — a dry run unless --apply, because it writes outside the repo",
+  "help": "make the forge settings agree with src/main/cli/forge/forge.csv \u2014 a dry run unless --apply, because it writes outside the repo",
   "args": [
     {
       "name": "--apply",
       "type": "",
       "cardinality": "",
-      "help": "perform the PATCHes — without it, the drift and the commands are only reported"
+      "help": "perform the PATCHes \u2014 without it, the drift and the commands are only reported"
     }
   ],
-  "sends": [
-    "gh api -X PATCH repos/{owner}/{repo} — WRITES settings others see (--apply only; refused loudly under YOGA_NO_SEND)"
-  ]
+  "sends": {
+    "gh api -X PATCH repos/{owner}/{repo}": [
+      "WRITES settings others see (--apply only; refused loudly under YOGA_NO_SEND)"
+    ]
+  }
 }

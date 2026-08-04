@@ -1,14 +1,16 @@
 {
-  "help": "make this machine satisfy what the report names — a dry run unless --apply, because it writes outside the repo (the venv, the hook)",
+  "help": "make this machine satisfy what the report names \u2014 a dry run unless --apply, because it writes outside the repo (the venv, the hook)",
   "args": [
     {
       "name": "--apply",
       "type": "",
       "cardinality": "",
-      "help": "perform the installs — without it, the distilled to-do list and what would be done"
+      "help": "perform the installs \u2014 without it, the distilled to-do list and what would be done"
     }
   ],
-  "sends": [
-    "pip install from PyPI when the venv lacks packages (--apply only; refused loudly under YOGA_NO_SEND)"
-  ]
+  "sends": {
+    "pip install": [
+      "installs the requirements from PyPI when the venv lacks them (--apply only; refused loudly under YOGA_NO_SEND)"
+    ]
+  }
 }

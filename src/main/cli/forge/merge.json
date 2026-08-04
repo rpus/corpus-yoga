@@ -8,12 +8,26 @@
       "help": "the PR to merge: a number, a URL, or a branch"
     }
   ],
-  "sends": [
-    "gh pr view \u2014 reads the PR's base, head branch and mergeability before anything else, its head after the rebase, and the merge commit after the squash",
-    "git fetch origin <base> <head> \u2014 reads both refs before the rebase",
-    "git push --force-with-lease \u2014 WRITES the rebased head back to the PR (refused loudly under YOGA_NO_SEND)",
-    "gh pr merge --squash \u2014 WRITES the merge (refused loudly under YOGA_NO_SEND)",
-    "git push origin --delete \u2014 prune --apply, sweeping the server branches this merge and its siblings left (refused loudly under YOGA_NO_SEND)",
-    "git fetch origin \u2014 reads the squash back so the base can fast-forward"
-  ]
+  "sends": {
+    "gh pr view": [
+      "reads the PR's base, head branch and mergeability, before anything else",
+      "reads its head again after the rebase, to pin the squash to what rebase produced",
+      "reads the merge commit after the squash, to converge this checkout on it"
+    ],
+    "git fetch origin <base> <head>": [
+      "reads both refs before the rebase"
+    ],
+    "git push --force-with-lease": [
+      "WRITES the rebased head back to the PR (refused loudly under YOGA_NO_SEND)"
+    ],
+    "gh pr merge --squash": [
+      "WRITES the merge (refused loudly under YOGA_NO_SEND)"
+    ],
+    "git push origin --delete": [
+      "prune --apply, sweeping the server branches this merge and its siblings left (refused loudly under YOGA_NO_SEND)"
+    ],
+    "git fetch origin": [
+      "reads the squash back so the base can fast-forward"
+    ]
+  }
 }
