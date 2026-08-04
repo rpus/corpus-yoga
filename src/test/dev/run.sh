@@ -2,8 +2,8 @@
 # run.sh (yoga test run) — the three-tier check suite; also the pre-commit hook.
 #
 # Usage:
-#   src/test/run.sh [--fix]    # --fix runs every fix command; stages nothing
-#   src/test/run.sh --fresh     # ignore the section cache: re-run every check
+#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
+#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 #   yoga test install-hook                        # install as the hook
 #
 # ONE behaviour, however it is called: it asks neither what it was invoked as nor
@@ -38,7 +38,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 
 # Gate the COMMITTING TREE, not this script's home. Worktrees share the main
 # checkout's hooks, and the hook symlink resolves HERE — so before this guard,
@@ -54,16 +54,23 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # could be about to commit. Manual runs from this repo are unaffected
 # (toplevel == this repo). the prepare-commit-msg hook stays home-anchored on purpose:
 # the machine binding it reads is machine-scoped and absent from worktrees.
+# A root this script computed is not a root until something says so: a climb left
+# short by a move makes REPO_DIR unequal to every toplevel, and the re-exec below
+# then hands the same file back to itself. exec replaces the process image, so a
+# loop of them consumes no memory, no PIDs and no stack — nothing above this script
+# can see it, and the gate HANGS rather than fails. Assert the root, and never
+# re-exec this very file: -ef is the same-file test, which is what the guard means.
+[[ -f "$REPO_DIR/yoga" ]] || { echo "ERROR: $REPO_DIR is not a repo root — this script's climb is wrong." >&2; exit 1; }
 TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
-  if [[ -x "$TOPLEVEL/src/test/run.sh" ]]; then
-    exec "$TOPLEVEL/src/test/run.sh" "$@"
+  if [[ -x "$TOPLEVEL/src/test/dev/run.sh" ]] && ! [[ "$TOPLEVEL/src/test/dev/run.sh" -ef "${BASH_SOURCE[0]}" ]]; then
+    exec "$TOPLEVEL/src/test/dev/run.sh" "$@"
   fi
   # REFUSE, never fall through (PR #25 review): running the home gate against
   # the home tree inside the other tree's git context is exactly the chimera
   # this guard abolishes — a fallthrough would restore it silently, with the
   # same unsatisfiable ERROR that cost a day. A loud refusal is recoverable.
-  echo "ERROR: cannot gate $TOPLEVEL — no executable src/test/run.sh there." >&2
+  echo "ERROR: cannot gate $TOPLEVEL — no executable src/test/dev/run.sh there." >&2
   echo "       Restore that tree's gate (or commit from a tree that has one);" >&2
   echo "       this home gate will not gate a different tree." >&2
   exit 1
@@ -114,7 +121,7 @@ main() {
   # report goes to tmp/logs/test/run.log, the terminal tail prints here, and
   # the exit code is the verdict.
   local rc=0
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/run.py" "$@" || rc=$?
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/run.py" "$@" || rc=$?
 
   # The artifacts' currency, guarded without touching anything. Deleting the old
   # `git add` deleted a guarantee along with the rudeness: it silently ensured

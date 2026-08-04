@@ -6,7 +6,7 @@ For every enum subschema lacking "type", infer the (single) type from its values
 (not a json.dump round-trip) so the rest of the file's formatting -- e.g. hand-compacted
 {"type": "null"} objects -- is left untouched. One inserted line per fixed enum.
 
-Usage: python src/test/repairs/structure.enum_refines_explicit_type.py <schema>
+Usage: python src/test/dev/repairs/structure.enum_refines_explicit_type.py <schema>
 """
 import json
 import re

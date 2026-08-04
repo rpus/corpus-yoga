@@ -365,7 +365,7 @@ check_signature_hook() {
   # The hook lives in the git COMMON dir, which every worktree shares, and its link is
   # relative to that dir — so it names the tree owning the git dir, which need not be this
   # one. That is correct as it stands: run.sh re-execs the committing tree's own gate
-  # (src/test/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
+  # (src/test/dev/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
   # a to-do in every worktree and prescribe a reinstall that writes the identical link.
   script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/rsc/test/prepare-commit-msg-hook.sh"
   if [[ -L "$hook" ]]; then

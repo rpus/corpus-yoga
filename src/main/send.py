@@ -16,7 +16,7 @@ difference reads as a decision rather than an oversight:
                      so refusal must not veto a commit; the caller skips and passes
 
 The environment is read in exactly one place, here, held by effects.send_switch_read_once
-in src/test/run.py. Two readings of one switch is how the polarity of `== '1'` and `!= '1'`
+in src/test/dev/run.py. Two readings of one switch is how the polarity of `== '1'` and `!= '1'`
 gets to disagree.
 """
 import os

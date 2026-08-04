@@ -1,0 +1,85 @@
+# Contributing
+
+
+Merge with `./yoga forge merge <pr>`. It is a straight line of echoed commands — read
+the head, squash-merge pinned to it, return to the base, fetch, fast-forward — and every
+refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
+declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and
+`yoga forge sync`), never in the wrapper. It squash-merges with **no message flags**, because
+`squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
+branch's commits and keeps each one's `Signature:` line, the join key into the
+captured session corpus. A hand-written `--body` discards them all.
+
+`./yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
+can see what the forge does to a merge without having to merge one to find out; and
+`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+printing a `gh` command for someone to copy. It is `--apply`-gated because it writes
+outside the repo, to a server other people see.
+
+Squash-only PRs (enforced by forge settings). main carries one narrated commit per
+landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
+commits — the squash keeps every one of their messages and signatures.
+
+An issue states what *should* be true; a PR that closes it reads as the claim that it
+now is. Where that claim is a standing property the code must keep — not a one-off
+change — make it a named check in `src/test/dev/run.py`, labelled for the property
+and the issue, so the PR asserts a compliance the gate can see and a later regression
+trips a check that names what it broke. #22 is the worked example: the issue states the
+`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and
+`check_accumulate_contract` (labelled `accumulate: the CALCULUS trajectory contract
+(#22)`) holds the code to it — its own commit verified it by breaking the rule and
+watching the check fail. A guarantee whose only witness is a pull-request description is
+not guarded.
+
+Merge with the bare command — **no message flags**:
+
+```bash
+gh pr merge <n> --squash
+```
+
+Do NOT pass `--subject` or `--body`. The forge sets `squash_merge_commit_message:
+COMMIT_MESSAGES`, so GitHub composes the squash commit from the branch's commit
+messages — which carry each `Signature:` trailer. A custom body overrides that
+composition: the signature never reaches main, and the `Co-Authored-By` line the
+commit hook strips locally survives instead — an unsigned, co-authored commit on
+main. Write the record in the commits; the pull-request description is review
+conversation, not the record.
+
+Every commit is signed `Signature: machine/provider/session` by the local
+`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the
+model co-author (it is derivable from the session).
+
+A merge conflict is almost always confined to the check's four regenerated artifacts,
+in two pairs — a derived file and the curated expectation beside it:
+
+- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+
+Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds
+nothing but these four, the resolution is **syntactic** — take either side of the whole
+directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+markers, then run `./yoga test run`: it rewrites the two derived files, and reports the
+live counts the two curated ones should hold — `yoga test run` prints `expected X, got Y`,
+`xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
+check reports, stage what it rewrote, and run once more to confirm the gate is green. The
+check computes the merged numbers; your job is to run it.
+
+This works because the generated files absorb only the counting. A real conflict — two
+branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,
+a schema file), where git makes you look at it, never inside `rsc/test/`. Since the
+artifacts have their own directory now, the two cases are told apart by path: a conflict in
+`rsc/test/` is syntactic; one outside it is real.
+
+When a change's correctness depends on what a *fresh clone* sees — the expectation files
+above, the xref counts, or anything deriving from `.gitignore` (the xref scan's skip-roots
+do) — build it in a worktree outside the repo and run the gate from there rather than from
+your working checkout. A checkout carries machine-local leftovers the scan can see; a fresh
+worktree carries none, so the counts it reports are what a clone would report and not what
+one disk happens to hold. It also keeps the evidence independent: the PR text asserts, the
+diff shows, and the counts come from machinery that has read neither.
+
+The corollary matters more than the technique: **never delete local files to make a gate
+pass.** If a change would expose a machine's untracked leftovers to its own gate — dropping
+an ignore rule does exactly that — say so in the pull request and let each machine clear its
+own before the merge. Deleting state to get a green check destroys evidence and hides the
+obligation from the room that owes it.

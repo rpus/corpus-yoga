@@ -118,7 +118,7 @@ sync_matrices() {
   local p
   for p in $(pipelines); do
     should_run "$p" || continue
-    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/test/gen_changelog_matrix.py" \
+    "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/test/dev/gen_changelog_matrix.py" \
       --pipeline "$p" --write
   done
 }
