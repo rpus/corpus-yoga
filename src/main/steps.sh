@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# steps.sh — the step vocabulary shared by the pipeline runners (sourced,
+# steps.sh — the step vocabulary shared by the pipeline runners (sourced by bash,
 # not executed — hence a shell directive rather than a shebang).
 #
 # A runner's body is a FLAT list of step calls — first-order style: no nesting,

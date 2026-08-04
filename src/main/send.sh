@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# send.sh — the shell face of the send switch (sourced, not executed).
+# send.sh — the shell face of the send switch (sourced by bash, not executed).
 #
 # The ONE fact has two faces, one per language: src/main/send.py for python, this file for
 # bash — each the only reader of YOGA_NO_SEND in its language, both named by
