@@ -1,6 +1,6 @@
 {
   "summary": "what this machine has and what it still needs — bare reports, sync installs what is the repos to install",
-  "target": "src/prerequisites.sh",
+  "target": "src/main/cli/prerequisites/prerequisites.sh",
   "calculus": "L8",
   "args": [
     {

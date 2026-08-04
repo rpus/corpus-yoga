@@ -43,7 +43,7 @@ prints producer commands under `sync`); `subcommand` blank is command-level, `ar
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
 as a step of the named run pipeline (`chat-exports`), or of `pipeline.sh`'s whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
-input spans them all): the gate holds `src/main/pipeline.sh --plan` to
+input spans them all): the gate holds `src/main/cli/pipeline/pipeline.sh --plan` to
 invoking it by command AND verb, so the plan speaks the surface you would type and a step can
 never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
 files are written `QUOTE_ALL` so a comma in any cell is safe.

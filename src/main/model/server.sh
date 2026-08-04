@@ -31,7 +31,7 @@ status() {
     echo "serve_markdown daemon: not running"
   fi
   # render-asset presence — a bare file tally against the manifest (the authoritative
-  # readiness report, with versions, is src/prerequisites.sh's check_dependencies)
+  # readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)
   local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/ext/lib/serve_markdown"
   local total=0 present=0 line f
   while IFS= read -r line; do

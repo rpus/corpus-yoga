@@ -16,7 +16,7 @@
     },
     "step": {
       "type": "string",
-      "description": "Names the pipeline this verb is a corpus-wide step of, when it is one. src/main/pipeline.sh --plan must invoke it by command AND verb (G10)."
+      "description": "Names the pipeline this verb is a corpus-wide step of, when it is one. src/main/cli/pipeline/pipeline.sh --plan must invoke it by command AND verb (G10)."
     },
     "args": {
       "type": "array",

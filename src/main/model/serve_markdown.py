@@ -22,13 +22,13 @@ REPO_ROOT  = Path(__file__).resolve().parents[3]
 STATIC_DIR = REPO_ROOT / 'ext' / 'lib' / 'serve_markdown'  # pinned foreign artifacts, by copy
 # The viewer's render-lib dependency, declared like a requirements.txt (pinned
 # versions, one line per artifact) rather than buried in a dict here — so it is
-# visible and src/prerequisites.sh can report against the same source.
+# visible and src/main/cli/prerequisites/prerequisites.sh can report against the same source.
 MANIFEST   = Path(__file__).resolve().parent / 'serve_assets.txt'
 
 
 def assets() -> list[tuple[str, str]]:
     """Parse serve_assets.txt into [(dest-relative-to-STATIC_DIR, url)] — the one
-    source shared by ensure_assets (fetch) and src/prerequisites.sh (report)."""
+    source shared by ensure_assets (fetch) and src/main/cli/prerequisites/prerequisites.sh (report)."""
     out = []
     for line in MANIFEST.read_text().splitlines():
         line = line.strip()
