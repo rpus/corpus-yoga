@@ -96,8 +96,14 @@ superseding_force_push() {  # <pr-number> <tip>
 # `gh pr list` indexes every PR by its head branch; per-branch queries would cost a
 # round trip each to answer the same question.
 branches() {
-  command -v gh &>/dev/null || return 0
-  may_send || return 0
+  if ! command -v gh &>/dev/null; then
+    echo -e "UNVERIFIED\tforge\tgh not installed — branch/PR state on the forge unverified"
+    return
+  fi
+  if ! may_send; then
+    echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses this send: gh pr list (branch/PR state on the forge unverified)"
+    return
+  fi
   local prs
   prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
     --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
@@ -308,10 +314,11 @@ status() {
 # and diff on the forge independently of the branch, and the reasoning lives in its
 # thread, not in this checkout.
 prune() {
-  local apply="" st key detail n=0
+  local apply="" st key detail n=0 unverified=""
   [[ "${1-}" == "--apply" ]] && apply=1
   while IFS=$'\t' read -r st key detail; do
     case "$st" in
+      UNVERIFIED) unverified=1; continue ;;
       DELETABLE)
         n=$((n + 1))
         if [[ -n "$apply" ]]; then
@@ -341,6 +348,7 @@ prune() {
   local stale_rows ref
   stale_rows="$(stale_tracking)"
   while IFS=$'\t' read -r st ref _; do
+    if [[ "$st" == UNVERIFIED ]]; then unverified=1; continue; fi
     [[ "$st" == STALE ]] || continue
     n=$((n + 1))
     if [[ -n "$apply" ]]; then
@@ -350,7 +358,9 @@ prune() {
     fi
   done <<< "$stale_rows"
 
-  if [[ "$n" == 0 ]]; then
+  if [[ "$n" == 0 && -n "$unverified" ]]; then
+    echo 'could not tell — some rows are UNVERIFIED; see yoga forge for what and why'
+  elif [[ "$n" == 0 ]]; then
     echo 'nothing to prune — yoga forge says why for each branch it keeps'
   elif [[ -z "$apply" ]]; then
     echo "--- $n item(s); nothing removed. Add --apply to remove them"
