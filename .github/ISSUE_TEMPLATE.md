@@ -4,6 +4,11 @@
      PROTOTYPE you copy from — a stale clone's copy lags the remote until
      pulled, and nothing checks that.
 
+     The body opens with a Signature line, the same triad the commit hook
+     stamps (src/test/prepare_commit_msg.sh's header is the one authority for
+     the grammar): `Signature: <machine>/<provider>/<session>`. Written by
+     hand — no hook stamps a body — since raise time has no commit to hook.
+
      The grammar: an issue is a SHOULD. The title states it in one sentence —
      the property that should hold, never the instrument that should exist.
      The body separates what IS from what SHOULD BE, and the separation is
@@ -25,6 +30,8 @@
      citing this issue; and the issue should close only on demonstration that
      its should holds — never on the existence of an instrument named for
      it. -->
+
+Signature: <machine>/<provider>/<session>
 
 ## currently
 
