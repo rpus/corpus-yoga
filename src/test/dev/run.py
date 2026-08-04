@@ -54,6 +54,7 @@ RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
+CLI                      = SRC / 'main' / 'cli'
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — shared modules live at its root
 from validation_matrix import rows_from_logs  # noqa: E402
@@ -62,12 +63,12 @@ sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, bo
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
-sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + shared machinery)
+sys.path.insert(0, str(CLI))  # the yoga CLI cluster (dispatch + shared machinery)
 # A CLI-native command lives in its own directory (#307), so its module sits beside
 # the declarations that name it: import it from there, not from the cluster root.
-sys.path.insert(0, str(SRC / 'main' / 'cli' / 'cache'))
-sys.path.insert(0, str(SRC / 'main' / 'cli' / 'commands'))
-sys.path.insert(0, str(SRC / 'main' / 'cli' / 'completions'))
+sys.path.insert(0, str(CLI / 'cache'))
+sys.path.insert(0, str(CLI / 'commands'))
+sys.path.insert(0, str(CLI / 'completions'))
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
 import commands as cli_commands  # noqa: E402 — `yoga commands` answers itself here
 import completions as cli_completions  # noqa: E402 — and `yoga completions` here
@@ -1122,7 +1123,7 @@ def check_cli_surface(run) -> None:
     # when sync landed, two of them inside case arms my reclassification pass never
     # matched. The markers below are the unambiguous ones: "populate via" and "stash it"
     # sit on lines describing absent DATA, which is context, not a task.
-    prereq = (REPO_ROOT / 'src' / 'main' / 'cli' / 'prerequisites' / 'prerequisites.sh').read_text()
+    prereq = (CLI / 'prerequisites' / 'prerequisites.sh').read_text()
     REMEDY = ('→ run:', 'install via:', 'reinstall:', 'refresh:')
     mislabelled = [line.strip()[:80] for line in prereq.splitlines()
                    if 'info "' in line and any(m in line for m in REMEDY)]
@@ -1296,7 +1297,7 @@ def check_cli_surface(run) -> None:
     # one place the whole program is listed, and a bare label does not resolve there:
     # `validate` names a file in more than one pipeline. The line carries the path, so a reader needs
     # no rule about which namespace a label is in.
-    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), 'run', '--plan'],
+    plan = subprocess.run([str(CLI / 'pipeline' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     # A STEP LINE is identified by its SHAPE, not by what it happens to carry: plan_line
     # pads the label into a column, so a line with a gap of two or more spaces between two
@@ -1389,7 +1390,7 @@ def check_cli_surface(run) -> None:
     # Admitting .py/.sh leaves that species to xref: an unreferenced source moves the
     # committed score, and THAT is the check that objects — absorb a stray into the
     # xref expectation and nothing else here will.
-    cli_root = REPO_ROOT / 'src' / 'main' / 'cli'
+    cli_root = CLI  # noqa: kept as a local name for the checks below
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
                    if p.name not in ('README.md', 'readings.md', '__pycache__')
@@ -1524,7 +1525,7 @@ def check_cli_surface(run) -> None:
     stepped = cli.steps()
     if not stepped:
         return
-    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), '--plan'],
+    plan = subprocess.run([str(CLI / 'pipeline' / 'pipeline.sh'), '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     for s in stepped:
         cmd, sub = s['command'], s['subcommand']
@@ -1896,7 +1897,7 @@ def check_effects(run):
     step tag may nest inside `pipeline run`'s w (the pipeline writes through its
     steps; #157 will bind the tag to the pipeline it names); verbs of one command
     share its workshop; every other containment is two hands on one file."""
-    cli_root = REPO_ROOT / 'src' / 'main' / 'cli'
+    cli_root = CLI  # noqa: kept as a local name for the checks below
     claims = []
     for f in sorted(cli_root.glob('*/*.json')):
         d = json.loads(f.read_text())
