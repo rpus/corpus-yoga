@@ -404,7 +404,7 @@ check_forge() {
   # Sourced in the subshell this substitution already is: `reconcile` is the derivation
   # wanted, and only it runs. The subshell also keeps the two files' namespaces apart —
   # both define a `sync`, and forge.sh's must not become this script's.
-  done < <(source "$REPO_ROOT/src/main/cli/forge.sh"; reconcile 2>/dev/null)
+  done < <(source "$REPO_ROOT/src/main/cli/forge/forge.sh"; reconcile 2>/dev/null)
 }
 
 check_pipeline_inputs() {

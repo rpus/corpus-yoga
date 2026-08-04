@@ -22,7 +22,7 @@ STDLIB-ONLY.
 import csv
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
+REPO = Path(__file__).resolve().parents[4]
 REGISTRY = REPO / 'rsc' / 'cache_io.csv'
 COLUMNS = ('cache_path', 'pipeline', 'written_by', 'read_by', 'note')
 

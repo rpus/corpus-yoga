@@ -1,6 +1,6 @@
 {
   "summary": "each command's standard help (bare: every command's forms)",
-  "target": "src/main/cli/commands.py",
+  "target": "src/main/cli/commands/commands.py",
   "calculus": "project L5",
   "args": [
     {

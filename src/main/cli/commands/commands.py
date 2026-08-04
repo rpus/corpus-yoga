@@ -9,7 +9,7 @@ uniform and the declaration's `target` names something specific to this command.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from cli import commands, render_command_help, _forms  # noqa: E402
 
 

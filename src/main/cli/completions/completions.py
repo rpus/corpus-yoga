@@ -16,8 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))   # src/, for argparse_help
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))   # src/, for argparse_help
 from argparse_help import enrich  # noqa: E402
 from cli import (  # noqa: E402 — one reader of the declaration, and it is cli
     PATH_ARG_TYPES, REPO, commands, command_rows, subcommands_of, _subcommand_desc,
