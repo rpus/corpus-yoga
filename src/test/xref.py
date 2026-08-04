@@ -92,7 +92,7 @@ STDLIB_MODULES = sys.stdlib_module_names | _declared_modules()
 # token pattern and looks_like_repo_path derive from it. Restated at each site, the
 # list drifts a vintage per site. (The subprocess/exec
 # scan stays narrower on purpose: only executables run.)
-REF_EXTS = ('py', 'sh', 'json', 'md', 'html', 'g4', 'txt', 'csv', 'log')
+REF_EXTS = ('py', 'sh', 'json', 'md', 'html', 'g4', 'graphql', 'txt', 'csv', 'log')
 _DOT_EXTS = tuple(f'.{e}' for e in REF_EXTS)
 _TOKEN = r'[\w./\-]+\.(?:' + '|'.join(REF_EXTS) + r')'
 PATH_TOKEN_RE = re.compile(_TOKEN)

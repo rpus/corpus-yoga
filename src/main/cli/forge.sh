@@ -48,16 +48,11 @@ for r in csv.DictReader(open(sys.argv[1])):
 superseding_force_push() {  # <pr-number> <tip>
   local n="$1" tip="$2" events event before
   # shellcheck disable=SC2016
-  events="$(quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" -f query='
-    query($owner: String!, $repo: String!, $number: Int!) {
-      repository(owner: $owner, name: $repo) {
-        pullRequest(number: $number) {
-          timelineItems(first: 100, itemTypes: [HEAD_REF_FORCE_PUSHED_EVENT]) {
-            nodes { ... on HeadRefForcePushedEvent { createdAt beforeCommit { oid } afterCommit { oid } } }
-          }
-        }
-      }
-    }' --jq '.data.repository.pullRequest.timelineItems.nodes[]')" || return 0
+  # the document is a file so the echo names it rather than reciting it (#301):
+  # src/main/cli/forge/superseded-heads.graphql
+  events="$(cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" \
+    -F query=@src/main/cli/forge/superseded-heads.graphql \
+    --jq '.data.repository.pullRequest.timelineItems.nodes[]')" || return 0
   [[ -n "$events" ]] || return 0
   while IFS= read -r event; do
     [[ -n "$event" ]] || continue
