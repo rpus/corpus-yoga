@@ -1,5 +1,5 @@
 {
-  "help": "run every pipeline over data/input/, the one named, or one input item of it — processing only, never acquiring",
+  "help": "run every pipeline over data/input/, the one named, or one input item of it \u2014 processing only, never acquiring",
   "args": [
     {
       "name": "pipeline",
@@ -20,9 +20,14 @@
       "help": "print the ordered step plan; run nothing"
     }
   ],
-  "sends": [
-    "pip reaches PyPI on every run (upgrade check + requirements) — skipped with a note under YOGA_NO_SEND; a fresh venv then fails at first import, visibly"
-  ],
+  "sends": {
+    "pip install --upgrade pip": [
+      "reaches PyPI on every run to check for an upgrade; skipped with a note under YOGA_NO_SEND"
+    ],
+    "pip install -r src/requirements.txt": [
+      "reaches PyPI when the venv lacks packages; skipped under YOGA_NO_SEND, so a fresh venv then fails at first import, visibly"
+    ]
+  },
   "r": [
     "data/input",
     "rsc"

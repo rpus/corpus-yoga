@@ -20,7 +20,9 @@
       "help": "run in the background (detached), rather than in the foreground"
     }
   ],
-  "sends": [
-    "reaches ensure-assets when render libs are missing — the first serve on a fresh clone downloads them (refused loudly under YOGA_NO_SEND: serve will not start half-rendered)"
-  ]
+  "sends": {
+    "urllib.request.urlretrieve": [
+      "reaches ensure-assets when render libs are missing, so the first serve on a fresh clone downloads them (refused loudly under YOGA_NO_SEND: serve will not start half-rendered)"
+    ]
+  }
 }
