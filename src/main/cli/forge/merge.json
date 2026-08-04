@@ -1,5 +1,5 @@
 {
-  "help": "the standing forge report, the acts, the checkout's own state: refuse-class drift refuses before anything irreversible, the squash lands pinned to the inspected head, this checkout converges on the PR's base, what the merge just orphaned is swept by prune --apply, the merge commit is read back, and the last word is the checkout's own state (git status --short --branch); the forge's roster stays one command away \u2014 no message flags, so the body is assembled from the branch's commits and keeps their signatures",
+  "help": "the PR read first, then the standing forge report, then the acts, then the checkout's own state: an unresolvable argument or anything but MERGEABLE stops it before the report, refuse-class drift stops it before anything irreversible, the head is rebased onto the PR's own base and gated before it is force-pushed, the squash lands pinned to the head that rebase produced, this checkout converges on the merge commit the forge names, what the merge orphaned is swept by prune --apply, and the last word is the checkout's own state (git status --short --branch) \u2014 no message flags, so the body is assembled from the branch's commits and keeps their signatures",
   "args": [
     {
       "name": "pr",
@@ -9,8 +9,9 @@
     }
   ],
   "sends": [
-    "gh pr view \u2014 reads the PR's head, base, and head branch name before the irreversible step, and reads the merge commit back after it",
-    "git fetch origin <base> <head> \u2014 reads both refs before the irreversible step, so a branch behind its base stops the chain on git's own exit before anything irreversible",
+    "gh pr view \u2014 reads the PR's base, head branch and mergeability before anything else, its head after the rebase, and the merge commit after the squash",
+    "git fetch origin <base> <head> \u2014 reads both refs before the rebase",
+    "git push --force-with-lease \u2014 WRITES the rebased head back to the PR (refused loudly under YOGA_NO_SEND)",
     "gh pr merge --squash \u2014 WRITES the merge (refused loudly under YOGA_NO_SEND)",
     "git push origin --delete \u2014 prune --apply, sweeping the server branches this merge and its siblings left (refused loudly under YOGA_NO_SEND)",
     "git fetch origin \u2014 reads the squash back so the base can fast-forward"

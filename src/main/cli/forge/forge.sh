@@ -383,12 +383,18 @@ sync() {
 
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
-  local oid base head landed
-  status \
-  && assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)" \
-  && read -r oid base head < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName,headRefName --jq '"\(.headRefOid) \(.baseRefName) \(.headRefName)"') \
+  local oid base head mergeable landed
+  assert_may_send "gh pr view / gh pr merge / git push / git fetch (yoga forge merge)" \
+  && read -r base head mergeable < <(cd "$REPO_DIR" && query gh pr view "$pr" \
+       --json baseRefName,headRefName,mergeable --jq '[.baseRefName,.headRefName,.mergeable]|@tsv') \
+  && [[ "$mergeable" == MERGEABLE ]] \
+  && status \
   && enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
-  && enact git -C "$REPO_DIR" merge-base --is-ancestor "origin/$base" "$oid" \
+  && enact git -C "$REPO_DIR" checkout --detach "origin/$head" \
+  && enact git -C "$REPO_DIR" rebase "origin/$base" \
+  && enact "$REPO_DIR/yoga" test run \
+  && enact git -C "$REPO_DIR" push --force-with-lease origin "HEAD:$head" \
+  && oid="$(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid --jq .headRefOid)" \
   && enact git -C "$REPO_DIR" checkout "$base" \
   && (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") \
   && landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)" \
