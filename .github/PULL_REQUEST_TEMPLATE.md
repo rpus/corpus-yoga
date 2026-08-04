@@ -58,7 +58,6 @@
 
 - **test** — <how a reviewer reproduces the verdicts: commands run, outputs seen>
 - **use** — <what a machine runs or expects after merge — spoken in yoga commands;
-  forge merge ends by running `yoga prerequisites`, so machine-local adoption belongs
-  in its report: state it cannot see is a species to add (the mount precedent), not
-  prose to remember>
+  machine-local adoption belongs in `yoga prerequisites`' report: state it cannot
+  see is a species to add (the mount precedent), not prose to remember>
 - **do** — <what this raises or advances, with its issue>

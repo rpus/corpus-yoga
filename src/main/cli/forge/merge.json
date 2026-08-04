@@ -9,7 +9,7 @@
     }
   ],
   "sends": [
-    "gh pr view — reads the PR's head before the irreversible step",
+    "gh pr view — reads the PR's head and base before the irreversible step, and reads the merge commit back after it",
     "gh pr merge --squash — WRITES the merge (refused loudly under YOGA_NO_SEND)",
     "git fetch origin — reads the squash back so the base can fast-forward"
   ]

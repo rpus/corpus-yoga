@@ -180,13 +180,13 @@ base_branch() {
 }
 
 status() {
-  local bad=0 st key detail remedy
+  local refuse_class=0 st key detail remedy
   echo "forge settings — declared: src/main/cli/forge/forge.csv; live: this checkout's remote"
   while IFS=$'\t' read -r st key detail remedy; do
     [[ -z "$st" ]] && continue
     case "$st" in
       OK)    echo "  ✓ $key: $detail" ;;
-      DRIFT) echo "  ✗ $key: $detail"; echo "    → run: $remedy"; bad=1 ;;
+      DRIFT) echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1 ;;
       *)     echo "  – $key: $detail" ;;
     esac
   done < <(reconcile)
@@ -228,10 +228,10 @@ status() {
     if [[ "$st" == OK ]]; then
       echo "  ✓ $key: $detail"
     else
-      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; bad=1
+      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1
     fi
   done < <(gate)
-  return "$bad"
+  return "$refuse_class"
 }
 
 prune() {
@@ -328,12 +328,12 @@ merge() {
   local pr="${1:?yoga forge merge <pr>}"
   assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)"
   local oid base
-  oid="$(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid --jq .headRefOid)"
-  base="$(base_branch)"
-  (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid")
+  read -r oid base < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName --jq '"\(.headRefOid) \(.baseRefName)"')
   enact git -C "$REPO_DIR" checkout "$base"
+  (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid")
   enact git -C "$REPO_DIR" fetch origin
   enact git -C "$REPO_DIR" merge --ff-only "origin/$base"
+  (cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
