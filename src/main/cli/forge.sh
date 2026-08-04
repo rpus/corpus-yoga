@@ -89,7 +89,23 @@ branches() {
       /^worktree /{w=$2} /^branch /{ if ($2==r) print w }')"
     pr_json="$(jq -c --arg b "$b" 'map(select(.headRefName == $b)) | sort_by(.number) | last // empty' <<< "$prs")"
     if [[ -z "$pr_json" ]]; then
-      echo -e "KEPT\t$b\tno PR on the forge refers to it"
+      # A name is not an identity: a worktree copy carries the same head under
+      # another name, so ask the forge which PR has THIS commit as its head.
+      pr_json="$(jq -c --arg oid "$tip" 'map(select(.headRefOid == $oid)) | sort_by(.number) | last // empty' <<< "$prs")"
+      if [[ -n "$pr_json" ]]; then
+        n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); nm=$(jq -r .headRefName <<< "$pr_json")
+        if [[ -n "$holder" ]]; then
+          echo -e "KEPT\t$b\t#$n ($st) holds ${tip:0:8} as its head under the name $nm, but the branch is checked out at $holder\tgit checkout $base"
+        else
+          echo -e "DELETABLE\t$b\t#$n is $st and ${tip:0:8} is its head under the name $nm — the forge holds these commits"
+        fi
+      elif [[ -n "$holder" ]]; then
+        echo -e "KEPT\t$b\tno PR on the forge refers to it, and the branch is checked out at $holder\tgit checkout $base"
+      elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "refs/heads/$base" 2>/dev/null; then
+        echo -e "DELETABLE\t$b\tno PR refers to it, and ${tip:0:8} is contained in $base"
+      else
+        echo -e "KEPT\t$b\tno PR on the forge refers to it, and it holds commit(s) $base does not"
+      fi
       continue
     fi
     n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json"); oid=$(jq -r .headRefOid <<< "$pr_json")
@@ -103,8 +119,10 @@ branches() {
         unique="$(git -C "$REPO_DIR" cherry "$base" "$b" 2>/dev/null | grep -c '^+' || true)"
         if [[ "$unique" == 0 ]]; then
           echo -e "DELETABLE\t$b\t#$n is CLOSED, and every commit of it is in $base by patch"
+        elif [[ "$tip" == "$oid" ]] || git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
+          echo -e "DELETABLE\t$b\t#$n is CLOSED with ${tip:0:8} in its head — evidence-safe: the PR keeps its commits and diff, the reasoning lives in its thread"
         else
-          echo -e "KEPT\t$b\t#$n is CLOSED, and $unique commit(s) of it are not in $base — folded into another PR, or the only copy; git log $base..$b says which"
+          echo -e "KEPT\t$b\t#$n is CLOSED, and $unique commit(s) of it are not in $base or in the PR's own head — this is the only copy; git log $base..$b says what"
         fi
       fi
     elif [[ "$st" != MERGED ]]; then
