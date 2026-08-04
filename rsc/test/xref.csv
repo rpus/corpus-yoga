@@ -438,7 +438,13 @@ src/main/cli/summaries/summaries.json,3,path_str,src/main/chat-exports/summaries
 src/main/cli/supersede/supersede.json,3,path_str,src/main/chat-exports/supersede.py,Y,"""target"": ""src/main/chat-exports/supersede.py"","
 src/main/cli/test/run.json,29,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/test/run.json,30,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
-src/main/cli/test/test.json,3,path_str,src/test/test.sh,Y,"""target"": ""src/test/test.sh"","
+src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": ""src/main/cli/test/test.sh"","
+src/main/cli/test/test.sh,25,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
+src/main/cli/test/test.sh,45,call,rsc/test/pre-commit-hook.sh,Y,"cp ""$REPO_DIR/rsc/test/pre-commit-hook.sh"" ""$git_dir/pre-commit"""
+src/main/cli/test/test.sh,57,path_str,src/test/run.py,Y,"echo ""checks: src/test/run.py — $(grep -c '^def check_' ""$REPO_DIR/src/test/run.py"") check sections"""
+src/main/cli/test/test.sh,69,call,src/test/run.sh,Y,"run)          shift; exec ""$REPO_DIR/src/test/run.sh"" ""$@"" ;;"
+src/main/cli/test/test.sh,70,call,src/run_python_script.sh,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/xref.py"" ""$@"" ;;"
+src/main/cli/test/test.sh,70,call,src/test/xref.py,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/xref.py"" ""$@"" ;;"
 src/main/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/code-agents/jsonl_to_json.sh,5,comment,src/main/code-agents/jsonl_to_json.sh,Y,#   src/main/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
@@ -564,7 +570,7 @@ src/prerequisites.sh,368,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the co
 src/prerequisites.sh,389,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/prerequisites.sh,407,call,src/main/cli/forge/forge.sh,Y,"done < <(source ""$REPO_ROOT/src/main/cli/forge/forge.sh""; reconcile 2>/dev/null)"
 src/prerequisites.sh,525,path_str,src/requirements.txt,Y,"""$VENV/bin/pip"" install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/prerequisites.sh,528,call,src/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/test/test.sh"" install-hook"
+src/prerequisites.sh,528,call,src/main/cli/test/test.sh,Y,"_todo_has hook && ""$REPO_ROOT/src/main/cli/test/test.sh"" install-hook"
 src/prerequisites.sh,529,call,src/main/code-agents/link_projects.sh,Y,"_todo_has mount && ""$REPO_ROOT/src/main/code-agents/link_projects.sh"""
 src/prerequisites.sh,547,call,src/requirements.txt,Y,"""$REPO_ROOT/src/requirements.txt"" \"
 src/prerequisites.sh,553,call,src/main/model/serve_assets.txt,Y,"""$REPO_ROOT/src/main/model/serve_assets.txt"" \"
@@ -644,12 +650,6 @@ src/test/run.sh,117,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_
 src/test/run.sh,117,call,src/test/run.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/test/run.py"" ""$@"" || rc=$?"
 src/test/schema_recommendations.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
 src/test/schema_recommendations.py,7,comment,src/test/schema_recommendations.py,Y,src/run_python_script.sh src/test/schema_recommendations.py <instance-file> <schema-file>
-src/test/test.sh,25,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
-src/test/test.sh,45,call,rsc/test/pre-commit-hook.sh,Y,"cp ""$REPO_DIR/rsc/test/pre-commit-hook.sh"" ""$git_dir/pre-commit"""
-src/test/test.sh,57,path_str,src/test/run.py,Y,"echo ""checks: src/test/run.py — $(grep -c '^def check_' ""$SCRIPT_DIR/run.py"") check sections"""
-src/test/test.sh,69,call,src/test/run.sh,Y,"run)          shift; exec ""$SCRIPT_DIR/run.sh"" ""$@"" ;;"
-src/test/test.sh,70,call,src/run_python_script.sh,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"" ;;"
-src/test/test.sh,70,call,src/test/xref.py,Y,"xref)         shift; exec ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/xref.py"" ""$@"" ;;"
 src/test/xref.py,5,comment,rsc/test/xref.csv,Y,"`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated"
 src/test/xref.py,7,comment,rsc/test/xref.csv,Y,are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 src/test/xref.py,11,comment,rsc/test/xref.csv,Y,"awk -F, '$5==""N""' rsc/test/xref.csv    # the stale references"

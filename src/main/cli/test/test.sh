@@ -15,7 +15,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
 # BOTH hooks this repo owns, because installing one without the other has no reason:
 # they are the same machinery (src/test/), on the same event, and `yoga prerequisites`
@@ -54,7 +54,7 @@ install_hook() {
 }
 
 status() {
-  echo "checks: src/test/run.py — $(grep -c '^def check_' "$SCRIPT_DIR/run.py") check sections"
+  echo "checks: src/test/run.py — $(grep -c '^def check_' "$REPO_DIR/src/test/run.py") check sections"
   echo "  expectation: rsc/test/run_expected_checks · report: rsc/test/run.log · xrefs: rsc/test/xref.csv"
   local hook
   if hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)" && [[ -L "$hook" ]]; then
@@ -66,8 +66,8 @@ status() {
 
 case "${1-}" in
   '')           status ;;
-  run)          shift; exec "$SCRIPT_DIR/run.sh" "$@" ;;
-  xref)         shift; exec "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/xref.py" "$@" ;;
+  run)          shift; exec "$REPO_DIR/src/test/run.sh" "$@" ;;
+  xref)         shift; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/xref.py" "$@" ;;
   install-hook) shift; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   *) echo "Usage: yoga test [run [--fix] [--fresh] | xref | install-hook]  (yoga test -h for details)" >&2; exit 1 ;;
