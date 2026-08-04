@@ -4,7 +4,7 @@
 # Usage:
 #   yoga forge                 # declared vs live
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-#   yoga forge merge <pr>      # squash-merge that PR, then converge this checkout on the base
+#   yoga forge merge <pr>      # status; squash-merge that PR and converge this checkout; status
 #   yoga forge prune [--apply] # forget what the forge no longer has
 
 set -euo pipefail
@@ -326,6 +326,7 @@ sync() {
 
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
+  status
   assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)"
   local oid base
   read -r oid base < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName --jq '"\(.headRefOid) \(.baseRefName)"')
@@ -334,6 +335,7 @@ merge() {
   enact git -C "$REPO_DIR" fetch origin
   enact git -C "$REPO_DIR" merge --ff-only "origin/$base"
   (cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)
+  status
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0

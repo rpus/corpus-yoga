@@ -1,5 +1,5 @@
 {
-  "help": "squash-merge that PR pinned to its inspected head, then converge this checkout: base checked out, fetched, fast-forwarded — no message flags, so the body is assembled from the branch's commits and keeps their signatures",
+  "help": "the standing forge report, the acts, the report again: refuse-class drift refuses before anything irreversible, the squash lands pinned to the inspected head, this checkout converges on the PR's base, the merge commit is read back, and the closing report names the leavings — no message flags, so the body is assembled from the branch's commits and keeps their signatures",
   "args": [
     {
       "name": "pr",
