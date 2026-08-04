@@ -48,7 +48,7 @@ for r in csv.DictReader(open(sys.argv[1])):
 superseding_force_push() {  # <pr-number> <tip>
   local n="$1" tip="$2" events event before
   # shellcheck disable=SC2016
-  events="$(quiet gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" -f query='
+  events="$(quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$n" -f query='
     query($owner: String!, $repo: String!, $number: Int!) {
       repository(owner: $owner, name: $repo) {
         pullRequest(number: $number) {
@@ -137,7 +137,7 @@ branches() {
              | grep -v "^$base\$")
 
   local server_refs sb
-  if server_refs="$(quiet git -C "$REPO_DIR" ls-remote --heads origin)"; then
+  if server_refs="$(quote git -C "$REPO_DIR" ls-remote --heads origin)"; then
     while read -r sb; do
       [[ -n "$sb" && "$sb" != "$base" ]] || continue
       pr_json="$(jq -c --arg b "$sb" 'map(select(.headRefName == $b)) | sort_by(.number) | last // empty' <<< "$prs")"
@@ -194,7 +194,7 @@ upstream() {
     return
   fi
   may_send || { echo -e "UNVERIFIED\tcheckout\tYOGA_NO_SEND=1 refuses this send: git fetch (checkout vs upstream unverified)\t"; return; }
-  if ! quiet git -C "$REPO_DIR" fetch --quiet origin "$current" >/dev/null; then
+  if ! quiet git -C "$REPO_DIR" fetch --quiet origin "$current"; then
     echo -e "UNVERIFIED\tcheckout\tunreachable — checkout vs upstream unverified\t"
     return
   fi
@@ -376,8 +376,8 @@ merge() {
     (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") &&
     enact git -C "$REPO_DIR" fetch origin &&
     enact git -C "$REPO_DIR" merge --ff-only "origin/$base" &&
-    (cd "$REPO_DIR" && quiet gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid) &&
-    quiet git -C "$REPO_DIR" status --short --branch
+    (cd "$REPO_DIR" && quote gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid) &&
+    quote git -C "$REPO_DIR" status --short --branch
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0

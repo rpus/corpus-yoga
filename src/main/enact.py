@@ -8,13 +8,13 @@ else.
 The seam for the enactment-guard tier (#256): the one place a future policy would gate,
 warn, or attribute an act, because every act already passes through here. Not implemented.
 
-Success is silent: an act's own output is its evidence, and the consuming verb's closing
-envelope is the one done-line. query() and quiet() are the read faces: the answer
-returns to the caller; query relays it to the narrative, quiet elides the relay by
-name, declared at the call site for answers the verb's own report renders. Failure
-is never quiet in any face. On
-failure query raises; the shell face returns the status — the pair's one ruled
-asymmetry (#277); the relay words themselves are held identical by the gate.
+Success is silent: an act's own output is its evidence, and what a verb says when it
+finishes is the verb's own business. query(), quote() and quiet() are the read faces, named
+for how many times each renders the answer: query twice (the narrative relay plus the
+return), quote once (the return only), quiet zero (the answer is discarded). Failure
+is never quiet in any face. On failure query and quote raise; the shell face returns
+the status — the pair's one ruled asymmetry (#277); the relay words themselves are
+held identical by the gate.
 
 CONSTRAINT ON EVERY CALLER, unenforceable here: the narrative rides stderr; silencing it
 (stderr to devnull) renders a wrapped act invisible and the wrap decorative.
@@ -46,7 +46,18 @@ def query(*command: str) -> str:
     return answer
 
 
-def quiet(*command: str) -> str:
+def quote(*command: str) -> str:
+    printed = ' '.join(shlex.quote(part) for part in command)
+    print(f'quote: {printed}', file=sys.stderr)
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        sys.stderr.write(result.stderr)
+        print(f'NOT done (exit {result.returncode}): {printed}', file=sys.stderr)
+        raise subprocess.CalledProcessError(result.returncode, command)
+    return result.stdout.rstrip('\n')
+
+
+def quiet(*command: str) -> None:
     printed = ' '.join(shlex.quote(part) for part in command)
     print(f'quiet: {printed}', file=sys.stderr)
     result = subprocess.run(command, capture_output=True, text=True)
@@ -54,4 +65,3 @@ def quiet(*command: str) -> str:
         sys.stderr.write(result.stderr)
         print(f'NOT done (exit {result.returncode}): {printed}', file=sys.stderr)
         raise subprocess.CalledProcessError(result.returncode, command)
-    return result.stdout.rstrip('\n')

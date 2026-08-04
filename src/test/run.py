@@ -1191,7 +1191,7 @@ def check_cli_surface(run) -> None:
     # the faces' own headers; the WORDS are held here.
     enact_faces = {REPO_ROOT / 'src' / 'main' / 'enact.sh',
                    REPO_ROOT / 'src' / 'main' / 'enact.py'}
-    relay_words = ('enact: ', 'query: ', 'NOT done (exit ')
+    relay_words = ('enact: ', 'query: ', 'quote: ', 'quiet: ', 'NOT done (exit ')
     face_texts = {face: face.read_text() for face in enact_faces}
     unspoken = sorted(f'{face.name} lacks {word!r}'
                       for face, face_text in face_texts.items()
@@ -1200,7 +1200,7 @@ def check_cli_surface(run) -> None:
                             for f in (REPO_ROOT / 'src').rglob('*')
                             if f.is_file() and f not in enact_faces
                             and f.suffix in ('.py', '.sh')
-                            and re.search(r'^(def (enact|query|quiet)\(|(enact|query|quiet)\(\)\s*\{)',
+                            and re.search(r'^(def (enact|query|quote|quiet)\(|(enact|query|quote|quiet)\(\)\s*\{)',
                                           f.read_text(), re.M))
     run('enact: the two faces speak identical relay words, and only they speak',
         not unspoken and not third_speakers,
