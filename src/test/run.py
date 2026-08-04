@@ -62,7 +62,12 @@ sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, bo
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
-sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + standalone commands)
+sys.path.insert(0, str(SRC / 'main' / 'cli'))  # the yoga CLI cluster (dispatch + shared machinery)
+# A CLI-native command lives in its own directory (#307), so its module sits beside
+# the declarations that name it: import it from there, not from the cluster root.
+sys.path.insert(0, str(SRC / 'main' / 'cli' / 'cache'))
+sys.path.insert(0, str(SRC / 'main' / 'cli' / 'commands'))
+sys.path.insert(0, str(SRC / 'main' / 'cli' / 'completions'))
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
 import commands as cli_commands  # noqa: E402 — `yoga commands` answers itself here
 import completions as cli_completions  # noqa: E402 — and `yoga completions` here

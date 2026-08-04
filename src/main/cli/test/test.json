@@ -1,6 +1,6 @@
 {
   "summary": "the checks over this repo, and the hook that runs them",
-  "target": "src/test/test.sh",
+  "target": "src/main/cli/test/test.sh",
   "calculus": "validate L2",
   "args": []
 }

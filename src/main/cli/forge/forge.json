@@ -1,6 +1,6 @@
 {
   "summary": "the forge's merge settings, and the merge that obeys them",
-  "target": "src/main/cli/forge.sh",
+  "target": "src/main/cli/forge/forge.sh",
   "calculus": "validate",
   "args": [],
   "sends": [

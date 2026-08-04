@@ -404,7 +404,7 @@ check_forge() {
   # Sourced in the subshell this substitution already is: `reconcile` is the derivation
   # wanted, and only it runs. The subshell also keeps the two files' namespaces apart —
   # both define a `sync`, and forge.sh's must not become this script's.
-  done < <(source "$REPO_ROOT/src/main/cli/forge.sh"; reconcile 2>/dev/null)
+  done < <(source "$REPO_ROOT/src/main/cli/forge/forge.sh"; reconcile 2>/dev/null)
 }
 
 check_pipeline_inputs() {
@@ -525,7 +525,7 @@ sync() {
     "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
     echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
   fi
-  _todo_has hook && "$REPO_ROOT/src/test/test.sh" install-hook
+  _todo_has hook && "$REPO_ROOT/src/main/cli/test/test.sh" install-hook
   _todo_has mount && "$REPO_ROOT/src/main/code-agents/link_projects.sh"
   echo
   echo "what remains — re-derived, not assumed:"

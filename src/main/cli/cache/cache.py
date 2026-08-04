@@ -8,8 +8,8 @@ tier. Bare shows its state and writes nothing; the verbs do the work.
     yoga cache clean --apply      # remove them
     yoga cache sync [--dry-run]   # rebuild tmp/cache/ by running each registry row's producers
 
-Thin verb router over the sibling implementations — src/main/cli/clean.py and
-src/main/cli/sync.py — so the CLI table carries one `cache` command whose verbs
+Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
+src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
 are the two halves of the reproduction ritual: `yoga cache clean --apply &&
 yoga cache sync` gives a fresh tmp/cache/ from data/input/ + data/output/ alone. `sync` is the
 idempotent regenerator (L1); `clean` is the only destructive verb.
@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[2]
+REPO = HERE.parents[3]
 VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
 USAGE = (__doc__ or '').strip()
 

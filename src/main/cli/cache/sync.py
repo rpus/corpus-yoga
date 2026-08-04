@@ -35,10 +35,10 @@ from pathlib import Path
 
 from cache_io import producers
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # src/ — modules both tiers import
 from argparse_help import enrich
 
-REPO = Path(__file__).resolve().parents[3]
+REPO = Path(__file__).resolve().parents[4]
 
 
 def main() -> int:

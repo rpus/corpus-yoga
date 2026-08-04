@@ -8,6 +8,9 @@
     "src/main/browser-captures",
     "src/main/chat-exports",
     "src/main/cli",
+    "src/main/cli/cache",
+    "src/main/cli/commands",
+    "src/main/cli/completions",
     "src/main/code-agents",
     "src/main/model",
     "src/test"
