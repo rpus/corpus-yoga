@@ -349,7 +349,7 @@ check_git_hook() {
 
 check_signature_hook() {
   # A convention, not a gate: it stamps the Signature: trailer and strips the model
-  # co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry
+  # co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry
   # no signature — never a failure, so this reports informationally even when installed.
   sec "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
   local script hook link dir
@@ -367,13 +367,13 @@ check_signature_hook() {
   # one. That is correct as it stands: run.sh re-execs the committing tree's own gate
   # (src/test/run.sh, "the committing tree wins"). Expecting THIS tree's path would raise
   # a to-do in every worktree and prescribe a reinstall that writes the identical link.
-  script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/src/test/prepare_commit_msg.sh"
+  script="$(cd "$(dirname "$hook")/../.." 2>/dev/null && pwd || echo "$REPO_ROOT")/rsc/test/prepare-commit-msg-hook.sh"
   if [[ -L "$hook" ]]; then
     link="$(readlink "$hook")"
     [[ "$link" = /* ]] || link="$(dirname "$hook")/$link"
     dir="$(cd "$(dirname "$link")" 2>/dev/null && pwd || true)"
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
-      ok "installed: the symlink to src/test/prepare_commit_msg.sh"
+      ok "installed: the symlink to rsc/test/prepare-commit-msg-hook.sh"
     else
       todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
     fi

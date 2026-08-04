@@ -34,7 +34,7 @@
 # src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
 #
 # Install (a convention, not a gate, so optional unlike the pre-commit hook):
-#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
+#   ln -sfn ../../rsc/test/prepare-commit-msg-hook.sh .git/hooks/prepare-commit-msg
 #
 # Best-effort by design: any failure exits 0 so a signature never blocks a commit.
 
