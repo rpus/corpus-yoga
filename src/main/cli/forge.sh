@@ -364,6 +364,9 @@ prune() {
     echo 'nothing to prune — yoga forge says why for each branch it keeps'
   elif [[ -z "$apply" ]]; then
     echo "--- $n item(s); nothing removed. Add --apply to remove them"
+    if [[ -n "$unverified" ]]; then
+      echo 'some rows are UNVERIFIED; see yoga forge for what and why'
+    fi
   fi
 }
 
