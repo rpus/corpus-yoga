@@ -389,6 +389,7 @@ merge() {
     (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") &&
     enact git -C "$REPO_DIR" fetch origin &&
     enact git -C "$REPO_DIR" merge --ff-only "origin/$base" &&
+    prune --apply &&
     (cd "$REPO_DIR" && quote gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid) &&
     quote git -C "$REPO_DIR" status --short --branch
 }
