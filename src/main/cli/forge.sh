@@ -101,11 +101,10 @@ branches() {
   local prs
   prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
     --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
-  local b tip pr_json n st oid holder base locals_seen=""
+  local b tip pr_json n st oid holder base
   base="$(base_branch)"
   while read -r b; do
     [[ -n "$b" ]] || continue
-    locals_seen+="$b"$'\n'
     tip="$(git -C "$REPO_DIR" rev-parse "refs/heads/$b")"
     holder="$(git -C "$REPO_DIR" worktree list --porcelain | awk -v r="refs/heads/$b" '
       /^worktree /{w=$2} /^branch /{ if ($2==r) print w }')"
@@ -156,13 +155,13 @@ branches() {
   # Server-only residue (#285): a branch the forge still holds for a PR it closed
   # WITHOUT merging. delete_branch_on_merge fires only on merge, so this branch has no
   # local trace and, until now, no report — invisible to every broom prune ever swung.
-  # One wire read lists what the forge currently has; skip anything already reported
-  # above (a local branch's server twin is that branch's own row, not a second one).
+  # The server leaving is the forge's own fact, independent of any checkout: reported
+  # whether or not a local branch of the same name exists. A surviving local branch
+  # gets its own row from the loop above — two residues, two rows, both honest.
   local server_refs sb
   if server_refs="$(quiet git -C "$REPO_DIR" ls-remote --heads origin)"; then
     while read -r sb; do
       [[ -n "$sb" && "$sb" != "$base" ]] || continue
-      grep -qxF "$sb" <<< "$locals_seen" && continue
       pr_json="$(jq -c --arg b "$sb" 'map(select(.headRefName == $b)) | sort_by(.number) | last // empty' <<< "$prs")"
       [[ -n "$pr_json" ]] || continue
       n=$(jq -r .number <<< "$pr_json"); st=$(jq -r .state <<< "$pr_json")
