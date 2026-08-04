@@ -188,9 +188,10 @@ status() {
   while IFS=$'\t' read -r st key detail remedy; do
     [[ -z "$st" ]] && continue
     case "$st" in
-      OK)    echo "  ✓ $key: $detail" ;;
-      DRIFT) echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1 ;;
-      *)     echo "  – $key: $detail" ;;
+      OK)         echo "  ✓ $key: $detail" ;;
+      DRIFT)      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1 ;;
+      UNVERIFIED) echo "  – $key: $detail"; refuse_class=1 ;;
+      *)          echo "  – $key: $detail" ;;
     esac
   done < <(reconcile)
 
