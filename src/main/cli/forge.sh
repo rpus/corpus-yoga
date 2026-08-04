@@ -204,6 +204,7 @@ status() {
       [[ -z "$st" ]] && continue
       case "$st" in
         DELETABLE|SERVER_DELETABLE) echo "  ✗ $key: $detail"; d=1 ;;
+        UNVERIFIED)                 echo "  – $key: $detail"; refuse_class=1 ;;
         *)                          echo "  – $key: $detail" ;;
       esac
       [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
@@ -219,8 +220,9 @@ status() {
     while IFS=$'\t' read -r st key detail; do
       [[ -z "$st" ]] && continue
       case "$st" in
-        STALE) echo "  ✗ $key: $detail"; any=1 ;;
-        *)     echo "  – $key: $detail" ;;
+        STALE)      echo "  ✗ $key: $detail"; any=1 ;;
+        UNVERIFIED) echo "  – $key: $detail"; refuse_class=1 ;;
+        *)          echo "  – $key: $detail" ;;
       esac
     done <<< "$stale"
     [[ -z "$any" ]] || echo "    → run: yoga forge prune"
