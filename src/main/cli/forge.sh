@@ -326,16 +326,16 @@ sync() {
 
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
-  status
-  assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)"
   local oid base
-  read -r oid base < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName --jq '"\(.headRefOid) \(.baseRefName)"')
-  enact git -C "$REPO_DIR" checkout "$base"
-  (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid")
-  enact git -C "$REPO_DIR" fetch origin
-  enact git -C "$REPO_DIR" merge --ff-only "origin/$base"
-  (cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)
-  status
+  status &&
+    assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)" &&
+    read -r oid base < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName --jq '"\(.headRefOid) \(.baseRefName)"') &&
+    enact git -C "$REPO_DIR" checkout "$base" &&
+    (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") &&
+    enact git -C "$REPO_DIR" fetch origin &&
+    enact git -C "$REPO_DIR" merge --ff-only "origin/$base" &&
+    (cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid) &&
+    status
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
