@@ -4,7 +4,7 @@
 # Usage:
 #   yoga forge                 # declared vs live
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-#   yoga forge merge <pr>      # status; squash-merge that PR and converge this checkout; status
+#   yoga forge merge <pr>      # status; squash-merge that PR and converge this checkout; git status
 #   yoga forge prune [--apply] # forget what the forge no longer has
 
 set -euo pipefail
@@ -81,7 +81,10 @@ branches() {
   fi
   local prs
   prs="$(cd "$REPO_DIR" && gh pr list --state all --limit 200 \
-    --json number,state,headRefName,headRefOid 2>/dev/null)" || return 0
+    --json number,state,headRefName,headRefOid)" || {
+    echo -e "UNVERIFIED\tforge\tgh pr list failed (its message above) — branch/PR state on the forge unverified"
+    return
+  }
   local b tip pr_json n st oid holder base
   base="$(base_branch)"
   while read -r b; do
@@ -192,7 +195,7 @@ status() {
   done < <(reconcile)
 
   local rows
-  rows="$(branches)"
+  rows="$(branches)" || return 1
   if [[ -n "$rows" ]]; then
     echo "branches — what the forge says about each"
     local d=""
@@ -208,7 +211,7 @@ status() {
   fi
 
   local stale
-  stale="$(stale_tracking)"
+  stale="$(stale_tracking)" || return 1
   if [[ -n "$stale" ]]; then
     echo "remote-tracking refs — branches the forge has deleted"
     local any=""
@@ -335,7 +338,7 @@ merge() {
     enact git -C "$REPO_DIR" fetch origin &&
     enact git -C "$REPO_DIR" merge --ff-only "origin/$base" &&
     (cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid) &&
-    status
+    query git -C "$REPO_DIR" status --short --branch
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
