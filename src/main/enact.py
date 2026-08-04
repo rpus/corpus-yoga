@@ -8,8 +8,8 @@ else.
 The seam for the enactment-guard tier (#256): the one place a future policy would gate,
 warn, or attribute an act, because every act already passes through here. Not implemented.
 
-Success is silent: an act's own output is its evidence, and the consuming verb's closing
-envelope is the one done-line. query(), quote() and quiet() are the read faces, named
+Success is silent: an act's own output is its evidence, and what a verb says when it
+finishes is the verb's own business. query(), quote() and quiet() are the read faces, named
 for how many times each renders the answer: query twice (the narrative relay plus the
 return), quote once (the return only), quiet zero (the answer is discarded). Failure
 is never quiet in any face. On failure query and quote raise; the shell face returns

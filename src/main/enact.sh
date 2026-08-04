@@ -12,7 +12,7 @@
 # The wrapper RETURNS the status; on failure the relay always prints, bare or
 # `||`-tested alike, even under set -e — the caller's own errexit then applies AFTER
 # the relay, by the caller's rules. Success is silent: an act's own output is its
-# evidence, and the consuming verb's closing envelope is the one done-line.
+# evidence, and what a verb says when it finishes is the verb's own business.
 #
 # query(), quote() and quiet() are the read faces, named for how many times each
 # renders the answer: query twice (the `= <answer>` relay plus stdout, capture-and-
