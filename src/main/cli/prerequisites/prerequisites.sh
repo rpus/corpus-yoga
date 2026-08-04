@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/prerequisites.sh — what this machine has, and what it still needs.
+# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs.
 #
 # The BARE noun is strictly read-only: no directories created, no symlinks, no venv, no
 # installs. Safe as the first command on a fresh clone, which is the whole point of it.
@@ -14,13 +14,13 @@
 # Exit status: non-zero only if a required tool (jq, Python 3) is missing.
 #
 # Usage:
-#   src/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
-#   src/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
+#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention (– and ✗); all-green sections hidden
+#   src/main/cli/prerequisites/prerequisites.sh --show-all   # the full report, including satisfied (✓) items
 #
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
 source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)

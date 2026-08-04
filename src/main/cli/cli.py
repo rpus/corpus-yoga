@@ -29,7 +29,7 @@ Usage:
 
 This module is deliberately STDLIB-ONLY: the yoga launcher falls back to
 system python3 when the venv does not exist yet, so a fresh clone can render
-the table, print the calculus, and generate completion before src/main/pipeline.sh has
+the table, print the calculus, and generate completion before src/main/cli/pipeline/pipeline.sh has
 run. Adding a third-party import here would silently break that.
 """
 import argparse
@@ -157,7 +157,7 @@ def flags_of(command: str) -> list[str]:
 def steps() -> list[dict]:
     """The (command, subcommand) invocations the run pipeline executes as named plan
     steps, declared by the declared `step` (its value names the pipeline). The gate
-    holds `src/main/pipeline.sh --plan` to these: each must appear as a plan line naming the command
+    holds `src/main/cli/pipeline/pipeline.sh --plan` to these: each must appear as a plan line naming the command
     AND its verb — so the plan speaks the command surface, and a step can never invoke a
     noun bare, which would silently become a status no-op."""
     return [{'command': r['command'], 'subcommand': r['subcommand'], 'pipeline': r['step']}

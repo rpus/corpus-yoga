@@ -1,6 +1,6 @@
 {
   "summary": "the pipelines, and the run over data/input/ that never acquires",
-  "target": "src/main/pipeline.sh",
+  "target": "src/main/cli/pipeline/pipeline.sh",
   "calculus": "atomise validate supersession accumulate project",
   "args": [
     {

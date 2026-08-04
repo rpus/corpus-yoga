@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# src/main/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
+# src/main/cli/pipeline/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
 # acquires. Each pipeline validates its inputs against all schema versions, then extracts,
 # projects and presents. Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
 #
@@ -20,7 +20,7 @@
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga test run.
 
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh

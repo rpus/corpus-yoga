@@ -6,7 +6,7 @@
 #
 # cli.py is deliberately stdlib-only, so the CLI itself runs on any Python 3 —
 # system python3 when the venv does not exist yet (a fresh clone can read the
-# table, print the calculus, and generate completion before ./src/main/pipeline.sh);
+# table, print the calculus, and generate completion before ./src/main/cli/pipeline/pipeline.sh);
 # .py TARGETS still run via src/run_python_script.sh, which requires the venv.
 #
 # Every command ends by saying where this checkout stands, and it is said here so that no
@@ -24,7 +24,7 @@ if [[ -f "$VENV/bin/python" ]]; then
 elif command -v python3 &>/dev/null; then
   set -- python3 "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
 else
-  echo "error: Python 3 not found — install via: brew install python (see ./src/prerequisites.sh)" >&2
+  echo "error: Python 3 not found — install via: brew install python (see ./src/main/cli/prerequisites/prerequisites.sh)" >&2
   exit 1
 fi
 

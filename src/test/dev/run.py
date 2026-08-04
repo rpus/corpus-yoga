@@ -740,7 +740,7 @@ def check_cli_surface(run) -> None:
     and implementation share a stem — the repo idiom), every subcommand VERB it
     advertises appears in the target's own --help (the live dispatch surface —
     a source grep is vacuous for ordinary words like build/accept), and every command
-    a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/pipeline.sh --plan
+    a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
     output (which is itself the executing list, so the chain cannot drift, and a step
     cannot quietly drop to a bare noun that the bare=status convention no-ops). Committed
     files and the deterministic plan only, so deterministic on any clone:
@@ -1122,7 +1122,7 @@ def check_cli_surface(run) -> None:
     # when sync landed, two of them inside case arms my reclassification pass never
     # matched. The markers below are the unambiguous ones: "populate via" and "stash it"
     # sit on lines describing absent DATA, which is context, not a task.
-    prereq = (REPO_ROOT / 'src' / 'prerequisites.sh').read_text()
+    prereq = (REPO_ROOT / 'src' / 'main' / 'cli' / 'prerequisites' / 'prerequisites.sh').read_text()
     REMEDY = ('→ run:', 'install via:', 'reinstall:', 'refresh:')
     mislabelled = [line.strip()[:80] for line in prereq.splitlines()
                    if 'info "' in line and any(m in line for m in REMEDY)]
@@ -1296,7 +1296,7 @@ def check_cli_surface(run) -> None:
     # one place the whole program is listed, and a bare label does not resolve there:
     # `validate` names a file in more than one pipeline. The line carries the path, so a reader needs
     # no rule about which namespace a label is in.
-    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), 'run', '--plan'],
+    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), 'run', '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     # A STEP LINE is identified by its SHAPE, not by what it happens to carry: plan_line
     # pads the label into a column, so a line with a gap of two or more spaces between two
@@ -1518,13 +1518,13 @@ def check_cli_surface(run) -> None:
         law='G20', check='cli.block_identity_stable')
 
     # The run pipeline's command-backed steps (the declared `step`). Each must
-    # appear in `src/main/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+    # appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
     # plan speaks the command surface a reader would type, and a step can never invoke
     # a noun bare, which the bare-noun=status convention silently turns into a no-op.
     stepped = cli.steps()
     if not stepped:
         return
-    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'pipeline.sh'), '--plan'],
+    plan = subprocess.run([str(REPO_ROOT / 'src' / 'main' / 'cli' / 'pipeline' / 'pipeline.sh'), '--plan'],
                           capture_output=True, text=True, cwd=REPO_ROOT).stdout
     for s in stepped:
         cmd, sub = s['command'], s['subcommand']
@@ -1534,7 +1534,7 @@ def check_cli_surface(run) -> None:
         # line is typeable — so the invocation it must name is the command form
         ok = bool(re.search(rf'^\s*(yoga )?{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
-            None if ok else f'no `{cmd} … {sub}` line in `src/main/pipeline.sh --plan` — a bare '
+            None if ok else f'no `{cmd} … {sub}` line in `src/main/cli/pipeline/pipeline.sh --plan` — a bare '
             f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')
 
 

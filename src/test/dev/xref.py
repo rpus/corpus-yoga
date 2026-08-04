@@ -334,7 +334,7 @@ def shell_vars(f: Path) -> dict[str, Path]:
         var, val = m.group(1), m.group(2)
 
         # Pattern 1: BASH_SOURCE[0] — the script's own directory, minus any
-        # trailing /.. hops (src/main/pipeline.sh anchors REPO_ROOT at its parent)
+        # trailing /.. hops (src/main/cli/pipeline/pipeline.sh anchors REPO_ROOT at its parent)
         if 'BASH_SOURCE' in val or 'dirname' in val:
             d = script_dir
             for _ in range(val.count('/..')):
