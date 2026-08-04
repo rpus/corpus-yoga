@@ -390,10 +390,10 @@ merge() {
   && [[ "$mergeable" == MERGEABLE ]] \
   && status \
   && enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
-  && enact git -C "$REPO_DIR" checkout -B "$head" "origin/$head" \
+  && enact git -C "$REPO_DIR" checkout --detach "origin/$head" \
   && enact git -C "$REPO_DIR" rebase "origin/$base" \
   && enact "$REPO_DIR/yoga" test run \
-  && enact git -C "$REPO_DIR" push --force-with-lease origin "$head" \
+  && enact git -C "$REPO_DIR" push --force-with-lease origin "HEAD:$head" \
   && oid="$(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid --jq .headRefOid)" \
   && enact git -C "$REPO_DIR" checkout "$base" \
   && (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") \
