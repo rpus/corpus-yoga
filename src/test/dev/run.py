@@ -3,8 +3,8 @@
 run.py — Pre-commit checks for the repo.
 
 Usage (direct):
-    src/test/run.sh
-    src/test/run.sh --fix   # run all fix commands; stages nothing
+    src/test/dev/run.sh
+    src/test/dev/run.sh --fix   # run all fix commands; stages nothing
 
 As a git hook, install the wrapper:
     yoga test install-hook
@@ -26,8 +26,8 @@ full but never veto the exit — a fact about this machine's data must not gate 
 unrelated commit. Machine state that SHOULD gate — the hook's own installation — is
 enforced by the wrapper (run.sh), never by a tier.
 
-Atomic diagnostic scripts live in src/test/diagnostics/{principle_id}.py.
-Atomic repair scripts live in src/test/repairs/{principle_id}.py.
+Atomic diagnostic scripts live in src/test/dev/diagnostics/{principle_id}.py.
+Atomic repair scripts live in src/test/dev/repairs/{principle_id}.py.
 Each diagnostic takes a schema path as argv[1], exits 0 on pass, 1 on fail.
 """
 
@@ -47,15 +47,15 @@ from pathlib import Path
 from typing import Any
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
-REPO_ROOT                = Path(__file__).resolve().parents[2]
+REPO_ROOT                = Path(__file__).resolve().parents[3]
 INPUT                    = REPO_ROOT / 'data' / 'input'
 CACHE                    = REPO_ROOT / 'tmp' / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
-SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'diagnostics'
+SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — shared modules live at its root
 from validation_matrix import rows_from_logs  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
@@ -337,7 +337,7 @@ def check_required_files(run):
         SRC  / 'main' / 'model' / 'model.py',
         RSC  / 'test' / 'run_expected_checks',
         RSC  / 'test' / 'xref_expected_score',
-        SRC  / 'test' / 'schema_recommendations.py',
+        SRC  / 'test' / 'dev' / 'schema_recommendations.py',
         SRC  / 'run_python_script.sh',
     ]
     for path in required:
@@ -1016,7 +1016,7 @@ def check_cli_surface(run) -> None:
     # script by path is invisible to any scan of output on a repo that ships none. They
     # are read from the source instead: every `*_cmd` a remedy is built from must name a
     # yoga command, whether or not this machine can print it.
-    for node in ast.walk(ast.parse((SRC / 'test' / 'run.py').read_text())):
+    for node in ast.walk(ast.parse((SRC / 'test' / 'dev' / 'run.py').read_text())):
         if isinstance(node, ast.Assign) and node.targets and \
                 isinstance(node.targets[0], ast.Name) and node.targets[0].id.endswith('_cmd'):
             name, val = node.targets[0].id, node.value
@@ -1033,7 +1033,7 @@ def check_cli_surface(run) -> None:
         if not head:
             continue
         ok = head[0] == 'yoga'
-        run(f'remedy: {name} at src/test/run.py:{val.lineno} names a yoga command', ok,
+        run(f'remedy: {name} at src/test/dev/run.py:{val.lineno} names a yoga command', ok,
             None if ok else
             f'`{head[0]}` is a path, not a command a reader types — and this remedy prints '
             f'only on a machine with data, where no scan of output can reach it',
@@ -1049,7 +1049,7 @@ def check_cli_surface(run) -> None:
         if not path.is_file() or path.suffix not in ('.py', '.sh', '.md', '.json'):
             continue
         rel = path.relative_to(REPO_ROOT)
-        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/run.py'):
+        if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):
             continue
         for i, line in enumerate(path.read_text(errors='ignore').splitlines(), 1):
             m = imperative.search(line)
@@ -2079,7 +2079,7 @@ def check_accumulate_contract(run) -> None:
 # gate's own sources and the committed expectations are in EVERY subject, so a
 # gate edit or an expectation edit re-runs everything. Escape hatch: --fresh.
 
-GATE_SOURCES = ['src/test/run.py', 'src/test/xref.py',
+GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',
                 'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']
 ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}
 # the cache's own home: inside tmp/cache, hence inside the data tier's subjects —
@@ -2617,7 +2617,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         data_note = ('data: machine-local' if committed_only else
                      'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
         if fail_idx:
-            out.write(f'`src/test/run.py`: {det} ({data_note}; '
+            out.write(f'`src/test/dev/run.py`: {det} ({data_note}; '
                       f'{len(gate_sections)} gating / {len(warn_sections)} advisory section(s) failing)\n')
         else:
             out.write(f'run.py: {det} ({data_note})\n')

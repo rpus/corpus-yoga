@@ -20,7 +20,7 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — shared modules live at its root
 
 from run import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs  # noqa: E402
 from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402

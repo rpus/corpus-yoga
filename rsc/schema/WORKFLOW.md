@@ -114,13 +114,13 @@ reordered keys — means the edit did more than the change, however it happened.
 Run the BFS order repair after editing:
 
 ```bash
-src/run_python_script.sh src/test/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
 ```
 
 Then run all diagnostics to catch principle violations:
 
 ```bash
-src/test/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
 ```
 
 ### 3. Validate and register
@@ -142,7 +142,7 @@ version *narrative*. To view the aggregate table across a pipeline's data (or re
 without revalidating, e.g. after a renderer format change):
 
 ```bash
-src/run_python_script.sh src/test/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 ```
 
 Add a `## v{N+1}` narrative section to the CHANGELOG: intro narrative first, then a
@@ -208,7 +208,7 @@ Open `rsc/schema/model_join.csv` and:
 5. **Verify pointers and grammar** by running:
 
    ```bash
-   src/test/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
+   src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
                             # check_model_join_versions: no version-pinned cells
    ```
 
@@ -277,7 +277,7 @@ documented field fails there, the review prompt.
 ### 7. Run `yoga test run`
 
 ```bash
-src/test/run.sh
+src/test/dev/run.sh
 git diff rsc/test/run.log
 ```
 

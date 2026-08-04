@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair naming.root_schema_title_matches_filename — Set root title to filename stem.
 
-Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
+Usage: python src/test/dev/repairs/naming.root_schema_title_matches_filename.py <schema>
 
 Writes back to the same file in place.
 """

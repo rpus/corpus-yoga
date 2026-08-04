@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Repair naming.upper_camel_case — Rename non-UpperCamelCase definition keys.
 
-Usage: python src/test/repairs/naming.upper_camel_case.py <schema> <old_name> <new_name>
+Usage: python src/test/dev/repairs/naming.upper_camel_case.py <schema> <old_name> <new_name>
 
 Renames the definition key and updates all $ref strings throughout the schema.
 Writes back to the same file in place.
