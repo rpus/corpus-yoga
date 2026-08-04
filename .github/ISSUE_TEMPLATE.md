@@ -5,7 +5,7 @@
      pulled, and nothing checks that.
 
      The body opens with a Signature line, the same triad the commit hook
-     stamps (src/test/prepare_commit_msg.sh's header is the one authority for
+     stamps (rsc/test/prepare-commit-msg-hook.sh's header is the one authority for
      the grammar): `Signature: <machine>/<provider>/<session>`. Written by
      hand — no hook stamps a body — since raise time has no commit to hook.
 

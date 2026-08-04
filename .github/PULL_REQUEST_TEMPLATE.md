@@ -3,14 +3,28 @@
      with --body-file (both rooms' practice) it is the PROTOTYPE you copy from.
 
      The body opens with a Signature line, the same triad the commit hook
-     stamps (src/test/prepare_commit_msg.sh's header is the one authority for
+     stamps (rsc/test/prepare-commit-msg-hook.sh's header is the one authority for
      the grammar): `Signature: <machine>/<provider>/<session>`. Written by
      hand — no hook stamps a body — since raise time has no commit to hook.
 
-     The grammar (#124): why / what / how / to. The durable half belongs on the
-     branch's FIRST commit — prospective at branch birth ("this branch should…"),
-     flipped to final indicative form before merge — because the squash publishes
-     commit messages, oldest first, and nothing else survives into git history.
+     The grammar (#124): why / what / how / to. The durable record has TWO
+     channels and the squash composes it from both: its SUBJECT is the PR TITLE
+     and its BODY is the commit messages, oldest first (squash_merge_commit_title:
+     PR_TITLE and squash_merge_commit_message: COMMIT_MESSAGES, both declared in
+     src/main/cli/forge/forge.csv). Nothing else reaches git history — not this
+     body, which is review conversation. So the durable half belongs on the
+     branch's FIRST commit, and the TITLE is the half that reads first and
+     forever, in every log, blame and listing.
+
+     Both are prospective at branch birth ("this branch should…") and both flip
+     to final indicative form before merge. Flip them INCREMENTALLY: any commit
+     that changes what the branch IS recomposes the first commit's notes as part
+     of its own work, and `gh pr edit --title` costs one command and rewrites
+     nothing. Deferred to the end, the flip is sized by however far the branch
+     drifted and falls due exactly when everyone wants to merge — which is how
+     #288 reached fifteen commits with first-commit notes still in the
+     prospective mood, describing two of the three issues it closed and none of
+     the work of the other thirteen.
      This body teaches the same sections plus the review-facing half.
 
      Relations vocabulary: closes / enacts / advances / supersedes / reopens.
