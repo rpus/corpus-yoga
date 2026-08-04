@@ -402,8 +402,8 @@ src/main/cli/forge.sh,18,call,src/main/enact.sh,Y,"source ""$REPO_DIR/src/main/e
 src/main/cli/forge.sh,22,path_str,src/main/cli/forge/forge.csv,Y,"[[ -f ""$DECLARED"" ]] || { echo -e ""UNVERIFIED\tforge.csv\tno src/main/cli/forge/forge.csv — nothing declared\t""; return;"
 src/main/cli/forge.sh,45,path_str,src/main/cli/forge/forge.csv,Y,"' ""$DECLARED"" 2>/dev/null || echo -e ""UNVERIFIED\tforge.csv\tunreadable or malformed\t"""
 src/main/cli/forge.sh,52,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge.sh,185,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
-src/main/cli/forge.sh,187,call,rsc/test/pre-commit-hook.sh,Y,"local hook accepted=""$REPO_DIR/rsc/test/pre-commit-hook.sh"""
+src/main/cli/forge.sh,189,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
+src/main/cli/forge.sh,191,call,rsc/test/pre-commit-hook.sh,Y,"local hook accepted=""$REPO_DIR/rsc/test/pre-commit-hook.sh"""
 src/main/cli/indexing/indexing.json,3,path_str,src/main/model/indexing.py,Y,"""target"": ""src/main/model/indexing.py"","
 src/main/cli/memories/memories.json,3,path_str,src/main/chat-exports/memories.py,Y,"""target"": ""src/main/chat-exports/memories.py"","
 src/main/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","

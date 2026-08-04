@@ -134,7 +134,11 @@ branches() {
     elif [[ -n "$holder" ]]; then
       echo -e "KEPT\t$b\t#$n merged, but the branch is checked out at $holder\tgit checkout $base"
     elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
-      echo -e "DELETABLE\t$b\t#$n merged, and ${tip:0:8} is contained in the merged head ${oid:0:8}"
+      if [[ "$tip" == "$oid" ]]; then
+        echo -e "DELETABLE\t$b\t#$n merged, and ${tip:0:8} is the head it merged"
+      else
+        echo -e "DELETABLE\t$b\t#$n merged, and ${tip:0:8} is contained in the merged head ${oid:0:8}"
+      fi
     else
       local match after created
       match="$(superseding_force_push "$n" "$tip")"
@@ -237,7 +241,7 @@ status() {
     case "$st" in
       OK)         echo "  ✓ $key: $detail" ;;
       DRIFT)      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1 ;;
-      UNVERIFIED) echo "  – $key: $detail"; refuse_class=1 ;;
+      UNVERIFIED) echo "  ✗ $key: $detail"; refuse_class=1 ;;
       *)          echo "  – $key: $detail" ;;
     esac
   done < <(reconcile)
@@ -250,8 +254,8 @@ status() {
     while IFS=$'\t' read -r st key detail remedy; do
       [[ -z "$st" ]] && continue
       case "$st" in
-        DELETABLE|SERVER_DELETABLE) echo "  ✗ $key: $detail"; d=1 ;;
-        UNVERIFIED)                 echo "  – $key: $detail"; refuse_class=1 ;;
+        DELETABLE|SERVER_DELETABLE) echo "  – $key: $detail"; d=1 ;;
+        UNVERIFIED)                 echo "  ✗ $key: $detail"; refuse_class=1 ;;
         *)                          echo "  – $key: $detail" ;;
       esac
       [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
@@ -267,8 +271,8 @@ status() {
     while IFS=$'\t' read -r st key detail; do
       [[ -z "$st" ]] && continue
       case "$st" in
-        STALE)      echo "  ✗ $key: $detail"; any=1 ;;
-        UNVERIFIED) echo "  – $key: $detail"; refuse_class=1 ;;
+        STALE)      echo "  – $key: $detail"; any=1 ;;
+        UNVERIFIED) echo "  ✗ $key: $detail"; refuse_class=1 ;;
         *)          echo "  – $key: $detail" ;;
       esac
     done <<< "$stale"
@@ -379,7 +383,7 @@ sync() {
 
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
-  local oid base head
+  local oid base head landed
   status &&
     assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)" &&
     read -r oid base head < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName,headRefName --jq '"\(.headRefOid) \(.baseRefName) \(.headRefName)"') &&
@@ -387,10 +391,10 @@ merge() {
     enact git -C "$REPO_DIR" merge-base --is-ancestor "origin/$base" "$oid" &&
     enact git -C "$REPO_DIR" checkout "$base" &&
     (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") &&
+    landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)" &&
     enact git -C "$REPO_DIR" fetch origin &&
-    enact git -C "$REPO_DIR" merge --ff-only "origin/$base" &&
+    enact git -C "$REPO_DIR" merge --ff-only "$landed" &&
     prune --apply &&
-    (cd "$REPO_DIR" && quote gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid) &&
     quote git -C "$REPO_DIR" status --short --branch
 }
 
