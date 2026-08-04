@@ -113,7 +113,11 @@ branches() {
         fi
       fi
     elif [[ "$st" != MERGED ]]; then
-      echo -e "KEPT\t$b\t#$n is $st"
+      if [[ "$st" == OPEN ]] && ! git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "$tip" 2>/dev/null; then
+        echo -e "KEPT\t$b\t#$n is $st; behind $base — rebase before merging"
+      else
+        echo -e "KEPT\t$b\t#$n is $st"
+      fi
     elif [[ -n "$holder" ]]; then
       echo -e "KEPT\t$b\t#$n merged, but the branch is checked out at $holder\tgit checkout $base"
     elif git -C "$REPO_DIR" merge-base --is-ancestor "$tip" "$oid" 2>/dev/null; then
@@ -177,6 +181,36 @@ gate() {
   fi
 }
 
+upstream() {
+  local current sha
+  current="$(git -C "$REPO_DIR" branch --show-current)"
+  if [[ -z "$current" ]]; then
+    sha="$(git -C "$REPO_DIR" rev-parse --short HEAD)"
+    echo -e "OK\tcheckout\tdetached at $sha — no upstream to compare\t"
+    return
+  fi
+  if ! git -C "$REPO_DIR" rev-parse --abbrev-ref "$current@{upstream}" &>/dev/null; then
+    echo -e "OK\tcheckout\t$current has no upstream — nothing to compare\t"
+    return
+  fi
+  may_send || { echo -e "UNVERIFIED\tcheckout\tYOGA_NO_SEND=1 refuses this send: git fetch (checkout vs upstream unverified)\t"; return; }
+  if ! quiet git -C "$REPO_DIR" fetch --quiet origin "$current" >/dev/null; then
+    echo -e "UNVERIFIED\tcheckout\tunreachable — checkout vs upstream unverified\t"
+    return
+  fi
+  if git -C "$REPO_DIR" merge-base --is-ancestor "origin/$current" HEAD 2>/dev/null; then
+    if git -C "$REPO_DIR" merge-base --is-ancestor HEAD "origin/$current" 2>/dev/null; then
+      echo -e "OK\tcheckout\t$current is level with origin/$current\t"
+    else
+      echo -e "OK\tcheckout\t$current is ahead of origin/$current — local commits not pushed\t"
+    fi
+  elif git -C "$REPO_DIR" merge-base --is-ancestor HEAD "origin/$current" 2>/dev/null; then
+    echo -e "WRONG\tcheckout\t$current is behind origin/$current — the yoga acting here is older than the branch's own newest\tgit -C $REPO_DIR pull --ff-only"
+  else
+    echo -e "WRONG\tcheckout\t$current and origin/$current have diverged\treconcile $current with origin/$current yourself"
+  fi
+}
+
 base_branch() {
   may_send || { echo main; return; }
   (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
@@ -228,7 +262,7 @@ status() {
     [[ -z "$any" ]] || echo "    → run: yoga forge prune"
   fi
 
-  echo "this checkout's gate — the hook that vets what you commit"
+  echo "this checkout's gate, and this checkout against its own upstream"
   while IFS=$'\t' read -r st key detail remedy; do
     [[ -z "$st" ]] && continue
     if [[ "$st" == OK ]]; then
@@ -236,7 +270,7 @@ status() {
     else
       echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1
     fi
-  done < <(gate)
+  done < <(gate; upstream)
   return "$refuse_class"
 }
 
@@ -332,10 +366,12 @@ sync() {
 
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
-  local oid base
+  local oid base head
   status &&
     assert_may_send "gh pr view / gh pr merge / git fetch (yoga forge merge)" &&
-    read -r oid base < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName --jq '"\(.headRefOid) \(.baseRefName)"') &&
+    read -r oid base head < <(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid,baseRefName,headRefName --jq '"\(.headRefOid) \(.baseRefName) \(.headRefName)"') &&
+    enact git -C "$REPO_DIR" fetch origin "$base" "$head" &&
+    enact git -C "$REPO_DIR" merge-base --is-ancestor "origin/$base" "$oid" &&
     enact git -C "$REPO_DIR" checkout "$base" &&
     (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") &&
     enact git -C "$REPO_DIR" fetch origin &&
