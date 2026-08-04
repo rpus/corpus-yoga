@@ -344,6 +344,22 @@ def check_required_files(run):
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists(), check='files.required_exists')
 
 
+def check_templates(run) -> None:
+    """Both templates teach the Signature line (#268), so a body raised through either
+    route — the web form or the copy-from-prototype --body-file — opens with the same
+    triad the commit hook stamps. A bare-line match, not a substring one: the teaching
+    prose itself mentions the phrase mid-sentence, backticked, which must not pass for
+    the line the body actually opens with."""
+    signature_line = 'Signature: <machine>/<provider>/<session>'
+    for path in [REPO_ROOT / '.github' / 'ISSUE_TEMPLATE.md',
+                 REPO_ROOT / '.github' / 'PULL_REQUEST_TEMPLATE.md']:
+        lines = path.read_text().splitlines() if path.exists() else []
+        taught = signature_line in lines
+        run(f'{path.relative_to(REPO_ROOT)}: teaches the Signature line', taught,
+            f'Add a `{signature_line}` line to {path.relative_to(REPO_ROOT)}'
+            if not taught else None, check='templates.teach_signature')
+
+
 def check_root_schema_diagnostics(run):
     root_schemas = sorted(RSC_SCHEMA.glob('*.json'))
     diagnostics  = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
@@ -2074,6 +2090,7 @@ DATA = ['tmp/cache', 'data/input', 'data/output', 'rsc']
 
 SUBJECTS: dict[str, list[str] | str] = {
     'check_required_files': 'TREE',
+    'check_templates': ['.github'],
     'check_xref': 'TREE',
     'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
     'check_effects': ['src/main/cli'],
@@ -2303,6 +2320,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     try:
         run_section(check_required_files, tier='code')
+        run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
         run_section(check_effects, tier='code')

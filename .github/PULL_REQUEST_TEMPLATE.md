@@ -2,6 +2,11 @@
      box; `gh pr create` reads it only via --template .github/PULL_REQUEST_TEMPLATE.md;
      with --body-file (both rooms' practice) it is the PROTOTYPE you copy from.
 
+     The body opens with a Signature line, the same triad the commit hook
+     stamps (src/test/prepare_commit_msg.sh's header is the one authority for
+     the grammar): `Signature: <machine>/<provider>/<session>`. Written by
+     hand — no hook stamps a body — since raise time has no commit to hook.
+
      The grammar (#124): why / what / how / to. The durable half belongs on the
      branch's FIRST commit — prospective at branch birth ("this branch should…"),
      flipped to final indicative form before merge — because the squash publishes
@@ -25,6 +30,8 @@
      ("aims to complete #N"); the pre-merge flip is what arms the close, which
      makes the recompose load-bearing: if review narrowed the scope, removing
      closes is not tidying prose, it is preventing a wrong close. -->
+
+Signature: <machine>/<provider>/<session>
 
 ## why
 

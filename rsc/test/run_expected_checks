@@ -99,5 +99,6 @@ structure.no_dangling_refs
 structure.no_redundant_additional_properties_true
 structure.pattern_constraints_enforced
 structure.required_subset_of_properties
+templates.teach_signature
 xref.no_bad_pointers
 xref.score_matches_expectation
