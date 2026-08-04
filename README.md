@@ -41,7 +41,7 @@ prefix-gated store.
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`yoga prerequisites` reports both)
-- commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
+- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
 - the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisites` reconciles them against the live forge and prints each drift's own `gh` remedy)
 - the checks: `src/test/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status)
 
@@ -113,7 +113,7 @@ main. Write the record in the commits; the pull-request description is review
 conversation, not the record.
 
 Every commit is signed `Signature: machine/provider/session` by the local
-`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the
+`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the
 model co-author (it is derivable from the session).
 
 A merge conflict is almost always confined to the check's four regenerated artifacts,

@@ -9,7 +9,7 @@ README.md,41,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<famil
 README.md,42,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,42,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,43,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,44,doc,src/test/prepare_commit_msg.sh,Y,- commit trailers (the `Signature:` grammar): `src/test/prepare_commit_msg.sh` (the hook that stamps it)
+README.md,44,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
 README.md,45,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
 README.md,46,doc,src/test/run.py,Y,- the checks: `src/test/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status)
 README.md,53,doc,src/main/browser-captures/export.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/browser-captures/export.command`
@@ -18,7 +18,7 @@ README.md,74,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cl
 README.md,82,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 README.md,92,doc,src/test/run.py,Y,"change — make it a named check in `src/test/run.py`, labelled for the property"
 README.md,95,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-README.md,116,doc,src/test/prepare_commit_msg.sh,Y,"`prepare-commit-msg` hook (`src/test/prepare_commit_msg.sh`), which also drops the"
+README.md,116,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
 README.md,122,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
 README.md,122,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
 README.md,123,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
@@ -159,6 +159,10 @@ rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as authored sources"
 rsc/site/README.md,19,doc,rsc/site/yoga/index.html,Y,"`rpus.co/yoga/`. `rsc/site/yoga/index.html` is the yoga landing, static and"
 rsc/site/README.md,20,doc,rsc/site/yoga/dataflow.dot,Y,complete. `rsc/site/yoga/dataflow.dot` is the repo's dataflow map: tiers as
+rsc/test/prepare-commit-msg-hook.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
+rsc/test/prepare-commit-msg-hook.sh,33,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"
+rsc/test/prepare-commit-msg-hook.sh,34,comment,src/prerequisites.sh,Y,# src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
+rsc/test/prepare-commit-msg-hook.sh,37,comment,rsc/test/prepare-commit-msg-hook.sh,Y,#   ln -sfn ../../rsc/test/prepare-commit-msg-hook.sh .git/hooks/prepare-commit-msg
 src/main/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/audit_captures.py,31,comment,src/main/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/browser-captures/audit_captures.py     [--input input] [--api data/output/markdown/cla
 src/main/browser-captures/browser.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
@@ -552,7 +556,7 @@ src/prerequisites.sh,26,call,src/main/send.sh,Y,"source ""$REPO_ROOT/src/main/se
 src/prerequisites.sh,209,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
 src/prerequisites.sh,213,path_str,rsc/machine/machines.csv,Y,"local registry=""$REPO_ROOT/rsc/machine/machines.csv"""
 src/prerequisites.sh,341,call,rsc/test/pre-commit-hook.sh,Y,"elif cmp -s ""$hook"" ""$REPO_ROOT/rsc/test/pre-commit-hook.sh""; then"
-src/prerequisites.sh,352,comment,src/test/prepare_commit_msg.sh,Y,"# co-author (grammar: src/test/prepare_commit_msg.sh). Absent, commits simply carry"
+src/prerequisites.sh,352,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"# co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry"
 src/prerequisites.sh,368,comment,src/test/run.sh,Y,"# (src/test/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
 src/prerequisites.sh,389,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/prerequisites.sh,407,call,src/main/cli/forge.sh,Y,"done < <(source ""$REPO_ROOT/src/main/cli/forge.sh""; reconcile 2>/dev/null)"
@@ -569,10 +573,6 @@ src/test/code-agents/debug_code_session_record.py,21,comment,src/test/code-agent
 src/test/code-agents/debug_code_session_record.py,30,path_str,rsc/schema/code-agents/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 src/test/code-agents/survey_code_session.py,10,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
 src/test/code-agents/survey_code_session.py,11,comment,src/test/code-agents/survey_code_session.py,Y,python src/test/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}/*.j
-src/test/prepare_commit_msg.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
-src/test/prepare_commit_msg.sh,33,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"
-src/test/prepare_commit_msg.sh,34,comment,src/prerequisites.sh,Y,# src/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
-src/test/prepare_commit_msg.sh,37,comment,src/test/prepare_commit_msg.sh,Y,#   ln -sfn ../../src/test/prepare_commit_msg.sh .git/hooks/prepare-commit-msg
 src/test/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/repairs/naming.root_schema_title_matches_filename.py <schema>
 src/test/repairs/naming.title_matches_key.py,4,comment,src/test/repairs/naming.title_matches_key.py,Y,Usage: python src/test/repairs/naming.title_matches_key.py <schema>

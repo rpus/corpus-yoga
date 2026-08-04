@@ -5,7 +5,7 @@
 #   yoga test              # status: which checks exist, and whether the hook is installed
 #   yoga test run [--fix] [--fresh]  # the three-tier suite (--fresh ignores the section cache)
 #   yoga test xref         # rebuild the cross-reference table, write it, and report
-#   yoga test install-hook # point .git/hooks at run.sh and prepare_commit_msg.sh
+#   yoga test install-hook # point .git/hooks at run.sh and the prepare-commit-msg hook
 #
 # The slot after `test` holds WHICH check, not a verb: `run` is the whole suite, `xref`
 # is one of them. That is why `yoga xref check` retired — `check` meant "reports, writes
@@ -46,7 +46,7 @@ install_hook() {
   chmod +x "$git_dir/pre-commit"
   echo "hook: $git_dir/pre-commit ← rsc/test/pre-commit-hook.sh"
 
-  ln -sfn "../../src/test/prepare_commit_msg.sh" "$git_dir/prepare-commit-msg"
+  ln -sfn "../../rsc/test/prepare-commit-msg-hook.sh" "$git_dir/prepare-commit-msg"
   echo "hook: $git_dir/prepare-commit-msg → $(readlink "$git_dir/prepare-commit-msg")"
 
   echo "  every commit now runs yoga test run and is stamped with its Signature;"

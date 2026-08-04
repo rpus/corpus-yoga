@@ -52,7 +52,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # (rev-parse), never the script's home, so even a manual cross-tree
 # invocation gates the tree you stand in: the only tree your git context
 # could be about to commit. Manual runs from this repo are unaffected
-# (toplevel == this repo). prepare_commit_msg stays home-anchored on purpose:
+# (toplevel == this repo). the prepare-commit-msg hook stays home-anchored on purpose:
 # the machine binding it reads is machine-scoped and absent from worktrees.
 TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
