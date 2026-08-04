@@ -57,6 +57,15 @@ rsc/CALCULUS.md,311,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expect
 rsc/CALCULUS.md,316,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
 rsc/CALCULUS.md,347,doc,src/main/code-agents/agent.py,Y,`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
 rsc/CALCULUS.md,370,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
+rsc/audit/README.md,41,doc,rsc/audit/prompt.md,Y,Provenance: rsc/audit/prompt.md @ <sha> - amend via PR to that file
+rsc/audit/prompt.md,14,doc,src/test/run.py,Y,"- gate-honesty: for every check_* function in src/test/run.py and for src/test/xref.py, the docstring/comment claims vs "
+rsc/audit/prompt.md,14,doc,src/test/xref.py,Y,"- gate-honesty: for every check_* function in src/test/run.py and for src/test/xref.py, the docstring/comment claims vs "
+rsc/audit/prompt.md,14,doc,src/main/send.py,Y,"- gate-honesty: for every check_* function in src/test/run.py and for src/test/xref.py, the docstring/comment claims vs "
+rsc/audit/prompt.md,17,doc,rsc/schema,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
+rsc/audit/prompt.md,17,doc,src/test/repairs,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
+rsc/audit/prompt.md,17,doc,src/test/diagnostics,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
+rsc/audit/prompt.md,17,doc,rsc/naming,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
+rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/cache_io.csv,2,path_str,src/test/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,yoga pipeline run browser-captures,src/test/run.py,per-capture apiCon"
 rsc/cache_io.csv,9,path_str,src/test/run.py,Y,"tmp/cache/test,,yoga test run,src/test/run.py,per-section replay cache (subject stat-hash + recorded contribution) — the"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
@@ -662,6 +671,7 @@ src/validation_matrix.py,9,comment,src/test/gen_changelog_matrix.py,Y,src/test/g
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
+,,,rsc/audit/README.md,Y,
 ,,,rsc/schema/_reference/mcp/v2.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/apiConversation/v9.json,Y,
