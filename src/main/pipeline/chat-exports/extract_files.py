@@ -152,8 +152,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 # ── main ─────────────────────────────────────────────────────────────────────
 
-SCRIPT_DIR     = Path(__file__).parent
-CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'tmp' / 'cache' / 'chat-exports'
+SCRIPT_DIR     = Path(__file__).resolve().parent
+CACHE_DIR     = SCRIPT_DIR.parents[3] / 'tmp' / 'cache' / 'chat-exports'
 
 
 def main():

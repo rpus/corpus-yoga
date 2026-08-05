@@ -183,8 +183,8 @@ def process(conversations_path: Path, out_dir: Path) -> None:
                     log.write(f'    diff {extracted_path} {dl_path_arg}\n')
 
 
-SCRIPT_DIR     = Path(__file__).parent
-CACHE_DIR     = SCRIPT_DIR.parent.parent.parent / 'tmp' / 'cache' / 'chat-exports'
+SCRIPT_DIR     = Path(__file__).resolve().parent
+CACHE_DIR     = SCRIPT_DIR.parents[3] / 'tmp' / 'cache' / 'chat-exports'
 
 
 def main():

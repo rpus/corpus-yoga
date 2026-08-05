@@ -25,8 +25,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/main/ on the
 from markdown_projection import slug
 from library import find as find_library_dir
 
-SCRIPT_DIR = Path(__file__).parent
-CACHE_DIR = SCRIPT_DIR.parent.parent.parent / 'tmp' / 'cache' / 'chat-exports'
+SCRIPT_DIR = Path(__file__).resolve().parent
+CACHE_DIR = SCRIPT_DIR.parents[3] / 'tmp' / 'cache' / 'chat-exports'
 
 BINARY_MIME_PREFIXES = (
     'application/vnd.',
