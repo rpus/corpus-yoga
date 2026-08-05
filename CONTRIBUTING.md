@@ -30,6 +30,13 @@ trips a check that names what it broke. #22 is the worked example: the issue sta
 watching the check fail. A guarantee whose only witness is a pull-request description is
 not guarded.
 
+A PR's to-test names its arbiter gate. Where that arbiter is the usr gate — a change
+the dev gate is green on both sides of — the merge waits until the usr gate has run
+green over real data on some machine, and the PR says where and when. A data-less
+room cannot run it and says so; a stated skip is honest, an unstated one reads as
+green. The dev gate's half needs no such sentence: the pre-commit hook and the merge
+chain run it themselves.
+
 Merge with the bare command — **no message flags**:
 
 ```bash
