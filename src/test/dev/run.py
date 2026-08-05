@@ -369,6 +369,28 @@ def check_pipeline_declarations(run) -> None:
             check='structure.pipeline_implements_run')
 
 
+def check_step_imports(run) -> None:
+    """A step module that cannot import fails here, not at the first pipeline run
+    (#333): the run.sh steps exec these under python, so an unresolvable sys.path
+    insert or import inside them is a commit-time defect the tiers' cache reads
+    cannot see. Each import runs in a FRESH interpreter, because this process's
+    own sys.path (pipeline/chat-exports is already on it for the accumulate
+    check) resolves the very imports a dangling insert would strand — an
+    in-process import of the #333 defect passed. Both modules are
+    __main__-guarded, so importing executes only their top level."""
+    for name in ('project_markdown', 'compare_sources'):
+        proc = subprocess.run(
+            [sys.executable, '-c',
+             f"import sys; sys.path.insert(0, 'src/main/model'); import {name}"],
+            capture_output=True, text=True, cwd=REPO_ROOT)
+        lines = (proc.stdout + proc.stderr).strip().splitlines()
+        run(f'imports: {name}: the step module imports in a fresh interpreter',
+            proc.returncode == 0,
+            None if proc.returncode == 0 else
+            (lines[-1] if lines else f'exit {proc.returncode}'),
+            check='imports.step_module_imports')
+
+
 def check_templates(run) -> None:
     """Both templates teach the Signature line (#268), so a body raised through either
     route — the web form or the copy-from-prototype --body-file — opens with the same
@@ -2346,6 +2368,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     try:
         run_section(check_required_files, tier='code')
         run_section(check_pipeline_declarations, tier='code')
+        run_section(check_step_imports, tier='code')
         run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')

@@ -63,6 +63,7 @@ grammar.parent_law_defined
 grammar.state_declared
 grammar.unenforced_names_issue
 grammar.unenforced_not_cited
+imports.step_module_imports
 mcp.up_to_date
 model.documented_type_grounded
 model.join_family_grammar
