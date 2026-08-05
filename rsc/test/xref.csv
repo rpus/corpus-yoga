@@ -40,7 +40,6 @@ pyrightconfig.json,12,path_str,src/main/cli/commands,Y,"""src/main/cli/commands"
 pyrightconfig.json,13,path_str,src/main/cli/completions,Y,"""src/main/cli/completions"","
 pyrightconfig.json,14,path_str,src/main/pipeline/code-agents,Y,"""src/main/pipeline/code-agents"","
 pyrightconfig.json,15,path_str,src/main/model,Y,"""src/main/model"","
-pyrightconfig.json,16,path_str,src/test,Y,"""src/test"""
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-exports/supersede.py,Y,equality of snapshots. (`src/main/pipeline/chat-exports/supersede.py` atomisers.)
 rsc/CALCULUS.md,103,doc,src/main/pipeline/chat-exports/accumulate.py,Y,"implementation: `accumulate()` in `src/main/pipeline/chat-exports/accumulate.py`, called"
