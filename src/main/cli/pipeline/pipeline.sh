@@ -400,7 +400,17 @@ print_plan() {
 
 main() {
   parse_args "$@"
-  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+  # The header anchors the log's evidence (#365): the room this machine is bound
+  # to (or its stated absence — a worktree carries no binding), the commit the
+  # tree stood at, and clean/dirty with the count. Every claim below dereferences
+  # against this line instead of against archaeology.
+  local room ref dirty
+  room="$(cat "$REPO_ROOT/machine-name.txt" 2>/dev/null || echo '(unbound)')"
+  ref="$(git -C "$REPO_ROOT" branch --show-current 2>/dev/null)"
+  ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
+  dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
+  [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
+  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty"
 
   require_cmd jq "install via: brew install jq"
   local python; python="$(find_python3)"
