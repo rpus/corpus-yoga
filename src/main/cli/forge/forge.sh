@@ -381,29 +381,49 @@ sync() {
   done
 }
 
+# Every exit path ends on ONE anchored verdict line — `forge merge: DONE`/`NOT DONE` —
+# because a halted chain's last relay drowns mid-avalanche and non-explosion reads as
+# success (it cost a phantom merge and two human retries on one day, #349). The acts'
+# relays are unchanged; the verdict is the runner's own closing word. A halt that will
+# cure itself (the forge recomputing mergeability after a push) says so.
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
   local oid base head mergeable closing landed
   assert_may_send "gh pr view / gh pr merge / git push / git fetch (yoga forge merge)" \
-  && read -r base head mergeable closing < <(cd "$REPO_DIR" && query gh pr view "$pr" \
+    || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
+  read -r base head mergeable closing < <(cd "$REPO_DIR" && query gh pr view "$pr" \
        --json baseRefName,headRefName,mergeable,closingIssuesReferences \
        --jq '[.baseRefName,.headRefName,.mergeable,(.closingIssuesReferences|length)]|@tsv') \
-  && [[ "$mergeable" == MERGEABLE ]] \
-  && (( closing > 0 )) \
-  && status \
-  && enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
-  && enact git -C "$REPO_DIR" checkout --detach "origin/$head" \
-  && enact git -C "$REPO_DIR" rebase "origin/$base" \
-  && enact "$REPO_DIR/yoga" test run \
-  && enact git -C "$REPO_DIR" push --force-with-lease origin "HEAD:$head" \
-  && oid="$(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid --jq .headRefOid)" \
-  && enact git -C "$REPO_DIR" checkout "$base" \
-  && (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") \
-  && landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)" \
-  && enact git -C "$REPO_DIR" fetch origin \
-  && enact git -C "$REPO_DIR" merge --ff-only "$landed" \
-  && prune --apply \
-  && quote git -C "$REPO_DIR" status
+    || { echo "forge merge: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
+  if [[ "$mergeable" == UNKNOWN ]]; then
+    echo "forge merge: NOT DONE — mergeability UNKNOWN: the forge is recomputing after a push moved the head; retry shortly"
+    return 1
+  fi
+  [[ "$mergeable" == MERGEABLE ]] \
+    || { echo "forge merge: NOT DONE — the forge calls #$pr $mergeable"; return 1; }
+  (( closing > 0 )) \
+    || { echo "forge merge: NOT DONE — the forge's parser would close nothing; arm closes #N and push before merging"; return 1; }
+  status \
+    || { echo "forge merge: NOT DONE — refuse-class drift; the standing report above names it"; return 1; }
+  if enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
+     && enact git -C "$REPO_DIR" checkout --detach "origin/$head" \
+     && enact git -C "$REPO_DIR" rebase "origin/$base" \
+     && enact "$REPO_DIR/yoga" test run \
+     && enact git -C "$REPO_DIR" push --force-with-lease origin "HEAD:$head" \
+     && oid="$(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid --jq .headRefOid)" \
+     && enact git -C "$REPO_DIR" checkout "$base" \
+     && (cd "$REPO_DIR" && enact gh pr merge "$pr" --squash --match-head-commit "$oid") \
+     && landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)" \
+     && enact git -C "$REPO_DIR" fetch origin \
+     && enact git -C "$REPO_DIR" merge --ff-only "$landed" \
+     && prune --apply \
+     && quote git -C "$REPO_DIR" status; then
+    echo "forge merge: DONE — #$pr squashed as ${landed:0:8}; this checkout converged on it"
+  else
+    local st=$?
+    echo "forge merge: NOT DONE — stopped at the act the last NOT-done line above names (exit $st)"
+    return "$st"
+  fi
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
