@@ -1,6 +1,5 @@
 # Contributing
 
-
 Merge with `./yoga forge merge <pr>`. It is a straight line of echoed commands — read
 the head, squash-merge pinned to it, return to the base, fetch, fast-forward — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
