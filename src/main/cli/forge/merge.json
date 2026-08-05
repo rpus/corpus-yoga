@@ -1,5 +1,5 @@
 {
-  "help": "the PR read first, then the standing forge report, then the acts, then the checkout's own state: an unresolvable argument or anything but MERGEABLE stops it before the report, refuse-class drift stops it before anything irreversible, the head is rebased onto the PR's own base and gated before it is force-pushed, the squash lands pinned to the head that rebase produced, this checkout converges on the merge commit the forge names, what the merge orphaned is swept by prune --apply, and the last word is the checkout's own state (git status) \u2014 no message flags, so the body is assembled from the branch's commits and keeps their signatures",
+  "help": "the PR read first, then the standing forge report, then the acts, then the checkout's own state: an unresolvable argument, anything but MERGEABLE, or a closing set the forge computes as empty stops it before the report, refuse-class drift stops it before anything irreversible, the head is rebased onto the PR's own base and gated before it is force-pushed, the squash lands pinned to the head that rebase produced, this checkout converges on the merge commit the forge names, what the merge orphaned is swept by prune --apply, and the last word is the checkout's own state (git status) \u2014 no message flags, so the body is assembled from the branch's commits and keeps their signatures",
   "args": [
     {
       "name": "pr",
@@ -10,7 +10,7 @@
   ],
   "sends": {
     "gh pr view": [
-      "reads the PR's base, head branch and mergeability, before anything else",
+      "reads the PR's base, head branch, mergeability and how many issues the forge will close for it, before anything else",
       "reads its head again after the rebase, to pin the squash to what rebase produced",
       "reads the merge commit after the squash, to converge this checkout on it"
     ],

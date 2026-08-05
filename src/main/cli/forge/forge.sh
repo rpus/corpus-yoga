@@ -383,11 +383,13 @@ sync() {
 
 merge() {
   local pr="${1:?yoga forge merge <pr>}"
-  local oid base head mergeable landed
+  local oid base head mergeable closing landed
   assert_may_send "gh pr view / gh pr merge / git push / git fetch (yoga forge merge)" \
-  && read -r base head mergeable < <(cd "$REPO_DIR" && query gh pr view "$pr" \
-       --json baseRefName,headRefName,mergeable --jq '[.baseRefName,.headRefName,.mergeable]|@tsv') \
+  && read -r base head mergeable closing < <(cd "$REPO_DIR" && query gh pr view "$pr" \
+       --json baseRefName,headRefName,mergeable,closingIssuesReferences \
+       --jq '[.baseRefName,.headRefName,.mergeable,(.closingIssuesReferences|length)]|@tsv') \
   && [[ "$mergeable" == MERGEABLE ]] \
+  && (( closing > 0 )) \
   && status \
   && enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
   && enact git -C "$REPO_DIR" checkout --detach "origin/$head" \
