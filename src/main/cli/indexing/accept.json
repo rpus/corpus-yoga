@@ -2,10 +2,16 @@
   "help": "accept a concept as a headword (merge any aliases into it)",
   "args": [
     {
+      "name": "--all",
+      "type": "",
+      "cardinality": "",
+      "help": "accept the whole derived queue (tmp/cache/indexing/candidates.txt) as read \u2014 refused if the queue moved since list-candidates wrote it; each candidate becomes its own headword (alias-folding stays per-term work, or edit accepted.txt after)"
+    },
+    {
       "name": "term",
       "type": "<term>",
-      "cardinality": "1",
-      "help": "the concept to accept as a headword"
+      "cardinality": "",
+      "help": "the concept to accept as a headword (or --all for the queue as read)"
     },
     {
       "name": "aliases",

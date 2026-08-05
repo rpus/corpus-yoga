@@ -35,7 +35,9 @@ Usage (via yoga indexing):
   yoga indexing                                    # status: counts + pending queue
   yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt
   yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
+  yoga indexing accept --all                       # accept the whole queue as read
   yoga indexing reject [--reason <why>] <concept>  # reject a concept
+  yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
   yoga indexing sync                               # build data/output/markdown/index.md
 """
 import argparse
@@ -323,6 +325,35 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) 
     return f'{concept!r}: rejected' + (f' ({reason})' if reason else '')
 
 
+def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str) -> str:
+    """Enact the DERIVED queue — tmp/cache/indexing/candidates.txt, the artifact the
+    reviewer read — never a live recomputation (#355). A missing or drifted queue is
+    a refusal, so what is disposed is provably what was reviewed; the judgment stays
+    human, its unit the list the human read. Wholesale accept forfeits alias-folding
+    (each candidate becomes its own headword; accepted.txt stays hand-editable);
+    wholesale reject stamps the one reason on every line."""
+    if not CANDIDATES_TXT.exists():
+        return ('refused: no derived queue — run `yoga indexing list-candidates`, '
+                'read it, then --all')
+    as_read = CANDIDATES_TXT.read_text()
+    live = candidates_report(accepted_path, rejected_path)
+    if as_read != live:
+        return ('refused: the queue moved since you listed it — re-run '
+                '`yoga indexing list-candidates`, re-read, then --all')
+    queue = [line.strip() for line in as_read.splitlines() if line.strip()]
+    if not queue:
+        return 'nothing pending — the derived queue is empty'
+    for concept in queue:
+        if verb == 'accept':
+            print(accept(accepted_path, concept, []))
+        else:
+            print(reject(accepted_path, rejected_path, concept, reason))
+    # the queue is disposed; re-derive so the filed artifact stays the truth
+    CANDIDATES_TXT.write_text(candidates_report(accepted_path, rejected_path))
+    word = 'accepted' if verb == 'accept' else 'rejected'
+    return f'{len(queue)} concept(s) {word}, the queue as read'
+
+
 def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
     """Captured concepts not yet accepted or rejected — the disposal queue."""
     covered, rejected = _coverage(accepted_path, rejected_path)
@@ -392,11 +423,13 @@ def main():
     # is `list-candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
     cand.add_argument('--top', type=int, default=None, metavar='N')
     acc = sub.add_parser('accept')
-    acc.add_argument('term')
+    acc.add_argument('term', nargs='?')
     acc.add_argument('aliases', nargs='*')
+    acc.add_argument('--all', action='store_true')
     rej = sub.add_parser('reject')
-    rej.add_argument('concept')
+    rej.add_argument('concept', nargs='?')
     rej.add_argument('--reason', default='')
+    rej.add_argument('--all', action='store_true')
     sub.add_parser('sync')
     enrich(ap, 'indexing')
     args = ap.parse_args()
@@ -407,11 +440,23 @@ def main():
         candidates(MARKDOWN_DIR, accepted_path, rejected_path, args.top)
         return
     if args.verb == 'accept':
-        print(accept(accepted_path, args.term, args.aliases))
+        # exactly one of --all and a term: the flag disposes the queue as read, the
+        # positional disposes one concept — both or neither is no instruction.
+        if args.all == bool(args.term):
+            ap.error('accept takes a <term> or --all, not both and not neither')
+        if args.all:
+            print(dispose_all(accepted_path, rejected_path, 'accept', ''))
+        else:
+            print(accept(accepted_path, args.term, args.aliases))
         pending_report(accepted_path, rejected_path)
         return
     if args.verb == 'reject':
-        print(reject(accepted_path, rejected_path, args.concept, args.reason))
+        if args.all == bool(args.concept):
+            ap.error('reject takes a <concept> or --all, not both and not neither')
+        if args.all:
+            print(dispose_all(accepted_path, rejected_path, 'reject', args.reason))
+        else:
+            print(reject(accepted_path, rejected_path, args.concept, args.reason))
         pending_report(accepted_path, rejected_path)
         return
     if args.verb == 'sync':
