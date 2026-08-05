@@ -221,15 +221,32 @@ run_pipeline() {
 
 # A pipeline that exits non-zero has gated on SOMETHING; if it never said so in the
 # vocabulary the table counts, the run cannot state why it failed and the row reads
-# `0 FAIL … failed`. That gap is the step's defect, and naming it is the only honest
-# repair available here: the runner states what it observed — a non-zero exit with no
-# finding — rather than inventing the finding the step withheld.
+# `0 FAIL … failed`. That gap is the step's defect — and the section still HOLDS the
+# finding: a crash's last logged line names it (a python traceback ends on the
+# exception). The runner quotes those last words into the FAIL: atom, verbatim, so
+# the table counts it and the tail quotes it as usual — observation, not invention;
+# exit-status failures become FAIL:ures like any other (#337).
 run_pipeline_safe() {
   local name="$1"; shift
   if ! run_pipeline "$name" "$@"; then
     pipeline_failures+=("$name")
-    section_has_fail "$name" || echo "FAIL: $name exited non-zero without stating a finding — a step gated on something it did not report as FAIL:; its own output is above"
+    if ! section_has_fail "$name"; then
+      local last
+      last="$(section_last_words "$name")"
+      echo "FAIL: $name exited non-zero without stating a finding — its last words: ${last:-(no output)}"
+    fi
   fi
+}
+
+# The last non-empty line of one section of the log, whitespace-stripped — the
+# step's own last words, flushed through the tee by the time its runner returns
+# (the same guarantee section_has_fail already relies on).
+section_last_words() {
+  awk -v want="$1" '
+    /^── / { in_section = ($2 == want); next }
+    in_section && NF { last = $0 }
+    END { if (last != "") { sub(/^[[:space:]]*/, "", last); print last } }
+  ' "$LOG_FILE" 2>/dev/null
 }
 
 # Does this section already carry a FAIL: atom? Read from its banner to the end of what
