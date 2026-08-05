@@ -2770,7 +2770,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
             lines += gate_lines
         else:
             out.write(f'\ndev gate: PASS — code+schema {det} match the committed expectation; '
-                      'nothing here vetoes a commit\n')
+                      'nothing here vetoes a commit. What this gate cannot arbitrate — '
+                      'that the verbs run — is the usr gate\'s: yoga pipeline run\n')
         # The verdict is the terminal word — no trailing offer after it. The
         # remediation each finding needs is already printed beside it (WARN's
         # "to address, at leisure"; the gate's "To fix"). We do NOT append a
