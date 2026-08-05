@@ -663,13 +663,13 @@ src/test/dev/xref.py,46,path_str,rsc/test/xref.csv,Y,"SKIP_FILES = {'rsc/test/ru
 src/test/dev/xref.py,611,comment,rsc/test/xref.csv,Y,owns the write to rsc/test/xref.csv there (#249's check/render/gate
 src/test/dev/xref.py,56,comment,src/requirements.txt,Y,"# The third-party half comes from the DECLARATION, src/requirements.txt. Its hand-written"
 src/test/dev/xref.py,337,comment,src/main/cli/pipeline/pipeline.sh,Y,# trailing /.. hops (src/main/cli/pipeline/pipeline.sh anchors REPO_ROOT at its parent)
-src/test/usr/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
-src/test/usr/code-agents/debug_code_session_record.py,15,comment,src/test/usr/code-agents/debug_code_session_record.py,Y,python src/test/usr/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project
-src/test/usr/code-agents/debug_code_session_record.py,18,comment,src/test/usr/code-agents/debug_code_session_record.py,Y,python src/test/usr/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project
-src/test/usr/code-agents/debug_code_session_record.py,21,comment,src/test/usr/code-agents/debug_code_session_record.py,Y,python src/test/usr/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project
-src/test/usr/code-agents/debug_code_session_record.py,30,path_str,rsc/schema/code-agents/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
-src/test/usr/code-agents/survey_code_session.py,10,comment,src/test/usr/code-agents/survey_code_session.py,Y,python src/test/usr/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-src/test/usr/code-agents/survey_code_session.py,11,comment,src/test/usr/code-agents/survey_code_session.py,Y,python src/test/usr/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,15,comment,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,18,comment,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,21,comment,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,30,path_str,rsc/schema/code-agents/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
+src/test/usr/pipeline/code-agents/survey_code_session.py,10,comment,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,python src/test/usr/pipeline/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
+src/test/usr/pipeline/code-agents/survey_code_session.py,11,comment,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,python src/test/usr/pipeline/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{proj
 src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,README.md,Y,
 ,,,claude-export-yoga.code-workspace,Y,
@@ -798,6 +798,6 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,self_only,src/test/dev/repairs/structure.no_redundant_additional_properties_true.py,Y,
 ,,self_only,src/test/dev/repairs/structure.pattern_constraints_enforced.py,Y,
 ,,self_only,src/test/dev/repairs/structure.required_subset_of_properties.py,Y,
-,,self_only,src/test/usr/code-agents/debug_code_session_record.py,Y,
-,,self_only,src/test/usr/code-agents/survey_code_session.py,Y,
+,,self_only,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,
+,,self_only,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,
 ,,,yoga,Y,

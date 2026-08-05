@@ -7,8 +7,8 @@ Useful for empirically grounding the code-agents schema before writing or
 extending it, following the same approach as the conversations schema diagnostics.
 
 Usage:
-    python src/test/usr/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
-    python src/test/usr/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}/*.jsonl
+    python src/test/usr/pipeline/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
+    python src/test/usr/pipeline/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{project-slug}/*.jsonl
 
 Output: a human-readable report to stdout covering:
   - Record counts per type across all files

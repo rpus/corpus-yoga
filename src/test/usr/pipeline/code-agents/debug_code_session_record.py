@@ -12,13 +12,13 @@ Accepts either a .jsonl session file (converts in-memory) or a pre-converted .js
 
 Usage:
     # Diagnose the first failing record in a session:
-    python src/test/usr/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}/{uuid}.jsonl
+    python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}/{uuid}.jsonl
 
     # Diagnose record at a specific index:
-    python src/test/usr/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}/{uuid}.jsonl --index 42
+    python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}/{uuid}.jsonl --index 42
 
     # Diagnose all failing records (summary):
-    python src/test/usr/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}/{uuid}.jsonl --all
+    python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}/{project-slug}/{uuid}.jsonl --all
 """
 
 import argparse
@@ -26,7 +26,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[5]
 SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 
 
