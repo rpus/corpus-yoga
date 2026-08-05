@@ -15,6 +15,10 @@
 		// resolution when a partial config once shadowed eight paths with one.
 		"python.analysis.diagnosticMode": "workspace",
 		"python.terminal.activateEnvironment": false,
+		// must match the gate's shellcheck invocation (src/test/dev/run.py passes -x),
+		// or the editor emits SC1091 on every `# shellcheck source=` directive that the
+		// gate, with the sourced file followed, holds clean
+		"shellcheck.customArgs": ["-x"],
 		// Constant-titled CHANGELOG section headings (### Replaces, #### Restricted/
 		// Relaxed/Refactored) repeat under every ## vN parent by design (rsc/schema/
 		// WORKFLOW.md, step 3) — flag duplicate headings only among siblings
