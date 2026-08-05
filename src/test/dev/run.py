@@ -74,7 +74,7 @@ import commands as cli_commands  # noqa: E402 — `yoga commands` answers itself
 import completions as cli_completions  # noqa: E402 — and `yoga completions` here
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 
-sys.path.insert(0, str(SRC / 'main' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
+sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
 
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
@@ -86,62 +86,57 @@ import xref  # the cross-reference table (check_xref) — a same-directory sibli
 
 # ── Pipeline model ────────────────────────────────────────────────────────────
 
+PIPELINE_ROOT = SRC / 'main' / 'pipeline'
+
 @dataclass
 class Pipeline:
-    schemas:         list[str]
-    changelog:       Path
-    cache_output:    Path
-    input:           Path
-    input_glob:      str
-    subject_depth:   int
-    # Per-item remedy command; takes the pipeline's TOP-LEVEL data/input/ entry (see _fix_item_cmd).
-    fix_item_cmd:    str
-    # Extra diagnostics to skip beyond the universal versioned-schema skip set.
-    # composition.base_schemas_closed — session deviation: TurnBase intentionally open (see principles.md).
-    diagnostic_skip:    frozenset[str] = frozenset()
-    gen_key_prefix:     str = ''
-    # A second input shape the pipeline demands beyond input_glob — code-agents'
-    # per-project memory/ dirs beside its per-session .jsonl files. Same subject
-    # depth; the trailing-slash convention (dirs vs files) is per glob.
-    extra_input_glob:   str = ''
+    name:             str
+    schemas:          list[str]
+    input:            Path
+    input_glob:       str
+    subject_depth:    int
+    extra_input_glob: str
+    diagnostic_skip:  frozenset[str]
 
+    @property
+    def changelog(self) -> Path:
+        # The FIRST schema is the one whose CHANGELOG anchors the format history.
+        return RSC_SCHEMA / self.name / self.schemas[0] / 'CHANGELOG.md'
+
+    @property
+    def cache_output(self) -> Path:
+        return REPO_ROOT / cache_io.path_for(self.name)
+
+    @property
+    def fix_item_cmd(self) -> str:
+        # Per-item remedy command; takes the pipeline's TOP-LEVEL data/input/ entry (see _fix_item_cmd).
+        return f'yoga pipeline run {self.name}'
+
+
+def _load_pipeline(directory: Path) -> Pipeline:
+    facts = json.loads((directory / 'pipeline.json').read_text())
+    return Pipeline(
+        name             = directory.name,
+        schemas          = facts['schemas'],
+        input            = REPO_ROOT / facts['input'],
+        input_glob       = facts['input_glob'],
+        subject_depth    = facts['subject_depth'],
+        extra_input_glob = facts['extra_input_glob'],
+        diagnostic_skip  = frozenset(facts['diagnostic_skip']),
+    )
+
+
+# Membership is placement (#327): a pipeline is a subdirectory of src/main/pipeline/, and
+# its facts are its own pipeline.json — the same listing `yoga pipeline` serves, so the
+# gate's list and the CLI's cannot drift apart. A member without a declaration stays OUT
+# of the dict but IN _PIPELINE_UNDECLARED, so check_pipeline_declarations can name it
+# instead of the import dying on it.
+_PIPELINE_DIRS = [d for d in sorted(PIPELINE_ROOT.iterdir())
+                  if d.is_dir() and d.name != '__pycache__']
+_PIPELINE_UNDECLARED = [d.name for d in _PIPELINE_DIRS if not (d / 'pipeline.json').is_file()]
 PIPELINES: dict[str, Pipeline] = {
-    'browser-captures': Pipeline(
-        schemas           = ['apiConversation'],
-        changelog         = RSC_SCHEMA / 'browser-captures' / 'apiConversation' / 'CHANGELOG.md',
-        cache_output      = REPO_ROOT / cache_io.path_for('browser-captures'),
-        input             = INPUT / 'claude' / 'chat' / 'browser-API',
-        input_glob        = '*/',
-        subject_depth     = 1,
-        fix_item_cmd      = 'yoga pipeline run browser-captures',
-    ),
-    'chat-exports': Pipeline(
-        schemas           = ['conversations', 'memories', 'projects', 'users'],
-        changelog         = RSC_SCHEMA / 'chat-exports' / 'conversations' / 'CHANGELOG.md',
-        cache_output      = REPO_ROOT / cache_io.path_for('chat-exports'),
-        input             = INPUT / 'claude' / 'chat' / 'bulk-export',
-        input_glob        = 'data-*/',
-        subject_depth     = 1,
-        fix_item_cmd      = 'yoga pipeline run chat-exports',
-    ),
-    'code-agents': Pipeline(
-        schemas           = ['session', 'sessionConversation', 'projectMemory'],
-        changelog         = RSC_SCHEMA / 'code-agents' / 'session' / 'CHANGELOG.md',
-        cache_output      = REPO_ROOT / cache_io.path_for('code-agents'),
-        # The pipeline sources the repo-owned STORE (machines → projects →
-        # sessions), never the harness-owned ~/.claude/projects — transport
-        # is the capture step that populates it.
-        input             = INPUT / 'claude' / 'code' / 'machine-transport',
-        input_glob        = '*/-Users-*/*.jsonl',
-        subject_depth     = 3,
-        # validate.sh --code-agent-session consumes the tmp/cache/ session dir (conversion
-        # from .jsonl comes first), so the runnable store-rooted unit is the project run.sh.
-        fix_item_cmd      = 'yoga pipeline run code-agents',
-        diagnostic_skip   = frozenset({'composition.base_schemas_closed'}),
-        # Each project's memory/ is its own datum (projectMemory), a subject beside
-        # the project's sessions: tmp/cache/code-agents/<machine>/<project>/memory/.
-        extra_input_glob  = '*/-Users-*/memory/',
-    ),
+    d.name: _load_pipeline(d)
+    for d in _PIPELINE_DIRS if (d / 'pipeline.json').is_file()
 }
 
 # Map schema name → its directory, derived from PIPELINES.
@@ -277,7 +272,6 @@ def _input_subjects(pipeline: Pipeline) -> list:
                 continue
             rel   = item.relative_to(pipeline.input)
             parts = rel.parts[:-1] + (item.name if dirs_only else item.stem,)
-            parts = (parts[0].removeprefix(pipeline.gen_key_prefix),) + parts[1:]
             result.append(parts)
     return sorted(result)
 
@@ -331,8 +325,8 @@ def check_required_files(run):
     # asserting those same paths exist is tautological (it requires whatever is present); a missing
     # schema dir simply has no versions and is invisible to the family walks instead.
     required = [
-        *[SRC / 'main' / name / 'validate.sh' for name in PIPELINES if name != 'browser-captures'],
-        SRC / 'main' / 'browser-captures' / 'claude' / 'validate.sh',
+        *[PIPELINE_ROOT / name / 'validate.sh' for name in PIPELINES if name != 'browser-captures'],
+        PIPELINE_ROOT / 'browser-captures' / 'claude' / 'validate.sh',
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
         SRC  / 'main' / 'model' / 'model.py',
@@ -343,6 +337,36 @@ def check_required_files(run):
     ]
     for path in required:
         run(f'exists: {path.relative_to(REPO_ROOT)}', path.exists(), check='files.required_exists')
+
+
+def check_pipeline_declarations(run) -> None:
+    """Membership is placement and facts are declared (#327): every subdirectory of
+    src/main/pipeline/ carries a pipeline.json valid against pipeline.schema.json and
+    implements run.sh — so a member missing either is a named failure here, and a stray
+    run.sh elsewhere confers nothing."""
+    import jsonschema
+    schema = json.loads((PIPELINE_ROOT / 'pipeline.schema.json').read_text())
+    validator = jsonschema.Draft4Validator(schema)
+    for name in _PIPELINE_UNDECLARED:
+        run(f'pipeline: {name}: declares itself in pipeline.json', False,
+            f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
+            f'declaration is invisible to every consumer of the listing',
+            check='structure.pipeline_declaration_validates')
+    for name in PIPELINES:
+        decl = PIPELINE_ROOT / name / 'pipeline.json'
+        errors = sorted(validator.iter_errors(json.loads(decl.read_text())),
+                        key=lambda e: list(e.path))
+        run(f'pipeline: {name}: declaration validates against pipeline.schema.json',
+            not errors,
+            None if not errors else
+            f'{errors[0].message} at {"/".join(str(x) for x in errors[0].path) or "(root)"}',
+            check='structure.pipeline_declaration_validates')
+        run_sh = PIPELINE_ROOT / name / 'run.sh'
+        run(f'pipeline: {name}: implements run.sh', run_sh.is_file(),
+            None if run_sh.is_file() else
+            f'{run_sh.relative_to(REPO_ROOT)} missing — the run phase is the one every '
+            f'pipeline must implement',
+            check='structure.pipeline_implements_run')
 
 
 def check_templates(run) -> None:
@@ -684,8 +708,8 @@ def check_cache_io(run) -> None:
         return
     run('cache_io: registry parses: rsc/cache_io.csv', True, check='cache_io.registry_parses')
 
-    # PIPELINES now derives cache_output from cache_io.path_for(), so a pipeline
-    # missing its row fails loudly at import; this catches the reverse — a
+    # Pipeline.cache_output derives from cache_io.path_for(), so a pipeline
+    # missing its row fails loudly at first use; this catches the reverse — a
     # pipeline TAG in cache_io naming no real pipeline (or a mismatch either way).
     tagged = cache_io.pipelines()
     run('cache_io: pipeline tags match PIPELINES', tagged == set(PIPELINES),
@@ -1975,7 +1999,7 @@ def check_capture_monotone(run) -> None:
     import shutil
     import tempfile
     import time
-    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'browser-captures'))
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'browser-captures'))
     import safari_utils
     real_downloads = safari_utils.DOWNLOADS
 
@@ -2028,7 +2052,7 @@ def check_capture_monotone(run) -> None:
 
 
 def check_accumulate_contract(run) -> None:
-    """The shared accumulate operation (src/main/chat-exports/accumulate.py) obeys
+    """The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
     the content differs from the NEAREST EARLIER deposit, so the store records a
     trajectory, not a set. The design turns on cases a byte-set would get wrong —
@@ -2321,6 +2345,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     try:
         run_section(check_required_files, tier='code')
+        run_section(check_pipeline_declarations, tier='code')
         run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')

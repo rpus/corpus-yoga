@@ -98,6 +98,8 @@ structure.minItems_on_non_empty_arrays
 structure.no_dangling_refs
 structure.no_redundant_additional_properties_true
 structure.pattern_constraints_enforced
+structure.pipeline_declaration_validates
+structure.pipeline_implements_run
 structure.required_subset_of_properties
 templates.teach_signature
 xref.no_bad_pointers

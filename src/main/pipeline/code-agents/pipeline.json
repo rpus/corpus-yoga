@@ -1,0 +1,14 @@
+{
+  "schemas": [
+    "session",
+    "sessionConversation",
+    "projectMemory"
+  ],
+  "input": "data/input/claude/code/machine-transport",
+  "input_glob": "*/-Users-*/*.jsonl",
+  "subject_depth": 3,
+  "extra_input_glob": "*/-Users-*/memory/",
+  "diagnostic_skip": [
+    "composition.base_schemas_closed"
+  ]
+}

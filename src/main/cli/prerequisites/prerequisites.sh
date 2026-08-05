@@ -526,7 +526,7 @@ sync() {
     echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
   fi
   _todo_has hook && "$REPO_ROOT/src/main/cli/test/test.sh" install-hook
-  _todo_has mount && "$REPO_ROOT/src/main/code-agents/link_projects.sh"
+  _todo_has mount && "$REPO_ROOT/src/main/pipeline/code-agents/link_projects.sh"
   echo
   echo "what remains — re-derived, not assumed:"
   _todo=()

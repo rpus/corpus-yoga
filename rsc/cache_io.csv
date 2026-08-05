@@ -1,7 +1,7 @@
 cache_path,pipeline,written_by,read_by,note
 tmp/cache/browser-captures/claude,browser-captures,yoga pipeline run browser-captures,src/test/dev/run.py,per-capture apiConversation validation logs and matrix (browser-captures pipeline)
-tmp/cache/chat-exports,chat-exports,yoga pipeline run chat-exports,src/main/chat-exports/supersede.py; src/test/dev/run.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
-tmp/cache/code-agents,code-agents,yoga pipeline run code-agents,src/main/code-agents/render_corpus.py; src/test/dev/run.py,converted sessions; conversation.json; memory.json; validation logs; matrices
+tmp/cache/chat-exports,chat-exports,yoga pipeline run chat-exports,src/main/pipeline/chat-exports/supersede.py; src/test/dev/run.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
+tmp/cache/code-agents,code-agents,yoga pipeline run code-agents,src/main/pipeline/code-agents/render_corpus.py; src/test/dev/run.py,converted sessions; conversation.json; memory.json; validation logs; matrices
 tmp/cache/completions,,yoga completions sync,external:zsh; src/main/cli/prerequisites/prerequisites.sh,static zsh tab-completion derived from src/main/cli/
 tmp/cache/dashboard,,yoga dashboard sync,,the data tables feeding the corpus dashboard (sync render) — feedstock only (re-derived each run; the finished page lands in data/output/site/). The paid capture also stages here transiently before promotion to data/output/dashboard
 tmp/cache/indexing,,yoga indexing list-candidates,external:human,the pending-concept queue (candidates.txt); a rebuildable derivation of data/output/dashboard minus data/output/indexing curation

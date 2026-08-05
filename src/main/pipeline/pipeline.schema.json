@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Pipeline",
+  "description": "A pipeline's own declaration: src/main/pipeline/<pipeline>/pipeline.json. Its DIRECTORY is the pipeline name, so the name is not a field here \u2014 and a directory cannot hold two entries of one name, which is how uniqueness stops being a check. The filename is uniform (pipeline.json, the kind, not the instance): cli/'s <noun>.json convention marks the bare command's declaration among its verb files, a role that does not exist inside a pipeline directory, and three siblings should share one shape down to the filename. This schema lives beside what it describes rather than under rsc/schema/, which is the data domain: the pipeline declaration is this repo's own interface, not corpus data. Derivables are absent by construction: the remedy command is `yoga pipeline run <name>`, the format history is rsc/schema/<name>/<schemas[0]>/CHANGELOG.md, and the cache root comes from rsc/cache_io.csv \u2014 each a function of the name, so declaring them could only contradict the derivation.",
+  "type": "object",
+  "required": [
+    "schemas",
+    "input",
+    "input_glob",
+    "subject_depth",
+    "extra_input_glob",
+    "diagnostic_skip"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "The schema names under rsc/schema/<pipeline>/ this pipeline's data validates against. Order is load-bearing: the FIRST entry is the schema whose CHANGELOG.md anchors the pipeline's format history."
+    },
+    "input": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it."
+    },
+    "input_glob": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The glob under input that selects one datum. A trailing slash selects directories; no trailing slash selects files."
+    },
+    "subject_depth": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "How many path components under the pipeline's cache root name one subject."
+    },
+    "extra_input_glob": {
+      "type": "string",
+      "description": "A second input shape the pipeline demands beyond input_glob, at the same subject depth; the trailing-slash convention is per glob. Empty when the pipeline has one shape."
+    },
+    "diagnostic_skip": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Diagnostics to skip beyond the universal versioned-schema skip set, each named for the deviation it licenses. Empty when the pipeline deviates nowhere."
+    }
+  }
+}

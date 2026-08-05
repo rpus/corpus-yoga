@@ -8,8 +8,9 @@ markdownConversation shape and rendering it to markdown. Common code at the root
     from markdown_projection import project, render, ...
 
 Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and
-browser-captures/compare_markdown.py (project+render to compare), chat-exports/atomise_bulk.py
-(slug/assign_name to name the per-conversation pieces).
+pipeline/browser-captures/compare_markdown.py (project+render to compare),
+pipeline/chat-exports/atomise_bulk.py (slug/assign_name to name the per-conversation
+pieces).
 
 The per-message projection, in jq:
   {role: .sender,
