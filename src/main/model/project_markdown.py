@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the
 from markdown_projection import (REPO, project, ordered, find_api_json, render,
                                  md_validator, tree_problems, reconcile_dir)
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'chat-exports'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'pipeline' / 'chat-exports'))
 from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
 
 
