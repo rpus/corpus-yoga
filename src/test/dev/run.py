@@ -2193,8 +2193,22 @@ def subject_hash(spec) -> str:
     for rel in sorted(set(rels)):
         f = REPO_ROOT / rel
         try:
-            st = f.stat()
-            h.update(f'{rel}\0{st.st_size}\0{st.st_mtime_ns}\n'.encode())
+            if rel.startswith(('tmp/', 'data/')):
+                # The data tier's subjects are large and machine-local; their key
+                # stays stat (size + mtime) as the DECLARED lawful difference
+                # (#368): the tier is advisory and never enters a committed
+                # artifact, so a clock-faked miss costs a re-read, not a lie.
+                st = f.stat()
+                h.update(f'{rel}\0{st.st_size}\0{st.st_mtime_ns}\n'.encode())
+            else:
+                # Code and schema subjects key on CONTENT (#368): identical bytes
+                # replay from any tree — a fresh worktree's birth-mtimes cannot
+                # force a full run.
+                h.update(f'{rel}\0'.encode())
+                with open(f, 'rb') as fh:
+                    for chunk in iter(lambda: fh.read(1 << 20), b''):
+                        h.update(chunk)
+                h.update(b'\n')
         except OSError:
             h.update(f'{rel}\0GONE\n'.encode())
     return h.hexdigest()
@@ -2437,7 +2451,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         pass
     if replayed:
         print(f'  {len(replayed)} section(s) replayed unchanged '
-              f'(subjects stat-hashed; --fresh re-runs all)', file=sys.stderr)
+              f'(code/schema subjects content-keyed, data subjects stat-keyed; '
+              f'--fresh re-runs all)', file=sys.stderr)
     if os.environ.get('YOGA_GATE_TIMINGS'):
         for _n, _ms in sorted(section_ms.items(), key=lambda kv: -kv[1]):
             print(f'  {_ms:8.1f} ms  {_n}', file=sys.stderr)
