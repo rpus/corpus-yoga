@@ -458,9 +458,9 @@ main() {
   echo "  (each pipeline stage runs alone as: yoga pipeline run <stage>; corpus is the reduce over all)"
   echo "  (line = where that stage begins in this log; each finding is stated there, in place)"
   if [[ ${#pipeline_failures[@]} -eq 0 ]]; then
-    echo "All pipelines completed."
+    echo "usr gate: PASS — all pipelines completed"
   else
-    echo "Failed pipelines:"
+    echo "usr gate: FAIL — failed pipelines:"
     local errs
     for f in "${pipeline_failures[@]}"; do
       echo "  $f"

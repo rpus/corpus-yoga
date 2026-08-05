@@ -28,10 +28,10 @@ README.md,45,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (s
 README.md,46,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
 README.md,53,doc,src/main/pipeline/browser-captures/export.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/pipeline/browser-captures/export.command`
 README.md,62,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
-README.md,74,doc,CONTRIBUTING.md,Y,"**owner** merges, prunes, and keeps the forge's declared settings: `./CONTRIBUTING.md`."
-README.md,78,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,78,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,85,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
+README.md,75,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,81,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,81,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,88,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","

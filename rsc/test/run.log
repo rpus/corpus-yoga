@@ -196,4 +196,4 @@ check_score                            5     0     0   ok       161
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1944/1944 match the committed expectation; nothing here vetoes a commit
+dev gate: PASS — code+schema 1944/1944 match the committed expectation; nothing here vetoes a commit
