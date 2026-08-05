@@ -22,7 +22,7 @@ commits — the squash keeps every one of their messages and signatures.
 An issue states what *should* be true; a PR that closes it reads as the claim that it
 now is. Where that claim is a standing property the code must keep — not a one-off
 change — make it a named check in `src/test/dev/run.py`, labelled for the property
-and the issue, so the PR asserts a compliance the gate can see and a later regression
+and the issue, so the PR asserts a compliance the dev gate can see and a later regression
 trips a check that names what it broke. #22 is the worked example: the issue states the
 `accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and
 `check_accumulate_contract` (labelled `accumulate: the CALCULUS trajectory contract
@@ -60,7 +60,7 @@ directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear
 markers, then run `./yoga test run`: it rewrites the two derived files, and reports the
 live counts the two curated ones should hold — `yoga test run` prints `expected X, got Y`,
 `xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
-check reports, stage what it rewrote, and run once more to confirm the gate is green. The
+check reports, stage what it rewrote, and run once more to confirm the dev gate is green. The
 check computes the merged numbers; your job is to run it.
 
 This works because the generated files absorb only the counting. A real conflict — two
@@ -71,7 +71,7 @@ artifacts have their own directory now, the two cases are told apart by path: a 
 
 When a change's correctness depends on what a *fresh clone* sees — the expectation files
 above, the xref counts, or anything deriving from `.gitignore` (the xref scan's skip-roots
-do) — build it in a worktree outside the repo and run the gate from there rather than from
+do) — build it in a worktree outside the repo and run the dev gate from there rather than from
 your working checkout. A checkout carries machine-local leftovers the scan can see; a fresh
 worktree carries none, so the counts it reports are what a clone would report and not what
 one disk happens to hold. It also keeps the evidence independent: the PR text asserts, the

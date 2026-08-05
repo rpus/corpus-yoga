@@ -9,9 +9,9 @@ corpus.
 ```bash
 ./yoga prerequisites          # read-only: what this machine can run
 ./yoga browser capture        # acquire: Safari sweep into data/input/
-./yoga pipeline run           # process: validate, extract, project (--plan previews)
+./yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
-./yoga test run               # the three-tier gate suite
+./yoga test run               # the dev gate: the three-tier hermetic suite
 ```
 
 `./yoga -h` lists every command with its summary; `./yoga commands [<command>]`
@@ -69,9 +69,12 @@ the same `./yoga test install-hook` — it installs both.
 ## Changing it
 
 Two audiences beyond the one this file addresses, and each has its own home. A
-**developer** changes code and runs the hermetic gate — `src/test/dev/`, which needs no
-network, no `gh` and no corpus, which is why the pre-commit hook can depend on it. An
-**owner** merges, prunes, and keeps the forge's declared settings: `./CONTRIBUTING.md`.
+**developer** changes code and runs the **dev gate** — `yoga test run` over
+`src/test/dev/`, hermetic (no network, no `gh`, no corpus), which is why the pre-commit
+hook can depend on it. An **owner** merges, prunes, and keeps the forge's declared
+settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+`yoga pipeline run` is the **usr gate** — it arbitrates that the verbs run over a
+corpus, which the dev gate, blind to data by design, cannot.
 
 ## The public surface
 

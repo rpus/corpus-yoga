@@ -2757,7 +2757,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # Final: the gate's actual verdict.
         if gate_idx:
             counts = {sec: sum(1 for i in gate_idx if sections[i] == sec) for sec in gate_sections}
-            out.write('\nFAIL — these gate: the hook vetoes the commit, and any run '
+            out.write('\ndev gate: FAIL — these gate: the hook vetoes the commit, and any run '
                       'exits non-zero:\n')
             for sec in gate_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
@@ -2769,7 +2769,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
                 _write_fixes(out, gate_lines, '✗')
             lines += gate_lines
         else:
-            out.write(f'\ngate: PASS — code+schema {det} match the committed expectation; '
+            out.write(f'\ndev gate: PASS — code+schema {det} match the committed expectation; '
                       'nothing here vetoes a commit\n')
         # The verdict is the terminal word — no trailing offer after it. The
         # remediation each finding needs is already printed beside it (WARN's
