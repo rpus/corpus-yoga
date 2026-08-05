@@ -395,7 +395,7 @@ print_plan() {
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: one row per stage — FAIL/WARN/INFO counts, the verdict it exited with, and where it begins in the log; failed pipelines with their error:/FAIL: lines quoted; the yoga test run reminder; log path"
+  echo "  tail: one row per stage — FAIL/WARN/INFO counts, the verdict it exited with, and where it begins in the log; failed pipelines with their error:/FAIL: lines quoted; the outputs line; log path"
 }
 
 main() {
@@ -473,7 +473,11 @@ main() {
       esac
     done
   fi
-  echo "Run yoga test run, then: git diff rsc/test/run.log"
+  # The usr-actor's next acts, and nothing else: the run's outputs, and reading them
+  # served. The data-tier coupling this line once narrated (pipelines move what the
+  # dev gate's data tier reads) is enforced where it bites — the dev gate's own
+  # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
+  echo "outputs: data/output/markdown/index.md · read served: yoga server start --daemon (http://localhost:8182)"
   echo "Log: $LOG_FILE"
   # The verdict must leave this function: callers chain on $?.
   return $(( ${#pipeline_failures[@]} > 0 ))
