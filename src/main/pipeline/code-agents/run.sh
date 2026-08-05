@@ -108,6 +108,12 @@ run_one() {
   step validate             "$SCRIPT_DIR/validate.sh" --code-agent-session "$out_dir"
 }
 
+# One session for the fan: the single-item face run_one needs (#360); machine
+# and project name arrive by dynamic scope from run_project's locals.
+run_one_session() {
+  run_one "$1" "$machine" "$name"
+}
+
 run_memory() {
   local project_dir="$1" machine="$2" name="$3" guard="$4"
   local out_dir="$CACHE_DIR/$machine/$name/memory"
@@ -126,13 +132,20 @@ run_project() {
   local name; name="$(basename "${project_dir%/}")"
   echo "$machine/$name"
   project_housekeeping "$project_dir" "$machine" "$name"
-  local found=0
+  # The project's sessions convert and validate YOGA_JOBS-wide (#360), each
+  # session's step narration buffered and emitted in listing order — the fan is
+  # invisible in the artifact. machine/name reach the worker by dynamic scope.
+  local jsonls=() jsonl
   for jsonl in "${project_dir%/}"/*.jsonl; do
     [[ -f "$jsonl" ]] || continue
-    found=1
-    run_one "$jsonl" "$machine" "$name"
+    jsonls+=("$jsonl")
   done
-  [[ "$found" -eq 1 ]] || echo "  (no .jsonl files found)"
+  if [[ ${#jsonls[@]} -gt 0 ]]; then
+    fan_run run_one_session "${jsonls[@]}"
+    fan_emit
+  else
+    echo "  (no .jsonl files found)"
+  fi
   local has_memory=0
   [[ -d "${project_dir%/}/memory" ]] && has_memory=1
   run_memory "$project_dir" "$machine" "$name" "$has_memory"

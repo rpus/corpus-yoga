@@ -103,3 +103,49 @@ step_if_ok() {
   if [[ "$guard" != "1" ]]; then return 0; fi
   "$@" || true
 }
+
+# ── The per-datum fan (#360) ──────────────────────────────────────────────────
+# Independent per-datum work runs YOGA_JOBS-wide, each datum's whole output
+# buffered and emitted in ITEM ORDER — the dev gate's _call_many discipline for
+# the usr gate: the fan is invisible in the artifact, bytes equal the serial
+# loop's. bash 3.2 has no job pool (wait -n), so the fan runs in WAVES of the
+# width — stragglers idle some cores between waves, still ~width x serial.
+YOGA_JOBS="${YOGA_JOBS:-$( (sysctl -n hw.ncpu || nproc || echo 4) 2>/dev/null | head -1 )}"
+
+# fan_run <fn> <item>... — run fn once per item, waves of YOGA_JOBS. Leaves each
+# item's output in $FAN_DIR/<i>.out and status in $FAN_DIR/<i>.rc (item order);
+# sets FAN_N. A caller that needs per-item post-processing reads the files
+# itself and ends with fan_done; one that streams uses fan_emit.
+fan_run() {
+  local fn="$1"; shift
+  FAN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/fan.XXXXXX")"
+  FAN_N=0
+  local wave=0 item
+  for item in "$@"; do
+    # set +e inside the worker: the rc file must be written whatever fn did;
+    # FAN_I lets a worker deposit sidecars (counters) beside its own buffers.
+    # shellcheck disable=SC2034  # FAN_I is read inside fn by dynamic scope (the sidecar index)
+    ( set +e; FAN_I="$FAN_N"; "$fn" "$item" >"$FAN_DIR/$FAN_N.out" 2>&1
+      echo $? >"$FAN_DIR/$FAN_N.rc" ) &
+    FAN_N=$((FAN_N + 1))
+    wave=$((wave + 1))
+    if [[ "$wave" -ge "$YOGA_JOBS" ]]; then wait; wave=0; fi
+  done
+  wait
+}
+
+# fan_emit — the streaming face: cat every buffered output in item order, then
+# clean up; returns 1 iff any item did.
+fan_emit() {
+  local i=0 rc=0 irc
+  while [[ "$i" -lt "$FAN_N" ]]; do
+    cat "$FAN_DIR/$i.out"
+    irc="$(cat "$FAN_DIR/$i.rc" 2>/dev/null || echo 1)"
+    [[ "$irc" -eq 0 ]] || rc=1
+    i=$((i + 1))
+  done
+  fan_done
+  return "$rc"
+}
+
+fan_done() { rm -rf "$FAN_DIR"; unset FAN_DIR FAN_N; }
