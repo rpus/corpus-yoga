@@ -520,15 +520,15 @@ src/main/pipeline/chat-exports/validate.sh,41,call,src/main/schema_fragment.py,Y
 src/main/pipeline/chat-exports/validate.sh,43,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_occurrences.py"" ""$schema_ptr"" ""$schema"" ""$f"" | sed 's/^/"
 src/main/pipeline/chat-exports/validate.sh,43,call,src/main/schema_occurrences.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_occurrences.py"" ""$schema_ptr"" ""$schema"" ""$f"" | sed 's/^/"
 src/main/pipeline/chat-exports/validate.sh,47,call,src/main/schema_occurrences.py,Y,"echo ""src/run_python_script.sh \""$(rel_path ""$REPO_DIR/src/main/schema_occurrences.py"")\"" \""$schema_ptr\"" \""$(rel_path """
-src/main/pipeline/chat-exports/validate.sh,75,call,src/run_python_script.sh,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
-src/main/pipeline/chat-exports/validate.sh,75,call,src/main/validate.py,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
-src/main/pipeline/chat-exports/validate.sh,104,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
-src/main/pipeline/chat-exports/validate.sh,123,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
-src/main/pipeline/chat-exports/validate.sh,136,path_str,rsc/schema/chat-exports,Y,"for fam_dir in ""$SCHEMA_DIR""/*/; do"
-src/main/pipeline/chat-exports/validate.sh,149,comment,rsc/schema/WORKFLOW.md,Y,# just written (see rsc/schema/WORKFLOW.md).
-src/main/pipeline/chat-exports/validate.sh,150,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
-src/main/pipeline/chat-exports/validate.sh,150,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
-src/main/pipeline/chat-exports/validate.sh,151,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
+src/main/pipeline/chat-exports/validate.sh,77,call,src/run_python_script.sh,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
+src/main/pipeline/chat-exports/validate.sh,77,call,src/main/validate.py,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
+src/main/pipeline/chat-exports/validate.sh,106,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
+src/main/pipeline/chat-exports/validate.sh,125,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
+src/main/pipeline/chat-exports/validate.sh,138,path_str,rsc/schema/chat-exports,Y,"for fam_dir in ""$SCHEMA_DIR""/*/; do"
+src/main/pipeline/chat-exports/validate.sh,151,comment,rsc/schema/WORKFLOW.md,Y,# just written (see rsc/schema/WORKFLOW.md).
+src/main/pipeline/chat-exports/validate.sh,152,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
+src/main/pipeline/chat-exports/validate.sh,152,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
+src/main/pipeline/chat-exports/validate.sh,153,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
 src/main/pipeline/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/pipeline/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/pipeline/code-agents/jsonl_to_json.sh,5,comment,src/main/pipeline/code-agents/jsonl_to_json.sh,Y,#   src/main/pipeline/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
