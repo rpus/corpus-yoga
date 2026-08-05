@@ -61,9 +61,24 @@ Signature: <machine>/<provider>/<session>
 
 <!-- "to test" is the AUTHOR'S CLAIM — a starting point for a reviewer, never a
      substitute for one: reproduce these, then go looking. An author tests what
-     they believe they built; the defects live outside that belief. -->
+     they believe they built; the defects live outside that belief.
 
-- **test** — <how a reviewer reproduces the verdicts: commands run, outputs seen>
+     The line OPENS by naming the arbiter: the dev gate (yoga test run), the usr
+     gate (yoga pipeline run), both, or a named other (the editor; a live run).
+     A change one gate cannot arbitrate carries a declared arbiter instead of a
+     per-PR apology — the dev gate is green on both sides of a dead step import,
+     and only the usr gate's red names it (#335 is the worked example).
+
+     The declaration is CHECKABLE AGAINST THE DIFF: the changed paths derive a
+     default arbiter (docs and .github — the reader; src/test/dev and schemas —
+     the dev gate; pipeline and model code — the usr gate), so a reviewer holds
+     the declared arbiter to the derived one. A declaration that DEVIATES from
+     its path-default is not an error but the signal — #335's paths derived
+     dev-gate while the true arbiter was the usr gate — the deviation record
+     review leans into, diagnostic_skip's grammar. -->
+
+- **test** — <arbiter: which gate(s) arbitrate this change — then how a reviewer
+  reproduces the verdicts: commands run, outputs seen>
 - **use** — <what a machine runs or expects after merge — spoken in yoga commands;
   machine-local adoption belongs in `yoga prerequisites`' report: state it cannot
   see is a species to add (the mount precedent), not prose to remember>
