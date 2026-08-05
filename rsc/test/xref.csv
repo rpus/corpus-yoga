@@ -243,14 +243,14 @@ src/main/cli/pipeline/pipeline.sh,28,call,src/main/send.sh,Y,"source ""$REPO_ROO
 src/main/cli/pipeline/pipeline.sh,125,call,src/run_python_script.sh,Y,"""$REPO_ROOT/src/run_python_script.sh"" ""$REPO_ROOT/src/test/dev/gen_changelog_matrix.py"" \"
 src/main/cli/pipeline/pipeline.sh,125,call,src/test/dev/gen_changelog_matrix.py,Y,"""$REPO_ROOT/src/run_python_script.sh"" ""$REPO_ROOT/src/test/dev/gen_changelog_matrix.py"" \"
 src/main/cli/pipeline/pipeline.sh,174,path_str,src/requirements.txt,Y,"pip install -q -r ""$REPO_ROOT/src/requirements.txt"""
-src/main/cli/pipeline/pipeline.sh,334,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,345,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
-src/main/cli/pipeline/pipeline.sh,346,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
-src/main/cli/pipeline/pipeline.sh,351,call,src/main/pipeline/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/pipeline/chat-exports/dashboard.sh"""
-src/main/cli/pipeline/pipeline.sh,355,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
-src/main/cli/pipeline/pipeline.sh,366,call,src/main/pipeline/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/pipeline/browser-captures/run.sh"" --plan | sed 's/^/  /'"
-src/main/cli/pipeline/pipeline.sh,371,call,src/main/pipeline/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/pipeline/chat-exports/run.sh"" --plan | sed 's/^/  /'"
-src/main/cli/pipeline/pipeline.sh,376,call,src/main/pipeline/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/pipeline/code-agents/run.sh"" --plan | sed 's/^/  /'"
+src/main/cli/pipeline/pipeline.sh,351,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
+src/main/cli/pipeline/pipeline.sh,362,call,src/run_python_script.sh,Y,"step indexing ""$REPO_ROOT/src/run_python_script.sh"" \"
+src/main/cli/pipeline/pipeline.sh,363,call,src/main/model/indexing.py,Y,"""$REPO_ROOT/src/main/model/indexing.py"" sync"
+src/main/cli/pipeline/pipeline.sh,368,call,src/main/pipeline/chat-exports/dashboard.sh,Y,"step_ok dashboard ""$REPO_ROOT/src/main/pipeline/chat-exports/dashboard.sh"""
+src/main/cli/pipeline/pipeline.sh,372,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,383,call,src/main/pipeline/browser-captures/run.sh,Y,"""$REPO_ROOT/src/main/pipeline/browser-captures/run.sh"" --plan | sed 's/^/  /'"
+src/main/cli/pipeline/pipeline.sh,388,call,src/main/pipeline/chat-exports/run.sh,Y,"""$REPO_ROOT/src/main/pipeline/chat-exports/run.sh"" --plan | sed 's/^/  /'"
+src/main/cli/pipeline/pipeline.sh,393,call,src/main/pipeline/code-agents/run.sh,Y,"""$REPO_ROOT/src/main/pipeline/code-agents/run.sh"" --plan | sed 's/^/  /'"
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.sh,2,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs."
 src/main/cli/prerequisites/prerequisites.sh,17,comment,src/main/cli/prerequisites/prerequisites.sh,Y,#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention (– and ✗); all-green sections 
