@@ -77,7 +77,7 @@ per-corpus code.
   collision caveat — user simplification, 2026-07-08), fingerprints only where
   content is unbounded (project doc bodies).
   Envelope timestamps are excluded: supersession claims retained *data*, not byte
-  equality of snapshots. (`src/main/chat-exports/supersede.py` atomisers.)
+  equality of snapshots. (`src/main/pipeline/chat-exports/supersede.py` atomisers.)
 
 - **supersession (⊑)** — per unit: `subset` / `ORPHANED` (unit absent later —
   unique data) / `DIVERGENT` (atoms missing later — unique data). Per product:
@@ -100,7 +100,7 @@ per-corpus code.
   reading is a genuine return the history must keep (deposit) — position is the
   semantics, not a proxy. Accumulation is what converts a mutable document's
   batch-retention problem into a deletion licence. One operation, one
-  implementation: `accumulate()` in `src/main/chat-exports/accumulate.py`, called
+  implementation: `accumulate()` in `src/main/pipeline/chat-exports/accumulate.py`, called
   by both the chat-memory library (`memories.py`) and the
   per-conversation summary store (`summaries.py`).
 
@@ -109,7 +109,7 @@ per-corpus code.
   `.jsonl` moves a conversation's worth of corpus; session + `memory/` folder
   moves an *agent* (user doctrine, 2026-07-06 — proven by the v5 mint, whose
   evidence crossed machines as a file). Reified as a careful cp with the class
-  semantics checked: `src/main/code-agents/agent.py` (`yoga agent`) —
+  semantics checked: `src/main/pipeline/code-agents/agent.py` (`yoga agent`) —
   prefix-supersession for the append-only session and its eponymous workspace
   (subagent transcripts, persisted tool-results — files the log references,
   without which a rematerialised agent has dangling limbs); for the memory
@@ -344,7 +344,7 @@ The generic interface already exists in embryo, four times:
 `supersede.py`'s `COMPONENTS` (atomisers + one generic comparator),
 `library.py` (identity resolution + dressing normalisation + set merge),
 `memories.py` (mutable-document accumulation), and
-`src/main/code-agents/agent.py` (prefix-supersession + the memory-folder
+`src/main/pipeline/code-agents/agent.py` (prefix-supersession + the memory-folder
 merge). The spectre they jointly raise is a `Mergeable` protocol (user-named,
 2026-07-07): a resource class supplies its merge, and the laws supply the
 contract — idempotent (L1: re-merging is silence), monotone (L4: nothing

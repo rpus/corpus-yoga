@@ -1,0 +1,10 @@
+{
+  "schemas": [
+    "apiConversation"
+  ],
+  "input": "data/input/claude/chat/browser-API",
+  "input_glob": "*/",
+  "subject_depth": 1,
+  "extra_input_glob": "",
+  "diagnostic_skip": []
+}

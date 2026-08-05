@@ -5,13 +5,13 @@
   "extraPaths": [
     "src",
     "src/main",
-    "src/main/browser-captures",
-    "src/main/chat-exports",
+    "src/main/pipeline/browser-captures",
+    "src/main/pipeline/chat-exports",
     "src/main/cli",
     "src/main/cli/cache",
     "src/main/cli/commands",
     "src/main/cli/completions",
-    "src/main/code-agents",
+    "src/main/pipeline/code-agents",
     "src/main/model",
     "src/test"
   ],

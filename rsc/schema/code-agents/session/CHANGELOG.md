@@ -347,7 +347,7 @@ type-specific fields added by each subtype.
 ### AssistantMessage fields discovered during validation
 
 `AssistantMessage` has `additionalProperties: false`. The following fields were
-discovered iteratively by running `src/main/code-agents/run.sh` and re-tightening:
+discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
 
 | Field | Type | Notes |
 | --- | --- | --- |

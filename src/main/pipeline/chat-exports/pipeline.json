@@ -1,0 +1,13 @@
+{
+  "schemas": [
+    "conversations",
+    "memories",
+    "projects",
+    "users"
+  ],
+  "input": "data/input/claude/chat/bulk-export",
+  "input_glob": "data-*/",
+  "subject_depth": 1,
+  "extra_input_glob": "",
+  "diagnostic_skip": []
+}

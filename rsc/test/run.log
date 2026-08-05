@@ -1,8 +1,12 @@
-run.py: 1939/1939 (data: machine-local)
+run.py: 1942/1942 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
   ✓ files.required_exists  (10/10)
+
+── check_pipeline_declarations ───────────────────────────────────────────────
+  ✓ structure.pipeline_declaration_validates  (3/3)
+  ✓ structure.pipeline_implements_run  (3/3)
 
 ── check_templates ───────────────────────────────────────────────────────────
   ✓ templates.teach_signature  (2/2)
@@ -27,7 +31,7 @@ run.py: 1939/1939 (data: machine-local)
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (16/16)
-  ✓ output.prescriptions_are_commands  (72/72)
+  ✓ output.prescriptions_are_commands  (69/69)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -159,32 +163,33 @@ run.py: 1939/1939 (data: machine-local)
 
 stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
-check_templates                        2     0     0   ok         7
-check_xref                             2     0     0   ok        10
-check_cli_surface                    448     0     0   ok        14
-check_effects                          1     0     0   ok        47
-check_cache_io                        18     0     0   ok        50
-check_accumulate_contract              1     0     0   ok        56
-check_capture_monotone                 4     0     0   ok        59
-check_grammar_laws                    12     0     0   ok        62
-check_root_schema_diagnostics         50     0     0   ok        76
-check_schema_validity                 53     0     0   ok       103
-check_schema_changelogs              106     0     0   ok       106
-check_versioned_schema_diagnostics  1209     0     0   ok       110
-check_schema_join                      1     0     0   ok       136
-check_model_join_versions              1     0     0   ok       139
-check_model_occurrences                3     0     0   ok       142
-check_model_obligations               17     0     0   ok       147
-check_mcp_schema                       1     0     0   ok       151
-check_score                            5     0     0   ok       154
+check_pipeline_declarations            6     0     0   ok         7
+check_templates                        2     0     0   ok        11
+check_xref                             2     0     0   ok        14
+check_cli_surface                    445     0     0   ok        18
+check_effects                          1     0     0   ok        51
+check_cache_io                        18     0     0   ok        54
+check_accumulate_contract              1     0     0   ok        60
+check_capture_monotone                 4     0     0   ok        63
+check_grammar_laws                    12     0     0   ok        66
+check_root_schema_diagnostics         50     0     0   ok        80
+check_schema_validity                 53     0     0   ok       107
+check_schema_changelogs              106     0     0   ok       110
+check_versioned_schema_diagnostics  1209     0     0   ok       114
+check_schema_join                      1     0     0   ok       140
+check_model_join_versions              1     0     0   ok       143
+check_model_occurrences                3     0     0   ok       146
+check_model_obligations               17     0     0   ok       151
+check_mcp_schema                       1     0     0   ok       155
+check_score                            5     0     0   ok       158
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 90 types, 1939/1939 invocations passing
+  ✓ checks[code+schema]: 92 types, 1942/1942 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 54 types, 498/498 invocations passing
+  ✓ checks[code]: 56 types, 501/501 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
 
-gate: PASS — code+schema 1939/1939 match the committed expectation; nothing here vetoes a commit
+gate: PASS — code+schema 1942/1942 match the committed expectation; nothing here vetoes a commit

@@ -12,9 +12,10 @@
 #   yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from the
 #                                          # vN.log files beside it
 #
-# The pipeline LIST is derived, not declared: a directory under src/main/ holding a
-# run.sh is a pipeline. Written out as a list instead, adding a pipeline means finding
-# every place that list appears; the positional is validated against what exists.
+# The pipeline LIST is derived, not declared: a pipeline is a subdirectory of
+# src/main/pipeline/, so adding one is adding a directory; the positional is
+# validated against what exists. Each directory's pipeline.json declares its facts
+# (schemas, input root, globs), typed by the pipeline.schema.json beside them.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga test run.
@@ -27,18 +28,21 @@ source "$REPO_ROOT/src/main/steps.sh"
 source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of YOGA_NO_SEND (#29)
 : "${VENV:=$HOME/venvs/general}"
 
-# The pipelines: a directory under src/main/ that implements the run phase. Derived, so
-# adding a pipeline is adding a directory rather than editing five lists.
+# The pipelines: the subdirectories of src/main/pipeline/. Membership is placement —
+# no run.sh sniff, so a member missing its run phase still LISTS here and fails the
+# gate's structure.pipeline_implements_run check, instead of silently leaving the list.
 pipelines() {
   local d
-  for d in "$REPO_ROOT"/src/main/*/; do
-    if [[ -f "$d/run.sh" ]]; then basename "$d"; fi
+  for d in "$REPO_ROOT"/src/main/pipeline/*/; do
+    [[ -d "$d" ]] || continue
+    basename "$d"
   done
-  # `[[ … ]] && basename` would leave the LAST directory's test as the function's status, so
-  # a final non-pipeline directory (src/main/cli, src/main/model) returned 1 — and under
-  # `set -e` that killed `yoga pipeline --names` before its `exit 0` could run. A listing
-  # that succeeds must say so.
-  return 0
+}
+
+# The declared input root, repo-relative: pipeline.json is the one committed authority
+# for this path — read here, never restated.
+input_of() {
+  jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json"
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
@@ -50,13 +54,13 @@ pipelines() {
 # is the same work as `yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  echo "pipelines (src/main/<name>/ implementing run; processing only — acquisition is yoga browser|agent|dashboard capture):"
+  echo "pipelines (src/main/pipeline/<name>/; processing only — acquisition is yoga browser|agent|dashboard capture):"
   local name phases nested v
   for name in $(pipelines); do
     phases=""
     prep_step "$name" >/dev/null 2>&1 && phases+="prep "
-    [[ -f "$REPO_ROOT/src/main/$name/run.sh" ]] && phases+="run "
-    if [[ -f "$REPO_ROOT/src/main/$name/validate.sh" ]]; then
+    [[ -f "$REPO_ROOT/src/main/pipeline/$name/run.sh" ]] && phases+="run "
+    if [[ -f "$REPO_ROOT/src/main/pipeline/$name/validate.sh" ]]; then
       phases+="validate"
     else
       # A phase may be NESTED. browser-captures validates per provider, because only claude
@@ -65,7 +69,7 @@ status() {
       # "no validate" there would be false, and `yoga test run` already carries a hand-written
       # exception for the same file (check_required_files), which is the tell.
       nested=""
-      for v in "$REPO_ROOT/src/main/$name"/*/validate.sh; do
+      for v in "$REPO_ROOT/src/main/pipeline/$name"/*/validate.sh; do
         [[ -f "$v" ]] || continue
         v="${v%/validate.sh}"; nested+="${nested:+,}$(basename "$v")"
       done
@@ -190,7 +194,7 @@ prep_step() {
 prep_call() {
   local script
   script="$(prep_step "$1")" || return 1
-  echo "${script%.sh} $REPO_ROOT/src/main/$1/$script"
+  echo "${script%.sh} $REPO_ROOT/src/main/pipeline/$1/$script"
 }
 
 prep_pipeline() {
@@ -210,7 +214,7 @@ run_pipeline() {
   local name="$1"; shift
   echo "── ${name} ──────────────────────────────────────────────────────────────────"
   local rc=0
-  "$REPO_ROOT/src/main/$name/run.sh" "--${name}" "$@" || rc=$?
+  "$REPO_ROOT/src/main/pipeline/$name/run.sh" "--${name}" "$@" || rc=$?
   echo ""
   return $rc
 }
@@ -344,7 +348,7 @@ run_corpus_tail() {
   # guards): dashboard's read-only status IS its L9 mechanism, probed here so
   # its INFO currency atoms (re-render is free; captures lag the corpus) reach
   # the tail via hoisting. step_ok: a currency nudge informs, never gates.
-  step_ok dashboard "$REPO_ROOT/src/main/chat-exports/dashboard.sh"
+  step_ok dashboard "$REPO_ROOT/src/main/pipeline/chat-exports/dashboard.sh"
 }
 
 # The pipelines' own --plan output is the one authority on their step order
@@ -359,17 +363,17 @@ print_plan() {
   echo "yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
   if should_run browser-captures; then
-    "$REPO_ROOT/src/main/browser-captures/run.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/pipeline/browser-captures/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run chat-exports; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
     ( plan=1; pair="$(prep_call chat-exports)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
-    "$REPO_ROOT/src/main/chat-exports/run.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/pipeline/chat-exports/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run code-agents; then
     # printed by the same wrapper that runs it, so the plan cannot drift from the call
     ( plan=1; pair="$(prep_call code-agents)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
-    "$REPO_ROOT/src/main/code-agents/run.sh" --plan | sed 's/^/  /'
+    "$REPO_ROOT/src/main/pipeline/code-agents/run.sh" --plan | sed 's/^/  /'
   fi
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
@@ -391,24 +395,26 @@ main() {
   # 's' rather than listed, so a fourth pipeline needs no edit here. The corpus tail is not
   # run: it reduces over everything, and this invocation is about one datum.
   if [[ -n "$item" ]]; then
-    "$REPO_ROOT/src/main/$only/run.sh" "--${only%s}" "$item"
+    "$REPO_ROOT/src/main/pipeline/$only/run.sh" "--${only%s}" "$item"
     return $?
   fi
 
   local -a pipeline_failures=()
 
+  # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
+  # path the wrapper passes and the path the pipeline documents cannot disagree.
   if should_run browser-captures; then
-    run_pipeline_safe  browser-captures "$REPO_ROOT/data/input/claude/chat/browser-API"
+    run_pipeline_safe  browser-captures "$REPO_ROOT/$(input_of browser-captures)"
   fi
 
   if should_run chat-exports; then
     prep_pipeline_safe chat-exports
-    run_pipeline_safe  chat-exports "$REPO_ROOT/data/input/claude/chat/bulk-export"
+    run_pipeline_safe  chat-exports "$REPO_ROOT/$(input_of chat-exports)"
   fi
 
   if should_run code-agents; then
     prep_pipeline_safe code-agents
-    run_pipeline_safe  code-agents "$REPO_ROOT/data/input/claude/code/machine-transport"
+    run_pipeline_safe  code-agents "$REPO_ROOT/$(input_of code-agents)"
   fi
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
@@ -444,7 +450,7 @@ main() {
       errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
       case "$f" in
-        "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/chat-exports/require_export.sh --help)" ;;
+        "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-exports/require_export.sh --help)" ;;
         "code-agents (prep)")  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/mnt/claude-code-projects/ (transport's source) symlinks" ;;
         *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
       esac

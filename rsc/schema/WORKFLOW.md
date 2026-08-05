@@ -84,9 +84,9 @@ the bulk export's whole array), a **singular** family validates *one unit*
 ### 1. Identify the failure
 
 ```bash
-src/main/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-src/main/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-src/main/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
+src/main/pipeline/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+src/main/pipeline/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+src/main/pipeline/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
 (code-agents converts each `.jsonl` before validating, so its runnable unit is the
@@ -128,9 +128,9 @@ src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-src/main/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
-src/main/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
+src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
+src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
 ```
 
 Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
