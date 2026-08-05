@@ -2,6 +2,12 @@
   "help": "reject a concept into the disposal record",
   "args": [
     {
+      "name": "--all",
+      "type": "",
+      "cardinality": "",
+      "help": "reject the whole derived queue (tmp/cache/indexing/candidates.txt) as read \u2014 refused if the queue moved since list-candidates wrote it; the one --reason is stamped on every line"
+    },
+    {
       "name": "--reason",
       "type": "<why>",
       "cardinality": "",
@@ -10,8 +16,8 @@
     {
       "name": "concept",
       "type": "<concept>",
-      "cardinality": "1",
-      "help": "the concept to reject"
+      "cardinality": "",
+      "help": "the concept to reject (or --all for the queue as read)"
     }
   ]
 }
