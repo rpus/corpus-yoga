@@ -17,13 +17,10 @@
 		"python.terminal.activateEnvironment": false,
 		// must match the gate's shellcheck invocation (src/test/dev/run.py passes -x),
 		// or the editor emits SC1091 on every `# shellcheck source=` directive that the
-		// gate, with the sourced file followed, holds clean
-		"shellcheck.customArgs": ["-x"],
-		// Constant-titled CHANGELOG section headings (### Replaces, #### Restricted/
-		// Relaxed/Refactored) repeat under every ## vN parent by design (rsc/schema/
-		// WORKFLOW.md, step 3) — flag duplicate headings only among siblings
-		"markdownlint.config": {
-			"MD024": { "siblings_only": true }
-		}
+		// gate, with the sourced file followed, holds clean. The directives are
+		// repo-root-relative, and the extension's cwd is not the repo root, so the
+		// root must be named: without --source-path, -x fails to open what it follows
+		// and the same SC1091s return as failed follows.
+		"shellcheck.customArgs": ["-x", "--source-path=${workspaceFolder}"]
 	}
 }

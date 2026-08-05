@@ -1,0 +1,10 @@
+{
+	// Off in vscode-markdownlint's own default config, which this FILE replaces
+	// wholesale (the old workspace setting merely merged over it) — so the
+	// default must be restated here or line-length returns at 80 columns
+	"MD013": false,
+	// Constant-titled CHANGELOG section headings (### Replaces, #### Restricted/
+	// Relaxed/Refactored) repeat under every ## vN parent by design (rsc/schema/
+	// WORKFLOW.md, step 3) — flag duplicate headings only among siblings
+	"MD024": { "siblings_only": true }
+}
