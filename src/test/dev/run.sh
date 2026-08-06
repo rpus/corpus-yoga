@@ -118,7 +118,7 @@ main() {
   # written only when their bytes differ from disk, and a write stands only once
   # a genuinely fresh recomputation agrees with it — at most three runs inside
   # this one invocation, faulting if the results will not settle. The full
-  # report goes to tmp/logs/test/run.log, the terminal tail prints here, and
+  # report goes to tmp/logs/test/run/, the terminal tail prints here, and
   # the exit code is the verdict.
   local rc=0
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/run.py" "$@" || rc=$?

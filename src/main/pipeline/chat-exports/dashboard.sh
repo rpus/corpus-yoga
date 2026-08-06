@@ -419,7 +419,7 @@ capture() {
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
   # convenience here — it is the only evidence. Path per the command/verb rule (#54).
   local log
-  log="$REPO_DIR/tmp/logs/dashboard/capture/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+  log="$REPO_DIR/tmp/logs/dashboard/capture/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
   mkdir -p "$(dirname "$log")"
   exec > >(tee -a "$log") 2>&1
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
