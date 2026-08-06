@@ -2104,6 +2104,79 @@ def check_capture_monotone(run) -> None:
         safari_utils.DOWNLOADS = real_downloads
 
 
+def check_mechanism_raises(run) -> None:
+    """A mechanism that has established it cannot be performed says so by raising, rather
+    than printing a verdict and proceeding as though it had not reached one (issue #386).
+    The readiness check is the raiser under test: having polled twice for a cue the page
+    does not carry, it knows the DOM mechanism cannot be performed here, and that fact is
+    the run's to act on — so it must leave the mechanism as a typed condition and not as a
+    line of prose the caller would have to parse.
+
+    Held over a stubbed browser: the property is about what the driver does with a verdict
+    it ALREADY holds, and holding it needs no Safari. The performable case is checked
+    beside the refusal, because a guard that also fires on a healthy page would pass a
+    refusal-only test while ending every real capture."""
+    import contextlib
+    import tempfile
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'browser-captures'))
+    import safari_capture
+
+    saved = {n: getattr(safari_capture, n)
+             for n in ('safari_focus', 'safari_navigate', 'safari_eval_js',
+                       'wait_for_url', 'wait_for_ready', 'scrape_one')}
+    try:
+        safari_capture.safari_focus = lambda: None
+        safari_capture.safari_navigate = lambda url: None
+        safari_capture.safari_eval_js = lambda js: '/chat/abc123'
+        safari_capture.wait_for_url = lambda cid, timeout=None: True
+        safari_capture.scrape_one = lambda out_dir, js, log_dir: ['captured.md']
+
+        def capture(ready):
+            safari_capture.wait_for_ready = lambda sel, timeout=None: ready
+            with tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                with contextlib.redirect_stdout(io.StringIO()):
+                    return safari_capture.capture_all(
+                        'claude', ['abc123'], root / 'api', root / 'dom',
+                        navigate=True, mechanisms=('DOM',))
+
+        raised = None
+        try:
+            capture(ready=False)
+        except safari_capture.MechanismUnperformable as e:
+            raised = e
+        run('capture: an absent readiness cue raises rather than scraping anyway',
+            raised is not None,
+            None if raised else 'capture_all returned instead of raising — the run would '
+            'inject into a page it had just proven was not the page it wanted',
+            check='capture.mechanism_raises')
+
+        # the fact must be addressable, not merely printed: a caller narrowing a run acts
+        # on the mechanism, and reading it back out of the message is not acting on a fact
+        addressable = raised is not None and (raised.provider, raised.mechanism) == ('claude', 'DOM')
+        run('capture: the raise carries the provider and the mechanism it is about',
+            addressable,
+            None if addressable else f'carried {getattr(raised, "provider", None)!r}/'
+            f'{getattr(raised, "mechanism", None)!r} — a caller cannot narrow a run by it',
+            check='capture.mechanism_raises')
+
+        cue = raised is not None and raised.looked_for in str(raised) and raised.where in str(raised)
+        run('capture: the raise names the cue it looked for and the page that lacked it',
+            cue,
+            None if cue else f'message was {str(raised)!r} — the reader is told a mechanism '
+            'failed but not what would have made it work',
+            check='capture.mechanism_raises')
+
+        healthy = capture(ready=True)
+        run('capture: a page carrying its cue still captures', healthy == [],
+            None if healthy == [] else f'failed={healthy} — the guard is firing on a page '
+            'that rendered, so no conversation could ever be scraped',
+            check='capture.mechanism_raises')
+    finally:
+        for n, fn in saved.items():
+            setattr(safari_capture, n, fn)
+
+
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
@@ -2175,6 +2248,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
     'check_capture_monotone': ['src', 'data/output/dashboard'],
+    'check_mechanism_raises': ['src'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
@@ -2421,6 +2495,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')
+        run_section(check_mechanism_raises, tier='code')
         # LAST of the code tier, because it reads the citation ledger: a law is held by
         # whichever check cites it, and until every section has run the ledger is partial.
         # Registered after check_cli_surface alone, it saw the G-citations (all raised

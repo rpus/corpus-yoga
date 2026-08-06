@@ -27,6 +27,10 @@ macOS Shortcut — is independent of the mode):
               in place (no navigation — the capture-what-you're-reading workflow);
               otherwise navigate to it in a work tab, like discovery mode for one id.
 
+A mechanism that establishes it cannot be performed at all — its readiness cue absent from
+the page it is on — raises MechanismUnperformable and the run ends there with exit 4,
+rather than attempting the same impossibility once per conversation in scope.
+
 Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
@@ -88,6 +92,39 @@ PROVIDERS = {
         'ordering_capture': True,
     },
 }
+
+
+class MechanismUnperformable(RuntimeError):
+    """One provider's one mechanism cannot be performed at all — a cue the page no longer
+    carries, an account that refuses a fetch. Raised by the mechanism that establishes it,
+    because only the mechanism knows what its own preconditions mean; what a run does with
+    the fact is the run's decision and needs none of that knowledge.
+
+    The fact travels typed and with its parts addressable, so a caller acts on it rather
+    than on the sentence it prints. Nothing here catches it: a raise that requires a
+    catcher to be useful would report nothing until one exists, and the honest ending for
+    a run that cannot perform what it was asked to perform is to stop and say why."""
+
+    def __init__(self, provider, mechanism, looked_for, where):
+        self.provider = provider
+        self.mechanism = mechanism
+        self.looked_for = looked_for
+        self.where = where
+        # The remedy is derived from the declaration rather than passed in, so every raise
+        # carries one and no raiser has to remember to build it. A provider whose only
+        # mechanism is this one has no remedy of this shape, and says so instead.
+        others = [m for m in PROVIDERS[provider]['mechanisms'] if m != mechanism]
+        remedy = (
+            f'\n    → run: yoga browser capture --provider {provider} '
+            f'--mechanism {others[0]}  # the mechanism this provider still answers'
+            if others else
+            f'\n    {provider} has no mechanism but {mechanism}, so there is nothing '
+            f'else to capture it by'
+        )
+        super().__init__(
+            f'{provider} {mechanism}: this mechanism cannot be performed — '
+            f'{looked_for} is absent at {where}{remedy}'
+        )
 
 
 def write_ordering(cfg, ids, dom_root):
@@ -324,10 +361,10 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
                 if not wait_for_ready(cfg['ready_sel']):
                     print(f'  not rendered after {READY_TIMEOUT}s — waiting {READY_TIMEOUT * 4}s more')
                     if not wait_for_ready(cfg['ready_sel'], timeout=READY_TIMEOUT * 4):
-                        # Name the page it is actually on. The scrape is about to fail and say
-                        # "wrong page?" as one of three guesses; the URL settles which it is.
+                        # Name the page it is actually on: the verdict is that a cue is
+                        # absent, and which page lacked it is half of that fact.
                         where = safari_eval_js('String(location.pathname)') or '(URL unreadable)'
-                        print(f'  still no {cfg["ready_sel"]} after {READY_TIMEOUT * 5}s at {where} — scraping anyway')
+                        raise MechanismUnperformable(provider, 'DOM', cfg['ready_sel'], where)
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
             files += scrape_one(dom_dir, js_script, scrape_log_dir) or []
         print(f'  done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}')
@@ -448,3 +485,9 @@ if __name__ == '__main__':
         # no result to report -- it was refused before reaching the account.
         print(e, file=sys.stderr)
         raise SystemExit(3)
+    except MechanismUnperformable as e:
+        # Exit 4, distinct from both: 1 says conversations failed one by one and the
+        # mechanism is sound; 3 says nothing was attempted. This says the mechanism itself
+        # cannot be performed here, after captures may already have been made.
+        print(e, file=sys.stderr)
+        raise SystemExit(4)

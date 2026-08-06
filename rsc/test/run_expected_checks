@@ -21,6 +21,7 @@ calculus.gated_is_cited
 calculus.laws_parse
 calculus.state_declared
 calculus.unenforced_names_issue
+capture.mechanism_raises
 capture.monotone_record
 cli.advertised_flags_exist
 cli.block_convergence
