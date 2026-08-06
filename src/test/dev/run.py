@@ -320,6 +320,25 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 
 # ── Checks ────────────────────────────────────────────────────────────────────
 
+def _machine_anchor() -> str:
+    """The provenance line every machine-facing log opens with (#365): the room
+    this machine is bound to (or its stated absence — a worktree carries no
+    binding), the commit the tree stood at, and clean/dirty with the count."""
+    try:
+        room = (REPO_ROOT / 'machine-name.txt').read_text().strip()
+    except OSError:
+        room = '(unbound)'
+    def _git(*args):
+        proc = subprocess.run(['git', '-C', str(REPO_ROOT), *args],
+                              capture_output=True, text=True)
+        return proc.stdout.strip()
+    branch = _git('branch', '--show-current') or '(detached)'
+    sha = _git('rev-parse', '--short', 'HEAD') or '(no git)'
+    dirty_n = len([l for l in _git('status', '--porcelain').splitlines() if l])
+    dirty = 'clean' if dirty_n == 0 else f'dirty ({dirty_n})'
+    return f'room: {room} · {branch} @ {sha}, {dirty}'
+
+
 def check_required_files(run):
     # Only files named independently of the live tree -- walking rsc/schema/ for v*.json and then
     # asserting those same paths exist is tautological (it requires whatever is present); a missing
@@ -2676,6 +2695,14 @@ def _run_once(allow_replay: bool) -> RunOnce:
         warn_sections = list(dict.fromkeys(sections[i] for i in warn_idx))
         gate_sections = list(dict.fromkeys(sections[i] for i in gate_idx))
         out = io.StringIO()
+
+        # The machine-facing log opens by anchoring its evidence (#365): room,
+        # commit and dirty-state, like the usr gate's run log — both gates
+        # uptier together. The committed surface stays machine-invariant by law
+        # (L2) and never carries it; the anchor rides INSIDE the render so the
+        # tmp/logs/test/run.log:N line-anchors stay true.
+        if surface == 'full':
+            out.write(_machine_anchor() + '\n')
 
         data_got, data_tot = tier_counts.get('data', [0, 0])
         data_note = ('data: machine-local' if committed_only else
