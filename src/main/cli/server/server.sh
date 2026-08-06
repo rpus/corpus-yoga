@@ -2,22 +2,22 @@
 # Local HTTP server for browsing and searching markdown files, with LaTeX rendering.
 #
 # Usage:
-#   src/main/model/server.sh                 # status: daemon + render-asset presence
-#   src/main/model/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
-#   src/main/model/server.sh stop
-#   src/main/model/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit
+#   src/main/cli/server/server.sh                 # status: daemon + render-asset presence
+#   src/main/cli/server/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
+#   src/main/cli/server/server.sh stop
+#   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit
 #
 # Defaults: --markdown data/output/markdown (the corpus the server exists to serve), --port 8182.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 # run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
 # One immutable log per daemon start (#370): stamped, colon-free, under the verb directory.
 LOG_FILE="$REPO_DIR/tmp/logs/server/start/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
-PY=("$SCRIPT_DIR/../../run_python_script.sh" "$SCRIPT_DIR/serve_markdown.py")
+PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),
 # not every '# ' comment in the file
@@ -33,7 +33,7 @@ status() {
   fi
   # render-asset presence — a bare file tally against the manifest (the authoritative
   # readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)
-  local manifest="$SCRIPT_DIR/serve_assets.txt" dir="$REPO_DIR/ext/lib/serve_markdown"
+  local manifest="$REPO_DIR/src/main/model/serve_assets.txt" dir="$REPO_DIR/ext/lib/serve_markdown"
   local total=0 present=0 line f
   while IFS= read -r line; do
     line="${line%%#*}"; f="${line%%[[:space:]]*}"

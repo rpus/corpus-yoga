@@ -274,7 +274,15 @@ src/main/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `seman
 src/main/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
 src/main/cli/server/ensure-assets.json,10,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
-src/main/cli/server/server.json,3,path_str,src/main/model/server.sh,Y,"""target"": ""src/main/model/server.sh"","
+src/main/cli/server/server.json,3,path_str,src/main/cli/server/server.sh,Y,"""target"": ""src/main/cli/server/server.sh"","
+src/main/cli/server/server.sh,5,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh                 # status: daemon + render-asset presence
+src/main/cli/server/server.sh,6,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
+src/main/cli/server/server.sh,7,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh stop
+src/main/cli/server/server.sh,8,comment,src/main/cli/server/server.sh,Y,"#   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit"
+src/main/cli/server/server.sh,20,call,src/run_python_script.sh,Y,"PY=(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/serve_markdown.py"")"
+src/main/cli/server/server.sh,20,call,src/main/model/serve_markdown.py,Y,"PY=(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/model/serve_markdown.py"")"
+src/main/cli/server/server.sh,35,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)"
+src/main/cli/server/server.sh,36,path_str,src/main/model/serve_assets.txt,Y,"local manifest=""$REPO_DIR/src/main/model/serve_assets.txt"" dir=""$REPO_DIR/ext/lib/serve_markdown"""
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
 src/main/cli/site/site.sh,18,path_str,rsc/site,Y,"SRC=""$REPO_DIR/rsc/site"""
 src/main/cli/site/site.sh,47,path_str,rsc/site,Y,"done < <(page_files ""$SRC"")"
@@ -330,13 +338,6 @@ src/main/model/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run
 src/main/model/project_markdown.py,17,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>
 src/main/model/serve_markdown.py,31,comment,src/main/cli/prerequisites/prerequisites.sh,Y,source shared by ensure_assets (fetch) and src/main/cli/prerequisites/prerequisites.sh (report).
 src/main/model/serve_markdown.py,25,comment,src/main/cli/prerequisites/prerequisites.sh,Y,# visible and src/main/cli/prerequisites/prerequisites.sh can report against the same source.
-src/main/model/server.sh,5,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh                 # status: daemon + render-asset presence
-src/main/model/server.sh,6,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh start [--markdown <dir>] [--port <n>] [--daemon]
-src/main/model/server.sh,7,comment,src/main/model/server.sh,Y,#   src/main/model/server.sh stop
-src/main/model/server.sh,8,comment,src/main/model/server.sh,Y,"#   src/main/model/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit"
-src/main/model/server.sh,20,call,src/main/model/serve_markdown.py,Y,"PY=(""$SCRIPT_DIR/../../run_python_script.sh"" ""$SCRIPT_DIR/serve_markdown.py"")"
-src/main/model/server.sh,35,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)"
-src/main/model/server.sh,36,path_str,src/main/model/serve_assets.txt,Y,"local manifest=""$SCRIPT_DIR/serve_assets.txt"" dir=""$REPO_DIR/ext/lib/serve_markdown"""
 src/main/pipeline/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
 src/main/pipeline/browser-captures/audit_captures.py,31,comment,src/main/pipeline/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
 src/main/pipeline/browser-captures/browser.sh,32,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
