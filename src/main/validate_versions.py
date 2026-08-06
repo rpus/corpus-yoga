@@ -5,6 +5,7 @@ Writes per-version log files and prints a status summary.
 """
 
 import glob
+import hashlib
 import os
 import sys
 from datetime import datetime
@@ -16,22 +17,31 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared 
 from validation_matrix import write_matrix  # noqa: E402
 
 
-def _log_current(log_out, input_file, schema_path, input_bytes, schema_bytes):
-    """True iff the existing log demonstrably describes the current datum × schema:
-    it postdates both files and its recorded byte sizes match. Lets an unchanged
-    datum × schema pair skip revalidation — the log IS the memoisation."""
+def _digest(path):
+    """sha256 of the file's bytes — the content key (#367): identical bytes are
+    current from any tree; clocks are labels, never ordering."""
+    h = hashlib.sha256()
+    with open(path, 'rb') as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _log_current(log_out, input_digest, schema_digest):
+    """True iff the existing log records exactly this datum × schema BY CONTENT:
+    lines 2-3 carry the pair's digests. No clock is consulted, so a fresh
+    worktree's birth-mtimes cannot fake staleness (#367). An old-format log
+    (no digest) is not current and revalidates once — the stated migration
+    cost. The log IS the memoisation."""
     try:
-        log_mtime = os.path.getmtime(log_out)
-        if log_mtime <= os.path.getmtime(input_file) or log_mtime <= os.path.getmtime(schema_path):
-            return False
         with open(log_out) as fh:
             next(fh)
             input_line = next(fh)
             schema_line = next(fh)
     except (OSError, StopIteration):
         return False
-    return input_line.rstrip().endswith(f', {input_bytes} bytes') and \
-        schema_line.rstrip().endswith(f': {schema_bytes} bytes')
+    return input_line.rstrip().endswith(f'sha256 {input_digest}') and \
+        schema_line.rstrip().endswith(f'sha256 {schema_digest}')
 
 
 def validate_versions(input_file, schema_dir, log_dir, label):
@@ -42,14 +52,16 @@ def validate_versions(input_file, schema_dir, log_dir, label):
         return
     skipped = 0
     ran = {}   # version -> (status, log_path) for the versions validated this run
+    input_digest = _digest(input_file)   # once per datum; per-version below
     for schema_path in schemas:
         version = os.path.splitext(os.path.basename(schema_path))[0]
         log_out = os.path.join(log_dir, f'{version}.log')
 
         input_bytes = os.path.getsize(input_file)
         schema_bytes = os.path.getsize(schema_path)
+        schema_digest = _digest(schema_path)
 
-        if _log_current(log_out, input_file, schema_path, input_bytes, schema_bytes):
+        if _log_current(log_out, input_digest, schema_digest):
             skipped += 1
             continue
 
@@ -60,8 +72,8 @@ def validate_versions(input_file, schema_dir, log_dir, label):
 
         with open(log_out, 'w') as f:
             f.write(datetime.now().astimezone().replace(microsecond=0).isoformat() + '\n')
-            f.write(f'{input_file}: {input_lines} lines, {input_bytes} bytes\n')
-            f.write(f'{schema_path}: {schema_bytes} bytes\n')
+            f.write(f'{input_file}: {input_lines} lines, {input_bytes} bytes · sha256 {input_digest}\n')
+            f.write(f'{schema_path}: {schema_bytes} bytes · sha256 {schema_digest}\n')
             for line in result:
                 f.write(line + '\n')
 

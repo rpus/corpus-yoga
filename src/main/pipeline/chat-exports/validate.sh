@@ -20,7 +20,7 @@ file_info() {
   local lines bytes
   lines="$(wc -l < "$f" | xargs)"
   bytes="$(wc -c < "$f" | xargs)"
-  echo "$f: $lines lines, $bytes bytes"
+  echo "$f: $lines lines, $bytes bytes · sha256 $(shasum -a 256 "$f" | cut -d' ' -f1)"
 }
 
 on_failure() {
@@ -49,16 +49,18 @@ on_failure() {
   echo "    '$jq_filter'"
 }
 
-# True iff the existing log demonstrably describes the current datum × schema: it
-# postdates both files and its recorded byte sizes match. Lets an unchanged pair skip
-# revalidation — the log IS the memoisation. (Same contract as validate_versions.py.)
+# True iff the existing log records exactly this datum × schema BY CONTENT:
+# lines 2-3 carry the pair's sha256 digests. No clock is consulted, so a fresh
+# worktree's birth-mtimes cannot fake staleness (#367); an old-format log (no
+# digest) revalidates once — the stated migration cost. The log IS the
+# memoisation. (Same contract as validate_versions.py.)
 log_current() {
   local out="$1" f="$2" schema="$3"
-  [[ -f "$out" && "$out" -nt "$f" && "$out" -nt "$schema" ]] || return 1
-  local fb sb
-  fb="$(wc -c < "$f" | xargs)"
-  sb="$(wc -c < "$schema" | xargs)"
-  sed -n '2p' "$out" | grep -q ", ${fb} bytes$" && sed -n '3p' "$out" | grep -q ", ${sb} bytes$"
+  [[ -f "$out" ]] || return 1
+  local fd sd
+  fd="$(shasum -a 256 "$f" | cut -d' ' -f1)"
+  sd="$(shasum -a 256 "$schema" | cut -d' ' -f1)"
+  sed -n '2p' "$out" | grep -q "sha256 ${fd}$" && sed -n '3p' "$out" | grep -q "sha256 ${sd}$"
 }
 
 validate_file() {
