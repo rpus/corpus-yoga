@@ -43,7 +43,7 @@ pyrightconfig.json,15,path_str,src/main/model,Y,"""src/main/model"","
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-exports/supersede.py,Y,equality of snapshots. (`src/main/pipeline/chat-exports/supersede.py` atomisers.)
 rsc/CALCULUS.md,103,doc,src/main/pipeline/chat-exports/accumulate.py,Y,"implementation: `accumulate()` in `src/main/pipeline/chat-exports/accumulate.py`, called"
-rsc/CALCULUS.md,112,doc,src/main/pipeline/code-agents/agent.py,Y,semantics checked: `src/main/pipeline/code-agents/agent.py` (`yoga agent`) —
+rsc/CALCULUS.md,112,doc,src/main/cli/agent/agent.py,Y,semantics checked: `src/main/cli/agent/agent.py` (`yoga agent`) —
 rsc/CALCULUS.md,135,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
 rsc/CALCULUS.md,136,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
 rsc/CALCULUS.md,168,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` edges at leisure; an edge asserting one shared
@@ -55,7 +55,7 @@ rsc/CALCULUS.md,301,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/l
 rsc/CALCULUS.md,310,doc,rsc/test/run.log,Y,"record other clones diff against — `rsc/test/run.log`,"
 rsc/CALCULUS.md,311,doc,rsc/test/xref.csv,Y,"`rsc/test/xref.csv`, and the expected-score files beside them. Operations:"
 rsc/CALCULUS.md,316,doc,src/main/steps.sh,Y,"(`src/main/steps.sh`), `--plan` is the projection of that atomisation, and"
-rsc/CALCULUS.md,347,doc,src/main/pipeline/code-agents/agent.py,Y,`src/main/pipeline/code-agents/agent.py` (prefix-supersession + the memory-folder
+rsc/CALCULUS.md,347,doc,src/main/cli/agent/agent.py,Y,`src/main/cli/agent/agent.py` (prefix-supersession + the memory-folder
 rsc/CALCULUS.md,370,doc,src/main,Y,"The planned protocol (a `corpus.py` under the shared `src/main/` root, per the"
 rsc/audit/README.md,41,doc,rsc/audit/prompt.md,Y,Provenance: rsc/audit/prompt.md @ <sha> - amend via PR to that file
 rsc/audit/prompt.md,14,doc,src/test/dev/run.py,Y,"- gate-honesty: for every check_* function in src/test/dev/run.py and for src/test/dev/xref.py, the docstring/comment cl"
@@ -191,7 +191,9 @@ src/main/cli/README.md,99,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`
 src/main/cli/README.md,104,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
 src/main/cli/README.md,144,doc,src/main/pipeline/chat-exports/dashboard.sh,Y,`src/main/pipeline/chat-exports/dashboard.sh` — the same file that implements half of it.
 src/main/cli/README.md,162,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
-src/main/cli/agent/agent.json,3,path_str,src/main/pipeline/code-agents/agent.py,Y,"""target"": ""src/main/pipeline/code-agents/agent.py"","
+src/main/cli/agent/agent.json,3,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
+src/main/cli/agent/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
+src/main/cli/agent/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/cli/browser/browser.json,3,path_str,src/main/pipeline/browser-captures/browser.sh,Y,"""target"": ""src/main/pipeline/browser-captures/browser.sh"","
 src/main/cli/cache/cache.json,3,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
 src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
@@ -530,8 +532,6 @@ src/main/pipeline/chat-exports/validate.sh,151,comment,rsc/schema/WORKFLOW.md,Y,
 src/main/pipeline/chat-exports/validate.sh,152,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
 src/main/pipeline/chat-exports/validate.sh,152,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
 src/main/pipeline/chat-exports/validate.sh,153,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
-src/main/pipeline/code-agents/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
-src/main/pipeline/code-agents/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/pipeline/code-agents/jsonl_to_json.sh,5,comment,src/main/pipeline/code-agents/jsonl_to_json.sh,Y,#   src/main/pipeline/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/pipeline/code-agents/jsonl_to_json.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
 src/main/pipeline/code-agents/jsonl_to_json.sh,28,call,src/main/pipeline/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
