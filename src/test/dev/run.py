@@ -54,6 +54,18 @@ RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
+
+# The machine log is IMMUTABLE (#370): one stamped, colon-free file per run
+# under the verb directory, never rewritten; a same-second twin gains a numeric
+# suffix instead of overwriting. The committed surface names only the stable
+# directory — a stamp is machine-varying and may not enter it (L2).
+_MACHINE_LOG_STAMP = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+MACHINE_LOG = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run' / f'{_MACHINE_LOG_STAMP}.log'
+_twin = 2
+while MACHINE_LOG.exists():
+    MACHINE_LOG = MACHINE_LOG.with_name(f'{_MACHINE_LOG_STAMP}-{_twin}.log')
+    _twin += 1
+MACHINE_LOG_REL = str(MACHINE_LOG.relative_to(REPO_ROOT))
 CLI                      = SRC / 'main' / 'cli'
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — shared modules live at its root
@@ -2271,7 +2283,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # identical on any clone and becomes the COMMITTED rsc/test/run.log; the
     # data tier describes THIS MACHINE's data (uuids, batch names, home-dir-derived
     # paths) and must never enter a committed artifact — it goes to the terminal and
-    # to tmp/logs/test/run.log (machine-facing, like the serve daemon's log).
+    # under tmp/logs/test/run/ (machine-facing, like the serve daemon's logs).
     committed_buffer = io.StringIO()   # code + schema tiers
     machine_buffer   = io.StringIO()   # data tier
     cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
@@ -2550,7 +2562,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
     # any clone; this script writes it to rsc/test/run.log itself) and the
     # FULL report (adds the machine-local data tier — printed to stdout and written
-    # to tmp/logs/test/run.log, run-facing like the serve daemon's log).
+    # under tmp/logs/test/run/, run-facing like the serve daemon's logs).
 
     def _in_committed(i: int) -> bool:
         return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
@@ -2651,7 +2663,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         ✗s were hard to find. The count carries what the old body could not: `(16/17)` is one
         command misbehaving, `(3/17)` is something structural.
 
-        Every invocation stays in the machine-local log (tmp/logs/test/run.log),
+        Every invocation stays in the machine-local log (one stamped file per run under tmp/logs/test/run/),
         where evidence belongs; this is the file a human reads in a diff."""
         out, seen_section = io.StringIO(), None
         order: dict[tuple, list] = {}
@@ -2677,7 +2689,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         """Render one report variant; returns (text, runnable fix lines) — results ->
         artifact bytes, a pure function of (results, surface) (#249). Three surfaces:
         'committed' is rsc/test/run.log (code+schema only, byte-identical on any
-        clone); 'full' is tmp/logs/test/run.log (adds the machine-local data tier);
+        clone); 'full' is the stamped tmp/logs/test/run/ log (adds the machine-local data tier);
         'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
         at the full report for detail — pass its already-rendered text as
         full_report, since the terminal has no body of its own to anchor its stage
@@ -2700,7 +2712,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # commit and dirty-state, like the usr gate's run log — both gates
         # uptier together. The committed surface stays machine-invariant by law
         # (L2) and never carries it; the anchor rides INSIDE the render so the
-        # tmp/logs/test/run.log:N line-anchors stay true.
+        # stamped machine-log line-anchors stay true.
         if surface == 'full':
             out.write(_machine_anchor() + '\n')
 
@@ -2719,7 +2731,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             if not committed_only:
                 out.write(machine_buffer.getvalue())
         else:
-            out.write('  full per-check report → tmp/logs/test/run.log\n')
+            out.write(f'  full per-check report → {MACHINE_LOG_REL}\n')
 
         # One row per STAGE — the same shape `yoga pipeline run` prints, so a reader of
         # either report answers the same question the same way: which stages ran, what
@@ -2740,7 +2752,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # line number to fake.
         if surface == 'terminal':
             assert full_report is not None, 'terminal render needs the full report to anchor into'
-            anchor_source, anchor_prefix = full_report, 'tmp/logs/test/run.log:'
+            anchor_source, anchor_prefix = full_report, f'{MACHINE_LOG_REL}:'
         else:
             anchor_source, anchor_prefix = out.getvalue(), ''
         banner_line: dict[str, int] = {}
@@ -2764,7 +2776,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(gating):>5} '
                       f'{len(advisory):>5}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
         if surface == 'terminal':
-            out.write('  (line = tmp/logs/test/run.log:N, where that stage begins in the full '
+            out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
         else:
             out.write('  (line = where that stage begins in this report; every check is '
@@ -2775,7 +2787,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         for label, ok, detail in score_rows:
             if committed_only and label.startswith('score[data]'):
                 out.write('  – score[data]: machine-local — reported on the terminal '
-                          'and in tmp/logs/test/run.log, never committed\n')
+                          'and under tmp/logs/test/run/, never committed\n')
                 continue
             mark = '✓' if ok else ('⚠' if label.startswith('score[data]') else '✗')
             out.write(f'  {mark} {label}' +
@@ -2785,7 +2797,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         lines: list[tuple[list[str], str | None, list[str]]] = []
         if warn_idx:
             counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
-            where = 'above' if include_body else 'in the full report (tmp/logs/test/run.log)'
+            where = 'above' if include_body else f'in the full report ({MACHINE_LOG_REL})'
             out.write(f'\nWARN — machine-local facts, marked ⚠ {where}; they never gate a commit:\n')
             for sec in warn_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
@@ -2923,9 +2935,8 @@ def main():
     # The machine-local log and the terminal report are per-run emissions —
     # unlike the committed artifacts, nothing gates whether they are written;
     # they always describe this invocation's final (settled or faulted) state.
-    machine_log = REPO_ROOT / 'tmp' / 'logs' / 'test' / 'run.log'
-    machine_log.parent.mkdir(parents=True, exist_ok=True)
-    machine_log.write_text(final.full_text)
+    MACHINE_LOG.parent.mkdir(parents=True, exist_ok=True)
+    MACHINE_LOG.write_text(final.full_text)
 
     print(final.terminal_text, end='')
 

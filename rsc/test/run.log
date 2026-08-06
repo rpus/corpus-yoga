@@ -1,4 +1,4 @@
-run.py: 1945/1945 (data: machine-local)
+run.py: 1940/1940 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ run.py: 1945/1945 (data: machine-local)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (17/17)
+  ✓ naming.log_path_derives_from_command  (12/12)
   ✓ output.prescriptions_are_commands  (69/69)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
@@ -170,7 +170,7 @@ check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
 check_templates                        2     0     0   ok        14
 check_xref                             2     0     0   ok        17
-check_cli_surface                    446     0     0   ok        21
+check_cli_surface                    441     0     0   ok        21
 check_effects                          1     0     0   ok        54
 check_cache_io                        18     0     0   ok        57
 check_accumulate_contract              1     0     0   ok        63
@@ -189,11 +189,11 @@ check_score                            5     0     0   ok       161
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 93 types, 1945/1945 invocations passing
+  ✓ checks[code+schema]: 93 types, 1940/1940 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 57 types, 504/504 invocations passing
+  ✓ checks[code]: 57 types, 499/499 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
-  – score[data]: machine-local — reported on the terminal and in tmp/logs/test/run.log, never committed
+  – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 1945/1945 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 1940/1940 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run

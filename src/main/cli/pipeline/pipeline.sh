@@ -337,7 +337,7 @@ prep_pipeline_safe() {
   fi
 }
 
-LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H:%M:%SZ').log"
+LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
