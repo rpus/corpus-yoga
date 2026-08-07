@@ -6,6 +6,39 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v3
+
+The corpus now aggregates three harness vintages in one datum. The 2026-08-07
+survey of both rooms' stores (84 facts) found: 54 facts with `node_type`,
+`type`, `originSessionId` and `modified`; 25 with the first three alone (the
+pre-`modified` era); and 5 — reading-room, written by the current harness
+vintage — with `type` alone. Issue #362 named `node_type` as the newly-absent
+key; the survey found `originSessionId` equally absent on the current
+vintage, and the issue's own principle (model the union the datum actually
+holds) decides the wider relaxation. Only `type` is constant across all
+three vintages, so only `type` remains required. The red this mint turns
+green stood deliberately from 2026-08-06 (#361's honest relay showed it;
+#362 was ordered last so the failing datum could serve as the fixture).
+
+### Replaces
+
+[v2.json](./v2.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Metadata.node_type` — no longer required: absent on facts the current
+  harness vintage writes (5 of 84 observed). Enum unchanged where present.
+- `Metadata.originSessionId` — no longer required: absent on the same
+  facts. Pattern unchanged where present.
+
+#### Refactored
+
+None.
+
 ## v2
 
 The memory system began stamping update times. A fact edited after that
