@@ -15,6 +15,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
 CACHE_DIR="$REPO_DIR/tmp/cache/browser-captures/claude"
+# shellcheck source=src/main/steps.sh
+source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (#395)
 
 validate_conversation() {
   local uuid_dir="${1%/}"
@@ -42,11 +44,20 @@ validate_conversation() {
 validate_corpus() {
   local root="$1"
   local total=0 current=0 failed=0 rc out
+  local dirs=() d
   for d in "$root"/*/; do
     [[ -d "$d" ]] || continue
+    dirs+=("${d%/}")
+  done
+  # The captures validate via next-free dispatch (#395), each one's output
+  # buffered; this loop reads the buffers in listing order and applies the same
+  # fold the serial loop applied — the dispatch is invisible in the artifact.
+  [[ ${#dirs[@]} -gt 0 ]] && dispatch validate_conversation "${dirs[@]}"
+  local i=0
+  while [[ "$i" -lt "${DISPATCH_N:-0}" ]]; do
     total=$((total + 1))
-    rc=0
-    out="$(validate_conversation "${d%/}")" || rc=$?
+    out="$(cat "$DISPATCH_DIR/$i.out")"
+    rc="$(cat "$DISPATCH_DIR/$i.rc" 2>/dev/null || echo 1)"
     # An all-current capture reports exactly one "… current — skipped" line;
     # fold those into the corpus summary and let everything else through.
     if [[ $rc -eq 0 && "$out" != *$'\n'* && "$out" == *'version(s) current — skipped' ]]; then
@@ -55,7 +66,9 @@ validate_corpus() {
       [[ -n "$out" ]] && printf '%s\n' "$out"
       if [[ $rc -ne 0 ]]; then failed=1; fi
     fi
+    i=$((i + 1))
   done
+  [[ ${#dirs[@]} -gt 0 ]] && dispatch_done
   if [[ $total -eq 0 ]]; then
     echo "  no captures in $root"
   elif [[ $current -gt 0 ]]; then

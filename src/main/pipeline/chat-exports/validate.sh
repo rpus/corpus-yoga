@@ -15,6 +15,9 @@ rel_path() {
   "$REPO_DIR/src/run_python_script.sh" -c "import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))" "$1" "$REPO_DIR"
 }
 
+# shellcheck source=src/main/steps.sh
+source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (#395)
+
 file_info() {
   local f="$1"
   local lines bytes
@@ -83,6 +86,51 @@ validate_file() {
   validated=$((validated + 1))
 }
 
+# One top-level component per dispatched task (#395; datum-version tasks arrive
+# with #396): the component against its whole
+# schema family; worker-local tallies deposited in the sidecar the parent sums.
+# validation_dir arrives by dynamic scope from validate_export.
+validate_component() {
+  local f="$1" name schemas schema schema_stem s
+  skipped=0; validated=0
+  name="$(basename "${f%.json}")"
+  if [[ -d "$SCHEMA_DIR/$name" ]]; then
+    schemas=()
+    while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$name" -name "*.json" -type f)
+  else
+    schemas=("$SCHEMA_DIR/${name}.json")
+  fi
+  for schema in "${schemas[@]}"; do
+    [[ -e "$schema" ]] || continue
+    schema_stem="${schema#"$SCHEMA_DIR/"}"
+    schema_stem="${schema_stem%.json}"
+    mkdir -p "$validation_dir/$(dirname "$schema_stem")"
+    validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
+  done
+  # shellcheck disable=SC2031  # DISPATCH_I: set for this worker by dispatch, in this same subshell
+  echo "$skipped $validated" > "$DISPATCH_DIR/$DISPATCH_I.stat"
+}
+
+# One atomised piece per dispatched task (#395; datum-version tasks arrive
+# with #396): same contract as validate_component,
+# the schema family taken from the piece's parent directory name.
+validate_piece() {
+  local f="$1" dname item_name schemas schema schema_stem s
+  skipped=0; validated=0
+  dname="$(basename "$(dirname "$f")")"
+  item_name="$(basename "${f%.json}")"
+  schemas=()
+  while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$dname" -name "*.json" -type f)
+  for schema in "${schemas[@]}"; do
+    schema_stem="${schema#"$SCHEMA_DIR/"}"
+    schema_stem="${schema_stem%.json}"
+    mkdir -p "$validation_dir/${dname}/${item_name}"
+    validate_file "$f" "$schema" "$validation_dir/${dname}/${item_name}/$(basename "$schema_stem").log"
+  done
+  # shellcheck disable=SC2031  # DISPATCH_I: set for this worker by dispatch, in this same subshell
+  echo "$skipped $validated" > "$DISPATCH_DIR/$DISPATCH_I.stat"
+}
+
 validate_export() {
   local chat_export="${1%/}"
   local validation_dir
@@ -92,43 +140,47 @@ validate_export() {
   validated=0
   mkdir -p "$validation_dir"
 
+  # Components and pieces validate via next-free dispatch (#395): each worker's
+  # output is buffered and emitted in listing order, its skip/validate tallies
+  # summed from a sidecar — the dispatch is invisible in the artifact.
+  local items=() f i s v
   for f in "$chat_export"/*.json; do
-    local name schemas schema schema_stem
-    name="$(basename "${f%.json}")"
-    if [[ -d "$SCHEMA_DIR/$name" ]]; then
-      schemas=()
-      while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$name" -name "*.json" -type f)
-    else
-      schemas=("$SCHEMA_DIR/${name}.json")
-    fi
-    for schema in "${schemas[@]}"; do
-      [[ -e "$schema" ]] || continue
-      schema_stem="${schema#"$SCHEMA_DIR/"}"
-      schema_stem="${schema_stem%.json}"
-      mkdir -p "$validation_dir/$(dirname "$schema_stem")"
-      validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
-    done
+    [[ -f "$f" ]] || continue
+    items+=("$f")
   done
+  if [[ ${#items[@]} -gt 0 ]]; then
+    dispatch validate_component "${items[@]}"
+    i=0
+    while [[ "$i" -lt "$DISPATCH_N" ]]; do
+      cat "$DISPATCH_DIR/$i.out"
+      { read -r s v < "$DISPATCH_DIR/$i.stat"; } 2>/dev/null || { s=0; v=0; }
+      skipped=$((skipped + s)); validated=$((validated + v))
+      i=$((i + 1))
+    done
+    dispatch_done
+  fi
 
+  local d
+  items=()
   for d in "$chat_export"/*/; do
     [[ -d "$d" ]] || continue
-    local dname
-    dname="$(basename "$d")"
-    [[ -d "$SCHEMA_DIR/$dname" ]] || continue
+    [[ -d "$SCHEMA_DIR/$(basename "$d")" ]] || continue
     for f in "$d"*.json; do
       [[ -f "$f" ]] || continue
-      local item_name schemas schema schema_stem
-      item_name="$(basename "${f%.json}")"
-      schemas=()
-      while IFS= read -r s; do schemas+=("$s"); done < <(find "$SCHEMA_DIR/$dname" -name "*.json" -type f)
-      for schema in "${schemas[@]}"; do
-        schema_stem="${schema#"$SCHEMA_DIR/"}"
-        schema_stem="${schema_stem%.json}"
-        mkdir -p "$validation_dir/${dname}/${item_name}"
-        validate_file "$f" "$schema" "$validation_dir/${dname}/${item_name}/$(basename "$schema_stem").log"
-      done
+      items+=("$f")
     done
   done
+  if [[ ${#items[@]} -gt 0 ]]; then
+    dispatch validate_piece "${items[@]}"
+    i=0
+    while [[ "$i" -lt "$DISPATCH_N" ]]; do
+      cat "$DISPATCH_DIR/$i.out"
+      { read -r s v < "$DISPATCH_DIR/$i.stat"; } 2>/dev/null || { s=0; v=0; }
+      skipped=$((skipped + s)); validated=$((validated + v))
+      i=$((i + 1))
+    done
+    dispatch_done
+  fi
 
   # A component modelled by NO version is a schema-frontier event and must say
   # FAIL: — the tail hoists that sigil. validate_versions.py already shouts for

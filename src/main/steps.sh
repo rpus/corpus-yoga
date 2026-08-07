@@ -103,3 +103,57 @@ step_if_ok() {
   if [[ "$guard" != "1" ]]; then return 0; fi
   "$@" || true
 }
+
+# ── Next-free dispatch (#395) ─────────────────────────────────────────────────
+# Independent tasks are enumerated capacity-blind and handed serially to the
+# next free worker; each task's whole output is buffered and emitted in
+# ENUMERATION ORDER — the dev gate's _call_many discipline for the usr gate:
+# the dispatch is invisible in the artifact, bytes equal the serial loop's.
+# The pool is a FIFO of worker tokens (bash 3.2 has no wait -n): the dispatcher
+# blocks on the FIFO until a worker frees, so no task ever waits on a barrier.
+# YOGA_JOBS lives HERE and nowhere else — enumerators and workers never know it.
+YOGA_JOBS="${YOGA_JOBS:-$( (sysctl -n hw.ncpu || nproc || echo 4) 2>/dev/null | head -1 )}"
+
+# dispatch <fn> <task>... — run fn once per task on the next free worker.
+# Leaves each task's output in $DISPATCH_DIR/<i>.out and status in
+# $DISPATCH_DIR/<i>.rc (enumeration order); sets DISPATCH_N. A caller that
+# needs per-task post-processing reads the files itself and ends with
+# dispatch_done; one that streams uses dispatch_emit.
+dispatch() {
+  local fn="$1"; shift
+  DISPATCH_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dispatch.XXXXXX")"
+  DISPATCH_N=0
+  mkfifo "$DISPATCH_DIR/token"
+  exec 9<>"$DISPATCH_DIR/token"
+  local slot=0
+  while [[ "$slot" -lt "$YOGA_JOBS" ]]; do printf '\n' >&9; slot=$((slot + 1)); done
+  local task
+  for task in "$@"; do
+    read -r -u 9 _   # blocks until a worker slot frees — next-free dispatch
+    # set +e inside the worker: the rc file must be written whatever fn did;
+    # DISPATCH_I lets a worker deposit sidecars (counters) beside its own buffers.
+    # shellcheck disable=SC2034  # DISPATCH_I is read inside fn by dynamic scope (the sidecar index)
+    ( set +e; DISPATCH_I="$DISPATCH_N"; "$fn" "$task" >"$DISPATCH_DIR/$DISPATCH_N.out" 2>&1
+      echo $? >"$DISPATCH_DIR/$DISPATCH_N.rc"
+      printf '\n' >&9 ) &
+    DISPATCH_N=$((DISPATCH_N + 1))
+  done
+  wait
+  exec 9>&-
+}
+
+# dispatch_emit — the streaming face: cat every buffered output in enumeration
+# order, then clean up; returns 1 iff any task did.
+dispatch_emit() {
+  local i=0 rc=0 irc
+  while [[ "$i" -lt "$DISPATCH_N" ]]; do
+    cat "$DISPATCH_DIR/$i.out"
+    irc="$(cat "$DISPATCH_DIR/$i.rc" 2>/dev/null || echo 1)"
+    [[ "$irc" -eq 0 ]] || rc=1
+    i=$((i + 1))
+  done
+  dispatch_done
+  return "$rc"
+}
+
+dispatch_done() { rm -rf "$DISPATCH_DIR"; unset DISPATCH_DIR DISPATCH_N; }

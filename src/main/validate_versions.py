@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 """
-Validate one JSON file against every versioned schema (v*.json) in a schema directory.
-Writes per-version log files and prints a status summary.
+Validate one JSON file against versioned schemas, one log per datum-version pair.
+
+Two faces:
+  <input_file> <schema_dir> <log_dir> <label>          every version in the
+      directory, then the family roll-up: status summary and matrix.md.
+  --pair <input_file> <schema_file> <log_dir> <label>  exactly one pair — the
+      dispatchable atom (#395): quiet, writes (or skips) that pair's log only.
 """
 
 import glob
@@ -65,6 +70,44 @@ def _current_log_verdicts(schemas, ran, log_dir):
     return out
 
 
+def _validate_one(input_file, schema_path, log_out, input_digest):
+    """Validate the pair and write its log; returns the verdict line. The log's
+    first lines are the contract every reader relies on: stamp, datum line and
+    schema line (each ending 'sha256 <digest>'), then the verdict."""
+    input_bytes = os.path.getsize(input_file)
+    schema_bytes = os.path.getsize(schema_path)
+    schema_digest = _digest(schema_path)
+
+    with open(input_file) as fh:
+        input_lines = fh.read().count('\n')
+
+    result = validate(input_file, schema_path)
+
+    with open(log_out, 'w') as f:
+        f.write(datetime.now().astimezone().replace(microsecond=0).isoformat() + '\n')
+        f.write(f'{input_file}: {input_lines} lines, {input_bytes} bytes · sha256 {input_digest}\n')
+        f.write(f'{schema_path}: {schema_bytes} bytes · sha256 {schema_digest}\n')
+        for line in result:
+            f.write(line + '\n')
+
+    return result[0]
+
+
+def validate_pair(input_file, schema_path, log_dir, label):
+    """The single-pair face (#395): one datum, one schema version, one log —
+    the dispatchable atom. Quiet: a current log is a task already done, and
+    every verdict is stated by the family roll-up (directory face) afterwards.
+    label is carried for the contract's symmetry; the log needs no label."""
+    del label
+    os.makedirs(log_dir, exist_ok=True)
+    version = os.path.splitext(os.path.basename(schema_path))[0]
+    log_out = os.path.join(log_dir, f'{version}.log')
+    input_digest = _digest(input_file)
+    if _log_current(log_out, input_digest, _digest(schema_path)):
+        return
+    _validate_one(input_file, schema_path, log_out, input_digest)
+
+
 def validate_versions(input_file, schema_dir, log_dir, label):
     os.makedirs(log_dir, exist_ok=True)
     schemas = sorted(glob.glob(os.path.join(schema_dir, 'v*.json')))
@@ -78,27 +121,11 @@ def validate_versions(input_file, schema_dir, log_dir, label):
         version = os.path.splitext(os.path.basename(schema_path))[0]
         log_out = os.path.join(log_dir, f'{version}.log')
 
-        input_bytes = os.path.getsize(input_file)
-        schema_bytes = os.path.getsize(schema_path)
-        schema_digest = _digest(schema_path)
-
-        if _log_current(log_out, input_digest, schema_digest):
+        if _log_current(log_out, input_digest, _digest(schema_path)):
             skipped += 1
             continue
 
-        with open(input_file) as fh:
-            input_lines = fh.read().count('\n')
-
-        result = validate(input_file, schema_path)
-
-        with open(log_out, 'w') as f:
-            f.write(datetime.now().astimezone().replace(microsecond=0).isoformat() + '\n')
-            f.write(f'{input_file}: {input_lines} lines, {input_bytes} bytes · sha256 {input_digest}\n')
-            f.write(f'{schema_path}: {schema_bytes} bytes · sha256 {schema_digest}\n')
-            for line in result:
-                f.write(line + '\n')
-
-        ran[version] = (result[0], log_out)
+        ran[version] = (_validate_one(input_file, schema_path, log_out, input_digest), log_out)
 
     # The expectation is "the datum is modelled by some version" (normally the
     # frontier); older versions failing is ordinary schema history. So the happy
@@ -161,7 +188,11 @@ def validate_versions(input_file, schema_dir, log_dir, label):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 5:
+    if len(sys.argv) == 6 and sys.argv[1] == '--pair':
+        validate_pair(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    elif len(sys.argv) == 5 and sys.argv[1] != '--pair':
+        validate_versions(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    else:
         print(f'Usage: {sys.argv[0]} <input_file> <schema_dir> <log_dir> <label>')
+        print(f'       {sys.argv[0]} --pair <input_file> <schema_file> <log_dir> <label>')
         sys.exit(1)
-    validate_versions(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
