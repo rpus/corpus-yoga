@@ -22,8 +22,10 @@
 
 set -euo pipefail
 
+SELF='src/main/pipeline/browser-captures/browser.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
+[[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 
 # The bare-noun default: the capture-health audit, read-only. Shows what is captured
 # and what is missing without touching Safari or writing anything — the same audit

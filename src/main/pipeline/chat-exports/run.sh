@@ -11,12 +11,14 @@
 
 set -euo pipefail
 
+SELF='src/main/pipeline/chat-exports/run.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
+[[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 CACHE_DIR="$REPO_DIR/tmp/cache/chat-exports"
 # The cross-source join reads browser-captures' input at ITS declared root — the
 # sibling's pipeline.json is the one committed authority for that path.
-BROWSER_API="$REPO_DIR/$(jq -r .input "$SCRIPT_DIR/../browser-captures/pipeline.json")"
+BROWSER_API="$REPO_DIR/$(jq -r .input "$REPO_DIR/src/main/pipeline/browser-captures/pipeline.json")"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
