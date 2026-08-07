@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 
 from validate import validate
+from validate_inspection import inspect_failure
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
 from validation_matrix import write_matrix  # noqa: E402
@@ -82,12 +83,20 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
         input_lines = fh.read().count('\n')
 
     result = validate(input_file, schema_path)
+    body = list(result)
+    if result[0] != 'Valid!':
+        # The failure inspection is part of the log, one author (#396); an
+        # inspection crash must not cost the verdict already in hand.
+        try:
+            body += inspect_failure(input_file, schema_path, result)
+        except Exception as e:  # noqa: BLE001 — any inspection failure is non-fatal
+            body.append(f'(inspection failed: {e})')
 
     with open(log_out, 'w') as f:
         f.write(datetime.now().astimezone().replace(microsecond=0).isoformat() + '\n')
         f.write(f'{input_file}: {input_lines} lines, {input_bytes} bytes · sha256 {input_digest}\n')
         f.write(f'{schema_path}: {schema_bytes} bytes · sha256 {schema_digest}\n')
-        for line in result:
+        for line in body:
             f.write(line + '\n')
 
     return result[0]
