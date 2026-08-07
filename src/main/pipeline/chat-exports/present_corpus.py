@@ -36,7 +36,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+SELF = 'src/main/pipeline/chat-exports/present_corpus.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE = REPO / 'rsc' / 'site' / 'index.html'
 DOWNLOADED_DIR = REPO / 'data' / 'output' / 'artifacts' / 'downloaded'

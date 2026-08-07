@@ -50,7 +50,11 @@ from safari_utils import (  # type: ignore[import-not-found]
     PAGE_LOAD_WAIT,
 )
 
-REPO_DIR       = Path(__file__).resolve().parents[4]
+SELF = 'src/main/pipeline/browser-captures/safari_capture.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_DIR = _root[0]
 SCRIPT_DIR     = Path(__file__).resolve().parent
 SETTLE_PAUSE   = 2
 READY_TIMEOUT  = 15   # first wait for a render; the caller retries 4x longer (see wait_for_ready)

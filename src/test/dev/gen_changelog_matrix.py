@@ -20,7 +20,12 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — shared modules live at its root
+SELF = 'src/test/dev/gen_changelog_matrix.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
+sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 
 from run import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs  # noqa: E402
 from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402

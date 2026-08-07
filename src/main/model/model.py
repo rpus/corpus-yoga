@@ -23,7 +23,12 @@ from gen_model_candidate import generate
 from model_curation import (documented, rejected, edge_queue, orphan_entries,
                              coverage_gaps, unrecorded_collisions)
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
+SELF = 'src/main/model/model.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from argparse_help import enrich  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent

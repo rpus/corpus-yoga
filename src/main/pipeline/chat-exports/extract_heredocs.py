@@ -32,7 +32,12 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/main/ on the path
+SELF = 'src/main/pipeline/chat-exports/extract_heredocs.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import ordered
 from library import assert_uuid8_unique, dir_for, LIBRARY
 

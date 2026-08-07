@@ -49,7 +49,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/main/ on the path
+SELF = 'src/main/pipeline/browser-captures/compare_markdown.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
 
 KEY_PREFIX = 80   # chars of normalized content used as a turn's alignment identity

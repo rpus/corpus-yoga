@@ -32,7 +32,12 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+SELF = 'src/main/model/compare_sources.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO, project, find_api_json, render
 
 

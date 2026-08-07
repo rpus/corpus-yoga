@@ -37,7 +37,11 @@ import csv
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+SELF = 'src/main/machine.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
 REGISTRY = REPO / 'rsc' / 'machine' / 'machines.csv'
 BINDING = REPO / 'machine-name.txt'
 

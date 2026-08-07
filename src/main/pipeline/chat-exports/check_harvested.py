@@ -21,7 +21,12 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/main/ on the path
+SELF = 'src/main/pipeline/chat-exports/check_harvested.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import slug
 from library import find as find_library_dir
 
