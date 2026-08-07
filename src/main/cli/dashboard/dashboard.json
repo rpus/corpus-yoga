@@ -1,6 +1,6 @@
 {
   "summary": "the corpus dashboard: paid capture, free render",
-  "target": "src/main/pipeline/chat-exports/dashboard.sh",
+  "target": "src/main/cli/dashboard/dashboard.sh",
   "calculus": "capture project",
   "args": []
 }
