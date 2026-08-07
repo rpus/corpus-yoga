@@ -21,7 +21,7 @@ tell application "Safari"
 	else if currentURL starts with "https://gemini.google.com/app/" and currentURL is not "https://gemini.google.com/app/" then
 		set providerFlag to "--provider gemini"
 	else
-		display alert "Navigate to a specific conversation first." & return & return & "For bulk capture, run from Terminal at the repo root: src/main/pipeline/browser-captures/browser.sh — or run export-all-conversations.applescript from the recents page." buttons {"OK"} default button "OK"
+		display alert "Navigate to a specific conversation first." & return & return & "For bulk capture, run from Terminal at the repo root: src/main/cli/browser/browser.sh — or run export-all-conversations.applescript from the recents page." buttons {"OK"} default button "OK"
 		return
 	end if
 

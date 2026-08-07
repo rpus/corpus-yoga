@@ -8,6 +8,7 @@
     "src/main/pipeline/browser-captures",
     "src/main/pipeline/chat-exports",
     "src/main/cli",
+    "src/main/cli/browser",
     "src/main/cli/cache",
     "src/main/cli/commands",
     "src/main/cli/indexing",

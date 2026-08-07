@@ -22,7 +22,7 @@
 
 set -euo pipefail
 
-SELF='src/main/pipeline/browser-captures/browser.sh'
+SELF='src/main/cli/browser/browser.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
@@ -31,7 +31,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # and what is missing without touching Safari or writing anything — the same audit
 # `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
 status() {
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" \
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }
@@ -105,11 +105,11 @@ main() {
   [[ -n "$provider" ]] && audit+=(--provider "$provider")
   if [[ -n "$dry_run" ]]; then
     local rc_audit=0
-    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" "${audit[@]}" --live || rc_audit=$?
+    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" "${audit[@]}" --live || rc_audit=$?
     echo "--dry-run: nothing captured — the extent above is what \`capture\` would act on"
     return $rc_audit
   fi
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/audit_captures.py" "${audit[@]}" || true
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" "${audit[@]}" || true
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
   # safari_capture.py's declaration, so this loop holds no second copy of which

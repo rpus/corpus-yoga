@@ -2076,7 +2076,7 @@ def check_capture_monotone(run) -> None:
     import shutil
     import tempfile
     import time
-    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'browser-captures'))
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'cli' / 'browser'))
     import safari_utils
     real_downloads = safari_utils.DOWNLOADS
 

@@ -11,15 +11,15 @@
 #   --id <id>     Capture one conversation — in place if the front tab shows it, else navigated to.
 #
 # Usage:
-#   src/main/pipeline/browser-captures/safari_capture.sh --provider claude
-#   src/main/pipeline/browser-captures/safari_capture.sh --provider claude --mechanism DOM
-#   src/main/pipeline/browser-captures/safari_capture.sh --provider claude --id <uuid>
-#   src/main/pipeline/browser-captures/safari_capture.sh --provider gemini
-#   src/main/pipeline/browser-captures/safari_capture.sh --provider gemini --id <id>
+#   src/main/cli/browser/safari_capture.sh --provider claude
+#   src/main/cli/browser/safari_capture.sh --provider claude --mechanism DOM
+#   src/main/cli/browser/safari_capture.sh --provider claude --id <uuid>
+#   src/main/cli/browser/safari_capture.sh --provider gemini
+#   src/main/cli/browser/safari_capture.sh --provider gemini --id <id>
 
 set -euo pipefail
 
-SELF='src/main/pipeline/browser-captures/safari_capture.sh'
+SELF='src/main/cli/browser/safari_capture.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
@@ -34,7 +34,7 @@ main() {
   if [[ "$provider" != "claude" && "$provider" != "gemini" ]]; then
     echo "Usage: $0 --provider claude|gemini [--id <id>]" >&2; exit 1
   fi
-  echo "src/main/pipeline/browser-captures/$(basename "$0") ($provider)"
+  echo "src/main/cli/browser/$(basename "$0") ($provider)"
   local log rc=0
   log="$REPO_DIR/tmp/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
   mkdir -p "$(dirname "$log")"

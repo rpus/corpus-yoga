@@ -26,7 +26,7 @@ README.md,43,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine
 README.md,44,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
 README.md,45,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
 README.md,46,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
-README.md,53,doc,src/main/pipeline/browser-captures/export.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/pipeline/browser-captures/export.command`
+README.md,53,doc,src/main/cli/browser/export.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/export.command`
 README.md,62,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
 README.md,75,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
 README.md,81,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
@@ -35,12 +35,13 @@ README.md,88,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/s
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
-pyrightconfig.json,11,path_str,src/main/cli/cache,Y,"""src/main/cli/cache"","
-pyrightconfig.json,12,path_str,src/main/cli/commands,Y,"""src/main/cli/commands"","
-pyrightconfig.json,13,path_str,src/main/cli/indexing,Y,"""src/main/cli/indexing"","
-pyrightconfig.json,14,path_str,src/main/cli/completions,Y,"""src/main/cli/completions"","
-pyrightconfig.json,15,path_str,src/main/pipeline/code-agents,Y,"""src/main/pipeline/code-agents"","
-pyrightconfig.json,16,path_str,src/main/model,Y,"""src/main/model"","
+pyrightconfig.json,11,path_str,src/main/cli/browser,Y,"""src/main/cli/browser"","
+pyrightconfig.json,12,path_str,src/main/cli/cache,Y,"""src/main/cli/cache"","
+pyrightconfig.json,13,path_str,src/main/cli/commands,Y,"""src/main/cli/commands"","
+pyrightconfig.json,14,path_str,src/main/cli/indexing,Y,"""src/main/cli/indexing"","
+pyrightconfig.json,15,path_str,src/main/cli/completions,Y,"""src/main/cli/completions"","
+pyrightconfig.json,16,path_str,src/main/pipeline/code-agents,Y,"""src/main/pipeline/code-agents"","
+pyrightconfig.json,17,path_str,src/main/model,Y,"""src/main/model"","
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-exports/supersede.py,Y,equality of snapshots. (`src/main/pipeline/chat-exports/supersede.py` atomisers.)
 rsc/CALCULUS.md,103,doc,src/main/pipeline/chat-exports/accumulate.py,Y,"implementation: `accumulate()` in `src/main/pipeline/chat-exports/accumulate.py`, called"
@@ -197,7 +198,19 @@ src/main/cli/agent/agent.json,3,path_str,src/main/cli/agent/agent.py,Y,"""target
 src/main/cli/agent/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/cli/agent/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/cli/agent/agent.py,117,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/browser/browser.json,3,path_str,src/main/pipeline/browser-captures/browser.sh,Y,"""target"": ""src/main/pipeline/browser-captures/browser.sh"","
+src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
+src/main/cli/browser/browser.sh,86,call,src/main/cli/browser/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
+src/main/cli/browser/browser.sh,90,call,src/main/cli/browser/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
+src/main/cli/browser/browser.sh,122,call,src/main/cli/browser/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
+src/main/cli/browser/export.command,19,path_str,src/main/cli/browser/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
+src/main/cli/browser/safari_capture.py,53,path_str,src/main/cli/browser/safari_capture.py,Y,SELF = 'src/main/cli/browser/safari_capture.py'
+src/main/cli/browser/safari_capture.sh,14,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude
+src/main/cli/browser/safari_capture.sh,15,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude --mechanism DOM
+src/main/cli/browser/safari_capture.sh,16,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude --id <uuid>
+src/main/cli/browser/safari_capture.sh,17,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider gemini
+src/main/cli/browser/safari_capture.sh,18,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider gemini --id <id>
+src/main/cli/browser/safari_capture.sh,45,call,src/main/cli/browser/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
+src/main/cli/browser/safari_utils.py,12,path_str,src/main/cli/browser/safari_utils.py,Y,SELF = 'src/main/cli/browser/safari_utils.py'
 src/main/cli/cache/cache.json,3,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
 src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
 src/main/cli/cache/cache.py,12,comment,src/main/cli/cache/sync.py,Y,src/main/cli/cache/sync.py — so the CLI table carries one `cache` command whose verbs
@@ -317,12 +330,6 @@ src/main/model/serve_markdown.py,30,comment,src/main/cli/prerequisites/prerequis
 src/main/pipeline/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
 src/main/pipeline/browser-captures/audit_captures.py,31,comment,src/main/pipeline/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
 src/main/pipeline/browser-captures/audit_captures.py,43,path_str,src/main/pipeline/browser-captures/audit_captures.py,Y,SELF = 'src/main/pipeline/browser-captures/audit_captures.py'
-src/main/pipeline/browser-captures/browser.sh,34,call,src/main/pipeline/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/pipeline/browser-captures/browser.sh,86,call,src/main/pipeline/browser-captures/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
-src/main/pipeline/browser-captures/browser.sh,90,call,src/main/pipeline/browser-captures/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
-src/main/pipeline/browser-captures/browser.sh,108,call,src/main/pipeline/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" --live || rc_audit=$?"
-src/main/pipeline/browser-captures/browser.sh,112,call,src/main/pipeline/browser-captures/audit_captures.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/audit_captures.py"" ""${audit[@]}"" || true"
-src/main/pipeline/browser-captures/browser.sh,122,call,src/main/pipeline/browser-captures/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/pipeline/browser-captures/claude/validate.sh,5,comment,src/main/pipeline/browser-captures/claude/validate.sh,Y,#   src/main/pipeline/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 src/main/pipeline/browser-captures/claude/validate.sh,6,comment,src/main/pipeline/browser-captures/claude/validate.sh,Y,#   src/main/pipeline/browser-captures/claude/validate.sh --browser-api <path/to/browser-API-root>
 src/main/pipeline/browser-captures/claude/validate.sh,20,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -332,7 +339,6 @@ src/main/pipeline/browser-captures/compare_markdown.py,52,path_str,src/main/pipe
 src/main/pipeline/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini
 src/main/pipeline/browser-captures/copy_gemini_markdown.py,24,comment,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini
 src/main/pipeline/browser-captures/copy_gemini_markdown.py,32,path_str,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,SELF = 'src/main/pipeline/browser-captures/copy_gemini_markdown.py'
-src/main/pipeline/browser-captures/export.command,19,path_str,src/main/pipeline/browser-captures/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
 src/main/pipeline/browser-captures/run.sh,5,comment,src/main/pipeline/browser-captures/run.sh,Y,#   src/main/pipeline/browser-captures/run.sh
 src/main/pipeline/browser-captures/run.sh,6,comment,src/main/pipeline/browser-captures/run.sh,Y,#   src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
 src/main/pipeline/browser-captures/run.sh,7,comment,src/main/pipeline/browser-captures/run.sh,Y,#   src/main/pipeline/browser-captures/run.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
@@ -345,14 +351,6 @@ src/main/pipeline/browser-captures/run.sh,57,call,src/main/pipeline/browser-capt
 src/main/pipeline/browser-captures/run.sh,65,call,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
 src/main/pipeline/browser-captures/run.sh,71,call,src/main/pipeline/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/pipeline/browser-captures/run.sh,87,call,src/main/pipeline/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
-src/main/pipeline/browser-captures/safari_capture.py,53,path_str,src/main/pipeline/browser-captures/safari_capture.py,Y,SELF = 'src/main/pipeline/browser-captures/safari_capture.py'
-src/main/pipeline/browser-captures/safari_capture.sh,14,comment,src/main/pipeline/browser-captures/safari_capture.sh,Y,#   src/main/pipeline/browser-captures/safari_capture.sh --provider claude
-src/main/pipeline/browser-captures/safari_capture.sh,15,comment,src/main/pipeline/browser-captures/safari_capture.sh,Y,#   src/main/pipeline/browser-captures/safari_capture.sh --provider claude --mechanism DOM
-src/main/pipeline/browser-captures/safari_capture.sh,16,comment,src/main/pipeline/browser-captures/safari_capture.sh,Y,#   src/main/pipeline/browser-captures/safari_capture.sh --provider claude --id <uuid>
-src/main/pipeline/browser-captures/safari_capture.sh,17,comment,src/main/pipeline/browser-captures/safari_capture.sh,Y,#   src/main/pipeline/browser-captures/safari_capture.sh --provider gemini
-src/main/pipeline/browser-captures/safari_capture.sh,18,comment,src/main/pipeline/browser-captures/safari_capture.sh,Y,#   src/main/pipeline/browser-captures/safari_capture.sh --provider gemini --id <id>
-src/main/pipeline/browser-captures/safari_capture.sh,45,call,src/main/pipeline/browser-captures/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --provider ""$provider"" ""$@"" \"
-src/main/pipeline/browser-captures/safari_utils.py,12,path_str,src/main/pipeline/browser-captures/safari_utils.py,Y,SELF = 'src/main/pipeline/browser-captures/safari_utils.py'
 src/main/pipeline/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/archive_components.py       --chat-export data/input/claude/chat
 src/main/pipeline/chat-exports/archive_components.py,24,comment,src/main/pipeline/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/archive_components.py       --chat-export data/input/claude/chat
 src/main/pipeline/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-ex
@@ -621,6 +619,11 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/agent/install.json,Y,
 ,,,src/main/cli/agent/list-models.json,Y,
 ,,,src/main/cli/browser/browser.json,Y,
+,,,src/main/cli/browser/claude/browser-chat-capture.js,Y,
+,,,src/main/cli/browser/export-all-conversations.applescript,Y,
+,,,src/main/cli/browser/export-conversation.applescript,Y,
+,,,src/main/cli/browser/gemini/browser-chat-capture.js,Y,
+,,self_only,src/main/cli/browser/safari_utils.py,Y,
 ,,,src/main/cli/cache/cache.json,Y,
 ,,self_only,src/main/cli/cache/cache_io.py,Y,
 ,,,src/main/cli/cache/clean.json,Y,
@@ -670,12 +673,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/enact.py,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
 ,,self_only,src/main/model/serve_markdown.py,Y,
-,,,src/main/pipeline/browser-captures/claude/browser-chat-capture.js,Y,
-,,,src/main/pipeline/browser-captures/export-all-conversations.applescript,Y,
-,,,src/main/pipeline/browser-captures/export-conversation.applescript,Y,
-,,,src/main/pipeline/browser-captures/gemini/browser-chat-capture.js,Y,
 ,,,src/main/pipeline/browser-captures/pipeline.json,Y,
-,,self_only,src/main/pipeline/browser-captures/safari_utils.py,Y,
 ,,,src/main/pipeline/chat-exports/pipeline.json,Y,
 ,,self_only,src/main/pipeline/chat-exports/require_export.sh,Y,
 ,,self_only,src/main/pipeline/code-agents/link_projects.sh,Y,

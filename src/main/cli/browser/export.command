@@ -10,8 +10,8 @@
 # run visible in a window instead of a notification-sized black box.
 #
 # Usage:
-#   open -a Terminal src/main/pipeline/browser-captures/export.command   # what the Shortcut does
-#   src/main/pipeline/browser-captures/export.command                    # identical direct run
+#   open -a Terminal src/main/cli/browser/export.command   # what the Shortcut does
+#   src/main/cli/browser/export.command                    # identical direct run
 
 set -euo pipefail
 
