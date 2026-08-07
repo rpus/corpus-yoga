@@ -515,28 +515,14 @@ src/main/pipeline/chat-exports/supersede.py,59,comment,src/run_python_script.sh,
 src/main/pipeline/chat-exports/supersede.py,59,comment,src/main/pipeline/chat-exports/supersede.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/supersede.py     [--chat-exports-cache tmp/cache/chat-exports] [
 src/main/pipeline/chat-exports/timeline.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/timeline.py <conversations.json> --table chats
 src/main/pipeline/chat-exports/timeline.py,14,comment,src/main/pipeline/chat-exports/timeline.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/timeline.py <conversations.json> --table chats
-src/main/pipeline/chat-exports/validate.sh,5,comment,src/main/pipeline/chat-exports/validate.sh,Y,#   src/main/pipeline/chat-exports/validate.sh --chat-export <path/to/data-directory>
-src/main/pipeline/chat-exports/validate.sh,11,path_str,rsc/schema/chat-exports,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/chat-exports"""
-src/main/pipeline/chat-exports/validate.sh,15,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" -c ""import os,sys; print(os.path.relpath(sys.argv[1], sys.argv[2]))"" ""$1"" ""$REPO_DI"
-src/main/pipeline/chat-exports/validate.sh,18,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/chat-exports/validate.sh,19,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh""   # dispatch/dispatch_done — next-free dispatch (#395)"
-src/main/pipeline/chat-exports/validate.sh,37,call,src/run_python_script.sh,Y,"instance_ptr=""$(""$REPO_DIR/src/run_python_script.sh"" -c ""import ast,sys; p=ast.literal_eval(sys.argv[1]); print('/'+'/'."
-src/main/pipeline/chat-exports/validate.sh,38,call,src/run_python_script.sh,Y,"schema_ptr=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_path.py"" ""$path_raw"" ""$schema"")"""
-src/main/pipeline/chat-exports/validate.sh,38,call,src/main/schema_path.py,Y,"schema_ptr=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_path.py"" ""$path_raw"" ""$schema"")"""
-src/main/pipeline/chat-exports/validate.sh,44,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_fragment.py"" ""$schema_ptr"" ""$schema"""
-src/main/pipeline/chat-exports/validate.sh,44,call,src/main/schema_fragment.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_fragment.py"" ""$schema_ptr"" ""$schema"""
-src/main/pipeline/chat-exports/validate.sh,46,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_occurrences.py"" ""$schema_ptr"" ""$schema"" ""$f"" | sed 's/^/"
-src/main/pipeline/chat-exports/validate.sh,46,call,src/main/schema_occurrences.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/schema_occurrences.py"" ""$schema_ptr"" ""$schema"" ""$f"" | sed 's/^/"
-src/main/pipeline/chat-exports/validate.sh,50,call,src/main/schema_occurrences.py,Y,"echo ""src/run_python_script.sh \""$(rel_path ""$REPO_DIR/src/main/schema_occurrences.py"")\"" \""$schema_ptr\"" \""$(rel_path """
-src/main/pipeline/chat-exports/validate.sh,80,call,src/run_python_script.sh,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
-src/main/pipeline/chat-exports/validate.sh,80,call,src/main/validate.py,Y,"python_out=""$(""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate.py"" ""$f"" ""$schema"")"""
-src/main/pipeline/chat-exports/validate.sh,105,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
-src/main/pipeline/chat-exports/validate.sh,125,path_str,rsc/schema/chat-exports,Y,"schema_stem=""${schema#""$SCHEMA_DIR/""}"""
-src/main/pipeline/chat-exports/validate.sh,190,path_str,rsc/schema/chat-exports,Y,"for fam_dir in ""$SCHEMA_DIR""/*/; do"
-src/main/pipeline/chat-exports/validate.sh,203,comment,rsc/schema/WORKFLOW.md,Y,# just written (see rsc/schema/WORKFLOW.md).
-src/main/pipeline/chat-exports/validate.sh,204,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
-src/main/pipeline/chat-exports/validate.sh,204,call,src/validation_matrix.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/validation_matrix.py"" \"
-src/main/pipeline/chat-exports/validate.sh,205,path_str,rsc/schema/chat-exports,Y,"""$(dirname ""$validation_dir"")"" ""$SCHEMA_DIR"""
+src/main/pipeline/chat-exports/validate.sh,12,comment,src/main/pipeline/chat-exports/validate.sh,Y,#   src/main/pipeline/chat-exports/validate.sh --chat-export <path/to/data-directory>
+src/main/pipeline/chat-exports/validate.sh,18,path_str,rsc/schema/chat-exports,Y,"SCHEMA_DIR=""$REPO_DIR/rsc/schema/chat-exports"""
+src/main/pipeline/chat-exports/validate.sh,21,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/pipeline/chat-exports/validate.sh,22,call,src/main/steps.sh,Y,"source ""$REPO_DIR/src/main/steps.sh""   # dispatch/dispatch_emit — next-free dispatch (#395)"
+src/main/pipeline/chat-exports/validate.sh,31,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/pipeline/chat-exports/validate.sh,31,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/pipeline/chat-exports/validate.sh,43,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
+src/main/pipeline/chat-exports/validate.sh,43,call,src/main/validate_versions.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$REPO_DIR/src/main/validate_versions.py"" \"
 src/main/pipeline/code-agents/jsonl_to_json.sh,5,comment,src/main/pipeline/code-agents/jsonl_to_json.sh,Y,#   src/main/pipeline/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/pipeline/code-agents/jsonl_to_json.sh,28,call,src/run_python_script.sh,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
 src/main/pipeline/code-agents/jsonl_to_json.sh,28,call,src/main/pipeline/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
@@ -602,6 +588,7 @@ src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
+src/main/validate_inspection.py,69,path_str,src/run_python_script.sh,Y,"f'src/run_python_script.sh ""{occurrences_script}"" ""{schema_ptr}""'"
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
 src/test/dev/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/dev/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/dev/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/dev/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/dev/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/dev/repairs/naming.root_schema_title_matches_filename.py <schema>
@@ -778,6 +765,10 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,self_only,src/main/pipeline/chat-exports/require_export.sh,Y,
 ,,,src/main/pipeline/code-agents/pipeline.json,Y,
 ,,,src/main/pipeline/pipeline.schema.json,Y,
+,,self_only,src/main/schema_fragment.py,Y,
+,,self_only,src/main/schema_occurrences.py,Y,
+,,self_only,src/main/schema_path.py,Y,
+,,,src/main/validate_inspection.py,Y,
 ,,,src/test/dev/diagnostics/composition.base_not_used_directly.py,Y,
 ,,,src/test/dev/diagnostics/composition.base_schemas_closed.py,Y,
 ,,,src/test/dev/diagnostics/composition.discriminator_values_disjoint.py,Y,
