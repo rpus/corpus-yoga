@@ -50,6 +50,30 @@ from safari_utils import SendRefused   # --live sends; the refusal has to be cat
 RENDER_CEILING = 10
 
 
+def remedy_for(kind: str, uuid: str) -> str:
+    """The reader's next step for a verdict, as one indented line.
+
+    A projection difference is a defect in project_markdown: both captures hold the turn
+    and the rendering of one of them disagrees. The line names where the difference lives,
+    because that is the only place repairing it would remove it — and it leaves the DOM
+    capture alone. That capture is the sole reading of the conversation that does not come
+    through the projection, so it is the only thing able to contradict one; a report that
+    proposed removing it would be proposing to stop being able to notice.
+
+    A lagging DOM capture is a capture to retake, and says so as a command.
+
+    Neither prescribes removing a capture. One that has genuinely outlived its use is
+    disposed of through curation, where the decision leaves a record of what went and why
+    — never in passing, in the report the removal would silence."""
+    if kind.startswith('projection renders'):
+        return ('    the difference is in the projection, not in either capture: '
+                'project_markdown renders this turn differently from the page that was '
+                'captured, and the record holds the content either way. Look there; the DOM '
+                'capture is what makes the difference visible.')
+    return (f'    → run: yoga browser capture --provider claude --mechanism DOM --id {uuid}'
+            '  # re-capture just this one (Safari)')
+
+
 def _attribute(kind: str, evidence: list, capture: Path) -> str:
     """Re-word a projection-side shortfall once the API capture has been consulted:
     absent from the record is `API capture missing N`; present in it is a rendering
@@ -126,8 +150,10 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
         # and three copies of a paragraph is how a report teaches its reader to skim.
         print('claude: the comparison is markdown vs markdown — the projection of the API '
               'capture against the DOM capture — so a difference may be in project_markdown '
-              "rather than in either capture. claude's DOM capture is retired; the API "
-              'capture is the record.')
+              "rather than in either capture. claude's DOM capture is retired as the record "
+              'and kept as its witness: the API capture is what the corpus holds, and the DOM '
+              'capture is the only reading of these conversations that does not come through '
+              'the projection, so it is the only thing that can disagree with one.')
     for uuid, name, kind, detail in suspects:
         # identity leads, on its own line; the finding and its remedy are the body, aligned
         # (pipeline.sh's hoist_atoms carries an atom's indented continuation).
@@ -139,17 +165,9 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
         # is presently EMPTY is itself the report — a fact this output could not state while
         # every difference was a warning.
         lost = kind.startswith('API capture missing')
-        intact = kind.startswith('projection renders')
         print(f'{"WARN" if lost else "INFO"}: {name} ({uuid[:8]}):')
         print(f'    {kind}' + (f' — {detail}' if detail else ''))
-        if intact:
-            print('    nothing to re-capture: the record holds the content. The DOM capture '
-                  'is retired — delete it to retire the difference with it.')
-        else:
-            # a lagging DOM capture is not a loss, but re-capturing IS the action if you
-            # want it current — so the remedy stays, at INFO
-            print(f'    → run: yoga browser capture --provider claude --mechanism DOM --id {uuid}'
-                  '  # re-capture just this one (Safari) — or delete its DOM capture')
+        print(remedy_for(kind, uuid))
     unscraped = sum(1 for d in api_capture_dir.iterdir()
                     if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
     if unscraped:

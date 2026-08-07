@@ -13,6 +13,7 @@
 # The names are sorted; the prose above is not a list and must not be sorted with them.
 #
 accumulate.trajectory_contract
+audit.remedy_keeps_the_witness
 cache_io.paths_resolve
 cache_io.pipeline_tags_match
 cache_io.read_implies_writer

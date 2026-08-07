@@ -2104,6 +2104,44 @@ def check_capture_monotone(run) -> None:
         safari_utils.DOWNLOADS = real_downloads
 
 
+def check_remedy_keeps_the_witness(run) -> None:
+    """A remedy names what to repair, and never the evidence to remove (issue #392).
+
+    claude's DOM capture is the only reading of a conversation that does not come through
+    project_markdown, so it is the only thing in the corpus able to contradict a
+    projection. A verdict that a projection renders a turn differently is therefore the
+    capture doing its work — and the report's advice for it must point at the projection.
+    Advice to delete the capture would clear the report by removing its input, leave the
+    defect rendering, and shrink the corroborated set by one with nothing to date it.
+
+    The lagging case is checked beside it: a remedy that stopped prescribing the
+    re-capture would pass a deletion-only test while leaving the reader no action."""
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'browser-captures'))
+    import audit_captures
+
+    uuid = 'abc12345-0000-0000-0000-000000000000'
+    projection = audit_captures.remedy_for('projection renders 1 turn(s) differently', uuid)
+    lagging = audit_captures.remedy_for('DOM capture missing 2 turns', uuid)
+
+    names_it = 'project_markdown' in projection
+    run('audit: a projection difference sends the reader to the projection', names_it,
+        None if names_it else f'the remedy is {projection!r} — the reader is told a '
+        'difference exists but not where the only repairable part of it lives',
+        check='audit.remedy_keeps_the_witness')
+
+    keeps = 'delete' not in projection.lower()
+    run('audit: a projection difference never prescribes deleting the capture', keeps,
+        None if keeps else f'the remedy is {projection!r} — following it would clear the '
+        'report by removing the only thing able to disagree with a projection',
+        check='audit.remedy_keeps_the_witness')
+
+    lag_ok = '→ run: yoga browser capture' in lagging and 'delete' not in lagging.lower()
+    run('audit: a lagging capture is offered a re-capture and no deletion', lag_ok,
+        None if lag_ok else f'the remedy is {lagging!r} — a lagging capture is retaken or '
+        'disposed of through curation, never removed in passing by a report',
+        check='audit.remedy_keeps_the_witness')
+
+
 def check_accumulate_contract(run) -> None:
     """The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
@@ -2175,6 +2213,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
     'check_capture_monotone': ['src', 'data/output/dashboard'],
+    'check_remedy_keeps_the_witness': ['src'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
@@ -2421,6 +2460,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')
         run_section(check_capture_monotone, tier='code')
+        run_section(check_remedy_keeps_the_witness, tier='code')
         # LAST of the code tier, because it reads the citation ledger: a law is held by
         # whichever check cites it, and until every section has run the ledger is partial.
         # Registered after check_cli_surface alone, it saw the G-citations (all raised

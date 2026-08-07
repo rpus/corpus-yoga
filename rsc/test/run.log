@@ -1,4 +1,4 @@
-run.py: 1940/1940 (data: machine-local)
+run.py: 1945/1945 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ run.py: 1940/1940 (data: machine-local)
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (12/12)
-  ✓ output.prescriptions_are_commands  (69/69)
+  ✓ output.prescriptions_are_commands  (71/71)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -65,6 +65,9 @@ run.py: 1940/1940 (data: machine-local)
 
 ── check_capture_monotone ────────────────────────────────────────────────────
   ✓ capture.monotone_record  (4/4)
+
+── check_remedy_keeps_the_witness ────────────────────────────────────────────
+  ✓ audit.remedy_keeps_the_witness  (3/3)
 
 ── check_grammar_laws ────────────────────────────────────────────────────────
   ✓ grammar.laws_parse
@@ -170,30 +173,31 @@ check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
 check_templates                        2     0     0   ok        14
 check_xref                             2     0     0   ok        17
-check_cli_surface                    441     0     0   ok        21
+check_cli_surface                    443     0     0   ok        21
 check_effects                          1     0     0   ok        54
 check_cache_io                        18     0     0   ok        57
 check_accumulate_contract              1     0     0   ok        63
 check_capture_monotone                 4     0     0   ok        66
-check_grammar_laws                    12     0     0   ok        69
-check_root_schema_diagnostics         50     0     0   ok        83
-check_schema_validity                 53     0     0   ok       110
-check_schema_changelogs              106     0     0   ok       113
-check_versioned_schema_diagnostics  1209     0     0   ok       117
-check_schema_join                      1     0     0   ok       143
-check_model_join_versions              1     0     0   ok       146
-check_model_occurrences                3     0     0   ok       149
-check_model_obligations               17     0     0   ok       154
-check_mcp_schema                       1     0     0   ok       158
-check_score                            5     0     0   ok       161
+check_remedy_keeps_the_witness         3     0     0   ok        69
+check_grammar_laws                    12     0     0   ok        72
+check_root_schema_diagnostics         50     0     0   ok        86
+check_schema_validity                 53     0     0   ok       113
+check_schema_changelogs              106     0     0   ok       116
+check_versioned_schema_diagnostics  1209     0     0   ok       120
+check_schema_join                      1     0     0   ok       146
+check_model_join_versions              1     0     0   ok       149
+check_model_occurrences                3     0     0   ok       152
+check_model_obligations               17     0     0   ok       157
+check_mcp_schema                       1     0     0   ok       161
+check_score                            5     0     0   ok       164
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 93 types, 1940/1940 invocations passing
+  ✓ checks[code+schema]: 94 types, 1945/1945 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 57 types, 499/499 invocations passing
+  ✓ checks[code]: 58 types, 504/504 invocations passing
   ✓ checks[schema]: 36 types, 1441/1441 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 1940/1940 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 1945/1945 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
