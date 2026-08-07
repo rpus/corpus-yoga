@@ -26,7 +26,11 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[5]
+SELF = 'src/test/usr/pipeline/code-agents/debug_code_session_record.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
 SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 
 

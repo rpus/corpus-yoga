@@ -114,7 +114,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+SELF = 'src/main/cli/agent/agent.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
 PROJECTS = REPO / 'ext' / 'mnt' / 'claude-code-projects'
 AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 

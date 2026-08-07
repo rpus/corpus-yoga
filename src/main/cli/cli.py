@@ -42,10 +42,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — modules both tiers import
+SELF = 'src/main/cli/cli.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
+sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
-REPO = Path(__file__).resolve().parents[3]
+REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
 COLUMNS = ('command', 'target', 'calculus', 'summary')
 COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'

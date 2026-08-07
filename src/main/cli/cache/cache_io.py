@@ -22,7 +22,11 @@ STDLIB-ONLY.
 import csv
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+SELF = 'src/main/cli/cache/cache_io.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
 REGISTRY = REPO / 'rsc' / 'cache_io.csv'
 COLUMNS = ('cache_path', 'pipeline', 'written_by', 'read_by', 'note')
 

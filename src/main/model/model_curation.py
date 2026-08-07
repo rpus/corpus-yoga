@@ -30,7 +30,11 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
+SELF = 'src/main/model/model_curation.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
 MODEL_JSON = SCHEMA_DIR / 'model.json'
 MODEL_JOIN = SCHEMA_DIR / 'model_join.csv'

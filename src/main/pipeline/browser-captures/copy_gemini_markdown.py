@@ -29,7 +29,12 @@ import re
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/main/ on the path
+SELF = 'src/main/pipeline/browser-captures/copy_gemini_markdown.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO, MD033_PRAGMA, reconcile_dir, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)

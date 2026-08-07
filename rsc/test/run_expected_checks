@@ -1,17 +1,13 @@
 #
-# The check TYPES the code and schema tiers run — the committed expectation.
-#
 # A check is a type; a line in the report is one INVOCATION of it, over one schema,
-# command or conversation. Adding a schema multiplies invocations and adds no check, so
-# this file does not move when the corpus or the schema set grows — it moves only when
-# a check is written or removed, which is the event worth a deliberate edit.
-#
 # A name here that never runs is the failure this file exists to catch: a check deleted,
-# renamed, or skipped. A name that runs and is absent here is a new check, to be added
-# on purpose rather than by reflex.
-#
+# The check TYPES the code and schema tiers run — the committed expectation.
 # The names are sorted; the prose above is not a list and must not be sorted with them.
-#
+# a check is written or removed, which is the event worth a deliberate edit.
+# command or conversation. Adding a schema multiplies invocations and adds no check, so
+# on purpose rather than by reflex.
+# renamed, or skipped. A name that runs and is absent here is a new check, to be added
+# this file does not move when the corpus or the schema set grows — it moves only when
 accumulate.trajectory_contract
 cache_io.paths_resolve
 cache_io.pipeline_tags_match
@@ -102,6 +98,7 @@ structure.pattern_constraints_enforced
 structure.pipeline_declaration_validates
 structure.pipeline_implements_run
 structure.required_subset_of_properties
+structure.self_path_matches_address
 templates.teach_signature
 xref.no_bad_pointers
 xref.score_matches_expectation

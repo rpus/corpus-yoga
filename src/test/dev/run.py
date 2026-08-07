@@ -47,7 +47,11 @@ from pathlib import Path
 from typing import Any
 
 # ── Repo layout ───────────────────────────────────────────────────────────────
-REPO_ROOT                = Path(__file__).resolve().parents[3]
+SELF = 'src/test/dev/run.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
 INPUT                    = REPO_ROOT / 'data' / 'input'
 CACHE                    = REPO_ROOT / 'tmp' / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
@@ -68,7 +72,7 @@ while MACHINE_LOG.exists():
 MACHINE_LOG_REL = str(MACHINE_LOG.relative_to(REPO_ROOT))
 CLI                      = SRC / 'main' / 'cli'
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # src/ — shared modules live at its root
+sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 from validation_matrix import rows_from_logs  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
@@ -421,6 +425,25 @@ def check_step_imports(run) -> None:
             None if proc.returncode == 0 else
             (lines[-1] if lines else f'exit {proc.returncode}'),
             check='imports.step_module_imports')
+
+
+def check_self_paths(run) -> None:
+    """Every SELF declaration names its own file's address (#357): the root
+    derivation searches for the declared path and fails loudly at import when it
+    is stale — this check fails it at commit instead, for every declaring file,
+    executed or not, python or shell alike (#358's half arrives with its files)."""
+    pat = re.compile(r"^SELF\s*=\s*'([^']+)'", re.M)
+    for f in sorted(list(SRC.rglob('*.py')) + list(SRC.rglob('*.sh'))):
+        if '__pycache__' in f.parts:
+            continue
+        m = pat.search(f.read_text())
+        if not m:
+            continue
+        actual = f.relative_to(REPO_ROOT).as_posix()
+        run(f'self: {actual}: declares its own address', m.group(1) == actual,
+            None if m.group(1) == actual else
+            f'declares {m.group(1)!r} — a moved file whose declaration did not move with it',
+            check='structure.self_path_matches_address')
 
 
 def check_templates(run) -> None:
@@ -2415,6 +2438,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_required_files, tier='code')
         run_section(check_pipeline_declarations, tier='code')
         run_section(check_step_imports, tier='code')
+        run_section(check_self_paths, tier='code')
         run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')

@@ -19,7 +19,12 @@ from pathlib import Path
 from validate import validate
 from validate_inspection import inspect_failure
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/ — shared modules live at its root
+SELF = 'src/main/validate_versions.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src'))  # src/ — shared modules live at its root
 from validation_matrix import write_matrix  # noqa: E402
 
 

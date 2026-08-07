@@ -15,10 +15,15 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/main/ on the path
+SELF = 'src/main/model/serve_markdown.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 from send import assert_may_send  # noqa: E402 — the python face of YOGA_NO_SEND (#29)
 
-REPO_ROOT  = Path(__file__).resolve().parents[3]
+REPO_ROOT  = REPO
 STATIC_DIR = REPO_ROOT / 'ext' / 'lib' / 'serve_markdown'  # pinned foreign artifacts, by copy
 # The viewer's render-lib dependency, declared like a requirements.txt (pinned
 # versions, one line per artifact) rather than buried in a dict here — so it is

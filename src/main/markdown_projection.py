@@ -2,9 +2,10 @@
 """
 markdown_projection.py — Shared primitives for projecting a Conversation to the lean
 markdownConversation shape and rendering it to markdown. Common code at the root of src/main/
-(like schema_*.py, validate*.py); the per-pipeline CLIs import it via the sys.path idiom:
+(like schema_*.py, validate*.py); the per-pipeline CLIs import it via the sys.path idiom,
+with the root derived from their own SELF declaration (#357):
 
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # puts src/main/ on the path
+    sys.path.insert(0, str(REPO / 'src' / 'main'))   # puts src/main/ on the path
     from markdown_projection import project, render, ...
 
 Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and
@@ -21,7 +22,11 @@ import json
 import re
 from pathlib import Path
 
-REPO      = Path(__file__).resolve().parents[2]
+SELF = 'src/main/markdown_projection.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO = _root[0]
 MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v3.json'
 
 

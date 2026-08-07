@@ -17,7 +17,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))   # src/, for argparse_help
+SELF = 'src/main/cli/completions/completions.py'
+_file = Path(__file__).resolve()
+_root = [p for p in _file.parents if p / SELF == _file]
+assert _root, f'{_file} is not at its declared address {SELF}'
+REPO_ROOT = _root[0]
+sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for argparse_help
 from argparse_help import enrich  # noqa: E402
 from cli import (  # noqa: E402 — one reader of the declaration, and it is cli
     PATH_ARG_TYPES, REPO, commands, command_rows, subcommands_of, _subcommand_desc,
