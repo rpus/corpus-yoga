@@ -143,9 +143,9 @@ rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`vali
 rsc/schema/chat-exports/users/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
 rsc/schema/chat-exports/users/v1.json,19,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/projectMemory/CHANGELOG.md,25,doc,rsc/schema/code-agents/projectMemory/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/code-agents/projectMemory/CHANGELOG.md,55,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/projectMemory/CHANGELOG.md,71,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,24,doc,rsc/schema/code-agents/projectMemory/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,54,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/session/CHANGELOG.md,31,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
 rsc/schema/code-agents/session/CHANGELOG.md,62,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)

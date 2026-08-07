@@ -17,8 +17,7 @@ key; the survey found `originSessionId` equally absent on the current
 vintage, and the issue's own principle (model the union the datum actually
 holds) decides the wider relaxation. Only `type` is constant across all
 three vintages, so only `type` remains required. The red this mint turns
-green stood deliberately from 2026-08-06 (#361's honest relay showed it;
-#362 was ordered last so the failing datum could serve as the fixture).
+green stood deliberately from 2026-08-06 (#361's honest relay showed it; #362 was ordered last so the failing datum could serve as the fixture).
 
 ### Replaces
 
