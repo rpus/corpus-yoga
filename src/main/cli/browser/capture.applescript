@@ -1,8 +1,8 @@
--- Delegate to the appropriate export script based on the front tab URL:
---   https://claude.ai/chat/*         → export-conversation.applescript
---   https://claude.ai/recents        → export-all-conversations.applescript
---   https://gemini.google.com/app/*  → export-conversation.applescript
---   https://gemini.google.com/app    → export-all-conversations.applescript
+-- Delegate to the appropriate capture script based on the front tab URL:
+--   https://claude.ai/chat/*         → capture-conversation.applescript
+--   https://claude.ai/recents        → capture-all-conversations.applescript
+--   https://gemini.google.com/app/*  → capture-conversation.applescript
+--   https://gemini.google.com/app    → capture-all-conversations.applescript
 --
 -- Prerequisite (one-time): Safari > Develop > Allow JavaScript from Apple Events
 
@@ -16,7 +16,7 @@ tell application "Safari"
 	end if
 
 	-- Fail fast if Safari blocks JavaScript from Apple Events — without this, every
-	-- injection silently returns nothing and the export appears to do nothing.
+	-- injection silently returns nothing and the capture appears to do nothing.
 	try
 		do JavaScript "1+1" in front document
 	on error
@@ -27,10 +27,10 @@ tell application "Safari"
 	set currentURL to URL of front document
 
 	if currentURL starts with "https://claude.ai/chat/" or currentURL starts with "https://gemini.google.com/app/" then
-		run script POSIX file (scriptDir & "/export-conversation.applescript")
+		run script POSIX file (scriptDir & "/capture-conversation.applescript")
 	else if currentURL starts with "https://claude.ai/recents" or currentURL starts with "https://gemini.google.com/app" then
-		run script POSIX file (scriptDir & "/export-all-conversations.applescript")
+		run script POSIX file (scriptDir & "/capture-all-conversations.applescript")
 	else
-		display alert "Front tab is not a recognised export page." & return & return & currentURL buttons {"OK"} default button "OK"
+		display alert "Front tab is not a recognised capture page." & return & return & currentURL buttons {"OK"} default button "OK"
 	end if
 end tell

@@ -26,7 +26,7 @@ README.md,43,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine
 README.md,44,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
 README.md,45,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
 README.md,46,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
-README.md,53,doc,src/main/cli/browser/export.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/export.command`
+README.md,53,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 README.md,62,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
 README.md,75,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
 README.md,81,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
@@ -202,7 +202,7 @@ src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"
 src/main/cli/browser/browser.sh,86,call,src/main/cli/browser/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
 src/main/cli/browser/browser.sh,90,call,src/main/cli/browser/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
 src/main/cli/browser/browser.sh,122,call,src/main/cli/browser/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
-src/main/cli/browser/export.command,19,path_str,src/main/cli/browser/export.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/export.applescript"""
+src/main/cli/browser/capture.command,19,path_str,src/main/cli/browser/capture.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/capture.applescript"""
 src/main/cli/browser/safari_capture.py,53,path_str,src/main/cli/browser/safari_capture.py,Y,SELF = 'src/main/cli/browser/safari_capture.py'
 src/main/cli/browser/safari_capture.sh,14,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude
 src/main/cli/browser/safari_capture.sh,15,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude --mechanism DOM
@@ -619,9 +619,9 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/agent/install.json,Y,
 ,,,src/main/cli/agent/list-models.json,Y,
 ,,,src/main/cli/browser/browser.json,Y,
+,,,src/main/cli/browser/capture-all-conversations.applescript,Y,
+,,,src/main/cli/browser/capture-conversation.applescript,Y,
 ,,,src/main/cli/browser/claude/browser-chat-capture.js,Y,
-,,,src/main/cli/browser/export-all-conversations.applescript,Y,
-,,,src/main/cli/browser/export-conversation.applescript,Y,
 ,,,src/main/cli/browser/gemini/browser-chat-capture.js,Y,
 ,,self_only,src/main/cli/browser/safari_utils.py,Y,
 ,,,src/main/cli/cache/cache.json,Y,

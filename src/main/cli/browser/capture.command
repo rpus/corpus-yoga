@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Terminal-hosted trigger for export.applescript — what the macOS Shortcut runs.
+# Terminal-hosted trigger for capture.applescript — what the macOS Shortcut runs.
 #
 # The Shortcut's entire shell line is: open -a Terminal <this file>. Shortcuts'
 # own shell runs under ShortcutsMacHelper, a framework XPC service that macOS
@@ -10,10 +10,10 @@
 # run visible in a window instead of a notification-sized black box.
 #
 # Usage:
-#   open -a Terminal src/main/cli/browser/export.command   # what the Shortcut does
-#   src/main/cli/browser/export.command                    # identical direct run
+#   open -a Terminal src/main/cli/browser/capture.command   # what the Shortcut does
+#   src/main/cli/browser/capture.command                    # identical direct run
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec caffeinate -dim osascript "$SCRIPT_DIR/export.applescript"
+exec caffeinate -dim osascript "$SCRIPT_DIR/capture.applescript"

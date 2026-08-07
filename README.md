@@ -50,7 +50,7 @@ prefix-gated store.
 Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
 the emailed `data-*` into `data/input/claude/chat/bulk-export/`. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
-(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/export.command`
+(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
 Code sessions: `yoga agent capture --all`. Paid model readings:
 `yoga dashboard capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
