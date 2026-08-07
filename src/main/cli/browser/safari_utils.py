@@ -9,7 +9,7 @@ import sys
 import time
 from pathlib import Path
 
-SELF = 'src/main/pipeline/browser-captures/safari_utils.py'
+SELF = 'src/main/cli/browser/safari_utils.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

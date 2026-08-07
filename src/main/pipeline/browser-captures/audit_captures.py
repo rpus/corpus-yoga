@@ -46,6 +46,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
 from markdown_projection import turn_seq, conv_id, turn_extent  # the format authority owns the parsers
 from compare_markdown import classify, turn_labels
 from safari_utils import SendRefused   # --live sends; the refusal has to be catchable here

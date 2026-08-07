@@ -1,14 +1,17 @@
--- Export all conversations to markdown, one tab at a time.
+-- Capture all conversations to markdown, one tab at a time.
 -- Supports Claude (claude.ai/recents) and Gemini (gemini.google.com/app).
 -- Downloads go to ~/Downloads/ as Safari normally places them.
 --
 -- Prerequisite (one-time): Safari > Develop > Allow JavaScript from Apple Events
 
+set SELF to "src/main/cli/browser/capture-all-conversations.applescript"
 set scriptPath to POSIX path of (path to me)
 set scriptDir to do shell script "dirname " & quoted form of scriptPath
-set singleScript to POSIX file (scriptDir & "/export-conversation.applescript")
-set repoDir to do shell script "cd " & quoted form of scriptDir & "/../../../../ && pwd"
-set logDir to repoDir & "/tmp/logs/browser/capture/export-all-conversations"
+set singleScript to POSIX file (scriptDir & "/capture-conversation.applescript")
+-- The declared-address root (#352's discipline, #403): suffix-strip, refused
+-- loudly when this file is not at SELF — before anything is written anywhere.
+set repoDir to do shell script "p=" & quoted form of scriptPath & "; s=" & quoted form of SELF & "; r=\"${p%/$s}\"; [ \"$r/$s\" = \"$p\" ] || { echo \"$p: not at its declared address $s\" >&2; exit 1; }; printf %s \"$r\""
+set logDir to repoDir & "/tmp/logs/browser/capture/all-conversations"
 do shell script "mkdir -p " & quoted form of logDir
 set logFile to logDir & "/" & (do shell script "date -u '+%Y-%m-%dT%H%M%SZ'") & ".log"
 
@@ -80,7 +83,7 @@ tell application "Safari"
 	set nameList to paragraphs of namesRaw
 	set totalCount to count of idList
 
-	set response to button returned of (display dialog "Export " & totalCount & " conversations to markdown?" & return & return & "Each opens briefly in Safari and downloads to your Downloads folder." buttons {"Cancel", "Export All"} default button "Export All")
+	set response to button returned of (display dialog "Capture " & totalCount & " conversations to markdown?" & return & return & "Each opens briefly in Safari and downloads to your Downloads folder." buttons {"Cancel", "Capture All"} default button "Capture All")
 	if response is "Cancel" then return
 
 	my logHeader(logFile, "=== " & totalCount & " conversations ===")
@@ -113,7 +116,7 @@ tell application "Safari"
 			end try
 		end repeat
 
-		my logLine(logFile, "running export")
+		my logLine(logFile, "running capture")
 
 		try
 			run script singleScript

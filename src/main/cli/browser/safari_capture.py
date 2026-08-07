@@ -50,7 +50,7 @@ from safari_utils import (  # type: ignore[import-not-found]
     PAGE_LOAD_WAIT,
 )
 
-SELF = 'src/main/pipeline/browser-captures/safari_capture.py'
+SELF = 'src/main/cli/browser/safari_capture.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

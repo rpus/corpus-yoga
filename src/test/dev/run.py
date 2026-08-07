@@ -431,12 +431,14 @@ def check_self_paths(run) -> None:
     """Every SELF declaration names its own file's address (#357): the root
     derivation searches for the declared path and fails loudly at import when it
     is stale — this check fails it at commit instead, for every declaring file,
-    executed or not, python or shell alike (#358's half arrives with its files)."""
+    executed or not — python, shell (#358) and applescript (#403) alike."""
     pat = re.compile(r"^SELF\s*=\s*'([^']+)'", re.M)
-    for f in sorted(list(SRC.rglob('*.py')) + list(SRC.rglob('*.sh'))):
+    pat_applescript = re.compile(r'^set SELF to "([^"]+)"', re.M)
+    for f in sorted(list(SRC.rglob('*.py')) + list(SRC.rglob('*.sh'))
+                    + list(SRC.rglob('*.applescript'))):
         if '__pycache__' in f.parts:
             continue
-        m = pat.search(f.read_text())
+        m = (pat_applescript if f.suffix == '.applescript' else pat).search(f.read_text())
         if not m:
             continue
         actual = f.relative_to(REPO_ROOT).as_posix()
@@ -2076,7 +2078,7 @@ def check_capture_monotone(run) -> None:
     import shutil
     import tempfile
     import time
-    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'browser-captures'))
+    sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'cli' / 'browser'))
     import safari_utils
     real_downloads = safari_utils.DOWNLOADS
 

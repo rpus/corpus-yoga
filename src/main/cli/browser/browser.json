@@ -1,6 +1,6 @@
 {
   "summary": "capture browser-reachable chats via Safari (claude API, gemini DOM)",
-  "target": "src/main/pipeline/browser-captures/browser.sh",
+  "target": "src/main/cli/browser/browser.sh",
   "calculus": "capture",
   "args": []
 }
