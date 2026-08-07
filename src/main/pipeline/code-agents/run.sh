@@ -99,19 +99,14 @@ project_housekeeping() {
 }
 
 run_one() {
+  # Conversion only: validation is enumerated store-wide and dispatched
+  # per datum-version pair (#395), then rolled up per datum.
   local jsonl="$1" machine="$2" project_name="$3"
   local session; session="$(basename "${jsonl%.jsonl}")"
   local out_dir="$CACHE_DIR/$machine/$project_name/$session"
   step ensure_session_dir   mkdir -p "$out_dir"
   step jsonl_to_json        "$SCRIPT_DIR/jsonl_to_json.sh" "$jsonl" "$out_dir/session.json"
   step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/project_conversation.py" "$out_dir"
-  step validate             "$SCRIPT_DIR/validate.sh" --code-agent-session "$out_dir"
-}
-
-# One session for the fan: the single-item face run_one needs (#360); machine
-# and project name arrive by dynamic scope from run_project's locals.
-run_one_session() {
-  run_one "$1" "$machine" "$name"
 }
 
 run_memory() {
@@ -119,36 +114,129 @@ run_memory() {
   local out_dir="$CACHE_DIR/$machine/$name/memory"
   step_if "$guard" 'when the project has a memory/ dir' memory_to_json \
     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
-  step_if "$guard" 'when the project has a memory/ dir' validate_memory \
-    "$SCRIPT_DIR/validate.sh" --code-agent-memory "$out_dir"
+}
+
+# ── Dispatch workers (#395): one task each, machine/project derived from the
+# task itself — a worker learns nothing from scope, so any worker can take any
+# task. Output buffers per task; dispatch_emit restores enumeration order. ──
+
+# One session conversion. The task is the store path
+# (<store>/<machine>/<project>/<session>.jsonl); machine and project derive.
+convert_one_session() {
+  local jsonl="$1" project_dir machine name
+  project_dir="$(dirname "$jsonl")"
+  machine="$(basename "$(dirname "$project_dir")")"
+  name="$(basename "$project_dir")"
+  echo "$machine/$name/$(basename "${jsonl%.jsonl}")"
+  run_one "$jsonl" "$machine" "$name"
+}
+
+# One memory conversion. The task is the store project dir; guard is by
+# construction — only projects holding memory/ are enumerated.
+convert_one_memory() {
+  local project_dir="$1" machine name
+  machine="$(basename "$(dirname "${project_dir%/}")")"
+  name="$(basename "${project_dir%/}")"
+  echo "$machine/$name/memory"
+  run_memory "$project_dir" "$machine" "$name" 1
+}
+
+# One datum-version pair. The task line is validate_versions.py --pair's argv,
+# tab-separated, as validate.sh --enumerate printed it. Quiet: a current log
+# is a task already done (#369); the roll-up states every verdict.
+validate_one_pair() {
+  local input schema log_dir label
+  IFS="$(printf '\t')" read -r input schema log_dir label <<TASK
+$1
+TASK
+  step validate_pair "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
+    --pair "$input" "$schema" "$log_dir" "$label"
+}
+
+# One family roll-up: the dir face of validate.sh over pair logs that are all
+# current, so it relays verdicts (#363) and renders the matrix. The task is
+# "session<TAB><dir>" or "memory<TAB><dir>".
+rollup_one() {
+  local kind dir
+  IFS="$(printf '\t')" read -r kind dir <<TASK
+$1
+TASK
+  case "$kind" in
+    session) step validate        "$SCRIPT_DIR/validate.sh" --code-agent-session "$dir" ;;
+    memory)  step validate_memory "$SCRIPT_DIR/validate.sh" --code-agent-memory  "$dir" ;;
+  esac
 }
 
 corpus() {
   step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
 }
 
-run_project() {
-  local project_dir="$1" machine="$2"
-  local name; name="$(basename "${project_dir%/}")"
-  echo "$machine/$name"
-  project_housekeeping "$project_dir" "$machine" "$name"
-  # The project's sessions convert and validate YOGA_JOBS-wide (#360), each
-  # session's step narration buffered and emitted in listing order — the fan is
-  # invisible in the artifact. machine/name reach the worker by dynamic scope.
-  local jsonls=() jsonl
-  for jsonl in "${project_dir%/}"/*.jsonl; do
-    [[ -f "$jsonl" ]] || continue
-    jsonls+=("$jsonl")
+# The whole run over the given store project dirs, in four dispatched phases
+# (#395): housekeeping (serial: it prunes the cache the phases fill), then
+# conversions, then every datum-version pair, then the per-datum roll-ups.
+# Enumeration is capacity-blind; enumeration order is listing order, and
+# dispatch_emit restores it, so YOGA_JOBS=1 and =N emit identical bytes.
+run_store() {
+  local project_dirs=("$@")
+  local project_dir machine name
+
+  local jsonls=() memory_projects=() jsonl
+  for project_dir in "${project_dirs[@]}"; do
+    machine="$(basename "$(dirname "${project_dir%/}")")"
+    name="$(basename "${project_dir%/}")"
+    echo "$machine/$name"
+    project_housekeeping "$project_dir" "$machine" "$name"
+    local found=0
+    for jsonl in "${project_dir%/}"/*.jsonl; do
+      [[ -f "$jsonl" ]] || continue
+      jsonls+=("$jsonl")
+      found=1
+    done
+    [[ "$found" == "1" ]] || echo "  (no .jsonl files found)"
+    [[ -d "${project_dir%/}/memory" ]] && memory_projects+=("${project_dir%/}")
   done
+
   if [[ ${#jsonls[@]} -gt 0 ]]; then
-    fan_run run_one_session "${jsonls[@]}"
-    fan_emit
-  else
-    echo "  (no .jsonl files found)"
+    dispatch convert_one_session "${jsonls[@]}"
+    dispatch_emit
   fi
-  local has_memory=0
-  [[ -d "${project_dir%/}/memory" ]] && has_memory=1
-  run_memory "$project_dir" "$machine" "$name" "$has_memory"
+  if [[ ${#memory_projects[@]} -gt 0 ]]; then
+    dispatch convert_one_memory "${memory_projects[@]}"
+    dispatch_emit
+  fi
+
+  # Enumerate every datum-version pair (validate.sh owns the datum-to-family
+  # mapping), then every roll-up, both in the conversions' order.
+  local pairs=() rollups=() out_dir line session
+  for jsonl in ${jsonls[@]+"${jsonls[@]}"}; do
+    project_dir="$(dirname "$jsonl")"
+    machine="$(basename "$(dirname "$project_dir")")"
+    name="$(basename "$project_dir")"
+    session="$(basename "${jsonl%.jsonl}")"
+    out_dir="$CACHE_DIR/$machine/$name/$session"
+    while IFS= read -r line; do
+      pairs+=("$line")
+    done < <("$SCRIPT_DIR/validate.sh" --enumerate --code-agent-session "$out_dir")
+    rollups+=("$(printf 'session\t%s' "$out_dir")")
+  done
+  for project_dir in ${memory_projects[@]+"${memory_projects[@]}"}; do
+    machine="$(basename "$(dirname "$project_dir")")"
+    name="$(basename "$project_dir")"
+    out_dir="$CACHE_DIR/$machine/$name/memory"
+    while IFS= read -r line; do
+      pairs+=("$line")
+    done < <("$SCRIPT_DIR/validate.sh" --enumerate --code-agent-memory "$out_dir")
+    rollups+=("$(printf 'memory\t%s' "$out_dir")")
+  done
+
+  if [[ ${#pairs[@]} -gt 0 ]]; then
+    dispatch validate_one_pair "${pairs[@]}"
+    dispatch_emit
+  fi
+  if [[ ${#rollups[@]} -gt 0 ]]; then
+    dispatch rollup_one "${rollups[@]}"
+    dispatch_emit
+  fi
 }
 
 print_plan() {
@@ -156,10 +244,15 @@ print_plan() {
   machine_housekeeping '<store-root>'
   echo "then per machine/project directory:"
   project_housekeeping '<project-dir>' '<machine>' '<project>'
-  echo "then per session .jsonl within it:"
+  echo "then per session .jsonl, dispatched to the next free worker (#395):"
   run_one '<session>.jsonl' '<machine>' '<project>'
-  echo "then per project:"
+  echo "then per project with a memory/ dir, dispatched likewise:"
   run_memory '<project-dir>' '<machine>' '<project>' '0'
+  echo "then per datum-version pair across the run, dispatched likewise:"
+  validate_one_pair "$(printf '<input>\t<schema-file>\t<log-dir>\t<label>')"
+  echo "then per datum, the family roll-up, dispatched likewise:"
+  rollup_one "$(printf 'session\t<session-dir>')"
+  rollup_one "$(printf 'memory\t<memory-dir>')"
   echo "then once, after all projects:"
   corpus
 }
@@ -170,10 +263,9 @@ main() {
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
 
   if [[ -n "$code_project" ]]; then
-    local project_dir machine
+    local project_dir
     project_dir="$(cd "$code_project" && pwd)"
-    machine="$(basename "$(dirname "$project_dir")")"
-    run_project "$project_dir" "$machine"
+    run_store "$project_dir"
     corpus
     return 0
   fi
@@ -185,14 +277,17 @@ main() {
   fi
   local store_root; store_root="$(cd "$code_projects" && pwd)"
   machine_housekeeping "$store_root"
+  local project_dirs=() machine_dir project_dir
   for machine_dir in "$store_root"/*/; do
     [[ -d "$machine_dir" ]] || continue
-    local machine; machine="$(basename "${machine_dir%/}")"
     for project_dir in "${machine_dir%/}"/-Users-*/; do
       [[ -d "$project_dir" ]] || continue
-      run_project "${project_dir%/}" "$machine"
+      project_dirs+=("${project_dir%/}")
     done
   done
+  if [[ ${#project_dirs[@]} -gt 0 ]]; then
+    run_store "${project_dirs[@]}"
+  fi
   corpus
 }
 

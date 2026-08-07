@@ -16,7 +16,7 @@ REPO_DIR="$(cd "$SCRIPT_DIR/../../../../.." && pwd)"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/browser-captures/apiConversation"
 CACHE_DIR="$REPO_DIR/tmp/cache/browser-captures/claude"
 # shellcheck source=src/main/steps.sh
-source "$REPO_DIR/src/main/steps.sh"   # fan_run/fan_done — the per-datum fan (#360)
+source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (#395)
 
 validate_conversation() {
   local uuid_dir="${1%/}"
@@ -49,15 +49,15 @@ validate_corpus() {
     [[ -d "$d" ]] || continue
     dirs+=("${d%/}")
   done
-  # The captures validate YOGA_JOBS-wide (#360), each one's output buffered;
-  # this loop reads the buffers in listing order and applies the same fold the
-  # serial loop applied — the fan is invisible in the artifact.
-  [[ ${#dirs[@]} -gt 0 ]] && fan_run validate_conversation "${dirs[@]}"
+  # The captures validate via next-free dispatch (#395), each one's output
+  # buffered; this loop reads the buffers in listing order and applies the same
+  # fold the serial loop applied — the dispatch is invisible in the artifact.
+  [[ ${#dirs[@]} -gt 0 ]] && dispatch validate_conversation "${dirs[@]}"
   local i=0
-  while [[ "$i" -lt "${FAN_N:-0}" ]]; do
+  while [[ "$i" -lt "${DISPATCH_N:-0}" ]]; do
     total=$((total + 1))
-    out="$(cat "$FAN_DIR/$i.out")"
-    rc="$(cat "$FAN_DIR/$i.rc" 2>/dev/null || echo 1)"
+    out="$(cat "$DISPATCH_DIR/$i.out")"
+    rc="$(cat "$DISPATCH_DIR/$i.rc" 2>/dev/null || echo 1)"
     # An all-current capture reports exactly one "… current — skipped" line;
     # fold those into the corpus summary and let everything else through.
     if [[ $rc -eq 0 && "$out" != *$'\n'* && "$out" == *'version(s) current — skipped' ]]; then
@@ -68,7 +68,7 @@ validate_corpus() {
     fi
     i=$((i + 1))
   done
-  [[ ${#dirs[@]} -gt 0 ]] && fan_done
+  [[ ${#dirs[@]} -gt 0 ]] && dispatch_done
   if [[ $total -eq 0 ]]; then
     echo "  no captures in $root"
   elif [[ $current -gt 0 ]]; then

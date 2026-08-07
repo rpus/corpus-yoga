@@ -16,7 +16,7 @@ rel_path() {
 }
 
 # shellcheck source=src/main/steps.sh
-source "$REPO_DIR/src/main/steps.sh"   # fan_run/fan_done — the per-datum fan (#360)
+source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_done — next-free dispatch (#395)
 
 file_info() {
   local f="$1"
@@ -86,7 +86,8 @@ validate_file() {
   validated=$((validated + 1))
 }
 
-# One top-level component for the fan (#360): the component against its whole
+# One top-level component per dispatched task (#395; datum-version tasks arrive
+# with #396): the component against its whole
 # schema family; worker-local tallies deposited in the sidecar the parent sums.
 # validation_dir arrives by dynamic scope from validate_export.
 validate_component() {
@@ -106,11 +107,12 @@ validate_component() {
     mkdir -p "$validation_dir/$(dirname "$schema_stem")"
     validate_file "$f" "$schema" "$validation_dir/${schema_stem}.log"
   done
-  # shellcheck disable=SC2031  # FAN_I: set for this worker by fan_run, in this same subshell
-  echo "$skipped $validated" > "$FAN_DIR/$FAN_I.stat"
+  # shellcheck disable=SC2031  # DISPATCH_I: set for this worker by dispatch, in this same subshell
+  echo "$skipped $validated" > "$DISPATCH_DIR/$DISPATCH_I.stat"
 }
 
-# One atomised piece for the fan (#360): same contract as validate_component,
+# One atomised piece per dispatched task (#395; datum-version tasks arrive
+# with #396): same contract as validate_component,
 # the schema family taken from the piece's parent directory name.
 validate_piece() {
   local f="$1" dname item_name schemas schema schema_stem s
@@ -125,8 +127,8 @@ validate_piece() {
     mkdir -p "$validation_dir/${dname}/${item_name}"
     validate_file "$f" "$schema" "$validation_dir/${dname}/${item_name}/$(basename "$schema_stem").log"
   done
-  # shellcheck disable=SC2031  # FAN_I: set for this worker by fan_run, in this same subshell
-  echo "$skipped $validated" > "$FAN_DIR/$FAN_I.stat"
+  # shellcheck disable=SC2031  # DISPATCH_I: set for this worker by dispatch, in this same subshell
+  echo "$skipped $validated" > "$DISPATCH_DIR/$DISPATCH_I.stat"
 }
 
 validate_export() {
@@ -138,24 +140,24 @@ validate_export() {
   validated=0
   mkdir -p "$validation_dir"
 
-  # Components and pieces validate YOGA_JOBS-wide (#360): each worker's output
-  # is buffered and emitted in listing order, its skip/validate tallies summed
-  # from a sidecar — the fan is invisible in the artifact.
+  # Components and pieces validate via next-free dispatch (#395): each worker's
+  # output is buffered and emitted in listing order, its skip/validate tallies
+  # summed from a sidecar — the dispatch is invisible in the artifact.
   local items=() f i s v
   for f in "$chat_export"/*.json; do
     [[ -f "$f" ]] || continue
     items+=("$f")
   done
   if [[ ${#items[@]} -gt 0 ]]; then
-    fan_run validate_component "${items[@]}"
+    dispatch validate_component "${items[@]}"
     i=0
-    while [[ "$i" -lt "$FAN_N" ]]; do
-      cat "$FAN_DIR/$i.out"
-      { read -r s v < "$FAN_DIR/$i.stat"; } 2>/dev/null || { s=0; v=0; }
+    while [[ "$i" -lt "$DISPATCH_N" ]]; do
+      cat "$DISPATCH_DIR/$i.out"
+      { read -r s v < "$DISPATCH_DIR/$i.stat"; } 2>/dev/null || { s=0; v=0; }
       skipped=$((skipped + s)); validated=$((validated + v))
       i=$((i + 1))
     done
-    fan_done
+    dispatch_done
   fi
 
   local d
@@ -169,15 +171,15 @@ validate_export() {
     done
   done
   if [[ ${#items[@]} -gt 0 ]]; then
-    fan_run validate_piece "${items[@]}"
+    dispatch validate_piece "${items[@]}"
     i=0
-    while [[ "$i" -lt "$FAN_N" ]]; do
-      cat "$FAN_DIR/$i.out"
-      { read -r s v < "$FAN_DIR/$i.stat"; } 2>/dev/null || { s=0; v=0; }
+    while [[ "$i" -lt "$DISPATCH_N" ]]; do
+      cat "$DISPATCH_DIR/$i.out"
+      { read -r s v < "$DISPATCH_DIR/$i.stat"; } 2>/dev/null || { s=0; v=0; }
       skipped=$((skipped + s)); validated=$((validated + v))
       i=$((i + 1))
     done
-    fan_done
+    dispatch_done
   fi
 
   # A component modelled by NO version is a schema-frontier event and must say
