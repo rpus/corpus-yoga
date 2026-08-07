@@ -10,6 +10,7 @@
     "src/main/cli",
     "src/main/cli/cache",
     "src/main/cli/commands",
+    "src/main/cli/indexing",
     "src/main/cli/completions",
     "src/main/pipeline/code-agents",
     "src/main/model",

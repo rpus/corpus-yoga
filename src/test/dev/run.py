@@ -89,7 +89,8 @@ import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cac
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
 
-sys.path.insert(0, str(SRC / 'main' / 'model'))  # index curation machinery
+sys.path.insert(0, str(SRC / 'main' / 'cli' / 'indexing'))  # index curation machinery
+sys.path.insert(0, str(SRC / 'main' / 'model'))  # model.json disposal queue
 from indexing import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
 import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 

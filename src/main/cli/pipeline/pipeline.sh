@@ -360,7 +360,7 @@ run_corpus_tail() {
   # the line above it ("then once, over the whole corpus") already says the same thing.
   [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
-    "$REPO_ROOT/src/main/model/indexing.py" sync
+    "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
   # Bare noun DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): dashboard's read-only status IS its L9 mechanism, probed here so
   # its INFO currency atoms (re-render is free; captures lag the corpus) reach
