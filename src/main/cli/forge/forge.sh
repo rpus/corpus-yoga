@@ -9,8 +9,10 @@
 
 set -euo pipefail
 
+SELF='src/main/cli/forge/forge.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
+[[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 DECLARED="$REPO_DIR/src/main/cli/forge/forge.csv"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"

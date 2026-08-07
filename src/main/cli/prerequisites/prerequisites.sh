@@ -20,7 +20,10 @@
 # Legend: ✓ present   – informational / optional   ✗ required but missing
 
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+SELF='src/main/cli/prerequisites/prerequisites.sh'
+_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
+[[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 : "${VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
 source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)

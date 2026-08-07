@@ -19,7 +19,12 @@
 #   step_ok    <name> <cmd...>                    # informational: never gates
 #   step_if_ok <guard> <note> <name> <cmd...>     # both of the above
 
-STEPS_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# Sourced file: SELF and _self_dir here overwrite the sourcing script's —
+# safe only because every sourcer's own guard has already run by its source line.
+SELF='src/main/steps.sh'
+_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STEPS_REPO="${_self_dir%/"${SELF%/*}"}"
+[[ "${STEPS_REPO}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 
 # the step's argv minus anything path-shaped: the verbs and flags that are part of the
 # program, without the machine paths that would break plan determinism. Called with the

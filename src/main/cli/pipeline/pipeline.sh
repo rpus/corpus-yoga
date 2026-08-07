@@ -21,7 +21,10 @@
 # hand-made symlink); --plan names each pipeline's exact steps. After: yoga test run.
 
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+SELF='src/main/cli/pipeline/pipeline.sh'
+_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
+[[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
