@@ -1,0 +1,186 @@
+{
+ "$schema": "http://json-schema.org/draft-04/schema#",
+ "title": "projectMemory",
+ "description": "A project's memory/ directory (under data/input/claude/code/machine-transport/<room>/<project>/, the repo-owned store transport populates) as one JSON datum — memory.json, written by memory_to_json.py. The memory contract: an index (MEMORY.md, one entry line per fact) plus one markdown file per fact, each carrying YAML frontmatter (name, description, metadata) and a body that may [[link]] other facts by name. The datum holds that contract to account: every fact carries its identity and classification; index lines that are not entries (headings, the merge marker comments agent.py's receive writes) are carried verbatim as unparsed — data, not discarded. facts may be empty: one observed project's memory/ is a guard-only MEMORY.md with no fact files.",
+ "allOf": [
+  {
+   "$ref": "#/definitions/ProjectMemory"
+  }
+ ],
+ "definitions": {
+  "ProjectMemory": {
+   "title": "ProjectMemory",
+   "description": "One project's whole memory state: the project it belongs to, its facts, and its index.",
+   "type": "object",
+   "required": [
+    "project",
+    "facts",
+    "index"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "project": {
+     "description": "The project directory name the memory belongs to — the harness's lossy cwd encoding (/ replaced by -).",
+     "type": "string"
+    },
+    "facts": {
+     "description": "Every fact file (*.md except MEMORY.md), in filename order. May be empty (observed: a guard-only memory/).",
+     "type": "array",
+     "items": {
+      "$ref": "#/definitions/Fact"
+     }
+    },
+    "index": {
+     "description": "The parsed MEMORY.md index.",
+     "$ref": "#/definitions/Index"
+    }
+   }
+  },
+  "Fact": {
+   "title": "Fact",
+   "description": "One memory fact: a frontmattered markdown file. The name is the identity (the [[link]] target vocabulary); the filename is dressing — usually the name plus '.md', but a receive merge re-dresses a diverged twin as <stem>.<room>.md while its name stays.",
+   "type": "object",
+   "required": [
+    "file",
+    "name",
+    "description",
+    "metadata",
+    "body",
+    "links"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "file": {
+     "description": "The fact's filename within memory/.",
+     "type": "string",
+     "pattern": "\\.md$"
+    },
+    "name": {
+     "description": "The frontmatter name — a short kebab-case slug, the fact's identity and what [[links]] resolve against.",
+     "type": "string"
+    },
+    "description": {
+     "description": "The frontmatter description — the one-line summary recall uses to judge relevance.",
+     "type": "string"
+    },
+    "metadata": {
+     "description": "The frontmatter metadata block.",
+     "$ref": "#/definitions/Metadata"
+    },
+    "body": {
+     "description": "The fact body after the frontmatter, stripped.",
+     "type": "string"
+    },
+    "links": {
+     "description": "The distinct [[link]] targets in the body, sorted — the names of related facts (a target need not exist yet; it marks something worth writing).",
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "Index": {
+   "title": "Index",
+   "description": "MEMORY.md parsed: the entry lines, and everything else verbatim.",
+   "type": "object",
+   "required": [
+    "file",
+    "entries",
+    "unparsed"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "file": {
+     "description": "Always MEMORY.md — the index's one prescribed name.",
+     "type": "string",
+     "enum": [
+      "MEMORY.md"
+     ]
+    },
+    "entries": {
+     "description": "The '- [Title](file.md) — hook' lines, in file order. May be empty (the guard-only memory/).",
+     "type": "array",
+     "items": {
+      "$ref": "#/definitions/Entry"
+     }
+    },
+    "unparsed": {
+     "description": "Every other non-blank line verbatim, in file order: the heading, agent.py's merge marker comments, and any prose (the guard-only memory/ is all prose).",
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "Metadata": {
+   "title": "Metadata",
+   "description": "The fact's frontmatter metadata block — the union of the three harness vintages one memory/ aggregates (surveyed 2026-08-07, both rooms' stores, 84 facts): the stamping era carries node_type, type, originSessionId and usually modified (54 of 84); the pre-modified era the same minus modified; the current era stamps type alone (5 of 84, reading-room). Only type is constant across all three, so only type is required.",
+   "type": "object",
+   "required": [
+    "type"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "node_type": {
+     "description": "The memory system's node discriminator — 'memory' is the only observed value; a new value fails loudly rather than sliding through a bare string. Absent on facts the current harness vintage writes.",
+     "type": "string",
+     "enum": [
+      "memory"
+     ]
+    },
+    "type": {
+     "description": "The fact's classification — the memory format's four prescribed classes, exhaustive by design: user (who the user is), feedback (guidance on how to work), project (ongoing work and constraints), reference (pointers to external resources). Observed locally: feedback, reference, project.",
+     "type": "string",
+     "enum": [
+      "user",
+      "feedback",
+      "project",
+      "reference"
+     ]
+    },
+    "originSessionId": {
+     "description": "The uuid of the session that wrote the fact — harness-stamped provenance. Absent on facts the current harness vintage writes.",
+     "$ref": "#/definitions/UuidV4"
+    },
+    "modified": {
+     "description": "The fact's last-update time, harness-stamped when a session edits an existing fact — ISO-8601 UTC with milliseconds. Absent on facts never edited since the stamping began.",
+     "type": "string",
+     "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+    }
+   }
+  },
+  "Entry": {
+   "title": "Entry",
+   "description": "One index line: '- [Title](file.md) — hook'.",
+   "type": "object",
+   "required": [
+    "title",
+    "file",
+    "hook"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "title": {
+     "description": "The entry's display title.",
+     "type": "string"
+    },
+    "file": {
+     "description": "The fact file the entry points to.",
+     "type": "string"
+    },
+    "hook": {
+     "description": "The one-line reminder after the em dash; '' where the line carries none.",
+     "type": "string"
+    }
+   }
+  },
+  "UuidV4": {
+   "title": "UuidV4",
+   "description": "Standard UUID version 4 (randomly generated). Pattern: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx where y is 8, 9, a, or b.",
+   "type": "string",
+   "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+  }
+ }
+}
