@@ -246,7 +246,6 @@ coverage_report() {
 # never leaves the durable pair at mixed vintages if the second capture fails.
 capture_dashboard() {
   local conv="$1" only="${2:-}"
-  local src_label; src_label="$(basename "$(dirname "$conv")")/$(basename "$conv")"
   # corpus-scoped staging (like tmp/cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
   local stage="$REPO_DIR/tmp/cache/indexing"
@@ -267,7 +266,7 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/dashboard/ on success)"
+  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/dashboard/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/semantic-concepts.json"
     validate_capture "$stage/semantic-concepts.json" semanticConcepts
