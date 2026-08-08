@@ -497,7 +497,7 @@ def main():
     # capture's own status face (deposits + the paid layer's currency, #409)
     status(accepted_path, rejected_path, MARKDOWN_DIR)
     import subprocess
-    subprocess.run(['bash', str(Path(__file__).resolve().parent / 'capture.sh')], check=False)
+    subprocess.run(['bash', str(Path(__file__).resolve().parent / 'capture.sh'), '--status'], check=False)
 
 
 if __name__ == '__main__':

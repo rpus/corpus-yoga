@@ -244,12 +244,12 @@ src/main/cli/forge/forge.sh,17,comment,src/main/send.sh,Y,# shellcheck source=sr
 src/main/cli/forge/forge.sh,19,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/forge/forge.sh,54,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
 src/main/cli/forge/forge.sh,191,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
-src/main/cli/indexing/capture.sh,14,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh                    # status: deposits + currency
-src/main/cli/indexing/capture.sh,15,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh --capture          # PAID (needs ANTHROPIC_API_KEY)
-src/main/cli/indexing/capture.sh,20,comment,rsc/site/index.html,Y,# palette is authored in rsc/site/index.html; the capture schemas live under
-src/main/cli/indexing/capture.sh,31,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/indexing/capture.sh,33,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
-src/main/cli/indexing/capture.sh,110,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
+src/main/cli/indexing/capture.sh,16,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
+src/main/cli/indexing/capture.sh,18,comment,src/main/cli/indexing/capture.sh,Y,"#   src/main/cli/indexing/capture.sh --status           # deposits + currency, read-only"
+src/main/cli/indexing/capture.sh,22,comment,rsc/site/index.html,Y,# palette is authored in rsc/site/index.html; the capture schemas live under
+src/main/cli/indexing/capture.sh,33,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/indexing/capture.sh,35,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
+src/main/cli/indexing/capture.sh,112,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
 src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'

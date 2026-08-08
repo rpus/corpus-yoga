@@ -5,15 +5,17 @@
 # chat-to-category assignment (chat-categories.json — a categorical index the
 # site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
-# Bare (no arguments) it is the capture's read-only status: what is deposited,
-# and how far the paid layer lags the corpus — the currency mechanism the usr
-# gate's corpus tail hoists into every `yoga pipeline run` (L9: the captures
-# are paid, so no run step may keep them fresh).
+# --status is the capture's read-only face: what is deposited, and how far the
+# paid layer lags the corpus — the currency mechanism `yoga indexing` (bare)
+# appends and the usr gate's corpus tail hoists (L9: the captures are paid, so
+# no run step may keep them fresh). Bare, this file CAPTURES: `yoga indexing
+# capture` with no flags once landed here argless and got the status instead —
+# a paid verb advising its reader to run itself.
 #
 # Usage (via `yoga indexing capture`, or directly):
-#   src/main/cli/indexing/capture.sh                    # status: deposits + currency
-#   src/main/cli/indexing/capture.sh --capture          # PAID (needs ANTHROPIC_API_KEY)
+#   src/main/cli/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
 #     [--conversations <path>] [--only semantic-concepts|chat-categories] [--dry-run]
+#   src/main/cli/indexing/capture.sh --status           # deposits + currency, read-only
 #
 # Captures land durable in data/output/dashboard/ (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
@@ -404,11 +406,10 @@ status() {
 }
 
 main() {
-  if [[ $# -eq 0 ]]; then
+  if [[ "${1-}" == "--status" ]]; then
     status
     return 0
   fi
-  [[ "${1:-}" == "--capture" ]] && shift
   capture "$@"
 }
 
