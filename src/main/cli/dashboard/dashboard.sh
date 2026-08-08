@@ -24,16 +24,17 @@ SELF='src/main/cli/dashboard/dashboard.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-PIPELINE="$REPO_DIR/src/main/pipeline/chat-exports"   # the render/probe half's home (#381)
+PIPELINE="$REPO_DIR/src/main/pipeline/chat-exports"   # the chat pipeline's helpers (timeline)
+MODEL_DIR="$REPO_DIR/src/main/model"   # the corpus tier: probe, corpus render, rekey (#407)
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # the shell face of YOGA_NO_SEND (#29)
-# shellcheck source=src/main/pipeline/chat-exports/dashboard_status.sh
-source "$PIPELINE/dashboard_status.sh"   # status/currency + the corpus-shape helpers, one authority
+# shellcheck source=src/main/model/dashboard_status.sh
+source "$MODEL_DIR/dashboard_status.sh"   # status/currency + the corpus-shape helpers, one authority
 SELF='src/main/cli/dashboard/dashboard.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
 API_URL="https://api.anthropic.com/v1/messages"
-FORMAT_TABLE_SCRIPT="$PIPELINE/format_table.py"
+FORMAT_TABLE_SCRIPT="$MODEL_DIR/format_table.py"
 
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
 # The default source is the projected corpus itself (data/output/markdown — every source's
@@ -136,7 +137,7 @@ category: one of the provided category names' \
     "Assign each conversation to exactly one of these categories: $categories" \
     "Conversations:
 $chats" \
-    | "$REPO_DIR/src/run_python_script.sh" "$PIPELINE/rekey_chats.py" --to-id --conversations "$conv" \
+    | "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/rekey_chats.py" --to-id --conversations "$conv" \
     | "$REPO_DIR/src/run_python_script.sh" "$FORMAT_TABLE_SCRIPT" \
     > "$out_file"
 }
@@ -382,7 +383,7 @@ capture() {
 main() {
   case "${1:-}" in
     capture)     shift; capture "$@" ;;
-    sync)        shift; exec "$REPO_DIR/src/run_python_script.sh" "$PIPELINE/present_corpus.py" "$@" ;;
+    sync)        shift; exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@" ;;
     '')          status ;;   # bare noun → status; there is no `status` verb (this IS it)
     -h|--help)   awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid), 'sync' (free render), or bare (status)" >&2; exit 1 ;;

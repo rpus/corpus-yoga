@@ -240,9 +240,9 @@ src/main/cli/completions/completions.py,20,path_str,src/main/cli/completions/com
 src/main/cli/completions/completions.py,111,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
 src/main/cli/dashboard/dashboard.json,3,path_str,src/main/cli/dashboard/dashboard.sh,Y,"""target"": ""src/main/cli/dashboard/dashboard.sh"","
 src/main/cli/dashboard/dashboard.sh,13,comment,rsc/site/index.html,Y,# palette is authored in rsc/site/index.html; the capture schemas live under
-src/main/cli/dashboard/dashboard.sh,28,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/dashboard/dashboard.sh,30,comment,src/main/pipeline/chat-exports/dashboard_status.sh,Y,# shellcheck source=src/main/pipeline/chat-exports/dashboard_status.sh
-src/main/cli/dashboard/dashboard.sh,109,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
+src/main/cli/dashboard/dashboard.sh,29,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/dashboard/dashboard.sh,31,comment,src/main/model/dashboard_status.sh,Y,# shellcheck source=src/main/model/dashboard_status.sh
+src/main/cli/dashboard/dashboard.sh,110,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
 src/main/cli/dashboard/sync.json,7,path_str,rsc/site/index.html,Y,"""rsc/site/index.html"""
 src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
@@ -303,6 +303,7 @@ src/main/markdown_projection.py,25,path_str,src/main/markdown_projection.py,Y,SE
 src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,35,path_str,src/main/model/compare_sources.py,Y,SELF = 'src/main/model/compare_sources.py'
+src/main/model/dashboard_status.sh,8,comment,src/main/cli/dashboard/dashboard.sh,Y,"# (src/main/cli/dashboard/dashboard.sh), which sources this file for its bare"
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
@@ -321,6 +322,7 @@ src/main/model/model.py,71,path_str,rsc/schema/model.json,Y,print(f'rsc/schema/m
 src/main/model/model_curation.py,4,comment,rsc/schema/model.json,Y,"rsc/schema/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/schema/model_rejected.txt,Y,rsc/schema/model_rejected.txt. Reported per shared type by `yoga test run`'s
 src/main/model/model_curation.py,33,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'
+src/main/model/present_corpus.py,39,path_str,src/main/model/present_corpus.py,Y,SELF = 'src/main/model/present_corpus.py'
 src/main/model/project_markdown.py,9,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
 src/main/model/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v3.json,Y,validated against rsc/schema/browser-captures/markdownConversation/v3.json. Splitting the bulk
 src/main/model/project_markdown.py,16,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --browser-api data/input/claude/chat/browser-API        
@@ -328,6 +330,8 @@ src/main/model/project_markdown.py,16,comment,src/main/model/project_markdown.py
 src/main/model/project_markdown.py,17,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>
 src/main/model/project_markdown.py,17,comment,src/main/model/project_markdown.py,Y,src/run_python_script.sh src/main/model/project_markdown.py     --bulk-export data/input/claude/chat/bulk-export/<batch>
 src/main/model/project_markdown.py,26,path_str,src/main/model/project_markdown.py,Y,SELF = 'src/main/model/project_markdown.py'
+src/main/model/rekey_chats.py,32,comment,src/main/model/rekey_chats.py,Y,src/main/model/rekey_chats.py --to-id --legacy-ordinals \
+src/main/model/rekey_chats.py,44,path_str,src/main/model/rekey_chats.py,Y,SELF = 'src/main/model/rekey_chats.py'
 src/main/model/serve_markdown.py,18,path_str,src/main/model/serve_markdown.py,Y,SELF = 'src/main/model/serve_markdown.py'
 src/main/model/serve_markdown.py,36,comment,src/main/cli/prerequisites/prerequisites.sh,Y,source shared by ensure_assets (fetch) and src/main/cli/prerequisites/prerequisites.sh (report).
 src/main/model/serve_markdown.py,30,comment,src/main/cli/prerequisites/prerequisites.sh,Y,# visible and src/main/cli/prerequisites/prerequisites.sh can report against the same source.
@@ -378,7 +382,6 @@ src/main/pipeline/chat-exports/audit_files.sh,23,call,src/main/pipeline/chat-exp
 src/main/pipeline/chat-exports/audit_files.sh,24,call,src/main/pipeline/chat-exports/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/pipeline/chat-exports/check_harvested.py,10,comment,src/main/pipeline/chat-exports/library.py,Y,src/main/pipeline/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names s
 src/main/pipeline/chat-exports/check_harvested.py,24,path_str,src/main/pipeline/chat-exports/check_harvested.py,Y,SELF = 'src/main/pipeline/chat-exports/check_harvested.py'
-src/main/pipeline/chat-exports/dashboard_status.sh,8,comment,src/main/cli/dashboard/dashboard.sh,Y,"# (src/main/cli/dashboard/dashboard.sh), which sources this file for its bare"
 src/main/pipeline/chat-exports/extract_files.py,15,comment,src/main/pipeline/chat-exports/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/pipeline/chat-exports/library.py — ordinals renumber"
 src/main/pipeline/chat-exports/extract_files.py,31,path_str,src/main/pipeline/chat-exports/extract_files.py,Y,SELF = 'src/main/pipeline/chat-exports/extract_files.py'
 src/main/pipeline/chat-exports/extract_files.sh,3,comment,src/main/pipeline/chat-exports/extract_files.sh,Y,#   src/main/pipeline/chat-exports/extract_files.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-
@@ -397,27 +400,17 @@ src/main/pipeline/chat-exports/memories.py,46,path_str,src/main/pipeline/chat-ex
 src/main/pipeline/chat-exports/memories.py,64,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
 src/main/pipeline/chat-exports/present.sh,6,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-
 src/main/pipeline/chat-exports/present.sh,7,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-exports data/input/claude/chat/bulk-export
-src/main/pipeline/chat-exports/present.sh,17,path_str,src/main/pipeline/chat-exports/word_freq_literal.py,Y,"WORD_FREQ_SCRIPT=""$SCRIPT_DIR/word_freq_literal.py"""
-src/main/pipeline/chat-exports/present.sh,18,path_str,src/main/pipeline/chat-exports/format_table.py,Y,"FORMAT_TABLE_SCRIPT=""$SCRIPT_DIR/format_table.py"""
 src/main/pipeline/chat-exports/present.sh,19,path_str,src/main/pipeline/chat-exports/timeline.py,Y,"TIMELINE_SCRIPT=""$SCRIPT_DIR/timeline.py"""
 src/main/pipeline/chat-exports/present.sh,20,path_str,src/main/pipeline/chat-exports/check_harvested.py,Y,"CHECK_HARVESTED_SCRIPT=""$SCRIPT_DIR/check_harvested.py"""
 src/main/pipeline/chat-exports/present.sh,21,path_str,src/main/pipeline/chat-exports/files_from_downloaded.py,Y,"FILES_FROM_DOWNLOADED_SCRIPT=""$SCRIPT_DIR/files_from_downloaded.py"""
 src/main/pipeline/chat-exports/present.sh,30,call,src/main/pipeline/chat-exports/timeline.py,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
 src/main/pipeline/chat-exports/present.sh,37,call,src/main/pipeline/chat-exports/files_from_downloaded.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"" ""$1"""
-src/main/pipeline/chat-exports/present.sh,53,call,src/main/pipeline/chat-exports/format_table.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FORMAT_TABLE_SCRIPT"" ""$tmp"""
 src/main/pipeline/chat-exports/present.sh,66,call,src/main/pipeline/chat-exports/inject.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
 src/main/pipeline/chat-exports/present.sh,72,call,src/main/pipeline/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
 src/main/pipeline/chat-exports/present.sh,77,call,src/main/pipeline/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
 src/main/pipeline/chat-exports/present.sh,138,call,src/main/pipeline/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
-src/main/pipeline/chat-exports/present.sh,141,path_str,src/main/pipeline/chat-exports/word_freq_literal.py,Y,"if [[ -f ""$WORD_FREQ_SCRIPT"" ]]; then"
-src/main/pipeline/chat-exports/present.sh,142,call,src/main/pipeline/chat-exports/word_freq_literal.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$WORD_FREQ_SCRIPT"" ""$conv"" | jq_literal | format_table)"""
-src/main/pipeline/chat-exports/present.sh,147,path_str,src/main/pipeline/chat-exports/word_freq_literal.py,Y,"echo ""  ⚠ data-literal-words: $(basename ""$WORD_FREQ_SCRIPT"") not found — skipped"""
-src/main/pipeline/chat-exports/present.sh,177,call,src/main/pipeline/chat-exports/rekey_chats.py,Y,"json=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/rekey_chats.py"" \"
-src/main/pipeline/chat-exports/present_corpus.py,39,path_str,src/main/pipeline/chat-exports/present_corpus.py,Y,SELF = 'src/main/pipeline/chat-exports/present_corpus.py'
 src/main/pipeline/chat-exports/query_files.py,10,comment,src/main/pipeline/chat-exports/query_files.py,Y,python src/main/pipeline/chat-exports/query_files.py --chat-export  <path-to-export>
 src/main/pipeline/chat-exports/query_files.py,11,comment,src/main/pipeline/chat-exports/query_files.py,Y,python src/main/pipeline/chat-exports/query_files.py --chat-exports <path-to-exports>
-src/main/pipeline/chat-exports/rekey_chats.py,32,comment,src/main/pipeline/chat-exports/rekey_chats.py,Y,src/main/pipeline/chat-exports/rekey_chats.py --to-id --legacy-ordinals \
-src/main/pipeline/chat-exports/rekey_chats.py,44,path_str,src/main/pipeline/chat-exports/rekey_chats.py,Y,SELF = 'src/main/pipeline/chat-exports/rekey_chats.py'
 src/main/pipeline/chat-exports/require_export.sh,15,comment,src/main/pipeline/chat-exports/require_export.sh,Y,#   src/main/pipeline/chat-exports/require_export.sh
 src/main/pipeline/chat-exports/run.sh,5,comment,src/main/pipeline/chat-exports/run.sh,Y,#   src/main/pipeline/chat-exports/run.sh --chat-export  data/input/claude/chat/bulk-export/data-<...>
 src/main/pipeline/chat-exports/run.sh,6,comment,src/main/pipeline/chat-exports/run.sh,Y,#   src/main/pipeline/chat-exports/run.sh --chat-exports data/input/claude/chat/bulk-export
@@ -667,11 +660,14 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/test/test.json,Y,
 ,,,src/main/cli/test/xref.json,Y,
 ,,,src/main/enact.py,Y,
+,,,src/main/model/format_table.py,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
+,,self_only,src/main/model/present_corpus.py,Y,
+,,self_only,src/main/model/rekey_chats.py,Y,
 ,,self_only,src/main/model/serve_markdown.py,Y,
+,,,src/main/model/word_freq_literal.py,Y,
 ,,,src/main/pipeline/browser-captures/pipeline.json,Y,
 ,,,src/main/pipeline/chat-exports/pipeline.json,Y,
-,,self_only,src/main/pipeline/chat-exports/present_corpus.py,Y,
 ,,self_only,src/main/pipeline/chat-exports/require_export.sh,Y,
 ,,self_only,src/main/pipeline/code-agents/link_projects.sh,Y,
 ,,,src/main/pipeline/code-agents/pipeline.json,Y,
