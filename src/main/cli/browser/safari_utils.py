@@ -41,9 +41,23 @@ FETCH_API_JSON_JS = """
 """
 
 
-def osascript(code):
+# Every Apple Event is bounded (#414): osascript against a wedged, beach-balling
+# page blocks INDEFINITELY otherwise — below every python-level watchdog, which
+# is how one tiny hung conversation held a whole sweep hostage. Generous, because
+# a legitimate 'do JavaScript' on a heavy DOM can be slow; on expiry the call
+# fails loudly naming itself, and the sweep records that conversation and moves on.
+OSASCRIPT_TIMEOUT = 60
+
+
+def osascript(code, timeout=OSASCRIPT_TIMEOUT):
     assert_may_send(f'osascript: {code[:60]}')
-    r = subprocess.run(['osascript', '-e', code], capture_output=True, text=True)
+    try:
+        r = subprocess.run(['osascript', '-e', code], capture_output=True, text=True,
+                           timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(f'FAIL: osascript did not answer within {timeout}s (Safari wedged?): '
+              f'{code[:80]}', file=sys.stderr)
+        return ''
     return r.stdout.strip()
 
 
@@ -108,17 +122,27 @@ def safari_run_js_file(js_path):
         f'set jsCode to read POSIX file "{js_path}" as «class utf8»\n'
         'tell application "Safari" to do JavaScript jsCode in front document'
     )
-    subprocess.run(['osascript', '-e', code], capture_output=True)
+    try:
+        subprocess.run(['osascript', '-e', code], capture_output=True,
+                       timeout=OSASCRIPT_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        print(f'FAIL: scrape injection did not answer within {OSASCRIPT_TIMEOUT}s '
+              f'(Safari wedged?): {js_path}', file=sys.stderr)
 
 
 def safari_eval_js(js_code):
     """Evaluate a JS string in Safari's front document and return the result."""
     assert_may_send(f'evaluate JS: {js_code[:60]}')
     escaped = js_code.replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ')
-    r = subprocess.run(
-        ['osascript', '-e', f'tell application "Safari" to do JavaScript "{escaped}" in front document'],
-        capture_output=True, text=True,
-    )
+    try:
+        r = subprocess.run(
+            ['osascript', '-e', f'tell application "Safari" to do JavaScript "{escaped}" in front document'],
+            capture_output=True, text=True, timeout=OSASCRIPT_TIMEOUT,
+        )
+    except subprocess.TimeoutExpired:
+        print(f'FAIL: Safari did not answer within {OSASCRIPT_TIMEOUT}s (wedged page?): '
+              f'{js_code[:60]}', file=sys.stderr)
+        return ''
     if r.returncode != 0:
         print(f'osascript error: {r.stderr.strip()}', file=sys.stderr)
     return r.stdout.strip()
