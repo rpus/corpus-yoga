@@ -462,7 +462,8 @@ def main():
     # human-altitude lines via TERM/emit, stderr on both.
     global TERM
     if args.run_log:
-        log_fh = open(args.run_log, 'w', buffering=1)
+        # append: browser.sh may have opened this log with the audit preamble
+        log_fh = open(args.run_log, 'a', buffering=1)
         TERM = sys.stdout
         sys.stdout = log_fh
         sys.stderr = _BothStreams(log_fh, sys.__stderr__)

@@ -109,19 +109,35 @@ main() {
     echo "--dry-run: nothing captured — the extent above is what \`capture\` would act on"
     return $rc_audit
   fi
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" "${audit[@]}" || true
+  # The audit preamble is the capture's leading bracket (G19) and belongs in the
+  # record (#412): each in-scope provider's run log is named HERE and opens with
+  # the preamble (tee'd into every one — the same status precedes each provider's
+  # narrative), then handed down via --run-log for the capture to append.
+  # PYTHONUNBUFFERED keeps the tee line-live: nothing sits in a pipe buffer a
+  # ctrl-C could erase (#415).
+  local stamp providers=() provider_mechs=() logs=() p mechs
+  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
+  while read -r p mechs; do
+    [[ -n "$p" ]] || continue
+    providers+=("$p")
+    provider_mechs+=("$mechs")
+    logs+=("$REPO_DIR/tmp/logs/browser/capture/$p/$stamp.log")
+    mkdir -p "$REPO_DIR/tmp/logs/browser/capture/$p"
+  done <<< "$scope"
+  PYTHONUNBUFFERED=1 "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" "${audit[@]}" 2>&1 | tee -a "${logs[@]}" || true
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
   # safari_capture.py's declaration, so this loop holds no second copy of which
   # provider has which mechanism — the pair a restriction leaves empty simply does
   # not appear here.
-  local rc=0 p mechs
-  while read -r p mechs; do
-    [[ -n "$p" ]] || continue
-    echo "$p: capturing by ${mechs//+/ and }"
-    "$SCRIPT_DIR/safari_capture.sh" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
+  local rc=0 i=0
+  for p in ${providers[@]+"${providers[@]}"}; do
+    mechs="${provider_mechs[$i]}"
+    echo "$p: capturing by ${mechs//+/ and }" | tee -a "${logs[$i]}"
+    "$SCRIPT_DIR/safari_capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
       ${id:+--id "$id"} || rc=$?
-  done <<< "$scope"
+    i=$((i + 1))
+  done
   return $rc
 }
 

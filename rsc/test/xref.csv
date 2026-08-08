@@ -201,7 +201,7 @@ src/main/cli/agent/agent.py,117,path_str,src/main/cli/agent/agent.py,Y,SELF = 's
 src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,86,call,src/main/cli/browser/safari_capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope \"
 src/main/cli/browser/browser.sh,90,call,src/main/cli/browser/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
-src/main/cli/browser/browser.sh,122,call,src/main/cli/browser/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
+src/main/cli/browser/browser.sh,137,call,src/main/cli/browser/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --run-log ""${logs[$i]}"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/cli/browser/capture.command,19,path_str,src/main/cli/browser/capture.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/capture.applescript"""
 src/main/cli/browser/safari_capture.py,54,path_str,src/main/cli/browser/safari_capture.py,Y,SELF = 'src/main/cli/browser/safari_capture.py'
 src/main/cli/browser/safari_capture.sh,14,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude
@@ -209,7 +209,7 @@ src/main/cli/browser/safari_capture.sh,15,comment,src/main/cli/browser/safari_ca
 src/main/cli/browser/safari_capture.sh,16,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude --id <uuid>
 src/main/cli/browser/safari_capture.sh,17,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider gemini
 src/main/cli/browser/safari_capture.sh,18,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider gemini --id <id>
-src/main/cli/browser/safari_capture.sh,50,call,src/main/cli/browser/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" \"
+src/main/cli/browser/safari_capture.sh,55,call,src/main/cli/browser/safari_capture.py,Y,"caffeinate -dim ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" \"
 src/main/cli/browser/safari_utils.py,12,path_str,src/main/cli/browser/safari_utils.py,Y,SELF = 'src/main/cli/browser/safari_utils.py'
 src/main/cli/cache/cache.json,3,path_str,src/main/cli/cache/cache.py,Y,"""target"": ""src/main/cli/cache/cache.py"","
 src/main/cli/cache/cache.py,11,comment,src/main/cli/cache/clean.py,Y,Thin verb router over the sibling implementations — src/main/cli/cache/clean.py and
