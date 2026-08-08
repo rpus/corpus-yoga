@@ -202,9 +202,9 @@ check_optional_modes() {
     info "browser capture (yoga browser capture) unavailable: needs macOS + osascript; other pipelines unaffected"
   fi
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-    ok "yoga dashboard capture possible: ANTHROPIC_API_KEY is set"
+    ok "yoga indexing capture possible: ANTHROPIC_API_KEY is set"
   else
-    info "yoga dashboard capture unavailable: ANTHROPIC_API_KEY not set (only the paid concept/category capture needs it)"
+    info "yoga indexing capture unavailable: ANTHROPIC_API_KEY not set (only the paid concept/category capture needs it)"
   fi
 }
 

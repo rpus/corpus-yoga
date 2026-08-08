@@ -13,25 +13,25 @@ CONTRIBUTING.md,66,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; 
 CONTRIBUTING.md,74,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
 CONTRIBUTING.md,75,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
 CONTRIBUTING.md,77,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
-README.md,24,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,24,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,26,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-README.md,39,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,40,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)"
-README.md,41,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
-README.md,41,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
-README.md,42,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,42,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,43,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,44,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,45,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
-README.md,46,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
-README.md,53,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,62,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
-README.md,75,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,81,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,81,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,88,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
+README.md,26,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,26,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,28,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
+README.md,41,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,42,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L8): `rsc/CALCULUS.md` (`yoga calculus`)"
+README.md,43,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
+README.md,43,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
+README.md,44,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,44,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,45,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,46,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,47,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
+README.md,48,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
+README.md,55,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,64,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
+README.md,77,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,83,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,83,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,90,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
@@ -192,7 +192,7 @@ src/main/cli/README.md,85,doc,src/main/cli/cli.py,Y,machine-read. `grammar_laws(
 src/main/cli/README.md,86,doc,rsc/CALCULUS.md,Y,"below, exactly as `calculus_terms()` parses `rsc/CALCULUS.md`; a check cites the law it"
 src/main/cli/README.md,99,doc,rsc/CALCULUS.md,Y,A law may also carry `from L<n>`: it is a corpus law (`rsc/CALCULUS.md`) applied to the
 src/main/cli/README.md,104,doc,rsc/CALCULUS.md,Y,artifact). The cited law must exist in `rsc/CALCULUS.md` — `check_grammar_laws` holds it.
-src/main/cli/README.md,144,doc,src/main/cli/dashboard/dashboard.sh,Y,`src/main/cli/dashboard/dashboard.sh` — the same file that implements half of it.
+src/main/cli/README.md,144,doc,src/main/cli/indexing/capture.sh,Y,`src/main/cli/indexing/capture.sh` — the same file that implements half of it.
 src/main/cli/README.md,162,doc,rsc/CALCULUS.md,Y,"cell is defined in `rsc/CALCULUS.md`, which is parsed as the authority rather than"
 src/main/cli/agent/agent.json,3,path_str,src/main/cli/agent/agent.py,Y,"""target"": ""src/main/cli/agent/agent.py"","
 src/main/cli/agent/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
@@ -238,22 +238,22 @@ src/main/cli/commands/commands.json,3,path_str,src/main/cli/commands/commands.py
 src/main/cli/completions/completions.json,3,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
 src/main/cli/completions/completions.py,20,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
 src/main/cli/completions/completions.py,111,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
-src/main/cli/dashboard/dashboard.json,3,path_str,src/main/cli/dashboard/dashboard.sh,Y,"""target"": ""src/main/cli/dashboard/dashboard.sh"","
-src/main/cli/dashboard/dashboard.sh,13,comment,rsc/site/index.html,Y,# palette is authored in rsc/site/index.html; the capture schemas live under
-src/main/cli/dashboard/dashboard.sh,29,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/dashboard/dashboard.sh,31,comment,src/main/model/dashboard_status.sh,Y,# shellcheck source=src/main/model/dashboard_status.sh
-src/main/cli/dashboard/dashboard.sh,110,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
-src/main/cli/dashboard/sync.json,7,path_str,rsc/site/index.html,Y,"""rsc/site/index.html"""
 src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 src/main/cli/forge/forge.sh,17,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/forge/forge.sh,19,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/forge/forge.sh,54,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
 src/main/cli/forge/forge.sh,191,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
+src/main/cli/indexing/capture.sh,14,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh                    # status: deposits + currency
+src/main/cli/indexing/capture.sh,15,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh --capture          # PAID (needs ANTHROPIC_API_KEY)
+src/main/cli/indexing/capture.sh,20,comment,rsc/site/index.html,Y,# palette is authored in rsc/site/index.html; the capture schemas live under
+src/main/cli/indexing/capture.sh,31,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/indexing/capture.sh,33,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
+src/main/cli/indexing/capture.sh,110,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
 src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
-src/main/cli/indexing/indexing.py,48,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
-src/main/cli/indexing/indexing.py,242,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
+src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
+src/main/cli/indexing/indexing.py,244,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
 src/main/cli/memories/memories.json,3,path_str,src/main/pipeline/chat-exports/memories.py,Y,"""target"": ""src/main/pipeline/chat-exports/memories.py"","
 src/main/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
 src/main/cli/model/sync.json,5,path_str,rsc/schema,Y,"""rsc/schema"""
@@ -262,7 +262,7 @@ src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,
 src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,354,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,375,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,376,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.sh,2,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs."
 src/main/cli/prerequisites/prerequisites.sh,17,comment,src/main/cli/prerequisites/prerequisites.sh,Y,#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention (– and ✗); all-green sections 
@@ -284,7 +284,9 @@ src/main/cli/server/server.sh,6,comment,src/main/cli/server/server.sh,Y,#   src/
 src/main/cli/server/server.sh,7,comment,src/main/cli/server/server.sh,Y,#   src/main/cli/server/server.sh stop
 src/main/cli/server/server.sh,8,comment,src/main/cli/server/server.sh,Y,"#   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit"
 src/main/cli/server/server.sh,37,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)"
+src/main/cli/site/render.json,7,path_str,rsc/site/index.html,Y,"""rsc/site/index.html"""
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
+src/main/cli/site/site.sh,24,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/subcommand.schema.json,25,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-exports/summaries.py,Y,"""target"": ""src/main/pipeline/chat-exports/summaries.py"","
@@ -303,7 +305,6 @@ src/main/markdown_projection.py,25,path_str,src/main/markdown_projection.py,Y,SE
 src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,35,path_str,src/main/model/compare_sources.py,Y,SELF = 'src/main/model/compare_sources.py'
-src/main/model/dashboard_status.sh,8,comment,src/main/cli/dashboard/dashboard.sh,Y,"# (src/main/cli/dashboard/dashboard.sh), which sources this file for its bare"
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
@@ -398,6 +399,7 @@ src/main/pipeline/chat-exports/memories.py,31,comment,src/run_python_script.sh,Y
 src/main/pipeline/chat-exports/memories.py,31,comment,src/main/pipeline/chat-exports/memories.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/memories.py       [--chat-exports-cache tmp/cache/chat-exports] 
 src/main/pipeline/chat-exports/memories.py,46,path_str,src/main/pipeline/chat-exports/memories.py,Y,SELF = 'src/main/pipeline/chat-exports/memories.py'
 src/main/pipeline/chat-exports/memories.py,64,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
+src/main/pipeline/chat-exports/present.sh,4,comment,src/main/model/present_corpus.py,Y,# The corpus page render is src/main/model/present_corpus.py (yoga site render).
 src/main/pipeline/chat-exports/present.sh,6,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-
 src/main/pipeline/chat-exports/present.sh,7,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-exports data/input/claude/chat/bulk-export
 src/main/pipeline/chat-exports/present.sh,19,path_str,src/main/pipeline/chat-exports/timeline.py,Y,"TIMELINE_SCRIPT=""$SCRIPT_DIR/timeline.py"""
@@ -624,13 +626,11 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/completions/install-latest.json,Y,
 ,,,src/main/cli/completions/sync.json,Y,
 ,,,src/main/cli/completions/uninstall.json,Y,
-,,,src/main/cli/dashboard/capture.json,Y,
-,,,src/main/cli/dashboard/dashboard.json,Y,
-,,,src/main/cli/dashboard/sync.json,Y,
 ,,,src/main/cli/forge/forge.json,Y,
 ,,,src/main/cli/forge/merge.json,Y,
 ,,,src/main/cli/forge/prune.json,Y,
 ,,,src/main/cli/indexing/accept.json,Y,
+,,,src/main/cli/indexing/capture.json,Y,
 ,,,src/main/cli/indexing/indexing.json,Y,
 ,,,src/main/cli/indexing/list-candidates.json,Y,
 ,,,src/main/cli/indexing/reject.json,Y,
@@ -648,6 +648,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/server/server.json,Y,
 ,,,src/main/cli/server/start.json,Y,
 ,,,src/main/cli/server/stop.json,Y,
+,,,src/main/cli/site/render.json,Y,
 ,,,src/main/cli/site/site.json,Y,
 ,,,src/main/cli/site/sync.json,Y,
 ,,,src/main/cli/subcommand.schema.json,Y,
@@ -662,7 +663,6 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/enact.py,Y,
 ,,,src/main/model/format_table.py,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
-,,self_only,src/main/model/present_corpus.py,Y,
 ,,self_only,src/main/model/rekey_chats.py,Y,
 ,,self_only,src/main/model/serve_markdown.py,Y,
 ,,,src/main/model/word_freq_literal.py,Y,

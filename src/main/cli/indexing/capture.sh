@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
-# dashboard.sh (yoga dashboard) — the corpus dashboard: paid captures, free render.
+# capture.sh (yoga indexing capture) — the PAID semantic reading of the corpus:
+# the model re-reads every conversation for the two index tables, weighted
+# concepts (semantic-concepts.json — the indexing queue's feedstock) and the
+# chat-to-category assignment (chat-categories.json — a categorical index the
+# site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
-# Usage:
-#   yoga dashboard [status]     # what is captured + currency of render and captures (read-only, free)
-#   yoga dashboard sync         # FREE: render data/output/site/index.html (idempotent)
-#                               #   from data/output/markdown + the durable captures
-#   yoga dashboard capture      # PAID (needs ANTHROPIC_API_KEY): re-read the corpus
-#     [--conversations <path>]  #   source override: markdown corpus dir | json/ dir | conversations.json
-#     [--only semantic-concepts|chat-categories]   # refresh one file (default: both)
+# Bare (no arguments) it is the capture's read-only status: what is deposited,
+# and how far the paid layer lags the corpus — the currency mechanism the usr
+# gate's corpus tail hoists into every `yoga pipeline run` (L9: the captures
+# are paid, so no run step may keep them fresh).
 #
-# Captures land durable in data/output/dashboard/ (shared across machines); the category
+# Usage (via `yoga indexing capture`, or directly):
+#   src/main/cli/indexing/capture.sh                    # status: deposits + currency
+#   src/main/cli/indexing/capture.sh --capture          # PAID (needs ANTHROPIC_API_KEY)
+#     [--conversations <path>] [--only semantic-concepts|chat-categories] [--dry-run]
+#
+# Captures land durable in data/output/dashboard/ (shared across machines; the
+# path keeps the artifact's name — the rendered page it feeds); the category
 # palette is authored in rsc/site/index.html; the capture schemas live under
-# rsc/schema/dashboard/. The capture half is acquisition and lives here with its
-# command (#381); the render/probe machinery stays with the pipeline
-# (src/main/pipeline/chat-exports/), reached root-relatively below.
+# rsc/schema/dashboard/.
 
 set -euo pipefail
 
-# Guard at this file's own address first; sourcing the probe overwrites SELF
-# and SCRIPT_DIR with the probe's, so both are re-asserted after the sources —
-# the banner below must speak this file's address, not the probe's.
-SELF='src/main/cli/dashboard/dashboard.sh'
+SELF='src/main/cli/indexing/capture.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-exports"   # the chat pipeline's helpers (timeline)
-MODEL_DIR="$REPO_DIR/src/main/model"   # the corpus tier: probe, corpus render, rekey (#407)
+MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey, format
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # the shell face of YOGA_NO_SEND (#29)
-# shellcheck source=src/main/model/dashboard_status.sh
-source "$MODEL_DIR/dashboard_status.sh"   # status/currency + the corpus-shape helpers, one authority
-SELF='src/main/cli/dashboard/dashboard.sh'
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=src/main/model/corpus_shape.sh
+source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
 API_URL="https://api.anthropic.com/v1/messages"
 FORMAT_TABLE_SCRIPT="$MODEL_DIR/format_table.py"
@@ -97,7 +97,7 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
   # is "unknown").
   local stop; stop="$(jq -r '.stop_reason // "unknown"' <<< "$response")"
   if [[ "$stop" != "end_turn" ]]; then
-    echo "yoga dashboard capture: the model stopped with stop_reason=$stop (not end_turn) — " \
+    echo "yoga indexing capture: the model stopped with stop_reason=$stop (not end_turn) — " \
          "the reading is incomplete and is NOT promoted" >&2
     return 1
   fi
@@ -171,7 +171,7 @@ validate_capture() {
   schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/dashboard/$family"/v*.json | sort -V | tail -1)"
   verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
   [[ "$verdict" == 'Valid!' ]] || {
-    echo "yoga dashboard capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
+    echo "yoga indexing capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
     printf '%s\n' "$verdict" >&2
     exit 1
   }
@@ -226,12 +226,12 @@ coverage_report() {
 }
 
 
-# ── the dashboard capture (yoga dashboard capture) ────────────────────────────
+# ── the paid capture (yoga indexing capture) ─────────────────────────────────
 # Both PAID model readings the dashboard shows, single-source and durable: the
 # weighted concept list (word cloud) and the chat→category assignment. Run once
 # over the corpus; both machines share the result.
 #
-# capture is DERIVE-then-DEPOSIT: both readings are captured into tmp/cache/dashboard
+# capture is DERIVE-then-DEPOSIT: both readings are captured into tmp/cache/indexing
 # (the workshop, git-ignored, corpus-scoped like tmp/cache/indexing) and validated there, then
 # PROMOTED into the durable data/output/dashboard/ only once both succeed. A failed or
 # malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
@@ -247,7 +247,7 @@ capture_dashboard() {
   local src_label; src_label="$(basename "$(dirname "$conv")")/$(basename "$conv")"
   # corpus-scoped staging (like tmp/cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
-  local stage="$REPO_DIR/tmp/cache/dashboard"
+  local stage="$REPO_DIR/tmp/cache/indexing"
   local dest="$REPO_DIR/data/output/dashboard"
   mkdir -p "$stage" "$dest"
 
@@ -265,7 +265,7 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → tmp/cache/dashboard (promoted to data/output/dashboard/ on success)"
+  echo "capturing dashboard readings from $src_label${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/dashboard/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
     capture_concepts_to "$chats" "$stage/semantic-concepts.json"
     validate_capture "$stage/semantic-concepts.json" semanticConcepts
@@ -282,7 +282,7 @@ capture_dashboard() {
       ($pal | split(", ")) as $ok
       | [.rows[][1]] | unique | map(select(. as $c | ($ok | index($c)) == null)) | join(", ")
     ' "$stage/chat-categories.json")"
-    [[ -z "$off" ]] || { echo "yoga dashboard capture: chat-categories assigns off-palette categories ($off) — not promoted. Palette: $categories" >&2; exit 1; }
+    [[ -z "$off" ]] || { echo "yoga indexing capture: chat-categories assigns off-palette categories ($off) — not promoted. Palette: $categories" >&2; exit 1; }
     # The TRAILING extent (G19): the same exact join taken of the staged file, so it can be
     # compared with the leading one. A row count cannot do this job — it counted 125 while
     # the corpus held 137 and printed a ✓ beside it.
@@ -303,7 +303,7 @@ capture_dashboard() {
           read -r before_captured _ _ _ <<< "$b"
         fi
         if [[ "$captured" -lt "$before_captured" ]]; then
-          echo "yoga dashboard capture: coverage would fall from $before_captured to" \
+          echo "yoga indexing capture: coverage would fall from $before_captured to" \
                "$captured — NOT promoted; the staged reading is left in $stage for inspection" >&2
           return 1
         fi
@@ -319,13 +319,11 @@ capture_dashboard() {
   echo "promoted → data/output/dashboard/ — both machines share it (data/output/ is iCloud, not git)"
 }
 
-# ── read-only status (bare `yoga dashboard`) ──────────────────────────────────
-# ── entry point ───────────────────────────────────────────────────────────────
-
+# ── the capture source ────────────────────────────────────────────────────────
 # The corpus itself: data/output/markdown/claude/chat/conversations — the projected
 # markdownConversation corpus, source-agnostic by construction (whatever projects
 # into it — captures today, gemini tomorrow — is what the model reads), and the
-# very thing the dashboard describes. Its filenames carry ordered()'s canonical
+# very thing the captured tables describe. Its filenames carry ordered()'s canonical
 # numbering and its frontmatter the uuids, so the chat list and the rekey map read
 # straight off the OUTPUT layer: no batch selection, no atomise-first coupling —
 # capture works the moment the corpus exists. Reading from a batch's cache, or from
@@ -342,25 +340,25 @@ capture() {
       --conversations) conversations="$2"; shift 2 ;;
       --only)          only="$2";          shift 2 ;;
       --dry-run)       dry_run=1;          shift ;;
-      *) echo "yoga dashboard capture: unknown argument: $1" >&2; exit 1 ;;
+      *) echo "yoga indexing capture: unknown argument: $1" >&2; exit 1 ;;
     esac
   done
   case "$only" in
     ''|semantic-concepts|chat-categories) ;;
-    *) echo "yoga dashboard capture --only: expected 'semantic-concepts' or 'chat-categories', got '$only'" >&2; exit 1 ;;
+    *) echo "yoga indexing capture --only: expected 'semantic-concepts' or 'chat-categories', got '$only'" >&2; exit 1 ;;
   esac
   # the key is the EFFECT's prerequisite, not the preview's: --dry-run must work on a
   # machine that cannot spend, or it cannot answer "what would this cost me?" there
   # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
   # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
   # working under YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
-  [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (yoga dashboard capture)" || exit 1
+  [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (yoga indexing capture)" || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money left no record of what it bought: terminal scrollback
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
   # convenience here — it is the only evidence. Path per the command/verb rule (#54).
   local log
-  log="$REPO_DIR/tmp/logs/dashboard/capture/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+  log="$REPO_DIR/tmp/logs/indexing/capture/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
   mkdir -p "$(dirname "$log")"
   exec > >(tee -a "$log") 2>&1
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
@@ -380,14 +378,38 @@ capture() {
   capture_dashboard "$conv" "$only"
 }
 
+# The capture's own status: the deposits, then the paid layer's currency —
+# the captures-vs-corpus half of the report the dashboard command carried
+# before it dissolved (#409); the render-vs-inputs half is `yoga site`'s.
+status() {
+  local d="$REPO_DIR/data/output/dashboard" f
+  echo "data/output/dashboard/ — the paid model captures the site render consumes"
+  for f in semantic-concepts.json chat-categories.json; do
+    if [[ -f "$d/$f" ]]; then
+      echo "  ✓ $f ($(jq '.rows | length' "$d/$f") rows)"
+    else
+      echo "  ○ $f — not captured yet"
+    fi
+  done
+  local corpus="$REPO_DIR/data/output/markdown" n m=0
+  [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
+  n="$(count_conversations "$corpus")"
+  [[ "$n" -gt 0 ]] || return 0
+  [[ -f "$d/chat-categories.json" ]] && m="$(jq '.rows | length' "$d/chat-categories.json")"
+  echo "corpus: $n conversation(s) · captures cover ~$m"
+  if [[ "$m" -lt "$n" ]]; then
+    echo "INFO: the captures cover ~$m of $n conversation(s) — the paid layer lags the corpus:"
+    echo "    → run: yoga indexing capture   # PAID — the model re-reads the corpus"
+  fi
+}
+
 main() {
-  case "${1:-}" in
-    capture)     shift; capture "$@" ;;
-    sync)        shift; exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@" ;;
-    '')          status ;;   # bare noun → status; there is no `status` verb (this IS it)
-    -h|--help)   awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "yoga dashboard: unknown verb '${1}' — expected 'capture' (paid), 'sync' (free render), or bare (status)" >&2; exit 1 ;;
-  esac
+  if [[ $# -eq 0 ]]; then
+    status
+    return 0
+  fi
+  [[ "${1:-}" == "--capture" ]] && shift
+  capture "$@"
 }
 
 main "$@"

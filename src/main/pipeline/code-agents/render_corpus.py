@@ -9,7 +9,7 @@ session held by several machines renders once, from its maximal copy.
 The code source joins the corpus exactly as claude and gemini do: files carry
 the '<ordinal>-<slug>' stem corpus_index requires, an h1 title, and
 frontmatter whose uuid line is the identity conv_id reads back — so serve,
-the book index, and the dashboard capture see sessions like any other
+the book index, and the concept capture see sessions like any other
 conversations. Ordinals are a fresh 1..N enumeration over ALL local sessions
 in created order (sessionConversation.created, the session's whole span):
 presentation dressing, renumbered freely; the uuid is the identity, and a

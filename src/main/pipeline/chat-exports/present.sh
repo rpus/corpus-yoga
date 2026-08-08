@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The BATCH presenter: one export's presentation under its own directory
 # (tmp/cache/chat-exports/<batch>/presentation — an export artifact, honestly filed).
-# The corpus dashboard is its sibling present_corpus.py (yoga dashboard sync).
+# The corpus page render is src/main/model/present_corpus.py (yoga site render).
 # Run from the repo root, e.g.:
 #   src/main/pipeline/chat-exports/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-batch-0000
 #   src/main/pipeline/chat-exports/present.sh --chat-exports data/input/claude/chat/bulk-export
@@ -148,7 +148,7 @@ present_export() {
     fi
 
     # claude-generated tables — BOTH are the durable, single-source data/output/dashboard/
-    # captures (refreshed by `yoga dashboard capture`), not per-batch. data-categories is
+    # captures (refreshed by `yoga indexing capture`), not per-batch. data-categories is
     # NOT here at all — its palette is authored, inlined static in the template (design,
     # not inference).
     for key in data-chat-categories data-semantic-concepts; do
@@ -158,14 +158,14 @@ present_export() {
           cols='["chat", "category"]'
           # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
           # single-quoted description — the string is data, never a substitution
-          desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `yoga dashboard capture`.'
+          desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `yoga indexing capture`.'
           inferred_file="$REPO_DIR/data/output/dashboard/chat-categories.json"
           ;;
         data-semantic-concepts)
           cols='["word", "count"]'
           # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
           # single-quoted description — the string is data, never a substitution
-          desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/dashboard/semantic-concepts.json); refresh with `yoga dashboard capture`.'
+          desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/dashboard/semantic-concepts.json); refresh with `yoga indexing capture`.'
           inferred_file="$REPO_DIR/data/output/dashboard/semantic-concepts.json"
           ;;
       esac
@@ -185,7 +185,7 @@ present_export() {
         echo "  ✓ $key (generated): $note"
       else
         # infinitive — inference was skipped, so this table is yet TO BE generated
-        note="Not captured yet — run \`yoga dashboard capture\`. $desc"
+        note="Not captured yet — run \`yoga indexing capture\`. $desc"
         json="$(jq -n --argjson cols "$cols" --arg note "$note" \
           '{"columns": $cols, "rows": [], "note": $note}' | format_table)"
         inject "$out" "$key" "$json"

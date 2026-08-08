@@ -1,7 +1,7 @@
-# The readings behind `yoga indexing` and `yoga dashboard`
+# The readings behind `yoga indexing` and `yoga site`
 
 Two commands produce and consume the intelligences' *readings* of the corpus —
-the model's paid captures (`yoga dashboard capture` → `data/output/dashboard/`) and
+the model's paid captures (`yoga indexing capture` → `data/output/dashboard/`) and
 the user's curation (`yoga indexing` → `data/output/indexing/`). Corpus-derived, so
 outside git: durable in `data/output/`, rebuildable in `tmp/cache/`. A user's curation is
 inference exactly as a model's capture is; the repo privileges neither.
@@ -18,7 +18,7 @@ The format authorities are the schemas, not this file:
 
 The disposal loop:
 
-    yoga dashboard capture → concepts   (model reads the corpus, paid)
+    yoga indexing capture → concepts   (model reads the corpus, paid)
     yoga indexing list-candidates            (pending = concepts − accepted − rejected)
     accept <term> / reject <concept>    (your judgement, one per concept)
     yoga indexing sync                  (the book index over durable turn anchors)

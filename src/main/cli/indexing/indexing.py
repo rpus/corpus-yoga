@@ -39,6 +39,8 @@ Usage (via yoga indexing):
   yoga indexing reject [--reason <why>] <concept>  # reject a concept
   yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
   yoga indexing sync                               # build data/output/markdown/index.md
+  yoga indexing capture [...]                      # PAID: the model re-reads the corpus for
+                                                   #   the two index tables (see capture.sh)
 """
 import argparse
 import re
@@ -101,7 +103,7 @@ def parse_rejected(path: Path) -> set[str]:
 
 def inferred_concepts() -> list[str]:
     """The finite candidate source: the single-source concept capture
-    data/output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga dashboard capture`).
+    data/output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga indexing capture`).
     Durable and shared across machines (via data/output/), so both curate one shared base — the
     24-vs-27 divergence of the old per-batch, per-machine tmp/cache/ inference is gone.
     Empty where no capture has been taken yet."""
@@ -369,7 +371,7 @@ def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
 def pending_report(accepted_path: Path, rejected_path: Path) -> None:
     """The loop's feedback: how many captured concepts remain undisposed."""
     if not inferred_concepts():
-        print('pending: unknown — no concept capture on this machine (yoga dashboard capture)')
+        print('pending: unknown — no concept capture on this machine (yoga indexing capture)')
         return
     pending = pending_concepts(accepted_path, rejected_path)
     print(f'pending: {len(pending)} concept(s) undisposed'
@@ -410,7 +412,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
               file=sys.stderr)
     if not inferred_concepts():
         print('pending queue: unknown — no concept capture on this machine '
-              '(yoga dashboard capture)', file=sys.stderr)
+              '(yoga indexing capture)', file=sys.stderr)
         return
     pending = pending_concepts(accepted_path, rejected_path)
     print(f'pending queue ({len(pending)} concepts to dispose — '
@@ -421,6 +423,14 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
 
 
 def main():
+    # capture is bash machinery (capture.sh, this file's sibling): exec it with the
+    # raw argv so its flags need no second parser here; the subparser below exists
+    # so the declared surface and the argparse API stay mirrors.
+    if len(sys.argv) > 1 and sys.argv[1] == 'capture':
+        import os
+        script = Path(__file__).resolve().parent / 'capture.sh'
+        os.execv('/bin/bash', ['bash', str(script), *sys.argv[2:]])
+
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
     cand = sub.add_parser('list-candidates')
@@ -436,6 +446,10 @@ def main():
     rej.add_argument('--reason', default='')
     rej.add_argument('--all', action='store_true')
     sub.add_parser('sync')
+    cap = sub.add_parser('capture')
+    cap.add_argument('--conversations', metavar='<path>')
+    cap.add_argument('--only', metavar='semantic-concepts|chat-categories')
+    cap.add_argument('--dry-run', action='store_true')
     enrich(ap, 'indexing')
     args = ap.parse_args()
 
@@ -473,8 +487,11 @@ def main():
               + text.rstrip().rsplit(chr(10), 1)[-1])
         return
 
-    # bare `yoga indexing`: read-only status of the curation surface
+    # bare `yoga indexing`: read-only status of the curation surface, then the
+    # capture's own status face (deposits + the paid layer's currency, #409)
     status(accepted_path, rejected_path, MARKDOWN_DIR)
+    import subprocess
+    subprocess.run(['bash', str(Path(__file__).resolve().parent / 'capture.sh')], check=False)
 
 
 if __name__ == '__main__':
