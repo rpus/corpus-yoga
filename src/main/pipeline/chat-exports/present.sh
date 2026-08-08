@@ -14,8 +14,8 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 CACHE_DIR="$REPO_DIR/tmp/cache/chat-exports"
 TEMPLATE="$REPO_DIR/rsc/site/index.html"
-WORD_FREQ_SCRIPT="$REPO_DIR/src/main/model/word_freq_literal.py"
-FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/model/format_table.py"
+WORD_FREQ_SCRIPT="$REPO_DIR/src/main/word_freq_literal.py"
+FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 TIMELINE_SCRIPT="$SCRIPT_DIR/timeline.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
@@ -63,13 +63,13 @@ inject() {
   local tmp
   tmp=$(mktemp)
   printf '%s' "$json" > "$tmp"
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/inject.py" "$file" "$key" "$tmp"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/inject.py" "$file" "$key" "$tmp"
   rm -f "$tmp"
 }
 
 # update_export_tooltip <html_file> <export_name>
 update_export_tooltip() {
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/update_export_tooltip.py" "$1" "$2"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/update_export_tooltip.py" "$1" "$2"
 }
 
 # update_title <html_file> <conversations_json>

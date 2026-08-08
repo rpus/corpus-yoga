@@ -45,6 +45,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE = REPO / 'rsc' / 'site' / 'index.html'
 DOWNLOADED_DIR = REPO / 'data' / 'output' / 'artifacts' / 'downloaded'
 CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'   # source-scoped helpers stay there (#407)
+MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -86,10 +87,10 @@ def run_helper(script: Path, args: list[str], stdin_text: str | None = None) -> 
 def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
     """Align (format_table), persist in the cache workshop, inject into the page —
     one motion per table, matching the batch presenter's artifacts."""
-    styled = run_helper(SCRIPT_DIR / 'format_table.py', [], json.dumps(table))
+    styled = run_helper(MAIN / 'format_table.py', [], json.dumps(table))
     f = out_dir / f'{key}.json'
     f.write_text(styled)
-    subprocess.run([sys.executable, str(SCRIPT_DIR / 'inject.py'), str(html), key, str(f)], check=True)
+    subprocess.run([sys.executable, str(MAIN / 'inject.py'), str(html), key, str(f)], check=True)
     print(f'  ✓ {key}')
 
 
@@ -196,7 +197,7 @@ def main() -> int:
     title = (f'Conversation corpus — {len(entries)} conversations '
              f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}), {date_range}')
     html.write_text(re.sub(r'<title>.*?</title>', f'<title>{title}</title>', html.read_text()))
-    subprocess.run([sys.executable, str(SCRIPT_DIR / 'update_export_tooltip.py'), str(html),
+    subprocess.run([sys.executable, str(MAIN / 'update_export_tooltip.py'), str(html),
                     f'the projected corpus: {md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root}'],
                    check=True)
 
