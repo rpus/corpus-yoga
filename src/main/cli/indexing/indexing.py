@@ -480,6 +480,12 @@ def main():
         return
     if args.verb == 'sync':
         root = MARKDOWN_DIR
+        # A machine with no corpus skips, stated (#406): every data-reading
+        # sibling in the corpus tail names its absence; this step must not be
+        # the one that presumes its input into existence and tracebacks.
+        if not root.is_dir():
+            print(f'index: skipped — no corpus at {root.relative_to(REPO)} (yoga pipeline run projects it)')
+            return
         text = build(root, accepted_path)
         out = root / 'index.md'
         out.write_text(text)
