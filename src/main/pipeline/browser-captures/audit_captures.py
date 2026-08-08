@@ -328,7 +328,7 @@ def live_gemini(captures_dir: Path) -> list[str]:
     from safari_capture import PROVIDERS, ids_from_safari, wait_for_ready
     from safari_utils import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
     cfg = PROVIDERS['gemini']
-    ids = ids_from_safari(cfg)
+    ids = ids_from_safari('gemini', cfg)
     captured_dirs = {d.name: d for d in captures_dir.iterdir() if d.is_dir()}
 
     found = [('NEW', i, 'never captured') for i in ids if i not in captured_dirs]

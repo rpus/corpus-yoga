@@ -323,7 +323,7 @@ def scrape_one(out_dir, js_script, log_dir):
     return collect_md_and_log(start, out_dir, log_dir)
 
 
-def ids_from_safari(cfg):
+def ids_from_safari(provider, cfg):
     safari_focus()
     print(f'navigating to {cfg["discover_url"]}')
     safari_navigate(cfg['discover_url'])
@@ -359,6 +359,16 @@ def ids_from_safari(cfg):
     raw = safari_eval_js(discover_js(cfg))
     ids = [u for u in raw.splitlines() if u]
     print(f'found {len(ids)} conversations')
+    if not ids:
+        # Zero is a claim about the account, not a no-op (#411): where the page
+        # cannot be positively identified as a real, empty listing, an empty
+        # discovery is a failure to SEE — a logged-out listing is a login page
+        # with zero conversation anchors, and it once read as 'nothing to do'.
+        where = safari_eval_js('String(location.href)') or '(URL unreadable)'
+        emit(f'FAIL: found 0 conversations at {where} — cannot positively identify '
+             f'an empty {provider} listing; most likely Safari is not logged in to '
+             f'{provider}. Log in and re-run: yoga browser capture --provider {provider}')
+        raise SystemExit(1)
     return ids
 
 
@@ -535,7 +545,7 @@ def main():
         # work tab so the user's front tab survives, and restore it afterwards.
         prev_tab = safari_open_work_tab()
         try:
-            ids = ids_from_safari(cfg)
+            ids = ids_from_safari(args.provider, cfg)
             write_ordering(cfg, ids, dom_root)
             failed = capture_all(args.provider, ids, api_root, dom_root,
                                  navigate=True, mechanisms=mechanisms)
