@@ -321,7 +321,7 @@ def md_validator():
     return jsonschema.Draft4Validator(json.loads(MD_SCHEMA.read_text()))
 
 
-def reconcile_dir(out_dir, files: dict) -> tuple:
+def reconcile_dir(out_dir, files: dict, identity=None) -> tuple:
     """Make out_dir hold EXACTLY {relative-name: text content}, touching only
     what changed. A file whose content already matches is left untouched — its
     mtime preserved — so re-running is silence on disk (L1) and a synced
@@ -330,10 +330,19 @@ def reconcile_dir(out_dir, files: dict) -> tuple:
     a rename would otherwise strand — the one thing the old wholesale rmtree got
     right). Reconciling rather than wiping also keeps the previous output intact
     to diff against: you cannot check parity against a directory you deleted
-    first. Returns (written, unchanged, removed)."""
+    first.
+
+    A renumber is a rename, not a prune (#419): with `identity` (a callable
+    text -> id, e.g. conv_id), a departing file whose identity survives under
+    an arriving name counts as RENAMED — routine, by design, ordinals being
+    presentation — while a departing identity absent from the arrivals is a
+    true prune, returned BY NAME so the caller can state its because; a bare
+    count is indistinguishable from data loss at exactly the moment it matters.
+    Returns (written, unchanged, renamed, pruned_names)."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    written = unchanged = removed = 0
+    written = unchanged = renamed = 0
+    pruned = []
     for name, content in files.items():
         target = out_dir / name
         if target.exists() and target.read_text() == content:
@@ -343,8 +352,14 @@ def reconcile_dir(out_dir, files: dict) -> tuple:
         target.write_text(content)
         written += 1
     keep = set(files)
+    arriving_ids = ({identity(content) for content in files.values()} - {None}
+                    if identity else set())
     for f in out_dir.rglob('*'):
         if f.is_file() and f.name != '.DS_Store' and str(f.relative_to(out_dir)) not in keep:
+            departing_id = identity(f.read_text()) if identity else None
+            if departing_id is not None and departing_id in arriving_ids:
+                renamed += 1
+            else:
+                pruned.append(str(f.relative_to(out_dir)))
             f.unlink()
-            removed += 1
-    return written, unchanged, removed
+    return written, unchanged, renamed, pruned

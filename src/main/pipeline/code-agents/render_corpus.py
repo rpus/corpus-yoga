@@ -91,10 +91,12 @@ def main() -> int:
     for i, c in enumerate(convs, 1):
         name = assign_name(c['title'] or c['session_id'][:8], c['session_id'], seen)
         files[f'{i:0{width}d}-{name}.md'] = render_session(c)
-    written, unchanged, removed = reconcile_dir(out, files)
+    written, unchanged, _renamed, pruned = reconcile_dir(out, files)
     rel = out.relative_to(REPO) if out.is_relative_to(REPO) else out
     print(f'code: {len(files)} session(s) to {rel} — '
-          f'{written} written, {unchanged} unchanged, {removed} pruned')
+          f'{written} written, {unchanged} unchanged, {len(pruned)} pruned')
+    for name in pruned:
+        print(f'  pruned: {name} — its session left the store')
     return 0
 
 

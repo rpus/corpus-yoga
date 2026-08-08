@@ -112,12 +112,17 @@ def main():
                   f'recapture before trusting either.')
 
     # reconcile, not wipe: unchanged scrapes keep their mtime (no needless iCloud
-    # re-upload of the whole tree each run); departed ones are pruned as orphans
-    w, u, r = reconcile_dir(out, files)
+    # re-upload of the whole tree each run). Identity is conv_id (#419): a
+    # renumbered ordering renames every output, and 27 renames once printed as
+    # '27 pruned' — indistinguishable from a purge in the one line that mattered.
+    w, u, ren, pruned = reconcile_dir(out, files, identity=conv_id)
     # --out takes any path, so the summary cannot assume this one is inside the repo
     shown = out.relative_to(REPO) if out.resolve().is_relative_to(REPO) else out
     print(f'gemini: {len(files)} scrape(s) to {shown} (anchored) — '
-          f'{w} written, {u} unchanged, {r} pruned')
+          f'{w} written, {u} unchanged, {ren} renamed by the new ordering, '
+          f'{len(pruned)} pruned')
+    for name in pruned:
+        print(f'  pruned: {name} — its capture departed from data/input/gemini/chat/browser-DOM/')
 
 
 if __name__ == '__main__':

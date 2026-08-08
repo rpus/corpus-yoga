@@ -156,9 +156,11 @@ def render(deposits, out_dir):
                     out += [f'## {name}', '']
                 out += [str(value).rstrip(), '']
         files[f'{f.stem}.md'] = '\n'.join(out).rstrip() + '\n'
-    w, u, r = reconcile_dir(out_dir, files)
+    w, u, _ren, pruned = reconcile_dir(out_dir, files)
     shown = out_dir.relative_to(REPO) if out_dir.is_relative_to(REPO) else out_dir
-    print(f'{len(deposits)} memory snapshot(s) to {shown} — {w} written, {u} unchanged, {r} pruned')
+    print(f'{len(deposits)} memory snapshot(s) to {shown} — {w} written, {u} unchanged, {len(pruned)} pruned')
+    for name in pruned:
+        print(f'  pruned: {name} — its deposit is gone')
 
 
 def status(memories_output: Path, chat_exports_cache: Path) -> int:
