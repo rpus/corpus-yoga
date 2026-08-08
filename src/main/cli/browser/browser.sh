@@ -43,7 +43,7 @@ main() {
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (yoga browser -h for details)" >&2; exit 1 ;;
   esac
-  local provider="" mechanism="" id="" dry_run=""
+  local provider="" mechanism="" id="" dry_run="" files=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --provider)
@@ -57,6 +57,7 @@ main() {
           *) echo "error: --mechanism takes API | DOM (got: ${2-})" >&2; exit 1 ;;
         esac ;;
       --dry-run) dry_run="1"; shift ;;
+      --files)   files="1";   shift ;;
       --id)
         case "${2-}" in
           ''|--*) echo "error: --id takes a conversation id (got: ${2-})" >&2; exit 1 ;;
@@ -72,6 +73,10 @@ main() {
   # --provider, and asking is better than guessing wrong and capturing into the wrong tree.
   if [[ -n "$id" && -z "$provider" ]]; then
     echo "error: --id names one conversation, and an id's shape does not say whose — pass --provider claude|gemini with it" >&2
+    exit 1
+  fi
+  if [[ -n "$files" && "$provider" != "claude" ]]; then
+    echo "error: --files is a claude acquisition (the API captures name the handles) — pass --provider claude" >&2
     exit 1
   fi
 
@@ -122,7 +127,7 @@ main() {
     mechs="${provider_mechs[$i]}"
     echo "$p: capturing by ${mechs//+/ and }" | tee -a "${logs[$i]}"
     "$SCRIPT_DIR/safari_capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
-      ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
+      ${id:+--id "$id"} ${dry_run:+--dry-run} ${files:+--files} || rc=$?
     i=$((i + 1))
   done
   return $rc

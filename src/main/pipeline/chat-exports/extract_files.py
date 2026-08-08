@@ -11,7 +11,7 @@ Group output by conversation under:
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered()
 (created_at order, 1-based) — the same name used by the atomised json/ and the timeline.
-The durable library data/output/artifacts/downloaded/ is keyed by identity instead
+The durable library data/output/artifacts/claude/chat/downloaded/ is keyed by identity instead
 (<ordinal>-<slug>-<uuid8>, resolved via src/main/pipeline/chat-exports/library.py — ordinals renumber
 between batches, uuids don't); files new to the library are copied there and named
 individually in this run's log (the delta is information, not a second copy).

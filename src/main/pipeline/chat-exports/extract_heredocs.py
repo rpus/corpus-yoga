@@ -15,7 +15,7 @@ Groups output by conversation under:
     tmp/cache/<export-name>/extracted_heredocs/<ordinal>-<slug>/working/<filename>   ← /home/claude/
 
 where <ordinal>-<slug> is the canonical conversation name from markdown_projection.ordered().
-The durable library data/output/artifacts/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
+The durable library data/output/artifacts/claude/chat/downloaded/ is keyed by identity instead (<ordinal>-<slug>-<uuid8>,
 resolved via library.py); files new to the library are copied there and named individually
 in this run's log (the delta is information, not a second copy).
 

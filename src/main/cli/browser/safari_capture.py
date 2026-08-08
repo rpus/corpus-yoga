@@ -46,7 +46,7 @@ from pathlib import Path
 from safari_utils import (  # type: ignore[import-not-found]
     osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_open_work_tab, safari_close_work_tab,
-    safari_fetch_api_json, collect_md_and_log, process_chain,
+    safari_fetch_api_json, safari_fetch_asset, collect_md_and_log, process_chain,
     SendRefused,
     PAGE_LOAD_WAIT,
 )
@@ -485,6 +485,87 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     return failed
 
 
+def asset_handles(conv_json):
+    """The fetchable file handles one API capture names (#422): each files[]
+    entry's best asset URL — the document original where one exists, else the
+    image preview — with its file_name. Attachments carry their text inline
+    (extracted_content) and name no asset URL; they are not handles."""
+    out = []
+    for m in conv_json.get('chat_messages', []):
+        for f in (m.get('files') or []):
+            url = ((f.get('document_asset') or {}).get('url')
+                   or f.get('preview_url')
+                   or (f.get('thumbnail_asset') or {}).get('url'))
+            name = f.get('file_name')
+            if url and name:
+                out.append((url, name))
+    return out
+
+
+def fetch_files(api_root):
+    """yoga browser capture --files (#422): walk every captured conversation's
+    files[] handles and fetch what the library does not hold, through the
+    logged-in Safari session — the hand-download flow become acquisition. The
+    work-list IS the gap: a handle whose file stands in the library is skipped,
+    so re-running is silence. By-hand remains the stated fallback for whatever
+    a handle does not name."""
+    sys.path.insert(0, str(REPO_DIR / 'src' / 'main' / 'pipeline' / 'chat-exports'))
+    from library import dir_for, migration_note  # noqa: E402 — the artifact library, one authority (#421)
+    from markdown_projection import corpus_index  # noqa: E402
+    migration_note()
+    if not api_root.is_dir():
+        emit(f'no API captures at {rel(api_root)} — nothing names any file handle; '
+             'capture conversations first: yoga browser capture --provider claude')
+        return []
+    dressing = {}
+    md_root = REPO_DIR / 'data' / 'output' / 'markdown'
+    if md_root.is_dir():
+        dressing = {cid: f'{n:03d}-{stem.rsplit("/", 1)[-1].split("-", 1)[-1]}'
+                    for n, stem, _title, cid in corpus_index(str(md_root))}
+    work = []
+    present = 0
+    for conv_dir in sorted(p for p in api_root.iterdir() if p.is_dir()):
+        j = conv_dir / f'{conv_dir.name}.json'
+        if not j.is_file():
+            continue
+        handles = asset_handles(json.loads(j.read_text()))
+        if not handles:
+            continue
+        lib_dir = dir_for(conv_dir.name, dressing.get(conv_dir.name, ''))
+        for url, name in handles:
+            if (lib_dir / name).exists():
+                present += 1
+            else:
+                work.append((conv_dir.name, lib_dir, url, name))
+    emit(f'extent: {present + len(work)} file handle(s) named by the captures — '
+         f'{present} in the library, {len(work)} to fetch')
+    if not work:
+        return []
+    safari_focus()
+    prev_tab = safari_open_work_tab()
+    failed = []
+    try:
+        safari_navigate('https://claude.ai/chats')   # any logged-in page carries the session
+        time.sleep(PAGE_LOAD_WAIT)
+        RUN['total'] += len(work)
+        for i, (uuid, lib_dir, url, name) in enumerate(work):
+            RUN['at'] = f'[{i+1}/{len(work)}] {uuid} {name}'
+            print(f'[{i+1}/{len(work)}] {uuid}: {name} ← {url}')
+            got = safari_fetch_asset(url, name)
+            if got is None:
+                failed.append((f'{uuid}/{name}', 'no download arrived — see the run log'))
+                emit(f'[{i+1}/{len(work)}] {uuid}: {name} — FAILED (no download arrived)')
+                continue
+            lib_dir.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(got), lib_dir / name)
+            RUN['done'] += 1
+            emit(f'[{i+1}/{len(work)}] {uuid}: {name} — done → {rel(lib_dir)}/')
+    finally:
+        safari_close_work_tab(prev_tab)
+    RUN['failed'].extend(failed)
+    return failed
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--provider', choices=sorted(PROVIDERS),
@@ -501,6 +582,9 @@ def main():
                          'else navigated to in a work tab; default is to discover and capture all')
     ap.add_argument('--mechanism', choices=['API', 'DOM'], default=None,
                     help='restrict to one mechanism (default: every mechanism this provider has)')
+    ap.add_argument('--files', action='store_true',
+                    help='fetch the file assets the API captures name into the artifact '
+                         'library (#422) — claude only; the work-list is the library gap')
     ap.add_argument('--dry-run', action='store_true',
                     help='discover and state the extent (captured / never-captured), '
                          'then stop — the bracket\'s first call run alone; captures nothing')
@@ -557,6 +641,15 @@ def main():
     # one root per mechanism in scope; dirs appear only when captured into
     api_root = Path(args.browser_api or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'browser-API').resolve()
     dom_root = Path(args.browser_dom or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'browser-DOM').resolve()
+
+    if args.files:
+        if args.provider != 'claude':
+            print(f'--files is a claude acquisition (the API captures name the handles); '
+                  f'{args.provider} has none', file=sys.stderr)
+            raise SystemExit(1)
+        failed = fetch_files(api_root)
+        footer()
+        raise SystemExit(1 if failed else 0)
     if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
     if 'DOM' in mechanisms:

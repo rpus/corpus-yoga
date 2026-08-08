@@ -9,7 +9,7 @@ sources:
     source   description
     ───────  ─────────────────────────────────────────────────────────────────
     tooltip  Paths from data-files.json, which is derived from
-             data/output/artifacts/downloaded/ by files_from_downloaded.py.
+             data/output/artifacts/claude/chat/downloaded/ by files_from_downloaded.py.
              This is what the index.html tooltip shows.
     ef       Files written to tmp/cache/<export>/extracted_files/ by src/main/pipeline/chat-exports/extract_files.py
              (from create_file tool calls).
@@ -17,7 +17,7 @@ sources:
              by src/main/pipeline/chat-exports/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
     eh_wrk   Files written to tmp/cache/<export>/extracted_heredocs/<chat>/working/
              by src/main/pipeline/chat-exports/extract_heredocs.py (heredoc target was /home/claude/).
-    dl       Files in the durable library data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/
+    dl       Files in the durable library data/output/artifacts/claude/chat/downloaded/<ordinal>-<slug>-<uuid8>/
              (manually downloaded from the claude.ai UI; joined by uuid via
              library.py and the uuid column of data-chats.json — library names
              survive the renumbering that batch ordinals don't).
@@ -30,7 +30,7 @@ Columns
     path          Path as it appears in this source (relative to the chat/bucket
                   root; no container prefix).
     in_dl         For ef/eh_out/eh_wrk rows: Y if a counterpart exists in
-                  data/output/artifacts/downloaded at the expected path; N otherwise.
+                  data/output/artifacts/claude/chat/downloaded at the expected path; N otherwise.
                   Empty for tooltip and dl rows.
     dl_compare    For ef/eh_out/eh_wrk rows: comparison result against the
                   downloaded counterpart —
@@ -42,9 +42,9 @@ Columns
 
 Downloaded path conventions
 ────────────────────────────
-    ef      data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
-    eh_out  data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
-    eh_wrk  data/output/artifacts/downloaded/<ordinal>-<slug>-<uuid8>/working/<path>  (bucket preserved)
+    ef      data/output/artifacts/claude/chat/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
+    eh_out  data/output/artifacts/claude/chat/downloaded/<ordinal>-<slug>-<uuid8>/<path>          (no bucket)
+    eh_wrk  data/output/artifacts/claude/chat/downloaded/<ordinal>-<slug>-<uuid8>/working/<path>  (bucket preserved)
 
 Usage
 ─────
