@@ -4,14 +4,14 @@
 # The `yoga browser` target.
 #
 # Scope is two independent restrictions, intersected. Neither adds: a provider has the
-# mechanisms it has (claude API and DOM, gemini DOM); a restriction only takes some away.
+# mechanisms it has (claude API — DOM retired, #418; gemini DOM); a restriction only takes some away.
 #
 # Usage:
 #   yoga browser                                      # free, local: are the captures any good?
 #   yoga browser capture                              # every provider, every mechanism it has
 #   yoga browser capture --mechanism API              # only what an API can give: claude
 #   yoga browser capture --provider gemini            # gemini, by the DOM walk it has
-#   yoga browser capture --provider claude --dry-run  # LIVE extent: what has moved on, no capture
+#   yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   yoga browser capture --provider claude --id <id>  # one conversation
 #
 #   --id requires --provider: an id's shape cannot say whose it is, and restrictions that
@@ -91,30 +91,18 @@ main() {
     exit 1
   fi
 
-  # Capture-health baseline before the run — the before/after delta lands in the same
-  # log. Suspects here are the reason to capture, not an error.
+  # No audit preamble (#418): the capture-health audit is bare `yoga browser`'s
+  # own output, on demand — re-running it before every capture duplicated what
+  # the bare noun already answers, and its bulk (consistency QA of
+  # already-captured data) is not about what this run will do. The capture's
+  # bracket is its EXTENT — captured / never-captured — computed by
+  # safari_capture.py from the discovery the run performs anyway; --dry-run is
+  # that first call run alone (G19: discovery + extent, nothing captured),
+  # forwarded below like any other restriction.
   #
-  # Under --dry-run this is the WHOLE command: the extent, then stop. It needs no separate
-  # implementation because it IS the bracket's first call (G19), which is also why it
-  # cannot lie about an effect it did not perform. --live is what the retired `browser
-  # check` verb ran; as a flag on capture it inherits capture's restrictions, so the
-  # gemini walk — a page load per captured conversation — can be declined by naming
-  # claude, which no separate verb allowed.
-  local audit=(--input "$REPO_DIR/data/input"
-               --api "$REPO_DIR/data/output/markdown/claude/chat/conversations")
-  [[ -n "$provider" ]] && audit+=(--provider "$provider")
-  if [[ -n "$dry_run" ]]; then
-    local rc_audit=0
-    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" "${audit[@]}" --live || rc_audit=$?
-    echo "--dry-run: nothing captured — the extent above is what \`capture\` would act on"
-    return $rc_audit
-  fi
-  # The audit preamble is the capture's leading bracket (G19) and belongs in the
-  # record (#412): each in-scope provider's run log is named HERE and opens with
-  # the preamble (tee'd into every one — the same status precedes each provider's
-  # narrative), then handed down via --run-log for the capture to append.
-  # PYTHONUNBUFFERED keeps the tee line-live: nothing sits in a pipe buffer a
-  # ctrl-C could erase (#415).
+  # The run logs are still named HERE (#412/#413): browser.sh opens each with
+  # the "capturing by" line and hands it down via --run-log for the capture to
+  # append — one anchored record per provider, preamble or no preamble.
   local stamp providers=() provider_mechs=() logs=() p mechs
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
   while read -r p mechs; do
@@ -124,7 +112,6 @@ main() {
     logs+=("$REPO_DIR/tmp/logs/browser/capture/$p/$stamp.log")
     mkdir -p "$REPO_DIR/tmp/logs/browser/capture/$p"
   done <<< "$scope"
-  PYTHONUNBUFFERED=1 "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" "${audit[@]}" 2>&1 | tee -a "${logs[@]}" || true
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
   # safari_capture.py's declaration, so this loop holds no second copy of which
@@ -135,7 +122,7 @@ main() {
     mechs="${provider_mechs[$i]}"
     echo "$p: capturing by ${mechs//+/ and }" | tee -a "${logs[$i]}"
     "$SCRIPT_DIR/safari_capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
-      ${id:+--id "$id"} || rc=$?
+      ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
   return $rc

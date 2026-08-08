@@ -17,18 +17,18 @@
       "name": "--id",
       "type": "<id>",
       "cardinality": "",
-      "help": "capture ONE conversation (the audit WARNs name it); requires --provider \u2014 an id's shape does not say whose it is"
+      "help": "capture ONE conversation (the audit WARNs name it); requires --provider — an id's shape does not say whose it is"
     },
     {
       "name": "--dry-run",
       "type": "",
       "cardinality": "",
-      "help": "LIVE: fetch each provider's listing, name what is NEW and PROGRESSED, and stop \u2014 captures nothing (a send: it reaches the listings)"
+      "help": "discover and state the extent (captured / never-captured), then stop — captures nothing, writes nothing"
     }
   ],
   "sends": {
     "osascript": [
-      "drives Safari against the logged-in session \u2014 navigating, and evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
+      "drives Safari against the logged-in session — navigating, and evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
     ],
     "urllib.request (claude.ai API)": [
       "fetches conversations over the session's own authenticated API (refused loudly under YOGA_NO_SEND)"

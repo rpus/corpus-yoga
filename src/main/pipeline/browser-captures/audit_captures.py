@@ -154,8 +154,9 @@ def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[st
         else:
             # a lagging DOM capture is not a loss, but re-capturing IS the action if you
             # want it current — so the remedy stays, at INFO
-            print(f'    → run: yoga browser capture --provider claude --mechanism DOM --id {uuid}'
-                  '  # re-capture just this one (Safari) — or delete its DOM capture')
+            # claude's DOM is retired (#418): the one remedy is deletion — no
+            # advice line may name a retired mechanism as a thing to run.
+            print('    delete its DOM capture — the record (the API capture) holds the conversation')
     unscraped = sum(1 for d in api_capture_dir.iterdir()
                     if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
     if unscraped:
