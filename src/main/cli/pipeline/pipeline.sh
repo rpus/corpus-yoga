@@ -368,7 +368,7 @@ run_corpus_tail() {
   # guards): dashboard's read-only status IS its L9 mechanism, probed here so
   # its INFO currency atoms (re-render is free; captures lag the corpus) reach
   # the tail via hoisting. step_ok: a currency nudge informs, never gates.
-  step_ok dashboard "$REPO_ROOT/src/main/pipeline/chat-exports/dashboard.sh"
+  step_ok dashboard "$REPO_ROOT/src/main/pipeline/chat-exports/dashboard_status.sh"
 }
 
 # The pipelines' own --plan output is the one authority on their step order

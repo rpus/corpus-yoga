@@ -141,7 +141,7 @@ They are stated, followed, and reviewed by people.
   has not earned: `yoga dashboard capture` prints an exact coverage join before spending and
   nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
   counted rows. Stated first, and for a long time only, as a parenthetical in
-  `src/main/pipeline/chat-exports/dashboard.sh` — the same file that implements half of it.
+  `src/main/cli/dashboard/dashboard.sh` — the same file that implements half of it.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
   INVOCATION FORMS, each becoming its own line in `yoga commands` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
