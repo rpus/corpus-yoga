@@ -25,25 +25,35 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 
 main() {
+  # --run-log: a caller that already opened the run's log (browser.sh, whose
+  # audit preamble is its first content) hands it down; the capture narrative
+  # appends. Without it — the applescripts, a direct run — this file names one.
+  local run_log=""
+  if [[ "${1-}" == "--run-log" ]]; then run_log="$2"; shift 2; fi
   local provider=""
   case "${1-}" in
     --provider) provider="$2"; shift 2 ;;
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: $0 --provider claude|gemini [--id <id>]" >&2; exit 1 ;;
+    *) echo "Usage: $0 [--run-log <path>] --provider claude|gemini [--id <id>]" >&2; exit 1 ;;
   esac
   if [[ "$provider" != "claude" && "$provider" != "gemini" ]]; then
-    echo "Usage: $0 --provider claude|gemini [--id <id>]" >&2; exit 1
+    echo "Usage: $0 [--run-log <path>] --provider claude|gemini [--id <id>]" >&2; exit 1
   fi
   echo "src/main/cli/browser/$(basename "$0") ($provider)"
   local log rc=0
-  log="$REPO_DIR/tmp/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+  log="${run_log:-$REPO_DIR/tmp/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H%M%SZ').log}"
   mkdir -p "$(dirname "$log")"
   # Name the log FIRST: a Shortcut invocation shows this output in a transient
   # dialog (if at all), and any 'see the run log' advice is useless unless the
   # log's own path has been said out loud somewhere durable-feeling.
   echo "Log: $log"
-  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" --provider "$provider" "$@" \
-    2>&1 | tee "$log" || rc=$?
+  # No tee (#413/#415): the python owns both channels — the full narrative goes
+  # to the run log (line-buffered, anchored before any work), the terminal gets
+  # the anchor, one line per conversation, and the verdict. A pipe here once
+  # held the whole story in a buffer a ctrl-C erased while the terminal had
+  # shown it — the 0-byte-log class.
+  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" \
+    --provider "$provider" --run-log "$log" "$@" || rc=$?
   echo "Log: $log"
   return $rc
 }

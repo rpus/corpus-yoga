@@ -38,6 +38,7 @@ Usage:
 import argparse
 import json
 import shutil
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -56,6 +57,79 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_DIR = _root[0]
 SCRIPT_DIR     = Path(__file__).resolve().parent
+
+# ── channels (#413): the run log carries the narrative, the terminal the anchor,
+# one line per conversation, and the verdict. TERM is the real terminal; when
+# --run-log is given, sys.stdout becomes the log (line-buffered — nothing sits
+# in a buffer a ctrl-C could erase, #415) and sys.stderr writes to both.
+TERM = sys.stdout
+
+
+def emit(line=''):
+    """A terminal-altitude line: printed to the terminal, recorded in the log
+    (they are the same stream until --run-log splits them)."""
+    print(line)
+    if TERM is not sys.stdout:
+        print(line, file=TERM, flush=True)
+
+
+class _BothStreams:
+    """stderr under --run-log: failures belong on the terminal AND in the record."""
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, s):
+        for st in self.streams:
+            st.write(s)
+        self.flush()
+
+    def flush(self):
+        for st in self.streams:
+            try:
+                st.flush()
+            except OSError:
+                pass
+
+
+def rel(path):
+    """The repo-relative spelling of a path where one exists (#412): logs speak
+    the repo's addresses, never a resolved machine path."""
+    try:
+        return str(Path(path).resolve().relative_to(REPO_DIR))
+    except ValueError:
+        return str(path)
+
+
+# The run's own tally, written by capture_all and read by the footer — including
+# the interrupted footer, which must say how far the run got (#415).
+RUN = {'t0': None, 'total': 0, 'done': 0, 'failed': [], 'at': '', 'log': None}
+
+
+def anchor(provider, mechanisms, conv_id):
+    """The log's first words (#412): stamp, room, commit, invocation — written
+    before any work, so a wordless log is impossible."""
+    binding = REPO_DIR / 'machine-name.txt'
+    room = binding.read_text().strip() if binding.exists() else '(unbound room)'
+    head = subprocess.run(['git', '-C', str(REPO_DIR), 'rev-parse', '--short', 'HEAD'],
+                          capture_output=True, text=True).stdout.strip() or '(no commit)'
+    dirty = bool(subprocess.run(['git', '-C', str(REPO_DIR), 'status', '--porcelain'],
+                                capture_output=True, text=True).stdout.strip())
+    stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    what = f'--provider {provider} --mechanism {"+".join(mechanisms)}' + (f' --id {conv_id}' if conv_id else '')
+    emit(f'{stamp} · {room} · {head}{" (dirty)" if dirty else ""}')
+    emit(f'yoga browser capture {what}')
+
+
+def footer(interrupted=False):
+    """The run's last words, on both channels: captured N of M, the failures by
+    id with their reasons, wall-clock. A ctrl-C is a verdict, not an eraser."""
+    dt = time.time() - RUN['t0'] if RUN['t0'] else 0
+    verdict = 'INTERRUPTED (ctrl-C)' if interrupted else 'done'
+    at = f' at {RUN["at"]}' if interrupted and RUN['at'] else ''
+    emit(f'--- {verdict}{at}: {RUN["done"]}/{RUN["total"]} captured, '
+         f'{len(RUN["failed"])} failed · {dt:.0f}s ---')
+    for cid, why in RUN['failed']:
+        emit(f'    {cid}: {why}')
 SETTLE_PAUSE   = 2
 READY_TIMEOUT  = 15   # first wait for a render; the caller retries 4x longer (see wait_for_ready)
 SCRAPE_START_TIMEOUT = 5    # the scrape JS must signal window.__scrape within this, else it never ran
@@ -112,10 +186,13 @@ def write_ordering(cfg, ids, dom_root):
         '# appends); the id is the identity. Refreshed by every discovery sweep\n'
         '# (safari_capture ids_from_safari → write_ordering); consumed by\n'
         '# copy_gemini_markdown for NN- naming.\n'
-        f'# Captured {time.strftime("%Y-%m-%d")}.\n'
+        # Provenance, not a clock-label: the run log holds the sweep this listing
+        # came from, and its stamped name carries the when.
+        + (f'# Captured by yoga browser capture — run log: {rel(RUN["log"])}\n'
+           if RUN['log'] else '# Captured by safari_capture.py (no run log named).\n')
     )
     out.write_text(header + '\n'.join(reversed(ids)) + '\n')
-    print(f'ordering: {len(ids)} conversation(s) → {out}')
+    print(f'ordering: {len(ids)} conversation(s) → {rel(out)}')
 
 
 def outcome(do_api, do_scrape, files, had_md):
@@ -292,16 +369,23 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
     js_script = SCRIPT_DIR / provider / 'browser-chat-capture.js'
     # per-conversation scrape diagnostics go under tmp/logs/ (data/input/ holds captured data only)
     scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'browser' / 'capture' / provider / 'scrape'
-    label = 'discover' if navigate else 'capture'
+    # The operation is CAPTURE either way — discovery is ids_from_safari, the
+    # listing sweep that found the ids; navigate is a mode, not a name. The old
+    # label spelled the whole pass 'discover', so a 52-minute capture log opened
+    # '--- discover started ---' and a logged-out no-op read 'discover: nothing
+    # to do' — wrong twice in five words.
+    label = 'capture'
     methods = '+'.join(m for m, on in (('API', do_api), ('DOM', do_scrape)) if on)
     if not ids:
-        print(f'{label}: nothing to do')
+        emit(f'{label}: nothing to do')
         return []
+    RUN['total'] += len(ids)
     print(f'--- {label} started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
-    print(f'capturing {len(ids)} conversations ({methods})')
+    emit(f'capturing {len(ids)} conversations ({methods})')
     safari_focus()
     failed = []
     for i, conv_id in enumerate(ids):
+        RUN['at'] = f'[{i+1}/{len(ids)}] {conv_id}'
         print(f'[{i+1}/{len(ids)}] {conv_id}')
         # one dir per mechanism, both named by the conversation id (the join key);
         # created only for the mechanism(s) this run performs — no empty twins
@@ -334,23 +418,23 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
                         print(f'  still no {cfg["ready_sel"]} after {READY_TIMEOUT * 5}s at {where} — scraping anyway')
             safari_eval_js(f'window.__capture_progress = "{i + 1}/{len(ids)}"')  # in-page "conversation i/N"
             files += scrape_one(dom_dir, js_script, scrape_log_dir) or []
-        print(f'  done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}')
         fatal, note = outcome(do_api, do_scrape, files, had_md)
         if note:
             print(f'  note: {note}', file=sys.stderr)
+        verdict = f'FAILED — {fatal}' if fatal else f'done in {time.time() - start:.0f}s — {", ".join(files) or "(no files)"}'
+        emit(f'[{i+1}/{len(ids)}] {conv_id} — {verdict}')
         if fatal:
             failed.append((conv_id, fatal))
+        else:
+            RUN['done'] += 1
     print(f'--- {label} finished {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
-    if failed:
-        print(f'\n⚠ {len(failed)}/{len(ids)} failed:', file=sys.stderr)
-        for cid, why in failed:
-            print(f'    {cid}: {why}', file=sys.stderr)
-        if len(ids) > 1:
-            # a sweep's bulk remedy, beside the per-item ones above: fix the cause
-            # the FAIL lines name, then re-sweep — named as the command a reader types
-            print('    → run: yoga browser capture'
-                  '  # re-sweep after fixing the cause(s) the FAIL lines above name',
-                  file=sys.stderr)
+    RUN['failed'].extend(failed)
+    if failed and len(ids) > 1:
+        # the sweep's bulk remedy, beside the footer's per-item lines: fix the cause
+        # the FAIL lines name, then re-sweep — named as the command a reader types
+        print('    → run: yoga browser capture'
+              '  # re-sweep after fixing the cause(s) the FAIL lines above name',
+              file=sys.stderr)
     return failed
 
 
@@ -370,7 +454,22 @@ def main():
                          'else navigated to in a work tab; default is to discover and capture all')
     ap.add_argument('--mechanism', choices=['API', 'DOM'], default=None,
                     help='restrict to one mechanism (default: every mechanism this provider has)')
+    ap.add_argument('--run-log', default=None,
+                    help='the run log safari_capture.sh names: stdout becomes this file '
+                         '(line-buffered), the terminal keeps the anchor, one line per '
+                         'conversation, and the verdict (#413)')
     args = ap.parse_args()
+
+    # The channel split (#413), before any work: the log is opened and anchored
+    # first (#412 — a wordless log is impossible), the terminal kept for the
+    # human-altitude lines via TERM/emit, stderr on both.
+    global TERM
+    if args.run_log:
+        # append: browser.sh may have opened this log with the audit preamble
+        log_fh = open(args.run_log, 'a', buffering=1)
+        TERM = sys.stdout
+        sys.stdout = log_fh
+        sys.stderr = _BothStreams(log_fh, sys.__stderr__)
 
     # `<provider> <mechanism>+…` per provider the restrictions leave non-empty. The one
     # place the declaration is read by anyone but this file: browser.sh loops over these
@@ -397,6 +496,8 @@ def main():
         print(f'{args.provider} has no {args.mechanism} mechanism — it has '
               f'{", ".join(cfg["mechanisms"])}; nothing to capture', file=sys.stderr)
         raise SystemExit(1)
+    RUN['t0'] = time.time()
+    anchor(args.provider, mechanisms, args.id)
     if 'DOM' in mechanisms:
         js_script = SCRIPT_DIR / args.provider / 'browser-chat-capture.js'
         if not js_script.exists():
@@ -440,6 +541,7 @@ def main():
                                  navigate=True, mechanisms=mechanisms)
         finally:
             safari_close_work_tab(prev_tab)
+    footer()
     if failed:
         raise SystemExit(1)
 
@@ -452,3 +554,9 @@ if __name__ == '__main__':
         # no result to report -- it was refused before reaching the account.
         print(e, file=sys.stderr)
         raise SystemExit(3)
+    except KeyboardInterrupt:
+        # A ctrl-C is a verdict the log records, never an eraser (#415): the
+        # anchor is already down, everything shown is already flushed
+        # (line-buffered), and the footer says how far the run got.
+        footer(interrupted=True)
+        raise SystemExit(130)
