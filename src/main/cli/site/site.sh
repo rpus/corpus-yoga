@@ -42,7 +42,10 @@ page_files() {  # <root>
 status() {
   echo "site — publish tree: data/output/site/ (rpus.co); sources: rsc/site/"
   if [[ ! -d "$OUT" ]]; then
-    echo "  – tree absent → run: yoga site sync"
+    # The page dirs are the rpus.co publish layer — deploy-side, optional; the
+    # quickstart teaches only the render. Prescribing sync here made every
+    # pipeline run nag a verb the front door never taught.
+    echo "  – page dirs absent (the rpus.co publish layer) — optional: yoga site sync assembles them"
   else
     local f stale=0
     while IFS= read -r f; do
@@ -62,8 +65,11 @@ status() {
     done < <(page_files "$SRC" | grep '\.dot$' || true)
     [[ $stale -eq 0 ]] && echo "  ✓ page dirs current with rsc/site/ (renders included)"
     [[ $stale -eq 1 ]] && echo "    → run: yoga site sync"
-    render_currency
   fi
+  # The corpus page is its own layer (render's, the quickstart's subject):
+  # stated ALWAYS — an absent tree must not silence the one site verb the
+  # front door teaches.
+  render_currency
   command -v dot >/dev/null || echo "  – graphviz absent: sync will skip the .dot renders → install via: brew install graphviz"
   if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
     echo "deploy: cp -R data/output/site/ ext/mnt/site/ — the mount is present (then commit + push there)"

@@ -12,7 +12,7 @@ corpus.
 ./yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
 ./yoga indexing capture       # PAID: the model re-reads the corpus for the index tables
-./yoga site render            # publish: render the corpus page from corpus + captures
+./yoga site render            # render the corpus page from corpus + captures
 ./yoga test run               # the dev gate: the three-tier hermetic suite
 ```
 
