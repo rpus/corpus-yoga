@@ -681,7 +681,7 @@ def check_index_curation(run, fix) -> None:
     candidates), a rebuildable workshop file, not a committed artifact."""
     concepts = inferred_concepts()
     if not concepts:
-        print('  – skipped: no concept capture yet (data/output/dashboard/semantic-concepts.json — run `yoga dashboard capture`)')
+        print('  – skipped: no concept capture yet (data/output/dashboard/semantic-concepts.json — run `yoga indexing capture`)')
         return
     pending = set(pending_concepts(REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt',
                                    REPO_ROOT / 'data' / 'output' / 'indexing' / 'rejected.txt'))
@@ -2015,7 +2015,7 @@ def check_effects(run):
             if a[0] == b[0]:
                 continue
             # ownership is per-COMMAND: two verbs of one command share its workshop
-            # (dashboard sync and capture both stage tmp/cache/dashboard — one owner)
+            # (site render and indexing capture both stage tmp/cache/dashboard — one owner)
             if a[4] == b[4]:
                 continue
             pa, pb = a[1], b[1]

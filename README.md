@@ -11,6 +11,8 @@ corpus.
 ./yoga browser capture        # acquire: Safari sweep into data/input/
 ./yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./yoga server start --daemon  # read the corpus at http://localhost:8182
+./yoga indexing capture       # PAID: the model re-reads the corpus for the index tables
+./yoga site render            # render the corpus page from corpus + captures
 ./yoga test run               # the dev gate: the three-tier hermetic suite
 ```
 
@@ -53,8 +55,8 @@ Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
 (or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
 Code sessions: `yoga agent capture --all`. Paid model readings:
-`yoga dashboard capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
-reports it), rendered free by `yoga dashboard sync`. Batch disposal is computed, never assumed: `yoga supersede check`.
+`yoga indexing capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
+reports it), rendered free by `yoga site render`. Batch disposal is computed, never assumed: `yoga supersede check`.
 
 ## Prerequisites
 

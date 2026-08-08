@@ -1,5 +1,5 @@
 {
-  "help": "FREE — render the dashboard page from the captures + markdown corpus — idempotent",
+  "help": "FREE \u2014 render index.html, the corpus page, from the captures + markdown corpus \u2014 idempotent",
   "args": [],
   "r": [
     "data/output/markdown",
@@ -7,7 +7,7 @@
     "rsc/site/index.html"
   ],
   "w": [
-    "tmp/cache/dashboard",
+    "tmp/cache/site",
     "data/output/site/index.html"
   ]
 }

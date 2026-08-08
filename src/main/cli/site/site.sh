@@ -2,13 +2,14 @@
 # site.sh (yoga site) — the publish tree: data/output/site/<path> IS rpus.co/<path>.
 #
 # Usage:
-#   yoga site        # status: each artifact's presence and currency, and who produces it
-#   yoga site sync   # assemble the tree from rsc/site/ — page dirs copied, .dot rendered
+#   yoga site          # status: each artifact's presence and currency, and who produces it
+#   yoga site sync     # assemble the tree from rsc/site/ — page dirs copied, .dot rendered
+#   yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
-# The tree has two declared writers with disjoint files: site sync owns the page
-# directories (copied from rsc/site/, every .dot rendered to svg+png beside its page);
-# dashboard sync owns index.html at the root, the corpus page present_corpus.py writes
-# at its URL position. sync therefore never touches index.html. rsc/site/'s root FILES
+# The tree has two verbs with disjoint files: sync owns the page directories
+# (copied from rsc/site/, every .dot rendered to svg+png beside its page);
+# render owns index.html at the root, the corpus page present_corpus.py writes
+# at its URL position (#409 — formerly yoga dashboard sync). sync never touches index.html. rsc/site/'s root FILES
 # stay behind: index.html there is the presenters' template (an input, not a page) and
 # README.md documents the family. Without graphviz the renders are skipped, not failed.
 
@@ -19,13 +20,17 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 SRC="$REPO_DIR/rsc/site"
 OUT="$REPO_DIR/data/output/site"
+MODEL_DIR="$REPO_DIR/src/main/model"
+# shellcheck source=src/main/model/corpus_shape.sh
+source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 
 usage() {
   cat <<'EOF'
 yoga site — the rpus.co publish tree: data/output/site/ assembled from rsc/site/
 
-  yoga site        status: each artifact's presence and currency, and who produces it
-  yoga site sync   assemble the tree (page dirs copied, every .dot rendered to svg+png)
+  yoga site          status: each artifact's presence and currency, and who produces it
+  yoga site sync     assemble the tree (page dirs copied, every .dot rendered to svg+png)
+  yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
 EOF
 }
 
@@ -37,7 +42,10 @@ page_files() {  # <root>
 status() {
   echo "site — publish tree: data/output/site/ (rpus.co); sources: rsc/site/"
   if [[ ! -d "$OUT" ]]; then
-    echo "  – tree absent → run: yoga site sync"
+    # The page dirs are the rpus.co publish layer — deploy-side, optional; the
+    # quickstart teaches only the render. Prescribing sync here made every
+    # pipeline run nag a verb the front door never taught.
+    echo "  – page dirs absent (the rpus.co publish layer) — optional: yoga site sync assembles them"
   else
     local f stale=0
     while IFS= read -r f; do
@@ -57,12 +65,11 @@ status() {
     done < <(page_files "$SRC" | grep '\.dot$' || true)
     [[ $stale -eq 0 ]] && echo "  ✓ page dirs current with rsc/site/ (renders included)"
     [[ $stale -eq 1 ]] && echo "    → run: yoga site sync"
-    if [[ -f "$OUT/index.html" ]]; then
-      echo "  ✓ index.html (the corpus page; producer: yoga dashboard sync)"
-    else
-      echo "  – index.html absent → run: yoga dashboard sync"
-    fi
   fi
+  # The corpus page is its own layer (render's, the quickstart's subject):
+  # stated ALWAYS — an absent tree must not silence the one site verb the
+  # front door teaches.
+  render_currency
   command -v dot >/dev/null || echo "  – graphviz absent: sync will skip the .dot renders → install via: brew install graphviz"
   if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
     echo "deploy: cp -R data/output/site/ ext/mnt/site/ — the mount is present (then commit + push there)"
@@ -73,6 +80,37 @@ status() {
   else
     echo "deploy: no ext/mnt/site mount on this machine — optional; yoga prerequisites shows the convention"
   fi
+}
+
+# The render's own currency (#409 — the render-vs-inputs half of the report the
+# dashboard command carried before it dissolved; captures-vs-corpus is indexing's).
+# The -newer/-nt comparisons are the one advisory clock key surviving #369's
+# census, owned by this probe (#381): INFO atoms only, never a gate or a skip.
+render_currency() {
+  local corpus="$REPO_DIR/data/output/markdown"
+  local render="$OUT/index.html"
+  local d="$REPO_DIR/data/output/dashboard"
+  local f render_state
+  if [[ ! -f "$render" ]]; then
+    echo "  – index.html absent → run: yoga site render"
+    return 0
+  fi
+  local behind=''
+  [[ -n "$(find "$corpus" -path "$CONVERSATIONS_GLOB" -newer "$render" -print -quit 2>/dev/null)" ]]     && behind='corpus'
+  for f in semantic-concepts.json chat-categories.json; do
+    [[ "$d/$f" -nt "$render" ]] && { [[ "$behind" == *captures* ]] || behind="${behind:+$behind and }captures"; }
+  done
+  render_state="${behind:+behind ($behind changed since the render)}"
+  render_state="${render_state:-current}"
+  echo "  ✓ index.html (the corpus page; producer: yoga site render) — $render_state"
+  if [[ "$render_state" != current ]]; then
+    echo "INFO: the corpus page is $render_state — free to fix:"
+    echo "    → run: yoga site render   # FREE — re-render from the current corpus + captures"
+  fi
+}
+
+render() {
+  exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
 }
 
 sync() {
@@ -109,7 +147,7 @@ sync() {
     done < <(page_files "$SRC" | grep "^$name/" | grep '\.dot$' || true)
   done
   if [[ $eventful -eq 1 ]]; then
-    echo "DONE — effect: page dirs rebuilt; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays dashboard sync's)"
+    echo "DONE — effect: page dirs rebuilt; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
   else
     echo "DONE — no effect: data/output/site/ already serves rsc/site/ as authored"
   fi
@@ -118,6 +156,7 @@ sync() {
 case "${1:-}" in
   '')          status ;;
   sync)        shift; [[ $# -eq 0 ]] || { echo "site sync takes no arguments" >&2; exit 2; }; sync ;;
+  render)      shift; render "$@" ;;
   -h|--help)   usage ;;
   *)           echo "yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;
 esac

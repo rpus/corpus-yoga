@@ -63,7 +63,7 @@ reads the same wording whether reached via `yoga` or run directly — one source
 argparse still the authority on structure.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
-data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga dashboard` (model
+data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga indexing capture` (model
 captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
 committed in `src/main/cli/readings.md`.
 
@@ -118,7 +118,7 @@ They are stated, followed, and reviewed by people.
 ### The table
 
 - **G1 — A verb means one thing everywhere it appears.** `doctrine (#49)` `from L1` — `capture` acquires
-  (`browser capture`, `dashboard capture`, `agent capture` all *bring data in*, from
+  (`browser capture`, `indexing capture`, `agent capture` all *bring data in*, from
   Safari, the paid model, and the harness's session store); `sync` makes its target agree
   with its authority, idempotently — one meaning by definition, not by catalogue (user
   ruling, 2026-07-27: the instances are open-ended, so enumerating shapes would be a
@@ -138,10 +138,10 @@ They are stated, followed, and reviewed by people.
 - **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the
   state it is about to change, then effects, then reports the state it left. The bracket is
   what makes an effect auditable without a log, and what stops a verb reporting success it
-  has not earned: `yoga dashboard capture` prints an exact coverage join before spending and
+  has not earned: `yoga indexing capture` prints an exact coverage join before spending and
   nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
   counted rows. Stated first, and for a long time only, as a parenthetical in
-  `src/main/cli/dashboard/dashboard.sh` — the same file that implements half of it.
+  `src/main/cli/indexing/capture.sh` — the same file that implements half of it.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
   INVOCATION FORMS, each becoming its own line in `yoga commands` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);

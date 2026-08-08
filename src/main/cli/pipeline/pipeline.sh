@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # src/main/cli/pipeline/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
 # acquires. Each pipeline validates its inputs against all schema versions, then extracts,
-# projects and presents. Acquisition lives elsewhere: yoga browser|agent|dashboard capture.
+# projects and presents. Acquisition lives elsewhere: yoga browser|agent|indexing capture.
 #
 # Usage:
 #   yoga pipeline                          # the pipelines this repo has (bare: status)
@@ -57,7 +57,7 @@ input_of() {
 # is the same work as `yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  echo "pipelines (src/main/pipeline/<name>/; processing only — acquisition is yoga browser|agent|dashboard capture):"
+  echo "pipelines (src/main/pipeline/<name>/; processing only — acquisition is yoga browser|agent|indexing capture):"
   local name phases nested v
   for name in $(pipelines); do
     phases=""
@@ -353,7 +353,7 @@ LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
 #
 # Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
 # NECESSITY tests. indexing sync is here because its cell says
-# run (machine-local, mechanical, CLOSURE holds); dashboard sync is NOT,
+# run (machine-local, mechanical, CLOSURE holds); site render is NOT,
 # because its captures are paid and out-of-run — CLOSURE fails, and a step
 # here would render fresh-LOOKING pages over silently lagging semantics.
 run_corpus_tail() {
@@ -364,11 +364,12 @@ run_corpus_tail() {
   [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
-  # Bare noun DELIBERATELY (not the dropped-verb bug class the plan gate
-  # guards): dashboard's read-only status IS its L9 mechanism, probed here so
-  # its INFO currency atoms (re-render is free; captures lag the corpus) reach
-  # the tail via hoisting. step_ok: a currency nudge informs, never gates.
-  step_ok dashboard "$REPO_ROOT/src/main/model/dashboard_status.sh"
+  # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
+  # guards): each noun's read-only status IS its L9 currency mechanism (#409) —
+  # indexing's carries the paid captures' lag, site's the corpus page's — probed
+  # here so the INFO atoms reach the tail via hoisting. step_ok: informs, never gates.
+  step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/indexing/indexing.py"
+  step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
 }
 
 # The pipelines' own --plan output is the one authority on their step order
