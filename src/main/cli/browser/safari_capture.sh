@@ -42,8 +42,13 @@ main() {
   # dialog (if at all), and any 'see the run log' advice is useless unless the
   # log's own path has been said out loud somewhere durable-feeling.
   echo "Log: $log"
-  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" --provider "$provider" "$@" \
-    2>&1 | tee "$log" || rc=$?
+  # No tee (#413/#415): the python owns both channels — the full narrative goes
+  # to the run log (line-buffered, anchored before any work), the terminal gets
+  # the anchor, one line per conversation, and the verdict. A pipe here once
+  # held the whole story in a buffer a ctrl-C erased while the terminal had
+  # shown it — the 0-byte-log class.
+  caffeinate -dim "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" \
+    --provider "$provider" --run-log "$log" "$@" || rc=$?
   echo "Log: $log"
   return $rc
 }
