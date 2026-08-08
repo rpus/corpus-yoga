@@ -366,7 +366,12 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
     js_script = SCRIPT_DIR / provider / 'browser-chat-capture.js'
     # per-conversation scrape diagnostics go under tmp/logs/ (data/input/ holds captured data only)
     scrape_log_dir = REPO_DIR / 'tmp' / 'logs' / 'browser' / 'capture' / provider / 'scrape'
-    label = 'discover' if navigate else 'capture'
+    # The operation is CAPTURE either way — discovery is ids_from_safari, the
+    # listing sweep that found the ids; navigate is a mode, not a name. The old
+    # label spelled the whole pass 'discover', so a 52-minute capture log opened
+    # '--- discover started ---' and a logged-out no-op read 'discover: nothing
+    # to do' — wrong twice in five words.
+    label = 'capture'
     methods = '+'.join(m for m, on in (('API', do_api), ('DOM', do_scrape)) if on)
     if not ids:
         emit(f'{label}: nothing to do')
