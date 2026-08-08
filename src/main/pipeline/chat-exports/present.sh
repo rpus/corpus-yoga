@@ -63,7 +63,7 @@ inject() {
   local tmp
   tmp=$(mktemp)
   printf '%s' "$json" > "$tmp"
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/inject.py" "$file" "$key" "$tmp"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/inject.py" "$file" "$key" "$tmp"
   rm -f "$tmp"
 }
 

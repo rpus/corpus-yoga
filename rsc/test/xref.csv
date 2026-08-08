@@ -407,7 +407,6 @@ src/main/pipeline/chat-exports/present.sh,20,path_str,src/main/pipeline/chat-exp
 src/main/pipeline/chat-exports/present.sh,21,path_str,src/main/pipeline/chat-exports/files_from_downloaded.py,Y,"FILES_FROM_DOWNLOADED_SCRIPT=""$SCRIPT_DIR/files_from_downloaded.py"""
 src/main/pipeline/chat-exports/present.sh,30,call,src/main/pipeline/chat-exports/timeline.py,Y,"timeline() { ""$REPO_DIR/src/run_python_script.sh"" ""$TIMELINE_SCRIPT"" ""$1"" --table ""$2""; }"
 src/main/pipeline/chat-exports/present.sh,37,call,src/main/pipeline/chat-exports/files_from_downloaded.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$FILES_FROM_DOWNLOADED_SCRIPT"" ""$DOWNLOADED_DIR"" ""$1"""
-src/main/pipeline/chat-exports/present.sh,66,call,src/main/pipeline/chat-exports/inject.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/inject.py"" ""$file"" ""$key"" ""$tmp"""
 src/main/pipeline/chat-exports/present.sh,72,call,src/main/pipeline/chat-exports/update_export_tooltip.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_export_tooltip.py"" ""$1"" ""$2"""
 src/main/pipeline/chat-exports/present.sh,77,call,src/main/pipeline/chat-exports/update_title.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/update_title.py"" ""$1"" ""$2"""
 src/main/pipeline/chat-exports/present.sh,138,call,src/main/pipeline/chat-exports/check_harvested.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$CHECK_HARVESTED_SCRIPT"" ""$name"""
@@ -663,6 +662,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/enact.py,Y,
 ,,,src/main/model/format_table.py,Y,
 ,,self_only,src/main/model/gen_model_candidate.py,Y,
+,,,src/main/model/inject.py,Y,
 ,,self_only,src/main/model/rekey_chats.py,Y,
 ,,self_only,src/main/model/serve_markdown.py,Y,
 ,,,src/main/model/word_freq_literal.py,Y,
