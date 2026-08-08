@@ -102,7 +102,7 @@ def rel(path):
 
 # The run's own tally, written by capture_all and read by the footer — including
 # the interrupted footer, which must say how far the run got (#415).
-RUN = {'t0': None, 'total': 0, 'done': 0, 'failed': [], 'at': ''}
+RUN = {'t0': None, 'total': 0, 'done': 0, 'failed': [], 'at': '', 'log': None}
 
 
 def anchor(provider, mechanisms, conv_id):
@@ -186,7 +186,10 @@ def write_ordering(cfg, ids, dom_root):
         '# appends); the id is the identity. Refreshed by every discovery sweep\n'
         '# (safari_capture ids_from_safari → write_ordering); consumed by\n'
         '# copy_gemini_markdown for NN- naming.\n'
-        f'# Captured {time.strftime("%Y-%m-%d")}.\n'
+        # Provenance, not a clock-label: the run log holds the sweep this listing
+        # came from, and its stamped name carries the when.
+        + (f'# Captured by yoga browser capture — run log: {rel(RUN["log"])}\n'
+           if RUN['log'] else '# Captured by safari_capture.py (no run log named).\n')
     )
     out.write_text(header + '\n'.join(reversed(ids)) + '\n')
     print(f'ordering: {len(ids)} conversation(s) → {rel(out)}')
