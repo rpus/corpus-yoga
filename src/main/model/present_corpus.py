@@ -36,7 +36,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-SELF = 'src/main/pipeline/chat-exports/present_corpus.py'
+SELF = 'src/main/model/present_corpus.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -44,6 +44,7 @@ REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE = REPO / 'rsc' / 'site' / 'index.html'
 DOWNLOADED_DIR = REPO / 'data' / 'output' / 'artifacts' / 'downloaded'
+CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'   # source-scoped helpers stay there (#407)
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -74,8 +75,8 @@ def spans_of(times: list[datetime]) -> list[tuple[str, str, int]]:
     return [(iso(a), iso(b), n) for a, b, n in out]
 
 
-def run_helper(script: str, args: list[str], stdin_text: str | None = None) -> str:
-    r = subprocess.run([sys.executable, str(SCRIPT_DIR / script), *args],
+def run_helper(script: Path, args: list[str], stdin_text: str | None = None) -> str:
+    r = subprocess.run([sys.executable, str(script), *args],
                        input=stdin_text, capture_output=True, text=True, check=True)
     if r.stderr:
         print(r.stderr, file=sys.stderr, end='')
@@ -85,7 +86,7 @@ def run_helper(script: str, args: list[str], stdin_text: str | None = None) -> s
 def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
     """Align (format_table), persist in the cache workshop, inject into the page —
     one motion per table, matching the batch presenter's artifacts."""
-    styled = run_helper('format_table.py', [], json.dumps(table))
+    styled = run_helper(CHAT_PIPELINE / 'format_table.py', [], json.dumps(table))
     f = out_dir / f'{key}.json'
     f.write_text(styled)
     subprocess.run([sys.executable, str(SCRIPT_DIR / 'inject.py'), str(html), key, str(f)], check=True)
@@ -152,7 +153,7 @@ def main() -> int:
     write_table(out_dir, 'data-spans',
                 {'columns': ['chat', 'from', 'to', 'messages'], 'rows': span_rows}, html)
 
-    files_json = run_helper('files_from_downloaded.py', [str(DOWNLOADED_DIR), str(out_dir / 'data-chats.json')])
+    files_json = run_helper(CHAT_PIPELINE / 'files_from_downloaded.py', [str(DOWNLOADED_DIR), str(out_dir / 'data-chats.json')])
     write_table(out_dir, 'data-files', json.loads(files_json), html)
 
     # columnarise each sub-table into the template's {columns, rows} shape —
@@ -176,7 +177,7 @@ def main() -> int:
         if not f.exists():
             table = {'columns': [], 'rows': [], 'note': f'Not captured yet — run `yoga dashboard capture`. {note}'}
         elif key == 'data-chat-categories':
-            rekeyed = run_helper('rekey_chats.py', ['--to-ordinal', '--conversations', str(md_root)],
+            rekeyed = run_helper(SCRIPT_DIR / 'rekey_chats.py', ['--to-ordinal', '--conversations', str(md_root)],
                                  f.read_text())
             table = json.loads(rekeyed)
             table['note'] = note
