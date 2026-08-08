@@ -152,7 +152,11 @@ PROVIDERS = {
         # machinery stays for gemini and for the claude DOM captures that exist.
         'mechanisms':   ('API',),
         'chat_url':     'https://claude.ai/chat/{id}',
-        'discover_url': 'https://claude.ai/recents',
+        # /chats is the 'view all' landing — the FULL listing. /recents still
+        # exists but renders ~30 sidebar entries; sweeping it captured a third
+        # of a 111-conversation room and called it the account (#424,
+        # 2026-08-08 — the second time the site moved under the machinery).
+        'discover_url': 'https://claude.ai/chats',
         'link_sel':     'a[href*="/chat/"]',
         'id_re':        None,
         'ready_sel':    'button[data-testid="action-bar-copy"]',
@@ -332,17 +336,37 @@ def ids_from_safari(provider, cfg):
     print(f'navigating to {cfg["discover_url"]}')
     safari_navigate(cfg['discover_url'])
     time.sleep(PAGE_LOAD_WAIT)
+    # The landing check, EARLY and confident (#423): the landed URL settles
+    # login before any doomed scrolling — a redirect is evidence, not a detail.
+    landed = safari_eval_js('String(location.href)') or '(URL unreadable)'
+    if 'login' in landed:
+        emit(f'FAIL: Safari is logged out of {provider} (landed on {landed}) — '
+             f'log in and re-run: yoga browser capture --provider {provider}')
+        raise SystemExit(1)
+    if not landed.startswith(cfg['discover_url']):
+        emit(f'note: navigation to {cfg["discover_url"]} landed on {landed} — '
+             'proceeding, but a moved listing page truncates discovery (#424)')
     print('loading all conversations...')
     sel = cfg['link_sel']
     prev = stable = 0
     for _ in range(MAX_SCROLLS):
+        # Scroll the scrollable holding the MOST listing links — the main list.
+        # Walking up from the FIRST link scrolled whatever pane happened to
+        # contain it: on claude's landing that was the recents SIDEBAR, and the
+        # sweep exhausted ~30 sidebar entries as if they were the account (#424).
         safari_eval_js(
             "(function(){"
-            "var a=document.querySelector('" + sel + "');"
-            "while(a){var s=getComputedStyle(a);"
-            'if((s.overflowY==="scroll"||s.overflowY==="auto")&&a.scrollHeight>a.clientHeight)'
-            "{a.scrollTo(0,a.scrollHeight);return;}"
-            "a=a.parentElement;}"
+            "var links=document.querySelectorAll('" + sel + "');"
+            "var seen=new Set(),best=null,bestN=0;"
+            "links.forEach(function(a){var el=a.parentElement;"
+            "while(el){var s=getComputedStyle(el);"
+            'if((s.overflowY==="scroll"||s.overflowY==="auto")&&el.scrollHeight>el.clientHeight){'
+            "if(!seen.has(el)){seen.add(el);"
+            "var n=el.querySelectorAll('" + sel + "').length;"
+            "if(n>bestN){bestN=n;best=el;}}"
+            "break;}"
+            "el=el.parentElement;}});"
+            "if(best){best.scrollTo(0,best.scrollHeight);return;}"
             "window.scrollTo(0,document.body.scrollHeight);"
             "})()"
         )
@@ -364,14 +388,13 @@ def ids_from_safari(provider, cfg):
     ids = [u for u in raw.splitlines() if u]
     print(f'found {len(ids)} conversations')
     if not ids:
-        # Zero is a claim about the account, not a no-op (#411): where the page
-        # cannot be positively identified as a real, empty listing, an empty
-        # discovery is a failure to SEE — a logged-out listing is a login page
-        # with zero conversation anchors, and it once read as 'nothing to do'.
+        # Zero is a claim about the account, not a no-op (#411). Login was
+        # settled at landing (#423), so the hedge here covers the genuinely
+        # ambiguous residue: a page that looks right yet lists nothing.
         where = safari_eval_js('String(location.href)') or '(URL unreadable)'
         emit(f'FAIL: found 0 conversations at {where} — cannot positively identify '
-             f'an empty {provider} listing; most likely Safari is not logged in to '
-             f'{provider}. Log in and re-run: yoga browser capture --provider {provider}')
+             f'an empty {provider} listing. If the account has conversations, the '
+             f'listing page may have moved (#424).')
         raise SystemExit(1)
     return ids
 
@@ -563,6 +586,18 @@ def main():
         prev_tab = safari_open_work_tab()
         try:
             ids = ids_from_safari(args.provider, cfg)
+            # The room already knows the account's rough size (#424): a sweep
+            # that discovers fewer conversations than stand captured is a
+            # truncation signature — deletions are real but bounded, a third
+            # of the corpus is not a deletion story. Said loudly, both numbers
+            # named; the sweep proceeds but never passes as full.
+            roots = [r for r, m in ((api_root, 'API'), (dom_root, 'DOM')) if m in mechanisms]
+            existing = len({d.name for root in roots if root.is_dir()
+                            for d in root.iterdir() if d.is_dir()})
+            if len(ids) < existing:
+                emit(f'WARN: discovered {len(ids)} conversation(s) but {existing} already '
+                     f'captured in this room — the listing may be truncated or the page '
+                     f'moved (#424); this sweep is PARTIAL')
             if not args.dry_run:   # ordering.txt is a capture; a dry run writes nothing
                 write_ordering(cfg, ids, dom_root)
             failed = capture_all(args.provider, ids, api_root, dom_root,
