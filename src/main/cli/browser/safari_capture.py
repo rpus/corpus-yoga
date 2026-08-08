@@ -5,8 +5,8 @@ safari_capture.py — Capture conversations from claude.ai or gemini.google.com 
 Scope is two independent restrictions, and the run is their intersection:
   --provider  <p>   claude | gemini      (default: every provider)
   --mechanism API|DOM                    (default: every mechanism the provider has)
-Neither adds. A provider has the mechanisms PROVIDERS declares — claude API and DOM,
-gemini DOM — and a restriction can only take mechanisms away. Asking for one a
+Neither adds. A provider has the mechanisms PROVIDERS declares — claude API (DOM
+retired, #418), gemini DOM — and a restriction can only take mechanisms away. Asking for one a
 provider lacks selects nothing, which is reported rather than substituted for.
 
 Each mechanism deposits under its own root — the capture axis of the corpus type
@@ -146,7 +146,11 @@ MAX_SCROLLS    = 80   # safety cap on scroll iterations
 # are the values on disk.
 PROVIDERS = {
     'claude': {
-        'mechanisms':   ('API', 'DOM'),
+        # DOM retired 2026-08-08 (#418): the walk's audit read showed DOM never
+        # better than API — every finding was DOM missing turns while the API
+        # record held the content. The API capture is the record; the scrape
+        # machinery stays for gemini and for the claude DOM captures that exist.
+        'mechanisms':   ('API',),
         'chat_url':     'https://claude.ai/chat/{id}',
         'discover_url': 'https://claude.ai/recents',
         'link_sel':     'a[href*="/chat/"]',
@@ -372,7 +376,7 @@ def ids_from_safari(provider, cfg):
     return ids
 
 
-def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=()):
+def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(), dry_run=False):
     cfg = PROVIDERS[provider]
     do_api = 'API' in mechanisms
     do_scrape = 'DOM' in mechanisms
@@ -390,6 +394,16 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=())
         emit(f'{label}: nothing to do')
         return []
     RUN['total'] += len(ids)
+    # The bracket's extent (#418), from the discovery this run performed anyway —
+    # the numbers this capture will change, at zero extra sends. 'Captured' means
+    # every in-scope mechanism's dir exists for the id.
+    roots = [r for r, on in ((api_root, do_api), (dom_root, do_scrape)) if on]
+    new = [i for i in ids if not all((root / i).is_dir() for root in roots)]
+    emit(f'extent: {len(ids)} conversation(s) discovered — {len(new)} never captured, '
+         f'{len(ids) - len(new)} already captured (re-captured in place)')
+    if dry_run:
+        emit('--dry-run: nothing captured, nothing written')
+        return []
     print(f'--- {label} started {time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} ---')
     emit(f'capturing {len(ids)} conversations ({methods})')
     safari_focus()
@@ -464,6 +478,9 @@ def main():
                          'else navigated to in a work tab; default is to discover and capture all')
     ap.add_argument('--mechanism', choices=['API', 'DOM'], default=None,
                     help='restrict to one mechanism (default: every mechanism this provider has)')
+    ap.add_argument('--dry-run', action='store_true',
+                    help='discover and state the extent (captured / never-captured), '
+                         'then stop — the bracket\'s first call run alone; captures nothing')
     ap.add_argument('--run-log', default=None,
                     help='the run log safari_capture.sh names: stdout becomes this file '
                          '(line-buffered), the terminal keeps the anchor, one line per '
@@ -532,12 +549,12 @@ def main():
         front_url = osascript('tell application "Safari" to get URL of front document')
         if args.id in front_url:
             failed = capture_all(args.provider, [args.id], api_root, dom_root,
-                                 navigate=False, mechanisms=mechanisms)
+                                 navigate=False, mechanisms=mechanisms, dry_run=args.dry_run)
         else:
             prev_tab = safari_open_work_tab()
             try:
                 failed = capture_all(args.provider, [args.id], api_root, dom_root,
-                                     navigate=True, mechanisms=mechanisms)
+                                     navigate=True, mechanisms=mechanisms, dry_run=args.dry_run)
             finally:
                 safari_close_work_tab(prev_tab)
     else:
@@ -546,9 +563,10 @@ def main():
         prev_tab = safari_open_work_tab()
         try:
             ids = ids_from_safari(args.provider, cfg)
-            write_ordering(cfg, ids, dom_root)
+            if not args.dry_run:   # ordering.txt is a capture; a dry run writes nothing
+                write_ordering(cfg, ids, dom_root)
             failed = capture_all(args.provider, ids, api_root, dom_root,
-                                 navigate=True, mechanisms=mechanisms)
+                                 navigate=True, mechanisms=mechanisms, dry_run=args.dry_run)
         finally:
             safari_close_work_tab(prev_tab)
     footer()
