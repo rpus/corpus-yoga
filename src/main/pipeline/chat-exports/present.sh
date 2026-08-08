@@ -69,7 +69,7 @@ inject() {
 
 # update_export_tooltip <html_file> <export_name>
 update_export_tooltip() {
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/update_export_tooltip.py" "$1" "$2"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/update_export_tooltip.py" "$1" "$2"
 }
 
 # update_title <html_file> <conversations_json>
