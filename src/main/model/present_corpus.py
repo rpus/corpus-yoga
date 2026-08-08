@@ -86,7 +86,7 @@ def run_helper(script: Path, args: list[str], stdin_text: str | None = None) -> 
 def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
     """Align (format_table), persist in the cache workshop, inject into the page —
     one motion per table, matching the batch presenter's artifacts."""
-    styled = run_helper(CHAT_PIPELINE / 'format_table.py', [], json.dumps(table))
+    styled = run_helper(SCRIPT_DIR / 'format_table.py', [], json.dumps(table))
     f = out_dir / f'{key}.json'
     f.write_text(styled)
     subprocess.run([sys.executable, str(SCRIPT_DIR / 'inject.py'), str(html), key, str(f)], check=True)
