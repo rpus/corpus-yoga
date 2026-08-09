@@ -2007,7 +2007,8 @@ def check_effects(run):
         owner = f'{f.parent.name} {f.stem}' if f.stem != f.parent.name else f.parent.name
         for w in d.get('w', []):
             claims.append((owner, w.rstrip('/'), bool(d.get('step')),
-                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name))
+                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name,
+                           (f.parent.name, f.stem) == ('cache', 'clean')))
     bad = []
     for i in range(len(claims)):
         for j in range(i + 1, len(claims)):
@@ -2022,10 +2023,119 @@ def check_effects(run):
             if pa == pb or pa.startswith(pb + '/') or pb.startswith(pa + '/'):
                 if (a[3] and b[2]) or (b[3] and a[2]):
                     continue   # a pipeline containing its own declared step's w
+                if a[5] or b[5]:
+                    # the janitor's w is the COMPLEMENT of the registry: cache
+                    # clean deletes only tmp/cache subtrees no cache_io row
+                    # owns (it never descends into an owned workshop), so its
+                    # containment of every workshop is the subject, not a
+                    # second hand on the same file
+                    continue
                 bad.append(f'{a[0]} w:{pa} ∩ {b[0]} w:{pb}')
     run('effects: writers are disjoint (each w prefix claimed once)',
         not bad, '; '.join(bad[:5]) if bad else None, law='L6',
         check='effects.writers_disjoint')
+
+    # -- extent coverage (#430): the suspicion list as a check ---------------
+    # A path-shaped literal in a command's machinery that no declared r/w row
+    # covers is either an undeclared effect or a stale spelling - both are
+    # registry defects. The list is mechanical; the row judgment stays human:
+    # rows are truer than literals, so a flagged path is fixed by declaring it
+    # or by correcting the machinery, never by weakening the scan. Tolerances,
+    # stated: literals composed from non-root variables (root / 'claude' / ...)
+    # and paths built by helpers a command imports are not seen; targets under
+    # src/test are not scanned (the gate names every path as its subject).
+    roots = ('data', 'tmp', 'ext', 'rsc', 'gen')
+    ignore = ('tmp/logs',)          # the logging convention: never a declared row
+    sh_token = re.compile(
+        r'(?:^|[\s"\'=(:/])((?:data|tmp|ext|rsc|gen)/[A-Za-z0-9_.\-/]*[A-Za-z0-9_\-]|machine-name\.txt)')
+
+    def py_literals(path: Path):
+        try:
+            tree = ast.parse(path.read_text())
+        except SyntaxError:
+            return
+        doc_ids = set()
+        # a nested Div chain is a PREFIX of its parent chain - only the maximal
+        # chain names the path (REPO / 'data' / 'output' / 'markdown' would
+        # otherwise also yield data/output and data)
+        div_lefts = {id(n.left) for n in ast.walk(tree)
+                     if isinstance(n, ast.BinOp) and isinstance(n.op, ast.Div)}
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+                if node.body and isinstance(node.body[0], ast.Expr) \
+                        and isinstance(node.body[0].value, ast.Constant) \
+                        and isinstance(node.body[0].value.value, str):
+                    doc_ids.add(id(node.body[0].value))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in doc_ids:
+                s = node.value
+                if '\n' in s or ' ' in s:
+                    continue          # prose and blobs; a subject path is one token
+                if s.split('/')[0] in roots and '/' in s or s == 'machine-name.txt':
+                    yield s.rstrip('/'), node.lineno
+            elif isinstance(node, ast.JoinedStr) and node.values \
+                    and isinstance(node.values[0], ast.Constant) \
+                    and isinstance(node.values[0].value, str):
+                s = node.values[0].value
+                if ' ' not in s and s.split('/')[0] in roots and '/' in s:
+                    yield s.rstrip('/'), node.lineno
+            elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div) \
+                    and id(node) not in div_lefts:
+                # REPO / 'data' / 'input' - join the leading Constant chain
+                parts, cur = [], node
+                while isinstance(cur, ast.BinOp) and isinstance(cur.op, ast.Div):
+                    if isinstance(cur.right, ast.Constant) and isinstance(cur.right.value, str):
+                        parts.append(cur.right.value)
+                    else:
+                        parts.append(None)
+                    cur = cur.left
+                parts.reverse()
+                while parts and parts[-1] is None:
+                    parts.pop()
+                if parts and all(isinstance(x, str) for x in parts) and parts[0] in roots and len(parts) > 1:
+                    yield '/'.join(parts), node.lineno
+
+    def sh_literals(path: Path):
+        # report prose is not an effect: a path spoken by echo/printf or the
+        # report helpers (ok/info/bad/todo) teaches the reader, touches nothing
+        prose = re.compile(r'\b(?:echo|printf|ok|info|bad|todo|warn|note)\b')
+        for i, line in enumerate(path.read_text().splitlines(), 1):
+            if line.lstrip().startswith('#'):
+                continue
+            for m in sh_token.finditer(line):
+                if prose.search(line[:m.start(1)]):
+                    continue
+                yield m.group(1).rstrip('/'), i
+
+    uncovered = []
+    for cmd_dir in sorted(cli_root.iterdir()):
+        if not cmd_dir.is_dir() or cmd_dir.name == '__pycache__':
+            continue
+        rows, machinery = set(), set()
+        for j in cmd_dir.glob('*.json'):
+            d = json.loads(j.read_text())
+            rows |= {x.rstrip('/') for x in d.get('r', []) + d.get('w', [])}
+            tgt = d.get('target')
+            if (tgt and not tgt.startswith('src/test/')
+                    and tgt.endswith(('.py', '.sh', '.applescript'))
+                    and Path(REPO_ROOT, tgt).exists()):
+                machinery.add(Path(REPO_ROOT, tgt))
+        for pat in ('*.py', '*.sh', '*.applescript'):
+            machinery |= {f for f in cmd_dir.rglob(pat) if '__pycache__' not in f.parts}
+        def covered(p):
+            if any(p == q or p.startswith(q + '/') for q in ignore):
+                return True
+            return any(p == q or p.startswith(q + '/') or q.startswith(p + '/') for q in rows)
+        for f in sorted(machinery):
+            lits = py_literals(f) if f.suffix == '.py' else sh_literals(f)
+            for lit, line in lits:
+                if not covered(lit):
+                    uncovered.append(f'{cmd_dir.name}: {lit} ({f.relative_to(REPO_ROOT)}:{line})')
+    uncovered = sorted(set(uncovered))
+    run('effects: every path-shaped literal in a command\'s machinery is covered by its declared rows',
+        not uncovered,
+        ('; '.join(uncovered[:8]) + (f'; ... {len(uncovered)} total' if len(uncovered) > 8 else '')) if uncovered else None,
+        check='effects.extent_covered')
 
 
 def _read_committed_xref(path: Path) -> list[list]:

@@ -4,7 +4,8 @@
   "r": [
     "data/output/markdown",
     "data/output/dashboard",
-    "rsc/site/index.html"
+    "rsc/site/index.html",
+    "data/output/artifacts/claude/chat/downloaded"
   ],
   "w": [
     "tmp/cache/site",

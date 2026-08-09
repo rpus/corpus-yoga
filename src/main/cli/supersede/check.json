@@ -32,5 +32,12 @@
       "help": "the summary deposit store (a deposit is the unconditional licence)"
     }
   ],
-  "step": "chat-exports"
+  "step": "chat-exports",
+  "r": [
+    "tmp/cache/chat-exports",
+    "data/input/claude/chat/bulk-export",
+    "data/input/claude/chat/browser-API",
+    "data/output/memories",
+    "data/output/markdown/claude/chat/summaries"
+  ]
 }

@@ -12,5 +12,17 @@
     "pip install": [
       "installs the requirements from PyPI when the venv lacks them (--apply only; refused loudly under YOGA_NO_SEND)"
     ]
-  }
+  },
+  "r": [
+    "machine-name.txt",
+    "rsc/machine",
+    "rsc/test",
+    "data/input",
+    "data/output",
+    "tmp/cache",
+    "ext/lib/serve_markdown",
+    "ext/mnt",
+    "src/requirements.txt",
+    "src/main/model/serve_assets.txt"
+  ]
 }

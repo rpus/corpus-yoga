@@ -28,7 +28,9 @@
     ]
   },
   "r": [
-    "data/output/markdown"
+    "data/output/markdown",
+    "rsc/schema/dashboard",
+    "rsc/site/index.html"
   ],
   "w": [
     "tmp/cache/indexing",

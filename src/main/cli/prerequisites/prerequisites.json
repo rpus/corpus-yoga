@@ -9,5 +9,17 @@
       "cardinality": "",
       "help": "show the full report, including satisfied (✓) items (default: only what needs attention)"
     }
+  ],
+  "r": [
+    "machine-name.txt",
+    "rsc/machine",
+    "rsc/test",
+    "data/input",
+    "data/output",
+    "tmp/cache",
+    "ext/lib/serve_markdown",
+    "ext/mnt",
+    "src/requirements.txt",
+    "src/main/model/serve_assets.txt"
   ]
 }
