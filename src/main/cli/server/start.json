@@ -24,5 +24,13 @@
     "urllib.request.urlretrieve": [
       "reaches ensure-assets when render libs are missing, so the first serve on a fresh clone downloads them (refused loudly under YOGA_NO_SEND: serve will not start half-rendered)"
     ]
-  }
+  },
+  "r": [
+    "data/output/markdown",
+    "ext/lib/serve_markdown",
+    "src/main/model/serve_assets.txt"
+  ],
+  "w": [
+    "ext/lib/serve_markdown"
+  ]
 }

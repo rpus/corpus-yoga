@@ -2,5 +2,12 @@
   "summary": "the rpus.co publish tree: data/output/site/ assembled from rsc/site/",
   "target": "src/main/cli/site/site.sh",
   "calculus": "project",
-  "args": []
+  "args": [],
+  "r": [
+    "data/output/site",
+    "rsc/site",
+    "data/output/markdown",
+    "data/output/dashboard",
+    "ext/mnt/site"
+  ]
 }

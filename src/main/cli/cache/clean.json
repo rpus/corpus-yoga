@@ -13,5 +13,12 @@
       "cardinality": "1/cache-clean-1",
       "help": "remove the orphaned subtrees"
     }
+  ],
+  "r": [
+    "rsc/cache_io.csv",
+    "tmp/cache"
+  ],
+  "w": [
+    "tmp/cache"
   ]
 }

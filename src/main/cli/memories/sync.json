@@ -3,9 +3,11 @@
   "args": [],
   "step": "chat-exports",
   "r": [
-    "data/input"
+    "tmp/cache/chat-exports",
+    "rsc/naming/memory_deposit_vintages.csv"
   ],
   "w": [
-    "data/output/memories"
+    "data/output/memories",
+    "data/output/markdown/claude/chat/memories"
   ]
 }

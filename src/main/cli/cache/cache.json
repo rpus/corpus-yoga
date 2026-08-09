@@ -2,5 +2,8 @@
   "summary": "the rebuildable tmp/cache/ tier: clean orphans, sync rebuilds",
   "target": "src/main/cli/cache/cache.py",
   "calculus": "project",
-  "args": []
+  "args": [],
+  "r": [
+    "tmp/cache"
+  ]
 }

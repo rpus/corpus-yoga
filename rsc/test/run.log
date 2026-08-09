@@ -1,4 +1,4 @@
-run.py: 2014/2014 (data: machine-local)
+run.py: 2015/2015 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -56,6 +56,7 @@ run.py: 2014/2014 (data: machine-local)
 
 ── check_effects ─────────────────────────────────────────────────────────────
   ✓ effects.writers_disjoint
+  ✓ effects.extent_covered
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io.registry_parses
@@ -175,29 +176,29 @@ check_self_paths                      61     0     0   ok        14
 check_templates                        2     0     0   ok        17
 check_xref                             2     0     0   ok        20
 check_cli_surface                    428     0     0   ok        24
-check_effects                          1     0     0   ok        57
-check_cache_io                        18     0     0   ok        60
-check_accumulate_contract              1     0     0   ok        66
-check_capture_monotone                 4     0     0   ok        69
-check_grammar_laws                    12     0     0   ok        72
-check_root_schema_diagnostics         50     0     0   ok        86
-check_schema_validity                 54     0     0   ok       113
-check_schema_changelogs              108     0     0   ok       116
-check_versioned_schema_diagnostics  1232     0     0   ok       120
-check_schema_join                      1     0     0   ok       146
-check_model_join_versions              1     0     0   ok       149
-check_model_occurrences                3     0     0   ok       152
-check_model_obligations               17     0     0   ok       157
-check_mcp_schema                       1     0     0   ok       161
-check_score                            5     0     0   ok       164
+check_effects                          2     0     0   ok        57
+check_cache_io                        18     0     0   ok        61
+check_accumulate_contract              1     0     0   ok        67
+check_capture_monotone                 4     0     0   ok        70
+check_grammar_laws                    12     0     0   ok        73
+check_root_schema_diagnostics         50     0     0   ok        87
+check_schema_validity                 54     0     0   ok       114
+check_schema_changelogs              108     0     0   ok       117
+check_versioned_schema_diagnostics  1232     0     0   ok       121
+check_schema_join                      1     0     0   ok       147
+check_model_join_versions              1     0     0   ok       150
+check_model_occurrences                3     0     0   ok       153
+check_model_obligations               17     0     0   ok       158
+check_mcp_schema                       1     0     0   ok       162
+check_score                            5     0     0   ok       165
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 94 types, 2014/2014 invocations passing
+  ✓ checks[code+schema]: 95 types, 2015/2015 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 58 types, 547/547 invocations passing
+  ✓ checks[code]: 59 types, 548/548 invocations passing
   ✓ checks[schema]: 36 types, 1467/1467 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2014/2014 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2015/2015 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run

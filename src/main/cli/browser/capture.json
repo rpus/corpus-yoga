@@ -43,6 +43,7 @@
     "data/output/artifacts/claude/chat/downloaded"
   ],
   "r": [
-    "data/output/markdown"
+    "data/output/markdown",
+    "machine-name.txt"
   ]
 }

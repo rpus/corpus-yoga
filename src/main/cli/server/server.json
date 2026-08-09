@@ -2,5 +2,9 @@
   "summary": "serve the markdown corpus locally (LaTeX + turn deep links)",
   "target": "src/main/cli/server/server.sh",
   "calculus": "project",
-  "args": []
+  "args": [],
+  "r": [
+    "src/main/model/serve_assets.txt",
+    "ext/lib/serve_markdown"
+  ]
 }

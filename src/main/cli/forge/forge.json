@@ -19,5 +19,8 @@
     "git fetch --quiet origin <branch>": [
       "reads this checkout's own upstream, for the checkout row"
     ]
-  }
+  },
+  "r": [
+    "rsc/test/pre-commit-hook.sh"
+  ]
 }

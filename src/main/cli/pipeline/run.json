@@ -30,7 +30,8 @@
   },
   "r": [
     "data/input",
-    "rsc"
+    "rsc",
+    "machine-name.txt"
   ],
   "w": [
     "tmp/cache/browser-captures",

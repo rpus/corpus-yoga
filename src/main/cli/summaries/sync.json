@@ -3,7 +3,9 @@
   "args": [],
   "step": "chat-exports",
   "r": [
-    "data/input"
+    "data/output/markdown/claude/chat/conversations",
+    "tmp/cache/chat-exports",
+    "data/input/claude/chat/browser-API"
   ],
   "w": [
     "data/output/markdown/claude/chat/summaries"
