@@ -366,10 +366,13 @@ run_corpus_tail() {
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
   # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): each noun's read-only status IS its L9 currency mechanism (#409) —
-  # indexing's carries the paid captures' lag, site's the corpus page's — probed
-  # here so the INFO atoms reach the tail via hoisting. step_ok: informs, never gates.
+  # indexing's carries the paid captures' lag, site's the corpus page's, model's
+  # the schema frontier's (#373: each family's newest datum against its latest
+  # version, read from the validate steps' own logs) — probed here so the atoms
+  # reach the tail via hoisting. step_ok: informs, never gates.
   step_ok indexing "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/cli/indexing/indexing.py"
   step_ok site "$REPO_ROOT/src/main/cli/site/site.sh"
+  step_ok model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py"
 }
 
 # The pipelines' own --plan output is the one authority on their step order

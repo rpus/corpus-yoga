@@ -89,6 +89,8 @@ import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
 import commands as cli_commands  # noqa: E402 — `yoga commands` answers itself here
 import completions as cli_completions  # noqa: E402 — and `yoga completions` here
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
+import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `yoga model` (#373)
 
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
@@ -573,49 +575,6 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
             run(f'unprocessed input: {_leaf(subject)}', False, check='data.input_processed')
 
 
-def _gen_subject_dirs(gen_dir, depth):
-    """Yield (subject, leaf_dir) for each subject directory in gen_dir, at any
-    depth (the subject is the ' / '-joined path parts)."""
-    if not gen_dir.exists():
-        return
-    for leaf in sorted(gen_dir.glob('/'.join(['*'] * depth))):
-        if leaf.is_dir():
-            yield ' / '.join(leaf.relative_to(gen_dir).parts), leaf
-
-
-def _datum_recency(name: str, pipeline: Pipeline, subject: str):
-    """A sortable recency key for one datum, or None if unavailable. Pipeline-specific,
-    because the corpora differ: chat-exports uses the epoch embedded in the batch dir name;
-    browser-captures the capture's `updated_at`; code-agents the max record `timestamp` in
-    the session `.jsonl`. Keys are only ever compared within a single pipeline, so mixing
-    int (epoch) and ISO-string (timestamp) types across pipelines is fine."""
-    if name == 'chat-exports':
-        m = re.search(r'-(\d{10})-[0-9a-f]+-batch', subject)
-        return int(m.group(1)) if m else None
-    if name == 'browser-captures':
-        f = pipeline.input / subject / f'{subject}.json'
-        try:
-            return json.loads(f.read_text()).get('updated_at')
-        except (OSError, ValueError):
-            return None
-    if name == 'code-agents':
-        f = pipeline.input.joinpath(*subject.split(' / ')).with_suffix('.jsonl')
-        try:
-            lines = f.read_text().splitlines()
-        except OSError:
-            return None
-        stamps = []
-        for line in lines:
-            try:
-                t = json.loads(line).get('timestamp')
-            except ValueError:
-                continue
-            if t:
-                stamps.append(t)
-        return max(stamps) if stamps else None
-    return None
-
-
 def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
     """Every datum must validate against at least one schema version. A datum that validates
     against none is unmodelled drift — evolve the schema (or record why it is permanently
@@ -624,7 +583,7 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
     versions = _sorted_versions(SCHEMA_DIR[schema])
     if not versions:
         return
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.cache_output, pipeline.subject_depth):
+    for subject, leaf_dir in frontier.subject_dirs(pipeline.cache_output, pipeline.subject_depth):
         logs = [leaf_dir / 'validation' / schema / f'{v.stem}.log' for v in versions]
         logs = [l for l in logs if l.exists()]
         if not logs:
@@ -643,15 +602,15 @@ def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
 def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
     """The most recent datum must validate against the latest schema version — so the schema
     frontier tracks the data frontier (no unmodelled newest export, no version minted ahead of
-    all data). Recency is pipeline-specific; see _datum_recency."""
+    all data). Recency is pipeline-specific; see frontier.datum_recency."""
     schema   = pipeline.changelog.parent.name
     versions = _sorted_versions(SCHEMA_DIR[schema])
     if not versions:
         return
     latest   = versions[-1].stem
     keyed    = []
-    for subject, leaf_dir in _gen_subject_dirs(pipeline.cache_output, pipeline.subject_depth):
-        key = _datum_recency(name, pipeline, subject)
+    for subject, leaf_dir in frontier.subject_dirs(pipeline.cache_output, pipeline.subject_depth):
+        key = frontier.datum_recency(name, pipeline.input, subject)
         if key is not None:
             keyed.append((key, subject, leaf_dir))
     if not keyed:
