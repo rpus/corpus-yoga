@@ -6,6 +6,10 @@
      stamps (src/test/prepare_commit_msg.sh's header is the one authority for
      the grammar): `Signature: <machine>/<provider>/<session>`. Written by
      hand — no hook stamps a body — since raise time has no commit to hook.
+     The Signature is the body's ONE attribution. A harness default that
+     appends its own — a generated-with footer, a co-author line — has no
+     licensed position in a body, exactly as prepare_commit_msg.sh's stamp
+     already rules for commits; strip it before raising.
 
      The grammar (#124): why / what / how / to. The durable half belongs on the
      branch's FIRST commit — prospective at branch birth ("this branch should…"),
