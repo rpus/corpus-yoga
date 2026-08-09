@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into
 # data/input/<provider>/chat/browser-{API,DOM}/, via Safari (open and logged in).
-# The `yoga browser` target.
-#
-# Scope is two independent restrictions, intersected. Neither adds: a provider has the
-# mechanisms it has (claude API — DOM retired, #418; gemini DOM); a restriction only takes some away.
+# The `yoga browser` target. Scope is two independent restrictions, intersected; neither
+# adds: a provider has the mechanisms it has (claude API — DOM retired, #418; gemini DOM).
 #
 # Usage:
 #   yoga browser                                      # free, local: are the captures any good?
 #   yoga browser capture                              # every provider, every mechanism it has
-#   yoga browser capture --mechanism API              # only what an API can give: claude
-#   yoga browser capture --provider gemini            # gemini, by the DOM walk it has
+#   yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
 #   yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   yoga browser capture --provider claude --id <id>  # one conversation
+#   yoga browser capture --provider claude --files    # fetch the uploaded file assets the captures
+#                                                     #   name into the artifact library (#422)
 #
-#   --id requires --provider: an id's shape cannot say whose it is, and restrictions that
-#   intersect to nothing are reported rather than defaulted around. --dry-run fetches
-#   listings (a send) and captures nothing: the extent, then stop.
+#   --files fetches only what data/output/artifacts/claude/chat/downloaded/ lacks; what no
+#   handle names stays on check_harvested's report — by-hand, stated. --id requires
+#   --provider (an id's shape cannot say whose it is); restrictions intersecting to nothing
+#   are reported, never defaulted around. --dry-run: the extent, then stop.
 #   YOGA_NO_SEND=1 refuses every outward call: a capture has no scratch form, so refusing
 #   it is the only way to exercise these paths without reaching the account.
 
@@ -41,7 +41,7 @@ main() {
     capture) shift ;;
     '') status; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (yoga browser -h for details)" >&2; exit 1 ;;
+    *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run] [--files]  (yoga browser -h for details)" >&2; exit 1 ;;
   esac
   local provider="" mechanism="" id="" dry_run="" files=""
   while [[ $# -gt 0 ]]; do
@@ -64,7 +64,7 @@ main() {
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass yoga browser -h for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run] [--files]"; echo "Pass yoga browser -h for more information."; exit 1 ;;
     esac
   done
 

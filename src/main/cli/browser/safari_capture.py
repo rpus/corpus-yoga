@@ -31,6 +31,9 @@ Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
 Usage:
+    python safari_capture.py --provider claude --files          # the file assets the API
+        captures name (uploads), fetched into the artifact library
+        (data/output/artifacts/claude/chat/downloaded/) — see fetch_files
     python safari_capture.py --provider claude                   [--browser-api  data/input/claude/chat/browser-API]
     python safari_capture.py --provider claude --mechanism DOM   [--browser-dom  data/input/claude/chat/browser-DOM]
     python safari_capture.py --provider gemini --id <id>         [--browser-dom  data/input/gemini/chat/browser-DOM]
