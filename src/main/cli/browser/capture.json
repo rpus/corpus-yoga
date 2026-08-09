@@ -38,6 +38,11 @@
     ]
   },
   "w": [
+    "data/input/claude/chat/browser-API",
+    "data/input/gemini/chat/browser-DOM",
     "data/output/artifacts/claude/chat/downloaded"
+  ],
+  "r": [
+    "data/output/markdown"
   ]
 }
