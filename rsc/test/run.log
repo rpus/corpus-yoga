@@ -1,4 +1,4 @@
-run.py: 2018/2018 (data: machine-local)
+run.py: 2014/2014 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: 2018/2018 (data: machine-local)
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (62/62)
+  ✓ structure.self_path_matches_address  (61/61)
 
 ── check_templates ───────────────────────────────────────────────────────────
   ✓ templates.teach_signature  (2/2)
@@ -44,8 +44,8 @@ run.py: 2018/2018 (data: machine-local)
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (67/67)
-  ✓ structure.file_at_level_of_subject  (23/23)
+  ✓ output.plan_lines_name_their_target  (65/65)
+  ✓ structure.file_at_level_of_subject  (22/22)
   ✓ structure.cli_declaration_mirrors_the_api  (18/18)
   ✓ structure.cli_declaration_validates  (50/50)
   ✓ cli.every_form_listed  (34/34)
@@ -171,10 +171,10 @@ stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
-check_self_paths                      62     0     0   ok        14
+check_self_paths                      61     0     0   ok        14
 check_templates                        2     0     0   ok        17
 check_xref                             2     0     0   ok        20
-check_cli_surface                    431     0     0   ok        24
+check_cli_surface                    428     0     0   ok        24
 check_effects                          1     0     0   ok        57
 check_cache_io                        18     0     0   ok        60
 check_accumulate_contract              1     0     0   ok        66
@@ -193,11 +193,11 @@ check_score                            5     0     0   ok       164
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 94 types, 2018/2018 invocations passing
+  ✓ checks[code+schema]: 94 types, 2014/2014 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 58 types, 551/551 invocations passing
+  ✓ checks[code]: 58 types, 547/547 invocations passing
   ✓ checks[schema]: 36 types, 1467/1467 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2018/2018 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2014/2014 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run

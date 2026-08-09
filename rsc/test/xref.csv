@@ -203,7 +203,7 @@ src/main/cli/browser/browser.sh,85,call,src/main/cli/browser/safari_capture.py,Y
 src/main/cli/browser/browser.sh,89,call,src/main/cli/browser/safari_capture.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/safari_capture.py"" --scope >&2"
 src/main/cli/browser/browser.sh,123,call,src/main/cli/browser/safari_capture.sh,Y,"""$SCRIPT_DIR/safari_capture.sh"" --run-log ""${logs[$i]}"" --provider ""$p"" ${mechanism:+--mechanism ""$mechanism""} \"
 src/main/cli/browser/capture.command,19,path_str,src/main/cli/browser/capture.applescript,Y,"exec caffeinate -dim osascript ""$SCRIPT_DIR/capture.applescript"""
-src/main/cli/browser/safari_capture.py,58,path_str,src/main/cli/browser/safari_capture.py,Y,SELF = 'src/main/cli/browser/safari_capture.py'
+src/main/cli/browser/safari_capture.py,56,path_str,src/main/cli/browser/safari_capture.py,Y,SELF = 'src/main/cli/browser/safari_capture.py'
 src/main/cli/browser/safari_capture.sh,14,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude
 src/main/cli/browser/safari_capture.sh,15,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude --mechanism DOM
 src/main/cli/browser/safari_capture.sh,16,comment,src/main/cli/browser/safari_capture.sh,Y,#   src/main/cli/browser/safari_capture.sh --provider claude --id <uuid>
@@ -297,14 +297,13 @@ src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": 
 src/main/cli/test/test.sh,27,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
-src/main/markdown_projection.py,11,comment,src/main/model/project_markdown.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and"
-src/main/markdown_projection.py,11,comment,src/main/model/compare_sources.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and"
-src/main/markdown_projection.py,12,comment,src/main/pipeline/browser-captures/compare_markdown.py,Y,"pipeline/browser-captures/compare_markdown.py (project+render to compare),"
-src/main/markdown_projection.py,13,comment,src/main/pipeline/chat-exports/atomise_bulk.py,Y,pipeline/chat-exports/atomise_bulk.py (slug/assign_name to name the per-conversation
-src/main/markdown_projection.py,25,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
-src/main/model/compare_sources.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
-src/main/model/compare_sources.py,23,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
-src/main/model/compare_sources.py,35,path_str,src/main/model/compare_sources.py,Y,SELF = 'src/main/model/compare_sources.py'
+src/main/markdown_projection.py,11,comment,src/main/model/project_markdown.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py"
+src/main/markdown_projection.py,11,comment,src/main/model/compare_sources.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py"
+src/main/markdown_projection.py,12,comment,src/main/pipeline/chat-exports/atomise_bulk.py,Y,"(project+render to compare), pipeline/chat-exports/atomise_bulk.py (slug/assign_name"
+src/main/markdown_projection.py,24,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
+src/main/model/compare_sources.py,22,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
+src/main/model/compare_sources.py,22,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
+src/main/model/compare_sources.py,34,path_str,src/main/model/compare_sources.py,Y,SELF = 'src/main/model/compare_sources.py'
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
@@ -336,15 +335,12 @@ src/main/model/rekey_chats.py,44,path_str,src/main/model/rekey_chats.py,Y,SELF =
 src/main/model/serve_markdown.py,18,path_str,src/main/model/serve_markdown.py,Y,SELF = 'src/main/model/serve_markdown.py'
 src/main/model/serve_markdown.py,36,comment,src/main/cli/prerequisites/prerequisites.sh,Y,source shared by ensure_assets (fetch) and src/main/cli/prerequisites/prerequisites.sh (report).
 src/main/model/serve_markdown.py,30,comment,src/main/cli/prerequisites/prerequisites.sh,Y,# visible and src/main/cli/prerequisites/prerequisites.sh can report against the same source.
-src/main/pipeline/browser-captures/audit_captures.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
-src/main/pipeline/browser-captures/audit_captures.py,31,comment,src/main/pipeline/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
-src/main/pipeline/browser-captures/audit_captures.py,43,path_str,src/main/pipeline/browser-captures/audit_captures.py,Y,SELF = 'src/main/pipeline/browser-captures/audit_captures.py'
+src/main/pipeline/browser-captures/audit_captures.py,28,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
+src/main/pipeline/browser-captures/audit_captures.py,28,comment,src/main/pipeline/browser-captures/audit_captures.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py     [--input input] [--api data/output/mar
+src/main/pipeline/browser-captures/audit_captures.py,40,path_str,src/main/pipeline/browser-captures/audit_captures.py,Y,SELF = 'src/main/pipeline/browser-captures/audit_captures.py'
 src/main/pipeline/browser-captures/claude/validate.sh,5,comment,src/main/pipeline/browser-captures/claude/validate.sh,Y,#   src/main/pipeline/browser-captures/claude/validate.sh --browser-capture <path/to/uuid-directory>
 src/main/pipeline/browser-captures/claude/validate.sh,6,comment,src/main/pipeline/browser-captures/claude/validate.sh,Y,#   src/main/pipeline/browser-captures/claude/validate.sh --browser-api <path/to/browser-API-root>
 src/main/pipeline/browser-captures/claude/validate.sh,20,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/browser-captures/compare_markdown.py,39,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/compare_markdown.py     --projection data/output/markdown/cl
-src/main/pipeline/browser-captures/compare_markdown.py,39,comment,src/main/pipeline/browser-captures/compare_markdown.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/compare_markdown.py     --projection data/output/markdown/cl
-src/main/pipeline/browser-captures/compare_markdown.py,52,path_str,src/main/pipeline/browser-captures/compare_markdown.py,Y,SELF = 'src/main/pipeline/browser-captures/compare_markdown.py'
 src/main/pipeline/browser-captures/copy_gemini_markdown.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini
 src/main/pipeline/browser-captures/copy_gemini_markdown.py,24,comment,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,src/run_python_script.sh src/main/pipeline/browser-captures/copy_gemini_markdown.py     [--browser-dom data/input/gemini
 src/main/pipeline/browser-captures/copy_gemini_markdown.py,32,path_str,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,SELF = 'src/main/pipeline/browser-captures/copy_gemini_markdown.py'
@@ -354,12 +350,11 @@ src/main/pipeline/browser-captures/run.sh,7,comment,src/main/pipeline/browser-ca
 src/main/pipeline/browser-captures/run.sh,8,comment,src/main/pipeline/browser-captures/run.sh,Y,#   src/main/pipeline/browser-captures/run.sh --plan   # print the ordered step list; run nothing
 src/main/pipeline/browser-captures/run.sh,11,comment,src/main/steps.sh,Y,# exactly the list that executes (see src/main/steps.sh).
 src/main/pipeline/browser-captures/run.sh,20,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/browser-captures/run.sh,35,comment,src/main/cli/pipeline/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root src/main/cli/pipeline/pipeline.sh
-src/main/pipeline/browser-captures/run.sh,50,call,src/main/pipeline/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
-src/main/pipeline/browser-captures/run.sh,57,call,src/main/pipeline/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
-src/main/pipeline/browser-captures/run.sh,65,call,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
-src/main/pipeline/browser-captures/run.sh,71,call,src/main/pipeline/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
-src/main/pipeline/browser-captures/run.sh,87,call,src/main/pipeline/browser-captures/compare_markdown.py,Y,"""$SCRIPT_DIR/compare_markdown.py"" \"
+src/main/pipeline/browser-captures/run.sh,32,comment,src/main/cli/pipeline/pipeline.sh,Y,# --browser-captures is the eponymous pipeline flag the root src/main/cli/pipeline/pipeline.sh
+src/main/pipeline/browser-captures/run.sh,47,call,src/main/pipeline/browser-captures/claude/validate.sh,Y,"step validate ""$SCRIPT_DIR/claude/validate.sh"" --browser-capture ""$input_dir"""
+src/main/pipeline/browser-captures/run.sh,54,call,src/main/pipeline/browser-captures/claude/validate.sh,Y,"step validate              ""$SCRIPT_DIR/claude/validate.sh"" --browser-api ""$root"""
+src/main/pipeline/browser-captures/run.sh,62,call,src/main/pipeline/browser-captures/copy_gemini_markdown.py,Y,"""$SCRIPT_DIR/copy_gemini_markdown.py"""
+src/main/pipeline/browser-captures/run.sh,67,call,src/main/pipeline/browser-captures/audit_captures.py,Y,"""$SCRIPT_DIR/audit_captures.py"" \"
 src/main/pipeline/chat-exports/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/archive_components.py       --chat-export data/input/claude/chat
 src/main/pipeline/chat-exports/archive_components.py,24,comment,src/main/pipeline/chat-exports/archive_components.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/archive_components.py       --chat-export data/input/claude/chat
 src/main/pipeline/chat-exports/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-ex
@@ -610,7 +605,6 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/browser/browser.json,Y,
 ,,,src/main/cli/browser/capture-all-conversations.applescript,Y,
 ,,,src/main/cli/browser/capture-conversation.applescript,Y,
-,,,src/main/cli/browser/claude/browser-chat-capture.js,Y,
 ,,,src/main/cli/browser/gemini/browser-chat-capture.js,Y,
 ,,self_only,src/main/cli/browser/safari_utils.py,Y,
 ,,,src/main/cli/cache/cache.json,Y,

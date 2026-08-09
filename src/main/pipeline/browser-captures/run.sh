@@ -25,13 +25,10 @@ parse_args() {
   # The default input root is the DECLARED one: pipeline.json is the one committed
   # authority for this path — read, never restated.
   browser_api="$REPO_DIR/$(jq -r .input "$SCRIPT_DIR/pipeline.json")"
-  browser_dom="$REPO_DIR/data/input/claude/chat/browser-DOM"
-  has_dom="0"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --browser-capture)  browser_capture="$2";  shift 2 ;;
-      --browser-dom)      browser_dom="$2";      shift 2 ;;
       # --browser-captures is the eponymous pipeline flag the root src/main/cli/pipeline/pipeline.sh
       # constructs (run_pipeline passes --<pipeline-name>); alias of --browser-api
       --browser-api|--browser-captures) if [[ $# -gt 1 && "${2-}" != --* ]]; then browser_api="$2"; shift 2; else shift; fi ;;
@@ -63,29 +60,13 @@ run_corpus() {
   # anchoring each turn heading; a slug collision gets the conversation id prefixed.
   step copy_gemini_markdown  "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/copy_gemini_markdown.py"
-  # audit_captures: capture-health report against the fresh projections (the compare
-  # gate below decides pass/fail; browser.sh printed the pre-run baseline)
-  # set here, where browser_dom is final (a --browser-dom override lands before this)
-  [[ -n "$(find "$browser_dom" -mindepth 2 -name '*.md' -print -quit 2>/dev/null)" ]] && has_dom="1"
+  # audit_captures: capture-health report against the fresh projections — findings
+  # inform, never gate: severity attaches to the RECORD, and the record was already
+  # schema-validated above
   step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit_captures.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
-  # compare_markdown: diff the projection of the API capture against the DOM capture,
-  # whenever there IS a DOM capture. It was opt-in behind --compare-scrape because every
-  # difference read as a WARN with a remedy that could not fix it, so running it on resting
-  # captures was noise. #61 removed that: a difference is now attributed — `API capture
-  # missing` is a loss, `projection renders differently` is not — and severity follows, so
-  # there is nothing left to opt out of. The comparison is local, free, and each side is the
-  # other's independent check; the reason to skip it was the reporting, and the reporting is
-  # fixed. Absent DOM captures skip informatively (L8), which is what a guard is for.
-  # It never gates: severity attaches to the RECORD (claude: the API capture), and a
-  # witness diverging from a complete record is drift — stated, remedied by audit's INFO,
-  # never a run failure. Role-indexed, not mechanism-indexed.
-  step_if "$has_dom" 'when data/input/claude/chat/browser-DOM holds captures' \
-       compare_markdown      "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/compare_markdown.py" \
-    --projection "$REPO_DIR/data/output/markdown/claude/chat/conversations" --dom "$browser_dom"
 }
 
 print_plan() {

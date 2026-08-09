@@ -8,7 +8,7 @@ copy_gemini_markdown.py — copy gemini scrape markdown into the presentation tr
 Gemini has no API and so no message uuids; the role-count anchor is the best turn
 identity available, and gemini conversations are append-only (the audit tail-probe
 already relies on this), so an anchor never moves — later captures only add turns.
-Anchors ride the heading line, where compare_markdown.turn_seq's `## <Role> [^\\n]*`
+Anchors ride the heading line, where markdown_projection.turn_seq's `## <Role> [^\\n]*`
 split ignores them. The data/input/ scrapes themselves are data and are left untouched;
 this derived copy is the navigable/indexable surface.
 

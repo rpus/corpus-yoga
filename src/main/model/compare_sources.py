@@ -4,7 +4,6 @@ compare_sources.py — Cross-source consistency check. The same conversation pro
 live API capture (apiConversation) and from the bulk export should render to identical markdown.
 Both sides are now directories of per-conversation files -- the captures, and the json/ pieces
 project_markdown atomised out of the bulk array -- so this just projects each and pairs by uuid.
-A second verifier alongside compare_markdown.py (which checks projection vs the legacy scrape).
 
 Both formats carry the full edit/regeneration tree; project() reduces each to the active path
 (via the explicit current_leaf_message_uuid for a capture, the inferred latest-created leaf for the

@@ -8,10 +8,9 @@ with the root derived from their own SELF declaration (#357):
     sys.path.insert(0, str(REPO / 'src' / 'main'))   # puts src/main/ on the path
     from markdown_projection import project, render, ...
 
-Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py and
-pipeline/browser-captures/compare_markdown.py (project+render to compare),
-pipeline/chat-exports/atomise_bulk.py (slug/assign_name to name the per-conversation
-pieces).
+Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py
+(project+render to compare), pipeline/chat-exports/atomise_bulk.py (slug/assign_name
+to name the per-conversation pieces).
 
 The per-message projection, in jq:
   {role: .sender,
@@ -200,8 +199,7 @@ def turn_seq(md):
     from a rendered markdown string. The dual of render(): this file owns the markdown
     format in both directions, so format changes (e.g. the heading anchors, which the
     `[^\\n]*` split deliberately ignores) stay in lockstep. The trailing --- turn divider
-    is not part of the turn's content: an empty turn must normalize to '' (the empty-turn
-    exemption in compare_markdown.classify depends on it)."""
+    is not part of the turn's content: an empty turn must normalize to ''."""
     parts = re.split(r'^## (Human|Claude|Gemini) [^\n]*\n', md, flags=re.M)
     seq = []
     for i in range(1, len(parts) - 1, 2):
