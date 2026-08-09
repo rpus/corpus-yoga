@@ -30,10 +30,14 @@
      backticks are the one safe mark (quotes mis-pair on apostrophes).
      MOOD LAW: closes is indicative-only. A branch-birth commit must not carry
      it — the promise would execute at merge regardless of what review decided
-     in between. Prospective notes phrase completion without the parser's words
-     ("aims to complete #N"); the pre-merge flip is what arms the close, which
-     makes the recompose load-bearing: if review narrowed the scope, removing
-     closes is not tidying prose, it is preventing a wrong close. -->
+     in between. The BODY obeys the same law: the parser reads it at merge too,
+     so a raised body's why and do sections phrase completion prospectively
+     ("aims to complete #N") exactly as the commits do. The pre-merge flip is
+     the ONE act that arms the close — recompose to the final commit AND edit
+     the body's "aims to complete" to closes, together, on the reviewer's
+     word — which makes the recompose load-bearing: if review narrowed the
+     scope, withholding closes is not tidying prose, it is preventing a wrong
+     close. -->
 
 Signature: <machine>/<provider>/<session>
 
