@@ -29,14 +29,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-exports"   # the chat pipeline's helpers (timeline)
-MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey, format
+MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # the shell face of YOGA_NO_SEND (#29)
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 MODEL="${ANTHROPIC_MODEL:-claude-sonnet-4-6}"
 API_URL="https://api.anthropic.com/v1/messages"
-FORMAT_TABLE_SCRIPT="$MODEL_DIR/format_table.py"
+FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 
 # chat_list <source> → numbered "N: name" lines, from the one canonical ordering.
 # The default source is the projected corpus itself (data/output/markdown — every source's
