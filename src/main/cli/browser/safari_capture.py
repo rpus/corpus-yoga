@@ -546,19 +546,25 @@ def complete_files(conv_id, api_dir):
         return 0, []
     dir_for, dressing = _library()
     lib_dir = dir_for(conv_id, dressing.get(conv_id, ''))
+    lib_rel = rel(lib_dir)
     fetched, notes = 0, []
     for url, name in handles:
         if (lib_dir / name).exists():
             continue
-        print(f'  file: {name} ← {url}')
+        print(f'  file: {name} ← {url} → {lib_rel}/')
         got = safari_fetch_asset(url, name)
         if got is None:
-            notes.append(f'file {name}: no download arrived — see the run log; '
-                         f'by hand: {url}')
+            notes.append(f'file {name}: no completed download arrived — fetch by hand: {url}')
             continue
         lib_dir.mkdir(parents=True, exist_ok=True)
         shutil.move(str(got), lib_dir / name)
-        fetched += 1
+        # the count states verified deposits: a move that leaves no regular
+        # file at the address is a note, never a success
+        if (lib_dir / name).is_file():
+            fetched += 1
+        else:
+            notes.append(f'file {name}: download arrived but no file stands at '
+                         f'{lib_rel}/{name} — fetch by hand: {url}')
     return fetched, notes
 
 

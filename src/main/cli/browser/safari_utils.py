@@ -186,8 +186,14 @@ def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
     while time.time() < deadline:
         for f in DOWNLOADS.glob('*'):
             # Safari may dedupe a colliding name to 'name (1).ext' — accept any
-            # fresh arrival whose stem starts with the asked-for stem.
-            if f.stat().st_mtime > start and f.name.startswith(Path(filename).stem):
+            # fresh arrival whose stem starts with the asked-for stem. Finalized
+            # only: an in-flight arrival is a <name>.download bundle, and a
+            # bundle moved away mid-flight evaporates — Safari finalizes the
+            # file into Downloads by file reference and cleans up the bundle
+            # wherever the move put it.
+            if (f.is_file() and not f.name.endswith('.download')
+                    and f.stat().st_mtime > start
+                    and f.name.startswith(Path(filename).stem)):
                 return f
         time.sleep(0.5)
     return None
