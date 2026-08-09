@@ -2,7 +2,7 @@
 """
 library.py — uuid-keyed resolution of the durable artifact library.
 
-data/output/artifacts/downloaded/ outlives any one export batch, so its directories are
+data/output/artifacts/claude/chat/downloaded/ outlives any one export batch, so its directories are
 keyed by identity with presentation as dressing: <ordinal>-<slug>-<uuid8>, where
 <uuid8> (the first 8 hex digits of the conversation uuid) is the resolution key
 and <ordinal>-<slug> is the batch's canonical presentation name — carried for
@@ -28,7 +28,27 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-LIBRARY = REPO / 'data' / 'output' / 'artifacts' / 'downloaded'
+LIBRARY = REPO / 'data' / 'output' / 'artifacts' / 'claude' / 'chat' / 'downloaded'
+# The pre-#421 address. data/output/ is durable and shared, so the store moves
+# ONCE by hand; the machinery meets an unmigrated machine with a stated note,
+# never a silently empty library.
+LIBRARY_OLD = REPO / 'data' / 'output' / 'artifacts' / 'downloaded'
+_noted = False
+
+
+def migration_note() -> None:
+    """Skip-not-fail for the unmigrated machine (#421): if the library is
+    absent at its address but present at the old one, say so once, with the
+    single move as the remedy — then proceed treating the library as absent."""
+    global _noted
+    if _noted or LIBRARY.is_dir() or not LIBRARY_OLD.is_dir():
+        return
+    _noted = True
+    print('NOTE: the artifact library moved (#421): '
+          'data/output/artifacts/downloaded -> data/output/artifacts/claude/chat/downloaded\n'
+          '    -> run once: mkdir -p data/output/artifacts/claude/chat && '
+          'mv data/output/artifacts/downloaded data/output/artifacts/claude/chat/downloaded',
+          file=__import__('sys').stderr)
 
 
 def assert_uuid8_unique(uuids) -> None:
@@ -57,6 +77,7 @@ def find(uuid: str, root: Path = LIBRARY) -> Path | None:
     the exact bug uuid-keying exists to prevent. (No false positives either way:
     an ordinal prefix is 2-3 digits, never 8 hex + '-'; a slug tail would have
     to equal this conversation's uuid8 exactly.)"""
+    migration_note()
     if not root.is_dir():
         return None
     hits = sorted(root.glob(f'*-{uuid[:8]}')) or sorted(root.glob(f'{uuid[:8]}-*'))

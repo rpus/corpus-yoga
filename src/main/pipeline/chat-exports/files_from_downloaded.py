@@ -2,7 +2,7 @@
 """
 files_from_downloaded.py
 
-Produces a data-files JSON table from the data/output/artifacts/downloaded/ directory,
+Produces a data-files JSON table from the data/output/artifacts/claude/chat/downloaded/ directory,
 one row per file per chat. Used by present.sh to drive the index.html tooltip.
 
 Using downloaded as the source (rather than local_resource tool-result records

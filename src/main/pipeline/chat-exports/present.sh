@@ -19,7 +19,7 @@ FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 TIMELINE_SCRIPT="$SCRIPT_DIR/timeline.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
-DOWNLOADED_DIR="$REPO_DIR/data/output/artifacts/downloaded"
+DOWNLOADED_DIR="$REPO_DIR/data/output/artifacts/claude/chat/downloaded"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ DOWNLOADED_DIR="$REPO_DIR/data/output/artifacts/downloaded"
 # columnarises; the ordering/numbering lives in one place, shared with the atomised json/ names.
 timeline() { "$REPO_DIR/src/run_python_script.sh" "$TIMELINE_SCRIPT" "$1" --table "$2"; }
 
-# Tooltip: files sourced from data/output/artifacts/downloaded/ — pre-curated and
+# Tooltip: files sourced from data/output/artifacts/claude/chat/downloaded/ — pre-curated and
 # path-consistent. local_resource paths (what Claude reported) are unreliable.
 # The library is uuid8-keyed (identity); data-chats.json ($1) supplies the
 # uuid → current-ordinal join for this batch's presentation.
@@ -124,7 +124,7 @@ present_export() {
     printf '%s\n' "$json" > "$out_dir/data-spans.json"
     echo "  ✓ data-spans"
 
-    # data-files (tooltip): sourced from data/output/artifacts/downloaded/
+    # data-files (tooltip): sourced from data/output/artifacts/claude/chat/downloaded/
     json="$(files_from_downloaded "$out_dir/data-chats.json" | format_table)"
     inject "$out" "data-files" "$json"
     printf '%s\n' "$json" > "$out_dir/data-files.json"

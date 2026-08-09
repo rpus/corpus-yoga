@@ -2,6 +2,7 @@
 Shared Safari automation utilities for browser-captures scripts.
 Called by safari_capture.py and audit_captures.py — do not invoke directly.
 """
+import json
 import os
 import shutil
 import subprocess
@@ -157,6 +158,36 @@ def safari_fetch_api_json(uuid, timeout=DOWNLOAD_TIMEOUT):
     while time.time() < deadline:
         for f in DOWNLOADS.glob(f'{uuid}.json'):
             if f.stat().st_mtime > start:
+                return f
+        time.sleep(0.5)
+    return None
+
+
+def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
+    """Fetch a session-authenticated asset URL (#422 — the file handles the API
+    capture names, e.g. /api/<org>/files/<uuid>/document_pdf) in the front
+    claude.ai page and download it as `filename`; returns the Downloads path,
+    or None when the fetch produced nothing within the timeout."""
+    assert_may_send(f'fetch asset {url_path}')
+    js = (
+        "(async function() {"
+        f"  const r = await fetch({json.dumps(url_path)}, {{credentials: 'include'}});"
+        "  if (!r.ok) return;"
+        "  const a = document.createElement('a');"
+        "  a.href = URL.createObjectURL(await r.blob());"
+        f"  a.download = {json.dumps(filename)};"
+        "  document.body.appendChild(a); a.click();"
+        "  document.body.removeChild(a); URL.revokeObjectURL(a.href);"
+        "})();"
+    )
+    start = time.time()
+    safari_eval_js(js)
+    deadline = start + timeout
+    while time.time() < deadline:
+        for f in DOWNLOADS.glob('*'):
+            # Safari may dedupe a colliding name to 'name (1).ext' — accept any
+            # fresh arrival whose stem starts with the asked-for stem.
+            if f.stat().st_mtime > start and f.name.startswith(Path(filename).stem):
                 return f
         time.sleep(0.5)
     return None

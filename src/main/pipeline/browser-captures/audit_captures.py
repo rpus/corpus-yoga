@@ -47,6 +47,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # library.py — the artifact library's owner (#421)
 from markdown_projection import turn_seq, conv_id, turn_extent  # the format authority owns the parsers
 from compare_markdown import classify, turn_labels
 from safari_utils import SendRefused   # --live sends; the refusal has to be catchable here
@@ -367,6 +368,10 @@ def live_gemini(captures_dir: Path) -> list[str]:
 
 
 def main():
+    # The one thing an unmigrated machine needs this face to say (#421): the
+    # library's stated move — bare `yoga browser` is where a tester looks first.
+    from library import migration_note
+    migration_note()
     ap = argparse.ArgumentParser()
     ap.add_argument('--input', default='input',
                     help='input root, typed <provider>/<channel>/<capture> — the audit '

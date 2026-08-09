@@ -30,6 +30,10 @@ macOS Shortcut — is independent of the mode):
 Requires Safari open, focused, and logged into the site throughout.
 Called by safari_capture.sh — do not invoke directly.
 
+A claude capture COMPLETES each conversation's record: the JSON, and the file
+assets it names (uploads), the latter deposited into the artifact library
+(data/output/artifacts/claude/chat/downloaded/) when absent — see complete_files.
+
 Usage:
     python safari_capture.py --provider claude                   [--browser-api  data/input/claude/chat/browser-API]
     python safari_capture.py --provider claude --mechanism DOM   [--browser-dom  data/input/claude/chat/browser-DOM]
@@ -46,7 +50,7 @@ from pathlib import Path
 from safari_utils import (  # type: ignore[import-not-found]
     osascript, safari_focus, safari_navigate, safari_run_js_file, safari_eval_js,
     safari_open_work_tab, safari_close_work_tab,
-    safari_fetch_api_json, collect_md_and_log, process_chain,
+    safari_fetch_api_json, safari_fetch_asset, collect_md_and_log, process_chain,
     SendRefused,
     PAGE_LOAD_WAIT,
 )
@@ -453,6 +457,12 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
             j = fetch_api(conv_id, api_dir)
             if j:
                 files.append(j)
+                if provider == 'claude':
+                    fetched, notes = complete_files(conv_id, api_dir)
+                    if fetched:
+                        files.append(f'{fetched} file asset(s)')
+                    for n in notes:
+                        print(f'  note: {n}', file=sys.stderr)
         if do_scrape:
             if navigate:
                 wait_for_url(conv_id)   # confirm the NEW conversation loaded, not a stale/transitioning page
@@ -483,6 +493,76 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
               '  # re-sweep after fixing the cause(s) the FAIL lines above name',
               file=sys.stderr)
     return failed
+
+
+def asset_handles(conv_json):
+    """The fetchable file handles one API capture names (#422): each files[]
+    entry's best asset URL — the document original where one exists, else the
+    image preview — with its file_name. Attachments carry their text inline
+    (extracted_content) and name no asset URL; they are not handles."""
+    out = []
+    for m in conv_json.get('chat_messages', []):
+        for f in (m.get('files') or []):
+            url = ((f.get('document_asset') or {}).get('url')
+                   or f.get('preview_url')
+                   or (f.get('thumbnail_asset') or {}).get('url'))
+            name = f.get('file_name')
+            if url and name:
+                out.append((url, name))
+    return out
+
+
+_LIBRARY = None   # (dir_for, dressing) once per run — set on the first claude capture
+
+
+def _library():
+    """The artifact library face, once per run (#421/#422): dir_for and the
+    corpus dressing map, imported lazily so gemini sweeps never touch it."""
+    global _LIBRARY
+    if _LIBRARY is None:
+        sys.path.insert(0, str(REPO_DIR / 'src' / 'main' / 'pipeline' / 'chat-exports'))
+        from library import dir_for, migration_note  # noqa: E402 — one authority (#421)
+        from markdown_projection import corpus_index  # noqa: E402
+        migration_note()
+        dressing = {}
+        md_root = REPO_DIR / 'data' / 'output' / 'markdown'
+        if md_root.is_dir():
+            dressing = {cid: f'{n:03d}-{stem.rsplit("/", 1)[-1].split("-", 1)[-1]}'
+                        for n, stem, _title, cid in corpus_index(str(md_root))}
+        _LIBRARY = (dir_for, dressing)
+    return _LIBRARY
+
+
+def complete_files(conv_id, api_dir):
+    """A capture COMPLETES the conversation's record (#422): the JSON names the
+    conversation's files (uploads — documents, images), so the same visit
+    fetches whatever the artifact library lacks and deposits it uuid-keyed.
+    The library gap is the work-list — a complete library costs nothing — and
+    by-hand remains the stated fallback for what no handle names. Returns
+    (fetched, notes): a failed asset is a note, not a failed capture — the
+    JSON is the record; the files are its belongings."""
+    j = api_dir / f'{conv_id}.json'
+    if not j.is_file():
+        return 0, []
+    handles = asset_handles(json.loads(j.read_text()))
+    if not handles:
+        return 0, []
+    dir_for, dressing = _library()
+    lib_dir = dir_for(conv_id, dressing.get(conv_id, ''))
+    fetched, notes = 0, []
+    for url, name in handles:
+        if (lib_dir / name).exists():
+            continue
+        print(f'  file: {name} ← {url}')
+        got = safari_fetch_asset(url, name)
+        if got is None:
+            notes.append(f'file {name}: no download arrived — see the run log; '
+                         f'by hand: {url}')
+            continue
+        lib_dir.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(got), lib_dir / name)
+        fetched += 1
+    return fetched, notes
 
 
 def main():

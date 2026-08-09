@@ -39,8 +39,9 @@ Usage (via yoga indexing):
   yoga indexing reject [--reason <why>] <concept>  # reject a concept
   yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
   yoga indexing sync                               # build data/output/markdown/index.md
-  yoga indexing capture [...]                      # PAID: the model re-reads the corpus for
-                                                   #   the two index tables (see capture.sh)
+  yoga indexing capture [--conversations <path>]   # PAID: the model re-reads the corpus for
+      [--only semantic-concepts|chat-categories]   #   the two index tables (see capture.sh);
+      [--dry-run]                                  #   --dry-run: coverage preview, spends nothing
 """
 import argparse
 import re

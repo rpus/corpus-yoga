@@ -32,6 +32,17 @@
     ],
     "urllib.request (claude.ai API)": [
       "fetches conversations over the session's own authenticated API (refused loudly under YOGA_NO_SEND)"
+    ],
+    "fetch (in-page, session-authenticated)": [
+      "claude: GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks — the capture completes the record (#422)"
     ]
-  }
+  },
+  "w": [
+    "data/input/claude/chat/browser-API",
+    "data/input/gemini/chat/browser-DOM",
+    "data/output/artifacts/claude/chat/downloaded"
+  ],
+  "r": [
+    "data/output/markdown"
+  ]
 }

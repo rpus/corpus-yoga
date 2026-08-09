@@ -6,7 +6,7 @@ Cross-references data-files.json against extracted_files/ and
 extracted_heredocs/ to report files not yet harvested.
 
 Batch extraction dirs are joined by the canonical <ordinal>-<slug> name; the
-durable library data/output/artifacts/downloaded/ is joined by uuid (via
+durable library data/output/artifacts/claude/chat/downloaded/ is joined by uuid (via
 src/main/pipeline/chat-exports/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names survive the (dressing-refreshed)
 renumbering that batch ordinals don't.
 
