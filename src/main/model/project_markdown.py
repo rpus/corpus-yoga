@@ -30,7 +30,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import (REPO, project, ordered, find_api_json, render,
-                                 md_validator, tree_problems, reconcile_dir)
+                                 md_validator, tree_problems, deposit, conv_id)
 
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'chat-exports'))
 from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
@@ -117,8 +117,8 @@ def write_markdown(named_convs, out_dir):
             else:
                 n_ok += 1
         files[f"{name}.md"] = render(conv, frontmatter=fm, summaries_link=slink)
-    w, u, r = reconcile_dir(out_dir, files)
-    print(f"  markdown: {w} written, {u} unchanged, {r} pruned", file=sys.stderr)
+    deposit(out_dir, files, f'  markdown: {len(files)} conversation(s)', identity=conv_id,
+            because='its conversation left the source', file=sys.stderr)
     return n_ok, n_bad, n_empty
 
 

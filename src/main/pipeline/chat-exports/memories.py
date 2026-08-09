@@ -50,7 +50,9 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-from markdown_projection import reconcile_dir  # noqa: E402
+# renamed on import: this file's own deposit() puts memory STATES into the
+# library; the shared one puts rendered FILES into a directory (#426)
+from markdown_projection import deposit as deposit_files  # noqa: E402
 from argparse_help import enrich, inherit_flags  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -156,9 +158,8 @@ def render(deposits, out_dir):
                     out += [f'## {name}', '']
                 out += [str(value).rstrip(), '']
         files[f'{f.stem}.md'] = '\n'.join(out).rstrip() + '\n'
-    w, u, r = reconcile_dir(out_dir, files)
-    shown = out_dir.relative_to(REPO) if out_dir.is_relative_to(REPO) else out_dir
-    print(f'{len(deposits)} memory snapshot(s) to {shown} — {w} written, {u} unchanged, {r} pruned')
+    deposit_files(out_dir, files, f'{len(deposits)} memory snapshot(s)',
+                  because='its deposit is gone')
 
 
 def status(memories_output: Path, chat_exports_cache: Path) -> int:

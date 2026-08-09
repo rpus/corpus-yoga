@@ -35,7 +35,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
-from markdown_projection import REPO, MD033_PRAGMA, reconcile_dir, turn_extent, conv_id
+from markdown_projection import REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
 
@@ -111,13 +111,12 @@ def main():
                   f'under data/input/ is short. The projection is left as it stands; '
                   f'recapture before trusting either.')
 
-    # reconcile, not wipe: unchanged scrapes keep their mtime (no needless iCloud
-    # re-upload of the whole tree each run); departed ones are pruned as orphans
-    w, u, r = reconcile_dir(out, files)
-    # --out takes any path, so the summary cannot assume this one is inside the repo
-    shown = out.relative_to(REPO) if out.resolve().is_relative_to(REPO) else out
-    print(f'gemini: {len(files)} scrape(s) to {shown} (anchored) — '
-          f'{w} written, {u} unchanged, {r} pruned')
+    # deposit, not wipe: unchanged scrapes keep their mtime (no needless iCloud
+    # re-upload of the whole tree each run). Identity is conv_id (#419): a
+    # renumbered ordering renames every output, and 27 renames once printed as
+    # '27 pruned' — indistinguishable from a purge in the one line that mattered.
+    deposit(out, files, f'gemini: {len(files)} scrape(s)', identity=conv_id, note=' (anchored)',
+            because='its capture departed from data/input/gemini/chat/browser-DOM/')
 
 
 if __name__ == '__main__':
