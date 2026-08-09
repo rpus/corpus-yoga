@@ -7,11 +7,8 @@ conversation, the user recaptures it (Shortcut / --id); this tool says which
 captures need attention. Two independent questions, two modes:
 
 Filesystem audit (always) — "are the captures I have any good?"
-  claude — every DOM capture is checked against the projection of the API capture
-  (project_markdown output) with compare_markdown's turn-sequence classifier; any
-  regression kind marks the DOM capture suspect. A conversation with no DOM capture is
-  fine (DOM is optional for claude; the API capture is the record) and counted
-  informationally.
+  claude — nothing to check offline: the API capture is the record (DOM retired,
+  #418/#431), and validate.sh already gates each capture against the schema.
   gemini — no API capture exists, so heuristics: a DOM capture with exactly
   RENDER_CEILING human turns is flagged as likely truncated (the pre-walking window), and
   '[no capture' placeholders are counted informationally.
@@ -48,130 +45,12 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # library.py — the artifact library's owner (#421)
-from markdown_projection import turn_seq, conv_id, turn_extent  # the format authority owns the parsers
-from compare_markdown import classify, turn_labels
+from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
 from safari_utils import SendRefused   # --live sends; the refusal has to be catchable here
 
 # Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking one.
 RENDER_CEILING = 10
-
-
-def _attribute(kind: str, evidence: list, capture: Path) -> str:
-    """Re-word a projection-side shortfall once the API capture has been consulted:
-    absent from the record is `API capture missing N`; present in it is a rendering
-    difference, which is not a loss and should not read like one."""
-    if not capture.is_file():
-        return kind + ' (API capture not on this machine — cause unattributed)'
-    try:
-        blob = json.loads(capture.read_text())
-    except Exception:
-        return kind + ' (API capture unreadable — cause unattributed)'
-    record = ' '.join(re.sub(r'\s+', ' ', c.get('text', ''))
-                      for m in blob.get('chat_messages', [])
-                      for c in (m.get('content') or []) if isinstance(c, dict))
-    absent = [body for _, body in evidence if body[:60].strip() and body[:60] not in record]
-    n = len(evidence)
-    if not absent:
-        return (f'projection renders {n} turn(s) differently — the content IS in the API '
-                f'capture, so nothing is missing from the record')
-    return f'API capture missing {len(absent)} of {n} turn(s)' if len(absent) < n \
-        else f'API capture missing {n} turn(s)'
-
-
-def audit_claude(dom_dir: Path, api_capture_dir: Path, api_dir: Path) -> list[str]:
-    """Scrapes live under browser-DOM/, api json under browser-API/ — the
-    conversation id is the join. An API capture with no DOM capture is found by that
-    join, not by an empty dir: the DOM root only holds ids that were captured."""
-    suspects = []
-    # The projection's FILENAME is the humane identity — data/output/markdown names every
-    # conversation <NNN>-<title>.md, stable and sortable. Keeping only the text threw that
-    # away and left the WARN citing a 36-char uuid and a slug with the ordinal stripped:
-    # the machine half kept, the human half mangled, when the file carried both.
-    projected = {}
-    for f in api_dir.glob('*.md'):
-        text = f.read_text()
-        cid = conv_id(text)
-        if cid:
-            projected[cid] = (text, f.stem)
-    unprojected = 0
-    have_dom = set()
-    for d in sorted(dom_dir.iterdir()) if dom_dir.is_dir() else []:
-        mds = sorted(d.glob('*.md')) if d.is_dir() else []
-        if not mds:
-            continue
-        have_dom.add(d.name)
-        s = mds[0].read_text()
-        cid = conv_id(s) or d.name
-        if cid not in projected:
-            unprojected += 1
-            continue
-        text, name = projected[cid]
-        kind, detail, evidence = classify(turn_seq(s), turn_seq(text),
-                                          turn_labels(s), turn_labels(text))
-        if kind.startswith('projection missing') and evidence:
-            # The comparison is markdown vs markdown and cannot tell a turn the RECORD
-            # lacks from a turn project_markdown rendered differently. We hold the record,
-            # so we ask it — the difference decides whether this is content loss or a
-            # rendering artifact, which want opposite responses from a reader.
-            kind = _attribute(kind, evidence, api_capture_dir / d.name / f'{d.name}.json')
-        if kind not in ('exact', 'improved'):
-            # `detail` names the turns that differ — discarded, it leaves the reader
-            # with a count and no way to judge it without re-running the comparison
-            suspects.append((d.name, name, kind, detail))
-    # One WARN per disagreeing DOM capture, naming the conversation the way the corpus
-    # does (<NNN>-<title>, uuid8 beside it) and the turns that differ. Both sides compared
-    # are MARKDOWN — the projection of the API capture, and the DOM capture — so the
-    # difference may belong to project_markdown's rendering rather than to either capture,
-    # and the WARN says so instead of prescribing a re-capture as though it could not.
-    # The record first. Attribution decides severity and order: content absent from the API
-    # capture is the only kind that means anything is LOST — the others are a retired
-    # mechanism lagging, or a rendering difference over a record that is intact.
-    suspects.sort(key=lambda x: (not x[2].startswith('API capture missing'), x[1]))
-    if suspects:
-        # said ONCE, not per WARN: it is the same fact about the comparison every time,
-        # and three copies of a paragraph is how a report teaches its reader to skim.
-        print('claude: the comparison is markdown vs markdown — the projection of the API '
-              'capture against the DOM capture — so a difference may be in project_markdown '
-              "rather than in either capture. claude's DOM capture is retired; the API "
-              'capture is the record.')
-    for uuid, name, kind, detail in suspects:
-        # identity leads, on its own line; the finding and its remedy are the body, aligned
-        # (pipeline.sh's hoist_atoms carries an atom's indented continuation).
-        #
-        # Severity follows the ATTRIBUTION, and the test is: was anything LOST? For claude
-        # the API capture is the record and the DOM capture is retired, so a DOM capture
-        # that lags leaves the corpus complete — INFO, like a rendering difference. WARN is
-        # left meaning one thing only: content absent from the record. That the WARN class
-        # is presently EMPTY is itself the report — a fact this output could not state while
-        # every difference was a warning.
-        lost = kind.startswith('API capture missing')
-        intact = kind.startswith('projection renders')
-        print(f'{"WARN" if lost else "INFO"}: {name} ({uuid[:8]}):')
-        print(f'    {kind}' + (f' — {detail}' if detail else ''))
-        if intact:
-            print('    nothing to re-capture: the record holds the content. The DOM capture '
-                  'is retired — delete it to retire the difference with it.')
-        else:
-            # a lagging DOM capture is not a loss, but re-capturing IS the action if you
-            # want it current — so the remedy stays, at INFO
-            # claude's DOM is retired (#418): the one remedy is deletion — no
-            # advice line may name a retired mechanism as a thing to run.
-            print('    delete its DOM capture — the record (the API capture) holds the conversation')
-    unscraped = sum(1 for d in api_capture_dir.iterdir()
-                    if d.is_dir() and d.name not in have_dom) if api_capture_dir.is_dir() else 0
-    if unscraped:
-        print(f'claude: {unscraped} API capture(s) have no DOM capture — '
-              'optional; the API capture is the record')
-    if unprojected:
-        print(f'WARN: claude: {unprojected} DOM capture(s) have no projection under data/output/markdown — '
-              'the browser-captures pipeline step project_markdown produces it')
-    # show the working even on success: silence was load-bearing here once —
-    # a clean audit and a skipped one printed identically (nothing)
-    checked = len(have_dom)
-    print(f'claude: {checked} DOM capture(s) checked against their projections — '
-          + ('all aligned' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
-    return [f'{name} ({uuid[:8]}): {kind}' for uuid, name, kind, _ in suspects]
 
 
 def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list[str]:
@@ -375,7 +254,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--input', default='input',
                     help='input root, typed <provider>/<channel>/<capture> — the audit '
-                         'derives claude/chat/browser-{API,DOM} and gemini/chat/browser-DOM')
+                         'derives claude/chat/browser-API and gemini/chat/browser-DOM')
     ap.add_argument('--api', default='data/output/markdown/claude/chat/conversations',
                     help='dir of api-sourced markdown (project_markdown output)')
     ap.add_argument('--live', action='store_true',
@@ -389,9 +268,7 @@ def main():
     args = ap.parse_args()
 
     root = Path(args.input)
-    api_dir = Path(args.api)
     claude_api = root / 'claude' / 'chat' / 'browser-API'
-    claude_dom = root / 'claude' / 'chat' / 'browser-DOM'
     gemini_dom = root / 'gemini' / 'chat' / 'browser-DOM'
     suspects = []
 
@@ -401,10 +278,10 @@ def main():
         return args.provider in (None, provider)
 
     if want('claude'):
-        if claude_api.is_dir() and api_dir.is_dir():
-            suspects += audit_claude(claude_dom, claude_api, api_dir)
-        else:
-            print(f'claude: skipped ({claude_api} or {api_dir} absent)')
+        # the absence is the report: with DOM retired there is no second render to
+        # reconcile the record against, and schema validation already ran per capture
+        print('claude: no offline check — the API capture is the record (DOM retired); '
+              '--live compares it against the account')
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is

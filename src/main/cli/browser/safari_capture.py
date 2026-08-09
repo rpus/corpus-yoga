@@ -14,7 +14,6 @@ system (data/input/<provider>/<channel>/<capture>/):
   browser-API : data/input/<provider>/chat/browser-API/<id>/<id>.json
   browser-DOM : data/input/<provider>/chat/browser-DOM/<id>/<title>.md  (+ gemini's ordering.txt)
 The same conversation id names the capture dir under both roots — the id is the join.
-Claude's DOM capture is also what compare_markdown checks the projection against.
 
 Discovery (the conversation-id listing) is shared: navigate to the provider's listing URL and scroll.
 
@@ -36,7 +35,6 @@ assets it names (uploads), the latter deposited into the artifact library
 
 Usage:
     python safari_capture.py --provider claude                   [--browser-api  data/input/claude/chat/browser-API]
-    python safari_capture.py --provider claude --mechanism DOM   [--browser-dom  data/input/claude/chat/browser-DOM]
     python safari_capture.py --provider gemini --id <id>         [--browser-dom  data/input/gemini/chat/browser-DOM]
 """
 import argparse
@@ -153,7 +151,7 @@ PROVIDERS = {
         # DOM retired 2026-08-08 (#418): the walk's audit read showed DOM never
         # better than API — every finding was DOM missing turns while the API
         # record held the content. The API capture is the record; the scrape
-        # machinery stays for gemini and for the claude DOM captures that exist.
+        # machinery stays for gemini.
         'mechanisms':   ('API',),
         'chat_url':     'https://claude.ai/chat/{id}',
         # /chats is the 'view all' landing — the FULL listing. /recents still
@@ -163,7 +161,6 @@ PROVIDERS = {
         'discover_url': 'https://claude.ai/chats',
         'link_sel':     'a[href*="/chat/"]',
         'id_re':        None,
-        'ready_sel':    'button[data-testid="action-bar-copy"]',
     },
     'gemini': {
         'mechanisms':   ('DOM',),
