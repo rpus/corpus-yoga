@@ -19,6 +19,7 @@ import re
 import sys
 from pathlib import Path
 
+from frontier import verdicts
 from gen_model_candidate import generate
 from model_curation import (documented, rejected, edge_queue, orphan_entries,
                              coverage_gaps, unrecorded_collisions)
@@ -107,9 +108,35 @@ def status() -> None:
             f'{name}/{schema.name}')
     total = len(present) + len(missing)
     print(f'tmp/cache/model: {len(present)}/{total} catalogues present')
-    for m in missing:
-        print(f'  – {m} — not yet projected')
+    if missing:
+        # the count is the fact; 52 derivable filenames were the mumble - the
+        # names are exactly the schema tree's, and sync mints them all
+        print(f'  – {len(missing)} catalogue(s) not yet projected - yoga model sync mints them')
+    frontier_report()
     curation_report()
+
+
+def frontier_report() -> None:
+    """Each family's frontier verdict (#373): the newest datum in this room
+    against the family's latest schema version, read from the validation logs
+    the pipelines' own validate steps wrote - no new validation. Stated here so
+    the usr gate's corpus tail says it: quiet lines when the frontier is
+    modelled, a FAIL atom when it is not, counted by the stage table."""
+    for v in verdicts():
+        family = f"{v['pipeline']}/{v['family']}"
+        if v['kind'] == 'no-datum':
+            print(f"frontier: {family} - no datum in this room (latest {v['latest']})")
+        elif v['kind'] == 'green' and v['scope'] == 'all':
+            print(f"frontier: {family} - recency unknown for its {v['count']} datum(s); "
+                  f"all modelled by latest {v['latest']}")
+        elif v['kind'] == 'green':
+            print(f"frontier: {family} - newest datum ({v['subject']}) modelled by latest {v['latest']}")
+        else:
+            said = ('newest datum' if v['scope'] == 'newest'
+                    else f"datum (recency unknown - all {v['count']} checked)")
+            print(f"FAIL: frontier: {family} - {said} ({v['subject']}) holds no passing "
+                  f"{v['latest']}.log - yoga pipeline run {v['pipeline']} refreshes the evidence; "
+                  f"red thereafter means a schema version is owed (rsc/schema/WORKFLOW.md) - {v['log']}")
 
 
 def main():

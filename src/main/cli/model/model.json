@@ -2,5 +2,10 @@
   "summary": "per-schema definition catalogues, candidates for model.json",
   "target": "src/main/model/model.py",
   "calculus": "project",
-  "args": []
+  "args": [],
+  "r": [
+    "tmp/cache",
+    "rsc/schema",
+    "data/input"
+  ]
 }
