@@ -398,7 +398,7 @@ src/main/pipeline/chat-exports/memories.py,30,comment,src/main/cli/pipeline/pipe
 src/main/pipeline/chat-exports/memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/memories.py       [--chat-exports-cache tmp/cache/chat-exports] 
 src/main/pipeline/chat-exports/memories.py,31,comment,src/main/pipeline/chat-exports/memories.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/memories.py       [--chat-exports-cache tmp/cache/chat-exports] 
 src/main/pipeline/chat-exports/memories.py,46,path_str,src/main/pipeline/chat-exports/memories.py,Y,SELF = 'src/main/pipeline/chat-exports/memories.py'
-src/main/pipeline/chat-exports/memories.py,64,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
+src/main/pipeline/chat-exports/memories.py,66,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
 src/main/pipeline/chat-exports/present.sh,4,comment,src/main/model/present_corpus.py,Y,# The corpus page render is src/main/model/present_corpus.py (yoga site render).
 src/main/pipeline/chat-exports/present.sh,6,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-
 src/main/pipeline/chat-exports/present.sh,7,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-exports data/input/claude/chat/bulk-export

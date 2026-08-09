@@ -34,7 +34,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main — the format authority
-from markdown_projection import MD033_PRAGMA, REPO, assign_name, reconcile_dir  # noqa: E402
+from markdown_projection import MD033_PRAGMA, REPO, assign_name, deposit  # noqa: E402
 
 
 def render_session(conv):
@@ -91,12 +91,8 @@ def main() -> int:
     for i, c in enumerate(convs, 1):
         name = assign_name(c['title'] or c['session_id'][:8], c['session_id'], seen)
         files[f'{i:0{width}d}-{name}.md'] = render_session(c)
-    written, unchanged, _renamed, pruned = reconcile_dir(out, files)
-    rel = out.relative_to(REPO) if out.is_relative_to(REPO) else out
-    print(f'code: {len(files)} session(s) to {rel} — '
-          f'{written} written, {unchanged} unchanged, {len(pruned)} pruned')
-    for name in pruned:
-        print(f'  pruned: {name} — its session left the store')
+    deposit(out, files, f'code: {len(files)} session(s)',
+            because='its session left the store')
     return 0
 
 

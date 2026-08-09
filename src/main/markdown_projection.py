@@ -363,3 +363,26 @@ def reconcile_dir(out_dir, files: dict, identity=None) -> tuple:
                 pruned.append(str(f.relative_to(out_dir)))
             f.unlink()
     return written, unchanged, renamed, pruned
+
+
+def deposit(out_dir, files, label, *, identity=None, because='its source departed',
+            note='', file=None):
+    """Reconcile `files` into out_dir and narrate the ONE deposit shape (#426):
+    '<label> to <dir><note> — W written, U unchanged[, R renamed by the new
+    ordering], P pruned', each true prune named with the caller's because. The
+    renamed segment appears only under an identity — an identity-less deposit
+    cannot distinguish a rename, and must not imply it tried. The four corpus
+    renders once carried four drifting copies of this coda; siblings share one
+    shape, and the shape is the concept the renders share: derive, deposit,
+    say what changed and why."""
+    out_dir = Path(out_dir)
+    w, u, renamed, pruned = reconcile_dir(out_dir, files, identity=identity)
+    shown = out_dir.relative_to(REPO) if out_dir.resolve().is_relative_to(REPO) else out_dir
+    tally = f'{w} written, {u} unchanged, '
+    if identity is not None:
+        tally += f'{renamed} renamed by the new ordering, '
+    tally += f'{len(pruned)} pruned'
+    print(f'{label} to {shown}{note} — {tally}', file=file)
+    for name in pruned:
+        print(f'  pruned: {name} — {because}', file=file)
+    return w, u, renamed, pruned
