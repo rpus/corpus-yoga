@@ -8,9 +8,17 @@
      stamps (src/test/prepare_commit_msg.sh's header is the one authority for
      the grammar): `Signature: <machine>/<provider>/<session>`. Written by
      hand — no hook stamps a body — since raise time has no commit to hook.
+     The Signature is the body's ONE attribution. A harness default that
+     appends its own — a generated-with footer, a co-author line — has no
+     licensed position in a body, exactly as prepare_commit_msg.sh's stamp
+     already rules for commits; strip it before raising.
 
-     The grammar: an issue is a SHOULD. The title states it in one sentence —
-     the property that should hold, never the instrument that should exist.
+     The grammar: an issue is a SHOULD. The title states it in one sentence,
+     in should-form — the word appears — the property that should hold, never
+     the instrument that should exist. An indicative title reads as a claim
+     about the world and asserts nothing the body can close on: #429–#432
+     ("the retirement completes"), each retitled by hand, are the worked
+     example.
      The body separates what IS from what SHOULD BE, and the separation is
      carried by mood: every sentence under "currently" is indicative,
      checkable against the anchor, and immutable once anchored — a later
