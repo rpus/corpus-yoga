@@ -24,12 +24,6 @@
       "type": "",
       "cardinality": "",
       "help": "discover and state the extent (captured / never-captured), then stop — captures nothing, writes nothing"
-    },
-    {
-      "name": "--files",
-      "type": "",
-      "cardinality": "",
-      "help": "claude only: fetch the file assets the API captures name into the artifact library (data/output/artifacts/claude/chat/downloaded) — the work-list is the library gap"
     }
   ],
   "sends": {
@@ -40,7 +34,7 @@
       "fetches conversations over the session's own authenticated API (refused loudly under YOGA_NO_SEND)"
     ],
     "fetch (in-page, session-authenticated)": [
-      "--files: GETs each named file asset (/api/<org>/files/<uuid>/<variant>) via the logged-in Safari session"
+      "claude: GETs each file asset the conversation JSON names (/api/<org>/files/<uuid>/<variant>) that the artifact library lacks — the capture completes the record (#422)"
     ]
   },
   "w": [

@@ -10,13 +10,12 @@
 #   yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
 #   yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   yoga browser capture --provider claude --id <id>  # one conversation
-#   yoga browser capture --provider claude --files    # fetch the uploaded file assets the captures
-#                                                     #   name into the artifact library (#422)
 #
-#   --files fetches only what data/output/artifacts/claude/chat/downloaded/ lacks; what no
-#   handle names stays on check_harvested's report — by-hand, stated. --id requires
-#   --provider (an id's shape cannot say whose it is); restrictions intersecting to nothing
-#   are reported, never defaulted around. --dry-run: the extent, then stop.
+#   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
+#   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
+#   when absent; what no handle names stays on check_harvested's report — by-hand, stated.
+#   --id requires --provider (an id's shape cannot say whose it is); restrictions
+#   intersecting to nothing are reported, never defaulted around. --dry-run: the extent, then stop.
 #   YOGA_NO_SEND=1 refuses every outward call: a capture has no scratch form, so refusing
 #   it is the only way to exercise these paths without reaching the account.
 
@@ -41,9 +40,9 @@ main() {
     capture) shift ;;
     '') status; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run] [--files]  (yoga browser -h for details)" >&2; exit 1 ;;
+    *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (yoga browser -h for details)" >&2; exit 1 ;;
   esac
-  local provider="" mechanism="" id="" dry_run="" files=""
+  local provider="" mechanism="" id="" dry_run=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --provider)
@@ -57,14 +56,13 @@ main() {
           *) echo "error: --mechanism takes API | DOM (got: ${2-})" >&2; exit 1 ;;
         esac ;;
       --dry-run) dry_run="1"; shift ;;
-      --files)   files="1";   shift ;;
       --id)
         case "${2-}" in
           ''|--*) echo "error: --id takes a conversation id (got: ${2-})" >&2; exit 1 ;;
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run] [--files]"; echo "Pass yoga browser -h for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass yoga browser -h for more information."; exit 1 ;;
     esac
   done
 
@@ -73,10 +71,6 @@ main() {
   # --provider, and asking is better than guessing wrong and capturing into the wrong tree.
   if [[ -n "$id" && -z "$provider" ]]; then
     echo "error: --id names one conversation, and an id's shape does not say whose — pass --provider claude|gemini with it" >&2
-    exit 1
-  fi
-  if [[ -n "$files" && "$provider" != "claude" ]]; then
-    echo "error: --files is a claude acquisition (the API captures name the handles) — pass --provider claude" >&2
     exit 1
   fi
 
@@ -127,7 +121,7 @@ main() {
     mechs="${provider_mechs[$i]}"
     echo "$p: capturing by ${mechs//+/ and }" | tee -a "${logs[$i]}"
     "$SCRIPT_DIR/safari_capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
-      ${id:+--id "$id"} ${dry_run:+--dry-run} ${files:+--files} || rc=$?
+      ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
   return $rc
