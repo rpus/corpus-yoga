@@ -4,8 +4,10 @@ This file points at committed authorities and states the practice that lives
 nowhere else. One home per rule: where an authority exists, follow it there.
 Never reconstruct practice from merged artifacts - a merged PR shows
 post-flip state, not the discipline that produced it. Rules here state
-properties of artifacts, never prohibitions on the agent: a property can be
-checked against the world, a prohibition only against behavior.
+properties of artifacts wherever one can be stated - a property can be
+checked against the world. The imperatives that remain are procedures (an
+act has an actor) or marks of structure not yet built, each owed the
+retirement gradient.
 
 ## principles
 
@@ -45,11 +47,12 @@ seventh principle or a smell.
 - .github/ISSUE_TEMPLATE.md and .github/PULL_REQUEST_TEMPLATE.md are the
   grammar for issue and PR bodies. Read the matching template before raising
   anything.
-- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema process
-  (every version mint carries Replaces plus the Restricted / Relaxed /
-  Refactored sections - story in the intro, mechanics in the categories);
-  rsc/naming/ holds format histories as data - history is never encoded in
-  comments or if-chains.
+- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
+  process, changelog grammar included; rsc/naming/ holds format histories
+  as data - history is never encoded in comments or if-chains.
+- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/
+  syntactic-conflict rule, and the never-delete-local-files-for-a-gate
+  corollary live there.
 - `yoga prerequisites` is the machine-remedy surface: the user runs it first
   on every checkout. Machine-local state and remedies go into its report,
   never into PR prose or replies. Missing optional data means a stated skip
@@ -191,8 +194,9 @@ seventh principle or a smell.
   or force-push, assert the branch as a hard gate
   (`[[ "$(git branch --show-current)" == "<branch>" ]]`), never as a
   printed check the chain ignores.
-- The commit hook stamps the Signature (machine/provider/session); bodies
-  carry it by hand from machine-name.txt - never copy another room's.
+- The Signature grammar and its hooks are CONTRIBUTING.md's subject;
+  bodies carry the triad by hand from machine-name.txt - never copy
+  another room's.
 
 ## building
 
@@ -246,7 +250,8 @@ seventh principle or a smell.
   merges from that checkout after the flip. Usr testing catches dev failure;
   the PR's "to test" prescribes that run and names its arbiter.
 - Ordering and invalidation never derive from clocks: content and issued
-  intents order; a timestamp is a label.
+  intents order; a timestamp is a label. CALCULUS L9 (Currency) is the
+  system-side law.
 
 ## text and output
 

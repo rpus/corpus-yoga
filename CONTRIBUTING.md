@@ -17,7 +17,11 @@ outside the repo, to a server other people see.
 
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
-commits — the squash keeps every one of their messages and signatures.
+commits — the squash keeps every one of their messages and signatures. By merge
+time, review's flip has recomposed the branch to ONE commit on current main
+carrying `closes #N` (.github/PULL_REQUEST_TEMPLATE.md holds that grammar), so
+the squash body is that one message — an un-flipped merge would publish the
+branch's prospective fix-up messages onto main.
 
 An issue states what *should* be true; a PR that closes it reads as the claim that it
 now is. Where that claim is a standing property the code must keep — not a one-off
