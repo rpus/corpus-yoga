@@ -392,14 +392,57 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
 PATH_ARG_TYPES = {'<dir>', '<path>', '<file>', '<scratch-dir>', '<machine|dir>'}
 
 
+def _log_enacting(row: dict, rest: list[str]) -> None:
+    """#453: the run-log obligation derives from the declaration - a verb with
+    declared w or sends is enacting and leaves an anchored log under
+    tmp/logs/<command>/<verb>/; a read-only face (no rows) leaves none, and a
+    verb declaring "log": "self" writes its own. The log is a tee child the
+    target's fds flow through: exec still hands signals, exit codes and stdin
+    to the target - tee is a sink beside it, never a process between. stderr
+    merges into the one stream, and python targets run unbuffered so an
+    interrupt loses nothing."""
+    verb = rest[0] if rest else ''
+    declaration = CLI / row['command'] / f'{verb}.json'
+    if not verb or verb.startswith('-') or not declaration.exists():
+        return
+    d = json.loads(declaration.read_text())
+    if not (d.get('w') or d.get('sends')) or d.get('log') == 'self':
+        return
+    import time
+    stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
+    log_dir = REPO / 'tmp' / 'logs' / row['command'] / verb
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log = log_dir / f'{stamp}.log'
+    suffix = 2
+    while log.exists():
+        log = log_dir / f'{stamp}-{suffix}.log'
+        suffix += 1
+    tee = subprocess.Popen(['tee', str(log)], stdin=subprocess.PIPE)
+    assert tee.stdin is not None  # stdin=PIPE guarantees the handle
+    os.dup2(tee.stdin.fileno(), 1)
+    os.dup2(tee.stdin.fileno(), 2)
+    tee.stdin.close()
+    os.environ['PYTHONUNBUFFERED'] = '1'
+    name_file = REPO / 'machine-name.txt'
+    room = name_file.read_text().strip() if name_file.is_file() else ''
+    head = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--short', 'HEAD'],
+                          capture_output=True, text=True).stdout.strip()
+    print(f"{row['command']} {verb} — {stamp} · room: {room or '(unbound)'} · {head or '(no git)'}",
+          flush=True)
+    print(' '.join(['yoga', row['command'], *rest]), flush=True)
+
+
 def dispatch(row: dict, rest: list[str]) -> int:
     """Exec the row's target, args forwarded verbatim; a .md target is printed.
     exec (not subprocess) so signals, exit codes, and interactivity are the
-    target's own — the CLI leaves no process between the user and the script."""
+    target's own — the CLI leaves no process between the user and the script.
+    An enacting verb's output flows through a tee into its run log first
+    (_log_enacting) - the sink beside the target, not between."""
     target = REPO / row['target']
     if target.suffix == '.md':
         print(target.read_text(), end='')
         return 0
+    _log_enacting(row, rest)
     if target.suffix == '.py':
         runner = REPO / 'src' / 'run_python_script.sh'
         os.execv(str(runner), [runner.name, str(target), *rest])

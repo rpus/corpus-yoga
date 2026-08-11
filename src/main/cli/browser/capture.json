@@ -45,5 +45,6 @@
   "r": [
     "data/output/markdown",
     "machine-name.txt"
-  ]
+  ],
+  "log": "self"
 }

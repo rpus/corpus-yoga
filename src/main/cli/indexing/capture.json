@@ -35,5 +35,6 @@
   "w": [
     "tmp/cache/indexing",
     "data/output/dashboard"
-  ]
+  ],
+  "log": "self"
 }

@@ -312,7 +312,7 @@ src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": 
 src/main/cli/site/site.json,8,path_str,rsc/site,Y,"""rsc/site"","
 src/main/cli/site/site.sh,24,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
-src/main/cli/subcommand.schema.json,25,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
+src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-exports/summaries.py,Y,"""target"": ""src/main/pipeline/chat-exports/summaries.py"","
 src/main/cli/supersede/supersede.json,3,path_str,src/main/pipeline/chat-exports/supersede.py,Y,"""target"": ""src/main/pipeline/chat-exports/supersede.py"","
 src/main/cli/test/run.json,31,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","

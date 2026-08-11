@@ -43,5 +43,6 @@
   "x": [
     "jq",
     "python3"
-  ]
+  ],
+  "log": "self"
 }

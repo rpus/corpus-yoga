@@ -18,6 +18,10 @@
       "type": "string",
       "description": "Names the pipeline this verb is a corpus-wide step of, when it is one. src/main/cli/pipeline/pipeline.sh --plan must invoke it by command AND verb (G10)."
     },
+    "log": {
+      "enum": ["self"],
+      "description": "This verb writes its own run log under tmp/logs/<command>/<verb>/, so the dispatcher's derived logging (#453: a verb with declared w or sends leaves an anchored log) stands down for it."
+    },
     "args": {
       "type": "array",
       "description": "The verb's arguments, in the order they render in its usage.",
