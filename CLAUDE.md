@@ -160,6 +160,9 @@ seventh principle or a smell.
   the branch's OWN commits onto the new main. Nothing is squashed - the
   single-commit shape some successors end with is an artifact of their
   content, never a requirement.
+- A multi-commit branch is treated identically to a single-commit one at
+  every step - review, rebase, flip, merge. No operation in the workflow
+  distinguishes by commit count, and none may collapse one into the other.
 - A merge verdict is a function of (base sha, head sha): keep the branch
   rebased onto current origin/main and ignore GitHub's `mergeable` flag -
   it is an unanchored cache.
