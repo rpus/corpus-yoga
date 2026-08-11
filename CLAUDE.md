@@ -219,9 +219,9 @@ seventh principle or a smell.
   chain.
 - Never chain `--amend` after a fallible step: an amend aims at whatever
   HEAD is, and a silently failed predecessor re-aims it at the wrong
-  commit. Reword by construction instead - `git cherry-pick -n <first> &&
-  git commit -m "<armed message>"` creates the flip's reworded commit in
-  one act, leaving nothing to mis-aim.
+  commit. Where a specific commit is meant, create it by construction
+  (`git cherry-pick -n <sha> && git commit -m "<message>"`) rather than
+  amending it into being.
 - A demonstration of uncommitted work runs in the worktree, never against
   the branch ref - the ref lacks the edits, and the demo silently exercises
   old code.

@@ -6,18 +6,18 @@ CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge
 CLAUDE.md,164,doc,src/main/cli/forge/forge.csv,Y,"src/main/cli/forge/forge.csv, explained in CONTRIBUTING.md, reconciled"
 CONTRIBUTING.md,6,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and"
 CONTRIBUTING.md,14,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
-CONTRIBUTING.md,30,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
-CONTRIBUTING.md,33,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-CONTRIBUTING.md,61,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
-CONTRIBUTING.md,67,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
-CONTRIBUTING.md,67,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
-CONTRIBUTING.md,68,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,68,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,70,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
-CONTRIBUTING.md,72,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-CONTRIBUTING.md,80,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
-CONTRIBUTING.md,81,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
-CONTRIBUTING.md,83,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
+CONTRIBUTING.md,28,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
+CONTRIBUTING.md,31,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+CONTRIBUTING.md,59,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
+CONTRIBUTING.md,65,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+CONTRIBUTING.md,65,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+CONTRIBUTING.md,66,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,66,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,68,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
+CONTRIBUTING.md,70,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+CONTRIBUTING.md,78,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
+CONTRIBUTING.md,79,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
+CONTRIBUTING.md,81,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
 README.md,26,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,26,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,28,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
