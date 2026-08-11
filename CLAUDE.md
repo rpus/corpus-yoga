@@ -3,9 +3,15 @@
 This file points at committed authorities and states the practice that lives
 nowhere else. One home per rule: where an authority exists, follow it there.
 Never reconstruct practice from merged artifacts - a merged PR shows
-post-flip state, not the discipline that produced it. Rules here state
-properties of artifacts, never prohibitions on the agent: a property can be
-checked against the world, a prohibition only against behavior.
+post-flip state, not the discipline that produced it. This file also trumps
+any contradictory post-compaction summary: a summary is written
+autonomously by an agent, lossily, with no vetting, while this file is a
+committed artifact the maintainer has reviewed - re-read it after every
+compaction, and where the two disagree, the summary is wrong. Rules here state
+properties of artifacts wherever one can be stated - a property can be
+checked against the world. The imperatives that remain are procedures (an
+act has an actor) or marks of structure not yet built, each owed the
+retirement gradient.
 
 ## principles
 
@@ -45,11 +51,12 @@ seventh principle or a smell.
 - .github/ISSUE_TEMPLATE.md and .github/PULL_REQUEST_TEMPLATE.md are the
   grammar for issue and PR bodies. Read the matching template before raising
   anything.
-- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema process
-  (every version mint carries Replaces plus the Restricted / Relaxed /
-  Refactored sections - story in the intro, mechanics in the categories);
-  rsc/naming/ holds format histories as data - history is never encoded in
-  comments or if-chains.
+- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
+  process, changelog grammar included; rsc/naming/ holds format histories
+  as data - history is never encoded in comments or if-chains.
+- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/
+  syntactic-conflict rule, and the never-delete-local-files-for-a-gate
+  corollary live there.
 - `yoga prerequisites` is the machine-remedy surface: the user runs it first
   on every checkout. Machine-local state and remedies go into its report,
   never into PR prose or replies. Missing optional data means a stated skip
@@ -173,11 +180,12 @@ seventh principle or a smell.
   cherry-pick onto origin/main. Never `reset --soft origin/main` from a
   stale base - it keeps the old index and silently reverts every merge in
   between (the gate's check count betrays it).
-- A flip force-push rewrites the branch under the user's checkout: always
-  resync that checkout yourself as the flip's last act - verify the
-  flipped tree is identical (`git diff <old-tip> <new-tip> --stat` empty),
-  run `git fetch origin && git reset --hard origin/<branch>` there, and
-  say so. If the tree is dirty, stop and report - never reset.
+- Any force-push rewrites the branch under a checkout that holds it:
+  always resync the user's checkout yourself as the same act's last step -
+  state what changed against what they held (a flip: the identical tree;
+  a rebase: the new base and settled artifacts), run `git fetch origin &&
+  git reset --hard origin/<branch>` there, and say so. If their tree is
+  dirty, stop and report - never reset.
 - Branches carry honest fix-up commits; never amend during review - the
   squash at merge produces the clean commit, and amending erases the record
   of what review changed.
@@ -191,8 +199,9 @@ seventh principle or a smell.
   or force-push, assert the branch as a hard gate
   (`[[ "$(git branch --show-current)" == "<branch>" ]]`), never as a
   printed check the chain ignores.
-- The commit hook stamps the Signature (machine/provider/session); bodies
-  carry it by hand from machine-name.txt - never copy another room's.
+- The Signature grammar and its hooks are CONTRIBUTING.md's subject;
+  bodies carry the triad by hand from machine-name.txt - never copy
+  another room's.
 
 ## building
 
@@ -208,6 +217,11 @@ seventh principle or a smell.
 - Never pipe a gating command (`git commit ... | tail -1` reports the
   pipe's tail, not the veto) - run it bare and let its failure stop the
   chain.
+- Never chain `--amend` after a fallible step: an amend aims at whatever
+  HEAD is, and a silently failed predecessor re-aims it at the wrong
+  commit. Where a specific commit is meant, create it by construction
+  (`git cherry-pick -n <sha> && git commit -m "<message>"`) rather than
+  amending it into being.
 - A demonstration of uncommitted work runs in the worktree, never against
   the branch ref - the ref lacks the edits, and the demo silently exercises
   old code.
@@ -246,7 +260,8 @@ seventh principle or a smell.
   merges from that checkout after the flip. Usr testing catches dev failure;
   the PR's "to test" prescribes that run and names its arbiter.
 - Ordering and invalidation never derive from clocks: content and issued
-  intents order; a timestamp is a label.
+  intents order; a timestamp is a label. CALCULUS L9 (Currency) is the
+  system-side law.
 
 ## text and output
 
