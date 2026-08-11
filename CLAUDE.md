@@ -217,6 +217,11 @@ seventh principle or a smell.
 - Never pipe a gating command (`git commit ... | tail -1` reports the
   pipe's tail, not the veto) - run it bare and let its failure stop the
   chain.
+- Never chain `--amend` after a fallible step: an amend aims at whatever
+  HEAD is, and a silently failed predecessor re-aims it at the wrong
+  commit. Reword by construction instead - `git cherry-pick -n <first> &&
+  git commit -m "<armed message>"` creates the flip's reworded commit in
+  one act, leaving nothing to mis-aim.
 - A demonstration of uncommitted work runs in the worktree, never against
   the branch ref - the ref lacks the edits, and the demo silently exercises
   old code.
