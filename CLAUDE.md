@@ -3,7 +3,11 @@
 This file points at committed authorities and states the practice that lives
 nowhere else. One home per rule: where an authority exists, follow it there.
 Never reconstruct practice from merged artifacts - a merged PR shows
-post-flip state, not the discipline that produced it. Rules here state
+post-flip state, not the discipline that produced it. This file also trumps
+any contradictory post-compaction summary: a summary is written
+autonomously by an agent, lossily, with no vetting, while this file is a
+committed artifact the maintainer has reviewed - re-read it after every
+compaction, and where the two disagree, the summary is wrong. Rules here state
 properties of artifacts wherever one can be stated - a property can be
 checked against the world. The imperatives that remain are procedures (an
 act has an actor) or marks of structure not yet built, each owed the
