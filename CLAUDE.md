@@ -154,17 +154,19 @@ seventh principle or a smell.
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
 - A PR body phrases completion "aims to complete #N" until the flip. The
-  flip, on the reviewer's word only, rebases the branch onto current
-  origin/main KEEPING every fix-up commit, rewords the FIRST commit's
-  message to its final indicative form carrying `closes #N`, and edits the
-  body's phrasing to `closes` in the same act. Never squash before the
-  merge - and never for necessity either: rebase alone yields the clean
-  merge state at any commit count, and the forge's declared squash setting
-  (squash_merge_commit_message: COMMIT_MESSAGES, a row of
-  src/main/cli/forge/forge.csv, explained in CONTRIBUTING.md, reconciled
-  by `yoga forge`) publishes every commit's message and Signature to main,
-  the armed one leading. A pre-merge squash destroys the review record and its corpus
-  join keys.
+  flip, on the reviewer's word only, edits the body's phrasing to `closes`
+  - and rewrites nothing: no git act belongs to the flip. Commits are
+  never rewritten (no squash, no reword - the branch merges as reviewed)
+  and never carry the parser's words; the branch needs only to stand
+  rebased on current origin/main. The forge's declared squash settings
+  (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
+  COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
+  CONTRIBUTING.md, reconciled by `yoga forge`) publish the title as main's
+  subject line and every commit's message and Signature as its body. A
+  pre-merge rewrite destroys the review record and its corpus join keys.
+- Keep the PR title as main's subject line: final indicative, describing
+  what the branch became, current as the branch moves (#300's should,
+  adopted as practice).
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
   the branch's OWN commits onto the new main. Nothing is squashed - the
