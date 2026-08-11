@@ -147,11 +147,27 @@ seventh principle or a smell.
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
 - A PR body phrases completion "aims to complete #N" until the flip. The
-  flip, on the reviewer's word only, recomposes the branch to ONE commit on
-  current origin/main carrying `closes #N` and edits the body's phrasing to
-  `closes` in the same act.
+  flip, on the reviewer's word only, rebases the branch onto current
+  origin/main KEEPING every fix-up commit, rewords the FIRST commit's
+  message to its final indicative form carrying `closes #N`, and edits the
+  body's phrasing to `closes` in the same act. Never squash before the
+  merge - and never for necessity either: rebase alone yields the clean
+  merge state at any commit count, and the forge's declared squash setting
+  (squash_merge_commit_message: COMMIT_MESSAGES, a row of
+  src/main/cli/forge/forge.csv, explained in CONTRIBUTING.md, reconciled
+  by `yoga forge`) publishes every commit's message and Signature to main,
+  the armed one leading. A pre-merge squash destroys the review record and its corpus
+  join keys.
+- A stacked PR follows exactly the ordinary workflow: when its parent
+  squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
+  the branch's OWN commits onto the new main. Nothing is squashed - the
+  single-commit shape some successors end with is an artifact of their
+  content, never a requirement.
+- A multi-commit branch is treated identically to a single-commit one at
+  every step - review, rebase, flip, merge. No operation in the workflow
+  distinguishes by commit count, and none may collapse one into the other.
 - A merge verdict is a function of (base sha, head sha): keep the branch
-  one commit on current origin/main and ignore GitHub's `mergeable` flag -
+  rebased onto current origin/main and ignore GitHub's `mergeable` flag -
   it is an unanchored cache.
 - When origin/main has moved since the branch's base: rebuild by
   cherry-pick onto origin/main. Never `reset --soft origin/main` from a

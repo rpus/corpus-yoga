@@ -33,11 +33,12 @@
      in between. The BODY obeys the same law: the parser reads it at merge too,
      so a raised body's why and do sections phrase completion prospectively
      ("aims to complete #N") exactly as the commits do. The pre-merge flip is
-     the ONE act that arms the close — recompose to the final commit AND edit
-     the body's "aims to complete" to closes, together, on the reviewer's
-     word — which makes the recompose load-bearing: if review narrowed the
-     scope, withholding closes is not tidying prose, it is preventing a wrong
-     close. -->
+     the ONE act that arms the close — reword the branch's FIRST commit to its
+     final indicative form AND edit the body's "aims to complete" to closes,
+     together, on the reviewer's word, keeping every fix-up commit for the
+     squash to publish — which makes the reword load-bearing: if review
+     narrowed the scope, withholding closes is not tidying prose, it is
+     preventing a wrong close. -->
 
 Signature: <machine>/<provider>/<session>
 
