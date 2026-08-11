@@ -4,6 +4,7 @@
 # Usage:
 #   yoga forge                 # declared vs live
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
+#   yoga forge flip <pr>       # the declared flip: relocate if the base moved, resync a held checkout, arm the body's closes
 #   yoga forge merge <pr>      # status; squash-merge that PR and converge this checkout; git status
 #   yoga forge prune [--apply] # forget what the forge no longer has
 
@@ -383,6 +384,106 @@ sync() {
   done
 }
 
+# The flip, as CLAUDE.md declares it (#458): arm the close by editing the PR
+# body's "aims to complete #N" to "closes #N" - and rewrite nothing. A moved
+# base is relocated first (the lifetime's one rebase; rsc/test/ conflicts are
+# CONTRIBUTING's syntactic class, taken wholesale and re-derived; any other
+# conflict aborts to review), a checkout holding the branch is resynced when
+# its tree is clean, and no squash, reword or amend exists below - commits
+# cannot come to carry the parser's words through this command. The chain is
+# teed into one run log; PIPESTATUS carries the verdict past the tee, so the
+# pipe launders nothing.
+flip() {
+  local pr="${1:?yoga forge flip <pr>}"
+  local stamp log rc
+  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
+  mkdir -p "$REPO_DIR/tmp/logs/forge/flip"
+  log="$REPO_DIR/tmp/logs/forge/flip/$stamp.log"
+  { echo "forge flip — $stamp · room: $(cat "$REPO_DIR/machine-name.txt" 2>/dev/null || echo '(unbound)') · $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null)"
+    echo "yoga forge flip $pr"
+    flip_chain "$pr"
+  } 2>&1 | tee "$log"
+  rc="${PIPESTATUS[0]}"
+  echo "Log: $log"
+  return "$rc"
+}
+
+flip_chain() {
+  local pr="$1"
+  local state base head body branch_here old_sha prior conflicted armed n moved=0 guard=0
+  assert_may_send "gh pr view / gh pr edit / git fetch / git push (yoga forge flip)"     || { echo "forge flip: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
+  read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge flip: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
+  [[ "$state" == OPEN ]]     || { echo "forge flip: NOT DONE — #$pr is $state; only an open PR flips"; return 1; }
+  body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge flip: NOT DONE — the body read failed"; return 1; }
+  grep -Eq 'aims to complete #[0-9]+' <<< "$body"     || { echo "forge flip: NOT DONE — the body carries no 'aims to complete #N' to arm"; return 1; }
+  enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge flip: NOT DONE — the fetch failed"; return 1; }
+  branch_here="$(git -C "$REPO_DIR" branch --show-current)"
+  if [[ "$branch_here" == "$head" ]]; then
+    [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]]       || { echo "forge flip: NOT DONE — this checkout holds $head with a dirty tree; commit or stash first, never reset"; return 1; }
+    git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge flip: NOT DONE — local $head holds commits origin/$head does not; push them first"; return 1; }
+  fi
+  if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
+    echo "base unmoved — origin/$head already stands on origin/$base; nothing to relocate"
+  else
+    old_sha="$(git -C "$REPO_DIR" ls-remote origin "refs/heads/$head" | cut -f1)"
+    [[ -n "$old_sha" ]] || { echo "forge flip: NOT DONE — origin has no refs/heads/$head to lease against"; return 1; }
+    prior="$branch_here"
+    [[ -n "$prior" ]] || prior="$(git -C "$REPO_DIR" rev-parse HEAD)"
+    enact git -C "$REPO_DIR" checkout --detach "refs/remotes/origin/$head"       || { echo "forge flip: NOT DONE — could not detach at origin/$head"; return 1; }
+    if ! enact git -C "$REPO_DIR" rebase "refs/remotes/origin/$base"; then
+      while [[ -d "$(git -C "$REPO_DIR" rev-parse --git-path rebase-merge)" ]]; do
+        guard=$((guard + 1))
+        if (( guard > 50 )); then
+          enact git -C "$REPO_DIR" rebase --abort
+          [[ -n "$branch_here" ]] && enact git -C "$REPO_DIR" checkout "$branch_here"
+          echo "forge flip: NOT DONE — the rebase did not converge in 50 steps; resolve in review"
+          return 1
+        fi
+        conflicted="$(git -C "$REPO_DIR" diff --name-only --diff-filter=U)"
+        if grep -qv '^rsc/test/' <<< "$conflicted"; then
+          echo "conflict outside rsc/test/ — the syntactic rule does not apply:"
+          grep -v '^rsc/test/' <<< "$conflicted" | sed 's/^/  /'
+          enact git -C "$REPO_DIR" rebase --abort
+          [[ -n "$branch_here" ]] && enact git -C "$REPO_DIR" checkout "$branch_here"
+          echo "forge flip: NOT DONE — a real conflict lands in the source; resolve it in review, not in the flip"
+          return 1
+        fi
+        if [[ -n "$conflicted" ]]; then
+          enact git -C "$REPO_DIR" checkout --theirs rsc/test/ || return 1
+          enact git -C "$REPO_DIR" add rsc/test/ || return 1
+        fi
+        GIT_EDITOR=true enact git -C "$REPO_DIR" rebase --continue || true
+      done
+    fi
+    quiet "$REPO_DIR/src/test/dev/run.sh" || true
+    if [[ -n "$(git -C "$REPO_DIR" status --porcelain rsc/test/)" ]]; then
+      if ! enact git -C "$REPO_DIR" add rsc/test/ \
+         || ! enact git -C "$REPO_DIR" commit -m "regenerated artifacts settle on the relocated base"; then
+        echo "forge flip: NOT DONE — the settle commit failed; the gate's veto above says why"
+        return 1
+      fi
+    fi
+    enact git -C "$REPO_DIR" push --force-with-lease="refs/heads/$head:$old_sha" origin "HEAD:refs/heads/$head"       || { echo "forge flip: NOT DONE — the lease refused; the branch moved under the flip"; return 1; }
+    moved=1
+    if [[ "$branch_here" == "$head" ]]; then
+      if ! enact git -C "$REPO_DIR" checkout "$head" \
+         || ! enact git -C "$REPO_DIR" reset --hard "refs/remotes/origin/$head"; then
+        echo "forge flip: NOT DONE — the resync failed; this checkout is on the relocated commits, ref unmoved"
+        return 1
+      fi
+      echo "resynced this checkout: $head is the relocated copy of what was reviewed"
+    elif [[ -n "$branch_here" ]]; then
+      enact git -C "$REPO_DIR" checkout "$branch_here"
+    else
+      enact git -C "$REPO_DIR" checkout --detach "$prior"
+    fi
+  fi
+  n="$(grep -Ec 'aims to complete #[0-9]+' <<< "$body")"
+  armed="$(python3 -c 'import re,sys; sys.stdout.write(re.sub(r"aims to complete #([0-9]+)", r"closes #\1", sys.stdin.read()))' <<< "$body")"
+  printf '%s' "$armed" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge flip: NOT DONE — the body edit failed; nothing armed$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
+  echo "forge flip: DONE — #$pr armed ($n phrase(s) now closes); $(if [[ $moved == 1 ]]; then echo "relocated onto origin/$base and pushed"; else echo "base unmoved, nothing rewritten"; fi)"
+}
+
 # Every exit path ends on ONE anchored verdict line — `forge merge: DONE`/`NOT DONE` —
 # because a halted chain's last relay drowns mid-avalanche and non-explosion reads as
 # success (it cost a phantom merge and two human retries on one day, #349). The acts'
@@ -434,6 +535,7 @@ case "${1-}" in
   '')        status ;;
   sync)      shift; sync "$@" ;;
   prune)     shift; prune "$@" ;;
+  flip)      shift; flip "$@" ;;
   merge)     shift; merge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;
