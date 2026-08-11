@@ -83,7 +83,8 @@ def curation_report() -> None:
         print(f'  ✗ {name} — occurrences omit data famil(y/ies) its edge asserts: '
               f'{", ".join(fams)} — add the occurrence(s)')
     collisions = unrecorded_collisions()
-    print(f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
+    print(('INFO: ' if collisions else '')
+          + f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
           'not yet recorded there (leisurely: curate an edge with its relationship kind, or ignore)')
 
 
@@ -111,7 +112,7 @@ def status() -> None:
     if missing:
         # the count is the fact; 52 derivable filenames were the mumble - the
         # names are exactly the schema tree's, and sync mints them all
-        print(f'  – {len(missing)} catalogue(s) not yet projected - yoga model sync mints them')
+        print(f'WARN: {len(missing)} catalogue(s) not yet projected - yoga model sync mints them')
     frontier_report()
     curation_report()
 
