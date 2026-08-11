@@ -11,11 +11,12 @@
      licensed position in a body, exactly as prepare_commit_msg.sh's stamp
      already rules for commits; strip it before raising.
 
-     The grammar (#124): why / what / how / to. The durable half belongs on the
-     branch's FIRST commit — prospective at branch birth ("this branch should…"),
-     flipped to final indicative form before merge — because the squash publishes
-     commit messages, oldest first, and nothing else survives into git history.
-     This body teaches the same sections plus the review-facing half.
+     The grammar (#124): why / what / how / to. The durable record has two git
+     channels (#300): the squash SUBJECT is the PR title — keep it final
+     indicative, describing what the branch became, current as the branch
+     moves — and the squash BODY is every commit's message, oldest first, as
+     reviewed. Commits are never rewritten. This body is the review-facing
+     channel, teaches the same sections, and carries the armed close.
 
      Relations vocabulary: closes / enacts / advances / supersedes / reopens.
      The protection is LEXICAL: every relation but one only REFERS —
@@ -28,17 +29,15 @@
      MENTIONS wear backticks: to speak ABOUT a marker phrase or keyword without
      using it, backtick it — checks strip backticked spans before matching, and
      backticks are the one safe mark (quotes mis-pair on apostrophes).
-     MOOD LAW: closes is indicative-only. A branch-birth commit must not carry
-     it — the promise would execute at merge regardless of what review decided
-     in between. The BODY obeys the same law: the parser reads it at merge too,
-     so a raised body's why and do sections phrase completion prospectively
-     ("aims to complete #N") exactly as the commits do. The pre-merge flip is
-     the ONE act that arms the close — reword the branch's FIRST commit to its
-     final indicative form AND edit the body's "aims to complete" to closes,
-     together, on the reviewer's word, keeping every fix-up commit for the
-     squash to publish — which makes the reword load-bearing: if review
-     narrowed the scope, withholding closes is not tidying prose, it is
-     preventing a wrong close. -->
+     MOOD LAW: closes is indicative-only, and NO commit ever carries it — the
+     promise would execute at merge regardless of what review decided in
+     between, and the squash publishes every commit message. The BODY is the
+     one armed channel: a raised body's why and do sections phrase completion
+     prospectively ("aims to complete #N"), and the pre-merge flip — the ONE
+     act that arms the close, on the reviewer's word — edits that phrasing to
+     closes and rewrites nothing else. If review narrowed the scope,
+     withholding closes is not tidying prose, it is preventing a wrong
+     close. -->
 
 Signature: <machine>/<provider>/<session>
 

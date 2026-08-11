@@ -3,7 +3,7 @@ CLAUDE.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/
 CLAUDE.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 CLAUDE.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
 CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-CLAUDE.md,164,doc,src/main/cli/forge/forge.csv,Y,"src/main/cli/forge/forge.csv, explained in CONTRIBUTING.md, reconciled"
+CLAUDE.md,168,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,6,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and"
 CONTRIBUTING.md,14,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 CONTRIBUTING.md,28,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
