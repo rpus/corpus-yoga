@@ -153,10 +153,10 @@ seventh principle or a smell.
   body's phrasing to `closes` in the same act. Never squash before the
   merge - and never for necessity either: rebase alone yields the clean
   merge state at any commit count, and the forge's declared squash setting
-  (squash_merge_commit_message: COMMIT_MESSAGES in src/main/cli/forge/
-  forge.csv, explained in CONTRIBUTING.md, reconciled by `yoga forge`)
-  publishes every commit's message and Signature to main, the armed one
-  leading. A pre-merge squash destroys the review record and its corpus
+  (squash_merge_commit_message: COMMIT_MESSAGES, a row of
+  src/main/cli/forge/forge.csv, explained in CONTRIBUTING.md, reconciled
+  by `yoga forge`) publishes every commit's message and Signature to main,
+  the armed one leading. A pre-merge squash destroys the review record and its corpus
   join keys.
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
