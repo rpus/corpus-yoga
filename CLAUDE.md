@@ -160,7 +160,10 @@ seventh principle or a smell.
   and never carry the parser's words; the branch needs only to stand
   rebased on current origin/main AT MERGE, and a moved base is rebased as
   the flip's opening act - the lifetime's one relocation,
-  content-preserving, resync owed - never eagerly on every main move. The forge's declared squash settings
+  content-preserving, resync owed. Never rebase eagerly: no open branch
+  can know which merge comes next, so alignment is only information at
+  the flip - eager alignment is work invalidated by every merge it did
+  not predict. The forge's declared squash settings
   (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
   COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
   CONTRIBUTING.md, reconciled by `yoga forge`) publish the title as main's
