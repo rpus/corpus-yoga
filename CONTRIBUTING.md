@@ -18,9 +18,10 @@ outside the repo, to a server other people see.
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
 commits — the squash keeps every one of their messages and signatures. The flip that
-precedes a merge is a body edit — "aims to complete #N" becomes `closes #N` in
-the PR body, and nothing is rewritten (.github/PULL_REQUEST_TEMPLATE.md holds
-that grammar): the squash publishes the title as main's subject line and the
+precedes a merge is `yoga forge flip <pr>` — "aims to complete #N" becomes
+`closes #N` in the PR body, and nothing is rewritten (.github/PULL_REQUEST_TEMPLATE.md
+holds that grammar; the command relocates a moved base first and resyncs a held
+checkout): the squash publishes the title as main's subject line and the
 commits as reviewed, every message and Signature intact.
 
 An issue states what *should* be true; a PR that closes it reads as the claim that it

@@ -1,0 +1,28 @@
+{
+  "help": "the declared flip (#458): reads the PR and refuses anything not OPEN or a body with no 'aims to complete #N' to arm; relocates once onto the base only if it moved (rsc/test/ conflicts are the syntactic class, taken wholesale and re-derived by the gate; any other conflict aborts back to review), resyncs a clean checkout that holds the branch and says so, then arms the close by editing the body's phrasing to closes - commits are never rewritten and never come to carry the parser's words, and the last word is one verdict: forge flip: DONE naming what armed, or NOT DONE naming the halt",
+  "args": [
+    {
+      "name": "pr",
+      "type": "<pr>",
+      "cardinality": "1",
+      "help": "the PR to flip: a number, a URL, or a branch"
+    }
+  ],
+  "sends": {
+    "gh pr view": [
+      "reads the PR's state, base and head before anything else, and its body for the phrase to arm"
+    ],
+    "git fetch origin <base> <head>": [
+      "reads both refs to judge whether the base moved"
+    ],
+    "git push --force-with-lease": [
+      "WRITES the relocated head back to the PR, leased against the sha the flip read - only when the base had moved (refused loudly under YOGA_NO_SEND)"
+    ],
+    "gh pr edit --body-file": [
+      "WRITES the armed body: every 'aims to complete #N' becomes 'closes #N' (refused loudly under YOGA_NO_SEND)"
+    ]
+  },
+  "r": [
+    "machine-name.txt"
+  ]
+}

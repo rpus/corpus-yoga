@@ -154,16 +154,17 @@ seventh principle or a smell.
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
 - A PR body phrases completion "aims to complete #N" until the flip. The
-  flip, on the reviewer's word only, edits the body's phrasing to `closes`
-  - and rewrites nothing: no git act belongs to the flip. Commits are
-  never rewritten (no squash, no reword - the branch merges as reviewed)
-  and never carry the parser's words; the branch needs only to stand
-  rebased on current origin/main AT MERGE, and a moved base is rebased as
-  the flip's opening act - the lifetime's one relocation,
-  content-preserving, resync owed. Never rebase eagerly: no open branch
-  can know which merge comes next, so alignment is only information at
-  the flip - eager alignment is work invalidated by every merge it did
-  not predict. The forge's declared squash settings
+  flip, on the reviewer's word only, is `yoga forge flip <pr>` - it arms
+  the body's phrasing to `closes` and rewrites nothing. Commits are never
+  rewritten (no squash, no reword - the branch merges as reviewed) and
+  never carry the parser's words; the branch needs only to stand rebased
+  on current origin/main AT MERGE, and the command relocates a moved base
+  first - the lifetime's one rebase - and resyncs a clean checkout that
+  holds the branch, announced. Its declaration
+  (src/main/cli/forge/flip.json) is the authority for its steps. Never
+  rebase eagerly: no open branch can know which merge comes next, so
+  alignment is only information at the flip - eager alignment is work
+  invalidated by every merge it did not predict. The forge's declared squash settings
   (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
   COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
   CONTRIBUTING.md, reconciled by `yoga forge`) publish the title as main's
