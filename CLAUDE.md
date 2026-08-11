@@ -151,9 +151,15 @@ seventh principle or a smell.
   origin/main KEEPING every fix-up commit, rewords the FIRST commit's
   message to its final indicative form carrying `closes #N`, and edits the
   body's phrasing to `closes` in the same act. Never squash before the
-  merge: the squash setting publishes every commit's message and Signature
-  to main, the armed one leading - a pre-merge squash destroys the review
-  record and its corpus join keys.
+  merge - and never for necessity either: rebase alone yields the clean
+  merge state at any commit count, and the squash setting publishes every
+  commit's message and Signature to main, the armed one leading. A
+  pre-merge squash destroys the review record and its corpus join keys.
+- A stacked PR follows exactly the ordinary workflow: when its parent
+  squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
+  the branch's OWN commits onto the new main. Nothing is squashed - the
+  single-commit shape some successors end with is an artifact of their
+  content, never a requirement.
 - A merge verdict is a function of (base sha, head sha): keep the branch
   rebased onto current origin/main and ignore GitHub's `mergeable` flag -
   it is an unanchored cache.
