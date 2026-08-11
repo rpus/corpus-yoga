@@ -147,11 +147,15 @@ seventh principle or a smell.
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
 - A PR body phrases completion "aims to complete #N" until the flip. The
-  flip, on the reviewer's word only, recomposes the branch to ONE commit on
-  current origin/main carrying `closes #N` and edits the body's phrasing to
-  `closes` in the same act.
+  flip, on the reviewer's word only, rebases the branch onto current
+  origin/main KEEPING every fix-up commit, rewords the FIRST commit's
+  message to its final indicative form carrying `closes #N`, and edits the
+  body's phrasing to `closes` in the same act. Never squash before the
+  merge: the squash setting publishes every commit's message and Signature
+  to main, the armed one leading - a pre-merge squash destroys the review
+  record and its corpus join keys.
 - A merge verdict is a function of (base sha, head sha): keep the branch
-  one commit on current origin/main and ignore GitHub's `mergeable` flag -
+  rebased onto current origin/main and ignore GitHub's `mergeable` flag -
   it is an unanchored cache.
 - When origin/main has moved since the branch's base: rebuild by
   cherry-pick onto origin/main. Never `reset --soft origin/main` from a
