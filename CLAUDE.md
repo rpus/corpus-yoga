@@ -180,11 +180,12 @@ seventh principle or a smell.
   cherry-pick onto origin/main. Never `reset --soft origin/main` from a
   stale base - it keeps the old index and silently reverts every merge in
   between (the gate's check count betrays it).
-- A flip force-push rewrites the branch under the user's checkout: always
-  resync that checkout yourself as the flip's last act - verify the
-  flipped tree is identical (`git diff <old-tip> <new-tip> --stat` empty),
-  run `git fetch origin && git reset --hard origin/<branch>` there, and
-  say so. If the tree is dirty, stop and report - never reset.
+- Any force-push rewrites the branch under a checkout that holds it:
+  always resync the user's checkout yourself as the same act's last step -
+  state what changed against what they held (a flip: the identical tree;
+  a rebase: the new base and settled artifacts), run `git fetch origin &&
+  git reset --hard origin/<branch>` there, and say so. If their tree is
+  dirty, stop and report - never reset.
 - Branches carry honest fix-up commits; never amend during review - the
   squash at merge produces the clean commit, and amending erases the record
   of what review changed.
