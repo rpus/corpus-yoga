@@ -23,7 +23,8 @@ from frontier import verdicts
 from gen_model_candidate import generate
 from model_curation import (documented, rejected, edge_queue, orphan_entries,
                              coverage_gaps, unrecorded_collisions,
-                             collision_candidates)
+                             shared_name_candidates, identity_violations,
+                             emptiness_violations)
 
 SELF = 'src/main/model/model.py'
 _file = Path(__file__).resolve()
@@ -83,16 +84,31 @@ def curation_report() -> None:
     for name, fams in sorted(gaps.items()):
         print(f'  ✗ {name} — occurrences omit data famil(y/ies) its edge asserts: '
               f'{", ".join(fams)} — add the occurrence(s)')
-    collisions = unrecorded_collisions()
-    if collisions:
-        print(f'INFO: rsc/schema/model_join.csv — {len(collisions)} cross-family name '
-              'collision(s) undisposed (leisurely)')
+    shared = unrecorded_collisions()
+    if shared:
+        print(f'INFO: rsc/schema/model_join.csv — {len(shared)} cross-family shared '
+              'name(s) undisposed (leisurely)')
         print('    → dispose each as a model_join row: candidates pre-filled in '
-              'tmp/cache/model/collision_candidates.csv (yoga model sync renders it); '
-              'set the relationship kind — name_collision records a false friend — '
-              'grammar taught by rsc/schema/WORKFLOW.md, the model_join review')
+              'tmp/cache/model/shared_name_candidates.csv (yoga model sync renders it); '
+              'the relationship kind is the verdict, per rsc/schema/model_join_kinds.csv '
+              '— grammar taught by rsc/schema/WORKFLOW.md, the model_join review')
     else:
-        print('rsc/schema/model_join.csv — every cross-family name collision disposed')
+        print('rsc/schema/model_join.csv — every cross-family shared name disposed')
+    for line, kind, cells in identity_violations():
+        print(f'WARN: model_join row {line} ({kind}) no longer holds at latest — {cells}')
+        print('    → a one-sided mint falsified the edge: re-judge its relationship kind '
+              '(rsc/schema/model_join_kinds.csv) or restore the identity in the schemas')
+    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
+                    REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
+    if any(r.is_dir() for r in corpus_roots):
+        for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
+            print(f'WARN: model_join row {line} ({kind}) falsified by the corpus — '
+                  f'{cell} carries a value in {datum}')
+            print('    → the always-null note is stale: re-judge the edge '
+                  '(rsc/schema/model_join_kinds.csv names the kinds)')
+    else:
+        print('model_join emptiness edges: unchecked — no browser-API or chat-exports '
+              'corpus in this room')
 
 
 def sync() -> None:
@@ -109,11 +125,12 @@ def sync() -> None:
 
 def render_collision_worksheet() -> None:
     """The leisurely queue as a worksheet (machine proposes, human disposes):
-    one pre-filled model_join row per undisposed collision, the judgment
-    fields blank. Rendered by sync beside the catalogues it derives from."""
+    one pre-filled model_join row per undisposed SHARED NAME, the relationship
+    cell blank except where structural equality makes 'identical' a mechanical
+    proposal. Rendered by sync beside the catalogues it derives from."""
     import csv
-    rows = collision_candidates()
-    path = OUT_DIR / 'collision_candidates.csv'
+    rows = shared_name_candidates()
+    path = OUT_DIR / 'shared_name_candidates.csv'
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     with path.open('w', newline='') as fh:
         writer = csv.DictWriter(fh, fieldnames=['name', 'families',
@@ -122,7 +139,9 @@ def render_collision_worksheet() -> None:
                                                 'relationship', 'note'])
         writer.writeheader()
         writer.writerows(rows)
-    print(f'  ✓ tmp/cache/model/collision_candidates.csv ({len(rows)} undisposed)')
+    proposed = sum(1 for r in rows if r['relationship'])
+    print(f'  ✓ tmp/cache/model/shared_name_candidates.csv ({len(rows)} undisposed, '
+          f'{proposed} with a machine proposal)')
 
 
 def status() -> None:

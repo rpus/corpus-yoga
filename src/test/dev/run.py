@@ -1750,6 +1750,14 @@ def check_schema_join(run):
     if not join.exists():
         run('schema model_join.csv exists', False, check='model.join_exists')
         return
+    kinds_table = RSC_SCHEMA / 'model_join_kinds.csv'
+    declared_kinds = {r['kind'] for r in csv.DictReader(kinds_table.open())}
+    unknown = [f'row {i}: {r["relationship"]!r}'
+               for i, r in enumerate(csv.DictReader(join.open()), 2)
+               if r['relationship'] not in declared_kinds]
+    run('model_join: every relationship names a declared kind (rsc/schema/model_join_kinds.csv)',
+        not unknown, '; '.join(unknown[:4]) if unknown else None,
+        check='model.join_kind_declared')
     fails: list[str] = []
     # One grammar, one base: every cell is a versioned family dir relative to
     # rsc/schema ('chat-exports/conversations#…', '_reference/mcp#…'), resolved

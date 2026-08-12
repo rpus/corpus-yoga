@@ -80,6 +80,96 @@ def name_scan() -> dict:
     return {n: sorted(f) for n, f in sorted(by_name.items()) if len(f) > 1}
 
 
+KINDS_TABLE = SCHEMA_DIR / 'model_join_kinds.csv'
+
+
+def kinds() -> dict:
+    """{kind: claim_class} from the declared vocabulary - the relationship
+    column's one authority (rsc/schema/model_join_kinds.csv)."""
+    with KINDS_TABLE.open(newline='') as fh:
+        return {r['kind']: r['claim_class'] for r in csv.DictReader(fh)}
+
+
+def undeclared_kinds() -> list:
+    """model_join rows whose relationship names no declared kind - each is a
+    typo or a vocabulary gap, and either way the kinds table rules first."""
+    declared = kinds()
+    return [(i, row['relationship']) for i, row in enumerate(_join_rows(), 2)
+            if row['relationship'] not in declared]
+
+
+def _resolve(cell: str):
+    """A model_join cell's fragment resolved in its family's LATEST version -
+    the join's one grammar: any family dir relative to rsc/schema,
+    _reference/mcp included, resolved against its own latest vN.json. None
+    when the cell is empty (an absence claim, not a pointer)."""
+    if not cell:
+        return None
+    family, _, fragment = cell.partition('#')
+    versions = sorted((SCHEMA_DIR / family).glob('v*.json'),
+                      key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
+    doc = json.loads(versions[-1].read_text())
+    node = doc
+    for token in fragment.lstrip('/').split('/'):
+        node = node[token] if isinstance(node, dict) else node[int(token)]
+    return node
+
+
+DOCUMENTATION_KEYS = ('description', 'title', 'examples', '$comment')
+
+
+def _identity_normalized(node):
+    """The shape reduced to its constraints, the way the curators judged
+    identity: documentation keys dropped, const spelled as its one-element
+    enum, order-free lists (enum, required) sorted - so two spellings of one
+    constraint compare equal and a description edit falsifies nothing."""
+    if isinstance(node, dict):
+        out = {}
+        for key, value in node.items():
+            if key in DOCUMENTATION_KEYS:
+                continue
+            if key == 'const':
+                out['enum'] = [_identity_normalized(value)]
+                continue
+            value = _identity_normalized(value)
+            if key in ('enum', 'required') and isinstance(value, list):
+                value = sorted(value, key=json.dumps)
+            out[key] = value
+        return out
+    if isinstance(node, list):
+        return [_identity_normalized(v) for v in node]
+    return node
+
+
+def _snake_normalized(node):
+    """The shape with every mapping key case-folded and separator-stripped, so
+    snake_cased identity compares spelling-blind."""
+    if isinstance(node, dict):
+        return {k.replace('_', '').lower(): _snake_normalized(v) for k, v in node.items()}
+    if isinstance(node, list):
+        return [_snake_normalized(v) for v in node]
+    return node
+
+
+def identity_violations() -> list:
+    """Edges whose kind asserts one shape (claim_class identity) where the
+    filled cells no longer resolve to equal definitions at latest - a
+    one-sided mint falsifies the edge silently, and this is where it stops
+    being silent. snake_cased compares key-normalized."""
+    identity_kinds = {k for k, c in kinds().items() if c == 'identity'}
+    out = []
+    for i, row in enumerate(_join_rows(), 2):
+        if row['relationship'] not in identity_kinds:
+            continue
+        cells = [row[c] for c in JOIN_PATH_COLUMNS if row[c]]
+        shapes = [_identity_normalized(_resolve(c)) for c in cells]
+        if row['relationship'] == 'snake_cased':
+            shapes = [_snake_normalized(s) for s in shapes]
+        if any(s != shapes[0] for s in shapes[1:]):
+            out.append((i, row['relationship'], ' § '.join(cells)))
+    return out
+
+
 # model_join's path columns, by the family each addresses — the prefill's map.
 # A collision touching a family outside these four still lists it in the
 # worksheet's families column; the row's path cells carry what the table can.
@@ -89,27 +179,85 @@ COLUMN_FAMILY = {'conversations_path': 'chat-exports/conversations',
                  'mcp_path': '_reference/mcp'}
 
 
-def collision_candidates() -> list[dict]:
+def shared_name_candidates() -> list[dict]:
     """The leisurely queue as pre-filled model_join rows - machine proposes,
-    human disposes: each undisposed cross-family name becomes a worksheet row
-    with its path cells computed, leaving the two judgment fields (relationship,
-    note) blank. Disposal is pasting the row into rsc/schema/model_join.csv
-    with a kind - name_collision records a false friend - per
-    rsc/schema/WORKFLOW.md's model_join review."""
+    human disposes: each undisposed SHARED NAME (the scan-level question)
+    becomes a worksheet row with its path cells computed. The relationship
+    cell is the human's verdict - name_collision being the false-friend
+    answer, one among the declared kinds - and stays blank except where the
+    comparison is mechanical: same-name definitions structurally equal at
+    latest prefill 'identical' as an editable proposal."""
     rows = []
+    latest = latest_versions()
     for name, families in unrecorded_collisions().items():
         row = {'name': name, 'families': ' '.join(families)}
         for column, family in COLUMN_FAMILY.items():
             row[column] = f'{family}#/definitions/{name}' if family in families else ''
-        row['relationship'] = ''
-        row['note'] = ''
+        shapes = []
+        for family in families:
+            if family in latest:
+                definition = json.loads(latest[family].read_text())['definitions'][name]
+                shapes.append(_identity_normalized(definition))
+        equal = len(shapes) > 1 and all(s == shapes[0] for s in shapes[1:])
+        row['relationship'] = 'identical' if equal else ''
+        row['note'] = 'machine proposal: structurally equal at latest - edit freely' if equal else ''
         rows.append(row)
     return rows
 
 
+def emptiness_violations(repo: Path) -> list:
+    """Corpus evidence against the emptiness edges (null_in_api,
+    null_in_export): a datum carrying a value at the pointed field falsifies
+    the always-null note. An object instantiates the definition when the
+    definition's required keys are a subset of its own; the scan names the
+    first falsifying file per edge. Rooms without the relevant corpus skip,
+    stated by the caller."""
+    doc_roots = {'null_in_api': repo / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
+                 'null_in_export': repo / 'tmp' / 'cache' / 'chat-exports'}
+    emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
+    out = []
+    for i, row in enumerate(_join_rows(), 2):
+        if row['relationship'] not in emptiness_kinds:
+            continue
+        cell = next(row[c] for c in JOIN_PATH_COLUMNS if row[c])
+        family, _, fragment = cell.partition('#')
+        field = fragment.rsplit('/', 1)[-1]
+        definition = _resolve(cell.split('/properties/')[0])
+        assert definition is not None  # the cell was chosen non-empty
+        required = set(definition.get('required') or [])
+        root = doc_roots[row['relationship']]
+        if not root.is_dir():
+            continue
+        hit = _first_value_bearing(root, required, field)
+        if hit:
+            out.append((i, row['relationship'], cell, str(hit.relative_to(repo))))
+    return out
+
+
+def _first_value_bearing(root: Path, required: set, field: str):
+    """The first json under root holding an object that instantiates the
+    definition (required keys a subset) with a NON-NULL value at field."""
+    def walk(node):
+        if isinstance(node, dict):
+            if required <= set(node) and node.get(field) is not None and field in node:
+                return True
+            return any(walk(v) for v in node.values())
+        if isinstance(node, list):
+            return any(walk(v) for v in node)
+        return False
+    for doc in sorted(root.rglob('*.json')):
+        try:
+            if walk(json.loads(doc.read_text())):
+                return doc
+        except (OSError, ValueError):
+            continue
+    return None
+
+
 def unrecorded_collisions() -> dict:
-    """Scan hits no model_join path mentions — the leisurely loop's queue:
-    curate each into an edge (assigning its relationship kind) or ignore."""
+    """Shared names no model_join path mentions - the leisurely loop's queue:
+    each disposes as an edge whose relationship kind is the verdict
+    (name_collision records the false friend)."""
     recorded = set()
     for row in _join_rows():
         for col in JOIN_PATH_COLUMNS:
