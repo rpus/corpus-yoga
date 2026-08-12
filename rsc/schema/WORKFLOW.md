@@ -248,9 +248,12 @@ against the new latest.
 pressure, both computed by `src/main/model/model_curation.py` from committed files only:
 
 - **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
-  ≥2 families' latest versions) surfaces collisions; a human curates each into a
-  `model_join` edge with its `relationship` kind — `name_collision` records a false
-  friend — or ignores it. Anyone, anytime, no gate pressure.
+  ≥2 families' latest versions) surfaces collisions, and `yoga model sync` renders them
+  pre-filled at `tmp/cache/model/collision_candidates.csv` (path cells computed, the
+  judgment fields blank); a human disposes each by pasting the row into
+  `model_join.csv` with its `relationship` kind — `name_collision` records a false
+  friend, so an "ignore" is a row too and zero means disposed. Anyone, anytime, no
+  gate pressure.
 - **blocking, gated `model_join` ↔ `model.json`**: an edge whose kind asserts one shared
   type (`identical`, `snake_cased`) obligates `model.json` — the type is DOCUMENTED
   there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
