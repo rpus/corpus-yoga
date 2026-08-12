@@ -22,7 +22,8 @@ from pathlib import Path
 from frontier import verdicts
 from gen_model_candidate import generate
 from model_curation import (documented, rejected, edge_queue, orphan_entries,
-                             coverage_gaps, unrecorded_collisions)
+                             coverage_gaps, unrecorded_collisions,
+                             collision_candidates)
 
 SELF = 'src/main/model/model.py'
 _file = Path(__file__).resolve()
@@ -83,9 +84,15 @@ def curation_report() -> None:
         print(f'  ✗ {name} — occurrences omit data famil(y/ies) its edge asserts: '
               f'{", ".join(fams)} — add the occurrence(s)')
     collisions = unrecorded_collisions()
-    print(('INFO: ' if collisions else '')
-          + f'rsc/schema/model_join.csv — {len(collisions)} name collision(s) across families '
-          'not yet recorded there (leisurely: curate an edge with its relationship kind, or ignore)')
+    if collisions:
+        print(f'INFO: rsc/schema/model_join.csv — {len(collisions)} cross-family name '
+              'collision(s) undisposed (leisurely)')
+        print('    → dispose each as a model_join row: candidates pre-filled in '
+              'tmp/cache/model/collision_candidates.csv (yoga model sync renders it); '
+              'set the relationship kind — name_collision records a false friend — '
+              'grammar taught by rsc/schema/WORKFLOW.md, the model_join review')
+    else:
+        print('rsc/schema/model_join.csv — every cross-family name collision disposed')
 
 
 def sync() -> None:
@@ -96,7 +103,26 @@ def sync() -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / schema.name).write_text(generate(name, schema))
         print(f'  ✓ tmp/cache/model/{name}/{schema.name}')
+    render_collision_worksheet()
     curation_report()
+
+
+def render_collision_worksheet() -> None:
+    """The leisurely queue as a worksheet (machine proposes, human disposes):
+    one pre-filled model_join row per undisposed collision, the judgment
+    fields blank. Rendered by sync beside the catalogues it derives from."""
+    import csv
+    rows = collision_candidates()
+    path = OUT_DIR / 'collision_candidates.csv'
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    with path.open('w', newline='') as fh:
+        writer = csv.DictWriter(fh, fieldnames=['name', 'families',
+                                                'conversations_path', 'session_path',
+                                                'apiConversation_path', 'mcp_path',
+                                                'relationship', 'note'])
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f'  ✓ tmp/cache/model/collision_candidates.csv ({len(rows)} undisposed)')
 
 
 def status() -> None:

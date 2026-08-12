@@ -80,6 +80,33 @@ def name_scan() -> dict:
     return {n: sorted(f) for n, f in sorted(by_name.items()) if len(f) > 1}
 
 
+# model_join's path columns, by the family each addresses — the prefill's map.
+# A collision touching a family outside these four still lists it in the
+# worksheet's families column; the row's path cells carry what the table can.
+COLUMN_FAMILY = {'conversations_path': 'chat-exports/conversations',
+                 'session_path': 'code-agents/session',
+                 'apiConversation_path': 'browser-captures/apiConversation',
+                 'mcp_path': '_reference/mcp'}
+
+
+def collision_candidates() -> list[dict]:
+    """The leisurely queue as pre-filled model_join rows - machine proposes,
+    human disposes: each undisposed cross-family name becomes a worksheet row
+    with its path cells computed, leaving the two judgment fields (relationship,
+    note) blank. Disposal is pasting the row into rsc/schema/model_join.csv
+    with a kind - name_collision records a false friend - per
+    rsc/schema/WORKFLOW.md's model_join review."""
+    rows = []
+    for name, families in unrecorded_collisions().items():
+        row = {'name': name, 'families': ' '.join(families)}
+        for column, family in COLUMN_FAMILY.items():
+            row[column] = f'{family}#/definitions/{name}' if family in families else ''
+        row['relationship'] = ''
+        row['note'] = ''
+        rows.append(row)
+    return rows
+
+
 def unrecorded_collisions() -> dict:
     """Scan hits no model_join path mentions — the leisurely loop's queue:
     curate each into an edge (assigning its relationship kind) or ignore."""
