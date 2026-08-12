@@ -174,6 +174,13 @@ only sharpens the frontier.
 
 ### 4. Review model_join.csv  ← **do not skip**
 
+Machines now hold part of this step: `identical`/`snake_cased` edges are re-verified
+structurally and falsified ones WARN in every `yoga model` / pipeline run, as do
+always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
+each kind's claim class and who re-verifies it). What stays yours is what no scan can
+do: recognizing cross-NAME counterparts, judging relationships, and the coupling
+foresight of step 3 below.
+
 Open `rsc/schema/model_join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
@@ -248,12 +255,15 @@ against the new latest.
 pressure, both computed by `src/main/model/model_curation.py` from committed files only:
 
 - **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
-  ≥2 families' latest versions) surfaces collisions, and `yoga model sync` renders them
-  pre-filled at `tmp/cache/model/collision_candidates.csv` (path cells computed, the
-  judgment fields blank); a human disposes each by pasting the row into
-  `model_join.csv` with its `relationship` kind — `name_collision` records a false
-  friend, so an "ignore" is a row too and zero means disposed. Anyone, anytime, no
-  gate pressure.
+  ≥2 families' latest versions) surfaces SHARED NAMES — the question, of which
+  `name_collision` (the false friend) is one possible answer — and `yoga model sync`
+  renders them pre-filled at `tmp/cache/model/shared_name_candidates.csv` (path cells
+  computed; `identical` proposed where the shapes are structurally equal, editable);
+  a human disposes each by pasting the row into `model_join.csv` with its
+  `relationship` kind, so an "ignore" is a row too and zero means disposed. The kinds
+  are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —
+  and the gate holds every row to them (`model.join_kind_declared`). Anyone, anytime,
+  no gate pressure on the disposals themselves.
 - **blocking, gated `model_join` ↔ `model.json`**: an edge whose kind asserts one shared
   type (`identical`, `snake_cased`) obligates `model.json` — the type is DOCUMENTED
   there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every

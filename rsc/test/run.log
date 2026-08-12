@@ -1,4 +1,4 @@
-run.py: 2022/2022 (data: machine-local)
+run.py: 2023/2023 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -145,6 +145,7 @@ run.py: 2022/2022 (data: machine-local)
   ✓ structure.required_subset_of_properties  (52/52)
 
 ── check_schema_join ─────────────────────────────────────────────────────────
+  ✓ model.join_kind_declared
   ✓ model.join_pointers_valid
 
 ── check_model_join_versions ─────────────────────────────────────────────────
@@ -185,20 +186,20 @@ check_root_schema_diagnostics         50     0     0   ok        87
 check_schema_validity                 54     0     0   ok       114
 check_schema_changelogs              108     0     0   ok       117
 check_versioned_schema_diagnostics  1232     0     0   ok       121
-check_schema_join                      1     0     0   ok       147
-check_model_join_versions              1     0     0   ok       150
-check_model_occurrences                3     0     0   ok       153
-check_model_obligations               17     0     0   ok       158
-check_mcp_schema                       1     0     0   ok       162
-check_score                            5     0     0   ok       165
+check_schema_join                      2     0     0   ok       147
+check_model_join_versions              1     0     0   ok       151
+check_model_occurrences                3     0     0   ok       154
+check_model_obligations               17     0     0   ok       159
+check_mcp_schema                       1     0     0   ok       163
+check_score                            5     0     0   ok       166
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 95 types, 2022/2022 invocations passing
+  ✓ checks[code+schema]: 96 types, 2023/2023 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
   ✓ checks[code]: 59 types, 555/555 invocations passing
-  ✓ checks[schema]: 36 types, 1467/1467 invocations passing
+  ✓ checks[schema]: 37 types, 1468/1468 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2022/2022 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2023/2023 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run

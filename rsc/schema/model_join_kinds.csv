@@ -1,0 +1,13 @@
+kind,claim_class,description
+identical,identity,"the filled cells resolve to structurally equal definitions at their families' latest versions - gated: a one-sided mint that breaks the equality reds schema_join.identity_holds until the edge is re-judged"
+snake_cased,identity,"identical after key-case normalization (separators stripped, case folded) - gated with identical"
+null_in_api,emptiness,"the pointed field is always null in observed API captures - re-verified against the corpus at pipeline run; the first datum carrying a value WARNs with the re-judge remedy"
+null_in_export,emptiness,"the pointed field is always null in observed bulk exports - re-verified against the corpus at pipeline run, as null_in_api"
+envelope,existence,"one side's wrapper field; the empty columns hold no counterpart. Cross-name counterparts are invisible to resolution, so falsification is a judgment - re-judged at mint review (rsc/schema/WORKFLOW.md), never machine-checked"
+cli_only,existence,"exists only in the code-agents session family - judgment-verified, as envelope"
+export_only,existence,"exists only in the bulk-export conversations family - judgment-verified, as envelope"
+api_only,existence,"exists only in the browser-API capture family - judgment-verified, as envelope"
+name_collision,judgment,"the false-friend verdict on a SHARED NAME: the scan-level finding (one name in two or more families) is the question, and this kind is the answer that the sameness stops at the name - the note records how they differ"
+structurally_similar,judgment,"related shapes, neither identical nor subset - the note carries the relation"
+subset,judgment,"one side's values are a subset of the other's - related, not one type; a judgment call per edge"
+coupled_relaxation,judgment,"these fields have relaxed together across families; agreement is reviewed at mint (WORKFLOW's model_join review) - no mechanical baseline exists without version pins, which this table bans"
