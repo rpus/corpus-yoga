@@ -1724,6 +1724,14 @@ def check_versioned_schema_diagnostics(run):
     schema_skips    = {s: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas}
 
     schema_dirs = _schema_families()
+    # One jobs list across every family, one _call_many: a per-family dispatch
+    # drains the pool at each family boundary, idling workers on every family's
+    # tail (#472). The report below walks the families in this same enumeration
+    # order, so the committed log cannot differ from the per-family loop's (L2).
+    # A family's job count is None when it has no versions (reported as its own
+    # failure) - an empty count means every diagnostic was skipped: report nothing.
+    families = []
+    jobs = []
     for schema_name in sorted(set(schema_skips) | set(schema_dirs)):
         skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips.get(schema_name, frozenset())
         schema_dir  = schema_dirs.get(schema_name, SCHEMA_DIR.get(schema_name))
@@ -1736,13 +1744,23 @@ def check_versioned_schema_diagnostics(run):
         versions    = _sorted_versions(schema_dir) if schema_dir else []
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
+            families.append((schema_name, schema_dir, None))
+            continue
+        family_jobs = [(script, version) for version in versions for script in diagnostics]
+        families.append((schema_name, schema_dir, len(family_jobs)))
+        jobs.extend(family_jobs)
+    results = _call_many(jobs)
+    cursor = 0
+    for schema_name, schema_dir, count in families:
+        if count is None:
             run(f'{schema_name}: no versions', False,
                 f'{schema_dir.relative_to(REPO_ROOT) if schema_dir else schema_name} has no v*.json files', check='schema.has_versions')
             continue
-        jobs = [(script, version) for version in versions for script in diagnostics]
-        for (script, version), (passed, output) in zip(jobs, _call_many(jobs)):
+        for (script, version), (passed, output) in zip(jobs[cursor:cursor + count],
+                                                       results[cursor:cursor + count]):
             run(f'{schema_name}: {script.stem}: {version.stem}', passed,
                 _diag_detail(output) if not passed else None, check=script.stem)
+        cursor += count
 
 
 def check_schema_join(run):
