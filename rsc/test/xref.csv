@@ -3,41 +3,43 @@ CLAUDE.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/
 CLAUDE.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 CLAUDE.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
 CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-CLAUDE.md,166,doc,src/main/cli/forge/flip.json,Y,(src/main/cli/forge/flip.json) is the authority for its steps. Never
-CLAUDE.md,171,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+CLAUDE.md,164,doc,src/main/cli/forge/flip.json,Y,(src/main/cli/forge/flip.json) is the authority for its steps. Never
+CLAUDE.md,169,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,6,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and"
 CONTRIBUTING.md,14,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
-CONTRIBUTING.md,31,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
-CONTRIBUTING.md,34,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-CONTRIBUTING.md,62,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
-CONTRIBUTING.md,68,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
-CONTRIBUTING.md,68,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
-CONTRIBUTING.md,69,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,69,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,71,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
-CONTRIBUTING.md,73,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-CONTRIBUTING.md,81,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
-CONTRIBUTING.md,82,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
-CONTRIBUTING.md,84,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
-README.md,26,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,26,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,28,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-README.md,41,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,42,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L9): `rsc/CALCULUS.md` (`yoga calculus`)"
-README.md,43,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
-README.md,43,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
-README.md,44,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,44,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,45,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,46,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,47,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
-README.md,48,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
-README.md,55,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,64,doc,src/requirements.txt,Y,override via `VENV=`) and installs `src/requirements.txt`. Browser capture needs macOS + Safari. The repo ships no
-README.md,77,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,83,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,83,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,90,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
+CONTRIBUTING.md,29,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
+CONTRIBUTING.md,32,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+CONTRIBUTING.md,60,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
+CONTRIBUTING.md,66,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+CONTRIBUTING.md,66,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+CONTRIBUTING.md,67,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,67,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,69,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
+CONTRIBUTING.md,71,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+CONTRIBUTING.md,79,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
+CONTRIBUTING.md,80,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
+CONTRIBUTING.md,82,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
+README.md,10,doc,src/main/cli/prerequisites/prerequisites.sh,Y,"./src/main/cli/prerequisites/prerequisites.sh sync --apply   # pre-venv, once: mint the venv (bare, the same report read"
+README.md,27,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,27,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
+README.md,29,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
+README.md,42,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,43,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L9): `rsc/CALCULUS.md` (`yoga calculus`)"
+README.md,44,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
+README.md,44,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
+README.md,45,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,45,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,46,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,47,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,48,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
+README.md,49,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
+README.md,56,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,64,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
+README.md,65,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
+README.md,79,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,85,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,85,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,92,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
@@ -238,7 +240,7 @@ src/main/cli/cache/sync.py,37,path_str,src/main/cli/cache/sync.py,Y,SELF = 'src/
 src/main/cli/calculus/calculus.json,3,path_str,rsc/CALCULUS.md,Y,"""target"": ""rsc/CALCULUS.md"","
 src/main/cli/cli.py,5,comment,src/main/cli/README.md,Y,Two curated tables are the interface (format: src/main/cli/README.md): src/main/cli/
 src/main/cli/cli.py,16,comment,rsc/CALCULUS.md,Y,The table also speaks the calculus: each row cites the rsc/CALCULUS.md
-src/main/cli/cli.py,33,comment,src/main/cli/pipeline/pipeline.sh,Y,"the table, print the calculus, and generate completion before src/main/cli/pipeline/pipeline.sh has"
+src/main/cli/cli.py,33,comment,src/requirements.txt,Y,completion stay independent of src/requirements.txt. The launcher runs it in
 src/main/cli/cli.py,44,path_str,src/main/cli/cli.py,Y,SELF = 'src/main/cli/cli.py'
 src/main/cli/cli.py,164,comment,src/main/cli/pipeline/pipeline.sh,Y,holds `src/main/cli/pipeline/pipeline.sh --plan` to these: each must appear as a plan line naming the command
 src/main/cli/cli.py,172,comment,rsc/CALCULUS.md,Y,"The citable vocabulary, parsed from rsc/CALCULUS.md itself: every bolded"
@@ -251,14 +253,17 @@ src/main/cli/commands/commands.json,3,path_str,src/main/cli/commands/commands.py
 src/main/cli/completions/completions.json,3,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
 src/main/cli/completions/completions.py,17,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
 src/main/cli/completions/completions.py,108,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
+src/main/cli/forge/arm.py,13,path_str,src/main/cli/forge/arm.py,Y,SELF = 'src/main/cli/forge/arm.py'
 src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
 src/main/cli/forge/forge.json,24,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 src/main/cli/forge/forge.sh,18,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/forge/forge.sh,20,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/forge/forge.sh,22,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/forge/forge.sh,57,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge/forge.sh,194,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
+src/main/cli/forge/forge.sh,43,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
+src/main/cli/forge/forge.sh,180,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
+src/main/cli/forge/reconcile.py,5,comment,src/main/cli/forge/forge.csv,Y,"src/main/cli/forge/forge.csv. One row per declared setting, OK or DRIFT, each"
+src/main/cli/forge/reconcile.py,15,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/indexing/capture.json,32,path_str,rsc/schema/dashboard,Y,"""rsc/schema/dashboard"","
 src/main/cli/indexing/capture.json,33,path_str,rsc/site/index.html,Y,"""rsc/site/index.html"""
 src/main/cli/indexing/capture.sh,16,comment,src/main/cli/indexing/capture.sh,Y,#   src/main/cli/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
@@ -282,8 +287,8 @@ src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,
 src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/pipeline/pipeline.sh,371,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,396,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,359,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
+src/main/cli/pipeline/pipeline.sh,384,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.json,15,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/prerequisites.json,16,path_str,rsc/test,Y,"""rsc/test"","
@@ -660,9 +665,11 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/completions/install-latest.json,Y,
 ,,,src/main/cli/completions/sync.json,Y,
 ,,,src/main/cli/completions/uninstall.json,Y,
+,,self_only,src/main/cli/forge/arm.py,Y,
 ,,,src/main/cli/forge/forge.json,Y,
 ,,,src/main/cli/forge/merge.json,Y,
 ,,,src/main/cli/forge/prune.json,Y,
+,,self_only,src/main/cli/forge/reconcile.py,Y,
 ,,,src/main/cli/indexing/accept.json,Y,
 ,,,src/main/cli/indexing/capture.json,Y,
 ,,,src/main/cli/indexing/indexing.json,Y,

@@ -32,22 +32,8 @@ reconcile() {
     echo -e "UNVERIFIED\tforge\tunreachable (offline, no GitHub remote, or: gh auth login)\t"
     return
   fi
-  printf '%s' "$live" | python3 -c '
-import csv, json, sys
-live = json.load(sys.stdin)
-slug = live.get("full_name") or "{owner}/{repo}"
-def norm(v):
-    return "true" if v is True else "false" if v is False else str(v)
-for r in csv.DictReader(open(sys.argv[1])):
-    key, want = r["setting"], r["value"]
-    got = norm(live.get(key))
-    if got == want:
-        print("OK", key, want, "", sep="\t")
-    else:
-        flag = "-F" if want in ("true", "false") else "-f"
-        print("DRIFT", key, "declared " + want + ", live " + got,
-              "gh api -X PATCH repos/" + slug + " " + flag + " " + key + "=" + want, sep="\t")
-' "$DECLARED" 2>/dev/null || echo -e "UNVERIFIED\tforge.csv\tunreadable or malformed\t"
+  printf '%s' "$live" | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/reconcile.py" "$DECLARED" 2>/dev/null \
+    || echo -e "UNVERIFIED\tforge.csv\tunreadable, malformed, or no venv (src/run_python_script.sh refused)\t"
 }
 
 superseding_force_push() {  # <pr-number> <tip>
@@ -506,7 +492,7 @@ flip_chain() {
     fi
   fi
   n="$(grep -Ec 'aims to complete #[0-9]+' <<< "$body")"
-  armed="$(python3 -c 'import re,sys; sys.stdout.write(re.sub(r"aims to complete #([0-9]+)", r"closes #\1", sys.stdin.read()))' <<< "$body")"
+  armed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/arm.py" <<< "$body")"
   printf '%s' "$armed" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge flip: NOT DONE — the body edit failed; nothing armed$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
   echo "forge flip: DONE — #$pr armed ($n phrase(s) now closes); $(if [[ $moved == 1 ]]; then echo "relocated onto origin/$base and pushed"; else echo "base unmoved, nothing rewritten"; fi)"
 }

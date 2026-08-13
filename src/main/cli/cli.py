@@ -28,10 +28,10 @@ Usage:
     yoga completions install-latest  # regenerate the zsh tab-completion and wire it
     yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
-This module is deliberately STDLIB-ONLY: the yoga launcher falls back to
-system python3 when the venv does not exist yet, so a fresh clone can render
-the table, print the calculus, and generate completion before src/main/cli/pipeline/pipeline.sh has
-run. Adding a third-party import here would silently break that.
+This module is deliberately STDLIB-ONLY: the surface must never depend on
+what pip installed, so reading the table, printing the calculus and deriving
+completion stay independent of src/requirements.txt. The launcher runs it in
+the venv — the venv supplies the interpreter, never imports (#478).
 """
 import json
 import pathlib

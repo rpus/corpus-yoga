@@ -1,4 +1,4 @@
-run.py: 2049/2049 (data: machine-local)
+run.py: 2051/2051 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: 2049/2049 (data: machine-local)
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (64/64)
+  ✓ structure.self_path_matches_address  (66/66)
 
 ── check_templates ───────────────────────────────────────────────────────────
   ✓ templates.teach_signature  (2/2)
@@ -179,7 +179,7 @@ stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
-check_self_paths                      64     0     0   ok        14
+check_self_paths                      66     0     0   ok        14
 check_templates                        2     0     0   ok        17
 check_xref                             2     0     0   ok        20
 check_cli_surface                    436     0     0   ok        24
@@ -203,11 +203,11 @@ check_score                            5     0     0   ok       172
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 98 types, 2049/2049 invocations passing
+  ✓ checks[code+schema]: 98 types, 2051/2051 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 61 types, 581/581 invocations passing
+  ✓ checks[code]: 61 types, 583/583 invocations passing
   ✓ checks[schema]: 37 types, 1468/1468 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2049/2049 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2051/2051 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
