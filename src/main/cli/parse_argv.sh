@@ -16,13 +16,13 @@ PARSE_ARGV_REPO="${_self_dir%/"${SELF%/*}"}"
 parse_argv() {
   local out rc=0
   # `|| rc=$?` keeps a caller's set -e from killing the script at the substitution
-  # itself — the refusal text would die unprinted with it.
+  # itself. A refusal (rc 2) needs no relay: argparse wrote it to stderr, which
+  # $(...) does not capture.
   out="$(python3 "$PARSE_ARGV_REPO/src/main/cli/parse_argv.py" "$@")" || rc=$?
   # $(...) ate the face's trailing newline; printf '%s\n' restores exactly one,
   # so the courier's bytes equal the face's (cli.verb_help_answered holds this).
   case "$rc" in
     0) [[ -z "$out" ]] || { printf '%s\n' "$out"; exit 0; } ;;
-    2) printf '%s\n' "$out" >&2; exit 2 ;;
-    *) echo "parse_argv: NOT DONE - the parse face failed (exit $rc)" >&2; exit "$rc" ;;
+    *) exit "$rc" ;;
   esac
 }

@@ -383,33 +383,6 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
                  if r['subcommand'] == subcommand and not r['arg-name']), '')
 
 
-def verb_usage(command: str, verb: str) -> str:
-    """One verb's invocation form, from its declaration — the line a refusal cites."""
-    argrows = [r for r in command_rows(command)
-               if r['subcommand'] == verb and r['arg-name']]
-    return _join(f'yoga {command} {verb}', _render_args(argrows))
-
-
-def render_verb_help(command: str, verb: str) -> str:
-    """One verb's help, from its declaration (#474) — the description, the invocation
-    form, each argument, the declared sends. parse_argv.py serves this text when a
-    bash target's verb is asked -h: those targets have no parser of their own to
-    answer with, so the declaration answers. A python target keeps answering through
-    its enriched argparse — same declaration wording either way."""
-    rows = [r for r in command_rows(command) if r['subcommand'] == verb]
-    argrows = [r for r in rows if r['arg-name']]
-    desc = _subcommand_desc(command, verb)
-    head = f'yoga {command} {verb}' + (f' — {desc}' if desc else '')
-    out = [head, '', '  ' + verb_usage(command, verb)]
-    label = {r['arg-name']: _render_arg(r['arg-name'], r['arg-type']) for r in argrows}
-    w = max((len(v) for v in label.values()), default=0)
-    body = [f"  {label[r['arg-name']]:<{w}}  {r['help']}" for r in argrows]
-    body += [f'  sends: {call} — {occasion}'
-             for call, occasions in sends_of(command, verb).items()
-             for occasion in occasions]
-    if body:
-        out += ['', *body]
-    return '\n'.join(out) + '\n'
 
 
 # The arg-types whose value IS a filesystem path — the only values file completion

@@ -276,7 +276,7 @@ src/main/cli/memories/sync.json,7,path_str,rsc/naming/memory_deposit_vintages.cs
 src/main/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
 src/main/cli/model/model.json,8,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/sync.json,5,path_str,rsc/schema,Y,"""rsc/schema"""
-src/main/cli/parse_argv.py,35,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
+src/main/cli/parse_argv.py,27,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/pipeline/pipeline.json,3,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
 src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
@@ -540,51 +540,51 @@ src/test/dev/run.py,6,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh
 src/test/dev/run.py,7,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh --fix   # run all fix commands; stages nothing
 src/test/dev/run.py,50,path_str,src/test/dev/run.py,Y,SELF = 'src/test/dev/run.py'
 src/test/dev/run.py,734,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/dev/run.py,827,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/dev/run.py,833,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-src/test/dev/run.py,1632,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
-src/test/dev/run.py,1653,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/dev/run.py,1936,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/dev/run.py,2155,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
-src/test/dev/run.py,2167,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
-src/test/dev/run.py,2256,comment,src/main/pipeline/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
-src/test/dev/run.py,2257,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/dev/run.py,2308,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2308,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2309,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2309,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2310,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2310,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2314,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
-src/test/dev/run.py,2321,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': ['src', 'rsc/CALCULUS.md'],"
-src/test/dev/run.py,2324,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
-src/test/dev/run.py,2336,path_str,rsc/schema/_reference,Y,"'check_mcp_schema': ['rsc/schema/_reference'],"
-src/test/dev/run.py,2842,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,830,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/dev/run.py,836,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
+src/test/dev/run.py,1635,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
+src/test/dev/run.py,1656,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/dev/run.py,1939,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/dev/run.py,2158,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+src/test/dev/run.py,2170,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
+src/test/dev/run.py,2259,comment,src/main/pipeline/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
+src/test/dev/run.py,2260,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/dev/run.py,2311,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2311,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2312,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2312,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2313,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2313,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2317,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
+src/test/dev/run.py,2324,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': ['src', 'rsc/CALCULUS.md'],"
+src/test/dev/run.py,2327,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
+src/test/dev/run.py,2339,path_str,rsc/schema/_reference,Y,"'check_mcp_schema': ['rsc/schema/_reference'],"
+src/test/dev/run.py,2845,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
 src/test/dev/run.py,390,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
-src/test/dev/run.py,1091,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
-src/test/dev/run.py,1142,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,1142,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,2131,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
-src/test/dev/run.py,3080,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,3081,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
-src/test/dev/run.py,2753,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2755,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2763,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2765,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,1027,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
-src/test/dev/run.py,1249,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/dev/run.py,1327,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
-src/test/dev/run.py,1611,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/dev/run.py,1668,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/dev/run.py,1727,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/dev/run.py,1987,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
-src/test/dev/run.py,2432,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/dev/run.py,2443,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2443,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2623,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
-src/test/dev/run.py,2714,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,3128,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,3128,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,1094,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
+src/test/dev/run.py,1145,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
+src/test/dev/run.py,1145,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
+src/test/dev/run.py,2134,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
+src/test/dev/run.py,3083,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,3084,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,2756,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2758,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2766,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2768,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,1030,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
+src/test/dev/run.py,1252,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/dev/run.py,1330,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
+src/test/dev/run.py,1614,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/dev/run.py,1671,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/dev/run.py,1730,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/dev/run.py,1990,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
+src/test/dev/run.py,2435,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/dev/run.py,2446,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2446,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2626,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
+src/test/dev/run.py,2717,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/dev/run.py,3131,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,3131,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log

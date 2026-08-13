@@ -27,11 +27,60 @@ from pathlib import Path
 
 def _rows(command: str) -> list[dict]:
     """The command's declared rows — asked of cli, which is the one reader of src/main/cli/.
-    Imported at CALL time, not module level: cli imports enrich() from here, so a
-    module-level import would close the cycle."""
+    Imported at CALL time, not module level: cli once imported enrich() from here, and
+    consumers of both still coexist, so the late import keeps the cycle impossible."""
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
     from cli import command_rows
     return command_rows(command)
+
+
+def _sends(command: str, verb: str) -> dict:
+    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
+    from cli import sends_of
+    return sends_of(command, verb)
+
+
+def verb_parser(command: str, verb: str, overrides: dict | None = None) -> argparse.ArgumentParser:
+    """One verb's parser, GENERATED from its declaration (#474): structure and wording
+    in one derivation — argparse itself then owns the parsing, the -h, and the refusal
+    voice, so nothing imitates it. `overrides` is the caller's semantic residue,
+    {arg-name: add_argument kwargs} for what no declaration can say (default, type,
+    dest, nargs — #476); existence, arity and wording stay the declaration's, and an
+    override may not invent an argument the declaration lacks.
+
+    Arity from cardinality: blank — optional ([x] positional as nargs='?', a flag by
+    nature); '1' — required; 'N/<class>' — the members form one mutually exclusive
+    group. A flag with a declared type takes a value (the type is its metavar); one
+    without is a bare switch. Declared sends render as the epilog — an outward call is
+    part of what the invocation DOES (#29)."""
+    rows = [r for r in _rows(command) if r['subcommand'] == verb]
+    description = next((r['help'] for r in rows if not r['arg-name']), None)
+    epilog = '\n'.join(f'sends: {call} — {occasion}'
+                       for call, occasions in _sends(command, verb).items()
+                       for occasion in occasions) or None
+    parser = argparse.ArgumentParser(
+        prog=f'yoga {command} {verb}', description=description, epilog=epilog,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    groups: dict[str, object] = {}
+    for r in rows:
+        if not r['arg-name']:
+            continue
+        kwargs: dict = {'help': r['help'], **(overrides or {}).get(r['arg-name'], {})}
+        card = r['cardinality']
+        holder = groups.setdefault(card, parser.add_mutually_exclusive_group()) \
+            if '/' in card else parser
+        if r['arg-name'].startswith('--'):
+            if r['arg-type']:
+                kwargs.setdefault('metavar', r['arg-type'])
+            else:
+                kwargs.setdefault('action', 'store_true')
+        else:
+            if r['arg-type']:
+                kwargs.setdefault('metavar', r['arg-type'])
+            if not card:
+                kwargs.setdefault('nargs', '?')
+        holder.add_argument(r['arg-name'], **kwargs)  # type: ignore[attr-defined]
+    return parser
 
 
 def _fill(parser, rows: list[dict]) -> None:
