@@ -46,6 +46,20 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+# The gate compares rendered BYTES - argparse help against the generated
+# parser, run output against committed expectations - and color is context,
+# not content: python 3.14 colorizes argparse help by stream and environment,
+# so an interactive run's in-process render diverged from the captured
+# subprocess's (cli.verb_help_answered, 9/16 red on a checkout, 2026-08-13).
+# The whole run pins color off, for itself and every child it spawns.
+os.environ['PYTHON_COLORS'] = '0'
+os.environ['NO_COLOR'] = '1'
+os.environ.pop('FORCE_COLOR', None)
+# Same law for width: argparse wraps help to the terminal, and a tty-attached
+# run (the pre-commit hook) would render the in-process expectation at the
+# terminal's width while the captured subprocess renders at the 80 fallback.
+os.environ['COLUMNS'] = '80'
+
 # ── Repo layout ───────────────────────────────────────────────────────────────
 SELF = 'src/test/dev/run.py'
 _file = Path(__file__).resolve()
