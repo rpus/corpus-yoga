@@ -12,11 +12,15 @@
      already rules for commits; strip it before raising.
 
      The grammar (#124): why / what / how / to. The durable record has two git
-     channels (#300): the squash SUBJECT is the PR title — keep it final
-     indicative, describing what the branch became, current as the branch
-     moves — and the squash BODY is every commit's message, oldest first, as
-     reviewed. Commits are never rewritten. This body is the review-facing
-     channel, teaches the same sections, and carries the armed close.
+     channels (#300): the squash SUBJECT is the PR title — a verbatim COPY of
+     the title of an issue this PR aims to complete (#479; the central one
+     when it aims at several). The should's one home is the issue, so the
+     subject is copied, never authored: vetting is contingent, the subject
+     never asserts achievement, and main's log reads as the disposed shoulds
+     — ready-made release notes. `yoga forge flip` refuses a non-copy. The
+     squash BODY is every commit's message, oldest first, as reviewed.
+     Commits are never rewritten. This body is the review-facing channel,
+     teaches the same sections, and carries the armed close.
 
      Relations vocabulary: closes / enacts / advances / supersedes / reopens.
      The protection is LEXICAL: every relation but one only REFERS —

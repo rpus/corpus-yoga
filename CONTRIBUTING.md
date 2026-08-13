@@ -21,8 +21,10 @@ commits — the squash keeps every one of their messages and signatures. The fli
 precedes a merge is `yoga forge flip <pr>` — "aims to complete #N" becomes
 `closes #N` in the PR body, and nothing is rewritten (.github/PULL_REQUEST_TEMPLATE.md
 holds that grammar; the command relocates a moved base first and resyncs a held
-checkout): the squash publishes the title as main's subject line and the
-commits as reviewed, every message and Signature intact.
+checkout): the squash publishes the title — a verbatim copy of the title of
+an issue the body aims to complete, which the flip refuses to arm otherwise
+(#479) — as main's subject line, and the commits as reviewed, every message
+and Signature intact.
 
 An issue states what *should* be true; a PR that closes it reads as the claim that it
 now is. Where that claim is a standing property the code must keep — not a one-off

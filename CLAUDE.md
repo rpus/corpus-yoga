@@ -170,9 +170,13 @@ seventh principle or a smell.
   CONTRIBUTING.md, reconciled by `yoga forge`) publish the title as main's
   subject line and every commit's message and Signature as its body. A
   pre-merge rewrite destroys the review record and its corpus join keys.
-- Keep the PR title as main's subject line: final indicative, describing
-  what the branch became, current as the branch moves (#300's should,
-  adopted as practice).
+- A PR's title is a verbatim copy of the title of an issue its body aims to
+  complete - the central one when it aims at several (#479, superseding
+  #300's title practice). The should keeps its one home in issue-space, the
+  subject is copied rather than authored, and main's log reads as the
+  disposed shoulds - ready-made release notes. Vetting is contingent all the
+  way down, so no event licenses an indicative subject; `yoga forge flip`
+  refuses to arm a non-copy.
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
   the branch's OWN commits onto the new main. Nothing is squashed - the

@@ -1,5 +1,5 @@
 {
-  "help": "the declared flip (#458): reads the PR and refuses anything not OPEN or a body with no 'aims to complete #N' to arm; relocates once onto the base only if it moved (rsc/test/ conflicts are the syntactic class, taken wholesale and re-derived by the gate; any other conflict aborts back to review), resyncs a clean checkout that holds the branch and says so, then arms the close by editing the body's phrasing to closes - commits are never rewritten and never come to carry the parser's words, and the last word is one verdict: forge flip: DONE naming what armed, or NOT DONE naming the halt",
+  "help": "the declared flip (#458): reads the PR and refuses anything not OPEN, a body with no 'aims to complete #N' to arm, or a title that copies no aimed issue's title (#479); relocates once onto the base only if it moved (rsc/test/ conflicts are the syntactic class, taken wholesale and re-derived by the gate; any other conflict aborts back to review), resyncs a clean checkout that holds the branch and says so, then arms the close by editing the body's phrasing to closes - commits are never rewritten and never come to carry the parser's words, and the last word is one verdict: forge flip: DONE naming what armed, or NOT DONE naming the halt",
   "args": [
     {
       "name": "pr",
@@ -10,7 +10,10 @@
   ],
   "sends": {
     "gh pr view": [
-      "reads the PR's state, base and head before anything else, and its body for the phrase to arm"
+      "reads the PR's state, base and head before anything else, its body for the phrase to arm, and its title for the copy check"
+    ],
+    "gh issue view": [
+      "reads each aimed issue's title (#479): a title that copies none of them refuses the flip before any enacting step"
     ],
     "git fetch origin <base> <head>": [
       "reads both refs to judge whether the base moved"

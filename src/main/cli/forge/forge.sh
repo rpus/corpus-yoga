@@ -418,6 +418,17 @@ flip_chain() {
   [[ "$state" == OPEN ]]     || { echo "forge flip: NOT DONE — #$pr is $state; only an open PR flips"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge flip: NOT DONE — the body read failed"; return 1; }
   grep -Eq 'aims to complete #[0-9]+' <<< "$body"     || { echo "forge flip: NOT DONE — the body carries no 'aims to complete #N' to arm"; return 1; }
+  # The title is a verbatim COPY of the title of an issue the body aims to
+  # complete (#479): the should's one home is the issue, main's subject becomes
+  # the disposed should, and a non-copy refuses HERE, before any enacting step.
+  local title issue_number issue_title copied=0
+  title="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json title --jq .title)"     || { echo "forge flip: NOT DONE — the title read failed"; return 1; }
+  while read -r issue_number; do
+    [[ -n "$issue_number" ]] || continue
+    issue_title="$(cd "$REPO_DIR" && quote gh issue view "$issue_number" --json title --jq .title)" || continue
+    [[ "$title" == "$issue_title" ]] && copied=1
+  done < <(grep -oE 'aims to complete #[0-9]+' <<< "$body" | grep -oE '[0-9]+' | sort -u)
+  [[ "$copied" == 1 ]]     || { echo "forge flip: NOT DONE — the title copies no issue the body aims to complete (#479); retitle the PR as the verbatim copy of the central issue's title"; return 1; }
   enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge flip: NOT DONE — the fetch failed"; return 1; }
   branch_here="$(git -C "$REPO_DIR" branch --show-current)"
   if [[ "$branch_here" == "$head" ]]; then
