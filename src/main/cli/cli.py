@@ -33,8 +33,6 @@ system python3 when the venv does not exist yet, so a fresh clone can render
 the table, print the calculus, and generate completion before src/main/cli/pipeline/pipeline.sh has
 run. Adding a third-party import here would silently break that.
 """
-import argparse
-import csv
 import json
 import pathlib
 import os
@@ -49,7 +47,6 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery

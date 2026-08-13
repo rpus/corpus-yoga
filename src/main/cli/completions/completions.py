@@ -10,9 +10,7 @@ stdlib-only, like cli.py: the completion must be installable on a fresh clone be
 venv exists.
 """
 import argparse
-import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
