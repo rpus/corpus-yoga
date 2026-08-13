@@ -9,10 +9,7 @@ and the renderers every command shares; what only this command needs lives here.
 stdlib-only, like cli.py: the completion must be installable on a fresh clone before any
 venv exists.
 """
-import argparse
-import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -22,8 +19,8 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for argparse_help
-from argparse_help import enrich  # noqa: E402
+sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
+from declared_parser import command_parser  # noqa: E402
 from cli import (  # noqa: E402 — one reader of the declaration, and it is cli
     PATH_ARG_TYPES, REPO, commands, command_rows, subcommands_of, _subcommand_desc,
 )
@@ -336,7 +333,7 @@ def _sync_completion() -> None:
 def completion(rest: list[str]) -> int:
     """`yoga completions` — bare shows status, each subcommand acts.
 
-    argparse owns the structure, the declaration the wording (enrich): the pattern every
+    The parser is generated from the declaration (#476): the pattern every
     other command's target already follows. That cli.py handles this command itself
     instead of exec'ing a target is no reason to hand-roll the dispatch and a second
     copy of the help — that copy is how the text came to disagree with the table
@@ -344,13 +341,7 @@ def completion(rest: list[str]) -> int:
     dispatch, and -h is argparse's own business at every level, so it can never fall
     through and RUN the subcommand it was asked to describe. Command-level -h never
     reaches here: main() renders it from the table, uniformly for every command."""
-    parser = argparse.ArgumentParser(          # prog is enrich's, for every command alike
-        description=next(c['summary'] for c in commands() if c['command'] == 'completions'))
-    subs = parser.add_subparsers(dest='subcommand', metavar='<subcommand>')
-    for s in subcommands_of('completions'):
-        subs.add_parser(s)
-    enrich(parser, 'completions')
-    args = parser.parse_args(rest)
+    args = command_parser('completions', dest='subcommand').parse_args(rest)
     if args.subcommand is None:
         return completion_status()                  # bare noun → status
     if args.subcommand == 'sync':

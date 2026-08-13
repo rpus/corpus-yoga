@@ -1,4 +1,4 @@
-run.py: 2023/2023 (data: machine-local)
+run.py: 2049/2049 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: 2023/2023 (data: machine-local)
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (62/62)
+  ✓ structure.self_path_matches_address  (64/64)
 
 ── check_templates ───────────────────────────────────────────────────────────
   ✓ templates.teach_signature  (2/2)
@@ -36,7 +36,7 @@ run.py: 2023/2023 (data: machine-local)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (17/17)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (16/16)
+  ✓ naming.log_path_derives_from_command  (18/18)
   ✓ output.prescriptions_are_commands  (65/65)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
@@ -53,6 +53,12 @@ run.py: 2023/2023 (data: machine-local)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
+
+── check_cli_verb_help ───────────────────────────────────────────────────────
+  ✓ cli.verb_help_answered  (16/16)
+
+── check_cli_exclusive_classes ───────────────────────────────────────────────
+  ✓ cli.exclusive_class_parses  (6/6)
 
 ── check_effects ─────────────────────────────────────────────────────────────
   ✓ effects.writers_disjoint
@@ -173,33 +179,35 @@ stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
-check_self_paths                      62     0     0   ok        14
+check_self_paths                      64     0     0   ok        14
 check_templates                        2     0     0   ok        17
 check_xref                             2     0     0   ok        20
-check_cli_surface                    434     0     0   ok        24
-check_effects                          2     0     0   ok        57
-check_cache_io                        18     0     0   ok        61
-check_accumulate_contract              1     0     0   ok        67
-check_capture_monotone                 4     0     0   ok        70
-check_grammar_laws                    12     0     0   ok        73
-check_root_schema_diagnostics         50     0     0   ok        87
-check_schema_validity                 54     0     0   ok       114
-check_schema_changelogs              108     0     0   ok       117
-check_versioned_schema_diagnostics  1232     0     0   ok       121
-check_schema_join                      2     0     0   ok       147
-check_model_join_versions              1     0     0   ok       151
-check_model_occurrences                3     0     0   ok       154
-check_model_obligations               17     0     0   ok       159
-check_mcp_schema                       1     0     0   ok       163
-check_score                            5     0     0   ok       166
+check_cli_surface                    436     0     0   ok        24
+check_cli_verb_help                   16     0     0   ok        57
+check_cli_exclusive_classes            6     0     0   ok        60
+check_effects                          2     0     0   ok        63
+check_cache_io                        18     0     0   ok        67
+check_accumulate_contract              1     0     0   ok        73
+check_capture_monotone                 4     0     0   ok        76
+check_grammar_laws                    12     0     0   ok        79
+check_root_schema_diagnostics         50     0     0   ok        93
+check_schema_validity                 54     0     0   ok       120
+check_schema_changelogs              108     0     0   ok       123
+check_versioned_schema_diagnostics  1232     0     0   ok       127
+check_schema_join                      2     0     0   ok       153
+check_model_join_versions              1     0     0   ok       157
+check_model_occurrences                3     0     0   ok       160
+check_model_obligations               17     0     0   ok       165
+check_mcp_schema                       1     0     0   ok       169
+check_score                            5     0     0   ok       172
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 96 types, 2023/2023 invocations passing
+  ✓ checks[code+schema]: 98 types, 2049/2049 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 59 types, 555/555 invocations passing
+  ✓ checks[code]: 61 types, 581/581 invocations passing
   ✓ checks[schema]: 37 types, 1468/1468 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2023/2023 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2049/2049 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run

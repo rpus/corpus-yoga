@@ -11,7 +11,6 @@ are the header of rsc/test/xref.csv; exists=N marks a stale reference).
     awk -F, '$5=="N"' rsc/test/xref.csv    # the stale references
 """
 
-import argparse
 import ast
 import csv
 import io
@@ -27,7 +26,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich  # noqa: E402
+from declared_parser import verb_parser  # noqa: E402
 
 REPO_ROOT = Path(__file__).parents[3]
 
@@ -642,14 +641,12 @@ def status() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
-    sub = parser.add_subparsers(dest='verb')
-    sub.add_parser('check')
-    enrich(parser, 'xref')
-    args = parser.parse_args()
-    # bare noun → status (read the committed table); only `check` rebuilds and writes
-    check(DEFAULT_OUT) if args.verb == 'check' else status()
+    # Generated from the declaration (#476), which is the authority on what this
+    # face does: rebuild, write, report - the retired `check` verb (the slot after
+    # `test` holds WHICH check, not a verb - test.sh's header) no longer lingers
+    # here as undeclared argv.
+    verb_parser('test', 'xref').parse_args()
+    check(DEFAULT_OUT)
 
 
 if __name__ == '__main__':

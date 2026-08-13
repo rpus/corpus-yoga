@@ -11,7 +11,8 @@
       "name": "--reason",
       "type": "<why>",
       "cardinality": "",
-      "help": "reason for the rejection, kept as a # comment"
+      "help": "reason for the rejection, kept as a # comment",
+      "default": ""
     },
     {
       "name": "concept",

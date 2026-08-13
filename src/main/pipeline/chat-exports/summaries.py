@@ -37,7 +37,6 @@ Usage (bare = status, the verb writes — the memories shape):
       [--conversations-output data/output/markdown/claude/chat/conversations] \\
       [--summaries-output data/output/markdown/claude/chat/summaries]
 """
-import argparse
 import json
 import re
 import sys
@@ -53,7 +52,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO, find_api_json
 
-from argparse_help import enrich, inherit_flags  # noqa: E402
+from declared_parser import command_parser  # noqa: E402
 from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
 from accumulate import accumulate, nearest_earlier_deposit  # noqa: E402 — the one deposit rule
 
@@ -192,22 +191,7 @@ def status(root: Path) -> int:
 
 
 def main():
-    ap = argparse.ArgumentParser(
-        description='The durable per-conversation summary store (memories semantics: '
-                    'immutable, content-deduplicated). Bare shows status; `sync` writes.')
-    sub = ap.add_subparsers(dest='verb')
-    sync_p = sub.add_parser('sync')
-    ap.add_argument('--chat-exports-cache', metavar='DIR',
-                    default=str(REPO / 'tmp' / 'cache' / 'chat-exports'))
-    ap.add_argument('--browser-api', metavar='DIR',
-                    default=str(REPO / 'data' / 'input' / 'claude' / 'chat' / 'browser-API'))
-    ap.add_argument('--conversations-output', metavar='DIR',
-                    default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'))
-    ap.add_argument('--summaries-output', metavar='DIR',
-                    default=str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries'))
-    inherit_flags(ap, sync_p)
-    enrich(ap, 'summaries')
-    args = ap.parse_args()
+    args = command_parser('summaries').parse_args()  # whole surface declared (#476, #477)
 
     root = Path(args.summaries_output)
     if args.verb != 'sync':

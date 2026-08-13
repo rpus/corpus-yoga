@@ -17,12 +17,16 @@
     },
     "cardinality": {
       "type": "string",
-      "description": "Empty is optional; `1` is exactly one, required; `N/<class>` is N over the set quotient by <class>, the mutually-exclusive args sharing that class being one equivalence class."
+      "description": "Empty is optional; `1` is exactly one, required; `*` is any number (a variadic positional tail); `N/<class>` is N over the set quotient by <class>, the mutually-exclusive args sharing that class being one equivalence class."
     },
     "help": {
       "type": "string",
       "minLength": 1,
-      "description": "The wording argparse shows for this argument; the target declares the structure, this the words."
+      "description": "The wording argparse shows for this argument; the declaration owns structure and words alike (#477)."
+    },
+    "default": {
+      "type": "string",
+      "description": "What an omitted argument means, as data (#477): a path-typed argument's default is repo-relative and resolves against the root at parser build; any other passes verbatim. Shown in the generated help as declared, so no help prose restates it."
     }
   }
 }

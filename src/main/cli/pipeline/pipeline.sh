@@ -29,6 +29,8 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
 source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of YOGA_NO_SEND (#29)
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 : "${VENV:=$HOME/venvs/general}"
 
 # The pipelines: the subdirectories of src/main/pipeline/. Membership is placement —
@@ -538,8 +540,8 @@ main() {
 case "${1-}" in
   '')        status; exit 0 ;;
   --names)   pipelines; exit 0 ;;
-  run)       shift ;;
-  sync)      shift; sync_matrices "$@"; exit $? ;;
+  run)       shift; parse_argv pipeline run "$@" ;;
+  sync)      shift; parse_argv pipeline sync "$@"; sync_matrices "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   # The pipeline runners call this file's siblings with their own --<name> flag; a bare
   # a bare --plan reaching here without `run` is a caller from before the verb existed,

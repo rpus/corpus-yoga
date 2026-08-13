@@ -25,6 +25,8 @@ SELF='src/main/cli/browser/browser.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
 # The bare-noun default: the capture-health audit, read-only. Shows what is captured
 # and what is missing without touching Safari or writing anything — the same audit
@@ -37,7 +39,7 @@ status() {
 
 main() {
   case "${1-}" in
-    capture) shift ;;
+    capture) shift; parse_argv browser capture "$@" ;;
     '') status; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (yoga browser -h for details)" >&2; exit 1 ;;

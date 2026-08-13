@@ -52,7 +52,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # 
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
 from word_freq_literal import words_from, filtered, tables  # noqa: E402 — one tokenizer for both presenters
-from library import LIBRARY as DOWNLOADED_DIR, migration_note  # noqa: E402 — the artifact library, one authority (#421)
+from library import LIBRARY as DOWNLOADED_DIR  # noqa: E402 — the artifact library, one authority (#421)
 
 ANCHOR = re.compile(r'^## (?:Human|Claude|Gemini) [^\n]*<a id="([0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12})"></a>', re.M)
 

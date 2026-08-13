@@ -46,6 +46,20 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+# The gate compares rendered BYTES - argparse help against the generated
+# parser, run output against committed expectations - and color is context,
+# not content: python 3.14 colorizes argparse help by stream and environment,
+# so an interactive run's in-process render diverged from the captured
+# subprocess's (cli.verb_help_answered, 9/16 red on a checkout, 2026-08-13).
+# The whole run pins color off, for itself and every child it spawns.
+os.environ['PYTHON_COLORS'] = '0'
+os.environ['NO_COLOR'] = '1'
+os.environ.pop('FORCE_COLOR', None)
+# Same law for width: argparse wraps help to the terminal, and a tty-attached
+# run (the pre-commit hook) would render the in-process expectation at the
+# terminal's width while the captured subprocess renders at the 80 fallback.
+os.environ['COLUMNS'] = '80'
+
 # ── Repo layout ───────────────────────────────────────────────────────────────
 SELF = 'src/test/dev/run.py'
 _file = Path(__file__).resolve()
@@ -794,6 +808,79 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     return (REPO_ROOT / words[0].lstrip('./')).exists()
 
 
+def check_cli_verb_help(run) -> None:
+    """Every bash target's verb answers -h from its declaration (#474): the target is
+    invoked live and must print exactly the generated parser's own help
+    (declared_parser.verb_parser — the same derivation the target's parse_argv face
+    speaks) and exit 0. Before parse_argv.sh, a verb-level -h landed in the verb's own
+    argv — an ENACTING verb could receive a flag-shaped token as its argument and
+    start its chain (tmp/logs/forge/flip/2026-08-13T083136Z.log, reading-room, is the
+    fixture). Python targets answer through their own parsers and are
+    check_cli_surface's subject, not this one's. Live and local: the parse face exits
+    before any verb body runs, so nothing here reaches the network or an enacting
+    step."""
+    from declared_parser import verb_parser
+    for c in cli.commands():
+        target = REPO_ROOT / c['target']
+        if target.suffix != '.sh' or not target.exists():
+            continue
+        for verb in cli.subcommands_of(c['command']):
+            expected = verb_parser(c['command'], verb).format_help()
+            proc = subprocess.run([str(target), verb, '-h'],
+                                  capture_output=True, text=True, cwd=REPO_ROOT)
+            ok = proc.returncode == 0 and proc.stdout == expected
+            detail = None
+            if not ok:
+                first = ((proc.stdout + proc.stderr).strip().splitlines() or ['(no output)'])[0]
+                detail = (f'exit {proc.returncode}, first line {first!r} — expected the '
+                          f"declaration's generated parser (declared_parser.verb_parser)")
+            run(f'cli: {c["command"]} {verb}: -h answered from the declaration', ok,
+                detail, law='G5', check='cli.verb_help_answered')
+
+
+def check_cli_exclusive_classes(run) -> None:
+    """Every declared 1/-class parses as promised, IN PROCESS on the generated
+    parser (#477): each member alone (with the verb's other required arguments
+    supplied) is accepted, and two members together are refused. The live bug
+    this ships against: a stray EMPTY required group minted per extra class
+    member (setdefault evaluating its group eagerly) refused every VALID
+    exclusive invocation — `yoga agent capture --all` — while bare invocations
+    kept refusing with the right words, so no help-based check could see it.
+    parse_args never dispatches anything: hermetic by construction."""
+    from declared_parser import verb_parser
+
+    def minimal(row):
+        return [row['arg-name']] + (['x'] if row['arg-type'] else [])
+
+    for c in cli.commands():
+        for verb in cli.subcommands_of(c['command']):
+            rows = [r for r in cli.command_rows(c['command'])
+                    if r['subcommand'] == verb and r['arg-name']]
+            classes: dict[str, list[dict]] = {}
+            for r in rows:
+                if '/' in r['cardinality']:
+                    classes.setdefault(r['cardinality'], []).append(r)
+            if not classes:
+                continue
+            required = [t for r in rows if r['cardinality'] == '1' for t in minimal(r)]
+            def parses(argv):
+                try:
+                    verb_parser(c['command'], verb).parse_args(argv)
+                    return True
+                except SystemExit:
+                    return False
+            for card, members in classes.items():
+                accepted = [r['arg-name'] for r in members
+                            if not parses(required + minimal(r))]
+                run(f'cli: {c["command"]} {verb}: each {card} member parses alone',
+                    not accepted,
+                    f'refused despite the class: {", ".join(accepted)}' if accepted else None,
+                    law='G5', check='cli.exclusive_class_parses')
+                pair = required + minimal(members[0]) + minimal(members[1])
+                run(f'cli: {c["command"]} {verb}: {card} members refuse together',
+                    not parses(pair), None, law='G5', check='cli.exclusive_class_parses')
+
+
 def check_cli_surface(run) -> None:
     """The yoga CLI's table (src/main/cli/) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
@@ -923,7 +1010,7 @@ def check_cli_surface(run) -> None:
         # `yoga summaries sync --summaries-output …` died with `unrecognized
         # arguments`. The observable: an argparse verb's own --help lists every
         # flag that verb accepts, so each command-level flag must appear there
-        # (argparse_help.add_dir_flags wires the inherited copies). cli.py
+        # (declared_parser.command_parser re-accepts them on each verb). cli.py
         # targets are excluded as above; shell targets parse no verbs.
         cmd_level = [r['arg-name'] for r in cli.command_rows(c['command'])
                      if not r['subcommand'] and r['arg-name'].startswith('--')]
@@ -1400,7 +1487,7 @@ def check_cli_surface(run) -> None:
     # A file lives at the level of its subject (#41). Which tier imports a module is a
     # fact about the import graph, not a curated list — so this needs no vocabulary: a
     # module both tiers import belongs at src/, one only its own tier imports belongs in
-    # that tier. src/ was holding validation_matrix by instinct and argparse_help one
+    # that tier. src/ was holding validation_matrix by instinct and declared_parser one
     # level down, with the same cross-tier subject and the opposite placement.
     src_root = REPO_ROOT / 'src'
     modules = {p.stem: p for p in src_root.rglob('*.py')
@@ -2292,6 +2379,8 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_templates': ['.github'],
     'check_xref': 'TREE',
     'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
+    'check_cli_verb_help': ['src/main/cli'],
+    'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],
     'check_effects': ['src/main/cli'],
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
@@ -2539,6 +2628,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
+        run_section(check_cli_verb_help, tier='code')
+        run_section(check_cli_exclusive_classes, tier='code')
         run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')

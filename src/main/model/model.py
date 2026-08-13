@@ -14,7 +14,6 @@ Usage:
     yoga model sync    # (re-)generate every catalogue to agree with the schemas
 """
 
-import argparse
 import re
 import sys
 from pathlib import Path
@@ -32,7 +31,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich  # noqa: E402
+from declared_parser import command_parser  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
@@ -186,14 +185,7 @@ def frontier_report() -> None:
 
 
 def main():
-    ap = argparse.ArgumentParser(
-        description='Per-schema definition catalogues (tmp/cache/model/<family>/vN.json), '
-                    'candidates for the hand-curated rsc/schema/model.json. '
-                    'Bare shows status; `sync` regenerates them to agree with the schemas.')
-    sub = ap.add_subparsers(dest='verb')
-    sub.add_parser('sync')
-    enrich(ap, 'model')
-    args = ap.parse_args()
+    args = command_parser('model').parse_args()  # generated from the declaration (#476)
     # bare → status (read-only); only `sync` writes
     sync() if args.verb == 'sync' else status()
 

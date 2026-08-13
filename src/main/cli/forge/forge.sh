@@ -19,6 +19,8 @@ DECLARED="$REPO_DIR/src/main/cli/forge/forge.csv"
 source "$REPO_DIR/src/main/send.sh"
 # shellcheck source=src/main/enact.sh
 source "$REPO_DIR/src/main/enact.sh"
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
 # rows: STATUS \t key \t detail \t remedy — parsed by status() and `yoga prerequisites`
 reconcile() {
@@ -394,7 +396,7 @@ sync() {
 # teed into one run log; PIPESTATUS carries the verdict past the tee, so the
 # pipe launders nothing.
 flip() {
-  local pr="${1:?yoga forge flip <pr>}"
+  local pr="$1"
   local stamp log rc
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
   mkdir -p "$REPO_DIR/tmp/logs/forge/flip"
@@ -490,7 +492,7 @@ flip_chain() {
 # relays are unchanged; the verdict is the runner's own closing word. A halt that will
 # cure itself (the forge recomputing mergeability after a push) says so.
 merge() {
-  local pr="${1:?yoga forge merge <pr>}"
+  local pr="$1"
   local oid base head mergeable closing landed
   assert_may_send "gh pr view / gh pr merge / git push / git fetch (yoga forge merge)" \
     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
@@ -533,10 +535,10 @@ merge() {
 
 case "${1-}" in
   '')        status ;;
-  sync)      shift; sync "$@" ;;
-  prune)     shift; prune "$@" ;;
-  flip)      shift; flip "$@" ;;
-  merge)     shift; merge "$@" ;;
+  sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
+  prune)     shift; parse_argv forge prune "$@"; prune "$@" ;;
+  flip)      shift; parse_argv forge flip "$@"; flip "$@" ;;
+  merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;
 esac

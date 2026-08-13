@@ -18,6 +18,8 @@ SELF='src/main/cli/site/site.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_DIR/src/main/cli/parse_argv.sh"
 SRC="$REPO_DIR/rsc/site"
 OUT="$REPO_DIR/data/output/site"
 MODEL_DIR="$REPO_DIR/src/main/model"
@@ -156,8 +158,8 @@ sync() {
 
 case "${1:-}" in
   '')          status ;;
-  sync)        shift; [[ $# -eq 0 ]] || { echo "site sync takes no arguments" >&2; exit 2; }; sync ;;
-  render)      shift; render "$@" ;;
+  sync)        shift; parse_argv site sync "$@"; sync ;;
+  render)      shift; parse_argv site render "$@"; render "$@" ;;
   -h|--help)   usage ;;
   *)           echo "yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;
 esac

@@ -16,7 +16,7 @@
     {
       "name": "aliases",
       "type": "<alias-list>",
-      "cardinality": "",
+      "cardinality": "*",
       "help": "zero or more concepts to fold into the headword"
     }
   ]

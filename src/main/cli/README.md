@@ -27,16 +27,12 @@ subcommand file carries `help`, its `args`, and a `step` when it is one. The thr
 declaration — they sit beside what they describe rather than under `rsc/schema/`, which is
 the data domain; this is the repo's own interface, not corpus data. `additionalProperties`
 is false in all three, so a field nobody reads cannot accumulate unnoticed. Each argument is
-`{name, type, cardinality, help}`: `type` is the value metavar (`<uuid8>`, empty for a
-boolean flag), and `cardinality` is a literal count: empty
-is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken over the SET QUOTIENT
-`<class>` — the mutually-exclusive args are one equivalence class (interchangeable in the slot
-they fill), so `1/agent-capture-1` is cardinality-1 in the quotient by that class, rendered as and its whole usage sketch is GENERATED from those rows — `arg-type` is the value
-metavar (`<uuid8>`, blank for a boolean flag), and `cardinality` is a literal count: blank
-is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken over the SET QUOTIENT
-`<class>` — the mutually-exclusive args are one equivalence class (interchangeable in the slot
-they fill), so `1/agent-capture-1` is cardinality-1 in the quotient by that class, rendered as
-the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordinal>`. So the usage
+`{name, type, cardinality, help}`, and the whole usage sketch is GENERATED from those rows —
+`type` is the value metavar (`<uuid8>`, blank for a boolean flag), and `cardinality` is a
+literal count: blank is optional `[x]`; `1` is exactly one (required); `N/<class>` is N taken
+over the SET QUOTIENT `<class>` — the mutually-exclusive args are one equivalence class
+(interchangeable in the slot they fill), so `1/agent-capture-1` is cardinality-1 in the
+quotient by that class, rendered as the exclusive choice `(a | b)`. The class is named `<command>-<subcommand>-<ordinal>`. So the usage
 cannot drift from the helptext, because there is one source, not two — nothing to reconcile,
 no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
 prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
@@ -54,13 +50,17 @@ declared help lines as headed subparagraphs), the zsh tab-completion `yoga compl
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
-level down at `yoga <command> <verb> -h`, answered by argparse — the target's own, or the
-parser `cli.py` builds for a command it handles itself.
-That argparse carries no help strings of its own; `src/argparse_help.py` fills them from
-the declaration each time the target runs, and names the parser for the command rather than the file
-implementing it (`usage: yoga agent capture`, never `agent.py capture`), so the target's own `-h`
-reads the same wording whether reached via `yoga` or run directly — one source for the words,
-argparse still the authority on structure.
+level down at `yoga <command> <verb> -h`, answered by the target's own parser: argparse
+for a python target (or the parser `cli.py` builds for a command it handles itself),
+`parse_argv` for a bash target — sourced from `src/main/cli/parse_argv.sh` at each verb's
+dispatch, it hands the argv to `src/main/cli/parse_argv.py`, which answers `-h` from the
+declaration and refuses argv the declaration does not express, so an enacting verb can
+never receive a flag-shaped token as its argument (#474; `cli.verb_help_answered` holds it).
+A python target's parser is likewise GENERATED — `src/declared_parser.py` builds it whole from
+the declaration (structure, wording, prog `yoga agent capture` rather than `agent.py capture`,
+sends as each verb's epilog), the target passing only its semantic residue (default, type, dest,
+nargs) as per-argument overrides (#476) — so every target's `-h` reads the same declared words
+whether reached via `yoga` or run directly, and structure can never be stated twice.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
 data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga indexing capture` (model

@@ -18,6 +18,8 @@ SELF='src/main/cli/test/test.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
 # BOTH hooks this repo owns, because installing one without the other has no reason:
 # they are the same machinery (src/test/), on the same event, and `yoga prerequisites`
@@ -68,9 +70,9 @@ status() {
 
 case "${1-}" in
   '')           status ;;
-  run)          shift; exec "$REPO_DIR/src/test/dev/run.sh" "$@" ;;
-  xref)         shift; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@" ;;
-  install-hook) shift; install_hook "$@" ;;
+  run)          shift; parse_argv test run "$@"; exec "$REPO_DIR/src/test/dev/run.sh" "$@" ;;
+  xref)         shift; parse_argv test xref "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@" ;;
+  install-hook) shift; parse_argv test install-hook "$@"; install_hook "$@" ;;
   --help|-h)    awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   *) echo "Usage: yoga test [run [--fix] [--fresh] | xref | install-hook]  (yoga test -h for details)" >&2; exit 1 ;;
 esac

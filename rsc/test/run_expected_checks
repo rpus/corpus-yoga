@@ -27,6 +27,7 @@ cli.commands_unique
 cli.completions_parse
 cli.docstring_flags_advertised
 cli.every_form_listed
+cli.exclusive_class_parses
 cli.flag_not_axis_value
 cli.help_one_screen
 cli.step_invokes_verb
@@ -35,6 +36,7 @@ cli.table_parses
 cli.target_exists
 cli.target_flags_advertised
 cli.verb_accepts_command_flags
+cli.verb_help_answered
 composition.base_not_used_directly
 composition.base_schemas_closed
 composition.discriminator_values_disjoint

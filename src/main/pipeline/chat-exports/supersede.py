@@ -67,7 +67,6 @@ memories/projects/users are read from the batch's tmp/cache/ archive copies (wri
 by archive_components.py; data/input/ raw fallback for cache dirs predating that step).
 Exit 0 iff every earlier batch is covered (witnessed or deposited).
 """
-import argparse
 import hashlib
 import json
 import re
@@ -81,7 +80,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich  # noqa: E402
+from declared_parser import command_parser  # noqa: E402
 
 REPO = REPO_ROOT
 
@@ -468,22 +467,9 @@ DEFAULT_BULK = 'data/input/claude/chat/bulk-export'
 
 
 def main():
-    ap = argparse.ArgumentParser(
-        description='Do later bulk exports SUPERSEDE earlier ones? Bare shows the '
-                    'export-dir inventory; `check` computes coverage. Writes nothing.')
-    sub = ap.add_subparsers(dest='verb')
-    # The flags live on `check`, the verb that uses them — so the pipeline's
-    # `… check --browser-api …` parses, and the top-level --help stays short (just the
-    # {check} block) rather than unfurling five flags and tripping the one-screen gate.
-    # Bare status reads the standard dirs by default; overriding them is a check concern.
-    cp = sub.add_parser('check')
-    cp.add_argument('--chat-exports-cache', metavar='DIR', default=DEFAULT_CACHE)
-    cp.add_argument('--bulk-exports', metavar='DIR', default=DEFAULT_BULK)
-    cp.add_argument('--browser-api', metavar='DIR', default=None)
-    cp.add_argument('--memories-output', metavar='DIR', default='data/output/memories')
-    cp.add_argument('--summaries-output', metavar='DIR', default='data/output/markdown/claude/chat/summaries')
-    enrich(ap, 'supersede')
-    args = ap.parse_args()
+    # Whole surface declared (#476, #477): the flags live on `check` because the
+    # declaration puts them there.
+    args = command_parser('supersede').parse_args()
     if args.verb is None:
         return status(Path(DEFAULT_CACHE), Path(DEFAULT_BULK))
     return check(args)

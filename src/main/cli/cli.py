@@ -7,8 +7,9 @@ names each command and its target; src/main/cli/ describes the arguments.
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
 `yoga -h` lists the commands; `yoga <command> -h` renders that command's help from
 the tables; a subcommand one level down (`yoga <command> <subcommand> --help`) is
-answered by argparse — the target's own, or the parser cli.py builds for a command it
-handles itself. `yoga completions` derives static zsh tab-completion from
+answered by the target's own parser — argparse for a python target (or the parser
+cli.py builds for a command it handles itself), parse_argv for a bash target (#474),
+both wording their answer from the declaration. `yoga completions` derives static zsh tab-completion from
 the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
@@ -32,8 +33,6 @@ system python3 when the venv does not exist yet, so a fresh clone can render
 the table, print the calculus, and generate completion before src/main/cli/pipeline/pipeline.sh has
 run. Adding a third-party import here would silently break that.
 """
-import argparse
-import csv
 import json
 import pathlib
 import os
@@ -48,7 +47,6 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich  # noqa: E402 — stdlib-only itself, so the bootstrap holds
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
@@ -122,7 +120,8 @@ def _rows_for(command: str, subcommand: str, d: dict) -> list[dict]:
                      'help': d['help'], 'step': d.get('step', '')})
     for a in d.get('args', []):
         rows.append({**base, 'arg-name': a['name'], 'arg-type': a.get('type', ''),
-                     'cardinality': a.get('cardinality', ''), 'help': a.get('help', '')})
+                     'cardinality': a.get('cardinality', ''), 'help': a.get('help', ''),
+                     'default': a.get('default')})
     return rows
 
 
@@ -266,7 +265,9 @@ def _render_args(rows: list[dict]) -> str:
     args = [r for r in rows if r['arg-name']]
     for r in args:
         card, frag = r['cardinality'], _render_arg(r['arg-name'], r['arg-type'])
-        if not card:
+        if card == '*':
+            pieces.append(f'[{frag} ...]')
+        elif not card:
             pieces.append(f'[{frag}]')
         elif '/' in card:
             if card in seen:
@@ -344,7 +345,7 @@ def render_command_help(c: dict) -> str:
     argrows = [r for r in command_rows(command) if r['arg-name']]
     descs = {s: next((r['help'] for r in bysub[s] if not r['arg-name']), None) for s in order}
     # A subcommand's DESCRIPTION is worth printing even when it takes no arguments:
-    # for `completions install-latest`, `xref check` or `memories sync`, that line is
+    # for `completions install-latest`, `test run` or `memories sync`, that line is
     # the only place -h says what the subcommand does. Returning early on "no arg rows"
     # dropped it silently — and dropped it for more commands each time an argument was
     # removed, which is how memories and xref lost theirs.
@@ -385,6 +386,8 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
                  if r['subcommand'] == subcommand and not r['arg-name']), '')
 
 
+
+
 # The arg-types whose value IS a filesystem path — the only values file completion
 # suits. Matched exactly against the declared arg-type, never by substring: a metavar
 # is a name, and reading meaning from its spelling would make <redirect> a directory.
@@ -405,6 +408,8 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     declaration = CLI / row['command'] / f'{verb}.json'
     if not verb or verb.startswith('-') or not declaration.exists():
         return
+    if any(t in ('-h', '--help') for t in rest):
+        return  # a help invocation is a read-only face, log-free by construction (#474)
     d = json.loads(declaration.read_text())
     if not (d.get('w') or d.get('sends')) or d.get('log') == 'self':
         return

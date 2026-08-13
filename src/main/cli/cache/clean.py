@@ -27,7 +27,6 @@ Usage:
     yoga cache clean --dry-run   # list orphaned tmp/cache/ subtrees with sizes; remove nothing
     yoga cache clean --apply     # remove them
 """
-import argparse
 import shutil
 import sys
 from pathlib import Path
@@ -40,7 +39,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich
+from declared_parser import verb_parser
 
 REPO = REPO_ROOT
 CACHE = REPO / 'tmp' / 'cache'
@@ -85,12 +84,9 @@ def _human(n: float) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='remove orphaned tmp/cache/ subtrees (neither written nor read)')
-    mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument('--dry-run', action='store_true')
-    mode.add_argument('--apply', action='store_true')
-    enrich(ap, 'cache', 'clean')
-    args = ap.parse_args()
+    # Generated from the declaration (#476): the required --dry-run|--apply
+    # exclusivity is the declared 1/-class.
+    args = verb_parser('cache', 'clean').parse_args()
 
     if not CACHE.is_dir():
         print('no tmp/cache/ — nothing to clean')
