@@ -83,8 +83,14 @@ def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
             kwargs.setdefault('default', value)
             kwargs['help'] = f"{kwargs['help']} (default: {declared})"
         if '/' in card:
-            holder = groups.setdefault(card, parser.add_mutually_exclusive_group(
-                required=card.split('/')[0] == '1'))
+            # never setdefault here: its group argument is evaluated on EVERY
+            # member, and each extra evaluation registers a stray EMPTY required
+            # group on the parser — which then refuses every VALID exclusive
+            # invocation (cli.exclusive_class_parses ships against the live bug)
+            if card not in groups:
+                groups[card] = parser.add_mutually_exclusive_group(
+                    required=card.split('/')[0] == '1')
+            holder = groups[card]
         else:
             holder = parser
         if r['arg-type'] in VALUE_ARG_TYPES:

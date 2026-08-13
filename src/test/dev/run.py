@@ -824,6 +824,49 @@ def check_cli_verb_help(run) -> None:
                 detail, law='G5', check='cli.verb_help_answered')
 
 
+def check_cli_exclusive_classes(run) -> None:
+    """Every declared 1/-class parses as promised, IN PROCESS on the generated
+    parser (#477): each member alone (with the verb's other required arguments
+    supplied) is accepted, and two members together are refused. The live bug
+    this ships against: a stray EMPTY required group minted per extra class
+    member (setdefault evaluating its group eagerly) refused every VALID
+    exclusive invocation — `yoga agent capture --all` — while bare invocations
+    kept refusing with the right words, so no help-based check could see it.
+    parse_args never dispatches anything: hermetic by construction."""
+    from declared_parser import verb_parser
+
+    def minimal(row):
+        return [row['arg-name']] + (['x'] if row['arg-type'] else [])
+
+    for c in cli.commands():
+        for verb in cli.subcommands_of(c['command']):
+            rows = [r for r in cli.command_rows(c['command'])
+                    if r['subcommand'] == verb and r['arg-name']]
+            classes: dict[str, list[dict]] = {}
+            for r in rows:
+                if '/' in r['cardinality']:
+                    classes.setdefault(r['cardinality'], []).append(r)
+            if not classes:
+                continue
+            required = [t for r in rows if r['cardinality'] == '1' for t in minimal(r)]
+            def parses(argv):
+                try:
+                    verb_parser(c['command'], verb).parse_args(argv)
+                    return True
+                except SystemExit:
+                    return False
+            for card, members in classes.items():
+                accepted = [r['arg-name'] for r in members
+                            if not parses(required + minimal(r))]
+                run(f'cli: {c["command"]} {verb}: each {card} member parses alone',
+                    not accepted,
+                    f'refused despite the class: {", ".join(accepted)}' if accepted else None,
+                    law='G5', check='cli.exclusive_class_parses')
+                pair = required + minimal(members[0]) + minimal(members[1])
+                run(f'cli: {c["command"]} {verb}: {card} members refuse together',
+                    not parses(pair), None, law='G5', check='cli.exclusive_class_parses')
+
+
 def check_cli_surface(run) -> None:
     """The yoga CLI's table (src/main/cli/) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
@@ -2323,6 +2366,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_xref': 'TREE',
     'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
     'check_cli_verb_help': ['src/main/cli'],
+    'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],
     'check_effects': ['src/main/cli'],
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
@@ -2571,6 +2615,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
         run_section(check_cli_verb_help, tier='code')
+        run_section(check_cli_exclusive_classes, tier='code')
         run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')

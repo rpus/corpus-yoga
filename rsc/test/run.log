@@ -1,4 +1,4 @@
-run.py: 2043/2043 (data: machine-local)
+run.py: 2049/2049 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -56,6 +56,9 @@ run.py: 2043/2043 (data: machine-local)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
   ✓ cli.verb_help_answered  (16/16)
+
+── check_cli_exclusive_classes ───────────────────────────────────────────────
+  ✓ cli.exclusive_class_parses  (6/6)
 
 ── check_effects ─────────────────────────────────────────────────────────────
   ✓ effects.writers_disjoint
@@ -181,29 +184,30 @@ check_templates                        2     0     0   ok        17
 check_xref                             2     0     0   ok        20
 check_cli_surface                    436     0     0   ok        24
 check_cli_verb_help                   16     0     0   ok        57
-check_effects                          2     0     0   ok        60
-check_cache_io                        18     0     0   ok        64
-check_accumulate_contract              1     0     0   ok        70
-check_capture_monotone                 4     0     0   ok        73
-check_grammar_laws                    12     0     0   ok        76
-check_root_schema_diagnostics         50     0     0   ok        90
-check_schema_validity                 54     0     0   ok       117
-check_schema_changelogs              108     0     0   ok       120
-check_versioned_schema_diagnostics  1232     0     0   ok       124
-check_schema_join                      2     0     0   ok       150
-check_model_join_versions              1     0     0   ok       154
-check_model_occurrences                3     0     0   ok       157
-check_model_obligations               17     0     0   ok       162
-check_mcp_schema                       1     0     0   ok       166
-check_score                            5     0     0   ok       169
+check_cli_exclusive_classes            6     0     0   ok        60
+check_effects                          2     0     0   ok        63
+check_cache_io                        18     0     0   ok        67
+check_accumulate_contract              1     0     0   ok        73
+check_capture_monotone                 4     0     0   ok        76
+check_grammar_laws                    12     0     0   ok        79
+check_root_schema_diagnostics         50     0     0   ok        93
+check_schema_validity                 54     0     0   ok       120
+check_schema_changelogs              108     0     0   ok       123
+check_versioned_schema_diagnostics  1232     0     0   ok       127
+check_schema_join                      2     0     0   ok       153
+check_model_join_versions              1     0     0   ok       157
+check_model_occurrences                3     0     0   ok       160
+check_model_obligations               17     0     0   ok       165
+check_mcp_schema                       1     0     0   ok       169
+check_score                            5     0     0   ok       172
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 97 types, 2043/2043 invocations passing
+  ✓ checks[code+schema]: 98 types, 2049/2049 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 60 types, 575/575 invocations passing
+  ✓ checks[code]: 61 types, 581/581 invocations passing
   ✓ checks[schema]: 37 types, 1468/1468 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2043/2043 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2049/2049 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
