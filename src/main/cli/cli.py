@@ -120,7 +120,8 @@ def _rows_for(command: str, subcommand: str, d: dict) -> list[dict]:
                      'help': d['help'], 'step': d.get('step', '')})
     for a in d.get('args', []):
         rows.append({**base, 'arg-name': a['name'], 'arg-type': a.get('type', ''),
-                     'cardinality': a.get('cardinality', ''), 'help': a.get('help', '')})
+                     'cardinality': a.get('cardinality', ''), 'help': a.get('help', ''),
+                     'default': a.get('default')})
     return rows
 
 
@@ -264,7 +265,9 @@ def _render_args(rows: list[dict]) -> str:
     args = [r for r in rows if r['arg-name']]
     for r in args:
         card, frag = r['cardinality'], _render_arg(r['arg-name'], r['arg-type'])
-        if not card:
+        if card == '*':
+            pieces.append(f'[{frag} ...]')
+        elif not card:
             pieces.append(f'[{frag}]')
         elif '/' in card:
             if card in seen:

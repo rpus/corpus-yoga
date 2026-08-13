@@ -7,25 +7,29 @@
       "name": "--chat-exports-cache",
       "type": "<dir>",
       "cardinality": "",
-      "help": "atomised batch cache — the export reading source"
+      "help": "atomised batch cache",
+      "default": "tmp/cache/chat-exports"
     },
     {
       "name": "--browser-api",
       "type": "<dir>",
       "cardinality": "",
-      "help": "browser-API root — the rolling capture source"
+      "help": "browser-API root — the rolling capture source",
+      "default": "data/input/claude/chat/browser-API"
     },
     {
       "name": "--conversations-output",
       "type": "<dir>",
       "cardinality": "",
-      "help": "projected conversations the folders key on"
+      "help": "projected conversations the folders key on",
+      "default": "data/output/markdown/claude/chat/conversations"
     },
     {
       "name": "--summaries-output",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the summary deposit store — the write target"
+      "help": "the summary deposit store — the write target",
+      "default": "data/output/markdown/claude/chat/summaries"
     }
   ]
 }

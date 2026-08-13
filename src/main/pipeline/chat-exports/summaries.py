@@ -191,14 +191,7 @@ def status(root: Path) -> int:
 
 
 def main():
-    # Generated from the declaration (#476); the machine-derived defaults are
-    # the semantic residue.
-    args = command_parser('summaries', overrides={'': {
-        '--chat-exports-cache': {'default': str(REPO / 'tmp' / 'cache' / 'chat-exports')},
-        '--browser-api': {'default': str(REPO / 'data' / 'input' / 'claude' / 'chat' / 'browser-API')},
-        '--conversations-output': {'default': str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations')},
-        '--summaries-output': {'default': str(REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'summaries')},
-    }}).parse_args()
+    args = command_parser('summaries').parse_args()  # whole surface declared (#476, #477)
 
     root = Path(args.summaries_output)
     if args.verb != 'sync':

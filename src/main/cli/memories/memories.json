@@ -7,19 +7,22 @@
       "name": "--chat-exports-cache",
       "type": "<dir>",
       "cardinality": "",
-      "help": "atomised batch cache — the archived memory-state source"
+      "help": "atomised batch cache — the archived memory-state source",
+      "default": "tmp/cache/chat-exports"
     },
     {
       "name": "--memories-output",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the memory deposit store — the write target"
+      "help": "the memory deposit store — the write target",
+      "default": "data/output/memories"
     },
     {
       "name": "--markdown",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the rendered markdown timeline — one file per deposit"
+      "help": "the rendered markdown timeline — one file per deposit",
+      "default": "data/output/markdown/claude/chat/memories"
     }
   ]
 }

@@ -432,13 +432,7 @@ def main():
         script = Path(__file__).resolve().parent / 'capture.sh'
         os.execv('/bin/bash', ['bash', str(script), *sys.argv[2:]])
 
-    # The parser is generated from the declaration (#476); only the semantic
-    # residue no declaration can say is stated here.
-    ap = command_parser('indexing', overrides={
-        'list-candidates': {'--top': {'type': int}},
-        'accept': {'aliases': {'nargs': '*'}},
-        'reject': {'--reason': {'default': ''}},
-    })
+    ap = command_parser('indexing')  # whole surface declared (#476, #477)
     args = ap.parse_args()
 
     accepted_path, rejected_path = ACCEPTED_FILE, REJECTED_FILE

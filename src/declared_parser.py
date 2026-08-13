@@ -51,20 +51,44 @@ def _epilog(command: str, verb: str) -> str | None:
                      for occasion in occasions) or None
 
 
+# A declared metavar's python value type, matched EXACTLY (the PATH_ARG_TYPES
+# pattern in cli.py: a metavar is a name, and reading meaning from its spelling
+# would make <n-list> a number). A metavar absent here parses as a string,
+# which is the safe way to be wrong.
+VALUE_ARG_TYPES = {'<n>': int}
+
+
+def _path_arg_types() -> set:
+    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main' / 'cli'))
+    from cli import PATH_ARG_TYPES
+    return PATH_ARG_TYPES
+
+
 def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
     """Each declared row becomes one add_argument call; overrides supply the
-    residue and may not invent an argument the declaration lacks."""
+    residue and may not invent an argument the declaration lacks. A declared
+    default is data (#477): a path-typed argument's default is repo-relative and
+    resolves against the root here, any other passes verbatim — and the help
+    shows the value as declared, so no help prose restates it."""
     groups: dict[str, object] = {}
     for r in rows:
         if not r['arg-name']:
             continue
         kwargs: dict = {'help': r['help'], **overrides.get(r['arg-name'], {})}
         card = r['cardinality']
+        if r.get('default') is not None:
+            declared = r['default']
+            value = (str(Path(__file__).resolve().parent.parent / declared)
+                     if r['arg-type'] in _path_arg_types() else declared)
+            kwargs.setdefault('default', value)
+            kwargs['help'] = f"{kwargs['help']} (default: {declared})"
         if '/' in card:
             holder = groups.setdefault(card, parser.add_mutually_exclusive_group(
                 required=card.split('/')[0] == '1'))
         else:
             holder = parser
+        if r['arg-type'] in VALUE_ARG_TYPES:
+            kwargs.setdefault('type', VALUE_ARG_TYPES[r['arg-type']])
         if r['arg-name'].startswith('--'):
             if r['arg-type']:
                 kwargs.setdefault('metavar', r['arg-type'])
@@ -75,7 +99,9 @@ def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
         else:
             if r['arg-type']:
                 kwargs.setdefault('metavar', r['arg-type'])
-            if not card:
+            if card == '*':
+                kwargs.setdefault('nargs', '*')
+            elif not card:
                 kwargs.setdefault('nargs', '?')
         holder.add_argument(r['arg-name'], **kwargs)  # type: ignore[attr-defined]
 

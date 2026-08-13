@@ -746,24 +746,24 @@ def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool,
 
 
 def main() -> int:
-    # The parser is generated from the declaration (#476); the keyword collision
-    # on --from (dest) is the one semantic residue. The --session|--all
+    # Whole surface declared (#476, #477); the keyword collision on --from
+    # (dest) is the tree's one surviving override. The --session|--all
     # exclusivity is the declared 1/-class, enforced at parse — bare noun stays
     # the census: subparsers are not required.
-    args = command_parser('agent', dest='direction', overrides={
+    args = command_parser('agent', overrides={
         'install': {'--from': {'dest': 'source'}},
     }).parse_args()
 
-    if args.direction is None:
+    if args.verb is None:
         return list_agents()   # bare noun → the census (local + store sessions), read-only status
 
     if not PROJECTS.is_dir():
         sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/pipeline/code-agents/link_projects.sh creates the symlink')
 
-    if args.direction == 'list-models':
+    if args.verb == 'list-models':
         return model_census()
 
-    if args.direction == 'demerge':
+    if args.verb == 'demerge':
         # every local project's memory, newest merge each, all-or-nothing per
         # project (a markerless folder demerges to silence)
         rc = 0
@@ -772,7 +772,7 @@ def main() -> int:
             rc = max(rc, 1 if demerge(proj, args.apply) else 0)
         return rc
 
-    if args.direction == 'capture':
+    if args.verb == 'capture':
         if args.to:
             outbox = Path(args.to).expanduser()
             outbox.mkdir(parents=True, exist_ok=True)

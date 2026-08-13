@@ -56,9 +56,6 @@ from declared_parser import command_parser  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[3]
-CHAT_EXPORTS_CACHE_DIR = REPO / 'tmp' / 'cache' / 'chat-exports'
-MEMORIES_OUTPUT_DIR = REPO / 'data' / 'output' / 'memories'
-MARKDOWN_DIR = REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'memories'
 
 
 def stamp_vintages() -> list[dict]:
@@ -187,13 +184,7 @@ def sync(chat_exports_cache: Path, memories_output: Path, markdown: Path) -> int
 
 
 def main():
-    # Generated from the declaration (#476); the machine-derived defaults are
-    # the semantic residue.
-    args = command_parser('memories', overrides={'': {
-        '--chat-exports-cache': {'default': str(CHAT_EXPORTS_CACHE_DIR)},
-        '--memories-output': {'default': str(MEMORIES_OUTPUT_DIR)},
-        '--markdown': {'default': str(MARKDOWN_DIR)},
-    }}).parse_args()
+    args = command_parser('memories').parse_args()  # whole surface declared (#476, #477)
     if args.verb == 'sync':
         return sync(Path(args.chat_exports_cache), Path(args.memories_output), Path(args.markdown))
     # bare → status (read-only)

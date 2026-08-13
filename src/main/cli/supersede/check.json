@@ -5,13 +5,15 @@
       "name": "--chat-exports-cache",
       "type": "<dir>",
       "cardinality": "",
-      "help": "cache root holding <batch>/json/ atomised pieces"
+      "help": "cache root holding <batch>/json/ atomised pieces",
+      "default": "tmp/cache/chat-exports"
     },
     {
       "name": "--bulk-exports",
       "type": "<dir>",
       "cardinality": "",
-      "help": "input root holding the raw batch dirs (memories/projects/users)"
+      "help": "input root holding the raw batch dirs (memories/projects/users)",
+      "default": "data/input/claude/chat/bulk-export"
     },
     {
       "name": "--browser-api",
@@ -23,13 +25,15 @@
       "name": "--memories-output",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the memory deposit store (a deposit is the unconditional licence)"
+      "help": "the memory deposit store (a deposit is the unconditional licence)",
+      "default": "data/output/memories"
     },
     {
       "name": "--summaries-output",
       "type": "<dir>",
       "cardinality": "",
-      "help": "the summary deposit store (a deposit is the unconditional licence)"
+      "help": "the summary deposit store (a deposit is the unconditional licence)",
+      "default": "data/output/markdown/claude/chat/summaries"
     }
   ],
   "step": "chat-exports",

@@ -467,14 +467,9 @@ DEFAULT_BULK = 'data/input/claude/chat/bulk-export'
 
 
 def main():
-    # Generated from the declaration (#476): the flags live on `check` because
-    # the declaration puts them there; the defaults are the semantic residue.
-    args = command_parser('supersede', overrides={'check': {
-        '--chat-exports-cache': {'default': DEFAULT_CACHE},
-        '--bulk-exports': {'default': DEFAULT_BULK},
-        '--memories-output': {'default': 'data/output/memories'},
-        '--summaries-output': {'default': 'data/output/markdown/claude/chat/summaries'},
-    }}).parse_args()
+    # Whole surface declared (#476, #477): the flags live on `check` because the
+    # declaration puts them there.
+    args = command_parser('supersede').parse_args()
     if args.verb is None:
         return status(Path(DEFAULT_CACHE), Path(DEFAULT_BULK))
     return check(args)
