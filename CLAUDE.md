@@ -153,9 +153,11 @@ seventh principle or a smell.
   -F issue_id=<id>`, never merely narrate it in prose ("part of #N" and its
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
-- A PR body phrases completion "aims to complete #N" until the flip. The
-  flip, on the reviewer's word only, is `yoga forge flip <pr>` - it arms
-  the body's phrasing to `closes` and rewrites nothing. Commits are never
+- A PR body phrases completion "aims to complete #N" until the flip - and
+  aims at every OPEN blocker of what it aims at (#482; the flip refuses
+  otherwise). The flip, on the reviewer's word only, is
+  `yoga forge flip <pr>` - it flips the body's phrasing to `closes` and
+  rewrites nothing. Commits are never
   rewritten (no squash, no reword - the branch merges as reviewed) and
   never carry the parser's words; the branch needs only to stand rebased
   on current origin/main AT MERGE, and the command relocates a moved base
@@ -176,7 +178,7 @@ seventh principle or a smell.
   subject is copied rather than authored, and main's log reads as the
   disposed shoulds - ready-made release notes. Vetting is contingent all the
   way down, so no event licenses an indicative subject; `yoga forge flip`
-  refuses to arm a non-copy.
+  refuses a non-copy.
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
   the branch's OWN commits onto the new main. Nothing is squashed - the

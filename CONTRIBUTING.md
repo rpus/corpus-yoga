@@ -22,7 +22,7 @@ precedes a merge is `yoga forge flip <pr>` — "aims to complete #N" becomes
 `closes #N` in the PR body, and nothing is rewritten (.github/PULL_REQUEST_TEMPLATE.md
 holds that grammar; the command relocates a moved base first and resyncs a held
 checkout): the squash publishes the title — a verbatim copy of the title of
-an issue the body aims to complete, which the flip refuses to arm otherwise
+an issue the body aims to complete, which the flip refuses otherwise
 (#479) — as main's subject line, and the commits as reviewed, every message
 and Signature intact.
 

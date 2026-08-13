@@ -20,7 +20,7 @@
      — ready-made release notes. `yoga forge flip` refuses a non-copy. The
      squash BODY is every commit's message, oldest first, as reviewed.
      Commits are never rewritten. This body is the review-facing channel,
-     teaches the same sections, and carries the armed close.
+     teaches the same sections, and carries the close once flipped.
 
      Relations vocabulary: closes / enacts / advances / supersedes / reopens.
      The protection is LEXICAL: every relation but one only REFERS —
@@ -36,10 +36,11 @@
      MOOD LAW: closes is indicative-only, and NO commit ever carries it — the
      promise would execute at merge regardless of what review decided in
      between, and the squash publishes every commit message. The BODY is the
-     one armed channel: a raised body's why and do sections phrase completion
-     prospectively ("aims to complete #N"), and the pre-merge flip — the ONE
-     act that arms the close, on the reviewer's word — edits that phrasing to
-     closes and rewrites nothing else. If review narrowed the scope,
+     one channel the flip edits: a raised body's why and do sections phrase
+     completion prospectively ("aims to complete #N", covering every OPEN
+     blocker of what it aims at — the flip refuses otherwise, #482), and the
+     pre-merge flip, on the reviewer's word, edits that phrasing to closes
+     and rewrites nothing else. If review narrowed the scope,
      withholding closes is not tidying prose, it is preventing a wrong
      close. -->
 

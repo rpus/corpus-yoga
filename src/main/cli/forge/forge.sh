@@ -4,7 +4,7 @@
 # Usage:
 #   yoga forge                 # declared vs live
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-#   yoga forge flip <pr>       # the declared flip: relocate if the base moved, resync a held checkout, arm the body's closes
+#   yoga forge flip <pr>       # the declared flip: relocate if the base moved, resync a held checkout, flip the body's closes
 #   yoga forge merge <pr>      # status; squash-merge that PR and converge this checkout; git status
 #   yoga forge prune [--apply] # forget what the forge no longer has
 
@@ -386,7 +386,7 @@ sync() {
   done
 }
 
-# The flip, as CLAUDE.md declares it (#458): arm the close by editing the PR
+# The flip, as CLAUDE.md declares it (#458): flip the body's phrasing to closes by editing the PR
 # body's "aims to complete #N" to "closes #N" - and rewrite nothing. A moved
 # base is relocated first (the lifetime's one rebase; rsc/test/ conflicts are
 # CONTRIBUTING's syntactic class, taken wholesale and re-derived; any other
@@ -417,18 +417,32 @@ flip_chain() {
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge flip: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge flip: NOT DONE — #$pr is $state; only an open PR flips"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge flip: NOT DONE — the body read failed"; return 1; }
-  grep -Eq 'aims to complete #[0-9]+' <<< "$body"     || { echo "forge flip: NOT DONE — the body carries no 'aims to complete #N' to arm"; return 1; }
+  grep -Eq 'aims to complete #[0-9]+' <<< "$body"     || { echo "forge flip: NOT DONE — the body carries no 'aims to complete #N' to flip"; return 1; }
   # The title is a verbatim COPY of the title of an issue the body aims to
   # complete (#479): the should's one home is the issue, main's subject becomes
   # the disposed should, and a non-copy refuses HERE, before any enacting step.
-  local title issue_number issue_title copied=0
+  local aimed title issue_number issue_title copied=0
+  aimed="$(grep -oE 'aims to complete #[0-9]+' <<< "$body" | grep -oE '[0-9]+' | sort -u)"
   title="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json title --jq .title)"     || { echo "forge flip: NOT DONE — the title read failed"; return 1; }
   while read -r issue_number; do
     [[ -n "$issue_number" ]] || continue
     issue_title="$(cd "$REPO_DIR" && quote gh issue view "$issue_number" --json title --jq .title)" || continue
     [[ "$title" == "$issue_title" ]] && copied=1
-  done < <(grep -oE 'aims to complete #[0-9]+' <<< "$body" | grep -oE '[0-9]+' | sort -u)
+  done <<< "$aimed"
   [[ "$copied" == 1 ]]     || { echo "forge flip: NOT DONE — the title copies no issue the body aims to complete (#479); retitle the PR as the verbatim copy of the central issue's title"; return 1; }
+  # Every aimed issue's OPEN blockers must be aimed too (#482): closing a
+  # blocked issue with its stated precondition unmet is what blocked_by
+  # exists to prevent, and the refusal lands here, before any enacting step.
+  local blocker_rows blocker_number blocker_state
+  while read -r issue_number; do
+    [[ -n "$issue_number" ]] || continue
+    blocker_rows="$(cd "$REPO_DIR" && quote gh api "repos/{owner}/{repo}/issues/$issue_number/dependencies/blocked_by" --jq '.[] | [.number, .state] | @tsv')" || continue
+    while IFS=$'\t' read -r blocker_number blocker_state; do
+      [[ -n "$blocker_number" ]] || continue
+      [[ "$blocker_state" == "closed" ]] && continue
+      grep -qx "$blocker_number" <<< "$aimed"       || { echo "forge flip: NOT DONE — #$issue_number is blocked by open #$blocker_number, which this body does not aim to complete (#482)"; return 1; }
+    done <<< "$blocker_rows"
+  done <<< "$aimed"
   enact git -C "$REPO_DIR" fetch origin "$base" "$head"     || { echo "forge flip: NOT DONE — the fetch failed"; return 1; }
   branch_here="$(git -C "$REPO_DIR" branch --show-current)"
   if [[ "$branch_here" == "$head" ]]; then
@@ -518,7 +532,7 @@ merge() {
   [[ "$mergeable" == MERGEABLE ]] \
     || { echo "forge merge: NOT DONE — the forge calls #$pr $mergeable"; return 1; }
   (( closing > 0 )) \
-    || { echo "forge merge: NOT DONE — the forge's parser would close nothing; arm closes #N and push before merging"; return 1; }
+    || { echo "forge merge: NOT DONE — the forge's parser would close nothing; flip the PR (closes #N) and push before merging"; return 1; }
   status \
     || { echo "forge merge: NOT DONE — refuse-class drift; the standing report above names it"; return 1; }
   if enact git -C "$REPO_DIR" fetch origin "$base" "$head" \
