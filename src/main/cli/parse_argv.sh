@@ -14,11 +14,18 @@ PARSE_ARGV_REPO="${_self_dir%/"${SELF%/*}"}"
 [[ "${PARSE_ARGV_REPO}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 
 parse_argv() {
-  local out rc=0
+  local out rc=0 python
+  # The face renders under the venv python wherever the venv exists: argparse's
+  # help format varies by python version, and the gate's expectation
+  # (cli.verb_help_answered) renders in-process under the venv - a PATH python3
+  # of another version fails the byte comparison. Before the venv exists,
+  # system python3 still answers a human's -h.
+  python="${VENV:-$HOME/venvs/general}/bin/python"
+  [[ -x "$python" ]] || python=python3
   # `|| rc=$?` keeps a caller's set -e from killing the script at the substitution
   # itself. A refusal (rc 2) needs no relay: argparse wrote it to stderr, which
   # $(...) does not capture.
-  out="$(python3 "$PARSE_ARGV_REPO/src/main/cli/parse_argv.py" "$@")" || rc=$?
+  out="$("$python" "$PARSE_ARGV_REPO/src/main/cli/parse_argv.py" "$@")" || rc=$?
   # $(...) ate the face's trailing newline; printf '%s\n' restores exactly one,
   # so the courier's bytes equal the face's (cli.verb_help_answered holds this).
   case "$rc" in
