@@ -794,6 +794,33 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     return (REPO_ROOT / words[0].lstrip('./')).exists()
 
 
+def check_cli_verb_help(run) -> None:
+    """Every bash target's verb answers -h from its declaration (#474): the target is
+    invoked live and must print exactly cli.render_verb_help's words and exit 0. Before
+    parse_argv.sh, a verb-level -h landed in the verb's own argv — an ENACTING verb
+    could receive a flag-shaped token as its argument and start its chain
+    (tmp/logs/forge/flip/2026-08-13T083136Z.log, reading-room, is the fixture). Python
+    targets answer through their own enriched argparse and are check_cli_surface's
+    subject, not this one's. Live and local: the parse face exits before any verb
+    body runs, so nothing here reaches the network or an enacting step."""
+    for c in cli.commands():
+        target = REPO_ROOT / c['target']
+        if target.suffix != '.sh' or not target.exists():
+            continue
+        for verb in cli.subcommands_of(c['command']):
+            expected = cli.render_verb_help(c['command'], verb)
+            proc = subprocess.run([str(target), verb, '-h'],
+                                  capture_output=True, text=True, cwd=REPO_ROOT)
+            ok = proc.returncode == 0 and proc.stdout == expected
+            detail = None
+            if not ok:
+                first = ((proc.stdout + proc.stderr).strip().splitlines() or ['(no output)'])[0]
+                detail = (f'exit {proc.returncode}, first line {first!r} — expected the '
+                          f"declaration's words (cli.render_verb_help)")
+            run(f'cli: {c["command"]} {verb}: -h answered from the declaration', ok,
+                detail, law='G5', check='cli.verb_help_answered')
+
+
 def check_cli_surface(run) -> None:
     """The yoga CLI's table (src/main/cli/) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
@@ -2292,6 +2319,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_templates': ['.github'],
     'check_xref': 'TREE',
     'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
+    'check_cli_verb_help': ['src/main/cli'],
     'check_effects': ['src/main/cli'],
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
@@ -2539,6 +2567,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')
+        run_section(check_cli_verb_help, tier='code')
         run_section(check_effects, tier='code')
         run_section(check_cache_io, tier='code')
         run_section(check_accumulate_contract, tier='code')

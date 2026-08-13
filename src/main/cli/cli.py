@@ -7,8 +7,9 @@ names each command and its target; src/main/cli/ describes the arguments.
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
 `yoga -h` lists the commands; `yoga <command> -h` renders that command's help from
 the tables; a subcommand one level down (`yoga <command> <subcommand> --help`) is
-answered by argparse — the target's own, or the parser cli.py builds for a command it
-handles itself. `yoga completions` derives static zsh tab-completion from
+answered by the target's own parser — argparse for a python target (or the parser
+cli.py builds for a command it handles itself), parse_argv for a bash target (#474),
+both wording their answer from the declaration. `yoga completions` derives static zsh tab-completion from
 the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
@@ -385,6 +386,35 @@ def _subcommand_desc(command: str, subcommand: str) -> str:
                  if r['subcommand'] == subcommand and not r['arg-name']), '')
 
 
+def verb_usage(command: str, verb: str) -> str:
+    """One verb's invocation form, from its declaration — the line a refusal cites."""
+    argrows = [r for r in command_rows(command)
+               if r['subcommand'] == verb and r['arg-name']]
+    return _join(f'yoga {command} {verb}', _render_args(argrows))
+
+
+def render_verb_help(command: str, verb: str) -> str:
+    """One verb's help, from its declaration (#474) — the description, the invocation
+    form, each argument, the declared sends. parse_argv.py serves this text when a
+    bash target's verb is asked -h: those targets have no parser of their own to
+    answer with, so the declaration answers. A python target keeps answering through
+    its enriched argparse — same declaration wording either way."""
+    rows = [r for r in command_rows(command) if r['subcommand'] == verb]
+    argrows = [r for r in rows if r['arg-name']]
+    desc = _subcommand_desc(command, verb)
+    head = f'yoga {command} {verb}' + (f' — {desc}' if desc else '')
+    out = [head, '', '  ' + verb_usage(command, verb)]
+    label = {r['arg-name']: _render_arg(r['arg-name'], r['arg-type']) for r in argrows}
+    w = max((len(v) for v in label.values()), default=0)
+    body = [f"  {label[r['arg-name']]:<{w}}  {r['help']}" for r in argrows]
+    body += [f'  sends: {call} — {occasion}'
+             for call, occasions in sends_of(command, verb).items()
+             for occasion in occasions]
+    if body:
+        out += ['', *body]
+    return '\n'.join(out) + '\n'
+
+
 # The arg-types whose value IS a filesystem path — the only values file completion
 # suits. Matched exactly against the declared arg-type, never by substring: a metavar
 # is a name, and reading meaning from its spelling would make <redirect> a directory.
@@ -405,6 +435,8 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     declaration = CLI / row['command'] / f'{verb}.json'
     if not verb or verb.startswith('-') or not declaration.exists():
         return
+    if any(t in ('-h', '--help') for t in rest):
+        return  # a help invocation is a read-only face, log-free by construction (#474)
     d = json.loads(declaration.read_text())
     if not (d.get('w') or d.get('sends')) or d.get('log') == 'self':
         return

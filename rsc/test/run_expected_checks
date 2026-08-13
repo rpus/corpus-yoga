@@ -35,6 +35,7 @@ cli.table_parses
 cli.target_exists
 cli.target_flags_advertised
 cli.verb_accepts_command_flags
+cli.verb_help_answered
 composition.base_not_used_directly
 composition.base_schemas_closed
 composition.discriminator_values_disjoint

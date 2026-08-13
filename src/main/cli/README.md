@@ -54,9 +54,13 @@ declared help lines as headed subparagraphs), the zsh tab-completion `yoga compl
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
-level down at `yoga <command> <verb> -h`, answered by argparse — the target's own, or the
-parser `cli.py` builds for a command it handles itself.
-That argparse carries no help strings of its own; `src/argparse_help.py` fills them from
+level down at `yoga <command> <verb> -h`, answered by the target's own parser: argparse
+for a python target (or the parser `cli.py` builds for a command it handles itself),
+`parse_argv` for a bash target — sourced from `src/main/cli/parse_argv.sh` at each verb's
+dispatch, it hands the argv to `src/main/cli/parse_argv.py`, which answers `-h` from the
+declaration and refuses argv the declaration does not express, so an enacting verb can
+never receive a flag-shaped token as its argument (#474; `cli.verb_help_answered` holds it).
+The python side's argparse carries no help strings of its own; `src/argparse_help.py` fills them from
 the declaration each time the target runs, and names the parser for the command rather than the file
 implementing it (`usage: yoga agent capture`, never `agent.py capture`), so the target's own `-h`
 reads the same wording whether reached via `yoga` or run directly — one source for the words,

@@ -27,6 +27,8 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 : "${VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
 source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_ROOT/src/main/cli/parse_argv.sh"
 
 SHOW_ALL=0
 SYNC=0
@@ -583,6 +585,9 @@ report() {
 }
 
 main() {
+  # The sync verb's argv is the declaration's to answer (#474); the command-level
+  # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
+  if [[ "${1-}" == sync ]]; then parse_argv prerequisites sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi
 }

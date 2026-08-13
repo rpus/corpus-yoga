@@ -15,6 +15,8 @@ SELF='src/main/cli/server/server.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/cli/parse_argv.sh
+source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
 # One immutable log per daemon start (#370): stamped, colon-free, under the verb directory.
@@ -79,8 +81,8 @@ stop() {
 case "${1:-}" in
   "")             status ;;   # bare noun → status; there is no `status` verb (this IS it)
   -h|--help|help) help ;;
-  start)          shift; start "$@" ;;
-  stop)           stop ;;
-  ensure-assets)  "${PY[@]}" --ensure-assets ;;
+  start)          shift; parse_argv server start "$@"; start "$@" ;;
+  stop)           shift; parse_argv server stop "$@"; stop ;;
+  ensure-assets)  shift; parse_argv server ensure-assets "$@"; "${PY[@]}" --ensure-assets ;;
   *) echo "server: unknown verb '${1}' — expected start, stop, ensure-assets (bare: status)" >&2; help; exit 1 ;;
 esac
