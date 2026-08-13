@@ -104,7 +104,6 @@ session's eponymous guid-dir (via its subagents/) as a session even after the
 AND its guid-dir together; delete only the file and the sidebar advertises a
 ghost, whose only offered remedy is the tombstone that started this note.
 """
-import argparse
 import contextlib
 import hashlib
 import io
@@ -122,11 +121,11 @@ REPO = _root[0]
 PROJECTS = REPO / 'ext' / 'mnt' / 'claude-code-projects'
 AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 
-sys.path.insert(0, str(REPO / 'src'))  # argparse_help — modules both tiers import
+sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 from machine import bound_machine  # noqa: E402
-from argparse_help import enrich  # noqa: E402
+from declared_parser import command_parser  # noqa: E402
 
 
 def _sha(text: str) -> str:
@@ -747,23 +746,13 @@ def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool,
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='capture agents into the store; install from peer machines (session × memory)')
-    # bare noun → the census (status); not required, and there is no `list` verb (bare IS it)
-    sub = ap.add_subparsers(dest='direction')
-    t = sub.add_parser('capture')
-    t.add_argument('--session')
-    t.add_argument('--all', action='store_true')
-    t.add_argument('--to', metavar='SCRATCH_DIR')
-    r = sub.add_parser('install')
-    r.add_argument('--from', dest='source', required=True, metavar='MACHINE|DIR')
-    r.add_argument('--session')
-    r.add_argument('--all', action='store_true')
-    r.add_argument('--apply', action='store_true')
-    d = sub.add_parser('demerge')
-    d.add_argument('--apply', action='store_true')
-    sub.add_parser('list-models')
-    enrich(ap, 'agent')
-    args = ap.parse_args()
+    # The parser is generated from the declaration (#476); the keyword collision
+    # on --from (dest) is the one semantic residue. The --session|--all
+    # exclusivity is the declared 1/-class, enforced at parse — bare noun stays
+    # the census: subparsers are not required.
+    args = command_parser('agent', dest='direction', overrides={
+        'install': {'--from': {'dest': 'source'}},
+    }).parse_args()
 
     if args.direction is None:
         return list_agents()   # bare noun → the census (local + store sessions), read-only status
@@ -782,9 +771,6 @@ def main() -> int:
             print(f'{proj.name}:')
             rc = max(rc, 1 if demerge(proj, args.apply) else 0)
         return rc
-
-    if args.direction in ('capture', 'install') and bool(args.session) == args.all:
-        ap.error(f'{args.direction}: name --session <uuid8> or --all — an agent or the totality, never an inference')
 
     if args.direction == 'capture':
         if args.to:

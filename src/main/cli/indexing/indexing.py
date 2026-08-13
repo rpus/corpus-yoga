@@ -43,7 +43,6 @@ Usage (via yoga indexing):
       [--only semantic-concepts|chat-categories]   #   the two index tables (see capture.sh);
       [--dry-run]                                  #   --dry-run: coverage preview, spends nothing
 """
-import argparse
 import re
 import sys
 from pathlib import Path
@@ -56,7 +55,7 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO
-from argparse_help import enrich
+from declared_parser import command_parser
 
 MARKDOWN_DIR = REPO / 'data' / 'output' / 'markdown'                    # the corpus to index
 ACCEPTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'accepted.txt'  # curated headwords (read + written)
@@ -433,26 +432,13 @@ def main():
         script = Path(__file__).resolve().parent / 'capture.sh'
         os.execv('/bin/bash', ['bash', str(script), *sys.argv[2:]])
 
-    ap = argparse.ArgumentParser()
-    sub = ap.add_subparsers(dest='verb', help='indexing verbs (bare: status)')
-    cand = sub.add_parser('list-candidates')
-    # --top belongs on the list-candidates subparser, not the parent — the advertised form
-    # is `list-candidates [--top <n>]`, and a parent optional cannot follow the subcommand.
-    cand.add_argument('--top', type=int, default=None, metavar='N')
-    acc = sub.add_parser('accept')
-    acc.add_argument('term', nargs='?')
-    acc.add_argument('aliases', nargs='*')
-    acc.add_argument('--all', action='store_true')
-    rej = sub.add_parser('reject')
-    rej.add_argument('concept', nargs='?')
-    rej.add_argument('--reason', default='')
-    rej.add_argument('--all', action='store_true')
-    sub.add_parser('sync')
-    cap = sub.add_parser('capture')
-    cap.add_argument('--conversations', metavar='<path>')
-    cap.add_argument('--only', metavar='semantic-concepts|chat-categories')
-    cap.add_argument('--dry-run', action='store_true')
-    enrich(ap, 'indexing')
+    # The parser is generated from the declaration (#476); only the semantic
+    # residue no declaration can say is stated here.
+    ap = command_parser('indexing', overrides={
+        'list-candidates': {'--top': {'type': int}},
+        'accept': {'aliases': {'nargs': '*'}},
+        'reject': {'--reason': {'default': ''}},
+    })
     args = ap.parse_args()
 
     accepted_path, rejected_path = ACCEPTED_FILE, REJECTED_FILE

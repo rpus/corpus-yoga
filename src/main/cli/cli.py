@@ -342,7 +342,7 @@ def render_command_help(c: dict) -> str:
     argrows = [r for r in command_rows(command) if r['arg-name']]
     descs = {s: next((r['help'] for r in bysub[s] if not r['arg-name']), None) for s in order}
     # A subcommand's DESCRIPTION is worth printing even when it takes no arguments:
-    # for `completions install-latest`, `xref check` or `memories sync`, that line is
+    # for `completions install-latest`, `test run` or `memories sync`, that line is
     # the only place -h says what the subcommand does. Returning early on "no arg rows"
     # dropped it silently — and dropped it for more commands each time an argument was
     # removed, which is how memories and xref lost theirs.

@@ -797,7 +797,7 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
 def check_cli_verb_help(run) -> None:
     """Every bash target's verb answers -h from its declaration (#474): the target is
     invoked live and must print exactly the generated parser's own help
-    (argparse_help.verb_parser — the same derivation the target's parse_argv face
+    (declared_parser.verb_parser — the same derivation the target's parse_argv face
     speaks) and exit 0. Before parse_argv.sh, a verb-level -h landed in the verb's own
     argv — an ENACTING verb could receive a flag-shaped token as its argument and
     start its chain (tmp/logs/forge/flip/2026-08-13T083136Z.log, reading-room, is the
@@ -805,7 +805,7 @@ def check_cli_verb_help(run) -> None:
     check_cli_surface's subject, not this one's. Live and local: the parse face exits
     before any verb body runs, so nothing here reaches the network or an enacting
     step."""
-    from argparse_help import verb_parser
+    from declared_parser import verb_parser
     for c in cli.commands():
         target = REPO_ROOT / c['target']
         if target.suffix != '.sh' or not target.exists():
@@ -819,7 +819,7 @@ def check_cli_verb_help(run) -> None:
             if not ok:
                 first = ((proc.stdout + proc.stderr).strip().splitlines() or ['(no output)'])[0]
                 detail = (f'exit {proc.returncode}, first line {first!r} — expected the '
-                          f"declaration's generated parser (argparse_help.verb_parser)")
+                          f"declaration's generated parser (declared_parser.verb_parser)")
             run(f'cli: {c["command"]} {verb}: -h answered from the declaration', ok,
                 detail, law='G5', check='cli.verb_help_answered')
 
@@ -953,7 +953,7 @@ def check_cli_surface(run) -> None:
         # `yoga summaries sync --summaries-output …` died with `unrecognized
         # arguments`. The observable: an argparse verb's own --help lists every
         # flag that verb accepts, so each command-level flag must appear there
-        # (argparse_help.add_dir_flags wires the inherited copies). cli.py
+        # (declared_parser.command_parser re-accepts them on each verb). cli.py
         # targets are excluded as above; shell targets parse no verbs.
         cmd_level = [r['arg-name'] for r in cli.command_rows(c['command'])
                      if not r['subcommand'] and r['arg-name'].startswith('--')]
@@ -1430,7 +1430,7 @@ def check_cli_surface(run) -> None:
     # A file lives at the level of its subject (#41). Which tier imports a module is a
     # fact about the import graph, not a curated list — so this needs no vocabulary: a
     # module both tiers import belongs at src/, one only its own tier imports belongs in
-    # that tier. src/ was holding validation_matrix by instinct and argparse_help one
+    # that tier. src/ was holding validation_matrix by instinct and declared_parser one
     # level down, with the same cross-tier subject and the opposite placement.
     src_root = REPO_ROOT / 'src'
     modules = {p.stem: p for p in src_root.rglob('*.py')

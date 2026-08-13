@@ -32,7 +32,6 @@ Usage (wired into src/main/cli/pipeline/pipeline.sh after the per-batch stages):
       [--chat-exports-cache tmp/cache/chat-exports] [--memories-output data/output/memories] \
       [--markdown data/output/markdown/claude/chat/memories]
 """
-import argparse
 import csv
 import json
 import re
@@ -53,7 +52,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 # renamed on import: this file's own deposit() puts memory STATES into the
 # library; the shared one puts rendered FILES into a directory (#426)
 from markdown_projection import deposit as deposit_files  # noqa: E402
-from argparse_help import enrich, inherit_flags  # noqa: E402
+from declared_parser import command_parser  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO = SCRIPT_DIR.parents[3]
@@ -188,18 +187,13 @@ def sync(chat_exports_cache: Path, memories_output: Path, markdown: Path) -> int
 
 
 def main():
-    ap = argparse.ArgumentParser(
-        description='The durable chat-memory store. Bare shows status; `sync` deposits '
-                    'every distinct state (immutable, content-deduplicated) and renders the '
-                    'markdown timeline — free, local, idempotent.')
-    sub = ap.add_subparsers(dest='verb')
-    sync_p = sub.add_parser('sync')
-    ap.add_argument('--chat-exports-cache', metavar='DIR', default=str(CHAT_EXPORTS_CACHE_DIR))
-    ap.add_argument('--memories-output', metavar='DIR', default=str(MEMORIES_OUTPUT_DIR))
-    ap.add_argument('--markdown', metavar='DIR', default=str(MARKDOWN_DIR))
-    inherit_flags(ap, sync_p)
-    enrich(ap, 'memories')
-    args = ap.parse_args()
+    # Generated from the declaration (#476); the machine-derived defaults are
+    # the semantic residue.
+    args = command_parser('memories', overrides={'': {
+        '--chat-exports-cache': {'default': str(CHAT_EXPORTS_CACHE_DIR)},
+        '--memories-output': {'default': str(MEMORIES_OUTPUT_DIR)},
+        '--markdown': {'default': str(MARKDOWN_DIR)},
+    }}).parse_args()
     if args.verb == 'sync':
         return sync(Path(args.chat_exports_cache), Path(args.memories_output), Path(args.markdown))
     # bare → status (read-only)

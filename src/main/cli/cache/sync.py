@@ -28,7 +28,6 @@ Usage:
     yoga cache sync              # run every producer
     yoga cache sync --dry-run    # print the producer commands; run nothing
 """
-import argparse
 import subprocess
 import sys
 from pathlib import Path
@@ -41,16 +40,13 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
-from argparse_help import enrich
+from declared_parser import verb_parser
 
 REPO = REPO_ROOT
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description='rebuild tmp/cache/ by running its declared producers')
-    ap.add_argument('--dry-run', action='store_true')
-    enrich(ap, 'cache', 'sync')
-    args = ap.parse_args()
+    args = verb_parser('cache', 'sync').parse_args()  # generated from the declaration (#476)
 
     # The registry stores canonical NAMES ('yoga model sync' — one referent, one
     # name, G14), and every printed line speaks the name too: './yoga' is no more
