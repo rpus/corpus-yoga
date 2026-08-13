@@ -398,7 +398,7 @@ flip() {
 
 flip_chain() {
   local pr="$1"
-  local state base head body branch_here old_sha prior conflicted armed n moved=0 guard=0
+  local state base head body branch_here old_sha prior conflicted flipped n moved=0 guard=0
   assert_may_send "gh pr view / gh pr edit / git fetch / git push (yoga forge flip)"     || { echo "forge flip: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge flip: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge flip: NOT DONE — #$pr is $state; only an open PR flips"; return 1; }
@@ -492,9 +492,9 @@ flip_chain() {
     fi
   fi
   n="$(grep -Ec 'aims to complete #[0-9]+' <<< "$body")"
-  armed="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/arm.py" <<< "$body")"
-  printf '%s' "$armed" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge flip: NOT DONE — the body edit failed; nothing armed$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
-  echo "forge flip: DONE — #$pr armed ($n phrase(s) now closes); $(if [[ $moved == 1 ]]; then echo "relocated onto origin/$base and pushed"; else echo "base unmoved, nothing rewritten"; fi)"
+  flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/flip.py" <<< "$body")"
+  printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge flip: NOT DONE — the body edit failed; nothing flipped$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
+  echo "forge flip: DONE — #$pr flipped ($n phrase(s) now closes); $(if [[ $moved == 1 ]]; then echo "relocated onto origin/$base and pushed"; else echo "base unmoved, nothing rewritten"; fi)"
 }
 
 # Every exit path ends on ONE anchored verdict line — `forge merge: DONE`/`NOT DONE` —
