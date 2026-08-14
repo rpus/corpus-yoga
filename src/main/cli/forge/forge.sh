@@ -399,6 +399,7 @@ merge() {
 merge_chain() {
   local pr="$1"
   local state base head body branch_here old_sha prior conflicted flipped n moved=0 guard=0
+  local oid landed
   assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE — #$pr is $state; only an open PR merges"; return 1; }
@@ -436,6 +437,11 @@ merge_chain() {
     [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]]       || { echo "forge merge: NOT DONE — this checkout holds $head with a dirty tree; commit or stash first, never reset"; return 1; }
     git -C "$REPO_DIR" merge-base --is-ancestor "refs/heads/$head" "refs/remotes/origin/$head" 2>/dev/null       || { echo "forge merge: NOT DONE — local $head holds commits origin/$head does not; push them first"; return 1; }
   fi
+  # The squash pin is the merge's OWN sha (#488): the head fetched here, or the
+  # head the relocation pushes below - never a PR-API re-read, which is
+  # eventually consistent and served the pre-push sha in the same breath as the
+  # push (the two failed merges of PR #486, 2026-08-14, this room's logs).
+  oid="$(git -C "$REPO_DIR" rev-parse "refs/remotes/origin/$head")"
   if git -C "$REPO_DIR" merge-base --is-ancestor "refs/remotes/origin/$base" "refs/remotes/origin/$head" 2>/dev/null; then
     echo "base unmoved — origin/$head already stands on origin/$base; nothing to relocate"
   else
@@ -483,6 +489,7 @@ merge_chain() {
       fi
     fi
     enact git -C "$REPO_DIR" push --force-with-lease="refs/heads/$head:$old_sha" origin "HEAD:refs/heads/$head"       || { echo "forge merge: NOT DONE — the lease refused; the branch moved under the merge"; return 1; }
+    oid="$(git -C "$REPO_DIR" rev-parse HEAD)"
     moved=1
     if [[ "$branch_here" == "$head" ]]; then
       if ! enact git -C "$REPO_DIR" checkout "$head" \
@@ -497,8 +504,6 @@ merge_chain() {
       enact git -C "$REPO_DIR" checkout --detach "$prior"
     fi
   fi
-  local oid landed
-  oid="$(cd "$REPO_DIR" && query gh pr view "$pr" --json headRefOid --jq .headRefOid)"     || { echo "forge merge: NOT DONE — the head read failed; nothing flipped, nothing merged"; return 1; }
   n="$(grep -Ec 'aims to complete #[0-9]+' <<< "$body")"
   flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/flip.py" <<< "$body")"
   printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE — the flip failed; the body still aims, nothing merged$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }

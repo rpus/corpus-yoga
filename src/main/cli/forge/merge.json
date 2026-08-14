@@ -11,7 +11,6 @@
   "sends": {
     "gh pr view": [
       "reads the PR's state, base and head before anything else, its body for the phrase to flip, and its title for the copy check",
-      "reads its head again after any relocation, to pin the squash to what every check saw",
       "reads the merge commit after the squash, to converge this checkout on it"
     ],
     "gh issue view": [
@@ -30,7 +29,7 @@
       "WRITES the flipped body as the last edit before the squash: every 'aims to complete #N' becomes 'closes #N' - and WRITES it back as found if the squash refuses (refused loudly under YOGA_NO_SEND)"
     ],
     "gh pr merge --squash": [
-      "WRITES the merge, pinned to the head every check above saw (refused loudly under YOGA_NO_SEND)"
+      "WRITES the merge, pinned to the merge's own sha of the head every check saw - fetched or just pushed, never re-read from the eventually-consistent API (#488; refused loudly under YOGA_NO_SEND)"
     ],
     "git push origin --delete": [
       "prune --apply, sweeping the server branches this merge and its siblings left (refused loudly under YOGA_NO_SEND)"
