@@ -143,24 +143,12 @@ require_cmd() {
   fi
 }
 
-find_python3() {
-  if command -v python3 &>/dev/null; then
-    echo "python3"; return 0
-  fi
-  if command -v python &>/dev/null; then
-    if python --version 2>&1 | grep -q "^Python 3"; then
-      echo "python"; return 0
-    fi
-  fi
-  echo "error: Python 3 not found — install via: brew install python" >&2
-  return 1
-}
-
-ensure_venv() {
-  local python="$1"
+require_venv() {
+  # One creator (#478): prerequisites sync --apply mints the venv; this run
+  # requires it and names the mint rather than minting a second way.
   if [[ ! -f "$VENV/bin/activate" ]]; then
-    echo "creating venv at $VENV"
-    "$python" -m venv "$VENV"
+    echo "error: venv not found at $VENV — mint it: ./src/main/cli/prerequisites/prerequisites.sh sync --apply" >&2
+    exit 1
   fi
 }
 
@@ -402,7 +390,7 @@ print_plan() {
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
   echo "yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
-  echo "  tooling: require jq; find python3; create venv at \$VENV if absent; pip install src/requirements.txt"
+  echo "  tooling: require jq; require the venv at \$VENV (mint: ./src/main/cli/prerequisites/prerequisites.sh sync --apply); pip install src/requirements.txt"
   if should_run browser-captures; then
     "$REPO_ROOT/src/main/pipeline/browser-captures/run.sh" --plan | sed 's/^/  /'
   fi
@@ -437,8 +425,7 @@ main() {
   echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty"
 
   require_cmd jq "install via: brew install jq"
-  local python; python="$(find_python3)"
-  ensure_venv "$python"
+  require_venv
   install_deps
 
   # One item: the pipeline's own singular flag — browser-captures takes --browser-capture,

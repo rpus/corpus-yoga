@@ -18,8 +18,8 @@ code:
     2                  refused — argparse already wrote usage + error to stderr
     anything else      this face itself failed (a wiring bug, never the user)
 
-STDLIB-ONLY, like cli.py: the yoga launcher and the bash targets run on system
-python3 before any venv exists.
+STDLIB-ONLY, like cli.py: the venv supplies the interpreter, never imports
+(#478).
 """
 import sys
 from pathlib import Path

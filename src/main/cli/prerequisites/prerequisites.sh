@@ -82,7 +82,7 @@ check_tools() {
     bad "jq not found — no pipeline runs without it; install via: brew install jq"
   fi
   if command -v python3 &>/dev/null; then
-    ok "python3 ($(python3 --version 2>&1)) — bootstraps the venv; the CLI's own machinery"
+    ok "python3 ($(python3 --version 2>&1)) — the one surviving python3 (#478): it mints the venv; everything else runs the venv's python"
   else
     bad "Python 3 not found — nothing runs without it, the CLI included; install via: brew install python"
   fi
@@ -104,7 +104,7 @@ check_tools() {
   if [[ -n "$pyright_bin" ]]; then
     ok "pyright ($("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
   else
-    todo venv "pyright not found — yoga test run skips its type check; it is in src/requirements.txt: yoga prerequisites sync --apply"
+    todo venv "pyright not found — yoga test run skips its type check; it is in src/requirements.txt: ./src/main/cli/prerequisites/prerequisites.sh sync --apply"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
@@ -122,7 +122,7 @@ check_venv() {
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1)) — every .py target runs in it"
   else
-    todo venv "not found — no .py target runs (pipelines, census, server); yoga prerequisites sync --apply creates it and installs src/requirements.txt"
+    todo venv "not found — nothing python runs, yoga included (#478); ./src/main/cli/prerequisites/prerequisites.sh sync --apply creates it and installs src/requirements.txt"
   fi
 }
 

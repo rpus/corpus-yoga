@@ -4,10 +4,11 @@
 # Bare `yoga` is the machine report (the root's status, like every noun); `yoga -h` is
 # the table; `yoga <command> --help` asks the target itself.
 #
-# cli.py is deliberately stdlib-only, so the CLI itself runs on any Python 3 —
-# system python3 when the venv does not exist yet (a fresh clone can read the
-# table, print the calculus, and generate completion before ./src/main/cli/pipeline/pipeline.sh);
-# .py TARGETS still run via src/run_python_script.sh, which requires the venv.
+# Every python here runs in the venv (#478): the launcher refuses without it,
+# naming the mint — src/main/cli/prerequisites/prerequisites.sh sync --apply,
+# the one place the name python3 survives. cli.py stays stdlib-only, so the
+# surface never depends on what pip installed; the venv supplies the
+# interpreter, never imports.
 #
 # Every command ends by saying where this checkout stands, and it is said here so that no
 # command has to remember it. When each script carried its own line, one script carried it
@@ -21,10 +22,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 : "${VENV:=$HOME/venvs/general}"
 if [[ -f "$VENV/bin/python" ]]; then
   set -- "$SCRIPT_DIR/src/run_python_script.sh" "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
-elif command -v python3 &>/dev/null; then
-  set -- python3 "$SCRIPT_DIR/src/main/cli/cli.py" "$@"
 else
-  echo "error: Python 3 not found — install via: brew install python (see ./src/main/cli/prerequisites/prerequisites.sh)" >&2
+  echo "error: venv not found at $VENV — pre-venv, the machine report and the mint are ./src/main/cli/prerequisites/prerequisites.sh [sync --apply]" >&2
   exit 1
 fi
 
