@@ -864,8 +864,15 @@ def check_cli_exclusive_classes(run) -> None:
                 continue
             required = [t for r in rows if r['cardinality'] == '1' for t in minimal(r)]
             def parses(argv):
+                # A probe's expected refusal is this check's evidence, never the
+                # gate's output (#484): argparse writes the refusal to stderr
+                # before the SystemExit caught here, so the probe runs under a
+                # swallowed stderr and leaves no trace in the log.
+                import contextlib
+                import io
                 try:
-                    verb_parser(c['command'], verb).parse_args(argv)
+                    with contextlib.redirect_stderr(io.StringIO()):
+                        verb_parser(c['command'], verb).parse_args(argv)
                     return True
                 except SystemExit:
                     return False
