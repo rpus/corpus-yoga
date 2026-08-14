@@ -30,13 +30,20 @@
      why-section lead is style, not safety). Never spell the parser's other words
      near an issue number, even quoted or negated: "does NOT close #N" once
      closed #N. An issue completed by a PR that does not say closes is residue.
+     A relation LEADS its line in plain English — phrase then number, exactly
+     the machine's own string (`aims to complete #N — …`). The label form
+     (`**#N** — relation: …`) is retired (#489): not English, and an inert
+     lookalike of the enacting phrase — it read as an aim while closing
+     nothing, which is how #482 and #488 outlived their own demonstrations.
+     The why section is the ONE home of the aims list; the do line refers
+     without arming, so adding an aimed issue is one edit.
      MENTIONS wear backticks: to speak ABOUT a marker phrase or keyword without
      using it, backtick it — checks strip backticked spans before matching, and
      backticks are the one safe mark (quotes mis-pair on apostrophes).
      MOOD LAW: closes is indicative-only, and NO commit ever carries it — the
      promise would execute at merge regardless of what review decided in
      between, and the squash publishes every commit message. The BODY is the
-     one channel the merge edits: a raised body's why and do sections phrase
+     one channel the merge edits: a raised body's why section phrases
      completion prospectively ("aims to complete #N", covering every OPEN
      blocker of what it aims at — the merge refuses otherwise, #482), and the
      merge, on the reviewer's word, flips that phrasing to closes as the last
@@ -49,7 +56,7 @@ Signature: <machine>/<provider>/<session>
 
 ## why
 
-- **#N** — <relation>: <the intent, in issue-graph terms — achievement-agnostic>
+- aims to complete #N — <the intent, in issue-graph terms — achievement-agnostic; this line is the machine's own phrase, and the merge flips it to closes in place>
 
 ## what
 
@@ -96,4 +103,4 @@ Signature: <machine>/<provider>/<session>
 - **use** — <what a machine runs or expects after merge — spoken in yoga commands;
   machine-local adoption belongs in `yoga prerequisites`' report: state it cannot
   see is a species to add (the mount precedent), not prose to remember>
-- **do** — <what this raises or advances, with its issue>
+- **do** — <what this raises or advances, with its issue — refer-only: the aims live in why>
