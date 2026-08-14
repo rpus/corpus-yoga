@@ -1,7 +1,8 @@
 # Contributing
 
-Merge with `./yoga forge merge <pr>`. It is a straight line of echoed commands — read
-the head, squash-merge pinned to it, return to the base, fetch, fast-forward — and every
+Merge with `./yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
+line of echoed commands — refuse, relocate if the base moved, flip the body, squash
+pinned to the head every check saw, converge this checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
 declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and
 `yoga forge sync`), never in the wrapper. It squash-merges with **no message flags**, because
@@ -17,14 +18,16 @@ outside the repo, to a server other people see.
 
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
-commits — the squash keeps every one of their messages and signatures. The flip that
-precedes a merge is `yoga forge flip <pr>` — "aims to complete #N" becomes
-`closes #N` in the PR body, and nothing is rewritten (.github/PULL_REQUEST_TEMPLATE.md
-holds that grammar; the command relocates a moved base first and resyncs a held
-checkout): the squash publishes the title — a verbatim copy of the title of
-an issue the body aims to complete, which the flip refuses otherwise
-(#479) — as main's subject line, and the commits as reviewed, every message
-and Signature intact.
+commits — the squash keeps every one of their messages and signatures. The flip is a
+STEP of the merge, not a command (#483): `yoga forge merge <pr>` refuses first (a
+non-OPEN PR, a body with nothing to flip, a title that copies no aimed issue — #479 —
+an unaimed open blocker — #482 — or refuse-class drift), relocates a moved base and
+resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
+edit before the squash — a refused squash restores the body as found
+(.github/PULL_REQUEST_TEMPLATE.md holds that grammar): the squash publishes the
+title — a verbatim copy of the title of an issue the body aims to complete — as
+main's subject line, and the commits as reviewed, every message and Signature
+intact.
 
 An issue states what *should* be true; a PR that closes it reads as the claim that it
 now is. Where that claim is a standing property the code must keep — not a one-off

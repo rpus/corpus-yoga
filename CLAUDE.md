@@ -153,20 +153,21 @@ seventh principle or a smell.
   -F issue_id=<id>`, never merely narrate it in prose ("part of #N" and its
   kin are refer-only vocabulary, per the issue template). Supersession
   transfers the old issue's relations.
-- A PR body phrases completion "aims to complete #N" until the flip - and
-  aims at every OPEN blocker of what it aims at (#482; the flip refuses
-  otherwise). The flip, on the reviewer's word only, is
-  `yoga forge flip <pr>` - it flips the body's phrasing to `closes` and
-  rewrites nothing. Commits are never
-  rewritten (no squash, no reword - the branch merges as reviewed) and
-  never carry the parser's words; the branch needs only to stand rebased
-  on current origin/main AT MERGE, and the command relocates a moved base
-  first - the lifetime's one rebase - and resyncs a clean checkout that
-  holds the branch, announced. Its declaration
-  (src/main/cli/forge/flip.json) is the authority for its steps. Never
-  rebase eagerly: no open branch can know which merge comes next, so
-  alignment is only information at the flip - eager alignment is work
-  invalidated by every merge it did not predict. The forge's declared squash settings
+- A PR body phrases completion "aims to complete #N" until the merge - and
+  aims at every OPEN blocker of what it aims at (#482; the merge refuses
+  otherwise). The merge, on the reviewer's word only, is
+  `yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
+  title (#479), relocates a moved base - the lifetime's one rebase - and
+  resyncs a clean checkout that holds the branch, announced; flips the
+  body's phrasing to `closes` as the LAST edit before the squash (a
+  refused squash restores the body as found, so a flipped-but-unmerged PR
+  cannot exist - #483); squashes pinned to the head every check saw; and
+  converges the checkout. Commits are never rewritten (no squash, no
+  reword - the branch merges as reviewed) and never carry the parser's
+  words. Its declaration (src/main/cli/forge/merge.json) is the authority
+  for its steps. Never rebase eagerly: no open branch can know which merge
+  comes next, so alignment is only information at the merge - eager
+  alignment is work invalidated by every merge it did not predict. The forge's declared squash settings
   (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
   COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
   CONTRIBUTING.md, reconciled by `yoga forge`) publish the title as main's
@@ -177,7 +178,7 @@ seventh principle or a smell.
   #300's title practice). The should keeps its one home in issue-space, the
   subject is copied rather than authored, and main's log reads as the
   disposed shoulds - ready-made release notes. Vetting is contingent all the
-  way down, so no event licenses an indicative subject; `yoga forge flip`
+  way down, so no event licenses an indicative subject; `yoga forge merge`
   refuses a non-copy.
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, `git rebase --onto origin/main <parent's old tip>` replays

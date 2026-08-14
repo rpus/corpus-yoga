@@ -17,7 +17,7 @@
      when it aims at several). The should's one home is the issue, so the
      subject is copied, never authored: vetting is contingent, the subject
      never asserts achievement, and main's log reads as the disposed shoulds
-     — ready-made release notes. `yoga forge flip` refuses a non-copy. The
+     — ready-made release notes. `yoga forge merge` refuses a non-copy. The
      squash BODY is every commit's message, oldest first, as reviewed.
      Commits are never rewritten. This body is the review-facing channel,
      teaches the same sections, and carries the close once flipped.
@@ -36,11 +36,12 @@
      MOOD LAW: closes is indicative-only, and NO commit ever carries it — the
      promise would execute at merge regardless of what review decided in
      between, and the squash publishes every commit message. The BODY is the
-     one channel the flip edits: a raised body's why and do sections phrase
+     one channel the merge edits: a raised body's why and do sections phrase
      completion prospectively ("aims to complete #N", covering every OPEN
-     blocker of what it aims at — the flip refuses otherwise, #482), and the
-     pre-merge flip, on the reviewer's word, edits that phrasing to closes
-     and rewrites nothing else. If review narrowed the scope,
+     blocker of what it aims at — the merge refuses otherwise, #482), and the
+     merge, on the reviewer's word, flips that phrasing to closes as the last
+     edit before the squash — a refused squash restores it (#483) — and
+     rewrites nothing else. If review narrowed the scope,
      withholding closes is not tidying prose, it is preventing a wrong
      close. -->
 

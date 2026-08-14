@@ -3,22 +3,22 @@ CLAUDE.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/
 CLAUDE.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 CLAUDE.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
 CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-CLAUDE.md,166,doc,src/main/cli/forge/flip.json,Y,(src/main/cli/forge/flip.json) is the authority for its steps. Never
-CLAUDE.md,171,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
-CONTRIBUTING.md,6,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and"
-CONTRIBUTING.md,14,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
-CONTRIBUTING.md,31,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
-CONTRIBUTING.md,34,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
-CONTRIBUTING.md,62,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
-CONTRIBUTING.md,68,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
-CONTRIBUTING.md,68,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
-CONTRIBUTING.md,69,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,69,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
-CONTRIBUTING.md,71,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
-CONTRIBUTING.md,73,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-CONTRIBUTING.md,81,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
-CONTRIBUTING.md,82,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
-CONTRIBUTING.md,84,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
+CLAUDE.md,167,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
+CLAUDE.md,172,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+CONTRIBUTING.md,7,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and"
+CONTRIBUTING.md,15,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+CONTRIBUTING.md,34,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
+CONTRIBUTING.md,37,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
+CONTRIBUTING.md,65,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
+CONTRIBUTING.md,71,doc,rsc/test/run.log,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+CONTRIBUTING.md,71,doc,rsc/test/run_expected_checks,Y,- `rsc/test/run.log` (derived) and `rsc/test/run_expected_checks` (curated)
+CONTRIBUTING.md,72,doc,rsc/test/xref.csv,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,72,doc,rsc/test/xref_expected_score,Y,- `rsc/test/xref.csv` (derived) and `rsc/test/xref_expected_score` (curated)
+CONTRIBUTING.md,74,doc,rsc/test,Y,"Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds"
+CONTRIBUTING.md,76,doc,rsc/test,Y,directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
+CONTRIBUTING.md,84,doc,src/test/dev/run.py,Y,"branches changing what a check *asserts* — lands in the source (`src/test/dev/run.py`,"
+CONTRIBUTING.md,85,doc,rsc/test,Y,"a schema file), where git makes you look at it, never inside `rsc/test/`. Since the"
+CONTRIBUTING.md,87,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is real.
 README.md,10,doc,src/main/cli/prerequisites/prerequisites.sh,Y,"./src/main/cli/prerequisites/prerequisites.sh sync --apply   # pre-venv, once: mint the venv (bare, the same report read"
 README.md,27,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,27,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
@@ -257,11 +257,11 @@ src/main/cli/forge/flip.py,13,path_str,src/main/cli/forge/flip.py,Y,SELF = 'src/
 src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
 src/main/cli/forge/forge.json,24,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
 src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-src/main/cli/forge/forge.sh,18,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/forge/forge.sh,20,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
-src/main/cli/forge/forge.sh,22,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/forge/forge.sh,43,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
-src/main/cli/forge/forge.sh,180,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
+src/main/cli/forge/forge.sh,17,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/forge/forge.sh,19,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
+src/main/cli/forge/forge.sh,21,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
+src/main/cli/forge/forge.sh,42,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
+src/main/cli/forge/forge.sh,179,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
 src/main/cli/forge/reconcile.py,5,comment,src/main/cli/forge/forge.csv,Y,"src/main/cli/forge/forge.csv. One row per declared setting, OK or DRIFT, each"
 src/main/cli/forge/reconcile.py,15,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
 src/main/cli/indexing/capture.json,32,path_str,rsc/schema/dashboard,Y,"""rsc/schema/dashboard"","
@@ -595,8 +595,8 @@ src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--f
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
 src/test/dev/run.sh,87,comment,rsc/test/pre-commit-hook.sh,Y,"# The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an"
-src/test/dev/run.sh,119,comment,rsc/test/run.log,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
-src/test/dev/run.sh,119,comment,rsc/test/xref.csv,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
+src/test/dev/run.sh,132,comment,rsc/test/run.log,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
+src/test/dev/run.sh,132,comment,rsc/test/xref.csv,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
 src/test/dev/schema_recommendations.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/schema_recommendations.py <instance-file> <schema-file>
 src/test/dev/schema_recommendations.py,7,comment,src/test/dev/schema_recommendations.py,Y,src/run_python_script.sh src/test/dev/schema_recommendations.py <instance-file> <schema-file>
 src/test/dev/xref.py,5,comment,rsc/test/xref.csv,Y,"`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated"
@@ -667,7 +667,6 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/completions/uninstall.json,Y,
 ,,self_only,src/main/cli/forge/flip.py,Y,
 ,,,src/main/cli/forge/forge.json,Y,
-,,,src/main/cli/forge/merge.json,Y,
 ,,,src/main/cli/forge/prune.json,Y,
 ,,self_only,src/main/cli/forge/reconcile.py,Y,
 ,,,src/main/cli/indexing/accept.json,Y,

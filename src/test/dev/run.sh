@@ -104,6 +104,13 @@ fi
 # compares against the index.
 ARTIFACTS=(rsc/test/run.log rsc/test/xref.csv)
 
+# --settle: the merge's settle face (#485) - regenerate the artifacts and
+# SUCCEED; staging is the invoker's next act. The staleness veto below exists
+# for a human about to commit; the merge performs the veto's remedy itself, so
+# handing it the refusal would be the machinery borrowing a human-facing ERROR.
+# Internal: invoked directly by forge.sh's merge, not declared on the surface.
+SETTLE=0
+
 parse_args() {
   case "${1:-}" in
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
@@ -112,6 +119,12 @@ parse_args() {
 
 main() {
   parse_args "$@"
+  local -a forward=()
+  local arg
+  for arg in "$@"; do
+    if [[ "$arg" == --settle ]]; then SETTLE=1; else forward+=("$arg"); fi
+  done
+  set -- ${forward[@]+"${forward[@]}"}
 
   mkdir -p "$REPO_DIR/tmp/cache"
 
@@ -134,7 +147,7 @@ main() {
   # Worktree-vs-index is the right comparison: what is about to be committed must
   # be what a fresh run produces. Unchanged artifacts never diff, so this is
   # silent until it matters.
-  if ! git -C "$REPO_DIR" diff --quiet -- "${ARTIFACTS[@]}" 2>/dev/null; then
+  if (( ! SETTLE )) && ! git -C "$REPO_DIR" diff --quiet -- "${ARTIFACTS[@]}" 2>/dev/null; then
     echo "ERROR: the regenerated artifacts are not staged — what would be committed is stale:" >&2
     printf '    → run: git add %s\n' "${ARTIFACTS[*]}" >&2
     rc=1

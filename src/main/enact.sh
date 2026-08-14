@@ -17,7 +17,11 @@
 # query(), quote() and quiet() are the read faces, named for how many times each
 # renders the answer: query twice (the `= <answer>` relay plus stdout, capture-and-
 # chain); quote once (stdout only); quiet zero (echoes the command, discards the
-# answer). Failure is never quiet in any face. On failure query and quote return the
+# answer). Failure is never quiet in any of these faces. attempt() is the one
+# exception, for the one caller-class that has DECLARED the nonzero status an
+# expected state it handles (#485): it echoes and runs like enact but relays no
+# verdict, and its caller MUST narrate the state in the mechanism's own voice -
+# an attempt whose status vanishes unnarrated is the wrap rendered decorative. On failure query and quote return the
 # status; the python face raises — the pair's one ruled asymmetry (#277); the relay
 # words themselves are held identical by the gate.
 #
@@ -34,6 +38,15 @@ enact() {
   if [[ "$status" -ne 0 ]]; then
     echo "NOT done (exit $status): $printed" >&2
   fi
+  return "$status"
+}
+
+attempt() {
+  local printed status
+  printed="$(printf '%q ' "$@")"
+  printed="${printed% }"
+  echo "attempt: $printed" >&2
+  "$@" && status=0 || status=$?
   return "$status"
 }
 
