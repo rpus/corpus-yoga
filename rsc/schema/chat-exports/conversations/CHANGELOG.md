@@ -11,6 +11,33 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v18
+
+The 2026-08-13 conversation 6178046a ('The danger of active negation')
+carries the corpus's first memory write, and the 2026-08-17 export (epoch
+1786967454, batch deb4b507, 116 conversations) failed v1-v17 on exactly that
+conversation, in three ways: the `memory_user_edits` tool_use carries
+`command: "add"` where the enum held only "view"; its result's display
+summary is a rich_content item with a subtitles string array and a null url
+(the past-conversation-link producer carries the mirror image); and both
+blocks carry `tool_origin: "first_party"`, a new envelope field on 2 of the
+export's 3690 tool blocks - the carrying conversation only, so the
+serializer does not re-render history with it (the opposite of
+`tool_identifier` at v15) and the field is optional. The live capture of
+the same conversation exhibits the same three deltas - apiConversation v10,
+the coupled change, minted in the same cycle; see model_join.csv. Earlier
+batches rest at their versions in the machine-local matrix.
+
+### Replaces
+
+[v17.json](./v17.json)
+
+#### Relaxed
+
+- `ToolInputMemoryUserEdits.command` - the enum gains "add" beside "view": the first observed memory write (the memory text rides in a `control` string, which the open input object already admitted). remove and replace join the enum when a datum exhibits them.
+- `ToolUseBlockBase.tool_origin` / `ToolResultBlockBase.tool_origin` - new OPTIONAL field, enum holding "first_party" only: present on the memory add call and its result, absent from every other tool block of the export, so optionality models the corpus and a new value fails loudly.
+- `RichContentItem` - `subtitles` widens from null to null or a string array, `url` from string to string or null: the memory_user_edits result summary is the shape's second producer (title names the act, subtitles preview the stored text, no chat to point url at); past-conversation links keep their observed shape.
+
 ## v17
 
 The 2026-07-22 bulk export adds `hidden_in_chat` to the two tool-block

@@ -111,14 +111,15 @@ rsc/schema/WORKFLOW.md,294,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
 rsc/schema/WORKFLOW.md,300,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 rsc/schema/_reference/mcp/CHANGELOG.md,30,doc,rsc/schema/_reference/mcp/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,24,doc,rsc/schema/browser-captures/apiConversation/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,36,doc,rsc/schema/browser-captures/apiConversation/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,55,doc,rsc/schema/browser-captures/apiConversation/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,67,doc,rsc/schema/browser-captures/apiConversation/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,83,doc,rsc/schema/browser-captures/apiConversation/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,97,doc,rsc/schema/browser-captures/apiConversation/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,120,doc,rsc/schema/browser-captures/apiConversation/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/browser-captures/apiConversation/CHANGELOG.md,135,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,25,doc,rsc/schema/browser-captures/apiConversation/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,48,doc,rsc/schema/browser-captures/apiConversation/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,60,doc,rsc/schema/browser-captures/apiConversation/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,79,doc,rsc/schema/browser-captures/apiConversation/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,91,doc,rsc/schema/browser-captures/apiConversation/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,107,doc,rsc/schema/browser-captures/apiConversation/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,121,doc,rsc/schema/browser-captures/apiConversation/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,144,doc,rsc/schema/browser-captures/apiConversation/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,159,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,14,doc,rsc/schema/browser-captures/markdownConversation/v2.json,Y,[v2.json](./v2.json)
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,50,doc,rsc/schema,Y,"four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation"
@@ -126,22 +127,23 @@ rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,58,doc,rsc/schema/
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../b
 rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
-rsc/schema/chat-exports/conversations/CHANGELOG.md,31,doc,rsc/schema/chat-exports/conversations/v16.json,Y,[v16.json](./v16.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,52,doc,rsc/schema/chat-exports/conversations/v15.json,Y,[v15.json](./v15.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,64,doc,rsc/schema/chat-exports/conversations/v14.json,Y,[v14.json](./v14.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,76,doc,rsc/schema/chat-exports/conversations/v13.json,Y,[v13.json](./v13.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,89,doc,rsc/schema/chat-exports/conversations/v12.json,Y,[v12.json](./v12.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,108,doc,rsc/schema/chat-exports/conversations/v11.json,Y,[v11.json](./v11.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,128,doc,rsc/schema/chat-exports/conversations/v10.json,Y,[v10.json](./v10.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,142,doc,rsc/schema/chat-exports/conversations/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,158,doc,rsc/schema/chat-exports/conversations/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,174,doc,rsc/schema/chat-exports/conversations/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,193,doc,rsc/schema/chat-exports/conversations/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,207,doc,rsc/schema/chat-exports/conversations/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,228,doc,rsc/schema/chat-exports/conversations/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,242,doc,rsc/schema/chat-exports/conversations/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,269,doc,rsc/schema/chat-exports/conversations/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/chat-exports/conversations/CHANGELOG.md,288,doc,rsc/schema/chat-exports/conversations/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,33,doc,rsc/schema/chat-exports/conversations/v17.json,Y,[v17.json](./v17.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,58,doc,rsc/schema/chat-exports/conversations/v16.json,Y,[v16.json](./v16.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,79,doc,rsc/schema/chat-exports/conversations/v15.json,Y,[v15.json](./v15.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,91,doc,rsc/schema/chat-exports/conversations/v14.json,Y,[v14.json](./v14.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,103,doc,rsc/schema/chat-exports/conversations/v13.json,Y,[v13.json](./v13.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,116,doc,rsc/schema/chat-exports/conversations/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,135,doc,rsc/schema/chat-exports/conversations/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,155,doc,rsc/schema/chat-exports/conversations/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,169,doc,rsc/schema/chat-exports/conversations/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,185,doc,rsc/schema/chat-exports/conversations/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,201,doc,rsc/schema/chat-exports/conversations/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,220,doc,rsc/schema/chat-exports/conversations/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,234,doc,rsc/schema/chat-exports/conversations/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,255,doc,rsc/schema/chat-exports/conversations/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,269,doc,rsc/schema/chat-exports/conversations/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,296,doc,rsc/schema/chat-exports/conversations/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,315,doc,rsc/schema/chat-exports/conversations/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/memories/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
 rsc/schema/chat-exports/memories/v1.json,20,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
@@ -624,9 +626,9 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,rsc/audit/README.md,Y,
 ,,,rsc/schema/_reference/mcp/v2.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
-,,,rsc/schema/browser-captures/apiConversation/v9.json,Y,
+,,,rsc/schema/browser-captures/apiConversation/v10.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
-,,,rsc/schema/chat-exports/conversations/v17.json,Y,
+,,,rsc/schema/chat-exports/conversations/v18.json,Y,
 ,,,rsc/schema/chat-exports/memories/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/projects/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/projects/v2.json,Y,

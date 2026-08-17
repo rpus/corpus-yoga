@@ -6,6 +6,30 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v10
+
+Now validates capture 6178046a (2026-08-13, 'The danger of active
+negation'), the corpus's first memory write, which failed v1-v9 wholesale
+on its one memory message, in three ways: the `memory_user_edits` tool_use
+carries `command: "add"` where the enum held only "view"; its result's
+display summary is a rich_content item with a subtitles string array and no
+url (the past-conversation-link producer carries title and url); and both
+blocks carry `tool_origin: "first_party"`, a new envelope field absent from
+every other tool block in the live corpus, so it is optional. The
+2026-08-17 bulk export renders the same conversation with the same three
+deltas - conversations v18, the coupled change, minted in the same cycle;
+see model_join.csv.
+
+### Replaces
+
+[v9.json](./v9.json)
+
+#### Relaxed
+
+- `ToolInputMemoryUserEdits.command` - the enum gains "add" beside "view": the first observed memory write (the memory text rides in a `control` string, which the open input object already admitted). remove and replace join the enum when a datum exhibits them.
+- `ApiToolUseBlockBase.tool_origin` / `ApiToolResultBlockBase.tool_origin` - new OPTIONAL field, enum holding "first_party" only: present on the memory add call and its result, absent from every other observed tool block, so optionality models the corpus and a new value fails loudly.
+- `ApiRichContentItem` - items require title only (url is absent on the memory_user_edits producer) and `subtitles` widens from null to null or a string array; past-conversation links keep their observed shape.
+
 ## v9
 
 The 2026-07 claude.ai API adds `thinking_hidden` to live thinking blocks,
