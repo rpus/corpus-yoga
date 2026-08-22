@@ -1,4 +1,4 @@
-run.py: 2103/2103 (data: machine-local)
+run.py: 2129/2129 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -118,37 +118,37 @@ run.py: 2103/2103 (data: machine-local)
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (56/56)
+  ✓ schema.valid_json_with_schema  (57/57)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (56/56)
-  ✓ schema.changelog_no_todo  (56/56)
+  ✓ schema.changelog_narrative  (57/57)
+  ✓ schema.changelog_no_todo  (57/57)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
-  ✓ composition.base_not_used_directly  (54/54)
+  ✓ composition.base_not_used_directly  (55/55)
   ✓ composition.base_schemas_closed  (38/38)
-  ✓ composition.discriminator_values_disjoint  (54/54)
-  ✓ composition.no_additional_properties_on_subtypes  (54/54)
-  ✓ composition.wrapper_has_five_fields  (54/54)
-  ✓ documentation.discriminator_fields_annotated  (54/54)
-  ✓ documentation.every_definition_has_title_and_description  (54/54)
-  ✓ documentation.null_only_fields_documented  (54/54)
-  ✓ documentation.open_set_enums_documented  (54/54)
-  ✓ empirical.nullable_fields_surveyed  (54/54)
-  ✓ empirical.oneOf_branches_evidenced  (54/54)
-  ✓ naming.property_keys_lowercase  (54/54)
-  ✓ naming.title_matches_key  (54/54)
-  ✓ naming.upper_camel_case  (54/54)
-  ✓ structure.all_definitions_reachable  (54/54)
-  ✓ structure.bfs_order  (54/54)
-  ✓ structure.definitions_at_bottom  (54/54)
-  ✓ structure.enum_refines_explicit_type  (54/54)
-  ✓ structure.field_order  (54/54)
-  ✓ structure.minItems_on_non_empty_arrays  (54/54)
-  ✓ structure.no_dangling_refs  (54/54)
-  ✓ structure.no_redundant_additional_properties_true  (54/54)
-  ✓ structure.pattern_constraints_enforced  (54/54)
-  ✓ structure.required_subset_of_properties  (54/54)
+  ✓ composition.discriminator_values_disjoint  (55/55)
+  ✓ composition.no_additional_properties_on_subtypes  (55/55)
+  ✓ composition.wrapper_has_five_fields  (55/55)
+  ✓ documentation.discriminator_fields_annotated  (55/55)
+  ✓ documentation.every_definition_has_title_and_description  (55/55)
+  ✓ documentation.null_only_fields_documented  (55/55)
+  ✓ documentation.open_set_enums_documented  (55/55)
+  ✓ empirical.nullable_fields_surveyed  (55/55)
+  ✓ empirical.oneOf_branches_evidenced  (55/55)
+  ✓ naming.property_keys_lowercase  (55/55)
+  ✓ naming.title_matches_key  (55/55)
+  ✓ naming.upper_camel_case  (55/55)
+  ✓ structure.all_definitions_reachable  (55/55)
+  ✓ structure.bfs_order  (55/55)
+  ✓ structure.definitions_at_bottom  (55/55)
+  ✓ structure.enum_refines_explicit_type  (55/55)
+  ✓ structure.field_order  (55/55)
+  ✓ structure.minItems_on_non_empty_arrays  (55/55)
+  ✓ structure.no_dangling_refs  (55/55)
+  ✓ structure.no_redundant_additional_properties_true  (55/55)
+  ✓ structure.pattern_constraints_enforced  (55/55)
+  ✓ structure.required_subset_of_properties  (55/55)
 
 ── check_schema_join ─────────────────────────────────────────────────────────
   ✓ model.join_kind_declared
@@ -191,9 +191,9 @@ check_accumulate_contract              1     0     0   ok        73
 check_capture_monotone                 4     0     0   ok        76
 check_grammar_laws                    12     0     0   ok        79
 check_root_schema_diagnostics         50     0     0   ok        93
-check_schema_validity                 56     0     0   ok       120
-check_schema_changelogs              112     0     0   ok       123
-check_versioned_schema_diagnostics  1280     0     0   ok       127
+check_schema_validity                 57     0     0   ok       120
+check_schema_changelogs              114     0     0   ok       123
+check_versioned_schema_diagnostics  1303     0     0   ok       127
 check_schema_join                      2     0     0   ok       153
 check_model_join_versions              1     0     0   ok       157
 check_model_occurrences                3     0     0   ok       160
@@ -203,11 +203,11 @@ check_score                            5     0     0   ok       172
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 98 types, 2103/2103 invocations passing
+  ✓ checks[code+schema]: 98 types, 2129/2129 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
   ✓ checks[code]: 61 types, 581/581 invocations passing
-  ✓ checks[schema]: 37 types, 1522/1522 invocations passing
+  ✓ checks[schema]: 37 types, 1548/1548 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2103/2103 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2129/2129 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run

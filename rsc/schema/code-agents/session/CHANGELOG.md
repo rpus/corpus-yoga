@@ -6,6 +6,40 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v13
+
+The session log grows a lifecycle record kind. Reading-room session
+`5c631cf4-…` (2026-08-17 to 2026-08-22, harness 2.1.234 to 2.1.240,
+entrypoint claude-vscode) carries 70 records of a type no version names:
+`{"type": "atis-latch", "atis": "", "sessionId": …}` - the ModeRecord family
+(type, one string, sessionId; no timestamp), first written 2026-08-19T09:53Z
+under 2.1.234. The 2026-08-22 survey over both rooms' stores and the live
+projects found them in this one session only, `atis` the empty string in every
+one, no further key; validating the session record by record against v12,
+these 70 are the only failures. What the harness means by atis the corpus
+does not say. Every record valid under v12 is valid under v13 unchanged: v12
+now happens to reject only the kind its era never showed.
+
+### Replaces
+
+[v12.json](./v12.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `Record` - gains `AtisLatchRecord`: type "atis-latch", `atis` a string
+  (observed only as the empty string; the set is open), `sessionId` the
+  session uuid; closed to other keys, so the next key the harness adds fails
+  loudly by name (first observed 2026-08-19T09:53Z, reading-room, harness
+  2.1.234).
+
+#### Refactored
+
+None.
+
 ## v12
 
 The model enum meets the model family it was built to catch. Reading-room
