@@ -21,7 +21,7 @@ def render_synopsis(cmds: list[dict], name: str | None = None) -> str:
         if c is None:
             return f'yoga commands: no command {name!r} — `yoga commands` lists them all\n'
         return render_command_help(c)
-    out = ['yoga — claude-export-yoga', '']
+    out = ['yoga', '']
     for c in cmds:
         out += [f'  {f}' for f in _forms(c)]
     return '\n'.join(out) + '\n'

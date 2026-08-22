@@ -1,4 +1,4 @@
-# claude-export-yoga
+# yoga
 
 Wrangles AI conversations — Claude (bulk export, browser capture, Claude Code
 sessions) and Gemini (browser capture) — into one validated, readable, indexed

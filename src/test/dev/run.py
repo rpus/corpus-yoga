@@ -1304,14 +1304,24 @@ def check_cli_surface(run) -> None:
     if agree:
         declared = next(iter(venv_defaults)).replace('$HOME', '${env:HOME}')
         want = f'{declared}/bin/python'
-        ws_text = (REPO_ROOT / 'claude-export-yoga.code-workspace').read_text()
-        found = re.search(r'"python\.defaultInterpreterPath":\s*"([^"]+)"', ws_text)
+        # Found by SHAPE: the editor config has one home at the root, and a name here
+        # would bind this check to what the repository is called.
+        workspaces = sorted(REPO_ROOT.glob('*.code-workspace'))
+        found = (re.search(r'"python\.defaultInterpreterPath":\s*"([^"]+)"',
+                           workspaces[0].read_text()) if len(workspaces) == 1 else None)
         editor_ok = bool(found) and found.group(1) == want
+        if len(workspaces) != 1:
+            detail = (f'{len(workspaces)} *.code-workspace at the repository root '
+                      f'({", ".join(p.name for p in workspaces) or "none"}) — the editor '
+                      'config has one home')
+        elif not found:
+            detail = (f'{workspaces[0].name} sets no python.defaultInterpreterPath, the '
+                      f'entrypoints {want}')
+        else:
+            detail = (f'{workspaces[0].name} names {found.group(1)}, the entrypoints {want} '
+                      '— an editor resolving against a different venv sees different packages')
         run('venv: the editor interpreter is that same venv', editor_ok,
-            None if editor_ok else
-            f'the workspace names {found.group(1) if found else "(nothing)"}, the entrypoints '
-            f'{want} — an editor resolving against a different venv sees different packages',
-            check='naming.venv_default_agrees')
+            None if editor_ok else detail, check='naming.venv_default_agrees')
 
     # A send is refusable through one switch, and src/main/send.py is the only place that
     # reads it out of the environment. One reading means refusal cannot come to mean two
@@ -2385,7 +2395,11 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_required_files': 'TREE',
     'check_templates': ['.github'],
     'check_xref': 'TREE',
-    'check_cli_surface': ['src', 'rsc/CALCULUS.md'],
+    # check_cli_surface READS the workspace file, so that file must be one of its subjects: a file
+    # a check reads but its subjects omit leaves the cached verdict standing when it
+    # changes. Derived, for the same reason the check does not name it.
+    'check_cli_surface': (['src', 'rsc/CALCULUS.md']
+                          + [p.name for p in sorted(REPO_ROOT.glob('*.code-workspace'))]),
     'check_cli_verb_help': ['src/main/cli'],
     'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],
     'check_effects': ['src/main/cli'],

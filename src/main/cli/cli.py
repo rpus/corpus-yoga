@@ -374,7 +374,7 @@ def render_help(cmds: list[dict]) -> str:
     """`yoga -h` — the command menu: one line each, name and summary. Bare `yoga`
     runs the machine report (prerequisites); `yoga <command> -h` is a command's forms."""
     w = max(len(c['command']) for c in cmds)
-    out = ['yoga — claude-export-yoga', '',
+    out = ['yoga', '',
            *[f"  {c['command']:<{w}}  {c['summary']}" for c in cmds],
            '', '→ `yoga <command> -h` for its forms · `yoga <command>` for its status', '']
     return '\n'.join(out)
