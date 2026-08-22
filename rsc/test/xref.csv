@@ -95,20 +95,20 @@ rsc/schema/WORKFLOW.md,133,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/p
 rsc/schema/WORKFLOW.md,138,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 rsc/schema/WORKFLOW.md,145,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,145,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,179,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
-rsc/schema/WORKFLOW.md,184,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,187,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
-rsc/schema/WORKFLOW.md,218,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,230,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
-rsc/schema/WORKFLOW.md,231,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
-rsc/schema/WORKFLOW.md,253,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
-rsc/schema/WORKFLOW.md,254,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
-rsc/schema/WORKFLOW.md,255,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
-rsc/schema/WORKFLOW.md,264,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,269,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
-rsc/schema/WORKFLOW.md,293,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,294,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,300,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/WORKFLOW.md,177,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
+rsc/schema/WORKFLOW.md,182,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
+rsc/schema/WORKFLOW.md,185,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
+rsc/schema/WORKFLOW.md,216,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,228,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
+rsc/schema/WORKFLOW.md,229,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
+rsc/schema/WORKFLOW.md,251,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
+rsc/schema/WORKFLOW.md,252,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
+rsc/schema/WORKFLOW.md,253,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
+rsc/schema/WORKFLOW.md,262,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,267,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+rsc/schema/WORKFLOW.md,291,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,292,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,298,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 rsc/schema/_reference/mcp/CHANGELOG.md,30,doc,rsc/schema/_reference/mcp/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,25,doc,rsc/schema/browser-captures/apiConversation/v9.json,Y,[v9.json](./v9.json)
@@ -160,18 +160,19 @@ rsc/schema/code-agents/projectMemory/CHANGELOG.md,24,doc,rsc/schema/code-agents/
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,54,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/session/CHANGELOG.md,31,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
-rsc/schema/code-agents/session/CHANGELOG.md,62,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
-rsc/schema/code-agents/session/CHANGELOG.md,94,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/code-agents/session/CHANGELOG.md,126,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/code-agents/session/CHANGELOG.md,167,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/code-agents/session/CHANGELOG.md,209,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/code-agents/session/CHANGELOG.md,233,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/code-agents/session/CHANGELOG.md,260,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/code-agents/session/CHANGELOG.md,274,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/code-agents/session/CHANGELOG.md,286,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/code-agents/session/CHANGELOG.md,304,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/session/CHANGELOG.md,350,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,25,doc,rsc/schema/code-agents/session/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/code-agents/session/CHANGELOG.md,65,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/code-agents/session/CHANGELOG.md,96,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/code-agents/session/CHANGELOG.md,128,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/code-agents/session/CHANGELOG.md,160,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/code-agents/session/CHANGELOG.md,201,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/code-agents/session/CHANGELOG.md,243,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/code-agents/session/CHANGELOG.md,267,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/code-agents/session/CHANGELOG.md,294,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/code-agents/session/CHANGELOG.md,308,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/code-agents/session/CHANGELOG.md,320,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/session/CHANGELOG.md,338,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/session/CHANGELOG.md,384,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -637,7 +638,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,rsc/schema/code-agents/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/projectMemory/v3.json,Y,
 ,,,rsc/schema/code-agents/session/CHANGELOG.md,Y,
-,,,rsc/schema/code-agents/session/v12.json,Y,
+,,,rsc/schema/code-agents/session/v13.json,Y,
 ,,,rsc/schema/code-agents/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/sessionConversation/v1.json,Y,
 ,,,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,
