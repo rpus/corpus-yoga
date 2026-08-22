@@ -464,6 +464,47 @@ def check_self_paths(run) -> None:
             check='structure.self_path_matches_address')
 
 
+def check_committed_tree(run) -> None:
+    """L2 held over every tracked file, not only the report run.py writes itself (#50
+    recorded the gap: three committed schemas carried a username and a home path that
+    1580 checks never read). Git carries machinery only, as two facts. The corpus's
+    roots (data, tmp, ext) and the machine binding are ignored and track nothing, so a
+    corpus datum or a machine fact is unrepresentable in a commit. And no tracked text
+    names a macOS home path or its project-slug form, the two shapes that embed a
+    username; /home/claude/ is the provider's container, a datum's path and no machine
+    fact, so the shape is /Users/ alone. The declared machine names in
+    rsc/machine/machines.csv are vocabulary, not machine facts (#50's one exemption).
+    Committed files only: code tier."""
+    roots = ['data', 'tmp', 'ext', 'machine-name.txt']
+    tracked = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached', '--'] + roots,
+                             capture_output=True, text=True).stdout.split()
+    unignored = [r for r in roots
+                 if subprocess.run(['git', '-C', str(REPO_ROOT), 'check-ignore', '-q', r]).returncode != 0]
+    run('tree: the corpus roots and the machine binding are ignored and track nothing',
+        not tracked and not unignored,
+        '; '.join(filter(None, [f'tracked: {", ".join(tracked)}' if tracked else None,
+                                f'not ignored: {", ".join(unignored)}' if unignored else None])) or None,
+        law='L2', check='structure.corpus_roots_ignored')
+    home = re.compile(r'/Users/[A-Za-z0-9_.-]+/|-Users-[A-Za-z0-9_.]+-')
+    files = subprocess.run(['git', '-C', str(REPO_ROOT), 'ls-files', '--cached', '-z'],
+                           capture_output=True, text=True).stdout.split('\0')
+    hits = []
+    for rel in files:
+        if not rel:
+            continue
+        try:
+            text = (REPO_ROOT / rel).read_text()
+        except (UnicodeDecodeError, OSError):
+            continue
+        for number, line in enumerate(text.splitlines(), 1):
+            if home.search(line):
+                hits.append(f'{rel}:{number}')
+    run(f'tree: no tracked file names a home path or its slug ({len(files) - 1} files)',
+        not hits, f'machine facts in committed text: {", ".join(hits[:8])}'
+        + (f' (+{len(hits) - 8})' if len(hits) > 8 else '') if hits else None,
+        law='L2', check='structure.no_machine_facts_committed')
+
+
 def check_templates(run) -> None:
     """Both templates teach the Signature line (#268), so a body raised through either
     route — the web form or the copy-from-prototype --body-file — opens with the same
@@ -2394,6 +2435,7 @@ DATA = ['tmp/cache', 'data/input', 'data/output', 'rsc']
 SUBJECTS: dict[str, list[str] | str] = {
     'check_required_files': 'TREE',
     'check_templates': ['.github'],
+    'check_committed_tree': 'TREE',
     'check_xref': 'TREE',
     # check_cli_surface READS the workspace file, so that file must be one of its subjects: a file
     # a check reads but its subjects omit leaves the cached verdict standing when it
@@ -2646,6 +2688,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_pipeline_declarations, tier='code')
         run_section(check_step_imports, tier='code')
         run_section(check_self_paths, tier='code')
+        run_section(check_committed_tree, tier='code')
         run_section(check_templates, tier='code')
         xref_rows = run_section(check_xref, tier='code')
         run_section(check_cli_surface, tier='code')

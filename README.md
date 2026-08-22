@@ -37,6 +37,16 @@ Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `cla
 `~/.claude/projects` — sessions arrive via `yoga agent capture` through the
 prefix-gated store.
 
+Git carries machinery only. The corpus - conversation text, the downloaded
+artifact libraries, titles, readings - has one home, `data/`; `data/`, `tmp/`,
+`ext/` and `machine-name.txt` are ignored and track nothing, so neither a corpus
+datum nor a machine fact (a username, a home path) is representable in a commit,
+and `yoga test run` holds both facts over every tracked file (L2). The history is
+kept as it stands: its early commits carry the maintainer's own conversation
+artifacts (removed from the tree on 2026-05-16) and one dashboard of the
+maintainer's conversation titles, and nothing of any third party - audited on
+reading-room, 2026-08-22, at 17e173c (#498).
+
 ## Where facts live
 
 - the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/README.md`
@@ -86,7 +96,7 @@ Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.
 
 ## Pre-public checklist
 
-- [ ] Create a new repo (to get clean/sane git history).
+- [x] ~~Create a new repo (to get clean/sane git history).~~ Ruled out 2026-08-22 (#498): the history is kept, every anchored claim in the ledger keys to its shas.
 - [ ] Add a LICENSE file.
 - [ ] Make the README a tour: paired tell and show, the shown output derived so it cannot drift (#71's should — the maintainer's own task).
 - [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `validate.sh` scripts on validation success
