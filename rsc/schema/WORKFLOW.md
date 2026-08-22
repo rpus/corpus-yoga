@@ -154,17 +154,13 @@ non-latest version file is referenced by its successor's section, so only each
 family's frontier version is unreferenced — a mint costs `xref_expected_score`
 no edit.)
 
-Narrate temporally. `Relaxed` and `Restricted` classify the change in what is
-ADMISSIBLE: Relaxed is what vN rejected and v{N+1} admits - the triggering
-datum's widening first among it - and Restricted is what vN admitted and
-v{N+1} rejects. A change that both admits the trigger and restricts - a new
-REQUIRED field - is ONE Restricted entry, counted once (ruling 2026-07-12, the
-thinking_hidden mint). And versions are observations of eras: old vN modelled
-everything its era showed and rejected nothing in its lifetime - new-era
-data is data vN "now happens to reject", never data vN "rejected".
+`Restricted` / `Relaxed` / `Refactored` are semver's major / minor / patch: what vN
+admitted and v{N+1} rejects; what vN rejected and v{N+1} admits; no validation
+effect. A new REQUIRED field is one Restricted entry (ruling 2026-07-12, the
+thinking_hidden mint). Versions are observations of eras: new-era data is data
+vN "now happens to reject", never data vN "rejected".
 
-For a Restriction, also state its **materiality** - the effect on what has ever
-been SUBMITTED, as distinct from what is admissible: material means some observed
+For a Restriction, also state its **materiality**: material means some observed
 datum that passed vN fails v{N+1} — name what is excluded and where it rests;
 non-material means every observed datum passes both, and the tightening bites
 only futures — mark the section `#### Restricted (non-material)` and
