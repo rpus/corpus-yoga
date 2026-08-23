@@ -9,14 +9,14 @@ the launcher's run log under tmp/logs/forge/capture/, as for every verb.
 
 | file                       | what the forge returned to                                           |
 | -------------------------- | -------------------------------------------------------------------- |
-| issues_and_pulls.json      | gh api --paginate --slurp repos/{owner}/{repo}/issues?state=all      |
-| pulls.json                 | gh api --paginate --slurp repos/{owner}/{repo}/pulls?state=all       |
+| issues_and_PRs.json      | gh api --paginate --slurp repos/{owner}/{repo}/issues?state=all      |
+| PRs.json                 | gh api --paginate --slurp repos/{owner}/{repo}/pulls?state=all       |
 | issue_comments.json        | gh api --paginate --slurp repos/{owner}/{repo}/issues/comments       |
 | review_comments.json       | gh api --paginate --slurp repos/{owner}/{repo}/pulls/comments        |
 | labels.json                | gh api --paginate --slurp repos/{owner}/{repo}/labels                |
 | review_counts.json         | gh api graphql --paginate --slurp -F query=@review-counts.graphql: every pull's number and reviews.totalCount |
-| reviews_by_pull.json       | {"n": [...]}: gh api repos/{owner}/{repo}/pulls/n/reviews, for each n whose totalCount in review_counts.json is nonzero |
-| blocked_by_by_issue.json   | {"n": [...]}: gh api repos/{owner}/{repo}/issues/n/dependencies/blocked_by, for each issue n (no pull_request key) whose issue_dependencies_summary.total_blocked_by in issues_and_pulls.json is nonzero or absent |
+| reviews_by_PR.json       | {"n": [...]}: gh api repos/{owner}/{repo}/pulls/n/reviews, for each n whose totalCount in review_counts.json is nonzero |
+| blocked_by_by_issue.json   | {"n": [...]}: gh api repos/{owner}/{repo}/issues/n/dependencies/blocked_by, for each issue n (no pull_request key) whose issue_dependencies_summary.total_blocked_by in issues_and_PRs.json is nonzero or absent |
 | repository.json            | gh api repos/{owner}/{repo}                                          |
 
 Every byte under the stamp is something the forge returned: a paginated list is its
@@ -33,7 +33,7 @@ is a consumer's derivation (L3), never decided here. Nothing is written until ev
 has succeeded, so a stamp is whole or absent.
 
 Known limits: the REST issues list includes pull requests (hence the file's name -
-pulls.json is the same objects under the pull-request resource, with merge state and
+PRs.json is the same objects under the pull-request resource, with merge state and
 head/base shas); only blocked_by edges are captured, the repository's one issue
 relation (blocking derives from it); not captured: commit status checks, event
 timelines, reactions, the dependency graph beyond blocked_by.
@@ -60,13 +60,13 @@ STORE = REPO / 'data' / 'input' / 'github' / 'forge' / 'gh-CLI'
 REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 
 LISTS = [
-    ('issues_and_pulls.json', 'repos/{owner}/{repo}/issues?state=all&per_page=100'),
-    ('pulls.json', 'repos/{owner}/{repo}/pulls?state=all&per_page=100'),
+    ('issues_and_PRs.json', 'repos/{owner}/{repo}/issues?state=all&per_page=100'),
+    ('PRs.json', 'repos/{owner}/{repo}/pulls?state=all&per_page=100'),
     ('issue_comments.json', 'repos/{owner}/{repo}/issues/comments?per_page=100'),
     ('review_comments.json', 'repos/{owner}/{repo}/pulls/comments?per_page=100'),
     ('labels.json', 'repos/{owner}/{repo}/labels?per_page=100'),
 ]
-ROSTER = [name for name, _ in LISTS] + ['review_counts.json', 'reviews_by_pull.json',
+ROSTER = [name for name, _ in LISTS] + ['review_counts.json', 'reviews_by_PR.json',
                                         'blocked_by_by_issue.json', 'repository.json']
 
 Captured = list | dict
@@ -109,9 +109,9 @@ def fetch() -> dict[str, Captured]:
     counts = fetch_review_counts()
     got['review_counts.json'] = counts
     reviewed = [node['number'] for node in counts if node['reviews']['totalCount']]
-    blocked = [i['number'] for i in got['issues_and_pulls.json'] if 'pull_request' not in i
+    blocked = [i['number'] for i in got['issues_and_PRs.json'] if 'pull_request' not in i
                and (i.get('issue_dependencies_summary') or {}).get('total_blocked_by', 1)]
-    got['reviews_by_pull.json'] = fetch_map(
+    got['reviews_by_PR.json'] = fetch_map(
         'repos/{owner}/{repo}/pulls/<n>/reviews', reviewed, tolerate_refusal=False)
     got['blocked_by_by_issue.json'] = fetch_map(
         'repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by', blocked, tolerate_refusal=True)
