@@ -309,11 +309,11 @@ src/main/cli/prerequisites/prerequisites.sh,18,comment,src/main/cli/prerequisite
 src/main/cli/prerequisites/prerequisites.sh,28,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/prerequisites/prerequisites.sh,30,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/prerequisites/prerequisites.sh,214,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
-src/main/cli/prerequisites/prerequisites.sh,357,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"# co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry"
-src/main/cli/prerequisites/prerequisites.sh,373,comment,src/test/dev/run.sh,Y,"# (src/test/dev/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/main/cli/prerequisites/prerequisites.sh,380,path_str,src/main/cli/prerequisites,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
-src/main/cli/prerequisites/prerequisites.sh,380,path_str,src/main,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
-src/main/cli/prerequisites/prerequisites.sh,394,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
+src/main/cli/prerequisites/prerequisites.sh,359,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"# co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry"
+src/main/cli/prerequisites/prerequisites.sh,375,comment,src/test/dev/run.sh,Y,"# (src/test/dev/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
+src/main/cli/prerequisites/prerequisites.sh,382,path_str,src/main/cli/prerequisites,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
+src/main/cli/prerequisites/prerequisites.sh,382,path_str,src/main,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
+src/main/cli/prerequisites/prerequisites.sh,396,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","

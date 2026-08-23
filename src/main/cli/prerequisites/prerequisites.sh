@@ -261,12 +261,14 @@ check_cli() {
   if comp_status="$("$REPO_ROOT/corpus-yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with src/main/cli/" ;;
-      *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: corpus-yoga completions install-latest (then restart terminal)" ;;
-      # ./corpus-yoga DELIBERATELY (the one bootstrap prescription): install-latest is what
-      # writes the alias, so in the not-generated case the bare name resolves for
-      # nobody — the prescription must be typed in a spelling the reader's shell has,
-      # and they arrived at the repo root via README. The "refresh" case above is bare
-      # because by the time completions are STALE the alias exists. (PR #109 review.)
+      # ./corpus-yoga DELIBERATELY in BOTH remedies (the bootstrap prescription):
+      # install-latest is what writes the alias, so the prescription must be typed in
+      # a spelling the reader's shell is known to have, and ./ is the one such spelling
+      # (they arrived at the repo root via README). The STALE case once assumed the
+      # alias exists, but a rename of the CLI word makes completions stale AND the
+      # installed alias dangle in the same event - the 2026-08-23 corpus-yoga rename
+      # is the fixture. (PR #109 review; #514.)
+      *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)" ;;
       *)         todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)" ;;
     esac
   else
