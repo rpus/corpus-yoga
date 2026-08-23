@@ -261,13 +261,14 @@ check_cli() {
   if comp_status="$("$REPO_ROOT/corpus-yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with src/main/cli/" ;;
-      # ./corpus-yoga DELIBERATELY in BOTH remedies (the bootstrap prescription):
-      # install-latest is what writes the alias, so the prescription must be typed in
-      # a spelling the reader's shell is known to have, and ./ is the one such spelling
-      # (they arrived at the repo root via README). The STALE case once assumed the
-      # alias exists, but a rename of the CLI word makes completions stale AND the
-      # installed alias dangle in the same event - the 2026-08-23 corpus-yoga rename
-      # is the fixture. (PR #109 review; #514.)
+      # ./corpus-yoga DELIBERATELY in BOTH remedies: the bare word is a machine-global
+      # binding to ONE checkout (the ~/.zshrc alias install-latest writes), so in any
+      # other checkout or worktree it runs that other tree's code, and while a rename
+      # migrates it either dangles loudly or - worse - resolves and does the OLD thing
+      # silently. ./ is the one spelling that names THIS tree's code, and the reader
+      # holds it (they arrived at the repo root via README). The STALE case once
+      # assumed the alias current; the 2026-08-23 corpus-yoga rename is the fixture
+      # against that. (PR #109 review; #514.)
       *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)" ;;
       *)         todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)" ;;
     esac
