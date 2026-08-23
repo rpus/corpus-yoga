@@ -528,21 +528,11 @@ merge_chain() {
   echo "forge merge: DONE — #$pr squashed as ${landed:0:8} ($n should(s) closed); this checkout converged on it"
 }
 
-# The capture is src/main/cli/forge/capture.py's; this face stamps the deposit, tees the
-# run into one log (room, main's sha, every gh command, the verdict - the act's whole
-# record, which the deposit itself never carries), and relays the verdict.
+# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+# The run log (room, head, every gh command, the verdict) is the launcher's tee, as
+# for every verb declaring sends or w (cli.py _log_enacting, #453).
 capture() {
-  local stamp log rc
-  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
-  mkdir -p "$REPO_DIR/tmp/logs/forge/capture"
-  log="$REPO_DIR/tmp/logs/forge/capture/$stamp.log"
-  { echo "forge capture - $stamp · room: $(cat "$REPO_DIR/machine-name.txt" 2>/dev/null || echo '(unbound)') · main: $(git -C "$REPO_DIR" rev-parse --short origin/main 2>/dev/null)"
-    echo "yoga forge capture $*"
-    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/capture.py" "$stamp" "$@"
-  } 2>&1 | tee "$log"
-  rc="${PIPESTATUS[0]}"
-  echo "Log: $log"
-  return "$rc"
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/capture.py" "$(date -u '+%Y-%m-%dT%H%M%SZ')" "$@"
 }
 
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0

@@ -4,8 +4,8 @@
 The deposit is one stamped directory, data/input/github/forge/gh-CLI/<stamp>/, holding
 one file per forge object class - the eight below - and nothing about itself: the
 directory's name is the capture's one time label, the repository is the data root's,
-every count is a file's length, and the act's record (room, session, main's sha, the
-commands, the verdict) is the verb's log under tmp/logs/forge/capture/, as for every verb.
+every count is a file's length, and the act's record (room, head, the commands, the
+verdict) is the launcher's run log under tmp/logs/forge/capture/, as for every verb.
 
 | file                       | command                                                              |
 | -------------------------- | -------------------------------------------------------------------- |
