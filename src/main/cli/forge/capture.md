@@ -17,7 +17,7 @@ name is the capture's one time label - no file inside restates it.
 | `repository.json` | `gh api 'repos/rpus/yoga'` |
 | `reviews_by_pull.json` | for each number `n` in `pulls.json`: `gh api repos/rpus/yoga/pulls/<n>/reviews` - stored as `{"<n>": [reviews]}` |
 | `blocked_by_by_issue.json` | for each issue `n` in `issues_and_pulls.json` without a `pull_request` key: `gh api repos/rpus/yoga/issues/<n>/dependencies/blocked_by` - stored as `{"<n>": [blocking issues]}`; a non-array reply (the endpoint's refusal on an issue with no edges) is stored as `[]` |
-| `manifest.json` | not fetched - written from the files above: `room` (machine-name.txt), `session`, `repository`, `main_at_capture` = `git rev-parse --short origin/main`, and `counts` (array lengths of the five paginated files; issues = entries of `issues_and_pulls.json` lacking `pull_request`; pulls; reviews and blocked_by_edges summed over their maps) |
+| `manifest.json` | not fetched - written from the files above: `room` (machine-name.txt), `session`, `main_at_capture` = `git rev-parse --short origin/main`, and `counts` (array lengths of the five paginated files; issues = entries of `issues_and_pulls.json` lacking `pull_request`; pulls; reviews and blocked_by_edges summed over their maps) |
 
 Each `gh api` stdout is redirected straight to `$DIR/<file>`.
 
