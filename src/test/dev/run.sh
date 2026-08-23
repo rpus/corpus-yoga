@@ -95,7 +95,7 @@ if [[ -n "${GIT_INDEX_FILE:-}" ]]; then
     echo "ERROR: this commit ran an OUTDATED pre-commit hook." >&2
     echo "       It points at a file rather than naming \`corpus-yoga test run\`, so renaming that" >&2
     echo "       file would disarm the gate in silence. Nothing is wrong with the change." >&2
-    echo "       → run: corpus-yoga test install-hook" >&2
+    echo "       → run: ./corpus-yoga test install-hook" >&2
     exit 1
   fi
 fi

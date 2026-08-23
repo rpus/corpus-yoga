@@ -345,13 +345,13 @@ check_git_hook() {
   # points at disarms the gate in silence and every commit lands unchecked until someone
   # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
-    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: corpus-yoga test install-hook"
+    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: ./corpus-yoga test install-hook"
   elif cmp -s "$hook" "$REPO_ROOT/rsc/test/pre-commit-hook.sh"; then
     ok "installed: a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run"
   elif [[ -e "$hook" ]]; then
-    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: corpus-yoga test install-hook"
+    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: ./corpus-yoga test install-hook"
   else
-    bad "not installed — nothing vets a commit; install via: corpus-yoga test install-hook"
+    bad "not installed — nothing vets a commit; install via: ./corpus-yoga test install-hook"
   fi
 }
 
@@ -383,12 +383,12 @@ check_signature_hook() {
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
       ok "installed: the symlink to rsc/test/prepare-commit-msg-hook.sh"
     else
-      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: corpus-yoga test install-hook"
+      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ./corpus-yoga test install-hook"
     fi
   elif [[ -e "$hook" ]]; then
-    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: corpus-yoga test install-hook"
+    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: ./corpus-yoga test install-hook"
   else
-    todo signature-hook "not installed — corpus-yoga test install-hook"
+    todo signature-hook "not installed — ./corpus-yoga test install-hook"
   fi
 }
 
@@ -423,14 +423,14 @@ check_pipeline_inputs() {
   if [[ "$n" -gt 0 ]]; then
     ok "browser-captures: $n claude capture(s) in data/input/claude/chat/browser-API — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in data/input/claude/chat/browser-API — will skip (populate via: corpus-yoga browser capture)"
+    info "browser-captures: no claude captures in data/input/claude/chat/browser-API — will skip (populate via: ./corpus-yoga browser capture)"
   fi
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via corpus-yoga server start); not validated"
+    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./corpus-yoga server start); not validated"
   else
-    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: corpus-yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
+    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: ./corpus-yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
   fi
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/bulk-export"/data-*/)"
@@ -449,7 +449,7 @@ check_pipeline_inputs() {
     info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via corpus-yoga agent capture --all)"
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
-    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: corpus-yoga agent capture --all"
+    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./corpus-yoga agent capture --all"
     if [[ -d "$REPO_ROOT/ext/mnt/claude-code-projects" ]]; then
       ok "ext/mnt/claude-code-projects → ~/.claude/projects (the census and capture read it)"
     else
