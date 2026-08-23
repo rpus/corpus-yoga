@@ -315,14 +315,14 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    state = ('not written — `corpus-yoga completions install-latest`' if not written else
-             'current' if current else 'STALE — `corpus-yoga completions install-latest`')
+    state = ('not written — `./corpus-yoga completions install-latest`' if not written else
+             'current' if current else 'STALE — `./corpus-yoga completions install-latest`')
     print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
-    print('  ~/.zshrc: ' + ('not wired — `corpus-yoga completions install-latest`' if not blocks
+    print('  ~/.zshrc: ' + ('not wired — `./corpus-yoga completions install-latest`' if not blocks
                             else 'wired' if blocks == 1
-                            else f'wired {blocks} times — `corpus-yoga completions install-latest` '
+                            else f'wired {blocks} times — `./corpus-yoga completions install-latest` '
                                  f'removes every block and writes one'))
     return 0
 
