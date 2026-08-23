@@ -67,8 +67,7 @@ Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
 Code sessions: `yoga agent capture --all`. The forge's ledger (issues, pull
 requests, comments, reviews, labels, blocked_by edges): `yoga forge capture` -
-one stamped deposit under `data/input/github/forge/gh-CLI/`, nothing when the
-ledger is unchanged. Paid model readings:
+one stamped deposit under `data/input/github/forge/gh-CLI/` per run. Paid model readings:
 `yoga indexing capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
 reports it), rendered free by `yoga site render`. Batch disposal is computed, never assumed: `yoga supersede check`.
 

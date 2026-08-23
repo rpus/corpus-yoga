@@ -34,11 +34,11 @@ README.md,57,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `S
 README.md,58,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
 README.md,59,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
 README.md,66,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,77,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
-README.md,78,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
-README.md,92,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,98,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,98,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,76,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
+README.md,77,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
+README.md,91,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,97,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,97,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
@@ -255,11 +255,11 @@ src/main/cli/commands/commands.json,3,path_str,src/main/cli/commands/commands.py
 src/main/cli/completions/completions.json,3,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
 src/main/cli/completions/completions.py,17,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
 src/main/cli/completions/completions.py,108,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
-src/main/cli/forge/capture.py,41,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
-src/main/cli/forge/capture.py,41,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
-src/main/cli/forge/capture.py,49,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
-src/main/cli/forge/capture.py,59,path_str,src/main/cli/forge/review-counts.graphql,Y,REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
-src/main/cli/forge/capture.py,99,comment,src/main/cli/forge/review-counts.graphql,Y,pull's reviews.totalCount (src/main/cli/forge/review-counts.graphql).
+src/main/cli/forge/capture.py,42,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
+src/main/cli/forge/capture.py,42,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
+src/main/cli/forge/capture.py,50,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
+src/main/cli/forge/capture.py,60,path_str,src/main/cli/forge/review-counts.graphql,Y,REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
+src/main/cli/forge/capture.py,101,comment,src/main/cli/forge/review-counts.graphql,Y,"(src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."
 src/main/cli/forge/flip.py,13,path_str,src/main/cli/forge/flip.py,Y,SELF = 'src/main/cli/forge/flip.py'
 src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
 src/main/cli/forge/forge.json,24,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""

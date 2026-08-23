@@ -2,34 +2,35 @@
 """capture.py (yoga forge capture) - deposit the forge's ledger as a record like every other.
 
 The deposit is one stamped directory, data/input/github/forge/gh-CLI/<stamp>/, holding
-one file per forge object class - the eight below - and nothing about itself: the
-directory's name is the capture's one time label, the repository is the data root's,
-every count is a file's length, and the act's record (room, head, the commands, the
-verdict) is the launcher's run log under tmp/logs/forge/capture/, as for every verb.
+one file per forge read - the nine below - and nothing about itself: the directory's
+name is the capture's one time label, the repository is the data root's, every count
+is a file's length, and the act's record (room, head, the commands, the verdict) is
+the launcher's run log under tmp/logs/forge/capture/, as for every verb.
 
-| file                       | command                                                              |
+| file                       | what the forge returned to                                           |
 | -------------------------- | -------------------------------------------------------------------- |
 | issues_and_pulls.json      | gh api --paginate --slurp repos/{owner}/{repo}/issues?state=all      |
 | pulls.json                 | gh api --paginate --slurp repos/{owner}/{repo}/pulls?state=all       |
 | issue_comments.json        | gh api --paginate --slurp repos/{owner}/{repo}/issues/comments       |
 | review_comments.json       | gh api --paginate --slurp repos/{owner}/{repo}/pulls/comments        |
 | labels.json                | gh api --paginate --slurp repos/{owner}/{repo}/labels                |
-| reviews_by_pull.json       | {"n": [...]} for every number n in pulls.json; gh api repos/{owner}/{repo}/pulls/n/reviews for the n whose reviews.totalCount is nonzero in one paginated GraphQL read (review-counts.graphql); [] for the rest |
-| blocked_by_by_issue.json   | {"n": [...]} for every issue n in issues_and_pulls.json (no pull_request key); gh api repos/{owner}/{repo}/issues/n/dependencies/blocked_by for the n whose issue_dependencies_summary.total_blocked_by is nonzero in the list object (or absent); [] for the rest |
+| review_counts.json         | gh api graphql --paginate --slurp -F query=@review-counts.graphql: every pull's number and reviews.totalCount |
+| reviews_by_pull.json       | {"n": [...]}: gh api repos/{owner}/{repo}/pulls/n/reviews, for each n whose totalCount in review_counts.json is nonzero |
+| blocked_by_by_issue.json   | {"n": [...]}: gh api repos/{owner}/{repo}/issues/n/dependencies/blocked_by, for each issue n (no pull_request key) whose issue_dependencies_summary.total_blocked_by in issues_and_pulls.json is nonzero or absent |
 | repository.json            | gh api repos/{owner}/{repo}                                          |
 
-Each paginated list is fetched whole (per_page=100, --slurp wraps the pages in one
-array, flattened here) and written as a single array with json.dump(indent=1); the
-per-pull and per-issue maps likewise. No record is filtered, renamed, or reordered.
-A per-object read is made only where the bulk reads say there is something to read -
-the GraphQL review counts, the list object's dependency summary - so a capture is some
-fifty gh calls, not one per pull and per issue.
+Every byte under the stamp is something the forge returned: a paginated list is its
+pages joined (--slurp wraps them in one array, flattened here), a map holds only the
+objects actually read, and which objects were read is itself in the deposit (the
+review counts, the dependency summaries) - so a per-object read is made only where a
+bulk read says there is something to read, and a capture is some fifty gh calls, not
+one per pull and per issue. Files are written as json.dump(indent=1); no record is
+filtered, renamed, or reordered.
 
-Content-keyed and idempotent (L1): the seven LEDGER files are compared byte-for-byte
-with the latest deposit's; identical, nothing is deposited and the verdict says so.
-repository.json rides along with a deposit but is not part of the key - its pushed_at
-and size move with every push, and they are not ledger. Append-only: a deposit is a new
-stamped directory; no earlier one is ever rewritten.
+A capture reads its source and no other capture (the maintainer's ruling, 2026-08-23):
+every run deposits a new stamped directory, and whether one deposit supersedes another
+is a consumer's derivation (L3), never decided here. Nothing is written until every read
+has succeeded, so a stamp is whole or absent.
 
 Known limits: the REST issues list includes pull requests (hence the file's name -
 pulls.json is the same objects under the pull-request resource, with merge state and
@@ -65,8 +66,10 @@ LISTS = [
     ('review_comments.json', 'repos/{owner}/{repo}/pulls/comments?per_page=100'),
     ('labels.json', 'repos/{owner}/{repo}/labels?per_page=100'),
 ]
-LEDGER = [name for name, _ in LISTS] + ['reviews_by_pull.json', 'blocked_by_by_issue.json']
-ROSTER = LEDGER + ['repository.json']
+ROSTER = [name for name, _ in LISTS] + ['review_counts.json', 'reviews_by_pull.json',
+                                        'blocked_by_by_issue.json', 'repository.json']
+
+Captured = list | dict
 
 
 def gh_api(*args: str) -> str:
@@ -78,63 +81,46 @@ def fetch_list(endpoint: str) -> list:
     return [record for page in pages for record in page]
 
 
-def fetch_map(endpoint: str, numbers: list[int], read: set[int], tolerate_refusal: bool) -> dict:
-    """{"n": [...]} for every number; the endpoint is read only for n in `read`, the
-    numbers the bulk reads showed to have something - the rest are [] unread."""
+def fetch_map(endpoint: str, numbers: list[int], tolerate_refusal: bool) -> dict:
+    """{"n": [...]} for each number read - only those; the endpoint's refusal, where
+    tolerated, is the empty list it stands for."""
     out = {}
     for n in numbers:
-        answer: list = []
-        if n in read:
-            try:
-                answer = json.loads(gh_api(endpoint.replace('<n>', str(n))))
-            except subprocess.CalledProcessError:
-                if not tolerate_refusal:
-                    raise
+        try:
+            answer = json.loads(gh_api(endpoint.replace('<n>', str(n))))
+        except subprocess.CalledProcessError:
+            if not tolerate_refusal:
+                raise
+            answer = []
         out[str(n)] = answer if isinstance(answer, list) else []
     return out
 
 
-def reviewed_pulls() -> set[int]:
-    """The pull numbers with any review, from one paginated GraphQL read of every
-    pull's reviews.totalCount (src/main/cli/forge/review-counts.graphql)."""
+def fetch_review_counts() -> list:
+    """Every pull's number and reviews.totalCount, one paginated GraphQL read
+    (src/main/cli/forge/review-counts.graphql), pages flattened to the nodes."""
     pages = json.loads(gh_api('graphql', '--paginate', '--slurp', '-F', 'owner={owner}',
                               '-F', 'repo={repo}', '-F', f'query=@{REVIEW_COUNTS}'))
-    return {node['number'] for page in pages
-            for node in page['data']['repository']['pullRequests']['nodes']
-            if node['reviews']['totalCount']}
-
-
-def blocked_issues(issues: list[dict]) -> set[int]:
-    """The issue numbers with any blocked_by edge, from the list object's
-    issue_dependencies_summary.total_blocked_by; an issue without the summary is read."""
-    return {i['number'] for i in issues
-            if (i.get('issue_dependencies_summary') or {}).get('total_blocked_by', 1)}
-
-
-Captured = list | dict
+    return [node for page in pages for node in page['data']['repository']['pullRequests']['nodes']]
 
 
 def fetch() -> dict[str, Captured]:
-    lists = {name: fetch_list(endpoint) for name, endpoint in LISTS}
-    pulls = [p['number'] for p in lists['pulls.json']]
-    issues = [i for i in lists['issues_and_pulls.json'] if 'pull_request' not in i]
-    got: dict[str, Captured] = dict(lists)
+    got: dict[str, Captured] = {name: fetch_list(endpoint) for name, endpoint in LISTS}
+    counts = fetch_review_counts()
+    got['review_counts.json'] = counts
+    reviewed = [node['number'] for node in counts if node['reviews']['totalCount']]
+    blocked = [i['number'] for i in got['issues_and_pulls.json'] if 'pull_request' not in i
+               and (i.get('issue_dependencies_summary') or {}).get('total_blocked_by', 1)]
     got['reviews_by_pull.json'] = fetch_map(
-        'repos/{owner}/{repo}/pulls/<n>/reviews', pulls, reviewed_pulls(), tolerate_refusal=False)
+        'repos/{owner}/{repo}/pulls/<n>/reviews', reviewed, tolerate_refusal=False)
     got['blocked_by_by_issue.json'] = fetch_map(
-        'repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by', [i['number'] for i in issues],
-        blocked_issues(issues), tolerate_refusal=True)
+        'repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by', blocked, tolerate_refusal=True)
     got['repository.json'] = json.loads(gh_api('repos/{owner}/{repo}'))
     return got
 
 
 def render(value: Captured) -> bytes:
     return (json.dumps(value, indent=1) + '\n').encode()
-
-
-def latest_deposit(store: Path) -> Path | None:
-    stamps = sorted(p for p in store.iterdir() if p.is_dir()) if store.is_dir() else []
-    return stamps[-1] if stamps else None
 
 
 def count(name: str, value: Captured) -> int:
@@ -161,26 +147,13 @@ def main(argv: list[str]) -> int:
     except subprocess.CalledProcessError:
         print('forge capture: NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
         return 1
-    rendered = {name: render(got[name]) for name in ROSTER}
-    latest = latest_deposit(store)
     rel = store.relative_to(REPO) if store.is_relative_to(REPO) else store
-    print(f'{rel}/ - latest deposit: {latest.name if latest else "none"}')
-    changed = []
-    for name in ROSTER:
-        before = (latest / name).read_bytes() if latest and (latest / name).exists() else None
-        state = 'new' if before is None else ('same' if before == rendered[name] else 'changed')
-        if name in LEDGER and state != 'same':
-            changed.append(name)
-        print(f'  {name}: {count(name, got[name])} ({state})')
-    if latest and not changed:
-        print(f'forge capture: DONE - the ledger is unchanged since {latest.name}; nothing deposited')
-        return 0
     target = store / stamp
     target.mkdir(parents=True, exist_ok=False)
     for name in ROSTER:
-        (target / name).write_bytes(rendered[name])
-    since = f'changed since {latest.name}: {", ".join(changed)}' if latest else 'the first deposit'
-    print(f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files) - {since}')
+        (target / name).write_bytes(render(got[name]))
+        print(f'  {name}: {count(name, got[name])}')
+    print(f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
     return 0
 
 

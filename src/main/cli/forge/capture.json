@@ -1,5 +1,5 @@
 {
-  "help": "deposit the forge's ledger - issues, pull requests, comments, reviews, labels, blocked_by edges, the repository record - under data/input/github/forge/gh-CLI/<stamp>/, one file per object class; content-keyed: an unchanged ledger deposits nothing and says so",
+  "help": "deposit the forge's ledger - issues, pull requests, comments, reviews, labels, blocked_by edges, the repository record - under data/input/github/forge/gh-CLI/<stamp>/, one file per read; every run deposits, and a deposit holds only what the forge returned",
   "args": [
     {
       "name": "--to",
