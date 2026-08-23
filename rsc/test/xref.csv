@@ -667,6 +667,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/completions/install-latest.json,Y,
 ,,,src/main/cli/completions/sync.json,Y,
 ,,,src/main/cli/completions/uninstall.json,Y,
+,,,src/main/cli/forge/capture.md,Y,
 ,,self_only,src/main/cli/forge/flip.py,Y,
 ,,,src/main/cli/forge/forge.json,Y,
 ,,,src/main/cli/forge/prune.json,Y,
