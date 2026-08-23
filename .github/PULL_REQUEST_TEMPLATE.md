@@ -17,7 +17,7 @@
      when it aims at several). The should's one home is the issue, so the
      subject is copied, never authored: vetting is contingent, the subject
      never asserts achievement, and main's log reads as the disposed shoulds
-     — ready-made release notes. `yoga forge merge` refuses a non-copy. The
+     — ready-made release notes. `corpus-yoga forge merge` refuses a non-copy. The
      squash BODY is every commit's message, oldest first, as reviewed.
      Commits are never rewritten. This body is the review-facing channel,
      teaches the same sections, and carries the close once flipped.
@@ -77,8 +77,8 @@ Signature: <machine>/<provider>/<session>
      substitute for one: reproduce these, then go looking. An author tests what
      they believe they built; the defects live outside that belief.
 
-     The line OPENS by naming the arbiter: the dev gate (yoga test run), the usr
-     gate (yoga pipeline run), both, or a named other (the editor; a live run).
+     The line OPENS by naming the arbiter: the dev gate (corpus-yoga test run), the usr
+     gate (corpus-yoga pipeline run), both, or a named other (the editor; a live run).
      A change one gate cannot arbitrate carries a declared arbiter instead of a
      per-PR apology — the dev gate is green on both sides of a dead step import,
      and only the usr gate's red names it (#335 is the worked example).
@@ -93,7 +93,7 @@ Signature: <machine>/<provider>/<session>
 
 - **test** — <arbiter: which gate(s) arbitrate this change — then how a reviewer
   reproduces the verdicts: commands run, outputs seen>
-- **use** — <what a machine runs or expects after merge — spoken in yoga commands;
-  machine-local adoption belongs in `yoga prerequisites`' report: state it cannot
+- **use** — <what a machine runs or expects after merge — spoken in corpus-yoga commands;
+  machine-local adoption belongs in `corpus-yoga prerequisites`' report: state it cannot
   see is a species to add (the mount precedent), not prose to remember>
 - **do** — <what this raises or advances>

@@ -392,7 +392,7 @@
        count:  inferred salience weight (not raw frequency)
        provider: which provider the concept is salient in — claude / gemini / both
                (schema v2; a pre-v2 capture lacks the column and the provider
-               toggle disables until the next `yoga dashboard capture`)
+               toggle disables until the next `corpus-yoga dashboard capture`)
        note:   provenance (injected by present.sh) -->
   <!-- data-semantic-concepts.json:begin -->
   <script id="data-semantic-concepts" type="application/json">
@@ -753,7 +753,7 @@
         renderCloud(words, 'semantic-cloud', 270);
       };
       document.getElementById('provider-note').textContent =
-        tagged ? '' : 'concepts untagged (pre-v2 capture) — the semantic cloud shows all providers until the next `yoga dashboard capture`';
+        tagged ? '' : 'concepts untagged (pre-v2 capture) — the semantic cloud shows all providers until the next `corpus-yoga dashboard capture`';
       document.querySelectorAll('#provider-toggle .toggle-btn').forEach(btn => {
         btn.replaceWith(btn.cloneNode(true)); // drop stale listeners
       });

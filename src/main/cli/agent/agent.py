@@ -62,13 +62,13 @@ anything was edited since the merge: the record licenses the undo (L3). This
 is what makes safe VISITS possible — an agent installed while the host is away
 extracts by transporting itself home, and the host demerges the residue.
 
-    yoga agent
-    yoga agent list-models
-    yoga agent capture --session <uuid8> [--to <scratch-dir>]
-    yoga agent install   --session <uuid8> --from <machine|dir> [--apply]
-    yoga agent capture --all [--to <scratch-dir>]
-    yoga agent install   --all --from <machine|dir> [--apply]
-    yoga agent demerge [--apply]
+    corpus-yoga agent
+    corpus-yoga agent list-models
+    corpus-yoga agent capture --session <uuid8> [--to <scratch-dir>]
+    corpus-yoga agent install   --session <uuid8> --from <machine|dir> [--apply]
+    corpus-yoga agent capture --all [--to <scratch-dir>]
+    corpus-yoga agent install   --all --from <machine|dir> [--apply]
+    corpus-yoga agent demerge [--apply]
 
 capture and install each take --session <uuid8> (matches by uuid prefix,
 exactly one) or --all: a NAMED agent or the named TOTALITY — git push --all /
@@ -411,7 +411,7 @@ def list_agents() -> int:
         # a census that silently omits a side is a lie of absence: say which rows
         # cannot appear and how to make them appear
         print(f'note: {PROJECTS.relative_to(REPO)} absent — no local rows '
-              '→ run: yoga prerequisites sync --apply', file=sys.stderr)
+              '→ run: corpus-yoga prerequisites sync --apply', file=sys.stderr)
     if AGENTS_DIR.is_dir():
         for machine in sorted(p for p in AGENTS_DIR.iterdir() if p.is_dir()):
             for proj in sorted(d for d in machine.glob('-Users-*') if d.is_dir()):

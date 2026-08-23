@@ -67,7 +67,7 @@ plan_impl() {
   echo "${caller#"$STEPS_REPO/"}"
 }
 
-# name · args · where it lives. A step that is also a yoga command is printed AS that
+# name · args · where it lives. A step that is also a corpus-yoga command is printed AS that
 # command, which is how the line says it is typeable: no legend, no marker column —
 # the reader types what they see.
 plan_line() {
@@ -78,7 +78,7 @@ plan_line() {
   impl="$(plan_impl "$caller" "$cmd" "$@")"
   local label="$name"
   if [[ -f "$STEPS_REPO/src/main/cli/$name/$name.json" ]] || [[ -f "$STEPS_REPO/src/main/cli/$name.json" ]]; then
-    label="yoga $name"
+    label="corpus-yoga $name"
   fi
   printf '  %-58s %s' "$label$args" "$impl"
 }

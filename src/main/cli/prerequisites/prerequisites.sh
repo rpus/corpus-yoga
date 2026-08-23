@@ -50,7 +50,7 @@ _todo=()
 
 # Failures-only by default: ✓ (satisfied) lines are withheld unless --show-all, and a
 # section header prints lazily — only when its first shown line (– or ✗) appears — so an
-# all-satisfied section vanishes entirely. The bare `yoga` invocation shows this report,
+# all-satisfied section vanishes entirely. The bare `corpus-yoga` invocation shows this report,
 # so its default is the short "what still needs attention" list.
 _hdr=""
 sec()    { _hdr="$*"; }
@@ -90,10 +90,10 @@ check_tools() {
   # deterministically. pyright is Pylance's own engine and reads the same
   # pyrightconfig.json the editor does — one declaration, three readers. It is a python
   # package, so the venv this repo builds carries it; shellcheck below is not, which is
-  # why one arrives with `yoga pipeline run` and the other needs brew.
+  # why one arrives with `corpus-yoga pipeline run` and the other needs brew.
   # Where the GATE looks, in the same order: $VENV/bin first, then PATH. Asking
   # `command -v` alone reported "not found" on any shell without the venv activated —
-  # while the venv held it and yoga test run used it — so the report contradicted both
+  # while the venv held it and corpus-yoga test run used it — so the report contradicted both
   # the gate and its own requirements line a few rows below.
   local pyright_bin=""
   if [[ -x "$VENV/bin/pyright" ]]; then
@@ -102,17 +102,17 @@ check_tools() {
     pyright_bin="$(command -v pyright)"
   fi
   if [[ -n "$pyright_bin" ]]; then
-    ok "pyright ($("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')) — yoga test run type-checks src/ against pyrightconfig.json"
+    ok "pyright ($("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')) — corpus-yoga test run type-checks src/ against pyrightconfig.json"
   else
-    todo venv "pyright not found — yoga test run skips its type check; it is in src/requirements.txt: ./src/main/cli/prerequisites/prerequisites.sh sync --apply"
+    todo venv "pyright not found — corpus-yoga test run skips its type check; it is in src/requirements.txt: ./src/main/cli/prerequisites/prerequisites.sh sync --apply"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
   # this is the one place that says so.
   if command -v shellcheck &>/dev/null; then
-    ok "shellcheck ($(shellcheck --version | awk '/^version:/ {print $2}')) — yoga test run lints every src/**/*.sh"
+    ok "shellcheck ($(shellcheck --version | awk '/^version:/ {print $2}')) — corpus-yoga test run lints every src/**/*.sh"
   else
-    todo reader "shellcheck not found — yoga test run skips its shell lint; install via: brew install shellcheck"
+    todo reader "shellcheck not found — corpus-yoga test run skips its shell lint; install via: brew install shellcheck"
   fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
@@ -122,7 +122,7 @@ check_venv() {
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1)) — every .py target runs in it"
   else
-    todo venv "not found — nothing python runs, yoga included (#478); ./src/main/cli/prerequisites/prerequisites.sh sync --apply creates it and installs src/requirements.txt"
+    todo venv "not found — nothing python runs, corpus-yoga included (#478); ./src/main/cli/prerequisites/prerequisites.sh sync --apply creates it and installs src/requirements.txt"
   fi
 }
 
@@ -188,7 +188,7 @@ asset_probe() {  # $1 = dest, $2 = full line
 check_optional_modes() {
   sec "optional modes"
   if [[ "$(uname)" == "Darwin" ]] && command -v osascript &>/dev/null; then
-    ok "browser capture possible (yoga browser capture): macOS + osascript (Safari must be logged in to claude.ai / gemini.google.com)"
+    ok "browser capture possible (corpus-yoga browser capture): macOS + osascript (Safari must be logged in to claude.ai / gemini.google.com)"
     # Modern Safari keeps this setting where `defaults` cannot see it, and the reliable
     # probe (`do JavaScript "1+1"`) would drive Safari — off-limits for this read-only
     # reporter. Report the state only when the legacy key happens to be readable;
@@ -201,12 +201,12 @@ check_optional_modes() {
       *) info "Safari 'Allow JavaScript from Apple Events' cannot be verified read-only on this Safari version — if it is off, capture fail-fasts with a clear error naming this setting" ;;
     esac
   else
-    info "browser capture (yoga browser capture) unavailable: needs macOS + osascript; other pipelines unaffected"
+    info "browser capture (corpus-yoga browser capture) unavailable: needs macOS + osascript; other pipelines unaffected"
   fi
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
-    ok "yoga indexing capture possible: ANTHROPIC_API_KEY is set"
+    ok "corpus-yoga indexing capture possible: ANTHROPIC_API_KEY is set"
   else
-    info "yoga indexing capture unavailable: ANTHROPIC_API_KEY not set (only the paid concept/category capture needs it)"
+    info "corpus-yoga indexing capture unavailable: ANTHROPIC_API_KEY not set (only the paid concept/category capture needs it)"
   fi
 }
 
@@ -253,24 +253,27 @@ check_machine() {
 }
 
 check_cli() {
-  sec "yoga CLI (tables: src/main/cli/)"
-  # `yoga completions` (bare) is itself the read-only status — written/current/stale
+  sec "corpus-yoga CLI (tables: src/main/cli/)"
+  # `corpus-yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
   local comp_status
-  if comp_status="$("$REPO_ROOT/yoga" completions 2>/dev/null)"; then
+  if comp_status="$("$REPO_ROOT/corpus-yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with src/main/cli/" ;;
-      *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: yoga completions install-latest (then restart terminal)" ;;
-      # ./yoga DELIBERATELY (the one bootstrap prescription): install-latest is what
-      # writes the alias, so in the not-generated case the bare name resolves for
-      # nobody — the prescription must be typed in a spelling the reader's shell has,
-      # and they arrived at the repo root via README. The "refresh" case above is bare
-      # because by the time completions are STALE the alias exists. (PR #109 review.)
-      *)         todo reader "zsh completions not generated → run: ./yoga completions install-latest (then restart terminal)" ;;
+      # ./corpus-yoga DELIBERATELY in BOTH remedies: the bare word is a machine-global
+      # binding to ONE checkout (the ~/.zshrc alias install-latest writes), so in any
+      # other checkout or worktree it runs that other tree's code, and while a rename
+      # migrates it either dangles loudly or - worse - resolves and does the OLD thing
+      # silently. ./ is the one spelling that names THIS tree's code, and the reader
+      # holds it (they arrived at the repo root via README). The STALE case once
+      # assumed the alias current; the 2026-08-23 corpus-yoga rename is the fixture
+      # against that. (PR #109 review; #514.)
+      *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)" ;;
+      *)         todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)" ;;
     esac
   else
-    info "zsh completion currency cannot be verified (running yoga needs Python 3)"
+    info "zsh completion currency cannot be verified (running corpus-yoga needs Python 3)"
   fi
   # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
   # added after it is present in the file and does nothing — a grep for the string
@@ -279,13 +282,13 @@ check_cli() {
   # shell sources the rc and answers for itself.
   if ! command -v zsh &>/dev/null; then
     info "zsh not present — tab-completion not applicable on this machine"
-  elif [[ "$(zsh -ic 'print -r -- ${+_comps[yoga]}' 2>/dev/null | tail -1)" == "1" ]]; then
-    ok "zsh resolves the yoga completion"
+  elif [[ "$(zsh -ic 'print -r -- ${+_comps[corpus-yoga]}' 2>/dev/null | tail -1)" == "1" ]]; then
+    ok "zsh resolves the corpus-yoga completion"
   else
-    info "zsh does not resolve the yoga completions"
-    # ./yoga: same bootstrap case as above — no resolving completion may well mean
-    # no alias either, and ./yoga works in both worlds; bare yoga only in one.
-    echo "    → run: ./yoga completions install-latest (then restart terminal)"
+    info "zsh does not resolve the corpus-yoga completions"
+    # ./corpus-yoga: same bootstrap case as above — no resolving completion may well mean
+    # no alias either, and ./corpus-yoga works in both worlds; bare corpus-yoga only in one.
+    echo "    → run: ./corpus-yoga completions install-latest (then restart terminal)"
   fi
 }
 
@@ -342,13 +345,13 @@ check_git_hook() {
   # points at disarms the gate in silence and every commit lands unchecked until someone
   # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
-    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: yoga test install-hook"
+    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: ./corpus-yoga test install-hook"
   elif cmp -s "$hook" "$REPO_ROOT/rsc/test/pre-commit-hook.sh"; then
-    ok "installed: a copy of rsc/test/pre-commit-hook.sh, which runs yoga test run"
+    ok "installed: a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run"
   elif [[ -e "$hook" ]]; then
-    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: yoga test install-hook"
+    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: ./corpus-yoga test install-hook"
   else
-    bad "not installed — nothing vets a commit; install via: yoga test install-hook"
+    bad "not installed — nothing vets a commit; install via: ./corpus-yoga test install-hook"
   fi
 }
 
@@ -380,23 +383,23 @@ check_signature_hook() {
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
       ok "installed: the symlink to rsc/test/prepare-commit-msg-hook.sh"
     else
-      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: yoga test install-hook"
+      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ./corpus-yoga test install-hook"
     fi
   elif [[ -e "$hook" ]]; then
-    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: yoga test install-hook"
+    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: ./corpus-yoga test install-hook"
   else
-    todo signature-hook "not installed — yoga test install-hook"
+    todo signature-hook "not installed — ./corpus-yoga test install-hook"
   fi
 }
 
 check_forge() {
   # The forge's merge settings decide how main's history is composed, yet they live on
   # the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
-  # declaration; `yoga forge` is the ONE thing that reconciles it with reality, and this
+  # declaration; `corpus-yoga forge` is the ONE thing that reconciles it with reality, and this
   # renders its rows in the machine report's voice — the reconciliation is derived once,
   # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
   # unverifiable is reported, never vetoed (the deterministic gate stays offline-
-  # reproducible, which is why this lives here and not in yoga test run).
+  # reproducible, which is why this lives here and not in corpus-yoga test run).
   sec "forge settings (declared: src/main/cli/forge/forge.csv; server-side, so unverifiable offline)"
   local status key detail remedy
   while IFS=$'\t' read -r status key detail remedy; do
@@ -420,14 +423,14 @@ check_pipeline_inputs() {
   if [[ "$n" -gt 0 ]]; then
     ok "browser-captures: $n claude capture(s) in data/input/claude/chat/browser-API — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in data/input/claude/chat/browser-API — will skip (populate via: yoga browser capture)"
+    info "browser-captures: no claude captures in data/input/claude/chat/browser-API — will skip (populate via: ./corpus-yoga browser capture)"
   fi
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/browser-DOM"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via yoga server start); not validated"
+    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./corpus-yoga server start); not validated"
   else
-    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
+    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: ./corpus-yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
   fi
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/bulk-export"/data-*/)"
@@ -443,14 +446,14 @@ check_pipeline_inputs() {
     sessions="$(find -L "$REPO_ROOT/data/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
     ok "code-agents: data/input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
   else
-    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via yoga agent capture --all)"
+    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via corpus-yoga agent capture --all)"
   fi
   if [[ -d "$HOME/.claude/projects" ]]; then
-    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: yoga agent capture --all"
+    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./corpus-yoga agent capture --all"
     if [[ -d "$REPO_ROOT/ext/mnt/claude-code-projects" ]]; then
       ok "ext/mnt/claude-code-projects → ~/.claude/projects (the census and capture read it)"
     else
-      todo mount "ext/mnt/claude-code-projects absent — the live-session mount the census and capture read; yoga prerequisites sync --apply creates it"
+      todo mount "ext/mnt/claude-code-projects absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
     fi
   fi
   # The deploy mount differs from the live-session mount in the one way that matters:
@@ -460,7 +463,7 @@ check_pipeline_inputs() {
   # optional affordance it is, with the hand-make convention the README declares.
   if [[ -L "$REPO_ROOT/ext/mnt/site" || -d "$REPO_ROOT/ext/mnt/site" ]]; then
     if [[ -d "$REPO_ROOT/ext/mnt/site/." ]]; then
-      ok "ext/mnt/site → $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null || echo "(a directory)") (the deploy target; yoga site's tree copies there)"
+      ok "ext/mnt/site → $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null || echo "(a directory)") (the deploy target; corpus-yoga site's tree copies there)"
     else
       todo site_mount "ext/mnt/site is a dangling link → $(readlink "$REPO_ROOT/ext/mnt/site" 2>/dev/null) — repoint it at the site repo's clone, or remove it"
     fi
@@ -473,8 +476,8 @@ notes() {
   # Commentary, not status — only in the full report.
   (( SHOW_ALL )) || return 0
   sec "notes"
-  info "yoga pipeline run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
-  info "yoga test run: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
+  info "corpus-yoga pipeline run writes only to data/input/, tmp/cache/, data/output/, tmp/logs/ (all git-ignored) and the venv; nothing else on this machine"
+  info "corpus-yoga test run: code + schema tiers run everywhere; the data tier runs only for pipelines with local data (skipped with a notice otherwise)"
 }
 
 # What the report named, with nothing else: its ✗ and – lines and their remedies, and
@@ -497,7 +500,7 @@ _todo_has() {
 # unfixed, each carrying the remedy the report already wrote for it.
 sync() {
   report >/dev/null
-  echo "yoga prerequisites sync — what this machine still needs:"
+  echo "corpus-yoga prerequisites sync — what this machine still needs:"
   if [[ ${#_todo[@]} -eq 0 ]]; then
     echo "  nothing — every prerequisite is satisfied"
     return 0
@@ -508,7 +511,7 @@ sync() {
 
   local acts=()
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
-  _todo_has hook && acts+=("install the pre-commit hook (yoga test install-hook)")
+  _todo_has hook && acts+=("install the pre-commit hook (corpus-yoga test install-hook)")
   _todo_has mount && acts+=("create the ext/mnt/claude-code-projects mount (link_projects.sh)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"
@@ -524,7 +527,7 @@ sync() {
   for a in "${acts[@]}"; do echo "→ $a"; done
   if _todo_has venv; then
     # Installing IS the work here: refuse loudly rather than half-fix the machine (#29).
-    assert_may_send "pip install from PyPI (yoga prerequisites sync --apply)" || exit 1
+    assert_may_send "pip install from PyPI (corpus-yoga prerequisites sync --apply)" || exit 1
     [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
     "$VENV/bin/pip" install -q --upgrade pip
     "$VENV/bin/pip" install -q -r "$REPO_ROOT/src/requirements.txt"
@@ -548,17 +551,17 @@ report() {
   check_tools
   check_venv
   check_dependencies \
-    "python requirements (yoga pipeline run — manifest: src/requirements.txt)" \
+    "python requirements (corpus-yoga pipeline run — manifest: src/requirements.txt)" \
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
-    "yoga prerequisites sync --apply, or automatically on the next yoga pipeline run"
+    "corpus-yoga prerequisites sync --apply, or automatically on the next corpus-yoga pipeline run"
   check_dependencies \
-    "markdown viewer render libs (yoga server — manifest: src/main/model/serve_assets.txt)" \
+    "markdown viewer render libs (corpus-yoga server — manifest: src/main/model/serve_assets.txt)" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
     asset_extract asset_probe \
     "render assets present in ext/lib/serve_markdown" \
-    "yoga server ensure-assets, or automatically on the next yoga server start"
+    "corpus-yoga server ensure-assets, or automatically on the next corpus-yoga server start"
   check_optional_modes
   check_cli
   check_git_identity
@@ -577,10 +580,10 @@ report() {
   if [[ "$missing_required" -eq 1 ]]; then
     echo "✗ item(s) above — each names what breaks and its remedy; this report only informs (exit 0)"
   elif (( SHOW_ALL )); then
-    echo "ready — yoga pipeline run (pipelines without input data are skipped)"
+    echo "ready — corpus-yoga pipeline run (pipelines without input data are skipped)"
   else
     # Default is failures-only; if we reach here nothing above needed attention.
-    echo "ready — yoga pipeline run · full report: yoga prerequisites --show-all · commands: yoga -h"
+    echo "ready — corpus-yoga pipeline run · full report: corpus-yoga prerequisites --show-all · commands: corpus-yoga -h"
   fi
 }
 

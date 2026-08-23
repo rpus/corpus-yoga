@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# capture.sh (yoga indexing capture) — the PAID semantic reading of the corpus:
+# capture.sh (corpus-yoga indexing capture) — the PAID semantic reading of the corpus:
 # the model re-reads every conversation for the two index tables, weighted
 # concepts (semantic-concepts.json — the indexing queue's feedstock) and the
 # chat-to-category assignment (chat-categories.json — a categorical index the
 # site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
 # --status is the capture's read-only face: what is deposited, and how far the
-# paid layer lags the corpus — the currency mechanism `yoga indexing` (bare)
+# paid layer lags the corpus — the currency mechanism `corpus-yoga indexing` (bare)
 # appends and the usr gate's corpus tail hoists (L9: the captures are paid, so
-# no run step may keep them fresh). Bare, this file CAPTURES: `yoga indexing
+# no run step may keep them fresh). Bare, this file CAPTURES: `corpus-yoga indexing
 # capture` with no flags once landed here argless and got the status instead —
 # a paid verb advising its reader to run itself.
 #
-# Usage (via `yoga indexing capture`, or directly):
+# Usage (via `corpus-yoga indexing capture`, or directly):
 #   src/main/cli/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
 #     [--conversations <path>] [--only semantic-concepts|chat-categories] [--dry-run]
 #   src/main/cli/indexing/capture.sh --status           # deposits + currency, read-only
@@ -99,7 +99,7 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
   # is "unknown").
   local stop; stop="$(jq -r '.stop_reason // "unknown"' <<< "$response")"
   if [[ "$stop" != "end_turn" ]]; then
-    echo "yoga indexing capture: the model stopped with stop_reason=$stop (not end_turn) — " \
+    echo "corpus-yoga indexing capture: the model stopped with stop_reason=$stop (not end_turn) — " \
          "the reading is incomplete and is NOT promoted" >&2
     return 1
   fi
@@ -173,7 +173,7 @@ validate_capture() {
   schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/dashboard/$family"/v*.json | sort -V | tail -1)"
   verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
   [[ "$verdict" == 'Valid!' ]] || {
-    echo "yoga indexing capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
+    echo "corpus-yoga indexing capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
     printf '%s\n' "$verdict" >&2
     exit 1
   }
@@ -228,7 +228,7 @@ coverage_report() {
 }
 
 
-# ── the paid capture (yoga indexing capture) ─────────────────────────────────
+# ── the paid capture (corpus-yoga indexing capture) ─────────────────────────────────
 # Both PAID model readings the dashboard shows, single-source and durable: the
 # weighted concept list (word cloud) and the chat→category assignment. Run once
 # over the corpus; both machines share the result.
@@ -283,7 +283,7 @@ capture_dashboard() {
       ($pal | split(", ")) as $ok
       | [.rows[][1]] | unique | map(select(. as $c | ($ok | index($c)) == null)) | join(", ")
     ' "$stage/chat-categories.json")"
-    [[ -z "$off" ]] || { echo "yoga indexing capture: chat-categories assigns off-palette categories ($off) — not promoted. Palette: $categories" >&2; exit 1; }
+    [[ -z "$off" ]] || { echo "corpus-yoga indexing capture: chat-categories assigns off-palette categories ($off) — not promoted. Palette: $categories" >&2; exit 1; }
     # The TRAILING extent (G19): the same exact join taken of the staged file, so it can be
     # compared with the leading one. A row count cannot do this job — it counted 125 while
     # the corpus held 137 and printed a ✓ beside it.
@@ -304,7 +304,7 @@ capture_dashboard() {
           read -r before_captured _ _ _ <<< "$b"
         fi
         if [[ "$captured" -lt "$before_captured" ]]; then
-          echo "yoga indexing capture: coverage would fall from $before_captured to" \
+          echo "corpus-yoga indexing capture: coverage would fall from $before_captured to" \
                "$captured — NOT promoted; the staged reading is left in $stage for inspection" >&2
           return 1
         fi
@@ -341,19 +341,19 @@ capture() {
       --conversations) conversations="$2"; shift 2 ;;
       --only)          only="$2";          shift 2 ;;
       --dry-run)       dry_run=1;          shift ;;
-      *) echo "yoga indexing capture: unknown argument: $1" >&2; exit 1 ;;
+      *) echo "corpus-yoga indexing capture: unknown argument: $1" >&2; exit 1 ;;
     esac
   done
   case "$only" in
     ''|semantic-concepts|chat-categories) ;;
-    *) echo "yoga indexing capture --only: expected 'semantic-concepts' or 'chat-categories', got '$only'" >&2; exit 1 ;;
+    *) echo "corpus-yoga indexing capture --only: expected 'semantic-concepts' or 'chat-categories', got '$only'" >&2; exit 1 ;;
   esac
   # the key is the EFFECT's prerequisite, not the preview's: --dry-run must work on a
   # machine that cannot spend, or it cannot answer "what would this cost me?" there
   # The PAID send is the work, so refusal is loud and OUTRANKS the key check (a refused
   # machine's missing key is irrelevant) — but --dry-run sends nothing and must keep
   # working under YOGA_NO_SEND: it is the preamble a refused machine still deserves (#29).
-  [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (yoga indexing capture)" || exit 1
+  [[ -n "$dry_run" ]] || assert_may_send "PAID model reads of the corpus (corpus-yoga indexing capture)" || exit 1
   [[ -n "$dry_run" || -n "${ANTHROPIC_API_KEY:-}" ]] || { echo "error: ANTHROPIC_API_KEY is not set" >&2; exit 1; }
   # The one command that spends money left no record of what it bought: terminal scrollback
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
@@ -365,7 +365,7 @@ capture() {
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   local conv
   conv="${conversations:-$(corpus_conversations)}"
-  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`yoga pipeline run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
+  [[ -n "$conv" && -e "$conv" ]] || { echo "error: no conversation markdown under data/output/markdown (looked for $CONVERSATIONS_GLOB at any depth) — project the corpus with \`corpus-yoga pipeline run\`, or pass --conversations <markdown corpus dir | json/ dir | conversations.json>" >&2; exit 1; }
   echo "model: $MODEL · source: ${conv#"$REPO_DIR/"}${only:+ · --only $only}"
   coverage_report "$conv"
   # A dry run is the leading half, run alone: the extent and the intent, and nothing else.
@@ -381,7 +381,7 @@ capture() {
 
 # The capture's own status: the deposits, then the paid layer's currency —
 # the captures-vs-corpus half of the report the dashboard command carried
-# before it dissolved (#409); the render-vs-inputs half is `yoga site`'s.
+# before it dissolved (#409); the render-vs-inputs half is `corpus-yoga site`'s.
 status() {
   local d="$REPO_DIR/data/output/dashboard" f
   echo "data/output/dashboard/ — the paid model captures the site render consumes"
@@ -400,7 +400,7 @@ status() {
   echo "corpus: $n conversation(s) · captures cover ~$m"
   if [[ "$m" -lt "$n" ]]; then
     echo "INFO: the captures cover ~$m of $n conversation(s) — the paid layer lags the corpus:"
-    echo "    → run: yoga indexing capture   # PAID — the model re-reads the corpus"
+    echo "    → run: corpus-yoga indexing capture   # PAID — the model re-reads the corpus"
   fi
 }
 

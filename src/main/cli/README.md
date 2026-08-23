@@ -1,7 +1,7 @@
-# The yoga CLI's declaration
+# The corpus-yoga CLI's declaration
 
 This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
-`yoga`). One directory per command, holding `<command>.json` and one `<verb>.json` per verb — the
+`corpus-yoga`). One directory per command, holding `<command>.json` and one `<verb>.json` per verb — the
 same shape whether or not it has any, so gaining a first verb is adding a file rather than
 converting a file into a directory first. So `ls src/main/cli/` is the command list,
 `ls src/main/cli/browser/` is its verb list, and what a verb accepts is
@@ -44,34 +44,34 @@ invoking it by command AND verb, so the plan speaks the surface you would type a
 never drop to a bare noun (which the bare=status convention would silently make a no-op). Both
 files are written `QUOTE_ALL` so a comma in any cell is safe.
 
-Everything a user meets is re-derived on demand — the menu `yoga -h`
-prints, each command's `yoga <command> -h` (its summary, its generated invocation forms, and the
-declared help lines as headed subparagraphs), the zsh tab-completion `yoga completions` emits
+Everything a user meets is re-derived on demand — the menu `corpus-yoga -h`
+prints, each command's `corpus-yoga <command> -h` (its summary, its generated invocation forms, and the
+declared help lines as headed subparagraphs), the zsh tab-completion `corpus-yoga completions` emits
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
-`yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
-`yoga` runs the machine report (`yoga prerequisites`), and a verb's own flags live one
-level down at `yoga <command> <verb> -h`, answered by the target's own parser: argparse
+`corpus-yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
+`corpus-yoga` runs the machine report (`corpus-yoga prerequisites`), and a verb's own flags live one
+level down at `corpus-yoga <command> <verb> -h`, answered by the target's own parser: argparse
 for a python target (or the parser `cli.py` builds for a command it handles itself),
 `parse_argv` for a bash target — sourced from `src/main/cli/parse_argv.sh` at each verb's
 dispatch, it hands the argv to `src/main/cli/parse_argv.py`, which answers `-h` from the
 declaration and refuses argv the declaration does not express, so an enacting verb can
 never receive a flag-shaped token as its argument (#474; `cli.verb_help_answered` holds it).
 A python target's parser is likewise GENERATED — `src/declared_parser.py` builds it whole from
-the declaration (structure, wording, prog `yoga agent capture` rather than `agent.py capture`,
+the declaration (structure, wording, prog `corpus-yoga agent capture` rather than `agent.py capture`,
 sends as each verb's epilog), the target passing only its semantic residue (default, type, dest,
 nargs) as per-argument overrides (#476) — so every target's `-h` reads the same declared words
-whether reached via `yoga` or run directly, and structure can never be stated twice.
+whether reached via `corpus-yoga` or run directly, and structure can never be stated twice.
 
 Two commands produce/consume corpus *readings* whose file formats are a contract but whose
-data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `yoga indexing capture` (model
-captures) and `yoga indexing` (user curation). Their format spec and the disposal loop are
+data lives outside git (durable in `data/output/`, rebuildable in `tmp/cache/`): `corpus-yoga indexing capture` (model
+captures) and `corpus-yoga indexing` (user curation). Their format spec and the disposal loop are
 committed in `src/main/cli/readings.md`.
 
 ## Columns
 
 | column | meaning |
 | --- | --- |
-| `command` | the subcommand word (`yoga <command>`), unique |
+| `command` | the subcommand word (`corpus-yoga <command>`), unique |
 | `target` | repo-relative file the command execs: a `.sh` (or extensionless script) runs directly, a `.py` runs via `src/run_python_script.sh`, a `.md` is printed |
 | `calculus` | space-separated operations and laws from `rsc/CALCULUS.md` that the command performs; empty where the command is mere presentation of the doctrine itself |
 | `summary` | one line, used in help and as the completion description (keep it free of quotes) |
@@ -138,12 +138,12 @@ They are stated, followed, and reviewed by people.
 - **G19 — An effecting verb is bracketed by status.** `doctrine (#56)` — it reports the
   state it is about to change, then effects, then reports the state it left. The bracket is
   what makes an effect auditable without a log, and what stops a verb reporting success it
-  has not earned: `yoga indexing capture` prints an exact coverage join before spending and
+  has not earned: `corpus-yoga indexing capture` prints an exact coverage join before spending and
   nothing after, so a reading covering 125 of 137 conversations was promoted behind a ✓ that
   counted rows. Stated first, and for a long time only, as a parenthetical in
   `src/main/cli/indexing/capture.sh` — the same file that implements half of it.
 - **G3 — Usage is a small grammar.** `by construction` `from L5` — a spaced ` | ` separates
-  INVOCATION FORMS, each becoming its own line in `yoga commands` and its own verb for the
+  INVOCATION FORMS, each becoming its own line in `corpus-yoga commands` and its own verb for the
   honesty gate; an unspaced `|` is an enum inside one form (`--provider claude|gemini`);
   parens group a required choice (`(--dry-run|--apply)`); brackets mark the optional. The
   usage sketch is GENERATED from the declaration, so there is no second source to reconcile.
@@ -165,7 +165,7 @@ They are stated, followed, and reviewed by people.
   stem must equal the command word, so the column becomes verification rather than
   curation.
 - **G8 — Help is bounded: one screen, one shape.** `gated` — name, what, usage, flags, in
-  ≤ 20 lines. Essays live in changelogs.
+  ≤ 21 lines. Essays live in changelogs.
 - **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
   what the install ritual writes.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
@@ -177,7 +177,7 @@ They are stated, followed, and reviewed by people.
 - **G20 — What a command installs outside the repo is identified by a stable token, and
   every instance of it is removed.** `gated` `from L1` — the marker delimiting an installed
   block carries advice to the reader, and advice is edited; identity is the part that must
-  not be. Matching the whole line made a wording change (`./yoga` → `yoga`) orphan every
+  not be. Matching the whole line made a wording change (`./corpus-yoga` → `corpus-yoga`) orphan every
   block the earlier version had written: install inserted a second beside it, uninstall
   could not remove it, and status called a wired shell unwired. Convergence therefore
   removes EVERY recognised block, not the first — removing one and writing one is not
@@ -197,7 +197,7 @@ here so that a check can cite them as they land (see #39).
 
 - **G11 — A command determines its target's name, and a file is named for the operation it
   performs.** `unenforced (#40)` — never for its caller, its occasion, or its reader.
-  `yoga <noun> <verb>` ⇒ `<noun-dir>/<verb>.<ext>`.
+  `corpus-yoga <noun> <verb>` ⇒ `<noun-dir>/<verb>.<ext>`.
 - **G12 — A file lives at the level of its subject.** `unenforced (#41)` — a module used
   from more than one tier lives above them; one used within a tier lives in it.
 - **G13 — Help is the table, rendered once.** `unenforced (#42)` — no target renders help
@@ -212,7 +212,7 @@ here so that a check can cite them as they land (see #39).
   the line says it is typeable by being typeable rather than by a marker needing a legend.
   Repo-relative paths are deterministic — only absolute ones were ever the risk, and
   dropping the argument threw away the location instead of stripping the machine part.
-- **G17 — The only invocation any output or document prescribes is a `yoga` command.**
+- **G17 — The only invocation any output or document prescribes is a `corpus-yoga` command.**
   `gated` — never `run_python_script.sh`, never a script path. Held over every `→ run:`
   line, the repo's own marker for "type this": the head must be a command or a standard
   tool, and any flags it names must be ones that command advertises (#76). A remedy

@@ -10,8 +10,8 @@ the `sync` verb writes: it brings tmp/cache/model into agreement with the schema
 re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
-    yoga model         # status: which catalogues exist under tmp/cache/model/
-    yoga model sync    # (re-)generate every catalogue to agree with the schemas
+    corpus-yoga model         # status: which catalogues exist under tmp/cache/model/
+    corpus-yoga model sync    # (re-)generate every catalogue to agree with the schemas
 """
 
 import re
@@ -66,7 +66,7 @@ def curation_report() -> None:
     that used to read 'update model.json if needed' now reports whether it IS
     needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
     shrug — no gate pressure); loop 2 blocks (shared-type edges obligate
-    model.json, gated per type by `yoga test run`'s check_model_obligations)."""
+    model.json, gated per type by `corpus-yoga test run`'s check_model_obligations)."""
     queue = edge_queue()
     orphans = orphan_entries()
     gaps = coverage_gaps()
@@ -88,7 +88,7 @@ def curation_report() -> None:
         print(f'INFO: rsc/schema/model_join.csv — {len(shared)} cross-family shared '
               'name(s) undisposed (leisurely)')
         print('    → dispose each as a model_join row: candidates pre-filled in '
-              'tmp/cache/model/shared_name_candidates.csv (yoga model sync renders it); '
+              'tmp/cache/model/shared_name_candidates.csv (corpus-yoga model sync renders it); '
               'the relationship kind is the verdict, per rsc/schema/model_join_kinds.csv '
               '— grammar taught by rsc/schema/WORKFLOW.md, the model_join review')
     else:
@@ -156,7 +156,7 @@ def status() -> None:
     if missing:
         # the count is the fact; 52 derivable filenames were the mumble - the
         # names are exactly the schema tree's, and sync mints them all
-        print(f'WARN: {len(missing)} catalogue(s) not yet projected - yoga model sync mints them')
+        print(f'WARN: {len(missing)} catalogue(s) not yet projected - corpus-yoga model sync mints them')
     frontier_report()
     curation_report()
 
@@ -180,7 +180,7 @@ def frontier_report() -> None:
             said = ('newest datum' if v['scope'] == 'newest'
                     else f"datum (recency unknown - all {v['count']} checked)")
             print(f"FAIL: frontier: {family} - {said} ({v['subject']}) holds no passing "
-                  f"{v['latest']}.log - yoga pipeline run {v['pipeline']} refreshes the evidence; "
+                  f"{v['latest']}.log - corpus-yoga pipeline run {v['pipeline']} refreshes the evidence; "
                   f"red thereafter means a schema version is owed (rsc/schema/WORKFLOW.md) - {v['log']}")
 
 

@@ -267,7 +267,7 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
               f'shows nothing). The scraped files are stranded in ~/Downloads — move the '
               f'.md into {dest_dir} and the .log into {log_dir} by hand, or recapture '
               'from an already-granted Terminal:\n'
-              f'    → run: yoga browser capture '
+              f'    → run: corpus-yoga browser capture '
               f'--provider {dest_dir.parent.name} --id {dest_dir.name}'
               '  # first front the conversation in Safari',
               file=sys.stderr)
@@ -305,7 +305,7 @@ def collect_md_and_log(after_time, dest_dir, log_dir):
                   f'conversation cannot shrink, so the walk failed partway. The record is '
                   f'untouched; the short capture is kept at '
                   f'{log_dir / f"{dest_dir.name}.short.md"}')
-            print(f'    → run: yoga browser capture --provider {dest_dir.parent.parent.parent.name} '
+            print(f'    → run: corpus-yoga browser capture --provider {dest_dir.parent.parent.parent.name} '
                   f'--id {dest_dir.name}  # retry the walk')
             return []
         for m in fresh_md:

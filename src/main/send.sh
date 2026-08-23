@@ -5,7 +5,7 @@
 # bash — each the only reader of YOGA_NO_SEND in its language, both named by
 # effects.send_switch_read_once. Two DECLARED readings, one per language, is not the
 # accidental pair that check exists to prevent: bash cannot import a python module, and
-# before this file existed no shell command could honour the switch at all (the yoga forge
+# before this file existed no shell command could honour the switch at all (the corpus-yoga forge
 # census, PR #113).
 #
 # The two ways of honouring refusal, mirroring send.py:

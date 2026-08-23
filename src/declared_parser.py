@@ -10,7 +10,7 @@ surface — command-level arguments, one subparser per verb, the root's flags
 re-accepted after each verb (issue #33) so the position the declaration renders
 parses too.
 
-prog is `yoga <command> [<verb>]`, never the implementing file: the reader is
+prog is `corpus-yoga <command> [<verb>]`, never the implementing file: the reader is
 shown what they typed. Cardinality speaks arity: blank — optional (nargs='?' as
 a positional, a plain flag); '1' — required; '1/<class>' — the class's members
 form one required mutually exclusive group. A flag with a declared type takes a
@@ -117,7 +117,7 @@ def verb_parser(command: str, verb: str,
     """One verb's standalone parser, whole from its declaration."""
     rows = [r for r in _rows(command) if r['subcommand'] == verb]
     parser = argparse.ArgumentParser(
-        prog=f'yoga {command} {verb}', description=_description(rows),
+        prog=f'corpus-yoga {command} {verb}', description=_description(rows),
         epilog=_epilog(command, verb),
         formatter_class=argparse.RawDescriptionHelpFormatter)
     _add_arguments(parser, rows, (overrides or {}))
@@ -133,7 +133,7 @@ def command_parser(command: str, overrides: dict | None = None,
     rows = _rows(command)
     over = overrides or {}
     root_rows = [r for r in rows if not r['subcommand']]
-    parser = argparse.ArgumentParser(prog=f'yoga {command}',
+    parser = argparse.ArgumentParser(prog=f'corpus-yoga {command}',
                                      description=_description(root_rows))
     _add_arguments(parser, root_rows, over.get('', {}))
     verbs: list[str] = []

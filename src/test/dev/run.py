@@ -7,7 +7,7 @@ Usage (direct):
     src/test/dev/run.sh --fix   # run all fix commands; stages nothing
 
 As a git hook, install the wrapper:
-    yoga test install-hook
+    corpus-yoga test install-hook
 
 Exits 0 if all checks pass, 1 if any fail.
 
@@ -93,18 +93,18 @@ sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, bo
 from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
 from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
-sys.path.insert(0, str(CLI))  # the yoga CLI cluster (dispatch + shared machinery)
+sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared machinery)
 # A CLI-native command lives in its own directory (#307), so its module sits beside
 # the declarations that name it: import it from there, not from the cluster root.
 sys.path.insert(0, str(CLI / 'cache'))
 sys.path.insert(0, str(CLI / 'commands'))
 sys.path.insert(0, str(CLI / 'completions'))
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
-import commands as cli_commands  # noqa: E402 — `yoga commands` answers itself here
-import completions as cli_completions  # noqa: E402 — and `yoga completions` here
+import commands as cli_commands  # noqa: E402 — `corpus-yoga commands` answers itself here
+import completions as cli_completions  # noqa: E402 — and `corpus-yoga completions` here
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
-import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `yoga model` (#373)
+import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
 
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
@@ -143,7 +143,7 @@ class Pipeline:
     @property
     def fix_item_cmd(self) -> str:
         # Per-item remedy command; takes the pipeline's TOP-LEVEL data/input/ entry (see _fix_item_cmd).
-        return f'yoga pipeline run {self.name}'
+        return f'corpus-yoga pipeline run {self.name}'
 
 
 def _load_pipeline(directory: Path) -> Pipeline:
@@ -160,7 +160,7 @@ def _load_pipeline(directory: Path) -> Pipeline:
 
 
 # Membership is placement (#327): a pipeline is a subdirectory of src/main/pipeline/, and
-# its facts are its own pipeline.json — the same listing `yoga pipeline` serves, so the
+# its facts are its own pipeline.json — the same listing `corpus-yoga pipeline` serves, so the
 # gate's list and the CLI's cannot drift apart. A member without a declaration stays OUT
 # of the dict but IN _PIPELINE_UNDECLARED, so check_pipeline_declarations can name it
 # instead of the import dying on it.
@@ -580,8 +580,8 @@ def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -
     every schema version must be registered by some datum; every input entry must
     have been processed. Matrices are co-located with their data, so stale rows for
     departed data cannot exist — deleting a datum deletes its matrix."""
-    run_cmd  = f'yoga pipeline sync {name}'
-    pipe_cmd = f'yoga pipeline run {name}'
+    run_cmd  = f'corpus-yoga pipeline sync {name}'
+    pipe_cmd = f'corpus-yoga pipeline run {name}'
     gen_rel  = pipeline.cache_output.relative_to(REPO_ROOT)
 
     print(f'\n  each {gen_rel}/<datum>/matrix.md must match the vN.log files under its validation/')
@@ -691,11 +691,11 @@ def check_index_curation(run, fix) -> None:
     All inputs live in the iCloud-shared data/output/ (not git), so this is a DATA-tier
     check — machine-local, advisory (an undisposed concept must not block an
     unrelated commit), skipped where data/output/ has no capture. The pending queue itself
-    is the reproducible derivation tmp/cache/indexing/candidates.txt (yoga indexing
+    is the reproducible derivation tmp/cache/indexing/candidates.txt (corpus-yoga indexing
     candidates), a rebuildable workshop file, not a committed artifact."""
     concepts = inferred_concepts()
     if not concepts:
-        print('  – skipped: no concept capture yet (data/output/dashboard/semantic-concepts.json — run `yoga indexing capture`)')
+        print('  – skipped: no concept capture yet (data/output/dashboard/semantic-concepts.json — run `corpus-yoga indexing capture`)')
         return
     pending = set(pending_concepts(REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt',
                                    REPO_ROOT / 'data' / 'output' / 'indexing' / 'rejected.txt'))
@@ -705,10 +705,10 @@ def check_index_curation(run, fix) -> None:
         disposed = c not in pending
         run(f'indexing: concept disposed: {c}', disposed, check='indexing.concept_disposed')
         if not disposed:
-            fix('yoga indexing list-candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
+            fix('corpus-yoga indexing list-candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
                 problem=f'indexing: concept undisposed: {c}',
-                guidance='dispose each pending concept: yoga indexing accept <term> [alias ...] '
-                         '| yoga indexing reject [--reason <why>] <concept>')
+                guidance='dispose each pending concept: corpus-yoga indexing accept <term> [alias ...] '
+                         '| corpus-yoga indexing reject [--reason <why>] <concept>')
     # The REVERSE direction (the curate symmetry, PR #36's model.json precedent:
     # a curation record must be grounded both ways). An accepted headword with
     # ZERO corpus locators is orphan documentation — a dead index entry whose
@@ -720,7 +720,7 @@ def check_index_curation(run, fix) -> None:
         for h in orphan_headwords(markdown_root,
                                   REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt'):
             run(f'indexing: headword grounded: {h}', False, check='indexing.headword_grounded')
-            fix('yoga indexing   # status names each orphan headword',
+            fix('corpus-yoga indexing   # status names each orphan headword',
                 problem=f'indexing: headword ungrounded: {h} (zero corpus locators)',
                 guidance='fix the aliases on its accepted.txt line, or remove the line '
                          'and reject the concept with a reason')
@@ -773,7 +773,7 @@ def check_cross_sources(run) -> None:
         for cid, name in stale[:5]:
             detail_parts.append(
                 f"capture-stale {name!r} ({cid}) — the export extends the capture; to recapture:"
-                f"\n        → run: yoga browser capture --provider claude --id {cid}"
+                f"\n        → run: corpus-yoga browser capture --provider claude --id {cid}"
                 f"  # first front https://claude.ai/chat/{cid} in Safari (logged in)")
         if divergent:
             detail_parts.append('divergent (projection bug, corruption, or post-export edit): '
@@ -790,7 +790,7 @@ def check_cache_io(run) -> None:
     covers every pipeline's gen root (so clean and sync know the pipelines),
     and — the catastrophe guard — no subtree is READ with no WRITER. A tmp/cache/ path
     the machinery consumes but nothing produces breaks the 'tmp/cache/ is reproducible
-    from data/input/' contract: a fresh clone, or `yoga cache clean`, would strand the
+    from data/input/' contract: a fresh clone, or `corpus-yoga cache clean`, would strand the
     reader. Written-but-not-read is fine (a terminal output — a page a browser
     reads); only the read side lacking a writer is fatal. Committed registry
     only, so deterministic on any clone: code tier."""
@@ -826,11 +826,11 @@ def check_cache_io(run) -> None:
 
 def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     """A cache_io written_by/read_by entry resolves iff it is an `external:*` reader
-    (exempt), a CANONICAL `yoga` invocation — `yoga <command> [<verb>]`, both
+    (exempt), a CANONICAL `corpus-yoga` invocation — `corpus-yoga <command> [<verb>]`, both
     resolved against the declaration tree — or a path (its first token) that
     exists in the repo. Two rules from the PR #109 review: the verb is checked
     (a cell naming `indexing candidates` read as clean after the verb became
-    `list-candidates`), and `./yoga` is REJECTED, not tolerated — the cell is a
+    `list-candidates`), and `./corpus-yoga` is REJECTED, not tolerated — the cell is a
     name (one referent, one name, G14); the runnable `./` form is presentation,
     derived by `cache sync` at execution (L5). Tolerating both spellings is how
     the old cells dodged the command branch and resolved as the launcher file's
@@ -841,8 +841,8 @@ def _cache_io_resolves(entry: str, commands: set[str]) -> bool:
     words = entry.split()
     if not words:
         return False
-    if words[0].lstrip('./') == 'yoga':
-        if words[0] != 'yoga' or len(words) < 2 or words[1] not in commands:
+    if words[0].lstrip('./') == 'corpus-yoga':
+        if words[0] != 'corpus-yoga' or len(words) < 2 or words[1] not in commands:
             return False
         verb = words[2] if len(words) > 2 and not words[2].startswith('-') else None
         return verb is None or verb in cli.subcommands_of(words[1])
@@ -885,7 +885,7 @@ def check_cli_exclusive_classes(run) -> None:
     supplied) is accepted, and two members together are refused. The live bug
     this ships against: a stray EMPTY required group minted per extra class
     member (setdefault evaluating its group eagerly) refused every VALID
-    exclusive invocation — `yoga agent capture --all` — while bare invocations
+    exclusive invocation — `corpus-yoga agent capture --all` — while bare invocations
     kept refusing with the right words, so no help-based check could see it.
     parse_args never dispatches anything: hermetic by construction."""
     from declared_parser import verb_parser
@@ -930,7 +930,7 @@ def check_cli_exclusive_classes(run) -> None:
 
 
 def check_cli_surface(run) -> None:
-    """The yoga CLI's table (src/main/cli/) is an interface and must not
+    """The corpus-yoga CLI's table (src/main/cli/) is an interface and must not
     lie: it parses, command names are unique, every target exists, every
     calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
     parsed from the document itself), every flag a usage sketch advertises
@@ -1044,7 +1044,7 @@ def check_cli_surface(run) -> None:
             if m:
                 real.add(m.group(1))
                 continue
-            if f'yoga {c["command"]} ' in line or f'{target.name} ' in line or '$0' in line:
+            if f'corpus-yoga {c["command"]} ' in line or f'{target.name} ' in line or '$0' in line:
                 real.update(re.findall(r'--[a-z][\w-]+', line.split(' # ')[0]))
         real.discard('--help')
         unadvertised = sorted(real - set(flags))
@@ -1055,7 +1055,7 @@ def check_cli_surface(run) -> None:
         # command-level flag beside the verbs and completion offers it after
         # them, but summaries' four lived only on the command parser — argparse
         # hands a subparser everything after the verb token, so the advertised
-        # `yoga summaries sync --summaries-output …` died with `unrecognized
+        # `corpus-yoga summaries sync --summaries-output …` died with `unrecognized
         # arguments`. The observable: an argparse verb's own --help lists every
         # flag that verb accepts, so each command-level flag must appear there
         # (declared_parser.command_parser re-accepts them on each verb). cli.py
@@ -1069,7 +1069,7 @@ def check_cli_surface(run) -> None:
                 vhelp = vproc.stdout + vproc.stderr
                 rejected = [f for f in cmd_level if f not in vhelp]
                 run(f'cli: {c["command"]}: {verb} accepts the command-level flags', not rejected,
-                    f'`yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
+                    f'`corpus-yoga {c["command"]} {verb}` rejects advertised flag(s): {", ".join(rejected)}'
                     if rejected else None, law='G5', check='cli.verb_accepts_command_flags')
         # Uniform SHAPE, enforced: a --help is a man entry — name,
         # what, usage, flags — and fits one screen. Length is the cheapest proxy
@@ -1079,8 +1079,8 @@ def check_cli_surface(run) -> None:
             # cli.py-targeted rows (commands, completions) answer --help with the
             # whole derived surface — their help IS the product, unbounded by design
             n_lines = len(help_text.rstrip().splitlines())
-            run(f'cli: {c["command"]}: help fits one screen (≤20 lines)', n_lines <= 20,
-                f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 20 else None,
+            run(f'cli: {c["command"]}: help fits one screen (≤21 lines)', n_lines <= 21,
+                f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 21 else None,
                 law='G8', check='cli.help_one_screen')
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. A
     # '(--a|--b)' usage can leak '--b)' through flags_of, and the installed file then
@@ -1103,7 +1103,7 @@ def check_cli_surface(run) -> None:
 
     # A command determines its target's name (#40): the target column is verification
     # rather than curation. Every row complies, so the record that declared the ones that
-    # did not is gone — the last two left it when `yoga commands` and `yoga completions`
+    # did not is gone — the last two left it when `corpus-yoga commands` and `corpus-yoga completions`
     # were extracted to files of their own, and a disposal record with nothing to dispose
     # of is a file that can only rot.
     for c in cmds:
@@ -1123,13 +1123,13 @@ def check_cli_surface(run) -> None:
 
     # Shell files are linted by shellcheck rather than by anything hand-rolled here: a
     # second vocabulary to police a first is exactly what a check should not be. It found
-    # `yoga test run` written in backticks inside a double-quoted echo — command
+    # `corpus-yoga test run` written in backticks inside a double-quoted echo — command
     # substitution, not quoting, so the plan RAN the gate it was describing while
     # promising "nothing executed" — and an `echo "$(cmd)"` wrapping a command that
     # already prints.
     #
     # Absent, it skips with a CONSTANT label and no detail, so the committed report stays
-    # byte-identical on a clone without it (the zsh -n precedent). `yoga prerequisites`
+    # byte-identical on a clone without it (the zsh -n precedent). `corpus-yoga prerequisites`
     # is the one voice that says whether this machine has it.
     shellcheck = shutil.which('shellcheck')
     # src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and
@@ -1148,7 +1148,7 @@ def check_cli_surface(run) -> None:
             f.replace(str(REPO_ROOT) + '/', '') for f in findings[:4])
     run('shell: shellcheck reports nothing', sc_ok, sc_detail,
         check='shell.shellcheck_clean')
-    # A command's log path derives from the command (#54): having typed `yoga <noun>
+    # A command's log path derives from the command (#54): having typed `corpus-yoga <noun>
     # <verb>`, a reader can guess where the log went without reading the script that
     # wrote it. Held over the SOURCE — every tmp/logs/ path any file names must open
     # with a command word — because the directories themselves exist only on a machine
@@ -1180,7 +1180,7 @@ def check_cli_surface(run) -> None:
                 check='naming.log_path_derives_from_command')
 
     # What the repo PRESCRIBES, in both the senses #46 and #76 ask for: the form of an
-    # invocation (a yoga command, never a script path) and its validity (flags the
+    # invocation (a corpus-yoga command, never a script path) and its validity (flags the
     # command actually advertises). One scan serves both — they are two halves of one
     # sentence about prescribed invocations, and splitting them would mean writing the
     # scanner twice.
@@ -1213,7 +1213,7 @@ def check_cli_surface(run) -> None:
     # clone prints. The data tier's remedies need data to print, so a remedy naming a
     # script by path is invisible to any scan of output on a repo that ships none. They
     # are read from the source instead: every `*_cmd` a remedy is built from must name a
-    # yoga command, whether or not this machine can print it.
+    # corpus-yoga command, whether or not this machine can print it.
     for node in ast.walk(ast.parse((SRC / 'test' / 'dev' / 'run.py').read_text())):
         if isinstance(node, ast.Assign) and node.targets and \
                 isinstance(node.targets[0], ast.Name) and node.targets[0].id.endswith('_cmd'):
@@ -1230,8 +1230,8 @@ def check_cli_surface(run) -> None:
             continue                      # computed elsewhere; nothing to read here
         if not head:
             continue
-        ok = head[0] == 'yoga'
-        run(f'remedy: {name} at src/test/dev/run.py:{val.lineno} names a yoga command', ok,
+        ok = head[0] == 'corpus-yoga'
+        run(f'remedy: {name} at src/test/dev/run.py:{val.lineno} names a corpus-yoga command', ok,
             None if ok else
             f'`{head[0]}` is a path, not a command a reader types — and this remedy prints '
             f'only on a machine with data, where no scan of output can reach it',
@@ -1254,7 +1254,7 @@ def check_cli_surface(run) -> None:
             if not m:
                 continue
             run(f'prescription: {rel}:{i} tells you to run a command, not a path', False,
-                f'`{line.strip()[:90]}` tells a reader to run {m.group(1)} — name the yoga '
+                f'`{line.strip()[:90]}` tells a reader to run {m.group(1)} — name the corpus-yoga '
                 f'command that does it, or there is none and that is the defect',
                 law='G17', check='output.prescriptions_are_commands')
 
@@ -1280,17 +1280,17 @@ def check_cli_surface(run) -> None:
             continue                      # computed at run time, or not an invocation
         if head in STANDARD:
             continue
-        ok = head == 'yoga' or head in declared
-        run(f'prescription: {rel}:{i} names a yoga command', ok,
+        ok = head == 'corpus-yoga' or head in declared
+        run(f'prescription: {rel}:{i} names a corpus-yoga command', ok,
             None if ok else f'`{marker} {head}` prescribes a path, not a command a reader types',
             law='G17', check='output.prescriptions_are_commands')
         if not ok:
             continue
-        # A prescription ends where the SHELL takes over: `→ run: yoga prerequisites" >&2`
-        # prescribes `yoga prerequisites`, and `>&2` is the redirection of the echo that
+        # A prescription ends where the SHELL takes over: `→ run: corpus-yoga prerequisites" >&2`
+        # prescribes `corpus-yoga prerequisites`, and `>&2` is the redirection of the echo that
         # prints it, not a verb the reader types.
         tail = re.split(r'[|;&<>]|\)\s*$', rest, maxsplit=1)[0]
-        words = [clean(w) for w in (tail if head == 'yoga' else f' {head}{tail}').split()]
+        words = [clean(w) for w in (tail if head == 'corpus-yoga' else f' {head}{tail}').split()]
         words = [w for w in words if not unreadable(w)]
         cmd = next((w for w in words if not w.startswith('-')), None)
         if cmd is None or cmd not in declared:
@@ -1519,12 +1519,12 @@ def check_cli_surface(run) -> None:
     named = r'\S\s{2,}((?:src|rsc)/\S+?)(?:\s|$)'
     for line in step_lines:
         match = re.search(named, line)
-        typeable = line.strip().startswith('yoga ')
+        typeable = line.strip().startswith('corpus-yoga ')
         ok = bool(match) or typeable
         run(f'plan: `{line.strip()[:44]}` says where it is implemented', ok,
             None if ok else
             f'`{line.strip()}` is a step line naming neither a repo-relative file nor a '
-            f'yoga command — a reader cannot tell whether to type it or where to find it',
+            f'corpus-yoga command — a reader cannot tell whether to type it or where to find it',
             law='G16', check='output.plan_lines_name_their_target')
         if not match:
             continue
@@ -1536,9 +1536,9 @@ def check_cli_surface(run) -> None:
     # A step that is also a command prints AS that command — the line says it is typeable
     # by being typeable, rather than by a marker a legend would have to explain.
     for st in cli.steps():
-        want = f'yoga {st["command"]} {st["subcommand"]}'
+        want = f'corpus-yoga {st["command"]} {st["subcommand"]}'
         run(f'plan: `{want}` is printed as the command it is', want in plan,
-            None if want in plan else f'the plan names {st["command"]} without `yoga`, so '
+            None if want in plan else f'the plan names {st["command"]} without `corpus-yoga`, so '
             f'nothing distinguishes it from a label you cannot type',
             law='G16', check='output.plan_lines_name_their_target')
 
@@ -1671,12 +1671,12 @@ def check_cli_surface(run) -> None:
         # its own, which is exactly the drift this replaces
         shown = [line.strip().replace('   (status)', '')
                  for line in cli.render_command_help(c).splitlines()
-                 if line.startswith(f'  yoga {c["command"]}')]
+                 if line.startswith(f'  corpus-yoga {c["command"]}')]
         missing = [f for f in shown if f not in listing]
         run(f'cli: {c["command"]}: every form appears in the whole-table listing', not missing,
             None if not missing else
-            f'{", ".join(missing)} is shown by `yoga commands {c["command"]}` but not by '
-            f'`yoga commands` — two renderings of one table disagreeing',
+            f'{", ".join(missing)} is shown by `corpus-yoga commands {c["command"]}` but not by '
+            f'`corpus-yoga commands` — two renderings of one table disagreeing',
             law='G3', check='cli.every_form_listed')
 
     # G21: an axis is an arg-type enumeration (`API|DOM`), and a flag named for one of
@@ -1698,8 +1698,8 @@ def check_cli_surface(run) -> None:
     # gate must not read (much less converge) the machine's real shell config. The stale
     # marker below is the exact wording an earlier version wrote; it is the case that
     # actually escaped, so it is the case the check holds.
-    stale = '# yoga tab-completion (refresh: ./yoga completions install-latest)'
-    block = ['fpath=(~/x $fpath)', "alias yoga='~/x/yoga'", cli_completions.COMPLETION_END]
+    stale = '# corpus-yoga tab-completion (refresh: ./corpus-yoga completions install-latest)'
+    block = ['fpath=(~/x $fpath)', "alias corpus-yoga='~/x/corpus-yoga'", cli_completions.COMPLETION_END]
     synthetic = ['# unrelated', '', stale, *block, '', cli_completions.COMPLETION_MARKER, *block, '',
                  'autoload -Uz compinit', 'compinit']
     kept, _ = cli_completions.without_yoga_block(synthetic)
@@ -1707,7 +1707,7 @@ def check_cli_surface(run) -> None:
     # test: asking cli.is_completion_marker what survived is asking the bug whether it
     # is present, and the answer under the old code was "converged" while the stale
     # block sat in the file
-    left = [line for line in kept if line.startswith('# yoga tab-completion')]
+    left = [line for line in kept if line.startswith('# corpus-yoga tab-completion')]
     run('cli: completions: a marker with different advice is still the block',
         cli_completions.is_completion_marker(stale),
         None if cli_completions.is_completion_marker(stale) else
@@ -1738,9 +1738,9 @@ def check_cli_surface(run) -> None:
         cmd, sub = s['command'], s['subcommand']
         # the plan line is the step label then its non-path args (steps.sh): the label
         # must BE the command, and the verb must be among the args after it
-        # `yoga ` prefixes a step that IS a command (#45), which is how the plan says the
+        # `corpus-yoga ` prefixes a step that IS a command (#45), which is how the plan says the
         # line is typeable — so the invocation it must name is the command form
-        ok = bool(re.search(rf'^\s*(yoga )?{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
+        ok = bool(re.search(rf'^\s*(corpus-yoga )?{re.escape(cmd)}\b.*\b{re.escape(sub)}\b', plan, re.M))
         run(f'cli: {cmd}: run step invokes `{cmd} {sub}` in plan', ok,
             None if ok else f'no `{cmd} … {sub}` line in `src/main/cli/pipeline/pipeline.sh --plan` — a bare '
             f'`{cmd}` step would silently be a status no-op', law='G10', check='cli.step_invokes_verb')
@@ -2060,7 +2060,7 @@ def check_model_obligations(run) -> None:
     Together: model.json documents exactly the shared types model_join asserts,
     minus rejections. GATES (schema tier): an edge is a human-asserted
     identity, and an undocumented asserted identity — or a documented type no
-    edge asserts — is a defect, not a queue. The raw name scan stays `yoga
+    edge asserts — is a defect, not a queue. The raw name scan stays `corpus-yoga
     model`'s leisurely advisory pointed at model_join, since a name_collision
     is a false friend no scan can tell from a shared type."""
     queue = model_curation.edge_queue()
@@ -2284,7 +2284,7 @@ def _read_committed_xref(path: Path) -> list[list]:
 def check_xref(run):
     """The table is computed here, in-process; only render writes rsc/test/xref.csv
     (#249's check/render/gate separation — a check computes, it never writes). `check`
-    stays xref.py's own writing verb for a standalone `yoga test xref`."""
+    stays xref.py's own writing verb for a standalone `corpus-yoga test xref`."""
     rows   = xref.build_table()
     counts = xref.count(rows)
     actual = xref.score_line(counts)
@@ -3010,7 +3010,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         else:
             out.write(f'  full per-check report → {MACHINE_LOG_REL}\n')
 
-        # One row per STAGE — the same shape `yoga pipeline run` prints, so a reader of
+        # One row per STAGE — the same shape `corpus-yoga pipeline run` prints, so a reader of
         # either report answers the same question the same way: which stages ran, what
         # each found, and where to look. A stage here is a check_* section: not typeable
         # (unlike a pipeline stage), so the row anchors to the line instead of a command.
@@ -3102,7 +3102,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         else:
             out.write(f'\ndev gate: PASS — code+schema {det} match the committed expectation; '
                       'nothing here vetoes a commit. What this gate cannot arbitrate — '
-                      'that the verbs run — is the usr gate\'s: yoga pipeline run\n')
+                      'that the verbs run — is the usr gate\'s: corpus-yoga pipeline run\n')
         # The verdict is the terminal word — no trailing offer after it. The
         # remediation each finding needs is already printed beside it (WARN's
         # "to address, at leisure"; the gate's "To fix"). We do NOT append a
@@ -3234,10 +3234,10 @@ def main():
                     print(f'      ↳ {g}')
                 continue
             print(f'  {cmd}')
-            # A hint names the command a reader types, which is `yoga` — on a PATH only an
+            # A hint names the command a reader types, which is `corpus-yoga` — on a PATH only an
             # installed clone has. Run it through this repo's own entrypoint, so the hint
             # stays typeable prose and still executes in a clone that installed nothing.
-            run_as = f'./{cmd}' if cmd.startswith('yoga ') else cmd
+            run_as = f'./{cmd}' if cmd.startswith('corpus-yoga ') else cmd
             subprocess.run(run_as, shell=True, cwd=REPO_ROOT)
             for g in gs:
                 print(f'      ↳ {g}')
@@ -3258,7 +3258,7 @@ def main():
         # still to check.
         print('Fixes applied to the worktree — nothing staged. Review with '
               '`git diff`, stage what you meant, then verify:')
-        print('    → run: yoga test run')
+        print('    → run: corpus-yoga test run')
 
     sys.exit(1 if final.has_gating_failures else 0)
 

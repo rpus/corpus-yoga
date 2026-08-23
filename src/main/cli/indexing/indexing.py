@@ -2,7 +2,7 @@
 """
 indexing.py — the book-style index over the corpus (headword → turn locators)
 and the curation surface behind it: accept / reject / list-candidates over the concept
-capture. Driven by `yoga indexing` (see src/main/cli/).
+capture. Driven by `corpus-yoga indexing` (see src/main/cli/).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
 It scans the readable markdown library (data/output/markdown/{claude,gemini}/conversations/),
@@ -31,15 +31,15 @@ The disposal acts (accept / reject) are verbs too: the judgment stays human; the
 verb only writes the durable line-lists with format discipline, then reports how
 many concepts remain pending.
 
-Usage (via yoga indexing):
-  yoga indexing                                    # status: counts + pending queue
-  yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt
-  yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
-  yoga indexing accept --all                       # accept the whole queue as read
-  yoga indexing reject [--reason <why>] <concept>  # reject a concept
-  yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
-  yoga indexing sync                               # build data/output/markdown/index.md
-  yoga indexing capture [--conversations <path>]   # PAID: the model re-reads the corpus for
+Usage (via corpus-yoga indexing):
+  corpus-yoga indexing                                    # status: counts + pending queue
+  corpus-yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt
+  corpus-yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
+  corpus-yoga indexing accept --all                       # accept the whole queue as read
+  corpus-yoga indexing reject [--reason <why>] <concept>  # reject a concept
+  corpus-yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
+  corpus-yoga indexing sync                               # build data/output/markdown/index.md
+  corpus-yoga indexing capture [--conversations <path>]   # PAID: the model re-reads the corpus for
       [--only semantic-concepts|chat-categories]   #   the two index tables (see capture.sh);
       [--dry-run]                                  #   --dry-run: coverage preview, spends nothing
 """
@@ -103,7 +103,7 @@ def parse_rejected(path: Path) -> set[str]:
 
 def inferred_concepts() -> list[str]:
     """The finite candidate source: the single-source concept capture
-    data/output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `yoga indexing capture`).
+    data/output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `corpus-yoga indexing capture`).
     Durable and shared across machines (via data/output/), so both curate one shared base — the
     24-vs-27 divergence of the old per-batch, per-machine tmp/cache/ inference is gone.
     Empty where no capture has been taken yet."""
@@ -167,8 +167,8 @@ def build(markdown_root: Path, accepted_path: Path) -> str:
         # No tier path here, deliberately: the index is a CORPUS artifact, and
         # naming a machinery path in it couples corpus bytes to repo layout —
         # any tier move would rewrite corpus content. The verb is the stable
-        # surface; `yoga indexing -h` says where things live.
-        f'Headwords are curated with `yoga indexing` (accept/reject; `sync` '
+        # surface; `corpus-yoga indexing -h` says where things live.
+        f'Headwords are curated with `corpus-yoga indexing` (accept/reject; `sync` '
         f'rebuilds this index). Locators link to durable turn anchors; '
         f'labels are H*n*/A*n* (claude) and H*n*/G*n* (gemini).',
         '',
@@ -262,7 +262,7 @@ def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
     CANDIDATES_TXT.write_text(report)
     pending = [l for l in report.splitlines() if l.strip()]
     print(f'{len(pending)} pending concept(s) -> {CANDIDATES_TXT.relative_to(REPO)}'
-          + (' — dispose each: yoga indexing accept <term> [alias ...] | reject <concept>'
+          + (' — dispose each: corpus-yoga indexing accept <term> [alias ...] | reject <concept>'
              if pending else ''))
     for c in pending:
         print(f'  {c}')
@@ -340,13 +340,13 @@ def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str
     (each candidate becomes its own headword; accepted.txt stays hand-editable);
     wholesale reject stamps the one reason on every line."""
     if not CANDIDATES_TXT.exists():
-        return ('refused: no derived queue — run `yoga indexing list-candidates`, '
+        return ('refused: no derived queue — run `corpus-yoga indexing list-candidates`, '
                 'read it, then --all')
     as_read = CANDIDATES_TXT.read_text()
     live = candidates_report(accepted_path, rejected_path)
     if as_read != live:
         return ('refused: the queue moved since you listed it — re-run '
-                '`yoga indexing list-candidates`, re-read, then --all')
+                '`corpus-yoga indexing list-candidates`, re-read, then --all')
     queue = [line.strip() for line in as_read.splitlines() if line.strip()]
     if not queue:
         return 'nothing pending — the derived queue is empty'
@@ -371,7 +371,7 @@ def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
 def pending_report(accepted_path: Path, rejected_path: Path) -> None:
     """The loop's feedback: how many captured concepts remain undisposed."""
     if not inferred_concepts():
-        print('pending: unknown — no concept capture on this machine (yoga indexing capture)')
+        print('pending: unknown — no concept capture on this machine (corpus-yoga indexing capture)')
         return
     pending = pending_concepts(accepted_path, rejected_path)
     print(f'pending: {len(pending)} concept(s) undisposed'
@@ -396,7 +396,7 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
 
 
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
-    """Read-only state of data/output/indexing/ (bare `yoga indexing`): counts on
+    """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`): counts on
     stderr, the pending queue as pure lines on stdout — human-amenable at the
     terminal (both interleave), agent-amenable in a pipe (queue only)."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
@@ -413,7 +413,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
               file=sys.stderr)
     if not inferred_concepts():
         print('pending queue: unknown — no concept capture on this machine '
-              '(yoga indexing capture)', file=sys.stderr)
+              '(corpus-yoga indexing capture)', file=sys.stderr)
         return
     pending = pending_concepts(accepted_path, rejected_path)
     print(f'pending queue ({len(pending)} concepts to dispose — '
@@ -466,7 +466,7 @@ def main():
         # sibling in the corpus tail names its absence; this step must not be
         # the one that presumes its input into existence and tracebacks.
         if not root.is_dir():
-            print(f'index: skipped — no corpus at {root.relative_to(REPO)} (yoga pipeline run projects it)')
+            print(f'index: skipped — no corpus at {root.relative_to(REPO)} (corpus-yoga pipeline run projects it)')
             return
         text = build(root, accepted_path)
         out = root / 'index.md'
@@ -475,7 +475,7 @@ def main():
               + text.rstrip().rsplit(chr(10), 1)[-1])
         return
 
-    # bare `yoga indexing`: read-only status of the curation surface, then the
+    # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
     # capture's own status face (deposits + the paid layer's currency, #409)
     status(accepted_path, rejected_path, MARKDOWN_DIR)
     import subprocess

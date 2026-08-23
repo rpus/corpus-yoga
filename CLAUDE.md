@@ -57,13 +57,13 @@ seventh principle or a smell.
 - CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/
   syntactic-conflict rule, and the never-delete-local-files-for-a-gate
   corollary live there.
-- `yoga prerequisites` is the machine-remedy surface: the user runs it first
+- `corpus-yoga prerequisites` is the machine-remedy surface: the user runs it first
   on every checkout. Machine-local state and remedies go into its report,
   never into PR prose or replies. Missing optional data means a stated skip
   and exit 0, never a failure.
-- Two gates, named by actor, never "the gate" unqualified: `yoga test run`
+- Two gates, named by actor, never "the gate" unqualified: `corpus-yoga test run`
   gates the dev-actor (does the CHANGE work - hermetic, hookable);
-  `yoga pipeline run` gates the usr-actor (does the PRODUCT work - needs a
+  `corpus-yoga pipeline run` gates the usr-actor (does the PRODUCT work - needs a
   corpus). Name which gate arbitrates any claim.
 - Keep the README's overview and prerequisites sections current in the same
   change that moves what they describe.
@@ -156,7 +156,7 @@ seventh principle or a smell.
 - A PR body phrases completion "aims to complete #N" until the merge - and
   aims at every OPEN blocker of what it aims at (#482; the merge refuses
   otherwise). The merge, on the reviewer's word only, is
-  `yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
+  `corpus-yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
   title (#479), relocates a moved base - the lifetime's one rebase - and
   resyncs a clean checkout that holds the branch, announced; flips the
   body's phrasing to `closes` as the LAST edit before the squash (a
@@ -170,7 +170,7 @@ seventh principle or a smell.
   alignment is work invalidated by every merge it did not predict. The forge's declared squash settings
   (squash_merge_commit_title: PR_TITLE and squash_merge_commit_message:
   COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in
-  CONTRIBUTING.md, reconciled by `yoga forge`) publish the title as main's
+  CONTRIBUTING.md, reconciled by `corpus-yoga forge`) publish the title as main's
   subject line and every commit's message and Signature as its body. A
   pre-merge rewrite destroys the review record and its corpus join keys.
 - A PR's title is a verbatim copy of the title of an issue its body aims to
@@ -178,7 +178,7 @@ seventh principle or a smell.
   #300's title practice). The should keeps its one home in issue-space, the
   subject is copied rather than authored, and main's log reads as the
   disposed shoulds - ready-made release notes. Vetting is contingent all the
-  way down, so no event licenses an indicative subject; `yoga forge merge`
+  way down, so no event licenses an indicative subject; `corpus-yoga forge merge`
   refuses a non-copy.
 - A stacked PR follows exactly the ordinary workflow: when its parent
   squash-merges, `git rebase --onto origin/main <parent's old tip>` replays

@@ -84,7 +84,7 @@ main() {
     run_one "$(cd "$browser_capture" && pwd)"
   else
     if [[ ! -d "$browser_api" ]]; then
-      echo "no captures in $browser_api (populate via: yoga browser capture)"
+      echo "no captures in $browser_api (populate via: corpus-yoga browser capture)"
       exit 0
     fi
     local root; root="$(cd "$browser_api" && pwd)"

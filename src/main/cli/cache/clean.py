@@ -18,14 +18,14 @@ LIVE subtree costs only a pipeline re-run, never data — that is the tmp/cache/
 contract (rsc/CALCULUS.md, the 'derived' class: always rebuildable).
 
 The owned-set is DECLARED in rsc/cache_io.csv (via cache_io.py), shared with sync
-and `yoga test run`'s check_cache_io — one registry, three consumers.
+and `corpus-yoga test run`'s check_cache_io — one registry, three consumers.
 
 STDLIB-ONLY. One of --dry-run / --apply is REQUIRED: cleaning is deliberate,
 never a default, and never a silent no-op.
 
 Usage:
-    yoga cache clean --dry-run   # list orphaned tmp/cache/ subtrees with sizes; remove nothing
-    yoga cache clean --apply     # remove them
+    corpus-yoga cache clean --dry-run   # list orphaned tmp/cache/ subtrees with sizes; remove nothing
+    corpus-yoga cache clean --apply     # remove them
 """
 import shutil
 import sys
@@ -112,7 +112,7 @@ def main() -> int:
 
     if args.dry_run:
         print(f'DONE — dry run: {len(found)} orphan(s), {_human(total)} — pass --apply to remove')
-        print('    → run: yoga cache clean --apply')
+        print('    → run: corpus-yoga cache clean --apply')
     else:
         print(f'DONE — removed {len(found)} orphan(s), {_human(total)} freed')
     return 0

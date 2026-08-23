@@ -13,13 +13,13 @@ root among the other machine-local entries (`tmp/cache/`, `data/input/`, `tmp/lo
 which is what it is — and this directory is left wholly committed.
 
 `src/main/machine.py` reads both and is a library, not a command: `machines()` and
-`bound_machine()`. Nothing here reports — `yoga prerequisites` is the one machine
+`bound_machine()`. Nothing here reports — `corpus-yoga prerequisites` is the one machine
 voice, and it says everything a report here would, in more detail.
 
 ## Why the registry exists
 
 `bound_machine()` refuses a binding the registry does not declare. That refusal
-guards exactly one write: `yoga agent capture` keys the shared transport store by
+guards exactly one write: `corpus-yoga agent capture` keys the shared transport store by
 this name (`data/input/claude/code/machine-transport/<machine>/`), so a typo'd binding
 would mint a phantom machine in a store BOTH machines see. The gate lives in the one
 reader, so every consumer inherits it.
@@ -30,7 +30,7 @@ Declare first, then bind — never the other way round:
     # 2. then, on that machine, from the repo root:
     echo <its-declared-name> > machine-name.txt
 
-`yoga prerequisites` prints that command ready to run, and names the declared
+`corpus-yoga prerequisites` prints that command ready to run, and names the declared
 machines to pick from.
 
 ## Why the binding is not in here
@@ -51,9 +51,9 @@ with it the discipline that existed only to survive it.
 There was one — `_base.csv` layered under `<machine>.csv`, docker-style — and it is
 gone. Machines do not diverge: every `<machine>.csv` was empty from the day it was
 made, because "this machine might not have X" is already expressed by
-`yoga prerequisites` as *optional*, not by giving each machine its own list. A machine is
+`corpus-yoga prerequisites` as *optional*, not by giving each machine its own list. A machine is
 an **identity**, not a configuration variant. The requirements it declared were also
-checked, better, by `yoga prerequisites` — with versions and counts a manifest row
+checked, better, by `corpus-yoga prerequisites` — with versions and counts a manifest row
 cannot carry — so the manifest was a second, poorer telling of facts already told.
 The names stay as they are (`home-room`, `reading-room`): they are what each machine
 calls itself, and they key real directories in the shared store.

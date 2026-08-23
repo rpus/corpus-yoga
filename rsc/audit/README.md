@@ -1,6 +1,6 @@
 # audit
 
-The weekly five-lens audit of rpus/yoga - a scheduled Claude Code
+The weekly five-lens audit of rpus/corpus-yoga - a scheduled Claude Code
 routine that clones the repo read-only, re-verifies the five audit rosters
 (prose-rules, effects-census, gate-honesty, sibling-shape, referential-integrity,
 parents first minted 2026-08-02 as #159-#163), sweeps for new findings, and files
@@ -17,7 +17,7 @@ next_run 07:08), enabled.
 
 Session config: model `claude-fable-5`, environment
 `env_01DtGPqKug8oAgdUXePhzkJm`, tools Bash/Read/Write/Edit/Glob/Grep, source a
-fresh clone of `github.com/rpus/yoga`, GitHub remote MCP connector
+fresh clone of `github.com/rpus/corpus-yoga`, GitHub remote MCP connector
 (`api.githubcopilot.com/mcp`) for all issue reads and writes, `persist_session`
 false.
 

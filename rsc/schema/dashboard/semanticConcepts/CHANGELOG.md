@@ -15,7 +15,7 @@ data/output/dashboard/) rather than writing per-datum `vN.log` files under `tmp/
   id shape (36-char uuid = claude, 16-hex = gemini). Minted 2026-07-10 for the
   dashboard's provider toggle: the word cloud filters client-side; a pre-v2
   (untagged) capture still renders with the toggle disabled, and the next
-  `yoga dashboard capture` upgrades it in place. (The column was first named
+  `corpus-yoga dashboard capture` upgrades it in place. (The column was first named
   `source`; renamed to `provider` on 2026-07-12 to match the provider/channel
   axis — same values, a label fix amended in place, not a new version: the row
   shape never changed and no committed data depended on it.)
@@ -33,7 +33,7 @@ data/output/dashboard/) rather than writing per-datum `vN.log` files under `tmp/
 
 ## v1
 
-Initial schema: the format_table-styled two-column table `yoga dashboard capture`
+Initial schema: the format_table-styled two-column table `corpus-yoga dashboard capture`
 stages to cache/dashboard and promotes to output/dashboard/. Minted 2026-07-10 when the
 capture's shape gate moved from a hand-written jq check into the schema system
 (closing the review's altitude finding), the same day the capture went corpus-wide

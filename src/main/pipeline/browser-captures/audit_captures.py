@@ -80,12 +80,12 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
         print(f'WARN: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns — '
               f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
               'likely missing from this DOM capture; to recapture:')
-        print(f'    → run: yoga browser capture --provider gemini --id {cid}'
+        print(f'    → run: corpus-yoga browser capture --provider gemini --id {cid}'
               '  # walks the page — takes a couple of minutes')
     if placeholder_convs:
         print(f'gemini: {placeholder_convs} DOM capture(s) contain "[no capture" placeholder text')
     # The capture against the rendering derived FROM it. gemini has no API, so nothing
-    # else corroborates either one -- and `yoga pipeline run` rewrites the projection from
+    # else corroborates either one -- and `corpus-yoga pipeline run` rewrites the projection from
     # the capture every time, so a divergence means the two have already parted company.
     # The capture is a copy plus turn anchors, so they must agree turn for turn.
     if projected_text:
@@ -97,7 +97,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
             cid = conv_id(text) or d.name
             if cid not in projected_text:
                 print(f'WARN: {mds[0].stem} ({cid[:8]}): captured but not projected — '
-                      f'the gemini step of `yoga pipeline run` produces it')
+                      f'the gemini step of `corpus-yoga pipeline run` produces it')
                 suspects.append((cid, mds[0].stem))
                 continue
             cap, proj = turn_seq(text), turn_seq(projected_text[cid])
@@ -162,7 +162,7 @@ def report_live(provider: str, findings: list[tuple[str, str, str]]) -> list[str
     findings for the caller's exit status."""
     for kind, cid, detail in findings:
         print(f'  {provider} {kind} {cid}: {detail}')
-        print(f'    → run: yoga browser capture --provider {provider} --id {cid}')
+        print(f'    → run: corpus-yoga browser capture --provider {provider} --id {cid}')
     return [f'{provider} {kind} {cid}' for kind, cid, _ in findings]
 
 
@@ -248,7 +248,7 @@ def live_gemini(captures_dir: Path) -> list[str]:
 
 def main():
     # The one thing an unmigrated machine needs this face to say (#421): the
-    # library's stated move — bare `yoga browser` is where a tester looks first.
+    # library's stated move — bare `corpus-yoga browser` is where a tester looks first.
     from library import migration_note
     migration_note()
     ap = argparse.ArgumentParser()

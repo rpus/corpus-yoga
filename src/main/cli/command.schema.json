@@ -13,7 +13,7 @@
     "summary": {
       "type": "string",
       "minLength": 1,
-      "description": "The one-line description shown against the command in `yoga -h`."
+      "description": "The one-line description shown against the command in `corpus-yoga -h`."
     },
     "target": {
       "type": "string",

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# forge.sh (yoga forge) — the forge's merge settings, and the operations that obey them.
+# forge.sh (corpus-yoga forge) — the forge's merge settings, and the operations that obey them.
 #
 # Usage:
-#   yoga forge                 # declared vs live
-#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-#   yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, resync, flip the body, squash, converge
-#   yoga forge prune [--apply] # forget what the forge no longer has
-#   yoga forge capture [--to <dir>] # deposit the forge's ledger under data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge                 # declared vs live
+#   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
+#   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, resync, flip the body, squash, converge
+#   corpus-yoga forge prune [--apply] # forget what the forge no longer has
+#   corpus-yoga forge capture [--to <dir>] # deposit the forge's ledger under data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 
 set -euo pipefail
 
@@ -22,7 +22,7 @@ source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
-# rows: STATUS \t key \t detail \t remedy — parsed by status() and `yoga prerequisites`
+# rows: STATUS \t key \t detail \t remedy — parsed by status() and `corpus-yoga prerequisites`
 reconcile() {
   [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno src/main/cli/forge/forge.csv — nothing declared\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\tgh not found (install: brew install gh)\t"; return; }
@@ -213,7 +213,7 @@ upstream() {
       echo -e "OK\tcheckout\t$current is ahead of origin/$current — local commits not pushed\t"
     fi
   elif git -C "$REPO_DIR" merge-base --is-ancestor HEAD "origin/$current" 2>/dev/null; then
-    echo -e "WRONG\tcheckout\t$current is behind origin/$current — the yoga acting here is older than the branch's own newest\tgit -C $REPO_DIR pull --ff-only"
+    echo -e "WRONG\tcheckout\t$current is behind origin/$current — the corpus-yoga acting here is older than the branch's own newest\tgit -C $REPO_DIR pull --ff-only"
   else
     echo -e "WRONG\tcheckout\t$current and origin/$current have diverged\treconcile $current with origin/$current yourself"
   fi
@@ -251,7 +251,7 @@ status() {
       esac
       [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
     done <<< "$rows"
-    [[ -z "$d" ]] || echo "    → run: yoga forge prune"
+    [[ -z "$d" ]] || echo "    → run: corpus-yoga forge prune"
   fi
 
   local stale
@@ -267,7 +267,7 @@ status() {
         *)          echo "  – $key: $detail" ;;
       esac
     done <<< "$stale"
-    [[ -z "$any" ]] || echo "    → run: yoga forge prune"
+    [[ -z "$any" ]] || echo "    → run: corpus-yoga forge prune"
   fi
 
   echo "this checkout's gate, and this checkout against its own upstream"
@@ -324,15 +324,15 @@ prune() {
   done <<< "$stale_rows"
 
   if [[ "$n" == 0 && -n "$unverified" ]]; then
-    echo 'could not tell — some rows are UNVERIFIED; see yoga forge for what and why'
+    echo 'could not tell — some rows are UNVERIFIED; see corpus-yoga forge for what and why'
   elif [[ "$n" == 0 ]]; then
-    echo 'nothing to prune — yoga forge says why for each branch it keeps'
+    echo 'nothing to prune — corpus-yoga forge says why for each branch it keeps'
   else
     if [[ -z "$apply" ]]; then
       echo "--- $n item(s); nothing removed. Add --apply to remove them"
     fi
     if [[ -n "$unverified" ]]; then
-      echo 'some rows are UNVERIFIED; see yoga forge for what and why'
+      echo 'some rows are UNVERIFIED; see corpus-yoga forge for what and why'
     fi
   fi
 }
@@ -352,14 +352,14 @@ sync() {
     drift=1
     if [[ -n "$apply" ]]; then
       echo "  → $remedy"
-      (cd "$REPO_DIR" && eval "$remedy" >/dev/null) || { echo "yoga forge sync: $key failed — settings unchanged for it" >&2; exit 1; }
+      (cd "$REPO_DIR" && eval "$remedy" >/dev/null) || { echo "corpus-yoga forge sync: $key failed — settings unchanged for it" >&2; exit 1; }
     else
       echo "  would run: $remedy"
     fi
   done <<< "$rows"
   if [[ "$drift" == 0 ]]; then
     if ! printf '%s\n' "$rows" | grep -q $'^OK\t'; then
-      echo "yoga forge sync: the live settings could not be read — nothing verified, nothing to agree" >&2
+      echo "corpus-yoga forge sync: the live settings could not be read — nothing verified, nothing to agree" >&2
       return 1
     fi
     echo "no drift — the forge already agrees with src/main/cli/forge/forge.csv; nothing to do"
@@ -389,7 +389,7 @@ merge() {
   mkdir -p "$REPO_DIR/tmp/logs/forge/merge"
   log="$REPO_DIR/tmp/logs/forge/merge/$stamp.log"
   { echo "forge merge — $stamp · room: $(cat "$REPO_DIR/machine-name.txt" 2>/dev/null || echo '(unbound)') · $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null)"
-    echo "yoga forge merge $pr"
+    echo "corpus-yoga forge merge $pr"
     merge_chain "$pr"
   } 2>&1 | tee "$log"
   rc="${PIPESTATUS[0]}"
@@ -401,7 +401,7 @@ merge_chain() {
   local pr="$1"
   local state base head body branch_here old_sha prior conflicted flipped n moved=0 guard=0
   local oid landed
-  assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
+  assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE — #$pr is $state; only an open PR merges"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE — the body read failed"; return 1; }
@@ -544,5 +544,5 @@ case "${1-}" in
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
   capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
-  *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;
+  *)         echo "corpus-yoga forge: unknown argument: $1 (try: corpus-yoga forge --help)" >&2; exit 1 ;;
 esac

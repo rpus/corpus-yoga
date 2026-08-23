@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-completions.py (yoga completions) — the zsh tab-completion derived from src/main/cli/.
+completions.py (corpus-yoga completions) — the zsh tab-completion derived from src/main/cli/.
 
-Its own file because a command determines its target's name (#40): `yoga completions` is
+Its own file because a command determines its target's name (#40): `corpus-yoga completions` is
 answered here, not by a branch inside the dispatcher. cli.py holds the declaration readers
 and the renderers every command shares; what only this command needs lives here.
 
@@ -35,23 +35,29 @@ COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # install and uninstall can never disagree about where the block begins or ends.
 #
 # IDENTITY is COMPLETION_ID alone, and it is matched as a PREFIX. The written marker
-# carries advice after it, and advice is editable: when `./yoga` became bare `yoga`,
+# carries advice after it, and advice is editable: when `./corpus-yoga` became bare `corpus-yoga`,
 # equality on the whole line stopped recognising every block the earlier version had
 # written — so install could not converge on it (it inserted a second block beside it),
 # uninstall could not remove it, and status reported "not wired" about a shell that was.
 # A token that doubles as documentation cannot serve as identity when the documentation
 # is the part that changes.
-COMPLETION_ID = '# yoga tab-completion'
-COMPLETION_MARKER = f'{COMPLETION_ID} (refresh: yoga completions install-latest)'
-COMPLETION_END = '# end yoga tab-completion'
+COMPLETION_ID = '# corpus-yoga tab-completion'
+# Every id this command has EVER written into ~/.zshrc (G20: the installed token must
+# stay recognisable) - a rename of the CLI word adds the former id here, or install
+# cannot find that vintage's block and a dangling alias survives every re-run.
+COMPLETION_FORMER_IDS = ('# yoga tab-completion',)
+COMPLETION_MARKER = f'{COMPLETION_ID} (refresh: corpus-yoga completions install-latest)'
+COMPLETION_END = '# end corpus-yoga tab-completion'
+COMPLETION_ENDS = tuple(f'# end {i.removeprefix("# ")}'
+                        for i in (COMPLETION_ID, *COMPLETION_FORMER_IDS))
 
 
 def is_completion_marker(line: str) -> bool:
-    """Does this line open a yoga block? — the one recogniser install, uninstall and
+    """Does this line open a corpus-yoga block? — the one recogniser install, uninstall and
     status share, so they cannot disagree about what is already there. Prefix, not
     equality: everything after COMPLETION_ID is advice to the reader, not identity.
     COMPLETION_END is excluded because it starts with '# end'."""
-    return line.strip().startswith(COMPLETION_ID)
+    return line.strip().startswith((COMPLETION_ID, *COMPLETION_FORMER_IDS))
 
 
 def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:
@@ -72,7 +78,7 @@ def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:
 
 
 def _takes_command_name(command: str) -> bool:
-    """True where a positional names another command (`yoga commands <command>`), so
+    """True where a positional names another command (`corpus-yoga commands <command>`), so
     that position can complete the command list rather than nothing."""
     return any(r['arg-name'] and not r['arg-name'].startswith('--')
                and r['arg-type'] == '<command>' for r in command_rows(command))
@@ -80,7 +86,7 @@ def _takes_command_name(command: str) -> bool:
 
 def completion_script(cmds: list[dict]) -> str:
     """A static zsh completion function derived from the tables (regenerate via
-    `yoga completions`; never edit the emitted file). Each position offers only what
+    `corpus-yoga completions`; never edit the emitted file). Each position offers only what
     applies there: the command word, then that command's subcommands, then its flags
     after a '-'. A FILE list is offered only as the value of a flag that takes a path;
     where nothing takes an argument, nothing is offered — a stray listing of the
@@ -127,8 +133,8 @@ def completion_script(cmds: list[dict]) -> str:
         return f"    {command}) {'; '.join(parts)} ;;" if parts else None
 
     lines = [
-        '#compdef yoga',
-        '# derived from src/main/cli/ by `yoga completions` — regenerate, never edit',
+        '#compdef corpus-yoga',
+        '# derived from src/main/cli/ by `corpus-yoga completions` — regenerate, never edit',
         '',
         '_yoga() {',
         '  local -a cmds subcommands opts pathopts',
@@ -137,7 +143,7 @@ def completion_script(cmds: list[dict]) -> str:
         *[f"    '{esc(c['command'])}:{esc(c['summary'])}'" for c in cmds],
         '  )',
         '  if (( CURRENT == 2 )); then',
-        "    _describe -t commands 'yoga command' cmds",
+        "    _describe -t commands 'corpus-yoga command' cmds",
         '    return',
         '  fi',
         '  case "${words[2]}" in',
@@ -178,7 +184,7 @@ def tilde(p: Path) -> str:
 
 
 def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
-    """~/.zshrc's lines with the yoga block gone; returns (kept, how many removed).
+    """~/.zshrc's lines with the corpus-yoga block gone; returns (kept, how many removed).
 
     Reads a list and returns a new one; nothing is written here. Uninstall keeps the
     result, install uses it to converge on one current block.
@@ -198,7 +204,7 @@ def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
         if start is None:
             return kept, removed
         end = next((i for i in range(start + 1, len(kept))
-                    if kept[i].strip() == COMPLETION_END), None)
+                    if kept[i].strip() in COMPLETION_ENDS), None)
         if end is None:
             return kept, removed
         first, last = start, end
@@ -221,7 +227,7 @@ def install_completion() -> int:
     its comment header so we land OUTSIDE a managed block — Docker Desktop rewrites
     its own block and would eat a line placed inside it.
 
-    The `yoga` alias is written INTO the block for the same reason the fpath line is:
+    The `corpus-yoga` alias is written INTO the block for the same reason the fpath line is:
     printed advice does not survive a shell restart, because nothing ever persisted
     it. That was this function's own first mistake, fixed for the fpath line and left
     standing for the alias until someone noticed the alias kept vanishing.
@@ -233,7 +239,7 @@ def install_completion() -> int:
     """
     zshrc = Path.home() / '.zshrc'
     fpath_line = f'fpath=({tilde(COMPLETION_OUT.parent)} $fpath)'
-    alias_line = f"alias yoga='{tilde(REPO / 'yoga')}'"
+    alias_line = f"alias corpus-yoga='{tilde(REPO / 'corpus-yoga')}'"
     block = [COMPLETION_MARKER, fpath_line, alias_line, COMPLETION_END]
     before = zshrc.read_text() if zshrc.exists() else ''
     lines, _ = without_yoga_block(before.splitlines())
@@ -259,7 +265,7 @@ def install_completion() -> int:
         print(f'{tilde(zshrc)}: {where}')
         for line in block[1:-1]:
             print(f'    {line}')
-        print('  remove anytime: yoga completions uninstall')
+        print('  remove anytime: corpus-yoga completions uninstall')
     # ~/.zcompdump is compinit's cache of which completion functions exist, and
     # its staleness heuristic can judge a pre-install dump current — the first
     # new terminal then falls back to filename completion while every LATER one
@@ -277,7 +283,7 @@ def install_completion() -> int:
 
 
 def uninstall_completion() -> int:
-    """Removes the delimited yoga block from ~/.zshrc,
+    """Removes the delimited corpus-yoga block from ~/.zshrc,
     leaving everything else byte-identical. Because the block has an END, its whole
     extent goes — fpath line, alias, and anything added between them — without this
     function needing to know what any of those lines are; both directions share
@@ -291,10 +297,10 @@ def uninstall_completion() -> int:
         return 0
     kept, removed_line_count = without_yoga_block(zshrc.read_text().splitlines())
     if not removed_line_count:
-        print(f'{tilde(zshrc)}: no yoga block found — nothing to remove')
+        print(f'{tilde(zshrc)}: no corpus-yoga block found — nothing to remove')
         return 0
     zshrc.write_text('\n'.join(kept) + '\n')
-    print(f'{tilde(zshrc)}: removed the yoga block ({removed_line_count} lines) — nothing else touched')
+    print(f'{tilde(zshrc)}: removed the corpus-yoga block ({removed_line_count} lines) — nothing else touched')
     print('→ start a new shell (exec zsh) for it to take effect')
     return 0
 
@@ -309,14 +315,14 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    state = ('not written — `yoga completions install-latest`' if not written else
-             'current' if current else 'STALE — `yoga completions install-latest`')
+    state = ('not written — `./corpus-yoga completions install-latest`' if not written else
+             'current' if current else 'STALE — `./corpus-yoga completions install-latest`')
     print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
-    print('  ~/.zshrc: ' + ('not wired — `yoga completions install-latest`' if not blocks
+    print('  ~/.zshrc: ' + ('not wired — `./corpus-yoga completions install-latest`' if not blocks
                             else 'wired' if blocks == 1
-                            else f'wired {blocks} times — `yoga completions install-latest` '
+                            else f'wired {blocks} times — `./corpus-yoga completions install-latest` '
                                  f'removes every block and writes one'))
     return 0
 
@@ -331,7 +337,7 @@ def _sync_completion() -> None:
 
 
 def completion(rest: list[str]) -> int:
-    """`yoga completions` — bare shows status, each subcommand acts.
+    """`corpus-yoga completions` — bare shows status, each subcommand acts.
 
     The parser is generated from the declaration (#476): the pattern every
     other command's target already follows. That cli.py handles this command itself
