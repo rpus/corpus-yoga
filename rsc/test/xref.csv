@@ -159,19 +159,20 @@ rsc/schema/code-agents/projectMemory/CHANGELOG.md,24,doc,rsc/schema/code-agents/
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,54,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/session/CHANGELOG.md,25,doc,rsc/schema/code-agents/session/v12.json,Y,[v12.json](./v12.json)
-rsc/schema/code-agents/session/CHANGELOG.md,65,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
-rsc/schema/code-agents/session/CHANGELOG.md,96,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
-rsc/schema/code-agents/session/CHANGELOG.md,128,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/code-agents/session/CHANGELOG.md,160,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/code-agents/session/CHANGELOG.md,201,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/code-agents/session/CHANGELOG.md,243,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/code-agents/session/CHANGELOG.md,267,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/code-agents/session/CHANGELOG.md,294,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/code-agents/session/CHANGELOG.md,308,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/code-agents/session/CHANGELOG.md,320,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/code-agents/session/CHANGELOG.md,338,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/session/CHANGELOG.md,384,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,28,doc,rsc/schema/code-agents/session/v13.json,Y,[v13.json](./v13.json)
+rsc/schema/code-agents/session/CHANGELOG.md,64,doc,rsc/schema/code-agents/session/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/code-agents/session/CHANGELOG.md,104,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/code-agents/session/CHANGELOG.md,135,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/code-agents/session/CHANGELOG.md,167,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/code-agents/session/CHANGELOG.md,199,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/code-agents/session/CHANGELOG.md,240,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/code-agents/session/CHANGELOG.md,282,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/code-agents/session/CHANGELOG.md,306,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/code-agents/session/CHANGELOG.md,333,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/code-agents/session/CHANGELOG.md,347,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/code-agents/session/CHANGELOG.md,359,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/session/CHANGELOG.md,377,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/session/CHANGELOG.md,423,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -643,7 +644,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,rsc/schema/code-agents/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/projectMemory/v3.json,Y,
 ,,,rsc/schema/code-agents/session/CHANGELOG.md,Y,
-,,,rsc/schema/code-agents/session/v13.json,Y,
+,,,rsc/schema/code-agents/session/v14.json,Y,
 ,,,rsc/schema/code-agents/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/sessionConversation/v1.json,Y,
 ,,,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,
