@@ -50,7 +50,7 @@ reading-room, 2026-08-22, at 17e173c (#498).
 ## Where facts live
 
 - the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/README.md`
-- the doctrine (operations, laws L1–L9): `rsc/CALCULUS.md` (`yoga calculus`)
+- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`yoga calculus`)
 - every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`yoga prerequisites` reports both)
