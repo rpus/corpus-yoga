@@ -4,7 +4,7 @@
 //   blue        = sends (wire crossings: what YOGA_NO_SEND refuses)
 //   green       = the human's own writes
 // Edges are labeled with the COMMAND that writes them, never a file path.
-digraph corpus-yoga {
+digraph "corpus-yoga" {
   rankdir=LR;
   fontname="Helvetica"; fontsize=11;
   node [fontname="Helvetica", fontsize=10, shape=box, style=rounded];
