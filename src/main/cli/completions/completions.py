@@ -42,8 +42,14 @@ COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
 # A token that doubles as documentation cannot serve as identity when the documentation
 # is the part that changes.
 COMPLETION_ID = '# corpus-yoga tab-completion'
+# Every id this command has EVER written into ~/.zshrc (G20: the installed token must
+# stay recognisable) - a rename of the CLI word adds the former id here, or install
+# cannot find that vintage's block and a dangling alias survives every re-run.
+COMPLETION_FORMER_IDS = ('# yoga tab-completion',)
 COMPLETION_MARKER = f'{COMPLETION_ID} (refresh: corpus-yoga completions install-latest)'
 COMPLETION_END = '# end corpus-yoga tab-completion'
+COMPLETION_ENDS = tuple(f'# end {i.removeprefix("# ")}'
+                        for i in (COMPLETION_ID, *COMPLETION_FORMER_IDS))
 
 
 def is_completion_marker(line: str) -> bool:
@@ -51,7 +57,7 @@ def is_completion_marker(line: str) -> bool:
     status share, so they cannot disagree about what is already there. Prefix, not
     equality: everything after COMPLETION_ID is advice to the reader, not identity.
     COMPLETION_END is excluded because it starts with '# end'."""
-    return line.strip().startswith(COMPLETION_ID)
+    return line.strip().startswith((COMPLETION_ID, *COMPLETION_FORMER_IDS))
 
 
 def _scoped_flags(command: str, subcommand: str) -> tuple[list[str], list[str]]:
@@ -198,7 +204,7 @@ def without_yoga_block(lines: list[str]) -> tuple[list[str], int]:
         if start is None:
             return kept, removed
         end = next((i for i in range(start + 1, len(kept))
-                    if kept[i].strip() == COMPLETION_END), None)
+                    if kept[i].strip() in COMPLETION_ENDS), None)
         if end is None:
             return kept, removed
         first, last = start, end
