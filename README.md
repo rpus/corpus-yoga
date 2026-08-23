@@ -25,14 +25,14 @@ prints man entries; `./yoga <command> <verb> --help` asks each target itself.
 | root | lifecycle | medium | loss cost |
 | --- | --- | --- | --- |
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-| `data/input/` | input | iCloud | none — the medium carries it (sessions: once stashed via `yoga agent capture --all`) |
+| `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
-`gemini`, `github`; channels `chat`, `code`, `forge`; captures `bulk-export`, `browser-API`,
-`browser-DOM`, `machine-transport`, `gh-CLI`. The readable corpus is
+`gemini` have channels `chat`, `code` and captures `bulk-export`, `browser-API`,
+`browser-DOM`, `machine-transport`; `github` has `forge` and `gh-CLI`. The readable corpus is
 `data/output/markdown/<provider>/<channel>/`, and the pipelines never read
 `~/.claude/projects` — sessions arrive via `yoga agent capture` through the
 prefix-gated store.
