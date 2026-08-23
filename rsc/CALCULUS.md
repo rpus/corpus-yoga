@@ -246,10 +246,12 @@ Each law names its current enforcement (or the incident that taught it).
   and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so
   migration, healing, and maintenance are the same safely-rerunnable operation
   and running it on a current corpus proves itself by silence.
-- **L2 — Determinism split.** `by construction` — Committed artifacts are machine-invariant; machine
-  facts (data-tier reports, usernames, local paths) never enter them. Enforced
-  structurally by the split report (`run.py` writes the committed log
-  itself, code+schema only). Corollary: the deterministic tiers read identically
+- **L2 — Determinism split.** `gated` — Committed artifacts are machine-invariant; machine
+  facts (data-tier reports, usernames, local paths) and corpus data never enter them.
+  Enforced structurally for the report (`run.py` writes the committed log
+  itself, code+schema only) and by `check_committed_tree` for every tracked
+  file: the corpus roots are ignored and track nothing, and no tracked text names
+  a home path (#50's incident: three schemas carried one). Corollary: the deterministic tiers read identically
   on every machine — observed as both machines at 953/12/941 with differing data tiers.
 - **L3 — Supersession is a partial order; deletion is licensed, never assumed.** `doctrine` —
   ⊑ is transitive across batches; a deletion is justified by a SUPERSEDED verdict
