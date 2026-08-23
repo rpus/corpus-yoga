@@ -31,8 +31,8 @@ prints man entries; `./yoga <command> <verb> --help` asks each target itself.
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
-`gemini`; channels `chat`, `code`; captures `bulk-export`, `browser-API`,
-`browser-DOM`, `machine-transport`. The readable corpus is
+`gemini`, `github`; channels `chat`, `code`, `forge`; captures `bulk-export`, `browser-API`,
+`browser-DOM`, `machine-transport`, `gh-CLI`. The readable corpus is
 `data/output/markdown/<provider>/<channel>/`, and the pipelines never read
 `~/.claude/projects` — sessions arrive via `yoga agent capture` through the
 prefix-gated store.
@@ -65,7 +65,10 @@ the emailed `data-*` into `data/input/claude/chat/bulk-export/`. Browser capture
 Safari logged in to claude.ai / gemini.google.com, then `yoga browser capture`
 (or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
-Code sessions: `yoga agent capture --all`. Paid model readings:
+Code sessions: `yoga agent capture --all`. The forge's ledger (issues, pull
+requests, comments, reviews, labels, blocked_by edges): `yoga forge capture` -
+one stamped deposit under `data/input/github/forge/gh-CLI/`, nothing when the
+ledger is unchanged. Paid model readings:
 `yoga indexing capture` (needs `ANTHROPIC_API_KEY` set; `yoga prerequisites`
 reports it), rendered free by `yoga site render`. Batch disposal is computed, never assumed: `yoga supersede check`.
 
