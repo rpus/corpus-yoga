@@ -39,7 +39,6 @@ README.md,75,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, overrid
 README.md,89,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
 README.md,95,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 README.md,95,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,102,doc,src/test/dev/schema_recommendations.py,Y,"- [ ] `src/test/dev/schema_recommendations.py` — all 9 checks are stubbed; once implemented, call it from all pipeline `"
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
@@ -761,6 +760,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,self_only,src/test/dev/repairs/structure.no_redundant_additional_properties_true.py,Y,
 ,,self_only,src/test/dev/repairs/structure.pattern_constraints_enforced.py,Y,
 ,,self_only,src/test/dev/repairs/structure.required_subset_of_properties.py,Y,
+,,self_only,src/test/dev/schema_recommendations.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,
 ,,,yoga,Y,
