@@ -3,7 +3,7 @@
 #
 # Two modes (orthogonal to the invoker — CLI, browser.sh, or the macOS Shortcut):
 #   (no args)     Discover and capture all conversations, navigating in a work tab.
-#   --provider <p>  claude | gemini. Named provider, not "agent": `yoga agent` is the
+#   --provider <p>  claude | gemini. Named provider, not "agent": `corpus-yoga agent` is the
 #                   code-agent session store, an unrelated thing, and one word cannot
 #                   mean both — and safari_capture.py takes --provider too.
 #   --mechanism <m> API | DOM. Restricts; forwarded unread. Default: every mechanism

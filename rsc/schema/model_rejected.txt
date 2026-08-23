@@ -4,5 +4,5 @@
 # type (a snake_cased pair is one type under two dressings). The obligations
 # come from model_join.csv edges whose relationship kind asserts one shared
 # type (identical, snake_cased); the queue — obligated minus documented minus
-# rejected — is reported by `yoga model` and gated per type by `yoga test run`'s
+# rejected — is reported by `corpus-yoga model` and gated per type by `corpus-yoga test run`'s
 # check_model_obligations.

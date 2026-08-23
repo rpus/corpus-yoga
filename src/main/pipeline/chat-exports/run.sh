@@ -68,7 +68,7 @@ run_one() {
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
   step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
   # inference is not per-batch: the dashboard's captures are the durable
-  # single-source data/output/dashboard/ (refreshed deliberately by `yoga dashboard
+  # single-source data/output/dashboard/ (refreshed deliberately by `corpus-yoga dashboard
   # capture`), which present reads. Nothing paid runs on every export.
   step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
   step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"
@@ -90,7 +90,7 @@ run_one() {
 }
 
 # run_tail: the once-after-all-batches REDUCE — steps that fold the whole corpus rather
-# than process one snapshot. This is where the yoga nouns live, and only here: a step is
+# than process one snapshot. This is where the corpus-yoga nouns live, and only here: a step is
 # eligible for a command (a declared `step`) iff it is a corpus-wide operation
 # meaningful to invoke standalone — which is precisely the run_tail character. A run_one
 # per-batch stage (`--chat-export <batch>`) is internal machinery; giving it a noun would

@@ -2,7 +2,7 @@
 """parse_argv.py — a verb's argv, answered by the declaration's own parser (#474).
 
 The python face of parse_argv.sh: a bash target has no parser to answer
-`yoga <command> <verb> -h`, so `-h` used to land in the verb's own argv — an
+`corpus-yoga <command> <verb> -h`, so `-h` used to land in the verb's own argv — an
 ENACTING verb could receive a flag-shaped token as its argument and start its
 chain (tmp/logs/forge/flip/2026-08-13T083136Z.log is the fixture). This face
 builds the verb's parser from its declaration (declared_parser.verb_parser) and

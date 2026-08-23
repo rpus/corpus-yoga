@@ -6,8 +6,8 @@ invocation shows its status (the committed table's tallies) and writes nothing; 
 file is scanned for references to other repo files, one CSV row per reference (columns
 are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 
-    yoga test                            # status, including this table
-    yoga test xref                       # rebuild + write + report
+    corpus-yoga test                            # status, including this table
+    corpus-yoga test xref                       # rebuild + write + report
     awk -F, '$5=="N"' rsc/test/xref.csv    # the stale references
 """
 
@@ -65,7 +65,7 @@ SKIP_FILES = {'rsc/test/run.log', 'rsc/test/xref.csv'}
 # requirements name DISTRIBUTIONS, imports name MODULES, and they differ (PyYAML provides
 # yaml), so the correspondence is read from installed metadata rather than assumed. Falling
 # back to the declared names keeps the scan working on a machine whose venv is not built yet
-# — a state `yoga prerequisites` reports.
+# — a state `corpus-yoga prerequisites` reports.
 def _declared_modules() -> set[str]:
     req = REPO_ROOT / 'src' / 'requirements.txt'
     if not req.is_file():
@@ -588,7 +588,7 @@ class XrefCounts:
 
 def count(rows: list[list]) -> XrefCounts:
     """Pure: the table's row classes, tallied — the comparable shape both the
-    gate's check_xref and the standalone `yoga test xref` report from."""
+    gate's check_xref and the standalone `corpus-yoga test xref` report from."""
     stale_file    = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' not in r[3])
     stale_pointer = sum(1 for r in rows if r[0] and r[4] == 'N' and '#' in r[3])
     self_only     = sum(1 for r in rows if not r[0] and r[2] == 'self_only')
@@ -611,7 +611,7 @@ def summary_line(counts: XrefCounts, where) -> str:
 def render_csv(rows: list[list]) -> str:
     """Pure: rows -> the committed table's bytes. No file IO — the caller decides
     whether and where to write. `check()` below writes directly for a standalone
-    `yoga test xref`; the gate's check_xref hands the same rows to render, which
+    `corpus-yoga test xref`; the gate's check_xref hands the same rows to render, which
     owns the write to rsc/test/xref.csv there (#249's check/render/gate
     separation — a check computes, only render writes)."""
     buf = io.StringIO()
@@ -633,7 +633,7 @@ def check(out: Path) -> None:
 def status() -> None:
     """The bare-noun default: summarise the committed table, write nothing."""
     if not DEFAULT_OUT.exists():
-        print(f'{DEFAULT_OUT.relative_to(REPO_ROOT)} not present — `yoga test xref` builds it')
+        print(f'{DEFAULT_OUT.relative_to(REPO_ROOT)} not present — `corpus-yoga test xref` builds it')
         return
     with DEFAULT_OUT.open(newline='') as fh:
         rows = list(csv.reader(fh))[1:]   # drop header

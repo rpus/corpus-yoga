@@ -119,7 +119,7 @@ def anchor(provider, mechanisms, conv_id):
     stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     what = f'--provider {provider} --mechanism {"+".join(mechanisms)}' + (f' --id {conv_id}' if conv_id else '')
     emit(f'{stamp} · {room} · {head}{" (dirty)" if dirty else ""}')
-    emit(f'yoga browser capture {what}')
+    emit(f'corpus-yoga browser capture {what}')
 
 
 def footer(interrupted=False):
@@ -197,7 +197,7 @@ def write_ordering(cfg, ids, dom_root):
         '# copy_gemini_markdown for NN- naming.\n'
         # Provenance, not a clock-label: the run log holds the sweep this listing
         # came from, and its stamped name carries the when.
-        + (f'# Captured by yoga browser capture — run log: {rel(RUN["log"])}\n'
+        + (f'# Captured by corpus-yoga browser capture — run log: {rel(RUN["log"])}\n'
            if RUN['log'] else '# Captured by safari_capture.py (no run log named).\n')
     )
     out.write_text(header + '\n'.join(reversed(ids)) + '\n')
@@ -281,7 +281,7 @@ def fetch_api(conv_id, out_dir):
               'Security; Full Disk Access takes manual additions where Files and Folders '
               f'shows nothing). The fetched json is stranded in ~/Downloads — move it '
               f'into {out_dir} by hand, or recapture from an already-granted Terminal:\n'
-              f'    → run: yoga browser capture --provider claude --id {conv_id}'
+              f'    → run: corpus-yoga browser capture --provider claude --id {conv_id}'
               f'  # first front https://claude.ai/chat/{conv_id} in Safari',
               file=sys.stderr)
         return None
@@ -342,7 +342,7 @@ def ids_from_safari(provider, cfg):
     landed = safari_eval_js('String(location.href)') or '(URL unreadable)'
     if 'login' in landed:
         emit(f'FAIL: Safari is logged out of {provider} (landed on {landed}) — '
-             f'log in and re-run: yoga browser capture --provider {provider}')
+             f'log in and re-run: corpus-yoga browser capture --provider {provider}')
         raise SystemExit(1)
     if not landed.startswith(cfg['discover_url']):
         emit(f'note: navigation to {cfg["discover_url"]} landed on {landed} — '
@@ -486,7 +486,7 @@ def capture_all(provider, ids, api_root, dom_root, navigate=True, mechanisms=(),
     if failed and len(ids) > 1:
         # the sweep's bulk remedy, beside the footer's per-item lines: fix the cause
         # the FAIL lines name, then re-sweep — named as the command a reader types
-        print('    → run: yoga browser capture'
+        print('    → run: corpus-yoga browser capture'
               '  # re-sweep after fixing the cause(s) the FAIL lines above name',
               file=sys.stderr)
     return failed

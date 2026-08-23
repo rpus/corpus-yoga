@@ -1,25 +1,25 @@
 # Contributing
 
-Merge with `./yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
+Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
 line of echoed commands — refuse, relocate if the base moved, flip the body, squash
 pinned to the head every check saw, converge this checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
-declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and
-`yoga forge sync`), never in the wrapper. It squash-merges with **no message flags**, because
+declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and
+`corpus-yoga forge sync`), never in the wrapper. It squash-merges with **no message flags**, because
 `squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
 branch's commits and keeps each one's `Signature:` line, the join key into the
 captured session corpus. A hand-written `--body` discards them all.
 
-`./yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
+`./corpus-yoga forge` alone is the read-only reconciliation, so a reviewer or a fresh cloner
 can see what the forge does to a merge without having to merge one to find out; and
-`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 printing a `gh` command for someone to copy. It is `--apply`-gated because it writes
 outside the repo, to a server other people see.
 
 Squash-only PRs (enforced by forge settings). main carries one narrated commit per
 landed idea; if a PR can't be squashed, it was not atomic. A branch may hold many
 commits — the squash keeps every one of their messages and signatures. The flip is a
-STEP of the merge, not a command (#483): `yoga forge merge <pr>` refuses first (a
+STEP of the merge, not a command (#483): `corpus-yoga forge merge <pr>` refuses first (a
 non-OPEN PR, a body with nothing to flip, a title that copies no aimed issue — #479 —
 an unaimed open blocker — #482 — or refuse-class drift), relocates a moved base and
 resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
@@ -74,8 +74,8 @@ in two pairs — a derived file and the curated expectation beside it:
 Do not hand-merge any of them, and do not compute the counts. Because `rsc/test/` holds
 nothing but these four, the resolution is **syntactic** — take either side of the whole
 directory (`git checkout --theirs rsc/test/`; the choice cannot matter) to clear the
-markers, then run `./yoga test run`: it rewrites the two derived files, and reports the
-live counts the two curated ones should hold — `yoga test run` prints `expected X, got Y`,
+markers, then run `./corpus-yoga test run`: it rewrites the two derived files, and reports the
+live counts the two curated ones should hold — `corpus-yoga test run` prints `expected X, got Y`,
 `xref` shows the live counts in its own `xref: …` line. Set each curated file to what the
 check reports, stage what it rewrote, and run once more to confirm the dev gate is green. The
 check computes the merged numbers; your job is to run it.

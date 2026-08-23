@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"name": "yoga",
+			"name": "corpus-yoga",
 			"path": "."
 		}
 	],
@@ -11,7 +11,7 @@
 		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python",
 		// The import roots and type-checking mode live in pyrightconfig.json, which
 		// Pylance reads INSTEAD of python.analysis.* — so one declaration serves the
-		// editor, the pyright CLI, and `yoga test run`. Splitting them is what broke
+		// editor, the pyright CLI, and `corpus-yoga test run`. Splitting them is what broke
 		// resolution when a partial config once shadowed eight paths with one.
 		"python.analysis.diagnosticMode": "workspace",
 		"python.terminal.activateEnvironment": false,

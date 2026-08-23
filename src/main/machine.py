@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 machine.py â€” the machine registry and this machine's binding to it. A LIBRARY,
-not a command: nothing here reports. `yoga prerequisites` is the one machine
+not a command: nothing here reports. `corpus-yoga prerequisites` is the one machine
 voice, and it says everything this ever said, in more detail.
 
 Two facts, and only two:
@@ -28,7 +28,7 @@ a file that exists only on bound machines. Rooted, it is spelled outright here â
 its own .gitignore rule is what makes that safe.
 
 There is no per-machine manifest and no layering: machines do not diverge. What a
-machine may or may not have is expressed by `yoga prerequisites` as optional, not by giving
+machine may or may not have is expressed by `corpus-yoga prerequisites` as optional, not by giving
 each machine its own list. A machine is an IDENTITY, not a configuration variant.
 
 STDLIB-ONLY, like cli.py: importable on a fresh clone before the venv exists.

@@ -2,12 +2,12 @@
 
 The authored inputs for <https://rpus.co>. The tree that actually serves is
 `data/output/site/` — the ONE publish tree, where `data/output/site/<path>` is
-`rpus.co/<path>` — assembled by `yoga site sync` from the page directories here.
+`rpus.co/<path>` — assembled by `corpus-yoga site sync` from the page directories here.
 This directory's root FILES are inputs, not pages, and stay behind:
 
 - **`index.html`** — a TEMPLATE, not a finished page: both presenters copy it and
   inject the data tables (the category palette is authored inline here — design,
-  never filled). The corpus-wide render is `present_corpus.py`'s (`yoga dashboard
+  never filled). The corpus-wide render is `present_corpus.py`'s (`corpus-yoga dashboard
   sync`), which writes the finished page to `data/output/site/index.html` — its URL
   position, and the one file in the publish tree that `site sync` never touches.
   The per-batch pages (`present.sh`) are export-scoped and stay in the workshop
@@ -15,9 +15,9 @@ This directory's root FILES are inputs, not pages, and stay behind:
   built from are self-contained inside it (inlined `<script>` blocks); it fetches
   nothing at runtime — this repo only ever projects the corpus as it stands in
   `data/input/`.
-- **`yoga/`** — a page directory: everything in it is published verbatim at
-  `rpus.co/yoga/`. `rsc/site/yoga/index.html` is the yoga landing, static and
-  complete. `rsc/site/yoga/dataflow.dot` is the repo's dataflow map: tiers as
+- **`corpus-yoga/`** — a page directory: everything in it is published verbatim at
+  `rpus.co/corpus-yoga/`. `rsc/site/corpus-yoga/index.html` is the corpus-yoga landing, static and
+  complete. `rsc/site/corpus-yoga/dataflow.dot` is the repo's dataflow map: tiers as
   clusters, one edge per
   writing command — black the feed-forward kernel, red dashed the reflexive
   layer, blue the sends, green the human's own writes. The `.dot` is the one
@@ -42,8 +42,8 @@ in that repo:
     cd <path-to-site-repo> && git add -A && git commit -m "publish" && git push
 ```
 
-Netlify builds on push; `rpus.co/yoga/` serves the directory index. The site
+Netlify builds on push; `rpus.co/corpus-yoga/` serves the directory index. The site
 repo's location is machine-local (it is not this repo's business) — a
 hand-made `ext/mnt/site` symlink to its clone is the conventional binding if a
-`yoga`-verb deploy step is ever wanted — a mount by reference, beside the other
+`corpus-yoga`-verb deploy step is ever wanted — a mount by reference, beside the other
 entries of that species.

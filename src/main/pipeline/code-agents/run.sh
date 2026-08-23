@@ -4,7 +4,7 @@
 # The pipeline sources data/input/claude/code/machine-transport — the repo-owned, medium-carried store
 # (<machine>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
 # the harness-owned ~/.claude/projects, which Anthropic expires at will.
-# `yoga agent capture --all` is the capture step that populates the store
+# `corpus-yoga agent capture --all` is the capture step that populates the store
 # from the live projects root; run it early and often.
 #
 # Usage:
@@ -274,7 +274,7 @@ main() {
 
   if [[ ! -d "$code_projects" ]]; then
     echo "no store at $code_projects (hand-make data/input/claude/code/machine-transport as a symlink to the shared store;"
-    echo "populate it via: yoga agent capture --all)"
+    echo "populate it via: corpus-yoga agent capture --all)"
     exit 0
   fi
   local store_root; store_root="$(cd "$code_projects" && pwd)"

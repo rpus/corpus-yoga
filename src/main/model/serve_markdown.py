@@ -2,7 +2,7 @@
 """
 Local HTTP server for browsing and searching markdown files.
 
-Driven by server.sh (the `yoga server` verbs: start / stop / ensure-assets /
+Driven by server.sh (the `corpus-yoga server` verbs: start / stop / ensure-assets /
 bare status). This module's own flags — used by that wrapper — are --markdown DIR
 (required to serve), --port, and --ensure-assets (fetch the render libs, then exit).
 """
@@ -61,7 +61,7 @@ def ensure_assets() -> None:
             # start half-rendered, and the --ensure-assets caller tolerates it exactly as
             # it tolerates offline. Reached only for MISSING files, so a warmed cache
             # serves under YOGA_NO_SEND without a send.
-            assert_may_send(f'download {dest_rel} (yoga server ensure-assets)')
+            assert_may_send(f'download {dest_rel} (corpus-yoga server ensure-assets)')
             print(f'Downloading {dest_rel}…', flush=True)
             urllib.request.urlretrieve(url, dest)
         except Exception as e:
@@ -322,7 +322,7 @@ if __name__ == '__main__':
     args = p.parse_args()
 
     # The sync producer path: repopulate ext/lib/serve_markdown and stop. Best-effort
-    # so an offline `yoga cache sync` still exits clean — serve itself hard-requires the
+    # so an offline `corpus-yoga cache sync` still exits clean — serve itself hard-requires the
     # assets at startup (ensure_assets there is not caught), so a broken render can't
     # slip through; here we only warn and leave the subtree for the next online run.
     if args.ensure_assets:
@@ -356,6 +356,6 @@ if __name__ == '__main__':
         if e.errno == 48:
             print(f'Port {args.port} already in use.', flush=True)
             print(f'To fix: lsof -ti :{args.port} | xargs kill', flush=True)
-            print('     or: yoga server stop', flush=True)
+            print('     or: corpus-yoga server stop', flush=True)
             sys.exit(1)
         raise

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# site.sh (yoga site) — the publish tree: data/output/site/<path> IS rpus.co/<path>.
+# site.sh (corpus-yoga site) — the publish tree: data/output/site/<path> IS rpus.co/<path>.
 #
 # Usage:
-#   yoga site          # status: each artifact's presence and currency, and who produces it
-#   yoga site sync     # assemble the tree from rsc/site/ — page dirs copied, .dot rendered
-#   yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
+#   corpus-yoga site          # status: each artifact's presence and currency, and who produces it
+#   corpus-yoga site sync     # assemble the tree from rsc/site/ — page dirs copied, .dot rendered
+#   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
 # The tree has two verbs with disjoint files: sync owns the page directories
 # (copied from rsc/site/, every .dot rendered to svg+png beside its page);
 # render owns index.html at the root, the corpus page present_corpus.py writes
-# at its URL position (#409 — formerly yoga dashboard sync). sync never touches index.html. rsc/site/'s root FILES
+# at its URL position (#409 — formerly corpus-yoga dashboard sync). sync never touches index.html. rsc/site/'s root FILES
 # stay behind: index.html there is the presenters' template (an input, not a page) and
 # README.md documents the family. Without graphviz the renders are skipped, not failed.
 
@@ -28,11 +28,11 @@ source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once
 
 usage() {
   cat <<'EOF'
-yoga site — the rpus.co publish tree: data/output/site/ assembled from rsc/site/
+corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from rsc/site/
 
-  yoga site          status: each artifact's presence and currency, and who produces it
-  yoga site sync     assemble the tree (page dirs copied, every .dot rendered to svg+png)
-  yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
+  corpus-yoga site          status: each artifact's presence and currency, and who produces it
+  corpus-yoga site sync     assemble the tree (page dirs copied, every .dot rendered to svg+png)
+  corpus-yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
 EOF
 }
 
@@ -47,7 +47,7 @@ status() {
     # The page dirs are the rpus.co publish layer — deploy-side, optional; the
     # quickstart teaches only the render. Prescribing sync here made every
     # pipeline run nag a verb the front door never taught.
-    echo "  – page dirs absent (the rpus.co publish layer) — optional: yoga site sync assembles them"
+    echo "  – page dirs absent (the rpus.co publish layer) — optional: corpus-yoga site sync assembles them"
   else
     local f stale=0
     while IFS= read -r f; do
@@ -66,7 +66,7 @@ status() {
       fi
     done < <(page_files "$SRC" | grep '\.dot$' || true)
     [[ $stale -eq 0 ]] && echo "  ✓ page dirs current with rsc/site/ (renders included)"
-    [[ $stale -eq 1 ]] && { echo "WARN: the publish tree is stale against rsc/site/ — to fix:"; echo "    → run: yoga site sync"; }
+    [[ $stale -eq 1 ]] && { echo "WARN: the publish tree is stale against rsc/site/ — to fix:"; echo "    → run: corpus-yoga site sync"; }
   fi
   # The corpus page is its own layer (render's, the quickstart's subject):
   # stated ALWAYS — an absent tree must not silence the one site verb the
@@ -80,7 +80,7 @@ status() {
     # "no mount", and the one who least needs the convention; say what prerequisites says
     echo "deploy: ext/mnt/site is a dangling link → $(readlink "$REPO_DIR/ext/mnt/site") — repoint it at the site repo's clone, or remove it"
   else
-    echo "deploy: no ext/mnt/site mount on this machine — optional; yoga prerequisites shows the convention"
+    echo "deploy: no ext/mnt/site mount on this machine — optional; corpus-yoga prerequisites shows the convention"
   fi
 }
 
@@ -95,7 +95,7 @@ render_currency() {
   local f render_state
   if [[ ! -f "$render" ]]; then
     echo "WARN: index.html absent — the corpus page is unbuilt; to fix:"
-    echo "    → run: yoga site render"
+    echo "    → run: corpus-yoga site render"
     return 0
   fi
   local behind=''
@@ -105,10 +105,10 @@ render_currency() {
   done
   render_state="${behind:+behind ($behind changed since the render)}"
   render_state="${render_state:-current}"
-  echo "  ✓ index.html (the corpus page; producer: yoga site render) — $render_state"
+  echo "  ✓ index.html (the corpus page; producer: corpus-yoga site render) — $render_state"
   if [[ "$render_state" != current ]]; then
     echo "INFO: the corpus page is $render_state — free to fix:"
-    echo "    → run: yoga site render   # FREE — re-render from the current corpus + captures"
+    echo "    → run: corpus-yoga site render   # FREE — re-render from the current corpus + captures"
   fi
 }
 
@@ -161,5 +161,5 @@ case "${1:-}" in
   sync)        shift; parse_argv site sync "$@"; sync ;;
   render)      shift; parse_argv site render "$@"; render "$@" ;;
   -h|--help)   usage ;;
-  *)           echo "yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;
+  *)           echo "corpus-yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;
 esac

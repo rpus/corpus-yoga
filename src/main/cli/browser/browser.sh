@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into
 # data/input/<provider>/chat/browser-{API,DOM}/, via Safari (open and logged in).
-# The `yoga browser` target. Scope is two independent restrictions, intersected; neither
+# The `corpus-yoga browser` target. Scope is two independent restrictions, intersected; neither
 # adds: a provider has the mechanisms it has (claude API — DOM retired, #418; gemini DOM).
 #
 # Usage:
-#   yoga browser                                      # free, local: are the captures any good?
-#   yoga browser capture                              # every provider, every mechanism it has
-#   yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
-#   yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
-#   yoga browser capture --provider claude --id <id>  # one conversation
+#   corpus-yoga browser                                      # free, local: are the captures any good?
+#   corpus-yoga browser capture                              # every provider, every mechanism it has
+#   corpus-yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
+#   corpus-yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
+#   corpus-yoga browser capture --provider claude --id <id>  # one conversation
 #
 #   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
@@ -42,7 +42,7 @@ main() {
     capture) shift; parse_argv browser capture "$@" ;;
     '') status; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (yoga browser -h for details)" >&2; exit 1 ;;
+    *) echo "Usage: corpus-yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac
   local provider="" mechanism="" id="" dry_run=""
   while [[ $# -gt 0 ]]; do
@@ -64,7 +64,7 @@ main() {
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass yoga browser -h for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
     esac
   done
 
@@ -92,7 +92,7 @@ main() {
     exit 1
   fi
 
-  # No audit preamble (#418): the capture-health audit is bare `yoga browser`'s
+  # No audit preamble (#418): the capture-health audit is bare `corpus-yoga browser`'s
   # own output, on demand — re-running it before every capture duplicated what
   # the bare noun already answers, and its bulk (consistency QA of
   # already-captured data) is not about what this run will do. The capture's

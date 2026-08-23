@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# src/main/cli/pipeline/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never
+# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never
 # acquires. Each pipeline validates its inputs against all schema versions, then extracts,
-# projects and presents. Acquisition lives elsewhere: yoga browser|agent|indexing capture.
+# projects and presents. Acquisition lives elsewhere: corpus-yoga browser|agent|indexing capture.
 #
 # Usage:
-#   yoga pipeline                          # the pipelines this repo has (bare: status)
-#   yoga pipeline --names                  # their names alone, one per line
-#   yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
+#   corpus-yoga pipeline                          # the pipelines this repo has (bare: status)
+#   corpus-yoga pipeline --names                  # their names alone, one per line
+#   corpus-yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
 #                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
-#   yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from the
+#   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from the
 #                                          # vN.log files beside it
 #
 # The pipeline LIST is derived, not declared: a pipeline is a subdirectory of
@@ -18,7 +18,7 @@
 # (schemas, input root, globs), typed by the pipeline.schema.json beside them.
 #
 # Inputs live under data/input/<provider>/<channel>/<capture>/ (any entry may be a
-# hand-made symlink); --plan names each pipeline's exact steps. After: yoga test run.
+# hand-made symlink); --plan names each pipeline's exact steps. After: corpus-yoga test run.
 
 set -euo pipefail
 SELF='src/main/cli/pipeline/pipeline.sh'
@@ -51,15 +51,15 @@ input_of() {
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
-# verb's domain IS the noun's output — `yoga pipeline run` with no name runs exactly the
+# verb's domain IS the noun's output — `corpus-yoga pipeline run` with no name runs exactly the
 # names bare printed, and cannot drift from them.
 #
 # --names prints them alone, one per line, for a reader that is a program:
-#   for p in $(yoga pipeline --names); do yoga pipeline run "$p"; done
-# is the same work as `yoga pipeline run`, spelled out. The decorated status is for people;
+#   for p in $(corpus-yoga pipeline --names); do corpus-yoga pipeline run "$p"; done
+# is the same work as `corpus-yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  echo "pipelines (src/main/pipeline/<name>/; processing only — acquisition is yoga browser|agent|indexing capture):"
+  echo "pipelines (src/main/pipeline/<name>/; processing only — acquisition is corpus-yoga browser|agent|indexing capture):"
   local name phases nested v
   for name in $(pipelines); do
     phases=""
@@ -71,7 +71,7 @@ status() {
       # A phase may be NESTED. browser-captures validates per provider, because only claude
       # has an API with a schema (apiConversation) and gemini is DOM-only with nothing to
       # validate against — so its validate.sh lives at browser-captures/claude/. Reporting
-      # "no validate" there would be false, and `yoga test run` already carries a hand-written
+      # "no validate" there would be false, and `corpus-yoga test run` already carries a hand-written
       # exception for the same file (check_required_files), which is the tell.
       nested=""
       for v in "$REPO_ROOT/src/main/pipeline/$name"/*/validate.sh; do
@@ -80,9 +80,9 @@ status() {
       done
       [[ -n "$nested" ]] && phases+="validate($nested)"
     fi
-    printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `yoga pipeline | awk '{print $1}'` works
+    printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `corpus-yoga pipeline | awk '{print $1}'` works
   done
-  echo "  → local input state: yoga prerequisites · each pipeline's steps: yoga pipeline run --plan"
+  echo "  → local input state: corpus-yoga prerequisites · each pipeline's steps: corpus-yoga pipeline run --plan"
 }
 
 parse_args() {
@@ -123,7 +123,7 @@ parse_args() {
 # the vN.log files beside it, so the summary agrees with the logs it summarises.
 sync_matrices() {
   parse_args "$@"
-  [[ -z "$item" ]] || { echo "yoga pipeline sync: takes a pipeline, not an item ($item)" >&2; exit 1; }
+  [[ -z "$item" ]] || { echo "corpus-yoga pipeline sync: takes a pipeline, not an item ($item)" >&2; exit 1; }
   local p
   for p in $(pipelines); do
     should_run "$p" || continue
@@ -169,7 +169,7 @@ install_deps() {
 
 # Which pipelines have a prep step, and what each is called. DECLARED, not globbed for a
 # shared filename: the prep scripts do different things — chat-exports requires an input,
-# code-agents links a directory — and browser-captures' is a CAPTURE, the `yoga browser`
+# code-agents links a directory — and browser-captures' is a CAPTURE, the `corpus-yoga browser`
 # target, which a pipeline run must never perform. Globbing one name listed a prep phase
 # for browser-captures that `run` has never executed, which is a status line stating
 # something untrue about what the command does.
@@ -289,7 +289,7 @@ section_error_lines() {
 # The tail is a TABLE: one row per STAGE of the run — the three pipelines, each prep, and
 # the corpus reduce — counting the atoms that occurred inside it, beside its verdict. A
 # stage is a phase of the RUN, not a paragraph of the log: `browser-captures` is what you
-# type after `yoga pipeline run` to do that stage alone, and the banner is merely how the
+# type after `corpus-yoga pipeline run` to do that stage alone, and the banner is merely how the
 # log marks where it began. Two facts about one
 # pipeline, on one line, so they cannot disagree unnoticed — a row saying `failed` with
 # no FAIL is a defect of the step, and the table is where it becomes visible.
@@ -389,7 +389,7 @@ print_plan() {
   # capture-sweep line resolves against the flags given instead of staying
   # a conditional annotation — appending --plan to any parametrised call
   # previews exactly that call.
-  echo "yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
+  echo "corpus-yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; require the venv at \$VENV (mint: ./src/main/cli/prerequisites/prerequisites.sh sync --apply); pip install src/requirements.txt"
   if should_run browser-captures; then
     "$REPO_ROOT/src/main/pipeline/browser-captures/run.sh" --plan | sed 's/^/  /'
@@ -477,7 +477,7 @@ main() {
     for one in "${pipeline_failures[@]}"; do failed_csv="${failed_csv:+$failed_csv,}${one%% *}"; done
   fi
   atom_table "$failed_csv"
-  echo "  (each pipeline stage runs alone as: yoga pipeline run <stage>; corpus is the reduce over all)"
+  echo "  (each pipeline stage runs alone as: corpus-yoga pipeline run <stage>; corpus is the reduce over all)"
   echo "  (line = where that stage begins in this log; each finding is stated there, in place)"
   # The run's verdict folds BOTH notions of failure (#446): a stage that exited
   # failed, and a stage whose log states FAIL atoms - the 2026-08-09 witness was
@@ -515,7 +515,7 @@ main() {
   # served. The data-tier coupling this line once narrated (pipelines move what the
   # dev gate's data tier reads) is enforced where it bites — the dev gate's own
   # artifact-staleness check, at the next commit, in the dev-actor's hands (#342).
-  echo "outputs: data/output/markdown/index.md · read served: yoga server start --daemon (http://localhost:8182)"
+  echo "outputs: data/output/markdown/index.md · read served: corpus-yoga server start --daemon (http://localhost:8182)"
   echo "Log: $LOG_FILE"
   # The verdict must leave this function: callers chain on $?.
   return $(( ${#verdict_failures[@]} > 0 ))
@@ -534,7 +534,7 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "yoga pipeline: unknown verb ${1} — takes: run (bare: status)" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run (bare: status)" >&2; exit 1 ;;
 esac
 
 # --plan runs before the log exists: it writes nothing, not even a log file.

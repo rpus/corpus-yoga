@@ -5,8 +5,8 @@ CLAUDE.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ 
 CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
 CLAUDE.md,167,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
 CLAUDE.md,172,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
-CONTRIBUTING.md,7,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `yoga forge` and"
-CONTRIBUTING.md,15,doc,src/main/cli/forge/forge.csv,Y,`./yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
+CONTRIBUTING.md,7,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
+CONTRIBUTING.md,15,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 CONTRIBUTING.md,34,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"
 CONTRIBUTING.md,37,doc,rsc/CALCULUS.md,Y,"`accumulate` contract, `rsc/CALCULUS.md` carries the sentence, and"
 CONTRIBUTING.md,65,doc,rsc/test/prepare-commit-msg-hook.sh,Y,"`prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the"
@@ -22,17 +22,17 @@ CONTRIBUTING.md,87,doc,rsc/test,Y,`rsc/test/` is syntactic; one outside it is re
 README.md,10,doc,src/main/cli/prerequisites/prerequisites.sh,Y,"./src/main/cli/prerequisites/prerequisites.sh sync --apply   # pre-venv, once: mint the venv (bare, the same report read"
 README.md,27,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,27,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
-README.md,29,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
+README.md,29,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
 README.md,52,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,53,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`yoga calculus`)"
+README.md,53,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
 README.md,54,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
 README.md,54,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<pipeline>/<family>/vN.json`, history in its `CHANGELOG.md`, minting in `rsc/schema/WORK"
 README.md,55,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,55,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,56,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
 README.md,57,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,58,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`yoga prerequisite"
-README.md,59,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`yoga test run`); cross-references: `yoga test xref` (bare `yoga test` shows status
+README.md,58,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
+README.md,59,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
 README.md,66,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 README.md,76,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
 README.md,77,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
@@ -49,10 +49,10 @@ pyrightconfig.json,14,path_str,src/main/cli/indexing,Y,"""src/main/cli/indexing"
 pyrightconfig.json,15,path_str,src/main/cli/completions,Y,"""src/main/cli/completions"","
 pyrightconfig.json,16,path_str,src/main/pipeline/code-agents,Y,"""src/main/pipeline/code-agents"","
 pyrightconfig.json,17,path_str,src/main/model,Y,"""src/main/model"","
-rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
+rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the corpus-yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-exports/supersede.py,Y,equality of snapshots. (`src/main/pipeline/chat-exports/supersede.py` atomisers.)
 rsc/CALCULUS.md,103,doc,src/main/pipeline/chat-exports/accumulate.py,Y,"implementation: `accumulate()` in `src/main/pipeline/chat-exports/accumulate.py`, called"
-rsc/CALCULUS.md,112,doc,src/main/cli/agent/agent.py,Y,semantics checked: `src/main/cli/agent/agent.py` (`yoga agent`) —
+rsc/CALCULUS.md,112,doc,src/main/cli/agent/agent.py,Y,semantics checked: `src/main/cli/agent/agent.py` (`corpus-yoga agent`) —
 rsc/CALCULUS.md,135,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
 rsc/CALCULUS.md,136,doc,rsc/naming/memory_deposit_vintages.csv,Y,"`rsc/naming/memory_deposit_vintages.csv`), so migration, healing, and"
 rsc/CALCULUS.md,168,doc,rsc/schema/model_join.csv,Y,`rsc/schema/model_join.csv` edges at leisure; an edge asserting one shared
@@ -75,8 +75,8 @@ rsc/audit/prompt.md,17,doc,src/test/dev/repairs,Y,"- sibling-shape: every family
 rsc/audit/prompt.md,17,doc,src/test/dev/diagnostics,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/audit/prompt.md,17,doc,rsc/naming,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
 rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel files (CLI declarations, the CLI schemas, rsc/schema versioned families, CHANG"
-rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,yoga pipeline run browser-captures,src/test/dev/run.py,per-capture ap"
-rsc/cache_io.csv,9,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribution) —"
+rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,corpus-yoga pipeline run browser-captures,src/test/dev/run.py,per-cap"
+rsc/cache_io.csv,9,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribu"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
 rsc/schema/WORKFLOW.md,26,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
 rsc/schema/WORKFLOW.md,87,doc,src/main/pipeline/browser-captures/claude/validate.sh,Y,src/main/pipeline/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
@@ -185,8 +185,8 @@ rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"":
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
 rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as authored sources"
-rsc/site/README.md,19,doc,rsc/site/yoga/index.html,Y,"`rpus.co/yoga/`. `rsc/site/yoga/index.html` is the yoga landing, static and"
-rsc/site/README.md,20,doc,rsc/site/yoga/dataflow.dot,Y,complete. `rsc/site/yoga/dataflow.dot` is the repo's dataflow map: tiers as
+rsc/site/README.md,19,doc,rsc/site/corpus-yoga/index.html,Y,"`rpus.co/corpus-yoga/`. `rsc/site/corpus-yoga/index.html` is the corpus-yoga landing, static and"
+rsc/site/README.md,20,doc,rsc/site/corpus-yoga/dataflow.dot,Y,complete. `rsc/site/corpus-yoga/dataflow.dot` is the repo's dataflow map: tiers as
 rsc/test/prepare-commit-msg-hook.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 rsc/test/prepare-commit-msg-hook.sh,33,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"
 rsc/test/prepare-commit-msg-hook.sh,34,comment,src/main/cli/prerequisites/prerequisites.sh,Y,# src/main/cli/prerequisites/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
@@ -264,7 +264,7 @@ src/main/cli/forge/capture.py,101,comment,src/main/cli/forge/review-counts.graph
 src/main/cli/forge/flip.py,13,path_str,src/main/cli/forge/flip.py,Y,SELF = 'src/main/cli/forge/flip.py'
 src/main/cli/forge/forge.json,3,path_str,src/main/cli/forge/forge.sh,Y,"""target"": ""src/main/cli/forge/forge.sh"","
 src/main/cli/forge/forge.json,24,path_str,rsc/test/pre-commit-hook.sh,Y,"""rsc/test/pre-commit-hook.sh"""
-src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
+src/main/cli/forge/forge.sh,6,comment,src/main/cli/forge/forge.csv,Y,#   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 src/main/cli/forge/forge.sh,18,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/forge/forge.sh,20,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/forge/forge.sh,22,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
@@ -292,7 +292,7 @@ src/main/cli/model/model.json,8,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/sync.json,5,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/parse_argv.py,27,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/pipeline/pipeline.json,3,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
-src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (yoga pipeline) — the pipelines, and the run over data/input/ that never"
+src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,"# src/main/cli/pipeline/pipeline.sh (corpus-yoga pipeline) — the pipelines, and the run over data/input/ that never"
 src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
@@ -372,7 +372,7 @@ src/main/model/model.py,28,path_str,src/main/model/model.py,Y,SELF = 'src/main/m
 src/main/model/model.py,95,path_str,rsc/schema/model_join.csv,Y,print('rsc/schema/model_join.csv — every cross-family shared name disposed')
 src/main/model/model.py,73,path_str,rsc/schema/model.json,Y,print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
 src/main/model/model_curation.py,4,comment,rsc/schema/model.json,Y,"rsc/schema/model.json is the hand-curated cross-family type reference, and its"
-src/main/model/model_curation.py,19,comment,rsc/schema/model_rejected.txt,Y,rsc/schema/model_rejected.txt. Reported per shared type by `yoga test run`'s
+src/main/model/model_curation.py,19,comment,rsc/schema/model_rejected.txt,Y,rsc/schema/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
 src/main/model/model_curation.py,33,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'
 src/main/model/model_curation.py,88,comment,rsc/schema/model_join_kinds.csv,Y,column's one authority (rsc/schema/model_join_kinds.csv).
 src/main/model/present_corpus.py,39,path_str,src/main/model/present_corpus.py,Y,SELF = 'src/main/model/present_corpus.py'
@@ -447,7 +447,7 @@ src/main/pipeline/chat-exports/memories.py,31,comment,src/run_python_script.sh,Y
 src/main/pipeline/chat-exports/memories.py,31,comment,src/main/pipeline/chat-exports/memories.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/memories.py       [--chat-exports-cache tmp/cache/chat-exports] 
 src/main/pipeline/chat-exports/memories.py,45,path_str,src/main/pipeline/chat-exports/memories.py,Y,SELF = 'src/main/pipeline/chat-exports/memories.py'
 src/main/pipeline/chat-exports/memories.py,62,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
-src/main/pipeline/chat-exports/present.sh,4,comment,src/main/model/present_corpus.py,Y,# The corpus page render is src/main/model/present_corpus.py (yoga site render).
+src/main/pipeline/chat-exports/present.sh,4,comment,src/main/model/present_corpus.py,Y,# The corpus page render is src/main/model/present_corpus.py (corpus-yoga site render).
 src/main/pipeline/chat-exports/present.sh,6,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-
 src/main/pipeline/chat-exports/present.sh,7,comment,src/main/pipeline/chat-exports/present.sh,Y,#   src/main/pipeline/chat-exports/present.sh --chat-exports data/input/claude/chat/bulk-export
 src/main/pipeline/chat-exports/present.sh,19,path_str,src/main/pipeline/chat-exports/timeline.py,Y,"TIMELINE_SCRIPT=""$SCRIPT_DIR/timeline.py"""
@@ -629,6 +629,8 @@ src/test/usr/pipeline/code-agents/survey_code_session.py,11,comment,src/test/usr
 src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,CLAUDE.md,Y,
 ,,,README.md,Y,
+,,,corpus-yoga,Y,
+,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
 ,,,rsc/schema/_reference/mcp/v2.json,Y,
@@ -771,5 +773,3 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,self_only,src/test/dev/schema_recommendations.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,
-,,,yoga,Y,
-,,,yoga.code-workspace,Y,

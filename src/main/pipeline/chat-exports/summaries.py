@@ -158,7 +158,7 @@ def _warn_twins(root: Path) -> int:
     now that the one-shot repair has retired. nearest_earlier_deposit cannot
     write a twin, so a nonzero count is a NEW defect to investigate, not the
     artifact class the repair cleared. WARN-prefixed so the run tail's atom
-    hoisting carries it into every yoga pipeline run summary."""
+    hoisting carries it into every corpus-yoga pipeline run summary."""
     twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
         if root.is_dir() else 0
     if twins:
@@ -282,5 +282,5 @@ def main():
 if __name__ == '__main__':
     # sys.exit, not a bare call: main()'s return IS the exit code, so a
     # CONFLICT can actually fail the run step (issue #22 — the bare call made
-    # `yoga summaries sync` a step that could never exit non-zero, against L8)
+    # `corpus-yoga summaries sync` a step that could never exit non-zero, against L8)
     sys.exit(main())

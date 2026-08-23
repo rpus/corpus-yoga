@@ -10,7 +10,7 @@ the epoch in the batch dir name; browser-captures the capture's updated_at;
 code-agents the max record timestamp in the session .jsonl. Keys compare only
 within one pipeline, so mixed key types across pipelines are fine.
 
-Consumers: model.py (bare `yoga model` states each family's verdict, so the
+Consumers: model.py (bare `corpus-yoga model` states each family's verdict, so the
 usr gate's corpus tail says it - #373) and src/test/dev/run.py (the data-tier
 frontier and coverage checks read subjects and recency from here).
 """

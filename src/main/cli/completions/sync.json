@@ -1,5 +1,5 @@
 {
-  "help": "writes tmp/cache/completions/_yoga and nothing else — the cache registry's producer, run by `yoga cache sync`; it wires nothing",
+  "help": "writes tmp/cache/completions/_yoga and nothing else — the cache registry's producer, run by `corpus-yoga cache sync`; it wires nothing",
   "args": [],
   "r": [
     "src/main/cli"

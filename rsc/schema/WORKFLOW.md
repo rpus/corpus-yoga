@@ -27,7 +27,7 @@ second `#### Refactored` under the same version. The `RichLink.source` entry in
 in which versions, "No validation effect", and what was deliberately left untouched.
 
 If a new export or capture fails validation against the current latest version, that is the
-signal to create a new version. Run the item-level validate command from the `yoga test run` fix
+signal to create a new version. Run the item-level validate command from the `corpus-yoga test run` fix
 hints to see the exact error before changing the schema.
 
 ---
@@ -173,7 +173,7 @@ only sharpens the frontier.
 ### 4. Review model_join.csv  ← **do not skip**
 
 Machines now hold part of this step: `identical`/`snake_cased` edges are re-verified
-structurally and falsified ones WARN in every `yoga model` / pipeline run, as do
+structurally and falsified ones WARN in every `corpus-yoga model` / pipeline run, as do
 always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
 each kind's claim class and who re-verifies it). What stays yours is what no scan can
 do: recognizing cross-NAME counterparts, judging relationships, and the coupling
@@ -235,7 +235,7 @@ from, and a SHA256 of the upstream file at that point:
 ... (as at https://github.com/.../commit/<hash>; upstream SHA256: <hex>)
 ```
 
-`yoga test run` checks currency automatically (`check_mcp_schema`) by fetching the raw
+`corpus-yoga test run` checks currency automatically (`check_mcp_schema`) by fetching the raw
 schema URL from the LATEST version's description and comparing its SHA256 to the
 stored value. If the upstream file has changed, the check fails.
 
@@ -243,7 +243,7 @@ If `check_mcp_schema` fails: MINT the next version — download the updated sche
 convert it to Draft-04 if needed, set its `description` to the new commit URL and
 SHA256, narrate the upstream change in the family CHANGELOG, and leave the old
 snapshot in place (its history is data; the old update-in-place remedy destroyed
-it). Then re-run `yoga test run` to verify all `model_join.csv` pointers still resolve
+it). Then re-run `corpus-yoga test run` to verify all `model_join.csv` pointers still resolve
 against the new latest.
 
 ### 6. Dispose the model.json obligations
@@ -254,7 +254,7 @@ pressure, both computed by `src/main/model/model_curation.py` from committed fil
 
 - **leisurely, advisory → `model_join.csv`**: the naive name scan (definition names in
   ≥2 families' latest versions) surfaces SHARED NAMES — the question, of which
-  `name_collision` (the false friend) is one possible answer — and `yoga model sync`
+  `name_collision` (the false friend) is one possible answer — and `corpus-yoga model sync`
   renders them pre-filled at `tmp/cache/model/shared_name_candidates.csv` (path cells
   computed; `identical` proposed where the shapes are structurally equal, editable);
   a human disposes each by pasting the row into `model_join.csv` with its
@@ -275,8 +275,8 @@ pressure, both computed by `src/main/model/model_curation.py` from committed fil
 After schema changes:
 
 ```bash
-yoga model sync   # regenerate the per-schema catalogues (the review aid)
-yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
+corpus-yoga model sync   # regenerate the per-schema catalogues (the review aid)
+corpus-yoga model        # both loops in numbers: obligations (gating) and unrecorded collisions
 ```
 
 This step is falsifiable, not "if needed". Occurrence paths use the de-versioned
@@ -285,7 +285,7 @@ version — `model_join.csv`'s grammar), and `check_model_occurrences` gates bot
 grammar and that every instance pointer still resolves — a mint that renames a
 documented field fails there, the review prompt.
 
-### 7. Run `yoga test run`
+### 7. Run `corpus-yoga test run`
 
 ```bash
 src/test/dev/run.sh

@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 """
-cli.py — the machinery behind `yoga`, the repo's terminal surface.
+cli.py — the machinery behind `corpus-yoga`, the repo's terminal surface.
 
 Two curated tables are the interface (format: src/main/cli/README.md): src/main/cli/
 names each command and its target; src/main/cli/ describes the arguments.
-`yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
-`yoga -h` lists the commands; `yoga <command> -h` renders that command's help from
-the tables; a subcommand one level down (`yoga <command> <subcommand> --help`) is
+`corpus-yoga <command> [args...]` execs the row's target with the args forwarded verbatim.
+`corpus-yoga -h` lists the commands; `corpus-yoga <command> -h` renders that command's help from
+the tables; a subcommand one level down (`corpus-yoga <command> <subcommand> --help`) is
 answered by the target's own parser — argparse for a python target (or the parser
 cli.py builds for a command it handles itself), parse_argv for a bash target (#474),
-both wording their answer from the declaration. `yoga completions` derives static zsh tab-completion from
+both wording their answer from the declaration. `corpus-yoga completions` derives static zsh tab-completion from
 the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
@@ -23,10 +23,10 @@ The vocabulary is parsed from the calculus document itself (calculus_terms),
 never restated.
 
 Usage:
-    yoga                       # render the table
-    yoga <command> [args...]   # exec the target
-    yoga completions install-latest  # regenerate the zsh tab-completion and wire it
-    yoga commands              # every command's syntax: a SYNOPSIS derived from the table
+    corpus-yoga                       # render the table
+    corpus-yoga <command> [args...]   # exec the target
+    corpus-yoga completions install-latest  # regenerate the zsh tab-completion and wire it
+    corpus-yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the surface must never depend on
 what pip installed, so reading the table, printing the calculus and deriving
@@ -314,15 +314,15 @@ def usage_of(command: str) -> str:
 
 
 def command_forms(command: str) -> list[str]:
-    """`yoga <command> …` invocation forms, generated from the declaration: one per
+    """`corpus-yoga <command> …` invocation forms, generated from the declaration: one per
     subcommand (with its own args), or a single form carrying the command-level args
     when there are no subcommands."""
     order, bysub = _by_subcommand(command)
     subcommands = [s for s in order if s]
-    base = f'yoga {command}'
+    base = f'corpus-yoga {command}'
     # ALWAYS the bare form first, then one per subcommand. It is not conditional in the
     # grammar, so it is not conditional here: making it depend on whether a command has
-    # subcommands puts `yoga commands` at odds with `yoga commands <one>`, which lists the
+    # subcommands puts `corpus-yoga commands` at odds with `corpus-yoga commands <one>`, which lists the
     # bare form either way.
     forms = [_join(base, _render_args(bysub.get('', [])))]
     return forms + [_join(f'{base} {s}', _render_args(bysub[s])) for s in subcommands]
@@ -333,14 +333,14 @@ def _forms(c: dict) -> list[str]:
 
 
 def render_command_help(c: dict) -> str:
-    """The standard command help, shared by `yoga <cmd> -h` and `yoga commands
+    """The standard command help, shared by `corpus-yoga <cmd> -h` and `corpus-yoga commands
     <cmd>`: the summary, every invocation form, then each subcommand with its own args
     nested beneath it, command-level args flat. All generated from the declaration."""
     command = c['command']
     forms = command_forms(command)
     if subcommands_of(command):
         forms[0] += '   (status)'   # the same first form, annotated — never a second one
-    out = [f"yoga {command} — {c['summary']}", '', *[f'  {f}' for f in forms]]
+    out = [f"corpus-yoga {command} — {c['summary']}", '', *[f'  {f}' for f in forms]]
     order, bysub = _by_subcommand(command)
     argrows = [r for r in command_rows(command) if r['arg-name']]
     descs = {s: next((r['help'] for r in bysub[s] if not r['arg-name']), None) for s in order}
@@ -371,12 +371,12 @@ def render_command_help(c: dict) -> str:
 
 
 def render_help(cmds: list[dict]) -> str:
-    """`yoga -h` — the command menu: one line each, name and summary. Bare `yoga`
-    runs the machine report (prerequisites); `yoga <command> -h` is a command's forms."""
+    """`corpus-yoga -h` — the command menu: one line each, name and summary. Bare `corpus-yoga`
+    runs the machine report (prerequisites); `corpus-yoga <command> -h` is a command's forms."""
     w = max(len(c['command']) for c in cmds)
-    out = ['yoga', '',
+    out = ['corpus-yoga', '',
            *[f"  {c['command']:<{w}}  {c['summary']}" for c in cmds],
-           '', '→ `yoga <command> -h` for its forms · `yoga <command>` for its status', '']
+           '', '→ `corpus-yoga <command> -h` for its forms · `corpus-yoga <command>` for its status', '']
     return '\n'.join(out)
 
 
@@ -434,7 +434,7 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
                           capture_output=True, text=True).stdout.strip()
     print(f"{row['command']} {verb} — {stamp} · room: {room or '(unbound)'} · {head or '(no git)'}",
           flush=True)
-    print(' '.join(['yoga', row['command'], *rest]), flush=True)
+    print(' '.join(['corpus-yoga', row['command'], *rest]), flush=True)
 
 
 def dispatch(row: dict, rest: list[str]) -> int:
@@ -460,7 +460,7 @@ def usage_line(c: dict) -> str:
     the declaration. It names EVERY verb and flag that applies — so there is no need to
     guess a unique 'next' (a noun with several verbs has none)."""
     usage = usage_of(c['command'])
-    return f"usage: yoga {c['command']}" + (f" {usage}" if usage else '')
+    return f"usage: corpus-yoga {c['command']}" + (f" {usage}" if usage else '')
 
 
 def _run_status(row: dict) -> int:
@@ -479,8 +479,8 @@ def main() -> int:
     argv = sys.argv[1:]
     cmds = commands()
     if not argv:
-        # bare `yoga` → the machine report: what still needs attention (failures-only;
-        # `yoga prerequisites --show-all` for the full report). The root obeys the same
+        # bare `corpus-yoga` → the machine report: what still needs attention (failures-only;
+        # `corpus-yoga prerequisites --show-all` for the full report). The root obeys the same
         # rule as every noun — bare shows status, -h shows help — and its status IS the
         # prerequisites report, so there is nothing to invent here.
         return dispatch(next(c for c in cmds if c['command'] == 'prerequisites'), [])
@@ -489,12 +489,12 @@ def main() -> int:
         return 0                              # not a bareword `help` the table never declared
     row = next((c for c in cmds if c['command'] == argv[0]), None)
     if row is None:
-        print(f'yoga: unknown command {argv[0]!r} — the table:\n', file=sys.stderr)
+        print(f'corpus-yoga: unknown command {argv[0]!r} — the table:\n', file=sys.stderr)
         print(render_help(cmds), file=sys.stderr, end='')
         return 2
     rest = argv[1:]
-    # command-level help (`yoga <cmd> -h`, no subcommand before the flag) → the uniform
-    # standard help. A subcommand before it (`yoga <cmd> <sub> -h`) falls through to
+    # command-level help (`corpus-yoga <cmd> -h`, no subcommand before the flag) → the uniform
+    # standard help. A subcommand before it (`corpus-yoga <cmd> <sub> -h`) falls through to
     # argparse, which carries that subcommand's own flags: the target's parser, or the
     # one cli.py builds for a command it handles itself.
     if rest and rest[0] in ('-h', '--help'):

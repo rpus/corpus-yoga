@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# run.sh (yoga test run) — the three-tier check suite; also the pre-commit hook.
+# run.sh (corpus-yoga test run) — the three-tier check suite; also the pre-commit hook.
 #
 # Usage:
 #   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 #   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
-#   yoga test install-hook                        # install as the hook
+#   corpus-yoga test install-hook                        # install as the hook
 #
 # ONE behaviour, however it is called: it asks neither what it was invoked as nor
-# which branch you are on. A failure exits non-zero — as `yoga test run`, as the hook,
+# which branch you are on. A failure exits non-zero — as `corpus-yoga test run`, as the hook,
 # on trunk, on a branch, detached. Deliberate WIP is `git commit --no-verify`, said
 # out loud, not inferred from your branch name.
 #
@@ -30,7 +30,7 @@
 #
 # Tiers: code + schema are deterministic on any clone (the committed log carries
 # only these); data is machine-local, advisory. Whether the hook is installed is a
-# machine-local fact that `yoga prerequisites` reports as an ERROR; a hook that RUNS
+# machine-local fact that `corpus-yoga prerequisites` reports as an ERROR; a hook that RUNS
 # while being the outdated form is refused below, since only a running hook can say so.
 # Read a failure:
 # git diff rsc/test/run.log
@@ -62,7 +62,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # loop of them consumes no memory, no PIDs and no stack — nothing above this script
 # can see it, and the gate HANGS rather than fails. Assert the root, and never
 # re-exec this very file: -ef is the same-file test, which is what the guard means.
-[[ -f "$REPO_DIR/yoga" ]] || { echo "ERROR: $REPO_DIR is not a repo root — this script's climb is wrong." >&2; exit 1; }
+[[ -f "$REPO_DIR/corpus-yoga" ]] || { echo "ERROR: $REPO_DIR is not a repo root — this script's climb is wrong." >&2; exit 1; }
 TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 if [[ -n "$TOPLEVEL" && "$TOPLEVEL" != "$REPO_DIR" ]]; then
   if [[ -x "$TOPLEVEL/src/test/dev/run.sh" ]] && ! [[ "$TOPLEVEL/src/test/dev/run.sh" -ef "${BASH_SOURCE[0]}" ]]; then
@@ -86,16 +86,16 @@ fi
 #
 # The test is EQUALITY with rsc/test/pre-commit-hook.sh, the one authority on what an
 # installed hook is — not a pattern, which a longer or conditional hook would satisfy
-# while doing something else entirely. `yoga prerequisites` asks the same question of the
+# while doing something else entirely. `corpus-yoga prerequisites` asks the same question of the
 # same file.
 if [[ -n "${GIT_INDEX_FILE:-}" ]]; then
   hook_path="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
   [[ -z "$hook_path" || "$hook_path" = /* ]] || hook_path="$REPO_DIR/$hook_path"
   if [[ -n "$hook_path" ]] && ! cmp -s "$hook_path" "$REPO_DIR/rsc/test/pre-commit-hook.sh"; then
     echo "ERROR: this commit ran an OUTDATED pre-commit hook." >&2
-    echo "       It points at a file rather than naming \`yoga test run\`, so renaming that" >&2
+    echo "       It points at a file rather than naming \`corpus-yoga test run\`, so renaming that" >&2
     echo "       file would disarm the gate in silence. Nothing is wrong with the change." >&2
-    echo "       → run: yoga test install-hook" >&2
+    echo "       → run: corpus-yoga test install-hook" >&2
     exit 1
   fi
 fi

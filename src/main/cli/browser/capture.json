@@ -1,5 +1,5 @@
 {
-  "help": "capture browser-reachable chats via Safari into data/input/ (a bare `yoga browser` audits capture-health)",
+  "help": "capture browser-reachable chats via Safari into data/input/ (a bare `corpus-yoga browser` audits capture-health)",
   "args": [
     {
       "name": "--provider",

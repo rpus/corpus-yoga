@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# yoga — the repo's terminal CLI: curated subcommands with zsh tab-completion.
+# corpus-yoga — the repo's terminal CLI: curated subcommands with zsh tab-completion.
 # The table and the machinery share src/main/cli/ — cli.py reads the declarations beside it.
-# Bare `yoga` is the machine report (the root's status, like every noun); `yoga -h` is
-# the table; `yoga <command> --help` asks the target itself.
+# Bare `corpus-yoga` is the machine report (the root's status, like every noun); `corpus-yoga -h` is
+# the table; `corpus-yoga <command> --help` asks the target itself.
 #
 # Every python here runs in the venv (#478): the launcher refuses without it,
 # naming the mint — src/main/cli/prerequisites/prerequisites.sh sync --apply,
