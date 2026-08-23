@@ -94,20 +94,20 @@ rsc/schema/WORKFLOW.md,133,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/p
 rsc/schema/WORKFLOW.md,138,doc,src/validation_matrix.py,Y,`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
 rsc/schema/WORKFLOW.md,145,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 rsc/schema/WORKFLOW.md,145,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,179,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
-rsc/schema/WORKFLOW.md,184,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,187,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
-rsc/schema/WORKFLOW.md,218,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,230,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
-rsc/schema/WORKFLOW.md,231,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
-rsc/schema/WORKFLOW.md,253,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
-rsc/schema/WORKFLOW.md,254,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
-rsc/schema/WORKFLOW.md,255,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
-rsc/schema/WORKFLOW.md,264,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,269,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
-rsc/schema/WORKFLOW.md,293,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,294,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,300,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/WORKFLOW.md,177,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
+rsc/schema/WORKFLOW.md,182,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
+rsc/schema/WORKFLOW.md,185,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
+rsc/schema/WORKFLOW.md,216,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,228,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
+rsc/schema/WORKFLOW.md,229,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
+rsc/schema/WORKFLOW.md,251,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
+rsc/schema/WORKFLOW.md,252,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
+rsc/schema/WORKFLOW.md,253,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
+rsc/schema/WORKFLOW.md,262,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,267,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+rsc/schema/WORKFLOW.md,291,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,292,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,298,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 rsc/schema/_reference/mcp/CHANGELOG.md,30,doc,rsc/schema/_reference/mcp/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,25,doc,rsc/schema/browser-captures/apiConversation/v9.json,Y,[v9.json](./v9.json)
@@ -159,18 +159,19 @@ rsc/schema/code-agents/projectMemory/CHANGELOG.md,24,doc,rsc/schema/code-agents/
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,54,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/session/CHANGELOG.md,31,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
-rsc/schema/code-agents/session/CHANGELOG.md,62,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
-rsc/schema/code-agents/session/CHANGELOG.md,94,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
-rsc/schema/code-agents/session/CHANGELOG.md,126,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
-rsc/schema/code-agents/session/CHANGELOG.md,167,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
-rsc/schema/code-agents/session/CHANGELOG.md,209,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
-rsc/schema/code-agents/session/CHANGELOG.md,233,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
-rsc/schema/code-agents/session/CHANGELOG.md,260,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
-rsc/schema/code-agents/session/CHANGELOG.md,274,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
-rsc/schema/code-agents/session/CHANGELOG.md,286,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
-rsc/schema/code-agents/session/CHANGELOG.md,304,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
-rsc/schema/code-agents/session/CHANGELOG.md,350,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,25,doc,rsc/schema/code-agents/session/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/code-agents/session/CHANGELOG.md,65,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/code-agents/session/CHANGELOG.md,96,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/code-agents/session/CHANGELOG.md,128,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/code-agents/session/CHANGELOG.md,160,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/code-agents/session/CHANGELOG.md,201,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/code-agents/session/CHANGELOG.md,243,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/code-agents/session/CHANGELOG.md,267,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/code-agents/session/CHANGELOG.md,294,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/code-agents/session/CHANGELOG.md,308,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/code-agents/session/CHANGELOG.md,320,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/session/CHANGELOG.md,338,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/code-agents/session/CHANGELOG.md,384,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -549,50 +550,50 @@ src/test/dev/run.py,476,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines
 src/test/dev/run.py,789,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
 src/test/dev/run.py,935,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
 src/test/dev/run.py,941,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-src/test/dev/run.py,1740,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
-src/test/dev/run.py,1761,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/dev/run.py,2044,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/dev/run.py,2263,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
-src/test/dev/run.py,2275,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
-src/test/dev/run.py,2364,comment,src/main/pipeline/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
-src/test/dev/run.py,2365,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/dev/run.py,2416,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2416,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2417,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2417,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2418,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2418,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2422,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
-src/test/dev/run.py,2430,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': ['src', 'rsc/CALCULUS.md'],"
-src/test/dev/run.py,2432,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
-src/test/dev/run.py,2434,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
-src/test/dev/run.py,2446,path_str,rsc/schema/_reference,Y,"'check_mcp_schema': ['rsc/schema/_reference'],"
-src/test/dev/run.py,2954,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,1750,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
+src/test/dev/run.py,1771,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/dev/run.py,2054,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/dev/run.py,2273,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+src/test/dev/run.py,2285,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
+src/test/dev/run.py,2374,comment,src/main/pipeline/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
+src/test/dev/run.py,2375,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/dev/run.py,2426,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2426,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2427,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2427,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2428,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2428,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2432,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
+src/test/dev/run.py,2446,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
+src/test/dev/run.py,2448,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
+src/test/dev/run.py,2460,path_str,rsc/schema/_reference,Y,"'check_mcp_schema': ['rsc/schema/_reference'],"
+src/test/dev/run.py,2968,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,2443,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
 src/test/dev/run.py,404,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
 src/test/dev/run.py,1199,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
 src/test/dev/run.py,1250,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
 src/test/dev/run.py,1250,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,2239,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
-src/test/dev/run.py,3192,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,3193,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
-src/test/dev/run.py,2865,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2867,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2875,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2877,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2249,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
+src/test/dev/run.py,3206,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,3207,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,2879,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2881,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2889,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2891,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/dev/run.py,1135,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
-src/test/dev/run.py,1357,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/dev/run.py,1435,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
-src/test/dev/run.py,1719,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/dev/run.py,1776,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/dev/run.py,1835,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/dev/run.py,2095,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
-src/test/dev/run.py,2542,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-src/test/dev/run.py,2553,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2553,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2735,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
-src/test/dev/run.py,2826,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,3240,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,3240,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,1367,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/dev/run.py,1445,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
+src/test/dev/run.py,1729,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/dev/run.py,1786,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/dev/run.py,1845,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/dev/run.py,2105,comment,src/main/send.py,Y,# one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
+src/test/dev/run.py,2556,comment,rsc/test/run.log,Y,# identical on any clone and becomes the COMMITTED rsc/test/run.log; the
+src/test/dev/run.py,2567,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2567,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2749,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
+src/test/dev/run.py,2840,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/dev/run.py,3254,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,3254,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
@@ -621,7 +622,6 @@ src/test/usr/pipeline/code-agents/survey_code_session.py,11,comment,src/test/usr
 src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating.
 ,,,CLAUDE.md,Y,
 ,,,README.md,Y,
-,,,claude-export-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
 ,,,rsc/schema/_reference/mcp/v2.json,Y,
@@ -637,7 +637,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,rsc/schema/code-agents/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/projectMemory/v3.json,Y,
 ,,,rsc/schema/code-agents/session/CHANGELOG.md,Y,
-,,,rsc/schema/code-agents/session/v12.json,Y,
+,,,rsc/schema/code-agents/session/v13.json,Y,
 ,,,rsc/schema/code-agents/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/sessionConversation/v1.json,Y,
 ,,,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,
@@ -764,3 +764,4 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,self_only,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,
 ,,,yoga,Y,
+,,,yoga.code-workspace,Y,
