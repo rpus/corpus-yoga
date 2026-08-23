@@ -286,6 +286,18 @@ Each law names its current enforcement (or the incident that taught it).
   `curate`). Staleness is never silent: an artifact no mechanism can refresh
   automatically is an artifact whose status says so (the dashboard render over
   paid captures — the outlier that forced this law).
+- **L10 — Capture is map; comparison is reduce.** `unenforced (#512)` — A capture writes
+  what its source returned, under a stamp, into `data/input/`, and reads no other
+  capture. Whether two deposits are the same, or one supersedes the other, is
+  decided where the pipelines reduce — in `tmp/cache/` and `data/output/` — never
+  at capture (bulk exports and `yoga supersede check`; sessions and
+  `render_corpus.py`; `yoga forge capture` since the maintainer's ruling of
+  2026-08-23, #497). Two captures predate the law and read the store they write
+  into, each because its store is keyed by identity rather than by stamp:
+  `yoga agent capture` (a session's bytes, to relate local to remote) and
+  `yoga browser capture` (a conversation's `.md`, to refuse a shorter walk and to
+  unlink a superseded slug). #512 holds whether they come under the law or are
+  its stated exceptions.
 
 ---
 
