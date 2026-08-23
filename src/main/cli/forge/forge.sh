@@ -6,6 +6,7 @@
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, resync, flip the body, squash, converge
 #   yoga forge prune [--apply] # forget what the forge no longer has
+#   yoga forge capture [--to <dir>] # deposit the forge's ledger under data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 
 set -euo pipefail
 
@@ -527,6 +528,23 @@ merge_chain() {
   echo "forge merge: DONE — #$pr squashed as ${landed:0:8} ($n should(s) closed); this checkout converged on it"
 }
 
+# The capture is src/main/cli/forge/capture.py's; this face stamps the deposit, tees the
+# run into one log (room, main's sha, every gh command, the verdict - the act's whole
+# record, which the deposit itself never carries), and relays the verdict.
+capture() {
+  local stamp log rc
+  stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
+  mkdir -p "$REPO_DIR/tmp/logs/forge/capture"
+  log="$REPO_DIR/tmp/logs/forge/capture/$stamp.log"
+  { echo "forge capture - $stamp · room: $(cat "$REPO_DIR/machine-name.txt" 2>/dev/null || echo '(unbound)') · main: $(git -C "$REPO_DIR" rev-parse --short origin/main 2>/dev/null)"
+    echo "yoga forge capture $*"
+    "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/capture.py" "$stamp" "$@"
+  } 2>&1 | tee "$log"
+  rc="${PIPESTATUS[0]}"
+  echo "Log: $log"
+  return "$rc"
+}
+
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
 
 case "${1-}" in
@@ -534,6 +552,7 @@ case "${1-}" in
   sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
   prune)     shift; parse_argv forge prune "$@"; prune "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
+  capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;
 esac
