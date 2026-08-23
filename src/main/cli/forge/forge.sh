@@ -6,6 +6,7 @@
 #   yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, resync, flip the body, squash, converge
 #   yoga forge prune [--apply] # forget what the forge no longer has
+#   yoga forge capture [--to <dir>] # deposit the forge's ledger under data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 
 set -euo pipefail
 
@@ -527,6 +528,13 @@ merge_chain() {
   echo "forge merge: DONE — #$pr squashed as ${landed:0:8} ($n should(s) closed); this checkout converged on it"
 }
 
+# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+# The run log (room, head, every gh command, the verdict) is the launcher's tee, as
+# for every verb declaring sends or w (cli.py _log_enacting, #453).
+capture() {
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/capture.py" "$(date -u '+%Y-%m-%dT%H%M%SZ')" "$@"
+}
+
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
 
 case "${1-}" in
@@ -534,6 +542,7 @@ case "${1-}" in
   sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
   prune)     shift; parse_argv forge prune "$@"; prune "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
+  capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "yoga forge: unknown argument: $1 (try: yoga forge --help)" >&2; exit 1 ;;
 esac

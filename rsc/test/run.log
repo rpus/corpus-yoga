@@ -1,4 +1,4 @@
-run.py: 2131/2131 (data: machine-local)
+run.py: 2136/2136 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: 2131/2131 (data: machine-local)
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (66/66)
+  ✓ structure.self_path_matches_address  (67/67)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -40,7 +40,7 @@ run.py: 2131/2131 (data: machine-local)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (17/17)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (18/18)
+  ✓ naming.log_path_derives_from_command  (19/19)
   ✓ output.prescriptions_are_commands  (65/65)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
@@ -49,9 +49,9 @@ run.py: 2131/2131 (data: machine-local)
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (67/67)
-  ✓ structure.file_at_level_of_subject  (23/23)
+  ✓ structure.file_at_level_of_subject  (24/24)
   ✓ structure.cli_declaration_mirrors_the_api  (18/18)
-  ✓ structure.cli_declaration_validates  (50/50)
+  ✓ structure.cli_declaration_validates  (51/51)
   ✓ cli.every_form_listed  (34/34)
   ✓ cli.flag_not_axis_value  (16/16)
   ✓ cli.block_identity_stable  (2/2)
@@ -59,7 +59,7 @@ run.py: 2131/2131 (data: machine-local)
   ✓ cli.step_invokes_verb  (4/4)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
-  ✓ cli.verb_help_answered  (15/15)
+  ✓ cli.verb_help_answered  (16/16)
 
 ── check_cli_exclusive_classes ───────────────────────────────────────────────
   ✓ cli.exclusive_class_parses  (6/6)
@@ -183,12 +183,12 @@ stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
-check_self_paths                      66     0     0   ok        14
+check_self_paths                      67     0     0   ok        14
 check_committed_tree                   2     0     0   ok        17
 check_templates                        2     0     0   ok        21
 check_xref                             2     0     0   ok        24
-check_cli_surface                    435     0     0   ok        28
-check_cli_verb_help                   15     0     0   ok        61
+check_cli_surface                    438     0     0   ok        28
+check_cli_verb_help                   16     0     0   ok        61
 check_cli_exclusive_classes            6     0     0   ok        64
 check_effects                          2     0     0   ok        67
 check_cache_io                        18     0     0   ok        71
@@ -208,11 +208,11 @@ check_score                            5     0     0   ok       176
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 100 types, 2131/2131 invocations passing
+  ✓ checks[code+schema]: 100 types, 2136/2136 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 63 types, 583/583 invocations passing
+  ✓ checks[code]: 63 types, 588/588 invocations passing
   ✓ checks[schema]: 37 types, 1548/1548 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2131/2131 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
+dev gate: PASS — code+schema 2136/2136 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: yoga pipeline run
