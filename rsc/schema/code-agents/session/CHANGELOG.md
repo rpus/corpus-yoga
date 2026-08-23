@@ -6,6 +6,45 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v14
+
+The harness's refusal enters the record. Reading-room session `5c631cf4-…`,
+resumed on 2026-08-22 (harness 2.1.240, entrypoint claude-vscode), carries one
+assistant record written at 22:37:35Z that no version admits: an API-error
+message (`isApiErrorMessage` true, `error` invalid_request) whose
+`message.model` is the not-a-model marker, whose `stop_reason` is "refusal" -
+the free string every version admits - and whose `stop_details`, null on every
+record of every session until that evening, is an object: type "refusal",
+category "reasoning_extraction", the harness's explanation sentence,
+`fallback_has_prefill_claim` false, `recommended_model` null. The 2026-08-23
+survey over both rooms' stores and this checkout's cache found a non-null
+`stop_details` in this one record only; validating the session record by
+record against v13, it is the only failure. Every record valid under v13 is
+valid under v14 unchanged: v13 now happens to reject only the kind its era
+never showed.
+
+### Replaces
+
+[v13.json](./v13.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- `message.stop_details`: null-only becomes null-or-`StopDetails`, a closed
+  five-field object (`type`, `category`, `explanation`,
+  `fallback_has_prefill_claim`, `recommended_model`) - all five present in the
+  observed record, so all required; `recommended_model` null-or-string, the
+  one field observed only null.
+
+#### Refactored
+
+None.
+
+---
+
 ## v13
 
 The session log grows a lifecycle record kind. Reading-room session
