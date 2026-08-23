@@ -15,6 +15,9 @@
     "gh api repos/{owner}/{repo}/pulls": [
       "reads every pull request, its reviews and review comments"
     ],
+    "gh api graphql": [
+      "reads every pull request's review count in one paginated query, so only reviewed pulls are read one by one"
+    ],
     "gh api repos/{owner}/{repo}/issues/comments": [
       "reads every issue comment"
     ],
