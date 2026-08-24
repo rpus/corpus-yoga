@@ -143,7 +143,10 @@ def render(deposits, out_dir):
     written, so a re-run rewrites nothing — silence on disk, no iCloud churn."""
     files = {}
     for f in deposits:
-        accounts = json.loads(f.read_text())
+        data = json.loads(f.read_text())
+        # both eras deposit one account's object: the pre-manifest snapshots wrapped it
+        # in a single-element array, the manifest era ships it bare - one rule reads both
+        accounts = data if isinstance(data, list) else [data]
         out = [f'# Claude memory — {f.stem}', '']
         for a in accounts:
             if len(accounts) > 1:
