@@ -358,10 +358,7 @@
         },
         "signature": {
           "description": "Cryptographic signature over the thinking content, used by the API to verify that thinking blocks have not been tampered with when passed back in subsequent turns. Null observed once (2026-08-23, a block whose thinking is empty and thinking_hidden true): the harness leaves an unsigned blank.",
-          "type": [
-            "null",
-            "string"
-          ]
+          "$ref": "#/definitions/NullableString"
         },
         "hidden": {
           "description": "Whether the thinking block is collapsed/hidden in the claude.ai UI. Present on every thinking block in the current export format (added by claude.ai mid-2026); required, matching the live-API ApiThinkingBlock (apiConversation v6). Exports predating the field fail v12 and were dropped, as with approval_key_legacy at v10.",
@@ -546,6 +543,18 @@
           "type": "string"
         }
       }
+    },
+    "NullableString": {
+      "title": "NullableString",
+      "description": "Shared primitive: a field that is either null or a free-form string. Used wherever a string field may be absent in observed exports.",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string"
+        }
+      ]
     },
     "ToolUseBlockBase": {
       "title": "ToolUseBlockBase",
@@ -1489,18 +1498,6 @@
     "IntegrationName": {
       "title": "IntegrationName",
       "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v12; opened at v13 when 'File Creation' appeared in a bulk export, exactly as the description had warned (and as apiConversation v7 had already done).",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "string"
-        }
-      ]
-    },
-    "NullableString": {
-      "title": "NullableString",
-      "description": "Shared primitive: a field that is either null or a free-form string. Used wherever a string field may be absent in observed exports.",
       "oneOf": [
         {
           "type": "null"
