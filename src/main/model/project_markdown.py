@@ -33,11 +33,11 @@ from markdown_projection import (REPO, project, ordered, find_api_json, render,
                                  md_validator, tree_problems, deposit, conv_id)
 
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'chat-exports'))
-from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
+from supersede import export_time  # noqa: E402 — the one export-ordering authority
 
 
 def _newest_batch_json():
-    """The newest ATOMISED batch's json/ dir (by batch_time, the one ordering
+    """The newest ATOMISED export's json/ dir (by export_time, the one ordering
     authority), or None where no batch has been atomised."""
     cache = REPO / 'tmp' / 'cache' / 'chat-exports'
     atomised = [d for d in cache.glob('data-*') if (d / 'json').is_dir()]
@@ -45,7 +45,7 @@ def _newest_batch_json():
         return None
     import datetime
     floor = datetime.datetime.min.replace(tzinfo=datetime.timezone.utc)
-    return max(atomised, key=lambda d: batch_time(d.name) or floor) / 'json'
+    return max(atomised, key=lambda d: export_time(d.name) or floor) / 'json'
 
 
 def _msg_index(convs):

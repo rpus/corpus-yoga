@@ -339,7 +339,9 @@ src/main/cli/site/site.sh,26,comment,src/main/model/corpus_shape.sh,Y,# shellche
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-exports/summaries.py,Y,"""target"": ""src/main/pipeline/chat-exports/summaries.py"","
+src/main/cli/supersede/check.json,46,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
 src/main/cli/supersede/supersede.json,3,path_str,src/main/pipeline/chat-exports/supersede.py,Y,"""target"": ""src/main/pipeline/chat-exports/supersede.py"","
+src/main/cli/supersede/supersede.json,7,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
 src/main/cli/test/run.json,31,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/test/run.json,32,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
 src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": ""src/main/cli/test/test.sh"","
@@ -480,7 +482,8 @@ src/main/pipeline/chat-exports/summaries.py,35,comment,src/main/pipeline/chat-ex
 src/main/pipeline/chat-exports/summaries.py,46,path_str,src/main/pipeline/chat-exports/summaries.py,Y,SELF = 'src/main/pipeline/chat-exports/summaries.py'
 src/main/pipeline/chat-exports/supersede.py,59,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/supersede.py     [--chat-exports-cache tmp/cache/chat-exports] [
 src/main/pipeline/chat-exports/supersede.py,59,comment,src/main/pipeline/chat-exports/supersede.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/supersede.py     [--chat-exports-cache tmp/cache/chat-exports] [
-src/main/pipeline/chat-exports/supersede.py,77,path_str,src/main/pipeline/chat-exports/supersede.py,Y,SELF = 'src/main/pipeline/chat-exports/supersede.py'
+src/main/pipeline/chat-exports/supersede.py,78,path_str,src/main/pipeline/chat-exports/supersede.py,Y,SELF = 'src/main/pipeline/chat-exports/supersede.py'
+src/main/pipeline/chat-exports/supersede.py,103,comment,rsc/naming/export_dir_vintages.csv,Y,"The export-dir naming vintages, as data (rsc/naming/export_dir_vintages.csv),"
 src/main/pipeline/chat-exports/timeline.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-exports/timeline.py <conversations.json> --table chats
 src/main/pipeline/chat-exports/timeline.py,14,comment,src/main/pipeline/chat-exports/timeline.py,Y,src/run_python_script.sh src/main/pipeline/chat-exports/timeline.py <conversations.json> --table chats
 src/main/pipeline/chat-exports/timeline.py,26,path_str,src/main/pipeline/chat-exports/timeline.py,Y,SELF = 'src/main/pipeline/chat-exports/timeline.py'

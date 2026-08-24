@@ -5,21 +5,21 @@
       "name": "--chat-exports-cache",
       "type": "<dir>",
       "cardinality": "",
-      "help": "cache root holding <batch>/json/ atomised pieces",
+      "help": "cache root holding <export>/json/ atomised pieces",
       "default": "tmp/cache/chat-exports"
     },
     {
       "name": "--bulk-exports",
       "type": "<dir>",
       "cardinality": "",
-      "help": "input root holding the raw batch dirs (memories/projects/users)",
+      "help": "input root holding the raw export dirs (memories/projects/users)",
       "default": "data/input/claude/chat/bulk-export"
     },
     {
       "name": "--browser-api",
       "type": "<dir>",
       "cardinality": "",
-      "help": "browser-API root: also compare the latest batch against live captures (informational)"
+      "help": "browser-API root: also compare the latest export against live captures (informational)"
     },
     {
       "name": "--memories-output",
@@ -42,6 +42,7 @@
     "data/input/claude/chat/bulk-export",
     "data/input/claude/chat/browser-API",
     "data/output/memories",
-    "data/output/markdown/claude/chat/summaries"
+    "data/output/markdown/claude/chat/summaries",
+    "rsc/naming/export_dir_vintages.csv"
   ]
 }

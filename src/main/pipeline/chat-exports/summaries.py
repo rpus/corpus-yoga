@@ -53,7 +53,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO, find_api_json
 
 from declared_parser import command_parser  # noqa: E402
-from supersede import batch_time  # noqa: E402 — the one batch-ordering authority
+from supersede import export_time  # noqa: E402 — the one export-ordering authority
 from accumulate import accumulate, nearest_earlier_deposit  # noqa: E402 — the one deposit rule
 
 # A summary folder holds <stamp>.md deposits beside two non-deposits: index.md
@@ -65,7 +65,7 @@ NON_DEPOSITS = {'index.md', 'browser-capture.md'}
 
 def _ts(batch_name):
     """The batch's snapshot time in the data/output/memories deposit style (compact UTC)."""
-    t = batch_time(batch_name)
+    t = export_time(batch_name)
     return t.strftime('%Y-%m-%dT%H%M%SZ') if t else None
 
 
@@ -90,7 +90,7 @@ def readings_by_uuid(gen_root: Path):
     accumulate, applied per folder in sync.)"""
     floor = datetime.min.replace(tzinfo=timezone.utc)
     batches = sorted((d for d in gen_root.glob('data-*') if (d / 'json').is_dir()),
-                     key=lambda d: batch_time(d.name) or floor)
+                     key=lambda d: export_time(d.name) or floor)
     out = {}
     for b in batches:
         ts = _ts(b.name)
