@@ -32,7 +32,8 @@ status() {
     batch="data-${stem#manifest-}"
     derived="$derived $batch"
     if [[ -d "$STORE/$batch" ]]; then
-      echo "  $(basename "$m"): payload held in $batch/"
+      echo "  $(basename "$m"): payload held in $batch/ — the one-use URLs are spent; to dispose of the dead index:"
+      echo "    → run: rm $store_rel/$(basename "$m")"
     else
       unfetched+=("$(basename "$m")")
     fi
