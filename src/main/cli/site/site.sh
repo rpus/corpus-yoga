@@ -119,6 +119,18 @@ render() {
 sync() {
   mkdir -p "$OUT"
   local d name f eventful=0
+  # reconcile: a page dir whose source left rsc/site/ leaves the publish tree with it
+  # (L7: this tree is sync's own; the 2026-08-24 fixture: the renamed tool page left
+  # yoga/ standing beside corpus-yoga/). Files at the root are spared - index.html is render's.
+  for d in "$OUT"/*/; do
+    [[ -d "$d" ]] || continue
+    name="$(basename "$d")"
+    if [[ ! -d "$SRC/$name" ]]; then
+      rm -rf "${OUT:?}/$name"
+      echo "site: pruned $name/ — its source left rsc/site/"
+      eventful=1
+    fi
+  done
   for d in "$SRC"/*/; do
     name="$(basename "$d")"
     # current already? every source file byte-identical and every render fresh → silence (L1)
