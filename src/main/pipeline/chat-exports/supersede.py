@@ -116,15 +116,16 @@ def _vintage_match(name):
 
 
 def export_time(name):
-    """The export's ordering instant, per its name's vintage: the epoch where the
-    vintage carries one, else the datetime. The two are different instants of one
-    export flow (14-16 seconds apart in both observed manifests), so one rule
-    orders every vintage by the same clock wherever that clock exists."""
+    """The export's ordering instant, per its name's vintage: the EXPLICIT datetime
+    where the vintage carries one (v3: the manifest's created_at to the second; v1:
+    the name's core), else the epoch (v2's only instant). The epoch stamps an
+    instant the manifests leave unnamed - exports order by the instant whose
+    meaning the flow states (the maintainer's ruling, 2026-08-24)."""
     _vintage_id, groups = _vintage_match(name)
-    if groups.get('epoch'):
-        return datetime.fromtimestamp(int(groups['epoch']), tz=timezone.utc)
     if groups.get('datetime'):
         return datetime(*map(int, groups['datetime'].split('-')), tzinfo=timezone.utc)
+    if groups.get('epoch'):
+        return datetime.fromtimestamp(int(groups['epoch']), tz=timezone.utc)
     return None
 
 
