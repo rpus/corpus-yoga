@@ -1,0 +1,6 @@
+{
+  "summary": "the bulk export: manifests deposited by hand, payloads captured from their one-use URLs",
+  "target": "src/main/cli/export/export.sh",
+  "calculus": "capture L4 L10",
+  "args": []
+}

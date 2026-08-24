@@ -1,5 +1,5 @@
 {
-  "help": "assemble data/output/site/ from rsc/site/ — page dirs copied, every .dot rendered to svg+png (skipped without graphviz) — idempotent; index.html stays render's",
+  "help": "assemble data/output/site/ from rsc/site/ — page dirs copied, departed page dirs pruned, every .dot rendered to svg+png (skipped without graphviz) — idempotent; index.html stays render's",
   "args": [],
   "r": [
     "rsc/site"

@@ -4,6 +4,7 @@
 # Usage:
 #   corpus-yoga site          # status: each artifact's presence and currency, and who produces it
 #   corpus-yoga site sync     # assemble the tree from rsc/site/ — page dirs copied, .dot rendered
+#   corpus-yoga site publish [--apply]  # make rpus.co serve the tree: copy into ext/mnt/site, commit, push
 #   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
 # The tree has two verbs with disjoint files: sync owns the page directories
@@ -18,6 +19,10 @@ SELF='src/main/cli/site/site.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/send.sh
+source "$REPO_DIR/src/main/send.sh"
+# shellcheck source=src/main/enact.sh
+source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 SRC="$REPO_DIR/rsc/site"
@@ -32,6 +37,7 @@ corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from 
 
   corpus-yoga site          status: each artifact's presence and currency, and who produces it
   corpus-yoga site sync     assemble the tree (page dirs copied, every .dot rendered to svg+png)
+  corpus-yoga site publish  copy the tree into ext/mnt/site, commit and push there (dry unless --apply)
   corpus-yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
 EOF
 }
@@ -116,9 +122,65 @@ render() {
   exec "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/present_corpus.py" "$@"
 }
 
+publish() {
+  local apply=""
+  [[ "${1-}" == "--apply" ]] && apply=1
+  local mount="$REPO_DIR/ext/mnt/site"
+  if [[ ! -d "$mount/.git" ]]; then
+    echo "site publish: NOT DONE — ext/mnt/site is not a git clone; corpus-yoga prerequisites reports the mount"
+    return 1
+  fi
+  if [[ ! -d "$OUT" ]]; then
+    echo "site publish: NOT DONE — no publish tree at data/output/site/; corpus-yoga site sync assembles it"
+    return 1
+  fi
+  # what differs: new or changed files the copy would land (deletions are not
+  # mirrored - the site repo curates its own removals)
+  local delta=0 f rel
+  while IFS= read -r f; do
+    rel="${f#"$OUT"/}"
+    if [[ ! -f "$mount/$rel" ]] || ! cmp -s "$f" "$mount/$rel"; then
+      echo "  would land: $rel"
+      delta=1
+    fi
+  done < <(find "$OUT" -type f | sort)
+  if [[ "$delta" == 0 && -z "$(git -C "$mount" status --porcelain)" ]]; then
+    echo "site publish: no effect — rpus.co's clone already holds the publish tree as assembled"
+    return 0
+  fi
+  if [[ -z "$apply" ]]; then
+    [[ -n "$(git -C "$mount" status --porcelain)" ]] && echo "  (the clone also holds uncommitted changes of its own — --apply commits them with the copy)"
+    echo "site publish: dry run — the copy, commit and push above await --apply"
+    return 0
+  fi
+  assert_may_send "git -C ext/mnt/site push (site publish --apply)" || return 1
+  enact cp -R "$OUT/" "$mount/" || return 1
+  enact git -C "$mount" add -A || return 1
+  if [[ -n "$(git -C "$mount" status --porcelain)" ]]; then
+    enact git -C "$mount" commit -m "publish" || return 1
+  else
+    echo "  nothing to commit — the clone already held the tree"
+  fi
+  enact git -C "$mount" push || return 1
+  echo "site publish: DONE — rpus.co serves the publish tree on Netlify's next build"
+}
+
+
 sync() {
   mkdir -p "$OUT"
   local d name f eventful=0
+  # reconcile: a page dir whose source left rsc/site/ leaves the publish tree with it
+  # (L7: this tree is sync's own; the 2026-08-24 fixture: the renamed tool page left
+  # yoga/ standing beside corpus-yoga/). Files at the root are spared - index.html is render's.
+  for d in "$OUT"/*/; do
+    [[ -d "$d" ]] || continue
+    name="$(basename "$d")"
+    if [[ ! -d "$SRC/$name" ]]; then
+      rm -rf "${OUT:?}/$name"
+      echo "site: pruned $name/ — its source left rsc/site/"
+      eventful=1
+    fi
+  done
   for d in "$SRC"/*/; do
     name="$(basename "$d")"
     # current already? every source file byte-identical and every render fresh → silence (L1)
@@ -159,6 +221,7 @@ sync() {
 case "${1:-}" in
   '')          status ;;
   sync)        shift; parse_argv site sync "$@"; sync ;;
+  publish)   shift; parse_argv site publish "$@"; publish "$@" ;;
   render)      shift; parse_argv site render "$@"; render "$@" ;;
   -h|--help)   usage ;;
   *)           echo "corpus-yoga site: unknown verb '${1}'" >&2; usage >&2; exit 2 ;;

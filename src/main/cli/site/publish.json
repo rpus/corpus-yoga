@@ -1,0 +1,22 @@
+{
+  "help": "make rpus.co serve the publish tree: copy data/output/site/ into the ext/mnt/site clone, commit there, push - a dry run unless --apply, because it writes outside the repo and the push is what the world sees",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "perform the copy, commit and push - without it, what would change is only reported"
+    }
+  ],
+  "sends": {
+    "git -C ext/mnt/site push": [
+      "WRITES what rpus.co serves (--apply only; refused loudly under YOGA_NO_SEND)"
+    ]
+  },
+  "r": [
+    "data/output/site"
+  ],
+  "w": [
+    "ext/mnt/site"
+  ]
+}

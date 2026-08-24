@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "manifest",
+  "description": "One bulk-export manifest: the file the emailed link downloads since 2026-08-24, listing the export's payload as one-use download URLs - the export's index, where the pre-manifest flow delivered the payload itself. Its filename, manifest-<uuid>-<epoch>-<hex8>-<YYYY-MM-DD-HH-MM-SS>.json, carries the same <uuid>-<epoch>-<hex8> core as the pre-manifest directory names (data-<uuid>-<epoch>-<hex8>-batch-NNNN), the uuid also appearing in every export_url path; the suffix changed from batch-NNNN to a datetime agreeing with created_at to the second. Prefix and suffix tell the vintages apart; the core is the export's identity in both.",
+  "type": "object",
+  "required": [
+    "instructions",
+    "created_at",
+    "total_files",
+    "data_files",
+    "version"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "instructions": {
+      "description": "The provider's sentence to the reader. Observed constant: download each file via its export_url, each URL usable once.",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "The manifest's creation instant, ISO-8601 with microseconds and offset; agrees to the second with the datetime suffix of the manifest's own filename. The epoch in that filename is 14-16 seconds earlier in both observed manifests; what instant it stamps, the manifests do not say.",
+      "type": "string"
+    },
+    "total_files": {
+      "description": "The length of data_files, restated by the provider.",
+      "type": "integer"
+    },
+    "data_files": {
+      "description": "One entry per payload file, ordered by batch_index.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "batch_index",
+          "export_url",
+          "category",
+          "part",
+          "filename"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "batch_index": {
+            "description": "Equals the entry's position in data_files in every observed entry of both manifests - nothing yet shows it carrying more than that. Not the pre-manifest batch-NNNN: that suffix named a whole export, this numbers entries inside one.",
+            "type": "integer"
+          },
+          "export_url": {
+            "description": "LEAKS PRIVACY (the account uuid in the path) and SPENDS: a one-use download URL - fetching it consumes it, so the URL is an ephemeral credential, not an address.",
+            "type": "string"
+          },
+          "category": {
+            "description": "What the file holds. Closed over the categories observed 2026-08-24; a new category fails loudly by name (the ModelId precedent). conversations, memories and projects name pre-manifest components; light_metadata is new to this flow; users and login_history have no category here.",
+            "type": "string",
+            "enum": [
+              "light_metadata",
+              "projects",
+              "memories",
+              "conversations"
+            ]
+          },
+          "part": {
+            "description": "Observed 0 in every entry of both manifests, agreeing with the filename's -NNN suffix (which batch_index does not). What part counts, the manifests so far do not show.",
+            "type": "integer"
+          },
+          "filename": {
+            "description": "The payload file's name, <category>-<part padded to 3>.zip in every observed entry.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "version": {
+      "description": "The manifest format's own version, the provider's. \"1.0\" observed.",
+      "type": "string"
+    }
+  }
+}

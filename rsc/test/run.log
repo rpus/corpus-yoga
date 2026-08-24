@@ -1,4 +1,4 @@
-run.py: 2160/2160 (data: machine-local)
+run.py: 2289/2289 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: 2160/2160 (data: machine-local)
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (67/67)
+  ✓ structure.self_path_matches_address  (69/69)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -29,19 +29,19 @@ run.py: 2160/2160 (data: machine-local)
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (17/17)
-  ✓ cli.calculus_defined  (17/17)
-  ✓ cli.advertised_flags_exist  (12/12)
-  ✓ cli.docstring_flags_advertised  (15/15)
-  ✓ cli.subcommands_dispatch  (15/15)
-  ✓ cli.target_flags_advertised  (15/15)
-  ✓ cli.help_one_screen  (15/15)
+  ✓ cli.target_exists  (18/18)
+  ✓ cli.calculus_defined  (18/18)
+  ✓ cli.advertised_flags_exist  (14/14)
+  ✓ cli.docstring_flags_advertised  (16/16)
+  ✓ cli.subcommands_dispatch  (16/16)
+  ✓ cli.target_flags_advertised  (16/16)
+  ✓ cli.help_one_screen  (16/16)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (17/17)
+  ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (19/19)
-  ✓ output.prescriptions_are_commands  (65/65)
+  ✓ output.prescriptions_are_commands  (67/67)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -49,17 +49,17 @@ run.py: 2160/2160 (data: machine-local)
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (65/65)
-  ✓ structure.file_at_level_of_subject  (24/24)
-  ✓ structure.cli_declaration_mirrors_the_api  (18/18)
-  ✓ structure.cli_declaration_validates  (51/51)
-  ✓ cli.every_form_listed  (34/34)
-  ✓ cli.flag_not_axis_value  (16/16)
+  ✓ structure.file_at_level_of_subject  (23/23)
+  ✓ structure.cli_declaration_mirrors_the_api  (19/19)
+  ✓ structure.cli_declaration_validates  (54/54)
+  ✓ cli.every_form_listed  (36/36)
+  ✓ cli.flag_not_axis_value  (17/17)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (4/4)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
-  ✓ cli.verb_help_answered  (16/16)
+  ✓ cli.verb_help_answered  (18/18)
 
 ── check_cli_exclusive_classes ───────────────────────────────────────────────
   ✓ cli.exclusive_class_parses  (6/6)
@@ -122,37 +122,37 @@ run.py: 2160/2160 (data: machine-local)
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (58/58)
+  ✓ schema.valid_json_with_schema  (62/62)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (58/58)
-  ✓ schema.changelog_no_todo  (58/58)
+  ✓ schema.changelog_narrative  (62/62)
+  ✓ schema.changelog_no_todo  (62/62)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
-  ✓ composition.base_not_used_directly  (56/56)
-  ✓ composition.base_schemas_closed  (38/38)
-  ✓ composition.discriminator_values_disjoint  (56/56)
-  ✓ composition.no_additional_properties_on_subtypes  (56/56)
-  ✓ composition.wrapper_has_five_fields  (56/56)
-  ✓ documentation.discriminator_fields_annotated  (56/56)
-  ✓ documentation.every_definition_has_title_and_description  (56/56)
-  ✓ documentation.null_only_fields_documented  (56/56)
-  ✓ documentation.open_set_enums_documented  (56/56)
-  ✓ empirical.nullable_fields_surveyed  (56/56)
-  ✓ empirical.oneOf_branches_evidenced  (56/56)
-  ✓ naming.property_keys_lowercase  (56/56)
-  ✓ naming.title_matches_key  (56/56)
-  ✓ naming.upper_camel_case  (56/56)
-  ✓ structure.all_definitions_reachable  (56/56)
-  ✓ structure.bfs_order  (56/56)
-  ✓ structure.definitions_at_bottom  (56/56)
-  ✓ structure.enum_refines_explicit_type  (56/56)
-  ✓ structure.field_order  (56/56)
-  ✓ structure.minItems_on_non_empty_arrays  (56/56)
-  ✓ structure.no_dangling_refs  (56/56)
-  ✓ structure.no_redundant_additional_properties_true  (56/56)
-  ✓ structure.pattern_constraints_enforced  (56/56)
-  ✓ structure.required_subset_of_properties  (56/56)
+  ✓ composition.base_not_used_directly  (60/60)
+  ✓ composition.base_schemas_closed  (42/42)
+  ✓ composition.discriminator_values_disjoint  (60/60)
+  ✓ composition.no_additional_properties_on_subtypes  (60/60)
+  ✓ composition.wrapper_has_five_fields  (60/60)
+  ✓ documentation.discriminator_fields_annotated  (60/60)
+  ✓ documentation.every_definition_has_title_and_description  (60/60)
+  ✓ documentation.null_only_fields_documented  (60/60)
+  ✓ documentation.open_set_enums_documented  (60/60)
+  ✓ empirical.nullable_fields_surveyed  (60/60)
+  ✓ empirical.oneOf_branches_evidenced  (60/60)
+  ✓ naming.property_keys_lowercase  (60/60)
+  ✓ naming.title_matches_key  (60/60)
+  ✓ naming.upper_camel_case  (60/60)
+  ✓ structure.all_definitions_reachable  (60/60)
+  ✓ structure.bfs_order  (60/60)
+  ✓ structure.definitions_at_bottom  (60/60)
+  ✓ structure.enum_refines_explicit_type  (60/60)
+  ✓ structure.field_order  (60/60)
+  ✓ structure.minItems_on_non_empty_arrays  (60/60)
+  ✓ structure.no_dangling_refs  (60/60)
+  ✓ structure.no_redundant_additional_properties_true  (60/60)
+  ✓ structure.pattern_constraints_enforced  (60/60)
+  ✓ structure.required_subset_of_properties  (60/60)
 
 ── check_schema_join ─────────────────────────────────────────────────────────
   ✓ model.join_kind_declared
@@ -183,12 +183,12 @@ stage                               pass  fail  warn   verdict line
 check_required_files                  10     0     0   ok         4
 check_pipeline_declarations            6     0     0   ok         7
 check_step_imports                     2     0     0   ok        11
-check_self_paths                      67     0     0   ok        14
+check_self_paths                      69     0     0   ok        14
 check_committed_tree                   2     0     0   ok        17
 check_templates                        2     0     0   ok        21
 check_xref                             2     0     0   ok        24
-check_cli_surface                    436     0     0   ok        28
-check_cli_verb_help                   16     0     0   ok        61
+check_cli_surface                    453     0     0   ok        28
+check_cli_verb_help                   18     0     0   ok        61
 check_cli_exclusive_classes            6     0     0   ok        64
 check_effects                          2     0     0   ok        67
 check_cache_io                        18     0     0   ok        71
@@ -196,9 +196,9 @@ check_accumulate_contract              1     0     0   ok        77
 check_capture_monotone                 4     0     0   ok        80
 check_grammar_laws                    12     0     0   ok        83
 check_root_schema_diagnostics         50     0     0   ok        97
-check_schema_validity                 58     0     0   ok       124
-check_schema_changelogs              116     0     0   ok       127
-check_versioned_schema_diagnostics  1326     0     0   ok       131
+check_schema_validity                 62     0     0   ok       124
+check_schema_changelogs              124     0     0   ok       127
+check_versioned_schema_diagnostics  1422     0     0   ok       131
 check_schema_join                      2     0     0   ok       157
 check_model_join_versions              1     0     0   ok       161
 check_model_occurrences                3     0     0   ok       164
@@ -208,11 +208,11 @@ check_score                            5     0     0   ok       176
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 100 types, 2160/2160 invocations passing
+  ✓ checks[code+schema]: 100 types, 2289/2289 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 63 types, 586/586 invocations passing
-  ✓ checks[schema]: 37 types, 1574/1574 invocations passing
+  ✓ checks[code]: 63 types, 607/607 invocations passing
+  ✓ checks[schema]: 37 types, 1682/1682 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2160/2160 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 2289/2289 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

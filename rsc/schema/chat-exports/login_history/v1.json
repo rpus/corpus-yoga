@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "login_history",
+  "description": "The account's login events, from a data export. Present in both observed vintages with one shape: the pre-manifest export carried it at the batch root; the manifest era ships it in the light_metadata category, and the deposit hoists it beside the other components (the maintainer's ruling, 2026-08-24).",
+  "type": "object",
+  "required": [
+    "login_events"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "login_events": {
+      "description": "One entry per login, newest observed first.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "account_uuid",
+          "timestamp",
+          "ip_address",
+          "user_agent",
+          "method",
+          "location_info"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "account_uuid": {
+            "description": "../../model.json#/default/UserUUID",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "The login instant, ISO-8601 with offset.",
+            "type": "string"
+          },
+          "ip_address": {
+            "description": "LEAKS PRIVACY",
+            "type": "string"
+          },
+          "user_agent": {
+            "description": "The logging-in client, parsed by the provider.",
+            "type": "object",
+            "required": [
+              "browser_family",
+              "browser_version",
+              "os_family",
+              "os_version",
+              "device_family"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "browser_family": {
+                "type": "string"
+              },
+              "browser_version": {
+                "type": "string"
+              },
+              "os_family": {
+                "type": "string"
+              },
+              "os_version": {
+                "description": "Null where the provider could not parse one (observed).",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "device_family": {
+                "type": "string"
+              }
+            }
+          },
+          "method": {
+            "description": "The authentication route. \"google\" in every observed event; the set is open.",
+            "type": "string"
+          },
+          "location_info": {
+            "description": "LEAKS PRIVACY (coarse location from the IP).",
+            "type": "object",
+            "required": [
+              "country",
+              "region",
+              "city"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "country": {
+                "type": "string"
+              },
+              "region": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "city": {
+                "type": [
+                  "null",
+                  "string"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
