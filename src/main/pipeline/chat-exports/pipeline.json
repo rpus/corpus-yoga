@@ -3,7 +3,8 @@
     "conversations",
     "memories",
     "projects",
-    "users"
+    "users",
+    "login_history"
   ],
   "input": "data/input/claude/chat/bulk-export",
   "input_glob": "data-*/",
