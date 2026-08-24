@@ -23,7 +23,8 @@ status() {
     echo "export: no store at data/input/claude/chat/bulk-export — nothing deposited"
     return 0
   fi
-  local found=0 m stem batch d derived=""
+  local store_rel="${STORE#"$REPO_DIR/"}"
+  local found=0 m stem batch d derived="" unfetched=()
   for m in "$STORE"/manifest-*.json; do
     [[ -e "$m" ]] || continue
     found=1; stem="$(basename "$m" .json)"
@@ -31,17 +32,24 @@ status() {
     batch="data-${stem#manifest-}"
     derived="$derived $batch"
     if [[ -d "$STORE/$batch" ]]; then
-      echo "  manifest $stem: payload held in $batch/"
+      echo "  $(basename "$m"): payload held in $batch/"
     else
-      echo "  manifest $stem: unfetched — corpus-yoga export capture --manifest <it>"
+      unfetched+=("$(basename "$m")")
     fi
   done
   for d in "$STORE"/data-*/; do
     [[ -d "$d" ]] || continue
     found=1
     case " $derived " in *" $(basename "$d") "*) continue ;; esac
-    echo "  batch $(basename "$d"): no manifest held for it (the pre-manifest vintage, or its manifest disposed)"
+    echo "  export $(basename "$d"): no manifest held for it (the pre-manifest vintage, or its manifest disposed)"
   done
+  if (( ${#unfetched[@]} )); then
+    echo "  ${#unfetched[@]} unfetched; to fetch:"
+    local f
+    for f in "${unfetched[@]}"; do
+      echo "    → run: ./corpus-yoga export capture --manifest $store_rel/$f"
+    done
+  fi
   [[ "$found" == 1 ]] || echo "export: store empty — request one at https://claude.ai/settings/data-privacy-controls, deposit the emailed manifest here"
 }
 

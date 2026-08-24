@@ -1,4 +1,4 @@
-run.py: 2203/2203 (data: machine-local)
+run.py: 2205/2205 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -41,7 +41,7 @@ run.py: 2203/2203 (data: machine-local)
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (19/19)
-  ✓ output.prescriptions_are_commands  (65/65)
+  ✓ output.prescriptions_are_commands  (67/67)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -187,7 +187,7 @@ check_self_paths                      69     0     0   ok        14
 check_committed_tree                   2     0     0   ok        17
 check_templates                        2     0     0   ok        21
 check_xref                             2     0     0   ok        24
-check_cli_surface                    449     0     0   ok        28
+check_cli_surface                    451     0     0   ok        28
 check_cli_verb_help                   17     0     0   ok        61
 check_cli_exclusive_classes            6     0     0   ok        64
 check_effects                          2     0     0   ok        67
@@ -208,11 +208,11 @@ check_score                            5     0     0   ok       176
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 100 types, 2203/2203 invocations passing
+  ✓ checks[code+schema]: 100 types, 2205/2205 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
-  ✓ checks[code]: 63 types, 602/602 invocations passing
+  ✓ checks[code]: 63 types, 604/604 invocations passing
   ✓ checks[schema]: 37 types, 1601/1601 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2203/2203 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 2205/2205 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
