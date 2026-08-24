@@ -257,6 +257,11 @@ src/main/cli/commands/commands.json,3,path_str,src/main/cli/commands/commands.py
 src/main/cli/completions/completions.json,3,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
 src/main/cli/completions/completions.py,17,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
 src/main/cli/completions/completions.py,114,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
+src/main/cli/export/capture.py,22,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/export/capture.py [--manifest <file>] [--to <dir>]
+src/main/cli/export/capture.py,22,comment,src/main/cli/export/capture.py,Y,src/run_python_script.sh src/main/cli/export/capture.py [--manifest <file>] [--to <dir>]
+src/main/cli/export/capture.py,29,path_str,src/main/cli/export/capture.py,Y,SELF = 'src/main/cli/export/capture.py'
+src/main/cli/export/export.json,3,path_str,src/main/cli/export/export.sh,Y,"""target"": ""src/main/cli/export/export.sh"","
+src/main/cli/export/export.sh,14,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/forge/capture.py,42,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
 src/main/cli/forge/capture.py,42,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
 src/main/cli/forge/capture.py,50,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
@@ -682,6 +687,9 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/completions/install-latest.json,Y,
 ,,,src/main/cli/completions/sync.json,Y,
 ,,,src/main/cli/completions/uninstall.json,Y,
+,,,src/main/cli/export/capture.json,Y,
+,,self_only,src/main/cli/export/capture.py,Y,
+,,,src/main/cli/export/export.json,Y,
 ,,,src/main/cli/forge/capture.json,Y,
 ,,self_only,src/main/cli/forge/flip.py,Y,
 ,,,src/main/cli/forge/forge.json,Y,

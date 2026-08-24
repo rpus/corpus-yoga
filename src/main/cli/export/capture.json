@@ -1,0 +1,28 @@
+{
+  "help": "fetch a manifest's payload from its one-use export_urls into the data-* directory sharing the manifest's star (manifest-<X>.json becomes data-<X>/) - refused if it exists; bare lists the manifests held and requires --manifest",
+  "args": [
+    {
+      "name": "--manifest",
+      "type": "<file>",
+      "cardinality": "",
+      "help": "the manifest to fetch - required to fetch anything: each export_url is one-use, so no default picks one; bare lists the candidates"
+    },
+    {
+      "name": "--to",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "deposit under a directory instead of the store (test escape hatch - a directory, never a machine name)"
+    }
+  ],
+  "sends": {
+    "https://claude.ai/export/... (urllib)": [
+      "WRITES nothing outward, but each export_url is one-use: the fetch consumes it (refused loudly under YOGA_NO_SEND)"
+    ]
+  },
+  "r": [
+    "data/input/claude/chat/bulk-export"
+  ],
+  "w": [
+    "data/input/claude/chat/bulk-export"
+  ]
+}
