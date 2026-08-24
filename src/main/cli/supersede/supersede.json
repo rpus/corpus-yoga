@@ -2,5 +2,8 @@
   "summary": "Do later bulk exports supersede earlier ones? Computed; never assumed",
   "target": "src/main/pipeline/chat-exports/supersede.py",
   "calculus": "supersession L3",
-  "args": []
+  "args": [],
+  "r": [
+    "rsc/naming/export_dir_vintages.csv"
+  ]
 }

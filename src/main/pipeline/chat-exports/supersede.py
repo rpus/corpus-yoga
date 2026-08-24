@@ -8,8 +8,8 @@ carries two different kinds of content: its messages (append-only atoms) and
 its summary (a per-snapshot oracle reading, checked as its own component).
 The same unprejudiced supersession processing is applied to each — no
 component is assumed append-only, mutable, or static; whether an earlier
-batch's data survives into the later one is an empirical finding per
-component per batch pair, and the deletability verdict is simply their
+export's data survives into the later one is an empirical finding per
+component per export pair, and the deletability verdict is simply their
 conjunction.
 
 The uniform model: each component atomises to {unit key: set of atoms}, and a
@@ -20,7 +20,7 @@ and fingerprints only for unbounded content:
 
   conversations  unit = conversation uuid;  atoms = message uuids
                  (read from the RAW atomised json/ pieces — format-agnostic,
-                 so an old batch's schema vintage is irrelevant)
+                 so an old export's schema vintage is irrelevant)
   summaries      unit = conversation uuid;  atom = fingerprint of the summary
                  (a per-snapshot oracle READING — nondeterministically emitted —
                  so only the IDENTICAL summary covers it; message coverage
@@ -33,23 +33,23 @@ and fingerprints only for unbounded content:
 Envelope timestamps (created_at/updated_at) are excluded throughout:
 supersession claims retained DATA, not byte equality of snapshots.
 
-The verdict SHOWS ITS WORKING (user specification, 2026-07-08): a batch is
+The verdict SHOWS ITS WORKING (user specification, 2026-07-08): an export is
 deletable iff every atom it holds survives somewhere durable that is KEPT,
-and each batch's report names the evidence per component — the WITNESSES
-(every later batch whose verified ⊑ covers it: a licence conditional on that
+and each export's report names the evidence per component — the WITNESSES
+(every later export whose verified ⊑ covers it: a licence conditional on that
 witness's own retention; diachronic appending is checked per pair, never
-assumed) and the unconditional DEPOSITS that outlive every batch: for
+assumed) and the unconditional DEPOSITS that outlive every export: for
 memories, the byte-identical copy in data/output/memories; for summaries, every
 reading held verbatim in data/output/markdown/claude/chat/summaries
 (summaries.py). A component with no witness and no deposit is
-unique data — a loud WARN, and the batch is not deletable until it is
+unique data — a loud WARN, and the export is not deletable until it is
 deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
 licences it carried.
 
-A tmp/cache/ batch dir whose data/input/ datum is gone is an ORPHANED DERIVATION — the
-shadow of a batch already disposed of, not a batch. Its archive copies are
-complete, so left in it would keep passing for a live batch (and witnessing
+A tmp/cache/ export dir whose data/input/ datum is gone is an ORPHANED DERIVATION — the
+shadow of an export already disposed of, not an export. Its archive copies are
+complete, so left in it would keep passing for a live export (and witnessing
 others) indefinitely; it is excluded from the comparison and WARNed with its
 rm remedy — datum-scoped tmp/cache/ dirs die with their data/input/ datum (README), but
 deletion stays deliberate, so the machinery names the orphan rather than
@@ -60,13 +60,14 @@ Usage:
     [--chat-exports-cache tmp/cache/chat-exports] [--bulk-exports data/input/claude/chat/bulk-export] \
     [--memories-output data/output/memories] \
     [--summaries-output data/output/markdown/claude/chat/summaries] \
-    [--browser-api <browser-API root; no default — when given, also compares the latest batch against live captures, informationally>]
+    [--browser-api <browser-API root; no default — when given, also compares the latest export against live captures, informationally>]
 
-Requires the batches' atomised json/ (written by the chat-exports pipeline);
-memories/projects/users are read from the batch's tmp/cache/ archive copies (written
+Requires the exports' atomised json/ (written by the chat-exports pipeline);
+memories/projects/users are read from the export's tmp/cache/ archive copies (written
 by archive_components.py; data/input/ raw fallback for cache dirs predating that step).
-Exit 0 iff every earlier batch is covered (witnessed or deposited).
+Exit 0 iff every earlier export is covered (witnessed or deposited).
 """
+import csv
 import hashlib
 import json
 import re
@@ -95,13 +96,36 @@ def _rel(p: Path) -> Path:
         return p
 
 
-def batch_time(name):
-    m = re.search(r'-(\d{10})-[0-9a-f]+-batch', name)
-    if m:
-        return datetime.fromtimestamp(int(m.group(1)), tz=timezone.utc)
-    m = re.search(r'(\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})', name)
-    if m:
-        return datetime(*map(int, m.groups()), tzinfo=timezone.utc)
+VINTAGES_CSV = REPO_ROOT / 'rsc' / 'naming' / 'export_dir_vintages.csv'
+
+
+def _vintages():
+    """The export-dir naming vintages, as data (rsc/naming/export_dir_vintages.csv),
+    file order first-match: each row's pattern carries named groups - epoch and hex8
+    where the vintage has them, datetime where it has that."""
+    with VINTAGES_CSV.open() as f:
+        return [(row['id'], re.compile(row['pattern'])) for row in csv.DictReader(f)]
+
+
+def _vintage_match(name):
+    for vintage_id, pattern in _vintages():
+        m = pattern.match(name)
+        if m:
+            return vintage_id, m.groupdict()
+    return None, {}
+
+
+def export_time(name):
+    """The export's ordering instant, per its name's vintage: the EXPLICIT datetime
+    where the vintage carries one (v3: the manifest's created_at to the second; v1:
+    the name's core), else the epoch (v2's only instant). The epoch stamps an
+    instant the manifests leave unnamed - exports order by the instant whose
+    meaning the flow states (the maintainer's ruling, 2026-08-24)."""
+    _vintage_id, groups = _vintage_match(name)
+    if groups.get('datetime'):
+        return datetime(*map(int, groups['datetime'].split('-')), tzinfo=timezone.utc)
+    if groups.get('epoch'):
+        return datetime.fromtimestamp(int(groups['epoch']), tz=timezone.utc)
     return None
 
 
@@ -119,7 +143,7 @@ def _fp(value):
     return hashlib.sha256(_canon(value).encode()).hexdigest()[:16]
 
 
-# ── component atomisers: batch -> {unit key: (display name, set of atoms)} ────
+# ── component atomisers: export -> {unit key: (display name, set of atoms)} ────
 
 def units_conversations(gen_dir, ext_dir):
     units = {}
@@ -135,9 +159,9 @@ def units_summaries(gen_dir, ext_dir):
     """Each conversation's summary as ONE fingerprinted atom. The summary is a
     per-snapshot oracle READING (a nondeterministic emission: the same transcript has
     been observed to re-read differently — №99, capture vs export, identical
-    updated_at), so a later batch covers it only by carrying the IDENTICAL summary;
+    updated_at), so a later export covers it only by carrying the IDENTICAL summary;
     a divergent later summary is a NEW reading, not a superseding one, and deleting
-    the earlier batch would destroy a reading that exists nowhere else. Message
+    the earlier export would destroy a reading that exists nowhere else. Message
     coverage says nothing about this — hence its own component in the licence.
     Empty summaries contribute no unit (nothing to lose, nothing to orphan)."""
     units = {}
@@ -150,8 +174,8 @@ def units_summaries(gen_dir, ext_dir):
 
 
 def _component_path(gen_dir, ext_dir, *rel):
-    """Prefer the batch's tmp/cache/ archive copy (written by archive_components.py);
-    fall back to the raw data/input/ batch dir for cache dirs predating the archive step."""
+    """Prefer the export's tmp/cache/ archive copy (written by archive_components.py);
+    fall back to the raw data/input/ export dir for cache dirs predating the archive step."""
     archived = gen_dir.joinpath(*rel)
     return archived if archived.exists() else ext_dir / rel[-1]
 
@@ -214,20 +238,21 @@ def compare_component(earlier, latest):
 
 def covers(earlier, later) -> bool:
     """True iff every earlier unit's atoms survive in the later corpus —
-    the verified ⊑ of one component between two specific batches."""
+    the verified ⊑ of one component between two specific exports."""
     return all(key in later and atoms <= later[key][1]
                for key, (_n, atoms) in earlier.items())
 
 
-def _short(batch_name: str) -> str:
-    """The batch's own 8-hex segment, for compact witness citations."""
-    m = re.search(r'-([0-9a-f]{8})-batch', batch_name)
-    return m.group(1) if m else batch_name
+def _short(export_name: str) -> str:
+    """The export's own 8-hex capture token, for compact witness citations - the
+    whole name where its vintage carries none (v1)."""
+    _vintage_id, groups = _vintage_match(export_name)
+    return groups.get('hex8') or export_name
 
 
 def deposit_witness(gen_dir, ext_dir, lib_dir: Path):
-    """The deposit file byte-identical to this batch's memory state, or None —
-    the unconditional licence: a copy that outlives every batch."""
+    """The deposit file byte-identical to this export's memory state, or None —
+    the unconditional licence: a copy that outlives every export."""
     path = _component_path(gen_dir, ext_dir, 'memories', 'memories.json')
     if not path.exists() or not lib_dir.is_dir():
         return None
@@ -241,7 +266,7 @@ def deposit_witness(gen_dir, ext_dir, lib_dir: Path):
 def summaries_deposit_fps(lib_dir: Path):
     """Fingerprints of every deposited summary reading (summaries.py's
     verbatim <ts>.md / browser-capture.md files) — the summaries component's
-    unconditional licence: deposits outlive every batch and every capture refresh."""
+    unconditional licence: deposits outlive every export and every capture refresh."""
     fps = set()
     if lib_dir.is_dir():
         for f in lib_dir.glob('*/*.md'):
@@ -329,17 +354,17 @@ def _gather(root, ext_root):
     """The cheap shared prefix: the export dirs present (time-ordered), the orphaned
     derivations among them, and any unparseable names. Directory reads only — no json,
     no atomising — so bare `supersede` stays a fast read-only status."""
-    batches = sorted((d for d in root.glob('data-*') if (d / 'json').is_dir()),
-                     key=lambda d: (batch_time(d.name) or datetime.min.replace(tzinfo=timezone.utc)))
-    unparseable = [d.name for d in batches if batch_time(d.name) is None]
-    orphans = [d for d in batches if not (ext_root / d.name).is_dir()]
-    live = [d for d in batches if (ext_root / d.name).is_dir()]
+    exports = sorted((d for d in root.glob('data-*') if (d / 'json').is_dir()),
+                     key=lambda d: (export_time(d.name) or datetime.min.replace(tzinfo=timezone.utc)))
+    unparseable = [d.name for d in exports if export_time(d.name) is None]
+    orphans = [d for d in exports if not (ext_root / d.name).is_dir()]
+    live = [d for d in exports if (ext_root / d.name).is_dir()]
     return live, orphans, unparseable
 
 
 def _warn_unparseable(unparseable):
     for n in unparseable:
-        print(f'warning: cannot parse a time from batch name {n} — ordering may be wrong', file=sys.stderr)
+        print(f'warning: {n} matches no vintage in rsc/naming/export_dir_vintages.csv — ordering may be wrong', file=sys.stderr)
 
 
 def status(root, ext_root):
@@ -363,53 +388,53 @@ def status(root, ext_root):
 
 def check(args):
     """The `check` verb: the full supersession comparison — for each earlier export dir,
-    whether every component is witnessed by a later batch or deposited, with the working
-    shown. Reads every batch's atoms; writes nothing. Exit 0 iff all covered."""
+    whether every component is witnessed by a later export or deposited, with the working
+    shown. Reads every export's atoms; writes nothing. Exit 0 iff all covered."""
     root = Path(args.chat_exports_cache)
     ext_root = Path(args.bulk_exports)
-    batches, orphans, unparseable = _gather(root, ext_root)
+    exports, orphans, unparseable = _gather(root, ext_root)
     _warn_unparseable(unparseable)
     # Orphaned derivations (docstring): a tmp/cache/ dir with no data/input/ datum beside it must
     # not feed the comparison — its archive copies are complete, so it would keep passing
-    # for a live batch (and witnessing others) after the data it derives from was disposed.
+    # for a live export (and witnessing others) after the data it derives from was disposed.
     for d in orphans:
         print(f'WARN: orphaned derivation {d.name} — no {_rel(ext_root / d.name)} beside it; '
               'excluded from comparison. If the export was deliberately deleted, this '
               'shadow is the disposal\'s one remaining step:')
         print(f'    → run: rm -r {_rel(d)}')
 
-    if not batches:
+    if not exports:
         print(f'no export dirs with atomised json/ under {root} — nothing to compare')
         return 0
 
-    latest = batches[-1]
+    latest = exports[-1]
     all_units = {b.name: {name: fn(b, ext_root / b.name) for name, fn in COMPONENTS}
-                 for b in batches}
+                 for b in exports}
     latest_units = all_units[latest.name]
-    if len(batches) < 2:
+    if len(exports) < 2:
         print(f'1 export dir with atomised json/ under {root} — no earlier exports to compare')
     else:
         print(f'latest: {latest.name} — ' + ', '.join(
             f'{len(latest_units[name])} {name}' for name, _ in COMPONENTS))
 
-    # Show the working: a batch is deletable iff every atom it holds survives
+    # Show the working: an export is deletable iff every atom it holds survives
     # somewhere durable that is KEPT — for each component, name the WITNESSES
-    # (later batches whose verified ⊑ covers it: a licence conditional on the
+    # (later exports whose verified ⊑ covers it: a licence conditional on the
     # witness's own retention) and the unconditional DEPOSITS (memories: the
     # byte-identical data/output/memories copy; summaries: every reading held verbatim
-    # in the summaries output — deposits outlive every batch). Witnessed-by-later
+    # in the summaries output — deposits outlive every export). Witnessed-by-later
     # relies on nothing but per-pair verified subset — diachronic appending is
     # checked, never assumed. Verdicts describe what exists NOW: re-run after
     # any deletion, since deleting a witness expires the licences it carried.
     covered_all = True
     deletable = []
     summ_fps = summaries_deposit_fps(Path(args.summaries_output))
-    for i, b in enumerate(batches[:-1]):
+    for i, b in enumerate(exports[:-1]):
         ext_dir = ext_root / b.name
         working, uncovered = [], []
         for name, _ in COMPONENTS:
             earlier = all_units[b.name][name]
-            witnesses = [w.name for w in batches[i + 1:]
+            witnesses = [w.name for w in exports[i + 1:]
                          if covers(earlier, all_units[w.name][name])]
             dep = deposit_witness(b, ext_dir, Path(args.memories_output)) if name == 'memories' else None
             if dep is not None:
@@ -437,13 +462,13 @@ def check(args):
             print(line)
         covered_all = covered_all and not uncovered
 
-    if len(batches) >= 2:
+    if len(exports) >= 2:
         # The deletability verdict — a computed CONCLUSION, which as a severity is
         # INFO (it acts on nothing, gates nothing); the tail hoists FAIL/WARN/INFO
         # atoms alike.
         print('INFO: ' + (
             f'keep {latest.name}; every earlier export dir is covered — '
-            'batch-witnessed licences hold while their witnesses are kept, deposit '
+            'export-witnessed licences hold while their witnesses are kept, deposit '
             'licences unconditionally; re-run after any deletion'
             if covered_all else
             'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '

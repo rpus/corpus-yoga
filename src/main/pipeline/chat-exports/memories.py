@@ -39,7 +39,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from supersede import batch_time
+from supersede import export_time
 from accumulate import accumulate  # the one deposit rule (issue #22)
 
 SELF = 'src/main/pipeline/chat-exports/memories.py'
@@ -105,7 +105,7 @@ def memory_states(gen_root):
     states = []
     for d in sorted(gen_root.glob('data-*')):
         f = d / 'memories' / 'memories.json'
-        t = batch_time(d.name)
+        t = export_time(d.name)
         if not f.exists() or t is None:
             continue
         stamp = t.astimezone(timezone.utc).strftime(fmt)
