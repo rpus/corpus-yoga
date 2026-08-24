@@ -6,6 +6,13 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+2026-08-24: three inline null-or-string type unions in v10 (ApiToolUseBlockBase's
+approval_key and mcp_server_url, ApiToolResultBlockBase's mcp_server_url) were
+amended in place to reference the NullableString definition the schema already
+holds - the same review catch as conversations v19's signature, applied where
+the reviewer found it. No validation effect: no new version. The fresh captures
+of 2026-08-24 validate identically before and after.
+
 ## v10
 
 Now validates capture 6178046a (2026-08-13, 'The danger of active

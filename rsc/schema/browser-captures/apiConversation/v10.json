@@ -794,17 +794,11 @@
         },
         "approval_key": {
           "description": "Approval key for MCP tool calls requiring user consent.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "$ref": "#/definitions/NullableString"
         },
         "mcp_server_url": {
           "description": "URL of the MCP server providing this tool.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "$ref": "#/definitions/NullableString"
         },
         "flags": {
           "description": "Always null in observed API responses.",
@@ -1294,10 +1288,7 @@
         },
         "mcp_server_url": {
           "description": "URL of the MCP server that handled this tool call.",
-          "type": [
-            "string",
-            "null"
-          ]
+          "$ref": "#/definitions/NullableString"
         },
         "integration_icon_url": {
           "$ref": "#/definitions/NullableString"
