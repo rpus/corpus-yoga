@@ -185,7 +185,10 @@ def units_memories(gen_dir, ext_dir):
     if not path.exists():
         return {}
     units = {}
-    for m in json.loads(path.read_text()):
+    data = json.loads(path.read_text())
+    # both eras carry one account's object: the pre-manifest export wrapped it in a
+    # single-element array, the manifest era ships it bare (memories v2) - one rule reads both
+    for m in (data if isinstance(data, list) else [data]):
         key = m.get('account_uuid', '?')
         atoms = {(field, _canon(value)) for field, value in m.items() if field != 'account_uuid'}
         units[key] = ('memories', atoms)
