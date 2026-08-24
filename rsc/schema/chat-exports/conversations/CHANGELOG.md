@@ -11,6 +11,26 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+## v19
+
+Now validates the manifest-era export of 2026-08-24 (the c3cfcf28 export), whose one v18 failure - the record-by-record sweep found exactly one failing block in 118 conversations - is a thinking block of 2026-08-23 carrying signature null with empty thinking and thinking_hidden true.
+
+### Replaces
+
+[v18.json](./v18.json)
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+- ThinkingBlock.signature: string becomes null-or-string - the harness leaves an unsigned blank on an empty hidden block, observed once; every other field of the block unchanged.
+
+#### Refactored
+
+None.
+
 ## v18
 
 The 2026-08-13 conversation 6178046a ('The danger of active negation')

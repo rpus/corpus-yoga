@@ -5,10 +5,12 @@ datum validate under the family's LATEST version? Read-only, and no new
 validation: verdicts are read from the vN.logs each pipeline's validate step
 already wrote under its tmp/cache workshop (leaf/validation/<family>/<vN>.log).
 
-Recency is pipeline-specific because the corpora differ: chat-exports carries
-the epoch in the batch dir name; browser-captures the capture's updated_at;
-code-agents the max record timestamp in the session .jsonl. Keys compare only
-within one pipeline, so mixed key types across pipelines are fine.
+Recency is pipeline-specific because the corpora differ: chat-exports orders
+by its export-dir name's vintage (supersede's export_time, the one ordering
+authority over rsc/naming/export_dir_vintages.csv); browser-captures the
+capture's updated_at; code-agents the max record timestamp in the session
+.jsonl. Keys compare only within one pipeline, so mixed key types across
+pipelines are fine.
 
 Consumers: model.py (bare `corpus-yoga model` states each family's verdict, so the
 usr gate's corpus tail says it - #373) and src/test/dev/run.py (the data-tier
@@ -25,7 +27,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))  # cache_io - the declared tmp/cache IO registry
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # supersede - the one export-ordering authority
 import cache_io  # noqa: E402
+from supersede import export_time  # noqa: E402
 
 PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
@@ -51,8 +55,8 @@ def datum_recency(pipeline_name, input_root, subject):
     """A sortable recency key for one datum, or None if unavailable. Keys are
     only ever compared within a single pipeline."""
     if pipeline_name == 'chat-exports':
-        m = re.search(r'-(\d{10})-[0-9a-f]+-batch', subject)
-        return int(m.group(1)) if m else None
+        t = export_time(subject)
+        return t.timestamp() if t else None
     if pipeline_name == 'browser-captures':
         f = input_root / subject / f'{subject}.json'
         try:
