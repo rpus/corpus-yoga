@@ -34,17 +34,14 @@ nothing renders as a link unless it resolves.
 ## Deploying (Netlify via the private site repo)
 
 The site deploys from a separate private GitHub repo that Netlify watches; its
-root is the publish directory. Deploying is one copy of one tree, then a push
-in that repo:
+root is the publish directory. Deploying is one verb:
 
 ```bash
-    cp -R data/output/site/ ext/mnt/site/
-    git -C ext/mnt/site add -A && git -C ext/mnt/site commit -m "publish" && git -C ext/mnt/site push
+    corpus-yoga site publish          # dry: what would land, and the two acts
+    corpus-yoga site publish --apply  # copy into ext/mnt/site, commit, push
 ```
 
 Netlify builds on push; `rpus.co/corpus-yoga/` serves the directory index.
 `ext/mnt/site` is the machine's hand-made symlink to the private site repo's
 clone (the mount by reference `corpus-yoga prerequisites` reports) — the repo's
-location itself is machine-local and not this repo's business. A
-`corpus-yoga`-verb deploy step remains unminted; until one is, the lines above
-are the deploy, typeable as printed from the repo root.
+location itself is machine-local and not this repo's business.

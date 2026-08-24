@@ -345,8 +345,10 @@ src/main/cli/server/start.json,31,path_str,src/main/model/serve_assets.txt,Y,"""
 src/main/cli/site/render.json,7,path_str,rsc/site/index.html,Y,"""rsc/site/index.html"","
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
 src/main/cli/site/site.json,8,path_str,rsc/site,Y,"""rsc/site"","
-src/main/cli/site/site.sh,21,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/site/site.sh,26,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
+src/main/cli/site/site.sh,22,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/site/site.sh,24,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
+src/main/cli/site/site.sh,26,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
+src/main/cli/site/site.sh,31,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-exports/summaries.py,Y,"""target"": ""src/main/pipeline/chat-exports/summaries.py"","
@@ -723,6 +725,7 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/server/server.json,Y,
 ,,,src/main/cli/server/start.json,Y,
 ,,,src/main/cli/server/stop.json,Y,
+,,,src/main/cli/site/publish.json,Y,
 ,,,src/main/cli/site/render.json,Y,
 ,,,src/main/cli/site/site.json,Y,
 ,,,src/main/cli/site/sync.json,Y,
