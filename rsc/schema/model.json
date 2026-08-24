@@ -30,7 +30,7 @@
       "description": "The UUID of data export's user",
       "occurrences": {
         "chat-exports/memories": [
-          "#/0/account_uuid"
+          "#/account_uuid"
         ],
         "chat-exports/projects": [
           "#/creator/uuid"

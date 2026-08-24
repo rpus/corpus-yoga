@@ -143,10 +143,14 @@ rsc/schema/chat-exports/conversations/CHANGELOG.md,255,doc,rsc/schema/chat-expor
 rsc/schema/chat-exports/conversations/CHANGELOG.md,269,doc,rsc/schema/chat-exports/conversations/v3.json,Y,[v3.json](./v3.json)
 rsc/schema/chat-exports/conversations/CHANGELOG.md,296,doc,rsc/schema/chat-exports/conversations/v2.json,Y,[v2.json](./v2.json)
 rsc/schema/chat-exports/conversations/CHANGELOG.md,315,doc,rsc/schema/chat-exports/conversations/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/chat-exports/login_history/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/chat-exports/login_history/v1.json,27,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/manifest/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/memories/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/memories/CHANGELOG.md,28,doc,rsc/schema/chat-exports/memories/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/chat-exports/memories/v1.json,20,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
+rsc/schema/chat-exports/memories/v2.json,22,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/projects/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/projects/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
 rsc/schema/chat-exports/projects/CHANGELOG.md,21,doc,rsc/schema/chat-exports/projects/v1.json,Y,[v1.json](./v1.json)
@@ -647,9 +651,12 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,rsc/schema/browser-captures/apiConversation/v10.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/conversations/v18.json,Y,
+,,,rsc/schema/chat-exports/login_history/CHANGELOG.md,Y,
+,,,rsc/schema/chat-exports/login_history/v1.json,Y,
 ,,,rsc/schema/chat-exports/manifest/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/manifest/v1.json,Y,
 ,,,rsc/schema/chat-exports/memories/CHANGELOG.md,Y,
+,,,rsc/schema/chat-exports/memories/v2.json,Y,
 ,,,rsc/schema/chat-exports/projects/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/projects/v2.json,Y,
 ,,,rsc/schema/chat-exports/users/CHANGELOG.md,Y,
