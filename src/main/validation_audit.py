@@ -82,9 +82,14 @@ def audit(name: str, facts: dict) -> int:
     print(f'{name}: each {cache_root.relative_to(REPO)}/<datum>/matrix.md against the vN.log files beside it')
     seen_versions: dict[str, set[str]] = {}
     processed: set[str] = set()
+    # judgment counts per property (passing/total), so the summary line sums to
+    # the judgments made - the accountability the dev gate's per-invocation rows
+    # carried (393 in reading-room on 2026-08-25) and a datum count did not
+    matrices = [0, 0]; registered = [0, 0]; inputs = [0, 0]; modelled = [0, 0]
     for datum_dir in datum_dirs(cache_root, depth):
         subject = ' / '.join(datum_dir.relative_to(cache_root).parts)
         processed.add(subject)
+        matrices[1] += 1
         expected = rows_from_logs(datum_dir)
         for (schema, _item, version) in expected:
             seen_versions.setdefault(schema, set()).add(version)
@@ -98,29 +103,45 @@ def audit(name: str, facts: dict) -> int:
             print(f'FAIL: {name}: matrix stale: {leaf(subject)} - matrix.md disagrees with its '
                   f'validation logs; to regenerate: corpus-yoga pipeline sync {name}')
             fails += 1
+            continue
+        matrices[0] += 1
     for family in facts['schemas']:
         for vpath in frontier.sorted_versions(SCHEMA_ROOT / name / family):
+            registered[1] += 1
             if vpath.stem not in seen_versions.get(family, set()):
                 print(f'FAIL: {name}/{family}: version unregistered: {vpath.stem} - no datum in '
                       f'this room has validated against it; corpus-yoga pipeline run {name}')
                 fails += 1
+            else:
+                registered[0] += 1
     globs = [g for g in (facts['input_glob'], facts.get('extra_input_glob', '')) if g]
     raw = input_subjects(input_root, globs, depth)
     for subject in sorted(raw if depth == 1 else [' / '.join(parts) for parts in raw]):
+        inputs[1] += 1
         if subject not in processed:
             print(f'FAIL: {name}: input unprocessed: {leaf(subject)} - no validation output under '
                   f'{cache_root.relative_to(REPO)}/; corpus-yoga pipeline run {name}')
             fails += 1
+        else:
+            inputs[0] += 1
     primary = facts['schemas'][0]
     versions = frontier.sorted_versions(SCHEMA_ROOT / name / primary)
     for subject, leaf_dir in frontier.subject_dirs(cache_root, depth):
         logs = [leaf_dir / 'validation' / primary / f'{v.stem}.log' for v in versions]
         logs = [l for l in logs if l.exists()]
-        if logs and not any('Valid!' in l.read_text() for l in logs):
+        if not logs:
+            continue
+        modelled[1] += 1
+        if not any('Valid!' in l.read_text() for l in logs):
             print(f'FAIL: {name}/{primary}: unmodelled: {leaf(subject)} - validates against no '
                   f'schema version; a version is owed (rsc/schema/WORKFLOW.md)')
             fails += 1
-    print(f'{name}: {len(processed)} datum(s) audited, {fails} finding(s)')
+        else:
+            modelled[0] += 1
+    print(f'{name}: matrices current {matrices[0]}/{matrices[1]} · '
+          f'versions registered {registered[0]}/{registered[1]} · '
+          f'inputs processed {inputs[0]}/{inputs[1]} · '
+          f'modelled {modelled[0]}/{modelled[1]} - {fails} finding(s)')
     return fails
 
 
