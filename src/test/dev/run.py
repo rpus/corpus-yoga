@@ -2833,19 +2833,27 @@ def _run_once(allow_replay: bool) -> RunOnce:
         score_rows.append((f'checks[{t}]: {n_types} types, {got}/{tot} invocations passing',
                            got == tot, 'Fix failures in this tier first' if got != tot else None))
 
+    # The family completes (the maintainer's ruling, 2026-08-25): one
+    # checks[<tier>] row per tier in the table, the score tier's own counted
+    # last over its five siblings above - reflexively, excluding itself.
+    score_got = sum(1 for _l, ok, _d in score_rows if ok)
+    score_rows.append((f'checks[score]: {score_got}/{len(score_rows)} invocations passing',
+                       score_got == len(score_rows),
+                       'Fix the score rows above first' if score_got != len(score_rows) else None))
+
     got, tot = tier_counts.get('data', [0, 0])
     skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
     if tot == 0:
-        score_rows.append((f'score[data]: skipped — no local data{skipped_note}', True, None))
+        score_rows.append((f'checks[data]: skipped — no local data{skipped_note}', True, None))
     else:
-        score_rows.append((f'score[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
+        score_rows.append((f'checks[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
                            got == tot, None))
 
     for label, ok, detail in score_rows:
         results.append((label, ok, detail))
         check_types.append(label.split(':')[0])   # keeps the parallel lists in step
         sections.append('check_score')
-        # Every score row is score-tier: score[data] SUMMARISES the data tier
+        # Every score row is score-tier: checks[data] SUMMARISES the data tier
         # (it judges nothing and tier_counts never sees it), its committed-surface
         # exclusion tests the label (_in_committed), and the veto is tier-blind
         # (#530) - a 'data' classification here made the stage table print
@@ -2863,7 +2871,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # under tmp/logs/test/run/, run-facing like the serve daemon's logs).
 
     def _in_committed(i: int) -> bool:
-        return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
+        return tiers[i] != 'data' and not results[i][0].startswith('checks[data]')
 
     def _fix_lines(fail_list, hints):
         """Assemble the To-fix entries for a failure subset (no execution). Each
@@ -3090,8 +3098,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         name = 'check_score'
         out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
         for label, ok, detail in score_rows:
-            if committed_only and label.startswith('score[data]'):
-                out.write('  – score[data]: machine-local — reported on the terminal '
+            if committed_only and label.startswith('checks[data]'):
+                out.write('  – checks[data]: machine-local — reported on the terminal '
                           'and under tmp/logs/test/run/, never committed\n')
                 continue
             mark = '✓' if ok else '✗'
