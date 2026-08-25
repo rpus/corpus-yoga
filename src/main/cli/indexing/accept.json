@@ -19,5 +19,12 @@
       "cardinality": "*",
       "help": "zero or more concepts to fold into the headword"
     }
+  ],
+  "r": [
+    "data/output/indexing",
+    "tmp/cache/indexing"
+  ],
+  "w": [
+    "data/output/indexing/accepted.txt"
   ]
 }

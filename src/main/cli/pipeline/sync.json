@@ -7,5 +7,14 @@
       "cardinality": "",
       "help": "one pipeline by name (bare: all of them)"
     }
+  ],
+  "r": [
+    "tmp/cache",
+    "rsc/schema"
+  ],
+  "w": [
+    "tmp/cache/browser-captures",
+    "tmp/cache/chat-exports",
+    "tmp/cache/code-agents"
   ]
 }

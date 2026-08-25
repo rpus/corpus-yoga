@@ -1,4 +1,9 @@
 {
   "help": "removes the completions block from ~/.zshrc",
-  "args": []
+  "args": [],
+  "sends": {
+    "write ~/.zshrc": [
+      "removes the corpus-yoga completion block from the home shell rc - outside the tree, so a send by definition; refused under YOGA_NO_SEND"
+    ]
+  }
 }
