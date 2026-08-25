@@ -20,5 +20,12 @@
       "cardinality": "",
       "help": "the concept to reject (or --all for the queue as read)"
     }
+  ],
+  "r": [
+    "data/output/indexing",
+    "tmp/cache/indexing"
+  ],
+  "w": [
+    "data/output/indexing/rejected.txt"
   ]
 }

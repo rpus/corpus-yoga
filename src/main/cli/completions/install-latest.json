@@ -1,4 +1,12 @@
 {
   "help": "regenerates _yoga and wires it into ~/.zshrc - idempotent (and then requires terminal restart)",
-  "args": []
+  "args": [],
+  "r": [
+    "tmp/cache/completions"
+  ],
+  "sends": {
+    "write ~/.zshrc": [
+      "rewrites the corpus-yoga completion block in the home shell rc - outside the tree, so a send by definition; refused under YOGA_NO_SEND"
+    ]
+  }
 }

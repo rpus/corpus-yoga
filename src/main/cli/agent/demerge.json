@@ -7,5 +7,11 @@
       "cardinality": "",
       "help": "perform the undo — without it, a dry run that only reports"
     }
+  ],
+  "r": [
+    "ext/mnt/claude-code-projects"
+  ],
+  "w": [
+    "ext/mnt/claude-code-projects"
   ]
 }
