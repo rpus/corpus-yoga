@@ -1,4 +1,4 @@
-run.py: code+schema 2517/2517
+run.py: code+schema 2523/2523
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -41,14 +41,14 @@ run.py: code+schema 2517/2517
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
-  ✓ output.prescriptions_are_commands  (65/65)
+  ✓ output.prescriptions_are_commands  (59/59)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (69/69)
+  ✓ output.plan_lines_name_their_target  (78/78)
   ✓ structure.file_at_level_of_subject  (24/24)
   ✓ structure.cli_declaration_mirrors_the_api  (19/19)
   ✓ structure.cli_declaration_validates  (58/58)
@@ -56,7 +56,7 @@ run.py: code+schema 2517/2517
   ✓ cli.flag_not_axis_value  (17/17)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
-  ✓ cli.step_invokes_verb  (4/4)
+  ✓ cli.step_invokes_verb  (7/7)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
   ✓ cli.verb_help_answered  (19/19)
@@ -187,7 +187,7 @@ check_self_paths                      70     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    460     0   code       28
+check_cli_surface                    466     0   code       28
 check_cli_verb_help                   19     0   code       61
 check_cli_exclusive_classes            6     0   code       64
 check_effects                          2     0   code       67
@@ -208,8 +208,8 @@ check_mcp_schema                       1     0   schema    176
 check_expectation                      2     0   code      179
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 102 types, 2517/2517 invocations passing
-checks[code]: 64 types, 618/618 invocations passing
+checks[code+schema]: 102 types, 2523/2523 invocations passing
+checks[code]: 64 types, 624/624 invocations passing
 checks[schema]: 38 types, 1899/1899 invocations passing
 
-dev gate: PASS — code+schema 2517/2517 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 2523/2523 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
