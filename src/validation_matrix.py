@@ -6,7 +6,8 @@ Each datum directory under tmp/cache/ whose validation/ holds vN.log files gets 
 sibling matrix.md summarising them (schema × version → ✓/✗, bytes). The matrix is
 derived state: git-ignored, co-located with its datum, and written by validation
 itself (validate_versions.py) whenever the logs change — so it can never be stale.
-src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating.
+src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating;
+src/main/validation_audit.py judges the logs and matrices (corpus-yoga pipeline audit).
 """
 
 import os

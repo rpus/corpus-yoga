@@ -14,7 +14,7 @@ corpus.
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182
 ./corpus-yoga indexing capture       # PAID: the model re-reads the corpus for the index tables
 ./corpus-yoga site render            # render the corpus page from corpus + captures
-./corpus-yoga test run               # the dev gate: the three-tier hermetic suite
+./corpus-yoga test run               # the dev gate: the hermetic suite over src/ and rsc/
 ```
 
 `./corpus-yoga -h` lists every command with its summary; `./corpus-yoga commands [<command>]`

@@ -150,6 +150,12 @@ without revalidating, e.g. after a renderer format change):
 src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 ```
 
+Whether each matrix agrees with its logs, every version is registered by some datum,
+every input entry has validation output, and every datum validates against some version
+is the data gate's judgment, not the commit gate's (#535): `corpus-yoga pipeline audit`
+(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -
+a violated property is a FAIL atom in the run log, and the version it names is owed here.
+
 Add a `## v{N+1}` narrative section to the CHANGELOG: intro narrative first, then a
 single `### Replaces` heading whose body links the predecessor — `[v<N>.json](./v<N>.json)`
 — then the change categories nested under it as constant-titled h4s: `#### Restricted`,

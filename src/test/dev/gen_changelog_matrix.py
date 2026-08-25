@@ -27,8 +27,10 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
 
-from run import PIPELINES, REPO_ROOT, RSC_SCHEMA, _datum_dirs  # noqa: E402
+from run import PIPELINES, REPO_ROOT, RSC_SCHEMA  # noqa: E402
 from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
+from validation_audit import datum_dirs  # noqa: E402 — the data gate's own enumeration (#535)
 
 
 def main():
@@ -41,20 +43,20 @@ def main():
     pipeline          = PIPELINES[args.pipeline]
     schema_parent_dir = RSC_SCHEMA / pipeline.changelog.parent.parent.name
 
-    datum_dirs = _datum_dirs(pipeline)
-    if not datum_dirs:
+    dirs = datum_dirs(pipeline.cache_output, pipeline.subject_depth)
+    if not dirs:
         sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
                  f'→ run: corpus-yoga pipeline run {args.pipeline}')
 
     if args.write:
-        for datum_dir in datum_dirs:
+        for datum_dir in dirs:
             mfile = write_matrix(datum_dir, schema_parent_dir)
             if mfile:
                 print(f'Wrote {mfile.relative_to(REPO_ROOT)}')
     else:
         print('| Datum ' + HEADER[0])
         print('| --- ' + HEADER[1])
-        for datum_dir in datum_dirs:
+        for datum_dir in dirs:
             subject = ' / '.join(datum_dir.relative_to(pipeline.cache_output).parts)
             for line in render_rows(datum_dir, schema_parent_dir):
                 print(f'| `{subject}` {line}')

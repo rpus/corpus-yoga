@@ -1,0 +1,16 @@
+{
+  "help": "the validation-output judgments over this room's corpus - matrix.md agrees with its logs, every version registered, every input processed, every datum modelled - every pipeline, or the one named; FAIL atoms, exit 1 on any",
+  "args": [
+    {
+      "name": "pipeline",
+      "type": "<pipeline>",
+      "cardinality": "",
+      "help": "one pipeline by name (bare: all of them)"
+    }
+  ],
+  "r": [
+    "tmp/cache",
+    "data/input",
+    "rsc/schema"
+  ]
+}

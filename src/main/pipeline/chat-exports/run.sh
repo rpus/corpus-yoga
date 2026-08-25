@@ -79,11 +79,13 @@ run_one() {
     "$SCRIPT_DIR/atomise_bulk.py" --bulk-export "$batch"
   step project_markdown   "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/project_markdown.py" --bulk-export "$batch"
-  # compare_sources: live-api captures and this bulk export should project to
-  # identical markdown for shared conversations. A difference is legitimate when a
-  # conversation progressed after the export snapshot — hence never gates; the
-  # report keeps what-agrees-with-what visible in every run log.
-  step_if_ok "$have_captures" 'when live captures exist' \
+  # compare_sources: the append-only invariant across export surfaces (#535, the
+  # dev gate's former cross_sources check, spoken here once): a conversation in
+  # both a bulk export and the live captures projects to identical turns, or the
+  # export is a prefix of the capture (it progressed after the snapshot). The
+  # capture being a prefix of the EXPORT is a stale capture; divergence inside the
+  # shared prefix is a projection defect or corruption - both FAIL and gate.
+  step_if "$have_captures" 'when live captures exist' \
        compare_sources    "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/compare_sources.py" \
     --browser-api "$BROWSER_API" --bulk-export "$batch"

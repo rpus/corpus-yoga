@@ -11,20 +11,16 @@ As a git hook, install the wrapper:
 
 Exits 0 if all checks pass, 1 if any fail.
 
-Checks are grouped into three tiers, run in order:
+Checks are grouped into two tiers, run in order - a commit's content, and nothing
+else (#535: the corpus is the data gate's, corpus-yoga pipeline run):
     code    — repo code and documentation (required files, xref); deterministic on any clone
     schema  — committed schema artifacts (diagnostics, changelogs, joins, mcp currency);
               deterministic on any clone (mcp currency needs network)
-    data    — local data/input//tmp/cache/ data vs the committed record (validation outputs, coverage,
-              frontier); machine-local, skipped per pipeline where no local data exists
 
-The committed expected checks (rsc/test/run_expected_checks) record the code and
-schema tiers only — their counts are identical on every clone. Its first line is the
-combined code+schema total, which also matches the score in the log's head line. The
-data tier's subtotal is machine-local and never recorded; its failures are reported in
-full but never veto the exit — a fact about this machine's data must not gate an
-unrelated commit. Machine state that SHOULD gate — the hook's own installation — is
-enforced by the wrapper (run.sh), never by a tier.
+The committed expected checks (rsc/test/run_expected_checks) record the check TYPES;
+every count is identical on every clone, and the log's head line is the code+schema
+total. Machine state that SHOULD gate — the hook's own installation — is enforced by
+the wrapper (run.sh), never by a tier.
 
 Atomic diagnostic scripts live in src/test/dev/diagnostics/{principle_id}.py.
 Atomic repair scripts live in src/test/dev/repairs/{principle_id}.py.
@@ -87,10 +83,9 @@ MACHINE_LOG_REL = str(MACHINE_LOG.relative_to(REPO_ROOT))
 CLI                      = SRC / 'main' / 'cli'
 
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at its root
-from validation_matrix import rows_from_logs  # noqa: E402
 
 sys.path.insert(0, str(SRC / 'main'))  # markdown_projection owns the format, both directions
-from markdown_projection import conv_id as _conv_id, turn_seq  # noqa: E402
+from markdown_projection import turn_seq  # noqa: E402
 from send import SWITCH as SEND_SWITCH, may_send  # noqa: E402 — the one reading of the send switch
 
 sys.path.insert(0, str(CLI))  # the corpus-yoga CLI cluster (dispatch + shared machinery)
@@ -111,7 +106,6 @@ import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate opera
 
 sys.path.insert(0, str(SRC / 'main' / 'cli' / 'indexing'))  # index curation machinery
 sys.path.insert(0, str(SRC / 'main' / 'model'))  # model.json disposal queue
-from indexing import inferred_concepts, orphan_headwords, pending_concepts  # noqa: E402
 import model_curation  # noqa: E402 — the model.json disposal queue (issue #19)
 
 import xref  # the cross-reference table (check_xref) — a same-directory sibling, already
@@ -180,22 +174,6 @@ SCHEMA_DIR: dict[str, Path] = {
 }
 
 
-def _parse_matrix_file(path: Path) -> dict[tuple[str, str, str], str]:
-    """(schema, item, version) → ✓/✗/? parsed from a datum's matrix.md table."""
-    rows: dict[tuple[str, str, str], str] = {}
-    for line in path.read_text().splitlines():
-        if not line.startswith('|'):
-            continue
-        cells = [c.strip() for c in line.strip('|').split('|')]
-        if len(cells) < 4:
-            continue
-        m = re.search(r'v\d+', cells[2])
-        if not m or cells[3] not in ('✓', '✗', '?'):
-            continue
-        rows[(cells[0].strip('`'), cells[1].strip('`'), m.group())] = cells[3]
-    return rows
-
-
 def _leaf(subject: str) -> str:
     """Check-label form of a subject: the leaf (uuid/name) only. Depth-2 subjects are
     '<project-slug> / <uuid>' internally (the slug is needed to reconstruct paths), but
@@ -203,24 +181,6 @@ def _leaf(subject: str) -> str:
     run.log then carries no machine-derived slugs (they embed the username)."""
     return subject.split(' / ')[-1]
 
-
-def _fix_item_cmd(pipeline: Pipeline, subject: str) -> str:
-    """The runnable remedy for one subject: the pipeline's fix_item_cmd plus the
-    subject's CONTAINER in data/input/ — the granularity every per-item command
-    actually accepts (the subject minus its leaf; the whole subject at depth 1).
-    A depth-3 subject ('<machine> / <project> / <uuid>') therefore hints at its
-    machine/project dir; joining the full subject would name a path no command
-    consumes (and, for code-agents, one that does not even exist as given)."""
-    parts = subject.split(' / ')
-    item = pipeline.input.joinpath(*(parts[:-1] or parts))
-    return f'{pipeline.fix_item_cmd} {item.relative_to(REPO_ROOT)}'
-
-
-def _datum_dirs(pipeline: Pipeline) -> list[Path]:
-    """Each datum directory in tmp/cache/ (the dirs that contain a validation/ subdir),
-    at the pipeline's subject depth."""
-    glob = '/'.join(['*'] * pipeline.subject_depth) + '/validation'
-    return sorted(v.parent for v in pipeline.cache_output.glob(glob) if v.is_dir())
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -284,38 +244,6 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
     )
 
 
-
-
-def _input_subjects(pipeline: Pipeline) -> list:
-    """Each input entry as its cache subject: a bare name at depth 1, else the
-    tuple of path parts relative to the input root (files contribute their
-    stem — the .jsonl becomes the session dir's name)."""
-    if not pipeline.input.exists():
-        return []
-    globs = [g for g in (pipeline.input_glob, pipeline.extra_input_glob) if g]
-    if pipeline.subject_depth == 1:
-        return sorted(d.name for g in globs
-                      for d in pipeline.input.glob(g.rstrip('/')) if d.is_dir())
-    result = []
-    for pattern in globs:
-        glob      = pattern.rstrip('/')
-        dirs_only = pattern.endswith('/')
-        for item in sorted(pipeline.input.glob(glob)):
-            if item.is_dir() != dirs_only:
-                continue
-            rel   = item.relative_to(pipeline.input)
-            parts = rel.parts[:-1] + (item.name if dirs_only else item.stem,)
-            result.append(parts)
-    return sorted(result)
-
-
-def _has_local_data(pipeline: Pipeline) -> bool:
-    """True if this machine holds any data for the pipeline — input entries in data/input/ or
-    previously generated output in tmp/cache/. Gates the data tier: where neither exists the
-    pipeline's data checks are skipped (the committed matrices are the durable record)."""
-    if _input_subjects(pipeline):
-        return True
-    return pipeline.cache_output.exists() and any(pipeline.cache_output.iterdir())
 
 
 def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: list) -> None:
@@ -557,8 +485,8 @@ def check_schema_validity(run) -> None:
 def check_schema_changelogs(run) -> None:
     """Every schema family's CHANGELOG narrates every version, and no version carries
     TODO descriptions — properties of the committed artifacts, not of any pipeline.
-    (Whether each version is registered in the validation matrix is the data-tier
-    concern, checked where local data exists.)"""
+    (Whether each version is registered in the validation matrix is the data gate's
+    concern: corpus-yoga pipeline audit.)"""
     for schema_name, schema_dir in sorted(_schema_families().items()):
         changelog = schema_dir / 'CHANGELOG.md'
         changelog_text = changelog.read_text() if changelog.exists() else ''
@@ -573,216 +501,6 @@ def check_schema_changelogs(run) -> None:
                 '"TODO' not in schema_text,
                 f'Replace TODO descriptions in {path.relative_to(REPO_ROOT)}'
                 if '"TODO' in schema_text else None, check='schema.changelog_no_todo')
-
-
-def check_pipeline_validation_outputs(run, fix, name: str, pipeline: Pipeline) -> None:
-    """Each datum's matrix.md must exist and agree with the vN.log files beside it;
-    every schema version must be registered by some datum; every input entry must
-    have been processed. Matrices are co-located with their data, so stale rows for
-    departed data cannot exist — deleting a datum deletes its matrix."""
-    run_cmd  = f'corpus-yoga pipeline sync {name}'
-    pipe_cmd = f'corpus-yoga pipeline run {name}'
-    gen_rel  = pipeline.cache_output.relative_to(REPO_ROOT)
-
-    print(f'\n  each {gen_rel}/<datum>/matrix.md must match the vN.log files under its validation/')
-    seen_versions: dict[str, set[str]] = {}
-    processed_subjects: set[str] = set()
-    for datum_dir in _datum_dirs(pipeline):
-        subject  = ' / '.join(datum_dir.relative_to(pipeline.cache_output).parts)
-        processed_subjects.add(subject)
-        expected = rows_from_logs(datum_dir)
-        for (schema, _item, version) in expected:
-            seen_versions.setdefault(schema, set()).add(version)
-        mfile = datum_dir / 'matrix.md'
-        if not mfile.exists():
-            fix(run_cmd, problem=f'matrix.written: {_leaf(subject)} — matrix.md missing')
-            run(f'matrix.written: {_leaf(subject)}', False, str(mfile.relative_to(REPO_ROOT)), check='data.matrix_written')
-            continue
-        actual = _parse_matrix_file(mfile)
-        ok = actual == {k: sym for k, (sym, _) in expected.items()}
-        if not ok:
-            fix(run_cmd, problem=f'matrix.current: {_leaf(subject)} — matrix.md disagrees with validation logs')
-        run(f'matrix.current: {_leaf(subject)}', ok,
-            None if ok else f'matrix.md disagrees with validation logs — regenerate: {run_cmd}', check='data.matrix_current')
-
-    # Every schema version must be registered by some local datum — no version minted
-    # without data validated against it. Data-tier counterpart of the narrative check.
-    for schema in pipeline.schemas:
-        for vpath in _sorted_versions(SCHEMA_DIR[schema]):
-            v  = vpath.stem
-            ok = v in seen_versions.get(schema, set())
-            if not ok:
-                fix(pipe_cmd, problem=f'{schema}: matrix.version_registered: {v} — '
-                                      f'no local datum has validated against {v}')
-                fix(f'then: {run_cmd}')
-            run(f'{schema}: matrix.version_registered: {v}', ok, check='data.version_registered')
-
-    print(f'\n  every {pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} entry should have validation output in {gen_rel}/')
-    raw_input = _input_subjects(pipeline)
-    current_subjects = (
-        raw_input if pipeline.subject_depth == 1
-        else [' / '.join(parts) for parts in raw_input]
-    )
-    for subject in sorted(current_subjects):
-        if subject not in processed_subjects:
-            fix(pipe_cmd, problem=f'unprocessed input: {_leaf(subject)} — no validation output in {gen_rel}/')
-            fix(f'then: {run_cmd}')
-            run(f'unprocessed input: {_leaf(subject)}', False, check='data.input_processed')
-
-
-def check_pipeline_coverage(run, fix, pipeline: Pipeline) -> None:
-    """Every datum must validate against at least one schema version. A datum that validates
-    against none is unmodelled drift — evolve the schema (or record why it is permanently
-    invalid). Older data may sit below the latest version; that is fine (see check_frontier)."""
-    schema   = pipeline.changelog.parent.name
-    versions = _sorted_versions(SCHEMA_DIR[schema])
-    if not versions:
-        return
-    for subject, leaf_dir in frontier.subject_dirs(pipeline.cache_output, pipeline.subject_depth):
-        logs = [leaf_dir / 'validation' / schema / f'{v.stem}.log' for v in versions]
-        logs = [l for l in logs if l.exists()]
-        if not logs:
-            continue
-        passing = any('Valid!' in l.read_text() for l in logs)
-        label = f'{schema}: modelled by some version: {_leaf(subject)}'
-        if not passing:
-            fix(f'{_fix_item_cmd(pipeline, subject)}  # refresh the evidence '
-                '(only helps if data or schemas changed since the logs were written)',
-                problem=f'{label} — validates against no schema version',
-                guidance='if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
-                         'schema version — current evidence means only a schema change can clear it')
-        run(label, passing, None if passing else 'validates against no schema version', check='data.validates_against_a_version')
-
-
-def check_pipeline_frontier(run, fix, name: str, pipeline: Pipeline) -> None:
-    """The most recent datum must validate against the latest schema version — so the schema
-    frontier tracks the data frontier (no unmodelled newest export, no version minted ahead of
-    all data). Recency is pipeline-specific; see frontier.datum_recency."""
-    schema   = pipeline.changelog.parent.name
-    versions = _sorted_versions(SCHEMA_DIR[schema])
-    if not versions:
-        return
-    latest   = versions[-1].stem
-    keyed    = []
-    for subject, leaf_dir in frontier.subject_dirs(pipeline.cache_output, pipeline.subject_depth):
-        key = frontier.datum_recency(name, pipeline.input, subject)
-        if key is not None:
-            keyed.append((key, subject, leaf_dir))
-    if not keyed:
-        return
-    _, subject, leaf_dir = max(keyed, key=lambda k: k[0])
-    log = leaf_dir / 'validation' / schema / f'{latest}.log'
-    ok  = log.exists() and 'Valid!' in log.read_text()
-    label = f'{schema}: latest datum validates against latest ({latest}): {_leaf(subject)}'
-    if not ok:
-        fix(f'{_fix_item_cmd(pipeline, subject)}  # refresh the evidence '
-            '(only helps if data or schemas changed since the logs were written)',
-            problem=label,
-            guidance='if the ✗ persists: follow rsc/schema/WORKFLOW.md to add or adjust a '
-                     'schema version — current evidence means only a schema change can clear it')
-    run(label, ok, None if ok else str(log.relative_to(REPO_ROOT)), check='data.frontier_current')
-
-
-def check_index_curation(run, fix) -> None:
-    """Indexing data obeys the schema system's disposal rigour: every concept the
-    capture proposes (data/output/dashboard/semantic-concepts.json) is either ACCEPTED — covered
-    by a headword or alias in data/output/indexing/accepted.txt — or REJECTED in
-    data/output/indexing/rejected.txt; anything else is pending curation and says so here.
-    All inputs live in the iCloud-shared data/output/ (not git), so this is a DATA-tier
-    check — machine-local, failing like any other where the data lives (#530),
-    skipped where data/output/ has no capture. The pending queue itself
-    is the reproducible derivation tmp/cache/indexing/candidates.txt (corpus-yoga indexing
-    candidates), a rebuildable workshop file, not a committed artifact."""
-    concepts = inferred_concepts()
-    if not concepts:
-        print('  – skipped: no concept capture yet (data/output/dashboard/semantic-concepts.json — run `corpus-yoga indexing capture`)')
-        return
-    pending = set(pending_concepts(REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt',
-                                   REPO_ROOT / 'data' / 'output' / 'indexing' / 'rejected.txt'))
-    # One line per pending concept, no per-row remedy — 27 identical two-line
-    # remedies were the mumble; the single fix hint below carries it once.
-    for c in concepts:
-        disposed = c not in pending
-        run(f'indexing: concept disposed: {c}', disposed, check='indexing.concept_disposed')
-        if not disposed:
-            fix('corpus-yoga indexing list-candidates  # write the pending queue: tmp/cache/indexing/candidates.txt',
-                problem=f'indexing: concept undisposed: {c}',
-                guidance='dispose each pending concept: corpus-yoga indexing accept <term> [alias ...] '
-                         '| corpus-yoga indexing reject [--reason <why>] <concept>')
-    # The REVERSE direction (the curate symmetry, PR #36's model.json precedent:
-    # a curation record must be grounded both ways). An accepted headword with
-    # ZERO corpus locators is orphan documentation — a dead index entry whose
-    # concept left the corpus or whose aliases never matched. indexing's sync
-    # line has always carried the located/total ratio; this names the orphans.
-    # Data-tier like the rest of this section: machine-local, gating (#530).
-    markdown_root = REPO_ROOT / 'data' / 'output' / 'markdown'
-    if markdown_root.is_dir():
-        for h in orphan_headwords(markdown_root,
-                                  REPO_ROOT / 'data' / 'output' / 'indexing' / 'accepted.txt'):
-            run(f'indexing: headword grounded: {h}', False, check='indexing.headword_grounded')
-            fix('corpus-yoga indexing   # status names each orphan headword',
-                problem=f'indexing: headword ungrounded: {h} (zero corpus locators)',
-                guidance='fix the aliases on its accepted.txt line, or remove the line '
-                         'and reject the concept with a reason')
-
-
-def check_cross_sources(run) -> None:
-    """Append-only invariant across export surfaces: every conversation present in BOTH
-    a bulk export and the live captures must project to a turn sequence identical to,
-    or a prefix of, the capture's — a bulk export is a point-in-time snapshot and
-    conversations only ever gain turns. The capture being a prefix of the EXPORT is
-    the mirror case: a stale capture, fixed by recapturing that conversation (the
-    remedy is printed). Divergence inside the shared prefix means a projection bug
-    or data corruption (or a post-export edit/branch switch — rare; investigate
-    with compare_sources --diff). Reads the projections both pipelines already
-    wrote to tmp/cache/; machine-local, so data tier."""
-    api_dir = REPO_ROOT / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
-    api = {}
-    if api_dir.is_dir():
-        for f in api_dir.glob('*.md'):
-            text = f.read_text()
-            cid = _conv_id(text)
-            if cid:
-                api[cid] = turn_seq(text)
-    if not api:
-        print('  – skipped: no api projections (data/output/markdown/claude/chat/conversations empty)')
-        return
-    batch_dirs = sorted((CACHE / 'chat-exports').glob('data-*/markdown')) if (CACHE / 'chat-exports').is_dir() else []
-    if not batch_dirs:
-        print('  – skipped: no bulk-export projections (tmp/cache/chat-exports/*/markdown empty)')
-        return
-    for mdir in batch_dirs:
-        identical = appended = shared = 0
-        stale, divergent = [], []
-        for f in sorted(mdir.glob('*.md')):
-            text = f.read_text()
-            cid = _conv_id(text)
-            if not cid or cid not in api:
-                continue
-            shared += 1
-            b, a = turn_seq(text), api[cid]
-            if b == a:
-                identical += 1
-            elif len(b) < len(a) and a[:len(b)] == b:
-                appended += 1
-            elif len(b) > len(a) and b[:len(a)] == a:
-                stale.append((cid, f.stem))
-            else:
-                divergent.append(cid)
-        detail_parts = []
-        for cid, name in stale[:5]:
-            detail_parts.append(
-                f"capture-stale {name!r} ({cid}) — the export extends the capture; to recapture:"
-                f"\n        → run: corpus-yoga browser capture --provider claude --id {cid}"
-                f"  # first front https://claude.ai/chat/{cid} in Safari (logged in)")
-        if divergent:
-            detail_parts.append('divergent (projection bug, corruption, or post-export edit): '
-                                + ', '.join(divergent[:5]))
-        run(f'cross-source: {mdir.parent.name}: {shared} shared — '
-            f'{identical} identical, {appended} appended-to'
-            + (f', {len(stale)} capture-stale' if stale else ''),
-            not (stale or divergent),
-            '\n      '.join(detail_parts) if detail_parts else None, check='data.cross_source_transcripts_agree')
 
 
 def check_cache_io(run) -> None:
@@ -1210,8 +928,8 @@ def check_cli_surface(run) -> None:
         law='G17', check='output.prescriptions_are_commands')
 
     # Those prescriptions are lines this repo PRINTS, and the scan sees only the ones a
-    # clone prints. The data tier's remedies need data to print, so a remedy naming a
-    # script by path is invisible to any scan of output on a repo that ships none. They
+    # clone prints. A remedy needing data to print - the data gate's - is invisible to
+    # any scan of output on a repo that ships none. They
     # are read from the source instead: every `*_cmd` a remedy is built from must name a
     # corpus-yoga command, whether or not this machine can print it.
     for node in ast.walk(ast.parse((SRC / 'test' / 'dev' / 'run.py').read_text())):
@@ -2439,11 +2157,10 @@ def check_accumulate_contract(run) -> None:
 GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',
                 'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']
 ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}
-# the cache's own home: inside tmp/cache, hence inside the data tier's subjects —
-# without this exclusion every run would dirty the data sections forever
+# the cache's own home: inside tmp/cache, which subject scans must skip -
+# without this exclusion every run would dirty the sections that read it
 CACHE_PREFIX = 'tmp/cache/test'
 SCHEMA = ['rsc/schema']
-DATA = ['tmp/cache', 'data/input', 'data/output', 'rsc']
 
 SUBJECTS: dict[str, list[str] | str] = {
     'check_required_files': 'TREE',
@@ -2471,12 +2188,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_occurrences': SCHEMA + ['src'],
     'check_model_obligations': SCHEMA + ['src'],
     'check_mcp_schema': ['rsc/schema/_reference'],
-    'check_cross_sources': DATA,
-    'check_index_curation': DATA,
 }
-for _pipe in ('browser_captures', 'chat_exports', 'code_agents'):
-    for _kind in ('validation_outputs', 'coverage', 'frontier'):
-        SUBJECTS[f'check_{_pipe}_{_kind}'] = DATA
 
 SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
 
@@ -2511,7 +2223,7 @@ def subject_hash(spec) -> str:
         f = REPO_ROOT / rel
         try:
             if rel.startswith(('tmp/', 'data/')):
-                # The data tier's subjects are large and machine-local; their key
+                # tmp/ and data/ subjects are large and machine-local; their key
                 # stays stat (size + mtime) as the DECLARED lawful difference
                 # (#368): the tier is machine-local and never enters a committed
                 # artifact, so a clock-faked miss costs a re-read, not a lie.
@@ -2564,13 +2276,12 @@ def _run_once(allow_replay: bool) -> RunOnce:
     replayed: list[str] = []
 
     results = []
-    # The report splits by DETERMINISM, mirroring the tiers: code+schema output is
-    # identical on any clone and becomes the COMMITTED rsc/test/run.log; the
-    # data tier describes THIS MACHINE's data (uuids, batch names, home-dir-derived
-    # paths) and must never enter a committed artifact — it goes to the terminal and
-    # under tmp/logs/test/run/ (machine-facing, like the serve daemon's logs).
-    committed_buffer = io.StringIO()   # code + schema tiers
-    machine_buffer   = io.StringIO()   # data tier
+    # Two buffers: the committed rsc/test/run.log renders from results (identical
+    # on any clone); the machine buffer holds the per-invocation body and the run's
+    # anchor, written under tmp/logs/test/run/ (machine-facing, like the serve
+    # daemon's logs) - a committed artifact never carries a machine fact.
+    committed_buffer = io.StringIO()
+    machine_buffer   = io.StringIO()
     cited_laws: dict[str, list[str]] = {}   # grammar law id -> the labels citing it
     check_types: list[str | None] = []     # per result: which TYPE of check it is an instance of
 
@@ -2590,8 +2301,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         check_types.append(check)
         for cited in (law.split() if law else []):
             cited_laws.setdefault(cited, []).append(label)
-        # One failure sigil (#530): a data-tier fact fails like any other where
-        # its data lives; absence of data is a stated skip, never a failure.
+        # One failure sigil (#530).
         mark = '✓' if passed else '✗'
         # per-INVOCATION, and only to the machine log: the committed body is grouped by
         # type (_by_type), so printing each instance there would defeat the point
@@ -2604,7 +2314,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # command with no statement of what it fixes is not a fix hint — and any
     # GUIDANCE: prose advice rendered as an indented note under the command and
     # NEVER passed to the --fix runner (prose is not executable).
-    section_tier_registry: dict[str, str] = {}
     fix_hints:    list[str] = []
     fix_tier:     dict[str, str] = {}
     fix_problems: dict[str, list[str]] = {}
@@ -2629,10 +2338,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
-        # Every registration lands here whether the section runs, replays, or
-        # skips - the registry is code-determined, so the committed surface may
-        # name sections whose COUNTS are machine-local (#538's data rows).
-        section_tier_registry[name] = tier
         sys.stdout = machine_buffer
         if tier != current_tier[0]:
             current_tier[0] = tier
@@ -2692,13 +2397,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
             }
         return ret
 
-    data_skipped = {n for n, p in PIPELINES.items() if not _has_local_data(p)}
-
-    def _data_skip_note(pipeline):
-        print(f'  – skipped: no local data '
-              f'({pipeline.input.relative_to(REPO_ROOT)}/{pipeline.input_glob} absent, '
-              f'{pipeline.cache_output.relative_to(REPO_ROOT)}/ empty)')
-
     try:
         run_section(check_required_files, tier='code')
         run_section(check_pipeline_declarations, tier='code')
@@ -2735,30 +2433,9 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_identity, tier='schema')
         run_section(check_mcp_schema, tier='schema')
 
-        for _name, _pipeline in PIPELINES.items():
-            _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix:
-                            check_pipeline_validation_outputs(run, _fix, n, p)
-                            if n not in data_skipped else _data_skip_note(p),
-                        label=f'check_{_slug}_validation_outputs', tier='data')
 
-        for _name, _pipeline in PIPELINES.items():
-            _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix:
-                            check_pipeline_coverage(run, _fix, p)
-                            if n not in data_skipped else _data_skip_note(p),
-                        label=f'check_{_slug}_coverage', tier='data')
 
-        for _name, _pipeline in PIPELINES.items():
-            _slug = _name.replace('-', '_')
-            run_section(lambda run, n=_name, p=_pipeline, _fix=fix:
-                            check_pipeline_frontier(run, _fix, n, p)
-                            if n not in data_skipped else _data_skip_note(p),
-                        label=f'check_{_slug}_frontier', tier='data')
 
-        run_section(check_cross_sources, tier='data')
-        run_section(lambda run, _fix=fix: check_index_curation(run, _fix),
-                    label='check_index_curation', tier='data')
     finally:
         sys.stdout = sys.__stdout__
 
@@ -2796,7 +2473,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
     seen_types = {t for t, tier in zip(check_types, tiers)
                   if t and tier in ('code', 'schema')} | {'checks'}   # itself included, stated
 
-    section_tier_registry['check_expectation'] = 'code'
     print(f'\n── check_expectation {"─" * (74 - len("check_expectation"))}', file=machine_buffer)
     gone = sorted(expected_types - seen_types)
     added = sorted(seen_types - expected_types)
@@ -2831,11 +2507,9 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # Two renderings of one result set, split by determinism exactly as the tiers
     # are: the COMMITTED report (code+schema and their scores — byte-identical on
     # any clone; this script writes it to rsc/test/run.log itself) and the
-    # FULL report (adds the machine-local data tier — printed to stdout and written
-    # under tmp/logs/test/run/, run-facing like the serve daemon's logs).
+    # FULL report (adds the run's anchor and the per-invocation body — printed to
+    # stdout and written under tmp/logs/test/run/, run-facing like the serve daemon's logs).
 
-    def _in_committed(i: int) -> bool:
-        return tiers[i] != 'data'
 
     def _fix_lines(fail_list, hints):
         """Assemble the To-fix entries for a failure subset (no execution). Each
@@ -2956,7 +2630,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         """Render one report variant; returns (text, runnable fix lines) — results ->
         artifact bytes, a pure function of (results, surface) (#249). Three surfaces:
         'committed' is rsc/test/run.log (code+schema only, byte-identical on any
-        clone); 'full' is the stamped tmp/logs/test/run/ log (adds the machine-local data tier);
+        clone); 'full' is the stamped tmp/logs/test/run/ log (adds the run's anchor and body);
         'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
         at the full report for detail — pass its already-rendered text as
         full_report, since the terminal has no body of its own to anchor its stage
@@ -2965,7 +2639,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         the failing sections and their remedies, or an explicit PASS."""
         committed_only = surface == 'committed'
         include_body   = surface != 'terminal'
-        idxs       = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
+        idxs       = list(range(len(results)))
         fail_idx   = [i for i in idxs if not results[i][1]]
         fail_sections = list(dict.fromkeys(sections[i] for i in fail_idx))
         out = io.StringIO()
@@ -2978,14 +2652,11 @@ def _run_once(allow_replay: bool) -> RunOnce:
         if surface == 'full':
             out.write(_machine_anchor() + '\n')
 
-        data_got, data_tot = tier_counts.get('data', [0, 0])
-        data_note = ('data: machine-local' if committed_only else
-                     'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
         if fail_idx:
-            out.write(f'`src/test/dev/run.py`: code+schema {det} ({data_note}; '
+            out.write(f'`src/test/dev/run.py`: code+schema {det} ('
                       f'{len(fail_sections)} section(s) failing)\n')
         else:
-            out.write(f'run.py: code+schema {det} ({data_note})\n')
+            out.write(f'run.py: code+schema {det}\n')
 
         out.write('\n')
         if include_body:
@@ -3033,14 +2704,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # tiers - a mixed stage prints the sorted union, still read off the data.
         stage_tier = {stage: '+'.join(sorted({tiers[i] for i in members}))
                       for stage, members in stage_rows.items()}
-        # Registered sections the surface excludes (the committed surface drops
-        # the data tier by L2): their NAMES and TIERS are code-determined, so
-        # they render as count-less rows - the tier assignment stays legible in
-        # the artifact while the counts stay machine-local (#538).
-        local_rows = {name: tier for name, tier in section_tier_registry.items()
-                      if name not in stage_rows} if committed_only else {}
-        stage_tier.update(local_rows)
-        stage_width = max([stage_width] + [len(n) for n in local_rows])
         tier_width = max([len('tier')] + [len(t) for t in stage_tier.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
                   f'{"tier":<{tier_width}}   {"verdict":<7} {"line":>{anchor_width}}\n')
@@ -3049,9 +2712,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
             verdict  = 'failed' if failing else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
                       f'{stage_tier[stage]:<{tier_width}}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
-        for name, tier in local_rows.items():
-            out.write(f'{name:<{stage_width}} {"–":>5} {"–":>5}   '
-                      f'{tier:<{tier_width}}   {"local":<7} {"–":>{anchor_width}}\n')
         if surface == 'terminal':
             out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
@@ -3068,14 +2728,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
         for t in ('code', 'schema'):
             got_, tot_ = tier_counts.get(t, [0, 0])
             out.write(f'checks[{t}]: {_n_types(t)} types, {got_}/{tot_} invocations passing\n')
-        if committed_only:
-            out.write('checks[data]: machine-local — reported on the terminal and under '
-                      'tmp/logs/test/run/, never committed\n')
-        else:
-            got_, tot_ = tier_counts.get('data', [0, 0])
-            skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
-            out.write(f'checks[data]: skipped — no local data{skipped_note}\n' if tot_ == 0 else
-                      f'checks[data]: {got_}/{tot_}; machine-local, not recorded{skipped_note}\n')
 
         # Final: the gate's one verdict (#530 - no advisory tier stands between).
         lines: list[tuple[list[str], str | None, list[str]]] = []
@@ -3115,12 +2767,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
     terminal_text, _          = _render('terminal', full_text)
     xref_csv_text             = xref.render_csv(xref_rows)
 
-    # Every failure vetoes (#530, the maintainer's ruling of 2026-08-25,
-    # retiring the 2026-07-12 tier axis): red data is red — a failing data-tier
-    # fact gates the commit in the room that holds the data, and ABSENT data is
-    # a stated skip, never a failure, so a dataless clone still commits. The
-    # committed surface still excludes the data tier (L2 machine-invariance);
-    # only the veto is tier-blind.
+    # Every failure vetoes (#530): the gate holds a commit's content and nothing
+    # else (#535), so its verdict is the same in every room.
     return RunOnce(
         committed_text=committed_text,
         xref_csv_text=xref_csv_text,
