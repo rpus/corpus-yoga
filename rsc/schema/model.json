@@ -44,7 +44,7 @@
       }
     },
     "TextContent": {
-      "description": "A text content block \u2014 one type across four surfaces: the bulk export's and CLI session's TextBlock, the live API's ApiTextBlock, and MCP's TextContent, whose name this entry carries (model_join rows 3-4, 56-57).",
+      "description": "A text content block - one type across four surfaces: the bulk export's and CLI session's TextBlock, the live API's ApiTextBlock, and MCP's TextContent, whose name this entry carries (model_join rows 3-4, 56-57).",
       "occurrences": {
         "chat-exports/conversations": [
           "#/0/chat_messages/0/content/0"
@@ -58,7 +58,7 @@
       }
     },
     "ToolUseContent": {
-      "description": "A tool-use content block (type, id, name, input) \u2014 the bulk export's ToolUseBlockBase, the CLI session's ToolUseBlock, the live API's ApiToolUseBlockBase, and MCP's ToolUseContent (model_join rows 10-13, 63-66; name widened from enum to string at conversations v4 to admit MCP-namespaced names).",
+      "description": "A tool-use content block (type, id, name, input) - the bulk export's ToolUseBlockBase, the CLI session's ToolUseBlock, the live API's ApiToolUseBlockBase, and MCP's ToolUseContent (model_join rows 10-13, 63-66; name widened from enum to string at conversations v4 to admit MCP-namespaced names).",
       "occurrences": {
         "chat-exports/conversations": [
           "#/0/chat_messages/0/content/0"
@@ -72,7 +72,7 @@
       }
     },
     "ToolResultContent": {
-      "description": "A tool-result content block (type, tool_use_id, is_error) \u2014 the bulk export's ToolResultBlockBase, the CLI session's ToolResultBlock, the live API's ApiToolResultBlockBase, and MCP's ToolResultContent, which alone speaks camelCase (toolUseId/isError \u2014 the snake_cased edges, model_join rows 29-32, 81-84).",
+      "description": "A tool-result content block (type, tool_use_id, is_error) - the bulk export's ToolResultBlockBase, the CLI session's ToolResultBlock, the live API's ApiToolResultBlockBase, and MCP's ToolResultContent, which alone speaks camelCase (toolUseId/isError - the snake_cased edges, model_join rows 29-32, 81-84).",
       "occurrences": {
         "chat-exports/conversations": [
           "#/0/chat_messages/0/content/0"
@@ -97,7 +97,7 @@
       }
     },
     "ImageContent": {
-      "description": "An image content block \u2014 the CLI session's ImageBlock and MCP's ImageContent (model_join row 102).",
+      "description": "An image content block - the CLI session's ImageBlock and MCP's ImageContent (model_join row 102).",
       "occurrences": {
         "code-agents/session": [
           "#/0/message/content/0"
@@ -105,7 +105,7 @@
       }
     },
     "Message": {
-      "description": "A conversation message whose sender/role speaks the one corpus role vocabulary, human|assistant \u2014 the bulk export's Message (sender), the session projection's Message (role; user records map to human), and the markdown projection's MarkdownMessage (role) (model_join row 142).",
+      "description": "A conversation message whose sender/role speaks the one corpus role vocabulary, human|assistant - the bulk export's Message (sender), the session projection's Message (role; user records map to human), and the markdown projection's MarkdownMessage (role) (model_join row 142).",
       "occurrences": {
         "chat-exports/conversations": [
           "#/0/chat_messages/0"
