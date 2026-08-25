@@ -321,7 +321,7 @@ src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck so
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/pipeline/pipeline.sh,358,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,392,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,393,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.json,15,path_str,rsc/machine,Y,"""rsc/machine"","

@@ -372,6 +372,7 @@ run_corpus_tail() {
   # Free derivations refreshed before anything probes them (#494): the corpus
   # page and the model catalogues; both content-keyed, so an unchanged corpus
   # writes nothing.
+  step site "$REPO_ROOT/src/main/cli/site/site.sh" sync
   step site "$REPO_ROOT/src/main/cli/site/site.sh" render
   step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" sync
   # The data gate's own validation judgments (#535): the checks the dev gate

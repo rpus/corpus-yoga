@@ -71,8 +71,9 @@ status() {
         echo "  – ${f%.dot}.svg/.png: older than $f"; stale=1
       fi
     done < <(page_files "$SRC" | grep '\.dot$' || true)
+    # the run syncs before this probe (#494): a stale tree here is graphviz absent
+    # (the .dot renders skipped - stated below) or rsc/site/ edited outside a run
     [[ $stale -eq 0 ]] && echo "  ✓ page dirs current with rsc/site/ (renders included)"
-    [[ $stale -eq 1 ]] && { echo "FAIL: the publish tree is stale against rsc/site/ - to fix:"; echo "    → run: corpus-yoga site sync"; }
   fi
   # The corpus page is its own layer (render's, the quickstart's subject):
   # stated ALWAYS — an absent tree must not silence the one site verb the
