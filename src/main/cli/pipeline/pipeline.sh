@@ -222,7 +222,6 @@ run_pipeline() {
 run_pipeline_safe() {
   local name="$1"; shift
   if ! run_pipeline "$name" "$@"; then
-    pipeline_failures+=("$name")
     if ! section_has_fail "$name"; then
       local last
       last="$(section_last_words "$name")"
@@ -231,12 +230,19 @@ run_pipeline_safe() {
   fi
 }
 
+# The one reader of a banner's section name, shared by every awk walk below so
+# they cannot disagree about what a section is called: `── <name> ─…` names <name>,
+# and `── prep: <pipeline> ─…` names `prep: <pipeline>` - a prep is its own section
+# and its own row (#547: every non-zero exit states an atom, prep included).
+# shellcheck disable=SC2016  # awk field references, not shell expansions
+SECTION_NAME_FN='function section_name() { return ($2 == "prep:") ? $2 " " $3 : $2 }'
+
 # The last non-empty line of one section of the log, whitespace-stripped — the
 # step's own last words, flushed through the tee by the time its runner returns
 # (the same guarantee section_has_fail already relies on).
 section_last_words() {
-  awk -v want="$1" '
-    /^── / { in_section = ($2 == want); next }
+  awk -v want="$1" "$SECTION_NAME_FN"'
+    /^── / { in_section = (section_name() == want); next }
     in_section && NF { last = $0 }
     END { if (last != "") { sub(/^[[:space:]]*/, "", last); print last } }
   ' "$LOG_FILE" 2>/dev/null
@@ -244,14 +250,9 @@ section_last_words() {
 
 # Does this section already carry a FAIL: atom? Read from its banner to the end of what
 # has been logged so far — the section is complete by the time its runner has returned.
-#
-# `── prep: <name> ──` is OUTSIDE this: a prep banner closes the match, so a FAIL: printed
-# by a prep step would not be found here (and atom_table would count it under whichever
-# pipeline preceded it). No prep step emits atoms today — this is a recorded decision, not
-# an oversight, and the day one does, both readers need the prep section as its own row.
 section_has_fail() {
-  awk -v want="$1" '
-    /^── / { in_section = ($2 == want); next }
+  awk -v want="$1" "$SECTION_NAME_FN"'
+    /^── / { in_section = (section_name() == want); next }
     in_section && /^[[:space:]]*FAIL:/ { found = 1 }
     END { exit found ? 0 : 1 }
   ' "$LOG_FILE" 2>/dev/null
@@ -262,37 +263,32 @@ section_has_fail() {
 # delimited by the "── <name> ─…" headers prep_pipeline/run_pipeline print;
 # by tail time those lines are long flushed through the tee.
 # The sections whose ATOMS fail them - same walk as atom_table, so the two can
-# never disagree about what a section contains. Exit-code failures arrive via
-# pipeline_failures; this is the other notion, folded into the verdict (#446).
+# never disagree about what a section contains. The run has ONE failure notion
+# (#547): every non-zero exit states an atom, so this list is the verdict.
 sections_with_fail_atoms() {
-  awk '
+  awk "$SECTION_NAME_FN"'
     function flush() { if (section != "" && n_fail > 0) print section }
-    /^── prep: / { next }
-    /^── / { flush(); n_fail = 0; section = $2; if (section == "done") section = ""; next }
+    /^── / { flush(); n_fail = 0; section = section_name(); if (section == "done") section = ""; next }
     /^[[:space:]]*FAIL:/ { n_fail++ }
     END { flush() }
   ' "$LOG_FILE" 2>/dev/null || true
 }
 
 section_error_lines() {
-  local label="$1" header
-  case "$label" in
-    *" (prep)") header="── prep: ${label% (prep)} " ;;
-    *)          header="── ${label} " ;;
-  esac
+  local header="── $1 "
   awk -v h="$header" '
     index($0, "── ") == 1 { insec = (index($0, h) == 1) }
     insec && /^[[:space:]]*(error:|FAIL:)/ { sub(/^[[:space:]]*/, ""); print }
   ' "$LOG_FILE"
 }
 
-# The tail is a TABLE: one row per STAGE of the run — the three pipelines, each prep, and
-# the corpus reduce — counting the atoms that occurred inside it, beside its verdict. A
+# The tail is a TABLE: one row per STAGE of the run — the tests, the three pipelines, each
+# prep, and the corpus reduce — counting the atoms that occurred inside it. A
 # stage is a phase of the RUN, not a paragraph of the log: `browser-captures` is what you
 # type after `corpus-yoga pipeline run` to do that stage alone, and the banner is merely how the
 # log marks where it began. Two facts about one
-# pipeline, on one line, so they cannot disagree unnoticed — a row saying `failed` with
-# no FAIL is a defect of the step, and the table is where it becomes visible.
+# pipeline, on one line. A stage that exits non-zero without stating an atom is given
+# one by its runner (its last words, #337), so the FAIL count IS the verdict (#547).
 #
 # Nothing is hoisted. An atom's context IS the section it sits in, and reprinting it
 # elsewhere loses that context while duplicating the text: a reader who wants the detail
@@ -301,25 +297,20 @@ section_error_lines() {
 # Sections are the `── name ───` banners the runners print; the corpus tail's atoms fall
 # after the last banner and are counted under `corpus`.
 atom_table() {
-  local failed_csv="$1"
-  awk -v failed="$failed_csv" '
-    function flush(  verdict) {
+  awk "$SECTION_NAME_FN"'
+    function flush() {
       if (section == "") return
-      # a row fails by EITHER notion: the stage exited failed, or it stated
-      # FAIL atoms - the sigil means what it says (#446)
-      verdict = (index("," failed ",", "," section ",") > 0 || n_fail > 0) ? "failed" : "ok"
       # line = where the banner for this stage sits in this log: the anchor that turns
       # a count back into the lines that produced it, with no grep to compose.
       # Rows are held, not printed, because the stage column is as wide as the widest
       # NAME and that is unknown until the last one is read — a width chosen by eye
       # overflows the day a stage is added, shifting every column after it.
-      rows[++n_rows] = sprintf("%s\t%d\t%s\t%d", section, n_fail, verdict, banner_line)
+      rows[++n_rows] = sprintf("%s\t%d\t%d", section, n_fail, banner_line)
       if (length(section) > width) width = length(section)
     }
-    /^── prep: / { next }                       # prep is narrated under its pipeline
     /^── / {
       flush(); n_fail = 0
-      section = $2; banner_line = NR
+      section = section_name(); banner_line = NR
       if (section == "done") { section = ""; next }
       next
     }
@@ -327,19 +318,29 @@ atom_table() {
     END {
       flush()
       if (width < length("stage")) width = length("stage")
-      printf "  %-*s %5s   %-7s %6s\n", width, "stage", "FAIL", "verdict", "line"
+      printf "  %-*s %5s %6s\n", width, "stage", "FAIL", "line"
       for (r = 1; r <= n_rows; r++) {
         split(rows[r], f, "\t")
-        printf "  %-*s %5d   %-7s %6d\n", width, f[1], f[2], f[3], f[4]
+        printf "  %-*s %5d %6d\n", width, f[1], f[2], f[3]
       }
     }
   ' "$LOG_FILE" 2>/dev/null || true
 }
 
+# A prep that exits non-zero states its atom like any stage (#547), in its own
+# section `prep: <name>`, carrying the remedy the verdict once looked up by name.
 prep_pipeline_safe() {
   local name="$1"; shift
   if ! prep_pipeline "$name" "$@"; then
-    pipeline_failures+=("$name (prep)")
+    if ! section_has_fail "prep: $name"; then
+      local last
+      last="$(section_last_words "prep: $name")"
+      echo "FAIL: prep: $name exited non-zero without stating a finding — its last words: ${last:-(no output)}"
+      case "$name" in
+        chat-exports) echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-exports/require_export.sh --help)" ;;
+        code-agents)  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/mnt/claude-code-projects/ (transport's source) symlinks" ;;
+      esac
+    fi
   fi
 }
 
@@ -409,7 +410,7 @@ print_plan() {
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: one row per stage — its FAIL count, the verdict (exit and stated FAIL atoms folded), and where it begins in the log; failing stages with their error:/FAIL: lines quoted; the outputs line; log path"
+  echo "  tail: one row per stage — its FAIL count (every non-zero exit states an atom) and where it begins in the log; failing stages with their error:/FAIL: lines quoted; the outputs line; log path"
 }
 
 main() {
@@ -439,8 +440,6 @@ main() {
     return $?
   fi
 
-  local -a pipeline_failures=()
-
   # The commit gate first (#540): the data gate is the superset, so one run in
   # the data room speaks the whole verdict - the hermetic checks over src/rsc,
   # then the product judgments over the corpus. Its section is counted by the
@@ -448,7 +447,6 @@ main() {
   # run continues so the product half of the report still speaks.
   echo "── tests ─────────────────────────────────────────────────────────────────"
   if ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
-    pipeline_failures+=("tests")
     if ! section_has_fail "tests"; then
       local tests_last
       tests_last="$(section_last_words "tests")"
@@ -476,42 +474,32 @@ main() {
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
   # --only run re-indexing the unchanged rest is silence, not distortion
   if ! run_corpus_tail 2>&1 | tee -a "$LOG_FILE"; then
-    pipeline_failures+=("indexing (corpus tail)")
+    if ! section_has_fail corpus; then
+      local corpus_last
+      corpus_last="$(section_last_words corpus)"
+      echo "FAIL: corpus exited non-zero without stating a finding — its last words: ${corpus_last:-(no output)}"
+    fi
   fi
 
   echo "── done $(date -u '+%Y-%m-%dT%H:%M:%SZ') ───────────────────────────────────────────"
-  # The tail is a TABLE and nothing else: one row per section, its atom counts beside the
-  # verdict it exited with. The body already states every finding where it happened, with
+  # The tail is a TABLE and nothing else: one row per section and its atom count.
+  # The body already states every finding where it happened, with
   # the context of its section around it — reprinting those lines here would duplicate the
   # text and lose the context, which is what hoisting them did. A reader who wants detail
-  # greps the sigil or diffs two logs; a reader who wants the shape of the run reads four
-  # columns. The row is also where the two notions of failure meet, and the verdict
-  # folds both (#446): `0 FAIL … failed` is a step that died without stating, and
-  # `N FAIL` under a clean exit reads failed too - findings without a crash.
-  # bash 3.2 expands an EMPTY array under `set -u` as unbound, so the guard is not
-  # decoration: without it a clean run dies here, before printing its own summary.
-  local failed_csv="" one
-  if [[ ${#pipeline_failures[@]} -gt 0 ]]; then
-    for one in "${pipeline_failures[@]}"; do failed_csv="${failed_csv:+$failed_csv,}${one%% *}"; done
-  fi
-  atom_table "$failed_csv"
+  # greps the sigil or diffs two logs; a reader who wants the shape of the run reads three
+  # columns. One failure notion (#547): every non-zero exit stated an atom above, so
+  # a row's FAIL count is its verdict, and the run's verdict is the rows with atoms.
+  atom_table
   echo "  (each pipeline stage runs alone as: corpus-yoga pipeline run <stage>; corpus is the reduce over all)"
   echo "  (line = where that stage begins in this log; each finding is stated there, in place)"
-  # The run's verdict folds BOTH notions of failure (#446): a stage that exited
-  # failed, and a stage whose log states FAIL atoms - the 2026-08-09 witness was
-  # a corpus row reading "FAIL 2 ... ok" under a PASS, findings stated, verdict
-  # deaf to them. FAIL is the one finding tier (#530): a violated property
-  # states FAIL, a fact is untiered prose.
+  # The run's verdict is the sections holding FAIL atoms - the one failure notion
+  # (#547; exit-status failures state an atom at their fold). FAIL is the one
+  # finding tier (#530): a violated property states FAIL, a fact is untiered prose.
   local -a verdict_failures=()
-  [[ ${#pipeline_failures[@]} -gt 0 ]] && verdict_failures=("${pipeline_failures[@]}")
-  local atom_section already
+  local atom_section
   while IFS= read -r atom_section; do
     [[ -n "$atom_section" ]] || continue
-    already=0
-    for f in ${pipeline_failures[@]+"${pipeline_failures[@]}"}; do
-      [[ "${f%% *}" == "$atom_section" ]] && already=1
-    done
-    [[ "$already" == 1 ]] || verdict_failures+=("$atom_section (findings)")
+    verdict_failures+=("$atom_section")
   done <<< "$(sections_with_fail_atoms)"
   if [[ ${#verdict_failures[@]} -eq 0 ]]; then
     echo "usr gate: PASS — all pipelines completed"
@@ -520,13 +508,9 @@ main() {
     local errs
     for f in "${verdict_failures[@]}"; do
       echo "  $f"
-      errs="$(section_error_lines "${f% (findings)}")"
+      errs="$(section_error_lines "$f")"
       [[ -n "$errs" ]] && printf '%s\n' "$errs" | sed 's/^/    /'
-      case "$f" in
-        "chat-exports (prep)")   echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-exports/require_export.sh --help)" ;;
-        "code-agents (prep)")  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/mnt/claude-code-projects/ (transport's source) symlinks" ;;
-        *) [[ -z "$errs" ]] && echo "    → scroll up: the failing step prints its error and the path of its own log" ;;
-      esac
+      [[ -n "$errs" ]] || echo "    → scroll up: the failing step prints its error and the path of its own log"
     done
   fi
   # The usr-actor's next acts, and nothing else: the run's outputs, and reading them

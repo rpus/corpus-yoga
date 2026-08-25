@@ -515,7 +515,15 @@ merge_chain() {
   if [[ "$(git -C "$REPO_DIR" rev-parse HEAD)" != "$oid" ]]; then
     enact git -C "$REPO_DIR" checkout --detach "$oid"       || { echo "forge merge: NOT DONE — could not check out ${oid:0:8}"; return 1; }
   fi
-  if ! enact "$REPO_DIR/src/main/cli/pipeline/pipeline.sh" run; then
+  # The run streams to the terminal as it happens and writes its own log; this
+  # log keeps its verdict lines only (from the usr gate line to the end), so the
+  # run is recorded once (#547 review, 2026-08-25). No terminal: nothing to stream.
+  local gate_rc=0 live=/dev/null
+  { : > /dev/tty; } 2>/dev/null && live=/dev/tty
+  echo "enact: $REPO_DIR/src/main/cli/pipeline/pipeline.sh run" >&2
+  "$REPO_DIR/src/main/cli/pipeline/pipeline.sh" run 2>&1 | tee "$live" | awk '/^usr gate:/ { p = 1 } p'
+  gate_rc=${PIPESTATUS[0]}
+  if [[ "$gate_rc" -ne 0 ]]; then
     restore
     echo "forge merge: NOT DONE — data gate red at ${oid:0:8} (see the run log above); checkout restored to $was"
     return 1
