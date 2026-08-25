@@ -182,33 +182,44 @@ run.py: 2510/2510 (data: machine-local)
   ✓ checks[code]
   ✓ checks[schema]
 
-stage                               pass  fail   tier     verdict line
-check_required_files                  10     0   code     ok         4
-check_pipeline_declarations            6     0   code     ok         7
-check_step_imports                     2     0   code     ok        11
-check_self_paths                      69     0   code     ok        14
-check_committed_tree                   2     0   code     ok        17
-check_templates                        2     0   code     ok        21
-check_xref                             2     0   code     ok        24
-check_cli_surface                    457     0   code     ok        28
-check_cli_verb_help                   18     0   code     ok        61
-check_cli_exclusive_classes            6     0   code     ok        64
-check_effects                          2     0   code     ok        67
-check_cache_io                        18     0   code     ok        71
-check_accumulate_contract              1     0   code     ok        77
-check_capture_monotone                 4     0   code     ok        80
-check_grammar_laws                    12     0   code     ok        83
-check_root_schema_diagnostics         50     0   schema   ok        97
-check_schema_validity                 65     0   schema   ok       124
-check_schema_changelogs              130     0   schema   ok       127
-check_versioned_schema_diagnostics  1494     0   schema   ok       131
-check_schema_join                      2     0   schema   ok       157
-check_model_join_versions              1     0   schema   ok       161
-check_model_occurrences                3     0   schema   ok       164
-check_model_obligations              152     0   schema   ok       169
-check_model_identity                   1     0   schema   ok       173
-check_mcp_schema                       1     0   schema   ok       176
-check_score                            5     0   score    ok       179
+stage                                      pass  fail   tier     verdict line
+check_required_files                         10     0   code     ok         4
+check_pipeline_declarations                   6     0   code     ok         7
+check_step_imports                            2     0   code     ok        11
+check_self_paths                             69     0   code     ok        14
+check_committed_tree                          2     0   code     ok        17
+check_templates                               2     0   code     ok        21
+check_xref                                    2     0   code     ok        24
+check_cli_surface                           457     0   code     ok        28
+check_cli_verb_help                          18     0   code     ok        61
+check_cli_exclusive_classes                   6     0   code     ok        64
+check_effects                                 2     0   code     ok        67
+check_cache_io                               18     0   code     ok        71
+check_accumulate_contract                     1     0   code     ok        77
+check_capture_monotone                        4     0   code     ok        80
+check_grammar_laws                           12     0   code     ok        83
+check_root_schema_diagnostics                50     0   schema   ok        97
+check_schema_validity                        65     0   schema   ok       124
+check_schema_changelogs                     130     0   schema   ok       127
+check_versioned_schema_diagnostics         1494     0   schema   ok       131
+check_schema_join                             2     0   schema   ok       157
+check_model_join_versions                     1     0   schema   ok       161
+check_model_occurrences                       3     0   schema   ok       164
+check_model_obligations                     152     0   schema   ok       169
+check_model_identity                          1     0   schema   ok       173
+check_mcp_schema                              1     0   schema   ok       176
+check_score                                   5     0   score    ok       179
+check_browser_captures_validation_outputs     –     –   data     local      –
+check_chat_exports_validation_outputs         –     –   data     local      –
+check_code_agents_validation_outputs          –     –   data     local      –
+check_browser_captures_coverage               –     –   data     local      –
+check_chat_exports_coverage                   –     –   data     local      –
+check_code_agents_coverage                    –     –   data     local      –
+check_browser_captures_frontier               –     –   data     local      –
+check_chat_exports_frontier                   –     –   data     local      –
+check_code_agents_frontier                    –     –   data     local      –
+check_cross_sources                           –     –   data     local      –
+check_index_curation                          –     –   data     local      –
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────

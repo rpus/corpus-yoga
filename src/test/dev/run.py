@@ -2604,6 +2604,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # command with no statement of what it fixes is not a fix hint — and any
     # GUIDANCE: prose advice rendered as an indented note under the command and
     # NEVER passed to the --fix runner (prose is not executable).
+    section_tier_registry: dict[str, str] = {}
     fix_hints:    list[str] = []
     fix_tier:     dict[str, str] = {}
     fix_problems: dict[str, list[str]] = {}
@@ -2628,6 +2629,10 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
+        # Every registration lands here whether the section runs, replays, or
+        # skips - the registry is code-determined, so the committed surface may
+        # name sections whose COUNTS are machine-local (#538's data rows).
+        section_tier_registry[name] = tier
         sys.stdout = machine_buffer
         if tier != current_tier[0]:
             current_tier[0] = tier
@@ -3052,6 +3057,14 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # tiers - a mixed stage prints the sorted union, still read off the data.
         stage_tier = {stage: '+'.join(sorted({tiers[i] for i in members}))
                       for stage, members in stage_rows.items()}
+        # Registered sections the surface excludes (the committed surface drops
+        # the data tier by L2): their NAMES and TIERS are code-determined, so
+        # they render as count-less rows - the tier assignment stays legible in
+        # the artifact while the counts stay machine-local (#538).
+        local_rows = {name: tier for name, tier in section_tier_registry.items()
+                      if name not in stage_rows} if committed_only else {}
+        stage_tier.update(local_rows)
+        stage_width = max([stage_width] + [len(n) for n in local_rows])
         tier_width = max([len('tier')] + [len(t) for t in stage_tier.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
                   f'{"tier":<{tier_width}}   {"verdict":<7} {"line":>{anchor_width}}\n')
@@ -3060,6 +3073,9 @@ def _run_once(allow_replay: bool) -> RunOnce:
             verdict  = 'failed' if failing else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
                       f'{stage_tier[stage]:<{tier_width}}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+        for name, tier in local_rows.items():
+            out.write(f'{name:<{stage_width}} {"–":>5} {"–":>5}   '
+                      f'{tier:<{tier_width}}   {"local":<7} {"–":>{anchor_width}}\n')
         if surface == 'terminal':
             out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
