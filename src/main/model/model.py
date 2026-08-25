@@ -117,10 +117,15 @@ def sync() -> None:
     for name, schema in _catalogues():
         out_dir = OUT_DIR / name
         out_dir.mkdir(parents=True, exist_ok=True)
-        (out_dir / schema.name).write_text(generate(name, schema))
+        target, text = out_dir / schema.name, generate(name, schema)
+        if target.exists() and target.read_text() == text:
+            continue   # content-keyed (#494): current means no write
+        target.write_text(text)
         print(f'  ✓ tmp/cache/model/{name}/{schema.name}')
     render_collision_worksheet()
-    curation_report()
+    # the report is status's (bare corpus-yoga model): a sync writes, and the run's
+    # tail probes status right after it - reporting here too would state every
+    # finding twice in one section (#494)
 
 
 def render_collision_worksheet() -> None:
@@ -128,17 +133,20 @@ def render_collision_worksheet() -> None:
     one pre-filled model_join row per undisposed SHARED NAME, the relationship
     cell blank except where structural equality makes 'identical' a mechanical
     proposal. Rendered by sync beside the catalogues it derives from."""
-    import csv
+    import csv, io
     rows = shared_name_candidates()
     path = OUT_DIR / 'shared_name_candidates.csv'
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    with path.open('w', newline='') as fh:
-        writer = csv.DictWriter(fh, fieldnames=['name', 'families',
-                                                'conversations_path', 'session_path',
-                                                'apiConversation_path', 'mcp_path',
-                                                'relationship', 'note'])
-        writer.writeheader()
-        writer.writerows(rows)
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=['name', 'families',
+                                             'conversations_path', 'session_path',
+                                             'apiConversation_path', 'mcp_path',
+                                             'relationship', 'note'])
+    writer.writeheader()
+    writer.writerows(rows)
+    if path.exists() and path.read_bytes() == buf.getvalue().encode():
+        return   # content-keyed (#494): current means no write and nothing said
+    path.write_bytes(buf.getvalue().encode())   # bytes: csv's CRLF must survive the compare
     proposed = sum(1 for r in rows if r['relationship'])
     print(f'  ✓ tmp/cache/model/shared_name_candidates.csv ({len(rows)} undisposed, '
           f'{proposed} with a machine proposal)')

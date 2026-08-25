@@ -356,10 +356,11 @@ LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
 # gate holds it to command AND verb (a declared step=corpus).
 #
 # Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and
-# NECESSITY tests. indexing sync is here because its cell says
-# run (machine-local, mechanical, CLOSURE holds); site render is NOT,
-# because its captures are paid and out-of-run — CLOSURE fails, and a step
-# here would render fresh-LOOKING pages over silently lagging semantics.
+# NECESSITY tests, with the input set split (#494): CLOSURE holds for the free
+# inputs this run itself produces, so every free derivation is refreshed here -
+# indexing sync, site render, model sync - and a paid input (the captures) enters
+# the page as a declared vintage, never as a currency claim. Paid acts stay
+# out-of-run; indexing's status states their lag with the paid prescription.
 run_corpus_tail() {
   # Its own banner, so its atoms are attributed to it rather than to whichever pipeline
   # ran last — the table reads sections, and a reduce over everything is a section.
@@ -368,6 +369,12 @@ run_corpus_tail() {
   [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
+  # Free derivations refreshed before anything probes them (#494): the corpus
+  # page and the model catalogues; both content-keyed, so an unchanged corpus
+  # writes nothing.
+  step site "$REPO_ROOT/src/main/cli/site/site.sh" sync
+  step site "$REPO_ROOT/src/main/cli/site/site.sh" render
+  step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" sync
   # The data gate's own validation judgments (#535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
   step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit

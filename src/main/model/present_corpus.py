@@ -110,8 +110,10 @@ def main() -> int:
     out_dir, page_out = Path(args.out), Path(args.page_out)
     entries = corpus_index(md_root)
     if not entries:
-        print(f'error: no projected corpus under {md_root}', file=sys.stderr)
-        return 1
+        # a room with no corpus skips, stated (#406, #494): the run's step must not fail
+        rel = md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root
+        print(f'site render: skipped — no projected corpus under {rel} (corpus-yoga pipeline run projects it)')
+        return 0
 
     shutil.rmtree(out_dir, ignore_errors=True)
     out_dir.mkdir(parents=True)
@@ -199,14 +201,27 @@ def main() -> int:
     title = (f'Conversation corpus — {len(entries)} conversations '
              f'({", ".join(f"{v} {k}" for k, v in sorted(by_dir.items()))}), {date_range}')
     html.write_text(re.sub(r'<title>.*?</title>', f'<title>{title}</title>', html.read_text()))
+    # The page declares the inputs it was rendered from (#494): the corpus it folds
+    # (the title) and the paid layer's coverage - so a render over lagging captures
+    # reads as exactly what it is, anchored, never laundered.
+    covered = 0
+    if categories_file.exists():
+        covered = len(json.loads(categories_file.read_text()).get('rows', []))
     subprocess.run([sys.executable, str(MAIN / 'update_export_tooltip.py'), str(html),
-                    f'the projected corpus: {md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root}'],
+                    f'the projected corpus: {md_root.relative_to(REPO) if md_root.is_relative_to(REPO) else md_root}'
+                    f' ({len(entries)} conversations); captures cover {covered} of them'
+                    f' (data/output/dashboard; corpus-yoga indexing capture refreshes, paid)'],
                    check=True)
 
     # The page is the human-facing artifact — it graduates to the library tier; the
     # data tables (self-contained, inlined above) stay behind in the cache workshop.
     page_out.mkdir(parents=True, exist_ok=True)
     page = page_out / 'index.html'
+    if page.exists() and page.read_bytes() == html.read_bytes():
+        # content-keyed (#494): current inputs mean no write, and a quiet run stays quiet
+        html.unlink()
+        print(f'  index.html current — nothing written')
+        return 0
     page.unlink(missing_ok=True)
     shutil.move(str(html), str(page))
     print(f'  title: {title}')

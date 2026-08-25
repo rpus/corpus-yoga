@@ -7,8 +7,8 @@ This directory's root FILES are inputs, not pages, and stay behind:
 
 - **`index.html`** — a TEMPLATE, not a finished page: both presenters copy it and
   inject the data tables (the category palette is authored inline here — design,
-  never filled). The corpus-wide render is `present_corpus.py`'s (`corpus-yoga dashboard
-  sync`), which writes the finished page to `data/output/site/index.html` — its URL
+  never filled). The corpus-wide render is `present_corpus.py`'s (`corpus-yoga site render`,
+  also the run's corpus-tail step), which writes the finished page to `data/output/site/index.html` — its URL
   position, and the one file in the publish tree that `site sync` never touches.
   The per-batch pages (`present.sh`) are export-scoped and stay in the workshop
   under `tmp/cache/chat-exports/<batch>/presentation/`. The tables the page is
