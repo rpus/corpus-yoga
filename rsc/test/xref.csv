@@ -304,8 +304,13 @@ src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,
 src/main/cli/indexing/indexing.py,244,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
 src/main/cli/memories/memories.json,3,path_str,src/main/pipeline/chat-exports/memories.py,Y,"""target"": ""src/main/pipeline/chat-exports/memories.py"","
 src/main/cli/memories/sync.json,7,path_str,rsc/naming/memory_deposit_vintages.csv,Y,"""rsc/naming/memory_deposit_vintages.csv"""
+src/main/cli/model/accept.json,18,path_str,rsc/schema,Y,"""rsc/schema"","
+src/main/cli/model/accept.json,22,path_str,rsc/schema/model_join.csv,Y,"""rsc/schema/model_join.csv"","
+src/main/cli/model/list-candidates.json,5,path_str,rsc/schema,Y,"""rsc/schema"","
 src/main/cli/model/model.json,3,path_str,src/main/model/model.py,Y,"""target"": ""src/main/model/model.py"","
 src/main/cli/model/model.json,8,path_str,rsc/schema,Y,"""rsc/schema"","
+src/main/cli/model/reject.json,25,path_str,rsc/schema,Y,"""rsc/schema"","
+src/main/cli/model/reject.json,29,path_str,rsc/schema/model_join.csv,Y,"""rsc/schema/model_join.csv"","
 src/main/cli/model/sync.json,5,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/parse_argv.py,27,path_str,src/main/cli/parse_argv.py,Y,SELF = 'src/main/cli/parse_argv.py'
 src/main/cli/pipeline/pipeline.json,3,path_str,src/main/cli/pipeline/pipeline.sh,Y,"""target"": ""src/main/cli/pipeline/pipeline.sh"","
@@ -720,7 +725,10 @@ src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/te
 ,,,src/main/cli/indexing/sync.json,Y,
 ,,,src/main/cli/memories/memories.json,Y,
 ,,,src/main/cli/memories/sync.json,Y,
+,,,src/main/cli/model/accept.json,Y,
+,,,src/main/cli/model/list-candidates.json,Y,
 ,,,src/main/cli/model/model.json,Y,
+,,,src/main/cli/model/reject.json,Y,
 ,,,src/main/cli/model/sync.json,Y,
 ,,,src/main/cli/pipeline/pipeline.json,Y,
 ,,,src/main/cli/pipeline/run.json,Y,

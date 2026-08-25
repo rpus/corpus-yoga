@@ -1,0 +1,25 @@
+{
+  "help": "adopt a machine proposal: the pre-filled row lands in rsc/schema/model_join.csv with its proposed kind",
+  "args": [
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "",
+      "help": "adopt every proposal-bearing row of the worksheet as read — refused if the worksheet moved since corpus-yoga model sync rendered it"
+    },
+    {
+      "name": "name",
+      "type": "<shared-name>",
+      "cardinality": "",
+      "help": "the shared definition name to adopt (or --all for the queue as read)"
+    }
+  ],
+  "r": [
+    "rsc/schema",
+    "tmp/cache"
+  ],
+  "w": [
+    "rsc/schema/model_join.csv",
+    "tmp/cache/model"
+  ]
+}

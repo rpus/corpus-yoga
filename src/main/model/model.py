@@ -20,10 +20,10 @@ from pathlib import Path
 
 from frontier import verdicts
 from gen_model_candidate import generate
-from model_curation import (documented, rejected, edge_queue, orphan_entries,
-                             coverage_gaps, unrecorded_collisions,
-                             shared_name_candidates, identity_violations,
-                             emptiness_violations)
+from model_curation import (documented, rejected, edge_queue,
+                            orphan_entries, coverage_gaps, unrecorded_collisions,
+                            shared_name_candidates, identity_violations, emptiness_violations,
+                            worksheet_rows, accept_shared_name, reject_shared_name)
 
 SELF = 'src/main/model/model.py'
 _file = Path(__file__).resolve()
@@ -185,10 +185,71 @@ def frontier_report() -> None:
                   f"red thereafter means a schema version is owed (rsc/schema/WORKFLOW.md) - {v['log']}")
 
 
+def list_candidates() -> None:
+    """The disposal queue with its three feeders (#470), each row naming its
+    disposal: undisposed shared names (the worksheet, re-rendered fresh),
+    falsified identity edges, and corpus-falsified emptiness edges."""
+    render_collision_worksheet()
+    rows = shared_name_candidates()
+    for row in rows:
+        verdict = (f"accept adopts '{row['relationship']}'" if row['relationship']
+                   else 'no machine proposal - judge the kind by hand')
+        print(f"  {row['name']} ({row['families']}) - {verdict}")
+    print(f'{len(rows)} undisposed shared name(s) - dispose each: '
+          'corpus-yoga model accept <name> | corpus-yoga model reject <name> --reason <why> '
+          '(--all disposes the queue as read)')
+    for line, kind, cells in identity_violations():
+        print(f'  falsified identity edge: row {line} ({kind}) - {cells} - re-judge '
+              'the kind in rsc/schema/model_join.csv or restore the identity')
+    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
+                    REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
+    if any(r.is_dir() for r in corpus_roots):
+        for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
+            print(f'  falsified emptiness edge: row {line} ({kind}) - {cell} carries '
+                  f'a value in {datum} - re-judge the kind in rsc/schema/model_join.csv')
+    else:
+        print('  emptiness edges: unchecked - no browser-API or chat-exports corpus in this room')
+
+
+def _disposal_rows(parser, args):
+    """The queue the disposal acts on: the worksheet as read, refused when it is
+    absent or moved since rendering - re-render with corpus-yoga model sync."""
+    rows = worksheet_rows()
+    if rows is None:
+        parser.error('the worksheet is absent or stale against the schemas - '
+                     'run corpus-yoga model sync, read it, then dispose')
+        raise SystemExit(2)   # parser.error exits; stated for the type checker
+    if args.all:
+        return rows
+    match = [r for r in rows if r['name'] == args.name]
+    if not match:
+        parser.error(f'{args.name} is not in the queue - corpus-yoga model list-candidates names it')
+    return match
+
+
 def main():
-    args = command_parser('model').parse_args()  # generated from the declaration (#476)
-    # bare → status (read-only); only `sync` writes
-    sync() if args.verb == 'sync' else status()
+    parser = command_parser('model')  # generated from the declaration (#476)
+    args = parser.parse_args()
+    if args.verb == 'sync':
+        sync()
+    elif args.verb == 'list-candidates':
+        list_candidates()
+    elif args.verb in ('accept', 'reject'):
+        # exactly one of --all and a name: the flag disposes the queue as read,
+        # the positional disposes one shared name (the indexing precedent)
+        if args.all == bool(args.name):
+            parser.error(f'{args.verb} takes a <name> or --all, not both and not neither')
+        from datetime import date
+        today = date.today().isoformat()
+        for row in _disposal_rows(parser, args):
+            if args.verb == 'accept':
+                print(accept_shared_name(row, today))
+            else:
+                print(reject_shared_name(row, args.reason, today))
+        render_collision_worksheet()
+    else:
+        # bare → status (read-only); only the verbs above write
+        status()
 
 
 if __name__ == '__main__':

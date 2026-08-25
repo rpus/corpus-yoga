@@ -1,0 +1,32 @@
+{
+  "help": "record a false friend: a name_collision row lands in rsc/schema/model_join.csv with the reason as its note",
+  "args": [
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "",
+      "help": "reject the whole worksheet as read — refused if it moved since corpus-yoga model sync rendered it; the one --reason is stamped on every row"
+    },
+    {
+      "name": "--reason",
+      "type": "<why>",
+      "cardinality": "",
+      "help": "why the sameness stops at the name, kept as the row's note",
+      "default": ""
+    },
+    {
+      "name": "name",
+      "type": "<shared-name>",
+      "cardinality": "",
+      "help": "the shared definition name to reject (or --all for the queue as read)"
+    }
+  ],
+  "r": [
+    "rsc/schema",
+    "tmp/cache"
+  ],
+  "w": [
+    "rsc/schema/model_join.csv",
+    "tmp/cache/model"
+  ]
+}
