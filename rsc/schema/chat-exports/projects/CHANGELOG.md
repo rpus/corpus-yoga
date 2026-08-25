@@ -12,6 +12,21 @@ amended in place: the fragment `#/UserUUID` became `#/default/UserUUID`
 learned to follow `../` links and caught it. A description change is not a
 validation change: no new version.
 
+## v3
+
+### Replaces
+
+[v2.json](./v2.json)
+
+#### Restricted
+
+- `creator.uuid` gains the v4-UUID pattern (`^[0-9a-f]{8}-…$`, the literal of
+  conversations' `UuidV4`) - the cell already carried the `UserUUID`
+  cross-reference, and every corpus value matches (verified 2026-08-25 against
+  data-0fc4c1e0-…-2026-08-24-12-30-34). States the constraint the values obey,
+  restoring model_join row 145's identity claim truthfully after conversations
+  narrowed its side to `UuidV4` (#527).
+
 ## v2
 
 Now validates `019d1cb4-57a4-77a8-941c-9cf6078d4c31` in `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-batch-0000`.
