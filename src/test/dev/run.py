@@ -3047,13 +3047,19 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # exactly the rows a reader is scanning for.
         stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
         anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
+        # tier per stage, from the registrations (#538): every member invocation of a
+        # stage shares one declared tier except check_score, whose rows summarise
+        # tiers - a mixed stage prints the sorted union, still read off the data.
+        stage_tier = {stage: '+'.join(sorted({tiers[i] for i in members}))
+                      for stage, members in stage_rows.items()}
+        tier_width = max([len('tier')] + [len(t) for t in stage_tier.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
-                  f'{"verdict":<7} {"line":>{anchor_width}}\n')
+                  f'{"tier":<{tier_width}}   {"verdict":<7} {"line":>{anchor_width}}\n')
         for stage, members in stage_rows.items():
             failing  = [i for i in members if not results[i][1]]
             verdict  = 'failed' if failing else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
-                      f'{verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+                      f'{stage_tier[stage]:<{tier_width}}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
         if surface == 'terminal':
             out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
