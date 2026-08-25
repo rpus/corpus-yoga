@@ -391,7 +391,7 @@ src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/api
 src/main/model/model.py,3,comment,rsc/schema/model.json,Y,"model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."
 src/main/model/model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
 src/main/model/model.py,28,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
-src/main/model/model.py,95,path_str,rsc/schema/model_join.csv,Y,print('rsc/schema/model_join.csv — every cross-family shared name disposed')
+src/main/model/model.py,97,path_str,rsc/schema/model_join.csv,Y,print('rsc/schema/model_join.csv — every cross-family shared name disposed')
 src/main/model/model.py,73,path_str,rsc/schema/model.json,Y,print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
 src/main/model/model_curation.py,4,comment,rsc/schema/model.json,Y,"rsc/schema/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/schema/model_rejected.txt,Y,rsc/schema/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
