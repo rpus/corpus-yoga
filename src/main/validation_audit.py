@@ -141,7 +141,7 @@ def audit(name: str, facts: dict) -> int:
     print(f'{name}: matrices current {matrices[0]}/{matrices[1]} · '
           f'versions registered {registered[0]}/{registered[1]} · '
           f'inputs processed {inputs[0]}/{inputs[1]} · '
-          f'modelled {modelled[0]}/{modelled[1]} - {fails} finding(s)')
+          f'modelled {modelled[0]}/{modelled[1]}')
     return fails
 
 
