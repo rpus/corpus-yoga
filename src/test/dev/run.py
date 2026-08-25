@@ -2833,14 +2833,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
         score_rows.append((f'checks[{t}]: {n_types} types, {got}/{tot} invocations passing',
                            got == tot, 'Fix failures in this tier first' if got != tot else None))
 
-    # The family completes (the maintainer's ruling, 2026-08-25): one
-    # checks[<tier>] row per tier in the table, the score tier's own counted
-    # last over its five siblings above - reflexively, excluding itself.
-    score_got = sum(1 for _l, ok, _d in score_rows if ok)
-    score_rows.append((f'checks[score]: {score_got}/{len(score_rows)} invocations passing',
-                       score_got == len(score_rows),
-                       'Fix the score rows above first' if score_got != len(score_rows) else None))
-
     got, tot = tier_counts.get('data', [0, 0])
     skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
     if tot == 0:
@@ -2848,6 +2840,14 @@ def _run_once(allow_replay: bool) -> RunOnce:
     else:
         score_rows.append((f'checks[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
                            got == tot, None))
+
+    # The family completes (the maintainer's ruling, 2026-08-25): one
+    # checks[<tier>] row per tier, the score tier's own LAST - after
+    # checks[data], counting all six siblings above, itself excluded.
+    score_got = sum(1 for _l, ok, _d in score_rows if ok)
+    score_rows.append((f'checks[score]: {score_got}/{len(score_rows)} invocations passing',
+                       score_got == len(score_rows),
+                       'Fix the score rows above first' if score_got != len(score_rows) else None))
 
     for label, ok, detail in score_rows:
         results.append((label, ok, detail))
@@ -3018,10 +3018,10 @@ def _run_once(allow_replay: bool) -> RunOnce:
         data_note = ('data: machine-local' if committed_only else
                      'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
         if fail_idx:
-            out.write(f'`src/test/dev/run.py`: {det} ({data_note}; '
+            out.write(f'`src/test/dev/run.py`: code+schema {det} ({data_note}; '
                       f'{len(fail_sections)} section(s) failing)\n')
         else:
-            out.write(f'run.py: {det} ({data_note})\n')
+            out.write(f'run.py: code+schema {det} ({data_note})\n')
 
         out.write('\n')
         if include_body:

@@ -1,4 +1,4 @@
-run.py: 2510/2510 (data: machine-local)
+run.py: code+schema 2510/2510 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -229,7 +229,7 @@ check_index_curation                          –     –   data     local      
   ✓ checks: every check that ran is expected
   ✓ checks[code]: 63 types, 611/611 invocations passing
   ✓ checks[schema]: 38 types, 1899/1899 invocations passing
-  ✓ checks[score]: 5/5 invocations passing
   – checks[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
+  ✓ checks[score]: 6/6 invocations passing
 
 dev gate: PASS — code+schema 2510/2510 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
