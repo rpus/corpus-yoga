@@ -4,7 +4,7 @@
 # Usage:
 #   corpus-yoga forge                 # declared vs live
 #   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
-#   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, resync, run the data gate, flip the body, squash, converge
+#   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge prune [--apply] # forget what the forge no longer has
 #   corpus-yoga forge capture [--to <dir>] # deposit the forge's ledger under data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 
@@ -505,17 +505,27 @@ merge_chain() {
       enact git -C "$REPO_DIR" checkout --detach "$prior"
     fi
   fi
-  # The data gate (#541): corpus-yoga pipeline run - which opens on the commit
-  # gate - performed in this checkout at the head being merged. The gate judges
-  # the tree it stands in, so a checkout standing anywhere else refuses here,
-  # before the flip; a red refuses; a run that leaves the tree dirty means the
-  # head's committed rsc/test/ artifacts were stale, which is the branch's to fix.
-  local standing
-  standing="$(git -C "$REPO_DIR" rev-parse HEAD)"
-  [[ "$standing" == "$oid" ]]     || { echo "forge merge: NOT DONE — this checkout stands at ${standing:0:8}, not at the head being merged (${oid:0:8}); the data gate judges the tree it stands in: git checkout $head, then merge from there (CONTRIBUTING.md)"; return 1; }
-  enact "$REPO_DIR/src/main/cli/pipeline/pipeline.sh" run     || { echo "forge merge: NOT DONE — the data gate is red at ${oid:0:8}; the usr gate's verdict above names the failing stage(s), its log the findings"; return 1; }
-  [[ -z "$(git -C "$REPO_DIR" status --porcelain)" ]]     || { echo "forge merge: NOT DONE — the data gate left this checkout dirty (its tests stage regenerated rsc/test/ differently from what the head committed): corpus-yoga test run on the branch, commit, push, merge again"; return 1; }
-  echo "data gate: green at ${oid:0:8} — the product half of this head's vetting is done"
+  # The data gate (#541, #549): corpus-yoga pipeline run at the head being merged.
+  # The merge stands there itself - detached at the exact sha - and puts the
+  # checkout back where it was if the gate is red.
+  local was
+  was="$(git -C "$REPO_DIR" branch --show-current)"
+  [[ -n "$was" ]] || was="$(git -C "$REPO_DIR" rev-parse HEAD)"
+  restore() { enact git -C "$REPO_DIR" checkout "$was" >/dev/null 2>&1 || true; }
+  if [[ "$(git -C "$REPO_DIR" rev-parse HEAD)" != "$oid" ]]; then
+    enact git -C "$REPO_DIR" checkout --detach "$oid"       || { echo "forge merge: NOT DONE — could not check out ${oid:0:8}"; return 1; }
+  fi
+  if ! enact "$REPO_DIR/src/main/cli/pipeline/pipeline.sh" run; then
+    restore
+    echo "forge merge: NOT DONE — data gate red at ${oid:0:8} (see the run log above); checkout restored to $was"
+    return 1
+  fi
+  if [[ -n "$(git -C "$REPO_DIR" status --porcelain)" ]]; then
+    restore
+    echo "forge merge: NOT DONE — the data gate left rsc/test/ changed: the branch's committed artifacts are stale; run corpus-yoga test run on it and push; checkout restored to $was"
+    return 1
+  fi
+  echo "data gate: green at ${oid:0:8}"
   n="$(grep -Ec 'aims to complete #[0-9]+' <<< "$body")"
   flipped="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/flip.py" <<< "$body")"
   printf '%s' "$flipped" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -)     || { echo "forge merge: NOT DONE — the flip failed; the body still aims, nothing merged$([[ $moved == 1 ]] && echo ' (the relocation stands)')"; return 1; }
