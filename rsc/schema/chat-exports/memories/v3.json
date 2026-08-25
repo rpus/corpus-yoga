@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "memories",
+  "description": "One account's memory state, from a data export - since 2026-08-24 one object per file (the export placed it under memories/<account uuid>.json; the deposit hoists it to memories.json, the maintainer's ruling), where the pre-manifest export wrapped the same object in a single-element array.",
+  "type": "object",
+  "default": [
+    {
+      "conversations_memory": "",
+      "account_uuid": ""
+    }
+  ],
+  "required": [
+    "conversations_memory",
+    "account_uuid"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "conversations_memory": {
+      "type": "string"
+    },
+    "account_uuid": {
+      "description": "../../model.json#/default/UserUUID",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    }
+  }
+}

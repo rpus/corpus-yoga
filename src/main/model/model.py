@@ -85,12 +85,14 @@ def curation_report() -> None:
               f'{", ".join(fams)} — add the occurrence(s)')
     shared = unrecorded_collisions()
     if shared:
-        print(f'INFO: rsc/schema/model_join.csv — {len(shared)} cross-family shared '
-              'name(s) undisposed (leisurely)')
-        print('    → dispose each as a model_join row: candidates pre-filled in '
-              'tmp/cache/model/shared_name_candidates.csv (corpus-yoga model sync renders it); '
-              'the relationship kind is the verdict, per rsc/schema/model_join_kinds.csv '
-              '— grammar taught by rsc/schema/WORKFLOW.md, the model_join review')
+        print(f'INFO: rsc/schema/model_join.csv - {len(shared)} definition name(s) '
+              'appear in two or more schema families with no row recording whether '
+              'the definitions are one shared type or mere namesakes')
+        print('    → record a verdict by adding one model_join.csv row per name, its '
+              'relationship column choosing a kind from rsc/schema/model_join_kinds.csv '
+              '(identical / subset / name_collision / ...); machine-checked proposals '
+              'sit ready to paste in tmp/cache/model/shared_name_candidates.csv; '
+              'nothing fails or blocks while names wait')
     else:
         print('rsc/schema/model_join.csv — every cross-family shared name disposed')
     for line, kind, cells in identity_violations():

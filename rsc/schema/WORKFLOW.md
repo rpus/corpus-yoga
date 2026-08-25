@@ -179,6 +179,12 @@ each kind's claim class and who re-verifies it). What stays yours is what no sca
 do: recognizing cross-NAME counterparts, judging relationships, and the coupling
 foresight of step 3 below.
 
+Whose duty (the maintainer's ruling, 2026-08-24): the assistant performs this
+review at every schema mint as a matter of course - machine-checkable drift is
+proposed by the machine, judgment cells are proposed by the assistant, and the
+maintainer vets the proposals in the PR. A mint whose PR carries no join
+review is incomplete.
+
 Open `rsc/schema/model_join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative

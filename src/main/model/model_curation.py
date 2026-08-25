@@ -112,6 +112,29 @@ def _resolve(cell: str):
     node = doc
     for token in fragment.lstrip('/').split('/'):
         node = node[token] if isinstance(node, dict) else node[int(token)]
+    return _deref(node, doc)
+
+
+def _deref(node, doc):
+    """Local $ref indirections resolved against the node's own document, and the
+    vacuous `additionalProperties: {}` (draft-04's no-constraint, spelled out)
+    dropped - so a mint that merely NAMES a shared shape ({"$ref": ...}) falsifies
+    no identity edge, and only a changed constraint can (#527's spurious class)."""
+    if isinstance(node, dict):
+        if isinstance(node.get('$ref'), str) and node['$ref'].startswith('#/'):
+            target = doc
+            for token in node['$ref'][2:].split('/'):
+                target = target[token]
+            merged = {k: v for k, v in node.items() if k != '$ref'}
+            resolved = _deref(target, doc)
+            overlay = _deref(merged, doc) if merged else None
+            if isinstance(resolved, dict) and isinstance(overlay, dict):
+                return {**resolved, **overlay}
+            return resolved
+        return {k: _deref(v, doc) for k, v in node.items()
+                if not (k == 'additionalProperties' and v == {})}
+    if isinstance(node, list):
+        return [_deref(v, doc) for v in node]
     return node
 
 
@@ -196,8 +219,8 @@ def shared_name_candidates() -> list[dict]:
         shapes = []
         for family in families:
             if family in latest:
-                definition = json.loads(latest[family].read_text())['definitions'][name]
-                shapes.append(_identity_normalized(definition))
+                doc = json.loads(latest[family].read_text())
+                shapes.append(_identity_normalized(_deref(doc['definitions'][name], doc)))
         equal = len(shapes) > 1 and all(s == shapes[0] for s in shapes[1:])
         row['relationship'] = 'identical' if equal else ''
         row['note'] = 'machine proposal: structurally equal at latest - edit freely' if equal else ''
