@@ -2604,6 +2604,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # command with no statement of what it fixes is not a fix hint — and any
     # GUIDANCE: prose advice rendered as an indented note under the command and
     # NEVER passed to the --fix runner (prose is not executable).
+    section_tier_registry: dict[str, str] = {}
     fix_hints:    list[str] = []
     fix_tier:     dict[str, str] = {}
     fix_problems: dict[str, list[str]] = {}
@@ -2628,6 +2629,10 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     def run_section(fn, label=None, tier='schema'):
         name = label or fn.__name__
+        # Every registration lands here whether the section runs, replays, or
+        # skips - the registry is code-determined, so the committed surface may
+        # name sections whose COUNTS are machine-local (#538's data rows).
+        section_tier_registry[name] = tier
         sys.stdout = machine_buffer
         if tier != current_tier[0]:
             current_tier[0] = tier
@@ -2780,71 +2785,47 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
     failures = [(n, d) for n, p, d in results if not p]
 
-    # Score check — per-tier subtotals. code and schema are deterministic on any clone and
-    # are compared against the committed expected score (whose first line is their combined
-    # total, matching the log's head line); data is machine-local — its subtotal is reported
-    # (and its failures block) but never recorded.
-    tier_counts: dict[str, list[int]] = {}
-    for i, (_, p, _) in enumerate(results):
-        c = tier_counts.setdefault(tiers[i], [0, 0])
-        c[0] += 1 if p else 0
-        c[1] += 1
-
-    det_got = sum(tier_counts.get(t, [0, 0])[0] for t in ('code', 'schema'))
-    det_tot = sum(tier_counts.get(t, [0, 0])[1] for t in ('code', 'schema'))
-    det     = f'{det_got}/{det_tot}'
-
-    # The committed expectation is the SET OF CHECK TYPES, not a count of invocations.
-    # A count moved whenever a schema version, a command or a conversation was added — work
-    # that adds no check — so the file was updated reflexively, which is how the failure it
-    # exists to catch (a check that silently stopped running) would have been waved through.
-    # A type leaving the set is that failure, and nothing else produces it.
+    # The one real judgment the old check_score held (#539 review, 2026-08-25:
+    # "the code treats check_score as a check"): the run's check types match the
+    # committed registry. A genuine, deterministic, code-tier check - counted,
+    # gated, last in the table. The per-tier SUMMARY is not a check and lives in
+    # the render as prose (_tier_fold), counted nowhere.
     checks_file = RSC / 'test' / 'run_expected_checks'
     expected_types = {l.strip() for l in checks_file.read_text().splitlines()
                       if l.strip() and not l.startswith('#')} if checks_file.exists() else set()
     seen_types = {t for t, tier in zip(check_types, tiers)
-                  if t and tier in ('code', 'schema')}
+                  if t and tier in ('code', 'schema')} | {'checks'}   # itself included, stated
 
-    score_rows: list[tuple] = []
-
-    ok = det_got == det_tot
-    score_rows.append((f'checks[code+schema]: {len(seen_types)} types, {det} invocations passing',
-                       ok, 'Fix failures in the code and schema tiers first' if not ok else None))
-
+    section_tier_registry['check_expectation'] = 'code'
+    print(f'\n── check_expectation {"─" * (74 - len("check_expectation"))}', file=machine_buffer)
     gone = sorted(expected_types - seen_types)
-    score_rows.append(('checks: every expected check ran', not gone,
-                       f'expected but never ran — deleted, renamed, or skipped: {", ".join(gone)}'
-                       if gone else None))
-
     added = sorted(seen_types - expected_types)
-    score_rows.append(('checks: every check that ran is expected', not added,
-                       f'new: {", ".join(added)} — add to '
-                       f'{checks_file.relative_to(REPO_ROOT)} deliberately'
-                       if added else None))
-
-    for t in ('code', 'schema'):
-        got, tot = tier_counts.get(t, [0, 0])
-        n_types = len({ty for ty, tier in zip(check_types, tiers) if ty and tier == t})
-        score_rows.append((f'checks[{t}]: {n_types} types, {got}/{tot} invocations passing',
-                           got == tot, 'Fix failures in this tier first' if got != tot else None))
-
-    got, tot = tier_counts.get('data', [0, 0])
-    skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
-    if tot == 0:
-        score_rows.append((f'score[data]: skipped — no local data{skipped_note}', True, None))
-    else:
-        score_rows.append((f'score[data]: {got}/{tot}; machine-local, not recorded{skipped_note}',
-                           got == tot, None))
-
-    for label, ok, detail in score_rows:
+    for label, ok, detail in (
+            ('checks: every expected check ran', not gone,
+             f'expected but never ran — deleted, renamed, or skipped: {", ".join(gone)}'
+             if gone else None),
+            ('checks: every check that ran is expected', not added,
+             f'new: {", ".join(added)} — add to '
+             f'{checks_file.relative_to(REPO_ROOT)} deliberately' if added else None)):
         results.append((label, ok, detail))
-        check_types.append(label.split(':')[0])   # keeps the parallel lists in step
-        sections.append('check_score')
-        # score[data] keeps the data TIER (the committed surface excludes it by
-        # L2 machine-invariance); like the rest of the tier it gates (#530).
-        tiers.append('data' if label.startswith('score[data]') else 'score')
+        check_types.append('checks')
+        sections.append('check_expectation')
+        tiers.append('code')
+        print(f'  {"✓" if ok else "✗"} {label}'
+              + (f'\n      {detail}' if not ok and detail else ''), file=machine_buffer)
         if not ok:
             failures.append((label, detail))
+
+    # Per-tier counts, over EVERY result - so the table's sum IS the stated total.
+    tier_counts: dict[str, list[int]] = {}
+    for i, (_, p_, _) in enumerate(results):
+        c = tier_counts.setdefault(tiers[i], [0, 0])
+        c[0] += 1 if p_ else 0
+        c[1] += 1
+    det_got = sum(tier_counts.get(t, [0, 0])[0] for t in ('code', 'schema'))
+    det_tot = sum(tier_counts.get(t, [0, 0])[1] for t in ('code', 'schema'))
+    det     = f'{det_got}/{det_tot}'
+
 
     # ── report rendering ─────────────────────────────────────────────────────
     # Two renderings of one result set, split by determinism exactly as the tiers
@@ -2854,7 +2835,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
     # under tmp/logs/test/run/, run-facing like the serve daemon's logs).
 
     def _in_committed(i: int) -> bool:
-        return tiers[i] != 'data' and not results[i][0].startswith('score[data]')
+        return tiers[i] != 'data'
 
     def _fix_lines(fail_list, hints):
         """Assemble the To-fix entries for a failure subset (no execution). Each
@@ -3001,10 +2982,10 @@ def _run_once(allow_replay: bool) -> RunOnce:
         data_note = ('data: machine-local' if committed_only else
                      'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
         if fail_idx:
-            out.write(f'`src/test/dev/run.py`: {det} ({data_note}; '
+            out.write(f'`src/test/dev/run.py`: code+schema {det} ({data_note}; '
                       f'{len(fail_sections)} section(s) failing)\n')
         else:
-            out.write(f'run.py: {det} ({data_note})\n')
+            out.write(f'run.py: code+schema {det} ({data_note})\n')
 
         out.write('\n')
         if include_body:
@@ -3047,13 +3028,30 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # exactly the rows a reader is scanning for.
         stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
         anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
+        # tier per stage, from the registrations (#538): every member invocation of a
+        # stage shares one declared tier except check_score, whose rows summarise
+        # tiers - a mixed stage prints the sorted union, still read off the data.
+        stage_tier = {stage: '+'.join(sorted({tiers[i] for i in members}))
+                      for stage, members in stage_rows.items()}
+        # Registered sections the surface excludes (the committed surface drops
+        # the data tier by L2): their NAMES and TIERS are code-determined, so
+        # they render as count-less rows - the tier assignment stays legible in
+        # the artifact while the counts stay machine-local (#538).
+        local_rows = {name: tier for name, tier in section_tier_registry.items()
+                      if name not in stage_rows} if committed_only else {}
+        stage_tier.update(local_rows)
+        stage_width = max([stage_width] + [len(n) for n in local_rows])
+        tier_width = max([len('tier')] + [len(t) for t in stage_tier.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
-                  f'{"verdict":<7} {"line":>{anchor_width}}\n')
+                  f'{"tier":<{tier_width}}   {"verdict":<7} {"line":>{anchor_width}}\n')
         for stage, members in stage_rows.items():
             failing  = [i for i in members if not results[i][1]]
             verdict  = 'failed' if failing else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
-                      f'{verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+                      f'{stage_tier[stage]:<{tier_width}}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+        for name, tier in local_rows.items():
+            out.write(f'{name:<{stage_width}} {"–":>5} {"–":>5}   '
+                      f'{tier:<{tier_width}}   {"local":<7} {"–":>{anchor_width}}\n')
         if surface == 'terminal':
             out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
@@ -3061,16 +3059,23 @@ def _run_once(allow_replay: bool) -> RunOnce:
             out.write('  (line = where that stage begins in this report; every check is '
                       'listed there, in place)\n')
 
-        name = 'check_score'
-        out.write(f'\n── {name} {"─" * (74 - len(name))}\n')
-        for label, ok, detail in score_rows:
-            if committed_only and label.startswith('score[data]'):
-                out.write('  – score[data]: machine-local — reported on the terminal '
-                          'and under tmp/logs/test/run/, never committed\n')
-                continue
-            mark = '✓' if ok else '✗'
-            out.write(f'  {mark} {label}' +
-                      (f'\n      {detail}\n' if not ok and detail else '\n'))
+        # The per-tier fold - a SUMMARY, not a check (#539 review, 2026-08-25):
+        # untiered prose, counted nowhere, derived here from the same results the
+        # table counts, so the two cannot disagree.
+        def _n_types(t):
+            return len({ty for ty, tier in zip(check_types, tiers) if ty and tier == t})
+        out.write(f'\nchecks[code+schema]: {len(seen_types)} types, {det} invocations passing\n')
+        for t in ('code', 'schema'):
+            got_, tot_ = tier_counts.get(t, [0, 0])
+            out.write(f'checks[{t}]: {_n_types(t)} types, {got_}/{tot_} invocations passing\n')
+        if committed_only:
+            out.write('checks[data]: machine-local — reported on the terminal and under '
+                      'tmp/logs/test/run/, never committed\n')
+        else:
+            got_, tot_ = tier_counts.get('data', [0, 0])
+            skipped_note = f' (skipped: {", ".join(sorted(data_skipped))})' if data_skipped else ''
+            out.write(f'checks[data]: skipped — no local data{skipped_note}\n' if tot_ == 0 else
+                      f'checks[data]: {got_}/{tot_}; machine-local, not recorded{skipped_note}\n')
 
         # Final: the gate's one verdict (#530 - no advisory tier stands between).
         lines: list[tuple[list[str], str | None, list[str]]] = []

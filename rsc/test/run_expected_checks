@@ -1,3 +1,4 @@
+checks
 #
 # A check is a type; a line in the report is one INVOCATION of it, over one schema,
 # A name here that never runs is the failure this file exists to catch: a check deleted,
