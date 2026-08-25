@@ -72,7 +72,7 @@ status() {
       fi
     done < <(page_files "$SRC" | grep '\.dot$' || true)
     [[ $stale -eq 0 ]] && echo "  ✓ page dirs current with rsc/site/ (renders included)"
-    [[ $stale -eq 1 ]] && { echo "WARN: the publish tree is stale against rsc/site/ — to fix:"; echo "    → run: corpus-yoga site sync"; }
+    [[ $stale -eq 1 ]] && { echo "FAIL: the publish tree is stale against rsc/site/ - to fix:"; echo "    → run: corpus-yoga site sync"; }
   fi
   # The corpus page is its own layer (render's, the quickstart's subject):
   # stated ALWAYS — an absent tree must not silence the one site verb the
@@ -92,15 +92,15 @@ status() {
 
 # The render's own currency (#409 — the render-vs-inputs half of the report the
 # dashboard command carried before it dissolved; captures-vs-corpus is indexing's).
-# The -newer/-nt comparisons are the one advisory clock key surviving #369's
-# census, owned by this probe (#381): INFO atoms only, never a gate or a skip.
+# The -newer/-nt comparisons are the one clock key surviving #369's census,
+# owned by this probe (#381): stated as FAIL atoms when behind (#530).
 render_currency() {
   local corpus="$REPO_DIR/data/output/markdown"
   local render="$OUT/index.html"
   local d="$REPO_DIR/data/output/dashboard"
   local f render_state
   if [[ ! -f "$render" ]]; then
-    echo "WARN: index.html absent — the corpus page is unbuilt; to fix:"
+    echo "FAIL: index.html absent - the corpus page is unbuilt; to fix:"
     echo "    → run: corpus-yoga site render"
     return 0
   fi
@@ -113,7 +113,7 @@ render_currency() {
   render_state="${render_state:-current}"
   echo "  ✓ index.html (the corpus page; producer: corpus-yoga site render) — $render_state"
   if [[ "$render_state" != current ]]; then
-    echo "INFO: the corpus page is $render_state — free to fix:"
+    echo "FAIL: the corpus page is $render_state - free to fix:"
     echo "    → run: corpus-yoga site render   # FREE — re-render from the current corpus + captures"
   fi
 }

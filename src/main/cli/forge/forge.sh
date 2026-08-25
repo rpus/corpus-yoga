@@ -515,7 +515,7 @@ merge_chain() {
     if printf '%s' "$body" | (cd "$REPO_DIR" && enact gh pr edit "$pr" --body-file -); then
       echo "the body is restored as found — it aims again, nothing closed"
     else
-      echo "WARN: the restore failed too — the body says closes on an unmerged PR; edit it by hand"
+      echo "FAIL: the restore failed too - the body says closes on an unmerged PR; edit it by hand"
     fi
     echo "forge merge: NOT DONE — the squash refused; nothing merged"
     return 1

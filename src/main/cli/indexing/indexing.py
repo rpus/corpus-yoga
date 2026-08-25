@@ -406,7 +406,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
           file=sys.stderr)
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
-        print(('WARN: ' if orphans else '')
+        print(('FAIL: ' if orphans else '')
               + f'orphans: {len(orphans)} accepted headword(s) with zero corpus locators'
               + (f' — {", ".join(orphans)} (fix the aliases, or remove the line and '
                  f'reject the concept with a reason)' if orphans else ''),

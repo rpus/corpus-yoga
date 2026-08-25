@@ -689,8 +689,8 @@ def check_index_curation(run, fix) -> None:
     by a headword or alias in data/output/indexing/accepted.txt — or REJECTED in
     data/output/indexing/rejected.txt; anything else is pending curation and says so here.
     All inputs live in the iCloud-shared data/output/ (not git), so this is a DATA-tier
-    check — machine-local, advisory (an undisposed concept must not block an
-    unrelated commit), skipped where data/output/ has no capture. The pending queue itself
+    check — machine-local, failing like any other where the data lives (#530),
+    skipped where data/output/ has no capture. The pending queue itself
     is the reproducible derivation tmp/cache/indexing/candidates.txt (corpus-yoga indexing
     candidates), a rebuildable workshop file, not a committed artifact."""
     concepts = inferred_concepts()
@@ -714,7 +714,7 @@ def check_index_curation(run, fix) -> None:
     # ZERO corpus locators is orphan documentation — a dead index entry whose
     # concept left the corpus or whose aliases never matched. indexing's sync
     # line has always carried the located/total ratio; this names the orphans.
-    # Advisory like the rest of this section: the corpus is machine-local data.
+    # Data-tier like the rest of this section: machine-local, gating (#530).
     markdown_root = REPO_ROOT / 'data' / 'output' / 'markdown'
     if markdown_root.is_dir():
         for h in orphan_headwords(markdown_root,
@@ -2060,9 +2060,9 @@ def check_model_obligations(run) -> None:
     Together: model.json documents exactly the shared types model_join asserts,
     minus rejections. GATES (schema tier): an edge is a human-asserted
     identity, and an undocumented asserted identity — or a documented type no
-    edge asserts — is a defect, not a queue. The raw name scan stays `corpus-yoga
-    model`'s leisurely advisory pointed at model_join, since a name_collision
-    is a false friend no scan can tell from a shared type."""
+    edge asserts — is a defect, not a queue. The raw name scan is `corpus-yoga
+    model`'s FAIL pointed at model_join (#530), since a name_collision is a
+    false friend no scan can tell from a shared type."""
     queue = model_curation.edge_queue()
     for names, rows in sorted(model_curation.shared_types().items(),
                               key=lambda kv: sorted(kv[0])):
@@ -2077,6 +2077,19 @@ def check_model_obligations(run) -> None:
             None if name not in orphans else
             'no model_join edge asserts this type: curate the asserting edge '
             '(relationship identical | snake_cased), or retire the entry', check='model.documented_type_grounded')
+
+
+def check_model_identity(run) -> None:
+    """Identity-class model_join edges hold at their families' latest versions
+    (#469, armed by #528's re-judgments): a one-sided mint that breaks an
+    identical/snake_cased edge reds the dev gate until the edge is re-judged
+    or the identity restored. Hermetic — schemas only, no corpus."""
+    violations = model_curation.identity_violations()
+    run('model: identity edges hold at latest', not violations,
+        None if not violations else
+        '; '.join(f'row {line} ({kind}): {cells}' for line, kind, cells in violations)
+        + ' — re-judge the relationship kind (rsc/schema/model_join_kinds.csv) '
+          'or restore the identity in the schemas', check='model.identity_holds')
 
 
 def check_mcp_schema(run):
@@ -2500,7 +2513,7 @@ def subject_hash(spec) -> str:
             if rel.startswith(('tmp/', 'data/')):
                 # The data tier's subjects are large and machine-local; their key
                 # stays stat (size + mtime) as the DECLARED lawful difference
-                # (#368): the tier is advisory and never enters a committed
+                # (#368): the tier is machine-local and never enters a committed
                 # artifact, so a clock-faked miss costs a re-read, not a lie.
                 st = f.stat()
                 h.update(f'{rel}\0{st.st_size}\0{st.st_mtime_ns}\n'.encode())
@@ -2532,8 +2545,7 @@ class RunOnce:
     full_text:           str
     terminal_text:       str
     full_fix_lines:      list
-    has_failures:        bool   # any failure at all — drives whether --fix has work
-    has_gating_failures: bool   # a non-data-tier failure — drives the exit code
+    has_failures:        bool   # any failure at all — drives the exit code and --fix
 
 
 def _run_once(allow_replay: bool) -> RunOnce:
@@ -2578,10 +2590,9 @@ def _run_once(allow_replay: bool) -> RunOnce:
         check_types.append(check)
         for cited in (law.split() if law else []):
             cited_laws.setdefault(cited, []).append(label)
-        # Data-tier facts are advisory (they never veto — see the exit) and
-        # carry the WARN sigil ⚠, never the gating ✗: a final summary must not
-        # LOOK failed where nothing blocks.
-        mark = '✓' if passed else ('⚠' if current_tier[0] == 'data' else '✗')
+        # One failure sigil (#530): a data-tier fact fails like any other where
+        # its data lives; absence of data is a stated skip, never a failure.
+        mark = '✓' if passed else '✗'
         # per-INVOCATION, and only to the machine log: the committed body is grouped by
         # type (_by_type), so printing each instance there would defeat the point
         print(f'  {mark} {label}' + (f'\n      {detail}' if not passed and detail else ''),
@@ -2716,6 +2727,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_join_versions, tier='schema')
         run_section(check_model_occurrences, tier='schema')
         run_section(check_model_obligations, tier='schema')
+        run_section(check_model_identity, tier='schema')
         run_section(check_mcp_schema, tier='schema')
 
         for _name, _pipeline in PIPELINES.items():
@@ -2828,8 +2840,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         results.append((label, ok, detail))
         check_types.append(label.split(':')[0])   # keeps the parallel lists in step
         sections.append('check_score')
-        # score[data] carries the data tier's advisory nature: it is reported but,
-        # like the tier it summarises, must not gate commits (see exit below).
+        # score[data] keeps the data TIER (the committed surface excludes it by
+        # L2 machine-invariance); like the rest of the tier it gates (#530).
         tiers.append('data' if label.startswith('score[data]') else 'score')
         if not ok:
             failures.append((label, detail))
@@ -2916,9 +2928,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
                 lines.append((list(ps), actual, list(gs)))
         return lines
 
-    def _is_advisory(i: int) -> bool:
-        return tiers[i] == 'data' or results[i][0].startswith('score[data]')
-
     def _write_fixes(out, lines, mark):
         for ps, cmd, gs in lines:
             for p in ps[:3]:
@@ -2951,7 +2960,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
                 seen_section = section
                 out.write(f'\n── {section} {"─" * max(0, 74 - len(section))}\n')
             failed = [i for i in members if not results[i][1]]
-            mark = '✓' if not failed else ('⚠' if all(_is_advisory(i) for i in failed) else '✗')
+            mark = '✓' if not failed else '✗'
             n = len(members)
             count = f'  ({n - len(failed)}/{n})' if n > 1 else ''
             out.write(f'  {mark} {ctype}{count}\n')
@@ -2970,19 +2979,14 @@ def _run_once(allow_replay: bool) -> RunOnce:
         'terminal' drops the per-check ✓/✗ body, leaving header + tail, and points
         at the full report for detail — pass its already-rendered text as
         full_report, since the terminal has no body of its own to anchor its stage
-        table into (#254). The tail splits by GATE EFFECT (user specification,
-        2026-07-12): a penultimate WARN block carries the machine-local advisory
-        facts (the data tier, score[data] included — they never veto anything), and
-        the FINAL word states what the hook actually does — FAIL with the gating
-        sections and their remedies, or an explicit PASS."""
+        table into (#254). The tail is binary (#530, retiring the 2026-07-12
+        advisory split): the FINAL word states what the hook does — FAIL with
+        the failing sections and their remedies, or an explicit PASS."""
         committed_only = surface == 'committed'
         include_body   = surface != 'terminal'
         idxs       = [i for i in range(len(results)) if not committed_only or _in_committed(i)]
         fail_idx   = [i for i in idxs if not results[i][1]]
-        warn_idx   = [i for i in fail_idx if _is_advisory(i)]
-        gate_idx   = [i for i in fail_idx if not _is_advisory(i)]
-        warn_sections = list(dict.fromkeys(sections[i] for i in warn_idx))
-        gate_sections = list(dict.fromkeys(sections[i] for i in gate_idx))
+        fail_sections = list(dict.fromkeys(sections[i] for i in fail_idx))
         out = io.StringIO()
 
         # The machine-facing log opens by anchoring its evidence (#365): room,
@@ -2998,7 +3002,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
                      'data: skipped' if data_tot == 0 else f'data: {data_got}/{data_tot}')
         if fail_idx:
             out.write(f'`src/test/dev/run.py`: {det} ({data_note}; '
-                      f'{len(gate_sections)} gating / {len(warn_sections)} advisory section(s) failing)\n')
+                      f'{len(fail_sections)} section(s) failing)\n')
         else:
             out.write(f'run.py: {det} ({data_note})\n')
 
@@ -3043,15 +3047,13 @@ def _run_once(allow_replay: bool) -> RunOnce:
         # exactly the rows a reader is scanning for.
         stage_width  = max([len('stage')] + [len(s) for s in stage_rows])
         anchor_width = max([len('line')] + [len(a) for a in anchors.values()])
-        out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5} {"warn":>5}   '
+        out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
                   f'{"verdict":<7} {"line":>{anchor_width}}\n')
         for stage, members in stage_rows.items():
             failing  = [i for i in members if not results[i][1]]
-            advisory = [i for i in failing if _is_advisory(i)]
-            gating   = [i for i in failing if not _is_advisory(i)]
-            verdict  = 'failed' if gating else 'ok'
-            out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(gating):>5} '
-                      f'{len(advisory):>5}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+            verdict  = 'failed' if failing else 'ok'
+            out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
+                      f'{verdict:<7} {anchors[stage]:>{anchor_width}}\n')
         if surface == 'terminal':
             out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
@@ -3066,35 +3068,20 @@ def _run_once(allow_replay: bool) -> RunOnce:
                 out.write('  – score[data]: machine-local — reported on the terminal '
                           'and under tmp/logs/test/run/, never committed\n')
                 continue
-            mark = '✓' if ok else ('⚠' if label.startswith('score[data]') else '✗')
+            mark = '✓' if ok else '✗'
             out.write(f'  {mark} {label}' +
                       (f'\n      {detail}\n' if not ok and detail else '\n'))
 
-        # Penultimate: WARN — advisory, never gating.
+        # Final: the gate's one verdict (#530 - no advisory tier stands between).
         lines: list[tuple[list[str], str | None, list[str]]] = []
-        if warn_idx:
-            counts = {sec: sum(1 for i in warn_idx if sections[i] == sec) for sec in warn_sections}
-            where = 'above' if include_body else f'in the full report ({MACHINE_LOG_REL})'
-            out.write(f'\nWARN — machine-local facts, marked ⚠ {where}; they never gate a commit:\n')
-            for sec in warn_sections:
-                out.write(f'  {sec} ({counts[sec]})\n')
-            warn_fails = [(results[i][0], results[i][2]) for i in warn_idx]
-            warn_lines = _fix_lines(warn_fails, [h for h in fix_hints if fix_tier.get(h) == 'data'])
-            if warn_lines:
-                out.write('  to address, at leisure:\n')
-                _write_fixes(out, warn_lines, '⚠')
-            lines += warn_lines
-
-        # Final: the gate's actual verdict.
-        if gate_idx:
-            counts = {sec: sum(1 for i in gate_idx if sections[i] == sec) for sec in gate_sections}
+        if fail_idx:
+            counts = {sec: sum(1 for i in fail_idx if sections[i] == sec) for sec in fail_sections}
             out.write('\ndev gate: FAIL — these gate: the hook vetoes the commit, and any run '
                       'exits non-zero:\n')
-            for sec in gate_sections:
+            for sec in fail_sections:
                 out.write(f'  {sec} ({counts[sec]})\n')
-            gate_fails = [(results[i][0], results[i][2]) for i in gate_idx]
-            gate_lines = _fix_lines(gate_fails, [h for h in fix_hints
-                                                 if fix_tier.get(h) != 'data'])
+            gate_fails = [(results[i][0], results[i][2]) for i in fail_idx]
+            gate_lines = _fix_lines(gate_fails, fix_hints)
             if gate_lines:
                 out.write('\nTo fix:\n')
                 _write_fixes(out, gate_lines, '✗')
@@ -3104,10 +3091,10 @@ def _run_once(allow_replay: bool) -> RunOnce:
                       'nothing here vetoes a commit. What this gate cannot arbitrate — '
                       'that the verbs run — is the usr gate\'s: corpus-yoga pipeline run\n')
         # The verdict is the terminal word — no trailing offer after it. The
-        # remediation each finding needs is already printed beside it (WARN's
-        # "to address, at leisure"; the gate's "To fix"). We do NOT append a
+        # remediation each finding needs is already printed beside it (the
+        # gate's "To fix"). We do NOT append a
         # blanket "or run with --fix to apply and stage automatically": it would fire
-        # even on a clean PASS (lines includes non-gating advisories), sit after the
+        # even on a clean PASS, sit after the
         # verdict where its "or" has no antecedent, and over-promise — the surviving
         # items here are cmd-less curation advice --fix never executes, and --fix does
         # not stage. --fix stays available
@@ -3123,17 +3110,12 @@ def _run_once(allow_replay: bool) -> RunOnce:
     terminal_text, _          = _render('terminal', full_text)
     xref_csv_text             = xref.render_csv(xref_rows)
 
-    # The data tier is machine-local ("not recorded"): a stale capture on this
-    # machine is a fact about its data, not about the change being committed.
-    # Data failures are reported in the WARN tail and the log, but only code/schema/score
-    # failures veto the exit status — otherwise local data drift would fail every
-    # run everywhere. This tier rule is now the ONLY thing standing between local
-    # data drift and a blocked commit. A veto that softens on feature branches reads
-    # the branch name to decide how much to mean it, which puts the axis in the wrong
-    # place. What is machine-local never gates;
-    # what is deterministic always does. The axis is the tier, not the branch.
-    gating = [i for i, (_, p, _) in enumerate(results) if not p and tiers[i] != 'data']
-
+    # Every failure vetoes (#530, the maintainer's ruling of 2026-08-25,
+    # retiring the 2026-07-12 tier axis): red data is red — a failing data-tier
+    # fact gates the commit in the room that holds the data, and ABSENT data is
+    # a stated skip, never a failure, so a dataless clone still commits. The
+    # committed surface still excludes the data tier (L2 machine-invariance);
+    # only the veto is tier-blind.
     return RunOnce(
         committed_text=committed_text,
         xref_csv_text=xref_csv_text,
@@ -3141,7 +3123,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
         terminal_text=terminal_text,
         full_fix_lines=full_fix_lines,
         has_failures=bool(failures),
-        has_gating_failures=bool(gating),
     )
 
 
@@ -3260,7 +3241,7 @@ def main():
               '`git diff`, stage what you meant, then verify:')
         print('    → run: corpus-yoga test run')
 
-    sys.exit(1 if final.has_gating_failures else 0)
+    sys.exit(1 if final.has_failures else 0)
 
 
 if __name__ == '__main__':

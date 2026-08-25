@@ -85,25 +85,24 @@ def curation_report() -> None:
               f'{", ".join(fams)} — add the occurrence(s)')
     shared = unrecorded_collisions()
     if shared:
-        print(f'INFO: rsc/schema/model_join.csv - {len(shared)} definition name(s) '
+        print(f'FAIL: rsc/schema/model_join.csv - {len(shared)} definition name(s) '
               'appear in two or more schema families with no row recording whether '
               'the definitions are one shared type or mere namesakes')
         print('    → record a verdict by adding one model_join.csv row per name, its '
               'relationship column choosing a kind from rsc/schema/model_join_kinds.csv '
               '(identical / subset / name_collision / ...); machine-checked proposals '
-              'sit ready to paste in tmp/cache/model/shared_name_candidates.csv; '
-              'nothing fails or blocks while names wait')
+              'sit ready to paste in tmp/cache/model/shared_name_candidates.csv')
     else:
         print('rsc/schema/model_join.csv — every cross-family shared name disposed')
     for line, kind, cells in identity_violations():
-        print(f'WARN: model_join row {line} ({kind}) no longer holds at latest — {cells}')
+        print(f'FAIL: model_join row {line} ({kind}) no longer holds at latest - {cells}')
         print('    → a one-sided mint falsified the edge: re-judge its relationship kind '
               '(rsc/schema/model_join_kinds.csv) or restore the identity in the schemas')
     corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
                     REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
-            print(f'WARN: model_join row {line} ({kind}) falsified by the corpus — '
+            print(f'FAIL: model_join row {line} ({kind}) falsified by the corpus - '
                   f'{cell} carries a value in {datum}')
             print('    → the always-null note is stale: re-judge the edge '
                   '(rsc/schema/model_join_kinds.csv names the kinds)')
@@ -158,7 +157,7 @@ def status() -> None:
     if missing:
         # the count is the fact; 52 derivable filenames were the mumble - the
         # names are exactly the schema tree's, and sync mints them all
-        print(f'WARN: {len(missing)} catalogue(s) not yet projected - corpus-yoga model sync mints them')
+        print(f'{len(missing)} catalogue(s) not yet projected - corpus-yoga model sync mints them')
     frontier_report()
     curation_report()
 

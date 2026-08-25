@@ -1,4 +1,4 @@
-run.py: 2370/2370 (data: machine-local)
+run.py: 2371/2371 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -170,6 +170,9 @@ run.py: 2370/2370 (data: machine-local)
   ✓ model.shared_type_disposed  (10/10)
   ✓ model.documented_type_grounded  (7/7)
 
+── check_model_identity ──────────────────────────────────────────────────────
+  ✓ model.identity_holds
+
 ── check_mcp_schema ──────────────────────────────────────────────────────────
   ✓ mcp.up_to_date
 
@@ -179,40 +182,41 @@ run.py: 2370/2370 (data: machine-local)
   ✓ checks[code]
   ✓ checks[schema]
 
-stage                               pass  fail  warn   verdict line
-check_required_files                  10     0     0   ok         4
-check_pipeline_declarations            6     0     0   ok         7
-check_step_imports                     2     0     0   ok        11
-check_self_paths                      69     0     0   ok        14
-check_committed_tree                   2     0     0   ok        17
-check_templates                        2     0     0   ok        21
-check_xref                             2     0     0   ok        24
-check_cli_surface                    453     0     0   ok        28
-check_cli_verb_help                   18     0     0   ok        61
-check_cli_exclusive_classes            6     0     0   ok        64
-check_effects                          2     0     0   ok        67
-check_cache_io                        18     0     0   ok        71
-check_accumulate_contract              1     0     0   ok        77
-check_capture_monotone                 4     0     0   ok        80
-check_grammar_laws                    12     0     0   ok        83
-check_root_schema_diagnostics         50     0     0   ok        97
-check_schema_validity                 65     0     0   ok       124
-check_schema_changelogs              130     0     0   ok       127
-check_versioned_schema_diagnostics  1494     0     0   ok       131
-check_schema_join                      2     0     0   ok       157
-check_model_join_versions              1     0     0   ok       161
-check_model_occurrences                3     0     0   ok       164
-check_model_obligations               17     0     0   ok       169
-check_mcp_schema                       1     0     0   ok       173
-check_score                            5     0     0   ok       176
+stage                               pass  fail   verdict line
+check_required_files                  10     0   ok         4
+check_pipeline_declarations            6     0   ok         7
+check_step_imports                     2     0   ok        11
+check_self_paths                      69     0   ok        14
+check_committed_tree                   2     0   ok        17
+check_templates                        2     0   ok        21
+check_xref                             2     0   ok        24
+check_cli_surface                    453     0   ok        28
+check_cli_verb_help                   18     0   ok        61
+check_cli_exclusive_classes            6     0   ok        64
+check_effects                          2     0   ok        67
+check_cache_io                        18     0   ok        71
+check_accumulate_contract              1     0   ok        77
+check_capture_monotone                 4     0   ok        80
+check_grammar_laws                    12     0   ok        83
+check_root_schema_diagnostics         50     0   ok        97
+check_schema_validity                 65     0   ok       124
+check_schema_changelogs              130     0   ok       127
+check_versioned_schema_diagnostics  1494     0   ok       131
+check_schema_join                      2     0   ok       157
+check_model_join_versions              1     0   ok       161
+check_model_occurrences                3     0   ok       164
+check_model_obligations               17     0   ok       169
+check_model_identity                   1     0   ok       173
+check_mcp_schema                       1     0   ok       176
+check_score                            5     0   ok       179
   (line = where that stage begins in this report; every check is listed there, in place)
 
 ── check_score ───────────────────────────────────────────────────────────────
-  ✓ checks[code+schema]: 100 types, 2370/2370 invocations passing
+  ✓ checks[code+schema]: 101 types, 2371/2371 invocations passing
   ✓ checks: every expected check ran
   ✓ checks: every check that ran is expected
   ✓ checks[code]: 63 types, 607/607 invocations passing
-  ✓ checks[schema]: 37 types, 1763/1763 invocations passing
+  ✓ checks[schema]: 38 types, 1764/1764 invocations passing
   – score[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2370/2370 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 2371/2371 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

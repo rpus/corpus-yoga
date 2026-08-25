@@ -77,7 +77,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
         if '[no capture' in s:
             placeholder_convs += 1
     for cid, name in suspects:
-        print(f'WARN: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns — '
+        print(f'FAIL: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns - '
               f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
               'likely missing from this DOM capture; to recapture:')
         print(f'    → run: corpus-yoga browser capture --provider gemini --id {cid}'
@@ -96,19 +96,19 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
             text = mds[0].read_text()
             cid = conv_id(text) or d.name
             if cid not in projected_text:
-                print(f'WARN: {mds[0].stem} ({cid[:8]}): captured but not projected — '
+                print(f'FAIL: {mds[0].stem} ({cid[:8]}): captured but not projected - '
                       f'the gemini step of `corpus-yoga pipeline run` produces it')
                 suspects.append((cid, mds[0].stem))
                 continue
             cap, proj = turn_seq(text), turn_seq(projected_text[cid])
             if len(cap) != len(proj):
-                print(f'WARN: {projected[cid]} ({cid[:8]}): capture holds {len(cap)} turns, '
+                print(f'FAIL: {projected[cid]} ({cid[:8]}): capture holds {len(cap)} turns, '
                       f'its projection {len(proj)} — the projection is derived from the '
                       f'capture, so they cannot legitimately differ')
                 suspects.append((cid, projected[cid]))
             elif any(a != b for a, b in zip(cap, proj)):
                 first = next(i for i, (a, b) in enumerate(zip(cap, proj)) if a != b)
-                print(f'WARN: {projected[cid]} ({cid[:8]}): capture and projection differ '
+                print(f'FAIL: {projected[cid]} ({cid[:8]}): capture and projection differ '
                       f'from turn {first + 1} of {len(cap)} — the projection is derived from '
                       f'the capture, so they cannot legitimately differ')
                 suspects.append((cid, projected[cid]))
@@ -117,7 +117,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
                               for d in captures_dir.iterdir()
                               if d.is_dir() and list(d.glob('*.md'))})
         for cid in unprojected:
-            print(f'WARN: {projected[cid]} ({cid[:8]}): projected but no capture remains — '
+            print(f'FAIL: {projected[cid]} ({cid[:8]}): projected but no capture remains - '
                   f'the rendering has outlived the record it was derived from')
             suspects.append((cid, projected[cid]))
 

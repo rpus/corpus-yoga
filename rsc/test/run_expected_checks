@@ -71,6 +71,7 @@ model.join_pointers_valid
 model.occurrence_family_grammar
 model.occurrence_pointers_resolve
 model.occurrences_cover_edges
+model.identity_holds
 model.shared_type_disposed
 naming.log_path_derives_from_command
 naming.property_keys_lowercase

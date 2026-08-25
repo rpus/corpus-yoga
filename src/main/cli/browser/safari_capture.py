@@ -678,7 +678,7 @@ def main():
             existing = len({d.name for root in roots if root.is_dir()
                             for d in root.iterdir() if d.is_dir()})
             if len(ids) < existing:
-                emit(f'WARN: discovered {len(ids)} conversation(s) but {existing} already '
+                emit(f'FAIL: discovered {len(ids)} conversation(s) but {existing} already '
                      f'captured in this room — the listing may be truncated or the page '
                      f'moved (#424); this sweep is PARTIAL')
             if not args.dry_run:   # ordering.txt is a capture; a dry run writes nothing

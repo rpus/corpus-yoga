@@ -157,12 +157,12 @@ def _warn_twins(root: Path) -> int:
     """Report the store's twin count — the standing detector, kept permanently
     now that the one-shot repair has retired. nearest_earlier_deposit cannot
     write a twin, so a nonzero count is a NEW defect to investigate, not the
-    artifact class the repair cleared. WARN-prefixed so the run tail's atom
-    hoisting carries it into every corpus-yoga pipeline run summary."""
+    artifact class the repair cleared. A FAIL: atom, counted by the run
+    tail's stage table and folded into the verdict."""
     twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
         if root.is_dir() else 0
     if twins:
-        print(f'WARN: {twins} twin deposit(s) in the summaries store — byte-identical '
+        print(f'FAIL: {twins} twin deposit(s) in the summaries store - byte-identical '
               'to their nearest earlier sibling, which the deposit rule never writes:')
         print('    → investigate: this is a NEW defect in whatever wrote them. The '
               're-stamp bug is fixed and its one-shot repair retired; nothing in the '

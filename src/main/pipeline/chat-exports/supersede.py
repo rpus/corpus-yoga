@@ -321,9 +321,8 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
           f'{ahead} capture-ahead, {len(stale)} capture-stale, {len(anomalies)} anomalies; '
           f'{len(export_only)} export-only (no local capture), '
           f'{len(capture_only)} capture-only (absent from this export)')
-    # Each mismatched conversation is its own WARN: line — pipeline.sh
-    # gathers WARN: (and "→ run:") lines verbatim into its tail, so the NAMES
-    # reach the part of the log that gets read, not just the counts.
+    # Each mismatched conversation is its own FAIL: atom - counted by
+    # pipeline.sh's stage table and folded into the run's verdict (#446).
     def _blank(stem: str) -> bool:
         """No content in any message (e.g. a stray blank send): the export's
         record is complete however long it is kept — nothing worth capturing."""
@@ -339,18 +338,18 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
             print(f'  export-only {latest_convs[u][0]} ({u}): blank (no message content) — '
                   'the export holds its complete record; nothing to capture')
             continue
-        print(f'WARN: export-only {latest_convs[u][0]} ({u}) — no capture of it here; to capture:')
+        print(f'FAIL: export-only {latest_convs[u][0]} ({u}) - no capture of it here; to capture:')
         print(f'    → run: corpus-yoga browser capture --provider claude --id {u}'
               f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in capture_only:
         print(f'  capture-only {cap_names.get(u, "")!r} ({u}): in the captures, absent from this export')
     for u in stale:
-        print(f'WARN: capture-stale {cap_names.get(u, "")!r} ({u}) — the export holds '
+        print(f'FAIL: capture-stale {cap_names.get(u, "")!r} ({u}) - the export holds '
               f'{len(latest_convs[u][1] - caps[u])} message(s) the capture lacks — to recapture:')
         print(f'    → run: corpus-yoga browser capture --provider claude --id {u}'
               f'  # first front https://claude.ai/chat/{u} in Safari (logged in)')
     for u in anomalies:
-        print(f'WARN: anomaly {cap_names.get(u, "")!r} ({u}) — unique messages on both sides — investigate')
+        print(f'FAIL: anomaly {cap_names.get(u, "")!r} ({u}) - unique messages on both sides - investigate')
 
 
 def _gather(root, ext_root):
@@ -367,7 +366,7 @@ def _gather(root, ext_root):
 
 def _warn_unparseable(unparseable):
     for n in unparseable:
-        print(f'warning: {n} matches no vintage in rsc/naming/export_dir_vintages.csv — ordering may be wrong', file=sys.stderr)
+        print(f'FAIL: {n} matches no vintage in rsc/naming/export_dir_vintages.csv - ordering may be wrong', file=sys.stderr)
 
 
 def status(root, ext_root):
@@ -377,7 +376,7 @@ def status(root, ext_root):
     live, orphans, unparseable = _gather(root, ext_root)
     _warn_unparseable(unparseable)
     for d in orphans:
-        print(f'WARN: orphaned derivation {d.name} — no {_rel(ext_root / d.name)} beside it, '
+        print(f'FAIL: orphaned derivation {d.name} - no {_rel(ext_root / d.name)} beside it, '
               f'excluded from any comparison; dispose the shadow with: rm -r {_rel(d)}')
     if not live:
         print(f'supersede: no export dirs with atomised json/ under {_rel(root)}')
@@ -401,7 +400,7 @@ def check(args):
     # not feed the comparison — its archive copies are complete, so it would keep passing
     # for a live export (and witnessing others) after the data it derives from was disposed.
     for d in orphans:
-        print(f'WARN: orphaned derivation {d.name} — no {_rel(ext_root / d.name)} beside it; '
+        print(f'FAIL: orphaned derivation {d.name} - no {_rel(ext_root / d.name)} beside it; '
               'excluded from comparison. If the export was deliberately deleted, this '
               'shadow is the disposal\'s one remaining step:')
         print(f'    → run: rm -r {_rel(d)}')
@@ -459,28 +458,27 @@ def check(args):
             print(f'{b.name} → deletable; the working:')
             deletable.append(b)
         else:
-            print(f'WARN: {b.name} holds unique {", ".join(uncovered)} data — '
+            print(f'FAIL: {b.name} holds unique {", ".join(uncovered)} data - '
                   'found in no later export and no deposit')
         for line in working:
             print(line)
         covered_all = covered_all and not uncovered
 
     if len(exports) >= 2:
-        # The deletability verdict — a computed CONCLUSION, which as a severity is
-        # INFO (it acts on nothing, gates nothing); the tail hoists FAIL/WARN/INFO
-        # atoms alike.
-        print('INFO: ' + (
+        # The deletability verdict - a computed CONCLUSION, stated as untiered
+        # prose (#530): it violates no property and licenses a human act.
+        print((
             f'keep {latest.name}; every earlier export dir is covered — '
             'export-witnessed licences hold while their witnesses are kept, deposit '
             'licences unconditionally; re-run after any deletion'
             if covered_all else
-            'some earlier export dir(s) hold data found nowhere else (WARN lines above) — '
+            'some earlier export dir(s) hold data found nowhere else (FAIL lines above) - '
             'not deletable until deposited or superseded'))
-        # Each licensed disposal is its own INFO atom — the reason plus one
+        # Each licensed disposal is its own prose line - the reason plus one
         # runnable command over BOTH dirs (the export and its tmp/cache/ derivation
-        # together, so no orphaned-derivation WARN ever follows a licensed deletion).
+        # together, so no orphaned-derivation FAIL ever follows a licensed deletion).
         for b in deletable:
-            print(f'  INFO: {b.name} deletable — every atom witnessed or deposited; to dispose:')
+            print(f'  {b.name} deletable - every atom witnessed or deposited; to dispose:')
             print(f'    → run: rm -r {_rel(ext_root / b.name)} {_rel(b)}')
     sufficient = covered_all
 
