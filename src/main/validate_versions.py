@@ -10,6 +10,7 @@ Two faces:
 """
 
 import glob
+import re
 import hashlib
 import os
 import sys
@@ -53,27 +54,6 @@ def _log_current(log_out, input_digest, schema_digest):
         return False
     return input_line.rstrip().endswith(f'sha256 {input_digest}') and \
         schema_line.rstrip().endswith(f'sha256 {schema_digest}')
-
-
-def _current_log_verdicts(schemas, ran, log_dir):
-    """version -> (modelled, status line, log path), read from the CURRENT logs —
-    the memo's own records, for every version not validated this run. The log's
-    fourth line is the verdict (stamp, input, schema, then the result)."""
-    out = {}
-    for schema_path in schemas:
-        version = os.path.splitext(os.path.basename(schema_path))[0]
-        if version in ran:
-            continue
-        log_out = os.path.join(log_dir, f'{version}.log')
-        try:
-            with open(log_out) as fh:
-                lines = [line.rstrip('\n') for line in fh]
-        except OSError:
-            continue
-        modelled = any(line == 'Valid!' for line in lines)
-        status = lines[3] if len(lines) > 3 else '(log records no verdict)'
-        out[version] = (modelled, status, log_out)
-    return out
 
 
 def _validate_one(input_file, schema_path, log_out, input_digest):
@@ -123,69 +103,35 @@ def validate_pair(input_file, schema_path, log_dir, label):
 
 
 def validate_versions(input_file, schema_dir, log_dir, label):
+    """The directory face: the datum against its family's LATEST version - the
+    latest version is the schema, the rest is history (#557) - one log, one verdict.
+    Older vN.log files a previous run left beside it are history too: nothing
+    here reads or writes them."""
     os.makedirs(log_dir, exist_ok=True)
-    schemas = sorted(glob.glob(os.path.join(schema_dir, 'v*.json')))
+    schemas = sorted(glob.glob(os.path.join(schema_dir, 'v*.json')),
+                     key=lambda f: [int(x) for x in re.findall(r'\d+', os.path.basename(f))])
     if not schemas:
         print(f'  {label}: no versioned schemas found in {schema_dir}', file=sys.stderr)
         return
-    skipped = 0
-    ran = {}   # version -> (status, log_path) for the versions validated this run
-    input_digest = _digest(input_file)   # once per datum; per-version below
-    for schema_path in schemas:
-        version = os.path.splitext(os.path.basename(schema_path))[0]
-        log_out = os.path.join(log_dir, f'{version}.log')
-
-        if _log_current(log_out, input_digest, _digest(schema_path)):
-            skipped += 1
-            continue
-
-        ran[version] = (_validate_one(input_file, schema_path, log_out, input_digest), log_out)
-
-    # The expectation is "the datum is modelled by some version" (normally the
-    # frontier); older versions failing is ordinary schema history. So the happy
-    # paths get one line each and no log pointers; only a datum NO version models
-    # gets the full per-version statuses with their logs — that is the case
-    # someone must act on.
-    valid   = [v for v, (s, _) in ran.items() if s == 'Valid!']
-    invalid = [v for v, (s, _) in ran.items() if s != 'Valid!']
-    if not ran:
-        # A skip relays the verdict of the logs it trusts (#361): "current" states
-        # the logs' freshness, never the datum's health, and a warm run must not
-        # show a cleaner face than its own cache — a datum whose current logs
-        # record no Valid! gets the cold path's FAIL, read from the memo.
-        current = _current_log_verdicts(schemas, ran, log_dir)
-        if not current or any(m for m, _, _ in current.values()):
-            print(f'  {label}: {skipped}/{len(schemas)} version(s) current — skipped')
-        else:
-            print(f'  FAIL: {label}: {skipped}/{len(schemas)} version(s) current — '
-                  'still unmodelled by any:')
-            for version, (_, status, log_out) in current.items():
-                print(f'  {label} ({version}): {status[:80]}{"…" if len(status) > 80 else ""}')
-                print(f'    → {log_out}')
-            print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
-    elif valid:
-        print(f'  {label}: modelled by {", ".join(valid)}'
-              + (f'; not by {", ".join(invalid)}' if invalid else '')
-              + (f'; {skipped} current — skipped' if skipped else ''))
+    schema_path = schemas[-1]
+    version = os.path.splitext(os.path.basename(schema_path))[0]
+    log_out = os.path.join(log_dir, f'{version}.log')
+    input_digest = _digest(input_file)
+    ran = False
+    if _log_current(log_out, input_digest, _digest(schema_path)):
+        status = _log_status(log_out)
+        note = ' (current — skipped)'
     else:
-        # Every version validated THIS RUN failed — but the denominator of
-        # "NOT modelled" is ALL versions: a skipped-current log still records
-        # its verdict, and a datum those logs model is healthy. A new REQUIRED
-        # field revalidates every old capture against the new version alone, which
-        # against the wrong denominator reads as a FAIL storm over modelled data.
-        current_valid = [v for v, (m, _, _) in
-                         _current_log_verdicts(schemas, ran, log_dir).items() if m]
-        if current_valid:
-            print(f'  {label}: modelled by {", ".join(current_valid)} (current — skipped); '
-                  f'not by the newly validated {", ".join(invalid)}')
-        else:
-            print(f'  FAIL: {label}: NOT modelled by any of the {len(schemas)} version(s)'
-                  + (f' ({len(ran)} validated now, {skipped} current)' if skipped else '')
-                  + ':')
-            for version, (status, log_out) in ran.items():
-                print(f'  {label} ({version}): {status[:80]}{"…" if len(status) > 80 else ""}')
-                print(f'    → {log_out}')
-            print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
+        status = _validate_one(input_file, schema_path, log_out, input_digest)
+        ran = True
+        note = ''
+    if status == 'Valid!':
+        print(f'  {label}: validates at {version}{note}')
+    else:
+        print(f'  FAIL: {label}: does not validate at latest {version}{note}: '
+              f'{status[:80]}{"…" if len(status) > 80 else ""}')
+        print(f'    → {log_out}')
+        print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
     # logs just written, so it can never lag them. The datum dir is the parent of the
@@ -199,6 +145,15 @@ def validate_versions(input_file, schema_dir, log_dir, label):
         mfile = write_matrix(p.parent, Path(schema_dir).resolve().parent)
         if mfile and ran:
             print(f'  matrix: {os.path.relpath(mfile)}')
+
+
+def _log_status(log_out):
+    """The verdict a current log recorded: its 'Valid!' line, else its last line."""
+    text = Path(log_out).read_text()
+    if 'Valid!' in text:
+        return 'Valid!'
+    lines = [l for l in text.splitlines() if l.strip()]
+    return lines[-1] if lines else '(empty log)'
 
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@ validate_export() {
   mkdir -p "$validation_dir"
 
   # Enumerate, capacity-blind (#395): components at the export root, pieces one
-  # directory down, each against every version of its family. A datum whose
+  # directory down, each against its family's LATEST version (#557). A datum whose
   # name matches no schema family is not this pipeline's subject.
   local pairs=() rollups=() f name d dname item schema log_dir label
   for f in "$chat_export"/*.json; do
@@ -61,10 +61,8 @@ validate_export() {
     name="$(basename "${f%.json}")"
     [[ -d "$SCHEMA_DIR/$name" ]] || continue
     log_dir="$validation_dir/$name"
-    for schema in "$SCHEMA_DIR/$name"/v*.json; do
-      [[ -e "$schema" ]] || continue
-      pairs+=("$(printf '%s\t%s\t%s\t%s' "$f" "$schema" "$log_dir" "$name")")
-    done
+    schema="$(latest_version_file "$SCHEMA_DIR/$name")"
+    [[ -n "$schema" ]] && pairs+=("$(printf '%s\t%s\t%s\t%s' "$f" "$schema" "$log_dir" "$name")")
     rollups+=("$(printf '%s\t%s\t%s\t%s' "$f" "$SCHEMA_DIR/$name" "$log_dir" "$name")")
   done
   for d in "$chat_export"/*/; do
@@ -76,10 +74,8 @@ validate_export() {
       item="$(basename "${f%.json}")"
       log_dir="$validation_dir/$dname/$item"
       label="$dname/$item"
-      for schema in "$SCHEMA_DIR/$dname"/v*.json; do
-        [[ -e "$schema" ]] || continue
-        pairs+=("$(printf '%s\t%s\t%s\t%s' "$f" "$schema" "$log_dir" "$label")")
-      done
+      schema="$(latest_version_file "$SCHEMA_DIR/$dname")"
+      [[ -n "$schema" ]] && pairs+=("$(printf '%s\t%s\t%s\t%s' "$f" "$schema" "$log_dir" "$label")")
       rollups+=("$(printf '%s\t%s\t%s\t%s' "$f" "$SCHEMA_DIR/$dname" "$log_dir" "$label")")
     done
   done

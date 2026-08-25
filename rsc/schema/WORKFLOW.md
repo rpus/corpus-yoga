@@ -16,7 +16,10 @@ a PR is the anchored observation, not the data it observes.
 Create `vN+1.json` (copy of `vN.json`) when the schema change is:
 
 - **Relaxed** — allows values previously rejected (new field, widened type, optional → present)
-- **Restricted** — rejects values previously accepted (tightened type, new required field)
+- **Restricted** — rejects values previously accepted (tightened type, new required field).
+  Validation runs at the latest version only (#557), so a restriction that would reject
+  datums this room holds is a decision made at the mint - re-capture them, model them, or
+  rule them out explicitly - never a fact left for an older version's log to carry.
 
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
@@ -138,10 +141,12 @@ src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/c
 src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
 ```
 
-Validation itself renders each datum's machine-local validation matrix — a `matrix.md`
-in the datum's directory under `tmp/cache/`, beside its `validation/` logs, written by
-`validate_versions.py` via the shared renderer `src/validation_matrix.py` whenever
-the logs change, so it can never lag them. Git-ignored, because which data sits on which
+Validation runs each datum against its family's LATEST version only - the latest
+version is the schema, the rest is this file's history (#557) - and renders the datum's
+machine-local validation matrix: a `matrix.md` in the datum's directory under `tmp/cache/`,
+one verdict per family, beside its `validation/` log, written by `validate_versions.py` via
+the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never
+lag it. Older `vN.log` files a previous run left there are history: nothing reads them. Git-ignored, because which data sits on which
 machine is a local fact; the committed CHANGELOG.md beside the schema records only the
 version *narrative*. To view the aggregate table across a pipeline's data (or re-render
 without revalidating, e.g. after a renderer format change):
@@ -150,9 +155,9 @@ without revalidating, e.g. after a renderer format change):
 src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
 ```
 
-Whether each matrix agrees with its logs, every version is registered by some datum,
-every input entry has validation output, and every datum validates against some version
-is the data gate's judgment, not the commit gate's (#535): `corpus-yoga pipeline audit`
+Whether every datum validates at its families' latest versions, each matrix agrees with
+those logs, and every input entry has validation output is the data gate's judgment, not
+the commit gate's (#535, #557): `corpus-yoga pipeline audit`
 (`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -
 a violated property is a FAIL atom in the run log, and the version it names is owed here.
 

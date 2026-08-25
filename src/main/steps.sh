@@ -109,6 +109,19 @@ step_if_ok() {
   "$@" || true
 }
 
+# latest_version_file <family-dir> — the family's latest vN.json by numeric order:
+# the latest version is the schema, the rest is history (#557), so validation
+# enumerates this one file, never v*.json.
+latest_version_file() {
+  local f best="" best_n=-1 n
+  for f in "$1"/v*.json; do
+    [[ -e "$f" ]] || continue
+    n="${f##*/v}"; n="${n%.json}"
+    if (( n > best_n )); then best_n=$n; best="$f"; fi
+  done
+  [[ -n "$best" ]] && printf '%s\n' "$best"
+}
+
 # ── Next-free dispatch (#395) ─────────────────────────────────────────────────
 # Independent tasks are enumerated capacity-blind and handed serially to the
 # next free worker; each task's whole output is buffered and emitted in

@@ -16,8 +16,8 @@ from pathlib import Path
 
 PREAMBLE = """# validation matrix
 
-Machine-local (git-ignored): which schema versions this datum validates against,
-derived from the vN.log files under validation/ at validation time.
+Machine-local (git-ignored): whether this datum validates at each family's latest
+version, derived from that version's log under validation/ at validation time.
 The version narrative lives in the committed CHANGELOG.md beside each schema.
 """
 
@@ -38,24 +38,36 @@ def log_bytes(log_text: str) -> int:
     return int(m.group(1)) if m else 0
 
 
-def rows_from_logs(datum_dir: Path) -> dict[tuple[str, str, str], tuple[str, int]]:
-    """(schema, item, version) → (✓/✗/?, bytes) from the vN.log files under one datum's
-    validation/ directory. `item` is the inner subject for nested layouts (chat-exports
-    projects), '' otherwise. This is the source of truth the datum's matrix.md renders."""
+def latest_version(schema_parent_dir: Path, schema: str) -> str | None:
+    """The family's latest version stem (vN), by numeric order; None if it has none."""
+    versions = sorted((schema_parent_dir / schema).glob('v*.json'),
+                      key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
+    return versions[-1].stem if versions else None
+
+
+def rows_from_logs(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, str, str], tuple[str, int]]:
+    """(schema, item, latest version) → (✓/✗/?, bytes) from the LATEST version's log under
+    one datum's validation/ directory - the latest version is the schema, the rest is
+    history (#557), so an older vN.log left beside it is not a row. `item` is the inner
+    subject for nested layouts (chat-exports projects), '' otherwise. This is the source
+    of truth the datum's matrix.md renders."""
     rows: dict[tuple[str, str, str], tuple[str, int]] = {}
     vdir = datum_dir / 'validation'
     if not vdir.is_dir():
         return rows
     for schema_dir in sorted(d for d in vdir.iterdir() if d.is_dir()):
         schema = schema_dir.name
+        latest = latest_version(schema_parent_dir, schema)
+        if latest is None:
+            continue
+        direct = schema_dir / f'{latest}.log'
+        if direct.is_file():
+            text = direct.read_text()
+            rows[(schema, '', latest)] = (result_symbol(text), log_bytes(text))
         for entry in sorted(schema_dir.iterdir()):
-            if entry.is_file() and re.fullmatch(r'v\d+\.log', entry.name):
-                text = entry.read_text()
-                rows[(schema, '', entry.stem)] = (result_symbol(text), log_bytes(text))
-            elif entry.is_dir():
-                for log in sorted(entry.glob('v*.log')):
-                    text = log.read_text()
-                    rows[(schema, entry.name, log.stem)] = (result_symbol(text), log_bytes(text))
+            if entry.is_dir() and (entry / f'{latest}.log').is_file():
+                text = (entry / f'{latest}.log').read_text()
+                rows[(schema, entry.name, latest)] = (result_symbol(text), log_bytes(text))
     return rows
 
 
@@ -67,7 +79,7 @@ def _row_sort_key(key):
 def render_rows(datum_dir: Path, schema_parent_dir: Path) -> list[str]:
     """One table row per (schema, item, version) found under datum_dir/validation/.
     schema_parent_dir is the rsc/schema/<pipeline>/ directory the version links target."""
-    rows = rows_from_logs(datum_dir)
+    rows = rows_from_logs(datum_dir, schema_parent_dir)
     out = []
     for key in sorted(rows, key=_row_sort_key):
         schema, item, version = key

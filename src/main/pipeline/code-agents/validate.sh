@@ -21,6 +21,8 @@ SELF='src/main/pipeline/code-agents/validate.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/steps.sh
+source "$REPO_DIR/src/main/steps.sh"   # latest_version_file (#557)
 SCHEMA_ROOT="$REPO_DIR/rsc/schema/code-agents"
 
 parse_args() {
@@ -47,14 +49,12 @@ parse_args() {
   fi
 }
 
-# One line per datum-version pair (#395): the arguments of
-# validate_versions.py --pair, tab-separated, versions in listing order.
+# One line per datum (#395, #557): the arguments of validate_versions.py --pair
+# against the family's latest version, tab-separated.
 enumerate_family() {
   local input="$1" family="$2" log_dir="$3" label="$4" schema
-  for schema in "$SCHEMA_ROOT/$family"/v*.json; do
-    [[ -e "$schema" ]] || continue
-    printf '%s\t%s\t%s\t%s\n' "$input" "$schema" "$log_dir" "$label"
-  done
+  schema="$(latest_version_file "$SCHEMA_ROOT/$family")"
+  [[ -n "$schema" ]] && printf '%s\t%s\t%s\t%s\n' "$input" "$schema" "$log_dir" "$label"
 }
 
 main() {

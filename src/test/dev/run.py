@@ -1604,7 +1604,10 @@ def check_versioned_schema_diagnostics(run):
             # upstream text to satisfy them would falsify the snapshot. Validity
             # ($schema, parseability) is still checked by check_schema_validity.
             continue
-        versions    = _sorted_versions(schema_dir) if schema_dir else []
+        # the latest version is the schema, the rest history (#557): diagnostics
+        # judge the version that judges data; validity and the changelog still
+        # hold every version, so the history stays parseable and narrated
+        versions    = _sorted_versions(schema_dir)[-1:] if schema_dir else []
         diagnostics = [s for s in all_diagnostics if s.stem not in skip]
         if not versions:
             families.append((schema_name, schema_dir, None))

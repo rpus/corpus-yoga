@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""The validation-output judgments, spoken by the data gate (#535): each datum's
-matrix.md exists and agrees with the vN.log files beside it; every schema version
-is registered by some datum; every input entry has validation output; every
-datum validates against at least one version. One home - the dev gate held a
+"""The validation-output judgments, spoken by the data gate (#535, #557): every
+datum validates at each of its families' latest versions, its matrix.md agrees with
+those logs, and every input entry has validation output. The latest version is the
+schema; older versions are the CHANGELOG's history and are judged by nothing. One home - the dev gate held a
 copy of these as its data tier and the two could disagree; now the commit gate
 vets a commit's content and this verb vets the corpus, as `corpus-yoga pipeline
 audit` and as the corpus tail's step. A violated property is a FAIL: atom,
@@ -71,28 +71,34 @@ def input_subjects(input_root: Path, globs: list[str], depth: int) -> list:
 
 
 def audit(name: str, facts: dict) -> int:
-    """One pipeline's judgments; returns the number of FAIL atoms stated."""
+    """One pipeline's judgments; returns the number of FAIL atoms stated. The latest
+    version is the schema (#557): every datum validates at each family's latest, its
+    matrix agrees with that log, and every input entry has validation output."""
     cache_root = REPO / cache_io.path_for(name)
     input_root = REPO / facts['input']
+    schema_parent = SCHEMA_ROOT / name
     depth = facts['subject_depth']
     fails = 0
     if not cache_root.is_dir() or not any(cache_root.iterdir()):
         print(f'{name}: no validation output in this room - nothing to audit')
         return 0
-    print(f'{name}: each {cache_root.relative_to(REPO)}/<datum>/matrix.md against the vN.log files beside it')
-    seen_versions: dict[str, set[str]] = {}
+    print(f'{name}: each {cache_root.relative_to(REPO)}/<datum> against its families\' latest versions')
     processed: set[str] = set()
-    # judgment counts per property (passing/total), so the summary line sums to
-    # the judgments made - the accountability the dev gate's per-invocation rows
-    # carried (393 in reading-room on 2026-08-25) and a datum count did not
-    matrices = [0, 0]; registered = [0, 0]; inputs = [0, 0]; modelled = [0, 0]
+    matrices = [0, 0]; inputs = [0, 0]; at_latest = [0, 0]
     for datum_dir in datum_dirs(cache_root, depth):
         subject = ' / '.join(datum_dir.relative_to(cache_root).parts)
         processed.add(subject)
         matrices[1] += 1
-        expected = rows_from_logs(datum_dir)
-        for (schema, _item, version) in expected:
-            seen_versions.setdefault(schema, set()).add(version)
+        expected = rows_from_logs(datum_dir, schema_parent)
+        for (family, item, version), (symbol, _bytes) in expected.items():
+            at_latest[1] += 1
+            if symbol == '✓':
+                at_latest[0] += 1
+            else:
+                where = f'{leaf(subject)}' + (f' / {item}' if item else '')
+                print(f'FAIL: {name}/{family}: does not validate at latest {version}: {where} - '
+                      f'a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)')
+                fails += 1
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
             print(f'FAIL: {name}: matrix missing: {leaf(subject)} - {mfile.relative_to(REPO)}; '
@@ -101,19 +107,10 @@ def audit(name: str, facts: dict) -> int:
             continue
         if parse_matrix_file(mfile) != {k: sym for k, (sym, _) in expected.items()}:
             print(f'FAIL: {name}: matrix stale: {leaf(subject)} - matrix.md disagrees with its '
-                  f'validation logs; to regenerate: corpus-yoga pipeline sync {name}')
+                  f'latest-version logs; to regenerate: corpus-yoga pipeline sync {name}')
             fails += 1
             continue
         matrices[0] += 1
-    for family in facts['schemas']:
-        for vpath in frontier.sorted_versions(SCHEMA_ROOT / name / family):
-            registered[1] += 1
-            if vpath.stem not in seen_versions.get(family, set()):
-                print(f'FAIL: {name}/{family}: version unregistered: {vpath.stem} - no datum in '
-                      f'this room has validated against it; corpus-yoga pipeline run {name}')
-                fails += 1
-            else:
-                registered[0] += 1
     globs = [g for g in (facts['input_glob'], facts.get('extra_input_glob', '')) if g]
     raw = input_subjects(input_root, globs, depth)
     for subject in sorted(raw if depth == 1 else [' / '.join(parts) for parts in raw]):
@@ -124,24 +121,9 @@ def audit(name: str, facts: dict) -> int:
             fails += 1
         else:
             inputs[0] += 1
-    primary = facts['schemas'][0]
-    versions = frontier.sorted_versions(SCHEMA_ROOT / name / primary)
-    for subject, leaf_dir in frontier.subject_dirs(cache_root, depth):
-        logs = [leaf_dir / 'validation' / primary / f'{v.stem}.log' for v in versions]
-        logs = [l for l in logs if l.exists()]
-        if not logs:
-            continue
-        modelled[1] += 1
-        if not any('Valid!' in l.read_text() for l in logs):
-            print(f'FAIL: {name}/{primary}: unmodelled: {leaf(subject)} - validates against no '
-                  f'schema version; a version is owed (rsc/schema/WORKFLOW.md)')
-            fails += 1
-        else:
-            modelled[0] += 1
     print(f'{name}: matrices current {matrices[0]}/{matrices[1]} · '
-          f'versions registered {registered[0]}/{registered[1]} · '
           f'inputs processed {inputs[0]}/{inputs[1]} · '
-          f'modelled {modelled[0]}/{modelled[1]}')
+          f'validates at latest {at_latest[0]}/{at_latest[1]}')
     return fails
 
 
