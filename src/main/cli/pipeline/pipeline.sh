@@ -313,26 +313,24 @@ atom_table() {
       # Rows are held, not printed, because the stage column is as wide as the widest
       # NAME and that is unknown until the last one is read — a width chosen by eye
       # overflows the day a stage is added, shifting every column after it.
-      rows[++n_rows] = sprintf("%s\t%d\t%d\t%d\t%s\t%d", section, n_fail, n_warn, n_info, verdict, banner_line)
+      rows[++n_rows] = sprintf("%s\t%d\t%s\t%d", section, n_fail, verdict, banner_line)
       if (length(section) > width) width = length(section)
     }
     /^── prep: / { next }                       # prep is narrated under its pipeline
     /^── / {
-      flush(); n_fail = n_warn = n_info = 0
+      flush(); n_fail = 0
       section = $2; banner_line = NR
       if (section == "done") { section = ""; next }
       next
     }
     /^[[:space:]]*FAIL:/ { n_fail++; next }
-    /^[[:space:]]*WARN:/ { n_warn++; next }
-    /^[[:space:]]*INFO:/ { n_info++; next }
     END {
       flush()
       if (width < length("stage")) width = length("stage")
-      printf "  %-*s %5s %5s %5s   %-7s %6s\n", width, "stage", "FAIL", "WARN", "INFO", "verdict", "line"
+      printf "  %-*s %5s   %-7s %6s\n", width, "stage", "FAIL", "verdict", "line"
       for (r = 1; r <= n_rows; r++) {
         split(rows[r], f, "\t")
-        printf "  %-*s %5d %5d %5d   %-7s %6d\n", width, f[1], f[2], f[3], f[4], f[5], f[6]
+        printf "  %-*s %5d   %-7s %6d\n", width, f[1], f[2], f[3], f[4]
       }
     }
   ' "$LOG_FILE" 2>/dev/null || true
@@ -407,7 +405,7 @@ print_plan() {
   echo "  then once, over the whole corpus:"
   # shellcheck disable=SC2030,SC2031  # plan=1 deliberately CONFINED to the subshell
   ( plan=1; run_corpus_tail ) | sed 's/^/  /'
-  echo "  tail: one row per stage — FAIL/WARN/INFO counts, the verdict (exit and stated FAIL atoms folded), and where it begins in the log; failing stages with their error:/FAIL: lines quoted; the outputs line; log path"
+  echo "  tail: one row per stage — its FAIL count, the verdict (exit and stated FAIL atoms folded), and where it begins in the log; failing stages with their error:/FAIL: lines quoted; the outputs line; log path"
 }
 
 main() {
@@ -482,8 +480,8 @@ main() {
   # The run's verdict folds BOTH notions of failure (#446): a stage that exited
   # failed, and a stage whose log states FAIL atoms - the 2026-08-09 witness was
   # a corpus row reading "FAIL 2 ... ok" under a PASS, findings stated, verdict
-  # deaf to them. WARN and INFO stay non-gating: FAIL is no longer available as
-  # a way to inform.
+  # deaf to them. FAIL is the one finding tier (#530): a violated property
+  # states FAIL, a fact is untiered prose.
   local -a verdict_failures=()
   [[ ${#pipeline_failures[@]} -gt 0 ]] && verdict_failures=("${pipeline_failures[@]}")
   local atom_section already

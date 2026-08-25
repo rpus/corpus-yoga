@@ -17,7 +17,7 @@
       "name": "--id",
       "type": "<id>",
       "cardinality": "",
-      "help": "capture ONE conversation (the audit WARNs name it); requires --provider — an id's shape does not say whose it is"
+      "help": "capture ONE conversation (the audit FAILs name it); requires --provider — an id's shape does not say whose it is"
     },
     {
       "name": "--dry-run",

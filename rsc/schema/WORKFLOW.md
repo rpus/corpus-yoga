@@ -173,7 +173,7 @@ only sharpens the frontier.
 ### 4. Review model_join.csv  ← **do not skip**
 
 Machines now hold part of this step: `identical`/`snake_cased` edges are re-verified
-structurally and falsified ones WARN in every `corpus-yoga model` / pipeline run, as do
+structurally and falsified ones FAIL every `corpus-yoga model` / pipeline run, as do
 always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
 each kind's claim class and who re-verifies it). What stays yours is what no scan can
 do: recognizing cross-NAME counterparts, judging relationships, and the coupling

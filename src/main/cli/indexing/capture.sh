@@ -399,7 +399,7 @@ status() {
   [[ -f "$d/chat-categories.json" ]] && m="$(jq '.rows | length' "$d/chat-categories.json")"
   echo "corpus: $n conversation(s) · captures cover ~$m"
   if [[ "$m" -lt "$n" ]]; then
-    echo "INFO: the captures cover ~$m of $n conversation(s) — the paid layer lags the corpus:"
+    echo "FAIL: the captures cover ~$m of $n conversation(s) - the paid layer lags the corpus:"
     echo "    → run: corpus-yoga indexing capture   # PAID — the model re-reads the corpus"
   fi
 }
