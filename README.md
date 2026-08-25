@@ -87,10 +87,15 @@ the same `./corpus-yoga test install-hook` — it installs both.
 Two audiences beyond the one this file addresses, and each has its own home. A
 **developer** changes code and runs the **dev gate** — `corpus-yoga test run` over
 `src/test/dev/`, hermetic (no network, no `gh`, no corpus), which is why the pre-commit
-hook can depend on it. An **owner** merges, prunes, and keeps the forge's declared
+hook can depend on it. The developer is typically an agent, building in a detached
+worktree that holds no corpus and needs none: a commit is src/ and rsc/ only, the
+dev gate is complete over exactly that, so the private corpus is never in the
+agent's need or extent - need-to-know by construction, not by policy. An **owner**
+merges, prunes, and keeps the forge's declared
 settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
 `corpus-yoga pipeline run` is the **usr gate** — it arbitrates that the verbs run over a
-corpus, which the dev gate, blind to data by design, cannot.
+corpus, which the dev gate, blind to data by design, cannot; every act that touches
+the corpus runs in the owner's room, under the owner's hands.
 
 ## The public surface
 

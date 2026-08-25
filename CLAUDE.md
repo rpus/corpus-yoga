@@ -131,7 +131,10 @@ seventh principle or a smell.
   thread fresh: a standing review from another room is answered before new
   work is taken.
 - Division of labor: Sonnet drafts PRs and code; Fable and the user
-  review. The inverse mode is also rated: when the user authors, the
+  review. The actors align with the gates: the agent is the dev actor,
+  fully vetted by the commit gate over a commit's content; the user is the
+  usr actor, whose room alone holds the corpus and whose acts alone touch
+  it. The inverse mode is also rated: when the user authors, the
   assistant probes, verifies, and articulates - it does not rewrite.
 - Findings are reported in chat BEFORE anything is posted to the forge -
   framing, severity, and blocker-or-issue are the maintainer's calls, and a
@@ -223,7 +226,11 @@ seventh principle or a smell.
 - Build in a worktree outside the user's checkout, created DETACHED:
   `git worktree add --detach <scratch>/wt-<issue> origin/main`. Never `-b` -
   a minted local branch inherits upstream origin/main and pollutes the
-  user's later switch. Dispose of the worktree when its PR merges.
+  user's later switch. Dispose of the worktree when its PR merges. The
+  worktree holds no corpus and needs none: a commit is src/rsc only and the
+  dev gate is complete over it - corpus data is never in the dev actor's
+  extent, and any act that reads or changes data runs in the user's checkout
+  on the user's word.
 - Commit the WHOLE worktree state (`git add -A`); never curate the index -
   a partially staged commit publishes a tree the gate never arbitrated.
   Commit-gate-commit until clean: add, commit, add, commit - let the try

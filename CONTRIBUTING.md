@@ -94,6 +94,14 @@ worktree carries none, so the counts it reports are what a clone would report an
 one disk happens to hold. It also keeps the evidence independent: the PR text asserts, the
 diff shows, and the counts come from machinery that has read neither.
 
+The same fact draws the line between the two actors. A detached worktree holds no corpus
+and needs none: a commit is src/ and rsc/ only, and the dev gate is complete over exactly
+that - so an agent building there never has the corpus in its extent, by construction
+rather than by policy. The corpus lives in the owner's checkout, and every act that touches
+it - the usr gate's run, the disposals, and the merge itself - runs there, under the owner's
+hands; the merge is where the product half of a change's vetting happens, which is why it
+is performed from that checkout and from nowhere else.
+
 The corollary matters more than the technique: **never delete local files to make a gate
 pass.** If a change would expose a machine's untracked leftovers to its own gate — dropping
 an ignore rule does exactly that — say so in the pull request and let each machine clear its
