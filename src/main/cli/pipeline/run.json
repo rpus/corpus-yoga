@@ -1,5 +1,5 @@
 {
-  "help": "run every pipeline over data/input/, the one named, or one input item of it \u2014 processing only, never acquiring",
+  "help": "run the tests, then every pipeline over data/input/, the one named, or one input item of it \u2014 processing only, never acquiring",
   "args": [
     {
       "name": "pipeline",

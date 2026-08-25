@@ -389,6 +389,7 @@ print_plan() {
   # previews exactly that call.
   echo "corpus-yoga pipeline run${only:+ $only} — the ordered plan (conditional steps annotated; nothing executed):"
   echo "  tooling: require jq; require the venv at \$VENV (mint: ./src/main/cli/prerequisites/prerequisites.sh sync --apply); pip install src/requirements.txt"
+  ( plan=1; step tests "$REPO_ROOT/src/test/dev/run.sh" )
   if should_run browser-captures; then
     "$REPO_ROOT/src/main/pipeline/browser-captures/run.sh" --plan | sed 's/^/  /'
   fi
@@ -436,6 +437,22 @@ main() {
   fi
 
   local -a pipeline_failures=()
+
+  # The commit gate first (#540): the data gate is the superset, so one run in
+  # the data room speaks the whole verdict - the hermetic checks over src/rsc,
+  # then the product judgments over the corpus. Its section is counted by the
+  # stage table like any other; a red commit gate is a failing stage, and the
+  # run continues so the product half of the report still speaks.
+  echo "── tests ─────────────────────────────────────────────────────────────────"
+  if ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
+    pipeline_failures+=("tests")
+    if ! section_has_fail "tests"; then
+      local tests_last
+      tests_last="$(section_last_words "tests")"
+      echo "FAIL: tests exited non-zero without stating a finding — its last words: ${tests_last:-(no output)}"
+    fi
+  fi
+  echo ""
 
   # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
   # path the wrapper passes and the path the pipeline documents cannot disagree.
