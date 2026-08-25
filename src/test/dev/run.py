@@ -2845,9 +2845,13 @@ def _run_once(allow_replay: bool) -> RunOnce:
         results.append((label, ok, detail))
         check_types.append(label.split(':')[0])   # keeps the parallel lists in step
         sections.append('check_score')
-        # score[data] keeps the data TIER (the committed surface excludes it by
-        # L2 machine-invariance); like the rest of the tier it gates (#530).
-        tiers.append('data' if label.startswith('score[data]') else 'score')
+        # Every score row is score-tier: score[data] SUMMARISES the data tier
+        # (it judges nothing and tier_counts never sees it), its committed-surface
+        # exclusion tests the label (_in_committed), and the veto is tier-blind
+        # (#530) - a 'data' classification here made the stage table print
+        # data+score, teaching that check_score holds data judgments (it holds
+        # none; the maintainer's review finding, 2026-08-25).
+        tiers.append('score')
         if not ok:
             failures.append((label, detail))
 
