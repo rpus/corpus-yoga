@@ -228,6 +228,95 @@ def shared_name_candidates() -> list[dict]:
     return rows
 
 
+WORKSHEET = REPO / 'tmp' / 'cache' / 'model' / 'shared_name_candidates.csv'
+
+
+def worksheet_rows() -> list[dict] | None:
+    """The rendered worksheet as read - the queue accept/reject dispose. Refused
+    (None) when absent or stale against a fresh computation: a disposal must act
+    on the queue the reader saw, never on one that moved beneath them."""
+    if not WORKSHEET.exists():
+        return None
+    rows = list(csv.DictReader(WORKSHEET.open()))
+    return rows if rows == shared_name_candidates() else None
+
+
+def _append_join_row(row: dict, relationship: str, note: str) -> None:
+    """One disposal, one appended model_join.csv row - the worksheet's path
+    cells verbatim, the relationship and note the disposal's two fields."""
+    with MODEL_JOIN.open('a', newline='') as fh:
+        csv.writer(fh).writerow([row['conversations_path'], row['session_path'],
+                                  row['apiConversation_path'], row['mcp_path'],
+                                  relationship, note])
+
+
+def accept_shared_name(row: dict, date: str) -> str:
+    """Adopt the machine proposal: the pre-filled row lands in model_join.csv
+    with its proposed kind. A row without a proposal (divergent shapes) is
+    refused - that judgment is the curator's (or paid capture's, #471)."""
+    if not row['relationship']:
+        return (f"refused: {row['name']} carries no machine proposal - the shapes "
+                'diverge; judge the relationship kind by hand (rsc/schema/model_join_kinds.csv)')
+    _append_join_row(row, row['relationship'],
+                     f"adopted {date} from the worksheet's machine proposal: "
+                     'structurally equal at latest')
+    return f"accepted: {row['name']} - {row['relationship']} row appended to {MODEL_JOIN.relative_to(REPO)}"
+
+
+def reject_shared_name(row: dict, reason: str, date: str) -> str:
+    """Record the false friend: a name_collision row with the reason as its
+    note - the rich-record twin of indexing's rejected.txt."""
+    note = f'rejected {date}: {reason}' if reason else f'rejected {date}'
+    _append_join_row(row, 'name_collision', note)
+    return f"rejected: {row['name']} - name_collision row appended to {MODEL_JOIN.relative_to(REPO)}"
+
+
+def occurrence_pointer(doc: dict, name: str):
+    """An instance pointer to where definition `name` instantiates, derived by
+    walking the schema from its root (properties -> key, items -> 0, $ref
+    followed, oneOf/anyOf/allOf searched) to the first $ref of the definition -
+    generated, never hand-written, so model.json occurrences cannot be fiction.
+    None when the definition is unreachable from the root."""
+    target = f'#/definitions/{name}'
+    seen = set()
+
+    def walk(node, trail):
+        if isinstance(node, dict):
+            ref = node.get('$ref')
+            if ref == target:
+                return trail
+            if isinstance(ref, str) and ref.startswith('#/'):
+                if ref in seen:
+                    return None
+                seen.add(ref)
+                resolved = doc
+                for token in ref[2:].split('/'):
+                    resolved = resolved[token]
+                found = walk(resolved, trail)
+                if found is not None:
+                    return found
+                seen.discard(ref)
+                return None
+            for key, sub in node.get('properties', {}).items():
+                found = walk(sub, trail + [key])
+                if found is not None:
+                    return found
+            items = node.get('items')
+            if isinstance(items, dict):
+                found = walk(items, trail + ['0'])
+                if found is not None:
+                    return found
+            for comb in ('oneOf', 'anyOf', 'allOf'):
+                for branch in node.get(comb, []):
+                    found = walk(branch, trail)
+                    if found is not None:
+                        return found
+        return None
+
+    trail = walk(doc, [])
+    return None if trail is None else '#/' + '/'.join(trail)
+
+
 def emptiness_violations(repo: Path) -> list:
     """Corpus evidence against the emptiness edges (null_in_api,
     null_in_export): a datum carrying a value at the pointed field falsifies

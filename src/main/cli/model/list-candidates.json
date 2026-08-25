@@ -1,0 +1,12 @@
+{
+  "help": "render the disposal queue: undisposed shared names (the worksheet), falsified identity edges, corpus-falsified emptiness edges",
+  "args": [],
+  "r": [
+    "rsc/schema",
+    "data/input",
+    "tmp/cache"
+  ],
+  "w": [
+    "tmp/cache/model"
+  ]
+}
