@@ -10,5 +10,6 @@
   "w": [
     "tmp/cache/site",
     "data/output/site/index.html"
-  ]
+  ],
+  "step": "corpus"
 }

@@ -90,32 +90,20 @@ status() {
   fi
 }
 
-# The render's own currency (#409 — the render-vs-inputs half of the report the
-# dashboard command carried before it dissolved; captures-vs-corpus is indexing's).
-# The -newer/-nt comparisons are the one clock key surviving #369's census,
-# owned by this probe (#381): stated as FAIL atoms when behind (#530).
+# The page's standing (#409, #494): the run renders it before this probe runs, so
+# "behind" on the free axis is unreachable by construction; the page declares
+# the inputs it was rendered from (its title: the corpus it folds; its export
+# tooltip: the captures' coverage), so a lag in the paid layer reads as what it
+# is, stated - indexing's status carries the paid prescription. No clock keys.
 render_currency() {
-  local corpus="$REPO_DIR/data/output/markdown"
   local render="$OUT/index.html"
-  local d="$REPO_DIR/data/output/dashboard"
-  local f render_state
   if [[ ! -f "$render" ]]; then
-    echo "FAIL: index.html absent - the corpus page is unbuilt; to fix:"
-    echo "    → run: corpus-yoga site render"
+    echo "FAIL: index.html absent - the corpus page is unbuilt; corpus-yoga pipeline run renders it (or: corpus-yoga site render)"
     return 0
   fi
-  local behind=''
-  [[ -n "$(find "$corpus" -path "$CONVERSATIONS_GLOB" -newer "$render" -print -quit 2>/dev/null)" ]]     && behind='corpus'
-  for f in semantic-concepts.json chat-categories.json; do
-    [[ "$d/$f" -nt "$render" ]] && { [[ "$behind" == *captures* ]] || behind="${behind:+$behind and }captures"; }
-  done
-  render_state="${behind:+behind ($behind changed since the render)}"
-  render_state="${render_state:-current}"
-  echo "  ✓ index.html (the corpus page; producer: corpus-yoga site render) — $render_state"
-  if [[ "$render_state" != current ]]; then
-    echo "FAIL: the corpus page is $render_state - free to fix:"
-    echo "    → run: corpus-yoga site render   # FREE — re-render from the current corpus + captures"
-  fi
+  local declared
+  declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$render" | head -1)"
+  echo "  ✓ index.html (the corpus page; producer: corpus-yoga site render) — ${declared:-title absent}"
 }
 
 render() {
