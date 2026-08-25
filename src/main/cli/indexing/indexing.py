@@ -416,9 +416,12 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
               '(corpus-yoga indexing capture)', file=sys.stderr)
         return
     pending = pending_concepts(accepted_path, rejected_path)
-    print(f'pending queue ({len(pending)} concepts to dispose — '
-          'accept <term> / reject <concept>):'
-          if pending else 'pending queue: empty — fully disposed', file=sys.stderr)
+    # A nonzero queue is a violated property (every captured concept disposed),
+    # stated as a FAIL atom (#535 - the dev gate's former concept_disposed
+    # invocations, spoken here once); the names follow as the queue lines.
+    print(f'FAIL: pending queue: {len(pending)} concept(s) undisposed - '
+          'accept <term> / reject <concept>:'
+          if pending else 'pending queue: empty - fully disposed', file=sys.stderr)
     for c in pending:
         print(c)
 

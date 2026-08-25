@@ -247,7 +247,7 @@ Each law names its current enforcement (or the incident that taught it).
   migration, healing, and maintenance are the same safely-rerunnable operation
   and running it on a current corpus proves itself by silence.
 - **L2 — Determinism split.** `gated` — Committed artifacts are machine-invariant; machine
-  facts (data-tier reports, usernames, local paths) and corpus data never enter them.
+  facts (the data gate's reports, usernames, local paths) and corpus data never enter them.
   Enforced structurally for the report (`run.py` writes the committed log
   itself, code+schema only) and by `check_committed_tree` for every tracked
   file: the corpus roots are ignored and track nothing, and no tracked text names

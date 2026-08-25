@@ -9,8 +9,8 @@
 #   corpus-yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
 #                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
-#   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from the
-#                                          # vN.log files beside it
+#   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
+#   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #
 # The pipeline LIST is derived, not declared: a pipeline is a subdirectory of
 # src/main/pipeline/, so adding one is adding a directory; the positional is
@@ -367,6 +367,9 @@ run_corpus_tail() {
   [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
+  # The data gate's own validation judgments (#535): the checks the dev gate
+  # held as its data tier, spoken here once, as the verb a reader can type.
+  step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit
   # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): each noun's read-only status IS its L9 currency mechanism (#409) —
   # indexing's carries the paid captures' lag, site's the corpus page's, model's
@@ -544,12 +547,13 @@ case "${1-}" in
   --names)   pipelines; exit 0 ;;
   run)       shift; parse_argv pipeline run "$@" ;;
   sync)      shift; parse_argv pipeline sync "$@"; sync_matrices "$@"; exit $? ;;
+  audit)     shift; parse_argv pipeline audit "$@"; "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/validation_audit.py" "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
   # The pipeline runners call this file's siblings with their own --<name> flag; a bare
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run (bare: status)" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run, sync, audit (bare: status)" >&2; exit 1 ;;
 esac
 
 # --plan runs before the log exists: it writes nothing, not even a log file.

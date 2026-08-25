@@ -1,4 +1,4 @@
-run.py: code+schema 2514/2514 (data: machine-local)
+run.py: code+schema 2517/2517
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: code+schema 2514/2514 (data: machine-local)
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (69/69)
+  ✓ structure.self_path_matches_address  (70/70)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -40,18 +40,18 @@ run.py: code+schema 2514/2514 (data: machine-local)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (18/18)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (19/19)
-  ✓ output.prescriptions_are_commands  (67/67)
+  ✓ naming.log_path_derives_from_command  (18/18)
+  ✓ output.prescriptions_are_commands  (65/65)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (67/67)
-  ✓ structure.file_at_level_of_subject  (23/23)
+  ✓ output.plan_lines_name_their_target  (69/69)
+  ✓ structure.file_at_level_of_subject  (24/24)
   ✓ structure.cli_declaration_mirrors_the_api  (19/19)
-  ✓ structure.cli_declaration_validates  (57/57)
+  ✓ structure.cli_declaration_validates  (58/58)
   ✓ cli.every_form_listed  (36/36)
   ✓ cli.flag_not_axis_value  (17/17)
   ✓ cli.block_identity_stable  (2/2)
@@ -59,7 +59,7 @@ run.py: code+schema 2514/2514 (data: machine-local)
   ✓ cli.step_invokes_verb  (4/4)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
-  ✓ cli.verb_help_answered  (18/18)
+  ✓ cli.verb_help_answered  (19/19)
 
 ── check_cli_exclusive_classes ───────────────────────────────────────────────
   ✓ cli.exclusive_class_parses  (6/6)
@@ -179,49 +179,37 @@ run.py: code+schema 2514/2514 (data: machine-local)
 ── check_expectation ─────────────────────────────────────────────────────────
   ✓ checks  (2/2)
 
-stage                                      pass  fail   tier     verdict line
-check_required_files                         10     0   code     ok         4
-check_pipeline_declarations                   6     0   code     ok         7
-check_step_imports                            2     0   code     ok        11
-check_self_paths                             69     0   code     ok        14
-check_committed_tree                          2     0   code     ok        17
-check_templates                               2     0   code     ok        21
-check_xref                                    2     0   code     ok        24
-check_cli_surface                           459     0   code     ok        28
-check_cli_verb_help                          18     0   code     ok        61
-check_cli_exclusive_classes                   6     0   code     ok        64
-check_effects                                 2     0   code     ok        67
-check_cache_io                               18     0   code     ok        71
-check_accumulate_contract                     1     0   code     ok        77
-check_capture_monotone                        4     0   code     ok        80
-check_grammar_laws                           12     0   code     ok        83
-check_root_schema_diagnostics                50     0   schema   ok        97
-check_schema_validity                        65     0   schema   ok       124
-check_schema_changelogs                     130     0   schema   ok       127
-check_versioned_schema_diagnostics         1494     0   schema   ok       131
-check_schema_join                             2     0   schema   ok       157
-check_model_join_versions                     1     0   schema   ok       161
-check_model_occurrences                       3     0   schema   ok       164
-check_model_obligations                     152     0   schema   ok       169
-check_model_identity                          1     0   schema   ok       173
-check_mcp_schema                              1     0   schema   ok       176
-check_expectation                             2     0   code     ok       179
-check_browser_captures_validation_outputs     –     –   data     local      –
-check_chat_exports_validation_outputs         –     –   data     local      –
-check_code_agents_validation_outputs          –     –   data     local      –
-check_browser_captures_coverage               –     –   data     local      –
-check_chat_exports_coverage                   –     –   data     local      –
-check_code_agents_coverage                    –     –   data     local      –
-check_browser_captures_frontier               –     –   data     local      –
-check_chat_exports_frontier                   –     –   data     local      –
-check_code_agents_frontier                    –     –   data     local      –
-check_cross_sources                           –     –   data     local      –
-check_index_curation                          –     –   data     local      –
+stage                               pass  fail   tier     verdict line
+check_required_files                  10     0   code     ok         4
+check_pipeline_declarations            6     0   code     ok         7
+check_step_imports                     2     0   code     ok        11
+check_self_paths                      70     0   code     ok        14
+check_committed_tree                   2     0   code     ok        17
+check_templates                        2     0   code     ok        21
+check_xref                             2     0   code     ok        24
+check_cli_surface                    460     0   code     ok        28
+check_cli_verb_help                   19     0   code     ok        61
+check_cli_exclusive_classes            6     0   code     ok        64
+check_effects                          2     0   code     ok        67
+check_cache_io                        18     0   code     ok        71
+check_accumulate_contract              1     0   code     ok        77
+check_capture_monotone                 4     0   code     ok        80
+check_grammar_laws                    12     0   code     ok        83
+check_root_schema_diagnostics         50     0   schema   ok        97
+check_schema_validity                 65     0   schema   ok       124
+check_schema_changelogs              130     0   schema   ok       127
+check_versioned_schema_diagnostics  1494     0   schema   ok       131
+check_schema_join                      2     0   schema   ok       157
+check_model_join_versions              1     0   schema   ok       161
+check_model_occurrences                3     0   schema   ok       164
+check_model_obligations              152     0   schema   ok       169
+check_model_identity                   1     0   schema   ok       173
+check_mcp_schema                       1     0   schema   ok       176
+check_expectation                      2     0   code     ok       179
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 102 types, 2514/2514 invocations passing
-checks[code]: 64 types, 615/615 invocations passing
+checks[code+schema]: 102 types, 2517/2517 invocations passing
+checks[code]: 64 types, 618/618 invocations passing
 checks[schema]: 38 types, 1899/1899 invocations passing
-checks[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2514/2514 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 2517/2517 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

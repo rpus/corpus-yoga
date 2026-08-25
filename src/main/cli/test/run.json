@@ -1,5 +1,5 @@
 {
-  "help": "the three-tier check suite \u2014 code and schema on any clone, data machine-local (also what the pre-commit hook runs); SENDS one request to github to check the pinned MCP schema, which YOGA_NO_SEND=1 refuses without failing the run",
+  "help": "the check suite over src/ and rsc/ - code and schema, the same on any clone; the corpus is the data gate's (corpus-yoga pipeline run) (also what the pre-commit hook runs); SENDS one request to github to check the pinned MCP schema, which YOGA_NO_SEND=1 refuses without failing the run",
   "args": [
     {
       "name": "--fix",
