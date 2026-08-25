@@ -1,868 +1,868 @@
 {
- "$schema": "https://json-schema.org/draft-04/schema#",
- "title": "model",
- "description": "Cross-family type reference: named types, their descriptions, and occurrence paths across all schemas. Occurrence keys use the de-versioned family-dir grammar (model_join.csv's): '<pipeline>/<family>', resolved against the family's latest version; values are instance JSON Pointers into a datum of that family. Curated under the two-loop disposal discipline of issue #19: the name scan feeds model_join.csv at leisure; a model_join edge asserting one shared type obligates an entry here or a rejection in model_rejected.txt, gated by check_model_obligations; check_model_occurrences holds these pointers to the schemas.",
- "type": "object",
- "additionalProperties": {
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "model",
+  "description": "Cross-family type reference: named types, their descriptions, and occurrence paths across all schemas. Occurrence keys use the de-versioned family-dir grammar (model_join.csv's): '<pipeline>/<family>', resolved against the family's latest version; values are instance JSON Pointers into a datum of that family. Curated under the two-loop disposal discipline of issue #19: the name scan feeds model_join.csv at leisure; a model_join edge asserting one shared type obligates an entry here or a rejection in model_rejected.txt, gated by check_model_obligations; check_model_occurrences holds these pointers to the schemas.",
   "type": "object",
-  "required": [
-   "description",
-   "occurrences"
-  ],
-  "additionalProperties": false,
-  "properties": {
-   "description": {
-    "type": "string"
-   },
-   "occurrences": {
+  "additionalProperties": {
     "type": "object",
-    "additionalProperties": {
-     "type": "array",
-     "items": {
-      "type": "string"
-     }
+    "required": [
+      "description",
+      "occurrences"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "description": {
+        "type": "string"
+      },
+      "occurrences": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     }
-   }
+  },
+  "default": {
+    "UserUUID": {
+      "description": "The UUID of data export's user",
+      "occurrences": {
+        "chat-exports/memories": [
+          "#/account_uuid"
+        ],
+        "chat-exports/projects": [
+          "#/creator/uuid"
+        ],
+        "chat-exports/users": [
+          "#/0/uuid"
+        ],
+        "chat-exports/conversations": [
+          "#/0/account/uuid"
+        ]
+      }
+    },
+    "TextContent": {
+      "description": "A text content block \u2014 one type across four surfaces: the bulk export's and CLI session's TextBlock, the live API's ApiTextBlock, and MCP's TextContent, whose name this entry carries (model_join rows 3-4, 56-57).",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "code-agents/session": [
+          "#/0/message/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ToolUseContent": {
+      "description": "A tool-use content block (type, id, name, input) \u2014 the bulk export's ToolUseBlockBase, the CLI session's ToolUseBlock, the live API's ApiToolUseBlockBase, and MCP's ToolUseContent (model_join rows 10-13, 63-66; name widened from enum to string at conversations v4 to admit MCP-namespaced names).",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "code-agents/session": [
+          "#/0/message/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ToolResultContent": {
+      "description": "A tool-result content block (type, tool_use_id, is_error) \u2014 the bulk export's ToolResultBlockBase, the CLI session's ToolResultBlock, the live API's ApiToolResultBlockBase, and MCP's ToolResultContent, which alone speaks camelCase (toolUseId/isError \u2014 the snake_cased edges, model_join rows 29-32, 81-84).",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "code-agents/session": [
+          "#/0/message/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ThinkingBlock": {
+      "description": "A thinking content block, identical between the bulk export and the CLI session (model_join row 100); MCP has no counterpart.",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "code-agents/session": [
+          "#/0/message/content/0"
+        ]
+      }
+    },
+    "ImageContent": {
+      "description": "An image content block \u2014 the CLI session's ImageBlock and MCP's ImageContent (model_join row 102).",
+      "occurrences": {
+        "code-agents/session": [
+          "#/0/message/content/0"
+        ]
+      }
+    },
+    "Message": {
+      "description": "A conversation message whose sender/role speaks the one corpus role vocabulary, human|assistant \u2014 the bulk export's Message (sender), the session projection's Message (role; user records map to human), and the markdown projection's MarkdownMessage (role) (model_join row 142).",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0"
+        ],
+        "code-agents/sessionConversation": [
+          "#/messages/0"
+        ],
+        "browser-captures/markdownConversation": [
+          "#/messages/0"
+        ]
+      }
+    },
+    "AskUserQuestion": {
+      "description": "AskUserQuestion - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input/questions/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input/questions/0"
+        ]
+      }
+    },
+    "AskUserToolResultBlock": {
+      "description": "AskUserToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "AskUserToolUseBlock": {
+      "description": "AskUserToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "BashToolResultBlock": {
+      "description": "BashToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "BashToolUseBlock": {
+      "description": "BashToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ConversationSearchToolResultBlock": {
+      "description": "ConversationSearchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ConversationSearchToolUseBlock": {
+      "description": "ConversationSearchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "CreateFileToolResultBlock": {
+      "description": "CreateFileToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "CreateFileToolUseBlock": {
+      "description": "CreateFileToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "DisplayContentJsonBlock": {
+      "description": "DisplayContentJsonBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/display_content"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/display_content"
+        ]
+      }
+    },
+    "DisplayContentTable": {
+      "description": "DisplayContentTable - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/display_content"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/display_content"
+        ]
+      }
+    },
+    "DisplayContentText": {
+      "description": "DisplayContentText - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/display_content"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/display_content"
+        ]
+      }
+    },
+    "HasNameDiscriminatorProperty": {
+      "description": "HasNameDiscriminatorProperty - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "HasTypeDiscriminatorProperty": {
+      "description": "HasTypeDiscriminatorProperty - one definition under one name in browser-captures/apiConversation and chat-exports/conversations and code-agents/session, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/display_content"
+        ],
+        "code-agents/session": [
+          "#/0/message/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/display_content"
+        ]
+      }
+    },
+    "IconName": {
+      "description": "IconName - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/icon_name"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/icon_name"
+        ]
+      }
+    },
+    "McpToolResultBlock": {
+      "description": "McpToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "McpToolUseBlock": {
+      "description": "McpToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "MemoryUserEditsToolResultBlock": {
+      "description": "MemoryUserEditsToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "MemoryUserEditsToolUseBlock": {
+      "description": "MemoryUserEditsToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "NamespacedToolName": {
+      "description": "NamespacedToolName - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/name"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/name"
+        ]
+      }
+    },
+    "NullableBoolean": {
+      "description": "NullableBoolean - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/is_mcp_app"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/is_mcp_app"
+        ]
+      }
+    },
+    "NullableString": {
+      "description": "NullableString - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/signature"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/integration_icon_url"
+        ]
+      }
+    },
+    "PresentFilesToolResultBlock": {
+      "description": "PresentFilesToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "PresentFilesToolUseBlock": {
+      "description": "PresentFilesToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "PromptContextMetadataFetch": {
+      "description": "PromptContextMetadataFetch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/content/0/prompt_context_metadata"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/content/0/prompt_context_metadata"
+        ]
+      }
+    },
+    "PromptContextMetadataSearch": {
+      "description": "PromptContextMetadataSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/content/0/prompt_context_metadata"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/content/0/prompt_context_metadata"
+        ]
+      }
+    },
+    "ReadMeToolResultBlock": {
+      "description": "ReadMeToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ReadMeToolUseBlock": {
+      "description": "ReadMeToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "RecentChatsToolResultBlock": {
+      "description": "RecentChatsToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "RecentChatsToolUseBlock": {
+      "description": "RecentChatsToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "RecommendClaudeAppsToolResultBlock": {
+      "description": "RecommendClaudeAppsToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "RecommendClaudeAppsToolUseBlock": {
+      "description": "RecommendClaudeAppsToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "StrReplaceToolResultBlock": {
+      "description": "StrReplaceToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "StrReplaceToolUseBlock": {
+      "description": "StrReplaceToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ThinkingSummary": {
+      "description": "ThinkingSummary - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/summaries/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/summaries/0"
+        ]
+      }
+    },
+    "Timestamp": {
+      "description": "Timestamp - one definition under one name in browser-captures/apiConversation and chat-exports/conversations and code-agents/session, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/created_at"
+        ],
+        "code-agents/session": [
+          "#/0/timestamp"
+        ],
+        "browser-captures/apiConversation": [
+          "#/created_at"
+        ]
+      }
+    },
+    "ToolId": {
+      "description": "ToolId - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/id"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/id"
+        ]
+      }
+    },
+    "ToolInputAskUser": {
+      "description": "ToolInputAskUser - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputBash": {
+      "description": "ToolInputBash - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputConversationSearch": {
+      "description": "ToolInputConversationSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputCreateFile": {
+      "description": "ToolInputCreateFile - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputMemoryUserEdits": {
+      "description": "ToolInputMemoryUserEdits - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputPresentFiles": {
+      "description": "ToolInputPresentFiles - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputReadMe": {
+      "description": "ToolInputReadMe - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputRecentChats": {
+      "description": "ToolInputRecentChats - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputRecommendClaudeApps": {
+      "description": "ToolInputRecommendClaudeApps - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputSearchMcpRegistry": {
+      "description": "ToolInputSearchMcpRegistry - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputStrReplace": {
+      "description": "ToolInputStrReplace - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputToolSearch": {
+      "description": "ToolInputToolSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputView": {
+      "description": "ToolInputView - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputVisualizer": {
+      "description": "ToolInputVisualizer - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputWebFetch": {
+      "description": "ToolInputWebFetch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolInputWebSearch": {
+      "description": "ToolInputWebSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/input"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/input"
+        ]
+      }
+    },
+    "ToolSearchToolResultBlock": {
+      "description": "ToolSearchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ToolSearchToolUseBlock": {
+      "description": "ToolSearchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "UuidV4": {
+      "description": "UuidV4 - one definition under one name in browser-captures/apiConversation and chat-exports/conversations and code-agents/session, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/uuid"
+        ],
+        "code-agents/session": [
+          "#/0/promptId"
+        ],
+        "browser-captures/apiConversation": [
+          "#/uuid"
+        ]
+      }
+    },
+    "UuidV4orV7": {
+      "description": "UuidV4orV7 - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/uuid"
+        ],
+        "browser-captures/apiConversation": [
+          "#/current_leaf_message_uuid"
+        ]
+      }
+    },
+    "UuidV7": {
+      "description": "UuidV7 - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/uuid"
+        ],
+        "browser-captures/apiConversation": [
+          "#/current_leaf_message_uuid"
+        ]
+      }
+    },
+    "ViewToolResultBlock": {
+      "description": "ViewToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "ViewToolUseBlock": {
+      "description": "ViewToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "VisualizerToolResultBlock": {
+      "description": "VisualizerToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "VisualizerToolUseBlock": {
+      "description": "VisualizerToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "WebFetchToolResultBlock": {
+      "description": "WebFetchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "WebFetchToolUseBlock": {
+      "description": "WebFetchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "WebSearchToolResultBlock": {
+      "description": "WebSearchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "WebSearchToolUseBlock": {
+      "description": "WebSearchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0"
+        ]
+      }
+    },
+    "WebpageMetadata": {
+      "description": "WebpageMetadata - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
+      "occurrences": {
+        "chat-exports/conversations": [
+          "#/0/chat_messages/0/content/0/content/0/metadata"
+        ],
+        "browser-captures/apiConversation": [
+          "#/chat_messages/0/content/0/citations/0/metadata"
+        ]
+      }
+    }
   }
- },
- "default": {
-  "UserUUID": {
-   "description": "The UUID of data export's user",
-   "occurrences": {
-    "chat-exports/memories": [
-     "#/account_uuid"
-    ],
-    "chat-exports/projects": [
-     "#/creator/uuid"
-    ],
-    "chat-exports/users": [
-     "#/0/uuid"
-    ],
-    "chat-exports/conversations": [
-     "#/0/account/uuid"
-    ]
-   }
-  },
-  "TextContent": {
-   "description": "A text content block — one type across four surfaces: the bulk export's and CLI session's TextBlock, the live API's ApiTextBlock, and MCP's TextContent, whose name this entry carries (model_join rows 3-4, 56-57).",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "code-agents/session": [
-     "#/0/message/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ToolUseContent": {
-   "description": "A tool-use content block (type, id, name, input) — the bulk export's ToolUseBlockBase, the CLI session's ToolUseBlock, the live API's ApiToolUseBlockBase, and MCP's ToolUseContent (model_join rows 10-13, 63-66; name widened from enum to string at conversations v4 to admit MCP-namespaced names).",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "code-agents/session": [
-     "#/0/message/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ToolResultContent": {
-   "description": "A tool-result content block (type, tool_use_id, is_error) — the bulk export's ToolResultBlockBase, the CLI session's ToolResultBlock, the live API's ApiToolResultBlockBase, and MCP's ToolResultContent, which alone speaks camelCase (toolUseId/isError — the snake_cased edges, model_join rows 29-32, 81-84).",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "code-agents/session": [
-     "#/0/message/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ThinkingBlock": {
-   "description": "A thinking content block, identical between the bulk export and the CLI session (model_join row 100); MCP has no counterpart.",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "code-agents/session": [
-     "#/0/message/content/0"
-    ]
-   }
-  },
-  "ImageContent": {
-   "description": "An image content block — the CLI session's ImageBlock and MCP's ImageContent (model_join row 102).",
-   "occurrences": {
-    "code-agents/session": [
-     "#/0/message/content/0"
-    ]
-   }
-  },
-  "Message": {
-   "description": "A conversation message whose sender/role speaks the one corpus role vocabulary, human|assistant — the bulk export's Message (sender), the session projection's Message (role; user records map to human), and the markdown projection's MarkdownMessage (role) (model_join row 142).",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0"
-    ],
-    "code-agents/sessionConversation": [
-     "#/messages/0"
-    ],
-    "browser-captures/markdownConversation": [
-     "#/messages/0"
-    ]
-   }
-  },
-  "AskUserQuestion": {
-   "description": "AskUserQuestion - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input/questions/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input/questions/0"
-    ]
-   }
-  },
-  "AskUserToolResultBlock": {
-   "description": "AskUserToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "AskUserToolUseBlock": {
-   "description": "AskUserToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "BashToolResultBlock": {
-   "description": "BashToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "BashToolUseBlock": {
-   "description": "BashToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ConversationSearchToolResultBlock": {
-   "description": "ConversationSearchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ConversationSearchToolUseBlock": {
-   "description": "ConversationSearchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "CreateFileToolResultBlock": {
-   "description": "CreateFileToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "CreateFileToolUseBlock": {
-   "description": "CreateFileToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "DisplayContentJsonBlock": {
-   "description": "DisplayContentJsonBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/display_content"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/display_content"
-    ]
-   }
-  },
-  "DisplayContentTable": {
-   "description": "DisplayContentTable - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/display_content"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/display_content"
-    ]
-   }
-  },
-  "DisplayContentText": {
-   "description": "DisplayContentText - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/display_content"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/display_content"
-    ]
-   }
-  },
-  "HasNameDiscriminatorProperty": {
-   "description": "HasNameDiscriminatorProperty - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "HasTypeDiscriminatorProperty": {
-   "description": "HasTypeDiscriminatorProperty - one definition under one name in browser-captures/apiConversation and chat-exports/conversations and code-agents/session, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/display_content"
-    ],
-    "code-agents/session": [
-     "#/0/message/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/display_content"
-    ]
-   }
-  },
-  "IconName": {
-   "description": "IconName - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/icon_name"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/icon_name"
-    ]
-   }
-  },
-  "McpToolResultBlock": {
-   "description": "McpToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "McpToolUseBlock": {
-   "description": "McpToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "MemoryUserEditsToolResultBlock": {
-   "description": "MemoryUserEditsToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "MemoryUserEditsToolUseBlock": {
-   "description": "MemoryUserEditsToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "NamespacedToolName": {
-   "description": "NamespacedToolName - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/name"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/name"
-    ]
-   }
-  },
-  "NullableBoolean": {
-   "description": "NullableBoolean - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/is_mcp_app"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/is_mcp_app"
-    ]
-   }
-  },
-  "NullableString": {
-   "description": "NullableString - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/signature"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/integration_icon_url"
-    ]
-   }
-  },
-  "PresentFilesToolResultBlock": {
-   "description": "PresentFilesToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "PresentFilesToolUseBlock": {
-   "description": "PresentFilesToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "PromptContextMetadataFetch": {
-   "description": "PromptContextMetadataFetch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/content/0/prompt_context_metadata"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/content/0/prompt_context_metadata"
-    ]
-   }
-  },
-  "PromptContextMetadataSearch": {
-   "description": "PromptContextMetadataSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/content/0/prompt_context_metadata"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/content/0/prompt_context_metadata"
-    ]
-   }
-  },
-  "ReadMeToolResultBlock": {
-   "description": "ReadMeToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ReadMeToolUseBlock": {
-   "description": "ReadMeToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "RecentChatsToolResultBlock": {
-   "description": "RecentChatsToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "RecentChatsToolUseBlock": {
-   "description": "RecentChatsToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "RecommendClaudeAppsToolResultBlock": {
-   "description": "RecommendClaudeAppsToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "RecommendClaudeAppsToolUseBlock": {
-   "description": "RecommendClaudeAppsToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "StrReplaceToolResultBlock": {
-   "description": "StrReplaceToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "StrReplaceToolUseBlock": {
-   "description": "StrReplaceToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ThinkingSummary": {
-   "description": "ThinkingSummary - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/summaries/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/summaries/0"
-    ]
-   }
-  },
-  "Timestamp": {
-   "description": "Timestamp - one definition under one name in browser-captures/apiConversation and chat-exports/conversations and code-agents/session, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/created_at"
-    ],
-    "code-agents/session": [
-     "#/0/timestamp"
-    ],
-    "browser-captures/apiConversation": [
-     "#/created_at"
-    ]
-   }
-  },
-  "ToolId": {
-   "description": "ToolId - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/id"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/id"
-    ]
-   }
-  },
-  "ToolInputAskUser": {
-   "description": "ToolInputAskUser - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputBash": {
-   "description": "ToolInputBash - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputConversationSearch": {
-   "description": "ToolInputConversationSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputCreateFile": {
-   "description": "ToolInputCreateFile - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputMemoryUserEdits": {
-   "description": "ToolInputMemoryUserEdits - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputPresentFiles": {
-   "description": "ToolInputPresentFiles - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputReadMe": {
-   "description": "ToolInputReadMe - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputRecentChats": {
-   "description": "ToolInputRecentChats - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputRecommendClaudeApps": {
-   "description": "ToolInputRecommendClaudeApps - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputSearchMcpRegistry": {
-   "description": "ToolInputSearchMcpRegistry - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputStrReplace": {
-   "description": "ToolInputStrReplace - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputToolSearch": {
-   "description": "ToolInputToolSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputView": {
-   "description": "ToolInputView - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputVisualizer": {
-   "description": "ToolInputVisualizer - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputWebFetch": {
-   "description": "ToolInputWebFetch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolInputWebSearch": {
-   "description": "ToolInputWebSearch - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/input"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/input"
-    ]
-   }
-  },
-  "ToolSearchToolResultBlock": {
-   "description": "ToolSearchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ToolSearchToolUseBlock": {
-   "description": "ToolSearchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "UuidV4": {
-   "description": "UuidV4 - one definition under one name in browser-captures/apiConversation and chat-exports/conversations and code-agents/session, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/uuid"
-    ],
-    "code-agents/session": [
-     "#/0/promptId"
-    ],
-    "browser-captures/apiConversation": [
-     "#/uuid"
-    ]
-   }
-  },
-  "UuidV4orV7": {
-   "description": "UuidV4orV7 - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/uuid"
-    ],
-    "browser-captures/apiConversation": [
-     "#/current_leaf_message_uuid"
-    ]
-   }
-  },
-  "UuidV7": {
-   "description": "UuidV7 - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/uuid"
-    ],
-    "browser-captures/apiConversation": [
-     "#/current_leaf_message_uuid"
-    ]
-   }
-  },
-  "ViewToolResultBlock": {
-   "description": "ViewToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "ViewToolUseBlock": {
-   "description": "ViewToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "VisualizerToolResultBlock": {
-   "description": "VisualizerToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "VisualizerToolUseBlock": {
-   "description": "VisualizerToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "WebFetchToolResultBlock": {
-   "description": "WebFetchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "WebFetchToolUseBlock": {
-   "description": "WebFetchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "WebSearchToolResultBlock": {
-   "description": "WebSearchToolResultBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "WebSearchToolUseBlock": {
-   "description": "WebSearchToolUseBlock - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0"
-    ]
-   }
-  },
-  "WebpageMetadata": {
-   "description": "WebpageMetadata - one definition under one name in browser-captures/apiConversation and chat-exports/conversations, asserted identical by its model_join row (adopted 2026-08-25); occurrence pointers generated by schema walk",
-   "occurrences": {
-    "chat-exports/conversations": [
-     "#/0/chat_messages/0/content/0/content/0/metadata"
-    ],
-    "browser-captures/apiConversation": [
-     "#/chat_messages/0/content/0/citations/0/metadata"
-    ]
-   }
-  }
- }
 }
