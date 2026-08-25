@@ -1,4 +1,4 @@
-run.py: code+schema 2512/2512 (data: machine-local)
+run.py: code+schema 2514/2514 (data: machine-local)
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ run.py: code+schema 2512/2512 (data: machine-local)
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (65/65)
+  ✓ output.plan_lines_name_their_target  (67/67)
   ✓ structure.file_at_level_of_subject  (23/23)
   ✓ structure.cli_declaration_mirrors_the_api  (19/19)
   ✓ structure.cli_declaration_validates  (57/57)
@@ -187,7 +187,7 @@ check_self_paths                             69     0   code     ok        14
 check_committed_tree                          2     0   code     ok        17
 check_templates                               2     0   code     ok        21
 check_xref                                    2     0   code     ok        24
-check_cli_surface                           457     0   code     ok        28
+check_cli_surface                           459     0   code     ok        28
 check_cli_verb_help                          18     0   code     ok        61
 check_cli_exclusive_classes                   6     0   code     ok        64
 check_effects                                 2     0   code     ok        67
@@ -219,9 +219,9 @@ check_cross_sources                           –     –   data     local      
 check_index_curation                          –     –   data     local      –
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 102 types, 2512/2512 invocations passing
-checks[code]: 64 types, 613/613 invocations passing
+checks[code+schema]: 102 types, 2514/2514 invocations passing
+checks[code]: 64 types, 615/615 invocations passing
 checks[schema]: 38 types, 1899/1899 invocations passing
 checks[data]: machine-local — reported on the terminal and under tmp/logs/test/run/, never committed
 
-dev gate: PASS — code+schema 2512/2512 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 2514/2514 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
