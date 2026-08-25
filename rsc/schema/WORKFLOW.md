@@ -4,6 +4,11 @@ This document covers the end-to-end process for adding or changing a versioned s
 Follow it in order. Pre-commit will catch most omissions, but `model_join.csv` review
 (step 4) is a manual judgement call that automation cannot enforce.
 
+A mint's data evidence - validation logs, observed values, the failing datum's
+shape - comes from the usr room's runs; the build and its gate are hermetic. An
+agent minting a version needs the evidence, never the corpus: what travels into
+a PR is the anchored observation, not the data it observes.
+
 ---
 
 ## When to create a new version

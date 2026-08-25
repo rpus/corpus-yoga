@@ -352,6 +352,14 @@ remain the primary objects — this section only records that the machinery
 tending them has come to obey its own discipline, extracted, as ever, after
 the fact.
 
+- **actor extent** - a discovered alignment, not a design (2026-08-25): the
+  dev actor is an agent whose vetting surface is a commit's content (src/rsc),
+  so the corpus is never in its need or extent - every PR of the discovery day
+  was built and gated in worktrees holding no corpus byte - while the usr
+  actor's room alone mounts the data and performs every act that touches it.
+  Need-to-know holds by construction: the boundary of trust and the boundary
+  of content are the same line.
+
 ## Encoding roadmap
 
 The generic interface already exists in embryo, four times:
