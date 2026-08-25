@@ -2706,12 +2706,11 @@ def _run_once(allow_replay: bool) -> RunOnce:
                       for stage, members in stage_rows.items()}
         tier_width = max([len('tier')] + [len(t) for t in stage_tier.values()])
         out.write(f'\n{"stage":<{stage_width}} {"pass":>5} {"fail":>5}   '
-                  f'{"tier":<{tier_width}}   {"verdict":<7} {"line":>{anchor_width}}\n')
+                  f'{"tier":<{tier_width}}   {"line":>{anchor_width}}\n')
         for stage, members in stage_rows.items():
             failing  = [i for i in members if not results[i][1]]
-            verdict  = 'failed' if failing else 'ok'
             out.write(f'{stage:<{stage_width}} {len(members) - len(failing):>5} {len(failing):>5}   '
-                      f'{stage_tier[stage]:<{tier_width}}   {verdict:<7} {anchors[stage]:>{anchor_width}}\n')
+                      f'{stage_tier[stage]:<{tier_width}}   {anchors[stage]:>{anchor_width}}\n')
         if surface == 'terminal':
             out.write(f'  (line = {MACHINE_LOG_REL}:N, where that stage begins in the full '
                       'report; the terminal carries no per-check body of its own)\n')
