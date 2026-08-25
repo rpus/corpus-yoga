@@ -1,15 +1,16 @@
 # Contributing
 
 Merge with `./corpus-yoga forge merge <pr>` — the reviewer's one act (#483). It is a straight
-line of echoed commands — refuse, relocate if the base moved, run the data gate, flip
-the body, squash pinned to the head every check saw, converge this checkout — and every
+line of echoed commands — refuse, relocate if the base moved, stand at the head and run
+the data gate, flip the body, squash pinned to the head every check saw, converge this
+checkout — and every
 refusal in it is git's or gh's own, relayed verbatim; the judgment lives in the forge's
 declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and
 `corpus-yoga forge sync`), never in the wrapper. The data gate is `corpus-yoga pipeline run`
-(which opens on the commit gate), performed in this checkout at the head being merged
-(#541): a red refuses the squash, and so does a checkout standing anywhere but that
-head - the gate judges the tree it stands in, which is why a merge is performed from
-the branch checkout, where the corpus lives and the reviewer already tested. It squash-merges with **no message flags**, because
+(which opens on the commit gate): the merge checks out the head being merged, runs the
+gate there, and halts on red with the checkout put back where it was (#541, #549). Run
+the merge from any clean checkout of this repo - the corpus is what the gate needs, and
+it lives here. It squash-merges with **no message flags**, because
 `squash_merge_commit_message: COMMIT_MESSAGES` is what assembles the body from the
 branch's commits and keeps each one's `Signature:` line, the join key into the
 captured session corpus. A hand-written `--body` discards them all.
