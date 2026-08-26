@@ -77,10 +77,12 @@ gets the field when a live capture first exhibits it, not before.
 
 v16
 
-#### Restricted (material)
+#### Relaxed
 
 - `ToolUseBlockBase.hidden_in_chat` — one NEW REQUIRED field. Observed null only.
 - `ToolResultBlockBase.hidden_in_chat` — the same field on the result envelope.
+
+Refuses thereby: every export before 2026-07-22, which lacks the field; each rests at its era's version as history (#557).
 
 ## v16
 
@@ -98,9 +100,11 @@ change; see model_join.csv.
 
 v15
 
-#### Restricted (material)
+#### Relaxed
 
 - `ThinkingBlock.thinking_hidden` — one NEW REQUIRED field. Observed false only.
+
+Refuses thereby: every export before 2026-07-11, which lacks the field; each rests at its era's version as history (#557).
 
 ## v15
 
@@ -110,7 +114,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783454107-540c98c0-bat
 
 v14
 
-#### Restricted
+#### Relaxed
 
 - `ToolUseBlockBase.tool_identifier` — added as required, null-only (`type: null`, the `context` idiom), following the required-envelope precedent of `mcp_server_url` (v2): present on all 1843 tool_use blocks of this export and null on every one, so instances lacking it now fail — earlier exports rest at v14, per the coverage/frontier doctrine. Absent from the live API captures and from apiConversation as of the same date (bulk-export-only so far), so no coupled api-side mint yet; `model_join.csv` records the pending coupling, and apiConversation gets the field when a live capture first exhibits it — not before, since no version may sit ahead of all data.
 
@@ -154,13 +158,11 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-bat
 
 v11
 
-#### Restricted (material)
+#### Relaxed
 
-claude.ai began emitting `hidden` on every thinking block. Requiring it narrows the accepted set — every export taken before the field shipped lacks it and fails v12. Unlike the analogous `approval_key_legacy` restriction at v10, the pre-field batches are retained in the matrix at v11, recorded as unmodelled by v12 rather than pruned; motivating exactly that retirement.
+claude.ai began emitting `hidden` on every thinking block, and v12 admits it - v11, closed, refused every export carrying it. Refuses thereby: every export taken before the field shipped, which lacks it. Unlike the analogous `approval_key_legacy` restriction at v10, the pre-field batches are retained in the matrix at v11, recorded as unmodelled by v12 rather than pruned; motivating exactly that retirement.
 
 - `ThinkingBlock` — now requires `hidden: boolean`. Present on all 135 thinking blocks in the new batch; universal in the current export format. Required to match the live-API `ApiThinkingBlock` (apiConversation v6) — the two schemas describe the same thinking blocks, so this is the `conversations` half of the coupling flagged in that v6 note.
-
-#### Relaxed
 
 - `RichLink.source` — closed enum → open `string`. The v11 description already warned "likely an open set — do not treat as exhaustive"; the first web_fetch of a previously-unseen site proved it. Now a free string, matching `apiConversation`'s `ApiRichLink.source`, which was already open — restoring agreement between the two coupled schemas rather than diverging.
 
@@ -188,9 +190,9 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-bat
 
 v9
 
-#### Restricted (material)
+#### Relaxed
 
-The claude.ai bulk export began emitting a new `tool_use` field that v9's closed schema rejects. Requiring it narrows the accepted set — every export before 2026-06-27 lacks it and fails v10 — so the four pre-field exports were dropped, as with the v1→v2 and v2→v3 restrictions.
+The claude.ai bulk export began emitting a new `tool_use` field that v9's closed schema rejected; v10 admits it. Refuses thereby: every export before 2026-06-27, which lacks it - the four pre-field exports were dropped at the time, as at v1→v2 and v2→v3.
 
 - `ToolUseBlockBase` — now requires `approval_key_legacy: null`; deprecated/legacy form of `approval_key`, observed always null across the surveyed export (1820/1820). Typed `null` for now (widen to `string | null` if a non-null ever appears, as happened with `approval_key`)
 
@@ -315,11 +317,9 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-bat
 
 v2
 
-#### Restricted
+#### Relaxed
 
 - `Message.parent_message_uuid` — added as required field; instances lacking it now fail
-
-#### Relaxed
 
 - `MessageFile.file_uuid` — added as optional property; instances carrying it now pass (previously rejected by `additionalProperties: false`)
 - `DisplayContentCodeBlock.language` — `"text"` added to enum; instances with this value now pass
@@ -334,7 +334,7 @@ Now validates `data-2026-03-30-14-51-46-batch-0000`
 
 v1
 
-#### Restricted
+#### Relaxed
 
 - `ToolUseBlockBase.mcp_server_url` — added as required field; instances lacking it now fail
 - `ToolResultBlockBase.mcp_server_url` — same

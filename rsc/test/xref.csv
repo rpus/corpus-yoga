@@ -78,64 +78,120 @@ rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel
 rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,corpus-yoga pipeline run browser-captures,src/test/dev/run.py,per-cap"
 rsc/cache_io.csv,9,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribu"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
-rsc/schema/WORKFLOW.md,34,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
-rsc/schema/WORKFLOW.md,95,doc,src/main/pipeline/browser-captures/claude/validate.sh,Y,src/main/pipeline/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-rsc/schema/WORKFLOW.md,96,doc,src/main/pipeline/chat-exports/validate.sh,Y,src/main/pipeline/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-rsc/schema/WORKFLOW.md,97,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
-rsc/schema/WORKFLOW.md,108,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,115,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,125,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,125,doc,src/test/dev/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,125,doc,rsc/schema,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,131,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,139,doc,src/main/pipeline/browser-captures/run.sh,Y,src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-rsc/schema/WORKFLOW.md,140,doc,src/main/pipeline/chat-exports/run.sh,Y,src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
-rsc/schema/WORKFLOW.md,141,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
-rsc/schema/WORKFLOW.md,148,doc,src/validation_matrix.py,Y,"the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never"
-rsc/schema/WORKFLOW.md,155,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,155,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,161,doc,src/main/validation_audit.py,Y,"(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -"
-rsc/schema/WORKFLOW.md,193,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
-rsc/schema/WORKFLOW.md,204,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,207,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
-rsc/schema/WORKFLOW.md,238,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,250,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
-rsc/schema/WORKFLOW.md,251,doc,rsc/schema/_reference/mcp/v2.json,Y,"the current snapshot is `rsc/schema/_reference/mcp/v2.json`; earlier snapshots are that changelog's history, in git."
-rsc/schema/WORKFLOW.md,273,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
-rsc/schema/WORKFLOW.md,274,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
-rsc/schema/WORKFLOW.md,275,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
-rsc/schema/WORKFLOW.md,284,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,289,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
-rsc/schema/WORKFLOW.md,313,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,314,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,320,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/WORKFLOW.md,41,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
+rsc/schema/WORKFLOW.md,102,doc,src/main/pipeline/browser-captures/claude/validate.sh,Y,src/main/pipeline/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
+rsc/schema/WORKFLOW.md,103,doc,src/main/pipeline/chat-exports/validate.sh,Y,src/main/pipeline/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+rsc/schema/WORKFLOW.md,104,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
+rsc/schema/WORKFLOW.md,115,doc,rsc/schema,Y,cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,122,doc,rsc/schema,Y,diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,132,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,132,doc,src/test/dev/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,132,doc,rsc/schema,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,138,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+rsc/schema/WORKFLOW.md,146,doc,src/main/pipeline/browser-captures/run.sh,Y,src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+rsc/schema/WORKFLOW.md,147,doc,src/main/pipeline/chat-exports/run.sh,Y,src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,148,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
+rsc/schema/WORKFLOW.md,155,doc,src/validation_matrix.py,Y,"the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never"
+rsc/schema/WORKFLOW.md,162,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,162,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,168,doc,src/main/validation_audit.py,Y,"(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -"
+rsc/schema/WORKFLOW.md,200,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
+rsc/schema/WORKFLOW.md,211,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
+rsc/schema/WORKFLOW.md,214,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
+rsc/schema/WORKFLOW.md,245,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,257,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
+rsc/schema/WORKFLOW.md,258,doc,rsc/schema/_reference/mcp/v1.json,Y,the first version is `rsc/schema/_reference/mcp/v1.json`.
+rsc/schema/WORKFLOW.md,280,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
+rsc/schema/WORKFLOW.md,281,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
+rsc/schema/WORKFLOW.md,282,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
+rsc/schema/WORKFLOW.md,291,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,296,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+rsc/schema/WORKFLOW.md,320,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,321,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,327,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/_reference/mcp/CHANGELOG.md,30,doc,rsc/schema/_reference/mcp/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,32,doc,rsc/schema/browser-captures/apiConversation/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,55,doc,rsc/schema/browser-captures/apiConversation/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,69,doc,rsc/schema/browser-captures/apiConversation/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,88,doc,rsc/schema/browser-captures/apiConversation/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,100,doc,rsc/schema/browser-captures/apiConversation/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,116,doc,rsc/schema/browser-captures/apiConversation/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,130,doc,rsc/schema/browser-captures/apiConversation/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,153,doc,rsc/schema/browser-captures/apiConversation/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/browser-captures/apiConversation/CHANGELOG.md,168,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
-rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,50,doc,rsc/schema,Y,"four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation"
+rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,14,doc,rsc/schema/browser-captures/markdownConversation/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,52,doc,rsc/schema,Y,"four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation"
+rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,60,doc,rsc/schema/browser-captures/markdownConversation/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/`](../../browser-
+rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation/v1.json,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../b
 rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
+rsc/schema/chat-exports/conversations/CHANGELOG.md,20,doc,rsc/schema/chat-exports/conversations/v18.json,Y,[v18.json](./v18.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,53,doc,rsc/schema/chat-exports/conversations/v17.json,Y,[v17.json](./v17.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,78,doc,rsc/schema/chat-exports/conversations/v16.json,Y,[v16.json](./v16.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,101,doc,rsc/schema/chat-exports/conversations/v15.json,Y,[v15.json](./v15.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,115,doc,rsc/schema/chat-exports/conversations/v14.json,Y,[v14.json](./v14.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,127,doc,rsc/schema/chat-exports/conversations/v13.json,Y,[v13.json](./v13.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,140,doc,rsc/schema/chat-exports/conversations/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,159,doc,rsc/schema/chat-exports/conversations/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,177,doc,rsc/schema/chat-exports/conversations/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,191,doc,rsc/schema/chat-exports/conversations/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,207,doc,rsc/schema/chat-exports/conversations/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,223,doc,rsc/schema/chat-exports/conversations/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,242,doc,rsc/schema/chat-exports/conversations/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,256,doc,rsc/schema/chat-exports/conversations/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,277,doc,rsc/schema/chat-exports/conversations/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,291,doc,rsc/schema/chat-exports/conversations/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,318,doc,rsc/schema/chat-exports/conversations/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/chat-exports/conversations/CHANGELOG.md,335,doc,rsc/schema/chat-exports/conversations/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/chat-exports/login_history/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/login_history/v1.json,27,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/manifest/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/memories/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/memories/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/memories/CHANGELOG.md,19,doc,rsc/schema/chat-exports/memories/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/chat-exports/memories/CHANGELOG.md,43,doc,rsc/schema/chat-exports/memories/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/chat-exports/memories/v1.json,20,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
+rsc/schema/chat-exports/memories/v2.json,22,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/memories/v3.json,22,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/projects/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/projects/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/projects/CHANGELOG.md,19,doc,rsc/schema/chat-exports/projects/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/chat-exports/projects/CHANGELOG.md,36,doc,rsc/schema/chat-exports/projects/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/chat-exports/projects/v1.json,59,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
+rsc/schema/chat-exports/projects/v2.json,55,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/projects/v3.json,55,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/users/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/users/CHANGELOG.md,11,doc,rsc/schema/model.json,Y,(against `../../model.json`) — the old pointer had never navigated; xref
+rsc/schema/chat-exports/users/CHANGELOG.md,19,doc,rsc/schema/chat-exports/users/v1.json,Y,[v1.json](./v1.json)
+rsc/schema/chat-exports/users/v1.json,19,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/chat-exports/users/v2.json,19,path_str,rsc/schema/model.json#/default/UserUUID,Y,"""description"": ""../../model.json#/default/UserUUID"","
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,24,doc,rsc/schema/code-agents/projectMemory/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/projectMemory/CHANGELOG.md,54,doc,rsc/schema/code-agents/projectMemory/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
+rsc/schema/code-agents/session/CHANGELOG.md,28,doc,rsc/schema/code-agents/session/v13.json,Y,[v13.json](./v13.json)
+rsc/schema/code-agents/session/CHANGELOG.md,64,doc,rsc/schema/code-agents/session/v12.json,Y,[v12.json](./v12.json)
+rsc/schema/code-agents/session/CHANGELOG.md,104,doc,rsc/schema/code-agents/session/v11.json,Y,[v11.json](./v11.json)
+rsc/schema/code-agents/session/CHANGELOG.md,135,doc,rsc/schema/code-agents/session/v10.json,Y,[v10.json](./v10.json)
+rsc/schema/code-agents/session/CHANGELOG.md,167,doc,rsc/schema/code-agents/session/v9.json,Y,[v9.json](./v9.json)
+rsc/schema/code-agents/session/CHANGELOG.md,199,doc,rsc/schema/code-agents/session/v8.json,Y,[v8.json](./v8.json)
+rsc/schema/code-agents/session/CHANGELOG.md,240,doc,rsc/schema/code-agents/session/v7.json,Y,[v7.json](./v7.json)
+rsc/schema/code-agents/session/CHANGELOG.md,282,doc,rsc/schema/code-agents/session/v6.json,Y,[v6.json](./v6.json)
+rsc/schema/code-agents/session/CHANGELOG.md,306,doc,rsc/schema/code-agents/session/v5.json,Y,[v5.json](./v5.json)
+rsc/schema/code-agents/session/CHANGELOG.md,333,doc,rsc/schema/code-agents/session/v4.json,Y,[v4.json](./v4.json)
+rsc/schema/code-agents/session/CHANGELOG.md,347,doc,rsc/schema/code-agents/session/v3.json,Y,[v3.json](./v3.json)
+rsc/schema/code-agents/session/CHANGELOG.md,359,doc,rsc/schema/code-agents/session/v2.json,Y,[v2.json](./v2.json)
+rsc/schema/code-agents/session/CHANGELOG.md,377,doc,rsc/schema/code-agents/session/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/code-agents/session/CHANGELOG.md,423,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,23,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
+rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,25,doc,rsc/schema/dashboard/semanticConcepts/v1.json,Y,[v1.json](./v1.json)
 rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,31,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
@@ -335,14 +391,14 @@ src/main/model/frontier.py,18,comment,src/test/dev/run.py,Y,usr gate's corpus ta
 src/main/model/frontier.py,26,path_str,src/main/model/frontier.py,Y,SELF = 'src/main/model/frontier.py'
 src/main/model/gen_model_candidate.py,7,comment,rsc/schema/model.json,Y,informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
 src/main/model/gen_model_candidate.py,10,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
-src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v19.json
-src/main/model/gen_model_candidate.py,13,comment,rsc/schema/chat-exports/conversations/v19.json,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v19.json
-src/main/model/gen_model_candidate.py,14,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v3.json
-src/main/model/gen_model_candidate.py,14,comment,rsc/schema/chat-exports/memories/v3.json,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v3.json
-src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v14.json
-src/main/model/gen_model_candidate.py,15,comment,rsc/schema/code-agents/session/v14.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v14.json
-src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v10.json
-src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v10.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v10.json
+src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
+src/main/model/gen_model_candidate.py,13,comment,rsc/schema/chat-exports/conversations/v6.json,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
+src/main/model/gen_model_candidate.py,14,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
+src/main/model/gen_model_candidate.py,14,comment,rsc/schema/chat-exports/memories/v1.json,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
+src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v1.json
+src/main/model/gen_model_candidate.py,15,comment,rsc/schema/code-agents/session/v1.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v1.json
+src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+src/main/model/gen_model_candidate.py,16,comment,rsc/schema/browser-captures/apiConversation/v1.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
 src/main/model/model.py,3,comment,rsc/schema/model.json,Y,"model.py — per-schema definition catalogues, candidates for rsc/schema/model.json."
 src/main/model/model.py,5,comment,rsc/schema/model.json,Y,rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
 src/main/model/model.py,27,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
@@ -598,11 +654,12 @@ src/test/dev/xref.py,50,path_str,rsc/test/xref.csv,Y,"SKIP_FILES = {'rsc/test/ru
 src/test/dev/xref.py,615,comment,rsc/test/xref.csv,Y,owns the write to rsc/test/xref.csv there (#249's check/render/gate
 src/test/dev/xref.py,60,comment,src/requirements.txt,Y,"# The third-party half comes from the DECLARATION, src/requirements.txt. Its hand-written"
 src/test/dev/xref.py,341,comment,src/main/cli/pipeline/pipeline.sh,Y,# trailing /.. hops (src/main/cli/pipeline/pipeline.sh anchors REPO_ROOT at its parent)
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,4,comment,rsc/schema/code-agents/session/v1.json,Y,validation against rsc/schema/code-agents/session/v1.json.
 src/test/usr/pipeline/code-agents/debug_code_session_record.py,15,comment,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}
 src/test/usr/pipeline/code-agents/debug_code_session_record.py,18,comment,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}
 src/test/usr/pipeline/code-agents/debug_code_session_record.py,21,comment,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,python src/test/usr/pipeline/code-agents/debug_code_session_record.py data/input/claude/code/machine-transport/{machine}
 src/test/usr/pipeline/code-agents/debug_code_session_record.py,29,path_str,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,SELF = 'src/test/usr/pipeline/code-agents/debug_code_session_record.py'
-src/test/usr/pipeline/code-agents/debug_code_session_record.py,34,path_str,rsc/schema/code-agents/session,Y,SCHEMA_PATH = sorted((REPO_ROOT / 'rsc/schema/code-agents/session').glob('v*.json'))[-1]   # the one file: the latest (#
+src/test/usr/pipeline/code-agents/debug_code_session_record.py,34,path_str,rsc/schema/code-agents/session/v1.json,Y,SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
 src/test/usr/pipeline/code-agents/survey_code_session.py,10,comment,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,python src/test/usr/pipeline/code-agents/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
 src/test/usr/pipeline/code-agents/survey_code_session.py,11,comment,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,python src/test/usr/pipeline/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{proj
 src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating;
@@ -613,13 +670,17 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
+,,,rsc/schema/_reference/mcp/v2.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
+,,,rsc/schema/browser-captures/apiConversation/v10.json,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
+,,,rsc/schema/chat-exports/conversations/v19.json,Y,
 ,,,rsc/schema/chat-exports/login_history/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/login_history/v1.json,Y,
 ,,,rsc/schema/chat-exports/manifest/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/manifest/v1.json,Y,
 ,,,rsc/schema/chat-exports/memories/CHANGELOG.md,Y,
+,,,rsc/schema/chat-exports/memories/v3.json,Y,
 ,,,rsc/schema/chat-exports/projects/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/projects/v3.json,Y,
 ,,,rsc/schema/chat-exports/users/CHANGELOG.md,Y,
@@ -627,6 +688,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/code-agents/projectMemory/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/projectMemory/v3.json,Y,
 ,,,rsc/schema/code-agents/session/CHANGELOG.md,Y,
+,,,rsc/schema/code-agents/session/v14.json,Y,
 ,,,rsc/schema/code-agents/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/code-agents/sessionConversation/v1.json,Y,
 ,,,rsc/schema/dashboard/chatCategories/CHANGELOG.md,Y,

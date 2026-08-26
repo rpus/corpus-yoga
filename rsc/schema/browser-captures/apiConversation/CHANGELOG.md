@@ -54,9 +54,11 @@ conversations v16, the coupled change; see model_join.csv.
 
 v8
 
-#### Restricted (material)
+#### Relaxed
 
 - `ApiThinkingBlock.thinking_hidden` — one NEW REQUIRED field. Observed false only.
+
+Refuses thereby: captures taken before the field appeared (pre-2026-07-11) - re-fetching updates them in place, so the live corpus is uniformly at latest.
 
 ## v8
 
@@ -97,7 +99,7 @@ v6
 
 v5
 
-#### Restricted (material)
+#### Relaxed
 
 - `ApiThinkingBlock` — added required `hidden: boolean`. claude.ai began emitting this on every thinking block; a fresh browser re-capture found it present on all 135 observed thinking blocks (100%), so it is required, as with `approval_key_legacy` at conversations v10. Captures taken before the field appeared lack it and fail v6 — but re-fetching updates them in place, so the live corpus is uniformly v6. The 14 captures containing thinking blocks consequently drop from v4/v5 to v6 in the (machine-local) matrix.
 
@@ -127,9 +129,9 @@ Validates the current corpus, in which the claude.ai API now emits two root fiel
 
 v3
 
-#### Restricted
+#### Relaxed
 
-Unlike v1–v3 (each a relaxation, accepting a superset of the prior version), v4 *narrows* the accepted set — a v3 document lacking these fields fails v4. This is justified because the live API now includes them on every response, so every modern capture has them.
+v4 admits the two root fields the live API now includes on every response - v3, closed, refused every capture carrying them. Refuses thereby: a v3-era capture lacking them - re-fetching updates it in place, so every modern capture has them.
 
 - `ApiConversation` — now requires `is_wiggle_enabled: boolean` and `effective_thinking_mode: string`; two root fields the claude.ai API began emitting after v3
 

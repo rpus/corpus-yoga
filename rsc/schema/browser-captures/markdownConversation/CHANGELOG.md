@@ -13,7 +13,7 @@ render time, rather than writing per-datum `vN.log` files under `tmp/cache/`
 
 v2
 
-#### Restricted
+#### Relaxed
 
 - `MarkdownConversation.summary` — new **required** property (`string`): the source's
   own summary, which BOTH source shapes always emit (browser-capture
@@ -43,6 +43,8 @@ the dressing before any cross-source comparison, exactly as `turn_seq` is
 anchor-blind. All frontmatter values derive from the local corpora — no wall-clock —
 so regeneration stays a no-op when nothing changed (L1).
 
+Refuses thereby: renders predating the field - regenerated at mint, so every current projection validates.
+
 #### Refactored
 
 - `MarkdownConversation` and `MarkdownConversation.summary` descriptions (v3, in place) —
@@ -57,7 +59,7 @@ so regeneration stays a no-op when nothing changed (L1).
 
 v1
 
-#### Restricted
+#### Relaxed
 
 - `MarkdownMessage.uuid` — new **required** property (`UuidV4orV7`, definitions copied
   from `apiConversation`): the source message's uuid, the turn's durable identity.
@@ -68,6 +70,8 @@ v1
   uuids are identity.
 
 Validates every current projection (both pipelines re-rendered at mint time).
+
+Refuses thereby: renders predating the field - both pipelines re-rendered at mint time.
 
 ## v1
 

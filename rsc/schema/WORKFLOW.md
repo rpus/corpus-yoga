@@ -15,11 +15,18 @@ a PR is the anchored observation, not the data it observes.
 
 Create `vN+1.json` (copy of `vN.json`) when the schema change is:
 
-- **Relaxed** — allows values previously rejected (new field, widened type, optional → present)
-- **Restricted** — rejects values previously accepted (tightened type, new required field).
-  Validation runs at the latest version only (#557), so a restriction that would reject
-  datums this room holds is a decision made at the mint - re-capture them, model them, or
-  rule them out explicitly - never a fact left for an older version's log to carry.
+- **Relaxed** — the provider's data grew and the version admits the growth: a new field,
+  a widened type, a new value - and a new REQUIRED field too, when the provider now emits
+  it on everything. A relaxation is a disjunction: under a closed object the old version
+  refused every datum carrying the field, so admitting it is what changed; that the new
+  version refuses the old, smaller datums is the same fact read backwards, and is filed
+  beneath the relaxation as its BACKWARD CLAUSE - which datums it refuses and their
+  disposal (re-capture, re-model, or rule them out explicitly: a decision made at the
+  mint, #557, never a fact left for an older version's log to carry). Growth is never
+  filed as a restriction.
+- **Restricted** — a narrowing: the provider dropped or narrowed a shape (rare, and news),
+  or the repo tightened its own model of what was always true (a pattern, an enum). Marked
+  *material* when a held datum fails it, *non-material* when every held datum passes (#400).
 
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
