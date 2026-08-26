@@ -1,4 +1,4 @@
-run.py: code+schema 1338/1338
+run.py: code+schema 1185/1185
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -122,11 +122,11 @@ run.py: code+schema 1338/1338
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (65/65)
+  ✓ schema.valid_json_with_schema  (14/14)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (65/65)
-  ✓ schema.changelog_no_todo  (65/65)
+  ✓ schema.changelog_narrative  (14/14)
+  ✓ schema.changelog_no_todo  (14/14)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (13/13)
@@ -196,8 +196,8 @@ check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
 check_root_schema_diagnostics         50     0   schema     97
-check_schema_validity                 65     0   schema    124
-check_schema_changelogs              130     0   schema    127
+check_schema_validity                 14     0   schema    124
+check_schema_changelogs               28     0   schema    127
 check_versioned_schema_diagnostics   309     0   schema    131
 check_schema_join                      2     0   schema    157
 check_model_join_versions              1     0   schema    161
@@ -208,8 +208,8 @@ check_mcp_schema                       1     0   schema    176
 check_expectation                      2     0   code      179
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 102 types, 1338/1338 invocations passing
+checks[code+schema]: 102 types, 1185/1185 invocations passing
 checks[code]: 64 types, 624/624 invocations passing
-checks[schema]: 38 types, 714/714 invocations passing
+checks[schema]: 38 types, 561/561 invocations passing
 
-dev gate: PASS — code+schema 1338/1338 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1185/1185 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

@@ -25,7 +25,7 @@ never showed.
 
 ### Replaces
 
-[v13.json](./v13.json)
+v13
 
 #### Restricted
 
@@ -61,7 +61,7 @@ now happens to reject only the kind its era never showed.
 
 ### Replaces
 
-[v12.json](./v12.json)
+v12
 
 #### Restricted
 
@@ -101,7 +101,7 @@ left open here.
 
 ### Replaces
 
-[v11.json](./v11.json)
+v11
 
 #### Restricted
 
@@ -132,7 +132,7 @@ happens to reject only the shape its era never showed.
 
 ### Replaces
 
-[v10.json](./v10.json)
+v10
 
 #### Restricted
 
@@ -164,7 +164,7 @@ reject only the record type its era never showed.
 
 ### Replaces
 
-[v9.json](./v9.json)
+v9
 
 #### Relaxed
 
@@ -196,7 +196,7 @@ string.
 
 ### Replaces
 
-[v8.json](./v8.json)
+v8
 
 #### Restricted (non-material)
 
@@ -237,7 +237,7 @@ the record of the artifact that documented v7's arc.
 
 ### Replaces
 
-[v7.json](./v7.json)
+v7
 
 #### Relaxed
 
@@ -279,7 +279,7 @@ assistant-turn content block needed modelling.)
 
 ### Replaces
 
-[v6.json](./v6.json)
+v6
 
 #### Relaxed
 
@@ -303,7 +303,7 @@ record type per kind of thing a session publishes — a PR at v5, a page at v6.
 
 ### Replaces
 
-[v5.json](./v5.json)
+v5
 
 #### Relaxed
 
@@ -330,7 +330,7 @@ false negative.)
 
 ### Replaces
 
-[v4.json](./v4.json)
+v4
 
 #### Relaxed
 
@@ -344,7 +344,7 @@ false negative.)
 
 ### Replaces
 
-[v3.json](./v3.json)
+v3
 
 #### Relaxed
 
@@ -356,7 +356,7 @@ false negative.)
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 ### Relaxed
 
@@ -374,7 +374,7 @@ false negative.)
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 ### Refactored
 

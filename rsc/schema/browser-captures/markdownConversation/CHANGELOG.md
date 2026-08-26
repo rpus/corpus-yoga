@@ -11,7 +11,7 @@ render time, rather than writing per-datum `vN.log` files under `tmp/cache/`
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 #### Restricted
 
@@ -55,7 +55,7 @@ so regeneration stays a no-op when nothing changed (L1).
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Restricted
 

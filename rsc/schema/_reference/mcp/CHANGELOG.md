@@ -27,7 +27,7 @@ resolves against v2 unchanged.
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Restricted
 

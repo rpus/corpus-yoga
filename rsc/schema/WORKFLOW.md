@@ -248,7 +248,7 @@ every other column, resolved against the latest version). It enters no pipeline 
 no data is validated against it — and the house style diagnostics deliberately
 skip `_reference/` families: repairing upstream text to satisfy house rules would
 falsify the snapshot. Its history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`;
-the first version is `rsc/schema/_reference/mcp/v1.json`.
+the current snapshot is `rsc/schema/_reference/mcp/v2.json`; earlier snapshots are that changelog's history, in git.
 
 Each version's `description` field records the source URL, the commit it was taken
 from, and a SHA256 of the upstream file at that point:

@@ -29,7 +29,7 @@ see model_join.csv.
 
 ### Replaces
 
-[v9.json](./v9.json)
+v9
 
 #### Relaxed
 
@@ -52,7 +52,7 @@ conversations v16, the coupled change; see model_join.csv.
 
 ### Replaces
 
-[v8.json](./v8.json)
+v8
 
 #### Restricted (material)
 
@@ -64,7 +64,7 @@ Now validates all 98 captures from the 2026-07-03 re-capture, including the thre
 
 ### Replaces
 
-[v7.json](./v7.json)
+v7
 
 #### Relaxed
 
@@ -83,7 +83,7 @@ Now validates `e545ed1f-21c3-4e76-b355-bd711aa7f388` and any capture with a new 
 
 ### Replaces
 
-[v6.json](./v6.json)
+v6
 
 #### Relaxed
 
@@ -95,7 +95,7 @@ Now validates `e545ed1f-21c3-4e76-b355-bd711aa7f388` and any capture with a new 
 
 ### Replaces
 
-[v5.json](./v5.json)
+v5
 
 #### Restricted (material)
 
@@ -111,7 +111,7 @@ Now validates `dbd06edd-6293-42a5-aa31-4ef1446ccda1` and any capture with an emp
 
 ### Replaces
 
-[v4.json](./v4.json)
+v4
 
 #### Relaxed
 
@@ -125,7 +125,7 @@ Validates the current corpus, in which the claude.ai API now emits two root fiel
 
 ### Replaces
 
-[v3.json](./v3.json)
+v3
 
 #### Restricted
 
@@ -148,7 +148,7 @@ Now validates `1ded5137`.
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 #### Relaxed
 
@@ -163,7 +163,7 @@ Now validates `9d7817e9`, `b1398a0e`, `c233a466`.
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Relaxed
 

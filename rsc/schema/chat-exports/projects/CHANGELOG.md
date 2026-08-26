@@ -16,7 +16,7 @@ validation change: no new version.
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 #### Restricted
 
@@ -33,7 +33,7 @@ Now validates `019d1cb4-57a4-77a8-941c-9cf6078d4c31` in `data-0fc4c1e0-4719-4e10
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Refactored
 

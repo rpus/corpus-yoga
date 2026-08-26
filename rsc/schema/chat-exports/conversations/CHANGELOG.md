@@ -6,7 +6,7 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
-The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/v1.json`](../../browser-captures/apiConversation/v1.json)
+The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversation/)
 and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversation/) for that schema's history.
 
 ---
@@ -17,7 +17,7 @@ Now validates the manifest-era export of 2026-08-24 (the c3cfcf28 export), whose
 
 ### Replaces
 
-[v18.json](./v18.json)
+v18
 
 #### Restricted
 
@@ -50,7 +50,7 @@ batches rest at their versions in the machine-local matrix.
 
 ### Replaces
 
-[v17.json](./v17.json)
+v17
 
 #### Relaxed
 
@@ -75,7 +75,7 @@ gets the field when a live capture first exhibits it, not before.
 
 ### Replaces
 
-[v16.json](./v16.json)
+v16
 
 #### Restricted (material)
 
@@ -96,7 +96,7 @@ change; see model_join.csv.
 
 ### Replaces
 
-[v15.json](./v15.json)
+v15
 
 #### Restricted (material)
 
@@ -108,7 +108,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783454107-540c98c0-bat
 
 ### Replaces
 
-[v14.json](./v14.json)
+v14
 
 #### Restricted
 
@@ -120,7 +120,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783252753-dd1e5d65-bat
 
 ### Replaces
 
-[v13.json](./v13.json)
+v13
 
 #### Relaxed
 
@@ -133,7 +133,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1783005515-45e2d947-bat
 
 ### Replaces
 
-[v12.json](./v12.json)
+v12
 
 #### Relaxed
 
@@ -152,7 +152,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782939670-421f99ee-bat
 
 ### Replaces
 
-[v11.json](./v11.json)
+v11
 
 #### Restricted (material)
 
@@ -172,7 +172,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782766739-34e2dc8d-bat
 
 ### Replaces
 
-[v10.json](./v10.json)
+v10
 
 #### Relaxed
 
@@ -186,7 +186,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1782546809-8e17dc80-bat
 
 ### Replaces
 
-[v9.json](./v9.json)
+v9
 
 #### Restricted (material)
 
@@ -202,7 +202,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1781296027-128efb5a-bat
 
 ### Replaces
 
-[v8.json](./v8.json)
+v8
 
 #### Relaxed
 
@@ -218,7 +218,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-bat
 
 ### Replaces
 
-[v7.json](./v7.json)
+v7
 
 #### Relaxed
 
@@ -237,7 +237,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1779222449-06d73759-bat
 
 ### Replaces
 
-[v6.json](./v6.json)
+v6
 
 #### Refactored
 
@@ -251,7 +251,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1777127504-a3d8c71b-bat
 
 ### Replaces
 
-[v5.json](./v5.json)
+v5
 
 #### Relaxed
 
@@ -272,7 +272,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776950570-e265d361-bat
 
 ### Replaces
 
-[v4.json](./v4.json)
+v4
 
 #### Relaxed
 
@@ -286,7 +286,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1776351468-ffffb6f7-bat
 
 ### Replaces
 
-[v3.json](./v3.json)
+v3
 
 #### Restricted (non-material — no known export uses the restricted values)
 
@@ -313,7 +313,7 @@ Now validates `data-0fc4c1e0-4719-4e10-997a-697bf05599af-1775902176-0edcf839-bat
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 #### Restricted
 
@@ -332,7 +332,7 @@ Now validates `data-2026-03-30-14-51-46-batch-0000`
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Restricted
 

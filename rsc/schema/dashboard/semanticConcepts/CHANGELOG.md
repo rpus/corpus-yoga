@@ -22,7 +22,7 @@ data/output/dashboard/) rather than writing per-datum `vN.log` files under `tmp/
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Refactored
 
