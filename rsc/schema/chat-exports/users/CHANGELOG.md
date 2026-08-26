@@ -16,7 +16,7 @@ validation change: no new version.
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Restricted
 

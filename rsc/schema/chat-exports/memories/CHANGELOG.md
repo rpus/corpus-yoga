@@ -16,7 +16,7 @@ validation change: no new version.
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 #### Restricted
 
@@ -40,7 +40,7 @@ unchanged and only the shape moved. Fields unchanged.
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Restricted
 

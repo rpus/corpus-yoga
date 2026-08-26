@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 debug_code_session_record.py — Diagnose why a specific record in a session fails
-validation against rsc/schema/code-agents/session/v1.json.
+validation against the session family's latest version (rsc/schema/code-agents/session/).
 
 For each branch of Record.oneOf, reports whether it passes or fails and — for the
 branch matching the record's type — drills into the sub-schema to find the leaf-level
@@ -31,7 +31,7 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
-SCHEMA_PATH = REPO_ROOT / 'rsc/schema/code-agents/session/v1.json'
+SCHEMA_PATH = sorted((REPO_ROOT / 'rsc/schema/code-agents/session').glob('v*.json'))[-1]   # the one file: the latest (#557)
 
 
 def load(session_path: Path, schema_path: Path):

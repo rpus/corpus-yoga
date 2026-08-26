@@ -180,11 +180,13 @@ per-corpus code.
   (model.json), machine-local inputs advise (indexing) — L2's determinism
   split, read as enforcement policy.
 
-- **validate** — datum × schema-version → the machine-local matrix. Two gates:
-  *coverage* (every datum modelled by some version) and *frontier* (the newest
-  datum modelled by the latest version). A frontier failure is data outgrowing
-  its schema — the WORKFLOW's mint trigger, exercised at conversations v13/v14,
-  apiConversation v8, session v5.
+- **validate** — datum × latest version → one verdict per datum, the machine-local
+  matrix. One property (#557): every datum validates at its family's latest
+  version - the latest version is the schema, the rest is the CHANGELOG's history,
+  judged by nothing (an older version passing is a coincidence of two shapes, never
+  a fact about the datum). A failure is data outgrowing its schema — the WORKFLOW's
+  mint trigger, exercised at conversations v13/v14, apiConversation v8, session v5 —
+  or, at a Restricted mint, a decision taken at the mint about the datums it excludes.
 
 ---
 

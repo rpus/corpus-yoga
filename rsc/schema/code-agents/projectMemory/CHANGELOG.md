@@ -21,7 +21,7 @@ green stood deliberately from 2026-08-06 (#361's honest relay showed it; #362 wa
 
 ### Replaces
 
-[v2.json](./v2.json)
+v2
 
 #### Restricted
 
@@ -51,7 +51,7 @@ reject only the key its era never showed.
 
 ### Replaces
 
-[v1.json](./v1.json)
+v1
 
 #### Restricted
 

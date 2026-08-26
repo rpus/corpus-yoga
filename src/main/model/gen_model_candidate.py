@@ -10,10 +10,10 @@ Usage:
     python src/main/model/gen_model_candidate.py <schema-type> <schema-file>
 
 Examples:
-    python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v6.json
-    python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v1.json
-    python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v1.json
-    python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v1.json
+    python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v19.json
+    python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v3.json
+    python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v14.json
+    python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v10.json
 
 Output: JSON to stdout. Redirect to tmp/cache/model/<schema-type>/<version>.json for review.
 Normally invoked via corpus-yoga model which handles all schemas automatically.
