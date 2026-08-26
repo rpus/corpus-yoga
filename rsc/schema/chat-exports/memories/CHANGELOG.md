@@ -18,7 +18,7 @@ validation change: no new version.
 
 v2
 
-#### Restricted
+#### Restricted (non-material)
 
 - `account_uuid` gains the v4-UUID pattern (`^[0-9a-f]{8}-…$`, the literal of
   conversations' `UuidV4`) - the cell already carried the `UserUUID`
@@ -42,16 +42,14 @@ unchanged and only the shape moved. Fields unchanged.
 
 v1
 
-#### Restricted
-
-- The array wrapper is rejected: the pre-manifest memories.json (observed
-  resting in the one held batch-0000 export) passes v1 and fails v2 - each
-  era's shape rejected by the other's version, as the eras rule.
-
 #### Relaxed
 
 - The bare per-account object is admitted - the manifest-era shape, validated
   against the 2026-08-24 export's file at mint.
+
+- Refuses thereby: the array wrapper - the pre-manifest memories.json (observed
+  resting in the one held batch-0000 export) passes v1 and fails v2 - each
+  era's shape rejected by the other's version, as the eras rule.
 
 #### Refactored
 

@@ -18,7 +18,7 @@ validation change: no new version.
 
 v2
 
-#### Restricted
+#### Restricted (non-material)
 
 - `creator.uuid` gains the v4-UUID pattern (`^[0-9a-f]{8}-…$`, the literal of
   conversations' `UuidV4`) - the cell already carried the `UserUUID`
