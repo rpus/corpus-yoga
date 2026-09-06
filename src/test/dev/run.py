@@ -1880,9 +1880,9 @@ def check_mcp_schema(run):
             with urllib.request.urlopen(raw_url, timeout=15) as resp:
                 live_hash = hashlib.sha256(resp.read()).hexdigest()
             if stored_hash != live_hash:
-                drift = (f'upstream changed - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
-                         f'verbatim from {raw_url} (new changelog section: raw URL, commit, '
-                         f'SHA256; the latest is the schema, the rest history - delete {rel})')
+                drift = (f'upstream changed - mint: git mv {rel} v{int(latest.stem[1:]) + 1}.json and '
+                         f'replace its content with the bytes at {raw_url}; add the new changelog '
+                         f'section (raw URL, commit, SHA256, disposal record)')
         except Exception:
             pass          # unreached: the currency of the copy is simply unknown this run
     run(f'mcp schema: {latest.stem} up to date', drift is None, drift, check='mcp.up_to_date')
@@ -1895,8 +1895,9 @@ def check_mcp_schema(run):
             dated = sorted(name for name in names if re.fullmatch(r'\d{4}-\d{2}-\d{2}', name))
             if dated and dated[-1] != lineage:
                 stale = (f'upstream opened schema/{dated[-1]}/ while the snapshot tracks '
-                         f'schema/{lineage}/ - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
-                         f'verbatim from the new lineage; the latest is the schema, the rest history - delete {rel}')
+                         f'schema/{lineage}/ - mint: git mv {rel} v{int(latest.stem[1:]) + 1}.json and '
+                         f'replace its content with the new lineage\'s bytes; add the new changelog '
+                         f'section (raw URL, commit, SHA256, disposal record)')
         except Exception:
             pass          # unreached: the lineage listing is simply unknown this run
     run(f'mcp schema: {latest.stem} tracks the newest dated lineage', stale is None, stale,
