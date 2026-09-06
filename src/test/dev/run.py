@@ -482,6 +482,20 @@ def check_schema_validity(run) -> None:
                 run(f'{schema_name}: valid JSON: {v}', False, str(e), check='schema.valid_json')
 
 
+def check_schema_single_version(run) -> None:
+    """Every schema family holds exactly one version file - the latest is the schema
+    and the rest history (#557, #565): a mint renames the file in place, and a second
+    v*.json beside it is the copy-beside mint #558 retired, reappearing."""
+    for schema_name, schema_dir in sorted(_schema_families().items()):
+        versions = _sorted_versions(schema_dir)
+        extra = [p.name for p in versions[:-1]]
+        run(f'{schema_name}: one version file', not extra,
+            None if not extra else
+            f'{schema_dir.relative_to(REPO_ROOT)} also holds {", ".join(extra)} - the latest is the '
+            f'schema and the rest history: git rm the rest (their narrative stays in the CHANGELOG)',
+            check='schema.single_version')
+
+
 def check_schema_changelogs(run) -> None:
     """Every schema family's CHANGELOG narrates every version, and no version carries
     TODO descriptions — properties of the committed artifacts, not of any pipeline.
@@ -1866,9 +1880,9 @@ def check_mcp_schema(run):
             with urllib.request.urlopen(raw_url, timeout=15) as resp:
                 live_hash = hashlib.sha256(resp.read()).hexdigest()
             if stored_hash != live_hash:
-                drift = (f'upstream changed - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
-                         f'verbatim from {raw_url} (new changelog section: raw URL, commit, '
-                         f'SHA256; the latest is the schema, the rest history - delete {rel})')
+                drift = (f'upstream changed - mint: git mv {rel} v{int(latest.stem[1:]) + 1}.json and '
+                         f'replace its content with the bytes at {raw_url}; add the new changelog '
+                         f'section (raw URL, commit, SHA256, disposal record)')
         except Exception:
             pass          # unreached: the currency of the copy is simply unknown this run
     run(f'mcp schema: {latest.stem} up to date', drift is None, drift, check='mcp.up_to_date')
@@ -1881,8 +1895,9 @@ def check_mcp_schema(run):
             dated = sorted(name for name in names if re.fullmatch(r'\d{4}-\d{2}-\d{2}', name))
             if dated and dated[-1] != lineage:
                 stale = (f'upstream opened schema/{dated[-1]}/ while the snapshot tracks '
-                         f'schema/{lineage}/ - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
-                         f'verbatim from the new lineage; the latest is the schema, the rest history - delete {rel}')
+                         f'schema/{lineage}/ - mint: git mv {rel} v{int(latest.stem[1:]) + 1}.json and '
+                         f'replace its content with the new lineage\'s bytes; add the new changelog '
+                         f'section (raw URL, commit, SHA256, disposal record)')
         except Exception:
             pass          # unreached: the lineage listing is simply unknown this run
     run(f'mcp schema: {latest.stem} tracks the newest dated lineage', stale is None, stale,
@@ -2216,6 +2231,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
+    'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA,
@@ -2458,6 +2474,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_root_schema_diagnostics, tier='schema')
 
         run_section(check_schema_validity, tier='schema')
+        run_section(check_schema_single_version, tier='schema')
         run_section(check_schema_changelogs, tier='schema')
 
         run_section(check_versioned_schema_diagnostics, tier='schema')

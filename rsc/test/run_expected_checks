@@ -89,6 +89,7 @@ output.remedy_lines_are_todos
 python.pyright_clean
 schema.changelog_narrative
 schema.changelog_no_todo
+schema.single_version
 schema.valid_json_with_schema
 shell.shellcheck_clean
 structure.all_definitions_reachable
