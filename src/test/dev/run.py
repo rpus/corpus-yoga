@@ -1814,9 +1814,14 @@ def check_model_identity(run) -> None:
 
 
 def check_mcp_schema(run):
-    """The LATEST _reference/mcp/vN.json must match the upstream schema at the raw
-    URL in its description. Upstream drift is answered by MINTING the next version
-    beside the old one (the snapshot's history is data), never by updating in place."""
+    """The LATEST _reference/mcp/vN.json is upstream's schema byte-for-byte (#561):
+    its changelog section pins the lineage raw URL, the upstream commit and the
+    upstream SHA256; the committed file must hash to that SHA256 (the verbatim
+    witness, hermetic); and - network permitting - the live lineage file must
+    still match the pin and upstream's newest dated schema/ directory must be
+    the lineage the URL names. Drift or a newer lineage is answered by MINTING
+    the next version beside the old one (the snapshot's history is data), never
+    by updating in place."""
     import hashlib, urllib.request
     mcp_dir  = RSC_SCHEMA / '_reference' / 'mcp'
     versions = _sorted_versions(mcp_dir) if mcp_dir.is_dir() else []
@@ -1825,22 +1830,34 @@ def check_mcp_schema(run):
         return
     latest = versions[-1]
     rel    = latest.relative_to(REPO_ROOT)
-    desc = json.loads(latest.read_text()).get('description', '')
-    m_url  = re.search(r'(https://raw\.githubusercontent\.com/\S+)', desc)
-    m_hash = re.search(r'upstream SHA256:\s*([0-9a-f]{64})', desc)
+    changelog = mcp_dir / 'CHANGELOG.md'
+    section = ''
+    if changelog.exists():
+        m_section = re.search(rf'^## {latest.stem}$(.*?)(?=^## |\Z)',
+                              changelog.read_text(), re.M | re.S)
+        section = m_section.group(1) if m_section else ''
+    m_url  = re.search(r'(https://raw\.githubusercontent\.com/\S+?/schema/(\d{4}-\d{2}-\d{2})/schema\.json)', section)
+    m_hash = re.search(r'upstream SHA256:\s*`?([0-9a-f]{64})', section)
     if not m_url or not m_hash:
-        run('mcp schema: description has raw URL and upstream SHA256', False,
-            f'Add raw URL and "upstream SHA256: <hex>" to the description field in {rel}', check='mcp.description_pins_upstream')
+        run('mcp schema: changelog pins upstream (raw URL + SHA256)', False,
+            f'Add the lineage raw URL and "upstream SHA256: <hex>" to the ## {latest.stem} section '
+            f'of {changelog.relative_to(REPO_ROOT)}', check='mcp.changelog_pins_upstream')
         return
-    raw_url     = m_url.group(1)
+    raw_url, lineage = m_url.group(1), m_url.group(2)
     stored_hash = m_hash.group(1)
-    # This is the gate's only SEND — an outward call over the network, and the one effect
-    # with no scratch form (#29). It is refusable like every other send here, through the
-    # one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips it.
+    local_hash  = hashlib.sha256(latest.read_bytes()).hexdigest()
+    run(f'mcp schema: {latest.stem} verbatim (bytes hash to the pinned SHA256)',
+        local_hash == stored_hash,
+        None if local_hash == stored_hash else
+        f'{rel} hashes {local_hash}, the changelog pins {stored_hash} - '
+        'the committed snapshot is not the pinned upstream file', check='mcp.verbatim')
+    # These are the gate's only SENDS - outward calls over the network, the one effect
+    # class with no scratch form (#29). They are refusable like every other send here,
+    # through the one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips both.
     #
     # An unreachable upstream is NOT a failure: raising on it makes the report depend on
-    # the network, and an offline machine unable to commit at all. The label is CONSTANT
-    # and the result passes when the send did not happen, so the committed report is
+    # the network, and an offline machine unable to commit at all. The labels are CONSTANT
+    # and each result passes when its send did not happen, so the committed report is
     # byte-identical on a machine that cannot reach github (shellcheck and pyright skip
     # the same way, and L2 requires it).
     drift = None
@@ -1849,12 +1866,27 @@ def check_mcp_schema(run):
             with urllib.request.urlopen(raw_url, timeout=15) as resp:
                 live_hash = hashlib.sha256(resp.read()).hexdigest()
             if stored_hash != live_hash:
-                drift = (f'upstream changed — mint _reference/mcp/v{len(versions) + 1}.json '
-                         f'from {raw_url} (convert to draft-04, set its description commit URL '
-                         f'+ SHA256, narrate in the family CHANGELOG); {rel} stays as history')
+                drift = (f'upstream changed - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
+                         f'verbatim from {raw_url} (new changelog section: raw URL, commit, '
+                         f'SHA256); {rel} stays as history')
         except Exception:
             pass          # unreached: the currency of the copy is simply unknown this run
     run(f'mcp schema: {latest.stem} up to date', drift is None, drift, check='mcp.up_to_date')
+    stale = None
+    if may_send():
+        try:
+            listing = 'https://api.github.com/repos/modelcontextprotocol/modelcontextprotocol/contents/schema'
+            with urllib.request.urlopen(listing, timeout=15) as resp:
+                names = [entry['name'] for entry in json.loads(resp.read())]
+            dated = sorted(name for name in names if re.fullmatch(r'\d{4}-\d{2}-\d{2}', name))
+            if dated and dated[-1] != lineage:
+                stale = (f'upstream opened schema/{dated[-1]}/ while the snapshot tracks '
+                         f'schema/{lineage}/ - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
+                         f'verbatim from the new lineage; {rel} stays as history')
+        except Exception:
+            pass          # unreached: the lineage listing is simply unknown this run
+    run(f'mcp schema: {latest.stem} tracks the newest dated lineage', stale is None, stale,
+        check='mcp.newest_lineage')
 
 
 

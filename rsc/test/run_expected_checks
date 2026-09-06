@@ -64,7 +64,9 @@ grammar.state_declared
 grammar.unenforced_names_issue
 grammar.unenforced_not_cited
 imports.step_module_imports
+mcp.newest_lineage
 mcp.up_to_date
+mcp.verbatim
 model.documented_type_grounded
 model.join_family_grammar
 model.join_kind_declared

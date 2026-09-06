@@ -98,6 +98,13 @@ def undeclared_kinds() -> list:
             if row['relationship'] not in declared]
 
 
+def _definition_container(doc: dict) -> str:
+    """The document's own definitions container: '$defs' (2020-12, the verbatim
+    mcp snapshot) or 'definitions' (draft-04, every house family). Pointers into
+    a document spell what the document spells - one home, no translation."""
+    return '$defs' if '$defs' in doc else 'definitions'
+
+
 def _resolve(cell: str):
     """A model_join cell's fragment resolved in its family's LATEST version -
     the join's one grammar: any family dir relative to rsc/schema,
@@ -277,7 +284,7 @@ def occurrence_pointer(doc: dict, name: str):
     followed, oneOf/anyOf/allOf searched) to the first $ref of the definition -
     generated, never hand-written, so model.json occurrences cannot be fiction.
     None when the definition is unreachable from the root."""
-    target = f'#/definitions/{name}'
+    target = f'#/{_definition_container(doc)}/{name}'
     seen = set()
 
     def walk(node, trail):
@@ -373,13 +380,13 @@ def unrecorded_collisions() -> dict:
     recorded = set()
     for row in _join_rows():
         for col in JOIN_PATH_COLUMNS:
-            m = re.search(r'#/definitions/([^/]+)', row[col] or '')
+            m = re.search(r'#/(?:definitions|\$defs)/([^/]+)', row[col] or '')
             if m:
                 recorded.add(m.group(1))
     return {n: f for n, f in name_scan().items() if n not in recorded}
 
 
-STRUCTURAL_TOKENS = {'definitions', 'properties', 'items', 'prefixItems',
+STRUCTURAL_TOKENS = {'definitions', '$defs', 'properties', 'items', 'prefixItems',
                      'oneOf', 'anyOf', 'allOf'}
 
 
@@ -389,7 +396,7 @@ def _schema_trail(fragment: str) -> tuple:
     dropped: '#/definitions/Conversation/properties/account/properties/uuid'
     → ('account', 'uuid'); '#/items/properties/account_uuid' → ('account_uuid',)."""
     toks = [t for t in fragment.lstrip('#/').split('/') if t]
-    if toks[:1] == ['definitions']:
+    if toks[:1] in (['definitions'], ['$defs']):
         toks = toks[2:]
     return tuple(t for t in toks if t not in STRUCTURAL_TOKENS and not t.isdigit())
 
@@ -412,7 +419,7 @@ def obligating_edges() -> list:
         if len(filled) < 2 or row['relationship'] not in OBLIGATING_KINDS:
             continue
         names = frozenset(m.group(1) for v in filled
-                          if (m := re.search(r'#/definitions/([^/]+)', v)))
+                          if (m := re.search(r'#/(?:definitions|\$defs)/([^/]+)', v)))
         trails = {}
         for v in filled:
             fam, _, frag = v.partition('#')
