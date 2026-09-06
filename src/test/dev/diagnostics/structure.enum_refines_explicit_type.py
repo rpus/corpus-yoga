@@ -7,6 +7,10 @@ single-typed is necessary but not sufficient — the type must be stated, not le
 """
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/test/dev - the diagnostics' shared walk
+from schema_walk import schema_nodes  # noqa: E402
 
 
 def json_type(v):
@@ -23,21 +27,11 @@ def json_type(v):
     return type(v).__name__
 
 
-def walk(o, path='#'):
-    if isinstance(o, dict):
-        yield path, o
-        for k, v in o.items():
-            yield from walk(v, f'{path}/{k}')
-    elif isinstance(o, list):
-        for i, v in enumerate(o):
-            yield from walk(v, f'{path}/{i}')
-
-
 with open(sys.argv[1]) as f:
     schema = json.load(f)
 
 fails = []
-for path, s in walk(schema):
+for path, s in schema_nodes(schema):
     if not (isinstance(s, dict) and 'enum' in s):
         continue
     value_types = sorted({json_type(v) for v in s['enum']})

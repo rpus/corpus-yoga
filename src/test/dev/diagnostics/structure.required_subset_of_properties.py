@@ -2,24 +2,21 @@
 """structure.required_subset_of_properties — Every required field is listed in properties."""
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/test/dev - the diagnostics' shared walk
+from schema_walk import schema_nodes  # noqa: E402
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)
 
 fails = []
-def check(obj, path=''):
-    if isinstance(obj, dict):
-        if 'required' in obj and 'properties' in obj:
-            props = set(obj['properties'].keys())
-            for f in obj['required']:
-                if f not in props:
-                    fails.append(f'{path}: required "{f}" not in properties')
-        for k, v in obj.items():
-            check(v, f'{path}/{k}')
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            check(v, f'{path}[{i}]')
-check(schema)
+for path, node in schema_nodes(schema):
+    if 'required' in node and 'properties' in node:
+        props = set(node['properties'].keys())
+        for name in node['required']:
+            if name not in props:
+                fails.append(f'{path}: required "{name}" not in properties')
 
 if fails:
     print('FAIL structure.required_subset_of_properties:')
