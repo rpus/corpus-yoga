@@ -1,4 +1,4 @@
-run.py: code+schema 1203/1203
+run.py: code+schema 1248/1248
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: code+schema 1203/1203
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (71/71)
+  ✓ structure.self_path_matches_address  (73/73)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -29,16 +29,16 @@ run.py: code+schema 1203/1203
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (18/18)
-  ✓ cli.calculus_defined  (18/18)
+  ✓ cli.target_exists  (19/19)
+  ✓ cli.calculus_defined  (19/19)
   ✓ cli.advertised_flags_exist  (15/15)
-  ✓ cli.docstring_flags_advertised  (16/16)
-  ✓ cli.subcommands_dispatch  (16/16)
-  ✓ cli.target_flags_advertised  (16/16)
-  ✓ cli.help_one_screen  (16/16)
+  ✓ cli.docstring_flags_advertised  (17/17)
+  ✓ cli.subcommands_dispatch  (17/17)
+  ✓ cli.target_flags_advertised  (17/17)
+  ✓ cli.help_one_screen  (17/17)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (18/18)
+  ✓ naming.target_stem_matches_command  (19/19)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
   ✓ output.prescriptions_are_commands  (59/59)
@@ -49,11 +49,11 @@ run.py: code+schema 1203/1203
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (78/78)
-  ✓ structure.file_at_level_of_subject  (25/25)
-  ✓ structure.cli_declaration_mirrors_the_api  (19/19)
-  ✓ structure.cli_declaration_validates  (58/58)
-  ✓ cli.every_form_listed  (36/36)
-  ✓ cli.flag_not_axis_value  (17/17)
+  ✓ structure.file_at_level_of_subject  (26/26)
+  ✓ structure.cli_declaration_mirrors_the_api  (20/20)
+  ✓ structure.cli_declaration_validates  (60/60)
+  ✓ cli.every_form_listed  (38/38)
+  ✓ cli.flag_not_axis_value  (18/18)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
@@ -122,40 +122,40 @@ run.py: code+schema 1203/1203
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (14/14)
+  ✓ schema.valid_json_with_schema  (15/15)
 
 ── check_schema_single_version ───────────────────────────────────────────────
-  ✓ schema.single_version  (14/14)
+  ✓ schema.single_version  (15/15)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (14/14)
-  ✓ schema.changelog_no_todo  (14/14)
+  ✓ schema.changelog_narrative  (15/15)
+  ✓ schema.changelog_no_todo  (15/15)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
-  ✓ composition.base_not_used_directly  (13/13)
-  ✓ composition.base_schemas_closed  (10/10)
-  ✓ composition.discriminator_values_disjoint  (13/13)
-  ✓ composition.no_additional_properties_on_subtypes  (13/13)
-  ✓ composition.wrapper_has_five_fields  (13/13)
-  ✓ documentation.discriminator_fields_annotated  (13/13)
-  ✓ documentation.every_definition_has_title_and_description  (13/13)
-  ✓ documentation.null_only_fields_documented  (13/13)
-  ✓ documentation.open_set_enums_documented  (13/13)
-  ✓ empirical.nullable_fields_surveyed  (13/13)
-  ✓ empirical.oneOf_branches_evidenced  (13/13)
-  ✓ naming.property_keys_lowercase  (13/13)
-  ✓ naming.title_matches_key  (13/13)
-  ✓ naming.upper_camel_case  (13/13)
+  ✓ composition.base_not_used_directly  (14/14)
+  ✓ composition.base_schemas_closed  (11/11)
+  ✓ composition.discriminator_values_disjoint  (14/14)
+  ✓ composition.no_additional_properties_on_subtypes  (14/14)
+  ✓ composition.wrapper_has_five_fields  (14/14)
+  ✓ documentation.discriminator_fields_annotated  (14/14)
+  ✓ documentation.every_definition_has_title_and_description  (14/14)
+  ✓ documentation.null_only_fields_documented  (14/14)
+  ✓ documentation.open_set_enums_documented  (14/14)
+  ✓ empirical.nullable_fields_surveyed  (14/14)
+  ✓ empirical.oneOf_branches_evidenced  (14/14)
+  ✓ naming.property_keys_lowercase  (14/14)
+  ✓ naming.title_matches_key  (14/14)
+  ✓ naming.upper_camel_case  (14/14)
   ✓ structure.all_definitions_reachable  (13/13)
-  ✓ structure.bfs_order  (13/13)
-  ✓ structure.definitions_at_bottom  (13/13)
-  ✓ structure.enum_refines_explicit_type  (13/13)
-  ✓ structure.field_order  (13/13)
-  ✓ structure.minItems_on_non_empty_arrays  (13/13)
-  ✓ structure.no_dangling_refs  (13/13)
-  ✓ structure.no_redundant_additional_properties_true  (13/13)
-  ✓ structure.pattern_constraints_enforced  (13/13)
-  ✓ structure.required_subset_of_properties  (13/13)
+  ✓ structure.bfs_order  (14/14)
+  ✓ structure.definitions_at_bottom  (14/14)
+  ✓ structure.enum_refines_explicit_type  (14/14)
+  ✓ structure.field_order  (14/14)
+  ✓ structure.minItems_on_non_empty_arrays  (14/14)
+  ✓ structure.no_dangling_refs  (14/14)
+  ✓ structure.no_redundant_additional_properties_true  (14/14)
+  ✓ structure.pattern_constraints_enforced  (14/14)
+  ✓ structure.required_subset_of_properties  (14/14)
 
 ── check_schema_join ─────────────────────────────────────────────────────────
   ✓ model.join_kind_declared
@@ -181,6 +181,10 @@ run.py: code+schema 1203/1203
   ✓ mcp.up_to_date
   ✓ mcp.newest_lineage
 
+── check_protocol_factoring ──────────────────────────────────────────────────
+  ✓ protocol.factoring_current
+  ✓ protocol.factoring_agrees
+
 ── check_expectation ─────────────────────────────────────────────────────────
   ✓ checks  (2/2)
 
@@ -188,11 +192,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations            6     0   code        7
 check_step_imports                     2     0   code       11
-check_self_paths                      71     0   code       14
+check_self_paths                      73     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    467     0   code       28
+check_cli_surface                    481     0   code       28
 check_cli_verb_help                   19     0   code       61
 check_cli_exclusive_classes            6     0   code       64
 check_effects                          2     0   code       67
@@ -201,21 +205,22 @@ check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
 check_root_schema_diagnostics         50     0   schema     97
-check_schema_validity                 14     0   schema    124
-check_schema_single_version           14     0   schema    127
-check_schema_changelogs               28     0   schema    130
-check_versioned_schema_diagnostics   309     0   schema    134
+check_schema_validity                 15     0   schema    124
+check_schema_single_version           15     0   schema    127
+check_schema_changelogs               30     0   schema    130
+check_versioned_schema_diagnostics   332     0   schema    134
 check_schema_join                      2     0   schema    160
 check_model_join_versions              1     0   schema    164
 check_model_occurrences                3     0   schema    167
 check_model_obligations              152     0   schema    172
 check_model_identity                   1     0   schema    176
 check_mcp_schema                       3     0   schema    179
-check_expectation                      2     0   code      184
+check_protocol_factoring               2     0   schema    184
+check_expectation                      2     0   code      188
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 105 types, 1203/1203 invocations passing
-checks[code]: 64 types, 626/626 invocations passing
-checks[schema]: 41 types, 577/577 invocations passing
+checks[code+schema]: 107 types, 1248/1248 invocations passing
+checks[code]: 64 types, 642/642 invocations passing
+checks[schema]: 43 types, 606/606 invocations passing
 
-dev gate: PASS — code+schema 1203/1203 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1248/1248 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

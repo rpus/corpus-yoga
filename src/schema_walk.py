@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-schema_walk.py - the one JSON Schema walk the diagnostics share: every dict in
+schema_walk.py - the one JSON Schema walk both tiers share (the diagnostics, the protocol factoring): every dict in
 SCHEMA position, never a properties map read as a schema. At a schema node the
 values of `properties`, `patternProperties`, `definitions` and `$defs` are schemas
 (the map itself is not); `items` (a schema, or a list of them), `additionalItems`,
@@ -12,7 +12,7 @@ definitions have them all - is never read as the keyword.
 
 from pathlib import Path
 
-SELF = 'src/test/dev/schema_walk.py'
+SELF = 'src/schema_walk.py'
 _file = Path(__file__).resolve()
 assert [p for p in _file.parents if p / SELF == _file], f'{_file} is not at its declared address {SELF}'
 
