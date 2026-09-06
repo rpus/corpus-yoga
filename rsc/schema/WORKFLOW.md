@@ -13,7 +13,9 @@ a PR is the anchored observation, not the data it observes.
 
 ## When to create a new version
 
-Create `vN+1.json` (copy of `vN.json`) when the schema change is:
+Mint `vN+1.json` - rename `vN.json` in place (`git mv`) and edit it; the latest
+version is the schema and the rest history (#557), so no other version file
+exists in the family - when the schema change is:
 
 - **Relaxed** — the provider's data grew and the version admits the growth: a new field,
   a widened type, a new value - and a new REQUIRED field too, when the provider now emits
@@ -31,9 +33,9 @@ Create `vN+1.json` (copy of `vN.json`) when the schema change is:
 Purely **refactored** changes (no validation effect) can go directly into the current version;
 document them in the CHANGELOG narrative under `#### Refactored`, naming the vintage in prose.
 
-That entry goes under the heading of **the version you amended** — the one whose file you
-edited, which is not always the newest. An in-place edit spanning two versions is filed once,
-under the newer of them, and names both. The sections run newest-first, so appending to the
+That entry goes under the heading of **the latest version** - the one file the family
+holds; an edit to content that older versions also carried names them in prose. The
+sections run newest-first, so appending to the
 end of the file files the note under the *oldest* version instead: done wrongly in three of
 five families during the 2026-07-23 re-rooting, and caught only by checking placement
 afterwards. Some families pre-seed the section with `None.`; fill that rather than adding a
@@ -109,17 +111,24 @@ project run.sh; `validate.sh --code-agent-session` takes the *tmp/cache/* sessio
 
 Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
-### 2. Create the new schema version
+### 2. Mint the new schema version
+
+This is the ONE mint, for every family - a house family and the `_reference/mcp`
+snapshot alike; what differs per family is where the new content comes from, a
+declared fact (step 5), never a second procedure.
 
 ```bash
-cp rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+git mv rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 ```
 
-Edit `v{N+1}.json` minimally — only the changes needed to pass the failing data.
-Then **diff it against its parent and read the diff**:
+Edit `v{N+1}.json` minimally - only the changes needed to pass the failing data
+(for `_reference/mcp`: replace the content with upstream's bytes, whole). The old
+version's content is git history; its narrative stays in the CHANGELOG. Then
+**diff against the parent and read the diff** - the rename shows as one, the edit
+as the change:
 
 ```bash
-diff rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+git diff -M HEAD -- rsc/schema/<pipeline>/<schema>/
 ```
 
 The diff IS the change: it should read as exactly what the CHANGELOG narrative
@@ -272,12 +281,10 @@ permitting, the live lineage file must still match the pin (`mcp.up_to_date`)
 and upstream's newest dated `schema/` directory must be the lineage the pinned
 URL names (`mcp.newest_lineage`).
 
-If `check_mcp_schema` fails: MINT the next version - download the newest dated
-lineage's schema byte-for-byte, add its changelog section with the raw URL,
-commit, SHA256 and the disposal record, and delete the superseded file (the
-latest version is the schema and the rest history, #557; its narrative stays
-in the changelog). Then re-run `corpus-yoga test run` to verify all `model_join.csv`
-pointers still resolve against the new latest.
+A red `check_mcp_schema` carries its remedy. The mint is step 2's, as for every
+family; the family's declared facts are the content - upstream's bytes at the URL
+the remedy names - and the changelog section, which carries the provenance triple
+and the disposal record.
 
 ### 6. Dispose the model.json obligations
 

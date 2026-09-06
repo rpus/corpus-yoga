@@ -482,6 +482,20 @@ def check_schema_validity(run) -> None:
                 run(f'{schema_name}: valid JSON: {v}', False, str(e), check='schema.valid_json')
 
 
+def check_schema_single_version(run) -> None:
+    """Every schema family holds exactly one version file - the latest is the schema
+    and the rest history (#557, #565): a mint renames the file in place, and a second
+    v*.json beside it is the copy-beside mint #558 retired, reappearing."""
+    for schema_name, schema_dir in sorted(_schema_families().items()):
+        versions = _sorted_versions(schema_dir)
+        extra = [p.name for p in versions[:-1]]
+        run(f'{schema_name}: one version file', not extra,
+            None if not extra else
+            f'{schema_dir.relative_to(REPO_ROOT)} also holds {", ".join(extra)} - the latest is the '
+            f'schema and the rest history: git rm the rest (their narrative stays in the CHANGELOG)',
+            check='schema.single_version')
+
+
 def check_schema_changelogs(run) -> None:
     """Every schema family's CHANGELOG narrates every version, and no version carries
     TODO descriptions — properties of the committed artifacts, not of any pipeline.
@@ -2216,6 +2230,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
+    'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA,
@@ -2458,6 +2473,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_root_schema_diagnostics, tier='schema')
 
         run_section(check_schema_validity, tier='schema')
+        run_section(check_schema_single_version, tier='schema')
         run_section(check_schema_changelogs, tier='schema')
 
         run_section(check_versioned_schema_diagnostics, tier='schema')

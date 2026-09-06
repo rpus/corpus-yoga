@@ -14,11 +14,9 @@ taken from, and the upstream file's SHA256 (v1 and v2 carried the same
 triple in their doctored `description` fields). `check_mcp_schema` reads the
 latest section's triple, holds the committed file to the SHA256 (the
 verbatim witness, hermetic), and - network permitting - compares the live
-URL and upstream's newest dated `schema/` directory against it. When
-upstream drifts or opens a new dated lineage, mint the next version in the
-old one's place: the latest version is the schema and the rest history
-(#557) - the superseded file is deleted, its content in git and its
-narrative here.
+URL and upstream's newest dated `schema/` directory against it. Drift, or a
+new dated lineage, reds that check, whose remedy names the mint - the one
+mint of rsc/schema/WORKFLOW.md, the content being upstream's bytes.
 
 ---
 
