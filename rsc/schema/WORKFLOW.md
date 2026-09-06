@@ -274,9 +274,10 @@ URL names (`mcp.newest_lineage`).
 
 If `check_mcp_schema` fails: MINT the next version - download the newest dated
 lineage's schema byte-for-byte, add its changelog section with the raw URL,
-commit and SHA256, and leave the old snapshot in place (its history is data; the
-old update-in-place remedy destroyed it). Then re-run `corpus-yoga test run` to verify
-all `model_join.csv` pointers still resolve against the new latest.
+commit, SHA256 and the disposal record, and delete the superseded file (the
+latest version is the schema and the rest history, #557; its narrative stays
+in the changelog). Then re-run `corpus-yoga test run` to verify all `model_join.csv`
+pointers still resolve against the new latest.
 
 ### 6. Dispose the model.json obligations
 
