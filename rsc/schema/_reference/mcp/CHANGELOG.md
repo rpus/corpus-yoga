@@ -15,9 +15,10 @@ triple in their doctored `description` fields). `check_mcp_schema` reads the
 latest section's triple, holds the committed file to the SHA256 (the
 verbatim witness, hermetic), and - network permitting - compares the live
 URL and upstream's newest dated `schema/` directory against it. When
-upstream drifts or opens a new dated lineage, mint the next version beside
-this one - the old snapshot is history, kept (versioning replaced the old
-update-in-place remedy, which destroyed it).
+upstream drifts or opens a new dated lineage, mint the next version in the
+old one's place: the latest version is the schema and the rest history
+(#557) - the superseded file is deleted, its content in git and its
+narrative here.
 
 ---
 
@@ -43,6 +44,11 @@ Provenance:
 155 definitions (v2 held 145). Every `model_join.csv` `mcp_path` pointer
 resolves against v3 with its container respelled `#/$defs/…`, and every
 identity-class join edge holds unchanged.
+
+Disposal (#558's rule - the latest version is the schema, the rest
+history): v2.json deleted with this mint - 1 file, 141,084 bytes,
+reading-room, 2026-09-06; its content is git history and its section below
+stands.
 
 ### Replaces
 

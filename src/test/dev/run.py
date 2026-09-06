@@ -1868,7 +1868,7 @@ def check_mcp_schema(run):
             if stored_hash != live_hash:
                 drift = (f'upstream changed - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
                          f'verbatim from {raw_url} (new changelog section: raw URL, commit, '
-                         f'SHA256); {rel} stays as history')
+                         f'SHA256; the latest is the schema, the rest history - delete {rel})')
         except Exception:
             pass          # unreached: the currency of the copy is simply unknown this run
     run(f'mcp schema: {latest.stem} up to date', drift is None, drift, check='mcp.up_to_date')
@@ -1882,7 +1882,7 @@ def check_mcp_schema(run):
             if dated and dated[-1] != lineage:
                 stale = (f'upstream opened schema/{dated[-1]}/ while the snapshot tracks '
                          f'schema/{lineage}/ - mint _reference/mcp/v{int(latest.stem[1:]) + 1}.json '
-                         f'verbatim from the new lineage; {rel} stays as history')
+                         f'verbatim from the new lineage; the latest is the schema, the rest history - delete {rel}')
         except Exception:
             pass          # unreached: the lineage listing is simply unknown this run
     run(f'mcp schema: {latest.stem} tracks the newest dated lineage', stale is None, stale,

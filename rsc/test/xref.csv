@@ -612,7 +612,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
-,,,rsc/schema/_reference/mcp/v2.json,Y,
 ,,,rsc/schema/_reference/mcp/v3.json,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
