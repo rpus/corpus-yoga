@@ -99,8 +99,8 @@ import commands as cli_commands  # noqa: E402 — `corpus-yoga commands` answers
 import completions as cli_completions  # noqa: E402 — and `corpus-yoga completions` here
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
-sys.path.insert(0, str(SRC / 'main' / 'protocol'))  # the house protocol factoring (check_protocol_factoring)
-import protocol_factoring  # noqa: E402
+sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
+import mcp_factoring  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
 import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
 
@@ -1825,33 +1825,33 @@ def check_model_identity(run) -> None:
           'or restore the identity in the schemas', check='model.identity_holds')
 
 
-def check_protocol_factoring(run) -> None:
+def check_mcp_factoring(run) -> None:
     """The house MCP factoring (#562) is a committed derivation: the latest
     rsc/schema/protocol/mcpMessage version must be byte-identical to what
-    corpus-yoga protocol sync derives from the committed snapshot and description
-    table (protocol.factoring_current), and every snapshot definition must equal its
-    house counterpart flattened and normalized (protocol.factoring_agrees) - the
+    corpus-yoga mcp sync derives from the committed snapshot and description
+    table (mcp.factoring_current), and every snapshot definition must equal its
+    house counterpart flattened and normalized (mcp.factoring_agrees) - the
     witness that the factoring preserved meaning, held over the committed file."""
-    target = protocol_factoring.latest_version(protocol_factoring.FAMILY_DIR)
+    target = mcp_factoring.latest_version(mcp_factoring.FAMILY_DIR)
     if not target:
-        run('protocol: rsc/schema/protocol/mcpMessage has a version', False,
-            'corpus-yoga protocol sync derives v1.json', check='protocol.has_version')
+        run('mcp: rsc/schema/protocol/mcpMessage has a version', False,
+            'corpus-yoga mcp sync derives v1.json', check='mcp.has_version')
         return
     rel = target.relative_to(REPO_ROOT)
     try:
-        wanted = protocol_factoring.current_text()
+        wanted = mcp_factoring.current_text()
     except AssertionError as e:
-        run(f'protocol: {target.stem} derivable from the snapshot', False, str(e), check='protocol.derivable')
+        run(f'mcp: {target.stem} derivable from the snapshot', False, str(e), check='mcp.derivable')
         return
     have = target.read_text()
-    run(f'protocol: {target.stem} current with the snapshot', have == wanted,
+    run(f'mcp: {target.stem} current with the snapshot', have == wanted,
         None if have == wanted else
-        f'{rel} differs from what the snapshot derives - run corpus-yoga protocol sync and commit',
-        check='protocol.factoring_current')
-    _, snap = protocol_factoring.snapshot()
-    bad = protocol_factoring.disagreements(json.loads(have), snap)
-    run(f'protocol: {target.stem} flattens to the snapshot', not bad,
-        '\n    '.join(bad[:5]) if bad else None, check='protocol.factoring_agrees')
+        f'{rel} differs from what the snapshot derives - run corpus-yoga mcp sync and commit',
+        check='mcp.factoring_current')
+    _, snap = mcp_factoring.snapshot()
+    bad = mcp_factoring.disagreements(json.loads(have), snap)
+    run(f'mcp: {target.stem} flattens to the snapshot', not bad,
+        '\n    '.join(bad[:5]) if bad else None, check='mcp.factoring_agrees')
 
 
 def check_reference(run) -> None:
@@ -2284,7 +2284,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_obligations': SCHEMA + ['src'],
     'check_reference': ['rsc/reference'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
-    'check_protocol_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/protocol'],
+    'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp'],
 }
 
 SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
@@ -2531,7 +2531,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
         run_section(check_reference, tier='schema')
-        run_section(check_protocol_factoring, tier='schema')
+        run_section(check_mcp_factoring, tier='schema')
 
 
 

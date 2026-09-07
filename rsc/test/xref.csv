@@ -50,7 +50,6 @@ pyrightconfig.json,14,path_str,src/main/cli/indexing,Y,"""src/main/cli/indexing"
 pyrightconfig.json,15,path_str,src/main/cli/completions,Y,"""src/main/cli/completions"","
 pyrightconfig.json,16,path_str,src/main/pipeline/code-agents,Y,"""src/main/pipeline/code-agents"","
 pyrightconfig.json,17,path_str,src/main/model,Y,"""src/main/model"","
-pyrightconfig.json,18,path_str,src/main/protocol,Y,"""src/main/protocol"","
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the corpus-yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
 rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-exports/supersede.py,Y,equality of snapshots. (`src/main/pipeline/chat-exports/supersede.py` atomisers.)
 rsc/CALCULUS.md,103,doc,src/main/pipeline/chat-exports/accumulate.py,Y,"implementation: `accumulate()` in `src/main/pipeline/chat-exports/accumulate.py`, called"
@@ -119,7 +118,7 @@ rsc/schema/WORKFLOW.md,275,doc,rsc/reference/JSONSchema/provenance.csv,Y,"(`rsc/
 rsc/schema/WORKFLOW.md,277,doc,rsc/reference/mcp/reference.json,Y,"sha256) and the reference declaration (`rsc/reference/mcp/reference.json`,"
 rsc/schema/WORKFLOW.md,278,doc,rsc/reference/JSONSchema/reference.json,Y,"`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream"
 rsc/schema/WORKFLOW.md,293,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a"
-rsc/schema/WORKFLOW.md,294,doc,src/main/protocol/protocol_factoring.py,Y,committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
+rsc/schema/WORKFLOW.md,294,doc,src/main/mcp/mcp_factoring.py,Y,committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
 rsc/schema/WORKFLOW.md,296,doc,rsc/schema/protocol/mcpMessage/composition.csv,Y,"`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows"
 rsc/schema/WORKFLOW.md,298,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the"
 rsc/schema/WORKFLOW.md,299,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,"generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text"
@@ -630,6 +629,10 @@ src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,244,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
+src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
+src/main/cli/mcp/mcp.json,8,path_str,rsc/schema/protocol,Y,"""rsc/schema/protocol"""
+src/main/cli/mcp/sync.json,6,path_str,rsc/schema/protocol/mcpMessage,Y,"""rsc/schema/protocol/mcpMessage"""
+src/main/cli/mcp/sync.json,9,path_str,rsc/schema/protocol/mcpMessage,Y,"""rsc/schema/protocol/mcpMessage"""
 src/main/cli/memories/memories.json,3,path_str,src/main/pipeline/chat-exports/memories.py,Y,"""target"": ""src/main/pipeline/chat-exports/memories.py"","
 src/main/cli/memories/sync.json,7,path_str,rsc/naming/memory_deposit_vintages.csv,Y,"""rsc/naming/memory_deposit_vintages.csv"""
 src/main/cli/model/accept.json,18,path_str,rsc/schema,Y,"""rsc/schema"","
@@ -670,10 +673,6 @@ src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"",
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
 src/main/cli/prerequisites/sync.json,26,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
-src/main/cli/protocol/protocol.json,3,path_str,src/main/protocol/protocol.py,Y,"""target"": ""src/main/protocol/protocol.py"","
-src/main/cli/protocol/protocol.json,8,path_str,rsc/schema/protocol,Y,"""rsc/schema/protocol"""
-src/main/cli/protocol/sync.json,6,path_str,rsc/schema/protocol/mcpMessage,Y,"""rsc/schema/protocol/mcpMessage"""
-src/main/cli/protocol/sync.json,9,path_str,rsc/schema/protocol/mcpMessage,Y,"""rsc/schema/protocol/mcpMessage"""
 src/main/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 src/main/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
@@ -714,6 +713,9 @@ src/main/markdown_projection.py,11,comment,src/main/model/project_markdown.py,Y,
 src/main/markdown_projection.py,11,comment,src/main/model/compare_sources.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py"
 src/main/markdown_projection.py,12,comment,src/main/pipeline/chat-exports/atomise_bulk.py,Y,"(project+render to compare), pipeline/chat-exports/atomise_bulk.py (slug/assign_name"
 src/main/markdown_projection.py,24,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
+src/main/mcp/mcp.py,22,path_str,src/main/mcp/mcp.py,Y,SELF = 'src/main/mcp/mcp.py'
+src/main/mcp/mcp_factoring.py,55,path_str,src/main/mcp/mcp_factoring.py,Y,SELF = 'src/main/mcp/mcp_factoring.py'
+src/main/mcp/mcp_factoring.py,67,path_str,rsc/schema/protocol/mcpMessage,Y,FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 src/main/model/compare_sources.py,25,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,25,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,37,path_str,src/main/model/compare_sources.py,Y,SELF = 'src/main/model/compare_sources.py'
@@ -892,9 +894,6 @@ src/main/pipeline/code-agents/validate.sh,5,comment,src/main/pipeline/code-agent
 src/main/pipeline/code-agents/validate.sh,6,comment,src/main/pipeline/code-agents/validate.sh,Y,#   src/main/pipeline/code-agents/validate.sh --code-agent-memory  <path/to/cache-memory-dir>
 src/main/pipeline/code-agents/validate.sh,7,comment,src/main/pipeline/code-agents/validate.sh,Y,#   src/main/pipeline/code-agents/validate.sh --enumerate --code-agent-session <dir>
 src/main/pipeline/code-agents/validate.sh,24,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/protocol/protocol.py,22,path_str,src/main/protocol/protocol.py,Y,SELF = 'src/main/protocol/protocol.py'
-src/main/protocol/protocol_factoring.py,55,path_str,src/main/protocol/protocol_factoring.py,Y,SELF = 'src/main/protocol/protocol_factoring.py'
-src/main/protocol/protocol_factoring.py,67,path_str,rsc/schema/protocol/mcpMessage,Y,FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_occurrences.py,8,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_occurrences.py ""#/definitions/MessageFile"" \"
@@ -951,8 +950,7 @@ src/test/dev/run.py,2257,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
 src/test/dev/run.py,2270,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
 src/test/dev/run.py,2272,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
 src/test/dev/run.py,2285,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
-src/test/dev/run.py,2287,path_str,rsc/schema/protocol,Y,"'check_protocol_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/protocol'],"
-src/test/dev/run.py,2287,path_str,src/main/protocol,Y,"'check_protocol_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/protocol'],"
+src/test/dev/run.py,2287,path_str,rsc/schema/protocol,Y,"'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp'],"
 src/test/dev/run.py,2732,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
 src/test/dev/run.py,2267,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
 src/test/dev/run.py,2286,path_str,rsc/reference/JSONSchema,Y,"'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],"
@@ -1074,6 +1072,8 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/indexing/list-candidates.json,Y,
 ,,,src/main/cli/indexing/reject.json,Y,
 ,,,src/main/cli/indexing/sync.json,Y,
+,,,src/main/cli/mcp/mcp.json,Y,
+,,,src/main/cli/mcp/sync.json,Y,
 ,,,src/main/cli/memories/memories.json,Y,
 ,,,src/main/cli/memories/sync.json,Y,
 ,,,src/main/cli/model/accept.json,Y,
@@ -1087,8 +1087,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/pipeline/sync.json,Y,
 ,,,src/main/cli/prerequisites/prerequisites.json,Y,
 ,,,src/main/cli/prerequisites/sync.json,Y,
-,,,src/main/cli/protocol/protocol.json,Y,
-,,,src/main/cli/protocol/sync.json,Y,
 ,,,src/main/cli/server/ensure-assets.json,Y,
 ,,,src/main/cli/server/server.json,Y,
 ,,,src/main/cli/server/start.json,Y,

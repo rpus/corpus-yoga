@@ -2,7 +2,7 @@
 
 This family is the HOUSE FACTORING of the Model Context Protocol schema (#562):
 the composition upstream's generator flattens, stated once in draft-04. It is a
-committed derivation, never hand-edited: `corpus-yoga protocol sync` derives the latest
+committed derivation, never hand-edited: `corpus-yoga mcp sync` derives the latest
 version from the verbatim snapshot (`rsc/reference/mcp`, whose `provenance.csv`
 pins the lineage, commit and SHA256) and from three tables in
 `rsc/schema/protocol/mcpMessage/` - `composition.csv`, the (definition, base) rows
@@ -11,8 +11,8 @@ schema.ts uses a type alias the generator inlined; `description.csv`, house text
 for the definitions the snapshot leaves undescribed - every row verified against
 the snapshot before use. One instance is one JSON-RPC message; the root is the
 house definition `MCPMessage`. The dev gate holds the version file byte-identical
-to the derivation (`protocol.factoring_current`) and every snapshot definition
-equal to its house counterpart resolved and normalized (`protocol.factoring_agrees`).
+to the derivation (`mcp.factoring_current`) and every snapshot definition
+equal to its house counterpart resolved and normalized (`mcp.factoring_agrees`).
 No data is validated against it; every house diagnostic holds over it without
 exception.
 
@@ -62,7 +62,7 @@ conjoins and cannot narrow:
 - `SubscriptionsListenResult extends Result` is an override: it narrows `_meta`
   to `SubscriptionsListenResultMetaObject`, a different `$ref` from `Result`'s.
   The row stays in `composition.csv` as schema.ts states it; the definition
-  stands flat, and `corpus-yoga protocol` reports the override.
+  stands flat, and `corpus-yoga mcp` reports the override.
 
 Every `const` is spelled as draft-04's one-element `enum`; every `$defs` ref as
 `#/definitions/`; every enum of more than one value states the values as
