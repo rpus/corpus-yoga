@@ -291,15 +291,15 @@ carries its remedy; the mint is step 2's by lineage directory. Every house schem
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
 `rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a
-committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
+committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
 derives its latest version from the snapshot and three tables beside it -
 `rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows
 transcribed from upstream's schema.ts and verified against the snapshot,
 `rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the
 generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text
 for the definitions the snapshot leaves undescribed. The dev gate holds the file byte-identical to the
-derivation (`protocol.factoring_current`) and every snapshot definition equal to its
-house counterpart flattened (`protocol.factoring_agrees`). Its history lives in
+derivation (`mcp.factoring_current`) and every snapshot definition equal to its
+house counterpart flattened (`mcp.factoring_agrees`). Its history lives in
 `rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
 moves, `git mv` the version, run the sync, write the changelog section. Every house
 diagnostic holds over it without exception: its root, `MCPMessage`, gathers the

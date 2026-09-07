@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-protocol_factoring.py - the house factoring of the MCP schema (#562): the composition
+mcp_factoring.py - the house factoring of the MCP schema (#562): the composition
 upstream's generator flattens, stated once in draft-04, derived from the verbatim
 snapshot rsc/reference/mcp and written to rsc/schema/protocol/mcpMessage.
 
@@ -52,7 +52,7 @@ import re
 import sys
 from pathlib import Path
 
-SELF = 'src/main/protocol/protocol_factoring.py'
+SELF = 'src/main/mcp/mcp_factoring.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -624,7 +624,7 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             'message allOf its header and its own fields, the type aliases upstream inlined '
             'revived as refs, const spelled as one-element enum, and MCPMessage the root - the '
             'wire message read as any typed message shape upstream exports. Derived by '
-            'corpus-yoga protocol sync from the verbatim snapshot rsc/reference/mcp '
+            'corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp '
             f"({prov['lineage']} lineage, upstream commit {prov['commit']}, upstream SHA256 "
             f"{prov['sha256']}); structural reference, for reference only, upstream's schema.ts at that "
             f"commit beside it ({prov['ts_url']}), transcribed by hand as rsc/schema/protocol/mcpMessage/composition.csv and "

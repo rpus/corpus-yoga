@@ -64,6 +64,8 @@ grammar.state_declared
 grammar.unenforced_names_issue
 grammar.unenforced_not_cited
 imports.step_module_imports
+mcp.factoring_agrees
+mcp.factoring_current
 model.documented_type_grounded
 model.join_family_grammar
 model.join_kind_declared
@@ -71,8 +73,6 @@ model.join_pointers_valid
 model.occurrence_family_grammar
 model.occurrence_pointers_resolve
 model.occurrences_cover_edges
-protocol.factoring_agrees
-protocol.factoring_current
 reference.newest_lineage
 reference.provenance_declared
 reference.single_lineage

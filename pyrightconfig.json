@@ -15,7 +15,7 @@
     "src/main/cli/completions",
     "src/main/pipeline/code-agents",
     "src/main/model",
-    "src/main/protocol",
+    "src/main/mcp",
     "src/test/dev"
   ],
   "typeCheckingMode": "standard"

@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 """
-protocol.py - the house protocol schemas, derived from their verbatim snapshots:
-today the MCP factoring, rsc/schema/protocol/mcpMessage, from rsc/reference/mcp.
+mcp.py - the house factoring of the MCP schema, rsc/schema/protocol/mcpMessage,
+derived from its verbatim snapshot rsc/reference/mcp.
 
-`protocol` is a NOUN: the derived schemas. A bare invocation shows their state and
+`mcp` is a NOUN: the derived schema. A bare invocation shows their state and
 writes nothing (the bare noun IS the status). Only `sync` writes: it brings the
 family's latest version file into agreement with the snapshot, and re-running is
 silence (L1). The witness that the derivation preserved meaning is the dev gate's
-(protocol.factoring_agrees); the currency of the committed file is its too
-(protocol.factoring_current).
+(mcp.factoring_agrees); the currency of the committed file is its too
+(mcp.factoring_current).
 
 Usage:
-    corpus-yoga protocol         # status: is rsc/schema/protocol/mcpMessage current with the snapshot?
-    corpus-yoga protocol sync    # (re-)derive the latest rsc/schema/protocol/mcpMessage/v*.json - idempotent
+    corpus-yoga mcp         # status: is rsc/schema/protocol/mcpMessage current with the snapshot?
+    corpus-yoga mcp sync    # (re-)derive the latest rsc/schema/protocol/mcpMessage/v*.json - idempotent
 """
 
 import json
 import sys
 from pathlib import Path
 
-SELF = 'src/main/protocol/protocol.py'
+SELF = 'src/main/mcp/mcp.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -27,7 +27,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
-import protocol_factoring as factoring  # noqa: E402  (sibling module)
+import mcp_factoring as factoring  # noqa: E402  (sibling module)
 
 
 def _target() -> Path:
@@ -40,13 +40,13 @@ def status() -> int:
     rel = target.relative_to(REPO)
     wanted = factoring.current_text()
     if not target.exists():
-        print(f'protocol: {rel} absent - corpus-yoga protocol sync derives it')
+        print(f'mcp: {rel} absent - corpus-yoga mcp sync derives it')
         return 1
     have = target.read_text()
     snapshot_path, snap = factoring.snapshot()
     bad = factoring.disagreements(json.loads(have), snap)
     current = have == wanted
-    print(f'protocol: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)}'
+    print(f'mcp: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)}'
           f' · {len(json.loads(have).get("definitions", {}))} definitions · '
           f'{"agrees with the snapshot" if not bad else f"{len(bad)} disagreement(s)"}')
     for line in bad[:5]:
@@ -54,7 +54,7 @@ def status() -> int:
     for name, base in factoring.overrides(*factoring.shapes_and_declared()):
         print(f'  override: {name} narrows {base} - stands flat (schema.ts extends, allOf cannot)')
     if not current:
-        print('  corpus-yoga protocol sync brings it current')
+        print('  corpus-yoga mcp sync brings it current')
     return 0 if current and not bad else 1
 
 
@@ -70,7 +70,7 @@ def sync() -> int:
 
 
 def main():
-    parser = command_parser('protocol')  # generated from the declaration (#476)
+    parser = command_parser('mcp')  # generated from the declaration (#476)
     args = parser.parse_args()
     if args.verb == 'sync':
         sys.exit(sync())

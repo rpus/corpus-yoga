@@ -188,9 +188,9 @@ run.py: code+schema 1287/1287
   ✓ reference.up_to_date  (3/3)
   ✓ reference.newest_lineage
 
-── check_protocol_factoring ──────────────────────────────────────────────────
-  ✓ protocol.factoring_current
-  ✓ protocol.factoring_agrees
+── check_mcp_factoring ───────────────────────────────────────────────────────
+  ✓ mcp.factoring_current
+  ✓ mcp.factoring_agrees
 
 ── check_expectation ─────────────────────────────────────────────────────────
   ✓ checks  (2/2)
@@ -223,7 +223,7 @@ check_model_occurrences                3     0   schema    172
 check_model_obligations              152     0   schema    177
 check_model_identity                   1     0   schema    181
 check_reference                       11     0   schema    184
-check_protocol_factoring               2     0   schema    191
+check_mcp_factoring                    2     0   schema    191
 check_expectation                      2     0   code      195
   (line = where that stage begins in this report; every check is listed there, in place)
 
