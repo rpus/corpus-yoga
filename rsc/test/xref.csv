@@ -148,6 +148,7 @@ rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": 
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
 rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
+rsc/schema/protocol/mcpMessage/CHANGELOG.md,8,doc,rsc/schema/protocol/mcpMessage,Y,`rsc/schema/protocol/mcpMessage/` -
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as authored sources"
 rsc/site/README.md,19,doc,rsc/site/corpus-yoga/index.html,Y,"`rpus.co/corpus-yoga/`. `rsc/site/corpus-yoga/index.html` is the corpus-yoga landing, static and"
 rsc/site/README.md,20,doc,rsc/site/corpus-yoga/dataflow.dot,Y,complete. `rsc/site/corpus-yoga/dataflow.dot` is the repo's dataflow map: tiers as

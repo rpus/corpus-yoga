@@ -4,12 +4,13 @@ This family is the HOUSE FACTORING of the Model Context Protocol schema (#562):
 the composition upstream's generator flattens, stated once in draft-04. It is a
 committed derivation, never hand-edited: `corpus-yoga protocol sync` derives the latest
 version from the verbatim snapshot (`rsc/schema/_reference/mcp`, whose changelog
-pins the lineage, commit and SHA256) and from two tables beside this file -
+pins the lineage, commit and SHA256) and from two tables in
+`rsc/schema/protocol/mcpMessage/` -
 `composition.csv`, the (definition, base) rows transcribed from upstream's
 schema.ts at the pinned commit, each verified against the snapshot before use,
 and `description.csv`, house text for the definitions the snapshot leaves
 undescribed. One instance is one JSON-RPC message; the root is JSONRPCMessage.
-The dev gate holds the file byte-identical to the derivation
+The dev gate holds the version file byte-identical to the derivation
 (`protocol.factoring_current`) and every snapshot definition equal to its house
 counterpart flattened and normalized (`protocol.factoring_agrees`). No data is
 validated against it. The family skips `structure.all_definitions_reachable`
