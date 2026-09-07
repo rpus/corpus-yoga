@@ -265,7 +265,10 @@ per upstream project and one lineage directory inside it named as upstream names
 it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
 `schema.json` and, for reference only, `schema.ts` (read by people, by no
 derivation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,
-the dialect every house schema declares. The latest lineage is the reference and
+the dialect every house schema declares, and the declaration `src/schema_walk.py`
+derives every keyword's position from (#571) - the diagnostics and the factoring
+read the grammar there, never restate it, and `structure.keywords_declared` refuses
+a key the dialect does not declare. The latest lineage is the reference and
 the rest history (#557), so a project holds one lineage directory; its changelog
 (`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)
 narrates each lineage. Beside them, the provenance table

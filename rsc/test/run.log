@@ -1,4 +1,4 @@
-run.py: code+schema 1271/1271
+run.py: code+schema 1287/1287
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -115,6 +115,7 @@ run.py: code+schema 1271/1271
   ✓ structure.definitions_at_bottom  (2/2)
   ✓ structure.enum_refines_explicit_type  (2/2)
   ✓ structure.field_order  (2/2)
+  ✓ structure.keywords_declared  (2/2)
   ✓ structure.minItems_on_non_empty_arrays  (2/2)
   ✓ structure.no_dangling_refs  (2/2)
   ✓ structure.no_redundant_additional_properties_true  (2/2)
@@ -154,6 +155,7 @@ run.py: code+schema 1271/1271
   ✓ structure.definitions_at_bottom  (14/14)
   ✓ structure.enum_refines_explicit_type  (14/14)
   ✓ structure.field_order  (14/14)
+  ✓ structure.keywords_declared  (14/14)
   ✓ structure.minItems_on_non_empty_arrays  (14/14)
   ✓ structure.no_dangling_refs  (14/14)
   ✓ structure.no_redundant_additional_properties_true  (14/14)
@@ -209,24 +211,24 @@ check_cache_io                        18     0   code       71
 check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
-check_root_schema_diagnostics         50     0   schema     97
-check_schema_validity                 14     0   schema    124
-check_schema_meta_validity            16     0   schema    127
-check_schema_single_version           14     0   schema    130
-check_schema_changelogs               28     0   schema    133
-check_versioned_schema_diagnostics   333     0   schema    137
-check_schema_join                      2     0   schema    163
-check_model_join_versions              1     0   schema    167
-check_model_occurrences                3     0   schema    170
-check_model_obligations              152     0   schema    175
-check_model_identity                   1     0   schema    179
-check_reference                       11     0   schema    182
-check_protocol_factoring               2     0   schema    189
-check_expectation                      2     0   code      193
+check_root_schema_diagnostics         52     0   schema     97
+check_schema_validity                 14     0   schema    125
+check_schema_meta_validity            16     0   schema    128
+check_schema_single_version           14     0   schema    131
+check_schema_changelogs               28     0   schema    134
+check_versioned_schema_diagnostics   347     0   schema    138
+check_schema_join                      2     0   schema    165
+check_model_join_versions              1     0   schema    169
+check_model_occurrences                3     0   schema    172
+check_model_obligations              152     0   schema    177
+check_model_identity                   1     0   schema    181
+check_reference                       11     0   schema    184
+check_protocol_factoring               2     0   schema    191
+check_expectation                      2     0   code      195
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 110 types, 1271/1271 invocations passing
+checks[code+schema]: 111 types, 1287/1287 invocations passing
 checks[code]: 64 types, 644/644 invocations passing
-checks[schema]: 46 types, 627/627 invocations passing
+checks[schema]: 47 types, 643/643 invocations passing
 
-dev gate: PASS — code+schema 1271/1271 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1287/1287 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

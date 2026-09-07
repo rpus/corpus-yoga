@@ -111,27 +111,28 @@ rsc/schema/WORKFLOW.md,261,doc,rsc/reference,Y,### 5. Check rsc/reference
 rsc/schema/WORKFLOW.md,263,doc,rsc/reference,Y,"`rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory"
 rsc/schema/WORKFLOW.md,265,doc,rsc/reference/mcp/2026-07-28,Y,it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
 rsc/schema/WORKFLOW.md,267,doc,rsc/reference/JSONSchema/draft-04,Y,"derivation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,"
-rsc/schema/WORKFLOW.md,270,doc,rsc/reference/mcp/CHANGELOG.md,Y,"(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)"
-rsc/schema/WORKFLOW.md,270,doc,rsc/reference/JSONSchema/CHANGELOG.md,Y,"(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)"
-rsc/schema/WORKFLOW.md,272,doc,rsc/reference/mcp/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
-rsc/schema/WORKFLOW.md,272,doc,rsc/reference/JSONSchema/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
-rsc/schema/WORKFLOW.md,274,doc,rsc/reference/mcp/reference.json,Y,"sha256) and the reference declaration (`rsc/reference/mcp/reference.json`,"
-rsc/schema/WORKFLOW.md,275,doc,rsc/reference/JSONSchema/reference.json,Y,"`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream"
-rsc/schema/WORKFLOW.md,290,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a"
-rsc/schema/WORKFLOW.md,291,doc,src/main/protocol/protocol_factoring.py,Y,committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
-rsc/schema/WORKFLOW.md,293,doc,rsc/schema/protocol/mcpMessage/composition.csv,Y,"`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows"
-rsc/schema/WORKFLOW.md,295,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the"
-rsc/schema/WORKFLOW.md,296,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,"generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text"
-rsc/schema/WORKFLOW.md,300,doc,rsc/schema/protocol/mcpMessage/CHANGELOG.md,Y,`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
-rsc/schema/WORKFLOW.md,304,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,"
-rsc/schema/WORKFLOW.md,309,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
-rsc/schema/WORKFLOW.md,310,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
-rsc/schema/WORKFLOW.md,311,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
-rsc/schema/WORKFLOW.md,320,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,325,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
-rsc/schema/WORKFLOW.md,349,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,350,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,356,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/WORKFLOW.md,268,doc,src/schema_walk.py,Y,"the dialect every house schema declares, and the declaration `src/schema_walk.py`"
+rsc/schema/WORKFLOW.md,273,doc,rsc/reference/mcp/CHANGELOG.md,Y,"(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)"
+rsc/schema/WORKFLOW.md,273,doc,rsc/reference/JSONSchema/CHANGELOG.md,Y,"(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)"
+rsc/schema/WORKFLOW.md,275,doc,rsc/reference/mcp/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
+rsc/schema/WORKFLOW.md,275,doc,rsc/reference/JSONSchema/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
+rsc/schema/WORKFLOW.md,277,doc,rsc/reference/mcp/reference.json,Y,"sha256) and the reference declaration (`rsc/reference/mcp/reference.json`,"
+rsc/schema/WORKFLOW.md,278,doc,rsc/reference/JSONSchema/reference.json,Y,"`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream"
+rsc/schema/WORKFLOW.md,293,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a"
+rsc/schema/WORKFLOW.md,294,doc,src/main/protocol/protocol_factoring.py,Y,committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
+rsc/schema/WORKFLOW.md,296,doc,rsc/schema/protocol/mcpMessage/composition.csv,Y,"`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows"
+rsc/schema/WORKFLOW.md,298,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the"
+rsc/schema/WORKFLOW.md,299,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,"generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text"
+rsc/schema/WORKFLOW.md,303,doc,rsc/schema/protocol/mcpMessage/CHANGELOG.md,Y,`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
+rsc/schema/WORKFLOW.md,307,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,"
+rsc/schema/WORKFLOW.md,312,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
+rsc/schema/WORKFLOW.md,313,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
+rsc/schema/WORKFLOW.md,314,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
+rsc/schema/WORKFLOW.md,323,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,328,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+rsc/schema/WORKFLOW.md,352,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,353,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,359,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,52,doc,rsc/schema,Y,"four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation"
@@ -910,7 +911,9 @@ src/main/validate_inspection.py,69,path_str,src/run_python_script.sh,Y,"f'src/ru
 src/main/validate_versions.py,23,path_str,src/main/validate_versions.py,Y,SELF = 'src/main/validate_versions.py'
 src/main/validation_audit.py,16,path_str,src/main/validation_audit.py,Y,SELF = 'src/main/validation_audit.py'
 src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python_script.sh <script.py> [args...]
-src/schema_walk.py,15,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
+src/schema_walk.py,5,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,(rsc/reference/JSONSchema/draft-04/schema.json) rather than restated (#571).
+src/schema_walk.py,25,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
+src/schema_walk.py,31,path_str,rsc/reference/JSONSchema/draft-04/schema.json,Y,META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
 src/test/dev/gen_changelog_matrix.py,23,path_str,src/test/dev/gen_changelog_matrix.py,Y,SELF = 'src/test/dev/gen_changelog_matrix.py'
 src/test/dev/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/dev/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/dev/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/dev/repairs/naming.root_schema_title_matches_filename.py,4,comment,src/test/dev/repairs/naming.root_schema_title_matches_filename.py,Y,Usage: python src/test/dev/repairs/naming.root_schema_title_matches_filename.py <schema>
@@ -1124,7 +1127,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/validate_inspection.py,Y,
 ,,self_only,src/main/validate_versions.py,Y,
 ,,,src/main/word_freq_literal.py,Y,
-,,self_only,src/schema_walk.py,Y,
 ,,,src/test/dev/diagnostics/composition.base_not_used_directly.py,Y,
 ,,,src/test/dev/diagnostics/composition.base_schemas_closed.py,Y,
 ,,,src/test/dev/diagnostics/composition.discriminator_values_disjoint.py,Y,
@@ -1145,6 +1147,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/test/dev/diagnostics/structure.definitions_at_bottom.py,Y,
 ,,,src/test/dev/diagnostics/structure.enum_refines_explicit_type.py,Y,
 ,,,src/test/dev/diagnostics/structure.field_order.py,Y,
+,,,src/test/dev/diagnostics/structure.keywords_declared.py,Y,
 ,,,src/test/dev/diagnostics/structure.minItems_on_non_empty_arrays.py,Y,
 ,,,src/test/dev/diagnostics/structure.no_dangling_refs.py,Y,
 ,,,src/test/dev/diagnostics/structure.no_redundant_additional_properties_true.py,Y,
