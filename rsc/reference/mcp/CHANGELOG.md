@@ -3,7 +3,9 @@
 This project holds the Model Context Protocol schema as upstream publishes it,
 byte-for-byte, under `rsc/reference/` (#572): one lineage directory named as
 upstream names it (`2026-07-28/`), holding `schema.json` and, for reference
-only, `schema.ts` - read by people, by no derivation. The latest lineage is the
+only, `schema.ts` - read by people and by `corpus-yoga mcp reproduce`, which
+witnesses that upstream's generator turns it into `schema.json` (`generate.md`
+states the generation); by no derivation. The latest lineage is the
 reference and the rest history (#557), so the project holds one lineage
 directory; `provenance.csv` beside it pins every file's URL, upstream commit and
 SHA256, and `reference.json` names upstream and the lineage listing (the dated

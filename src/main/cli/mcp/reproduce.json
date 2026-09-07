@@ -1,0 +1,19 @@
+{
+  "help": "reproduce the snapshot: fetch upstream at the pinned commit, run its own generator over the committed schema.ts in a node container, and diff the result against the committed schema.json - the diff if any, then one verdict",
+  "args": [],
+  "r": [
+    "rsc/reference/mcp"
+  ],
+  "x": [
+    "git",
+    "docker"
+  ],
+  "sends": {
+    "git fetch (github.com, upstream at the pinned commit)": [
+      "a shallow sparse checkout of what upstream's generator reads, into a temporary directory removed on exit (refused loudly under YOGA_NO_SEND)"
+    ],
+    "docker run (node image pull, npm registry)": [
+      "installs upstream's locked dependencies and runs scripts/generate-schemas.ts unchanged (refused loudly under YOGA_NO_SEND)"
+    ]
+  }
+}

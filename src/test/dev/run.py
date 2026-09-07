@@ -1854,6 +1854,32 @@ def check_mcp_factoring(run) -> None:
         '\n    '.join(bad[:5]) if bad else None, check='mcp.factoring_agrees')
 
 
+def check_mcp_reproducible(run) -> None:
+    """The mcp snapshot's schema.json is what upstream's own generator makes of the
+    committed schema.ts (#576): src/main/mcp/reproduce.sh fetches upstream at the
+    pinned commit, runs its generator unchanged in a node container and diffs the
+    result against the committed file. Two sends (a git fetch, a docker run), so
+    YOGA_NO_SEND=1 skips it - and so does a machine whose docker daemon is not
+    reachable: the label is CONSTANT and the result passes when the run did not
+    happen, as check_reference's currency probes do, so the committed report is
+    byte-identical on a machine that cannot run it."""
+    script = REPO_ROOT / 'src' / 'main' / 'mcp' / 'reproduce.sh'
+    docker = shutil.which('docker')
+    daemon = bool(docker) and subprocess.run([docker, 'info'], capture_output=True).returncode == 0
+    ok, detail = True, None
+    if may_send() and daemon:
+        # A git hook exports GIT_DIR and its kin; stripped here as well as in the script,
+        # so the protection does not depend on any script the gate runs remembering it.
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        proc = subprocess.run([str(script)], capture_output=True, text=True, cwd=REPO_ROOT, env=env)
+        ok = proc.returncode == 0
+        if not ok:
+            lines = [l for l in (proc.stdout + proc.stderr).splitlines() if l.strip()]
+            detail = '\n    '.join(lines[-12:])
+    run("mcp: schema.json reproduces from schema.ts through upstream's generator", ok, detail,
+        check='mcp.reproducible')
+
+
 def check_reference(run) -> None:
     """Every upstream reference artefact under rsc/reference (#572) is what its
     project's provenance.csv pins: the committed bytes hash to the pinned SHA256
@@ -2285,6 +2311,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_reference': ['rsc/reference'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
     'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp'],
+    'check_mcp_reproducible': ['rsc/reference/mcp', 'src/main/mcp'],
 }
 
 SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
@@ -2532,6 +2559,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_identity, tier='schema')
         run_section(check_reference, tier='schema')
         run_section(check_mcp_factoring, tier='schema')
+        run_section(check_mcp_reproducible, tier='schema')
 
 
 

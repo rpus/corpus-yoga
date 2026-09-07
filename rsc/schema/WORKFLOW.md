@@ -263,7 +263,9 @@ Open `rsc/schema/model_join.csv` and:
 `rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory
 per upstream project and one lineage directory inside it named as upstream names
 it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
-`schema.json` and, for reference only, `schema.ts` (read by people, by no
+`schema.json` and, for reference only, `schema.ts` (read by people and by
+`corpus-yoga mcp reproduce`, the witness that upstream's generator turns it into
+`schema.json` - `rsc/reference/mcp/generate.md` states the generation; by no
 derivation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,
 the dialect every house schema declares, and the declaration `src/schema_walk.py`
 derives every keyword's position from (#571) - the diagnostics and the factoring

@@ -11,11 +11,14 @@ silence (L1). The witness that the derivation preserved meaning is the dev gate'
 (mcp.factoring_current).
 
 Usage:
-    corpus-yoga mcp         # status: is rsc/schema/protocol/mcpMessage current with the snapshot?
-    corpus-yoga mcp sync    # (re-)derive the latest rsc/schema/protocol/mcpMessage/v*.json - idempotent
+    corpus-yoga mcp              # status: is rsc/schema/protocol/mcpMessage current with the snapshot?
+    corpus-yoga mcp sync         # (re-)derive the latest rsc/schema/protocol/mcpMessage/v*.json - idempotent
+    corpus-yoga mcp reproduce    # is the snapshot's schema.json what upstream's generator makes of its
+                                 # schema.ts? - src/main/mcp/reproduce.sh, whose header states the run
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -74,6 +77,9 @@ def main():
     args = parser.parse_args()
     if args.verb == 'sync':
         sys.exit(sync())
+    if args.verb == 'reproduce':
+        script = str(REPO / 'src/main/mcp/reproduce.sh')
+        os.execv(script, [script])
     sys.exit(status())
 
 

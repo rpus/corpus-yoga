@@ -114,6 +114,21 @@ check_tools() {
   else
     todo reader "shellcheck not found — corpus-yoga test run skips its shell lint; install via: brew install shellcheck"
   fi
+  # Informational, never a ✗: the gate's mcp.reproducible check (corpus-yoga mcp reproduce)
+  # runs upstream's generator in a node container, and skips when no docker daemon
+  # answers - a clone without one still gates deterministically. Two states short of
+  # ready, told apart because their remedies differ: no docker at all, or docker
+  # installed with its daemon not running.
+  if command -v docker &>/dev/null; then
+    local docker_server
+    if docker_server="$(docker info --format '{{.ServerVersion}}' 2>/dev/null)" && [[ -n "$docker_server" ]]; then
+      ok "docker (daemon $docker_server) — corpus-yoga test run reproduces the mcp snapshot through upstream's generator (mcp.reproducible); corpus-yoga mcp reproduce runs it alone"
+    else
+      todo reader "docker daemon not running — corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses; start it (Docker Desktop: open -a Docker)"
+    fi
+  else
+    todo reader "docker not found — corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses; install via: brew install --cask docker"
+  fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 
