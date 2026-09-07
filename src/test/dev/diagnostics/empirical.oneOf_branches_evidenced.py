@@ -2,26 +2,21 @@
 """empirical.oneOf_branches_evidenced — No oneOf branch is annotated as unevidenced."""
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/test/dev - the diagnostics' shared walk
+from schema_walk import schema_nodes  # noqa: E402
 
 with open(sys.argv[1]) as f:
     schema = json.load(f)
-defs = schema.get('definitions', {})
 
-# Collect all definition names that appear as $ref branches in any oneOf.
+defs = schema.get('definitions', {})
 oneof_branches = set()
-def collect(obj):
-    if isinstance(obj, dict):
-        if 'oneOf' in obj:
-            for b in obj['oneOf']:
-                ref = b.get('$ref', '')
-                if ref.startswith('#/definitions/'):
-                    oneof_branches.add(ref[len('#/definitions/'):])
-        for v in obj.values():
-            collect(v)
-    elif isinstance(obj, list):
-        for v in obj:
-            collect(v)
-collect(schema)
+for _, node in schema_nodes(schema):
+    for b in node.get('oneOf', []):
+        ref = b.get('$ref', '')
+        if ref.startswith('#/definitions/'):
+            oneof_branches.add(ref[len('#/definitions/'):])
 
 fails = []
 for name in oneof_branches:

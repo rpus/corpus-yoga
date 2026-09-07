@@ -2,6 +2,10 @@
 """documentation.open_set_enums_documented — Likely open-set enums say so in their description."""
 import json
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # src/test/dev - the diagnostics' shared walk
+from schema_walk import schema_nodes  # noqa: E402
 
 # Enum value sets that are genuinely closed (exhaustive by design).
 # Each entry is annotated with the schema version from which it applies.
@@ -19,21 +23,14 @@ fails = []
 for defn_name, defn in defs.items():
     defn_desc = defn.get('description', '')
     defn_open = 'open set' in defn_desc or 'exhaustive' in defn_desc
-    def check(obj, path=''):
-        if isinstance(obj, dict):
-            if 'enum' in obj and len(obj['enum']) > 1:
-                vals = frozenset(obj['enum'])
-                local_desc = obj.get('description', '')
-                local_ok = ('open set' in local_desc or 'exhaustive' in local_desc
-                            or 'discriminator' in local_desc)
-                if vals not in KNOWN_CLOSED and not defn_open and not local_ok:
-                    fails.append(f'{defn_name}{path}')
-            for k, v in obj.items():
-                check(v, f'/{k}')
-        elif isinstance(obj, list):
-            for i, v in enumerate(obj):
-                check(v, f'[{i}]')
-    check(defn)
+    for path, node in schema_nodes(defn, f'#/definitions/{defn_name}'):
+        if isinstance(node.get('enum'), list) and len(node['enum']) > 1:
+            vals = frozenset(node['enum'])
+            local_desc = node.get('description', '')
+            local_ok = ('open set' in local_desc or 'exhaustive' in local_desc
+                        or 'discriminator' in local_desc)
+            if vals not in KNOWN_CLOSED and not defn_open and not local_ok:
+                fails.append(path)
 
 if fails:
     print('FAIL documentation.open_set_enums_documented:')

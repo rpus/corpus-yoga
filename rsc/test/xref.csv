@@ -589,6 +589,7 @@ src/test/dev/run.sh,132,comment,rsc/test/run.log,Y,"# memory; the committed arti
 src/test/dev/run.sh,132,comment,rsc/test/xref.csv,Y,"# memory; the committed artifacts (rsc/test/run.log, rsc/test/xref.csv) are"
 src/test/dev/schema_recommendations.py,7,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/schema_recommendations.py <instance-file> <schema-file>
 src/test/dev/schema_recommendations.py,7,comment,src/test/dev/schema_recommendations.py,Y,src/run_python_script.sh src/test/dev/schema_recommendations.py <instance-file> <schema-file>
+src/test/dev/schema_walk.py,15,path_str,src/test/dev/schema_walk.py,Y,SELF = 'src/test/dev/schema_walk.py'
 src/test/dev/xref.py,5,comment,rsc/test/xref.csv,Y,"`check` verb rebuilds it, writes rsc/test/xref.csv, and reports. Every non-generated"
 src/test/dev/xref.py,7,comment,rsc/test/xref.csv,Y,are the header of rsc/test/xref.csv; exists=N marks a stale reference).
 src/test/dev/xref.py,11,comment,rsc/test/xref.csv,Y,"awk -F, '$5==""N""' rsc/test/xref.csv    # the stale references"
@@ -760,5 +761,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/test/dev/repairs/structure.pattern_constraints_enforced.py,Y,
 ,,self_only,src/test/dev/repairs/structure.required_subset_of_properties.py,Y,
 ,,self_only,src/test/dev/schema_recommendations.py,Y,
+,,self_only,src/test/dev/schema_walk.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/debug_code_session_record.py,Y,
 ,,self_only,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,
