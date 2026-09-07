@@ -204,7 +204,7 @@ gate() {
   if [[ -n "$hook" ]] && cmp -s "$hook" "$accepted"; then
     echo -e "OK\tpre-commit\ta copy of rsc/test/pre-commit-hook.sh\t"
   else
-    echo -e "WRONG\tpre-commit\tnot the accepted hook — commits from here are not being vetted\tyoga test install-hook"
+    echo -e "WRONG\tpre-commit\tnot the accepted hook — commits from here are not being vetted\tcorpus-yoga test install-hook"
   fi
 }
 
