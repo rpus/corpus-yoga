@@ -1,12 +1,14 @@
 # generating schema.json from schema.ts
 
 `2026-07-28/schema.ts` is upstream's source and `2026-07-28/schema.json` is generated from it. Upstream
-does the generation with `scripts/generate-schemas.ts` (held here verbatim as
-`2026-07-28/generate-schemas.ts`, pinned in `provenance.csv`), which for this lineage runs
-one third-party tool and three text substitutions:
+does the generation with `scripts/generate-schemas.ts` in its own repository at the
+commit `provenance.csv` pins - fetched by the reproduction below each run, never
+committed here - which for this lineage runs one third-party tool and three text
+substitutions:
 
-1. `typescript-json-schema` (npm, version 0.68.0 at the pinned commit, itself
-   compiling with TypeScript 5.9.3) over `schema.ts`, selecting every exported
+1. `typescript-json-schema` (npm, 0.68.0 at the pinned commit; it compiles with
+   its own nested `typescript@5.9.3` - the top-level `typescript@6.0.3` that
+   `package.json` names is not the one it uses) over `schema.ts`, selecting every exported
    type (`*`), with `--defaultNumberType integer --required --skipLibCheck`. This
    tool is what flattens every `extends` into inline properties, emits `const`,
    and orders definitions and keywords alphabetically. Its output is draft-07.

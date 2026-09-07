@@ -1868,7 +1868,10 @@ def check_mcp_reproducible(run) -> None:
     daemon = bool(docker) and subprocess.run([docker, 'info'], capture_output=True).returncode == 0
     ok, detail = True, None
     if may_send() and daemon:
-        proc = subprocess.run([str(script)], capture_output=True, text=True, cwd=REPO_ROOT)
+        # A git hook exports GIT_DIR and its kin; stripped here as well as in the script,
+        # so the protection does not depend on any script the gate runs remembering it.
+        env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+        proc = subprocess.run([str(script)], capture_output=True, text=True, cwd=REPO_ROOT, env=env)
         ok = proc.returncode == 0
         if not ok:
             lines = [l for l in (proc.stdout + proc.stderr).splitlines() if l.strip()]
