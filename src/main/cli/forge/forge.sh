@@ -34,6 +34,25 @@ reconcile() {
   fi
   printf '%s' "$live" | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/reconcile.py" "$DECLARED" 2>/dev/null \
     || echo -e "UNVERIFIED\tforge.csv\tunreadable, malformed, or no venv (src/run_python_script.sh refused)\t"
+  # This checkout's origin against the repository the forge answers for it (#579). After a
+  # rename the forge redirects, so its full_name is the current name while origin may still
+  # spell the old one: every push is redirected and works, and a reader opened from the old
+  # name misses this checkout's PRs. MOVED, not DRIFT: a redirected origin refuses nothing.
+  local origin_url canonical named remedy_url
+  origin_url="$(git -C "$REPO_DIR" remote get-url origin 2>/dev/null || true)"
+  canonical="$(jq -r '.full_name // empty' <<< "$live")"
+  named="$(sed -E 's#^(https?://[^/]+/|git@[^:]+:|ssh://git@[^/]+/)##; s#\.git$##; s#/$##' <<< "$origin_url")"
+  if [[ -z "$origin_url" || -z "$canonical" ]]; then
+    echo -e "UNVERIFIED\torigin\tno origin URL, or the forge's answer carries no full_name\t"
+  elif [[ "$named" == "$canonical" ]]; then
+    echo -e "OK\torigin\t$origin_url names $canonical, the repository the forge answers for it\t"
+  else
+    case "$origin_url" in
+      git@*|ssh://*) remedy_url="$(jq -r .ssh_url <<< "$live")" ;;
+      *)             remedy_url="$(jq -r .clone_url <<< "$live")" ;;
+    esac
+    echo -e "MOVED\torigin\t$origin_url names $named, but the forge answers for $canonical - renamed; pushes are redirected, and a reader opened from the old name misses this checkout's PRs\tgit remote set-url origin $remedy_url"
+  fi
 }
 
 superseding_force_push() {  # <pr-number> <tip>
@@ -232,6 +251,7 @@ status() {
     case "$st" in
       OK)         echo "  ✓ $key: $detail" ;;
       DRIFT)      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1 ;;
+      MOVED)      echo "  – $key: $detail"; echo "    → run: $remedy" ;;
       UNVERIFIED) echo "  ✗ $key: $detail"; refuse_class=1 ;;
       *)          echo "  – $key: $detail" ;;
     esac
