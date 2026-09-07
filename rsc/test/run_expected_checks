@@ -66,6 +66,7 @@ grammar.unenforced_not_cited
 imports.step_module_imports
 mcp.factoring_agrees
 mcp.factoring_current
+mcp.reproducible
 model.documented_type_grounded
 model.join_family_grammar
 model.join_kind_declared
