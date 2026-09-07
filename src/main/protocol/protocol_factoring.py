@@ -58,7 +58,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
-from schema_walk import schema_nodes, SCHEMA_MAPS, SCHEMA_LISTS, SCHEMA_SINGLETONS  # noqa: E402
+from schema_walk import schema_nodes, rebuilt  # noqa: E402  (positions derived from the meta-schema, #571)
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 from latest import latest_file  # noqa: E402
 
@@ -191,22 +191,10 @@ def descriptions() -> dict:
 
 def _mapped(node: dict, keywords) -> dict:
     """node with `keywords` applied at every schema position - a shallow rewrite of
-    one schema dict's keys - descending only into schema positions (schema_walk's
-    grammar), so a property named const, enum or $ref is a name, never a keyword."""
-    out = {}
-    for key, value in keywords(node).items():
-        if key in SCHEMA_MAPS and isinstance(value, dict):
-            out[key] = {name: _mapped(sub, keywords) for name, sub in value.items()}
-        elif key in SCHEMA_LISTS and isinstance(value, list):
-            out[key] = [_mapped(sub, keywords) for sub in value]
-        elif key == 'items':
-            out[key] = ([_mapped(sub, keywords) for sub in value] if isinstance(value, list)
-                        else _mapped(value, keywords) if isinstance(value, dict) else value)
-        elif key in SCHEMA_SINGLETONS and isinstance(value, dict):
-            out[key] = _mapped(value, keywords)
-        else:
-            out[key] = value
-    return out
+    one schema dict's keys - descending only into schema positions as the
+    meta-schema declares them (schema_walk), so a property named const, enum or
+    $ref is a name, never a keyword."""
+    return rebuilt(keywords(node), lambda child: _mapped(child, keywords))
 
 
 def _house_keywords(node: dict) -> dict:
@@ -322,21 +310,9 @@ def resolved(node: dict, definitions: dict, depth: int = 0) -> dict:
         if isinstance(target, dict):
             rest = {k: v for k, v in node.items() if k != '$ref'}
             return resolved(merged(dict(target), rest), definitions, depth)
-    out = {}
-    for key, value in node.items():
-        if key in SCHEMA_MAPS and isinstance(value, dict):
-            out[key] = {n: resolved(sub, definitions, depth + 1) for n, sub in value.items()}
-        elif key in SCHEMA_LISTS and isinstance(value, list):
-            members = _spliced(value, definitions) if key == 'anyOf' else value
-            out[key] = [resolved(sub, definitions, depth + 1) for sub in members]
-        elif key == 'items':
-            out[key] = ([resolved(sub, definitions, depth + 1) for sub in value] if isinstance(value, list)
-                        else resolved(value, definitions, depth + 1) if isinstance(value, dict) else value)
-        elif key in SCHEMA_SINGLETONS and isinstance(value, dict):
-            out[key] = resolved(value, definitions, depth + 1)
-        else:
-            out[key] = value
-    return out
+    if isinstance(node.get('anyOf'), list):
+        node = {**node, 'anyOf': _spliced(node['anyOf'], definitions)}
+    return rebuilt(node, lambda child: resolved(child, definitions, depth + 1))
 
 
 def _spliced(members: list, definitions: dict) -> list:
