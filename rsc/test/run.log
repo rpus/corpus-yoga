@@ -1,4 +1,4 @@
-run.py: code+schema 1248/1248
+run.py: code+schema 1249/1249
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ run.py: code+schema 1248/1248
   ✓ naming.property_keys_lowercase  (14/14)
   ✓ naming.title_matches_key  (14/14)
   ✓ naming.upper_camel_case  (14/14)
-  ✓ structure.all_definitions_reachable  (13/13)
+  ✓ structure.all_definitions_reachable  (14/14)
   ✓ structure.bfs_order  (14/14)
   ✓ structure.definitions_at_bottom  (14/14)
   ✓ structure.enum_refines_explicit_type  (14/14)
@@ -208,7 +208,7 @@ check_root_schema_diagnostics         50     0   schema     97
 check_schema_validity                 15     0   schema    124
 check_schema_single_version           15     0   schema    127
 check_schema_changelogs               30     0   schema    130
-check_versioned_schema_diagnostics   332     0   schema    134
+check_versioned_schema_diagnostics   333     0   schema    134
 check_schema_join                      2     0   schema    160
 check_model_join_versions              1     0   schema    164
 check_model_occurrences                3     0   schema    167
@@ -219,8 +219,8 @@ check_protocol_factoring               2     0   schema    184
 check_expectation                      2     0   code      188
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 107 types, 1248/1248 invocations passing
+checks[code+schema]: 107 types, 1249/1249 invocations passing
 checks[code]: 64 types, 642/642 invocations passing
-checks[schema]: 43 types, 606/606 invocations passing
+checks[schema]: 43 types, 607/607 invocations passing
 
-dev gate: PASS — code+schema 1248/1248 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1249/1249 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

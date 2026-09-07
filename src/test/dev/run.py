@@ -1603,20 +1603,6 @@ def check_versioned_schema_diagnostics(run):
     schema_skips    = {s: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas}
 
     schema_dirs = _schema_families()
-    # A family outside every pipeline declares its deviations beside its versions
-    # (rsc/schema/<root>/<family>/diagnostic_skip.json, pipeline.json's grammar: the
-    # diagnostics' names); a pipeline family's home stays its pipeline.json, and a
-    # second home is a failure, not a union.
-    for schema_name, schema_dir in schema_dirs.items():
-        declared = schema_dir / 'diagnostic_skip.json'
-        if not declared.exists():
-            continue
-        if schema_name in schema_skips:
-            run(f'{schema_name}: diagnostic_skip declared once', False,
-                f'{declared.relative_to(REPO_ROOT)} duplicates the pipeline.json declaration - keep one',
-                check='schema.diagnostic_skip_one_home')
-            continue
-        schema_skips[schema_name] = frozenset(json.loads(declared.read_text()))
     # One jobs list across every family, one _call_many: a per-family dispatch
     # drains the pool at each family boundary, idling workers on every family's
     # tail (#472). The report below walks the families in this same enumeration

@@ -51,6 +51,8 @@ def status() -> int:
           f'{"agrees with the snapshot" if not bad else f"{len(bad)} disagreement(s)"}')
     for line in bad[:5]:
         print(f'  {line}')
+    for name, base in factoring.overrides(*factoring.shapes_and_declared()):
+        print(f'  override: {name} narrows {base} - stands flat (schema.ts extends, allOf cannot)')
     if not current:
         print('  corpus-yoga protocol sync brings it current')
     return 0 if current and not bad else 1

@@ -288,21 +288,20 @@ and the disposal record.
 
 `rsc/schema/protocol/mcpMessage/` is the house factoring of that snapshot (#562), a
 committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
-derives its latest version from the snapshot and two tables beside it -
+derives its latest version from the snapshot and three tables beside it -
 `rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows
-transcribed from upstream's schema.ts and verified against the snapshot, and
-`rsc/schema/protocol/mcpMessage/description.csv`, house text for the definitions the
-snapshot leaves undescribed. The dev gate holds the file byte-identical to the
+transcribed from upstream's schema.ts and verified against the snapshot,
+`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the
+generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text
+for the definitions the snapshot leaves undescribed. The dev gate holds the file byte-identical to the
 derivation (`protocol.factoring_current`) and every snapshot definition equal to its
 house counterpart flattened (`protocol.factoring_agrees`). Its history lives in
 `rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
-moves, `git mv` the version, run the sync, write the changelog section. A family
-outside every pipeline declares its diagnostic deviations beside its versions
-(pipeline.json's grammar - the diagnostics' names); this family's
-`rsc/schema/protocol/mcpMessage/diagnostic_skip.json` skips
-`structure.all_definitions_reachable`, since upstream publishes typed response
-wrappers and an error catalogue that no union references, and the factoring keeps
-every upstream definition for its witness.
+moves, `git mv` the version, run the sync, write the changelog section. Every house
+diagnostic holds over it without exception: its root, `MCPMessage`, gathers the
+typed message shapes upstream exports but never references, and
+`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,
+so every definition is reachable.
 
 ### 6. Dispose the model.json obligations
 
