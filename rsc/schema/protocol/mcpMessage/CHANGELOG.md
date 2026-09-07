@@ -3,7 +3,7 @@
 This family is the HOUSE FACTORING of the Model Context Protocol schema (#562):
 the composition upstream's generator flattens, stated once in draft-04. It is a
 committed derivation, never hand-edited: `corpus-yoga protocol sync` derives the latest
-version from the verbatim snapshot (`rsc/schema/_reference/mcp`, whose changelog
+version from the verbatim snapshot (`rsc/reference/mcp`, whose `provenance.csv`
 pins the lineage, commit and SHA256) and from three tables in
 `rsc/schema/protocol/mcpMessage/` - `composition.csv`, the (definition, base) rows
 of upstream's schema.ts `extends` at the pinned commit; `alias.csv`, where

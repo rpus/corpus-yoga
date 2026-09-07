@@ -113,16 +113,18 @@ Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/v
 
 ### 2. Mint the new schema version
 
-This is the ONE mint, for every family - a house family and the `_reference/mcp`
-snapshot alike; what differs per family is where the new content comes from, a
-declared fact (step 5), never a second procedure.
+This is the ONE mint, for every family; what differs per family is where the new
+content comes from (a failing datum; for the house factoring, the reference
+snapshot of step 5), never a second procedure. An upstream reference project under
+`rsc/reference/` mints by lineage directory the same way - `git mv` the lineage to
+its new name, replace the files with upstream's bytes, update its provenance rows
+and changelog (step 5).
 
 ```bash
 git mv rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
 ```
 
-Edit `v{N+1}.json` minimally - only the changes needed to pass the failing data
-(for `_reference/mcp`: replace the content with upstream's bytes, whole). The old
+Edit `v{N+1}.json` minimally - only the changes needed to pass the failing data. The old
 version's content is git history; its narrative stays in the CHANGELOG. Then
 **diff against the parent and read the diff** - the rename shows as one, the edit
 as the change:
@@ -220,11 +222,11 @@ review is incomplete.
 Open `rsc/schema/model_join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
-   to `rsc/schema` (`chat-exports/conversations#/definitions/…`,
-   `code-agents/session#/definitions/…`, `browser-captures/apiConversation#/definitions/…`,
-   `_reference/mcp#/$defs/…` - each fragment spelling the container its
-   family's latest file spells). `check_schema_join`
-   resolves family dirs against their LATEST version, so a mint costs this file
+   to the repo root (`rsc/schema/chat-exports/conversations#/definitions/…`,
+   `rsc/schema/code-agents/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
+   each fragment spelling the container its family's latest file spells).
+   `check_schema_join` resolves a schema family against its LATEST version and a
+   reference project against its lineage (`src/main/latest.py`), so a mint costs this file
    no edit at all; if the mint renamed or removed a referenced definition, the
    pointer check fails — that failure IS the review prompt. (The old
    version-pinned grammar churned dozens of cells per mint, and its bare
@@ -256,37 +258,36 @@ Open `rsc/schema/model_join.csv` and:
                             # check_model_join_versions: no version-pinned cells
    ```
 
-### 5. Check _reference/mcp
+### 5. Check rsc/reference
 
-`rsc/schema/_reference/mcp/` is a versioned family of VERBATIM SNAPSHOTS of the MCP
-protocol spec, byte-for-byte as upstream publishes it (#561 retired the draft-04
-conversion v1 and v2 carried), used as the `mcp_path` reference column in
-`model_join.csv` (`_reference/mcp#/$defs/…` - the same family-dir grammar as
-every other column, resolved against the latest version, the fragment spelling
-the file's own container). It enters no pipeline - no data is validated against
-it - and the house style diagnostics deliberately skip `_reference/` families:
-repairing upstream text to satisfy house rules would falsify the snapshot. Its
-history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`; the latest vN.json is
-the snapshot; earlier versions are that changelog's history, in git.
+`rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory
+per upstream project and one lineage directory inside it named as upstream names
+it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
+`schema.json` and, for reference only, `schema.ts` (read by people, by no
+derivation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,
+the dialect every house schema declares. The latest lineage is the reference and
+the rest history (#557), so a project holds one lineage directory; its changelog
+(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)
+narrates each lineage. Beside them, the provenance table
+(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)
+pins every file (lineage, file, url, pin - an upstream commit or etag - and
+sha256) and the reference declaration (`rsc/reference/mcp/reference.json`,
+`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream
+publishes lineages as a listing (mcp's dated `schema/` directory), the listing
+URL. Nothing here is a
+schema family: no datum validates against it, no house diagnostic runs over it,
+and `model_join.csv` reaches it by the same family-dir grammar as any schema
+(`rsc/reference/mcp#/$defs/…`).
 
-Upstream versions the spec by dated directory (`schema/<date>/schema.json`),
-minting a new directory and freezing the old. Each snapshot version's changelog
-section records its provenance - the lineage raw URL, the commit it was taken
-from, and the SHA256 of the upstream file (v1 and v2 carried the same triple in
-their `description` fields, which the conversion had added).
+`corpus-yoga test run` holds every reference file (`check_reference`): the committed
+bytes hash to the pinned SHA256 (`reference.verbatim`, hermetic); the project
+holds one lineage (`reference.single_lineage`); and, network permitting, the file
+at the pinned URL still matches (`reference.up_to_date`) and the newest dated
+lineage upstream lists is the one held (`reference.newest_lineage`). A red check
+carries its remedy; the mint is step 2's by lineage directory. Every house schema
+validates against the committed meta-schema (`check_schema_meta_validity`).
 
-`corpus-yoga test run` checks the snapshot automatically (`check_mcp_schema`): the
-committed file must hash to the pinned SHA256 (verbatim, hermetic); and, network
-permitting, the live lineage file must still match the pin (`mcp.up_to_date`)
-and upstream's newest dated `schema/` directory must be the lineage the pinned
-URL names (`mcp.newest_lineage`).
-
-A red `check_mcp_schema` carries its remedy. The mint is step 2's, as for every
-family; the family's declared facts are the content - upstream's bytes at the URL
-the remedy names - and the changelog section, which carries the provenance triple
-and the disposal record.
-
-`rsc/schema/protocol/mcpMessage/` is the house factoring of that snapshot (#562), a
+`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a
 committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
 derives its latest version from the snapshot and three tables beside it -
 `rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows
