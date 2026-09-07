@@ -14,7 +14,7 @@ the drafts are not a dated series, and the house dialect is this one.
 
 ## draft-04
 
-Taken 2026-09-07 (reading-room) from https://json-schema.org/draft-04/schema:
+Taken 2026-09-07 (reading-room) from <https://json-schema.org/draft-04/schema>:
 HTTP 200, `application/schema+json`, etag `7ce4bb1942375cf57495233f0ae4262f`,
 4,357 bytes, SHA256
 `e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2`. Its
