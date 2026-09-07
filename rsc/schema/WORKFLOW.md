@@ -286,6 +286,23 @@ family; the family's declared facts are the content - upstream's bytes at the UR
 the remedy names - and the changelog section, which carries the provenance triple
 and the disposal record.
 
+`rsc/schema/protocol/mcpMessage/` is the house factoring of that snapshot (#562), a
+committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
+derives its latest version from the snapshot and three tables beside it -
+`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows
+transcribed from upstream's schema.ts and verified against the snapshot,
+`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the
+generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text
+for the definitions the snapshot leaves undescribed. The dev gate holds the file byte-identical to the
+derivation (`protocol.factoring_current`) and every snapshot definition equal to its
+house counterpart flattened (`protocol.factoring_agrees`). Its history lives in
+`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
+moves, `git mv` the version, run the sync, write the changelog section. Every house
+diagnostic holds over it without exception: its root, `MCPMessage`, gathers the
+typed message shapes upstream exports but never references, and
+`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,
+so every definition is reachable.
+
 ### 6. Dispose the model.json obligations
 
 `rsc/schema/model.json` is the hand-curated cross-family type reference, under the

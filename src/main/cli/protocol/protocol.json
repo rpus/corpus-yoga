@@ -1,0 +1,10 @@
+{
+  "summary": "house protocol schemas derived from their verbatim snapshots - the MCP factoring (bare: is it current?)",
+  "target": "src/main/protocol/protocol.py",
+  "calculus": "project L1 L6",
+  "args": [],
+  "r": [
+    "rsc/schema/_reference/mcp",
+    "rsc/schema/protocol"
+  ]
+}

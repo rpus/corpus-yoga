@@ -99,6 +99,8 @@ import commands as cli_commands  # noqa: E402 — `corpus-yoga commands` answers
 import completions as cli_completions  # noqa: E402 — and `corpus-yoga completions` here
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
+sys.path.insert(0, str(SRC / 'main' / 'protocol'))  # the house protocol factoring (check_protocol_factoring)
+import protocol_factoring  # noqa: E402
 import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
 
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
@@ -1827,6 +1829,35 @@ def check_model_identity(run) -> None:
           'or restore the identity in the schemas', check='model.identity_holds')
 
 
+def check_protocol_factoring(run) -> None:
+    """The house MCP factoring (#562) is a committed derivation: the latest
+    rsc/schema/protocol/mcpMessage version must be byte-identical to what
+    corpus-yoga protocol sync derives from the committed snapshot and description
+    table (protocol.factoring_current), and every snapshot definition must equal its
+    house counterpart flattened and normalized (protocol.factoring_agrees) - the
+    witness that the factoring preserved meaning, held over the committed file."""
+    target = protocol_factoring.latest_version(protocol_factoring.FAMILY_DIR)
+    if not target:
+        run('protocol: rsc/schema/protocol/mcpMessage has a version', False,
+            'corpus-yoga protocol sync derives v1.json', check='protocol.has_version')
+        return
+    rel = target.relative_to(REPO_ROOT)
+    try:
+        wanted = protocol_factoring.current_text()
+    except AssertionError as e:
+        run(f'protocol: {target.stem} derivable from the snapshot', False, str(e), check='protocol.derivable')
+        return
+    have = target.read_text()
+    run(f'protocol: {target.stem} current with the snapshot', have == wanted,
+        None if have == wanted else
+        f'{rel} differs from what the snapshot derives - run corpus-yoga protocol sync and commit',
+        check='protocol.factoring_current')
+    _, snap = protocol_factoring.snapshot()
+    bad = protocol_factoring.disagreements(json.loads(have), snap)
+    run(f'protocol: {target.stem} flattens to the snapshot', not bad,
+        '\n    '.join(bad[:5]) if bad else None, check='protocol.factoring_agrees')
+
+
 def check_mcp_schema(run):
     """The LATEST _reference/mcp/vN.json is upstream's schema byte-for-byte (#561):
     its changelog section pins the lineage raw URL, the upstream commit and the
@@ -2239,6 +2270,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_occurrences': SCHEMA + ['src'],
     'check_model_obligations': SCHEMA + ['src'],
     'check_mcp_schema': ['rsc/schema/_reference'],
+    'check_protocol_factoring': ['rsc/schema/_reference', 'rsc/schema/protocol', 'src/main/protocol'],
 }
 
 SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
@@ -2484,6 +2516,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
         run_section(check_mcp_schema, tier='schema')
+        run_section(check_protocol_factoring, tier='schema')
 
 
 
