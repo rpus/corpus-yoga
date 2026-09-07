@@ -422,6 +422,7 @@ check_forge() {
     case "$status" in
       OK)    ok   "$key: $detail" ;;
       DRIFT) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
+      MOVED) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
       *)     info "$key: $detail" ;;
     esac
   # Sourced in the subshell this substitution already is: `reconcile` is the derivation

@@ -13,7 +13,7 @@
 # session  — the agent session id (uuid8) that drafted it, from CLAUDE_CODE_SESSION_ID.
 #            It is the JOIN KEY into the captured session corpus
 #            (data/input/<provider>/code/machine-transport/); the MODEL that did the work
-#            is DERIVABLE from it (yoga agent list-models), accurately and plurally — so it
+#            is DERIVABLE from it (corpus-yoga agent list-models), accurately and plurally — so it
 #            is never asserted here. This retired `Co-Authored-By: <model>`.
 #
 # Attest ONLY what the environment positively provides: absence of a session is not
