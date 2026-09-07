@@ -4,7 +4,7 @@
   "calculus": "project L1 L6",
   "args": [],
   "r": [
-    "rsc/schema/_reference/mcp",
+    "rsc/reference/mcp",
     "rsc/schema/protocol"
   ]
 }

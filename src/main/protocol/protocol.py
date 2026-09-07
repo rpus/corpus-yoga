@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 protocol.py - the house protocol schemas, derived from their verbatim snapshots:
-today the MCP factoring, rsc/schema/protocol/mcpMessage, from rsc/schema/_reference/mcp.
+today the MCP factoring, rsc/schema/protocol/mcpMessage, from rsc/reference/mcp.
 
 `protocol` is a NOUN: the derived schemas. A bare invocation shows their state and
 writes nothing (the bare noun IS the status). Only `sync` writes: it brings the

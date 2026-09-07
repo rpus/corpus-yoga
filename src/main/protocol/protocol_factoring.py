@@ -2,7 +2,7 @@
 """
 protocol_factoring.py - the house factoring of the MCP schema (#562): the composition
 upstream's generator flattens, stated once in draft-04, derived from the verbatim
-snapshot rsc/schema/_reference/mcp and written to rsc/schema/protocol/mcpMessage.
+snapshot rsc/reference/mcp and written to rsc/schema/protocol/mcpMessage.
 
 Upstream's schema.json inlines every message's envelope (jsonrpc, id, method,
 params) because its TypeScript-to-JSON generator flattens `extends`, and it inlines
@@ -59,8 +59,11 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from schema_walk import schema_nodes, SCHEMA_MAPS, SCHEMA_LISTS, SCHEMA_SINGLETONS  # noqa: E402
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+from latest import latest_file  # noqa: E402
 
-SNAPSHOT_DIR = REPO / 'rsc/schema/_reference/mcp'
+SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
+PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
 FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
 COMPOSITION  = FAMILY_DIR / 'composition.csv'
@@ -138,26 +141,25 @@ def latest_version(family_dir: Path):
 
 
 def snapshot() -> tuple[Path, dict]:
-    path = latest_version(SNAPSHOT_DIR)
-    assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no v*.json'
+    path = latest_file(SNAPSHOT_DIR)
+    assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no lineage'
     return path, json.loads(path.read_text())
 
 
 def provenance() -> dict:
-    """The snapshot's pinned lineage URL, commit and SHA256, read from its changelog
-    section - the one home the snapshot family gives them (#561)."""
-    path = latest_version(SNAPSHOT_DIR)
-    assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no v*.json'
-    text = (SNAPSHOT_DIR / 'CHANGELOG.md').read_text()
-    m = re.search(rf'^## {path.stem}$(.*?)(?=^## |\Z)', text, re.M | re.S)
-    section = m.group(1) if m else ''
-    url = re.search(r'(https://raw\.githubusercontent\.com/\S+?/schema/(\d{4}-\d{2}-\d{2})/schema\.json)', section)
-    commit = re.search(r'as at commit:\s*`?([0-9a-f]{40})', section)
-    sha = re.search(r'upstream SHA256:\s*`?([0-9a-f]{64})', section)
-    assert url and commit and sha, f'the ## {path.stem} section of the snapshot changelog pins no provenance triple'
-    raw_url, lineage = url.group(1), url.group(2)
-    return {'url': raw_url, 'lineage': lineage, 'commit': commit.group(1), 'sha256': sha.group(1),
-            'ts_url': raw_url.replace('/refs/heads/main/', f'/{commit.group(1)}/').replace('schema.json', 'schema.ts')}
+    """The snapshot's pinned URL, upstream commit and SHA256, and the schema.ts
+    beside it - the rows of the reference project's provenance.csv for the
+    lineage held (#572)."""
+    path = latest_file(SNAPSHOT_DIR)
+    assert path, f'{SNAPSHOT_DIR.relative_to(REPO)} holds no lineage'
+    lineage = path.parent.name
+    rows = {r['file']: r for r in _rows(PROVENANCE) if r['lineage'] == lineage}
+    assert 'schema.json' in rows, f'{PROVENANCE.relative_to(REPO)} pins no schema.json for {lineage}'
+    json_row = rows['schema.json']
+    ts_row = rows.get('schema.ts')
+    ts_url = ts_row['url'].replace('/refs/heads/main/', f"/{ts_row['pin']}/") if ts_row else ''
+    return {'url': json_row['url'], 'lineage': lineage, 'commit': json_row['pin'], 'sha256': json_row['sha256'],
+            'ts_url': ts_url}
 
 
 def _rows(path: Path) -> list[dict]:
@@ -646,10 +648,10 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             'message allOf its header and its own fields, the type aliases upstream inlined '
             'revived as refs, const spelled as one-element enum, and MCPMessage the root - the '
             'wire message read as any typed message shape upstream exports. Derived by '
-            'corpus-yoga protocol sync from the verbatim snapshot rsc/schema/_reference/mcp '
+            'corpus-yoga protocol sync from the verbatim snapshot rsc/reference/mcp '
             f"({prov['lineage']} lineage, upstream commit {prov['commit']}, upstream SHA256 "
-            f"{prov['sha256']}); structural reference, upstream's schema.ts at that commit: "
-            f"{prov['ts_url']}, transcribed as rsc/schema/protocol/mcpMessage/composition.csv and "
+            f"{prov['sha256']}); structural reference, for reference only, upstream's schema.ts at that "
+            f"commit beside it ({prov['ts_url']}), transcribed by hand as rsc/schema/protocol/mcpMessage/composition.csv and "
             'rsc/schema/protocol/mcpMessage/alias.csv and verified against the snapshot at '
             'derivation. Definitions the snapshot leaves undescribed take their text from '
             'rsc/schema/protocol/mcpMessage/description.csv. One instance is one JSON-RPC message.'

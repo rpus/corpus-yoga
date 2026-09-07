@@ -41,7 +41,10 @@ None.
 
 #### Refactored
 
-None.
+- The four content-block descriptions that cite the MCP counterpart (TextContent,
+  ToolUseContent, ToolResultContent, ImageContent) name it as
+  `rsc/reference/mcp#/$defs/…` (#572); they had named a snapshot file path that
+  #558 deleted. No validation effect.
 
 ---
 

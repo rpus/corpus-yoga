@@ -2,7 +2,7 @@
   "help": "(re-)derive rsc/schema/protocol/mcpMessage's latest v*.json from the verbatim snapshot - idempotent; the dev gate holds the file current and its flattening equal to the snapshot",
   "args": [],
   "r": [
-    "rsc/schema/_reference/mcp",
+    "rsc/reference/mcp",
     "rsc/schema/protocol/mcpMessage"
   ],
   "w": [

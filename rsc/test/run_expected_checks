@@ -64,9 +64,6 @@ grammar.state_declared
 grammar.unenforced_names_issue
 grammar.unenforced_not_cited
 imports.step_module_imports
-mcp.newest_lineage
-mcp.up_to_date
-mcp.verbatim
 model.documented_type_grounded
 model.join_family_grammar
 model.join_kind_declared
@@ -76,6 +73,11 @@ model.occurrence_pointers_resolve
 model.occurrences_cover_edges
 protocol.factoring_agrees
 protocol.factoring_current
+reference.newest_lineage
+reference.provenance_declared
+reference.single_lineage
+reference.up_to_date
+reference.verbatim
 model.identity_holds
 model.shared_type_disposed
 naming.log_path_derives_from_command
@@ -92,6 +94,7 @@ python.pyright_clean
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.single_version
+schema.valid_against_meta_schema
 schema.valid_json_with_schema
 shell.shellcheck_clean
 structure.all_definitions_reachable

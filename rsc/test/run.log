@@ -1,4 +1,4 @@
-run.py: code+schema 1249/1249
+run.py: code+schema 1271/1271
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: code+schema 1249/1249
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (73/73)
+  ✓ structure.self_path_matches_address  (74/74)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -49,7 +49,7 @@ run.py: code+schema 1249/1249
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (78/78)
-  ✓ structure.file_at_level_of_subject  (26/26)
+  ✓ structure.file_at_level_of_subject  (27/27)
   ✓ structure.cli_declaration_mirrors_the_api  (20/20)
   ✓ structure.cli_declaration_validates  (60/60)
   ✓ cli.every_form_listed  (38/38)
@@ -122,14 +122,17 @@ run.py: code+schema 1249/1249
   ✓ structure.required_subset_of_properties  (2/2)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
-  ✓ schema.valid_json_with_schema  (15/15)
+  ✓ schema.valid_json_with_schema  (14/14)
+
+── check_schema_meta_validity ────────────────────────────────────────────────
+  ✓ schema.valid_against_meta_schema  (16/16)
 
 ── check_schema_single_version ───────────────────────────────────────────────
-  ✓ schema.single_version  (15/15)
+  ✓ schema.single_version  (14/14)
 
 ── check_schema_changelogs ───────────────────────────────────────────────────
-  ✓ schema.changelog_narrative  (15/15)
-  ✓ schema.changelog_no_todo  (15/15)
+  ✓ schema.changelog_narrative  (14/14)
+  ✓ schema.changelog_no_todo  (14/14)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (14/14)
@@ -176,10 +179,12 @@ run.py: code+schema 1249/1249
 ── check_model_identity ──────────────────────────────────────────────────────
   ✓ model.identity_holds
 
-── check_mcp_schema ──────────────────────────────────────────────────────────
-  ✓ mcp.verbatim
-  ✓ mcp.up_to_date
-  ✓ mcp.newest_lineage
+── check_reference ───────────────────────────────────────────────────────────
+  ✓ reference.provenance_declared  (2/2)
+  ✓ reference.single_lineage  (2/2)
+  ✓ reference.verbatim  (3/3)
+  ✓ reference.up_to_date  (3/3)
+  ✓ reference.newest_lineage
 
 ── check_protocol_factoring ──────────────────────────────────────────────────
   ✓ protocol.factoring_current
@@ -192,11 +197,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations            6     0   code        7
 check_step_imports                     2     0   code       11
-check_self_paths                      73     0   code       14
+check_self_paths                      74     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    481     0   code       28
+check_cli_surface                    482     0   code       28
 check_cli_verb_help                   19     0   code       61
 check_cli_exclusive_classes            6     0   code       64
 check_effects                          2     0   code       67
@@ -205,22 +210,23 @@ check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
 check_root_schema_diagnostics         50     0   schema     97
-check_schema_validity                 15     0   schema    124
-check_schema_single_version           15     0   schema    127
-check_schema_changelogs               30     0   schema    130
-check_versioned_schema_diagnostics   333     0   schema    134
-check_schema_join                      2     0   schema    160
-check_model_join_versions              1     0   schema    164
-check_model_occurrences                3     0   schema    167
-check_model_obligations              152     0   schema    172
-check_model_identity                   1     0   schema    176
-check_mcp_schema                       3     0   schema    179
-check_protocol_factoring               2     0   schema    184
-check_expectation                      2     0   code      188
+check_schema_validity                 14     0   schema    124
+check_schema_meta_validity            16     0   schema    127
+check_schema_single_version           14     0   schema    130
+check_schema_changelogs               28     0   schema    133
+check_versioned_schema_diagnostics   333     0   schema    137
+check_schema_join                      2     0   schema    163
+check_model_join_versions              1     0   schema    167
+check_model_occurrences                3     0   schema    170
+check_model_obligations              152     0   schema    175
+check_model_identity                   1     0   schema    179
+check_reference                       11     0   schema    182
+check_protocol_factoring               2     0   schema    189
+check_expectation                      2     0   code      193
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 107 types, 1249/1249 invocations passing
-checks[code]: 64 types, 642/642 invocations passing
-checks[schema]: 43 types, 607/607 invocations passing
+checks[code+schema]: 110 types, 1271/1271 invocations passing
+checks[code]: 64 types, 644/644 invocations passing
+checks[schema]: 46 types, 627/627 invocations passing
 
-dev gate: PASS — code+schema 1249/1249 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1271/1271 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

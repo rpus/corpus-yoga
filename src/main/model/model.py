@@ -50,7 +50,7 @@ def _catalogues() -> list[tuple[str, Path]]:
     that `project` writes and `status` reports, so the two can never disagree."""
     out = []
     for pipeline_dir in sorted(SCHEMA_DIR.iterdir()):
-        if not pipeline_dir.is_dir() or pipeline_dir.name.startswith('_'):
+        if not pipeline_dir.is_dir():
             continue
         for schema_dir in sorted(pipeline_dir.iterdir()):
             if not schema_dir.is_dir():

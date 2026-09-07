@@ -1,22 +1,31 @@
-# mcp reference-snapshot changelog
+# mcp reference changelog
 
-This family is a VERBATIM UPSTREAM SNAPSHOT, not a house schema: the Model
-Context Protocol spec, byte-for-byte as upstream publishes it (#561 retired
-the draft-04 conversion v1 and v2 carried). `model_join.csv`'s `mcp_path`
-column points into it spelling the file's own container (`#/$defs/…` from
-v3; `#/definitions/…` was the converted spelling). No data is validated
-against it (it enters no pipeline, no coverage or frontier gate), and the
-house style diagnostics deliberately skip `_reference/` families - repairing
-upstream text to satisfy house rules would falsify the snapshot. A verbatim
-file carries no description of its own, so from v3 each version's changelog
-section carries its provenance: the upstream raw URL, the commit it was
-taken from, and the upstream file's SHA256 (v1 and v2 carried the same
-triple in their doctored `description` fields). `check_mcp_schema` reads the
-latest section's triple, holds the committed file to the SHA256 (the
-verbatim witness, hermetic), and - network permitting - compares the live
-URL and upstream's newest dated `schema/` directory against it. Drift, or a
-new dated lineage, reds that check, whose remedy names the mint - the one
-mint of rsc/schema/WORKFLOW.md, the content being upstream's bytes.
+This project holds the Model Context Protocol schema as upstream publishes it,
+byte-for-byte, under `rsc/reference/` (#572): one lineage directory named as
+upstream names it (`2026-07-28/`), holding `schema.json` and, for reference
+only, `schema.ts` - read by people, by no derivation. The latest lineage is the
+reference and the rest history (#557), so the project holds one lineage
+directory; `provenance.csv` beside it pins every file's URL, upstream commit and
+SHA256, and `reference.json` names upstream and the lineage listing (the dated
+`schema/` directory) the currency check reads. No data is validated against it
+and no house diagnostic runs over it; `check_reference` holds every file
+verbatim to its pin, current against its URL, and the lineage the newest
+upstream publishes. `rsc/schema/protocol/mcpMessage` is the house factoring
+derived from it. Before #572 this project was the schema family
+`rsc/schema/_reference/mcp` (v1 to v3 below, versioned by the house counter);
+the sections below stand as that history.
+
+---
+
+## 2026-07-28
+
+The v3 snapshot moved here as `2026-07-28/schema.json`, unchanged (SHA256
+`ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203`), and
+upstream's `schema.ts` at the same commit
+(`271ecc9accafdd9b83a3c869fa67c22953b2af80`, SHA256
+`742750af0bb8c716e7030c4977c992b55d1adc4407e9e66997db5846baedc2cd`) joined it
+for reference. Provenance moved from the v3 section's prose to
+`provenance.csv`; `model_join.csv`'s mcp cells spell `rsc/reference/mcp#/$defs/…`.
 
 ---
 

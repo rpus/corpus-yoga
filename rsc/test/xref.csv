@@ -27,18 +27,19 @@ README.md,52,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/
 README.md,53,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
 README.md,54,doc,rsc/schema/WORKFLOW.md,Y,"- every data shape: `rsc/schema/<root>/<family>/vN.json` - the roots are the three pipelines, `dashboard` (the shapes of"
 README.md,54,doc,rsc/schema,Y,"- every data shape: `rsc/schema/<root>/<family>/vN.json` - the roots are the three pipelines, `dashboard` (the shapes of"
-README.md,55,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,55,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,56,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,57,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,58,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
-README.md,59,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
-README.md,66,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,76,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
-README.md,77,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
-README.md,95,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,102,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,102,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,55,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte (the MCP `schema.json` and `sc"
+README.md,56,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,56,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,57,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,58,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,59,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
+README.md,60,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,67,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,77,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
+README.md,78,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
+README.md,96,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,103,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,103,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
@@ -79,44 +80,58 @@ rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel
 rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,corpus-yoga pipeline run browser-captures,src/test/dev/run.py,per-cap"
 rsc/cache_io.csv,9,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribu"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
+rsc/reference/JSONSchema/CHANGELOG.md,4,doc,rsc/reference,Y,"byte-for-byte, under `rsc/reference/` (#572): one lineage directory named as"
+rsc/reference/mcp/CHANGELOG.md,4,doc,rsc/reference,Y,"byte-for-byte, under `rsc/reference/` (#572): one lineage directory named as"
+rsc/reference/mcp/CHANGELOG.md,13,doc,rsc/schema/protocol/mcpMessage,Y,upstream publishes. `rsc/schema/protocol/mcpMessage` is the house factoring
 rsc/schema/WORKFLOW.md,43,doc,rsc/schema/chat-exports/conversations/CHANGELOG.md,Y,"`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,"
 rsc/schema/WORKFLOW.md,104,doc,src/main/pipeline/browser-captures/claude/validate.sh,Y,src/main/pipeline/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
 rsc/schema/WORKFLOW.md,105,doc,src/main/pipeline/chat-exports/validate.sh,Y,src/main/pipeline/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
 rsc/schema/WORKFLOW.md,106,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
-rsc/schema/WORKFLOW.md,121,doc,rsc/schema,Y,git mv rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,131,doc,rsc/schema,Y,git diff -M HEAD -- rsc/schema/<pipeline>/<schema>/
-rsc/schema/WORKFLOW.md,141,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,141,doc,src/test/dev/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,141,doc,rsc/schema,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
-rsc/schema/WORKFLOW.md,147,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
-rsc/schema/WORKFLOW.md,155,doc,src/main/pipeline/browser-captures/run.sh,Y,src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-rsc/schema/WORKFLOW.md,156,doc,src/main/pipeline/chat-exports/run.sh,Y,src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
-rsc/schema/WORKFLOW.md,157,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
-rsc/schema/WORKFLOW.md,164,doc,src/validation_matrix.py,Y,"the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never"
-rsc/schema/WORKFLOW.md,171,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,171,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
-rsc/schema/WORKFLOW.md,177,doc,src/main/validation_audit.py,Y,"(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -"
-rsc/schema/WORKFLOW.md,209,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
-rsc/schema/WORKFLOW.md,220,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
-rsc/schema/WORKFLOW.md,223,doc,rsc/schema,Y,"to `rsc/schema` (`chat-exports/conversations#/definitions/…`,"
-rsc/schema/WORKFLOW.md,255,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
-rsc/schema/WORKFLOW.md,269,doc,rsc/schema/_reference/mcp/CHANGELOG.md,Y,history lives in `rsc/schema/_reference/mcp/CHANGELOG.md`; the latest vN.json is
-rsc/schema/WORKFLOW.md,289,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage/` is the house factoring of that snapshot (#562), a"
-rsc/schema/WORKFLOW.md,290,doc,src/main/protocol/protocol_factoring.py,Y,committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
-rsc/schema/WORKFLOW.md,292,doc,rsc/schema/protocol/mcpMessage/composition.csv,Y,"`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows"
-rsc/schema/WORKFLOW.md,294,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the"
-rsc/schema/WORKFLOW.md,295,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,"generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text"
-rsc/schema/WORKFLOW.md,299,doc,rsc/schema/protocol/mcpMessage/CHANGELOG.md,Y,`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
-rsc/schema/WORKFLOW.md,303,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,"
-rsc/schema/WORKFLOW.md,308,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
-rsc/schema/WORKFLOW.md,309,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
-rsc/schema/WORKFLOW.md,310,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
-rsc/schema/WORKFLOW.md,319,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,324,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
-rsc/schema/WORKFLOW.md,348,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,349,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,355,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
-rsc/schema/_reference/mcp/CHANGELOG.md,19,doc,rsc/schema/WORKFLOW.md,Y,"mint of rsc/schema/WORKFLOW.md, the content being upstream's bytes."
+rsc/schema/WORKFLOW.md,119,doc,rsc/reference,Y,`rsc/reference/` mints by lineage directory the same way - `git mv` the lineage to
+rsc/schema/WORKFLOW.md,124,doc,rsc/schema,Y,git mv rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,133,doc,rsc/schema,Y,git diff -M HEAD -- rsc/schema/<pipeline>/<schema>/
+rsc/schema/WORKFLOW.md,143,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,143,doc,src/test/dev/repairs/structure.bfs_order.py,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,143,doc,rsc/schema,Y,src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+rsc/schema/WORKFLOW.md,149,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
+rsc/schema/WORKFLOW.md,157,doc,src/main/pipeline/browser-captures/run.sh,Y,src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
+rsc/schema/WORKFLOW.md,158,doc,src/main/pipeline/chat-exports/run.sh,Y,src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
+rsc/schema/WORKFLOW.md,159,doc,src/main/pipeline/code-agents/run.sh,Y,src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
+rsc/schema/WORKFLOW.md,166,doc,src/validation_matrix.py,Y,"the shared renderer `src/validation_matrix.py` whenever the log changes, so it can never"
+rsc/schema/WORKFLOW.md,173,doc,src/run_python_script.sh,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,173,doc,src/test/dev/gen_changelog_matrix.py,Y,src/run_python_script.sh src/test/dev/gen_changelog_matrix.py --pipeline <pipeline> [--write]
+rsc/schema/WORKFLOW.md,179,doc,src/main/validation_audit.py,Y,"(`src/main/validation_audit.py`), which the run also performs as its corpus-tail step -"
+rsc/schema/WORKFLOW.md,211,doc,rsc/schema/model_join_kinds.csv,Y,always-null claims the corpus has outgrown (`rsc/schema/model_join_kinds.csv` states
+rsc/schema/WORKFLOW.md,222,doc,rsc/schema/model_join.csv,Y,Open `rsc/schema/model_join.csv` and:
+rsc/schema/WORKFLOW.md,225,doc,rsc/schema/chat-exports/conversations,Y,"to the repo root (`rsc/schema/chat-exports/conversations#/definitions/…`,"
+rsc/schema/WORKFLOW.md,226,doc,rsc/schema/code-agents/session,Y,"`rsc/schema/code-agents/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -"
+rsc/schema/WORKFLOW.md,229,doc,src/main/latest.py,Y,"reference project against its lineage (`src/main/latest.py`), so a mint costs this file"
+rsc/schema/WORKFLOW.md,257,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh   # check_schema_join: pointer validity (family dirs → latest version)
+rsc/schema/WORKFLOW.md,261,doc,rsc/reference,Y,### 5. Check rsc/reference
+rsc/schema/WORKFLOW.md,263,doc,rsc/reference,Y,"`rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory"
+rsc/schema/WORKFLOW.md,265,doc,rsc/reference/mcp/2026-07-28,Y,it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
+rsc/schema/WORKFLOW.md,267,doc,rsc/reference/JSONSchema/draft-04,Y,"derivation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,"
+rsc/schema/WORKFLOW.md,270,doc,rsc/reference/mcp/CHANGELOG.md,Y,"(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)"
+rsc/schema/WORKFLOW.md,270,doc,rsc/reference/JSONSchema/CHANGELOG.md,Y,"(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)"
+rsc/schema/WORKFLOW.md,272,doc,rsc/reference/mcp/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
+rsc/schema/WORKFLOW.md,272,doc,rsc/reference/JSONSchema/provenance.csv,Y,"(`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)"
+rsc/schema/WORKFLOW.md,274,doc,rsc/reference/mcp/reference.json,Y,"sha256) and the reference declaration (`rsc/reference/mcp/reference.json`,"
+rsc/schema/WORKFLOW.md,275,doc,rsc/reference/JSONSchema/reference.json,Y,"`rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream"
+rsc/schema/WORKFLOW.md,290,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a"
+rsc/schema/WORKFLOW.md,291,doc,src/main/protocol/protocol_factoring.py,Y,committed derivation: `corpus-yoga protocol sync` (`src/main/protocol/protocol_factoring.py`)
+rsc/schema/WORKFLOW.md,293,doc,rsc/schema/protocol/mcpMessage/composition.csv,Y,"`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows"
+rsc/schema/WORKFLOW.md,295,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the"
+rsc/schema/WORKFLOW.md,296,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,"generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text"
+rsc/schema/WORKFLOW.md,300,doc,rsc/schema/protocol/mcpMessage/CHANGELOG.md,Y,`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
+rsc/schema/WORKFLOW.md,304,doc,rsc/schema/protocol/mcpMessage/alias.csv,Y,"`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,"
+rsc/schema/WORKFLOW.md,309,doc,rsc/schema/model.json,Y,"`rsc/schema/model.json` is the hand-curated cross-family type reference, under the"
+rsc/schema/WORKFLOW.md,310,doc,rsc/CALCULUS.md,Y,`curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO loops with different
+rsc/schema/WORKFLOW.md,311,doc,src/main/model/model_curation.py,Y,"pressure, both computed by `src/main/model/model_curation.py` from committed files only:"
+rsc/schema/WORKFLOW.md,320,doc,rsc/schema/model_join_kinds.csv,Y,"are declared data — `rsc/schema/model_join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,325,doc,rsc/schema/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/schema/model_rejected.txt` — and every
+rsc/schema/WORKFLOW.md,349,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,350,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,356,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,52,doc,rsc/schema,Y,"four-root migration (#20), which `rsc/schema/` was excluded from sweeping. No validation"
@@ -138,7 +153,7 @@ rsc/schema/chat-exports/users/v2.json,19,path_str,rsc/schema/model.json#/default
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/code-agents/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/code-agents/session/CHANGELOG.md,423,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
+rsc/schema/code-agents/session/CHANGELOG.md,426,doc,src/main/pipeline/code-agents/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-agents/run.sh` and re-tightening:
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/code-agents/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/schema/dashboard/chatCategories/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md` — the markdownConversation precedent).
@@ -149,6 +164,364 @@ rsc/schema/documenter.json,2,$schema,rsc/schema/documenter.json,Y,"""$schema"": 
 rsc/schema/documenter.json,2,path_str,rsc/schema/documenter.json,Y,"""$schema"": ""./documenter.json"","
 rsc/schema/documenter.json,7,$ref,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
 rsc/schema/documenter.json,7,path_str,rsc/schema/documenter.json,Y,"""$ref"": ""./documenter.json"""
+rsc/schema/model_join.csv,2,path_str,rsc/schema/chat-exports/conversations#/definitions/ContentBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ContentBlock,rsc/schema/code-agents/session#/definitions/ContentBlock"
+rsc/schema/model_join.csv,2,path_str,rsc/schema/code-agents/session#/definitions/ContentBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ContentBlock,rsc/schema/code-agents/session#/definitions/ContentBlock"
+rsc/schema/model_join.csv,2,path_str,rsc/reference/mcp#/$defs/ContentBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ContentBlock,rsc/schema/code-agents/session#/definitions/ContentBlock"
+rsc/schema/model_join.csv,3,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/type,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,3,path_str,rsc/schema/code-agents/session#/definitions/TextBlock/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/type,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,3,path_str,rsc/reference/mcp#/$defs/TextContent/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/type,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,4,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/text,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/text,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,4,path_str,rsc/schema/code-agents/session#/definitions/TextBlock/properties/text,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/text,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,4,path_str,rsc/reference/mcp#/$defs/TextContent/properties/text,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/text,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,5,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/start_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/start_timestamp,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,6,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/stop_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/stop_timestamp,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,7,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/citations,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/citations,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,8,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/flags,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/flags,,,,envelope,always null in observed export"
+rsc/schema/model_join.csv,9,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlock,,,rsc/reference/mcp#/$defs/ToolUseContent,subset,MCP add"
+rsc/schema/model_join.csv,9,path_str,rsc/reference/mcp#/$defs/ToolUseContent,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlock,,,rsc/reference/mcp#/$defs/ToolUseContent,subset,MCP add"
+rsc/schema/model_join.csv,10,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/type,rsc/schema/code-agents/session#/defi"
+rsc/schema/model_join.csv,10,path_str,rsc/schema/code-agents/session#/definitions/ToolUseBlock/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/type,rsc/schema/code-agents/session#/defi"
+rsc/schema/model_join.csv,10,path_str,rsc/reference/mcp#/$defs/ToolUseContent/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/type,rsc/schema/code-agents/session#/defi"
+rsc/schema/model_join.csv,12,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/name,rsc/schema/code-agents/session#/defi"
+rsc/schema/model_join.csv,12,path_str,rsc/schema/code-agents/session#/definitions/ToolUseBlock/properties/name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/name,rsc/schema/code-agents/session#/defi"
+rsc/schema/model_join.csv,12,path_str,rsc/reference/mcp#/$defs/ToolUseContent/properties/name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/name,rsc/schema/code-agents/session#/defi"
+rsc/schema/model_join.csv,13,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/input,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/input,rsc/schema/code-agents/session#/def"
+rsc/schema/model_join.csv,13,path_str,rsc/schema/code-agents/session#/definitions/ToolUseBlock/properties/input,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/input,rsc/schema/code-agents/session#/def"
+rsc/schema/model_join.csv,13,path_str,rsc/reference/mcp#/$defs/ToolUseContent/properties/input,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/input,rsc/schema/code-agents/session#/def"
+rsc/schema/model_join.csv,14,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/start_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/start_timestamp,,,,envelope,no MCP counte"
+rsc/schema/model_join.csv,15,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/stop_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/stop_timestamp,,,,envelope,no MCP counter"
+rsc/schema/model_join.csv,16,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/flags,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/flags,,,,envelope,always null in observed"
+rsc/schema/model_join.csv,17,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/message,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/message,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,18,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/integration_name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/integration_name,,,,envelope,no MCP count"
+rsc/schema/model_join.csv,19,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/integration_icon_url,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/integration_icon_url,,,,envelope,no MCP c"
+rsc/schema/model_join.csv,20,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/icon_name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/icon_name,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,21,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/context,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/context,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,22,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_options,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_options,,,,envelope,non-null for"
+rsc/schema/model_join.csv,23,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_key,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_key,,,,envelope,non-null for MCP"
+rsc/schema/model_join.csv,24,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_key_legacy,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_key_legacy,,rsc/schema/browser-c"
+rsc/schema/model_join.csv,24,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/approval_key_legacy,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/approval_key_legacy,,rsc/schema/browser-c"
+rsc/schema/model_join.csv,25,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/mcp_server_url,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/mcp_server_url,,,,envelope,non-null for c"
+rsc/schema/model_join.csv,26,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/display_content,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/display_content,,,,envelope,no MCP counte"
+rsc/schema/model_join.csv,27,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlock,,,rsc/reference/mcp#/$defs/ToolResultContent,subset,M"
+rsc/schema/model_join.csv,27,path_str,rsc/reference/mcp#/$defs/ToolResultContent,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlock,,,rsc/reference/mcp#/$defs/ToolResultContent,subset,M"
+rsc/schema/model_join.csv,28,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/type,rsc/schema/code-agents/session#/d"
+rsc/schema/model_join.csv,28,path_str,rsc/schema/code-agents/session#/definitions/ToolResultBlock/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/type,rsc/schema/code-agents/session#/d"
+rsc/schema/model_join.csv,28,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/type,rsc/schema/code-agents/session#/d"
+rsc/schema/model_join.csv,29,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/tool_use_id,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/tool_use_id,rsc/schema/code-agents/ses"
+rsc/schema/model_join.csv,29,path_str,rsc/schema/code-agents/session#/definitions/ToolResultBlock/properties/tool_use_id,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/tool_use_id,rsc/schema/code-agents/ses"
+rsc/schema/model_join.csv,29,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/toolUseId,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/tool_use_id,rsc/schema/code-agents/ses"
+rsc/schema/model_join.csv,30,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/content,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/content,,,rsc/reference/mcp#/$defs/Too"
+rsc/schema/model_join.csv,30,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/content,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/content,,,rsc/reference/mcp#/$defs/Too"
+rsc/schema/model_join.csv,31,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/is_error,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/is_error,rsc/schema/code-agents/sessio"
+rsc/schema/model_join.csv,31,path_str,rsc/schema/code-agents/session#/definitions/ToolResultBlock/properties/is_error,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/is_error,rsc/schema/code-agents/sessio"
+rsc/schema/model_join.csv,31,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/isError,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/is_error,rsc/schema/code-agents/sessio"
+rsc/schema/model_join.csv,32,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/structured_content,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/structured_content,,,rsc/reference/mcp"
+rsc/schema/model_join.csv,32,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/structuredContent,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/structured_content,,,rsc/reference/mcp"
+rsc/schema/model_join.csv,33,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/start_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/start_timestamp,,rsc/schema/browser-ca"
+rsc/schema/model_join.csv,33,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/start_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/start_timestamp,,rsc/schema/browser-ca"
+rsc/schema/model_join.csv,34,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/stop_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/stop_timestamp,,rsc/schema/browser-cap"
+rsc/schema/model_join.csv,34,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/stop_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/stop_timestamp,,rsc/schema/browser-cap"
+rsc/schema/model_join.csv,35,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/flags,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/flags,,,,envelope,always null in obser"
+rsc/schema/model_join.csv,36,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/name,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,37,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/meta,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/meta,,rsc/schema/browser-captures/apiC"
+rsc/schema/model_join.csv,37,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/meta,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/meta,,rsc/schema/browser-captures/apiC"
+rsc/schema/model_join.csv,38,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/message,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/message,,,,envelope,no MCP counterpart"
+rsc/schema/model_join.csv,39,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/integration_name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/integration_name,,,,envelope,no MCP co"
+rsc/schema/model_join.csv,40,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/mcp_server_url,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/mcp_server_url,,,,envelope,non-null fo"
+rsc/schema/model_join.csv,41,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/integration_icon_url,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/integration_icon_url,,,,envelope,no MC"
+rsc/schema/model_join.csv,42,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/icon_name,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/icon_name,,,,envelope,no MCP counterpa"
+rsc/schema/model_join.csv,43,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/display_content,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/display_content,,,,envelope,no MCP cou"
+rsc/schema/model_join.csv,44,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultContentItem,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultContentItem,,,rsc/reference/mcp#/$defs/TextContent,structur"
+rsc/schema/model_join.csv,44,path_str,rsc/reference/mcp#/$defs/TextContent,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultContentItem,,,rsc/reference/mcp#/$defs/TextContent,structur"
+rsc/schema/model_join.csv,45,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/thinking,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/thinking,rsc/schema/code-agents/session#/def"
+rsc/schema/model_join.csv,45,path_str,rsc/schema/code-agents/session#/definitions/ThinkingBlock/properties/thinking,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/thinking,rsc/schema/code-agents/session#/def"
+rsc/schema/model_join.csv,46,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/summaries,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/summaries,,,,export_only,"
+rsc/schema/model_join.csv,47,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/signature,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/signature,rsc/schema/code-agents/session#/de"
+rsc/schema/model_join.csv,47,path_str,rsc/schema/code-agents/session#/definitions/ThinkingBlock/properties/signature,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/signature,rsc/schema/code-agents/session#/de"
+rsc/schema/model_join.csv,48,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/cut_off,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/cut_off,,,,export_only,"
+rsc/schema/model_join.csv,49,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/truncated,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/truncated,,,,export_only,"
+rsc/schema/model_join.csv,50,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/alternative_display_type,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/alternative_display_type,,,,export_only,"
+rsc/schema/model_join.csv,51,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/start_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/start_timestamp,,,,export_only,"
+rsc/schema/model_join.csv,52,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/stop_timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/stop_timestamp,,,,export_only,"
+rsc/schema/model_join.csv,53,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/flags,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/flags,,,,export_only,always null in observed"
+rsc/schema/model_join.csv,54,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock,rsc/schema/code-agents/session#/definitions/TextBlock,rsc/s"
+rsc/schema/model_join.csv,54,path_str,rsc/schema/code-agents/session#/definitions/TextBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock,rsc/schema/code-agents/session#/definitions/TextBlock,rsc/s"
+rsc/schema/model_join.csv,54,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock,rsc/schema/code-agents/session#/definitions/TextBlock,rsc/s"
+rsc/schema/model_join.csv,54,path_str,rsc/reference/mcp#/$defs/TextContent,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock,rsc/schema/code-agents/session#/definitions/TextBlock,rsc/s"
+rsc/schema/model_join.csv,55,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/type,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/type,rsc/reference/mcp#/$defs/TextCon"
+rsc/schema/model_join.csv,55,path_str,rsc/reference/mcp#/$defs/TextContent/properties/type,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/type,rsc/reference/mcp#/$defs/TextCon"
+rsc/schema/model_join.csv,56,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/text,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/text,rsc/reference/mcp#/$defs/TextCon"
+rsc/schema/model_join.csv,56,path_str,rsc/reference/mcp#/$defs/TextContent/properties/text,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/text,rsc/reference/mcp#/$defs/TextCon"
+rsc/schema/model_join.csv,57,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/citations,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/citations,,api_only,absent from MCP; "
+rsc/schema/model_join.csv,58,path_str,rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/citations_grouping_mode,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/citations_grouping_mode,,rsc/schema/browser-capt"
+rsc/schema/model_join.csv,58,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/citations_grouping_mode,Y,"rsc/schema/chat-exports/conversations#/definitions/TextBlock/properties/citations_grouping_mode,,rsc/schema/browser-capt"
+rsc/schema/model_join.csv,59,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/start_timestamp,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/start_timestamp,,envelope,no MCP coun"
+rsc/schema/model_join.csv,60,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/stop_timestamp,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiTextBlock/properties/stop_timestamp,,envelope,no MCP count"
+rsc/schema/model_join.csv,61,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase,rsc/schema/code-agents/session#/definitions/ToolUseB"
+rsc/schema/model_join.csv,61,path_str,rsc/schema/code-agents/session#/definitions/ToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase,rsc/schema/code-agents/session#/definitions/ToolUseB"
+rsc/schema/model_join.csv,61,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase,rsc/schema/code-agents/session#/definitions/ToolUseB"
+rsc/schema/model_join.csv,61,path_str,rsc/reference/mcp#/$defs/ToolUseContent,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase,rsc/schema/code-agents/session#/definitions/ToolUseB"
+rsc/schema/model_join.csv,62,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/type,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/type,rsc/reference/mcp#/$defs/"
+rsc/schema/model_join.csv,62,path_str,rsc/reference/mcp#/$defs/ToolUseContent/properties/type,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/type,rsc/reference/mcp#/$defs/"
+rsc/schema/model_join.csv,64,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/name,rsc/reference/mcp#/$defs/"
+rsc/schema/model_join.csv,64,path_str,rsc/reference/mcp#/$defs/ToolUseContent/properties/name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/name,rsc/reference/mcp#/$defs/"
+rsc/schema/model_join.csv,65,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/input,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/input,rsc/reference/mcp#/$defs"
+rsc/schema/model_join.csv,65,path_str,rsc/reference/mcp#/$defs/ToolUseContent/properties/input,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/input,rsc/reference/mcp#/$defs"
+rsc/schema/model_join.csv,66,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/message,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/message,,envelope,no MCP count"
+rsc/schema/model_join.csv,67,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/start_timestamp,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/start_timestamp,,envelope,no M"
+rsc/schema/model_join.csv,68,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/stop_timestamp,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/stop_timestamp,,envelope,no MC"
+rsc/schema/model_join.csv,69,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/display_content,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/display_content,,envelope,no M"
+rsc/schema/model_join.csv,70,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/integration_name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/integration_name,,envelope,no "
+rsc/schema/model_join.csv,71,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/integration_icon_url,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/integration_icon_url,,envelope"
+rsc/schema/model_join.csv,72,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/icon_name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/icon_name,,envelope,no MCP cou"
+rsc/schema/model_join.csv,73,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/is_mcp_app,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/is_mcp_app,,rsc/schema/browser-captures/a"
+rsc/schema/model_join.csv,73,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/is_mcp_app,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/is_mcp_app,,rsc/schema/browser-captures/a"
+rsc/schema/model_join.csv,74,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/mcp_server_url,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/mcp_server_url,,coupled_relaxa"
+rsc/schema/model_join.csv,75,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/context,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/context,,null_in_api,present i"
+rsc/schema/model_join.csv,76,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/approval_options,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/approval_options,,coupled_rela"
+rsc/schema/model_join.csv,77,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/approval_key,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/approval_key,,coupled_relaxati"
+rsc/schema/model_join.csv,78,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/flags,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolUseBlockBase/properties/flags,,null_in_api,present in "
+rsc/schema/model_join.csv,79,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase,rsc/schema/code-agents/session#/definitions/ToolR"
+rsc/schema/model_join.csv,79,path_str,rsc/schema/code-agents/session#/definitions/ToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase,rsc/schema/code-agents/session#/definitions/ToolR"
+rsc/schema/model_join.csv,79,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase,rsc/schema/code-agents/session#/definitions/ToolR"
+rsc/schema/model_join.csv,79,path_str,rsc/reference/mcp#/$defs/ToolResultContent,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase,rsc/schema/code-agents/session#/definitions/ToolR"
+rsc/schema/model_join.csv,80,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/type,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/type,rsc/reference/mcp#/$de"
+rsc/schema/model_join.csv,80,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/type,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/type,rsc/reference/mcp#/$de"
+rsc/schema/model_join.csv,81,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/tool_use_id,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/tool_use_id,rsc/reference/m"
+rsc/schema/model_join.csv,81,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/toolUseId,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/tool_use_id,rsc/reference/m"
+rsc/schema/model_join.csv,82,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/content,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/content,rsc/reference/mcp#/"
+rsc/schema/model_join.csv,82,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/content,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/content,rsc/reference/mcp#/"
+rsc/schema/model_join.csv,83,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/is_error,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/is_error,rsc/reference/mcp#"
+rsc/schema/model_join.csv,83,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/isError,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/is_error,rsc/reference/mcp#"
+rsc/schema/model_join.csv,84,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/name,,envelope,no MCP count"
+rsc/schema/model_join.csv,85,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/message,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/message,,envelope,no MCP co"
+rsc/schema/model_join.csv,86,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/display_content,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/display_content,,envelope,n"
+rsc/schema/model_join.csv,87,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/integration_name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/integration_name,,envelope,"
+rsc/schema/model_join.csv,88,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/icon_name,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultBlockBase/properties/icon_name,,envelope,no MCP "
+rsc/schema/model_join.csv,89,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock,rsc/schema/code-agents/session#/definitions/ThinkingBlo"
+rsc/schema/model_join.csv,89,path_str,rsc/schema/code-agents/session#/definitions/ThinkingBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock,rsc/schema/code-agents/session#/definitions/ThinkingBlo"
+rsc/schema/model_join.csv,89,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiThinkingBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock,rsc/schema/code-agents/session#/definitions/ThinkingBlo"
+rsc/schema/model_join.csv,90,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/index,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/index,,api_only,zero-based message "
+rsc/schema/model_join.csv,91,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/truncated,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/truncated,,api_only,content truncat"
+rsc/schema/model_join.csv,92,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/sync_sources,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/sync_sources,,api_only,always empty"
+rsc/schema/model_join.csv,93,path_str,rsc/schema/code-agents/session#/definitions/AssistantMessage/properties/stop_reason,Y,",rsc/schema/code-agents/session#/definitions/AssistantMessage/properties/stop_reason,rsc/schema/browser-captures/apiConv"
+rsc/schema/model_join.csv,93,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/stop_reason,Y,",rsc/schema/code-agents/session#/definitions/AssistantMessage/properties/stop_reason,rsc/schema/browser-captures/apiConv"
+rsc/schema/model_join.csv,94,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/input_mode,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/input_mode,,api_only,claude.ai-spec"
+rsc/schema/model_join.csv,95,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/chat_feedback,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/chat_feedback,,api_only,user thumbs"
+rsc/schema/model_join.csv,96,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiCitation,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiCitation,,api_only,API exposes citation detail (uuid, titl"
+rsc/schema/model_join.csv,97,path_str,rsc/schema/code-agents/session#/definitions/ToolUseBlock/properties/caller,Y,",rsc/schema/code-agents/session#/definitions/ToolUseBlock/properties/caller,,,cli_only,Component that invoked the tool ("
+rsc/schema/model_join.csv,98,path_str,rsc/schema/code-agents/session#/definitions/ToolResultBlock/properties/content,Y,",rsc/schema/code-agents/session#/definitions/ToolResultBlock/properties/content,,rsc/reference/mcp#/$defs/ToolResultCont"
+rsc/schema/model_join.csv,98,path_str,rsc/reference/mcp#/$defs/ToolResultContent/properties/content,Y,",rsc/schema/code-agents/session#/definitions/ToolResultBlock/properties/content,,rsc/reference/mcp#/$defs/ToolResultCont"
+rsc/schema/model_join.csv,99,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/type,rsc/schema/code-agents/session#/definit"
+rsc/schema/model_join.csv,99,path_str,rsc/schema/code-agents/session#/definitions/ThinkingBlock/properties/type,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/type,rsc/schema/code-agents/session#/definit"
+rsc/schema/model_join.csv,100,path_str,rsc/schema/code-agents/session#/definitions/ImageBlock,Y,",rsc/schema/code-agents/session#/definitions/ImageBlock,,rsc/reference/mcp#/$defs/ImageContent,structurally_similar,Both"
+rsc/schema/model_join.csv,100,path_str,rsc/reference/mcp#/$defs/ImageContent,Y,",rsc/schema/code-agents/session#/definitions/ImageBlock,,rsc/reference/mcp#/$defs/ImageContent,structurally_similar,Both"
+rsc/schema/model_join.csv,101,path_str,rsc/schema/code-agents/session#/definitions/ImageBlock/properties/type,Y,",rsc/schema/code-agents/session#/definitions/ImageBlock/properties/type,,rsc/reference/mcp#/$defs/ImageContent/propertie"
+rsc/schema/model_join.csv,101,path_str,rsc/reference/mcp#/$defs/ImageContent/properties/type,Y,",rsc/schema/code-agents/session#/definitions/ImageBlock/properties/type,,rsc/reference/mcp#/$defs/ImageContent/propertie"
+rsc/schema/model_join.csv,102,path_str,rsc/schema/code-agents/session#/definitions/ImageBlock/properties/source,Y,",rsc/schema/code-agents/session#/definitions/ImageBlock/properties/source,,,cli_only,Nested source object {type: base64,"
+rsc/schema/model_join.csv,103,path_str,rsc/schema/code-agents/session#/definitions/DocumentBlock,Y,",rsc/schema/code-agents/session#/definitions/DocumentBlock,,,cli_only,No counterpart in conversations export or MCP. Obs"
+rsc/schema/model_join.csv,104,path_str,rsc/schema/code-agents/session#/definitions/DocumentBlock/properties/source,Y,",rsc/schema/code-agents/session#/definitions/DocumentBlock/properties/source,,,cli_only,Nested source object {type, medi"
+rsc/schema/model_join.csv,105,path_str,rsc/schema/code-agents/session#/definitions/DocumentBlock/properties/title,Y,",rsc/schema/code-agents/session#/definitions/DocumentBlock/properties/title,,,cli_only,Filename or display title of the "
+rsc/schema/model_join.csv,106,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,106,path_str,rsc/schema/code-agents/session#/definitions/UserMessage/properties/role,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,107,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,107,path_str,rsc/schema/code-agents/session#/definitions/AssistantMessage/properties/role,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/session#/definitions"
+rsc/schema/model_join.csv,108,path_str,rsc/schema/code-agents/session#/definitions/AssistantMessage/properties/usage,Y,",rsc/schema/code-agents/session#/definitions/AssistantMessage/properties/usage,,,cli_only,Full API usage object includin"
+rsc/schema/model_join.csv,110,path_str,rsc/schema/code-agents/session#/definitions/TurnBase/properties/gitBranch,Y,",rsc/schema/code-agents/session#/definitions/TurnBase/properties/gitBranch,,,cli_only,Git branch at turn time. Session m"
+rsc/schema/model_join.csv,111,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/parent_message_uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/parent_message_uuid,rsc/schema/code-agents/session"
+rsc/schema/model_join.csv,111,path_str,rsc/schema/code-agents/session#/definitions/TurnBase/properties/parentUuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/parent_message_uuid,rsc/schema/code-agents/session"
+rsc/schema/model_join.csv,112,path_str,rsc/schema/code-agents/session#/definitions/ModeRecord,Y,",rsc/schema/code-agents/session#/definitions/ModeRecord,,,cli_only,Session lifecycle record capturing interaction mode ("
+rsc/schema/model_join.csv,113,path_str,rsc/schema/code-agents/session#/definitions/SystemRecord,Y,",rsc/schema/code-agents/session#/definitions/SystemRecord,,,cli_only,Harness system events sharing the turn envelope, di"
+rsc/schema/model_join.csv,114,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/attachments,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/attachments,rsc/schema/code-agents/session#/defini"
+rsc/schema/model_join.csv,114,path_str,rsc/schema/code-agents/session#/definitions/AttachmentRecord,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/attachments,rsc/schema/code-agents/session#/defini"
+rsc/schema/model_join.csv,115,path_str,rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/name,Y,"rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/name,rsc/schema/code-agents/session#/definiti"
+rsc/schema/model_join.csv,115,path_str,rsc/schema/code-agents/session#/definitions/AiTitleRecord/properties/aiTitle,Y,"rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/name,rsc/schema/code-agents/session#/definiti"
+rsc/schema/model_join.csv,116,path_str,rsc/schema/code-agents/session#/definitions/QueueOperation,Y,",rsc/schema/code-agents/session#/definitions/QueueOperation,,,cli_only,Session lifecycle record: the session joined or l"
+rsc/schema/model_join.csv,117,path_str,rsc/schema/code-agents/session#/definitions/PermissionModeRecord,Y,",rsc/schema/code-agents/session#/definitions/PermissionModeRecord,,,cli_only,The active permission mode at a point in th"
+rsc/schema/model_join.csv,118,path_str,rsc/schema/code-agents/session#/definitions/LastPromptRecord,Y,",rsc/schema/code-agents/session#/definitions/LastPromptRecord,,,cli_only,Text and position of the most recent user promp"
+rsc/schema/model_join.csv,119,path_str,rsc/schema/code-agents/session#/definitions/FileHistorySnapshot,Y,",rsc/schema/code-agents/session#/definitions/FileHistorySnapshot,,,cli_only,Links the session to ~/.claude/file-history/"
+rsc/schema/model_join.csv,120,path_str,rsc/schema/code-agents/session#/definitions/FileHistoryDelta,Y,",rsc/schema/code-agents/session#/definitions/FileHistoryDelta,,,cli_only,One tracked file's backup at edit time, linked "
+rsc/schema/model_join.csv,121,path_str,rsc/schema/code-agents/session#/definitions/PrLinkRecord,Y,",rsc/schema/code-agents/session#/definitions/PrLinkRecord,,,cli_only,Durable-thing publish record: a GitHub PR the sessi"
+rsc/schema/model_join.csv,122,path_str,rsc/schema/code-agents/session#/definitions/FrameLinkRecord,Y,",rsc/schema/code-agents/session#/definitions/FrameLinkRecord,,,cli_only,Durable-thing publish record: a web Artifact the"
+rsc/schema/model_join.csv,123,path_str,rsc/schema/code-agents/session#/definitions/FallbackBlock,Y,",rsc/schema/code-agents/session#/definitions/FallbackBlock,,,cli_only,Content block recording a forced model switch mid-"
+rsc/schema/model_join.csv,124,path_str,rsc/schema/code-agents/session#/definitions/ModelId,Y,",rsc/schema/code-agents/session#/definitions/ModelId,rsc/schema/browser-captures/apiConversation#/definitions/ApiConvers"
+rsc/schema/model_join.csv,124,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiConversation/properties/model,Y,",rsc/schema/code-agents/session#/definitions/ModelId,rsc/schema/browser-captures/apiConversation#/definitions/ApiConvers"
+rsc/schema/model_join.csv,125,path_str,rsc/schema/code-agents/session#/definitions/NotAModel,Y,",rsc/schema/code-agents/session#/definitions/NotAModel,,,cli_only,The ""<synthetic>"" marker on harness-authored records n"
+rsc/schema/model_join.csv,126,path_str,rsc/schema/code-agents/session#/definitions/Entrypoint,Y,",rsc/schema/code-agents/session#/definitions/Entrypoint,,,cli_only,Which Claude Code surface wrote the record (cli / cla"
+rsc/schema/model_join.csv,127,path_str,rsc/schema/code-agents/session#/definitions/TurnBase/properties/isSidechain,Y,",rsc/schema/code-agents/session#/definitions/TurnBase/properties/isSidechain,,,cli_only,Subagent conversation flag. No M"
+rsc/schema/model_join.csv,128,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/uuid,rsc/schema/code-agents/session#/definitions/T"
+rsc/schema/model_join.csv,128,path_str,rsc/schema/code-agents/session#/definitions/TurnBase/properties/uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/uuid,rsc/schema/code-agents/session#/definitions/T"
+rsc/schema/model_join.csv,129,path_str,rsc/schema/code-agents/session#/definitions/TurnBase/properties/sessionId,Y,",rsc/schema/code-agents/session#/definitions/TurnBase/properties/sessionId,,,cli_only,Identifies the local CLI session. "
+rsc/schema/model_join.csv,130,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/content,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/content,rsc/schema/code-agents/session#/definition"
+rsc/schema/model_join.csv,130,path_str,rsc/schema/code-agents/session#/definitions/MessageContent,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/content,rsc/schema/code-agents/session#/definition"
+rsc/schema/model_join.csv,131,path_str,rsc/schema/chat-exports/conversations#/definitions/SearchMcpRegistryToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/SearchMcpRegistryToolUseBlock,,rsc/schema/browser-captures/apiConvers"
+rsc/schema/model_join.csv,131,path_str,rsc/schema/browser-captures/apiConversation#/definitions/SearchMcpRegistryToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/SearchMcpRegistryToolUseBlock,,rsc/schema/browser-captures/apiConvers"
+rsc/schema/model_join.csv,132,path_str,rsc/schema/chat-exports/conversations#/definitions/SearchMcpRegistryToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/SearchMcpRegistryToolResultBlock,,rsc/schema/browser-captures/apiConv"
+rsc/schema/model_join.csv,132,path_str,rsc/schema/browser-captures/apiConversation#/definitions/SearchMcpRegistryToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/SearchMcpRegistryToolResultBlock,,rsc/schema/browser-captures/apiConv"
+rsc/schema/model_join.csv,133,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/compaction_summary,Y,",,rsc/schema/browser-captures/apiConversation#/definitions/ApiMessageBase/properties/compaction_summary,,api_only,Inject"
+rsc/schema/model_join.csv,134,path_str,rsc/schema/chat-exports/conversations#/definitions/IntegrationName,Y,"rsc/schema/chat-exports/conversations#/definitions/IntegrationName,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,134,path_str,rsc/schema/browser-captures/apiConversation#/definitions/IntegrationName,Y,"rsc/schema/chat-exports/conversations#/definitions/IntegrationName,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,135,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultSearchItem,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultSearchItem,,rsc/schema/browser-captures/apiConversation#/de"
+rsc/schema/model_join.csv,135,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiToolResultSearchItem,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultSearchItem,,rsc/schema/browser-captures/apiConversation#/de"
+rsc/schema/model_join.csv,136,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/tool_identifier,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/tool_identifier,,,,envelope,bulk-export-o"
+rsc/schema/model_join.csv,137,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/hidden_in_chat,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolUseBlockBase/properties/hidden_in_chat,,,,envelope,bulk-export-on"
+rsc/schema/model_join.csv,138,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/hidden_in_chat,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolResultBlockBase/properties/hidden_in_chat,,,,envelope,the same fi"
+rsc/schema/model_join.csv,139,path_str,rsc/schema/code-agents/sessionConversation#/definitions/SessionConversation,Y,",rsc/schema/code-agents/sessionConversation#/definitions/SessionConversation,rsc/schema/browser-captures/markdownConvers"
+rsc/schema/model_join.csv,139,path_str,rsc/schema/browser-captures/markdownConversation#/definitions/MarkdownConversation,Y,",rsc/schema/code-agents/sessionConversation#/definitions/SessionConversation,rsc/schema/browser-captures/markdownConvers"
+rsc/schema/model_join.csv,140,path_str,rsc/schema/code-agents/sessionConversation#/definitions/Message,Y,",rsc/schema/code-agents/sessionConversation#/definitions/Message,rsc/schema/browser-captures/markdownConversation#/defin"
+rsc/schema/model_join.csv,140,path_str,rsc/schema/browser-captures/markdownConversation#/definitions/MarkdownMessage,Y,",rsc/schema/code-agents/sessionConversation#/definitions/Message,rsc/schema/browser-captures/markdownConversation#/defin"
+rsc/schema/model_join.csv,141,path_str,rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/sessionConversation#"
+rsc/schema/model_join.csv,141,path_str,rsc/schema/code-agents/sessionConversation#/definitions/Message/properties/role,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/sessionConversation#"
+rsc/schema/model_join.csv,141,path_str,rsc/schema/browser-captures/markdownConversation#/definitions/MarkdownMessage/properties/role,Y,"rsc/schema/chat-exports/conversations#/definitions/Message/properties/sender,rsc/schema/code-agents/sessionConversation#"
+rsc/schema/model_join.csv,142,path_str,rsc/schema/code-agents/sessionConversation#/definitions/Message/properties/uuid,Y,",rsc/schema/code-agents/sessionConversation#/definitions/Message/properties/uuid,rsc/schema/browser-captures/markdownCon"
+rsc/schema/model_join.csv,142,path_str,rsc/schema/browser-captures/markdownConversation#/definitions/MarkdownMessage/properties/uuid,Y,",rsc/schema/code-agents/sessionConversation#/definitions/Message/properties/uuid,rsc/schema/browser-captures/markdownCon"
+rsc/schema/model_join.csv,143,path_str,rsc/schema/chat-exports/memories#/properties/conversations_memory,Y,"rsc/schema/chat-exports/memories#/properties/conversations_memory,rsc/schema/code-agents/projectMemory#/definitions/Fact"
+rsc/schema/model_join.csv,143,path_str,rsc/schema/code-agents/projectMemory#/definitions/Fact/properties/body,Y,"rsc/schema/chat-exports/memories#/properties/conversations_memory,rsc/schema/code-agents/projectMemory#/definitions/Fact"
+rsc/schema/model_join.csv,144,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/thinking_hidden,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/thinking_hidden,,rsc/schema/browser-captures"
+rsc/schema/model_join.csv,144,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ApiThinkingBlock/properties/thinking_hidden,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingBlock/properties/thinking_hidden,,rsc/schema/browser-captures"
+rsc/schema/model_join.csv,145,path_str,rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/account/properties/uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/account/properties/uuid,rsc/schema/chat-expor"
+rsc/schema/model_join.csv,145,path_str,rsc/schema/chat-exports/memories#/properties/account_uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/account/properties/uuid,rsc/schema/chat-expor"
+rsc/schema/model_join.csv,145,path_str,rsc/schema/chat-exports/users#/items/properties/uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/account/properties/uuid,rsc/schema/chat-expor"
+rsc/schema/model_join.csv,145,path_str,rsc/schema/chat-exports/projects#/properties/creator/properties/uuid,Y,"rsc/schema/chat-exports/conversations#/definitions/Conversation/properties/account/properties/uuid,rsc/schema/chat-expor"
+rsc/schema/model_join.csv,146,path_str,rsc/schema/chat-exports/conversations#/definitions/AskUserQuestion,Y,"rsc/schema/chat-exports/conversations#/definitions/AskUserQuestion,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,146,path_str,rsc/schema/browser-captures/apiConversation#/definitions/AskUserQuestion,Y,"rsc/schema/chat-exports/conversations#/definitions/AskUserQuestion,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,147,path_str,rsc/schema/chat-exports/conversations#/definitions/AskUserToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/AskUserToolResultBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,147,path_str,rsc/schema/browser-captures/apiConversation#/definitions/AskUserToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/AskUserToolResultBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,148,path_str,rsc/schema/chat-exports/conversations#/definitions/AskUserToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/AskUserToolUseBlock,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,148,path_str,rsc/schema/browser-captures/apiConversation#/definitions/AskUserToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/AskUserToolUseBlock,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,149,path_str,rsc/schema/chat-exports/conversations#/definitions/BashToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/BashToolResultBlock,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,149,path_str,rsc/schema/browser-captures/apiConversation#/definitions/BashToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/BashToolResultBlock,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,150,path_str,rsc/schema/chat-exports/conversations#/definitions/BashToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/BashToolUseBlock,,rsc/schema/browser-captures/apiConversation#/defini"
+rsc/schema/model_join.csv,150,path_str,rsc/schema/browser-captures/apiConversation#/definitions/BashToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/BashToolUseBlock,,rsc/schema/browser-captures/apiConversation#/defini"
+rsc/schema/model_join.csv,151,path_str,rsc/schema/chat-exports/conversations#/definitions/ConversationSearchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ConversationSearchToolResultBlock,,rsc/schema/browser-captures/apiCon"
+rsc/schema/model_join.csv,151,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ConversationSearchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ConversationSearchToolResultBlock,,rsc/schema/browser-captures/apiCon"
+rsc/schema/model_join.csv,152,path_str,rsc/schema/chat-exports/conversations#/definitions/ConversationSearchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ConversationSearchToolUseBlock,,rsc/schema/browser-captures/apiConver"
+rsc/schema/model_join.csv,152,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ConversationSearchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ConversationSearchToolUseBlock,,rsc/schema/browser-captures/apiConver"
+rsc/schema/model_join.csv,153,path_str,rsc/schema/chat-exports/conversations#/definitions/CreateFileToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/CreateFileToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,153,path_str,rsc/schema/browser-captures/apiConversation#/definitions/CreateFileToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/CreateFileToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,154,path_str,rsc/schema/chat-exports/conversations#/definitions/CreateFileToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/CreateFileToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,154,path_str,rsc/schema/browser-captures/apiConversation#/definitions/CreateFileToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/CreateFileToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,155,path_str,rsc/schema/chat-exports/conversations#/definitions/DisplayContentJsonBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/DisplayContentJsonBlock,,rsc/schema/browser-captures/apiConversation#"
+rsc/schema/model_join.csv,155,path_str,rsc/schema/browser-captures/apiConversation#/definitions/DisplayContentJsonBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/DisplayContentJsonBlock,,rsc/schema/browser-captures/apiConversation#"
+rsc/schema/model_join.csv,156,path_str,rsc/schema/chat-exports/conversations#/definitions/DisplayContentTable,Y,"rsc/schema/chat-exports/conversations#/definitions/DisplayContentTable,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,156,path_str,rsc/schema/browser-captures/apiConversation#/definitions/DisplayContentTable,Y,"rsc/schema/chat-exports/conversations#/definitions/DisplayContentTable,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,157,path_str,rsc/schema/chat-exports/conversations#/definitions/DisplayContentText,Y,"rsc/schema/chat-exports/conversations#/definitions/DisplayContentText,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,157,path_str,rsc/schema/browser-captures/apiConversation#/definitions/DisplayContentText,Y,"rsc/schema/chat-exports/conversations#/definitions/DisplayContentText,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,158,path_str,rsc/schema/chat-exports/conversations#/definitions/HasNameDiscriminatorProperty,Y,"rsc/schema/chat-exports/conversations#/definitions/HasNameDiscriminatorProperty,,rsc/schema/browser-captures/apiConversa"
+rsc/schema/model_join.csv,158,path_str,rsc/schema/browser-captures/apiConversation#/definitions/HasNameDiscriminatorProperty,Y,"rsc/schema/chat-exports/conversations#/definitions/HasNameDiscriminatorProperty,,rsc/schema/browser-captures/apiConversa"
+rsc/schema/model_join.csv,159,path_str,rsc/schema/chat-exports/conversations#/definitions/HasTypeDiscriminatorProperty,Y,"rsc/schema/chat-exports/conversations#/definitions/HasTypeDiscriminatorProperty,rsc/schema/code-agents/session#/definiti"
+rsc/schema/model_join.csv,159,path_str,rsc/schema/code-agents/session#/definitions/HasTypeDiscriminatorProperty,Y,"rsc/schema/chat-exports/conversations#/definitions/HasTypeDiscriminatorProperty,rsc/schema/code-agents/session#/definiti"
+rsc/schema/model_join.csv,159,path_str,rsc/schema/browser-captures/apiConversation#/definitions/HasTypeDiscriminatorProperty,Y,"rsc/schema/chat-exports/conversations#/definitions/HasTypeDiscriminatorProperty,rsc/schema/code-agents/session#/definiti"
+rsc/schema/model_join.csv,160,path_str,rsc/schema/chat-exports/conversations#/definitions/IconName,Y,"rsc/schema/chat-exports/conversations#/definitions/IconName,,rsc/schema/browser-captures/apiConversation#/definitions/Ic"
+rsc/schema/model_join.csv,160,path_str,rsc/schema/browser-captures/apiConversation#/definitions/IconName,Y,"rsc/schema/chat-exports/conversations#/definitions/IconName,,rsc/schema/browser-captures/apiConversation#/definitions/Ic"
+rsc/schema/model_join.csv,161,path_str,rsc/schema/chat-exports/conversations#/definitions/McpToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/McpToolResultBlock,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,161,path_str,rsc/schema/browser-captures/apiConversation#/definitions/McpToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/McpToolResultBlock,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,162,path_str,rsc/schema/chat-exports/conversations#/definitions/McpToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/McpToolUseBlock,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,162,path_str,rsc/schema/browser-captures/apiConversation#/definitions/McpToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/McpToolUseBlock,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,163,path_str,rsc/schema/chat-exports/conversations#/definitions/MemoryUserEditsToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/MemoryUserEditsToolResultBlock,,rsc/schema/browser-captures/apiConver"
+rsc/schema/model_join.csv,163,path_str,rsc/schema/browser-captures/apiConversation#/definitions/MemoryUserEditsToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/MemoryUserEditsToolResultBlock,,rsc/schema/browser-captures/apiConver"
+rsc/schema/model_join.csv,164,path_str,rsc/schema/chat-exports/conversations#/definitions/MemoryUserEditsToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/MemoryUserEditsToolUseBlock,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,164,path_str,rsc/schema/browser-captures/apiConversation#/definitions/MemoryUserEditsToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/MemoryUserEditsToolUseBlock,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,165,path_str,rsc/schema/chat-exports/conversations#/definitions/NamespacedToolName,Y,"rsc/schema/chat-exports/conversations#/definitions/NamespacedToolName,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,165,path_str,rsc/schema/browser-captures/apiConversation#/definitions/NamespacedToolName,Y,"rsc/schema/chat-exports/conversations#/definitions/NamespacedToolName,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,166,path_str,rsc/schema/chat-exports/conversations#/definitions/NullableBoolean,Y,"rsc/schema/chat-exports/conversations#/definitions/NullableBoolean,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,166,path_str,rsc/schema/browser-captures/apiConversation#/definitions/NullableBoolean,Y,"rsc/schema/chat-exports/conversations#/definitions/NullableBoolean,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,167,path_str,rsc/schema/chat-exports/conversations#/definitions/NullableString,Y,"rsc/schema/chat-exports/conversations#/definitions/NullableString,,rsc/schema/browser-captures/apiConversation#/definiti"
+rsc/schema/model_join.csv,167,path_str,rsc/schema/browser-captures/apiConversation#/definitions/NullableString,Y,"rsc/schema/chat-exports/conversations#/definitions/NullableString,,rsc/schema/browser-captures/apiConversation#/definiti"
+rsc/schema/model_join.csv,168,path_str,rsc/schema/chat-exports/conversations#/definitions/PresentFilesToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/PresentFilesToolResultBlock,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,168,path_str,rsc/schema/browser-captures/apiConversation#/definitions/PresentFilesToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/PresentFilesToolResultBlock,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,169,path_str,rsc/schema/chat-exports/conversations#/definitions/PresentFilesToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/PresentFilesToolUseBlock,,rsc/schema/browser-captures/apiConversation"
+rsc/schema/model_join.csv,169,path_str,rsc/schema/browser-captures/apiConversation#/definitions/PresentFilesToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/PresentFilesToolUseBlock,,rsc/schema/browser-captures/apiConversation"
+rsc/schema/model_join.csv,170,path_str,rsc/schema/chat-exports/conversations#/definitions/PromptContextMetadataFetch,Y,"rsc/schema/chat-exports/conversations#/definitions/PromptContextMetadataFetch,,rsc/schema/browser-captures/apiConversati"
+rsc/schema/model_join.csv,170,path_str,rsc/schema/browser-captures/apiConversation#/definitions/PromptContextMetadataFetch,Y,"rsc/schema/chat-exports/conversations#/definitions/PromptContextMetadataFetch,,rsc/schema/browser-captures/apiConversati"
+rsc/schema/model_join.csv,171,path_str,rsc/schema/chat-exports/conversations#/definitions/PromptContextMetadataSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/PromptContextMetadataSearch,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,171,path_str,rsc/schema/browser-captures/apiConversation#/definitions/PromptContextMetadataSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/PromptContextMetadataSearch,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,172,path_str,rsc/schema/chat-exports/conversations#/definitions/ReadMeToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ReadMeToolResultBlock,,rsc/schema/browser-captures/apiConversation#/d"
+rsc/schema/model_join.csv,172,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ReadMeToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ReadMeToolResultBlock,,rsc/schema/browser-captures/apiConversation#/d"
+rsc/schema/model_join.csv,173,path_str,rsc/schema/chat-exports/conversations#/definitions/ReadMeToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ReadMeToolUseBlock,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,173,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ReadMeToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ReadMeToolUseBlock,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,174,path_str,rsc/schema/chat-exports/conversations#/definitions/RecentChatsToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecentChatsToolResultBlock,,rsc/schema/browser-captures/apiConversati"
+rsc/schema/model_join.csv,174,path_str,rsc/schema/browser-captures/apiConversation#/definitions/RecentChatsToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecentChatsToolResultBlock,,rsc/schema/browser-captures/apiConversati"
+rsc/schema/model_join.csv,175,path_str,rsc/schema/chat-exports/conversations#/definitions/RecentChatsToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecentChatsToolUseBlock,,rsc/schema/browser-captures/apiConversation#"
+rsc/schema/model_join.csv,175,path_str,rsc/schema/browser-captures/apiConversation#/definitions/RecentChatsToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecentChatsToolUseBlock,,rsc/schema/browser-captures/apiConversation#"
+rsc/schema/model_join.csv,176,path_str,rsc/schema/chat-exports/conversations#/definitions/RecommendClaudeAppsToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecommendClaudeAppsToolResultBlock,,rsc/schema/browser-captures/apiCo"
+rsc/schema/model_join.csv,176,path_str,rsc/schema/browser-captures/apiConversation#/definitions/RecommendClaudeAppsToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecommendClaudeAppsToolResultBlock,,rsc/schema/browser-captures/apiCo"
+rsc/schema/model_join.csv,177,path_str,rsc/schema/chat-exports/conversations#/definitions/RecommendClaudeAppsToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecommendClaudeAppsToolUseBlock,,rsc/schema/browser-captures/apiConve"
+rsc/schema/model_join.csv,177,path_str,rsc/schema/browser-captures/apiConversation#/definitions/RecommendClaudeAppsToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/RecommendClaudeAppsToolUseBlock,,rsc/schema/browser-captures/apiConve"
+rsc/schema/model_join.csv,178,path_str,rsc/schema/chat-exports/conversations#/definitions/StrReplaceToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/StrReplaceToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,178,path_str,rsc/schema/browser-captures/apiConversation#/definitions/StrReplaceToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/StrReplaceToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,179,path_str,rsc/schema/chat-exports/conversations#/definitions/StrReplaceToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/StrReplaceToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,179,path_str,rsc/schema/browser-captures/apiConversation#/definitions/StrReplaceToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/StrReplaceToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,180,path_str,rsc/schema/chat-exports/conversations#/definitions/ThinkingSummary,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingSummary,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,180,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ThinkingSummary,Y,"rsc/schema/chat-exports/conversations#/definitions/ThinkingSummary,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,181,path_str,rsc/schema/chat-exports/conversations#/definitions/Timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/Timestamp,rsc/schema/code-agents/session#/definitions/Timestamp,rsc/s"
+rsc/schema/model_join.csv,181,path_str,rsc/schema/code-agents/session#/definitions/Timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/Timestamp,rsc/schema/code-agents/session#/definitions/Timestamp,rsc/s"
+rsc/schema/model_join.csv,181,path_str,rsc/schema/browser-captures/apiConversation#/definitions/Timestamp,Y,"rsc/schema/chat-exports/conversations#/definitions/Timestamp,rsc/schema/code-agents/session#/definitions/Timestamp,rsc/s"
+rsc/schema/model_join.csv,182,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolId,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolId,,rsc/schema/browser-captures/apiConversation#/definitions/Tool"
+rsc/schema/model_join.csv,182,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolId,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolId,,rsc/schema/browser-captures/apiConversation#/definitions/Tool"
+rsc/schema/model_join.csv,183,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputAskUser,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputAskUser,,rsc/schema/browser-captures/apiConversation#/defini"
+rsc/schema/model_join.csv,183,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputAskUser,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputAskUser,,rsc/schema/browser-captures/apiConversation#/defini"
+rsc/schema/model_join.csv,184,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputBash,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputBash,,rsc/schema/browser-captures/apiConversation#/definitio"
+rsc/schema/model_join.csv,184,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputBash,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputBash,,rsc/schema/browser-captures/apiConversation#/definitio"
+rsc/schema/model_join.csv,185,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputConversationSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputConversationSearch,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,185,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputConversationSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputConversationSearch,,rsc/schema/browser-captures/apiConversat"
+rsc/schema/model_join.csv,186,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputCreateFile,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputCreateFile,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,186,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputCreateFile,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputCreateFile,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,187,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputMemoryUserEdits,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputMemoryUserEdits,,rsc/schema/browser-captures/apiConversation"
+rsc/schema/model_join.csv,187,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputMemoryUserEdits,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputMemoryUserEdits,,rsc/schema/browser-captures/apiConversation"
+rsc/schema/model_join.csv,188,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputPresentFiles,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputPresentFiles,,rsc/schema/browser-captures/apiConversation#/d"
+rsc/schema/model_join.csv,188,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputPresentFiles,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputPresentFiles,,rsc/schema/browser-captures/apiConversation#/d"
+rsc/schema/model_join.csv,189,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputReadMe,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputReadMe,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,189,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputReadMe,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputReadMe,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,190,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputRecentChats,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputRecentChats,,rsc/schema/browser-captures/apiConversation#/de"
+rsc/schema/model_join.csv,190,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputRecentChats,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputRecentChats,,rsc/schema/browser-captures/apiConversation#/de"
+rsc/schema/model_join.csv,191,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputRecommendClaudeApps,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputRecommendClaudeApps,,rsc/schema/browser-captures/apiConversa"
+rsc/schema/model_join.csv,191,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputRecommendClaudeApps,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputRecommendClaudeApps,,rsc/schema/browser-captures/apiConversa"
+rsc/schema/model_join.csv,192,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputSearchMcpRegistry,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputSearchMcpRegistry,,rsc/schema/browser-captures/apiConversati"
+rsc/schema/model_join.csv,192,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputSearchMcpRegistry,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputSearchMcpRegistry,,rsc/schema/browser-captures/apiConversati"
+rsc/schema/model_join.csv,193,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputStrReplace,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputStrReplace,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,193,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputStrReplace,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputStrReplace,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,194,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputToolSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputToolSearch,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,194,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputToolSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputToolSearch,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,195,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputView,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputView,,rsc/schema/browser-captures/apiConversation#/definitio"
+rsc/schema/model_join.csv,195,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputView,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputView,,rsc/schema/browser-captures/apiConversation#/definitio"
+rsc/schema/model_join.csv,196,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputVisualizer,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputVisualizer,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,196,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputVisualizer,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputVisualizer,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,197,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputWebFetch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputWebFetch,,rsc/schema/browser-captures/apiConversation#/defin"
+rsc/schema/model_join.csv,197,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputWebFetch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputWebFetch,,rsc/schema/browser-captures/apiConversation#/defin"
+rsc/schema/model_join.csv,198,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolInputWebSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputWebSearch,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,198,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolInputWebSearch,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolInputWebSearch,,rsc/schema/browser-captures/apiConversation#/defi"
+rsc/schema/model_join.csv,199,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolName,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolName,,rsc/schema/browser-captures/apiConversation#/definitions/To"
+rsc/schema/model_join.csv,199,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolName,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolName,,rsc/schema/browser-captures/apiConversation#/definitions/To"
+rsc/schema/model_join.csv,200,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolSearchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolSearchToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,200,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolSearchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolSearchToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,201,path_str,rsc/schema/chat-exports/conversations#/definitions/ToolSearchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolSearchToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,201,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ToolSearchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ToolSearchToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,202,path_str,rsc/schema/chat-exports/conversations#/definitions/UuidV4,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV4,rsc/schema/code-agents/session#/definitions/UuidV4,rsc/schema/"
+rsc/schema/model_join.csv,202,path_str,rsc/schema/code-agents/session#/definitions/UuidV4,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV4,rsc/schema/code-agents/session#/definitions/UuidV4,rsc/schema/"
+rsc/schema/model_join.csv,202,path_str,rsc/schema/browser-captures/apiConversation#/definitions/UuidV4,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV4,rsc/schema/code-agents/session#/definitions/UuidV4,rsc/schema/"
+rsc/schema/model_join.csv,203,path_str,rsc/schema/chat-exports/conversations#/definitions/UuidV4orV7,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV4orV7,,rsc/schema/browser-captures/apiConversation#/definitions/"
+rsc/schema/model_join.csv,203,path_str,rsc/schema/browser-captures/apiConversation#/definitions/UuidV4orV7,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV4orV7,,rsc/schema/browser-captures/apiConversation#/definitions/"
+rsc/schema/model_join.csv,204,path_str,rsc/schema/chat-exports/conversations#/definitions/UuidV7,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV7,,rsc/schema/browser-captures/apiConversation#/definitions/Uuid"
+rsc/schema/model_join.csv,204,path_str,rsc/schema/browser-captures/apiConversation#/definitions/UuidV7,Y,"rsc/schema/chat-exports/conversations#/definitions/UuidV7,,rsc/schema/browser-captures/apiConversation#/definitions/Uuid"
+rsc/schema/model_join.csv,205,path_str,rsc/schema/chat-exports/conversations#/definitions/ViewToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ViewToolResultBlock,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,205,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ViewToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ViewToolResultBlock,,rsc/schema/browser-captures/apiConversation#/def"
+rsc/schema/model_join.csv,206,path_str,rsc/schema/chat-exports/conversations#/definitions/ViewToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ViewToolUseBlock,,rsc/schema/browser-captures/apiConversation#/defini"
+rsc/schema/model_join.csv,206,path_str,rsc/schema/browser-captures/apiConversation#/definitions/ViewToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ViewToolUseBlock,,rsc/schema/browser-captures/apiConversation#/defini"
+rsc/schema/model_join.csv,207,path_str,rsc/schema/chat-exports/conversations#/definitions/VisualizerToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/VisualizerToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,207,path_str,rsc/schema/browser-captures/apiConversation#/definitions/VisualizerToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/VisualizerToolResultBlock,,rsc/schema/browser-captures/apiConversatio"
+rsc/schema/model_join.csv,208,path_str,rsc/schema/chat-exports/conversations#/definitions/VisualizerToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/VisualizerToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,208,path_str,rsc/schema/browser-captures/apiConversation#/definitions/VisualizerToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/VisualizerToolUseBlock,,rsc/schema/browser-captures/apiConversation#/"
+rsc/schema/model_join.csv,209,path_str,rsc/schema/chat-exports/conversations#/definitions/WebFetchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebFetchToolResultBlock,,rsc/schema/browser-captures/apiConversation#"
+rsc/schema/model_join.csv,209,path_str,rsc/schema/browser-captures/apiConversation#/definitions/WebFetchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebFetchToolResultBlock,,rsc/schema/browser-captures/apiConversation#"
+rsc/schema/model_join.csv,210,path_str,rsc/schema/chat-exports/conversations#/definitions/WebFetchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebFetchToolUseBlock,,rsc/schema/browser-captures/apiConversation#/de"
+rsc/schema/model_join.csv,210,path_str,rsc/schema/browser-captures/apiConversation#/definitions/WebFetchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebFetchToolUseBlock,,rsc/schema/browser-captures/apiConversation#/de"
+rsc/schema/model_join.csv,211,path_str,rsc/schema/chat-exports/conversations#/definitions/WebSearchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebSearchToolResultBlock,,rsc/schema/browser-captures/apiConversation"
+rsc/schema/model_join.csv,211,path_str,rsc/schema/browser-captures/apiConversation#/definitions/WebSearchToolResultBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebSearchToolResultBlock,,rsc/schema/browser-captures/apiConversation"
+rsc/schema/model_join.csv,212,path_str,rsc/schema/chat-exports/conversations#/definitions/WebSearchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebSearchToolUseBlock,,rsc/schema/browser-captures/apiConversation#/d"
+rsc/schema/model_join.csv,212,path_str,rsc/schema/browser-captures/apiConversation#/definitions/WebSearchToolUseBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/WebSearchToolUseBlock,,rsc/schema/browser-captures/apiConversation#/d"
+rsc/schema/model_join.csv,213,path_str,rsc/schema/chat-exports/conversations#/definitions/WebpageMetadata,Y,"rsc/schema/chat-exports/conversations#/definitions/WebpageMetadata,,rsc/schema/browser-captures/apiConversation#/definit"
+rsc/schema/model_join.csv,213,path_str,rsc/schema/browser-captures/apiConversation#/definitions/WebpageMetadata,Y,"rsc/schema/chat-exports/conversations#/definitions/WebpageMetadata,,rsc/schema/browser-captures/apiConversation#/definit"
 rsc/schema/protocol/mcpMessage/CHANGELOG.md,8,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage/` - `composition.csv`, the (definition, base) rows"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as authored sources"
 rsc/site/README.md,19,doc,rsc/site/corpus-yoga/index.html,Y,"`rpus.co/corpus-yoga/`. `rsc/site/corpus-yoga/index.html` is the corpus-yoga landing, static and"
@@ -333,6 +706,7 @@ src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": 
 src/main/cli/test/test.sh,21,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/test/test.sh,29,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
 src/main/cli/test/xref.json,9,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
+src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
 src/main/markdown_projection.py,11,comment,src/main/model/project_markdown.py,Y,"Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py"
@@ -364,7 +738,9 @@ src/main/model/model.py,72,path_str,rsc/schema/model.json,Y,print(f'rsc/schema/m
 src/main/model/model_curation.py,4,comment,rsc/schema/model.json,Y,"rsc/schema/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/schema/model_rejected.txt,Y,rsc/schema/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
 src/main/model/model_curation.py,33,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'
-src/main/model/model_curation.py,88,comment,rsc/schema/model_join_kinds.csv,Y,column's one authority (rsc/schema/model_join_kinds.csv).
+src/main/model/model_curation.py,214,path_str,rsc/schema,Y,SCHEMA_ROOT_PREFIX = 'rsc/schema/'
+src/main/model/model_curation.py,91,comment,rsc/schema/model_join_kinds.csv,Y,column's one authority (rsc/schema/model_join_kinds.csv).
+src/main/model/model_curation.py,115,comment,src/main/latest.py,Y,against its own latest version or lineage (src/main/latest.py). None when the
 src/main/model/present_corpus.py,39,path_str,src/main/model/present_corpus.py,Y,SELF = 'src/main/model/present_corpus.py'
 src/main/model/project_markdown.py,9,comment,src/main/markdown_projection.py,Y,The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
 src/main/model/project_markdown.py,10,comment,rsc/schema/browser-captures/markdownConversation/v3.json,Y,validated against rsc/schema/browser-captures/markdownConversation/v3.json. Splitting the bulk
@@ -517,7 +893,7 @@ src/main/pipeline/code-agents/validate.sh,7,comment,src/main/pipeline/code-agent
 src/main/pipeline/code-agents/validate.sh,24,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/protocol/protocol.py,22,path_str,src/main/protocol/protocol.py,Y,SELF = 'src/main/protocol/protocol.py'
 src/main/protocol/protocol_factoring.py,55,path_str,src/main/protocol/protocol_factoring.py,Y,SELF = 'src/main/protocol/protocol_factoring.py'
-src/main/protocol/protocol_factoring.py,64,path_str,rsc/schema/protocol/mcpMessage,Y,FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
+src/main/protocol/protocol_factoring.py,67,path_str,rsc/schema/protocol/mcpMessage,Y,FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_occurrences.py,8,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_occurrences.py ""#/definitions/MessageFile"" \"
@@ -550,57 +926,59 @@ src/test/dev/repairs/structure.required_subset_of_properties.py,4,comment,src/te
 src/test/dev/run.py,6,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh
 src/test/dev/run.py,7,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh --fix   # run all fix commands; stages nothing
 src/test/dev/run.py,60,path_str,src/test/dev/run.py,Y,SELF = 'src/test/dev/run.py'
-src/test/dev/run.py,406,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (#50's one exemption)."
-src/test/dev/run.py,523,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/dev/run.py,669,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/dev/run.py,675,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-src/test/dev/run.py,1484,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
-src/test/dev/run.py,1505,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/dev/run.py,1791,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
-src/test/dev/run.py,2085,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
-src/test/dev/run.py,2097,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
-src/test/dev/run.py,2186,comment,src/main/pipeline/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
-src/test/dev/run.py,2187,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/dev/run.py,2238,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2238,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2239,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2239,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2240,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2240,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2244,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
-src/test/dev/run.py,2257,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
-src/test/dev/run.py,2259,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
-src/test/dev/run.py,2272,path_str,rsc/schema/_reference,Y,"'check_mcp_schema': ['rsc/schema/_reference'],"
-src/test/dev/run.py,2273,path_str,rsc/schema/_reference,Y,"'check_protocol_factoring': ['rsc/schema/_reference', 'rsc/schema/protocol', 'src/main/protocol'],"
-src/test/dev/run.py,2273,path_str,rsc/schema/protocol,Y,"'check_protocol_factoring': ['rsc/schema/_reference', 'rsc/schema/protocol', 'src/main/protocol'],"
-src/test/dev/run.py,2273,path_str,src/main/protocol,Y,"'check_protocol_factoring': ['rsc/schema/_reference', 'rsc/schema/protocol', 'src/main/protocol'],"
-src/test/dev/run.py,2717,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
-src/test/dev/run.py,2254,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
-src/test/dev/run.py,334,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
-src/test/dev/run.py,933,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
-src/test/dev/run.py,984,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,984,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,2061,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
-src/test/dev/run.py,2924,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,2925,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
-src/test/dev/run.py,2631,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2633,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2641,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2643,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,869,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
-src/test/dev/run.py,1101,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/dev/run.py,1179,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
-src/test/dev/run.py,1463,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/dev/run.py,1520,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/dev/run.py,1579,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/dev/run.py,1901,comment,src/main/send.py,Y,# through the one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips both.
-src/test/dev/run.py,2362,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
-src/test/dev/run.py,2373,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2373,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2528,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
-src/test/dev/run.py,2594,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,2972,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,2972,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,407,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (#50's one exemption)."
+src/test/dev/run.py,524,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
+src/test/dev/run.py,670,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/dev/run.py,676,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
+src/test/dev/run.py,1485,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
+src/test/dev/run.py,1506,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/dev/run.py,1787,comment,rsc/schema/model_rejected.txt,Y,covered by a rejection in rsc/schema/model_rejected.txt. One check per
+src/test/dev/run.py,1929,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
+src/test/dev/run.py,2098,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+src/test/dev/run.py,2110,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
+src/test/dev/run.py,2199,comment,src/main/pipeline/chat-exports/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
+src/test/dev/run.py,2200,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/dev/run.py,2251,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2251,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2252,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2252,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2253,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2253,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2257,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
+src/test/dev/run.py,2270,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
+src/test/dev/run.py,2272,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
+src/test/dev/run.py,2285,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
+src/test/dev/run.py,2287,path_str,rsc/schema/protocol,Y,"'check_protocol_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/protocol'],"
+src/test/dev/run.py,2287,path_str,src/main/protocol,Y,"'check_protocol_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/protocol'],"
+src/test/dev/run.py,2732,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,2267,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
+src/test/dev/run.py,2286,path_str,rsc/reference/JSONSchema,Y,"'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],"
+src/test/dev/run.py,335,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
+src/test/dev/run.py,934,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
+src/test/dev/run.py,985,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
+src/test/dev/run.py,985,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
+src/test/dev/run.py,2074,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
+src/test/dev/run.py,2939,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,2940,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,2646,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2648,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2656,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2658,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,870,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
+src/test/dev/run.py,1102,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/dev/run.py,1180,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
+src/test/dev/run.py,1464,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/dev/run.py,1521,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/dev/run.py,1580,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/dev/run.py,1659,comment,src/main/latest.py,Y,# resolved against its latest version or lineage (src/main/latest.py). No per-column
+src/test/dev/run.py,1882,comment,src/main/send.py,Y,"# class with no scratch form (#29), refusable through src/main/send.py's one switch:"
+src/test/dev/run.py,2376,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
+src/test/dev/run.py,2387,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2387,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2543,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
+src/test/dev/run.py,2609,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/dev/run.py,2987,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,2987,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
@@ -633,7 +1011,8 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
-,,,rsc/schema/_reference/mcp/v3.json,Y,
+,,,rsc/reference/mcp/2026-07-28/schema.json,Y,
+,,,rsc/reference/mcp/2026-07-28/schema.ts,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/login_history/CHANGELOG.md,Y,

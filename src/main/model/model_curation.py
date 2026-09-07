@@ -35,6 +35,9 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
+import sys as _sys
+_sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+from latest import latest_file  # noqa: E402
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
 MODEL_JSON = SCHEMA_DIR / 'model.json'
 MODEL_JOIN = SCHEMA_DIR / 'model_join.csv'
@@ -53,7 +56,7 @@ def latest_versions() -> dict:
     """{'<pipeline>/<family>': its latest vN.json} over every versioned family."""
     out = {}
     for pipe in sorted(SCHEMA_DIR.iterdir()):
-        if not pipe.is_dir() or pipe.name.startswith('_'):
+        if not pipe.is_dir():
             continue
         for fam in sorted(pipe.iterdir()):
             if not fam.is_dir():
@@ -107,15 +110,16 @@ def _definition_container(doc: dict) -> str:
 
 def _resolve(cell: str):
     """A model_join cell's fragment resolved in its family's LATEST version -
-    the join's one grammar: any family dir relative to rsc/schema,
-    _reference/mcp included, resolved against its own latest vN.json. None
-    when the cell is empty (an absence claim, not a pointer)."""
+    the join's one grammar: any family dir relative to the repo root (a schema
+    family under rsc/schema, a reference project under rsc/reference), resolved
+    against its own latest version or lineage (src/main/latest.py). None when the
+    cell is empty (an absence claim, not a pointer)."""
     if not cell:
         return None
     family, _, fragment = cell.partition('#')
-    versions = sorted((SCHEMA_DIR / family).glob('v*.json'),
-                      key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
-    doc = json.loads(versions[-1].read_text())
+    path = latest_file(REPO / family)
+    assert path, f'{cell}: nothing to resolve against under {family}'
+    doc = json.loads(path.read_text())
     node = doc
     for token in fragment.lstrip('/').split('/'):
         node = node[token] if isinstance(node, dict) else node[int(token)]
@@ -206,7 +210,14 @@ def identity_violations() -> list:
 COLUMN_FAMILY = {'conversations_path': 'chat-exports/conversations',
                  'session_path': 'code-agents/session',
                  'apiConversation_path': 'browser-captures/apiConversation',
-                 'mcp_path': '_reference/mcp'}
+                 'mcp_path': None}          # a reference project, never scanned for shared names
+SCHEMA_ROOT_PREFIX = 'rsc/schema/'
+
+
+def _family_key(cell_dir: str) -> str:
+    """A cell's directory as the family key latest_versions() uses: the part under
+    rsc/schema/ for a house family, the directory itself otherwise."""
+    return cell_dir[len(SCHEMA_ROOT_PREFIX):] if cell_dir.startswith(SCHEMA_ROOT_PREFIX) else cell_dir
 
 
 def shared_name_candidates() -> list[dict]:
@@ -222,7 +233,7 @@ def shared_name_candidates() -> list[dict]:
     for name, families in unrecorded_collisions().items():
         row = {'name': name, 'families': ' '.join(families)}
         for column, family in COLUMN_FAMILY.items():
-            row[column] = f'{family}#/definitions/{name}' if family in families else ''
+            row[column] = f'{SCHEMA_ROOT_PREFIX}{family}#/definitions/{name}' if family in families else ''
         shapes = []
         for family in families:
             if family in latest:
@@ -423,7 +434,7 @@ def obligating_edges() -> list:
         trails = {}
         for v in filled:
             fam, _, frag = v.partition('#')
-            trails[fam] = _schema_trail(frag)
+            trails[_family_key(fam)] = _schema_trail(frag)
         if names or any(trails.values()):
             out.append((i, row['relationship'], names, trails))
     return out
@@ -500,8 +511,8 @@ def coverage_gaps() -> dict:
     account_uuid / uuid / creator.uuid), no substring search unifies them, so the
     index must be the reliable answer the schemas cannot be. Completeness is over
     DATA families only — an occurrence is an instance pointer into a datum, and a
-    _reference schema (mcp) has no datum, so its correspondence lives in the edge,
-    not here (latest_versions() already excludes _-prefixed reference schemas).
+    reference project (rsc/reference/mcp) has no datum, so its correspondence lives
+    in the edge, not here (latest_versions() covers rsc/schema only).
     With edge_queue, orphan_entries, and this all empty, model.json is the
     complete, foolproof type-occurrence index."""
     data_families = set(latest_versions())

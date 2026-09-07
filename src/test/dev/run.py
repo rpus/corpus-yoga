@@ -101,6 +101,7 @@ import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cac
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(SRC / 'main' / 'protocol'))  # the house protocol factoring (check_protocol_factoring)
 import protocol_factoring  # noqa: E402
+from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
 import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
 
 sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
@@ -266,11 +267,11 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
                     fails.append(f'row {i} {col}: file not found: {file_part}')
                     continue
                 if f.is_dir():
-                    versions = _sorted_versions(f)
-                    if not versions:
-                        fails.append(f'row {i} {col}: no v*.json in family dir: {file_part}')
+                    latest = latest_file(f)
+                    if not latest:
+                        fails.append(f'row {i} {col}: no v*.json or lineage under: {file_part}')
                         continue
-                    f = versions[-1]
+                    f = latest
                 if pointer and f.suffix == '.json':
                     try:
                         doc = json.loads(f.read_text())
@@ -1614,12 +1615,6 @@ def check_versioned_schema_diagnostics(run):
     for schema_name in sorted(set(schema_skips) | set(schema_dirs)):
         skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips.get(schema_name, frozenset())
         schema_dir  = schema_dirs.get(schema_name, SCHEMA_DIR.get(schema_name))
-        if schema_dir and schema_dir.parent.name.startswith('_'):
-            # _reference/ families are VERBATIM upstream snapshots (e.g. the MCP
-            # protocol spec): house style diagnostics do not apply — repairing
-            # upstream text to satisfy them would falsify the snapshot. Validity
-            # ($schema, parseability) is still checked by check_schema_validity.
-            continue
         # the latest version is the schema, the rest history (#557): diagnostics
         # judge the version that judges data; validity and the changelog still
         # hold every version, so the history stays parseable and narrated
@@ -1659,12 +1654,13 @@ def check_schema_join(run):
         not unknown, '; '.join(unknown[:4]) if unknown else None,
         check='model.join_kind_declared')
     fails: list[str] = []
-    # One grammar, one base: every cell is a versioned family dir relative to
-    # rsc/schema ('chat-exports/conversations#…', '_reference/mcp#…'), resolved
-    # against its latest version. No per-column tribal knowledge to resolve a cell.
+    # One grammar, one base: every cell is a versioned family dir relative to the
+    # repo root ('rsc/schema/chat-exports/conversations#…', 'rsc/reference/mcp#…'),
+    # resolved against its latest version or lineage (src/main/latest.py). No per-column
+    # tribal knowledge to resolve a cell.
     _check_csv_pointers(join,
                         ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path'),
-                        {c: RSC_SCHEMA for c in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')},
+                        {c: REPO_ROOT for c in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')},
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None, check='model.join_pointers_valid')
@@ -1858,82 +1854,99 @@ def check_protocol_factoring(run) -> None:
         '\n    '.join(bad[:5]) if bad else None, check='protocol.factoring_agrees')
 
 
-def check_mcp_schema(run):
-    """The LATEST _reference/mcp/vN.json is upstream's schema byte-for-byte (#561):
-    its changelog section pins the lineage raw URL, the upstream commit and the
-    upstream SHA256; the committed file must hash to that SHA256 (the verbatim
-    witness, hermetic); and - network permitting - the live lineage file must
-    still match the pin and upstream's newest dated schema/ directory must be
-    the lineage the URL names. Drift or a newer lineage is answered by MINTING
-    the next version beside the old one (the snapshot's history is data), never
-    by updating in place."""
-    import hashlib, urllib.request
-    mcp_dir  = RSC_SCHEMA / '_reference' / 'mcp'
-    versions = _sorted_versions(mcp_dir) if mcp_dir.is_dir() else []
-    if not versions:
-        run('mcp schema: _reference/mcp/ has versions', False, check='mcp.has_versions')
-        return
-    latest = versions[-1]
-    rel    = latest.relative_to(REPO_ROOT)
-    changelog = mcp_dir / 'CHANGELOG.md'
-    section = ''
-    if changelog.exists():
-        m_section = re.search(rf'^## {latest.stem}$(.*?)(?=^## |\Z)',
-                              changelog.read_text(), re.M | re.S)
-        section = m_section.group(1) if m_section else ''
-    m_url  = re.search(r'(https://raw\.githubusercontent\.com/\S+?/schema/(\d{4}-\d{2}-\d{2})/schema\.json)', section)
-    m_hash = re.search(r'upstream SHA256:\s*`?([0-9a-f]{64})', section)
-    if not m_url or not m_hash:
-        run('mcp schema: changelog pins upstream (raw URL + SHA256)', False,
-            f'Add the lineage raw URL and "upstream SHA256: <hex>" to the ## {latest.stem} section '
-            f'of {changelog.relative_to(REPO_ROOT)}', check='mcp.changelog_pins_upstream')
-        return
-    raw_url, lineage = m_url.group(1), m_url.group(2)
-    stored_hash = m_hash.group(1)
-    local_hash  = hashlib.sha256(latest.read_bytes()).hexdigest()
-    run(f'mcp schema: {latest.stem} verbatim (bytes hash to the pinned SHA256)',
-        local_hash == stored_hash,
-        None if local_hash == stored_hash else
-        f'{rel} hashes {local_hash}, the changelog pins {stored_hash} - '
-        'the committed snapshot is not the pinned upstream file', check='mcp.verbatim')
-    # These are the gate's only SENDS - outward calls over the network, the one effect
-    # class with no scratch form (#29). They are refusable like every other send here,
-    # through the one reading of the switch in src/main/send.py: YOGA_NO_SEND=1 skips both.
-    #
-    # An unreachable upstream is NOT a failure: raising on it makes the report depend on
-    # the network, and an offline machine unable to commit at all. The labels are CONSTANT
-    # and each result passes when its send did not happen, so the committed report is
-    # byte-identical on a machine that cannot reach github (shellcheck and pyright skip
-    # the same way, and L2 requires it).
-    drift = None
-    if may_send():
-        try:
-            with urllib.request.urlopen(raw_url, timeout=15) as resp:
-                live_hash = hashlib.sha256(resp.read()).hexdigest()
-            if stored_hash != live_hash:
-                drift = (f'upstream changed - mint: git mv {rel} v{int(latest.stem[1:]) + 1}.json and '
-                         f'replace its content with the bytes at {raw_url}; add the new changelog '
-                         f'section (raw URL, commit, SHA256, disposal record)')
-        except Exception:
-            pass          # unreached: the currency of the copy is simply unknown this run
-    run(f'mcp schema: {latest.stem} up to date', drift is None, drift, check='mcp.up_to_date')
-    stale = None
-    if may_send():
-        try:
-            listing = 'https://api.github.com/repos/modelcontextprotocol/modelcontextprotocol/contents/schema'
-            with urllib.request.urlopen(listing, timeout=15) as resp:
-                names = [entry['name'] for entry in json.loads(resp.read())]
-            dated = sorted(name for name in names if re.fullmatch(r'\d{4}-\d{2}-\d{2}', name))
-            if dated and dated[-1] != lineage:
-                stale = (f'upstream opened schema/{dated[-1]}/ while the snapshot tracks '
-                         f'schema/{lineage}/ - mint: git mv {rel} v{int(latest.stem[1:]) + 1}.json and '
-                         f'replace its content with the new lineage\'s bytes; add the new changelog '
-                         f'section (raw URL, commit, SHA256, disposal record)')
-        except Exception:
-            pass          # unreached: the lineage listing is simply unknown this run
-    run(f'mcp schema: {latest.stem} tracks the newest dated lineage', stale is None, stale,
-        check='mcp.newest_lineage')
+def check_reference(run) -> None:
+    """Every upstream reference artefact under rsc/reference (#572) is what its
+    project's provenance.csv pins: the committed bytes hash to the pinned SHA256
+    (verbatim, hermetic); the project holds one lineage directory (the latest is
+    the reference, the rest history - #557); and, network permitting, the file at
+    the pinned URL still hashes the same, and where reference.json names a
+    lineage listing its newest dated entry is the lineage held. Drift is answered
+    by minting the next lineage directory in the old one's place, never by
+    editing a file."""
+    import urllib.request
+    root = REPO_ROOT / 'rsc' / 'reference'
+    for project in sorted(p for p in root.iterdir() if p.is_dir()):
+        name = project.name
+        provenance = project / 'provenance.csv'
+        rows = list(csv.DictReader(provenance.open(newline=''))) if provenance.is_file() else []
+        run(f'reference: {name}: provenance.csv pins its files', bool(rows),
+            None if rows else f'add {provenance.relative_to(REPO_ROOT)} (lineage, file, url, pin, sha256)',
+            check='reference.provenance_declared')
+        held = lineages(project)
+        run(f'reference: {name}: one lineage directory', len(held) == 1,
+            None if len(held) == 1 else
+            f'{project.relative_to(REPO_ROOT)} holds {[d.name for d in held]} - the latest lineage is the '
+            'reference and the rest history: keep one', check='reference.single_lineage')
+        declared = json.loads((project / 'reference.json').read_text()) if (project / 'reference.json').is_file() else {}
+        # These are the gate's only SENDS - outward calls over the network, the one effect
+        # class with no scratch form (#29), refusable through src/main/send.py's one switch:
+        # YOGA_NO_SEND=1 skips them. An unreachable upstream is NOT a failure: the labels
+        # are CONSTANT and each result passes when its send did not happen, so the
+        # committed report is byte-identical on a machine that cannot reach the network
+        # (shellcheck and pyright skip the same way, and L2 requires it).
+        for row in rows:
+            path = project / row['lineage'] / row['file']
+            rel = path.relative_to(REPO_ROOT)
+            local = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
+            run(f'reference: {rel} verbatim (bytes hash to the pinned SHA256)', local == row['sha256'],
+                None if local == row['sha256'] else
+                (f'{rel} is absent' if local is None else
+                 f'{rel} hashes {local}, provenance.csv pins {row["sha256"]} - the committed file is not the pinned upstream file'),
+                check='reference.verbatim')
+            drift = None
+            if may_send():
+                try:
+                    with urllib.request.urlopen(row['url'], timeout=15) as resp:
+                        live = hashlib.sha256(resp.read()).hexdigest()
+                    if live != row['sha256']:
+                        drift = (f'upstream changed at {row["url"]} - mint the next lineage: git mv '
+                                 f'{project.relative_to(REPO_ROOT)}/{row["lineage"]} to its new name, replace the files '
+                                 f"with upstream's bytes, update provenance.csv (url, pin, sha256) and the changelog")
+                except Exception:
+                    pass          # unreached: the currency of the copy is simply unknown this run
+            run(f'reference: {rel} up to date', drift is None, drift, check='reference.up_to_date')
+        listing = declared.get('lineage_listing')
+        if listing and rows:
+            stale = None
+            if may_send():
+                try:
+                    with urllib.request.urlopen(listing, timeout=15) as resp:
+                        names = [entry['name'] for entry in json.loads(resp.read())]
+                    dated = sorted(n for n in names if re.fullmatch(r'\d{4}-\d{2}-\d{2}', n))
+                    if dated and dated[-1] != held[-1].name if held else False:
+                        stale = (f'upstream opened {dated[-1]}/ while {project.relative_to(REPO_ROOT)} holds '
+                                 f'{held[-1].name}/ - mint the new lineage in its place (git mv, replace the files, '
+                                 'update provenance.csv and the changelog)')
+                except Exception:
+                    pass          # unreached: the lineage listing is simply unknown this run
+            run(f'reference: {name}: holds the newest dated lineage', stale is None, stale,
+                check='reference.newest_lineage')
 
+
+def check_schema_meta_validity(run) -> None:
+    """Every house schema - each family's latest version and each root schema -
+    validates against the committed draft-04 meta-schema
+    (rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them
+    declares, held as repo data (#572): a property of the committed artifacts."""
+    import jsonschema
+    meta_path = REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json'
+    if not meta_path.is_file():
+        run('schema: the draft-04 meta-schema is committed', False,
+            f'{meta_path.relative_to(REPO_ROOT)} is absent', check='schema.meta_schema_present')
+        return
+    validator = jsonschema.Draft4Validator(json.loads(meta_path.read_text()))
+    targets = [(f'{name}: {latest.stem}', latest)
+               for name, d in sorted(_schema_families().items()) if (latest := latest_file(d))]
+    targets += [(path.name, path) for path in sorted(RSC_SCHEMA.glob('*.json'))]
+    for label, path in targets:
+        errors = sorted(validator.iter_errors(json.loads(path.read_text())), key=lambda e: list(e.path))
+        detail = None
+        if errors:
+            first = errors[0]
+            detail = (f'{path.relative_to(REPO_ROOT)} #/{"/".join(str(x) for x in first.path)}: {first.message[:160]}'
+                      + (f' (+{len(errors) - 1} more)' if len(errors) > 1 else ''))
+        run(f'{label}: valid against the draft-04 meta-schema', not errors, detail,
+            check='schema.valid_against_meta_schema')
 
 
 def check_effects(run):
@@ -2110,7 +2123,7 @@ def check_xref(run):
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
         if actual != expected else None, law='L9', check='xref.score_matches_expectation')
-    # L9 is cited ONLY from here, never from mcp.up_to_date: that run() sits inside a
+    # L9 is cited ONLY from here, never from reference.up_to_date: that run() sits inside a
     # network fetch, and when the fetch fails control leaves for the except branch and
     # the citation never happens. A law must not look unenforced because a request timed
     # out, so its citation lives on a check that cannot be skipped.
@@ -2269,8 +2282,9 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_join_versions': SCHEMA,
     'check_model_occurrences': SCHEMA + ['src'],
     'check_model_obligations': SCHEMA + ['src'],
-    'check_mcp_schema': ['rsc/schema/_reference'],
-    'check_protocol_factoring': ['rsc/schema/_reference', 'rsc/schema/protocol', 'src/main/protocol'],
+    'check_reference': ['rsc/reference'],
+    'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
+    'check_protocol_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/protocol'],
 }
 
 SECTION_CACHE = REPO_ROOT / 'tmp' / 'cache' / 'test' / 'sections.json'
@@ -2506,6 +2520,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_root_schema_diagnostics, tier='schema')
 
         run_section(check_schema_validity, tier='schema')
+        run_section(check_schema_meta_validity, tier='schema')
         run_section(check_schema_single_version, tier='schema')
         run_section(check_schema_changelogs, tier='schema')
 
@@ -2515,7 +2530,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_occurrences, tier='schema')
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
-        run_section(check_mcp_schema, tier='schema')
+        run_section(check_reference, tier='schema')
         run_section(check_protocol_factoring, tier='schema')
 
 

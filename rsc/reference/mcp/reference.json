@@ -1,0 +1,4 @@
+{
+  "upstream": "https://github.com/modelcontextprotocol/modelcontextprotocol",
+  "lineage_listing": "https://api.github.com/repos/modelcontextprotocol/modelcontextprotocol/contents/schema"
+}
