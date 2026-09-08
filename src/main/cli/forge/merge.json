@@ -11,16 +11,15 @@
   "sends": {
     "gh pr view": [
       "reads the PR's state, base and head before anything else, its body for the phrase to flip, and its title for the copy check",
-      "reads the merge commit after the squash, to converge this checkout on it"
+      "reads the merge commit after the squash, to converge this checkout on it",
+      "reads a merged parent's final head when finding a stacked branch's relocation point (#585)"
     ],
     "gh issue view": [
       "reads each aimed issue's title (#479): a title that copies none of them refuses the merge before any enacting step"
     ],
     "gh api": [
-      "reads each aimed issue's open blockers (#482): a body that leaves one unaimed refuses the merge before any enacting step"
-    ],
-    "gh pr list --state merged": [
-      "names the merged PR whose head a stacked branch carries, for the relocation's one line (#585) - only when the base had moved and commits were already held"
+      "reads each aimed issue's open blockers (#482): a body that leaves one unaimed refuses the merge before any enacting step",
+      "reads, for each base commit since the merge-base, the PR that introduced it (commits/<sha>/pulls) and that PR's force-push timeline (superseded-heads.graphql), to find the point a stacked branch relocates from and name the merged parent (#585) - only when the base had moved"
     ],
     "git fetch origin <base> <head>": [
       "reads both refs to judge whether the base moved"

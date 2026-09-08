@@ -418,29 +418,65 @@ merge() {
   return "$rc"
 }
 
+# The PR that introduced a base commit - exact for a squash on the default branch
+# (repos/{owner}/{repo}/commits/<sha>/pulls). Empty when the send is refused or the
+# forge unreachable.
+pr_of_commit() {  # <sha>
+  may_send || return 0
+  (cd "$REPO_DIR" && quote gh api "repos/{owner}/{repo}/commits/$1/pulls" --jq '.[0].number // empty') || true
+}
+
+# The heads a merged PR held before each relocation, and its final head (#585): the
+# force-push timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql)
+# and headRefOid. A stacked branch built on the parent before the forge relocated it
+# carries one of these. Empty when the send is refused or the forge unreachable.
+pr_former_heads() {  # <pr-number>
+  may_send || return 0
+  (cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$1" \
+      -F query=@src/main/cli/forge/superseded-heads.graphql \
+      --jq '.data.repository.pullRequest.timelineItems.nodes[].beforeCommit.oid') || true
+  (cd "$REPO_DIR" && quote gh pr view "$1" --json headRefOid --jq .headRefOid) || true
+}
+
 # The point a branch relocates from (#585): the newest of its commits since the
-# merge-base whose TREE some commit of the base since that merge-base carries - a
-# stacked branch's merged parent, whose squash keeps the parent head's tree though
-# not its patches (a one-commit parent squashes to its own patch and git drops it
-# unasked; a two-commit parent squashes to a patch matching neither, and a plain
-# rebase replays both onto their own squash) - else the merge-base itself, the plain
-# rebase. Prints "<onto> <commits already held> <own commits to replay>".
-relocation_point() {
-  local base_ref="$1" head_ref="$2" merge_base onto sha tree base_trees
+# merge-base that the base already holds - else the merge-base itself, the plain
+# rebase. Held is read two ways. Tree for tree: a parent merged with the base unmoved
+# keeps its head's TREE in its squash though not its patches (a one-commit parent
+# squashes to its own patch and git drops it unasked; a two-commit parent squashes to
+# a patch matching neither, and a plain rebase replays both onto their own squash).
+# By name: a parent the forge relocated before its squash keeps none of the child's
+# trees, but the forge holds its former heads - the newest one the branch carries is
+# the point. Prints "<onto> <commits held> <own commits to replay> <merged PR or ->".
+relocation_point() {  # <base-ref> <head-ref>
+  local base_ref="$1" head_ref="$2" merge_base onto="" named="" sha tree base_trees pr former count best=-1
   merge_base="$(git -C "$REPO_DIR" merge-base "$base_ref" "$head_ref")" || return 1
-  base_trees="$(git -C "$REPO_DIR" log --format='%T' "$merge_base..$base_ref")"
-  onto="$merge_base"
+  base_trees="$(git -C "$REPO_DIR" log --format='%H %T' "$merge_base..$base_ref")"
   while read -r sha tree; do
-    if grep -qx "$tree" <<< "$base_trees"; then onto="$sha"; break; fi
+    if grep -q " $tree\$" <<< "$base_trees"; then
+      onto="$sha"; named="$(pr_of_commit "$(grep " $tree\$" <<< "$base_trees" | head -1 | cut -d' ' -f1)" || true)"
+      break
+    fi
   done < <(git -C "$REPO_DIR" log --format='%H %T' "$merge_base..$head_ref")
-  echo "$onto $(git -C "$REPO_DIR" rev-list --count "$merge_base..$onto") $(git -C "$REPO_DIR" rev-list --count "$onto..$head_ref")"
+  if [[ -z "$onto" ]]; then
+    for sha in $(git -C "$REPO_DIR" rev-list "$merge_base..$base_ref"); do
+      pr="$(pr_of_commit "$sha" || true)"; [[ -n "$pr" ]] || continue
+      for former in $(pr_former_heads "$pr" || true); do
+        git -C "$REPO_DIR" merge-base --is-ancestor "$merge_base" "$former" 2>/dev/null || continue
+        git -C "$REPO_DIR" merge-base --is-ancestor "$former" "$head_ref" 2>/dev/null || continue
+        count="$(git -C "$REPO_DIR" rev-list --count "$merge_base..$former")"
+        if (( count > best )); then best=$count; onto="$former"; named="$pr"; fi
+      done
+    done
+  fi
+  [[ -n "$onto" ]] || onto="$merge_base"
+  echo "$onto $(git -C "$REPO_DIR" rev-list --count "$merge_base..$onto") $(git -C "$REPO_DIR" rev-list --count "$onto..$head_ref") ${named:--}"
 }
 
 merge_chain() {
   local pr="$1"
   local state base head body branch_here old_sha prior conflicted flipped n moved=0 guard=0
   local oid landed
-  assert_may_send "gh pr view / gh issue view / gh api / gh pr list / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
+  assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE — #$pr is $state; only an open PR merges"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE — the body read failed"; return 1; }
@@ -493,10 +529,15 @@ merge_chain() {
     # A paused rebase is an EXPECTED state, not a failure (#485): the attempt
     # face relays no verdict, git's advice channels are off, and the narration
     # below names the state in the mechanism's own voice.
-    read -r onto held own < <(relocation_point "refs/remotes/origin/$base" "refs/remotes/origin/$head")
+    read -r onto held own merged_pr < <(relocation_point "refs/remotes/origin/$base" "refs/remotes/origin/$head") || true
+    if [[ -z "$onto" ]]; then
+      echo "forge merge: NOT DONE — no relocation point: origin/$base and origin/$head share no merge-base"
+      [[ -n "$branch_here" ]] && enact git -C "$REPO_DIR" checkout "$branch_here"
+      return 1
+    fi
+    [[ "$merged_pr" != - ]] || merged_pr=""
     if (( held > 0 )); then
-      merged_pr="$(cd "$REPO_DIR" && gh pr list --state merged --limit 30 --json number,headRefOid --jq ".[] | select(.headRefOid == \"$onto\") | .number" 2>/dev/null | head -1)"
-      echo "relocating: $held commit(s) up to ${onto:0:7} already stand on origin/$base tree for tree${merged_pr:+ - the head of #$merged_pr, merged}; replaying the $own own commit(s) from there"
+      echo "relocating: $held commit(s) up to ${onto:0:7} already stand on origin/$base${merged_pr:+ - the head of #$merged_pr, merged}; replaying the $own own commit(s) from there"
     else
       echo "relocating: replaying $own commit(s) from the merge-base ${onto:0:7}"
     fi
