@@ -1,11 +1,12 @@
 {
-  "help": "(re-)derive rsc/schema/protocol/mcpMessage's latest v*.json from the verbatim snapshot - idempotent; the dev gate holds the file current and its flattening equal to the snapshot",
+  "help": "(re-)derive rsc/schema/protocol/mcpMessage's latest v*.json from the two committed upstream files - the extends clauses and type aliases of schema.ts, every definition of schema.json - writing the extracted tables under tmp/cache/mcp/ as their readable face; idempotent; the dev gate holds the file current and its flattening equal to the snapshot",
   "args": [],
   "r": [
     "rsc/reference/mcp",
     "rsc/schema/protocol/mcpMessage"
   ],
   "w": [
-    "rsc/schema/protocol/mcpMessage"
+    "rsc/schema/protocol/mcpMessage",
+    "tmp/cache/mcp"
   ]
 }

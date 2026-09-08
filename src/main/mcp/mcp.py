@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 """
 mcp.py - the house factoring of the MCP schema, rsc/schema/protocol/mcpMessage,
-derived from its verbatim snapshot rsc/reference/mcp.
+derived from the two committed upstream files under rsc/reference/mcp: schema.ts,
+whose extends clauses and type aliases mcp_extraction.py reads (#581), and
+schema.json, the snapshot every definition is verified against.
 
-`mcp` is a NOUN: the derived schema. A bare invocation shows their state and
-writes nothing (the bare noun IS the status). Only `sync` writes: it brings the
-family's latest version file into agreement with the snapshot, and re-running is
-silence (L1). The witness that the derivation preserved meaning is the dev gate's
+`mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes
+nothing (the bare noun IS the status). Only `sync` writes: the two extracted
+tables under tmp/cache/mcp/ (the readable face of the derivation's inputs) and the
+family's latest version file, and re-running is silence (L1). The witness that the derivation preserved meaning is the dev gate's
 (mcp.factoring_agrees); the currency of the committed file is its too
 (mcp.factoring_current).
 
@@ -38,24 +40,47 @@ def _target() -> Path:
     return latest if latest else factoring.FAMILY_DIR / 'v1.json'
 
 
+def _tables_current(declared: dict, rows: list) -> bool:
+    """Whether tmp/cache/mcp/ holds the tables as extracted now."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as scratch:
+        saved = factoring.CACHE_DIR, factoring.COMPOSITION, factoring.ALIASES
+        try:
+            factoring.CACHE_DIR = Path(scratch)
+            factoring.COMPOSITION = factoring.CACHE_DIR / 'composition.csv'
+            factoring.ALIASES = factoring.CACHE_DIR / 'alias.csv'
+            fresh = {p.name: p.read_text() for p in factoring.written_tables(declared, rows)}
+        finally:
+            factoring.CACHE_DIR, factoring.COMPOSITION, factoring.ALIASES = saved
+    return all((factoring.CACHE_DIR / name).is_file() and (factoring.CACHE_DIR / name).read_text() == text
+               for name, text in fresh.items())
+
+
 def status() -> int:
     target = _target()
     rel = target.relative_to(REPO)
-    wanted = factoring.current_text()
+    snapshot_path, snap = factoring.snapshot()
+    shapes, declared, rows = factoring.inputs()
+    wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance()))
+    ts = factoring.schema_ts().relative_to(REPO)
+    cache = factoring.CACHE_DIR.relative_to(REPO)
+    print(f'mcp: {ts}: {sum(len(b) for b in declared.values())} extends rows over '
+          f'{len(declared)} definitions, {len(rows)} alias rows ({sum(1 for r in rows if r[1] == "")} copies, '
+          f'{sum(1 for r in rows if r[1])} use sites) - '
+          f'{"faced under " + str(cache) if _tables_current(declared, rows) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes it)"}')
+    for name, base in factoring.overrides(shapes, declared):
+        print(f'  override: {name} extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
     if not target.exists():
         print(f'mcp: {rel} absent - corpus-yoga mcp sync derives it')
         return 1
     have = target.read_text()
-    snapshot_path, snap = factoring.snapshot()
     bad = factoring.disagreements(json.loads(have), snap)
     current = have == wanted
-    print(f'mcp: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)}'
+    print(f'mcp: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)} and {ts}'
           f' · {len(json.loads(have).get("definitions", {}))} definitions · '
           f'{"agrees with the snapshot" if not bad else f"{len(bad)} disagreement(s)"}')
     for line in bad[:5]:
         print(f'  {line}')
-    for name, base in factoring.overrides(*factoring.shapes_and_declared()):
-        print(f'  override: {name} narrows {base} - stands flat (schema.ts extends, allOf cannot)')
     if not current:
         print('  corpus-yoga mcp sync brings it current')
     return 0 if current and not bad else 1
@@ -63,7 +88,12 @@ def status() -> int:
 
 def sync() -> int:
     target = _target()
-    wanted = factoring.current_text()
+    snapshot_path, snap = factoring.snapshot()
+    shapes, declared, rows = factoring.inputs()
+    if not _tables_current(declared, rows):
+        for path in factoring.written_tables(declared, rows):
+            print(f'  ✓ {path.relative_to(REPO)}')
+    wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance()))
     if target.exists() and target.read_text() == wanted:
         return 0                      # current means no write and nothing said (L1)
     target.parent.mkdir(parents=True, exist_ok=True)

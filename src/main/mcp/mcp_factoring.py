@@ -7,12 +7,14 @@ snapshot rsc/reference/mcp and written to rsc/schema/protocol/mcpMessage.
 Upstream's schema.json inlines every message's envelope (jsonrpc, id, method,
 params) because its TypeScript-to-JSON generator flattens `extends`, and it inlines
 every type alias (Cursor, ResultType, EmptyResult, JSONArray, the enum-schema
-unions) while still emitting the alias definitions, dead. Three tables beside the
-family's versions restore what schema.ts states, each row VERIFIED against the
-snapshot before it is used, so a row the data does not bear refuses the derivation
-rather than misstating the schema:
+unions) while still emitting the alias definitions, dead. Two tables restore what
+schema.ts states - extracted from the committed schema.ts at every sync by
+mcp_extraction.py's rules (#581), written under tmp/cache/mcp/ as their readable
+face - and one is house prose beside the family's version; every row is VERIFIED
+against the snapshot before it is used, so a row the data does not bear refuses the
+derivation rather than misstating the schema:
 
-- composition.csv (definition, base): schema.ts's `extends`, transcribed whole. A
+- composition (definition, base): schema.ts's `extends`, whole, in declaration order. A
   definition is written as allOf [bases..., its own fields]; adding a base's
   constraints to the definition must change nothing (the definition refines it).
   Where the definition instead OVERRIDES a base's property with a conflicting
@@ -24,12 +26,15 @@ rather than misstating the schema:
   id), because allOf conjoins and cannot narrow the generic envelope's open
   `params` the way `extends` does - the one place the factoring and schema.ts
   diverge, by necessity.
-- alias.csv (definition, pointer, alias): where schema.ts uses an alias the
-  generator inlined; the inline subschema at the pointer is replaced by a $ref to
-  the alias (a pointer to an anyOf splices the alias's members out and the alias
-  in), after checking the two resolve to the same shape.
+- alias (definition, pointer, alias): where schema.ts uses an alias the generator
+  inlined - its snapshot definition referenced by nothing - and where an alias names
+  one type the generator copied; the inline subschema at the pointer is replaced by
+  a $ref to the alias (a pointer to an anyOf splices the alias's members out and the
+  alias in; an empty pointer replaces the whole body), after checking the two
+  resolve to the same shape.
 - description.csv (name, description): house text for the definitions the
-  snapshot leaves undescribed.
+  snapshot leaves undescribed - the one hand-written table, committed beside the
+  version file.
 
 The root is a house definition, MCPMessage: the wire message read as any of the
 typed message shapes upstream exports but no definition references (the
@@ -61,13 +66,15 @@ sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from schema_walk import schema_nodes, rebuilt  # noqa: E402  (positions derived from the meta-schema, #571)
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 from latest import latest_file  # noqa: E402
+import mcp_extraction as extraction  # noqa: E402  (sibling module)
 
 SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
 FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
-COMPOSITION  = FAMILY_DIR / 'composition.csv'
-ALIASES      = FAMILY_DIR / 'alias.csv'
+CACHE_DIR    = REPO / 'tmp/cache/mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
+COMPOSITION  = CACHE_DIR / 'composition.csv'
+ALIASES      = CACHE_DIR / 'alias.csv'
 FAMILY       = 'mcpMessage'
 ROOT_DEFINITION = 'MCPMessage'
 DRAFT_04 = 'http://json-schema.org/draft-04/schema#'
@@ -169,18 +176,83 @@ def _rows(path: Path) -> list[dict]:
         return list(csv.DictReader(fh))
 
 
+def schema_ts() -> Path:
+    """The committed schema.ts beside the snapshot."""
+    path = snapshot()[0].with_name('schema.ts')
+    assert path.is_file(), f'{path.relative_to(REPO)} absent - the lineage holds schema.json and schema.ts'
+    return path
+
+
+def declarations():
+    return extraction.declarations(schema_ts().read_text())
+
+
 def composition() -> dict[str, list[str]]:
-    """{definition: [base, ...]} as schema.ts declares it."""
-    out: dict[str, list[str]] = {}
-    for row in _rows(COMPOSITION):
-        out.setdefault(row['definition'], []).append(row['base'])
-    return out
+    """{definition: [base, ...]} as schema.ts declares it (extracted, #581)."""
+    return extraction.composition(declarations()[0])
 
 
-def aliases() -> list[tuple[str, str, str]]:
-    """(definition, pointer within it, alias) - where schema.ts uses an alias the
-    generator inlined."""
-    return [(r['definition'], r['pointer'], r['alias']) for r in _rows(ALIASES)]
+def _dead(shapes: dict) -> set[str]:
+    """Definitions nothing in the snapshot references - the aliases the generator
+    inlined."""
+    referenced = set()
+    for body in shapes.values():
+        for _, node in schema_nodes(body):
+            if isinstance(node.get('$ref'), str):
+                referenced.add(node['$ref'].split('/')[-1])
+    return set(shapes) - referenced
+
+
+def _union_index(union: str, alias: str, shapes: dict) -> int:
+    """The anyOf member of the snapshot's union that is the alias's shape."""
+    ref = {'$ref': f'#/definitions/{alias}'}
+    for i, member in enumerate(shapes[union].get('anyOf', [])):
+        if _comparable(member, shapes) == _comparable(ref, shapes):
+            return i
+    raise AssertionError(f'{union}: no anyOf member is {alias}')
+
+
+def alias_rows(shapes: dict) -> list[tuple[str, str, str]]:
+    """(definition, pointer within it, alias), derived from schema.ts (#581): a copy
+    site for every alias naming one type; a use site for every alias the generator
+    inlined - a property typed by it, or a union alias listing it (spliced when the
+    alias is itself a union, else the member holding its shape)."""
+    interfaces, aliases = declarations()
+    dead = _dead(shapes)
+    by_name = {a.name: a for a in aliases}
+    rows: list[tuple[str, str, str]] = []
+    for a in aliases:
+        if a.single and a.single in shapes and a.name in shapes:
+            rows.append((a.name, '', a.single))
+    for a in aliases:
+        if a.name not in dead or a.name not in shapes:
+            continue
+        for interface, pointer in extraction.property_sites(interfaces, a.name):
+            if interface in shapes:
+                rows.append((interface, pointer, a.name))
+        for union in extraction.union_sites(aliases, a.name):
+            if union not in shapes or by_name[union].single:
+                continue
+            pointer = 'anyOf' if a.union else f'anyOf/{_union_index(union, a.name, shapes)}'
+            rows.append((union, pointer, a.name))
+    return rows
+
+
+def written_tables(declared: dict, rows: list) -> list[Path]:
+    """Write the two extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
+    sibling table) - the readable face of the derivation's inputs."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with COMPOSITION.open('w', newline='') as fh:
+        w = csv.writer(fh, quoting=csv.QUOTE_ALL)
+        w.writerow(['definition', 'base'])
+        for name, bases in declared.items():
+            for b in bases:
+                w.writerow([name, b])
+    with ALIASES.open('w', newline='') as fh:
+        w = csv.writer(fh, quoting=csv.QUOTE_ALL)
+        w.writerow(['definition', 'pointer', 'alias'])
+        w.writerows(rows)
+    return [COMPOSITION, ALIASES]
 
 
 def descriptions() -> dict:
@@ -598,7 +670,7 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             assert b in shapes, f'{name}: declared base {b} is no definition'
             bearing = _bearing(name, b, shapes)
             assert bearing != 'unbearable', (f'{name}: declared base {b} says something the definition '
-                                             f'does not (composition.csv row to re-judge)')
+                                             f'does not (composition row schema.ts states; the extraction rule to re-judge)')
             if bearing == 'holds':
                 bases.append(b)
         body = _composed(flat, bases, shapes)
@@ -626,10 +698,9 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             'wire message read as any typed message shape upstream exports. Derived by '
             'corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp '
             f"({prov['lineage']} lineage, upstream commit {prov['commit']}, upstream SHA256 "
-            f"{prov['sha256']}); structural reference, for reference only, upstream's schema.ts at that "
-            f"commit beside it ({prov['ts_url']}), transcribed by hand as rsc/schema/protocol/mcpMessage/composition.csv and "
-            'rsc/schema/protocol/mcpMessage/alias.csv and verified against the snapshot at '
-            'derivation. Definitions the snapshot leaves undescribed take their text from '
+            f"{prov['sha256']}) and from upstream's schema.ts at that commit beside it ({prov['ts_url']}), "
+            'whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every '
+            'row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from '
             'rsc/schema/protocol/mcpMessage/description.csv. One instance is one JSON-RPC message.'
         ),
         'allOf': [{'$ref': f'#/definitions/{ROOT_DEFINITION}'}],
@@ -664,7 +735,7 @@ def disagreements(house_doc: dict, snapshot_doc: dict) -> list[str]:
 
 
 def shapes_and_declared() -> tuple[dict, dict]:
-    """The flat house-dialect shapes (snapshot plus headers) and the declared
+    """The flat house-dialect shapes (snapshot plus headers) and the extracted
     composition - what status reports overrides from."""
     _, doc = snapshot()
     container = '$defs' if '$defs' in doc else 'definitions'
@@ -673,7 +744,14 @@ def shapes_and_declared() -> tuple[dict, dict]:
     return shapes, composition()
 
 
+def inputs() -> tuple[dict, dict, list]:
+    """(shapes, composition, alias rows) - the derivation's inputs as extracted now."""
+    shapes, declared = shapes_and_declared()
+    return shapes, declared, alias_rows(shapes)
+
+
 def current_text() -> str:
     """The factoring as it should read now, from the committed inputs."""
     _, doc = snapshot()
-    return rendered(factored(doc, descriptions(), composition(), aliases(), provenance()))
+    shapes, declared, rows = inputs()
+    return rendered(factored(doc, descriptions(), declared, rows, provenance()))
