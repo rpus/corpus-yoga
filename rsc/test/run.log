@@ -1,4 +1,4 @@
-run.py: code+schema 1263/1263
+run.py: code+schema 1267/1267
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: code+schema 1263/1263
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (75/75)
+  ✓ structure.self_path_matches_address  (76/76)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -49,7 +49,7 @@ run.py: code+schema 1263/1263
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (78/78)
-  ✓ structure.file_at_level_of_subject  (27/27)
+  ✓ structure.file_at_level_of_subject  (28/28)
   ✓ structure.cli_declaration_mirrors_the_api  (20/20)
   ✓ structure.cli_declaration_validates  (61/61)
   ✓ cli.every_form_listed  (38/38)
@@ -71,8 +71,8 @@ run.py: code+schema 1263/1263
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (8/8)
-  ✓ cache_io.paths_resolve  (8/8)
+  ✓ cache_io.read_implies_writer  (9/9)
+  ✓ cache_io.paths_resolve  (9/9)
 
 ── check_accumulate_contract ─────────────────────────────────────────────────
   ✓ accumulate.trajectory_contract
@@ -202,15 +202,15 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations            6     0   code        7
 check_step_imports                     2     0   code       11
-check_self_paths                      75     0   code       14
+check_self_paths                      76     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    483     0   code       28
+check_cli_surface                    484     0   code       28
 check_cli_verb_help                   19     0   code       61
 check_cli_exclusive_classes            6     0   code       64
 check_effects                          2     0   code       67
-check_cache_io                        18     0   code       71
+check_cache_io                        20     0   code       71
 check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
@@ -231,8 +231,8 @@ check_mcp_reproducible                 1     0   schema    195
 check_expectation                      2     0   code      198
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 112 types, 1263/1263 invocations passing
-checks[code]: 64 types, 646/646 invocations passing
+checks[code+schema]: 112 types, 1267/1267 invocations passing
+checks[code]: 64 types, 650/650 invocations passing
 checks[schema]: 48 types, 617/617 invocations passing
 
-dev gate: PASS — code+schema 1263/1263 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1267/1267 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

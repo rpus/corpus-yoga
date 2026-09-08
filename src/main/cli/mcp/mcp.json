@@ -1,5 +1,5 @@
 {
-  "summary": "the house factoring of the MCP schema, derived from its verbatim snapshot (bare: is it current?)",
+  "summary": "the house factoring of the MCP schema, derived from the two committed upstream files (bare: is it current?)",
   "target": "src/main/mcp/mcp.py",
   "calculus": "project L1 L6",
   "args": [],

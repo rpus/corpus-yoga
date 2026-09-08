@@ -3,13 +3,15 @@
 This family is the HOUSE FACTORING of the Model Context Protocol schema (#562):
 the composition upstream's generator flattens, stated once in draft-04. It is a
 committed derivation, never hand-edited: `corpus-yoga mcp sync` derives the latest
-version from the verbatim snapshot (`rsc/reference/mcp`, whose `provenance.csv`
-pins the lineage, commit and SHA256) and from three tables in
-`rsc/schema/protocol/mcpMessage/` - `composition.csv`, the (definition, base) rows
-of upstream's schema.ts `extends` at the pinned commit; `alias.csv`, where
-schema.ts uses a type alias the generator inlined; `description.csv`, house text
-for the definitions the snapshot leaves undescribed - every row verified against
-the snapshot before use. One instance is one JSON-RPC message; the root is the
+version from the two upstream files held verbatim under `rsc/reference/mcp` (whose
+`provenance.csv` pins the lineage, commit and SHA256) - from `schema.ts` the
+composition (which interface extends which) and the alias sites (where an exported
+type alias is used), extracted by the rules `src/main/mcp/mcp_extraction.py`
+states (#581) and written under `tmp/cache/mcp/` as their readable face; from
+`schema.json` every definition's shape - and from the one hand-written table
+beside this file, `description.csv`, house text for the definitions the snapshot
+leaves undescribed. Every extracted row is verified against the snapshot before
+use. One instance is one JSON-RPC message; the root is the
 house definition `MCPMessage`. The dev gate holds the version file byte-identical
 to the derivation (`mcp.factoring_current`) and every snapshot definition
 equal to its house counterpart resolved and normalized (`mcp.factoring_agrees`).
@@ -17,6 +19,41 @@ No data is validated against it; every house diagnostic holds over it without
 exception.
 
 ---
+
+## v2
+
+Derived 2026-09-08 (home-room) from the same snapshot as v1 - lineage 2026-07-28
+at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
+where the derivation's inputs come from (#581): the composition and alias tables
+are extracted from the committed `schema.ts` by stated rules and faced under
+`tmp/cache/mcp/`, and the two hand-written tables left this directory. The rules
+reproduce every hand row - 90 extends rows over 80 definitions, 10 alias rows -
+and find two more the hand had not written: `EmptyResult` is declared
+`export type EmptyResult = Result` (a copy site; v1 already read it as a
+reference, so no change), and `JSONRPCMessage` lists `JSONRPCResponse` as a
+member, which the generator had inlined as its two members. 162 definitions, as
+v1; the root description names the extraction where v1 named the hand tables.
+
+### Replaces
+
+v1
+
+#### Restricted
+
+None.
+
+#### Relaxed
+
+None.
+
+#### Refactored
+
+- `JSONRPCMessage` - `anyOf` of `JSONRPCRequest`, `JSONRPCNotification` and
+  `JSONRPCResponse`, as schema.ts declares it; v1 spelled the response's two
+  members inline. `JSONRPCResponse` is thereby referenced and leaves the root's
+  branch list: `MCPMessage` has 20 branches (v1: 21). The same instances are
+  admitted. Definitions stand in breadth-first order from the root, so the
+  order shifts where `JSONRPCResponse` is now reached.
 
 ## v1
 
@@ -61,8 +98,8 @@ conjoins and cannot narrow:
   declared envelope base by its header.
 - `SubscriptionsListenResult extends Result` is an override: it narrows `_meta`
   to `SubscriptionsListenResultMetaObject`, a different `$ref` from `Result`'s.
-  The row stays in `composition.csv` as schema.ts states it; the definition
-  stands flat, and `corpus-yoga mcp` reports the override.
+  The row stands as schema.ts states it; the definition stands flat, and
+  `corpus-yoga mcp` reports the override.
 
 Every `const` is spelled as draft-04's one-element `enum`; every `$defs` ref as
 `#/definitions/`; every enum of more than one value states the values as

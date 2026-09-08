@@ -263,10 +263,10 @@ Open `rsc/schema/model_join.csv` and:
 `rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory
 per upstream project and one lineage directory inside it named as upstream names
 it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
-`schema.json` and, for reference only, `schema.ts` (read by people and by
-`corpus-yoga mcp reproduce`, the witness that upstream's generator turns it into
-`schema.json` - `rsc/reference/mcp/generate.md` states the generation; by no
-derivation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,
+`schema.json` and `schema.ts` (read by `corpus-yoga mcp sync`, which extracts its
+extends clauses and type aliases - #581 - and by `corpus-yoga mcp reproduce`, the
+witness that upstream's generator turns it into `schema.json`;
+`rsc/reference/mcp/generate.md` states the generation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,
 the dialect every house schema declares, and the declaration `src/schema_walk.py`
 derives every keyword's position from (#571) - the diagnostics and the factoring
 read the grammar there, never restate it, and `structure.keywords_declared` refuses
@@ -294,20 +294,21 @@ validates against the committed meta-schema (`check_schema_meta_validity`).
 
 `rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a
 committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
-derives its latest version from the snapshot and three tables beside it -
-`rsc/schema/protocol/mcpMessage/composition.csv`, the (definition, base) rows
-transcribed from upstream's schema.ts and verified against the snapshot,
-`rsc/schema/protocol/mcpMessage/alias.csv`, where schema.ts uses a type alias the
-generator inlined, and `rsc/schema/protocol/mcpMessage/description.csv`, house text
-for the definitions the snapshot leaves undescribed. The dev gate holds the file byte-identical to the
+derives its latest version from the two upstream files - the composition and the
+alias sites extracted from schema.ts by the rules `src/main/mcp/mcp_extraction.py`
+states (#581), every row verified against the snapshot, and written under
+`tmp/cache/mcp/` as their readable face (`rsc/cache_io.csv`); every definition's
+shape from schema.json - and from `rsc/schema/protocol/mcpMessage/description.csv`,
+the one hand-written table, house text for the definitions the snapshot leaves
+undescribed. The dev gate holds the file byte-identical to the
 derivation (`mcp.factoring_current`) and every snapshot definition equal to its
 house counterpart flattened (`mcp.factoring_agrees`). Its history lives in
 `rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
 moves, `git mv` the version, run the sync, write the changelog section. Every house
 diagnostic holds over it without exception: its root, `MCPMessage`, gathers the
-typed message shapes upstream exports but never references, and
-`rsc/schema/protocol/mcpMessage/alias.csv` revives the type aliases upstream inlined,
-so every definition is reachable.
+typed message shapes upstream exports but never references, and the extracted
+alias rows revive the type aliases upstream inlined, so every definition is
+reachable.
 
 ### 6. Dispose the model.json obligations
 
