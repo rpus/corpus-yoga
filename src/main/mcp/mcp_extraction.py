@@ -18,9 +18,13 @@ Rules:
   the generator inlined the alias (its snapshot definition is referenced by nothing).
 
 Parsing is by declaration shape - comments stripped, braces and angle brackets
-matched - not by a TypeScript grammar; a declaration form this file does not read
-(a generic interface, a mapped type) is reported by the factoring's verification
-of every row against the snapshot, never silently misread.
+matched - not by a TypeScript grammar. A row this file misreads is refused by the
+factoring's verification of every row against the snapshot; a declaration it
+would MISS - a form the patterns do not match, such as a generic
+`export interface X<T>` - is refused here: every `export interface` and
+`export type` the stripped text declares must be parsed, or declarations() raises
+naming the unread ones. A missed declaration would otherwise be silent, since a
+definition with no row stands flat and flat is what the snapshot says.
 """
 
 import re
@@ -34,6 +38,8 @@ assert [p for p in _file.parents if p / SELF == _file], f'{_file} is not at its 
 PRIMITIVES = {'string', 'number', 'boolean', 'null', 'unknown', 'never', 'any', 'object', 'void'}
 _INTERFACE = re.compile(r'export interface (\w+)(?:\s+extends\s+([^{]+?))?\s*\{')
 _ALIAS = re.compile(r'export type (\w+)\s*=\s*([^;]+);')
+_DECLARED_INTERFACE = re.compile(r'^export interface (\w+)', re.M)   # what the text declares, read by name only
+_DECLARED_ALIAS = re.compile(r'^export type (\w+)', re.M)
 _OMIT = re.compile(r'^Omit<\s*(\w+)\s*,')
 _PROPERTY = re.compile(r'^(\w+)\??\s*:\s*(.+)$', re.S)
 
@@ -134,6 +140,11 @@ def declarations(ts: str) -> tuple[list[Interface], list[Alias]]:
         rhs = ' '.join(m.group(2).split()).lstrip('| ').strip()
         members = [p for p in _split_top(rhs, '|') if re.fullmatch(r'\w+', p) and p not in PRIMITIVES]
         aliases.append(Alias(m.group(1), rhs, members))
+    unread = sorted((set(_DECLARED_INTERFACE.findall(text)) - {i.name for i in interfaces})
+                    | (set(_DECLARED_ALIAS.findall(text)) - {a.name for a in aliases}))
+    assert not unread, (f'schema.ts declares {len(unread)} interface(s) or type alias(es) in a form this '
+                        f'extraction does not read: {", ".join(unread)} - extend the patterns, or the '
+                        f'definition would stand flat in silence')
     return interfaces, aliases
 
 
