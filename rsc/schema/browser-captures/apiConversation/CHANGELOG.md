@@ -37,6 +37,17 @@ v9
 - `ApiToolUseBlockBase.tool_origin` / `ApiToolResultBlockBase.tool_origin` - new OPTIONAL field, enum holding "first_party" only: present on the memory add call and its result, absent from every other observed tool block, so optionality models the corpus and a new value fails loudly.
 - `ApiRichContentItem` - items require title only (url is absent on the memory_user_edits producer) and `subtitles` widens from null to null or a string array; past-conversation links keep their observed shape.
 
+#### Refactored
+
+- Schema typing rationalised, 2026-09-08 (reading-room), judged against the
+  documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+  `ApiHumanMessage` and `ApiAssistantMessage` state `type: object` like every
+  other discriminated branch in the house (the wrapper's base already imposed
+  it); `NullableString` and `NullableBoolean` spell their union as
+  `type: ["null", …]` instead of a `oneOf` of two inline types; `IntegrationName`
+  refers to `NullableString` inside a `oneOf` of one instead of restating it. No
+  validation effect.
+
 ## v9
 
 The 2026-07 claude.ai API adds `thinking_hidden` to live thinking blocks,

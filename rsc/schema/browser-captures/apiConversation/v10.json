@@ -230,6 +230,7 @@
     "ApiHumanMessage": {
       "title": "ApiHumanMessage",
       "description": "Constrains sender to \"human\" and content to ApiContentBlock. Shared fields in ApiMessageBase.",
+      "type": "object",
       "properties": {
         "sender": {
           "type": "string",
@@ -250,6 +251,7 @@
     "ApiAssistantMessage": {
       "title": "ApiAssistantMessage",
       "description": "Constrains sender to \"assistant\" and content to ApiContentBlock. Shared fields in ApiMessageBase.",
+      "type": "object",
       "properties": {
         "sender": {
           "type": "string",
@@ -1597,23 +1599,16 @@
       "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v6; opened at v7 when 'File Creation' appeared, exactly as the description had warned.",
       "oneOf": [
         {
-          "type": "null"
-        },
-        {
-          "type": "string"
+          "$ref": "#/definitions/NullableString"
         }
       ]
     },
     "NullableString": {
       "title": "NullableString",
       "description": "Shared primitive: a field that is either null or a free-form string. Used wherever a string field may be absent in observed exports.",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "string"
-        }
+      "type": [
+        "null",
+        "string"
       ]
     },
     "IconName": {
@@ -1639,13 +1634,9 @@
     "NullableBoolean": {
       "title": "NullableBoolean",
       "description": "Shared primitive: a field that is either null or a boolean. Used wherever a boolean field may be absent in observed exports.",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "boolean"
-        }
+      "type": [
+        "null",
+        "boolean"
       ]
     },
     "ApiDisplayContent": {

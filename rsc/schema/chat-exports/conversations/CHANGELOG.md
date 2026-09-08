@@ -29,7 +29,12 @@ None.
 
 #### Refactored
 
-None.
+- Schema typing rationalised, 2026-09-08 (reading-room), judged against the
+  documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+  `NullableString` and `NullableBoolean` spell their union as
+  `type: ["null", …]` instead of a `oneOf` of two inline types, and
+  `IntegrationName` refers to `NullableString` inside a `oneOf` of one instead
+  of restating it. No validation effect.
 
 ## v18
 

@@ -16,7 +16,7 @@
 # entries above (data/, tmp/, ext/) because that is what it IS - not inside
 # rsc/machine/, where its name keys a registry every clone shares.
 /machine-name.txt
-
+.antlr/
 **/.DS_Store
 __pycache__/
 

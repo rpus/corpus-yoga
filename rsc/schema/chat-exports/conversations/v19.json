@@ -547,13 +547,9 @@
     "NullableString": {
       "title": "NullableString",
       "description": "Shared primitive: a field that is either null or a free-form string. Used wherever a string field may be absent in observed exports.",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "string"
-        }
+      "type": [
+        "null",
+        "string"
       ]
     },
     "ToolUseBlockBase": {
@@ -1500,10 +1496,7 @@
       "description": "Shared primitive: the name of the claude.ai integration associated with a tool call. Open set \u2014 typed as a free string (or null). Observed e.g. Dynamic Widget, Claude in Chrome, Memory, Search Past Conversations, Tool Search, Web Fetch, visualize, GitHub remote MCP server, File Creation. Was a closed enum through v12; opened at v13 when 'File Creation' appeared in a bulk export, exactly as the description had warned (and as apiConversation v7 had already done).",
       "oneOf": [
         {
-          "type": "null"
-        },
-        {
-          "type": "string"
+          "$ref": "#/definitions/NullableString"
         }
       ]
     },
@@ -1530,13 +1523,9 @@
     "NullableBoolean": {
       "title": "NullableBoolean",
       "description": "Shared primitive: a field that is either null or a boolean. Used wherever a boolean field may be absent in observed exports.",
-      "oneOf": [
-        {
-          "type": "null"
-        },
-        {
-          "type": "boolean"
-        }
+      "type": [
+        "null",
+        "boolean"
       ]
     },
     "DisplayContent": {

@@ -45,6 +45,11 @@ None.
   ToolUseContent, ToolResultContent, ImageContent) name it as
   `rsc/reference/mcp#/$defs/…` (#572); they had named a snapshot file path that
   #558 deleted. No validation effect.
+- `MessageContent` spells its union as `type: ["string", "array"]` with
+  `minItems` and `items` beside - keywords draft-04 applies to the array member
+  alone - instead of a `oneOf` of two inline types (2026-09-08, reading-room,
+  judged against the documenter `rsc/rpus/documenter.json`). No validation
+  effect.
 
 ---
 

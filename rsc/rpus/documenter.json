@@ -1,0 +1,329 @@
+{
+  "$schema": "./documenter.json",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/definition"
+    }
+  ],
+  "title": "documenter",
+  "description": "This file (`documenter.json`) is its own Draft-4 JSON Schema, so is: 1. also a documenting wrapper for any example JSON document inlined at `#/default` (to be validated against the schema referenced at `#/properties/default/$ref`), with documentation style constrained by the same `definition` sub-schema it imposes on definitions generally; 2. not an optimal *authoring* tool for Draft-4 schemas. It also functions as a normalising linter, beyond the Draft-4 meta-schema.",
+  "type": "object",
+  "default": {
+    "an instance of": "`#/definitions/override_and_rename`"
+  },
+  "properties": {
+    "$schema": {},
+    "oneOf": {},
+    "title": {},
+    "description": {},
+    "type": {},
+    "default": {
+      "$ref": "#/definitions/override_and_rename"
+    },
+    "properties": {},
+    "additionalProperties": {},
+    "required": {},
+    "definitions": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/definition"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "oneOf",
+    "properties",
+    "additionalProperties",
+    "required",
+    "definitions"
+  ],
+  "definitions": {
+    "definition": {
+      "title": "definition",
+      "description": "a `documented` `typeDefinition`",
+      "type": "object",
+      "default": "[any definition object]",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/jSONReferenceObject"
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/definitions/documented"
+            },
+            {
+              "$ref": "#/definitions/typeDefinition"
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/definitions/typeDefinition"
+            },
+            {
+              "title": "bareIntent",
+              "description": "a bare type definition",
+              "type": "object",
+              "properties": {
+                "type": {},
+                "not": {},
+                "allOf": {},
+                "anyOf": {},
+                "oneOf": {}
+              },
+              "additionalProperties": false,
+              "minProperties": 1
+            }
+          ]
+        },
+        {
+          "title": "bareExtent",
+          "description": "a bare set of allowed values",
+          "type": "object",
+          "properties": {
+            "type": {},
+            "enum": {}
+          },
+          "additionalProperties": false,
+          "required": [
+            "enum"
+          ]
+        }
+      ]
+    },
+    "jSONReferenceObject": {
+      "title": "jSONReferenceObject",
+      "description": "a JSON Reference object",
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$ref"
+      ]
+    },
+    "documented": {
+      "title": "documented",
+      "description": "a constraint that mandates helpful documentary fields",
+      "type": "object",
+      "default": {
+        "title": "",
+        "description": ""
+      },
+      "properties": {
+        "title": {
+          "type": "string",
+          "default": ""
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        },
+        "default": {}
+      },
+      "required": [
+        "title",
+        "description"
+      ]
+    },
+    "typeDefinition": {
+      "title": "typeDefinition",
+      "description": "a type definition",
+      "type": "object",
+      "default": {},
+      "anyOf": [
+        {
+          "$ref": "#/definitions/firstOrderTypeDefinition"
+        },
+        {
+          "$ref": "#/definitions/higherOrderTypeDefinition"
+        }
+      ]
+    },
+    "firstOrderTypeDefinition": {
+      "title": "firstOrderTypeDefinition",
+      "description": "a first-order type definition (given by a `type` property)",
+      "type": "object",
+      "default": {},
+      "oneOf": [
+        {
+          "$ref": "#/definitions/elementaryTypeDefinition"
+        },
+        {
+          "$ref": "#/definitions/shorthandUnionTypeDefinition"
+        }
+      ]
+    },
+    "higherOrderTypeDefinition": {
+      "title": "higherOrderTypeDefinition",
+      "description": "a higher-order type definition (given by `not`, `allOf`, `anyOf` or `oneOf`)",
+      "type": "object",
+      "default": {},
+      "anyOf": [
+        {
+          "$ref": "#/definitions/complementTypeDefinition"
+        },
+        {
+          "$ref": "#/definitions/intersectionTypeDefinition"
+        },
+        {
+          "$ref": "#/definitions/unionTypeDefinition"
+        },
+        {
+          "$ref": "#/definitions/discriminatedTypeDefinition"
+        }
+      ]
+    },
+    "elementaryTypeDefinition": {
+      "title": "elementaryTypeDefinition",
+      "description": "an elementary type definition (given by a named simple type)",
+      "type": "object",
+      "default": {},
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/simpleType"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "shorthandUnionTypeDefinition": {
+      "title": "shorthandUnionTypeDefinition",
+      "description": "a shorthand union-type definition (given by a non-degenerate array of distinct simple types)",
+      "type": "object",
+      "default": {},
+      "properties": {
+        "type": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/definitions/simpleType"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "complementTypeDefinition": {
+      "title": "complementTypeDefinition",
+      "description": "a complement-type definition (given by `not`)",
+      "type": "object",
+      "default": {},
+      "properties": {
+        "not": {
+          "$ref": "#/definitions/definition"
+        }
+      },
+      "required": [
+        "not"
+      ]
+    },
+    "intersectionTypeDefinition": {
+      "title": "intersectionTypeDefinition",
+      "description": "an intersection-type definition (given by `allOf`)",
+      "type": "object",
+      "default": {},
+      "properties": {
+        "allOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/definition"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "allOf"
+      ]
+    },
+    "unionTypeDefinition": {
+      "title": "unionTypeDefinition",
+      "description": "a union-type definition (given by `anyOf`)",
+      "type": "object",
+      "default": {},
+      "properties": {
+        "anyOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/definition"
+          },
+          "minItems": 2,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "anyOf"
+      ]
+    },
+    "discriminatedTypeDefinition": {
+      "title": "discriminatedTypeDefinition",
+      "description": "a discriminated-type definition (given by `oneOf`)",
+      "type": "object",
+      "default": {},
+      "properties": {
+        "oneOf": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/definition"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "oneOf"
+      ]
+    },
+    "simpleType": {
+      "title": "simpleType",
+      "description": "one of the simple types",
+      "type": "string",
+      "default": "",
+      "enum": [
+        "array",
+        "boolean",
+        "integer",
+        "null",
+        "number",
+        "object",
+        "string"
+      ]
+    },
+    "override_and_rename": {
+      "title": "override_and_rename",
+      "description": "an example base definition; override and rename this definition",
+      "type": "object",
+      "default": {
+        "an instance of": "`#/definitions/override_and_rename`"
+      },
+      "properties": {
+        "an instance of": {
+          "$ref": "#/definitions/delete_when_unused"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "an instance of"
+      ]
+    },
+    "delete_when_unused": {
+      "title": "delete_when_unused",
+      "description": "an example nested definition; delete (when unused) this definition",
+      "type": "string",
+      "default": "`#/definitions/override_and_rename`",
+      "enum": [
+        "`#/definitions/override_and_rename`"
+      ]
+    }
+  }
+}

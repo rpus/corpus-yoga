@@ -920,18 +920,14 @@
     "MessageContent": {
       "title": "MessageContent",
       "description": "The content of a message. Either a plain string (simple text prompt) or an array of typed content blocks. The string form is observed for short user prompts; the array form is used when the message contains structured blocks (tool calls, thinking, etc.).",
-      "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/definitions/ContentBlock"
-          }
-        }
-      ]
+      "type": [
+        "string",
+        "array"
+      ],
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/ContentBlock"
+      }
     },
     "ModelId": {
       "title": "ModelId",

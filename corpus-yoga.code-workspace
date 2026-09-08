@@ -6,6 +6,14 @@
 		}
 	],
 	"settings": {
+		"antlr4.generation": {
+			"language": "Python3",
+			"mode": "external",
+			"listeners": true,
+			"visitors": true,
+			"importDir": "imports",
+			"outputDir": ".antlr"
+		},
 		// must name the same interpreter as the VENV default every shell entrypoint sets;
 		// held by check_venv_default, which reads them rather than trusting this line
 		"python.defaultInterpreterPath": "${env:HOME}/venvs/general/bin/python",
@@ -21,6 +29,9 @@
 		// repo-root-relative, and the extension's cwd is not the repo root, so the
 		// root must be named: without --source-path, -x fails to open what it follows
 		// and the same SC1091s return as failed follows.
-		"shellcheck.customArgs": ["-x", "--source-path=${workspaceFolder}"]
+		"shellcheck.customArgs": [
+			"-x",
+			"--source-path=${workspaceFolder}"
+		]
 	}
 }

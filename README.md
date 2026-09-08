@@ -53,6 +53,7 @@ reading-room, 2026-08-22, at 17e173c (#498).
 - the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)
 - every data shape: `rsc/schema/<root>/<family>/vN.json` - the roots are the three pipelines, `dashboard` (the shapes of the paid dashboard readings) and `protocol` (house schemas derived from upstream references) - history in its `CHANGELOG.md`, minting in `rsc/schema/WORKFLOW.md`
 - every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte (the MCP `schema.json` and `schema.ts`, the JSON Schema draft-04 meta-schema), pinned by the `provenance.csv` beside it
+- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/rpus/grammar/JSONSchema.g4` (the ANTLR grammar of draft-04 JSON Schema - a property named after a keyword is a name, never the keyword; generated parsers are gitignored) and `rsc/rpus/documenter.json` (the documenter - a meta-schema of documented, non-degenerate definitions, stricter than draft-04's)
 - naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`
 - the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at the root (`corpus-yoga prerequisites` reports both)
 - commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)

@@ -1,4 +1,4 @@
-run.py: code+schema 1290/1290
+run.py: code+schema 1263/1263
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -95,38 +95,38 @@ run.py: code+schema 1290/1290
   ✓ grammar.enforcement_map
 
 ── check_root_schema_diagnostics ─────────────────────────────────────────────
-  ✓ composition.base_not_used_directly  (2/2)
-  ✓ composition.base_schemas_closed  (2/2)
-  ✓ composition.discriminator_values_disjoint  (2/2)
-  ✓ composition.no_additional_properties_on_subtypes  (2/2)
-  ✓ composition.wrapper_has_five_fields  (2/2)
-  ✓ documentation.discriminator_fields_annotated  (2/2)
-  ✓ documentation.every_definition_has_title_and_description  (2/2)
-  ✓ documentation.null_only_fields_documented  (2/2)
-  ✓ documentation.open_set_enums_documented  (2/2)
-  ✓ empirical.nullable_fields_surveyed  (2/2)
-  ✓ empirical.oneOf_branches_evidenced  (2/2)
-  ✓ naming.property_keys_lowercase  (2/2)
-  ✓ naming.root_schema_title_matches_filename  (2/2)
-  ✓ naming.title_matches_key  (2/2)
-  ✓ naming.upper_camel_case  (2/2)
-  ✓ structure.all_definitions_reachable  (2/2)
-  ✓ structure.bfs_order  (2/2)
-  ✓ structure.definitions_at_bottom  (2/2)
-  ✓ structure.enum_refines_explicit_type  (2/2)
-  ✓ structure.field_order  (2/2)
-  ✓ structure.keywords_declared  (2/2)
-  ✓ structure.minItems_on_non_empty_arrays  (2/2)
-  ✓ structure.no_dangling_refs  (2/2)
-  ✓ structure.no_redundant_additional_properties_true  (2/2)
-  ✓ structure.pattern_constraints_enforced  (2/2)
-  ✓ structure.required_subset_of_properties  (2/2)
+  ✓ composition.base_not_used_directly
+  ✓ composition.base_schemas_closed
+  ✓ composition.discriminator_values_disjoint
+  ✓ composition.no_additional_properties_on_subtypes
+  ✓ composition.wrapper_has_five_fields
+  ✓ documentation.discriminator_fields_annotated
+  ✓ documentation.every_definition_has_title_and_description
+  ✓ documentation.null_only_fields_documented
+  ✓ documentation.open_set_enums_documented
+  ✓ empirical.nullable_fields_surveyed
+  ✓ empirical.oneOf_branches_evidenced
+  ✓ naming.property_keys_lowercase
+  ✓ naming.root_schema_title_matches_filename
+  ✓ naming.title_matches_key
+  ✓ naming.upper_camel_case
+  ✓ structure.all_definitions_reachable
+  ✓ structure.bfs_order
+  ✓ structure.definitions_at_bottom
+  ✓ structure.enum_refines_explicit_type
+  ✓ structure.field_order
+  ✓ structure.keywords_declared
+  ✓ structure.minItems_on_non_empty_arrays
+  ✓ structure.no_dangling_refs
+  ✓ structure.no_redundant_additional_properties_true
+  ✓ structure.pattern_constraints_enforced
+  ✓ structure.required_subset_of_properties
 
 ── check_schema_validity ─────────────────────────────────────────────────────
   ✓ schema.valid_json_with_schema  (14/14)
 
 ── check_schema_meta_validity ────────────────────────────────────────────────
-  ✓ schema.valid_against_meta_schema  (16/16)
+  ✓ schema.valid_against_meta_schema  (15/15)
 
 ── check_schema_single_version ───────────────────────────────────────────────
   ✓ schema.single_version  (14/14)
@@ -214,9 +214,9 @@ check_cache_io                        18     0   code       71
 check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
-check_root_schema_diagnostics         52     0   schema     97
+check_root_schema_diagnostics         26     0   schema     97
 check_schema_validity                 14     0   schema    125
-check_schema_meta_validity            16     0   schema    128
+check_schema_meta_validity            15     0   schema    128
 check_schema_single_version           14     0   schema    131
 check_schema_changelogs               28     0   schema    134
 check_versioned_schema_diagnostics   347     0   schema    138
@@ -231,8 +231,8 @@ check_mcp_reproducible                 1     0   schema    195
 check_expectation                      2     0   code      198
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 112 types, 1290/1290 invocations passing
+checks[code+schema]: 112 types, 1263/1263 invocations passing
 checks[code]: 64 types, 646/646 invocations passing
-checks[schema]: 48 types, 644/644 invocations passing
+checks[schema]: 48 types, 617/617 invocations passing
 
-dev gate: PASS — code+schema 1290/1290 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1263/1263 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
