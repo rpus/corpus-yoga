@@ -394,7 +394,8 @@ sync() {
 
 # The merge is the reviewer's one act (#483): every refusal (OPEN, an aims-to-
 # complete body, the title copy #479, the blockers #482, refuse-class drift),
-# the relocation only if the base moved (the lifetime's one rebase; rsc/test/
+# the relocation only if the base moved (the lifetime's one rebase, replaying only
+# the commits the base does not already hold, tree for tree - #585; rsc/test/
 # conflicts are CONTRIBUTING's syntactic class, taken wholesale and re-derived;
 # any other conflict aborts to review), the held checkout resynced, the body's
 # aims-to-closes as the LAST edit before the squash - and a failed squash
@@ -415,6 +416,94 @@ merge() {
   rc="${PIPESTATUS[0]}"
   echo "Log: $log"
   return "$rc"
+}
+
+# The PR that introduced a base commit - exact for a squash on the default branch
+# (repos/{owner}/{repo}/commits/<sha>/pulls). Empty when the send is refused or the
+# forge unreachable.
+pr_of_commit() {  # <sha>
+  may_send || return 0
+  (cd "$REPO_DIR" && quote gh api "repos/{owner}/{repo}/commits/$1/pulls" --jq '.[0].number // empty') || true
+}
+
+# The heads a merged PR held before each relocation (#585): the force-push
+# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
+# branch built on the parent before the forge relocated it carries one of these.
+# Empty when the send is refused or the forge unreachable.
+pr_former_heads() {  # <pr-number>
+  may_send || return 0
+  (cd "$REPO_DIR" && quote gh api graphql -F owner='{owner}' -F repo='{repo}' -F number="$1" \
+      -F query=@src/main/cli/forge/superseded-heads.graphql \
+      --jq '.data.repository.pullRequest.timelineItems.nodes[].beforeCommit.oid') || true
+}
+
+# A merged PR's final head - the one its squash was pinned to.
+pr_final_head() {  # <pr-number>
+  may_send || return 0
+  (cd "$REPO_DIR" && quote gh pr view "$1" --json headRefOid --jq .headRefOid) || true
+}
+
+# One patch-id per commit of a range, rsc/test/ aside (the settle regenerates it);
+# a commit touching nothing else yields an empty line.
+patch_ids() {  # <range>
+  local sha
+  for sha in $(git -C "$REPO_DIR" rev-list "$1"); do
+    git -C "$REPO_DIR" show "$sha" --format= -- . ':!rsc/test' | git patch-id --stable | cut -d' ' -f1
+    echo
+  done | awk 'NF' | sort -u
+}
+
+# Whether git vouches for skipping everything up to a former head (#585): the PR's
+# final head has the tree of a base commit (its squash is that head), and every
+# commit the skip drops has a patch twin among the final head's commits since the
+# merge-base - a relocation the forge made, not a rewrite that dropped content the
+# branch stands on. What gh nominates, git confirms; a candidate git cannot vouch
+# for is refused by name and the search goes on.
+skip_vouched() {  # <merge-base> <former> <final> <base-trees>
+  local merge_base="$1" former="$2" final="$3" base_trees="$4" final_tree merged_ids id
+  final_tree="$(git -C "$REPO_DIR" rev-parse "$final^{tree}" 2>/dev/null)" || { echo "  candidate ${former:0:7}: final head ${final:0:7} unknown to this repository" >&2; return 1; }
+  grep -q " $final_tree\$" <<< "$base_trees" || { echo "  candidate ${former:0:7}: the merged head ${final:0:7} has no base commit's tree" >&2; return 1; }
+  merged_ids="$(patch_ids "$merge_base..$final")"
+  for id in $(patch_ids "$merge_base..$former"); do
+    grep -qx "$id" <<< "$merged_ids" || { echo "  candidate ${former:0:7}: a commit it would skip has no patch twin in the merged head ${final:0:7}" >&2; return 1; }
+  done
+}
+
+# The point a branch relocates from (#585): the newest of its commits since the
+# merge-base that the base already holds - else the merge-base itself, the plain
+# rebase. Held is read two ways. Tree for tree: a parent merged with the base unmoved
+# keeps its head's TREE in its squash though not its patches (a one-commit parent
+# squashes to its own patch and git drops it unasked; a two-commit parent squashes to
+# a patch matching neither, and a plain rebase replays both onto their own squash).
+# By name: a parent the forge relocated before its squash keeps none of the child's
+# trees, but the forge holds its former heads - the newest one the branch carries,
+# and git vouches for (skip_vouched), is the point. gh nominates, git decides.
+# Prints "<onto> <commits held> <own commits to replay> <merged PR or ->".
+relocation_point() {  # <base-ref> <head-ref>
+  local base_ref="$1" head_ref="$2" merge_base onto="" named="" sha tree base_trees pr final former count best=-1
+  merge_base="$(git -C "$REPO_DIR" merge-base "$base_ref" "$head_ref")" || return 1
+  base_trees="$(git -C "$REPO_DIR" log --format='%H %T' "$merge_base..$base_ref")"
+  while read -r sha tree; do
+    if grep -q " $tree\$" <<< "$base_trees"; then
+      onto="$sha"; named="$(pr_of_commit "$(grep " $tree\$" <<< "$base_trees" | head -1 | cut -d' ' -f1)" || true)"
+      break
+    fi
+  done < <(git -C "$REPO_DIR" log --format='%H %T' "$merge_base..$head_ref")
+  if [[ -z "$onto" ]]; then
+    for sha in $(git -C "$REPO_DIR" rev-list "$merge_base..$base_ref"); do
+      pr="$(pr_of_commit "$sha" || true)"; [[ -n "$pr" ]] || continue
+      final="$(pr_final_head "$pr" || true)"; [[ -n "$final" ]] || continue
+      for former in $(pr_former_heads "$pr" || true); do
+        git -C "$REPO_DIR" merge-base --is-ancestor "$merge_base" "$former" 2>/dev/null || continue
+        git -C "$REPO_DIR" merge-base --is-ancestor "$former" "$head_ref" 2>/dev/null || continue
+        skip_vouched "$merge_base" "$former" "$final" "$base_trees" || continue
+        count="$(git -C "$REPO_DIR" rev-list --count "$merge_base..$former")"
+        if (( count > best )); then best=$count; onto="$former"; named="$pr"; fi
+      done
+    done
+  fi
+  [[ -n "$onto" ]] || onto="$merge_base"
+  echo "$onto $(git -C "$REPO_DIR" rev-list --count "$merge_base..$onto") $(git -C "$REPO_DIR" rev-list --count "$onto..$head_ref") ${named:--}"
 }
 
 merge_chain() {
@@ -474,7 +563,19 @@ merge_chain() {
     # A paused rebase is an EXPECTED state, not a failure (#485): the attempt
     # face relays no verdict, git's advice channels are off, and the narration
     # below names the state in the mechanism's own voice.
-    if ! attempt git -C "$REPO_DIR" -c advice.mergeConflict=false -c advice.resolveConflict=false rebase "refs/remotes/origin/$base"; then
+    read -r onto held own merged_pr < <(relocation_point "refs/remotes/origin/$base" "refs/remotes/origin/$head") || true
+    if [[ -z "$onto" ]]; then
+      echo "forge merge: NOT DONE — no relocation point: origin/$base and origin/$head share no merge-base"
+      [[ -n "$branch_here" ]] && enact git -C "$REPO_DIR" checkout "$branch_here"
+      return 1
+    fi
+    [[ "$merged_pr" != - ]] || merged_pr=""
+    if (( held > 0 )); then
+      echo "relocating: $held commit(s) up to ${onto:0:7} already stand on origin/$base${merged_pr:+ - the head of #$merged_pr, merged}; replaying the $own own commit(s) from there"
+    else
+      echo "relocating: replaying $own commit(s) from the merge-base ${onto:0:7}"
+    fi
+    if ! attempt git -C "$REPO_DIR" -c advice.mergeConflict=false -c advice.resolveConflict=false rebase --onto "refs/remotes/origin/$base" "$onto"; then
       echo "rebase paused on conflicts — classifying against the syntactic rule (CONTRIBUTING.md)"
       while [[ -d "$(git -C "$REPO_DIR" rev-parse --git-path rebase-merge)" ]]; do
         guard=$((guard + 1))

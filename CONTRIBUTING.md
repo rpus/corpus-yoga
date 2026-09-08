@@ -26,8 +26,9 @@ landed idea; if a PR can't be squashed, it was not atomic. A branch may hold man
 commits — the squash keeps every one of their messages and signatures. The flip is a
 STEP of the merge, not a command (#483): `corpus-yoga forge merge <pr>` refuses first (a
 non-OPEN PR, a body with nothing to flip, a title that copies no aimed issue — #479 —
-an unaimed open blocker — #482 — or refuse-class drift), relocates a moved base and
-resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
+an unaimed open blocker — #482 — or refuse-class drift), relocates a moved base -
+replaying only the commits the base does not already hold, tree for tree, so a
+stacked branch sheds its merged parent (#585) - and resyncs a held checkout, then flips "aims to complete #N" to `closes #N` as the last
 edit before the squash — a refused squash restores the body as found
 (.github/PULL_REQUEST_TEMPLATE.md holds that grammar): the squash publishes the
 title — a verbatim copy of the title of an issue the body aims to complete — as

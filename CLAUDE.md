@@ -184,8 +184,9 @@ seventh principle or a smell.
   way down, so no event licenses an indicative subject; `corpus-yoga forge merge`
   refuses a non-copy.
 - A stacked PR follows exactly the ordinary workflow: when its parent
-  squash-merges, `git rebase --onto origin/main <parent's old tip>` replays
-  the branch's OWN commits onto the new main. Nothing is squashed - the
+  squash-merges, the forge's relocation replays the branch's OWN commits onto
+  the new main - `git rebase --onto origin/main <parent's old tip>`, the tip
+  found tree for tree (#585). Nothing is squashed - the
   single-commit shape some successors end with is an artifact of their
   content, never a requirement.
 - A multi-commit branch is treated identically to a single-commit one at
