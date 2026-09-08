@@ -303,8 +303,13 @@ the one hand-written table, house text for the definitions the snapshot leaves
 undescribed. The dev gate holds the file byte-identical to the
 derivation (`mcp.factoring_current`) and every snapshot definition equal to its
 house counterpart flattened (`mcp.factoring_agrees`). Its history lives in
-`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is step 2's: when the snapshot
-moves, `git mv` the version, run the sync, write the changelog section. Every house
+`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
+(#583): whenever the derivation differs from the latest version file - upstream
+moved, or the house rules did - `corpus-yoga mcp sync` prints the diff and writes the
+next version in place of the current one, by plain file operations; a version of
+this family means that the derivation's output changed, and its changelog section
+is written by hand from that diff, owed at the commit gate by
+`schema.changelog_narrative`. Every house
 diagnostic holds over it without exception: its root, `MCPMessage`, gathers the
 typed message shapes upstream exports but never references, and the extracted
 alias rows revive the type aliases upstream inlined, so every definition is
