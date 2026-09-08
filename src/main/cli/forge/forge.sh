@@ -394,7 +394,8 @@ sync() {
 
 # The merge is the reviewer's one act (#483): every refusal (OPEN, an aims-to-
 # complete body, the title copy #479, the blockers #482, refuse-class drift),
-# the relocation only if the base moved (the lifetime's one rebase; rsc/test/
+# the relocation only if the base moved (the lifetime's one rebase, replaying only
+# the commits the base does not already hold, tree for tree - #585; rsc/test/
 # conflicts are CONTRIBUTING's syntactic class, taken wholesale and re-derived;
 # any other conflict aborts to review), the held checkout resynced, the body's
 # aims-to-closes as the LAST edit before the squash - and a failed squash
@@ -417,11 +418,29 @@ merge() {
   return "$rc"
 }
 
+# The point a branch relocates from (#585): the newest of its commits since the
+# merge-base whose TREE some commit of the base since that merge-base carries - a
+# stacked branch's merged parent, whose squash keeps the parent head's tree though
+# not its patches (a one-commit parent squashes to its own patch and git drops it
+# unasked; a two-commit parent squashes to a patch matching neither, and a plain
+# rebase replays both onto their own squash) - else the merge-base itself, the plain
+# rebase. Prints "<onto> <commits already held> <own commits to replay>".
+relocation_point() {
+  local base_ref="$1" head_ref="$2" merge_base onto sha tree base_trees
+  merge_base="$(git -C "$REPO_DIR" merge-base "$base_ref" "$head_ref")" || return 1
+  base_trees="$(git -C "$REPO_DIR" log --format='%T' "$merge_base..$base_ref")"
+  onto="$merge_base"
+  while read -r sha tree; do
+    if grep -qx "$tree" <<< "$base_trees"; then onto="$sha"; break; fi
+  done < <(git -C "$REPO_DIR" log --format='%H %T' "$merge_base..$head_ref")
+  echo "$onto $(git -C "$REPO_DIR" rev-list --count "$merge_base..$onto") $(git -C "$REPO_DIR" rev-list --count "$onto..$head_ref")"
+}
+
 merge_chain() {
   local pr="$1"
   local state base head body branch_here old_sha prior conflicted flipped n moved=0 guard=0
   local oid landed
-  assert_may_send "gh pr view / gh issue view / gh api / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
+  assert_may_send "gh pr view / gh issue view / gh api / gh pr list / gh pr edit / gh pr merge / git fetch / git push (corpus-yoga forge merge)"     || { echo "forge merge: NOT DONE — sends refused (YOGA_NO_SEND)"; return 1; }
   read -r state base head < <(cd "$REPO_DIR" && query gh pr view "$pr"        --json state,baseRefName,headRefName --jq '[.state,.baseRefName,.headRefName]|@tsv')     || { echo "forge merge: NOT DONE — the PR read failed; does $pr name a PR?"; return 1; }
   [[ "$state" == OPEN ]]     || { echo "forge merge: NOT DONE — #$pr is $state; only an open PR merges"; return 1; }
   body="$(cd "$REPO_DIR" && quote gh pr view "$pr" --json body --jq .body)"     || { echo "forge merge: NOT DONE — the body read failed"; return 1; }
@@ -474,7 +493,14 @@ merge_chain() {
     # A paused rebase is an EXPECTED state, not a failure (#485): the attempt
     # face relays no verdict, git's advice channels are off, and the narration
     # below names the state in the mechanism's own voice.
-    if ! attempt git -C "$REPO_DIR" -c advice.mergeConflict=false -c advice.resolveConflict=false rebase "refs/remotes/origin/$base"; then
+    read -r onto held own < <(relocation_point "refs/remotes/origin/$base" "refs/remotes/origin/$head")
+    if (( held > 0 )); then
+      merged_pr="$(cd "$REPO_DIR" && gh pr list --state merged --limit 30 --json number,headRefOid --jq ".[] | select(.headRefOid == \"$onto\") | .number" 2>/dev/null | head -1)"
+      echo "relocating: $held commit(s) up to ${onto:0:7} already stand on origin/$base tree for tree${merged_pr:+ - the head of #$merged_pr, merged}; replaying the $own own commit(s) from there"
+    else
+      echo "relocating: replaying $own commit(s) from the merge-base ${onto:0:7}"
+    fi
+    if ! attempt git -C "$REPO_DIR" -c advice.mergeConflict=false -c advice.resolveConflict=false rebase --onto "refs/remotes/origin/$base" "$onto"; then
       echo "rebase paused on conflicts — classifying against the syntactic rule (CONTRIBUTING.md)"
       while [[ -d "$(git -C "$REPO_DIR" rev-parse --git-path rebase-merge)" ]]; do
         guard=$((guard + 1))
