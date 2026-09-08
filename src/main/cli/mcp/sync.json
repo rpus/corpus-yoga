@@ -1,5 +1,5 @@
 {
-  "help": "(re-)derive rsc/schema/protocol/mcpMessage's latest v*.json from the two committed upstream files - the extends clauses and type aliases of schema.ts, every definition of schema.json - writing the extracted tables under tmp/cache/mcp/ as their readable face; idempotent; the dev gate holds the file current and its flattening equal to the snapshot",
+  "help": "(re-)derive rsc/schema/protocol/mcpMessage's latest v*.json from the two committed upstream files - the extends clauses and type aliases of schema.ts, every definition of schema.json - writing the extracted tables under tmp/cache/mcp/ as their readable face; when the derivation differs from the latest version file in any way, prints the diff and mints the next version in place of it (no git; the changelog section is yours, held by the commit gate); idempotent; the dev gate holds the file current and its flattening equal to the snapshot",
   "args": [],
   "r": [
     "rsc/reference/mcp",

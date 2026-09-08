@@ -1846,7 +1846,7 @@ def check_mcp_factoring(run) -> None:
     have = target.read_text()
     run(f'mcp: {target.stem} current with the snapshot', have == wanted,
         None if have == wanted else
-        f'{rel} differs from what the snapshot derives - run corpus-yoga mcp sync and commit',
+        f'{rel} differs from what the two upstream files derive - corpus-yoga mcp sync prints the diff and mints the next version; write its changelog section and commit',
         check='mcp.factoring_current')
     _, snap = mcp_factoring.snapshot()
     bad = mcp_factoring.disagreements(json.loads(have), snap)
