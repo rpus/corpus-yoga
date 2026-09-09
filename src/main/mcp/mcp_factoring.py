@@ -33,15 +33,20 @@ derivation rather than misstating the schema:
   alias in; an empty pointer replaces the whole body), after checking the two
   resolve to the same shape.
 - description.csv (name, description): house text for the definitions the
-  snapshot leaves undescribed - the one hand-written table, committed beside the
-  version file.
+  snapshot leaves undescribed - hand-written, committed beside the version file.
+- unreachable.csv (name, reason): the definitions no message carries, hand-written
+  beside the version file and read by structure.all_definitions_reachable; the
+  derivation refuses a table that disagrees with the wire.
 
 The root is a house definition, MCPMessage: the wire message read as any of the
 typed message shapes upstream exports but no definition references (the
 direction unions, the typed result responses, the typed error responses), plus
-house wrappers giving the unreferenced result and error unions their message.
-So every definition is reachable from the root, and the house diagnostics hold
-without exception.
+house wrappers giving the result and error unions a party sends their message.
+A party's results are carried only when the other party declares requests
+(PARTIES): where schema.ts declares no ServerRequest, no message carries a
+ClientResult, and no wrapper is minted for one - the union stands unreachable,
+declared as such in unreachable.csv. Every other definition is reachable from
+the root, and the house diagnostics hold over the family.
 
 The witness is `disagreements()`: every snapshot definition and its house
 counterpart - flattened (allOf merged), both resolved through their $refs to a
@@ -72,11 +77,14 @@ SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
 FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
+UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
 CACHE_DIR    = REPO / 'tmp/cache/mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
 COMPOSITION  = CACHE_DIR / 'composition.csv'
 ALIASES      = CACHE_DIR / 'alias.csv'
 FAMILY       = 'mcpMessage'
 ROOT_DEFINITION = 'MCPMessage'
+# The two session roles: a party's results answer the other party's requests.
+PARTIES = {'Client': 'Server', 'Server': 'Client'}
 DRAFT_04 = 'http://json-schema.org/draft-04/schema#'
 RESOLUTION_DEPTH = 12      # nesting levels a recursive shape is expanded to before it is cut
 
@@ -128,7 +136,7 @@ HOUSE_DESCRIPTIONS = {
         'One MCP message: a JSON-RPC message, read as any of the typed message shapes '
         'upstream exports but no definition references - the direction unions, the typed '
         'result responses, the typed error responses - and as the house wrappers that give '
-        "upstream's unreferenced result and error unions their message. Every branch is a "
+        'the result and error unions a party sends their message. Every branch is a '
         'JSONRPCMessage, so the union admits exactly what the wire admits.',
     'ProtocolError':
         "The JSON-RPC error objects upstream types by code and no definition references.",
@@ -257,6 +265,18 @@ def written_tables(declared: dict, rows: list) -> list[Path]:
 
 def descriptions() -> dict:
     return {row['name']: row['description'] for row in _rows(DESCRIPTIONS)}
+
+
+def unreachable() -> dict:
+    return {row['name']: row['reason'] for row in _rows(UNREACHABLE)}
+
+
+def uncarried_results(shapes: dict) -> list[tuple[str, str]]:
+    """(result union, the request union whose absence leaves it uncarried): a party's
+    result union when the snapshot declares no request union for the other party -
+    no message carries such a result."""
+    return [(f'{party}Result', f'{other}Request') for party, other in PARTIES.items()
+            if f'{party}Result' in shapes and f'{other}Request' not in shapes]
 
 
 # ── schema algebra ────────────────────────────────────────────────────────────
@@ -537,13 +557,16 @@ def _referenced(definitions: dict) -> set[str]:
 
 def _house_root(definitions: dict, shapes: dict, declared: dict) -> dict:
     """MCPMessage and its wrappers: every message-shaped definition nothing references
-    is a branch; an unreferenced result union gets a <Union>Response wrapper; the
-    unreferenced error objects gather in ProtocolError under ProtocolErrorResponse."""
+    is a branch; an unreferenced result union a party sends gets a <Union>Response
+    wrapper (a party's results are sent only when the other party declares
+    requests - uncarried_results); the unreferenced error objects gather in
+    ProtocolError under ProtocolErrorResponse."""
     kinds = _classify(definitions, declared)
     referenced = _referenced(definitions)
+    uncarried = {union for union, _ in uncarried_results(shapes)}
     loose = [n for n in shapes if n not in referenced and n not in HEADERS]
     branches = [n for n in loose if kinds[n] == 'message']
-    for union in [n for n in loose if kinds[n] == 'result']:
+    for union in [n for n in loose if kinds[n] == 'result' and n not in uncarried]:
         wrapper = f'{union}Response'
         assert wrapper not in shapes, f'upstream now defines {wrapper}; the house wrapper needs a new name'
         definitions[wrapper] = _ordered({
@@ -631,9 +654,9 @@ def _document_enums(definitions: dict, lineage: str) -> None:
                     node['description'] = (text + ' ' + clause).strip()
 
 
-def _bfs_order(definitions: dict, root: str) -> list[str]:
-    """Breadth-first referential encounter order from root, the unreachable after,
-    alphabetical - the order structure.bfs_order asks of every house schema."""
+def _reached(definitions: dict, root: str) -> list[str]:
+    """Breadth-first referential encounter order from root - the definitions the
+    root reaches."""
     def refs_in(node):
         out = []
         for _, sub in schema_nodes(node):
@@ -650,14 +673,23 @@ def _bfs_order(definitions: dict, root: str) -> list[str]:
         seen.add(n)
         order.append(n)
         queue += [r for r in refs_in(definitions[n]) if r not in seen and r in definitions]
-    return order + sorted(n for n in definitions if n not in seen)
+    return order
 
 
-def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: list, prov: dict) -> dict:
+def _bfs_order(definitions: dict, root: str) -> list[str]:
+    """The reached order, the unreachable after, alphabetical - the order
+    structure.bfs_order asks of every house schema."""
+    order = _reached(definitions, root)
+    return order + sorted(n for n in definitions if n not in order)
+
+
+def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: list, prov: dict,
+             declared_unreachable: dict) -> dict:
     """The house schema, whole: every snapshot definition composed over its declared
     bases (each verified to hold), the headers, the aliases revived, the house root
     and its wrappers, titles and descriptions per house rule, definitions in BFS
-    order from the root."""
+    order from the root. `declared_unreachable` is unreachable.csv: it must name exactly the
+    definitions the root does not reach, or the derivation refuses."""
     container = '$defs' if '$defs' in snapshot_doc else 'definitions'
     shapes: dict[str, dict] = {name: to_house(body) for name, body in snapshot_doc[container].items()}
     for name, body in HEADERS.items():
@@ -685,7 +717,17 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
     definitions[ROOT_DEFINITION] = _house_root(definitions, shapes, declared)
     definitions = {n: _ordered(d) for n, d in definitions.items()}
     _document_enums(definitions, prov['lineage'])
-    ordered = {n: definitions[n] for n in _bfs_order(definitions, ROOT_DEFINITION)}
+    order = _bfs_order(definitions, ROOT_DEFINITION)
+    reached = set(_reached(definitions, ROOT_DEFINITION))
+    for union, request in uncarried_results(shapes):
+        assert union in declared_unreachable, (f'{union}: no message carries it ({request} is not declared in schema.ts) - '
+                                      f'declare it in {UNREACHABLE.relative_to(REPO)}')
+    for name in declared_unreachable:
+        assert name in definitions, f'{UNREACHABLE.relative_to(REPO)} names no definition: {name}'
+        assert name not in reached, f'{UNREACHABLE.relative_to(REPO)} declares {name} unreachable, but {ROOT_DEFINITION} reaches it'
+    unexplained = [n for n in definitions if n not in reached and n not in declared_unreachable]
+    assert not unexplained, f'{ROOT_DEFINITION} does not reach {unexplained} and {UNREACHABLE.relative_to(REPO)} does not declare them'
+    ordered = {n: definitions[n] for n in order}
     return {
         '$schema': DRAFT_04,
         'title': FAMILY,
@@ -701,7 +743,8 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             f"{prov['sha256']}) and from upstream's schema.ts at that commit beside it ({prov['ts_url']}), "
             'whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every '
             'row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from '
-            'rsc/schema/protocol/mcpMessage/description.csv. One instance is one JSON-RPC message.'
+            'rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in '
+            'rsc/schema/protocol/mcpMessage/unreachable.csv. One instance is one JSON-RPC message.'
         ),
         'allOf': [{'$ref': f'#/definitions/{ROOT_DEFINITION}'}],
         'definitions': ordered,
@@ -754,4 +797,4 @@ def current_text() -> str:
     """The factoring as it should read now, from the committed inputs."""
     _, doc = snapshot()
     shapes, declared, rows = inputs()
-    return rendered(factored(doc, descriptions(), declared, rows, provenance()))
+    return rendered(factored(doc, descriptions(), declared, rows, provenance(), unreachable()))

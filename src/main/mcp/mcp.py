@@ -79,7 +79,11 @@ def status() -> int:
     rel = target.relative_to(REPO)
     snapshot_path, snap = factoring.snapshot()
     shapes, declared, rows = factoring.inputs()
-    wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance()))
+    try:
+        wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable()))
+    except AssertionError as e:
+        print(f'mcp: {target.relative_to(REPO)} NOT derivable - {e}')
+        return 1
     ts = factoring.schema_ts().relative_to(REPO)
     cache = factoring.CACHE_DIR.relative_to(REPO)
     print(f'mcp: {ts}: {sum(len(b) for b in declared.values())} extends rows over '
@@ -88,6 +92,9 @@ def status() -> int:
           f'{"faced under " + str(cache) if _tables_current(declared, rows) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes it)"}')
     for name, base in factoring.overrides(shapes, declared):
         print(f'  override: {name} extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
+    for union, request in factoring.uncarried_results(shapes):
+        print(f'  uncarried: {union} - no message carries it, since {ts} declares no {request} - stands unreachable, '
+              f'declared in {factoring.UNREACHABLE.relative_to(REPO)}')
     if not target.exists():
         print(f'mcp: {rel} absent - corpus-yoga mcp sync derives it')
         return 1
@@ -114,7 +121,11 @@ def sync() -> int:
     if not _tables_current(declared, rows):
         for path in factoring.written_tables(declared, rows):
             print(f'  ✓ {path.relative_to(REPO)}')
-    wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance()))
+    try:
+        wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable()))
+    except AssertionError as e:
+        print(f'mcp: {target.relative_to(REPO)} NOT derivable - {e}')
+        return 1
     if not target.exists():
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(wanted)
