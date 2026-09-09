@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "mcpMessage",
-  "description": "House factoring of the Model Context Protocol schema in draft-04 - the composition upstream's generator flattens, stated once: JSONRPCHeader (the version pin) and JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each message allOf its header and its own fields, the type aliases upstream inlined revived as refs, const spelled as one-element enum, and MCPMessage the root - the wire message read as any typed message shape upstream exports. Derived by corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp (2026-07-28 lineage, upstream commit 271ecc9accafdd9b83a3c869fa67c22953b2af80, upstream SHA256 ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203) and from upstream's schema.ts at that commit beside it (https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/271ecc9accafdd9b83a3c869fa67c22953b2af80/schema/2026-07-28/schema.ts), whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in rsc/schema/protocol/mcpMessage/unreachable.csv. One instance is one JSON-RPC message.",
+  "description": "House factoring of the Model Context Protocol schema in draft-04 - the composition upstream's generator flattens, stated once: JSONRPCHeader (the version pin) and JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each message allOf its header and its own fields, the type aliases upstream inlined revived as refs, const spelled as one-element enum, and MCPMessage the root - the wire message read as any typed message shape upstream exports. Derived by corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp (2026-07-28 lineage, upstream commit 271ecc9accafdd9b83a3c869fa67c22953b2af80, upstream SHA256 ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203) and from upstream's schema.ts at that commit beside it (https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/271ecc9accafdd9b83a3c869fa67c22953b2af80/schema/2026-07-28/schema.ts), whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in rsc/schema/protocol/mcpMessage/unreachable.csv. Every description ends with the definition's layer - the house's reading of the @category tag schema.ts carries, by rsc/schema/protocol/mcpMessage/layer.csv (the layers, each with its reading), category_layer.csv (category to layer) and placement.csv (what the tag and the composition cannot place) - so the schema reads by concern. One instance is one JSON-RPC message.",
   "allOf": [
     {
       "$ref": "#/definitions/MCPMessage"
@@ -10,7 +10,7 @@
   "definitions": {
     "MCPMessage": {
       "title": "MCPMessage",
-      "description": "One MCP message: a JSON-RPC message, read as any of the typed message shapes upstream exports but no definition references - the direction unions, the typed result responses, the typed error responses - and as the house wrappers that give the result and error unions a party sends their message. Every branch is a JSONRPCMessage, so the union admits exactly what the wire admits.",
+      "description": "One MCP message: a JSON-RPC message, read as any of the typed message shapes upstream exports but no definition references - the direction unions, the typed result responses, the typed error responses - and as the house wrappers that give the result and error unions a party sends their message. Every branch is a JSONRPCMessage, so the union admits exactly what the wire admits. Layer: jsonrpc.",
       "anyOf": [
         {
           "$ref": "#/definitions/CallToolResultResponse"
@@ -73,7 +73,7 @@
     },
     "CallToolResultResponse": {
       "title": "CallToolResultResponse",
-      "description": "A successful response from the server for a {@link CallToolRequesttools/call} request.",
+      "description": "A successful response from the server for a {@link CallToolRequesttools/call} request. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -98,12 +98,12 @@
     },
     "ClientNotification": {
       "title": "ClientNotification",
-      "description": "This notification is sent by the client to indicate that it is cancelling a request it previously issued.\n\nOn stdio, the server also sends this notification, solely to terminate a {@link SubscriptionsListenRequestsubscriptions/listen} stream: it references the ID of the `subscriptions/listen` request that opened the stream. Servers MUST NOT use this notification to cancel any other request.\n\nThe request SHOULD still be in-flight, but due to communication latency, it is always possible that this notification MAY arrive after the request has already finished.\n\nThis notification indicates that the result will be unused, so any associated processing SHOULD cease.",
+      "description": "This notification is sent by the client to indicate that it is cancelling a request it previously issued.\n\nOn stdio, the server also sends this notification, solely to terminate a {@link SubscriptionsListenRequestsubscriptions/listen} stream: it references the ID of the `subscriptions/listen` request that opened the stream. Servers MUST NOT use this notification to cancel any other request.\n\nThe request SHOULD still be in-flight, but due to communication latency, it is always possible that this notification MAY arrive after the request has already finished.\n\nThis notification indicates that the result will be unused, so any associated processing SHOULD cease. Layer: session.",
       "$ref": "#/definitions/CancelledNotification"
     },
     "ClientRequest": {
       "title": "ClientRequest",
-      "description": "The requests a client sends to a server - MCP's session role, not JSON-RPC's per-exchange one: discovery, the resource, prompt and tool verbs, subscriptions and completion.",
+      "description": "The requests a client sends to a server - MCP's session role, not JSON-RPC's per-exchange one: discovery, the resource, prompt and tool verbs, subscriptions and completion. Layer: session.",
       "anyOf": [
         {
           "$ref": "#/definitions/DiscoverRequest"
@@ -139,7 +139,7 @@
     },
     "CompleteResultResponse": {
       "title": "CompleteResultResponse",
-      "description": "A successful response from the server for a {@link CompleteRequestcompletion/complete} request.",
+      "description": "A successful response from the server for a {@link CompleteRequestcompletion/complete} request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -157,7 +157,7 @@
     },
     "DiscoverResultResponse": {
       "title": "DiscoverResultResponse",
-      "description": "A successful response from the server for a {@link DiscoverRequestserver/discover} request.",
+      "description": "A successful response from the server for a {@link DiscoverRequestserver/discover} request. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -175,7 +175,7 @@
     },
     "GetPromptResultResponse": {
       "title": "GetPromptResultResponse",
-      "description": "A successful response from the server for a {@link GetPromptRequestprompts/get} request.",
+      "description": "A successful response from the server for a {@link GetPromptRequestprompts/get} request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -200,7 +200,7 @@
     },
     "HeaderMismatchError": {
       "title": "HeaderMismatchError",
-      "description": "Returned when a server rejects a request because the values in the HTTP\nheaders do not match the corresponding values in the request body, or\nbecause required headers are missing or malformed. For HTTP, the response\nstatus code MUST be `400 Bad Request`.",
+      "description": "Returned when a server rejects a request because the values in the HTTP\nheaders do not match the corresponding values in the request body, or\nbecause required headers are missing or malformed. For HTTP, the response\nstatus code MUST be `400 Bad Request`. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -239,7 +239,7 @@
     },
     "JSONRPCMessage": {
       "title": "JSONRPCMessage",
-      "description": "Refers to any valid JSON-RPC object that can be decoded off the wire, or encoded to be sent.",
+      "description": "Refers to any valid JSON-RPC object that can be decoded off the wire, or encoded to be sent. Layer: jsonrpc.",
       "anyOf": [
         {
           "$ref": "#/definitions/JSONRPCRequest"
@@ -254,7 +254,7 @@
     },
     "ListPromptsResultResponse": {
       "title": "ListPromptsResultResponse",
-      "description": "A successful response from the server for a {@link ListPromptsRequestprompts/list} request.",
+      "description": "A successful response from the server for a {@link ListPromptsRequestprompts/list} request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -272,7 +272,7 @@
     },
     "ListResourceTemplatesResultResponse": {
       "title": "ListResourceTemplatesResultResponse",
-      "description": "A successful response from the server for a {@link ListResourceTemplatesRequestresources/templates/list} request.",
+      "description": "A successful response from the server for a {@link ListResourceTemplatesRequestresources/templates/list} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -290,7 +290,7 @@
     },
     "ListResourcesResultResponse": {
       "title": "ListResourcesResultResponse",
-      "description": "A successful response from the server for a {@link ListResourcesRequestresources/list} request.",
+      "description": "A successful response from the server for a {@link ListResourcesRequestresources/list} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -308,7 +308,7 @@
     },
     "ListToolsResultResponse": {
       "title": "ListToolsResultResponse",
-      "description": "A successful response from the server for a {@link ListToolsRequesttools/list} request.",
+      "description": "A successful response from the server for a {@link ListToolsRequesttools/list} request. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -326,7 +326,7 @@
     },
     "MissingRequiredClientCapabilityError": {
       "title": "MissingRequiredClientCapabilityError",
-      "description": "Returned when processing a request requires a capability the client did not\ndeclare in `clientCapabilities`. For HTTP, the response status code MUST be\n`400 Bad Request`.",
+      "description": "Returned when processing a request requires a capability the client did not\ndeclare in `clientCapabilities`. For HTTP, the response status code MUST be\n`400 Bad Request`. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -378,7 +378,7 @@
     },
     "ReadResourceResultResponse": {
       "title": "ReadResourceResultResponse",
-      "description": "A successful response from the server for a {@link ReadResourceRequestresources/read} request.",
+      "description": "A successful response from the server for a {@link ReadResourceRequestresources/read} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -403,7 +403,7 @@
     },
     "ServerNotification": {
       "title": "ServerNotification",
-      "description": "The notifications a server sends to a client - MCP's session role: cancellation and progress, list changes, resource updates, subscription acknowledgements, and log messages.",
+      "description": "The notifications a server sends to a client - MCP's session role: cancellation and progress, list changes, resource updates, subscription acknowledgements, and log messages. Layer: session.",
       "anyOf": [
         {
           "$ref": "#/definitions/CancelledNotification"
@@ -433,7 +433,7 @@
     },
     "SubscriptionsListenResultResponse": {
       "title": "SubscriptionsListenResultResponse",
-      "description": "A successful response from the server for a {@link SubscriptionsListenRequestsubscriptions/listen}\nrequest, sent when the server tears the subscription down gracefully.",
+      "description": "A successful response from the server for a {@link SubscriptionsListenRequestsubscriptions/listen}\nrequest, sent when the server tears the subscription down gracefully. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -451,7 +451,7 @@
     },
     "UnsupportedProtocolVersionError": {
       "title": "UnsupportedProtocolVersionError",
-      "description": "Returned when the request's protocol version is unknown to the server or\nunsupported (e.g., a known experimental or draft version the server has\nchosen not to implement). For HTTP, the response status code MUST be\n`400 Bad Request`.",
+      "description": "Returned when the request's protocol version is unknown to the server or\nunsupported (e.g., a known experimental or draft version the server has\nchosen not to implement). For HTTP, the response status code MUST be\n`400 Bad Request`. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -511,7 +511,7 @@
     },
     "ServerResultResponse": {
       "title": "ServerResultResponse",
-      "description": "A result response whose result is one of ServerResult - the results a server returns.",
+      "description": "A result response whose result is one of ServerResult - the results a server returns. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -529,7 +529,7 @@
     },
     "ProtocolErrorResponse": {
       "title": "ProtocolErrorResponse",
-      "description": "An error response whose error is one of the typed protocol errors.",
+      "description": "An error response whose error is one of the typed protocol errors. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -550,7 +550,7 @@
     },
     "JSONRPCIdentifiedHeader": {
       "title": "JSONRPCIdentifiedHeader",
-      "description": "The header plus the id that correlates a request with its response - what requests and result responses share.",
+      "description": "The header plus the id that correlates a request with its response - what requests and result responses share. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -568,7 +568,7 @@
     },
     "InputRequiredResult": {
       "title": "InputRequiredResult",
-      "description": "An InputRequiredResult sent by the server to indicate that additional input is needed\nbefore the request can be completed.\n\nAt least one of `inputRequests` or `requestState` MUST be present.",
+      "description": "An InputRequiredResult sent by the server to indicate that additional input is needed\nbefore the request can be completed.\n\nAt least one of `inputRequests` or `requestState` MUST be present. Layer: agentic.",
       "type": "object",
       "allOf": [
         {
@@ -586,7 +586,7 @@
     },
     "CallToolResult": {
       "title": "CallToolResult",
-      "description": "The result returned by the server for a {@link CallToolRequesttools/call} request.",
+      "description": "The result returned by the server for a {@link CallToolRequesttools/call} request. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -615,7 +615,7 @@
     },
     "CancelledNotification": {
       "title": "CancelledNotification",
-      "description": "This notification is sent by the client to indicate that it is cancelling a request it previously issued.\n\nOn stdio, the server also sends this notification, solely to terminate a {@link SubscriptionsListenRequestsubscriptions/listen} stream: it references the ID of the `subscriptions/listen` request that opened the stream. Servers MUST NOT use this notification to cancel any other request.\n\nThe request SHOULD still be in-flight, but due to communication latency, it is always possible that this notification MAY arrive after the request has already finished.\n\nThis notification indicates that the result will be unused, so any associated processing SHOULD cease.",
+      "description": "This notification is sent by the client to indicate that it is cancelling a request it previously issued.\n\nOn stdio, the server also sends this notification, solely to terminate a {@link SubscriptionsListenRequestsubscriptions/listen} stream: it references the ID of the `subscriptions/listen` request that opened the stream. Servers MUST NOT use this notification to cancel any other request.\n\nThe request SHOULD still be in-flight, but due to communication latency, it is always possible that this notification MAY arrive after the request has already finished.\n\nThis notification indicates that the result will be unused, so any associated processing SHOULD cease. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -640,7 +640,7 @@
     },
     "DiscoverRequest": {
       "title": "DiscoverRequest",
-      "description": "A request from the client asking the server to advertise its supported\nprotocol versions, capabilities, and other metadata. Servers **MUST**\nimplement `server/discover`. Clients **MAY** call it but are not required\nto \u2014 version negotiation can also happen inline via per-request `_meta`.",
+      "description": "A request from the client asking the server to advertise its supported\nprotocol versions, capabilities, and other metadata. Servers **MUST**\nimplement `server/discover`. Clients **MAY** call it but are not required\nto \u2014 version negotiation can also happen inline via per-request `_meta`. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -665,7 +665,7 @@
     },
     "ListResourcesRequest": {
       "title": "ListResourcesRequest",
-      "description": "Sent from the client to request a list of resources the server has.",
+      "description": "Sent from the client to request a list of resources the server has. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -683,7 +683,7 @@
     },
     "ListResourceTemplatesRequest": {
       "title": "ListResourceTemplatesRequest",
-      "description": "Sent from the client to request a list of resource templates the server has.",
+      "description": "Sent from the client to request a list of resource templates the server has. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -701,7 +701,7 @@
     },
     "ReadResourceRequest": {
       "title": "ReadResourceRequest",
-      "description": "Sent from the client to the server, to read a specific resource URI.",
+      "description": "Sent from the client to the server, to read a specific resource URI. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -726,7 +726,7 @@
     },
     "SubscriptionsListenRequest": {
       "title": "SubscriptionsListenRequest",
-      "description": "Sent from the client to open a long-lived channel for receiving notifications\noutside the context of a specific request. Replaces the previous HTTP GET\nendpoint and ensures consistent behavior between HTTP and STDIO.",
+      "description": "Sent from the client to open a long-lived channel for receiving notifications\noutside the context of a specific request. Replaces the previous HTTP GET\nendpoint and ensures consistent behavior between HTTP and STDIO. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -751,7 +751,7 @@
     },
     "ListPromptsRequest": {
       "title": "ListPromptsRequest",
-      "description": "Sent from the client to request a list of prompts and prompt templates the server has.",
+      "description": "Sent from the client to request a list of prompts and prompt templates the server has. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -769,7 +769,7 @@
     },
     "GetPromptRequest": {
       "title": "GetPromptRequest",
-      "description": "Used by the client to get a prompt provided by the server.",
+      "description": "Used by the client to get a prompt provided by the server. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -794,7 +794,7 @@
     },
     "ListToolsRequest": {
       "title": "ListToolsRequest",
-      "description": "Sent from the client to request a list of tools the server has.",
+      "description": "Sent from the client to request a list of tools the server has. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -812,7 +812,7 @@
     },
     "CallToolRequest": {
       "title": "CallToolRequest",
-      "description": "Used by the client to invoke a tool provided by the server.",
+      "description": "Used by the client to invoke a tool provided by the server. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -837,7 +837,7 @@
     },
     "CompleteRequest": {
       "title": "CompleteRequest",
-      "description": "A request from the client to the server, to ask for completion options.",
+      "description": "A request from the client to the server, to ask for completion options. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -862,7 +862,7 @@
     },
     "CompleteResult": {
       "title": "CompleteResult",
-      "description": "The result returned by the server for a {@link CompleteRequestcompletion/complete} request.",
+      "description": "The result returned by the server for a {@link CompleteRequestcompletion/complete} request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -901,7 +901,7 @@
     },
     "DiscoverResult": {
       "title": "DiscoverResult",
-      "description": "The result returned by the server for a {@link DiscoverRequestserver/discover} request.",
+      "description": "The result returned by the server for a {@link DiscoverRequestserver/discover} request. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -932,7 +932,7 @@
     },
     "GetPromptResult": {
       "title": "GetPromptResult",
-      "description": "The result returned by the server for a {@link GetPromptRequestprompts/get} request.",
+      "description": "The result returned by the server for a {@link GetPromptRequestprompts/get} request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -957,7 +957,7 @@
     },
     "JSONRPCHeader": {
       "title": "JSONRPCHeader",
-      "description": "The JSON-RPC 2.0 header every message carries: the protocol version pin. Declared once here; upstream inlines it per message.",
+      "description": "The JSON-RPC 2.0 header every message carries: the protocol version pin. Declared once here; upstream inlines it per message. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "jsonrpc": {
@@ -973,7 +973,7 @@
     },
     "Error": {
       "title": "Error",
-      "description": "The JSON-RPC error object: an integer code, a short message, and optional sender-defined data.",
+      "description": "The JSON-RPC error object: an integer code, a short message, and optional sender-defined data. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "code": {
@@ -995,7 +995,7 @@
     },
     "RequestId": {
       "title": "RequestId",
-      "description": "A uniquely identifying ID for a request in JSON-RPC.",
+      "description": "A uniquely identifying ID for a request in JSON-RPC. Layer: jsonrpc.",
       "type": [
         "string",
         "integer"
@@ -1003,7 +1003,7 @@
     },
     "JSONRPCRequest": {
       "title": "JSONRPCRequest",
-      "description": "A request that expects a response.",
+      "description": "A request that expects a response. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -1016,7 +1016,7 @@
     },
     "JSONRPCNotification": {
       "title": "JSONRPCNotification",
-      "description": "A notification which does not expect a response.",
+      "description": "A notification which does not expect a response. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -1029,7 +1029,7 @@
     },
     "JSONRPCResponse": {
       "title": "JSONRPCResponse",
-      "description": "A response to a request, containing either the result or error.",
+      "description": "A response to a request, containing either the result or error. Layer: jsonrpc.",
       "anyOf": [
         {
           "$ref": "#/definitions/JSONRPCResultResponse"
@@ -1041,7 +1041,7 @@
     },
     "ListPromptsResult": {
       "title": "ListPromptsResult",
-      "description": "The result returned by the server for a {@link ListPromptsRequestprompts/list} request.",
+      "description": "The result returned by the server for a {@link ListPromptsRequestprompts/list} request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -1065,7 +1065,7 @@
     },
     "ListResourceTemplatesResult": {
       "title": "ListResourceTemplatesResult",
-      "description": "The result returned by the server for a {@link ListResourceTemplatesRequestresources/templates/list} request.",
+      "description": "The result returned by the server for a {@link ListResourceTemplatesRequestresources/templates/list} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -1089,7 +1089,7 @@
     },
     "ListResourcesResult": {
       "title": "ListResourcesResult",
-      "description": "The result returned by the server for a {@link ListResourcesRequestresources/list} request.",
+      "description": "The result returned by the server for a {@link ListResourcesRequestresources/list} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -1113,7 +1113,7 @@
     },
     "ListToolsResult": {
       "title": "ListToolsResult",
-      "description": "The result returned by the server for a {@link ListToolsRequesttools/list} request.",
+      "description": "The result returned by the server for a {@link ListToolsRequesttools/list} request. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -1137,7 +1137,7 @@
     },
     "ClientCapabilities": {
       "title": "ClientCapabilities",
-      "description": "Capabilities a client may support. Known capabilities are defined here, in this schema, but this is not a closed set: any client can define its own, additional capabilities.",
+      "description": "Capabilities a client may support. Known capabilities are defined here, in this schema, but this is not a closed set: any client can define its own, additional capabilities. Layer: session.",
       "type": "object",
       "properties": {
         "elicitation": {
@@ -1189,7 +1189,7 @@
     },
     "ReadResourceResult": {
       "title": "ReadResourceResult",
-      "description": "The result returned by the server for a {@link ReadResourceRequestresources/read} request.",
+      "description": "The result returned by the server for a {@link ReadResourceRequestresources/read} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -1217,7 +1217,7 @@
     },
     "ProgressNotification": {
       "title": "ProgressNotification",
-      "description": "An out-of-band notification used to inform the receiver of a progress update for a long-running request.",
+      "description": "An out-of-band notification used to inform the receiver of a progress update for a long-running request. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1242,7 +1242,7 @@
     },
     "ResourceListChangedNotification": {
       "title": "ResourceListChangedNotification",
-      "description": "An optional notification from the server to the client, informing it that the list of resources it can read from has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `resourcesListChanged` filter field.",
+      "description": "An optional notification from the server to the client, informing it that the list of resources it can read from has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `resourcesListChanged` filter field. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1266,7 +1266,7 @@
     },
     "SubscriptionsAcknowledgedNotification": {
       "title": "SubscriptionsAcknowledgedNotification",
-      "description": "Sent by the server to acknowledge that a\n{@link SubscriptionsListenRequestsubscriptions/listen} subscription has been\nestablished and to report which notification types it agreed to honor.\n\nThis notification MUST be the first message the server sends carrying the\nsubscription's ID in `io.modelcontextprotocol/subscriptionId`. The server MUST\nNOT send any notification on the subscription before acknowledging it. On\nstdio, where every subscription shares one channel, this ordering is defined\nper subscription ID and not per channel: messages belonging to other\nsubscriptions MAY be interleaved before it.",
+      "description": "Sent by the server to acknowledge that a\n{@link SubscriptionsListenRequestsubscriptions/listen} subscription has been\nestablished and to report which notification types it agreed to honor.\n\nThis notification MUST be the first message the server sends carrying the\nsubscription's ID in `io.modelcontextprotocol/subscriptionId`. The server MUST\nNOT send any notification on the subscription before acknowledging it. On\nstdio, where every subscription shares one channel, this ordering is defined\nper subscription ID and not per channel: messages belonging to other\nsubscriptions MAY be interleaved before it. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1291,7 +1291,7 @@
     },
     "ResourceUpdatedNotification": {
       "title": "ResourceUpdatedNotification",
-      "description": "A notification from the server to the client, informing it that a resource has changed and may need to be read again. This is only sent for resources the client opted in to via the `resourceSubscriptions` field of a {@link SubscriptionsListenRequestsubscriptions/listen} request.",
+      "description": "A notification from the server to the client, informing it that a resource has changed and may need to be read again. This is only sent for resources the client opted in to via the `resourceSubscriptions` field of a {@link SubscriptionsListenRequestsubscriptions/listen} request. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1316,7 +1316,7 @@
     },
     "PromptListChangedNotification": {
       "title": "PromptListChangedNotification",
-      "description": "An optional notification from the server to the client, informing it that the list of prompts it offers has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `promptsListChanged` filter field.",
+      "description": "An optional notification from the server to the client, informing it that the list of prompts it offers has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `promptsListChanged` filter field. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1340,7 +1340,7 @@
     },
     "ToolListChangedNotification": {
       "title": "ToolListChangedNotification",
-      "description": "An optional notification from the server to the client, informing it that the list of tools it offers has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `toolsListChanged` filter field.",
+      "description": "An optional notification from the server to the client, informing it that the list of tools it offers has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `toolsListChanged` filter field. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1364,7 +1364,7 @@
     },
     "LoggingMessageNotification": {
       "title": "LoggingMessageNotification",
-      "description": "JSONRPCNotification of a log message passed from server to client. The client opts in by setting `\"io.modelcontextprotocol/logLevel\"` in a request's `_meta`.",
+      "description": "JSONRPCNotification of a log message passed from server to client. The client opts in by setting `\"io.modelcontextprotocol/logLevel\"` in a request's `_meta`. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1389,7 +1389,7 @@
     },
     "SubscriptionsListenResult": {
       "title": "SubscriptionsListenResult",
-      "description": "The response to a {@link SubscriptionsListenRequestsubscriptions/listen}\nrequest, signalling that the subscription has ended gracefully (for example,\nduring server shutdown). Because the listen stream is long-lived, this result\nis sent only when the server tears the subscription down; an abrupt transport\nclose carries no response. The result body is otherwise empty.",
+      "description": "The response to a {@link SubscriptionsListenRequestsubscriptions/listen}\nrequest, signalling that the subscription has ended gracefully (for example,\nduring server shutdown). Because the listen stream is long-lived, this result\nis sent only when the server tears the subscription down; an abrupt transport\nclose carries no response. The result body is otherwise empty. Layer: resources.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -1407,7 +1407,7 @@
     },
     "ServerResult": {
       "title": "ServerResult",
-      "description": "The results a server returns to a client. The bare Result branch admits any result shape, so as a validator this union refuses nothing the Result does not.",
+      "description": "The results a server returns to a client. The bare Result branch admits any result shape, so as a validator this union refuses nothing the Result does not. Layer: session.",
       "anyOf": [
         {
           "$ref": "#/definitions/EmptyResult"
@@ -1449,7 +1449,7 @@
     },
     "ProtocolError": {
       "title": "ProtocolError",
-      "description": "The JSON-RPC error objects upstream types by code and no definition references.",
+      "description": "The JSON-RPC error objects upstream types by code and no definition references. Layer: jsonrpc.",
       "anyOf": [
         {
           "$ref": "#/definitions/InternalError"
@@ -1470,7 +1470,7 @@
     },
     "Result": {
       "title": "Result",
-      "description": "Common result fields.",
+      "description": "Common result fields. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -1488,7 +1488,7 @@
     },
     "InputRequests": {
       "title": "InputRequests",
-      "description": "A map of server-initiated requests that the client must fulfill.\nKeys are server-assigned identifiers; values are the request objects.",
+      "description": "A map of server-initiated requests that the client must fulfill.\nKeys are server-assigned identifiers; values are the request objects. Layer: agentic.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/InputRequest"
@@ -1496,7 +1496,7 @@
     },
     "ContentBlock": {
       "title": "ContentBlock",
-      "description": "The content a message may carry: text, image, audio, a resource link, or an embedded resource.",
+      "description": "The content a message may carry: text, image, audio, a resource link, or an embedded resource. Layer: content.",
       "anyOf": [
         {
           "$ref": "#/definitions/TextContent"
@@ -1517,7 +1517,7 @@
     },
     "CancelledNotificationParams": {
       "title": "CancelledNotificationParams",
-      "description": "Parameters for a `notifications/cancelled` notification.",
+      "description": "Parameters for a `notifications/cancelled` notification. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1540,7 +1540,7 @@
     },
     "RequestParams": {
       "title": "RequestParams",
-      "description": "Common params for any request.",
+      "description": "Common params for any request. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -1553,7 +1553,7 @@
     },
     "PaginatedRequest": {
       "title": "PaginatedRequest",
-      "description": "A request over a list, whose params carry the cursor of the page wanted.",
+      "description": "A request over a list, whose params carry the cursor of the page wanted. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1575,7 +1575,7 @@
     },
     "ReadResourceRequestParams": {
       "title": "ReadResourceRequestParams",
-      "description": "Parameters for a `resources/read` request.",
+      "description": "Parameters for a `resources/read` request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -1588,7 +1588,7 @@
     },
     "SubscriptionsListenRequestParams": {
       "title": "SubscriptionsListenRequestParams",
-      "description": "Parameters for a {@link SubscriptionsListenRequestsubscriptions/listen} request.",
+      "description": "Parameters for a {@link SubscriptionsListenRequestsubscriptions/listen} request. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -1607,7 +1607,7 @@
     },
     "GetPromptRequestParams": {
       "title": "GetPromptRequestParams",
-      "description": "Parameters for a `prompts/get` request.",
+      "description": "Parameters for a `prompts/get` request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -1633,7 +1633,7 @@
     },
     "CallToolRequestParams": {
       "title": "CallToolRequestParams",
-      "description": "Parameters for a `tools/call` request.",
+      "description": "Parameters for a `tools/call` request. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -1657,7 +1657,7 @@
     },
     "CompleteRequestParams": {
       "title": "CompleteRequestParams",
-      "description": "Parameters for a `completion/complete` request.",
+      "description": "Parameters for a `completion/complete` request. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -1714,7 +1714,7 @@
     },
     "CacheableResult": {
       "title": "CacheableResult",
-      "description": "A result that supports a time-to-live (TTL) hint for client-side caching.",
+      "description": "A result that supports a time-to-live (TTL) hint for client-side caching. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1743,7 +1743,7 @@
     },
     "ServerCapabilities": {
       "title": "ServerCapabilities",
-      "description": "Capabilities that a server may support. Known capabilities are defined here, in this schema, but this is not a closed set: any server can define its own, additional capabilities.",
+      "description": "Capabilities that a server may support. Known capabilities are defined here, in this schema, but this is not a closed set: any server can define its own, additional capabilities. Layer: session.",
       "type": "object",
       "properties": {
         "completions": {
@@ -1806,7 +1806,7 @@
     },
     "PromptMessage": {
       "title": "PromptMessage",
-      "description": "Describes a message returned as part of a prompt.\n\nThis is similar to {@link SamplingMessage}, but also supports the embedding of\nresources from the MCP server.",
+      "description": "Describes a message returned as part of a prompt.\n\nThis is similar to {@link SamplingMessage}, but also supports the embedding of\nresources from the MCP server. Layer: prompts.",
       "type": "object",
       "properties": {
         "content": {
@@ -1823,7 +1823,7 @@
     },
     "Request": {
       "title": "Request",
-      "description": "The payload of a JSON-RPC request: a method name and optional params; the header and id are the envelope's.",
+      "description": "The payload of a JSON-RPC request: a method name and optional params; the header and id are the envelope's. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "method": {
@@ -1840,7 +1840,7 @@
     },
     "Notification": {
       "title": "Notification",
-      "description": "The payload of a JSON-RPC notification: a method name and optional params, and no id - nothing to correlate a reply with.",
+      "description": "The payload of a JSON-RPC notification: a method name and optional params, and no id - nothing to correlate a reply with. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "method": {
@@ -1857,7 +1857,7 @@
     },
     "JSONRPCResultResponse": {
       "title": "JSONRPCResultResponse",
-      "description": "A successful (non-error) response to a request.",
+      "description": "A successful (non-error) response to a request. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -1875,7 +1875,7 @@
     },
     "JSONRPCErrorResponse": {
       "title": "JSONRPCErrorResponse",
-      "description": "A response to a request that indicates an error occurred.",
+      "description": "A response to a request that indicates an error occurred. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -1896,7 +1896,7 @@
     },
     "PaginatedResult": {
       "title": "PaginatedResult",
-      "description": "A result over a list, whose nextCursor, when present, names the page after this one.",
+      "description": "A result over a list, whose nextCursor, when present, names the page after this one. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -1912,7 +1912,7 @@
     },
     "Prompt": {
       "title": "Prompt",
-      "description": "A prompt or prompt template that the server offers.",
+      "description": "A prompt or prompt template that the server offers. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -1941,7 +1941,7 @@
     },
     "ResourceTemplate": {
       "title": "ResourceTemplate",
-      "description": "A template description for resources available on the server.",
+      "description": "A template description for resources available on the server. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -1979,7 +1979,7 @@
     },
     "Resource": {
       "title": "Resource",
-      "description": "A known resource that the server is capable of reading.",
+      "description": "A known resource that the server is capable of reading. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -2021,7 +2021,7 @@
     },
     "Tool": {
       "title": "Tool",
-      "description": "Definition for a tool the client can call.",
+      "description": "Definition for a tool the client can call. Layer: tools.",
       "type": "object",
       "allOf": [
         {
@@ -2079,7 +2079,7 @@
     },
     "JSONObject": {
       "title": "JSONObject",
-      "description": "A JSON object: string keys to JSON values.",
+      "description": "A JSON object: string keys to JSON values. Layer: jsonrpc.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/JSONValue"
@@ -2087,7 +2087,7 @@
     },
     "TextResourceContents": {
       "title": "TextResourceContents",
-      "description": "The contents of a resource delivered as text, with its URI and an optional MIME type.",
+      "description": "The contents of a resource delivered as text, with its URI and an optional MIME type. Layer: content.",
       "type": "object",
       "allOf": [
         {
@@ -2106,7 +2106,7 @@
     },
     "BlobResourceContents": {
       "title": "BlobResourceContents",
-      "description": "The contents of a resource delivered as base64-encoded binary data: the blob, its URI, and an optional MIME type.",
+      "description": "The contents of a resource delivered as base64-encoded binary data: the blob, its URI, and an optional MIME type. Layer: content.",
       "type": "object",
       "allOf": [
         {
@@ -2126,7 +2126,7 @@
     },
     "ProgressNotificationParams": {
       "title": "ProgressNotificationParams",
-      "description": "Parameters for a {@link ProgressNotificationnotifications/progress} notification.",
+      "description": "Parameters for a {@link ProgressNotificationnotifications/progress} notification. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -2158,7 +2158,7 @@
     },
     "NotificationParams": {
       "title": "NotificationParams",
-      "description": "Common params for any notification.",
+      "description": "Common params for any notification. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -2168,7 +2168,7 @@
     },
     "SubscriptionsAcknowledgedNotificationParams": {
       "title": "SubscriptionsAcknowledgedNotificationParams",
-      "description": "Parameters for a {@link SubscriptionsAcknowledgedNotificationnotifications/subscriptions/acknowledged} notification.",
+      "description": "Parameters for a {@link SubscriptionsAcknowledgedNotificationnotifications/subscriptions/acknowledged} notification. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -2187,7 +2187,7 @@
     },
     "ResourceUpdatedNotificationParams": {
       "title": "ResourceUpdatedNotificationParams",
-      "description": "Parameters for a `notifications/resources/updated` notification.",
+      "description": "Parameters for a `notifications/resources/updated` notification. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -2207,7 +2207,7 @@
     },
     "LoggingMessageNotificationParams": {
       "title": "LoggingMessageNotificationParams",
-      "description": "Parameters for a `notifications/message` notification.",
+      "description": "Parameters for a `notifications/message` notification. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -2234,7 +2234,7 @@
     },
     "SubscriptionsListenResultMetaObject": {
       "title": "SubscriptionsListenResultMetaObject",
-      "description": "Extends {@link ResultMetaObject} with the subscription-stream identifier carried by a\n{@link SubscriptionsListenResult}. All key naming rules from `MetaObject` apply.",
+      "description": "Extends {@link ResultMetaObject} with the subscription-stream identifier carried by a\n{@link SubscriptionsListenResult}. All key naming rules from `MetaObject` apply. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -2253,12 +2253,12 @@
     },
     "EmptyResult": {
       "title": "EmptyResult",
-      "description": "Common result fields.",
+      "description": "Common result fields. Layer: jsonrpc.",
       "$ref": "#/definitions/Result"
     },
     "InternalError": {
       "title": "InternalError",
-      "description": "A JSON-RPC error indicating that an internal error occurred on the receiver. This error is returned when the receiver encounters an unexpected condition that prevents it from fulfilling the request.",
+      "description": "A JSON-RPC error indicating that an internal error occurred on the receiver. This error is returned when the receiver encounters an unexpected condition that prevents it from fulfilling the request. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2277,7 +2277,7 @@
     },
     "InvalidParamsError": {
       "title": "InvalidParamsError",
-      "description": "A JSON-RPC error indicating that the method parameters are invalid or malformed.\n\nIn MCP, this error is returned in various contexts when request parameters fail validation:\n\n- **Tools**: Unknown tool name or invalid tool arguments\n- **Prompts**: Unknown prompt name or missing required arguments\n- **Pagination**: Invalid or expired cursor values\n- **Logging**: Invalid log level\n- **Elicitation**: Server requests an elicitation mode not declared in client capabilities\n- **Sampling**: Missing tool result or tool results mixed with other content",
+      "description": "A JSON-RPC error indicating that the method parameters are invalid or malformed.\n\nIn MCP, this error is returned in various contexts when request parameters fail validation:\n\n- **Tools**: Unknown tool name or invalid tool arguments\n- **Prompts**: Unknown prompt name or missing required arguments\n- **Pagination**: Invalid or expired cursor values\n- **Logging**: Invalid log level\n- **Elicitation**: Server requests an elicitation mode not declared in client capabilities\n- **Sampling**: Missing tool result or tool results mixed with other content Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2296,7 +2296,7 @@
     },
     "InvalidRequestError": {
       "title": "InvalidRequestError",
-      "description": "A JSON-RPC error indicating that the request is not a valid request object. This error is returned when the message structure does not conform to the JSON-RPC 2.0 specification requirements for a request (e.g., missing required fields like `jsonrpc` or `method`, or using invalid types for these fields).",
+      "description": "A JSON-RPC error indicating that the request is not a valid request object. This error is returned when the message structure does not conform to the JSON-RPC 2.0 specification requirements for a request (e.g., missing required fields like `jsonrpc` or `method`, or using invalid types for these fields). Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2315,7 +2315,7 @@
     },
     "MethodNotFoundError": {
       "title": "MethodNotFoundError",
-      "description": "A JSON-RPC error indicating that the requested method does not exist or is not available.\n\nIn MCP, a server returns this error when a client invokes a method the server does not implement \u2014 either a genuinely unknown method, or one gated behind a server capability the server did not advertise (e.g., calling `prompts/list` when the `prompts` capability was not advertised).\n\nA request that requires a client capability the client did not declare is signalled instead by {@link MissingRequiredClientCapabilityError} (`-32021`).",
+      "description": "A JSON-RPC error indicating that the requested method does not exist or is not available.\n\nIn MCP, a server returns this error when a client invokes a method the server does not implement \u2014 either a genuinely unknown method, or one gated behind a server capability the server did not advertise (e.g., calling `prompts/list` when the `prompts` capability was not advertised).\n\nA request that requires a client capability the client did not declare is signalled instead by {@link MissingRequiredClientCapabilityError} (`-32021`). Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2334,7 +2334,7 @@
     },
     "ParseError": {
       "title": "ParseError",
-      "description": "A JSON-RPC error indicating that invalid JSON was received by the server. This error is returned when the server cannot parse the JSON text of a message.",
+      "description": "A JSON-RPC error indicating that invalid JSON was received by the server. This error is returned when the server cannot parse the JSON text of a message. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2353,7 +2353,7 @@
     },
     "ResultMetaObject": {
       "title": "ResultMetaObject",
-      "description": "Extends {@link MetaObject} with additional result-specific fields. All key naming rules from `MetaObject` apply.",
+      "description": "Extends {@link MetaObject} with additional result-specific fields. All key naming rules from `MetaObject` apply. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2369,12 +2369,12 @@
     },
     "ResultType": {
       "title": "ResultType",
-      "description": "Indicates the type of a {@link Result} object, allowing the client to\ndetermine how to parse the response.\n\ncomplete - the request completed successfully and the result contains the final content.\ninput_required - the request requires additional input and the result contains an {@link InputRequiredResult} object with instructions for the client to provide additional input before retrying the original request.",
+      "description": "Indicates the type of a {@link Result} object, allowing the client to\ndetermine how to parse the response.\n\ncomplete - the request completed successfully and the result contains the final content.\ninput_required - the request requires additional input and the result contains an {@link InputRequiredResult} object with instructions for the client to provide additional input before retrying the original request. Layer: jsonrpc.",
       "type": "string"
     },
     "InputRequest": {
       "title": "InputRequest",
-      "description": "A request the server raises mid-request for the client to answer - a sampling message, the roots list, or an elicitation - carried in an input-required result.",
+      "description": "A request the server raises mid-request for the client to answer - a sampling message, the roots list, or an elicitation - carried in an input-required result. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/CreateMessageRequest"
@@ -2389,7 +2389,7 @@
     },
     "TextContent": {
       "title": "TextContent",
-      "description": "Text provided to or from an LLM.",
+      "description": "Text provided to or from an LLM. Layer: content.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -2417,7 +2417,7 @@
     },
     "ImageContent": {
       "title": "ImageContent",
-      "description": "An image provided to or from an LLM.",
+      "description": "An image provided to or from an LLM. Layer: content.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -2451,7 +2451,7 @@
     },
     "AudioContent": {
       "title": "AudioContent",
-      "description": "Audio provided to or from an LLM.",
+      "description": "Audio provided to or from an LLM. Layer: content.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -2485,7 +2485,7 @@
     },
     "ResourceLink": {
       "title": "ResourceLink",
-      "description": "A resource that the server is capable of reading, included in a prompt or tool call result.\n\nNote: resource links returned by tools are not guaranteed to appear in the results of {@link ListResourcesRequestresources/list} requests.",
+      "description": "A resource that the server is capable of reading, included in a prompt or tool call result.\n\nNote: resource links returned by tools are not guaranteed to appear in the results of {@link ListResourcesRequestresources/list} requests. Layer: content.",
       "type": "object",
       "allOf": [
         {
@@ -2506,7 +2506,7 @@
     },
     "EmbeddedResource": {
       "title": "EmbeddedResource",
-      "description": "The contents of a resource, embedded into a prompt or tool call result.\n\nIt is up to the client how best to render embedded resources for the benefit\nof the LLM and/or the user.",
+      "description": "The contents of a resource, embedded into a prompt or tool call result.\n\nIt is up to the client how best to render embedded resources for the benefit\nof the LLM and/or the user. Layer: content.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -2540,7 +2540,7 @@
     },
     "RequestMetaObject": {
       "title": "RequestMetaObject",
-      "description": "Extends {@link MetaObject} with additional request-specific fields. All key naming rules from `MetaObject` apply.",
+      "description": "Extends {@link MetaObject} with additional request-specific fields. All key naming rules from `MetaObject` apply. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2576,7 +2576,7 @@
     },
     "PaginatedRequestParams": {
       "title": "PaginatedRequestParams",
-      "description": "Common params for paginated requests.",
+      "description": "Common params for paginated requests. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2592,7 +2592,7 @@
     },
     "InputResponseRequestParams": {
       "title": "InputResponseRequestParams",
-      "description": "Request parameters that carry the client's answers to earlier input requests and the server's request state, so a request can resume.",
+      "description": "Request parameters that carry the client's answers to earlier input requests and the server's request state, so a request can resume. Layer: agentic.",
       "type": "object",
       "allOf": [
         {
@@ -2610,7 +2610,7 @@
     },
     "ResourceRequestParams": {
       "title": "ResourceRequestParams",
-      "description": "Common params for resource-related requests.",
+      "description": "Common params for resource-related requests. Layer: resources.",
       "type": "object",
       "allOf": [
         {
@@ -2630,7 +2630,7 @@
     },
     "SubscriptionFilter": {
       "title": "SubscriptionFilter",
-      "description": "The set of notification types a client may opt in to on a\n{@link SubscriptionsListenRequestsubscriptions/listen} request.\n\nEach notification type is **opt-in**; the server **MUST NOT** send\nnotification types the client has not explicitly requested here.",
+      "description": "The set of notification types a client may opt in to on a\n{@link SubscriptionsListenRequestsubscriptions/listen} request.\n\nEach notification type is **opt-in**; the server **MUST NOT** send\nnotification types the client has not explicitly requested here. Layer: resources.",
       "type": "object",
       "properties": {
         "promptsListChanged": {
@@ -2656,7 +2656,7 @@
     },
     "PromptReference": {
       "title": "PromptReference",
-      "description": "Identifies a prompt.",
+      "description": "Identifies a prompt. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -2677,7 +2677,7 @@
     },
     "ResourceTemplateReference": {
       "title": "ResourceTemplateReference",
-      "description": "A reference to a resource or resource template definition.",
+      "description": "A reference to a resource or resource template definition. Layer: prompts.",
       "type": "object",
       "properties": {
         "type": {
@@ -2699,7 +2699,7 @@
     },
     "Role": {
       "title": "Role",
-      "description": "The sender or recipient of messages and data in a conversation. The values are exhaustive: those the MCP 2026-07-28 spec enumerates.",
+      "description": "The sender or recipient of messages and data in a conversation. The values are exhaustive: those the MCP 2026-07-28 spec enumerates. Layer: jsonrpc.",
       "type": "string",
       "enum": [
         "assistant",
@@ -2708,12 +2708,12 @@
     },
     "Cursor": {
       "title": "Cursor",
-      "description": "An opaque token used to represent a cursor for pagination.",
+      "description": "An opaque token used to represent a cursor for pagination. Layer: jsonrpc.",
       "type": "string"
     },
     "BaseMetadata": {
       "title": "BaseMetadata",
-      "description": "Base interface for metadata with name (identifier) and title (display name) properties.",
+      "description": "Base interface for metadata with name (identifier) and title (display name) properties. Layer: session.",
       "type": "object",
       "properties": {
         "name": {
@@ -2731,7 +2731,7 @@
     },
     "Icons": {
       "title": "Icons",
-      "description": "Base interface to add `icons` property.",
+      "description": "Base interface to add `icons` property. Layer: session.",
       "type": "object",
       "properties": {
         "icons": {
@@ -2745,12 +2745,12 @@
     },
     "MetaObject": {
       "title": "MetaObject",
-      "description": "Represents the contents of a `_meta` field, which clients and servers use to attach additional metadata to their interactions.\n\nCertain key names are reserved by MCP for protocol-level metadata; implementations MUST NOT make assumptions about values at these keys. Additionally, specific schema definitions may reserve particular names for purpose-specific metadata, as declared in those definitions.\n\nValid keys have two segments:\n\n**Prefix:**\n- Optional \u2014 if specified, MUST be a series of _labels_ separated by dots (`.`), followed by a slash (`/`).\n- Labels MUST start with a letter and end with a letter or digit. Interior characters may be letters, digits, or hyphens (`-`).\n- Implementations SHOULD use reverse DNS notation (e.g., `com.example/` rather than `example.com/`).\n- Any prefix where the second label is `modelcontextprotocol` or `mcp` is **reserved** for MCP use. For example: `io.modelcontextprotocol/`, `dev.mcp/`, `org.modelcontextprotocol.api/`, and `com.mcp.tools/` are all reserved. However, `com.example.mcp/` is NOT reserved, as the second label is `example`.\n\n**Name:**\n- Unless empty, MUST start and end with an alphanumeric character (`[a-z0-9A-Z]`).\n- Interior characters may be alphanumeric, hyphens (`-`), underscores (`_`), or dots (`.`).",
+      "description": "Represents the contents of a `_meta` field, which clients and servers use to attach additional metadata to their interactions.\n\nCertain key names are reserved by MCP for protocol-level metadata; implementations MUST NOT make assumptions about values at these keys. Additionally, specific schema definitions may reserve particular names for purpose-specific metadata, as declared in those definitions.\n\nValid keys have two segments:\n\n**Prefix:**\n- Optional \u2014 if specified, MUST be a series of _labels_ separated by dots (`.`), followed by a slash (`/`).\n- Labels MUST start with a letter and end with a letter or digit. Interior characters may be letters, digits, or hyphens (`-`).\n- Implementations SHOULD use reverse DNS notation (e.g., `com.example/` rather than `example.com/`).\n- Any prefix where the second label is `modelcontextprotocol` or `mcp` is **reserved** for MCP use. For example: `io.modelcontextprotocol/`, `dev.mcp/`, `org.modelcontextprotocol.api/`, and `com.mcp.tools/` are all reserved. However, `com.example.mcp/` is NOT reserved, as the second label is `example`.\n\n**Name:**\n- Unless empty, MUST start and end with an alphanumeric character (`[a-z0-9A-Z]`).\n- Interior characters may be alphanumeric, hyphens (`-`), underscores (`_`), or dots (`.`). Layer: jsonrpc.",
       "type": "object"
     },
     "PromptArgument": {
       "title": "PromptArgument",
-      "description": "Describes an argument that a prompt can accept.",
+      "description": "Describes an argument that a prompt can accept. Layer: prompts.",
       "type": "object",
       "allOf": [
         {
@@ -2770,7 +2770,7 @@
     },
     "Annotations": {
       "title": "Annotations",
-      "description": "Optional annotations for the client. The client can use annotations to inform how objects are used or displayed",
+      "description": "Optional annotations for the client. The client can use annotations to inform how objects are used or displayed Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "audience": {
@@ -2794,7 +2794,7 @@
     },
     "ToolAnnotations": {
       "title": "ToolAnnotations",
-      "description": "Additional properties describing a {@link Tool} to clients.\n\nNOTE: all properties in `ToolAnnotations` are **hints**.\nThey are not guaranteed to provide a faithful description of\ntool behavior (including descriptive properties like `title`).\n\nClients should never make tool use decisions based on `ToolAnnotations`\nreceived from untrusted servers.",
+      "description": "Additional properties describing a {@link Tool} to clients.\n\nNOTE: all properties in `ToolAnnotations` are **hints**.\nThey are not guaranteed to provide a faithful description of\ntool behavior (including descriptive properties like `title`).\n\nClients should never make tool use decisions based on `ToolAnnotations`\nreceived from untrusted servers. Layer: tools.",
       "type": "object",
       "properties": {
         "destructiveHint": {
@@ -2821,7 +2821,7 @@
     },
     "JSONValue": {
       "title": "JSONValue",
-      "description": "Any JSON value: an object, an array, a string, an integer, a boolean, or null.",
+      "description": "Any JSON value: an object, an array, a string, an integer, a boolean, or null. Layer: jsonrpc.",
       "anyOf": [
         {
           "$ref": "#/definitions/JSONObject"
@@ -2840,7 +2840,7 @@
     },
     "ResourceContents": {
       "title": "ResourceContents",
-      "description": "The contents of a specific resource or sub-resource.",
+      "description": "The contents of a specific resource or sub-resource. Layer: content.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -2862,7 +2862,7 @@
     },
     "ProgressToken": {
       "title": "ProgressToken",
-      "description": "A progress token, used to associate progress notifications with the original request.",
+      "description": "A progress token, used to associate progress notifications with the original request. Layer: jsonrpc.",
       "type": [
         "string",
         "integer"
@@ -2870,7 +2870,7 @@
     },
     "NotificationMetaObject": {
       "title": "NotificationMetaObject",
-      "description": "Extends {@link MetaObject} with additional notification-specific fields. All key naming rules from `MetaObject` apply.",
+      "description": "Extends {@link MetaObject} with additional notification-specific fields. All key naming rules from `MetaObject` apply. Layer: jsonrpc.",
       "type": "object",
       "allOf": [
         {
@@ -2886,7 +2886,7 @@
     },
     "LoggingLevel": {
       "title": "LoggingLevel",
-      "description": "The severity of a log message.\n\nThese map to syslog message severities, as specified in RFC-5424:\nhttps://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1 The values are exhaustive: those the MCP 2026-07-28 spec enumerates.",
+      "description": "The severity of a log message.\n\nThese map to syslog message severities, as specified in RFC-5424:\nhttps://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1 The values are exhaustive: those the MCP 2026-07-28 spec enumerates. Layer: jsonrpc.",
       "type": "string",
       "enum": [
         "alert",
@@ -2901,7 +2901,7 @@
     },
     "Implementation": {
       "title": "Implementation",
-      "description": "Describes the MCP implementation.",
+      "description": "Describes the MCP implementation. Layer: session.",
       "type": "object",
       "allOf": [
         {
@@ -2932,7 +2932,7 @@
     },
     "CreateMessageRequest": {
       "title": "CreateMessageRequest",
-      "description": "A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it.",
+      "description": "A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it. Layer: agentic.",
       "type": "object",
       "properties": {
         "method": {
@@ -2952,7 +2952,7 @@
     },
     "ListRootsRequest": {
       "title": "ListRootsRequest",
-      "description": "Sent from the server to request a list of root URIs from the client. Roots allow\nservers to ask for specific directories or files to operate on. A common example\nfor roots is providing a set of repositories or directories a server should operate\non.\n\nThis request is typically used when the server needs to understand the file system\nstructure or access specific locations that the client has permission to read from.",
+      "description": "Sent from the server to request a list of root URIs from the client. Roots allow\nservers to ask for specific directories or files to operate on. A common example\nfor roots is providing a set of repositories or directories a server should operate\non.\n\nThis request is typically used when the server needs to understand the file system\nstructure or access specific locations that the client has permission to read from. Layer: agentic.",
       "type": "object",
       "properties": {
         "method": {
@@ -2976,7 +2976,7 @@
     },
     "ElicitRequest": {
       "title": "ElicitRequest",
-      "description": "A request from the server to elicit additional information from the user via the client.",
+      "description": "A request from the server to elicit additional information from the user via the client. Layer: agentic.",
       "type": "object",
       "properties": {
         "method": {
@@ -2996,7 +2996,7 @@
     },
     "InputResponses": {
       "title": "InputResponses",
-      "description": "A map of client responses to server-initiated requests.\nKeys correspond to the keys in the {@link InputRequests} map;\nvalues are the client's result for each request.",
+      "description": "A map of client responses to server-initiated requests.\nKeys correspond to the keys in the {@link InputRequests} map;\nvalues are the client's result for each request. Layer: agentic.",
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/InputResponse"
@@ -3004,7 +3004,7 @@
     },
     "Icon": {
       "title": "Icon",
-      "description": "An optionally-sized icon that can be displayed in a user interface.",
+      "description": "An optionally-sized icon that can be displayed in a user interface. Layer: jsonrpc.",
       "type": "object",
       "properties": {
         "mimeType": {
@@ -3038,7 +3038,7 @@
     },
     "JSONArray": {
       "title": "JSONArray",
-      "description": "A JSON array: an ordered list of JSON values.",
+      "description": "A JSON array: an ordered list of JSON values. Layer: jsonrpc.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/JSONValue"
@@ -3046,7 +3046,7 @@
     },
     "CreateMessageRequestParams": {
       "title": "CreateMessageRequestParams",
-      "description": "Parameters for a `sampling/createMessage` request.",
+      "description": "Parameters for a `sampling/createMessage` request. Layer: agentic.",
       "type": "object",
       "properties": {
         "includeContext": {
@@ -3108,7 +3108,7 @@
     },
     "ElicitRequestParams": {
       "title": "ElicitRequestParams",
-      "description": "The parameters for a request to elicit additional information from the user via the client.",
+      "description": "The parameters for a request to elicit additional information from the user via the client. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/ElicitRequestFormParams"
@@ -3120,7 +3120,7 @@
     },
     "InputResponse": {
       "title": "InputResponse",
-      "description": "The client's answer to an input request: a sampling result, a roots list, or an elicitation result.",
+      "description": "The client's answer to an input request: a sampling result, a roots list, or an elicitation result. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/CreateMessageResult"
@@ -3135,7 +3135,7 @@
     },
     "SamplingMessage": {
       "title": "SamplingMessage",
-      "description": "Describes a message issued to or received from an LLM API.",
+      "description": "Describes a message issued to or received from an LLM API. Layer: agentic.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -3177,7 +3177,7 @@
     },
     "ModelPreferences": {
       "title": "ModelPreferences",
-      "description": "The server's preferences for model selection, requested of the client during sampling.\n\nBecause LLMs can vary along multiple dimensions, choosing the \"best\" model is\nrarely straightforward.  Different models excel in different areas\u2014some are\nfaster but less capable, others are more capable but more expensive, and so\non. This interface allows servers to express their priorities across multiple\ndimensions to help clients make an appropriate selection for their use case.\n\nThese preferences are always advisory. The client MAY ignore them. It is also\nup to the client to decide how to interpret these preferences and how to\nbalance them against other considerations.",
+      "description": "The server's preferences for model selection, requested of the client during sampling.\n\nBecause LLMs can vary along multiple dimensions, choosing the \"best\" model is\nrarely straightforward.  Different models excel in different areas\u2014some are\nfaster but less capable, others are more capable but more expensive, and so\non. This interface allows servers to express their priorities across multiple\ndimensions to help clients make an appropriate selection for their use case.\n\nThese preferences are always advisory. The client MAY ignore them. It is also\nup to the client to decide how to interpret these preferences and how to\nbalance them against other considerations. Layer: agentic.",
       "type": "object",
       "properties": {
         "costPriority": {
@@ -3209,7 +3209,7 @@
     },
     "ToolChoice": {
       "title": "ToolChoice",
-      "description": "Controls tool selection behavior for sampling requests.",
+      "description": "Controls tool selection behavior for sampling requests. Layer: agentic.",
       "type": "object",
       "properties": {
         "mode": {
@@ -3225,7 +3225,7 @@
     },
     "ElicitRequestFormParams": {
       "title": "ElicitRequestFormParams",
-      "description": "The parameters for a request to elicit non-sensitive information from the user via a form in the client.",
+      "description": "The parameters for a request to elicit non-sensitive information from the user via a form in the client. Layer: agentic.",
       "type": "object",
       "properties": {
         "message": {
@@ -3278,7 +3278,7 @@
     },
     "ElicitRequestURLParams": {
       "title": "ElicitRequestURLParams",
-      "description": "The parameters for a request to elicit information from the user via a URL in the client.",
+      "description": "The parameters for a request to elicit information from the user via a URL in the client. Layer: agentic.",
       "type": "object",
       "properties": {
         "message": {
@@ -3306,7 +3306,7 @@
     },
     "CreateMessageResult": {
       "title": "CreateMessageResult",
-      "description": "The result returned by the client for a {@link CreateMessageRequestsampling/createMessage} request.\nThe client should inform the user before returning the sampled message, to allow them\nto inspect the response (human in the loop) and decide whether to allow the server to see it.",
+      "description": "The result returned by the client for a {@link CreateMessageRequestsampling/createMessage} request.\nThe client should inform the user before returning the sampled message, to allow them\nto inspect the response (human in the loop) and decide whether to allow the server to see it. Layer: agentic.",
       "type": "object",
       "allOf": [
         {
@@ -3329,7 +3329,7 @@
     },
     "ListRootsResult": {
       "title": "ListRootsResult",
-      "description": "The result returned by the client for a {@link ListRootsRequestroots/list} request.\nThis result contains an array of {@link Root} objects, each representing a root directory\nor file that the server can operate on.",
+      "description": "The result returned by the client for a {@link ListRootsRequestroots/list} request.\nThis result contains an array of {@link Root} objects, each representing a root directory\nor file that the server can operate on. Layer: agentic.",
       "type": "object",
       "properties": {
         "roots": {
@@ -3345,7 +3345,7 @@
     },
     "ElicitResult": {
       "title": "ElicitResult",
-      "description": "The result returned by the client for an {@link ElicitRequestelicitation/create} request.",
+      "description": "The result returned by the client for an {@link ElicitRequestelicitation/create} request. Layer: agentic.",
       "type": "object",
       "properties": {
         "action": {
@@ -3385,7 +3385,7 @@
     },
     "ToolUseContent": {
       "title": "ToolUseContent",
-      "description": "A request from the assistant to call a tool.",
+      "description": "A request from the assistant to call a tool. Layer: agentic.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -3421,7 +3421,7 @@
     },
     "ToolResultContent": {
       "title": "ToolResultContent",
-      "description": "The result of a tool use, provided by the user back to the assistant.",
+      "description": "The result of a tool use, provided by the user back to the assistant. Layer: agentic.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -3461,7 +3461,7 @@
     },
     "SamplingMessageContentBlock": {
       "title": "SamplingMessageContentBlock",
-      "description": "The content a sampling message may carry: text, image, audio, a tool use, or a tool result. Upstream marks it deprecated: it remains in the specification for at least twelve months, per the deprecated features registry.",
+      "description": "The content a sampling message may carry: text, image, audio, a tool use, or a tool result. Upstream marks it deprecated: it remains in the specification for at least twelve months, per the deprecated features registry. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/TextContent"
@@ -3482,7 +3482,7 @@
     },
     "ModelHint": {
       "title": "ModelHint",
-      "description": "Hints to use for model selection.\n\nKeys not declared here are currently left unspecified by the spec and are up\nto the client to interpret.",
+      "description": "Hints to use for model selection.\n\nKeys not declared here are currently left unspecified by the spec and are up\nto the client to interpret. Layer: agentic.",
       "type": "object",
       "properties": {
         "name": {
@@ -3493,7 +3493,7 @@
     },
     "PrimitiveSchemaDefinition": {
       "title": "PrimitiveSchemaDefinition",
-      "description": "Restricted schema definitions that only allow primitive types\nwithout nested objects or arrays.",
+      "description": "Restricted schema definitions that only allow primitive types\nwithout nested objects or arrays. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/StringSchema"
@@ -3511,7 +3511,7 @@
     },
     "Root": {
       "title": "Root",
-      "description": "Represents a root directory or file that the server can operate on.",
+      "description": "Represents a root directory or file that the server can operate on. Layer: agentic.",
       "type": "object",
       "properties": {
         "_meta": {
@@ -3533,7 +3533,7 @@
     },
     "StringSchema": {
       "title": "StringSchema",
-      "description": "A primitive input schema for elicitation: a string field, with optional length bounds, format and default.",
+      "description": "A primitive input schema for elicitation: a string field, with optional length bounds, format and default. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3574,7 +3574,7 @@
     },
     "NumberSchema": {
       "title": "NumberSchema",
-      "description": "A primitive input schema for elicitation: a number or integer field, with optional bounds and default.",
+      "description": "A primitive input schema for elicitation: a number or integer field, with optional bounds and default. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3607,7 +3607,7 @@
     },
     "BooleanSchema": {
       "title": "BooleanSchema",
-      "description": "A primitive input schema for elicitation: a boolean field, with optional title, description and default.",
+      "description": "A primitive input schema for elicitation: a boolean field, with optional title, description and default. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3632,7 +3632,7 @@
     },
     "EnumSchema": {
       "title": "EnumSchema",
-      "description": "The enum input schemas for elicitation: single- or multi-select, titled or untitled, and the legacy titled form.",
+      "description": "The enum input schemas for elicitation: single- or multi-select, titled or untitled, and the legacy titled form. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/SingleSelectEnumSchema"
@@ -3647,7 +3647,7 @@
     },
     "SingleSelectEnumSchema": {
       "title": "SingleSelectEnumSchema",
-      "description": "An enum input schema allowing one selected value, titled or untitled.",
+      "description": "An enum input schema allowing one selected value, titled or untitled. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/UntitledSingleSelectEnumSchema"
@@ -3659,7 +3659,7 @@
     },
     "MultiSelectEnumSchema": {
       "title": "MultiSelectEnumSchema",
-      "description": "An enum input schema allowing several selected values, titled or untitled.",
+      "description": "An enum input schema allowing several selected values, titled or untitled. Layer: agentic.",
       "anyOf": [
         {
           "$ref": "#/definitions/UntitledMultiSelectEnumSchema"
@@ -3671,7 +3671,7 @@
     },
     "LegacyTitledEnumSchema": {
       "title": "LegacyTitledEnumSchema",
-      "description": "Use {@link TitledSingleSelectEnumSchema} instead.\nThis interface will be removed in a future version.",
+      "description": "Use {@link TitledSingleSelectEnumSchema} instead.\nThis interface will be removed in a future version. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3710,7 +3710,7 @@
     },
     "UntitledSingleSelectEnumSchema": {
       "title": "UntitledSingleSelectEnumSchema",
-      "description": "Schema for single-selection enumeration without display titles for options.",
+      "description": "Schema for single-selection enumeration without display titles for options. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3746,7 +3746,7 @@
     },
     "TitledSingleSelectEnumSchema": {
       "title": "TitledSingleSelectEnumSchema",
-      "description": "Schema for single-selection enumeration with display titles for each option.",
+      "description": "Schema for single-selection enumeration with display titles for each option. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3796,7 +3796,7 @@
     },
     "UntitledMultiSelectEnumSchema": {
       "title": "UntitledMultiSelectEnumSchema",
-      "description": "Schema for multiple-selection enumeration without display titles for options.",
+      "description": "Schema for multiple-selection enumeration without display titles for options. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3859,7 +3859,7 @@
     },
     "TitledMultiSelectEnumSchema": {
       "title": "TitledMultiSelectEnumSchema",
-      "description": "Schema for multiple-selection enumeration with display titles for each option.",
+      "description": "Schema for multiple-selection enumeration with display titles for each option. Layer: agentic.",
       "type": "object",
       "properties": {
         "default": {
@@ -3929,7 +3929,7 @@
     },
     "ClientResult": {
       "title": "ClientResult",
-      "description": "Common result fields.",
+      "description": "Common result fields. Layer: jsonrpc.",
       "$ref": "#/definitions/EmptyResult"
     }
   }

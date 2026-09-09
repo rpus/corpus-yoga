@@ -465,17 +465,21 @@ rsc/reference/JSONSchema/README.md,10,doc,src/schema_walk.py,Y,declaration `src/
 rsc/reference/JSONSchema/draft-04/CHANGELOG.md,4,doc,rsc/reference/JSONSchema/draft-04,Y,`rsc/reference/JSONSchema/draft-04/` at the etag its `provenance.csv` row pins
 rsc/reference/mcp/2024-11-05/CHANGELOG.md,3,doc,rsc/reference/mcp/2024-11-05,Y,"The 2024-11-05 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2024-11-05/` at the "
 rsc/reference/mcp/2024-11-05/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2024-11-05 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2024-11-05/` at the "
+rsc/reference/mcp/2024-11-05/CHANGELOG.md,11,doc,rsc/schema/protocol/mcpMessage/category_layer.csv,Y,"The protocol at this lineage: a two-direction JSON-RPC wire - `ClientRequest` a union of 13, `ServerRequest` of 3 (`ping"
 rsc/reference/mcp/2025-03-26/CHANGELOG.md,3,doc,rsc/reference/mcp/2025-03-26,Y,"The 2025-03-26 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-03-26/` at the "
 rsc/reference/mcp/2025-03-26/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2025-03-26 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-03-26/` at the "
 rsc/reference/mcp/2025-06-18/CHANGELOG.md,3,doc,rsc/reference/mcp/2025-06-18,Y,"The 2025-06-18 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-06-18/` at the "
 rsc/reference/mcp/2025-06-18/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2025-06-18 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-06-18/` at the "
+rsc/reference/mcp/2025-06-18/CHANGELOG.md,11,doc,rsc/schema/protocol/mcpMessage/category_layer.csv,Y,"The protocol at this lineage: the two-direction wire grows one server request - `ServerRequest` a union of 4 (`ping`, `s"
 rsc/reference/mcp/2025-11-25/CHANGELOG.md,3,doc,rsc/reference/mcp/2025-11-25,Y,"The 2025-11-25 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-11-25/` at the "
 rsc/reference/mcp/2025-11-25/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2025-11-25 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-11-25/` at the "
 rsc/reference/mcp/2025-11-25/CHANGELOG.md,11,doc,rsc/model/model_join.csv,Y,"The house held this lineage before #572 as the schema family `rsc/schema/_reference/mcp` (v1 at 357adac, v2 at this comm"
+rsc/reference/mcp/2025-11-25/CHANGELOG.md,26,doc,rsc/model/model_join.csv,Y,"- Sampling carries tool use and tool result content (`ToolUseContent`, `ToolResultContent`, `ToolChoice`) - the model-fa"
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,3,doc,rsc/reference/mcp/2026-07-28,Y,"The 2026-07-28 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2026-07-28/` at the "
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2026-07-28 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2026-07-28/` at the "
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,9,doc,rsc/reference/mcp/generate.md,Y,Taken 2026-09-09 (reading-room) by `corpus-yoga reference sync`'s procedure from upstream's `schema/2026-07-28/` at comm
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,9,doc,rsc/schema/protocol/mcpMessage,Y,Taken 2026-09-09 (reading-room) by `corpus-yoga reference sync`'s procedure from upstream's `schema/2026-07-28/` at comm
+rsc/reference/mcp/2026-07-28/CHANGELOG.md,21,doc,rsc/schema/protocol/mcpMessage/unreachable.csv,Y,"- The wire loses a direction: `ServerRequest` is gone, a server sends requests to no one, and a client returns no result"
 rsc/reference/mcp/README.md,19,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage` from it, and `corpus-yoga mcp reproduce` witnesses"
 rsc/reference/mcp/generate.md,39,doc,src/main/mcp/reproduce.sh,Y,`corpus-yoga mcp reproduce` (`src/main/mcp/reproduce.sh`) runs upstream's own
 rsc/rpus/documenter.json,2,$schema,rsc/rpus/documenter.json,Y,"""$schema"": ""./documenter.json"","
@@ -520,18 +524,21 @@ rsc/schema/WORKFLOW.md,307,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/pro
 rsc/schema/WORKFLOW.md,308,doc,src/main/mcp/mcp_factoring.py,Y,committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
 rsc/schema/WORKFLOW.md,310,doc,src/main/mcp/mcp_extraction.py,Y,alias sites extracted from schema.ts by the rules `src/main/mcp/mcp_extraction.py`
 rsc/schema/WORKFLOW.md,312,doc,rsc/cache_io.csv,Y,`tmp/cache/mcp/` as their readable face (`rsc/cache_io.csv`); every definition's
-rsc/schema/WORKFLOW.md,314,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,"file, `rsc/schema/protocol/mcpMessage/description.csv` (house text for the"
-rsc/schema/WORKFLOW.md,316,doc,rsc/schema/protocol/mcpMessage/unreachable.csv,Y,`rsc/schema/protocol/mcpMessage/unreachable.csv` (the definitions no message
-rsc/schema/WORKFLOW.md,321,doc,rsc/schema/protocol/mcpMessage/CHANGELOG.md,Y,"`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's"
-rsc/schema/WORKFLOW.md,336,doc,rsc/model/model.json,Y,`rsc/model/model.json` is the hand-curated cross-family type reference - a table of
-rsc/schema/WORKFLOW.md,338,doc,rsc/model/model.schema.json,Y,"against the row shape beside it, `rsc/model/model.schema.json` (`model.table_valid`,"
-rsc/schema/WORKFLOW.md,339,doc,rsc/CALCULUS.md,Y,#591) - under the `curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO
-rsc/schema/WORKFLOW.md,340,doc,src/main/model/model_curation.py,Y,"loops with different pressure, both computed by `src/main/model/model_curation.py`"
-rsc/schema/WORKFLOW.md,350,doc,rsc/model/model_join_kinds.csv,Y,"are declared data — `rsc/model/model_join_kinds.csv`, each with its claim class —"
-rsc/schema/WORKFLOW.md,355,doc,rsc/model/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/model/model_rejected.txt` — and every
-rsc/schema/WORKFLOW.md,379,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
-rsc/schema/WORKFLOW.md,380,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
-rsc/schema/WORKFLOW.md,386,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
+rsc/schema/WORKFLOW.md,314,doc,rsc/schema/protocol/mcpMessage/description.csv,Y,file: `rsc/schema/protocol/mcpMessage/description.csv` (house text for the
+rsc/schema/WORKFLOW.md,315,doc,rsc/schema/protocol/mcpMessage/unreachable.csv,Y,"definitions the snapshot leaves undescribed), `rsc/schema/protocol/mcpMessage/unreachable.csv`"
+rsc/schema/WORKFLOW.md,317,doc,rsc/schema/protocol/mcpMessage/layer.csv,Y,"reads and the derivation refuses to disagree with), `rsc/schema/protocol/mcpMessage/layer.csv`"
+rsc/schema/WORKFLOW.md,320,doc,rsc/schema/protocol/mcpMessage/category_layer.csv,Y,"vocabulary; #595), `rsc/schema/protocol/mcpMessage/category_layer.csv` (the"
+rsc/schema/WORKFLOW.md,323,doc,rsc/schema/protocol/mcpMessage/placement.csv,Y,`rsc/schema/protocol/mcpMessage/placement.csv` (the definitions neither the tag nor
+rsc/schema/WORKFLOW.md,329,doc,rsc/schema/protocol/mcpMessage/CHANGELOG.md,Y,"`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's"
+rsc/schema/WORKFLOW.md,344,doc,rsc/model/model.json,Y,`rsc/model/model.json` is the hand-curated cross-family type reference - a table of
+rsc/schema/WORKFLOW.md,346,doc,rsc/model/model.schema.json,Y,"against the row shape beside it, `rsc/model/model.schema.json` (`model.table_valid`,"
+rsc/schema/WORKFLOW.md,347,doc,rsc/CALCULUS.md,Y,#591) - under the `curate` disposal discipline (issue #19; rsc/CALCULUS.md) as TWO
+rsc/schema/WORKFLOW.md,348,doc,src/main/model/model_curation.py,Y,"loops with different pressure, both computed by `src/main/model/model_curation.py`"
+rsc/schema/WORKFLOW.md,358,doc,rsc/model/model_join_kinds.csv,Y,"are declared data — `rsc/model/model_join_kinds.csv`, each with its claim class —"
+rsc/schema/WORKFLOW.md,363,doc,rsc/model/model_rejected.txt,Y,there or REJECTED with a reason in `rsc/model/model_rejected.txt` — and every
+rsc/schema/WORKFLOW.md,387,doc,src/test/dev/run.sh,Y,src/test/dev/run.sh
+rsc/schema/WORKFLOW.md,388,doc,rsc/test/run.log,Y,git diff rsc/test/run.log
+rsc/schema/WORKFLOW.md,394,doc,rsc/test/run_expected_checks,Y,Update `rsc/test/run_expected_checks` only if you WROTE or REMOVED a check — it
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/browser-captures/apiConversation/CHANGELOG.md,43,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
 rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,6,doc,rsc/schema/WORKFLOW.md,Y,(see `rsc/schema/WORKFLOW.md`).
@@ -771,10 +778,10 @@ src/main/markdown_projection.py,12,comment,src/main/pipeline/chat-exports/atomis
 src/main/markdown_projection.py,24,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
 src/main/mcp/mcp.py,25,comment,src/main/mcp/reproduce.sh,Y,"# schema.ts? - src/main/mcp/reproduce.sh, whose header states the run"
 src/main/mcp/mcp.py,35,path_str,src/main/mcp/mcp.py,Y,SELF = 'src/main/mcp/mcp.py'
-src/main/mcp/mcp.py,157,path_str,src/main/mcp/reproduce.sh,Y,script = str(REPO / 'src/main/mcp/reproduce.sh')
+src/main/mcp/mcp.py,162,path_str,src/main/mcp/reproduce.sh,Y,script = str(REPO / 'src/main/mcp/reproduce.sh')
 src/main/mcp/mcp_extraction.py,34,path_str,src/main/mcp/mcp_extraction.py,Y,SELF = 'src/main/mcp/mcp_extraction.py'
-src/main/mcp/mcp_factoring.py,65,path_str,src/main/mcp/mcp_factoring.py,Y,SELF = 'src/main/mcp/mcp_factoring.py'
-src/main/mcp/mcp_factoring.py,78,path_str,rsc/schema/protocol/mcpMessage,Y,FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
+src/main/mcp/mcp_factoring.py,78,path_str,src/main/mcp/mcp_factoring.py,Y,SELF = 'src/main/mcp/mcp_factoring.py'
+src/main/mcp/mcp_factoring.py,91,path_str,rsc/schema/protocol/mcpMessage,Y,FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 src/main/mcp/reproduce.sh,17,comment,rsc/reference/mcp/provenance.csv,Y,"#      rsc/reference/mcp/provenance.csv, the repository from reference.json"
 src/main/mcp/reproduce.sh,38,comment,src/main/mcp/reproduce.sh,Y,"#   src/main/mcp/reproduce.sh            # the same, run directly"
 src/main/mcp/reproduce.sh,40,comment,src/main/cli/mcp/reproduce.json,Y,# Effects (declared in src/main/cli/mcp/reproduce.json): a git fetch from upstream
@@ -1116,7 +1123,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/dashboard/chatCategories/v1.json,Y,
 ,,,rsc/schema/dashboard/semanticConcepts/CHANGELOG.md,Y,
 ,,,rsc/schema/dashboard/semanticConcepts/v2.json,Y,
-,,,rsc/schema/protocol/mcpMessage/v3.json,Y,
+,,,rsc/schema/protocol/mcpMessage/v4.json,Y,
 ,,,src/main/append_only.py,Y,
 ,,,src/main/cli/agent/agent.json,Y,
 ,,,src/main/cli/agent/capture.json,Y,

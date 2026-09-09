@@ -58,18 +58,19 @@ def _diff(have: str, wanted: str, have_name: str, wanted_name: str) -> str:
                                         fromfile=have_name, tofile=wanted_name))
 
 
-def _tables_current(declared: dict, rows: list) -> bool:
+def _tables_current(declared: dict, rows: list) -> bool:   # the category face included
     """Whether tmp/cache/mcp/ holds the tables as extracted now."""
     import tempfile
     with tempfile.TemporaryDirectory() as scratch:
-        saved = factoring.CACHE_DIR, factoring.COMPOSITION, factoring.ALIASES
+        saved = factoring.CACHE_DIR, factoring.COMPOSITION, factoring.ALIASES, factoring.CATEGORIES
         try:
             factoring.CACHE_DIR = Path(scratch)
             factoring.COMPOSITION = factoring.CACHE_DIR / 'composition.csv'
             factoring.ALIASES = factoring.CACHE_DIR / 'alias.csv'
-            fresh = {p.name: p.read_text() for p in factoring.written_tables(declared, rows)}
+            factoring.CATEGORIES = factoring.CACHE_DIR / 'category.csv'
+            fresh = {p.name: p.read_text() for p in factoring.written_tables(declared, rows, factoring.categories())}
         finally:
-            factoring.CACHE_DIR, factoring.COMPOSITION, factoring.ALIASES = saved
+            factoring.CACHE_DIR, factoring.COMPOSITION, factoring.ALIASES, factoring.CATEGORIES = saved
     return all((factoring.CACHE_DIR / name).is_file() and (factoring.CACHE_DIR / name).read_text() == text
                for name, text in fresh.items())
 
@@ -80,15 +81,17 @@ def status() -> int:
     snapshot_path, snap = factoring.snapshot()
     shapes, declared, rows = factoring.inputs()
     try:
-        wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable()))
+        wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable(),
+                                                       factoring.categories(), factoring.layer_rule(), factoring.placements(factoring.provenance()['lineage'])))
     except AssertionError as e:
         print(f'mcp: {target.relative_to(REPO)} NOT derivable - {e}')
         return 1
     ts = factoring.schema_ts().relative_to(REPO)
     cache = factoring.CACHE_DIR.relative_to(REPO)
+    tagged = factoring.categories()
     print(f'mcp: {ts}: {sum(len(b) for b in declared.values())} extends rows over '
           f'{len(declared)} definitions, {len(rows)} alias rows ({sum(1 for r in rows if r[1] == "")} copies, '
-          f'{sum(1 for r in rows if r[1])} use sites) - '
+          f'{sum(1 for r in rows if r[1])} use sites), {sum(1 for t in tagged.values() if t)} category tags over {len(tagged)} declarations - '
           f'{"faced under " + str(cache) if _tables_current(declared, rows) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes it)"}')
     for name, base in factoring.overrides(shapes, declared):
         print(f'  override: {name} extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
@@ -104,6 +107,7 @@ def status() -> int:
     print(f'mcp: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)} and {ts}'
           f' · {len(json.loads(have).get("definitions", {}))} definitions · '
           f'{"agrees with the snapshot" if not bad else f"{len(bad)} disagreement(s)"}')
+    print('  layers: ' + ' · '.join(f'{layer} {n}' for layer, n in factoring.partition(json.loads(wanted)).items()))
     for line in bad[:5]:
         print(f'  {line}')
     if not current:
@@ -119,10 +123,11 @@ def sync() -> int:
     snapshot_path, snap = factoring.snapshot()
     shapes, declared, rows = factoring.inputs()
     if not _tables_current(declared, rows):
-        for path in factoring.written_tables(declared, rows):
+        for path in factoring.written_tables(declared, rows, factoring.categories()):
             print(f'  ✓ {path.relative_to(REPO)}')
     try:
-        wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable()))
+        wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable(),
+                                                       factoring.categories(), factoring.layer_rule(), factoring.placements(factoring.provenance()['lineage'])))
     except AssertionError as e:
         print(f'mcp: {target.relative_to(REPO)} NOT derivable - {e}')
         return 1

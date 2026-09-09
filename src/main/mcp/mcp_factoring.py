@@ -34,6 +34,19 @@ derivation rather than misstating the schema:
   resolve to the same shape.
 - description.csv (name, description): house text for the definitions the
   snapshot leaves undescribed - hand-written, committed beside the version file.
+- category (definition, category): the @category tag schema.ts carries on a
+  declaration, extracted with the other two tables (#595).
+- layer.csv (layer, reading): the layers the protocol reads by, one row each -
+  the closed vocabulary every rule and placement row draws on; hand-written
+  beside the version file.
+- category_layer.csv (category, layer): the house's reading of upstream's
+  categories - a method tag by its first path segment, a named tag as itself - into
+  those layers; hand-written beside the version file. A definition the tag
+  places, the alias target, the union members or the descendants place (when they
+  agree), else placement.csv (lineage, definition, layer, reason) places by hand;
+  a definition none of these place refuses the derivation, and a placement row for a
+  definition the rule already places refuses too. Every definition's description
+  ends with its layer, so the version file reads by concern.
 - unreachable.csv (name, reason): the definitions no message carries, hand-written
   beside the version file and read by structure.all_definitions_reachable; the
   derivation refuses a table that disagrees with the wire.
@@ -77,10 +90,14 @@ SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
 FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
+LAYERS       = FAMILY_DIR / 'layer.csv'
+LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
+PLACEMENT    = FAMILY_DIR / 'placement.csv'
 UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
 CACHE_DIR    = REPO / 'tmp/cache/mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
 COMPOSITION  = CACHE_DIR / 'composition.csv'
 ALIASES      = CACHE_DIR / 'alias.csv'
+CATEGORIES   = CACHE_DIR / 'category.csv'
 FAMILY       = 'mcpMessage'
 ROOT_DEFINITION = 'MCPMessage'
 # The two session roles: a party's results answer the other party's requests.
@@ -94,6 +111,7 @@ KEY_ORDER = ('title', 'description', 'type', 'allOf', 'anyOf', 'oneOf', '$ref', 
              'minItems', 'maxItems', 'items', 'properties', 'required',
              'additionalProperties', 'default')
 EXHAUSTIVE_CLAUSE = 'The values are exhaustive: those the MCP {lineage} spec enumerates.'
+LAYER_CLAUSE = 'Layer: {layer}.'
 
 # The design the factoring adds, beyond what the tables transcribe.
 HEADERS = {
@@ -195,6 +213,91 @@ def declarations():
     return extraction.declarations(schema_ts().read_text())
 
 
+def categories() -> dict[str, str | None]:
+    """{definition: @category tag or None} from the committed schema.ts."""
+    return extraction.categories(schema_ts().read_text())
+
+
+def layer_readings() -> dict[str, str]:
+    return {row['layer']: row['reading'] for row in _rows(LAYERS)}
+
+
+def layer_rule() -> dict[str, str]:
+    return {row['category']: row['layer'] for row in _rows(LAYER_RULE)}
+
+
+def placements(lineage: str) -> dict[str, dict]:
+    """{definition: row} of placement.csv for this lineage (a blank lineage is every lineage)."""
+    return {row['definition']: row for row in _rows(PLACEMENT) if row['lineage'] in ('', lineage)}
+
+
+def concern(category: str) -> str:
+    """A method tag names its first path segment; a named tag names itself."""
+    return category.split('/')[0] if '/' in category else category
+
+
+def layers(definitions: dict, tagged: dict, rule: dict, placed: dict, declared: dict) -> dict[str, str]:
+    """{definition: layer}: a tagged definition by layer.csv's row for its concern; an
+    untagged one by its alias target, its union members or its descendants when they
+    agree; the residue by placement.csv; anything else refuses. A placement for a
+    definition the rule places refuses as a restatement."""
+    known = set(layer_readings())
+    assert known, f'{LAYERS.relative_to(REPO)} names no layer'
+    unknown = sorted({(c, l) for c, l in rule.items() if l not in known})
+    assert not unknown, f'{LAYER_RULE.relative_to(REPO)} names a layer {LAYERS.relative_to(REPO)} does not: {unknown}'
+    layer: dict[str, str] = {}
+    for name in definitions:
+        tag = tagged.get(name)
+        if tag is not None:
+            key = concern(tag)
+            assert key in rule, f'{name}: schema.ts tags it {tag!r} and {LAYER_RULE.relative_to(REPO)} has no row for {key!r}'
+            layer[name] = rule[key]
+    children: dict[str, set] = {}
+    for name, bases in declared.items():
+        for b in bases:
+            children.setdefault(b, set()).add(name)
+    def candidates(name):
+        body = definitions[name]
+        if isinstance(body.get('$ref'), str):
+            return [body['$ref'].split('/')[-1]]
+        if isinstance(body.get('anyOf'), list) and all(isinstance(m.get('$ref'), str) for m in body['anyOf']):
+            return [m['$ref'].split('/')[-1] for m in body['anyOf']]
+        return sorted(children.get(name, ()))
+    changed = True
+    while changed:
+        changed = False
+        for name in definitions:
+            if name in layer:
+                continue
+            found = [c for c in candidates(name) if c in definitions]
+            if found and all(c in layer for c in found) and len({layer[c] for c in found}) == 1:
+                layer[name] = layer[found[0]]
+                changed = True
+    for name, row in placed.items():
+        assert name in definitions, f'{PLACEMENT.relative_to(REPO)} places {name}, which is no definition'
+        assert name not in layer, (f'{PLACEMENT.relative_to(REPO)} places {name}, which the rule already places '
+                                   f'({layer.get(name)}) - the row restates')
+        layer[name] = row['layer']
+    residue = [n for n in definitions if n not in layer]
+    assert not residue, (f'no layer for {residue}: schema.ts tags none of them, their targets, members or '
+                         f'descendants disagree or are unplaced, and {PLACEMENT.relative_to(REPO)} places none - '
+                         'place each with its reason')
+    strange = sorted({(n, l) for n, l in layer.items() if l not in known})
+    assert not strange, f'{PLACEMENT.relative_to(REPO)} names a layer {LAYERS.relative_to(REPO)} does not: {strange}'
+    return layer
+
+
+def partition(doc: dict) -> dict[str, int]:
+    """{layer: count} read back from a version file's descriptions - the clause every
+    definition ends with."""
+    counts: dict[str, int] = {}
+    for body in doc.get('definitions', {}).values():
+        m = re.search(r'Layer: (\w+)\.$', body.get('description', ''))
+        if m:
+            counts[m.group(1)] = counts.get(m.group(1), 0) + 1
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
 def composition() -> dict[str, list[str]]:
     """{definition: [base, ...]} as schema.ts declares it (extracted, #581)."""
     return extraction.composition(declarations()[0])
@@ -246,10 +349,15 @@ def alias_rows(shapes: dict) -> list[tuple[str, str, str]]:
     return rows
 
 
-def written_tables(declared: dict, rows: list) -> list[Path]:
-    """Write the two extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
+def written_tables(declared: dict, rows: list, tagged: dict) -> list[Path]:
+    """Write the three extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
     sibling table) - the readable face of the derivation's inputs."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with CATEGORIES.open('w', newline='') as fh:
+        w = csv.writer(fh, quoting=csv.QUOTE_ALL)
+        w.writerow(['definition', 'category'])
+        for name, tag in tagged.items():
+            w.writerow([name, tag or ''])
     with COMPOSITION.open('w', newline='') as fh:
         w = csv.writer(fh, quoting=csv.QUOTE_ALL)
         w.writerow(['definition', 'base'])
@@ -260,7 +368,7 @@ def written_tables(declared: dict, rows: list) -> list[Path]:
         w = csv.writer(fh, quoting=csv.QUOTE_ALL)
         w.writerow(['definition', 'pointer', 'alias'])
         w.writerows(rows)
-    return [COMPOSITION, ALIASES]
+    return [CATEGORIES, COMPOSITION, ALIASES]
 
 
 def descriptions() -> dict:
@@ -684,7 +792,7 @@ def _bfs_order(definitions: dict, root: str) -> list[str]:
 
 
 def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: list, prov: dict,
-             declared_unreachable: dict) -> dict:
+             declared_unreachable: dict, tagged: dict, rule: dict, placed: dict) -> dict:
     """The house schema, whole: every snapshot definition composed over its declared
     bases (each verified to hold), the headers, the aliases revived, the house root
     and its wrappers, titles and descriptions per house rule, definitions in BFS
@@ -727,6 +835,9 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
         assert name not in reached, f'{UNREACHABLE.relative_to(REPO)} declares {name} unreachable, but {ROOT_DEFINITION} reaches it'
     unexplained = [n for n in definitions if n not in reached and n not in declared_unreachable]
     assert not unexplained, f'{ROOT_DEFINITION} does not reach {unexplained} and {UNREACHABLE.relative_to(REPO)} does not declare them'
+    layer = layers(definitions, tagged, rule, placed, declared)
+    for name, body in definitions.items():
+        body['description'] = body['description'].rstrip() + ' ' + LAYER_CLAUSE.format(layer=layer[name])
     ordered = {n: definitions[n] for n in order}
     return {
         '$schema': DRAFT_04,
@@ -744,7 +855,11 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             'whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every '
             'row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from '
             'rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in '
-            'rsc/schema/protocol/mcpMessage/unreachable.csv. One instance is one JSON-RPC message.'
+            'rsc/schema/protocol/mcpMessage/unreachable.csv. Every description ends with the definition\'s layer - the '
+            "house's reading of the @category tag schema.ts carries, by rsc/schema/protocol/mcpMessage/layer.csv (the layers, "
+            'each with its reading), category_layer.csv (category to layer) and placement.csv (what the tag and the '
+            'composition cannot place) - so the schema reads '
+            'by concern. One instance is one JSON-RPC message.'
         ),
         'allOf': [{'$ref': f'#/definitions/{ROOT_DEFINITION}'}],
         'definitions': ordered,
@@ -797,4 +912,5 @@ def current_text() -> str:
     """The factoring as it should read now, from the committed inputs."""
     _, doc = snapshot()
     shapes, declared, rows = inputs()
-    return rendered(factored(doc, descriptions(), declared, rows, provenance(), unreachable()))
+    return rendered(factored(doc, descriptions(), declared, rows, provenance(), unreachable(),
+                             categories(), layer_rule(), placements(provenance()['lineage'])))
