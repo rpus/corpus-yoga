@@ -9,7 +9,9 @@ every definition must flatten to, never a source.
 
 `mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes
 nothing (the bare noun IS the status). Only `sync` writes: the two extracted
-tables under tmp/cache/mcp/ (the readable face of the derivation's inputs) and the
+tables and the two faces under tmp/cache/mcp/ (the readable faces of the
+derivation's inputs and of its output - the consumer and producer schemas of
+mcp_face.py, #605) and the
 family's version file - and it MINTS (#583): when the derivation differs from the
 latest version file in any way, it prints the diff, writes the next version and
 removes the current one, by plain file operations (git sees a rename by
@@ -43,6 +45,7 @@ sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
 import mcp_factoring as factoring  # noqa: E402  (sibling module)
+import mcp_face as face  # noqa: E402  (sibling module)
 
 
 def _target() -> Path:
@@ -116,6 +119,7 @@ def status() -> int:
     print(f'mcp: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)} and {ts}'
           f' · {len(json.loads(have).get("definitions", {}))} definitions · '
           f'{"agrees with the snapshot" if not bad else f"{len(bad)} disagreement(s)"}')
+    print(f'  faces: consumer and producer {"faced under " + str(cache) if face.current(json.loads(have)) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes them)"}')
     print('  layers: ' + ' · '.join(f'{layer} {n}' for layer, n in factoring.partition(json.loads(wanted)).items()))
     for line in bad[:5]:
         print(f'  {line}')
@@ -152,6 +156,9 @@ def sync() -> int:
         return 0
     have = target.read_text()
     if have == wanted:
+        if not face.current(json.loads(have)):
+            for path in face.written(json.loads(have)):
+                print(f'  ✓ {path.relative_to(REPO)}')
         return 0                      # current means no write and nothing said (L1)
     # The mint (#583): the diff, then the next version in place of this one. Two
     # file operations, no git - the commit is the user's act, and git reads the
@@ -161,6 +168,8 @@ def sync() -> int:
     sys.stdout.write(_diff(have, wanted, str(rel), str(minted_rel)))
     minted.write_text(wanted)
     target.unlink()
+    for path in face.written(json.loads(wanted)):
+        print(f'  ✓ {path.relative_to(REPO)}')
     print(f'  ✓ {minted_rel} minted in place of {rel} ({len(json.loads(wanted)["definitions"])} definitions) - '
           f'write its ## {minted.stem} section in {factoring.FAMILY_DIR.relative_to(REPO)}/CHANGELOG.md '
           f'(the commit gate holds schema.changelog_narrative)')

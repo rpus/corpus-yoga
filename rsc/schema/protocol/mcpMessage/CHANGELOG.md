@@ -29,7 +29,9 @@ holds the version file byte-identical to the derivation (`mcp.factoring_current`
 and every upstream definition equal to its house counterpart resolved and
 normalized, the declared additions set back (`mcp.factoring_agrees`). No data is
 validated against it; every house diagnostic holds over it,
-`structure.all_definitions_reachable` reading `unreachable.csv`.
+`structure.all_definitions_reachable` reading `unreachable.csv`. Its two faces -
+the consumer, flat and open, and the producer, flat and closed (#605) - are
+readings the sync writes under `tmp/cache/mcp/`, never versions of this family.
 
 ---
 
