@@ -116,9 +116,9 @@ Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/v
 This is the ONE mint, for every family; what differs per family is where the new
 content comes from (a failing datum; for the house factoring, the reference
 snapshot of step 5), never a second procedure. An upstream reference project under
-`rsc/reference/` mints by lineage directory the same way - `git mv` the lineage to
-its new name, replace the files with upstream's bytes, update its provenance rows
-and changelog (step 5).
+`rsc/reference/` does not mint: `corpus-yoga reference sync` holds every lineage
+upstream publishes, and a lineage's change is a section of its own changelog
+(step 5).
 
 ```bash
 git mv rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
@@ -270,35 +270,38 @@ Open `rsc/model/model_join.csv` and:
 ### 5. Check rsc/reference
 
 `rsc/reference/` holds upstream reference artefacts byte-for-byte, one directory
-per upstream project and one lineage directory inside it named as upstream names
-it - `rsc/reference/mcp/2026-07-28/` holds the Model Context Protocol's
-`schema.json` and `schema.ts` (read by `corpus-yoga mcp sync`, which extracts its
-extends clauses and type aliases - #581 - and by `corpus-yoga mcp reproduce`, the
-witness that upstream's generator turns it into `schema.json`;
-`rsc/reference/mcp/generate.md` states the generation); `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema,
-the dialect every house schema declares, and the declaration `src/schema_walk.py`
-derives every keyword's position from (#571) - the diagnostics and the factoring
-read the grammar there, never restate it, and `structure.keywords_declared` refuses
-a key the dialect does not declare. The latest lineage is the reference and
-the rest history (#557), so a project holds one lineage directory; its changelog
-(`rsc/reference/mcp/CHANGELOG.md`, `rsc/reference/JSONSchema/CHANGELOG.md`)
-narrates each lineage. Beside them, the provenance table
+per upstream project and one directory per lineage upstream publishes, named as
+upstream names it (#587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
+the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
+`corpus-yoga mcp sync`, which extracts its extends clauses and type aliases - #581 -
+and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
+into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
+`rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
+every house schema declares, and the declaration `src/schema_walk.py` derives every
+keyword's position from (#571) - the diagnostics and the factoring read the grammar
+there, never restate it, and `structure.keywords_declared` refuses a key the dialect
+does not declare. Each lineage directory carries its own `CHANGELOG.md`: one
+section per pin, the first stating the change from the lineage before. Beside the
+lineages, a `README.md` explains the project, the provenance table
 (`rsc/reference/mcp/provenance.csv`, `rsc/reference/JSONSchema/provenance.csv`)
 pins every file (lineage, file, url, pin - an upstream commit or etag - and
-sha256) and the reference declaration (`rsc/reference/mcp/reference.json`,
+sha256), and the reference declaration (`rsc/reference/mcp/reference.json`,
 `rsc/reference/JSONSchema/reference.json`) names upstream and, where upstream
-publishes lineages as a listing (mcp's dated `schema/` directory), the listing
-URL. Nothing here is a
-schema family: no datum validates against it, no house diagnostic runs over it,
-and `model_join.csv` reaches it by the same family-dir grammar as any schema
-(`rsc/reference/mcp#/$defs/…`).
+publishes lineages as a listing (mcp's dated `schema/` directory), the listing URL
+and the files each lineage holds. Nothing here is a schema family: no datum
+validates against it, no house diagnostic runs over it, and `rsc/model/model_join.csv`
+reaches it by the same family-dir grammar as any schema
+(`rsc/reference/mcp#/$defs/…`, resolved against the newest lineage).
 
-`corpus-yoga test run` holds every reference file (`check_reference`): the committed
-bytes hash to the pinned SHA256 (`reference.verbatim`, hermetic); the project
-holds one lineage (`reference.single_lineage`); and, network permitting, the file
-at the pinned URL still matches (`reference.up_to_date`) and the newest dated
-lineage upstream lists is the one held (`reference.newest_lineage`). A red check
-carries its remedy; the mint is step 2's by lineage directory. Every house schema
+`corpus-yoga reference` is the currency check: per project, what upstream lists
+against what is held, and whether every held file's live bytes still hash as
+pinned - a send, UNVERIFIED under `YOGA_NO_SEND=1`. `corpus-yoga reference sync`
+fetches every lineage not held and every file that drifted, and writes the
+provenance rows; the lineage's changelog section (`## <pin>`) is the hand act.
+`corpus-yoga test run` holds the hermetic residue (`check_reference`): the committed
+bytes hash to the pinned SHA256 (`reference.verbatim`), every lineage directory is
+declared and every declared lineage held (`reference.lineage_declared`), and every
+pin has its changelog section (`reference.lineage_changelog`). Every house schema
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
 `rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a

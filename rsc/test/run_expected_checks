@@ -74,10 +74,9 @@ model.join_pointers_valid
 model.occurrence_family_grammar
 model.occurrence_pointers_resolve
 model.occurrences_cover_edges
-reference.newest_lineage
+reference.lineage_changelog
+reference.lineage_declared
 reference.provenance_declared
-reference.single_lineage
-reference.up_to_date
 reference.verbatim
 model.identity_holds
 model.shared_type_disposed

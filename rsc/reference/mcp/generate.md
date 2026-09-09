@@ -1,6 +1,6 @@
 # generating schema.json from schema.ts
 
-`2026-07-28/schema.ts` is upstream's source and `2026-07-28/schema.json` is generated from it. Upstream
+In every lineage `schema.ts` is upstream's source and `schema.json` is generated from it; `corpus-yoga mcp reproduce` witnesses the newest lineage. Upstream
 does the generation with `scripts/generate-schemas.ts` in its own repository at the
 commit `provenance.csv` pins - fetched by the reproduction below each run, never
 committed here - which for this lineage runs one third-party tool and three text

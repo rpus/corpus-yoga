@@ -1,0 +1,17 @@
+{
+  "summary": "the upstream reference artefacts under rsc/reference, every lineage upstream publishes (bare: what upstream lists, what is held, what drifted)",
+  "target": "src/main/reference/reference.py",
+  "calculus": "L9",
+  "args": [],
+  "r": [
+    "rsc/reference"
+  ],
+  "sends": {
+    "urllib.request (GitHub contents and commits API)": [
+      "lists the dated lineage directories a project's reference.json names, and reads the newest commit touching each fetched file - the pin (degrades to UNVERIFIED under YOGA_NO_SEND)"
+    ],
+    "urllib.request (upstream raw files)": [
+      "reads every wanted file's live bytes at its pinned URL and hashes them against provenance.csv - the currency check (degrades to UNVERIFIED under YOGA_NO_SEND)"
+    ]
+  }
+}

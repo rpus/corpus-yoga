@@ -56,13 +56,13 @@ PROJECT="$REPO_DIR/rsc/reference/mcp"
 
 assert_may_send "fetching upstream and running its generator in a container"
 
-# The pin: provenance.csv's schema.json row names the lineage and the upstream commit;
-# reference.json names the upstream repository.
+# The pin: the newest lineage's schema.json row of provenance.csv names the lineage and
+# the upstream commit; reference.json names the upstream repository.
 read -r LINEAGE PIN < <(python3 -c '
 import csv, sys
-for row in csv.DictReader(open(sys.argv[1], newline="")):
-    if row["file"] == "schema.json":
-        print(row["lineage"], row["pin"]); break
+rows = [r for r in csv.DictReader(open(sys.argv[1], newline="")) if r["file"] == "schema.json"]
+row = max(rows, key=lambda r: r["lineage"])
+print(row["lineage"], row["pin"])
 ' "$PROJECT/provenance.csv")
 UPSTREAM="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["upstream"])' "$PROJECT/reference.json")"
 
