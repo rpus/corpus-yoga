@@ -684,11 +684,11 @@ def _bfs_order(definitions: dict, root: str) -> list[str]:
 
 
 def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: list, prov: dict,
-             undelivered: dict) -> dict:
+             declared_unreachable: dict) -> dict:
     """The house schema, whole: every snapshot definition composed over its declared
     bases (each verified to hold), the headers, the aliases revived, the house root
     and its wrappers, titles and descriptions per house rule, definitions in BFS
-    order from the root. `undelivered` is unreachable.csv: it must name exactly the
+    order from the root. `declared_unreachable` is unreachable.csv: it must name exactly the
     definitions the root does not reach, or the derivation refuses."""
     container = '$defs' if '$defs' in snapshot_doc else 'definitions'
     shapes: dict[str, dict] = {name: to_house(body) for name, body in snapshot_doc[container].items()}
@@ -720,12 +720,12 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
     order = _bfs_order(definitions, ROOT_DEFINITION)
     reached = set(_reached(definitions, ROOT_DEFINITION))
     for union, request in uncarried_results(shapes):
-        assert union in undelivered, (f'{union}: no message carries it ({request} is not declared in schema.ts) - '
+        assert union in declared_unreachable, (f'{union}: no message carries it ({request} is not declared in schema.ts) - '
                                       f'declare it in {UNREACHABLE.relative_to(REPO)}')
-    for name in undelivered:
+    for name in declared_unreachable:
         assert name in definitions, f'{UNREACHABLE.relative_to(REPO)} names no definition: {name}'
         assert name not in reached, f'{UNREACHABLE.relative_to(REPO)} declares {name} unreachable, but {ROOT_DEFINITION} reaches it'
-    unexplained = [n for n in definitions if n not in reached and n not in undelivered]
+    unexplained = [n for n in definitions if n not in reached and n not in declared_unreachable]
     assert not unexplained, f'{ROOT_DEFINITION} does not reach {unexplained} and {UNREACHABLE.relative_to(REPO)} does not declare them'
     ordered = {n: definitions[n] for n in order}
     return {
