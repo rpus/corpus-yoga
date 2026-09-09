@@ -553,7 +553,7 @@ rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,52,doc,rsc/schema,
 rsc/schema/chat-exports/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/conversations/CHANGELOG.md,9,doc,rsc/schema/browser-captures/apiConversation,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/`](../../browser-
 rsc/schema/chat-exports/conversations/CHANGELOG.md,10,doc,rsc/schema/browser-captures/apiConversation,Y,and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversati
-rsc/schema/chat-exports/conversations/CHANGELOG.md,33,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+rsc/schema/chat-exports/conversations/CHANGELOG.md,41,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
 rsc/schema/chat-exports/login_history/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/chat-exports/login_history/CHANGELOG.md,11,doc,rsc/model/model.json,Y,`../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
 rsc/schema/chat-exports/login_history/CHANGELOG.md,12,doc,rsc/model,Y,model moved to `rsc/model/` and its table lost the `default` wrapper (#591). A
