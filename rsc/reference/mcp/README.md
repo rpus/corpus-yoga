@@ -17,6 +17,7 @@ the verb's report, never the gate's.
 The latest lineage is what the house reads: `corpus-yoga mcp sync` extracts its
 `schema.ts`'s extends clauses and type aliases (#581) and derives
 `rsc/schema/protocol/mcpMessage` from it, and `corpus-yoga mcp reproduce` witnesses
-that upstream's generator turns its `schema.ts` into its `schema.json`
-(`generate.md` states the generation). No data is validated against any lineage
+that upstream's generator turns its `schema.ts` into its `schema.json` - the newest
+lineage only; the earlier lineages' files are held at their pins unwitnessed
+(`generate.md` states the generation and how the two files' names correspond). No data is validated against any lineage
 and no house diagnostic runs over one.

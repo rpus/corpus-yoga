@@ -1,6 +1,6 @@
 # mcp 2024-11-05 changelog
 
-The 2024-11-05 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2024-11-05/` at the upstream commit its `provenance.csv` rows pin (#587): one section per pin, newest first; the first section states the change from the lineage before it.
+The 2024-11-05 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2024-11-05/` at the upstream commit its `provenance.csv` rows pin (#587): one section per pin, newest first; the first section states the change from the lineage before it. A definition named here is the type of that name exported by `schema.ts` (`../generate.md` states the correspondence and the generation).
 
 ---
 
