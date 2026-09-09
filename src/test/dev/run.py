@@ -1888,15 +1888,12 @@ def check_mcp_reproducible(run) -> None:
 
 
 def check_reference(run) -> None:
-    """Every upstream reference artefact under rsc/reference (#572) is what its
-    project's provenance.csv pins: the committed bytes hash to the pinned SHA256
-    (verbatim, hermetic); the project holds one lineage directory (the latest is
-    the reference, the rest history - #557); and, network permitting, the file at
-    the pinned URL still hashes the same, and where reference.json names a
-    lineage listing its newest dated entry is the lineage held. Drift is answered
-    by minting the next lineage directory in the old one's place, never by
-    editing a file."""
-    import urllib.request
+    """Every upstream reference artefact under rsc/reference (#572, #587) is what its
+    project's provenance.csv pins, hermetically: the committed bytes hash to the
+    pinned SHA256; every lineage directory is declared and every declared lineage
+    held; and every lineage's CHANGELOG.md carries a section per pin its rows name.
+    Currency against upstream is not held here - it is `corpus-yoga reference`'s
+    report, a send, and `corpus-yoga reference sync` is the fetch."""
     root = REPO_ROOT / 'rsc' / 'reference'
     for project in sorted(p for p in root.iterdir() if p.is_dir()):
         name = project.name
@@ -1905,55 +1902,35 @@ def check_reference(run) -> None:
         run(f'reference: {name}: provenance.csv pins its files', bool(rows),
             None if rows else f'add {provenance.relative_to(REPO_ROOT)} (lineage, file, url, pin, sha256)',
             check='reference.provenance_declared')
-        held = lineages(project)
-        run(f'reference: {name}: one lineage directory', len(held) == 1,
-            None if len(held) == 1 else
-            f'{project.relative_to(REPO_ROOT)} holds {[d.name for d in held]} - the latest lineage is the '
-            'reference and the rest history: keep one', check='reference.single_lineage')
-        declared = json.loads((project / 'reference.json').read_text()) if (project / 'reference.json').is_file() else {}
-        # These are the gate's only SENDS - outward calls over the network, the one effect
-        # class with no scratch form (#29), refusable through src/main/send.py's one switch:
-        # YOGA_NO_SEND=1 skips them. An unreachable upstream is NOT a failure: the labels
-        # are CONSTANT and each result passes when its send did not happen, so the
-        # committed report is byte-identical on a machine that cannot reach the network
-        # (shellcheck and pyright skip the same way, and L2 requires it).
+        held = [d.name for d in lineages(project)]
+        declared = sorted({r['lineage'] for r in rows})
+        undeclared = [d for d in held if d not in declared]
+        unheld = [d for d in declared if d not in held]
+        run(f'reference: {name}: every lineage directory is declared and every declared lineage held',
+            not undeclared and not unheld,
+            None if not undeclared and not unheld else
+            '; '.join([f'{project.relative_to(REPO_ROOT)}/{d} has no provenance.csv row' for d in undeclared]
+                      + [f'provenance.csv names {d} but {project.relative_to(REPO_ROOT)}/{d}/schema.json is absent - '
+                         'corpus-yoga reference sync fetches it' for d in unheld]),
+            check='reference.lineage_declared')
         for row in rows:
             path = project / row['lineage'] / row['file']
             rel = path.relative_to(REPO_ROOT)
             local = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
             run(f'reference: {rel} verbatim (bytes hash to the pinned SHA256)', local == row['sha256'],
                 None if local == row['sha256'] else
-                (f'{rel} is absent' if local is None else
+                (f'{rel} is absent - corpus-yoga reference sync fetches it' if local is None else
                  f'{rel} hashes {local}, provenance.csv pins {row["sha256"]} - the committed file is not the pinned upstream file'),
                 check='reference.verbatim')
-            drift = None
-            if may_send():
-                try:
-                    with urllib.request.urlopen(row['url'], timeout=15) as resp:
-                        live = hashlib.sha256(resp.read()).hexdigest()
-                    if live != row['sha256']:
-                        drift = (f'upstream changed at {row["url"]} - mint the next lineage: git mv '
-                                 f'{project.relative_to(REPO_ROOT)}/{row["lineage"]} to its new name, replace the files '
-                                 f"with upstream's bytes, update provenance.csv (url, pin, sha256) and the changelog")
-                except Exception:
-                    pass          # unreached: the currency of the copy is simply unknown this run
-            run(f'reference: {rel} up to date', drift is None, drift, check='reference.up_to_date')
-        listing = declared.get('lineage_listing')
-        if listing and rows:
-            stale = None
-            if may_send():
-                try:
-                    with urllib.request.urlopen(listing, timeout=15) as resp:
-                        names = [entry['name'] for entry in json.loads(resp.read())]
-                    dated = sorted(n for n in names if re.fullmatch(r'\d{4}-\d{2}-\d{2}', n))
-                    if dated and dated[-1] != held[-1].name if held else False:
-                        stale = (f'upstream opened {dated[-1]}/ while {project.relative_to(REPO_ROOT)} holds '
-                                 f'{held[-1].name}/ - mint the new lineage in its place (git mv, replace the files, '
-                                 'update provenance.csv and the changelog)')
-                except Exception:
-                    pass          # unreached: the lineage listing is simply unknown this run
-            run(f'reference: {name}: holds the newest dated lineage', stale is None, stale,
-                check='reference.newest_lineage')
+        for lineage in declared:
+            changelog = project / lineage / 'CHANGELOG.md'
+            text = changelog.read_text() if changelog.is_file() else ''
+            missing = sorted({r['pin'] for r in rows if r['lineage'] == lineage and f'## {r["pin"]}' not in text})
+            run(f'reference: {name}/{lineage}: changelog carries a section per pin', changelog.is_file() and not missing,
+                None if changelog.is_file() and not missing else
+                (f'{changelog.relative_to(REPO_ROOT)} is absent' if not changelog.is_file() else
+                 f'{changelog.relative_to(REPO_ROOT)} has no section ' + ', '.join(f'`## {pin}`' for pin in missing)),
+                check='reference.lineage_changelog')
 
 
 def check_schema_meta_validity(run) -> None:
@@ -2155,10 +2132,9 @@ def check_xref(run):
     run(f'xref: {actual}', actual == expected,
         f'expected: {expected}  →  consider updating {score_file.relative_to(REPO_ROOT)}'
         if actual != expected else None, law='L9', check='xref.score_matches_expectation')
-    # L9 is cited ONLY from here, never from reference.up_to_date: that run() sits inside a
-    # network fetch, and when the fetch fails control leaves for the except branch and
-    # the citation never happens. A law must not look unenforced because a request timed
-    # out, so its citation lives on a check that cannot be skipped.
+    # L9 is cited from here, a check that cannot be skipped: a citation inside a network
+    # fetch never happens when the fetch fails, and a law must not look unenforced
+    # because a request timed out.
     return rows
 
 

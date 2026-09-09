@@ -1,4 +1,4 @@
-run.py: code+schema 1241/1241
+run.py: code+schema 1265/1265
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -12,7 +12,7 @@ run.py: code+schema 1241/1241
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (76/76)
+  ✓ structure.self_path_matches_address  (77/77)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -29,16 +29,16 @@ run.py: code+schema 1241/1241
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (19/19)
-  ✓ cli.calculus_defined  (19/19)
+  ✓ cli.target_exists  (20/20)
+  ✓ cli.calculus_defined  (20/20)
   ✓ cli.advertised_flags_exist  (15/15)
-  ✓ cli.docstring_flags_advertised  (17/17)
-  ✓ cli.subcommands_dispatch  (17/17)
-  ✓ cli.target_flags_advertised  (17/17)
-  ✓ cli.help_one_screen  (17/17)
+  ✓ cli.docstring_flags_advertised  (18/18)
+  ✓ cli.subcommands_dispatch  (18/18)
+  ✓ cli.target_flags_advertised  (18/18)
+  ✓ cli.help_one_screen  (18/18)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (19/19)
+  ✓ naming.target_stem_matches_command  (20/20)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
   ✓ output.prescriptions_are_commands  (59/59)
@@ -50,10 +50,10 @@ run.py: code+schema 1241/1241
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (78/78)
   ✓ structure.file_at_level_of_subject  (28/28)
-  ✓ structure.cli_declaration_mirrors_the_api  (20/20)
-  ✓ structure.cli_declaration_validates  (61/61)
-  ✓ cli.every_form_listed  (38/38)
-  ✓ cli.flag_not_axis_value  (18/18)
+  ✓ structure.cli_declaration_mirrors_the_api  (21/21)
+  ✓ structure.cli_declaration_validates  (63/63)
+  ✓ cli.every_form_listed  (40/40)
+  ✓ cli.flag_not_axis_value  (19/19)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
@@ -158,10 +158,9 @@ run.py: code+schema 1241/1241
 
 ── check_reference ───────────────────────────────────────────────────────────
   ✓ reference.provenance_declared  (2/2)
-  ✓ reference.single_lineage  (2/2)
-  ✓ reference.verbatim  (3/3)
-  ✓ reference.up_to_date  (3/3)
-  ✓ reference.newest_lineage
+  ✓ reference.lineage_declared  (2/2)
+  ✓ reference.verbatim  (11/11)
+  ✓ reference.lineage_changelog  (6/6)
 
 ── check_mcp_factoring ───────────────────────────────────────────────────────
   ✓ mcp.factoring_current
@@ -177,11 +176,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations            6     0   code        7
 check_step_imports                     2     0   code       11
-check_self_paths                      76     0   code       14
+check_self_paths                      77     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    484     0   code       28
+check_cli_surface                    497     0   code       28
 check_cli_verb_help                   19     0   code       61
 check_cli_exclusive_classes            6     0   code       64
 check_effects                          2     0   code       67
@@ -200,14 +199,14 @@ check_model_table                      1     0   schema    144
 check_model_occurrences                3     0   schema    147
 check_model_obligations              152     0   schema    152
 check_model_identity                   1     0   schema    156
-check_reference                       11     0   schema    159
-check_mcp_factoring                    2     0   schema    166
-check_mcp_reproducible                 1     0   schema    170
-check_expectation                      2     0   code      173
+check_reference                       21     0   schema    159
+check_mcp_factoring                    2     0   schema    165
+check_mcp_reproducible                 1     0   schema    169
+check_expectation                      2     0   code      172
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 112 types, 1241/1241 invocations passing
-checks[code]: 64 types, 650/650 invocations passing
-checks[schema]: 48 types, 591/591 invocations passing
+checks[code+schema]: 111 types, 1265/1265 invocations passing
+checks[code]: 64 types, 664/664 invocations passing
+checks[schema]: 47 types, 601/601 invocations passing
 
-dev gate: PASS — code+schema 1241/1241 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1265/1265 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
