@@ -3,8 +3,8 @@ CLAUDE.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/
 CLAUDE.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 CLAUDE.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
 CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-CLAUDE.md,170,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
-CLAUDE.md,175,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+CLAUDE.md,173,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
+CLAUDE.md,178,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,8,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
 CONTRIBUTING.md,20,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
 CONTRIBUTING.md,40,doc,src/test/dev/run.py,Y,"change — make it a named check in `src/test/dev/run.py`, labelled for the property"

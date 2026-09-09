@@ -98,9 +98,12 @@ seventh principle or a smell.
   names orphans rather than auto-deleting them.
 - Expose, delete, unify - in that order: state the fact the repo never said,
   delete what existed only to hide it, leave one derivation.
-- Structural migrations are manifest, rehearse, apply: moves as data
+- A move of machine-local data - the gitignored roots, laid out per room,
+  which no commit performs - is manifest, rehearse, apply: moves as data
   (totality-checked), worktree dry-runs per room, nothing committed encodes
-  its machine.
+  its machine. A move of committed files is a commit like any other: git
+  carries the renames, the diff shows every caller, the gate holds the
+  totality, and no manifest restates it.
 - Scanners over one's own prose or output are syntax proxying semantics -
   an arms race. Build the domain API instead; the invalid becomes
   unrepresentable and the check retires by construction.
