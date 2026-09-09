@@ -1,42 +1,34 @@
 #!/usr/bin/env python
 """
-mcp_factoring.py - the house factoring of the MCP schema (#562): the composition
-upstream's generator flattens, stated once in draft-04, derived from the verbatim
-snapshot rsc/reference/mcp and written to rsc/schema/protocol/mcpMessage.
+mcp_factoring.py - the house factoring of the MCP schema (#562, #598): generated from
+upstream's schema.ts alone, in draft-04, and written to rsc/schema/protocol/mcpMessage;
+upstream's schema.json stands as the witness the result must flatten to, never as a
+source.
 
-Upstream's schema.json inlines every message's envelope (jsonrpc, id, method,
-params) because its TypeScript-to-JSON generator flattens `extends`, and it inlines
-every type alias (Cursor, ResultType, EmptyResult, JSONArray, the enum-schema
-unions) while still emitting the alias definitions, dead. Two tables restore what
-schema.ts states - read from the committed schema.ts at every sync by
-mcp_extraction.py through the parser generated from the house TypeScript grammar
-(#581, #597), written under tmp/cache/mcp/ as their readable
-face - and one is house prose beside the family's version; every row is VERIFIED
-against the snapshot before it is used, so a row the data does not bear refuses the
-derivation rather than misstating the schema:
+mcp_generation.py reads schema.ts through the house TypeScript grammar into the flat
+shape of every exported interface and alias - the shape upstream's generator would
+flatten it to, one stated rule per TypeScript form. This module composes those
+shapes over the bases schema.ts declares, and adds what the house adds:
 
-- composition (definition, base): schema.ts's `extends`, whole, in declaration order. A
-  definition is written as allOf [bases..., its own fields]; adding a base's
-  constraints to the definition must change nothing (the definition refines it).
-  Where the definition instead OVERRIDES a base's property with a conflicting
-  shape (SubscriptionsListenResult narrows Result's `_meta` to another $ref) -
-  which `extends` permits and allOf cannot express - the definition stands flat
-  and the override is a derived fact `overrides()` reports; any other unbearable
-  row refuses the derivation. The four JSON-RPC envelope bases are realized by two headers upstream never
-  names, JSONRPCHeader (the version pin) and JSONRPCIdentifiedHeader (header plus
-  id), because allOf conjoins and cannot narrow the generic envelope's open
-  `params` the way `extends` does - the one place the factoring and schema.ts
+- composition (definition, base): schema.ts's `extends`, whole, in declaration order
+  (mcp_extraction, faced under tmp/cache/mcp/). A definition is written as allOf
+  [bases..., its own fields]; adding a base's constraints to the definition must
+  change nothing (the definition refines it). Where the definition instead
+  OVERRIDES a base's property with a conflicting shape (SubscriptionsListenResult
+  narrows Result's `_meta` to another $ref) - which `extends` permits and allOf
+  cannot express - the definition stands flat and the override is a derived fact
+  `overrides()` reports. The four JSON-RPC envelope bases are realized by two headers
+  upstream never names, JSONRPCHeader (the version pin) and JSONRPCIdentifiedHeader
+  (header plus id), because allOf conjoins and cannot narrow the generic envelope's
+  open `params` the way `extends` does - the one place the factoring and schema.ts
   diverge, by necessity.
-- alias (definition, pointer, alias): where schema.ts uses an alias the generator
-  inlined - its snapshot definition referenced by nothing - and where an alias names
-  one type the generator copied; the inline subschema at the pointer is replaced by
-  a $ref to the alias (a pointer to an anyOf splices the alias's members out and the
-  alias in; an empty pointer replaces the whole body), after checking the two
-  resolve to the same shape.
-- description.csv (name, description): house text for the definitions the
-  snapshot leaves undescribed - hand-written, committed beside the version file.
 - category (definition, category): the @category tag schema.ts carries on a
-  declaration, extracted with the other two tables (#595).
+  declaration, faced beside the composition (#595).
+- description.csv (name, description): house text for the definitions schema.ts
+  leaves without a JSDoc - hand-written, committed beside the version file.
+- unreachable.csv (name, reason): the definitions no message carries, hand-written
+  beside the version file and read by structure.all_definitions_reachable; the
+  derivation refuses a table that disagrees with the wire.
 - layer.csv (layer, reading): the layers the protocol reads by, one row each -
   the closed vocabulary every rule and placement row draws on; hand-written
   beside the version file.
@@ -48,9 +40,14 @@ derivation rather than misstating the schema:
   a definition none of these place refuses the derivation, and a placement row for a
   definition the rule already places refuses too. Every definition's description
   ends with its layer, so the version file reads by concern.
-- unreachable.csv (name, reason): the definitions no message carries, hand-written
-  beside the version file and read by structure.all_definitions_reachable; the
-  derivation refuses a table that disagrees with the wire.
+- addition.csv (definition, pointer, upstream, house): where the house schema reads
+  differently from upstream's at a JSON Pointer - what upstream's generator drops
+  (JSONValue's null) and what the house adds beyond schema.ts (the protocol version
+  pinned on the `_meta` field that names it, `${LATEST_PROTOCOL_VERSION}` read from
+  the constant). The derivation applies a row whose upstream reading it generated
+  and refuses a row that fits neither reading; the witness sets each row's house
+  reading back to upstream's before comparing, and refuses a row upstream no longer
+  bears.
 
 The root is a house definition, MCPMessage: the wire message read as any of the
 typed message shapes upstream exports but no definition references (the
@@ -60,18 +57,22 @@ A party's results are carried only when the other party declares requests
 (PARTIES): where schema.ts declares no ServerRequest, no message carries a
 ClientResult, and no wrapper is minted for one - the union stands unreachable,
 declared as such in unreachable.csv. Every other definition is reachable from
-the root, and the house diagnostics hold over the family.
+the root, and the house diagnostics hold over the family. Every alias schema.ts
+declares is a reference wherever it is used: the aliases upstream's generator
+inlines and leaves dead are live here by construction.
 
 The witness is `disagreements()`: every snapshot definition and its house
 counterpart - flattened (allOf merged), both resolved through their $refs to a
 bounded nesting depth (recursive shapes truncate identically), nested anyOf
-spliced, documentation dropped, const as one-element enum, the vacuous
-additionalProperties {} dropped, order-free lists sorted - must compare equal.
-The dev gate holds it over the committed file.
+spliced and order-free, documentation dropped, const as one-element enum, the
+vacuous additionalProperties {} and an empty properties map dropped, order-free
+lists sorted, the declared additions set back - must compare equal. The dev gate
+holds it over the committed file.
 """
 
 import csv
 import json
+from typing import Any
 import re
 import sys
 from pathlib import Path
@@ -86,6 +87,7 @@ from schema_walk import schema_nodes, rebuilt  # noqa: E402  (positions derived 
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 from latest import latest_file  # noqa: E402
 import mcp_extraction as extraction  # noqa: E402  (sibling module)
+import mcp_generation as generation  # noqa: E402  (sibling module)
 
 SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
@@ -95,9 +97,9 @@ LAYERS       = FAMILY_DIR / 'layer.csv'
 LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
 PLACEMENT    = FAMILY_DIR / 'placement.csv'
 UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
+ADDITION     = FAMILY_DIR / 'addition.csv'
 CACHE_DIR    = REPO / 'tmp/cache/mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
 COMPOSITION  = CACHE_DIR / 'composition.csv'
-ALIASES      = CACHE_DIR / 'alias.csv'
 CATEGORIES   = CACHE_DIR / 'category.csv'
 FAMILY       = 'mcpMessage'
 ROOT_DEFINITION = 'MCPMessage'
@@ -214,6 +216,81 @@ def declarations():
     return extraction.declarations(schema_ts().read_text())
 
 
+_generation: dict[str, generation.Generation] = {}
+
+
+def generated() -> generation.Generation:
+    """schema.ts read whole by the generation, once per text."""
+    text = schema_ts().read_text()
+    if text not in _generation:
+        _generation.clear()
+        _generation[text] = generation.Generation(text)
+    return _generation[text]
+
+
+def additions() -> list[dict]:
+    return _rows(ADDITION)
+
+
+ABSENT = object()      # a reading addition.csv leaves blank: the keyword is not there
+
+
+def _at(node: Any, pointer: str) -> Any:
+    """The value at a JSON Pointer within node, ABSENT where the last step finds no key."""
+    tokens = pointer.split('/') if pointer else []
+    for i, token in enumerate(tokens):
+        token = token.replace('~1', '/').replace('~0', '~')
+        try:
+            node = node[int(token)] if isinstance(node, list) else node[token]
+        except (KeyError, IndexError, ValueError):
+            if i == len(tokens) - 1:
+                return ABSENT
+            raise
+    return node
+
+
+def _set(node: Any, pointer: str, value: Any) -> None:
+    """Set (or, for ABSENT, remove) the value at a JSON Pointer within node."""
+    tokens = pointer.split('/')
+    parent = _at(node, '/'.join(tokens[:-1]))
+    last = tokens[-1].replace('~1', '/').replace('~0', '~')
+    if isinstance(parent, list):
+        parent[int(last)] = value
+    elif value is ABSENT:
+        parent.pop(last, None)
+    else:
+        parent[last] = value
+
+
+def _reading(text: str, constants: dict) -> Any:
+    """A row's reading as JSON - blank is ABSENT, `${NAME}` the constant's literal."""
+    if not text.strip():
+        return ABSENT
+    for name, value in constants.items():
+        text = text.replace('${' + name + '}', json.loads(value) if value.startswith('"') else value)
+    return json.loads(text)
+
+
+def _added(shapes: dict, rows: list[dict], constants: dict) -> None:
+    """Apply addition.csv to the generated shapes: at each row's pointer, upstream's
+    reading becomes the house's; the house's reading already there is left; any
+    other reading refuses the row as stale."""
+    for row in rows:
+        name, pointer = row['definition'], row['pointer']
+        assert name in shapes, f'{ADDITION.relative_to(REPO)} names no definition: {name}'
+        upstream, house = _reading(row['upstream'], constants), _reading(row['house'], constants)
+        try:
+            found = _at(shapes[name], pointer)
+        except (KeyError, IndexError, ValueError):
+            raise AssertionError(f'{ADDITION.relative_to(REPO)}: {name} has nothing on the way to {pointer!r} - the row is stale')
+        if found == upstream or (found is ABSENT and upstream is ABSENT):
+            _set(shapes[name], pointer, house)
+        else:
+            assert found == house, (f'{ADDITION.relative_to(REPO)}: {name} at {pointer!r} reads '
+                                    f'{"nothing" if found is ABSENT else json.dumps(found)}, neither the upstream reading '
+                                    f'{"nothing" if upstream is ABSENT else json.dumps(upstream)} nor the house reading {json.dumps(house)} - the row is stale')
+
+
 def categories() -> dict[str, str | None]:
     """{definition: @category tag or None} from the committed schema.ts."""
     return extraction.categories(schema_ts().read_text())
@@ -304,55 +381,10 @@ def composition() -> dict[str, list[str]]:
     return extraction.composition(declarations()[0])
 
 
-def _dead(shapes: dict) -> set[str]:
-    """Definitions nothing in the snapshot references - the aliases the generator
-    inlined."""
-    referenced = set()
-    for body in shapes.values():
-        for _, node in schema_nodes(body):
-            if isinstance(node.get('$ref'), str):
-                referenced.add(node['$ref'].split('/')[-1])
-    return set(shapes) - referenced
-
-
-def _union_index(union: str, alias: str, shapes: dict) -> int:
-    """The anyOf member of the snapshot's union that is the alias's shape."""
-    ref = {'$ref': f'#/definitions/{alias}'}
-    for i, member in enumerate(shapes[union].get('anyOf', [])):
-        if _comparable(member, shapes) == _comparable(ref, shapes):
-            return i
-    raise AssertionError(f'{union}: no anyOf member is {alias}')
-
-
-def alias_rows(shapes: dict) -> list[tuple[str, str, str]]:
-    """(definition, pointer within it, alias), derived from schema.ts (#581): a copy
-    site for every alias naming one type; a use site for every alias the generator
-    inlined - a property typed by it, or a union alias listing it (spliced when the
-    alias is itself a union, else the member holding its shape)."""
-    interfaces, aliases = declarations()
-    dead = _dead(shapes)
-    by_name = {a.name: a for a in aliases}
-    rows: list[tuple[str, str, str]] = []
-    for a in aliases:
-        if a.single and a.single in shapes and a.name in shapes:
-            rows.append((a.name, '', a.single))
-    for a in aliases:
-        if a.name not in dead or a.name not in shapes:
-            continue
-        for interface, pointer in extraction.property_sites(interfaces, a.name):
-            if interface in shapes:
-                rows.append((interface, pointer, a.name))
-        for union in extraction.union_sites(aliases, a.name):
-            if union not in shapes or by_name[union].single:
-                continue
-            pointer = 'anyOf' if a.union else f'anyOf/{_union_index(union, a.name, shapes)}'
-            rows.append((union, pointer, a.name))
-    return rows
-
-
-def written_tables(declared: dict, rows: list, tagged: dict) -> list[Path]:
-    """Write the three extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
-    sibling table) - the readable face of the derivation's inputs."""
+def written_tables(declared: dict, tagged: dict) -> list[Path]:
+    """Write the two extracted tables under tmp/cache/mcp/ (QUOTE_ALL, as every
+    sibling table) - the readable face of the derivation's inputs; a stale alias.csv
+    from before #598 is removed."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     with CATEGORIES.open('w', newline='') as fh:
         w = csv.writer(fh, quoting=csv.QUOTE_ALL)
@@ -365,11 +397,8 @@ def written_tables(declared: dict, rows: list, tagged: dict) -> list[Path]:
         for name, bases in declared.items():
             for b in bases:
                 w.writerow([name, b])
-    with ALIASES.open('w', newline='') as fh:
-        w = csv.writer(fh, quoting=csv.QUOTE_ALL)
-        w.writerow(['definition', 'pointer', 'alias'])
-        w.writerows(rows)
-    return [CATEGORIES, COMPOSITION, ALIASES]
+    (CACHE_DIR / 'alias.csv').unlink(missing_ok=True)
+    return [CATEGORIES, COMPOSITION]
 
 
 def descriptions() -> dict:
@@ -426,6 +455,10 @@ def _normal_keywords(node: dict) -> dict:
             continue
         if key == 'additionalProperties' and value == {}:
             continue
+        if key == 'properties' and value == {}:
+            continue
+        if key == 'anyOf' and isinstance(value, list):
+            value = sorted(value, key=lambda m: json.dumps(m, sort_keys=True))
         if key == '$ref' and isinstance(value, str):
             out[key] = value.split('/')[-1]
             continue
@@ -437,10 +470,12 @@ def _normal_keywords(node: dict) -> dict:
 
 def normalized(node: dict) -> dict:
     """The comparison form: documentation dropped, const as enum, the vacuous
-    additionalProperties {} dropped, refs by definition name, order-free lists
-    (enum, required) sorted - two spellings of one constraint compare equal, and
-    only keywords are rewritten, never a property that shares a keyword's name."""
-    return _mapped(node, _normal_keywords)
+    additionalProperties {} and empty properties dropped, refs by definition name,
+    order-free lists (enum, required, anyOf) sorted - two spellings of one
+    constraint compare equal, and only keywords are rewritten, never a property
+    that shares a keyword's name. Children first, so a sorted list sorts its
+    members in their normal form."""
+    return _normal_keywords(rebuilt(node, normalized))
 
 
 class Conflict(ValueError):
@@ -706,53 +741,6 @@ def _house_root(definitions: dict, shapes: dict, declared: dict) -> dict:
                      'anyOf': [{'$ref': f'#/definitions/{n}'} for n in branches]})
 
 
-def _apply_alias(definitions: dict, name: str, pointer: str, alias: str, shapes: dict) -> None:
-    """Replace the subschema at pointer (within definitions[name]) by a $ref to alias -
-    or, when the pointer names an anyOf, splice the alias's members out and the alias
-    in - after checking the replaced material and the alias resolve to one shape."""
-    assert alias in shapes, f'{name}: alias {alias} is no definition'
-    defn = definitions[name]
-    alias_ref = {'$ref': f'#/definitions/{alias}'}
-    if pointer == '':
-        before = {k: v for k, v in defn.items() if k not in DOCUMENTATION_KEYS}
-        assert _comparable(before, shapes) == _comparable(alias_ref, shapes), f'{name}: does not resolve to alias {alias}'
-        for k in list(defn):
-            if k not in DOCUMENTATION_KEYS:
-                del defn[k]
-        defn.update(alias_ref)
-        return
-    tokens = pointer.split('/')
-    parent = defn
-    for tok in tokens[:-1]:
-        parent = parent[int(tok)] if isinstance(parent, list) else parent[tok]
-    last = tokens[-1]
-    if last == 'anyOf' and isinstance(parent.get('anyOf'), list):
-        alias_members = _union_members(shapes[alias]) or []
-        resolved_alias = resolved(alias_ref, shapes)
-        wanted = {json.dumps(normalized(m), sort_keys=True) for m in resolved_alias.get('anyOf', [])}
-        keep, removed, inserted = [], 0, False
-        for m in parent['anyOf']:
-            if json.dumps(normalized(resolved(m, shapes)), sort_keys=True) in wanted:
-                removed += 1
-                if not inserted:
-                    keep.append(alias_ref)
-                    inserted = True
-            else:
-                keep.append(m)
-        assert removed == len(wanted) and removed > 0, (f'{name}/{pointer}: the anyOf does not carry exactly the members '
-                                                          f'of {alias} ({removed} of {len(wanted)} found)')
-        parent['anyOf'] = keep
-        return
-    target = parent[int(last)] if isinstance(parent, list) else parent[last]
-    assert _comparable(target, shapes) == _comparable(alias_ref, shapes), f'{name}/{pointer}: does not resolve to alias {alias}'
-    docs = {k: v for k, v in target.items() if k in DOCUMENTATION_KEYS}
-    replacement = {**alias_ref, **docs}
-    if isinstance(parent, list):
-        parent[int(last)] = replacement
-    else:
-        parent[last] = replacement
-
-
 def _document_enums(definitions: dict, lineage: str) -> None:
     clause = EXHAUSTIVE_CLAUSE.format(lineage=lineage)
     for defn in definitions.values():
@@ -792,15 +780,17 @@ def _bfs_order(definitions: dict, root: str) -> list[str]:
     return order + sorted(n for n in definitions if n not in order)
 
 
-def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: list, prov: dict,
-             declared_unreachable: dict, tagged: dict, rule: dict, placed: dict) -> dict:
-    """The house schema, whole: every snapshot definition composed over its declared
-    bases (each verified to hold), the headers, the aliases revived, the house root
-    and its wrappers, titles and descriptions per house rule, definitions in BFS
-    order from the root. `declared_unreachable` is unreachable.csv: it must name exactly the
-    definitions the root does not reach, or the derivation refuses."""
-    container = '$defs' if '$defs' in snapshot_doc else 'definitions'
-    shapes: dict[str, dict] = {name: to_house(body) for name, body in snapshot_doc[container].items()}
+def factored(flat_shapes: dict, described: dict, declared: dict, prov: dict,
+             declared_unreachable: dict, tagged: dict, rule: dict, placed: dict,
+             addition_rows: list[dict], constants: dict) -> dict:
+    """The house schema, whole: every definition schema.ts declares, generated flat
+    and composed over its declared bases (each verified to hold), the headers, the
+    additions applied, the house root and its wrappers, titles and descriptions per
+    house rule, definitions in BFS order from the root. `declared_unreachable` is
+    unreachable.csv: it must name exactly the definitions the root does not reach, or
+    the derivation refuses."""
+    shapes: dict[str, dict] = json.loads(json.dumps({n: b for n, b in flat_shapes.items() if n not in HEADERS}))
+    _added(shapes, addition_rows, constants)
     for name, body in HEADERS.items():
         assert name not in shapes, f'upstream now defines {name}; the header needs a new name'
         shapes[name] = dict(body)
@@ -816,13 +806,10 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
                 bases.append(b)
         body = _composed(flat, bases, shapes)
         text = body.get('description') or described.get(name)
-        assert text, f'{name}: no description upstream and none in {DESCRIPTIONS.relative_to(REPO)}'
+        assert text, f'{name}: no JSDoc in schema.ts and no row in {DESCRIPTIONS.relative_to(REPO)}'
         body['title'] = name
         body['description'] = text
         definitions[name] = body
-    for name, pointer, alias in alias_rows:
-        assert name in definitions, f'alias row names no definition: {name}'
-        _apply_alias(definitions, name, pointer, alias, shapes)
     definitions[ROOT_DEFINITION] = _house_root(definitions, shapes, declared)
     definitions = {n: _ordered(d) for n, d in definitions.items()}
     _document_enums(definitions, prov['lineage'])
@@ -844,17 +831,18 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
         '$schema': DRAFT_04,
         'title': FAMILY,
         'description': (
-            'House factoring of the Model Context Protocol schema in draft-04 - the composition '
-            "upstream's generator flattens, stated once: JSONRPCHeader (the version pin) and "
-            'JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each '
-            'message allOf its header and its own fields, the type aliases upstream inlined '
-            'revived as refs, const spelled as one-element enum, and MCPMessage the root - the '
-            'wire message read as any typed message shape upstream exports. Derived by '
-            'corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp '
-            f"({prov['lineage']} lineage, upstream commit {prov['commit']}, upstream SHA256 "
-            f"{prov['sha256']}) and from upstream's schema.ts at that commit beside it ({prov['ts_url']}), "
-            'whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every '
-            'row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from '
+            "House factoring of the Model Context Protocol schema in draft-04, generated from upstream's "
+            'schema.ts alone - the composition its generator flattens, stated once: JSONRPCHeader (the '
+            'version pin) and JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each '
+            'message allOf its header and its own fields, every type alias a reference wherever it is used, '
+            'const spelled as one-element enum, and MCPMessage the root - the '
+            'wire message read as any typed message shape upstream exports. Generated by '
+            f"corpus-yoga mcp sync from rsc/reference/mcp/{prov['lineage']}/schema.ts (upstream commit {prov['commit']}, "
+            f"{prov['ts_url']}), read through the house TypeScript grammar by src/main/mcp/mcp_generation.py, one stated "
+            "rule per TypeScript form; upstream's schema.json at that commit "
+            f"(SHA256 {prov['sha256']}) is the witness every definition here must flatten to, up to the readings "
+            'rsc/schema/protocol/mcpMessage/addition.csv declares (the null upstream drops from JSONValue, the protocol '
+            'version pinned on the _meta field that names it). Definitions schema.ts leaves without a JSDoc take their text from '
             'rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in '
             'rsc/schema/protocol/mcpMessage/unreachable.csv. Every description ends with the definition\'s layer - the '
             "house's reading of the @category tag schema.ts carries, by rsc/schema/protocol/mcpMessage/layer.csv (the layers, "
@@ -873,14 +861,32 @@ def rendered(doc: dict) -> str:
 
 # ── the witness ───────────────────────────────────────────────────────────────
 
-def disagreements(house_doc: dict, snapshot_doc: dict) -> list[str]:
+def disagreements(house_doc: dict, snapshot_doc: dict, rows: list[dict], constants: dict) -> list[str]:
     """Every snapshot definition whose house counterpart, resolved and normalized, is
     not equal to it (resolved and normalized in its own document) - or is missing.
-    Empty means agreement."""
+    Each addition row's house reading is set back to upstream's on the house side
+    first, and a row upstream no longer bears is a disagreement of its own. Empty
+    means agreement."""
     container = '$defs' if '$defs' in snapshot_doc else 'definitions'
-    house = house_doc.get('definitions', {})
+    house = json.loads(json.dumps(house_doc.get('definitions', {})))
     snap = {name: to_house(body) for name, body in snapshot_doc[container].items()}
     out = []
+    for row in rows:
+        name, pointer = row['definition'], row['pointer']
+        upstream, house_reading = _reading(row['upstream'], constants), _reading(row['house'], constants)
+        try:
+            found = _at(snap[name], pointer) if name in snap else None
+        except (KeyError, IndexError, ValueError):
+            found = None
+        if not (found == upstream or (found is ABSENT and upstream is ABSENT)):
+            out.append(f'{name}: {ADDITION.relative_to(REPO)} says upstream reads '
+                       f'{"nothing" if upstream is ABSENT else json.dumps(upstream)} at {pointer!r}, and it does not - the row is stale')
+            continue
+        try:
+            if name in house and _at(house[name], pointer) == house_reading:
+                _set(house[name], pointer, upstream)
+        except (KeyError, IndexError, ValueError):
+            out.append(f'{name}: {ADDITION.relative_to(REPO)} names {pointer!r}, which the factoring does not have')
     for name, body in snap.items():
         if name not in house:
             out.append(f'{name}: absent from the factoring')
@@ -894,24 +900,21 @@ def disagreements(house_doc: dict, snapshot_doc: dict) -> list[str]:
 
 
 def shapes_and_declared() -> tuple[dict, dict]:
-    """The flat house-dialect shapes (snapshot plus headers) and the extracted
-    composition - what status reports overrides from."""
-    _, doc = snapshot()
-    container = '$defs' if '$defs' in doc else 'definitions'
-    shapes = {name: to_house(body) for name, body in doc[container].items()}
+    """The flat house-dialect shapes schema.ts generates (plus the headers) and the
+    composition it declares - what status reports overrides from."""
+    shapes = generated().shapes()
     shapes.update({n: dict(b) for n, b in HEADERS.items()})
     return shapes, composition()
 
 
-def inputs() -> tuple[dict, dict, list]:
-    """(shapes, composition, alias rows) - the derivation's inputs as extracted now."""
-    shapes, declared = shapes_and_declared()
-    return shapes, declared, alias_rows(shapes)
+def inputs() -> tuple[dict, dict]:
+    """(shapes, composition) - the derivation's inputs as generated now."""
+    return shapes_and_declared()
 
 
 def current_text() -> str:
     """The factoring as it should read now, from the committed inputs."""
-    _, doc = snapshot()
-    shapes, declared, rows = inputs()
-    return rendered(factored(doc, descriptions(), declared, rows, provenance(), unreachable(),
-                             categories(), layer_rule(), placements(provenance()['lineage'])))
+    shapes, declared = inputs()
+    return rendered(factored(shapes, descriptions(), declared, provenance(), unreachable(),
+                             categories(), layer_rule(), placements(provenance()['lineage']),
+                             additions(), generated().constants))

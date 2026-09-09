@@ -1,33 +1,81 @@
 # mcpMessage changelog
 
-This family is the HOUSE FACTORING of the Model Context Protocol schema (#562):
-the composition upstream's generator flattens, stated once in draft-04. It is a
-committed derivation, never hand-edited: `corpus-yoga mcp sync` derives the latest
-version from the two upstream files held verbatim under `rsc/reference/mcp` (whose
-`provenance.csv` pins the lineage, commit and SHA256) - from `schema.ts` the
-composition (which interface extends which) and the alias sites (where an exported
-type alias is used) and the category tags, read by `src/main/mcp/mcp_extraction.py`
-through the parser generated from the house TypeScript grammar (#581, #597) and
-written under `tmp/cache/mcp/` as their readable face; from
-`schema.json` every definition's shape - and from the hand-written tables beside
-this file: `description.csv`, house text for the definitions the snapshot leaves
-undescribed; `unreachable.csv`, the definitions no message carries (#588);
+This family is the HOUSE FACTORING of the Model Context Protocol schema (#562,
+#598): the composition upstream's generator flattens, stated once in draft-04,
+generated from upstream's `schema.ts` alone. It is a committed derivation, never
+hand-edited: `corpus-yoga mcp sync` reads the newest lineage's `schema.ts` under
+`rsc/reference/mcp` (whose `provenance.csv` pins the lineage, commit and SHA256)
+through the parser generated from the house TypeScript grammar into the flat
+shape of every declaration, one stated rule per TypeScript form
+(`src/main/mcp/mcp_generation.py`), composes it over the extends clauses and tags
+it by the categories `src/main/mcp/mcp_extraction.py` reads (#581, #595; the two
+tables faced under `tmp/cache/mcp/`), and applies the hand-written tables beside
+this file: `description.csv`, house text for the definitions schema.ts leaves
+without a JSDoc; `unreachable.csv`, the definitions no message carries (#588);
 `layer.csv`, the layers the protocol reads by, one row each with its reading -
 jsonrpc, session, resources, tools, prompts, content, agentic, tasks - the closed
-vocabulary; `category_layer.csv`, the house's reading of the `@category` tags
-schema.ts carries (the third extracted table) into those layers; and
-`placement.csv`, the definitions neither the tag nor the composition places, each
-with its reason (#595). Every extracted row is verified against the snapshot before use, the
-derivation refuses an unreachable table that disagrees with the wire and a
-definition no rule places, and every description ends with its layer. One
-instance is one JSON-RPC message; the root is the house definition `MCPMessage`,
-which admits exactly what the wire admits. The dev gate holds the version file
-byte-identical to the derivation (`mcp.factoring_current`) and every snapshot
-definition equal to its house counterpart resolved and normalized
-(`mcp.factoring_agrees`). No data is validated against it; every house diagnostic
-holds over it, `structure.all_definitions_reachable` reading `unreachable.csv`.
+vocabulary; `category_layer.csv`, the house's reading of the `@category` tags into
+those layers; `placement.csv`, the definitions neither the tag nor the composition
+places, each with its reason (#595); and `addition.csv`, where the house reads
+differently from upstream at a JSON Pointer - the null upstream's generator drops
+from `JSONValue`, the protocol version pinned on the `_meta` field that names it
+(#598). Every extends row is verified against the generated shapes before use, the
+derivation refuses an unreachable table that disagrees with the wire, a
+definition no rule places, and an addition row that fits neither reading, and
+every description ends with its layer. One instance is one JSON-RPC message; the
+root is the house definition `MCPMessage`, which admits exactly what the wire
+admits. Upstream's `schema.json` is the witness, never a source: the dev gate
+holds the version file byte-identical to the derivation (`mcp.factoring_current`)
+and every upstream definition equal to its house counterpart resolved and
+normalized, the declared additions set back (`mcp.factoring_agrees`). No data is
+validated against it; every house diagnostic holds over it,
+`structure.all_definitions_reachable` reading `unreachable.csv`.
 
 ---
+
+## v5
+
+Generated 2026-09-09 (reading-room) from `rsc/reference/mcp/2026-07-28/schema.ts`
+alone, at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged - upstream's
+`schema.json` beside it now the witness and no longer a source (#598). Every
+declaration is read through the house TypeScript grammar into the flat shape
+upstream's generator would give it (`src/main/mcp/mcp_generation.py`, one rule per
+TypeScript form), and composed as before; the alias rows retire, since every type
+alias is a reference wherever schema.ts uses it, by construction. What upstream's
+generator drops is carried by declaration (`addition.csv`): `JSONValue` admits
+`null`, as `JSONValue` declares, and `io.modelcontextprotocol/protocolVersion` in
+`RequestMetaObject` is pinned to `2026-07-28`, the `LATEST_PROTOCOL_VERSION`
+schema.ts exports and no JSON of upstream's carries. 161 definitions, as v4; the
+witness agrees on every one, the two additions set back.
+
+### Replaces
+
+v4
+
+#### Restricted
+
+- `RequestMetaObject.io.modelcontextprotocol/protocolVersion` - `enum
+  ["2026-07-28"]`: a request naming another protocol version is refused, as the
+  wire refuses it (`UnsupportedProtocolVersionError`); v4 admitted any string.
+
+#### Relaxed
+
+- `JSONValue` - admits `null` beside string, integer, boolean, object and array,
+  as schema.ts declares it; v4 followed upstream's generator, which drops it.
+
+#### Refactored
+
+- Every definition's properties stand in schema.ts's declaration order, and every
+  union's members in schema.ts's order (v4 followed upstream's generator:
+  alphabetical properties, members by declaration of the member types) - 110
+  definitions differ by order alone.
+- `SamplingMessage.content` and `SubscriptionsListenResult.resultType` reference
+  the aliases schema.ts names (`SamplingMessageContentBlock`, `ResultType`) where v4
+  carried the spliced members and the bare string upstream inlined.
+- `EmptyResult` carries its own JSDoc ("A result that indicates success but
+  carries no data.") where v4 carried its target's; `ClientNotification` and
+  `ClientResult`, aliases without a JSDoc, take house text from `description.csv`.
+- The family description names the generation, the witness and `addition.csv`.
 
 ## v4
 

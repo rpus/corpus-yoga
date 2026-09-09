@@ -65,7 +65,9 @@ class TypeExpr:
     args: list['TypeExpr'] = field(default_factory=list)
     items: 'TypeExpr | None' = None
     members: list['TypeExpr'] = field(default_factory=list)
-    properties: dict[str, 'TypeExpr'] = field(default_factory=dict)
+    properties: dict[str, 'tuple[TypeExpr, bool]'] = field(default_factory=dict)   # name: (type, optional)
+    index: 'TypeExpr | None' = None                                                # the index signature's value type
+    docs: dict[str, str] = field(default_factory=dict)                             # name: the member's JSDoc block, '' when none
 
     @property
     def reference(self) -> str | None:
@@ -77,7 +79,11 @@ class TypeExpr:
 class Interface:
     name: str
     bases: list[str]                       # as declared, Omit<Base, ...> read as Base
-    properties: dict[str, TypeExpr] = field(default_factory=dict)
+    body: TypeExpr = field(default_factory=lambda: TypeExpr('object'))   # the object type declared
+
+    @property
+    def properties(self) -> dict[str, TypeExpr]:
+        return {name: member for name, (member, _) in self.body.properties.items()}
 
 
 @dataclass
@@ -136,7 +142,7 @@ def _text(expr: TypeExpr) -> str:
         return ' & '.join(_text(m) for m in expr.members)
     if expr.kind == 'typeof':
         return f'typeof {expr.name}'
-    return '{ ' + '; '.join(f'{k}: {_text(v)}' for k, v in expr.properties.items()) + ' }'
+    return '{ ' + '; '.join(f'{k}{"?" if optional else ""}: {_text(v)}' for k, (v, optional) in expr.properties.items()) + ' }'
 
 
 def _expr(ctx) -> TypeExpr:
@@ -170,22 +176,38 @@ def _primary(ctx) -> TypeExpr:
         args = [_expr(a.typeExpression()) for a in (_all(ref.typeArgumentList().typeArgument()) if ref.typeArgumentList() else [])]
         return TypeExpr('reference', name=ref.Identifier().getText(), args=args)
     if ctx.objectType():
-        return TypeExpr('object', properties=_properties(ctx.objectType()))
+        return _object(ctx.objectType())
     return _expr(ctx.typeExpression())
 
 
-def _properties(ctx) -> dict[str, TypeExpr]:
-    """The property signatures of an object type, by name (a quoted name unquoted);
-    index signatures are not properties."""
-    out = {}
+def jsdoc_before(ctx, token_index: int) -> str:
+    """The JSDoc block nearest before a token, read from the parser's token stream:
+    line comments between it and the token are skipped, any other block comment
+    ends the search, '' when there is none."""
+    stream = ctx.parser.getTokenStream()
+    for token in reversed(stream.getHiddenTokensToLeft(token_index, _parser()[0].COMMENT) or []):
+        if token.text.startswith('//'):
+            continue
+        return token.text if token.text.startswith('/**') else ''
+    return ''
+
+
+def _object(ctx) -> TypeExpr:
+    """An object type: its property signatures by name (a quoted name unquoted,
+    optional noted, each with its JSDoc) and its index signature's value type, if any."""
+    out = TypeExpr('object')
     for member in _all(ctx.memberSignature()):
         sig = member.propertySignature()
-        if sig is None:
+        if sig is not None:
+            name = sig.propertyName().getText()
+            if name.startswith('"'):
+                name = name[1:-1]
+            out.properties[name] = (_expr(sig.typeExpression()), sig.QuestionMark() is not None)
+            out.docs[name] = jsdoc_before(member, member.start.tokenIndex)
             continue
-        name = sig.propertyName().getText()
-        if name.startswith('"'):
-            name = name[1:-1]
-        out[name] = _expr(sig.typeExpression())
+        index = member.indexSignature()
+        if index is not None:
+            out.index = _expr(index.typeExpression())
     return out
 
 
@@ -235,7 +257,7 @@ def declarations(ts: str) -> tuple[list[Interface], list[Alias]]:
                         assert base, f'{d.Identifier().getText()}: Omit of no named base'
                         name = base
                     bases.append(name)
-            interfaces.append(Interface(d.Identifier().getText(), bases, _properties(d.objectType())))
+            interfaces.append(Interface(d.Identifier().getText(), bases, _object(d.objectType())))
         elif decl.typeAliasDeclaration():
             d = decl.typeAliasDeclaration()
             aliases.append(Alias(d.Identifier().getText(), _expr(d.typeExpression())))
@@ -260,10 +282,9 @@ def categories(ts: str) -> dict[str, str | None]:
         d = decl.interfaceDeclaration() or decl.typeAliasDeclaration()
         if d is None:
             continue
-        comments = stream.getHiddenTokensToLeft(decl.start.tokenIndex, _parser()[0].COMMENT) or []
-        doc = comments[-1].text if comments else ''
+        doc = jsdoc_before(decl, decl.start.tokenIndex)
         tag = None
-        if doc.startswith('/**'):
+        if doc:
             for line in doc.splitlines():
                 body = line.strip().lstrip('*').strip()
                 if body.startswith('@category '):
