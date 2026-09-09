@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "mcpMessage",
-  "description": "House factoring of the Model Context Protocol schema in draft-04 - the composition upstream's generator flattens, stated once: JSONRPCHeader (the version pin) and JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each message allOf its header and its own fields, the type aliases upstream inlined revived as refs, const spelled as one-element enum, and MCPMessage the root - the wire message read as any typed message shape upstream exports. Derived by corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp (2026-07-28 lineage, upstream commit 271ecc9accafdd9b83a3c869fa67c22953b2af80, upstream SHA256 ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203) and from upstream's schema.ts at that commit beside it (https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/271ecc9accafdd9b83a3c869fa67c22953b2af80/schema/2026-07-28/schema.ts), whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from rsc/schema/protocol/mcpMessage/description.csv. One instance is one JSON-RPC message.",
+  "description": "House factoring of the Model Context Protocol schema in draft-04 - the composition upstream's generator flattens, stated once: JSONRPCHeader (the version pin) and JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each message allOf its header and its own fields, the type aliases upstream inlined revived as refs, const spelled as one-element enum, and MCPMessage the root - the wire message read as any typed message shape upstream exports. Derived by corpus-yoga mcp sync from the verbatim snapshot rsc/reference/mcp (2026-07-28 lineage, upstream commit 271ecc9accafdd9b83a3c869fa67c22953b2af80, upstream SHA256 ef70b61f99b6d2e5e3b46863822eab08dff6a45bedc7a08914e0e5b133f40203) and from upstream's schema.ts at that commit beside it (https://raw.githubusercontent.com/modelcontextprotocol/modelcontextprotocol/271ecc9accafdd9b83a3c869fa67c22953b2af80/schema/2026-07-28/schema.ts), whose extends clauses and type aliases src/main/mcp/mcp_extraction.py reads by stated rules, every row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in rsc/schema/protocol/mcpMessage/unreachable.csv. One instance is one JSON-RPC message.",
   "allOf": [
     {
       "$ref": "#/definitions/MCPMessage"
@@ -10,7 +10,7 @@
   "definitions": {
     "MCPMessage": {
       "title": "MCPMessage",
-      "description": "One MCP message: a JSON-RPC message, read as any of the typed message shapes upstream exports but no definition references - the direction unions, the typed result responses, the typed error responses - and as the house wrappers that give upstream's unreferenced result and error unions their message. Every branch is a JSONRPCMessage, so the union admits exactly what the wire admits.",
+      "description": "One MCP message: a JSON-RPC message, read as any of the typed message shapes upstream exports but no definition references - the direction unions, the typed result responses, the typed error responses - and as the house wrappers that give the result and error unions a party sends their message. Every branch is a JSONRPCMessage, so the union admits exactly what the wire admits.",
       "anyOf": [
         {
           "$ref": "#/definitions/CallToolResultResponse"
@@ -62,9 +62,6 @@
         },
         {
           "$ref": "#/definitions/UnsupportedProtocolVersionError"
-        },
-        {
-          "$ref": "#/definitions/ClientResultResponse"
         },
         {
           "$ref": "#/definitions/ServerResultResponse"
@@ -510,24 +507,6 @@
       },
       "required": [
         "error"
-      ]
-    },
-    "ClientResultResponse": {
-      "title": "ClientResultResponse",
-      "description": "A result response whose result is one of ClientResult - the results a client returns.",
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/JSONRPCIdentifiedHeader"
-        }
-      ],
-      "properties": {
-        "result": {
-          "$ref": "#/definitions/ClientResult"
-        }
-      },
-      "required": [
-        "result"
       ]
     },
     "ServerResultResponse": {
@@ -1425,11 +1404,6 @@
         "_meta",
         "resultType"
       ]
-    },
-    "ClientResult": {
-      "title": "ClientResult",
-      "description": "Common result fields.",
-      "$ref": "#/definitions/EmptyResult"
     },
     "ServerResult": {
       "title": "ServerResult",
@@ -3952,6 +3926,11 @@
         "items",
         "type"
       ]
+    },
+    "ClientResult": {
+      "title": "ClientResult",
+      "description": "Common result fields.",
+      "$ref": "#/definitions/EmptyResult"
     }
   }
 }

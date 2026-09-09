@@ -149,6 +149,15 @@ Then run all diagnostics to catch principle violations:
 src/test/dev/run.sh   # will flag failing diagnostics in check_versioned_schema_diagnostics
 ```
 
+A definition the root does not reach is declared, never tolerated:
+`structure.all_definitions_reachable` reads `unreachable.csv` (name, reason)
+beside the family's version file and fails on an undeclared unreachable
+definition, on a declared name the root reaches, and on a declared name that is
+no definition. `rsc/schema/chat-exports/conversations/unreachable.csv` declares
+the three API tool inputs no export has carried;
+`rsc/schema/protocol/mcpMessage/unreachable.csv` the result union no message
+carries (#588).
+
 ### 3. Validate and register
 
 Re-run the pipeline to generate validation logs for the new version:
@@ -298,9 +307,12 @@ derives its latest version from the two upstream files - the composition and the
 alias sites extracted from schema.ts by the rules `src/main/mcp/mcp_extraction.py`
 states (#581), every row verified against the snapshot, and written under
 `tmp/cache/mcp/` as their readable face (`rsc/cache_io.csv`); every definition's
-shape from schema.json - and from `rsc/schema/protocol/mcpMessage/description.csv`,
-the one hand-written table, house text for the definitions the snapshot leaves
-undescribed. The dev gate holds the file byte-identical to the
+shape from schema.json - and from the two hand-written tables beside the version
+file, `rsc/schema/protocol/mcpMessage/description.csv` (house text for the
+definitions the snapshot leaves undescribed) and
+`rsc/schema/protocol/mcpMessage/unreachable.csv` (the definitions no message
+carries, which `structure.all_definitions_reachable` reads and the derivation
+refuses to disagree with). The dev gate holds the file byte-identical to the
 derivation (`mcp.factoring_current`) and every snapshot definition equal to its
 house counterpart flattened (`mcp.factoring_agrees`). Its history lives in
 `rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
@@ -310,10 +322,11 @@ next version in place of the current one, by plain file operations; a version of
 this family means that the derivation's output changed, and its changelog section
 is written by hand from that diff, owed at the commit gate by
 `schema.changelog_narrative`. Every house
-diagnostic holds over it without exception: its root, `MCPMessage`, gathers the
-typed message shapes upstream exports but never references, and the extracted
-alias rows revive the type aliases upstream inlined, so every definition is
-reachable.
+diagnostic holds over it: its root, `MCPMessage`, gathers the typed message shapes
+upstream exports but never references, the extracted alias rows revive the type
+aliases upstream inlined, and a result union no message carries - a party's
+results where upstream declares no requests for the other party (#588) - stands
+unreachable, declared in `unreachable.csv`.
 
 ### 6. Dispose the model.json obligations
 

@@ -1,0 +1,2 @@
+"name","reason"
+"ClientResult","The results a client returns; no message carries them - a client answers only requests, and schema.ts declares no ServerRequest, so no party sends a client-to-server response."

@@ -1,21 +1,24 @@
 #!/usr/bin/env python
-"""structure.all_definitions_reachable — Every definition is reachable from root via $ref."""
+"""structure.all_definitions_reachable - Every definition is reachable from root via
+$ref, or is declared unreachable in the family's unreachable.csv (name, reason)
+beside the version file; a declared name that is reachable, or that names no
+definition, is a stale declaration and fails the same way."""
+import csv
 import json
 import sys
 from collections import deque
+from pathlib import Path
 
-# Definitions intentionally unreachable via $ref — documented stubs for API
-# tool types not yet observed in any export.
-# Each entry is annotated with the schema version from which it applies.
-KNOWN_UNREACHABLE = {
-    'ToolInputComputerUse',   # v1+: API tool, not yet surfaced in exports
-    'ToolInputTextEditor',    # v1+: API tool, not yet surfaced in exports
-    'ToolInputCodeExecution', # v1+: API tool, not yet surfaced in exports
-}
-
-with open(sys.argv[1]) as f:
+schema_path = Path(sys.argv[1])
+with open(schema_path) as f:
     schema = json.load(f)
 defs = schema.get('definitions', {})
+
+declaration = schema_path.parent / 'unreachable.csv'
+declared = {}
+if declaration.is_file():
+    with open(declaration, newline='') as f:
+        declared = {row['name']: row['reason'] for row in csv.DictReader(f)}
 
 def find_refs(obj):
     refs = set()
@@ -62,8 +65,18 @@ while queue:
         if dep in defs:
             queue.append(dep)
 
-unreachable = [k for k in defs if k not in visited and k not in KNOWN_UNREACHABLE]
+problems = []
+unreachable = [k for k in defs if k not in visited and k not in declared]
 if unreachable:
-    print(f'FAIL structure.all_definitions_reachable: {unreachable}')
+    problems.append(f'unreachable from {root} and not declared in {declaration.name}: {unreachable}')
+stale = [k for k in declared if k in visited]
+if stale:
+    problems.append(f'declared unreachable in {declaration.name} but reachable from {root}: {stale}')
+absent = [k for k in declared if k not in defs]
+if absent:
+    problems.append(f'declared unreachable in {declaration.name} but no definition: {absent}')
+if problems:
+    print('FAIL structure.all_definitions_reachable: ' + '; '.join(problems))
     sys.exit(1)
-print('PASS structure.all_definitions_reachable')
+print(f'PASS structure.all_definitions_reachable ({len(declared)} declared unreachable)' if declared
+      else 'PASS structure.all_definitions_reachable')

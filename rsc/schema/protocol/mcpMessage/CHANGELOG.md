@@ -8,17 +8,61 @@ version from the two upstream files held verbatim under `rsc/reference/mcp` (who
 composition (which interface extends which) and the alias sites (where an exported
 type alias is used), extracted by the rules `src/main/mcp/mcp_extraction.py`
 states (#581) and written under `tmp/cache/mcp/` as their readable face; from
-`schema.json` every definition's shape - and from the one hand-written table
+`schema.json` every definition's shape - and from the two hand-written tables
 beside this file, `description.csv`, house text for the definitions the snapshot
-leaves undescribed. Every extracted row is verified against the snapshot before
-use. One instance is one JSON-RPC message; the root is the
-house definition `MCPMessage`. The dev gate holds the version file byte-identical
-to the derivation (`mcp.factoring_current`) and every snapshot definition
-equal to its house counterpart resolved and normalized (`mcp.factoring_agrees`).
-No data is validated against it; every house diagnostic holds over it without
-exception.
+leaves undescribed, and `unreachable.csv`, the definitions no message carries
+(#588). Every extracted row is verified against the snapshot before use, and the
+derivation refuses an unreachable table that disagrees with the wire. One
+instance is one JSON-RPC message; the root is the house definition `MCPMessage`,
+which admits exactly what the wire admits. The dev gate holds the version file
+byte-identical to the derivation (`mcp.factoring_current`) and every snapshot
+definition equal to its house counterpart resolved and normalized
+(`mcp.factoring_agrees`). No data is validated against it; every house diagnostic
+holds over it, `structure.all_definitions_reachable` reading `unreachable.csv`.
 
 ---
+
+## v3
+
+Derived 2026-09-09 (reading-room) from the same snapshot as v2 - lineage 2026-07-28
+at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
+the rule for the root's wrappers (#588): a party's result union gets a `Response`
+wrapper only when the other party declares requests, since a party's results
+answer the other party's requests. schema.ts declares no `ServerRequest`, so no
+message carries a `ClientResult`: in this lineage the exchanges a server
+initiates (`sampling/createMessage`, `elicitation/create`, `roots/list`) carry no
+`id` and no `jsonrpc` - they travel inside an `InputRequiredResult` returned to
+`tools/call`, `prompts/get` and `resources/read`, and the client answers by
+retrying that request with `inputResponses`. A client sends requests and one
+notification, never a response. `ClientResultResponse`, which v1 minted to give
+`ClientResult` a message, described a message no party can send; it leaves.
+`ClientResult` stands as the snapshot declares it, a result no message carries,
+declared so in `unreachable.csv` beside this file - the table
+`structure.all_definitions_reachable` reads, and which the derivation refuses to
+disagree with (an uncarried result union it does not name, a name it declares that
+the root reaches). 161 definitions (v2: 162); `MCPMessage` has 19 branches (v2:
+20).
+
+### Replaces
+
+v2
+
+#### Restricted
+
+None. The same instances are admitted: an identified header whose `result` is a
+bare `Result` is `JSONRPCResultResponse`'s shape, which `JSONRPCMessage` carries.
+
+#### Relaxed
+
+None.
+
+#### Refactored
+
+- `ClientResultResponse` - removed, with its branch of `MCPMessage`.
+- `ClientResult` - unreferenced, so it stands last: definitions keep breadth-first
+  order from the root, the unreachable after.
+- The root's description names the wrappers as those of "the result and error
+  unions a party sends"; the family's description names `unreachable.csv`.
 
 ## v2
 

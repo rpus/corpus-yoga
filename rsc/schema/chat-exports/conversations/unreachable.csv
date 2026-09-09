@@ -1,0 +1,4 @@
+"name","reason"
+"ToolInputComputerUse","The computer_use tool's input, documented from the API reference; no bulk export observed carries the tool, so no block references it."
+"ToolInputTextEditor","The text_editor tool's input, documented from the API reference; no bulk export observed carries the tool, so no block references it."
+"ToolInputCodeExecution","The code_execution tool's input, documented from the API reference; no bulk export observed carries the tool, so no block references it."
