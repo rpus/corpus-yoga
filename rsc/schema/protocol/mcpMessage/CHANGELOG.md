@@ -6,8 +6,9 @@ committed derivation, never hand-edited: `corpus-yoga mcp sync` derives the late
 version from the two upstream files held verbatim under `rsc/reference/mcp` (whose
 `provenance.csv` pins the lineage, commit and SHA256) - from `schema.ts` the
 composition (which interface extends which) and the alias sites (where an exported
-type alias is used), extracted by the rules `src/main/mcp/mcp_extraction.py`
-states (#581) and written under `tmp/cache/mcp/` as their readable face; from
+type alias is used) and the category tags, read by `src/main/mcp/mcp_extraction.py`
+through the parser generated from the house TypeScript grammar (#581, #597) and
+written under `tmp/cache/mcp/` as their readable face; from
 `schema.json` every definition's shape - and from the hand-written tables beside
 this file: `description.csv`, house text for the definitions the snapshot leaves
 undescribed; `unreachable.csv`, the definitions no message carries (#588);

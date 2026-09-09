@@ -61,10 +61,17 @@ info()   { _flush; echo "  – $*"; }
 # Both render as – in the report; only these reach `sync`, which is why the distinction
 # lives here rather than in a filter downstream trying to guess from the wording.
 # todo <tag> <message> — the tag says WHO can fix it: `venv` and `hook` are the repo's
-# own, anything else is the reader's. sync matches on the tag, never on the wording,
+# own (`gen` too: the parsers generated from the house grammars), anything else is the
+# reader's. sync matches on the tag, never on the wording,
 # because a message is prose and prose gets rewritten.
 todo()   { local tag="$1"; shift; _flush; echo "  – $*"; _todo+=("$tag"$'\t'"$*"); }
 bad()    { _flush; echo "  ✗ $*"; missing_required=1; }
+# The sync, spelt as the reader can run it at the moment the row is read: through the
+# launcher once the venv exists (the launcher refuses without one), else by its script.
+sync_remedy() {
+  if [[ -x "$VENV/bin/python" ]]; then echo "corpus-yoga prerequisites sync --apply"
+  else echo "./src/main/cli/prerequisites/prerequisites.sh sync --apply"; fi
+}
 
 count_glob_dirs() {
   local n=0 d
@@ -104,7 +111,7 @@ check_tools() {
   if [[ -n "$pyright_bin" ]]; then
     ok "pyright ($("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')) — corpus-yoga test run type-checks src/ against pyrightconfig.json"
   else
-    todo venv "pyright not found — corpus-yoga test run skips its type check; it is in src/requirements.txt: ./src/main/cli/prerequisites/prerequisites.sh sync --apply"
+    todo venv "pyright not found — corpus-yoga test run skips its type check; it is in src/requirements.txt: $(sync_remedy)"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
@@ -129,6 +136,30 @@ check_tools() {
   else
     todo reader "docker not found — corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses; install via: brew install --cask docker"
   fi
+  # The parsers the house grammars generate (src/gen/grammar, machine-local, gitignored)
+  # are what the mcp extraction and the gate's mcp checks run through: absent, they fail
+  # by name, so their generation is this machine's to do - the repo's own act (the
+  # `gen` tag), after the venv holds the tool. The tool: antlr4 (antlr4-tools, a python
+  # package the venv carries) running the tool jar on the machine's java; the gate's
+  # grammar.parser_current holds the parsers current where the tool is present.
+  local gen_project
+  for gen_project in "$REPO_ROOT"/rsc/rpus/grammar/*/; do
+    gen_project="$(basename "$gen_project")"
+    if compgen -G "$REPO_ROOT/src/gen/grammar/$gen_project/*.py" >/dev/null; then
+      ok "src/gen/grammar/$gen_project generated — the parser of rsc/rpus/grammar/$gen_project (corpus-yoga grammar holds it current)"
+    else
+      todo gen "src/gen/grammar/$gen_project absent — the mcp extraction and corpus-yoga test run's mcp checks need it; corpus-yoga grammar sync generates it (needs antlr4 and java below)"
+    fi
+  done
+  if [[ -x "$VENV/bin/antlr4" ]]; then
+    if command -v java &>/dev/null; then
+      ok "antlr4 (antlr4-tools) and java ($(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')) — corpus-yoga grammar sync generates the parsers and corpus-yoga test run holds them current (grammar.parser_current)"
+    else
+      todo reader "java not found — antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; install via: brew install openjdk"
+    fi
+  else
+    todo venv "antlr4 not found — corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt: $(sync_remedy)"
+  fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 
@@ -137,7 +168,7 @@ check_venv() {
   if [[ -x "$VENV/bin/python" ]]; then
     ok "exists ($("$VENV/bin/python" --version 2>&1)) — every .py target runs in it"
   else
-    todo venv "not found — nothing python runs, corpus-yoga included (#478); ./src/main/cli/prerequisites/prerequisites.sh sync --apply creates it and installs src/requirements.txt"
+    todo venv "not found — nothing python runs, corpus-yoga included (#478); $(sync_remedy) creates it and installs src/requirements.txt"
   fi
 }
 
@@ -529,6 +560,7 @@ sync() {
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
   _todo_has hook && acts+=("install the pre-commit hook (corpus-yoga test install-hook)")
   _todo_has mount && acts+=("create the ext/mnt/claude-code-projects mount (link_projects.sh)")
+  _todo_has gen && acts+=("generate the parsers from rsc/rpus/grammar into src/gen/grammar (corpus-yoga grammar sync)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"
     return 0
@@ -551,6 +583,7 @@ sync() {
   fi
   _todo_has hook && "$REPO_ROOT/src/main/cli/test/test.sh" install-hook
   _todo_has mount && "$REPO_ROOT/src/main/pipeline/code-agents/link_projects.sh"
+  _todo_has gen && "$REPO_ROOT/corpus-yoga" grammar sync
   echo
   echo "what remains — re-derived, not assumed:"
   _todo=()
