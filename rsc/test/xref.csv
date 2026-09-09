@@ -785,8 +785,8 @@ src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": 
 src/main/cli/test/test.sh,21,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/test/test.sh,29,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
 src/main/cli/test/xref.json,9,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
-src/main/grammar/grammar.py,9,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
-src/main/grammar/grammar.py,37,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
+src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
+src/main/grammar/grammar.py,38,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'

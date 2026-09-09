@@ -2,8 +2,9 @@
 """
 grammar.py - the parsers generated from the house grammars (#597): for every
 project under rsc/rpus/grammar/<project>/ (its top-level .g4 files, with
-<project>/imports/ as the library where present), the Python-target lexer, parser
-and listener ANTLR generates, under src/gen/grammar/<project>/ - machine-local and
+<project>/imports/ as the library where present), the Python-target lexer and
+parser ANTLR generates (no listener, no visitor: the readers walk the tree
+themselves), under src/gen/grammar/<project>/ - machine-local and
 gitignored, like the editor's .antlr/ output beside each grammar, generated on
 each machine from the committed grammar by a declared tool at a declared version
 (antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version).
@@ -66,7 +67,7 @@ def generated(project: Path) -> dict[str, str]:
     command = tool()
     assert command, REMEDY
     with tempfile.TemporaryDirectory() as scratch:
-        argv = [command, '-v', TOOL_VERSION, '-Dlanguage=Python3', '-o', scratch, '-Xexact-output-dir']
+        argv = [command, '-v', TOOL_VERSION, '-Dlanguage=Python3', '-no-listener', '-o', scratch, '-Xexact-output-dir']
         if (project / 'imports').is_dir():
             argv += ['-lib', str(project / 'imports')]
         argv += [g.name for g in sorted(project.glob('*.g4'))]
