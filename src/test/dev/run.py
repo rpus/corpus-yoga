@@ -103,6 +103,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
 import mcp_factoring  # noqa: E402
 import mcp_extraction  # noqa: E402  (the schema.ts reader, through the generated parser)
+import mcp_face  # noqa: E402  (the consumer and producer faces, #605)
 sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
 import grammar as grammar_module  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
@@ -1863,6 +1864,18 @@ def check_mcp_factoring(run) -> None:
     bad = mcp_factoring.disagreements(json.loads(have), snap, mcp_factoring.additions(), mcp_factoring.generated().constants)
     run(f'mcp: {target.stem} flattens to the snapshot', not bad,
         '\n    '.join(bad[:5]) if bad else None, check='mcp.factoring_agrees')
+    import jsonschema
+    meta = json.loads((REPO_ROOT / 'rsc' / 'reference' / 'JSONSchema' / 'draft-04' / 'schema.json').read_text())
+    for which in mcp_face.FACES:
+        detail = None
+        try:
+            derived = mcp_face.face(json.loads(have), which)
+            errors = sorted(jsonschema.Draft4Validator(meta).iter_errors(derived), key=lambda e: list(e.path))
+            if errors:
+                detail = f'{which} face: #/{"/".join(str(x) for x in errors[0].path)}: {errors[0].message[:160]}'
+        except (mcp_factoring.Conflict, AssertionError, KeyError) as e:
+            detail = f'{which} face: cannot derive from {rel} ({e})'
+        run(f'mcp: the {which} face derives from {target.stem} and is valid draft-04', detail is None, detail, check='mcp.faces_derivable')
     for lineage in lineages(mcp_factoring.SNAPSHOT_DIR):
         ts = lineage / 'schema.ts'
         rel = ts.relative_to(REPO_ROOT)
