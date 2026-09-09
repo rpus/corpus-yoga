@@ -10,9 +10,19 @@ Taken 2026-09-09 (reading-room) by `corpus-yoga reference sync`'s procedure from
 
 The protocol at this lineage: the same two-direction wire as 2024-11-05 - `ClientRequest` 13, `ServerRequest` 3, `ClientNotification` 4, `ServerNotification` 7, `ClientResult` 3, `ServerResult` 10 - and the same methods by namespace; what is new is content and annotation (`AudioContent`, `Annotations`, `ToolAnnotations`, the coarse read-only and destructive hints) and JSON-RPC batching (`JSONRPCBatchRequest`, `JSONRPCBatchResponse`), which the next lineage removes. No `@category` tags yet; the house layer rule does not apply.
 
-Against 2024-11-05: 5 definition names new, 1 absent - a name-level fact of upstream's files, not a house adjudication.
+### Replaces
 
-New: `Annotations`, `AudioContent`, `JSONRPCBatchRequest`, `JSONRPCBatchResponse`, `ToolAnnotations`.
+2024-11-05
 
-Absent: `Annotated`.
+#### Restricted
 
+- Definition names absent (1): `Annotated`.
+
+#### Relaxed
+
+- JSON-RPC batching (`JSONRPCBatchRequest`, `JSONRPCBatchResponse`), audio content, and `ToolAnnotations` - the coarse read-only, destructive, idempotent and open-world hints a tool may carry.
+- Definition names new (5): `Annotations`, `AudioContent`, `JSONRPCBatchRequest`, `JSONRPCBatchResponse`, `ToolAnnotations`.
+
+#### Refactored
+
+- `Annotated` becomes `Annotations`, the same audience-and-priority object under the name of what it is rather than what carries it.

@@ -474,10 +474,12 @@ rsc/reference/mcp/2025-06-18/CHANGELOG.md,11,doc,rsc/schema/protocol/mcpMessage/
 rsc/reference/mcp/2025-11-25/CHANGELOG.md,3,doc,rsc/reference/mcp/2025-11-25,Y,"The 2025-11-25 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-11-25/` at the "
 rsc/reference/mcp/2025-11-25/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2025-11-25 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2025-11-25/` at the "
 rsc/reference/mcp/2025-11-25/CHANGELOG.md,11,doc,rsc/model/model_join.csv,Y,"The house held this lineage before #572 as the schema family `rsc/schema/_reference/mcp` (v1 at 357adac, v2 at this comm"
+rsc/reference/mcp/2025-11-25/CHANGELOG.md,26,doc,rsc/model/model_join.csv,Y,"- Sampling carries tool use and tool result content (`ToolUseContent`, `ToolResultContent`, `ToolChoice`) - the model-fa"
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,3,doc,rsc/reference/mcp/2026-07-28,Y,"The 2026-07-28 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2026-07-28/` at the "
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,3,doc,rsc/reference/mcp/generate.md,Y,"The 2026-07-28 lineage of the Model Context Protocol schema, held verbatim under `rsc/reference/mcp/2026-07-28/` at the "
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,9,doc,rsc/reference/mcp/generate.md,Y,Taken 2026-09-09 (reading-room) by `corpus-yoga reference sync`'s procedure from upstream's `schema/2026-07-28/` at comm
 rsc/reference/mcp/2026-07-28/CHANGELOG.md,9,doc,rsc/schema/protocol/mcpMessage,Y,Taken 2026-09-09 (reading-room) by `corpus-yoga reference sync`'s procedure from upstream's `schema/2026-07-28/` at comm
+rsc/reference/mcp/2026-07-28/CHANGELOG.md,21,doc,rsc/schema/protocol/mcpMessage/unreachable.csv,Y,"- The wire loses a direction: `ServerRequest` is gone, a server sends requests to no one, and a client returns no result"
 rsc/reference/mcp/README.md,19,doc,rsc/schema/protocol/mcpMessage,Y,"`rsc/schema/protocol/mcpMessage` from it, and `corpus-yoga mcp reproduce` witnesses"
 rsc/reference/mcp/generate.md,39,doc,src/main/mcp/reproduce.sh,Y,`corpus-yoga mcp reproduce` (`src/main/mcp/reproduce.sh`) runs upstream's own
 rsc/rpus/documenter.json,2,$schema,rsc/rpus/documenter.json,Y,"""$schema"": ""./documenter.json"","

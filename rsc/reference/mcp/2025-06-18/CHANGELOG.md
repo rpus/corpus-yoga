@@ -10,9 +10,22 @@ Taken 2026-09-09 (reading-room) by `corpus-yoga reference sync`'s procedure from
 
 The protocol at this lineage: the two-direction wire grows one server request - `ServerRequest` a union of 4 (`ping`, `sampling/createMessage`, `roots/list` and the new `elicitation/create`), `ClientResult` of 4, `ClientRequest` 13, `ClientNotification` 4, `ServerNotification` 7, `ServerResult` 10 - still opened by `initialize`. `@category` tags begin here, on 79 of 98 declarations, and the house layer rule (`rsc/schema/protocol/mcpMessage/layer.csv` with `placement.csv`'s rows for this lineage, #595) partitions the 91 definitions as session 25, jsonrpc 15, agentic 15, prompts 11, resources 10, content 9, tools 6 - the agentic layer being sampling, roots and the first elicitation, each a server request with its own client result.
 
-Against 2025-03-26: 11 definition names new, 3 absent - a name-level fact of upstream's files, not a house adjudication.
+### Replaces
 
-New: `BaseMetadata`, `BooleanSchema`, `ContentBlock`, `ElicitRequest`, `ElicitResult`, `EnumSchema`, `NumberSchema`, `PrimitiveSchemaDefinition`, `ResourceLink`, `ResourceTemplateReference`, `StringSchema`.
+2025-03-26
 
-Absent: `JSONRPCBatchRequest`, `JSONRPCBatchResponse`, `ResourceReference`.
+#### Restricted
 
+- JSON-RPC batching is gone: a message is one request, notification or response, never an array of them.
+- Definition names absent (3): `JSONRPCBatchRequest`, `JSONRPCBatchResponse`, `ResourceReference`.
+
+#### Relaxed
+
+- `elicitation/create` - the server may ask the user, through the client, for structured input against a small primitive schema (`StringSchema`, `NumberSchema`, `BooleanSchema`, `EnumSchema`); `ServerRequest` grows from 3 to 4 and `ClientResult` with it.
+- `ContentBlock` gathers the content kinds a message may carry, and `ResourceLink` joins them.
+- Methods new: `elicitation/create`.
+- Definition names new (11): `BaseMetadata`, `BooleanSchema`, `ContentBlock`, `ElicitRequest`, `ElicitResult`, `EnumSchema`, `NumberSchema`, `PrimitiveSchemaDefinition`, `ResourceLink`, `ResourceTemplateReference`, `StringSchema`.
+
+#### Refactored
+
+- `ResourceReference` becomes `ResourceTemplateReference`, naming what it references.
