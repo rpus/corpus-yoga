@@ -5,6 +5,6 @@ tmp/cache/code-agents,code-agents,corpus-yoga pipeline run code-agents,src/main/
 tmp/cache/completions,,corpus-yoga completions sync,external:zsh; src/main/cli/prerequisites/prerequisites.sh,static zsh tab-completion derived from src/main/cli/
 tmp/cache/site,,corpus-yoga site render,,the data tables feeding the corpus page (render staging) — feedstock only (re-derived each run; the finished page lands in data/output/site/)
 tmp/cache/indexing,,corpus-yoga indexing list-candidates; corpus-yoga indexing capture,external:human; corpus-yoga indexing accept; corpus-yoga indexing reject,the pending-concept queue (candidates.txt) and the paid capture's staging before promotion to data/output/dashboard; a rebuildable derivation of data/output/dashboard minus data/output/indexing curation
-tmp/cache/model,,corpus-yoga model sync,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/schema/model.json
+tmp/cache/model,,corpus-yoga model sync,external:human,per-schema definition catalogues; candidates for the hand-curated rsc/model/model.json
 tmp/cache/mcp,,corpus-yoga mcp sync,external:human,the composition and alias tables the mcp factoring extracts from rsc/reference/mcp's schema.ts (#581) - the readable face of the derivation's inputs; rebuilt at every sync
 tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribution) — the incremental gate (#68); corpus-yoga test run --fresh bypasses it

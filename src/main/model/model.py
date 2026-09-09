@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-model.py — per-schema definition catalogues, candidates for rsc/schema/model.json.
+model.py — per-schema definition catalogues, candidates for rsc/model/model.json.
 Output: tmp/cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring
-rsc/schema/{pipeline}/{schema}/). rsc/schema/model.json is hand-curated from these.
+rsc/schema/{pipeline}/{schema}/). rsc/model/model.json is hand-curated from these.
 
 `model` is a NOUN: the catalogues. A bare invocation shows their current state and
 writes nothing (so there is no `status` verb — the bare noun IS the status). Only
@@ -69,13 +69,13 @@ def curation_report() -> None:
     queue = edge_queue()
     orphans = orphan_entries()
     gaps = coverage_gaps()
-    print(f'rsc/schema/model.json — {len(documented())} documented · {len(rejected())} rejected · '
+    print(f'rsc/model/model.json — {len(documented())} documented · {len(rejected())} rejected · '
           f'{len(queue)} shared type(s) obligated by model_join and undisposed · '
           f'{len(orphans)} documented but ungrounded · {len(gaps)} documented incompletely'
           + (' (GATES)' if queue or orphans or gaps else ''))
     for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0])):
         print(f'  ✗ {"/".join(sorted(names))} — model_join row(s) {", ".join(map(str, rows))}: '
-              'document in rsc/schema/model.json | reject into rsc/schema/model_rejected.txt')
+              'document in rsc/model/model.json | reject into rsc/model/model_rejected.txt')
     for name in orphans:
         print(f'  ✗ {name} — documented with no grounding model_join edge: '
               'curate the asserting edge, or retire the entry')
@@ -84,19 +84,19 @@ def curation_report() -> None:
               f'{", ".join(fams)} — add the occurrence(s)')
     shared = unrecorded_collisions()
     if shared:
-        print(f'FAIL: rsc/schema/model_join.csv - {len(shared)} definition name(s) '
+        print(f'FAIL: rsc/model/model_join.csv - {len(shared)} definition name(s) '
               'appear in two or more schema families with no row recording whether '
               'the definitions are one shared type or mere namesakes')
         print('    → record a verdict by adding one model_join.csv row per name, its '
-              'relationship column choosing a kind from rsc/schema/model_join_kinds.csv '
+              'relationship column choosing a kind from rsc/model/model_join_kinds.csv '
               '(identical / subset / name_collision / ...); machine-checked proposals '
               'sit ready to paste in tmp/cache/model/shared_name_candidates.csv')
     else:
-        print('rsc/schema/model_join.csv — every cross-family shared name disposed')
+        print('rsc/model/model_join.csv — every cross-family shared name disposed')
     for line, kind, cells in identity_violations():
         print(f'FAIL: model_join row {line} ({kind}) no longer holds at latest - {cells}')
         print('    → a one-sided mint falsified the edge: re-judge its relationship kind '
-              '(rsc/schema/model_join_kinds.csv) or restore the identity in the schemas')
+              '(rsc/model/model_join_kinds.csv) or restore the identity in the schemas')
     corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
                     REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
     if any(r.is_dir() for r in corpus_roots):
@@ -104,7 +104,7 @@ def curation_report() -> None:
             print(f'FAIL: model_join row {line} ({kind}) falsified by the corpus - '
                   f'{cell} carries a value in {datum}')
             print('    → the always-null note is stale: re-judge the edge '
-                  '(rsc/schema/model_join_kinds.csv names the kinds)')
+                  '(rsc/model/model_join_kinds.csv names the kinds)')
     else:
         print('model_join emptiness edges: unchecked — no browser-API or chat-exports '
               'corpus in this room')
@@ -183,13 +183,13 @@ def list_candidates() -> None:
           '(--all disposes the queue as read)')
     for line, kind, cells in identity_violations():
         print(f'  falsified identity edge: row {line} ({kind}) - {cells} - re-judge '
-              'the kind in rsc/schema/model_join.csv or restore the identity')
+              'the kind in rsc/model/model_join.csv or restore the identity')
     corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
                     REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print(f'  falsified emptiness edge: row {line} ({kind}) - {cell} carries '
-                  f'a value in {datum} - re-judge the kind in rsc/schema/model_join.csv')
+                  f'a value in {datum} - re-judge the kind in rsc/model/model_join.csv')
     else:
         print('  emptiness edges: unchecked - no browser-API or chat-exports corpus in this room')
 

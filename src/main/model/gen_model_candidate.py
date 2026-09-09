@@ -4,7 +4,7 @@ gen_model_candidate.py — Generate a per-schema definition catalogue.
 
 For each definition in a JSON Schema file, records its description and every
 JSON Pointer path at which it is referenced. The output is a candidate for
-informing rsc/schema/model.json — review it and curate rsc/schema/model.json by hand.
+informing rsc/model/model.json — review it and curate rsc/model/model.json by hand.
 
 Usage:
     python src/main/model/gen_model_candidate.py <schema-type> <schema-file>

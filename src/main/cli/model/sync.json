@@ -2,7 +2,8 @@
   "help": "(re-)generate every catalogue to agree with the schemas — idempotent",
   "args": [],
   "r": [
-    "rsc/schema"
+    "rsc/schema",
+    "rsc/model"
   ],
   "w": [
     "tmp/cache/model"

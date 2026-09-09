@@ -1,5 +1,5 @@
 {
-  "help": "adopt a machine proposal: the pre-filled row lands in rsc/schema/model_join.csv with its proposed kind",
+  "help": "adopt a machine proposal: the pre-filled row lands in rsc/model/model_join.csv with its proposed kind",
   "args": [
     {
       "name": "--all",
@@ -16,10 +16,11 @@
   ],
   "r": [
     "rsc/schema",
+    "rsc/model",
     "tmp/cache"
   ],
   "w": [
-    "rsc/schema/model_join.csv",
+    "rsc/model/model_join.csv",
     "tmp/cache/model"
   ]
 }

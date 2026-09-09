@@ -6,6 +6,7 @@
   "r": [
     "tmp/cache",
     "rsc/schema",
+    "rsc/model",
     "data/input"
   ]
 }

@@ -6,6 +6,12 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+2026-09-09: the `UserUUID` cross-reference in v1's description fields was
+amended in place: ../../model.json with the fragment `#/default/UserUUID` became
+`../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
+model moved to `rsc/model/` and its table lost the `default` wrapper (#591). A
+description change is not a validation change: no new version.
+
 ## v1
 
 Initial schema, minted 2026-08-24 with the manifest-era intake (#522): the

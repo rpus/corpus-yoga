@@ -1,7 +1,7 @@
 """
 model_curation.py — the model.json disposal loops' shared computation (issue #19).
 
-rsc/schema/model.json is the hand-curated cross-family type reference, and its
+rsc/model/model.json is the hand-curated cross-family type reference, and its
 WORKFLOW step read "update if needed" — unfalsifiable: nothing reported that it
 WAS needed, which is how the reference held one entry while model_join.csv grew
 to 144 correspondence rows. The discipline is TWO loops with different pressure
@@ -16,7 +16,7 @@ committed files only, so every number is identical on any clone:
   2. blocking, gated model_join → model.json. An edge whose relationship kind
      denotes ONE shared type (identical, snake_cased) obligates model.json:
      the type is DOCUMENTED there or REJECTED with a reason in
-     rsc/schema/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
+     rsc/model/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
      check_model_obligations (schema tier, gating) and by `corpus-yoga model`.
 
 model_join is a typed relation — a small linked-data graph over the schema
@@ -39,9 +39,10 @@ import sys as _sys
 _sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 from latest import latest_file  # noqa: E402
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
-MODEL_JSON = SCHEMA_DIR / 'model.json'
-MODEL_JOIN = SCHEMA_DIR / 'model_join.csv'
-REJECTED = SCHEMA_DIR / 'model_rejected.txt'
+MODEL_DIR = REPO / 'rsc' / 'model'
+MODEL_JSON = MODEL_DIR / 'model.json'
+MODEL_JOIN = MODEL_DIR / 'model_join.csv'
+REJECTED = MODEL_DIR / 'model_rejected.txt'
 
 JOIN_PATH_COLUMNS = ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')
 # The obligating predicates: kinds that assert ONE type shared across families
@@ -83,12 +84,12 @@ def name_scan() -> dict:
     return {n: sorted(f) for n, f in sorted(by_name.items()) if len(f) > 1}
 
 
-KINDS_TABLE = SCHEMA_DIR / 'model_join_kinds.csv'
+KINDS_TABLE = MODEL_DIR / 'model_join_kinds.csv'
 
 
 def kinds() -> dict:
     """{kind: claim_class} from the declared vocabulary - the relationship
-    column's one authority (rsc/schema/model_join_kinds.csv)."""
+    column's one authority (rsc/model/model_join_kinds.csv)."""
     with KINDS_TABLE.open(newline='') as fh:
         return {r['kind']: r['claim_class'] for r in csv.DictReader(fh)}
 
@@ -274,7 +275,7 @@ def accept_shared_name(row: dict, date: str) -> str:
     refused - that judgment is the curator's (or paid capture's, #471)."""
     if not row['relationship']:
         return (f"refused: {row['name']} carries no machine proposal - the shapes "
-                'diverge; judge the relationship kind by hand (rsc/schema/model_join_kinds.csv)')
+                'diverge; judge the relationship kind by hand (rsc/model/model_join_kinds.csv)')
     _append_join_row(row, row['relationship'],
                      f"adopted {date} from the worksheet's machine proposal: "
                      'structurally equal at latest')
@@ -442,7 +443,7 @@ def obligating_edges() -> list:
 
 def entries() -> dict:
     """{documented name: {family: [instance trails]}} from model.json."""
-    doc = json.loads(MODEL_JSON.read_text()).get('default', {})
+    doc = json.loads(MODEL_JSON.read_text())
     return {name: {fam: [_instance_trail(p) for p in ptrs]
                    for fam, ptrs in e.get('occurrences', {}).items()}
             for name, e in doc.items()}
@@ -528,8 +529,8 @@ def coverage_gaps() -> dict:
 
 
 def documented() -> set:
-    """Type names model.json documents (its `default` keys)."""
-    return set(json.loads(MODEL_JSON.read_text()).get('default', {}))
+    """Type names model.json documents (its keys)."""
+    return set(json.loads(MODEL_JSON.read_text()))
 
 
 def rejected() -> set:
