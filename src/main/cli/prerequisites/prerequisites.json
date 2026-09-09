@@ -20,6 +20,8 @@
     "ext/lib/serve_markdown",
     "ext/mnt",
     "src/requirements.txt",
-    "src/main/model/serve_assets.txt"
+    "src/main/model/serve_assets.txt",
+    "rsc/rpus/grammar",
+    "src/gen/grammar"
   ]
 }

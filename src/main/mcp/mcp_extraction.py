@@ -5,7 +5,7 @@ mcp_extraction.py - what the house factoring takes from upstream's schema.ts (#5
 schema.ts uses an exported type alias), the category tags (#595) and the exported
 constants. Read at every sync from the committed rsc/reference/mcp/<lineage>/schema.ts
 through the parser generated from the house TypeScript grammar
-(rsc/rpus/grammar/TypeScript, generated under src/main/grammar/TypeScript by
+(rsc/rpus/grammar/TypeScript, generated under src/gen/grammar/TypeScript by
 `corpus-yoga grammar sync`); the tables the factoring derives from it are written
 under tmp/cache/mcp/ as the readable face of the derivation's inputs, and are never
 hand-written.
@@ -25,25 +25,27 @@ Rules:
 The grammar is the reader: a declaration or type expression the grammar does not
 accept is a parse error naming the line, raised here, never a silent miss - the
 file is read whole or refused. A type expression is read as a tree (TypeExpr),
-never carried as text.
+never carried as text. The parser is generated on each machine (src/gen/grammar,
+gitignored); absent, every reading refuses with the remedy.
 """
 
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, cast
+import importlib
 
 SELF = 'src/main/mcp/mcp_extraction.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-GRAMMAR_PARSER = REPO / 'src' / 'main' / 'grammar' / 'TypeScript'
+GRAMMAR_PARSER = REPO / 'src' / 'gen' / 'grammar' / 'TypeScript'   # generated, gitignored - corpus-yoga grammar sync
 sys.path.insert(0, str(GRAMMAR_PARSER))
 from antlr4 import CommonTokenStream, InputStream  # noqa: E402
 from antlr4.error.ErrorListener import ErrorListener  # noqa: E402
-from TypeScriptLexer import TypeScriptLexer  # noqa: E402  (generated - corpus-yoga grammar sync)
-from TypeScriptParser import TypeScriptParser  # noqa: E402
+PARSER_REMEDY = (f'{GRAMMAR_PARSER.relative_to(REPO)} is absent - corpus-yoga grammar sync generates it from '
+                 'rsc/rpus/grammar/TypeScript (corpus-yoga prerequisites sync --apply does so with the rest)')
 
 PRIMITIVES = {'string', 'number', 'boolean', 'null', 'unknown', 'any'}
 
@@ -188,9 +190,26 @@ def _properties(ctx) -> dict[str, TypeExpr]:
     return out
 
 
+class ParserAbsent(AssertionError):
+    """The generated parser is not on this machine - a refusal of the derivation, with
+    the remedy."""
+
+
+def _parser():
+    """The generated lexer and parser classes, imported when first needed so that a
+    machine without them fails by name, not at import of this module."""
+    try:
+        lexer = importlib.import_module('TypeScriptLexer').TypeScriptLexer
+        parser = importlib.import_module('TypeScriptParser').TypeScriptParser
+    except ModuleNotFoundError as missing:
+        raise ParserAbsent(PARSER_REMEDY) from missing
+    return lexer, parser
+
+
 def parsed(ts: str, what: str = 'schema.ts'):
     """The parse tree of a schema.ts text and its token stream; a text the grammar
-    refuses raises ParseRefused naming the line."""
+    refuses raises ParseRefused naming the line; an absent parser raises ParserAbsent."""
+    TypeScriptLexer, TypeScriptParser = _parser()
     lexer = TypeScriptLexer(InputStream(ts))
     stream = CommonTokenStream(lexer)
     parser = TypeScriptParser(stream)
@@ -243,7 +262,7 @@ def categories(ts: str) -> dict[str, str | None]:
         d = decl.interfaceDeclaration() or decl.typeAliasDeclaration()
         if d is None:
             continue
-        comments = stream.getHiddenTokensToLeft(decl.start.tokenIndex, TypeScriptLexer.COMMENT) or []
+        comments = stream.getHiddenTokensToLeft(decl.start.tokenIndex, _parser()[0].COMMENT) or []
         doc = comments[-1].text if comments else ''
         tag = None
         if doc.startswith('/**'):

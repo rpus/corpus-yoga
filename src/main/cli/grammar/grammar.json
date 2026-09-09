@@ -1,11 +1,11 @@
 {
-  "summary": "the parsers generated from the house grammars under rsc/rpus/grammar, committed under src/main/grammar (bare: is each current with its grammar?)",
+  "summary": "the parsers generated from the house grammars under rsc/rpus/grammar into src/gen/grammar, machine-local (bare: is each generated and current with its grammar?)",
   "target": "src/main/grammar/grammar.py",
   "calculus": "L9",
   "args": [],
   "r": [
     "rsc/rpus/grammar",
-    "src/main/grammar"
+    "src/gen/grammar"
   ],
   "x": [
     "antlr4",

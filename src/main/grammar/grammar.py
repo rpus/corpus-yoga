@@ -3,25 +3,29 @@
 grammar.py - the parsers generated from the house grammars (#597): for every
 project under rsc/rpus/grammar/<project>/ (its top-level .g4 files, with
 <project>/imports/ as the library where present), the Python-target lexer, parser
-and listener ANTLR generates, committed under src/main/grammar/<project>/ so every
-reader of a grammar - the mcp extraction reads schema.ts through
-src/main/grammar/TypeScript - runs from committed code with the runtime
-src/requirements.txt pins (antlr4-python3-runtime, the tool's own version).
+and listener ANTLR generates, under src/gen/grammar/<project>/ - machine-local and
+gitignored, like the editor's .antlr/ output beside each grammar, generated on
+each machine from the committed grammar by a declared tool at a declared version
+(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version).
+Every reader of a grammar runs from it: the mcp extraction reads schema.ts through
+src/gen/grammar/TypeScript, so the mcp verbs and the dev gate's mcp checks need it
+generated first - `corpus-yoga prerequisites sync --apply` generates it with the
+rest of what a machine needs.
 
 `grammar` is a NOUN: the generated parsers. A bare invocation reports whether each
-project's committed parser is what the tool generates from its grammar now and
-writes nothing; only `sync` writes, regenerating what differs and removing what the
-grammar no longer produces. Both need the tool: `antlr4` from antlr4-tools in the
-venv, which on first use fetches antlr4-<version>-complete.jar into ~/.m2 (a send,
-refused under YOGA_NO_SEND=1 - the status then reports UNVERIFIED and holds what is
-committed) and runs it on the machine's java. Re-running is silence (L1). The dev
-gate holds the committed parsers current where the tool is present
-(grammar.parser_current) and holds every mcp lineage's schema.ts parsed through the
-committed parser everywhere (mcp.lineages_parse).
+project's parser is present and what the tool generates from its grammar now, and
+writes nothing; only `sync` writes, generating what is absent, regenerating what
+differs and removing what the grammar no longer produces. Both need the tool:
+`antlr4` from antlr4-tools in the venv, which on first use fetches
+antlr4-<version>-complete.jar into ~/.m2 (a send, refused under YOGA_NO_SEND=1 - the
+status then reports presence only) and runs it on the machine's java. Re-running
+is silence (L1). The dev gate holds every parser present and, where the tool is
+present, current (grammar.parser_current), and every mcp lineage's schema.ts parsed
+through it (mcp.lineages_parse).
 
 Usage:
-    corpus-yoga grammar          # status: is every committed parser what its grammar generates?
-    corpus-yoga grammar sync     # regenerate what differs, remove what is no longer generated
+    corpus-yoga grammar          # status: is every parser generated, and what its grammar generates?
+    corpus-yoga grammar sync     # generate what is absent, regenerate what differs, remove what is no longer generated
 """
 
 import shutil
@@ -41,7 +45,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared m
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
-GENERATED = REPO / 'src' / 'main' / 'grammar'
+GENERATED = REPO / 'src' / 'gen' / 'grammar'
 TOOL_VERSION = '4.13.2'      # the runtime src/requirements.txt pins is this version's
 REMEDY = 'antlr4 (antlr4-tools) is not in the venv - corpus-yoga prerequisites sync --apply installs src/requirements.txt'
 
@@ -81,9 +85,13 @@ def status() -> int:
     for project in projects():
         rel = (GENERATED / project.name).relative_to(REPO)
         have = held(project)
+        if not have:
+            stale += 1
+            print(f'grammar: {project.name}: {rel} ABSENT - corpus-yoga grammar sync generates it from rsc/rpus/grammar/{project.name}')
+            continue
         if not tool() or not may_send():
             reason = 'YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv'
-            print(f'grammar: {project.name}: {len(have)} committed file(s) under {rel} - currency UNVERIFIED ({reason})')
+            print(f'grammar: {project.name}: {len(have)} generated file(s) under {rel} - currency UNVERIFIED ({reason})')
             continue
         want = generated(project)
         differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))

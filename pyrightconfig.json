@@ -18,11 +18,10 @@
     "src/main/mcp",
     "src/test/dev",
     "src/main/grammar",
-    "src/main/grammar/TypeScript"
+    "src/gen/grammar/TypeScript"
   ],
   "typeCheckingMode": "standard",
   "exclude": [
-    "src/main/grammar/JSONSchema",
-    "src/main/grammar/TypeScript"
+    "src/gen"
   ]
 }
