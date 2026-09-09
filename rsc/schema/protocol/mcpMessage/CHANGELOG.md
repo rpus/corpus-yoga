@@ -8,11 +8,16 @@ version from the two upstream files held verbatim under `rsc/reference/mcp` (who
 composition (which interface extends which) and the alias sites (where an exported
 type alias is used), extracted by the rules `src/main/mcp/mcp_extraction.py`
 states (#581) and written under `tmp/cache/mcp/` as their readable face; from
-`schema.json` every definition's shape - and from the two hand-written tables
-beside this file, `description.csv`, house text for the definitions the snapshot
-leaves undescribed, and `unreachable.csv`, the definitions no message carries
-(#588). Every extracted row is verified against the snapshot before use, and the
-derivation refuses an unreachable table that disagrees with the wire. One
+`schema.json` every definition's shape - and from the hand-written tables beside
+this file: `description.csv`, house text for the definitions the snapshot leaves
+undescribed; `unreachable.csv`, the definitions no message carries (#588);
+`layer.csv`, the house's reading of the `@category` tags schema.ts carries (the
+third extracted table) into the layers the protocol reads by - jsonrpc, session,
+resources, tools, prompts, content, agentic, tasks - and `placement.csv`, the
+definitions neither the tag nor the composition places, each with its reason
+(#595). Every extracted row is verified against the snapshot before use, the
+derivation refuses an unreachable table that disagrees with the wire and a
+definition no rule places, and every description ends with its layer. One
 instance is one JSON-RPC message; the root is the house definition `MCPMessage`,
 which admits exactly what the wire admits. The dev gate holds the version file
 byte-identical to the derivation (`mcp.factoring_current`) and every snapshot
@@ -21,6 +26,49 @@ definition equal to its house counterpart resolved and normalized
 holds over it, `structure.all_definitions_reachable` reading `unreachable.csv`.
 
 ---
+
+## v4
+
+Derived 2026-09-09 (reading-room) from the same snapshot as v3 - lineage 2026-07-28
+at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
+that every definition now carries its layer (#595). The derivation extracts the
+`@category` tag schema.ts carries on 135 of its 155 declarations
+(`tmp/cache/mcp/category.csv`, the third extracted table), reads it into the house
+layers by `layer.csv` - a method tag by its first path segment, a named tag as
+itself - places an untagged definition by its alias target, its union members or
+its descendants when they agree, and places the residue by `placement.csv`, each
+row with its reason: the naming and pagination and caching bases whose descendants
+span layers (`BaseMetadata`, `Icons`, `CacheableResult`, `PaginatedRequest`,
+`PaginatedResult`), the direction unions (`ClientRequest`, `ServerResult`), the
+continuation's unreferenced params (`InputResponseRequestParams`), and the five
+house definitions. A definition none of these place refuses the derivation; a
+placement for one the rule places refuses as a restatement. Every description ends
+with `Layer: <layer>.`, so the version file reads by concern - jsonrpc 44 (the
+JSON-RPC kernel: envelopes and headers, the common types, the error objects and
+their wrappers, the root), agentic 36 (sampling, elicitation, roots and the
+input-required round trip), session 28 (discover and capabilities, notifications,
+pagination, caching, naming), resources 19 (resources and subscriptions), prompts
+16 (prompts and completion), content 9, tools 9 - and the bare `corpus-yoga mcp`
+reports the partition. 161 definitions, as v3. The diff is 324 lines: one clause
+per description, the root's among them, and the family description naming the two
+tables.
+
+### Replaces
+
+v3
+
+#### Restricted
+
+None. A description validates nothing.
+
+#### Relaxed
+
+None.
+
+#### Refactored
+
+- Every definition's description ends with its layer clause; the family
+  description names `layer.csv` and `placement.csv`.
 
 ## v3
 

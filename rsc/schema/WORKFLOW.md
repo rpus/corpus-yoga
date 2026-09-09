@@ -310,12 +310,18 @@ derives its latest version from the two upstream files - the composition and the
 alias sites extracted from schema.ts by the rules `src/main/mcp/mcp_extraction.py`
 states (#581), every row verified against the snapshot, and written under
 `tmp/cache/mcp/` as their readable face (`rsc/cache_io.csv`); every definition's
-shape from schema.json - and from the two hand-written tables beside the version
-file, `rsc/schema/protocol/mcpMessage/description.csv` (house text for the
-definitions the snapshot leaves undescribed) and
-`rsc/schema/protocol/mcpMessage/unreachable.csv` (the definitions no message
-carries, which `structure.all_definitions_reachable` reads and the derivation
-refuses to disagree with). The dev gate holds the file byte-identical to the
+shape from schema.json - and from the hand-written tables beside the version
+file: `rsc/schema/protocol/mcpMessage/description.csv` (house text for the
+definitions the snapshot leaves undescribed), `rsc/schema/protocol/mcpMessage/unreachable.csv`
+(the definitions no message carries, which `structure.all_definitions_reachable`
+reads and the derivation refuses to disagree with), `rsc/schema/protocol/mcpMessage/layer.csv`
+(the house's reading of the `@category` tags schema.ts carries - the third
+extracted table - into the layers the protocol reads by: jsonrpc, session,
+resources, tools, prompts, content, agentic, tasks; #595) and
+`rsc/schema/protocol/mcpMessage/placement.csv` (the definitions neither the tag nor
+the composition places, each with its reason). Every definition's description ends
+with its layer, the bare `corpus-yoga mcp` reports the partition, and a definition
+the rule cannot place refuses the derivation. The dev gate holds the file byte-identical to the
 derivation (`mcp.factoring_current`) and every snapshot definition equal to its
 house counterpart flattened (`mcp.factoring_agrees`). Its history lives in
 `rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's

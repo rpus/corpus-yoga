@@ -42,6 +42,8 @@ _DECLARED_INTERFACE = re.compile(r'^export interface (\w+)', re.M)   # what the 
 _DECLARED_ALIAS = re.compile(r'^export type (\w+)', re.M)
 _OMIT = re.compile(r'^Omit<\s*(\w+)\s*,')
 _PROPERTY = re.compile(r'^(\w+)\??\s*:\s*(.+)$', re.S)
+_TAGGED = re.compile(r'(/\*\*(?:(?!\*/).)*?\*/)\s*export (?:interface|type) (\w+)', re.S)   # a JSDoc block and the declaration it documents
+_CATEGORY = re.compile(r'@category ([^\n*]*)')
 
 
 @dataclass
@@ -146,6 +148,20 @@ def declarations(ts: str) -> tuple[list[Interface], list[Alias]]:
                         f'extraction does not read: {", ".join(unread)} - extend the patterns, or the '
                         f'definition would stand flat in silence')
     return interfaces, aliases
+
+
+def categories(ts: str) -> dict[str, str | None]:
+    """{declared name: its @category tag, None where the JSDoc carries none} - read from
+    the raw text, since the tags live in the comments stripped() removes; every declared
+    interface and type alias gets an entry, a backticked method tag its bare method."""
+    tagged: dict[str, str | None] = {}
+    for found in _TAGGED.finditer(ts):
+        doc, name = found.group(1), found.group(2)
+        m = _CATEGORY.search(doc)
+        tagged[name] = m.group(1).strip().strip('`') if m else None
+    text = stripped(ts)
+    declared = set(_DECLARED_INTERFACE.findall(text)) | set(_DECLARED_ALIAS.findall(text))
+    return {n: tagged.get(n) for n in sorted(declared)}
 
 
 def composition(interfaces: list[Interface]) -> dict[str, list[str]]:
