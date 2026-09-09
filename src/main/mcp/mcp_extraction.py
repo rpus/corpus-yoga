@@ -167,8 +167,7 @@ def _primary(ctx) -> TypeExpr:
         return TypeExpr('typeof', name=ctx.typeQuery().Identifier().getText())
     if ctx.typeReference():
         ref = ctx.typeReference()
-        args = [(_expr(a.typeExpression()) if a.typeExpression() else TypeExpr('literal', name=a.StringLiteral().getText()))
-                for a in (_all(ref.typeArgumentList().typeArgument()) if ref.typeArgumentList() else [])]
+        args = [_expr(a.typeExpression()) for a in (_all(ref.typeArgumentList().typeArgument()) if ref.typeArgumentList() else [])]
         return TypeExpr('reference', name=ref.Identifier().getText(), args=args)
     if ctx.objectType():
         return TypeExpr('object', properties=_properties(ctx.objectType()))
@@ -232,8 +231,7 @@ def declarations(ts: str) -> tuple[list[Interface], list[Alias]]:
                 for ref in _all(d.extendsClause().typeReference()):
                     name = ref.Identifier().getText()
                     if name == 'Omit' and ref.typeArgumentList():
-                        first = _all(ref.typeArgumentList().typeArgument())[0]
-                        base = _expr(first.typeExpression()).reference if first.typeExpression() else None
+                        base = _expr(_all(ref.typeArgumentList().typeArgument())[0].typeExpression()).reference
                         assert base, f'{d.Identifier().getText()}: Omit of no named base'
                         name = base
                     bases.append(name)

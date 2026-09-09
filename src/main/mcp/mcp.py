@@ -80,7 +80,11 @@ def status() -> int:
     target = _target()
     rel = target.relative_to(REPO)
     snapshot_path, snap = factoring.snapshot()
-    shapes, declared, rows = factoring.inputs()
+    try:
+        shapes, declared, rows = factoring.inputs()
+    except AssertionError as e:                 # the parser absent, or schema.ts refused
+        print(f'mcp: {target.relative_to(REPO)} NOT derivable - {e}')
+        return 1
     try:
         wanted = factoring.rendered(factoring.factored(snap, factoring.descriptions(), declared, rows, factoring.provenance(), factoring.unreachable(),
                                                        factoring.categories(), factoring.layer_rule(), factoring.placements(factoring.provenance()['lineage'])))
@@ -122,7 +126,11 @@ def status() -> int:
 def sync() -> int:
     target = _target()
     snapshot_path, snap = factoring.snapshot()
-    shapes, declared, rows = factoring.inputs()
+    try:
+        shapes, declared, rows = factoring.inputs()
+    except AssertionError as e:                 # the parser absent, or schema.ts refused
+        print(f'mcp: {target.relative_to(REPO)} NOT derivable - {e}')
+        return 1
     if not _tables_current(declared, rows):
         for path in factoring.written_tables(declared, rows, factoring.categories()):
             print(f'  ✓ {path.relative_to(REPO)}')
