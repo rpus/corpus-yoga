@@ -1,4 +1,4 @@
-grammar JSONSchema;
+grammar draft04;
 json: WhiteSpace* value WhiteSpace* EOF;
 value: primitiveValue | containerValue;
 primitiveValue:

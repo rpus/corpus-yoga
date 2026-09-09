@@ -34,7 +34,7 @@ README.md,55,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rs
 README.md,55,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
 README.md,55,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
 README.md,56,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
-README.md,57,doc,rsc/rpus/grammar/JSONSchema.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,57,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,57,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,58,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,58,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
@@ -1102,7 +1102,9 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/reference/mcp/2026-07-28/schema.json,Y,
 ,,,rsc/reference/mcp/2026-07-28/schema.ts,Y,
 ,,,rsc/reference/mcp/README.md,Y,
-,,,rsc/rpus/grammar/imports/JSON.g4,Y,
+,,,rsc/rpus/grammar/JSONSchema/imports/JSON.g4,Y,
+,,,rsc/rpus/grammar/TypeScript/TypeScriptLexer.g4,Y,
+,,,rsc/rpus/grammar/TypeScript/TypeScriptParser.g4,Y,
 ,,,rsc/schema/browser-captures/apiConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/browser-captures/markdownConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/chat-exports/login_history/CHANGELOG.md,Y,
