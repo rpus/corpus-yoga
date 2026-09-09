@@ -129,6 +129,20 @@ check_tools() {
   else
     todo reader "docker not found — corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses; install via: brew install --cask docker"
   fi
+  # Informational, never a ✗: the gate's grammar.parser_current check regenerates the
+  # committed parsers from rsc/rpus/grammar through antlr4 (antlr4-tools, a python
+  # package the venv carries, which runs the tool jar on the machine's java) and skips
+  # when the tool is absent - the committed parsers serve as they are, and the mcp
+  # extraction reads schema.ts through them without the tool.
+  if [[ -x "$VENV/bin/antlr4" ]]; then
+    if command -v java &>/dev/null; then
+      ok "antlr4 (antlr4-tools) and java ($(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')) — corpus-yoga test run holds the committed parsers current with their grammars (grammar.parser_current); corpus-yoga grammar sync regenerates them"
+    else
+      todo reader "java not found — antlr4 has no runtime to run its tool on; corpus-yoga test run skips grammar.parser_current and corpus-yoga grammar sync refuses; install via: brew install openjdk"
+    fi
+  else
+    todo venv "antlr4 not found — corpus-yoga test run skips grammar.parser_current and corpus-yoga grammar sync refuses; it is in src/requirements.txt: ./src/main/cli/prerequisites/prerequisites.sh sync --apply"
+  fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 

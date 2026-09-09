@@ -102,6 +102,9 @@ import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cac
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
 import mcp_factoring  # noqa: E402
+import mcp_extraction  # noqa: E402  (the schema.ts reader, through the committed parser)
+sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
+import grammar as grammar_module  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
 import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
 
@@ -1859,6 +1862,15 @@ def check_mcp_factoring(run) -> None:
     bad = mcp_factoring.disagreements(json.loads(have), snap)
     run(f'mcp: {target.stem} flattens to the snapshot', not bad,
         '\n    '.join(bad[:5]) if bad else None, check='mcp.factoring_agrees')
+    for lineage in lineages(mcp_factoring.SNAPSHOT_DIR):
+        ts = lineage / 'schema.ts'
+        rel = ts.relative_to(REPO_ROOT)
+        detail = None
+        try:
+            mcp_extraction.parsed(ts.read_text(), str(rel))
+        except mcp_extraction.ParseRefused as refused:
+            detail = str(refused)
+        run(f'mcp: {rel} parses through the house TypeScript grammar', detail is None, detail, check='mcp.lineages_parse')
 
 
 def check_mcp_reproducible(run) -> None:
@@ -1885,6 +1897,25 @@ def check_mcp_reproducible(run) -> None:
             detail = '\n    '.join(lines[-12:])
     run("mcp: schema.json reproduces from schema.ts through upstream's generator", ok, detail,
         check='mcp.reproducible')
+
+
+def check_grammar(run) -> None:
+    """Every committed parser under src/main/grammar/<project>/ is what antlr4
+    generates from rsc/rpus/grammar/<project>/ now (#597). Needs the tool (antlr4 from
+    antlr4-tools in the venv, java) and its first use fetches the tool jar, a send:
+    YOGA_NO_SEND=1 skips it and so does a machine without the tool - the label is
+    CONSTANT and the result passes when the generation did not happen, as
+    mcp.reproducible does, so the committed report is byte-identical everywhere."""
+    for project in grammar_module.projects():
+        ok, detail = True, None
+        if may_send() and grammar_module.tool():
+            have, want = grammar_module.held(project), grammar_module.generated(project)
+            differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
+            ok = not differing
+            detail = None if ok else (f'src/main/grammar/{project.name}: {", ".join(differing)} differ from what '
+                                      f'antlr4 {grammar_module.TOOL_VERSION} generates - corpus-yoga grammar sync regenerates')
+        run(f'grammar: {project.name}: the committed parser is what its grammar generates', ok, detail,
+            check='grammar.parser_current')
 
 
 def check_reference(run) -> None:
@@ -2293,7 +2324,8 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_obligations': SCHEMA + MODEL + ['src'],
     'check_reference': ['rsc/reference'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
-    'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp'],
+    'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar'],
+    'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp', 'src/main/grammar'],
     'check_mcp_reproducible': ['rsc/reference/mcp', 'src/main/mcp'],
 }
 
@@ -2539,6 +2571,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_occurrences, tier='schema')
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
+        run_section(check_grammar, tier='schema')
         run_section(check_reference, tier='schema')
         run_section(check_mcp_factoring, tier='schema')
         run_section(check_mcp_reproducible, tier='schema')

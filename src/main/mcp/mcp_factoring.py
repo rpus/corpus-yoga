@@ -8,8 +8,9 @@ Upstream's schema.json inlines every message's envelope (jsonrpc, id, method,
 params) because its TypeScript-to-JSON generator flattens `extends`, and it inlines
 every type alias (Cursor, ResultType, EmptyResult, JSONArray, the enum-schema
 unions) while still emitting the alias definitions, dead. Two tables restore what
-schema.ts states - extracted from the committed schema.ts at every sync by
-mcp_extraction.py's rules (#581), written under tmp/cache/mcp/ as their readable
+schema.ts states - read from the committed schema.ts at every sync by
+mcp_extraction.py through the parser generated from the house TypeScript grammar
+(#581, #597), written under tmp/cache/mcp/ as their readable
 face - and one is house prose beside the family's version; every row is VERIFIED
 against the snapshot before it is used, so a row the data does not bear refuses the
 derivation rather than misstating the schema:

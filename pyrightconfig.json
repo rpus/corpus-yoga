@@ -16,7 +16,13 @@
     "src/main/pipeline/code-agents",
     "src/main/model",
     "src/main/mcp",
-    "src/test/dev"
+    "src/test/dev",
+    "src/main/grammar",
+    "src/main/grammar/TypeScript"
   ],
-  "typeCheckingMode": "standard"
+  "typeCheckingMode": "standard",
+  "exclude": [
+    "src/main/grammar/JSONSchema",
+    "src/main/grammar/TypeScript"
+  ]
 }

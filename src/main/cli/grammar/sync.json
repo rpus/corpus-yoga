@@ -1,0 +1,11 @@
+{
+  "help": "regenerate every committed parser that differs from what antlr4 generates from its grammar now, and remove what the grammar no longer generates; silent when current (refused loudly under YOGA_NO_SEND)",
+  "args": [],
+  "r": [
+    "rsc/rpus/grammar",
+    "src/main/grammar"
+  ],
+  "w": [
+    "src/main/grammar"
+  ]
+}

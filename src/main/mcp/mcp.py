@@ -2,7 +2,8 @@
 """
 mcp.py - the house factoring of the MCP schema, rsc/schema/protocol/mcpMessage,
 derived from the two committed upstream files under rsc/reference/mcp: schema.ts,
-whose extends clauses and type aliases mcp_extraction.py reads (#581), and
+whose extends clauses, type aliases and category tags mcp_extraction.py reads through the
+parser generated from the house TypeScript grammar (#581, #597), and
 schema.json, the snapshot every definition is verified against.
 
 `mcp` is a NOUN: the derived schema. A bare invocation shows its state and writes

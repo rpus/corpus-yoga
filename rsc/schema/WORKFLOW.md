@@ -273,7 +273,7 @@ Open `rsc/model/model_join.csv` and:
 per upstream project and one directory per lineage upstream publishes, named as
 upstream names it (#587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
 the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
-`corpus-yoga mcp sync`, which extracts its extends clauses and type aliases - #581 -
+`corpus-yoga mcp sync`, which reads it through the parser generated from the house TypeScript grammar (#597) for its extends clauses, type aliases and category tags -
 and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
 into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
 `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
@@ -307,8 +307,10 @@ validates against the committed meta-schema (`check_schema_meta_validity`).
 `rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a
 committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
 derives its latest version from the two upstream files - the composition and the
-alias sites extracted from schema.ts by the rules `src/main/mcp/mcp_extraction.py`
-states (#581), every row verified against the snapshot, and written under
+alias sites `src/main/mcp/mcp_extraction.py` reads from schema.ts through the parser
+generated from `rsc/rpus/grammar/TypeScript` (#581, #597; a form the grammar does
+not accept refuses the derivation naming the line), every row verified against the
+snapshot, and written under
 `tmp/cache/mcp/` as their readable face (`rsc/cache_io.csv`); every definition's
 shape from schema.json - and from the hand-written tables beside the version
 file: `rsc/schema/protocol/mcpMessage/description.csv` (house text for the

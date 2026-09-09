@@ -1,0 +1,19 @@
+{
+  "summary": "the parsers generated from the house grammars under rsc/rpus/grammar, committed under src/main/grammar (bare: is each current with its grammar?)",
+  "target": "src/main/grammar/grammar.py",
+  "calculus": "L9",
+  "args": [],
+  "r": [
+    "rsc/rpus/grammar",
+    "src/main/grammar"
+  ],
+  "x": [
+    "antlr4",
+    "java"
+  ],
+  "sends": {
+    "antlr4-tools (Maven Central)": [
+      "fetches antlr4-4.13.2-complete.jar into ~/.m2 on the tool's first use, then runs it on the machine's java (UNVERIFIED under YOGA_NO_SEND for the status; refused loudly for the sync)"
+    ]
+  }
+}
