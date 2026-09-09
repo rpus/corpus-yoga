@@ -1,4 +1,4 @@
 "name","reason"
-"ToolInputComputerUse","The computer_use tool's input, documented from the API reference; no bulk export observed carries the tool, so no block references it."
-"ToolInputTextEditor","The text_editor tool's input, documented from the API reference; no bulk export observed carries the tool, so no block references it."
-"ToolInputCodeExecution","The code_execution tool's input, documented from the API reference; no bulk export observed carries the tool, so no block references it."
+"ToolInputComputerUse","The computer_use tool's input, documented from the API reference; no tool-use block of this family names the tool (v19, reading-room, 2026-09-09), so no definition references it."
+"ToolInputTextEditor","The text_editor tool's input, documented from the API reference; no tool-use block of this family names the tool (v19, reading-room, 2026-09-09), so no definition references it."
+"ToolInputCodeExecution","The code_execution tool's input, documented from the API reference; no tool-use block of this family names the tool (v19, reading-room, 2026-09-09), so no definition references it."
