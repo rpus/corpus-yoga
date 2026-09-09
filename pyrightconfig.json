@@ -23,5 +23,8 @@
   "typeCheckingMode": "standard",
   "exclude": [
     "src/gen"
+  ],
+  "ignore": [
+    "src/gen"
   ]
 }
