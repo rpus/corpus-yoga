@@ -36,9 +36,12 @@ derivation rather than misstating the schema:
   snapshot leaves undescribed - hand-written, committed beside the version file.
 - category (definition, category): the @category tag schema.ts carries on a
   declaration, extracted with the other two tables (#595).
-- layer.csv (category, layer): the house's reading of upstream's categories - a
-  method tag by its first path segment, a named tag as itself - into the layers the
-  protocol reads by; hand-written beside the version file. A definition the tag
+- layer.csv (layer, reading): the layers the protocol reads by, one row each -
+  the closed vocabulary every rule and placement row draws on; hand-written
+  beside the version file.
+- category_layer.csv (category, layer): the house's reading of upstream's
+  categories - a method tag by its first path segment, a named tag as itself - into
+  those layers; hand-written beside the version file. A definition the tag
   places, the alias target, the union members or the descendants place (when they
   agree), else placement.csv (lineage, definition, layer, reason) places by hand;
   a definition none of these place refuses the derivation, and a placement row for a
@@ -87,7 +90,8 @@ SNAPSHOT_DIR = REPO / 'rsc/reference/mcp'
 PROVENANCE   = SNAPSHOT_DIR / 'provenance.csv'
 FAMILY_DIR   = REPO / 'rsc/schema/protocol/mcpMessage'
 DESCRIPTIONS = FAMILY_DIR / 'description.csv'
-LAYER_RULE   = FAMILY_DIR / 'layer.csv'
+LAYERS       = FAMILY_DIR / 'layer.csv'
+LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
 PLACEMENT    = FAMILY_DIR / 'placement.csv'
 UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
 CACHE_DIR    = REPO / 'tmp/cache/mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
@@ -214,6 +218,10 @@ def categories() -> dict[str, str | None]:
     return extraction.categories(schema_ts().read_text())
 
 
+def layer_readings() -> dict[str, str]:
+    return {row['layer']: row['reading'] for row in _rows(LAYERS)}
+
+
 def layer_rule() -> dict[str, str]:
     return {row['category']: row['layer'] for row in _rows(LAYER_RULE)}
 
@@ -233,6 +241,10 @@ def layers(definitions: dict, tagged: dict, rule: dict, placed: dict, declared: 
     untagged one by its alias target, its union members or its descendants when they
     agree; the residue by placement.csv; anything else refuses. A placement for a
     definition the rule places refuses as a restatement."""
+    known = set(layer_readings())
+    assert known, f'{LAYERS.relative_to(REPO)} names no layer'
+    unknown = sorted({(c, l) for c, l in rule.items() if l not in known})
+    assert not unknown, f'{LAYER_RULE.relative_to(REPO)} names a layer {LAYERS.relative_to(REPO)} does not: {unknown}'
     layer: dict[str, str] = {}
     for name in definitions:
         tag = tagged.get(name)
@@ -270,9 +282,8 @@ def layers(definitions: dict, tagged: dict, rule: dict, placed: dict, declared: 
     assert not residue, (f'no layer for {residue}: schema.ts tags none of them, their targets, members or '
                          f'descendants disagree or are unplaced, and {PLACEMENT.relative_to(REPO)} places none - '
                          'place each with its reason')
-    known = set(rule.values())
     strange = sorted({(n, l) for n, l in layer.items() if l not in known})
-    assert not strange, f'{PLACEMENT.relative_to(REPO)} names a layer {LAYER_RULE.relative_to(REPO)} never does: {strange}'
+    assert not strange, f'{PLACEMENT.relative_to(REPO)} names a layer {LAYERS.relative_to(REPO)} does not: {strange}'
     return layer
 
 
@@ -845,8 +856,9 @@ def factored(snapshot_doc: dict, described: dict, declared: dict, alias_rows: li
             'row verified against the snapshot at derivation. Definitions the snapshot leaves undescribed take their text from '
             'rsc/schema/protocol/mcpMessage/description.csv; the definitions no message carries are declared in '
             'rsc/schema/protocol/mcpMessage/unreachable.csv. Every description ends with the definition\'s layer - the '
-            "house's reading of the @category tag schema.ts carries, by rsc/schema/protocol/mcpMessage/layer.csv "
-            '(category to layer) and placement.csv (what the tag and the composition cannot place) - so the schema reads '
+            "house's reading of the @category tag schema.ts carries, by rsc/schema/protocol/mcpMessage/layer.csv (the layers, "
+            'each with its reading), category_layer.csv (category to layer) and placement.csv (what the tag and the '
+            'composition cannot place) - so the schema reads '
             'by concern. One instance is one JSON-RPC message.'
         ),
         'allOf': [{'$ref': f'#/definitions/{ROOT_DEFINITION}'}],

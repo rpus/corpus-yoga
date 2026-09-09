@@ -11,11 +11,12 @@ states (#581) and written under `tmp/cache/mcp/` as their readable face; from
 `schema.json` every definition's shape - and from the hand-written tables beside
 this file: `description.csv`, house text for the definitions the snapshot leaves
 undescribed; `unreachable.csv`, the definitions no message carries (#588);
-`layer.csv`, the house's reading of the `@category` tags schema.ts carries (the
-third extracted table) into the layers the protocol reads by - jsonrpc, session,
-resources, tools, prompts, content, agentic, tasks - and `placement.csv`, the
-definitions neither the tag nor the composition places, each with its reason
-(#595). Every extracted row is verified against the snapshot before use, the
+`layer.csv`, the layers the protocol reads by, one row each with its reading -
+jsonrpc, session, resources, tools, prompts, content, agentic, tasks - the closed
+vocabulary; `category_layer.csv`, the house's reading of the `@category` tags
+schema.ts carries (the third extracted table) into those layers; and
+`placement.csv`, the definitions neither the tag nor the composition places, each
+with its reason (#595). Every extracted row is verified against the snapshot before use, the
 derivation refuses an unreachable table that disagrees with the wire and a
 definition no rule places, and every description ends with its layer. One
 instance is one JSON-RPC message; the root is the house definition `MCPMessage`,
@@ -34,8 +35,8 @@ at commit `271ecc9accafdd9b83a3c869fa67c22953b2af80`, unchanged. What changed is
 that every definition now carries its layer (#595). The derivation extracts the
 `@category` tag schema.ts carries on 135 of its 155 declarations
 (`tmp/cache/mcp/category.csv`, the third extracted table), reads it into the house
-layers by `layer.csv` - a method tag by its first path segment, a named tag as
-itself - places an untagged definition by its alias target, its union members or
+layers (`layer.csv`, one row per layer with its reading) by `category_layer.csv`
+- a method tag by its first path segment, a named tag as itself - places an untagged definition by its alias target, its union members or
 its descendants when they agree, and places the residue by `placement.csv`, each
 row with its reason: the naming and pagination and caching bases whose descendants
 span layers (`BaseMetadata`, `Icons`, `CacheableResult`, `PaginatedRequest`,
@@ -50,7 +51,7 @@ input-required round trip), session 28 (discover and capabilities, notifications
 pagination, caching, naming), resources 19 (resources and subscriptions), prompts
 16 (prompts and completion), content 9, tools 9 - and the bare `corpus-yoga mcp`
 reports the partition. 161 definitions, as v3. The diff is 324 lines: one clause
-per description, the root's among them, and the family description naming the two
+per description, the root's among them, and the family description naming the three
 tables.
 
 ### Replaces
@@ -68,7 +69,7 @@ None.
 #### Refactored
 
 - Every definition's description ends with its layer clause; the family
-  description names `layer.csv` and `placement.csv`.
+  description names `layer.csv`, `category_layer.csv` and `placement.csv`.
 
 ## v3
 

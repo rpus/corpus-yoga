@@ -315,9 +315,11 @@ file: `rsc/schema/protocol/mcpMessage/description.csv` (house text for the
 definitions the snapshot leaves undescribed), `rsc/schema/protocol/mcpMessage/unreachable.csv`
 (the definitions no message carries, which `structure.all_definitions_reachable`
 reads and the derivation refuses to disagree with), `rsc/schema/protocol/mcpMessage/layer.csv`
-(the house's reading of the `@category` tags schema.ts carries - the third
-extracted table - into the layers the protocol reads by: jsonrpc, session,
-resources, tools, prompts, content, agentic, tasks; #595) and
+(the layers the protocol reads by, one row each with its reading - jsonrpc,
+session, resources, tools, prompts, content, agentic, tasks - the closed
+vocabulary; #595), `rsc/schema/protocol/mcpMessage/category_layer.csv` (the
+house's reading of the `@category` tags schema.ts carries - the third extracted
+table - into those layers) and
 `rsc/schema/protocol/mcpMessage/placement.csv` (the definitions neither the tag nor
 the composition places, each with its reason). Every definition's description ends
 with its layer, the bare `corpus-yoga mcp` reports the partition, and a definition
