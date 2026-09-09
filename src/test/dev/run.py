@@ -67,6 +67,7 @@ CACHE                    = REPO_ROOT / 'tmp' / 'cache'
 RSC                      = REPO_ROOT / 'rsc'
 SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
+RSC_MODEL                = RSC / 'model'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
 
 # The machine log is IMMUTABLE (#370): one stamped, colon-free file per run
@@ -450,16 +451,6 @@ def check_templates(run) -> None:
         run(f'{path.relative_to(REPO_ROOT)}: teaches the Signature line', taught,
             f'Add a `{signature_line}` line to {path.relative_to(REPO_ROOT)}'
             if not taught else None, check='templates.teach_signature')
-
-
-def check_root_schema_diagnostics(run):
-    root_schemas = sorted(RSC_SCHEMA.glob('*.json'))
-    diagnostics  = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-
-    jobs = [(script, schema_path) for schema_path in root_schemas for script in diagnostics]
-    for (script, schema_path), (passed, output) in zip(jobs, _call_many(jobs)):
-        run(f'{script.stem}: {schema_path.relative_to(RSC_SCHEMA)}', passed,
-            _diag_detail(output) if not passed else None, check=script.stem)
 
 
 def _schema_families() -> dict:
@@ -1597,8 +1588,6 @@ def check_grammar_laws(run, cited: dict) -> None:
     run(f'grammar: {len(laws)} laws — {summary}', True, check='grammar.enforcement_map')
 
 
-_VERSIONED_SCHEMA_DIAGNOSTICS_SKIP = frozenset({'naming.root_schema_title_matches_filename'})
-
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {s: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas}
@@ -1613,7 +1602,7 @@ def check_versioned_schema_diagnostics(run):
     families = []
     jobs = []
     for schema_name in sorted(set(schema_skips) | set(schema_dirs)):
-        skip        = _VERSIONED_SCHEMA_DIAGNOSTICS_SKIP | schema_skips.get(schema_name, frozenset())
+        skip        = schema_skips.get(schema_name, frozenset())
         schema_dir  = schema_dirs.get(schema_name, SCHEMA_DIR.get(schema_name))
         # the latest version is the schema, the rest history (#557): diagnostics
         # judge the version that judges data; validity and the changelog still
@@ -1641,16 +1630,16 @@ def check_versioned_schema_diagnostics(run):
 
 
 def check_schema_join(run):
-    join = RSC_SCHEMA / 'model_join.csv'
+    join = RSC_MODEL / 'model_join.csv'
     if not join.exists():
         run('schema model_join.csv exists', False, check='model.join_exists')
         return
-    kinds_table = RSC_SCHEMA / 'model_join_kinds.csv'
+    kinds_table = RSC_MODEL / 'model_join_kinds.csv'
     declared_kinds = {r['kind'] for r in csv.DictReader(kinds_table.open())}
     unknown = [f'row {i}: {r["relationship"]!r}'
                for i, r in enumerate(csv.DictReader(join.open()), 2)
                if r['relationship'] not in declared_kinds]
-    run('model_join: every relationship names a declared kind (rsc/schema/model_join_kinds.csv)',
+    run('model_join: every relationship names a declared kind (rsc/model/model_join_kinds.csv)',
         not unknown, '; '.join(unknown[:4]) if unknown else None,
         check='model.join_kind_declared')
     fails: list[str] = []
@@ -1674,7 +1663,7 @@ def check_model_join_versions(run):
     nor its pipeline, which is how a 2026-07-10 grep for session references found
     nothing while 37 rows sat there. check_schema_join resolves family dirs against
     their latest version, so currency is enforced by resolution, not by rewriting."""
-    join = RSC_SCHEMA / 'model_join.csv'
+    join = RSC_MODEL / 'model_join.csv'
     if not join.exists():
         return
     pins: list[str] = []
@@ -1733,6 +1722,24 @@ def _admits_instance_pointer(schema, pointer: str) -> bool:
     return admits(schema, pointer.lstrip('#/').split('/'))
 
 
+def check_model_table(run) -> None:
+    """rsc/model/model.json is the table of documented shared types - a name, its
+    description, its occurrences by family - and rsc/model/model.schema.json is
+    the row shape (draft-04) every reader of the table relies on: the table
+    validates against it, so a malformed entry fails by name (#591)."""
+    import jsonschema
+    table, schema = RSC_MODEL / 'model.json', RSC_MODEL / 'model.schema.json'
+    validator = jsonschema.Draft4Validator(json.loads(schema.read_text()))
+    errors = sorted(validator.iter_errors(json.loads(table.read_text())), key=lambda e: list(e.path))
+    detail = None
+    if errors:
+        first = errors[0]
+        detail = (f'{table.relative_to(REPO_ROOT)} #/{"/".join(str(x) for x in first.path)}: {first.message[:160]}'
+                  + (f' ({len(errors)} errors)' if len(errors) > 1 else ''))
+    run(f'model: {table.relative_to(REPO_ROOT)} validates against {schema.relative_to(REPO_ROOT)}', not errors, detail,
+        check='model.table_valid')
+
+
 def check_model_occurrences(run):
     """model.json's occurrence paths obey the de-versioned family-dir grammar
     model_join.csv earned (check_model_join_versions) and RESOLVE (issue #19):
@@ -1742,7 +1749,7 @@ def check_model_occurrences(run):
     family's LATEST version by walking the schema's structure. A mint that
     renames a documented field fails here, the model_join review prompt; one
     that keeps it costs nothing."""
-    doc = json.loads((RSC_SCHEMA / 'model.json').read_text()).get('default', {})
+    doc = json.loads((RSC_MODEL / 'model.json').read_text())
     fams = model_curation.latest_versions()
     pins, bad = [], []
     for tname, entry in doc.items():
@@ -1784,7 +1791,7 @@ def check_model_obligations(run) -> None:
 
     - edge→doc: every model_join edge whose relationship kind asserts ONE
       shared type (identical, snake_cased) is grounded by a documented entry or
-      covered by a rejection in rsc/schema/model_rejected.txt. One check per
+      covered by a rejection in rsc/model/model_rejected.txt. One check per
       distinct shared type, so a regression names what it broke.
     - doc→edge: every documented type is grounded by >=1 obligating edge — no
       orphan documentation (the review's gap: UserUUID passed the
@@ -1803,7 +1810,7 @@ def check_model_obligations(run) -> None:
         run(f'model: shared type disposed: {"/".join(sorted(names))}', not pending,
             None if not pending else
             f'model_join row(s) {", ".join(map(str, pending))} assert one shared type: '
-            'document it in rsc/schema/model.json or reject it in rsc/schema/model_rejected.txt', check='model.shared_type_disposed')
+            'document it in rsc/model/model.json or reject it in rsc/model/model_rejected.txt', check='model.shared_type_disposed')
     orphans = set(model_curation.orphan_entries())
     for name in sorted(model_curation.documented()):
         run(f'model: documented type grounded: {name}', name not in orphans,
@@ -1821,7 +1828,7 @@ def check_model_identity(run) -> None:
     run('model: identity edges hold at latest', not violations,
         None if not violations else
         '; '.join(f'row {line} ({kind}): {cells}' for line, kind, cells in violations)
-        + ' — re-judge the relationship kind (rsc/schema/model_join_kinds.csv) '
+        + ' — re-judge the relationship kind (rsc/model/model_join_kinds.csv) '
           'or restore the identity in the schemas', check='model.identity_holds')
 
 
@@ -1950,7 +1957,7 @@ def check_reference(run) -> None:
 
 
 def check_schema_meta_validity(run) -> None:
-    """Every house schema - each family's latest version and each root schema -
+    """Every house schema - each family's latest version -
     validates against the committed draft-04 meta-schema
     (rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them
     declares, held as repo data (#572): a property of the committed artifacts."""
@@ -1963,7 +1970,6 @@ def check_schema_meta_validity(run) -> None:
     validator = jsonschema.Draft4Validator(json.loads(meta_path.read_text()))
     targets = [(f'{name}: {latest.stem}', latest)
                for name, d in sorted(_schema_families().items()) if (latest := latest_file(d))]
-    targets += [(path.name, path) for path in sorted(RSC_SCHEMA.glob('*.json'))]
     for label, path in targets:
         errors = sorted(validator.iter_errors(json.loads(path.read_text())), key=lambda e: list(e.path))
         detail = None
@@ -2281,6 +2287,7 @@ ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}
 # without this exclusion every run would dirty the sections that read it
 CACHE_PREFIX = 'tmp/cache/test'
 SCHEMA = ['rsc/schema']
+MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections
 
 SUBJECTS: dict[str, list[str] | str] = {
     'check_required_files': 'TREE',
@@ -2299,15 +2306,15 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_accumulate_contract': ['src'],
     'check_capture_monotone': ['src', 'data/output/dashboard'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
-    'check_root_schema_diagnostics': SCHEMA,
     'check_schema_validity': SCHEMA,
     'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
     'check_versioned_schema_diagnostics': SCHEMA,
-    'check_schema_join': SCHEMA,
-    'check_model_join_versions': SCHEMA,
-    'check_model_occurrences': SCHEMA + ['src'],
-    'check_model_obligations': SCHEMA + ['src'],
+    'check_schema_join': SCHEMA + MODEL,
+    'check_model_join_versions': SCHEMA + MODEL,
+    'check_model_table': MODEL,
+    'check_model_occurrences': SCHEMA + MODEL + ['src'],
+    'check_model_obligations': SCHEMA + MODEL + ['src'],
     'check_reference': ['rsc/reference'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
     'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp'],
@@ -2544,8 +2551,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(lambda run, _c=cited_laws: check_grammar_laws(run, _c),
                     label='check_grammar_laws', tier='code')
 
-        run_section(check_root_schema_diagnostics, tier='schema')
-
         run_section(check_schema_validity, tier='schema')
         run_section(check_schema_meta_validity, tier='schema')
         run_section(check_schema_single_version, tier='schema')
@@ -2554,6 +2559,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')
+        run_section(check_model_table, tier='schema')
         run_section(check_model_occurrences, tier='schema')
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
@@ -2676,16 +2682,6 @@ def _run_once(allow_replay: bool) -> RunOnce:
                     _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif detail:
                     _add(detail, name, prose=True)   # a detail is advice, not a command
-            elif len(parts) == 2 and re.match(r'[a-z_]+\.[a-z_]+', parts[0]):
-                diag, schema_path = parts[0], RSC_SCHEMA / parts[1]
-                repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
-                diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
-                if repair.exists() and schema_path.exists():
-                    _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
-                elif diagnostic.exists() and schema_path.exists():
-                    _add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
-                elif detail:
-                    _add(detail, name, prose=True)
 
         lines: list[tuple[list[str], str | None, list[str]]] = []
         for cmd in fix_commands:

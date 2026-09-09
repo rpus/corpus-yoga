@@ -3,6 +3,7 @@
   "args": [],
   "r": [
     "rsc/schema",
+    "rsc/model",
     "data/input",
     "tmp/cache"
   ],

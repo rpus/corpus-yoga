@@ -1,5 +1,5 @@
 {
-  "help": "record a false friend: a name_collision row lands in rsc/schema/model_join.csv with the reason as its note",
+  "help": "record a false friend: a name_collision row lands in rsc/model/model_join.csv with the reason as its note",
   "args": [
     {
       "name": "--all",
@@ -23,10 +23,11 @@
   ],
   "r": [
     "rsc/schema",
+    "rsc/model",
     "tmp/cache"
   ],
   "w": [
-    "rsc/schema/model_join.csv",
+    "rsc/model/model_join.csv",
     "tmp/cache/model"
   ]
 }

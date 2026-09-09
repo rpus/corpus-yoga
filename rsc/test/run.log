@@ -1,4 +1,4 @@
-run.py: code+schema 1267/1267
+run.py: code+schema 1241/1241
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -94,39 +94,11 @@ run.py: code+schema 1267/1267
   ✓ grammar.parent_law_defined
   ✓ grammar.enforcement_map
 
-── check_root_schema_diagnostics ─────────────────────────────────────────────
-  ✓ composition.base_not_used_directly
-  ✓ composition.base_schemas_closed
-  ✓ composition.discriminator_values_disjoint
-  ✓ composition.no_additional_properties_on_subtypes
-  ✓ composition.wrapper_has_five_fields
-  ✓ documentation.discriminator_fields_annotated
-  ✓ documentation.every_definition_has_title_and_description
-  ✓ documentation.null_only_fields_documented
-  ✓ documentation.open_set_enums_documented
-  ✓ empirical.nullable_fields_surveyed
-  ✓ empirical.oneOf_branches_evidenced
-  ✓ naming.property_keys_lowercase
-  ✓ naming.root_schema_title_matches_filename
-  ✓ naming.title_matches_key
-  ✓ naming.upper_camel_case
-  ✓ structure.all_definitions_reachable
-  ✓ structure.bfs_order
-  ✓ structure.definitions_at_bottom
-  ✓ structure.enum_refines_explicit_type
-  ✓ structure.field_order
-  ✓ structure.keywords_declared
-  ✓ structure.minItems_on_non_empty_arrays
-  ✓ structure.no_dangling_refs
-  ✓ structure.no_redundant_additional_properties_true
-  ✓ structure.pattern_constraints_enforced
-  ✓ structure.required_subset_of_properties
-
 ── check_schema_validity ─────────────────────────────────────────────────────
   ✓ schema.valid_json_with_schema  (14/14)
 
 ── check_schema_meta_validity ────────────────────────────────────────────────
-  ✓ schema.valid_against_meta_schema  (15/15)
+  ✓ schema.valid_against_meta_schema  (14/14)
 
 ── check_schema_single_version ───────────────────────────────────────────────
   ✓ schema.single_version  (14/14)
@@ -168,6 +140,9 @@ run.py: code+schema 1267/1267
 
 ── check_model_join_versions ─────────────────────────────────────────────────
   ✓ model.join_family_grammar
+
+── check_model_table ─────────────────────────────────────────────────────────
+  ✓ model.table_valid
 
 ── check_model_occurrences ───────────────────────────────────────────────────
   ✓ model.occurrence_family_grammar
@@ -214,25 +189,25 @@ check_cache_io                        20     0   code       71
 check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
-check_root_schema_diagnostics         26     0   schema     97
-check_schema_validity                 14     0   schema    125
-check_schema_meta_validity            15     0   schema    128
-check_schema_single_version           14     0   schema    131
-check_schema_changelogs               28     0   schema    134
-check_versioned_schema_diagnostics   347     0   schema    138
-check_schema_join                      2     0   schema    165
-check_model_join_versions              1     0   schema    169
-check_model_occurrences                3     0   schema    172
-check_model_obligations              152     0   schema    177
-check_model_identity                   1     0   schema    181
-check_reference                       11     0   schema    184
-check_mcp_factoring                    2     0   schema    191
-check_mcp_reproducible                 1     0   schema    195
-check_expectation                      2     0   code      198
+check_schema_validity                 14     0   schema     97
+check_schema_meta_validity            14     0   schema    100
+check_schema_single_version           14     0   schema    103
+check_schema_changelogs               28     0   schema    106
+check_versioned_schema_diagnostics   347     0   schema    110
+check_schema_join                      2     0   schema    137
+check_model_join_versions              1     0   schema    141
+check_model_table                      1     0   schema    144
+check_model_occurrences                3     0   schema    147
+check_model_obligations              152     0   schema    152
+check_model_identity                   1     0   schema    156
+check_reference                       11     0   schema    159
+check_mcp_factoring                    2     0   schema    166
+check_mcp_reproducible                 1     0   schema    170
+check_expectation                      2     0   code      173
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 112 types, 1267/1267 invocations passing
+checks[code+schema]: 112 types, 1241/1241 invocations passing
 checks[code]: 64 types, 650/650 invocations passing
-checks[schema]: 48 types, 617/617 invocations passing
+checks[schema]: 48 types, 591/591 invocations passing
 
-dev gate: PASS — code+schema 1267/1267 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1241/1241 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

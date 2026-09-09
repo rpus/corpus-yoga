@@ -165,9 +165,9 @@ per-corpus code.
   WORKFLOW (a frontier failure proposes; a minted version narrated in its
   changelog disposes; the coverage and frontier gates report); and the
   model.json reference (the name scan proposes collisions a human curates into
-  `rsc/schema/model_join.csv` edges at leisure; an edge asserting one shared
+  `rsc/model/model_join.csv` edges at leisure; an edge asserting one shared
   type — `identical`, `snake_cased` — obligates: document in
-  `rsc/schema/model.json` or reject into `rsc/schema/model_rejected.txt` →
+  `rsc/model/model.json` or reject into `rsc/model/model_rejected.txt` →
   `check_model_obligations` gates BOTH directions of the grounding relation,
   so model.json documents exactly what model_join asserts, minus rejections —
   no unmet obligation, no orphan documentation). Promoted from candidate to

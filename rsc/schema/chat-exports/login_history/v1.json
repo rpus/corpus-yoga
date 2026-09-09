@@ -24,7 +24,7 @@
         "additionalProperties": false,
         "properties": {
           "account_uuid": {
-            "description": "../../model.json#/default/UserUUID",
+            "description": "../../../model/model.json#/UserUUID",
             "type": "string"
           },
           "timestamp": {
