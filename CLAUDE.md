@@ -163,7 +163,8 @@ seventh principle or a smell.
   aims at every OPEN blocker of what it aims at (#482; the merge refuses
   otherwise). The merge, on the reviewer's word only, is
   `corpus-yoga forge merge <pr>` - the one act (#483): it refuses a non-copy
-  title (#479), relocates a moved base - the lifetime's one rebase - and
+  title (#479), relocates a moved base - the lifetime's one rebase, in a
+  detached worktree of its own (#507) - and
   resyncs a clean checkout that holds the branch, announced; flips the
   body's phrasing to `closes` as the LAST edit before the squash (a
   refused squash restores the body as found, so a flipped-but-unmerged PR
