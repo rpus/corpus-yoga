@@ -11,6 +11,14 @@ and have their own versioning. See [`rsc/schema/browser-captures/apiConversation
 
 ---
 
+2026-09-09: `ToolUseBlockBase.input`'s description was amended in place (#603): the
+sentence naming three tools "documented in the API but not observed in this
+export" - an indexical, dereferencing differently in every room and at every
+date - now states the property of the version file that `unreachable.csv` holds:
+no tool-use block of this family names them, so no block references their inputs
+(v19, reading-room, 2026-09-09). A description change is not a validation change:
+no new version.
+
 ## v19
 
 Now validates the manifest-era export of 2026-08-24 (the c3cfcf28 export), whose one v18 failure - the record-by-record sweep found exactly one failing block in 118 conversations - is a thinking block of 2026-08-23 carrying signature null with empty thinking and thinking_hidden true.
