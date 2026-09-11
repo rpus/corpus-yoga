@@ -273,7 +273,7 @@ Open `rsc/model/model_join.csv` and:
 per upstream project and one directory per lineage upstream publishes, named as
 upstream names it (#587) - `rsc/reference/mcp/<date>/` holds each dated lineage of
 the Model Context Protocol's `schema.json` and `schema.ts` (the newest read by
-`corpus-yoga mcp sync`, which reads it through the parser generated from the house TypeScript grammar (#597) for its extends clauses, type aliases and category tags -
+`corpus-yoga mcp sync`, which generates the house factoring from it through the parser generated from the house TypeScript grammar (#597, #598) -
 and by `corpus-yoga mcp reproduce`, the witness that upstream's generator turns it
 into `schema.json`; `rsc/reference/mcp/generate.md` states the generation);
 `rsc/reference/JSONSchema/draft-04/` holds the draft-04 meta-schema, the dialect
@@ -304,30 +304,36 @@ declared and every declared lineage held (`reference.lineage_declared`), and eve
 pin has its changelog section (`reference.lineage_changelog`). Every house schema
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
-`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp snapshot (#562), a
+`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp schema (#562, #598), a
 committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
-derives its latest version from the two upstream files - the composition and the
-alias sites `src/main/mcp/mcp_extraction.py` reads from schema.ts through the parser
-generated from `rsc/rpus/grammar/TypeScript` (#581, #597; a form the grammar does
-not accept refuses the derivation naming the line), every row verified against the
-snapshot, and written under
-`tmp/cache/mcp/` as their readable face (`rsc/cache_io.csv`); every definition's
-shape from schema.json - and from the hand-written tables beside the version
-file: `rsc/schema/protocol/mcpMessage/description.csv` (house text for the
-definitions the snapshot leaves undescribed), `rsc/schema/protocol/mcpMessage/unreachable.csv`
-(the definitions no message carries, which `structure.all_definitions_reachable`
-reads and the derivation refuses to disagree with), `rsc/schema/protocol/mcpMessage/layer.csv`
-(the layers the protocol reads by, one row each with its reading - jsonrpc,
-session, resources, tools, prompts, content, agentic, tasks - the closed
-vocabulary; #595), `rsc/schema/protocol/mcpMessage/category_layer.csv` (the
-house's reading of the `@category` tags schema.ts carries - the third extracted
-table - into those layers) and
-`rsc/schema/protocol/mcpMessage/placement.csv` (the definitions neither the tag nor
-the composition places, each with its reason). Every definition's description ends
-with its layer, the bare `corpus-yoga mcp` reports the partition, and a definition
-the rule cannot place refuses the derivation. The dev gate holds the file byte-identical to the
-derivation (`mcp.factoring_current`) and every snapshot definition equal to its
-house counterpart flattened (`mcp.factoring_agrees`). Its history lives in
+generates its latest version from upstream's `schema.ts` alone - every declaration
+read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
+shape upstream's generator would give it, one stated rule per TypeScript form
+(`src/main/mcp/mcp_generation.py`), composed over the extends clauses and tagged by
+the categories `src/main/mcp/mcp_extraction.py` reads (#581, #595; the two tables
+faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
+beside the version file: `rsc/schema/protocol/mcpMessage/description.csv` (house
+text for the definitions schema.ts leaves without a JSDoc),
+`rsc/schema/protocol/mcpMessage/unreachable.csv` (the definitions no message
+carries, which `structure.all_definitions_reachable` reads and the derivation
+refuses to disagree with), `rsc/schema/protocol/mcpMessage/layer.csv` (the layers
+the protocol reads by, one row each with its reading - jsonrpc, session, resources,
+tools, prompts, content, agentic, tasks - the closed vocabulary; #595),
+`rsc/schema/protocol/mcpMessage/category_layer.csv` (the house's reading of the
+`@category` tags into those layers), `rsc/schema/protocol/mcpMessage/placement.csv`
+(the definitions neither the tag nor the composition places, each with its reason)
+and `rsc/schema/protocol/mcpMessage/addition.csv` (where the house reads differently
+from upstream at a JSON Pointer: the null upstream's generator drops from
+`JSONValue`, the protocol version pinned on the `_meta` field that names it, read
+from the constant schema.ts exports). Every definition's description ends with its
+layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
+definition the rule cannot place, or an addition row that fits neither reading,
+refuses the derivation. Upstream's `schema.json` beside `schema.ts` is the witness,
+never a source: the dev gate holds the file byte-identical to the derivation
+(`mcp.factoring_current`) and every upstream definition equal to its house
+counterpart resolved and normalized, the declared additions set back
+(`mcp.factoring_agrees`), and every held lineage's `schema.ts` parsed
+(`mcp.lineages_parse`). Its history lives in
 `rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
 (#583): whenever the derivation differs from the latest version file - upstream
 moved, or the house rules did - `corpus-yoga mcp sync` prints the diff and writes the
@@ -336,8 +342,8 @@ this family means that the derivation's output changed, and its changelog sectio
 is written by hand from that diff, owed at the commit gate by
 `schema.changelog_narrative`. Every house
 diagnostic holds over it: its root, `MCPMessage`, gathers the typed message shapes
-upstream exports but never references, the extracted alias rows revive the type
-aliases upstream inlined, and a result union no message carries - a party's
+upstream exports but never references, every type alias is a reference wherever
+schema.ts uses it, and a result union no message carries - a party's
 results where upstream declares no requests for the other party (#588) - stands
 unreachable, declared in `unreachable.csv`.
 

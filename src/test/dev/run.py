@@ -1836,12 +1836,13 @@ def check_model_identity(run) -> None:
 
 
 def check_mcp_factoring(run) -> None:
-    """The house MCP factoring (#562) is a committed derivation: the latest
+    """The house MCP factoring (#562, #598) is a committed derivation: the latest
     rsc/schema/protocol/mcpMessage version must be byte-identical to what
-    corpus-yoga mcp sync derives from the committed snapshot and description
-    table (mcp.factoring_current), and every snapshot definition must equal its
-    house counterpart flattened and normalized (mcp.factoring_agrees) - the
-    witness that the factoring preserved meaning, held over the committed file."""
+    corpus-yoga mcp sync generates from the committed schema.ts and the family's
+    tables (mcp.factoring_current), and every definition of upstream's schema.json -
+    the witness, never a source - must equal its house counterpart flattened and
+    normalized, the declared additions set back (mcp.factoring_agrees); every held
+    lineage's schema.ts must parse (mcp.lineages_parse)."""
     target = mcp_factoring.latest_version(mcp_factoring.FAMILY_DIR)
     if not target:
         run('mcp: rsc/schema/protocol/mcpMessage has a version', False,
@@ -1856,10 +1857,10 @@ def check_mcp_factoring(run) -> None:
     have = target.read_text()
     run(f'mcp: {target.stem} current with the snapshot', have == wanted,
         None if have == wanted else
-        f'{rel} differs from what the two upstream files derive - corpus-yoga mcp sync prints the diff and mints the next version; write its changelog section and commit',
+        f'{rel} differs from what schema.ts generates - corpus-yoga mcp sync prints the diff and mints the next version; write its changelog section and commit',
         check='mcp.factoring_current')
     _, snap = mcp_factoring.snapshot()
-    bad = mcp_factoring.disagreements(json.loads(have), snap)
+    bad = mcp_factoring.disagreements(json.loads(have), snap, mcp_factoring.additions(), mcp_factoring.generated().constants)
     run(f'mcp: {target.stem} flattens to the snapshot', not bad,
         '\n    '.join(bad[:5]) if bad else None, check='mcp.factoring_agrees')
     for lineage in lineages(mcp_factoring.SNAPSHOT_DIR):
