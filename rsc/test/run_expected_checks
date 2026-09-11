@@ -25,6 +25,7 @@ cli.block_identity_stable
 cli.calculus_defined
 cli.commands_alphabetical
 cli.commands_unique
+cli.completions_current
 cli.completions_parse
 cli.docstring_flags_advertised
 cli.every_form_listed
