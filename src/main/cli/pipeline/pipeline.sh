@@ -248,6 +248,20 @@ section_last_words() {
   ' "$LOG_FILE" 2>/dev/null
 }
 
+# The dev gate's own finding, when it is red inside the tests section (#600): the
+# sections it names under its "dev gate: FAIL" verdict line, one line each, indented -
+# relayed here as the atom the table counts, in the gate's own words. Its LAST line
+# is the staging remedy for a committer, which is no finding for this reader.
+section_dev_gate_reds() {
+  awk -v want="$1" "$SECTION_NAME_FN"'
+    /^── / { in_section = (section_name() == want); next }
+    in_section && /^dev gate: FAIL/ { p = 1; next }
+    p && /^  [a-z_]+ \([0-9]+\)$/ { sub(/^  /, ""); out = out (out == "" ? "" : ", ") $0; next }
+    p { p = 0 }
+    END { print out }
+  ' "$LOG_FILE" 2>/dev/null
+}
+
 # Does this section already carry a FAIL: atom? Read from its banner to the end of what
 # has been logged so far — the section is complete by the time its runner has returned.
 section_has_fail() {
@@ -455,9 +469,14 @@ main() {
   echo "── tests ─────────────────────────────────────────────────────────────────"
   if ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
     if ! section_has_fail "tests"; then
-      local tests_last
-      tests_last="$(section_last_words "tests")"
-      echo "FAIL: tests exited non-zero without stating a finding — its last words: ${tests_last:-(no output)}"
+      local tests_reds tests_last
+      tests_reds="$(section_dev_gate_reds "tests")"
+      if [[ -n "$tests_reds" ]]; then
+        echo "FAIL: tests: dev gate red — $tests_reds (the dev gate's own log names the checks)"
+      else
+        tests_last="$(section_last_words "tests")"
+        echo "FAIL: tests exited non-zero without stating a finding — its last words: ${tests_last:-(no output)}"
+      fi
     fi
   fi
   echo ""
