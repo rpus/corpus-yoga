@@ -829,6 +829,15 @@ def check_cli_surface(run) -> None:
         parse_ok, parse_err = proc.returncode == 0, (proc.stderr.strip() or None)
     run('cli: completions: emitted script parses (zsh -n)', parse_ok,
         parse_err if not parse_ok else None, law='G9', check='cli.completions_parse')
+    cached = cli_completions.COMPLETION_OUT
+    cached_ok = cached.is_file() and cached.read_text() == cli_completions.completion_script(cmds)
+    cached_detail = None if cached_ok else (
+        f'{cached.relative_to(REPO_ROOT)} is absent — corpus-yoga completions sync writes it'
+        if not cached.is_file() else
+        f'{cached.relative_to(REPO_ROOT)} differs from what src/main/cli/ derives — corpus-yoga completions sync updates it'
+    )
+    run('cli: completions: tmp/cache/completions/_yoga current with src/main/cli/', cached_ok,
+        cached_detail, law='G9', check='cli.completions_current')
 
     # A command determines its target's name (#40): the target column is verification
     # rather than curation. Every row complies, so the record that declared the ones that

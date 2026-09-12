@@ -1,4 +1,4 @@
-run.py: code+schema 1286/1286
+run.py: code+schema 1291/1291
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -38,10 +38,11 @@ run.py: code+schema 1286/1286
   ✓ cli.help_one_screen  (19/19)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
+  ✓ cli.completions_current
   ✓ naming.target_stem_matches_command  (21/21)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
-  ✓ output.prescriptions_are_commands  (59/59)
+  ✓ output.prescriptions_are_commands  (63/63)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -184,34 +185,34 @@ check_self_paths                      78     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    510     0   code       28
-check_cli_verb_help                   19     0   code       61
-check_cli_exclusive_classes            6     0   code       64
-check_effects                          2     0   code       67
-check_cache_io                        20     0   code       71
-check_accumulate_contract              1     0   code       77
-check_capture_monotone                 4     0   code       80
-check_grammar_laws                    12     0   code       83
-check_schema_validity                 14     0   schema     97
-check_schema_meta_validity            14     0   schema    100
-check_schema_single_version           14     0   schema    103
-check_schema_changelogs               28     0   schema    106
-check_versioned_schema_diagnostics   347     0   schema    110
-check_schema_join                      2     0   schema    137
-check_model_join_versions              1     0   schema    141
-check_model_table                      1     0   schema    144
-check_model_occurrences                3     0   schema    147
-check_model_obligations              152     0   schema    152
-check_model_identity                   1     0   schema    156
-check_grammar                          2     0   schema    159
-check_reference                       21     0   schema    162
-check_mcp_factoring                    7     0   schema    168
-check_mcp_reproducible                 1     0   schema    173
-check_expectation                      2     0   code      176
+check_cli_surface                    515     0   code       28
+check_cli_verb_help                   19     0   code       62
+check_cli_exclusive_classes            6     0   code       65
+check_effects                          2     0   code       68
+check_cache_io                        20     0   code       72
+check_accumulate_contract              1     0   code       78
+check_capture_monotone                 4     0   code       81
+check_grammar_laws                    12     0   code       84
+check_schema_validity                 14     0   schema     98
+check_schema_meta_validity            14     0   schema    101
+check_schema_single_version           14     0   schema    104
+check_schema_changelogs               28     0   schema    107
+check_versioned_schema_diagnostics   347     0   schema    111
+check_schema_join                      2     0   schema    138
+check_model_join_versions              1     0   schema    142
+check_model_table                      1     0   schema    145
+check_model_occurrences                3     0   schema    148
+check_model_obligations              152     0   schema    153
+check_model_identity                   1     0   schema    157
+check_grammar                          2     0   schema    160
+check_reference                       21     0   schema    163
+check_mcp_factoring                    7     0   schema    169
+check_mcp_reproducible                 1     0   schema    174
+check_expectation                      2     0   code      177
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 113 types, 1286/1286 invocations passing
-checks[code]: 64 types, 678/678 invocations passing
+checks[code+schema]: 114 types, 1291/1291 invocations passing
+checks[code]: 65 types, 683/683 invocations passing
 checks[schema]: 49 types, 608/608 invocations passing
 
-dev gate: PASS — code+schema 1286/1286 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1291/1291 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
