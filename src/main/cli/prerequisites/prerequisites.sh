@@ -303,7 +303,15 @@ check_cli() {
   # `corpus-yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
-  local comp_status
+  local comp_status comp_resolves=0
+  # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
+  # added after it is present in the file and does nothing — a grep for the string
+  # would report ✓ over dead completion, certifying the exact mistake the old advice
+  # invited. Presence of a string is not the fact; resolution is. An interactive
+  # shell sources the rc and answers for itself.
+  if command -v zsh &>/dev/null && [[ "$(zsh -ic 'print -r -- ${+_comps[corpus-yoga]}' 2>/dev/null | tail -1)" == "1" ]]; then
+    comp_resolves=1
+  fi
   if comp_status="$("$REPO_ROOT/corpus-yoga" completions 2>/dev/null)"; then
     case "$comp_status" in
       *current*) ok   "zsh completions generated and current with src/main/cli/" ;;
@@ -315,20 +323,29 @@ check_cli() {
       # holds it (they arrived at the repo root via README). The STALE case once
       # assumed the alias current; the 2026-08-23 corpus-yoga rename is the fixture
       # against that. (PR #109 review; #514.)
-      *STALE*)   todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)" ;;
-      *)         todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)" ;;
+      # When zsh resolves the completion (${+_comps[corpus-yoga]} is 1), only sync is
+      # needed (#610) — reserving install-latest (and terminal restart) for unwired shells.
+      *STALE*)
+        if (( comp_resolves )); then
+          todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions sync"
+        else
+          todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)"
+        fi
+        ;;
+      *)
+        if (( comp_resolves )); then
+          todo reader "zsh completions not generated → run: ./corpus-yoga completions sync"
+        else
+          todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)"
+        fi
+        ;;
     esac
   else
     info "zsh completion currency cannot be verified (running corpus-yoga needs Python 3)"
   fi
-  # ASK zsh, do not grep ~/.zshrc. fpath is scanned when compinit RUNS, so a line
-  # added after it is present in the file and does nothing — a grep for the string
-  # would report ✓ over dead completion, certifying the exact mistake the old advice
-  # invited. Presence of a string is not the fact; resolution is. An interactive
-  # shell sources the rc and answers for itself.
   if ! command -v zsh &>/dev/null; then
     info "zsh not present — tab-completion not applicable on this machine"
-  elif [[ "$(zsh -ic 'print -r -- ${+_comps[corpus-yoga]}' 2>/dev/null | tail -1)" == "1" ]]; then
+  elif (( comp_resolves )); then
     ok "zsh resolves the corpus-yoga completion"
   else
     info "zsh does not resolve the corpus-yoga completions"

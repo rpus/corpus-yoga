@@ -568,7 +568,9 @@ relocated() {  # <base> <head> <old-sha>
   # generated there before the gate needs them, and the settle runs FROM there -
   # src/test/dev/run.sh gates the tree the current directory belongs to.
   (cd "$wt" && quiet "$wt/corpus-yoga" grammar sync) >&2 \
-    || echo "the parsers could not be generated in the worktree - the settle below will say what it lacks" >&2
+    || echo "the parsers could not be generated in the worktree - the settle run failed; a red check on the relocated head is a real failure" >&2
+  (cd "$wt" && quiet "$wt/corpus-yoga" completions sync) >&2 \
+    || echo "the completions could not be generated in the worktree - the settle run failed; a red check on the relocated head is a real failure" >&2
   (cd "$wt" && quiet "$wt/src/test/dev/run.sh" --settle) >&2 \
     || { echo "relocation halted — the settle run failed; a red check on the relocated head is a real failure" >&2; dispose; return 1; }
   if [[ -n "$(git -C "$wt" status --porcelain rsc/test/)" ]]; then
@@ -653,9 +655,13 @@ merge_chain() {
   local was
   was="$(git -C "$REPO_DIR" branch --show-current)"
   [[ -n "$was" ]] || was="$(git -C "$REPO_DIR" rev-parse HEAD)"
-  restore() { enact git -C "$REPO_DIR" checkout "$was" >/dev/null 2>&1 || true; }
+  restore() {
+    enact git -C "$REPO_DIR" checkout "$was" >/dev/null 2>&1 || true
+    quiet "$REPO_DIR/corpus-yoga" completions sync || true
+  }
   if [[ "$(git -C "$REPO_DIR" rev-parse HEAD)" != "$oid" ]]; then
     enact git -C "$REPO_DIR" checkout --detach "$oid"       || { echo "forge merge: NOT DONE — could not check out ${oid:0:8}"; return 1; }
+    quiet "$REPO_DIR/corpus-yoga" completions sync || true
   fi
   # The run streams to the terminal as it happens and writes its own log; this
   # log keeps its verdict lines only (from the usr gate line to the end), so the
@@ -708,7 +714,12 @@ merge_chain() {
     return 1
   fi
   landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE — merged, but the merge commit read failed; converge by hand: git fetch origin && git merge --ff-only"; return 1; }
-  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! prune --apply     || ! quote git -C "$REPO_DIR" status; then
+  if ! enact git -C "$REPO_DIR" checkout "$base" \
+     || ! enact git -C "$REPO_DIR" fetch origin \
+     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed" \
+     || ! enact "$REPO_DIR/corpus-yoga" completions sync \
+     || ! prune --apply \
+     || ! quote git -C "$REPO_DIR" status; then
     echo "forge merge: NOT DONE — merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
     return 1
   fi
