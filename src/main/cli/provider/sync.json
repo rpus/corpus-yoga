@@ -1,0 +1,15 @@
+{
+  "help": "wire ext/mnt mounts and initialize store directories for all declared providers with live harnesses present",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "create missing ext/mnt symlinks and store directories"
+    }
+  ],
+  "r": [
+    "rsc/provider",
+    "ext/mnt"
+  ]
+}

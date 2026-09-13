@@ -1,0 +1,3 @@
+provider,live_harness,mount_name,session_env_var,bot_author_pattern,schema_family,modality,note
+claude,~/.claude/projects,claude-code-projects,CLAUDE_CODE_SESSION_ID,.*<noreply@anthropic\.com>,session,code,Claude Code CLI sessions
+gemini,~/.gemini/antigravity,gemini-antigravity,GEMINI_SESSION_ID,.*<noreply@google\.com>,geminiSession,code,Gemini / Antigravity coding sessions

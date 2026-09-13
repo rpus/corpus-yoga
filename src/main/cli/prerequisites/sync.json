@@ -25,6 +25,7 @@
     "src/requirements.txt",
     "src/main/model/serve_assets.txt",
     "rsc/rpus/grammar",
+    "rsc/provider",
     "src/gen/grammar"
   ],
   "x": [

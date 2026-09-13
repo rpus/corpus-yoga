@@ -1,0 +1,8 @@
+{
+  "summary": "inspect declared AI providers, live harness directories, and machine store locations",
+  "target": "src/main/cli/provider/provider.py",
+  "args": [],
+  "r": [
+    "rsc/provider"
+  ]
+}

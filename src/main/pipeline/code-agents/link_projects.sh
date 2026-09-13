@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Ensures ext/mnt/claude-code-projects is a symlink to ~/.claude/projects
-# (ext/mnt/ is the by-reference species: mounts of state other systems own).
+# Ensures ext/mnt/<mount> symlinks are created for each declared provider whose
+# live harness is present in the environment (ext/mnt/ is the by-reference species:
+# mounts of state other systems own).
 #
 # Usage:
 #   src/main/pipeline/code-agents/link_projects.sh
@@ -23,7 +24,18 @@ parse_args() {
 
 link_projects() {
   mkdir -p "$REPO_DIR/ext/mnt"
-  ln -sfn ~/.claude/projects "$REPO_DIR/ext/mnt/claude-code-projects"
+  python3 -c "
+import sys; sys.path.insert(0, '$REPO_DIR/src/main')
+import provider
+for p in provider.providers():
+    live = provider.live_harness_path(p)
+    mnt = provider.mount_path(p)
+    if live.is_dir():
+        if mnt.is_symlink() or not mnt.exists():
+            mnt.unlink(missing_ok=True)
+            mnt.symlink_to(live)
+            print(f'linked {p[\"mount_name\"]} -> {live}')
+"
   # the pre-species address; a link is re-creatable state, so retiring it here is
   # the script doing its one job at the new address rather than leaving two names
   if [[ -L "$REPO_DIR/ext/claude-code-projects" ]]; then

@@ -586,10 +586,7 @@ rsc/schema/protocol/mcpMessage/CHANGELOG.md,9,doc,src/main/mcp/mcp_extraction.py
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site — the rpus.co web surface, as authored sources"
 rsc/site/README.md,19,doc,rsc/site/corpus-yoga/index.html,Y,"`rpus.co/corpus-yoga/`. `rsc/site/corpus-yoga/index.html` is the corpus-yoga landing, static and"
 rsc/site/README.md,20,doc,rsc/site/corpus-yoga/dataflow.dot,Y,complete. `rsc/site/corpus-yoga/dataflow.dot` is the repo's dataflow map: tiers as
-rsc/test/prepare-commit-msg-hook.sh,24,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
-rsc/test/prepare-commit-msg-hook.sh,33,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"
-rsc/test/prepare-commit-msg-hook.sh,34,comment,src/main/cli/prerequisites/prerequisites.sh,Y,# src/main/cli/prerequisites/prerequisites.sh. Under PR_BODY the message — trailers and all — is discarded whole.
-rsc/test/prepare-commit-msg-hook.sh,37,comment,rsc/test/prepare-commit-msg-hook.sh,Y,#   ln -sfn ../../rsc/test/prepare-commit-msg-hook.sh .git/hooks/prepare-commit-msg
+rsc/test/prepare-commit-msg-hook.sh,11,comment,rsc/provider/providers.csv,Y,"#            (rsc/provider/providers.csv), matching the outer corpus identity coordinate."
 src/main/cli/README.md,3,doc,src/main/cli/cli.py,Y,This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
 src/main/cli/README.md,7,doc,src/main/cli/browser,Y,"`ls src/main/cli/browser/` is its verb list, and what a verb accepts is"
 src/main/cli/README.md,8,doc,src/main/cli/browser/capture.json,Y,"`cat src/main/cli/browser/capture.json` — no parser, no column headers, no join."
@@ -732,7 +729,8 @@ src/main/cli/prerequisites/prerequisites.json,16,path_str,rsc/test,Y,"""rsc/test
 src/main/cli/prerequisites/prerequisites.json,22,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
 src/main/cli/prerequisites/prerequisites.json,23,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
 src/main/cli/prerequisites/prerequisites.json,24,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/prerequisites/prerequisites.json,25,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
+src/main/cli/prerequisites/prerequisites.json,25,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/prerequisites/prerequisites.json,26,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
 src/main/cli/prerequisites/prerequisites.sh,2,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs."
 src/main/cli/prerequisites/prerequisites.sh,17,comment,src/main/cli/prerequisites/prerequisites.sh,Y,#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention (– and ✗); all-green sections 
 src/main/cli/prerequisites/prerequisites.sh,18,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"#   src/main/cli/prerequisites/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
@@ -744,12 +742,18 @@ src/main/cli/prerequisites/prerequisites.sh,422,comment,src/test/dev/run.sh,Y,"#
 src/main/cli/prerequisites/prerequisites.sh,429,path_str,src/main/cli/prerequisites,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
 src/main/cli/prerequisites/prerequisites.sh,429,path_str,src/main,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
 src/main/cli/prerequisites/prerequisites.sh,443,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
+src/main/cli/prerequisites/prerequisites.sh,491,comment,rsc/provider/providers.csv,Y,# shellcheck disable=SC2034  # whole-row unpack of rsc/provider/providers.csv
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
 src/main/cli/prerequisites/sync.json,26,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
 src/main/cli/prerequisites/sync.json,27,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
-src/main/cli/prerequisites/sync.json,28,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
+src/main/cli/prerequisites/sync.json,28,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/prerequisites/sync.json,29,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
+src/main/cli/provider/provider.json,3,path_str,src/main/cli/provider/provider.py,Y,"""target"": ""src/main/cli/provider/provider.py"","
+src/main/cli/provider/provider.json,6,path_str,rsc/provider,Y,"""rsc/provider"""
+src/main/cli/provider/provider.py,12,path_str,src/main/cli/provider/provider.py,Y,SELF = 'src/main/cli/provider/provider.py'
+src/main/cli/provider/sync.json,12,path_str,rsc/provider,Y,"""rsc/provider"","
 src/main/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 src/main/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
@@ -949,7 +953,7 @@ src/main/pipeline/chat-exports/validate.sh,12,comment,src/main/pipeline/chat-exp
 src/main/pipeline/chat-exports/validate.sh,23,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/pipeline/code-agents/jsonl_to_json.sh,5,comment,src/main/pipeline/code-agents/jsonl_to_json.sh,Y,#   src/main/pipeline/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/pipeline/code-agents/jsonl_to_json.sh,30,call,src/main/pipeline/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
-src/main/pipeline/code-agents/link_projects.sh,6,comment,src/main/pipeline/code-agents/link_projects.sh,Y,#   src/main/pipeline/code-agents/link_projects.sh
+src/main/pipeline/code-agents/link_projects.sh,7,comment,src/main/pipeline/code-agents/link_projects.sh,Y,#   src/main/pipeline/code-agents/link_projects.sh
 src/main/pipeline/code-agents/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/pipeline/code-agents/memory_to_json.py,24,comment,src/main/pipeline/code-agents/memory_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/pipeline/code-agents/project_conversation.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-agents/project_conversation.py         <session-dir>    # reads <session
@@ -985,6 +989,8 @@ src/main/pipeline/code-agents/validate.sh,5,comment,src/main/pipeline/code-agent
 src/main/pipeline/code-agents/validate.sh,6,comment,src/main/pipeline/code-agents/validate.sh,Y,#   src/main/pipeline/code-agents/validate.sh --code-agent-memory  <path/to/cache-memory-dir>
 src/main/pipeline/code-agents/validate.sh,7,comment,src/main/pipeline/code-agents/validate.sh,Y,#   src/main/pipeline/code-agents/validate.sh --enumerate --code-agent-session <dir>
 src/main/pipeline/code-agents/validate.sh,24,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/provider.py,9,comment,rsc/provider/providers.csv,Y,providers()           the declared providers (rsc/provider/providers.csv) — the registry.
+src/main/provider.py,20,path_str,src/main/provider.py,Y,SELF = 'src/main/provider.py'
 src/main/reference/reference.py,35,path_str,src/main/reference/reference.py,Y,SELF = 'src/main/reference/reference.py'
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
 src/main/schema_fragment.py,7,comment,src/main/schema_fragment.py,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
@@ -1205,6 +1211,8 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/pipeline/sync.json,Y,
 ,,,src/main/cli/prerequisites/prerequisites.json,Y,
 ,,,src/main/cli/prerequisites/sync.json,Y,
+,,,src/main/cli/provider/provider.json,Y,
+,,,src/main/cli/provider/sync.json,Y,
 ,,,src/main/cli/reference/reference.json,Y,
 ,,,src/main/cli/reference/sync.json,Y,
 ,,,src/main/cli/server/ensure-assets.json,Y,
@@ -1237,6 +1245,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/pipeline/code-agents/link_projects.sh,Y,
 ,,,src/main/pipeline/code-agents/pipeline.json,Y,
 ,,,src/main/pipeline/pipeline.schema.json,Y,
+,,self_only,src/main/provider.py,Y,
 ,,self_only,src/main/schema_fragment.py,Y,
 ,,self_only,src/main/schema_occurrences.py,Y,
 ,,self_only,src/main/schema_path.py,Y,
