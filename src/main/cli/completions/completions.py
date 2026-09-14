@@ -327,7 +327,7 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    remedy = './corpus-yoga completions sync' if blocks >= 1 else './corpus-yoga completions install-latest'
+    remedy = './corpus-yoga completions sync (then restart terminal)' if blocks >= 1 else './corpus-yoga completions install-latest (then restart terminal)'
     state = (f'not written — `{remedy}`' if not written else
              'current' if current else f'STALE — `{remedy}`')
     print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
