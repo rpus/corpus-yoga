@@ -327,8 +327,9 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    state = ('not written — `./corpus-yoga completions install-latest`' if not written else
-             'current' if current else 'STALE — `./corpus-yoga completions install-latest`')
+    remedy = './corpus-yoga completions sync' if blocks >= 1 else './corpus-yoga completions install-latest'
+    state = (f'not written — `{remedy}`' if not written else
+             'current' if current else f'STALE — `{remedy}`')
     print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
@@ -343,8 +344,11 @@ def _sync_completion() -> None:
     """The `sync` operation: (re-)write tmp/cache/completions/_yoga from the table.
     `install` calls this before wiring, so it never wires a stale or absent file —
     install IS sync, then wire."""
+    script = completion_script(commands())
+    if COMPLETION_OUT.is_file() and COMPLETION_OUT.read_text() == script:
+        return                            # current means no write and nothing said (L1)
     COMPLETION_OUT.parent.mkdir(parents=True, exist_ok=True)
-    COMPLETION_OUT.write_text(completion_script(commands()))
+    COMPLETION_OUT.write_text(script)
     print(f'wrote {COMPLETION_OUT.relative_to(REPO)}')
 
 
