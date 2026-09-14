@@ -12,8 +12,9 @@ reader treats it as absent, never guesses.
 The sibling of machine.py: a machine is an identity and so is a provider;
 rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,
 like machine.py and cli.py: importable on a fresh clone before the venv exists. The
-shell readers (the commit hook, the mount script, the machine report) take lines(),
-so the csv grammar is read in one place.
+shell readers (the commit hook, the mount script, the machine report) take lines()
+through src/run_python_script.sh, the venv's python (#478), so the csv grammar is
+read in one place.
 """
 import csv
 from pathlib import Path

@@ -25,7 +25,7 @@ parse_args() {
 link_projects() {
   mkdir -p "$REPO_DIR/ext/mnt"
   local provider live mount rows
-  rows="$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_DIR/src/main")" || exit 1
+  rows="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_DIR/src/main")" || exit 1
   while IFS=$'\x1f' read -r provider _ live mount _ _; do
     [[ -n "$provider" && -n "$live" && -n "$mount" ]] || continue
     live="${live/#\~/$HOME}"

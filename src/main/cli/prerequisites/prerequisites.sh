@@ -507,7 +507,13 @@ check_pipeline_inputs() {
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
   # machine holds, and the live harness mount the census and capture read (#628).
   local p_name p_live p_mount p_store p_remedy p_rows
-  p_rows="$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_ROOT/src/main")" || return 1
+  # The registry is read by the venv's python (#478); before the mint, the rows follow it.
+  if [[ -x "$VENV/bin/python" ]]; then
+    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_ROOT/src/main")" || return 1
+  else
+    info "providers: rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint: $(sync_remedy)"
+    p_rows=''
+  fi
   while IFS=$'\x1f' read -r p_name _ p_live p_mount _ _; do
     [[ -n "$p_name" ]] || continue
     p_store="data/input/$p_name/code/machine-transport"

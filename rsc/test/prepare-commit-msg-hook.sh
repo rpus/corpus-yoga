@@ -65,8 +65,12 @@ machine="$(tr -cd 'A-Za-z0-9_-' <<< "$machine")"; [[ -n "$machine" ]] || machine
 # separator, so this hook parses no csv. The first row whose declared variable this
 # environment carries is the drafter; a row with no variable, or a variable this
 # environment lacks, attests nothing, and the machine alone is claimed.
-rows="$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$repo/src/main")" \
-  || { echo "prepare-commit-msg: the provider registry did not render (src/main/provider.py)" >&2; exit 1; }
+# The rendering runs the venv's python through src/run_python_script.sh (#478). Where
+# that cannot run - no venv on this machine - the machine alone is claimed, nothing is
+# stripped, and the commit proceeds: best-effort, as the header rules; the pre-commit
+# gate runs the same venv and has already refused a commit it cannot serve.
+rows="$("$repo/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$repo/src/main")" \
+  || { echo "prepare-commit-msg: the provider registry did not render (src/run_python_script.sh) - the machine alone is claimed" >&2; rows=''; }
 signature="Signature: ${machine}"
 bot_filter=''
 while IFS=$'\x1f' read -r provider session_var _live _mount bot _note; do
