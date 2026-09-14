@@ -327,14 +327,14 @@ check_cli() {
       # needed (#610) — reserving install-latest (and terminal restart) for unwired shells.
       *STALE*)
         if (( comp_resolves )); then
-          todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions sync"
+          todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions sync (then restart terminal)"
         else
           todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)"
         fi
         ;;
       *)
         if (( comp_resolves )); then
-          todo reader "zsh completions not generated → run: ./corpus-yoga completions sync"
+          todo reader "zsh completions not generated → run: ./corpus-yoga completions sync (then restart terminal)"
         else
           todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)"
         fi
