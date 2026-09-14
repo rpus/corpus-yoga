@@ -328,7 +328,12 @@ from upstream at a JSON Pointer: the null upstream's generator drops from
 from the constant schema.ts exports). Every definition's description ends with its
 layer, the bare `corpus-yoga mcp` reports the partition and the additions, and a
 definition the rule cannot place, or an addition row that fits neither reading,
-refuses the derivation. Upstream's `schema.json` beside `schema.ts` is the witness,
+refuses the derivation. The sync also writes the factoring's two faces under
+`tmp/cache/mcp/` (`src/main/mcp/mcp_face.py`, #605): the consumer face, every
+definition flat and open, which a party validates what it receives against, and
+the producer face, flat and closed, which it validates what it sends against -
+each holding its law by construction, and each held derivable and valid draft-04
+by the dev gate (`mcp.faces_derivable`). Upstream's `schema.json` beside `schema.ts` is the witness,
 never a source: the dev gate holds the file byte-identical to the derivation
 (`mcp.factoring_current`) and every upstream definition equal to its house
 counterpart resolved and normalized, the declared additions set back
