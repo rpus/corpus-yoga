@@ -10,6 +10,11 @@ A row states only what was observed, with the room and the date in its note; a
 column stays empty where nothing was observed, and an empty column means "not
 attested" to every reader, never a guess.
 
+The first five columns hold no comma and no quote: the commit hook and the mount
+script split a row on commas in bash, the python readers parse it as csv, and
+the dev gate holds that every row reads the same under both
+(`provider.readers_agree`). The note, the last column, may hold either.
+
 Every reader of a provider fact reads this file and nothing else: the commit
 hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
 declared provider whose declared variable the environment carries; the machine

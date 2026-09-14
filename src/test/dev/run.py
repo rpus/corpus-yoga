@@ -1969,6 +1969,22 @@ def check_provider_registry(run) -> None:
     run('provider: every provider src/ names is declared in rsc/provider/providers.csv', not undeclared,
         None if not undeclared else '; '.join(f'{n} named by {", ".join(w[:3])}' for n, w in sorted(undeclared.items()))
         + ' - declare it in rsc/provider/providers.csv, or the name is not a provider', check='provider.names_declared')
+    # The hook and the mount script read a row with bash `IFS=, read`, which knows no
+    # quoting, and the last variable absorbs the rest of the line; the python readers use
+    # csv. The two agree only while the first five columns hold no comma and no quote.
+    disagreeing = []
+    try:
+        lines = registry.read_text().splitlines()[1:]
+    except OSError:
+        lines = []
+    for raw, parsed in zip(lines, csv.reader(lines)):
+        plain = raw.split(',')[:5]
+        if plain != parsed[:5] or any('"' in cell for cell in plain):
+            disagreeing.append(parsed[0] if parsed and parsed[0] else raw[:40])
+    run('provider: every registry row reads the same under bash (IFS=, read) and csv', not disagreeing,
+        None if not disagreeing else 'rows ' + ', '.join(disagreeing)
+        + ' - the first five columns of rsc/provider/providers.csv hold no comma and no quote (rsc/provider/README.md)',
+        check='provider.readers_agree')
 
 
 def check_reference(run) -> None:
