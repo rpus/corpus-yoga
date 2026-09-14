@@ -1,6 +1,6 @@
 """
 Shared Safari automation utilities for browser-captures scripts.
-Called by safari_capture.py and audit_captures.py — do not invoke directly.
+Called by capture.py and audit.py — do not invoke directly.
 """
 import json
 import os
@@ -10,7 +10,7 @@ import sys
 import time
 from pathlib import Path
 
-SELF = 'src/main/cli/browser/safari_utils.py'
+SELF = 'src/main/safari.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

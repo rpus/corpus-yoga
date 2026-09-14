@@ -133,7 +133,7 @@ def main():
     if args.browser_api:
         # browser captures: same canonical <ordinal>-<slug> ordering (created_at) as the bulk
         # pieces. Provenance cross-checks against the newest atomised export batch (offline,
-        # local — staleness vs claude.ai live stays audit_captures --live's job).
+        # local — staleness vs claude.ai live stays audit --live's job).
         apis = [api for d in sorted(p for p in Path(args.browser_api).iterdir() if p.is_dir())
                 if (api := find_api_json(d)) is not None]
         other = _newest_batch_json()

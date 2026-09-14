@@ -55,16 +55,16 @@ run_corpus() {
   # project_markdown: render api JSON -> markdown always (no DOM scrape needed)
   step project_markdown      "$REPO_DIR/src/run_python_script.sh" \
     "$REPO_DIR/src/main/model/project_markdown.py" --browser-api "$root"
-  # copy_gemini_markdown: gemini's scrapes ARE markdown already — copy them into the
+  # gemini/project_markdown: gemini's scrapes ARE markdown already — copy them into the
   # presentation tree beside claude's projections (data/output/markdown/{claude,gemini}),
   # anchoring each turn heading; a slug collision gets the conversation id prefixed.
-  step copy_gemini_markdown  "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/copy_gemini_markdown.py"
-  # audit_captures: capture-health report against the fresh projections — findings
+  step gemini_project_markdown  "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/gemini/project_markdown.py"
+  # audit: capture-health report against the fresh projections — findings
   # inform, never gate: severity attaches to the RECORD, and the record was already
   # schema-validated above
-  step_ok audit_captures     "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/audit_captures.py" \
+  step_ok audit     "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/audit.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }

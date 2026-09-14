@@ -1289,7 +1289,7 @@ def check_cli_surface(run) -> None:
         rel = path.relative_to(src_root)
         if rel.name == 'run.py' and rel.parts[0] == 'test':
             continue   # the gate imports what it CHECKS, which is not a dependency: it
-                       # reaches into markdown_projection, cli and safari_utils to hold
+                       # reaches into markdown_projection, cli and safari to hold
                        # them to their contracts, and counting that as use would put
                        # every checked module at src/
         tier = 'test' if rel.parts[0] == 'test' else 'main'
@@ -2204,8 +2204,8 @@ def check_capture_monotone(run) -> None:
     import tempfile
     import time
     sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'cli' / 'browser'))
-    import safari_utils
-    real_downloads = safari_utils.DOWNLOADS
+    import safari
+    real_downloads = safari.DOWNLOADS
 
     def turns(n):
         return ''.join(f'## Human ({i})\nq{i}\n\n## Gemini ({i})\na{i}\n\n' for i in range(1, n))
@@ -2218,7 +2218,7 @@ def check_capture_monotone(run) -> None:
             logs = base / 'logs'
             for d in (dl, dest, logs):
                 d.mkdir(parents=True)
-            safari_utils.DOWNLOADS = dl
+            safari.DOWNLOADS = dl
 
             long_md = turns(10)
             (dest / 'standing.md').write_text(long_md)
@@ -2227,7 +2227,7 @@ def check_capture_monotone(run) -> None:
             # the guard reports loudly, as it must in a real capture; here the verdicts
             # below are the report, so its output does not belong in the check log
             with contextlib.redirect_stdout(io.StringIO()):
-                moved = safari_utils.collect_md_and_log(after, dest, logs)
+                moved = safari.collect_md_and_log(after, dest, logs)
             kept = (dest / 'standing.md').read_text()
             run('capture: a shorter walk never replaces a longer record', kept == long_md,
                 None if kept == long_md else
@@ -2246,13 +2246,13 @@ def check_capture_monotone(run) -> None:
             (dl / 'grown.md').write_text(turns(20))
             after = time.time() - 1
             with contextlib.redirect_stdout(io.StringIO()):
-                moved = safari_utils.collect_md_and_log(after, dest, logs)
+                moved = safari.collect_md_and_log(after, dest, logs)
             grew = moved == ['grown.md'] and not (dest / 'standing.md').exists()
             run('capture: a longer walk still supersedes', grew,
                 None if grew else f'moved={moved}, dir={sorted(f.name for f in dest.glob("*.md"))} '
                 f'— the guard is blocking the normal path', law='L4', check='capture.monotone_record')
     finally:
-        safari_utils.DOWNLOADS = real_downloads
+        safari.DOWNLOADS = real_downloads
 
 
 def check_accumulate_contract(run) -> None:

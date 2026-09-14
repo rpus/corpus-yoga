@@ -15,7 +15,7 @@ function setupExporter() {
   // robustness; under retention the dedup marker is simply never needed twice.
   const transcript = [];
 
-  // Liveness/progress flags the driver (safari_capture.py) polls — so it detects start,
+  // Liveness/progress flags the driver (capture.py) polls — so it detects start,
   // progress, completion, and errors directly instead of waiting out a download timeout.
   // `progress` is a heartbeat that ticks on every scroll step: during the walk-to-top
   // phase nothing is captured for minutes, and without it the driver would call a

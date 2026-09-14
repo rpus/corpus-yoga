@@ -32,7 +32,7 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # and what is missing without touching Safari or writing anything — the same audit
 # `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
 status() {
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit_captures.py" \
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }
@@ -84,11 +84,11 @@ main() {
   # Two restrictions can intersect to nothing, and that is an answer — reported with
   # what does exist, never silently substituted with a default.
   local scope
-  scope="$("$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" --scope \
+  scope="$("$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/capture.py" --scope \
     ${provider:+--provider "$provider"} ${mechanism:+--mechanism "$mechanism"})"
   if [[ -z "$scope" ]]; then
     echo "error: --provider $provider --mechanism $mechanism selects nothing to capture; what exists:" >&2
-    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/safari_capture.py" --scope >&2
+    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/capture.py" --scope >&2
     exit 1
   fi
 
@@ -97,7 +97,7 @@ main() {
   # the bare noun already answers, and its bulk (consistency QA of
   # already-captured data) is not about what this run will do. The capture's
   # bracket is its EXTENT — captured / never-captured — computed by
-  # safari_capture.py from the discovery the run performs anyway; --dry-run is
+  # capture.py from the discovery the run performs anyway; --dry-run is
   # that first call run alone (G19: discovery + extent, nothing captured),
   # forwarded below like any other restriction.
   #
@@ -115,14 +115,14 @@ main() {
   done <<< "$scope"
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
-  # safari_capture.py's declaration, so this loop holds no second copy of which
+  # capture.py's declaration, so this loop holds no second copy of which
   # provider has which mechanism — the pair a restriction leaves empty simply does
   # not appear here.
   local rc=0 i=0
   for p in ${providers[@]+"${providers[@]}"}; do
     mechs="${provider_mechs[$i]}"
     echo "$p: capturing by ${mechs//+/ and }" | tee -a "${logs[$i]}"
-    "$SCRIPT_DIR/safari_capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
+    "$SCRIPT_DIR/capture.sh" --run-log "${logs[$i]}" --provider "$p" ${mechanism:+--mechanism "$mechanism"} \
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done

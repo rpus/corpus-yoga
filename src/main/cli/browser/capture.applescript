@@ -1,8 +1,8 @@
 -- Delegate to the appropriate capture script based on the front tab URL:
---   https://claude.ai/chat/*         → capture-conversation.applescript
---   https://claude.ai/recents        → capture-all-conversations.applescript
---   https://gemini.google.com/app/*  → capture-conversation.applescript
---   https://gemini.google.com/app    → capture-all-conversations.applescript
+--   https://claude.ai/chat/*         → capture_one.applescript
+--   https://claude.ai/recents        → capture_all.applescript
+--   https://gemini.google.com/app/*  → capture_one.applescript
+--   https://gemini.google.com/app    → capture_all.applescript
 --
 -- Prerequisite (one-time): Safari > Develop > Allow JavaScript from Apple Events
 
@@ -27,9 +27,9 @@ tell application "Safari"
 	set currentURL to URL of front document
 
 	if currentURL starts with "https://claude.ai/chat/" or currentURL starts with "https://gemini.google.com/app/" then
-		run script POSIX file (scriptDir & "/capture-conversation.applescript")
+		run script POSIX file (scriptDir & "/capture_one.applescript")
 	else if currentURL starts with "https://claude.ai/recents" or currentURL starts with "https://gemini.google.com/app" then
-		run script POSIX file (scriptDir & "/capture-all-conversations.applescript")
+		run script POSIX file (scriptDir & "/capture_all.applescript")
 	else
 		display alert "Front tab is not a recognised capture page." & return & return & currentURL buttons {"OK"} default button "OK"
 	end if
