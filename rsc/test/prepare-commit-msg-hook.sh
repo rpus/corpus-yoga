@@ -59,24 +59,25 @@ machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null 
 # breaks out of it entirely). Hold it to the charset agent.py holds machine labels to.
 machine="$(tr -cd 'A-Za-z0-9_-' <<< "$machine")"; [[ -n "$machine" ]] || machine='unbound'
 
-# The registry: one row per declared provider - provider, session variable, live
-# store, mount name, bot co-author pattern, note. The first row whose declared
-# variable this environment carries is the drafter; a row with no variable, or a
-# variable this environment lacks, attests nothing, and the machine alone is claimed.
-registry="$repo/rsc/provider/providers.csv"
+# The registry (rsc/provider/providers.csv): one row per declared provider - provider,
+# session variable, live store, mount name, bot co-author pattern, note - rendered by
+# src/main/provider.py one row per line, the fields separated by the ASCII unit
+# separator, so this hook parses no csv. The first row whose declared variable this
+# environment carries is the drafter; a row with no variable, or a variable this
+# environment lacks, attests nothing, and the machine alone is claimed.
+rows="$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$repo/src/main")" \
+  || { echo "prepare-commit-msg: the provider registry did not render (src/main/provider.py)" >&2; exit 1; }
 signature="Signature: ${machine}"
 bot_filter=''
-if [[ -f "$registry" ]]; then
-  while IFS=, read -r provider session_var _live _mount bot _note; do
-    [[ -n "$provider" && "$provider" != provider ]] || continue
-    provider="$(tr -cd 'A-Za-z0-9_-' <<< "$provider")"
-    [[ -n "$bot" ]] && bot_filter="${bot_filter:+$bot_filter|}$bot"
-    if [[ -n "$session_var" && "$signature" == "Signature: ${machine}" ]]; then
-      session="${!session_var:-}"
-      [[ -n "$session" ]] && signature="Signature: ${machine}/${provider}/${session:0:8}"
-    fi
-  done < "$registry"
-fi
+while IFS=$'\x1f' read -r provider session_var _live _mount bot _note; do
+  [[ -n "$provider" ]] || continue
+  provider="$(tr -cd 'A-Za-z0-9_-' <<< "$provider")"
+  [[ -n "$bot" ]] && bot_filter="${bot_filter:+$bot_filter|}$bot"
+  if [[ -n "$session_var" && "$signature" == "Signature: ${machine}" ]]; then
+    session="${!session_var:-}"
+    [[ -n "$session" ]] && signature="Signature: ${machine}/${provider}/${session:0:8}"
+  fi
+done <<< "$rows"
 
 # Strip the model co-authors the registry declares, each anchored on its harness's bot
 # e-mail — the invariant part, stable across model renames, and the only thing that

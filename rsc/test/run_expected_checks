@@ -78,7 +78,6 @@ model.occurrence_family_grammar
 model.occurrence_pointers_resolve
 model.occurrences_cover_edges
 provider.names_declared
-provider.readers_agree
 provider.registry_parses
 reference.lineage_changelog
 reference.lineage_declared

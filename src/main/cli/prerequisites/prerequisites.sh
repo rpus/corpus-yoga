@@ -506,9 +506,10 @@ check_pipeline_inputs() {
 
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
   # machine holds, and the live harness mount the census and capture read (#628).
-  local p_name p_live p_mount p_store p_remedy
-  while IFS=, read -r p_name _ p_live p_mount _ _; do
-    [[ -n "$p_name" && "$p_name" != provider ]] || continue
+  local p_name p_live p_mount p_store p_remedy p_rows
+  p_rows="$(python3 -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_ROOT/src/main")" || return 1
+  while IFS=$'\x1f' read -r p_name _ p_live p_mount _ _; do
+    [[ -n "$p_name" ]] || continue
     p_store="data/input/$p_name/code/machine-transport"
     # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
     # store); a remedy naming it for another provider would name an act that does
@@ -535,7 +536,7 @@ check_pipeline_inputs() {
         todo mount "ext/mnt/$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
       fi
     fi
-  done < "$REPO_ROOT/rsc/provider/providers.csv"
+  done <<< "$p_rows"
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
   # it), so sync --apply cannot create it and absence is not a todo — deploying is

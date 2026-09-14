@@ -11,8 +11,9 @@ reader treats it as absent, never guesses.
 
 The sibling of machine.py: a machine is an identity and so is a provider;
 rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,
-like machine.py and cli.py: importable on a fresh clone before the venv exists, and
-by the commit hook's readers.
+like machine.py and cli.py: importable on a fresh clone before the venv exists. The
+shell readers (the commit hook, the mount script, the machine report) take lines(),
+so the csv grammar is read in one place.
 """
 import csv
 from pathlib import Path
@@ -23,12 +24,29 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 REGISTRY = REPO / 'rsc' / 'provider' / 'providers.csv'
+COLUMNS = ('provider', 'session_env_var', 'live_store', 'mount_name', 'bot_author_pattern', 'note')
+SEPARATOR = '\x1f'   # the ASCII unit separator: not whitespace, so `IFS=$'\x1f' read -r` keeps an empty field
 
 
 def providers() -> list[dict[str, str]]:
     """The declared providers, in registry order."""
     with REGISTRY.open(newline='') as f:
         return [r for r in csv.DictReader(f) if r['provider'].strip()]
+
+
+def lines() -> str:
+    """The rows for a shell reader: one row per line, the fields in COLUMNS order joined
+    by SEPARATOR. The csv grammar is read here and nowhere else, so a field may hold a
+    comma or a quote; a field holding the separator or a newline is refused, since the
+    shell reader could not tell it from the row's shape."""
+    rows = []
+    for r in providers():
+        fields = [r[c] for c in COLUMNS]
+        bad = [c for c, f in zip(COLUMNS, fields) if SEPARATOR in f or '\n' in f]
+        if bad:
+            raise ValueError(f'{REGISTRY.relative_to(REPO)}: {r["provider"]}: {", ".join(bad)} holds a separator or a newline')
+        rows.append(SEPARATOR.join(fields))
+    return '\n'.join(rows)
 
 
 def provider_names() -> list[str]:
