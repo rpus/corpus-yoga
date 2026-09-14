@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-copy_gemini_markdown.py — copy gemini scrape markdown into the presentation tree
+project_markdown.py - project gemini's scrape markdown into the presentation tree (the gemini counterpart of src/main/model/project_markdown.py)
 (data/output/markdown/gemini/chat/conversations, beside claude's projections), anchoring each turn heading:
 
     ## Human (3)   ->   ## Human (3) <a id="human-3"></a>
@@ -21,7 +21,7 @@ identity. Captured conversations absent from the ordering append after it,
 id-sorted; a residual filename collision gets the id prefixed (the old rule).
 
 Usage:
-  src/run_python_script.sh src/main/pipeline/browser-captures/copy_gemini_markdown.py \
+  src/run_python_script.sh src/main/pipeline/browser-captures/gemini/project_markdown.py \
     [--browser-dom data/input/gemini/chat/browser-DOM] [--out tmp/cache/markdown/gemini]
 """
 import argparse
@@ -29,7 +29,7 @@ import re
 import sys
 from pathlib import Path
 
-SELF = 'src/main/pipeline/browser-captures/copy_gemini_markdown.py'
+SELF = 'src/main/pipeline/browser-captures/gemini/project_markdown.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'

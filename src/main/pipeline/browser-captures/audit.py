@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-audit_captures.py — list known/suspect problems across the browser-captures corpus.
+audit.py — list known/suspect problems across the browser-captures corpus.
 
 The recapture workflow needs a staleness detector: after having (or extending) a
 conversation, the user recaptures it (Shortcut / --id); this tool says which
@@ -25,7 +25,7 @@ Filesystem audit (always) — "are the captures I have any good?"
   response ending in rendered maths).
 
 Usage:
-  src/run_python_script.sh src/main/pipeline/browser-captures/audit_captures.py \
+  src/run_python_script.sh src/main/pipeline/browser-captures/audit.py \
     [--input input] [--api data/output/markdown/claude/chat/conversations] [--live]
 
 Exit status is non-zero iff anything actionable is found.
@@ -37,7 +37,7 @@ import sys
 import time
 from pathlib import Path
 
-SELF = 'src/main/pipeline/browser-captures/audit_captures.py'
+SELF = 'src/main/pipeline/browser-captures/audit.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -46,7 +46,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # library.py — the artifact library's owner (#421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
-from safari_utils import SendRefused   # --live sends; the refusal has to be catchable here
+from safari import SendRefused   # --live sends; the refusal has to be catchable here
 
 # Gemini renders only the last N exchanges until scrolled; a DOM capture sitting exactly
 # at the ceiling is overwhelmingly likely to be a truncated pre-walking one.
@@ -168,7 +168,7 @@ def report_live(provider: str, findings: list[tuple[str, str, str]]) -> list[str
 
 def live_claude(captures_dir: Path) -> list[str]:
     """One listing fetch: every conversation's updated_at vs the captured JSONs'."""
-    from safari_utils import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
+    from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
     safari_navigate('https://claude.ai/recents')
     time.sleep(PAGE_LOAD_WAIT + 2)
     safari_eval_js(CLAUDE_LISTING_JS)
@@ -206,8 +206,8 @@ def live_claude(captures_dir: Path) -> list[str]:
 def live_gemini(captures_dir: Path) -> list[str]:
     """Browse the listing for NEW ids; tail-check each captured conversation
     (append-only: an unchanged rendered tail means an unchanged conversation)."""
-    from safari_capture import PROVIDERS, ids_from_safari, wait_for_ready
-    from safari_utils import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
+    from capture import PROVIDERS, ids_from_safari, wait_for_ready
+    from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
     cfg = PROVIDERS['gemini']
     ids = ids_from_safari('gemini', cfg)
     captured_dirs = {d.name: d for d in captures_dir.iterdir() if d.is_dir()}
@@ -293,7 +293,7 @@ def main():
 
     actionable = []
     if args.live:
-        from safari_utils import safari_open_work_tab, safari_close_work_tab
+        from safari import safari_open_work_tab, safari_close_work_tab
         prev_tab = safari_open_work_tab()
         try:
             # each pass prints its own findings as it completes them, so no id ever
