@@ -1,4 +1,4 @@
-run.py: code+schema 1292/1292
+run.py: code+schema 1296/1296
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -41,7 +41,7 @@ run.py: code+schema 1292/1292
   ✓ naming.target_stem_matches_command  (21/21)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
-  ✓ output.prescriptions_are_commands  (59/59)
+  ✓ output.prescriptions_are_commands  (63/63)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
   ✓ effects.send_switch_read_once
@@ -185,7 +185,7 @@ check_self_paths                      80     0   code       14
 check_committed_tree                   2     0   code       17
 check_templates                        2     0   code       21
 check_xref                             2     0   code       24
-check_cli_surface                    512     0   code       28
+check_cli_surface                    516     0   code       28
 check_cli_verb_help                   19     0   code       61
 check_cli_exclusive_classes            6     0   code       64
 check_effects                          2     0   code       67
@@ -211,8 +211,8 @@ check_mcp_reproducible                 1     0   schema    174
 check_expectation                      2     0   code      177
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 114 types, 1292/1292 invocations passing
-checks[code]: 64 types, 682/682 invocations passing
+checks[code+schema]: 114 types, 1296/1296 invocations passing
+checks[code]: 64 types, 686/686 invocations passing
 checks[schema]: 50 types, 610/610 invocations passing
 
-dev gate: PASS — code+schema 1292/1292 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1296/1296 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
