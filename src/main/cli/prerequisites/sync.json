@@ -29,6 +29,7 @@
     "rsc/provider"
   ],
   "x": [
-    "corpus-yoga grammar sync"
+    "corpus-yoga grammar sync",
+    "src/main/pipeline/code-agents/link_projects.sh"
   ]
 }

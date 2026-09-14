@@ -506,21 +506,29 @@ check_pipeline_inputs() {
 
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
   # machine holds, and the live harness mount the census and capture read (#628).
-  local p_name p_live p_mount p_store
+  local p_name p_live p_mount p_store p_remedy
   while IFS=, read -r p_name _ p_live p_mount _ _; do
     [[ -n "$p_name" && "$p_name" != provider ]] || continue
     p_store="data/input/$p_name/code/machine-transport"
+    # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
+    # store); a remedy naming it for another provider would name an act that does
+    # not do what it says. #633 retires this branch.
+    if [[ "$p_name" == claude ]]; then
+      p_remedy="./corpus-yoga agent capture --all stashes it"
+    else
+      p_remedy="no capture verb serves $p_name yet - #633"
+    fi
     if [[ -d "$REPO_ROOT/$p_store" ]]; then
       n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
       local sessions
       sessions="$(find -L "$REPO_ROOT/$p_store" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
       ok "code-agents: $p_store holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
     else
-      info "code-agents: no $p_store store — will skip (hand-make the symlink to the shared store; populate via corpus-yoga agent capture --all)"
+      info "code-agents: no $p_store store — will skip (hand-make the symlink to the shared store; $p_remedy)"
     fi
     [[ -n "$p_live" && -n "$p_mount" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then
-      info "live $p_live present — harness-owned, expires at the provider's will; stash it: ./corpus-yoga agent capture --all"
+      info "live $p_live present — harness-owned, expires at the provider's will; $p_remedy"
       if [[ -d "$REPO_ROOT/ext/mnt/$p_mount" ]]; then
         ok "ext/mnt/$p_mount → $p_live (the census and capture read it)"
       else
