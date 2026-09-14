@@ -23,8 +23,8 @@ from `JSONValue`, the protocol version pinned on the `_meta` field that names it
 derivation refuses an unreachable table that disagrees with the wire, a
 definition no rule places, and an addition row that fits neither reading, and
 every description ends with its layer. One instance is one JSON-RPC message; the
-root is the house definition `MCPMessage`, which admits exactly what the wire
-admits. Upstream's `schema.json` is the witness, never a source: the dev gate
+root is the house definition `MCPMessage`, the closed union of the protocol's typed
+messages - what only the wire's generic vocabulary admits, it refuses. Upstream's `schema.json` is the witness, never a source: the dev gate
 holds the version file byte-identical to the derivation (`mcp.factoring_current`)
 and every upstream definition equal to its house counterpart resolved and
 normalized, the declared additions set back (`mcp.factoring_agrees`). No data is
@@ -48,15 +48,35 @@ generator drops is carried by declaration (`addition.csv`): `JSONValue` admits
 schema.ts exports and no JSON of upstream's carries. 161 definitions, as v4; the
 witness agrees on every one, the two additions set back.
 
+The root is now the protocol's, not the wire's: `MCPMessage` no longer carries
+`JSONRPCMessage` as a branch. That union admits any JSON-RPC message, so with it
+the root admitted an unknown method and a request naming another protocol version -
+messages the protocol refuses (`MethodNotFoundError`,
+`UnsupportedProtocolVersionError`) - and the version pin below bit only the typed
+requests (home-room's review of 2026-09-09: refused as `ListToolsRequest`, admitted
+as `MCPMessage`). The wire's generic vocabulary - `JSONRPCMessage`, `JSONRPCResponse`,
+the four envelopes, `Request` and `Notification` - stands unreachable, declared in
+`unreachable.csv`: every typed message composes over the house headers, not over
+the envelopes, so nothing but the root reached them. `MCPMessage` has 18 branches
+(v4: 19). The status face counts 138 category tags where v4's derivation counted
+135: the JSDoc lookup now steps past a line comment between a JSDoc and its
+declaration, which gives `EnumSchema`, `SingleSelectEnumSchema` and
+`MultiSelectEnumSchema` their tags.
+
 ### Replaces
 
 v4
 
 #### Restricted
 
+- `MCPMessage` - the closed union of the protocol's typed messages: a JSON-RPC
+  message that is none of them - an unknown method, a request naming another
+  protocol version - is refused at the root, as the protocol refuses it; v4's root
+  carried the generic `JSONRPCMessage` branch and admitted any well-formed JSON-RPC
+  message.
 - `RequestMetaObject.io.modelcontextprotocol/protocolVersion` - `enum
-  ["2026-07-28"]`: a request naming another protocol version is refused, as the
-  wire refuses it (`UnsupportedProtocolVersionError`); v4 admitted any string.
+  ["2026-07-28"]`: a request naming another protocol version is refused, in every
+  typed request and at the root; v4 admitted any string.
 
 #### Relaxed
 
@@ -75,7 +95,9 @@ v4
 - `EmptyResult` carries its own JSDoc ("A result that indicates success but
   carries no data.") where v4 carried its target's; `ClientNotification` and
   `ClientResult`, aliases without a JSDoc, take house text from `description.csv`.
-- The family description names the generation, the witness and `addition.csv`.
+- The family description names the generation, the witness, `addition.csv` and
+  the root's closure; eight definitions of the wire's generic vocabulary stand
+  last, unreachable and declared.
 
 ## v4
 

@@ -49,17 +49,23 @@ shapes over the bases schema.ts declares, and adds what the house adds:
   reading back to upstream's before comparing, and refuses a row upstream no longer
   bears.
 
-The root is a house definition, MCPMessage: the wire message read as any of the
-typed message shapes upstream exports but no definition references (the
-direction unions, the typed result responses, the typed error responses), plus
-house wrappers giving the result and error unions a party sends their message.
-A party's results are carried only when the other party declares requests
-(PARTIES): where schema.ts declares no ServerRequest, no message carries a
-ClientResult, and no wrapper is minted for one - the union stands unreachable,
-declared as such in unreachable.csv. Every other definition is reachable from
-the root, and the house diagnostics hold over the family. Every alias schema.ts
-declares is a reference wherever it is used: the aliases upstream's generator
-inlines and leaves dead are live here by construction.
+The root is a house definition, MCPMessage: the closed union of the protocol's typed
+message shapes - the direction unions, the typed result responses and the typed
+error responses upstream exports but no definition references - and of the house
+wrappers that give the result and error unions a party sends their message. The
+generic wire unions upstream exports, JSONRPCMessage and JSONRPCResponse, admit any
+JSON-RPC message - an unknown method, a request naming another protocol version -
+which the protocol refuses (MethodNotFoundError, UnsupportedProtocolVersionError),
+so they are no branches of the root: they stand as definitions, unreachable and
+declared so in unreachable.csv - with the four envelopes they gather and the Request
+and Notification those extend, since every typed message composes over the house
+headers and not over the generic envelopes. A party's results are carried only
+when the other party declares requests (PARTIES): where schema.ts declares no
+ServerRequest, no message carries a ClientResult, and no wrapper is minted for one -
+the union stands unreachable, declared as such. Every other definition is reachable
+from the root, and the house diagnostics hold over the family. Every alias schema.ts
+declares is a reference wherever it is used: the aliases upstream's generator inlines
+and leaves dead are live here by construction.
 
 The witness is `disagreements()`: every snapshot definition and its house
 counterpart - flattened (allOf merged), both resolved through their $refs to a
@@ -103,6 +109,9 @@ COMPOSITION  = CACHE_DIR / 'composition.csv'
 CATEGORIES   = CACHE_DIR / 'category.csv'
 FAMILY       = 'mcpMessage'
 ROOT_DEFINITION = 'MCPMessage'
+# The generic wire unions: any JSON-RPC message is one of these, so a root that admitted
+# them would admit a message the protocol refuses (an unknown method, another version).
+WIRE_UNIONS = ('JSONRPCMessage', 'JSONRPCResponse')
 # The two session roles: a party's results answer the other party's requests.
 PARTIES = {'Client': 'Server', 'Server': 'Client'}
 DRAFT_04 = 'http://json-schema.org/draft-04/schema#'
@@ -154,11 +163,14 @@ RESULT_BASE = 'Result'
 ERROR_BASE = 'Error'
 HOUSE_DESCRIPTIONS = {
     ROOT_DEFINITION:
-        'One MCP message: a JSON-RPC message, read as any of the typed message shapes '
-        'upstream exports but no definition references - the direction unions, the typed '
-        'result responses, the typed error responses - and as the house wrappers that give '
-        'the result and error unions a party sends their message. Every branch is a '
-        'JSONRPCMessage, so the union admits exactly what the wire admits.',
+        "One MCP message: the closed union of the protocol's typed message shapes - the "
+        'direction unions, the typed result responses and the typed error responses upstream '
+        'exports but no definition references - and of the house wrappers that give the result '
+        'and error unions a party sends their message. A JSON-RPC message that is none of these '
+        '- an unknown method, a request naming another protocol version - is refused here, as '
+        'the protocol refuses it (MethodNotFoundError, UnsupportedProtocolVersionError); the '
+        "wire's generic vocabulary - JSONRPCMessage, the four envelopes it gathers, Request and "
+        'Notification - admits any such message and stands as definitions, never as branches.',
     'ProtocolError':
         "The JSON-RPC error objects upstream types by code and no definition references.",
     'ProtocolErrorResponse':
@@ -701,7 +713,8 @@ def _referenced(definitions: dict) -> set[str]:
 
 def _house_root(definitions: dict, shapes: dict, declared: dict) -> dict:
     """MCPMessage and its wrappers: every message-shaped definition nothing references
-    is a branch; an unreferenced result union a party sends gets a <Union>Response
+    is a branch, the generic wire unions aside (WIRE_UNIONS - a protocol schema refuses
+    what they admit); an unreferenced result union a party sends gets a <Union>Response
     wrapper (a party's results are sent only when the other party declares
     requests - uncarried_results); the unreferenced error objects gather in
     ProtocolError under ProtocolErrorResponse."""
@@ -709,7 +722,7 @@ def _house_root(definitions: dict, shapes: dict, declared: dict) -> dict:
     referenced = _referenced(definitions)
     uncarried = {union for union, _ in uncarried_results(shapes)}
     loose = [n for n in shapes if n not in referenced and n not in HEADERS]
-    branches = [n for n in loose if kinds[n] == 'message']
+    branches = [n for n in loose if kinds[n] == 'message' and n not in WIRE_UNIONS]
     for union in [n for n in loose if kinds[n] == 'result' and n not in uncarried]:
         wrapper = f'{union}Response'
         assert wrapper not in shapes, f'upstream now defines {wrapper}; the house wrapper needs a new name'
@@ -835,8 +848,8 @@ def factored(flat_shapes: dict, described: dict, declared: dict, prov: dict,
             'schema.ts alone - the composition its generator flattens, stated once: JSONRPCHeader (the '
             'version pin) and JSONRPCIdentifiedHeader (header plus id) declared as bases, every base live, each '
             'message allOf its header and its own fields, every type alias a reference wherever it is used, '
-            'const spelled as one-element enum, and MCPMessage the root - the '
-            'wire message read as any typed message shape upstream exports. Generated by '
+            'const spelled as one-element enum, and MCPMessage the root - the closed union of the '
+            "protocol's typed messages, refusing what only the generic JSON-RPC envelopes admit. Generated by "
             f"corpus-yoga mcp sync from rsc/reference/mcp/{prov['lineage']}/schema.ts (upstream commit {prov['commit']}, "
             f"{prov['ts_url']}), read through the house TypeScript grammar by src/main/mcp/mcp_generation.py, one stated "
             "rule per TypeScript form; upstream's schema.json at that commit "
