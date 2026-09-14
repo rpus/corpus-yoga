@@ -5,14 +5,16 @@ schema by stated rules, on the pattern of the maintainer's Expander (AsConsumer,
 AsProducer): a party validates what it receives against the CONSUMER face and what
 it sends against the PRODUCER face.
 
-- consumer: every definition flat - its allOf resolved into one object, the bases'
-  members merged in, so a validator chases no composition - and open, as draft-04
+- consumer: every definition flat - its allOf resolved into one object at every
+  position, the definition's own and any nested in a member, the bases' members
+  merged in, so a validator chases no composition - and open, as draft-04
   leaves an object without additionalProperties: unknown members are tolerated,
   since the wire adds `_meta` keys and extensions. Its law: every instance the
   factoring admits, the consumer face admits (flattening is the conjunction allOf
   states, spelled as one object).
-- producer: every definition flat as well - an allOf member closed by
-  additionalProperties: false would refuse the members its siblings supply - and
+- producer: every definition flat as well, at every position - an allOf member
+  closed by additionalProperties: false would refuse the members its siblings
+  supply, one level down as much as at the top - and
   closed: every object schema with members and no index signature, at any depth,
   gets additionalProperties: false, so a producer emits nothing the protocol does
   not name. Its law: every instance the producer face admits, the factoring admits
@@ -34,7 +36,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))
-from schema_walk import rebuilt  # noqa: E402
+from schema_walk import rebuilt, schema_nodes  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import mcp_factoring as factoring  # noqa: E402  (sibling module)
 
@@ -45,9 +47,20 @@ LAW = {
 }
 
 
+def _deep(node: dict, definitions: dict) -> dict:
+    """node with every allOf at every schema position resolved into one object - the
+    definition's own and any nested in a member (the three typed errors carry
+    `error: allOf [Error, {code}]`), so a face holds no allOf anywhere."""
+    return rebuilt(factoring.flattened(node, definitions), lambda child: _deep(child, definitions))
+
+
 def _flat(definitions: dict) -> dict:
-    """Every definition with its allOf resolved into one object, in the factoring's order."""
-    return {name: factoring.flattened(body, definitions) for name, body in definitions.items()}
+    """Every definition with its allOf resolved into one object at every position, in
+    the factoring's order; refuses if any allOf survives."""
+    flat = {name: _deep(body, definitions) for name, body in definitions.items()}
+    left = [name for name, body in flat.items() if any('allOf' in node for _, node in schema_nodes(body))]
+    assert not left, f'an allOf survives the flattening in {left}'
+    return flat
 
 
 def _closed(node: dict) -> dict:
