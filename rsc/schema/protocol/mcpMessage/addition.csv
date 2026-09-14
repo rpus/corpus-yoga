@@ -1,0 +1,3 @@
+"definition","pointer","upstream","house"
+"JSONValue","anyOf/2/type","[""string"", ""integer"", ""boolean""]","[""string"", ""integer"", ""boolean"", ""null""]"
+"RequestMetaObject","properties/io.modelcontextprotocol~1protocolVersion/enum","","[""${LATEST_PROTOCOL_VERSION}""]"

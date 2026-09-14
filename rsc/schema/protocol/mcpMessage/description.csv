@@ -23,3 +23,5 @@
 "SingleSelectEnumSchema","An enum input schema allowing one selected value, titled or untitled."
 "StringSchema","A primitive input schema for elicitation: a string field, with optional length bounds, format and default."
 "TextResourceContents","The contents of a resource delivered as text, with its URI and an optional MIME type."
+"ClientNotification","The one notification a client sends - the cancellation of a request it issued; in this lineage an alias of CancelledNotification, since a client sends no other."
+"ClientResult","The results a client returns; in this lineage an alias of EmptyResult, and no message carries one - a client answers no request (unreachable.csv)."
