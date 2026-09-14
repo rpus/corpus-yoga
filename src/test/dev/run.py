@@ -1939,6 +1939,38 @@ def check_grammar(run) -> None:
             check='grammar.parser_current')
 
 
+def check_provider_registry(run) -> None:
+    """The provider registry (rsc/provider/providers.csv, #628) parses, and every
+    provider src/ names - by a directory under the two browser trees, or by a
+    data/input/<provider>/chat/ or /code/ path in a script or declaration, the two
+    modalities a provider has (data/input/github/ is the forge's, not a provider's) - is a row of it: the
+    registry is the one source of provider names, and a name it does not declare is a
+    provider the hook cannot attest and the report cannot iterate."""
+    registry = REPO_ROOT / 'rsc' / 'provider' / 'providers.csv'
+    try:
+        with registry.open(newline='') as f:
+            declared = [r['provider'].strip() for r in csv.DictReader(f) if r['provider'].strip()]
+    except (OSError, KeyError) as e:
+        declared = []
+        run('provider: registry parses: rsc/provider/providers.csv', False, str(e), check='provider.registry_parses')
+    else:
+        run('provider: registry parses: rsc/provider/providers.csv', bool(declared),
+            None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')
+    named: dict[str, set[str]] = {}
+    for tree in ('src/main/cli/browser', 'src/main/pipeline/browser-captures'):
+        for d in sorted((REPO_ROOT / tree).iterdir()):
+            if d.is_dir() and d.name != '__pycache__':
+                named.setdefault(d.name, set()).add(f'{tree}/{d.name}/')
+    for path in sorted((REPO_ROOT / 'src').rglob('*')):
+        if path.is_file() and path.suffix in ('.py', '.sh', '.json'):
+            for m in re.finditer(r'data/input/([a-z][a-z0-9_-]*)/(?:chat|code)/', path.read_text(errors='ignore')):
+                named.setdefault(m.group(1), set()).add(str(path.relative_to(REPO_ROOT)))
+    undeclared = {n: sorted(where) for n, where in named.items() if n not in declared}
+    run('provider: every provider src/ names is declared in rsc/provider/providers.csv', not undeclared,
+        None if not undeclared else '; '.join(f'{n} named by {", ".join(w[:3])}' for n, w in sorted(undeclared.items()))
+        + ' - declare it in rsc/provider/providers.csv, or the name is not a provider', check='provider.names_declared')
+
+
 def check_reference(run) -> None:
     """Every upstream reference artefact under rsc/reference (#572, #587) is what its
     project's provenance.csv pins, hermetically: the committed bytes hash to the
@@ -2344,6 +2376,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_model_occurrences': SCHEMA + MODEL + ['src'],
     'check_model_obligations': SCHEMA + MODEL + ['src'],
     'check_reference': ['rsc/reference'],
+    'check_provider_registry': ['rsc/provider', 'src'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
     'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],
     'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp', 'src/gen/grammar'],
@@ -2593,6 +2626,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_model_obligations, tier='schema')
         run_section(check_model_identity, tier='schema')
         run_section(check_grammar, tier='schema')
+        run_section(check_provider_registry, tier='code')
         run_section(check_reference, tier='schema')
         run_section(check_mcp_factoring, tier='schema')
         run_section(check_mcp_reproducible, tier='schema')

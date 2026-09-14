@@ -59,6 +59,7 @@ from safari import (  # noqa: E402
     PAGE_LOAD_WAIT,
 )
 from claude.api import fetch_api, complete_files  # noqa: E402  (the claude mechanism: the API fetch and the record's completion)
+import provider as registry  # noqa: E402  (rsc/provider/providers.csv - the one source of provider names)
 
 # ── channels (#413): the run log carries the narrative, the terminal the anchor,
 # one line per conversation, and the verdict. TERM is the real terminal; when
@@ -175,6 +176,8 @@ PROVIDERS = {
         'ordering_capture': True,
     },
 }
+assert set(PROVIDERS) <= set(registry.provider_names()), (
+    f'PROVIDERS names {sorted(set(PROVIDERS) - set(registry.provider_names()))}, which rsc/provider/providers.csv does not declare')
 
 
 def write_ordering(cfg, ids, dom_root):

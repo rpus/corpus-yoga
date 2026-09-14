@@ -504,22 +504,30 @@ check_pipeline_inputs() {
     info "chat-exports: no data-* bulk export in data/input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  if [[ -d "$REPO_ROOT/data/input/claude/code/machine-transport" ]]; then
-    n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/code/machine-transport"/*/)"
-    local sessions
-    sessions="$(find -L "$REPO_ROOT/data/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-agents: data/input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
-  else
-    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via corpus-yoga agent capture --all)"
-  fi
-  if [[ -d "$HOME/.claude/projects" ]]; then
-    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./corpus-yoga agent capture --all"
-    if [[ -d "$REPO_ROOT/ext/mnt/claude-code-projects" ]]; then
-      ok "ext/mnt/claude-code-projects → ~/.claude/projects (the census and capture read it)"
+  # Per declared provider (rsc/provider/providers.csv): the code-agents store this
+  # machine holds, and the live harness mount the census and capture read (#628).
+  local p_name p_live p_mount p_store
+  while IFS=, read -r p_name _ p_live p_mount _ _; do
+    [[ -n "$p_name" && "$p_name" != provider ]] || continue
+    p_store="data/input/$p_name/code/machine-transport"
+    if [[ -d "$REPO_ROOT/$p_store" ]]; then
+      n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
+      local sessions
+      sessions="$(find -L "$REPO_ROOT/$p_store" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
+      ok "code-agents: $p_store holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
     else
-      todo mount "ext/mnt/claude-code-projects absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+      info "code-agents: no $p_store store — will skip (hand-make the symlink to the shared store; populate via corpus-yoga agent capture --all)"
     fi
-  fi
+    [[ -n "$p_live" && -n "$p_mount" ]] || continue
+    if [[ -d "${p_live/#\~/$HOME}" ]]; then
+      info "live $p_live present — harness-owned, expires at the provider's will; stash it: ./corpus-yoga agent capture --all"
+      if [[ -d "$REPO_ROOT/ext/mnt/$p_mount" ]]; then
+        ok "ext/mnt/$p_mount → $p_live (the census and capture read it)"
+      else
+        todo mount "ext/mnt/$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+      fi
+    fi
+  done < "$REPO_ROOT/rsc/provider/providers.csv"
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
   # it), so sync --apply cannot create it and absence is not a todo — deploying is
@@ -576,7 +584,7 @@ sync() {
   local acts=()
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
   _todo_has hook && acts+=("install the pre-commit hook (corpus-yoga test install-hook)")
-  _todo_has mount && acts+=("create the ext/mnt/claude-code-projects mount (link_projects.sh)")
+  _todo_has mount && acts+=("create the declared live mounts under ext/mnt/ (link_projects.sh)")
   _todo_has gen && acts+=("generate the parsers from rsc/rpus/grammar into src/gen/grammar (corpus-yoga grammar sync)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"
