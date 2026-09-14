@@ -504,22 +504,45 @@ check_pipeline_inputs() {
     info "chat-exports: no data-* bulk export in data/input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  if [[ -d "$REPO_ROOT/data/input/claude/code/machine-transport" ]]; then
-    n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/code/machine-transport"/*/)"
-    local sessions
-    sessions="$(find -L "$REPO_ROOT/data/input/claude/code/machine-transport" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-    ok "code-agents: data/input/claude/code/machine-transport holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
+  # Per declared provider (rsc/provider/providers.csv): the code-agents store this
+  # machine holds, and the live harness mount the census and capture read (#628).
+  local p_name p_live p_mount p_store p_remedy p_rows
+  # The registry is read by the venv's python (#478); before the mint, the rows follow it.
+  if [[ -x "$VENV/bin/python" ]]; then
+    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_ROOT/src/main")" || return 1
   else
-    info "code-agents: no data/input/claude/code/machine-transport store — will skip (hand-make the symlink to the shared store; populate via corpus-yoga agent capture --all)"
+    info "providers: rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint: $(sync_remedy)"
+    p_rows=''
   fi
-  if [[ -d "$HOME/.claude/projects" ]]; then
-    info "live ~/.claude/projects present — harness-owned, expires at Anthropic's will; stash it: ./corpus-yoga agent capture --all"
-    if [[ -d "$REPO_ROOT/ext/mnt/claude-code-projects" ]]; then
-      ok "ext/mnt/claude-code-projects → ~/.claude/projects (the census and capture read it)"
+  while IFS=$'\x1f' read -r p_name _ p_live p_mount _ _; do
+    [[ -n "$p_name" ]] || continue
+    p_store="data/input/$p_name/code/machine-transport"
+    # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
+    # store); a remedy naming it for another provider would name an act that does
+    # not do what it says. #633 retires this branch.
+    if [[ "$p_name" == claude ]]; then
+      p_remedy="./corpus-yoga agent capture --all stashes it"
     else
-      todo mount "ext/mnt/claude-code-projects absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+      p_remedy="no capture verb serves $p_name yet - #633"
     fi
-  fi
+    if [[ -d "$REPO_ROOT/$p_store" ]]; then
+      n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
+      local sessions
+      sessions="$(find -L "$REPO_ROOT/$p_store" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
+      ok "code-agents: $p_store holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
+    else
+      info "code-agents: no $p_store store — will skip (hand-make the symlink to the shared store; $p_remedy)"
+    fi
+    [[ -n "$p_live" && -n "$p_mount" ]] || continue
+    if [[ -d "${p_live/#\~/$HOME}" ]]; then
+      info "live $p_live present — harness-owned, expires at the provider's will; $p_remedy"
+      if [[ -d "$REPO_ROOT/ext/mnt/$p_mount" ]]; then
+        ok "ext/mnt/$p_mount → $p_live (the census and capture read it)"
+      else
+        todo mount "ext/mnt/$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+      fi
+    fi
+  done <<< "$p_rows"
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
   # it), so sync --apply cannot create it and absence is not a todo — deploying is
@@ -576,7 +599,7 @@ sync() {
   local acts=()
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
   _todo_has hook && acts+=("install the pre-commit hook (corpus-yoga test install-hook)")
-  _todo_has mount && acts+=("create the ext/mnt/claude-code-projects mount (link_projects.sh)")
+  _todo_has mount && acts+=("create the declared live mounts under ext/mnt/ (link_projects.sh)")
   _todo_has gen && acts+=("generate the parsers from rsc/rpus/grammar into src/gen/grammar (corpus-yoga grammar sync)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"

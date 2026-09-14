@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Ensures ext/mnt/claude-code-projects is a symlink to ~/.claude/projects
-# (ext/mnt/ is the by-reference species: mounts of state other systems own).
+# Ensures ext/mnt/<mount> is a symlink to each declared provider's live session
+# store where that store exists (rsc/provider/providers.csv; ext/mnt/ is the
+# by-reference species: mounts of state other systems own).
 #
 # Usage:
 #   src/main/pipeline/code-agents/link_projects.sh
@@ -23,7 +24,15 @@ parse_args() {
 
 link_projects() {
   mkdir -p "$REPO_DIR/ext/mnt"
-  ln -sfn ~/.claude/projects "$REPO_DIR/ext/mnt/claude-code-projects"
+  local provider live mount rows
+  rows="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_DIR/src/main")" || exit 1
+  while IFS=$'\x1f' read -r provider _ live mount _ _; do
+    [[ -n "$provider" && -n "$live" && -n "$mount" ]] || continue
+    live="${live/#\~/$HOME}"
+    [[ -d "$live" ]] || continue
+    ln -sfn "$live" "$REPO_DIR/ext/mnt/$mount"
+    echo "ext/mnt/$mount → ${live/#$HOME/~}"
+  done <<< "$rows"
   # the pre-species address; a link is re-creatable state, so retiring it here is
   # the script doing its one job at the new address rather than leaving two names
   if [[ -L "$REPO_DIR/ext/claude-code-projects" ]]; then

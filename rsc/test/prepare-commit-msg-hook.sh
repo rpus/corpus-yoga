@@ -3,14 +3,17 @@
 # drafting SIGNATURE, and strip the volatile model co-author. This header is the
 # grammar's ONE home — the hook implements it, so nothing restates it elsewhere.
 #
-#   Signature: <machine>/<provider>/<session>      (a Claude Code session drafted it)
-#   Signature: <machine>                           (no agent session in the environment)
+#   Signature: <machine>/<provider>/<session>      (a declared provider's session drafted it)
+#   Signature: <machine>                           (no declared session in the environment)
 #
 # machine  — this machine's binding (machine-name.txt, its self-name), read at
 #            commit time. The concrete axis, not the "room" metonym. Always knowable.
-# provider — the AI provider that drafted it (claude, …), from AI_AGENT — the outer
-#            corpus identity coordinate, so a signature reads like a corpus path.
-# session  — the agent session id (uuid8) that drafted it, from CLAUDE_CODE_SESSION_ID.
+# provider — the AI provider that drafted it, a row of the provider registry
+#            (rsc/provider/providers.csv) - the outer corpus identity coordinate, so a
+#            signature reads like a corpus path.
+# session  — the agent session id (uuid8) that drafted it, read from the variable the
+#            provider's row declares (CLAUDE_CODE_SESSION_ID for claude); a row that
+#            declares no variable is never attested, since nothing was observed.
 #            It is the JOIN KEY into the captured session corpus
 #            (data/input/<provider>/code/machine-transport/); the MODEL that did the work
 #            is DERIVABLE from it (corpus-yoga agent list-models), accurately and plurally — so it
@@ -18,7 +21,8 @@
 #
 # Attest ONLY what the environment positively provides: absence of a session is not
 # evidence of a human (another tool, a bot, a scrubbed env all read the same), so the
-# second form claims the machine and nothing whatever about the drafter.
+# second form claims the machine and nothing whatever about the drafter. The registry
+# is the only source of provider names: a variable no row declares attests nothing.
 #
 # The git AUTHOR stays the human: they own what lands; the signature records who
 # DRAFTED it — the same split as "curation is capture by a user" (rsc/CALCULUS.md).
@@ -55,25 +59,42 @@ machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null 
 # breaks out of it entirely). Hold it to the charset agent.py holds machine labels to.
 machine="$(tr -cd 'A-Za-z0-9_-' <<< "$machine")"; [[ -n "$machine" ]] || machine='unbound'
 
-if [[ -n "${CLAUDE_CODE_SESSION_ID:-}" ]]; then
-  provider="${AI_AGENT%%-*}"; [[ -n "$provider" ]] || provider='agent'
-  signature="Signature: ${machine}/${provider}/${CLAUDE_CODE_SESSION_ID:0:8}"
-else
-  # No agent session in the environment. The machine is known; the drafter is NOT.
-  # Assert only the machine — absence of a Claude Code session is NOT evidence of a
-  # human (a different tool, a bot, a script, or a scrubbed env all read the same).
-  # Inferring "human" from a missing var would be the model-co-author's error again:
-  # asserting the underivable. Attest only what the environment positively provides.
-  signature="Signature: ${machine}"
-fi
+# The registry (rsc/provider/providers.csv): one row per declared provider - provider,
+# session variable, live store, mount name, bot co-author pattern, note - rendered by
+# src/main/provider.py one row per line, the fields separated by the ASCII unit
+# separator, so this hook parses no csv. The first row whose declared variable this
+# environment carries is the drafter; a row with no variable, or a variable this
+# environment lacks, attests nothing, and the machine alone is claimed.
+# The rendering runs the venv's python through src/run_python_script.sh (#478). Where
+# that cannot run - no venv on this machine - the machine alone is claimed, nothing is
+# stripped, and the commit proceeds: best-effort, as the header rules; the pre-commit
+# gate runs the same venv and has already refused a commit it cannot serve.
+rows="$("$repo/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$repo/src/main")" \
+  || { echo "prepare-commit-msg: the provider registry did not render (src/run_python_script.sh) - the machine alone is claimed" >&2; rows=''; }
+signature="Signature: ${machine}"
+bot_filter=''
+while IFS=$'\x1f' read -r provider session_var _live _mount bot _note; do
+  [[ -n "$provider" ]] || continue
+  provider="$(tr -cd 'A-Za-z0-9_-' <<< "$provider")"
+  [[ -n "$bot" ]] && bot_filter="${bot_filter:+$bot_filter|}$bot"
+  if [[ -n "$session_var" && "$signature" == "Signature: ${machine}" ]]; then
+    session="${!session_var:-}"
+    [[ -n "$session" ]] && signature="Signature: ${machine}/${provider}/${session:0:8}"
+  fi
+done <<< "$rows"
 
-# Strip the model co-author, anchored on the Anthropic bot email — the invariant
-# part, stable across model renames, and the only thing that reliably marks a
-# machine line. A human co-author stays, even one named Claude (Claudette,
-# Claude Debussy). Then git places the signature in the trailer block;
+# Strip the model co-authors the registry declares, each anchored on its harness's bot
+# e-mail — the invariant part, stable across model renames, and the only thing that
+# reliably marks a machine line. A human co-author stays, even one named Claude
+# (Claudette, Claude Debussy). Then git places the signature in the trailer block;
 # addIfDifferent keeps it idempotent across amend while still letting distinct
 # signatures accumulate.
-processed="$( { grep -viE '^Co-Authored-By: .*<noreply@anthropic\.com>' "$msg_file" 2>/dev/null || true; } \
+if [[ -n "$bot_filter" ]]; then
+  stripped="$(grep -viE "^Co-Authored-By: (${bot_filter})" "$msg_file" 2>/dev/null || true)"
+else
+  stripped="$(cat "$msg_file" 2>/dev/null || true)"
+fi
+processed="$( { printf '%s\n' "$stripped"; } \
   | git interpret-trailers --if-exists addIfDifferent --trailer "$signature" 2>/dev/null )" || exit 0
 [[ -n "$processed" ]] && printf '%s\n' "$processed" > "$msg_file"
 exit 0

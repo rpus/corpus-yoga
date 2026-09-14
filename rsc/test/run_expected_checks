@@ -77,6 +77,8 @@ model.join_pointers_valid
 model.occurrence_family_grammar
 model.occurrence_pointers_resolve
 model.occurrences_cover_edges
+provider.names_declared
+provider.registry_parses
 reference.lineage_changelog
 reference.lineage_declared
 reference.provenance_declared
