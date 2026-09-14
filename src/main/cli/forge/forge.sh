@@ -708,7 +708,7 @@ merge_chain() {
     return 1
   fi
   landed="$(cd "$REPO_DIR" && query gh pr view "$pr" --json mergeCommit --jq .mergeCommit.oid)"     || { echo "forge merge: NOT DONE — merged, but the merge commit read failed; converge by hand: git fetch origin && git merge --ff-only"; return 1; }
-  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! prune --apply     || ! quote git -C "$REPO_DIR" status; then
+  if ! enact git -C "$REPO_DIR" checkout "$base"     || ! enact git -C "$REPO_DIR" fetch origin     || ! enact git -C "$REPO_DIR" merge --ff-only "$landed"     || ! enact "$REPO_DIR/corpus-yoga" completions sync     || ! prune --apply     || ! quote git -C "$REPO_DIR" status; then
     echo "forge merge: NOT DONE — merged as ${landed:0:8}, but this checkout did not converge; the last NOT-done line above names where"
     return 1
   fi
