@@ -168,15 +168,15 @@ install_deps() {
 }
 
 # Which pipelines have a prep step, and what each is called. DECLARED, not globbed for a
-# shared filename: the prep scripts do different things — chat-exports requires an input,
-# code-agents links a directory — and browser-captures' is a CAPTURE, the `corpus-yoga browser`
-# target, which a pipeline run must never perform. Globbing one name listed a prep phase
-# for browser-captures that `run` has never executed, which is a status line stating
-# something untrue about what the command does.
+# shared filename: chat-exports requires an input; browser-captures' is a CAPTURE, the
+# `corpus-yoga browser` target, which a pipeline run must never perform, and the live
+# mount code-agents once linked here is the agent command's (corpus-yoga agent mount,
+# #636) - a pipeline reads the store, never the mount. Globbing one name listed a prep
+# phase for browser-captures that `run` has never executed, which is a status line
+# stating something untrue about what the command does.
 prep_step() {
   case "$1" in
     chat-exports) echo require_export.sh ;;
-    code-agents)  echo link_projects.sh ;;
     *)            return 1 ;;
   esac
 }
@@ -352,7 +352,6 @@ prep_pipeline_safe() {
       echo "FAIL: prep: $name exited non-zero without stating a finding — its last words: ${last:-(no output)}"
       case "$name" in
         chat-exports) echo "    → populate data/input/claude/chat/bulk-export/ with a bulk export (see src/main/pipeline/chat-exports/require_export.sh --help)" ;;
-        code-agents)  echo "    → check data/input/claude/code/machine-transport/ (the store) and ext/mnt/claude-code-projects/ (transport's source) symlinks" ;;
       esac
     fi
   fi
@@ -424,8 +423,6 @@ print_plan() {
     "$REPO_ROOT/src/main/pipeline/chat-exports/run.sh" --plan | sed 's/^/  /'
   fi
   if should_run code-agents; then
-    # printed by the same wrapper that runs it, so the plan cannot drift from the call
-    ( plan=1; pair="$(prep_call code-agents)" && read -r op impl <<< "$pair" && step "$op" "$impl" ) | sed 's/^/  /'
     "$REPO_ROOT/src/main/pipeline/code-agents/run.sh" --plan | sed 's/^/  /'
   fi
   echo "  then once, over the whole corpus:"
@@ -493,7 +490,6 @@ main() {
   fi
 
   if should_run code-agents; then
-    prep_pipeline_safe code-agents
     run_pipeline_safe  code-agents "$REPO_ROOT/$(input_of code-agents)"
   fi
 

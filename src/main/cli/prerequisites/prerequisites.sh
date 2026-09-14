@@ -505,7 +505,8 @@ check_pipeline_inputs() {
   fi
 
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
-  # machine holds, and the live harness mount the census and capture read (#628).
+  # machine holds, and the live harness mount the census and capture read (#628),
+  # ext/mnt/agent/<provider> (#636).
   local p_name p_live p_mount p_store p_remedy p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
   if [[ -x "$VENV/bin/python" ]]; then
@@ -514,9 +515,10 @@ check_pipeline_inputs() {
     info "providers: rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint: $(sync_remedy)"
     p_rows=''
   fi
-  while IFS=$'\x1f' read -r p_name _ p_live p_mount _ _; do
+  while IFS=$'\x1f' read -r p_name _ p_live _ _; do
     [[ -n "$p_name" ]] || continue
     p_store="data/input/$p_name/code/machine-transport"
+    p_mount="ext/mnt/agent/$p_name"
     # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
     # store); a remedy naming it for another provider would name an act that does
     # not do what it says. #633 retires this branch.
@@ -533,13 +535,13 @@ check_pipeline_inputs() {
     else
       info "code-agents: no $p_store store — will skip (hand-make the symlink to the shared store; $p_remedy)"
     fi
-    [[ -n "$p_live" && -n "$p_mount" ]] || continue
+    [[ -n "$p_live" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then
       info "live $p_live present — harness-owned, expires at the provider's will; $p_remedy"
-      if [[ -d "$REPO_ROOT/ext/mnt/$p_mount" ]]; then
-        ok "ext/mnt/$p_mount → $p_live (the census and capture read it)"
+      if [[ -d "$REPO_ROOT/$p_mount" ]]; then
+        ok "$p_mount → $p_live (the census and capture read it)"
       else
-        todo mount "ext/mnt/$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+        todo mount "$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
       fi
     fi
   done <<< "$p_rows"
@@ -599,7 +601,7 @@ sync() {
   local acts=()
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
   _todo_has hook && acts+=("install the pre-commit hook (corpus-yoga test install-hook)")
-  _todo_has mount && acts+=("create the declared live mounts under ext/mnt/ (link_projects.sh)")
+  _todo_has mount && acts+=("mount the live agent stores under ext/mnt/agent/ (corpus-yoga agent mount --apply)")
   _todo_has gen && acts+=("generate the parsers from rsc/rpus/grammar into src/gen/grammar (corpus-yoga grammar sync)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"
@@ -622,7 +624,7 @@ sync() {
     echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
   fi
   _todo_has hook && "$REPO_ROOT/src/main/cli/test/test.sh" install-hook
-  _todo_has mount && "$REPO_ROOT/src/main/pipeline/code-agents/link_projects.sh"
+  _todo_has mount && "$REPO_ROOT/corpus-yoga" agent mount --apply
   _todo_has gen && "$REPO_ROOT/corpus-yoga" grammar sync
   echo
   echo "what remains — re-derived, not assumed:"

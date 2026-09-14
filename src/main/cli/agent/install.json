@@ -30,6 +30,6 @@
     "data/input/claude/code/machine-transport"
   ],
   "w": [
-    "ext/mnt/claude-code-projects"
+    "ext/mnt/agent"
   ]
 }

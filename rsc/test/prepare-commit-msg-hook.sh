@@ -60,7 +60,7 @@ machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null 
 machine="$(tr -cd 'A-Za-z0-9_-' <<< "$machine")"; [[ -n "$machine" ]] || machine='unbound'
 
 # The registry (rsc/provider/providers.csv): one row per declared provider - provider,
-# session variable, live store, mount name, bot co-author pattern, note - rendered by
+# session variable, live store, bot co-author pattern, note - rendered by
 # src/main/provider.py one row per line, the fields separated by the ASCII unit
 # separator, so this hook parses no csv. The first row whose declared variable this
 # environment carries is the drafter; a row with no variable, or a variable this
@@ -73,7 +73,7 @@ rows="$("$repo/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.
   || { echo "prepare-commit-msg: the provider registry did not render (src/run_python_script.sh) - the machine alone is claimed" >&2; rows=''; }
 signature="Signature: ${machine}"
 bot_filter=''
-while IFS=$'\x1f' read -r provider session_var _live _mount bot _note; do
+while IFS=$'\x1f' read -r provider session_var _live bot _note; do
   [[ -n "$provider" ]] || continue
   provider="$(tr -cd 'A-Za-z0-9_-' <<< "$provider")"
   [[ -n "$bot" ]] && bot_filter="${bot_filter:+$bot_filter|}$bot"

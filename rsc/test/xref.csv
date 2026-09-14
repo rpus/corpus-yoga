@@ -468,7 +468,6 @@ rsc/model/model_join.csv,219,path_str,rsc/reference/mcp#/$defs/CreateMessageResu
 rsc/model/model_join.csv,220,path_str,rsc/schema/code-agents/session#/definitions/MessageContent,Y,",rsc/schema/code-agents/session#/definitions/MessageContent,,rsc/reference/mcp#/$defs/SamplingMessage/properties/content"
 rsc/model/model_join.csv,220,path_str,rsc/reference/mcp#/$defs/SamplingMessage/properties/content,Y,",rsc/schema/code-agents/session#/definitions/MessageContent,,rsc/reference/mcp#/$defs/SamplingMessage/properties/content"
 rsc/provider/README.md,14,doc,rsc/test/prepare-commit-msg-hook.sh,Y,hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
-rsc/provider/README.md,17,doc,src/main/pipeline/code-agents/link_projects.sh,Y,(`src/main/pipeline/code-agents/link_projects.sh`) iterate the rows; the browser
 rsc/provider/README.md,18,doc,src/main/provider.py,Y,capture keys its mechanisms by declared names; `src/main/provider.py` is the
 rsc/provider/README.md,22,doc,src,Y,by a directory or a data path under `src/` is a row here.
 rsc/provider/README.md,24,doc,rsc/machine/machines.csv,Y,"The sibling registry is `rsc/machine/machines.csv`: a machine is an identity, and"
@@ -628,6 +627,9 @@ src/main/cli/agent/agent.json,3,path_str,src/main/cli/agent/agent.py,Y,"""target
 src/main/cli/agent/agent.py,5,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
 src/main/cli/agent/agent.py,29,comment,rsc/machine/machines.csv,Y,rsc/machine/machines.csv must declare — and install --from names the peer machine(s) whose sessions
 src/main/cli/agent/agent.py,116,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
+src/main/cli/agent/agent.py,765,comment,rsc/naming/mount_vintages.csv,Y,"accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)"
+src/main/cli/agent/mount.json,12,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/agent/mount.json,13,path_str,rsc/naming,Y,"""rsc/naming"","
 src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
 src/main/cli/browser/browser.sh,28,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/browser/browser.sh,87,call,src/main/cli/browser/capture.py,Y,"scope=""$(""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/capture.py"" --scope \"
@@ -740,8 +742,8 @@ src/main/cli/pipeline/pipeline.sh,2,comment,src/main/cli/pipeline/pipeline.sh,Y,
 src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/pipeline/pipeline.sh,372,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,407,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,371,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
+src/main/cli/pipeline/pipeline.sh,406,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.json,15,path_str,rsc/machine,Y,"""rsc/machine"","
@@ -763,7 +765,7 @@ src/main/cli/prerequisites/prerequisites.sh,446,path_str,src/main/cli/prerequisi
 src/main/cli/prerequisites/prerequisites.sh,446,path_str,src/main,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
 src/main/cli/prerequisites/prerequisites.sh,460,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/main/cli/prerequisites/prerequisites.sh,507,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-agents store this
-src/main/cli/prerequisites/prerequisites.sh,520,comment,src/main/cli/agent/agent.py,Y,# The capture verb serves claude alone (src/main/cli/agent/agent.py names its
+src/main/cli/prerequisites/prerequisites.sh,522,comment,src/main/cli/agent/agent.py,Y,# The capture verb serves claude alone (src/main/cli/agent/agent.py names its
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -771,7 +773,6 @@ src/main/cli/prerequisites/sync.json,26,path_str,src/main/model/serve_assets.txt
 src/main/cli/prerequisites/sync.json,27,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/prerequisites/sync.json,28,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
 src/main/cli/prerequisites/sync.json,29,path_str,rsc/provider,Y,"""rsc/provider"""
-src/main/cli/prerequisites/sync.json,33,path_str,src/main/pipeline/code-agents/link_projects.sh,Y,"""src/main/pipeline/code-agents/link_projects.sh"""
 src/main/cli/readings.md,11,doc,rsc/schema/dashboard/semanticConcepts,Y,- `semantic-concepts.json` — `rsc/schema/dashboard/semanticConcepts/` (latest
 src/main/cli/readings.md,14,doc,rsc/schema/dashboard/chatCategories,Y,- `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
 src/main/cli/readings.md,15,doc,rsc/site/index.html,Y,identity survives renumbering; the palette is authored in `rsc/site/index.html`.
@@ -975,8 +976,6 @@ src/main/pipeline/chat-exports/validate.sh,12,comment,src/main/pipeline/chat-exp
 src/main/pipeline/chat-exports/validate.sh,23,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/pipeline/code-agents/jsonl_to_json.sh,5,comment,src/main/pipeline/code-agents/jsonl_to_json.sh,Y,#   src/main/pipeline/code-agents/jsonl_to_json.sh <input.jsonl> <output.json>
 src/main/pipeline/code-agents/jsonl_to_json.sh,30,call,src/main/pipeline/code-agents/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
-src/main/pipeline/code-agents/link_projects.sh,3,comment,rsc/provider/providers.csv,Y,# store where that store exists (rsc/provider/providers.csv; ext/mnt/ is the
-src/main/pipeline/code-agents/link_projects.sh,7,comment,src/main/pipeline/code-agents/link_projects.sh,Y,#   src/main/pipeline/code-agents/link_projects.sh
 src/main/pipeline/code-agents/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/pipeline/code-agents/memory_to_json.py,24,comment,src/main/pipeline/code-agents/memory_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-agents/memory_to_json.py         <memory-dir> <output.json>
 src/main/pipeline/code-agents/project_conversation.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-agents/project_conversation.py         <session-dir>    # reads <session
@@ -1013,9 +1012,9 @@ src/main/pipeline/code-agents/validate.sh,6,comment,src/main/pipeline/code-agent
 src/main/pipeline/code-agents/validate.sh,7,comment,src/main/pipeline/code-agents/validate.sh,Y,#   src/main/pipeline/code-agents/validate.sh --enumerate --code-agent-session <dir>
 src/main/pipeline/code-agents/validate.sh,24,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
 src/main/provider.py,3,comment,rsc/provider/providers.csv,Y,"provider.py - the provider registry (rsc/provider/providers.csv). A LIBRARY, not a"
-src/main/provider.py,13,comment,rsc/provider/README.md,Y,"rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,"
-src/main/provider.py,16,comment,src/run_python_script.sh,Y,"through src/run_python_script.sh, the venv's python (#478), so the csv grammar is"
-src/main/provider.py,22,path_str,src/main/provider.py,Y,SELF = 'src/main/provider.py'
+src/main/provider.py,12,comment,rsc/provider/README.md,Y,"rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,"
+src/main/provider.py,15,comment,src/run_python_script.sh,Y,"through src/run_python_script.sh, the venv's python (#478), so the csv grammar is"
+src/main/provider.py,21,path_str,src/main/provider.py,Y,SELF = 'src/main/provider.py'
 src/main/reference/reference.py,35,path_str,src/main/reference/reference.py,Y,SELF = 'src/main/reference/reference.py'
 src/main/safari.py,13,path_str,src/main/safari.py,Y,SELF = 'src/main/safari.py'
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
@@ -1195,6 +1194,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/agent/demerge.json,Y,
 ,,,src/main/cli/agent/install.json,Y,
 ,,,src/main/cli/agent/list-models.json,Y,
+,,,src/main/cli/agent/mount.json,Y,
 ,,,src/main/cli/browser/browser.json,Y,
 ,,,src/main/cli/browser/capture_all.applescript,Y,
 ,,,src/main/cli/browser/capture_one.applescript,Y,

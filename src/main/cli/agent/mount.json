@@ -1,0 +1,19 @@
+{
+  "help": "mount the live agent stores under ext/mnt/agent/<provider> - one symlink per declared provider whose live store this machine holds, the target from rsc/provider/providers.csv; a dry run unless --apply, stating every move and naming any link at a retired address (rsc/naming/mount_vintages.csv) as an orphan with its rm - named, never removed",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "create the links - without it, what would be created is only reported"
+    }
+  ],
+  "r": [
+    "rsc/provider",
+    "rsc/naming",
+    "ext"
+  ],
+  "w": [
+    "ext/mnt/agent"
+  ]
+}

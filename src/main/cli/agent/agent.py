@@ -33,8 +33,8 @@ capture MIRRORS each project's memory (updated in place, absentees
 removed); every merge subtlety lives in install, where two agents actually
 meet.
 
-The projects root is ext/mnt/claude-code-projects (link_projects.sh's symlink to the Claude Code
-projects folder) — HARNESS-OWNED state that Anthropic expires at will. The
+The projects root is ext/mnt/agent/claude (the mount verb's symlink to the Claude Code
+projects folder, per the provider registry) — HARNESS-OWNED state that Anthropic expires at will. The
 doctrine: capture is the one READER of it — sweep early, sweep often; install is the one WRITER of it, and only ever by a user's
 explicit --apply, never a pipeline's. The pipelines source from the store,
 which the repo owns and the medium carries.
@@ -118,7 +118,6 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-PROJECTS = REPO / 'ext' / 'mnt' / 'claude-code-projects'
 AGENTS_DIR = REPO / 'data' / 'input' / 'claude' / 'code' / 'machine-transport'
 
 sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
@@ -126,6 +125,20 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine bi
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 from machine import bound_machine  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
+import provider as registry  # noqa: E402
+
+# The census, capture and install serve claude alone (#633 retires the name); the
+# mount they read derives from its registry row (#636).
+
+
+def _claude_mount() -> Path:
+    mount_path = registry.mount(registry.provider('claude'))
+    assert mount_path is not None, 'the claude row of rsc/provider/providers.csv observes no live store'
+    return mount_path
+
+
+PROJECTS = _claude_mount()
+MOUNT_VINTAGES = REPO / 'rsc' / 'naming' / 'mount_vintages.csv'
 
 
 def _sha(text: str) -> str:
@@ -745,6 +758,52 @@ def install_move(bundle_proj: Path, dest_root: Path, session: Path, apply: bool,
     return conflicts
 
 
+def mount(apply: bool) -> int:
+    """The live agent stores mounted under ext/mnt/agent/<provider> (#636): one
+    symlink per declared provider whose live store this machine holds, the target
+    from the registry row. A dry run states every move as data - each provider
+    accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)
+    named as an orphan with its rm - and --apply creates the links. Orphans are
+    named, never removed: the disposal is the reader's act."""
+    import csv
+    import re
+    root = registry.MOUNT_ROOT
+    verdict = 0
+    for row in registry.providers():
+        live = registry.live_store(row)
+        target = root / row['provider']
+        shown = target.relative_to(REPO)
+        if live is None:
+            print(f'{shown}: {row["provider"]} observes no live store - nothing to mount')
+            continue
+        if not live.is_dir():
+            print(f'{shown}: {row["live_store"]} absent on this machine - nothing to mount')
+            continue
+        if target.is_symlink() and target.resolve() == live.resolve():
+            print(f'{shown} → {row["live_store"]} (present)')
+            continue
+        if target.exists() or target.is_symlink():
+            print(f'{shown}: exists and is not the link to {row["live_store"]} - not touched; remove it by hand')
+            verdict = 1
+            continue
+        if apply:
+            root.mkdir(parents=True, exist_ok=True)
+            target.symlink_to(live)
+            print(f'{shown} → {row["live_store"]} (created)')
+        else:
+            print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
+    with MOUNT_VINTAGES.open(newline='') as f:
+        legacy = [(r['id'], re.compile(r['pattern'])) for r in csv.DictReader(f) if r['status'] == 'legacy']
+    ext = REPO / 'ext'
+    candidates = [p for base in (ext, ext / 'mnt') if base.is_dir() for p in sorted(base.iterdir())]
+    for path in candidates:
+        rel = str(path.relative_to(REPO))
+        for vintage_id, pattern in legacy:
+            if pattern.match(rel) and path.is_symlink():
+                print(f'orphan: {rel} (mount vintage {vintage_id}, rsc/naming/mount_vintages.csv) - rm {rel}')
+    return verdict
+
+
 def main() -> int:
     # Whole surface declared (#476, #477); the keyword collision on --from
     # (dest) is the tree's one surviving override. The --session|--all
@@ -757,8 +816,11 @@ def main() -> int:
     if args.verb is None:
         return list_agents()   # bare noun → the census (local + store sessions), read-only status
 
+    if args.verb == 'mount':
+        return mount(args.apply)
+
     if not PROJECTS.is_dir():
-        sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — src/main/pipeline/code-agents/link_projects.sh creates the symlink')
+        sys.exit(f'error: {PROJECTS.relative_to(REPO)} missing — corpus-yoga agent mount --apply creates the symlink')
 
     if args.verb == 'list-models':
         return model_census()
