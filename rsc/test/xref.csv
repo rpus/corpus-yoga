@@ -1,10 +1,10 @@
 referring_file,line,ref_type,referred_file,exists,line_text
-CLAUDE.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
-CLAUDE.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
-CLAUDE.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
-CLAUDE.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-CLAUDE.md,174,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
-CLAUDE.md,179,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+AGENTS.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
+AGENTS.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
+AGENTS.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
+AGENTS.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
+AGENTS.md,174,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
+AGENTS.md,179,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,9,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
 CONTRIBUTING.md,12,doc,rsc/test,Y,"gate there, and halts on red with the regenerated `rsc/test/` discarded, the checkout put"
 CONTRIBUTING.md,22,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
@@ -1113,6 +1113,7 @@ src/test/usr/pipeline/code-agents/survey_code_session.py,10,comment,src/test/usr
 src/test/usr/pipeline/code-agents/survey_code_session.py,11,comment,src/test/usr/pipeline/code-agents/survey_code_session.py,Y,python src/test/usr/pipeline/code-agents/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{proj
 src/validation_matrix.py,9,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating;
 src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/validation_audit.py judges the logs and matrices (corpus-yoga pipeline audit).
+,,,AGENTS.md,Y,
 ,,,CLAUDE.md,Y,
 ,,,README.md,Y,
 ,,,corpus-yoga,Y,
