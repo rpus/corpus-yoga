@@ -204,7 +204,7 @@ def capture(mount: Path, outbox: Path, uuid8: str | None) -> int:
         print(f'DONE - effect: {written} of {len(sessions)} session(s) written; '
               f'postcondition: remote ({outbox.name}) holds everything local holds')
     else:
-        print(f'DONE — no effect: remote ({outbox.name}) already held everything local holds')
+        print(f'DONE - no effect: remote ({outbox.name}) already held everything local holds')
     return conflicts
 
 

@@ -250,8 +250,7 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
         if not matches:
             sys.exit(f'error: no {provider} session matching {uuid8!r} in {mount_path.relative_to(REPO)}')
         if len(matches) > 1:
-            sys.exit(f'error: {uuid8!r} is ambiguous - matches: ' + ', '.join(s.id for s in matches)
-                     + ' - give more of the uuid: the match is a prefix match, up to the whole id')
+            sys.exit(transport.ambiguous(uuid8, [(s.project, s.id) for s in matches], row['provider']))
     conflicts = 0
     for row, mount_path, adapter in targets:
         name = row['provider']
