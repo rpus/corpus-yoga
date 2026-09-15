@@ -628,7 +628,7 @@ src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCUL
 src/main/cli/agent/agent.py,24,comment,rsc/provider/providers.csv,Y,"ext/mnt/agent/<provider> per the registry (rsc/provider/providers.csv, #636) -"
 src/main/cli/agent/agent.py,39,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
 src/main/cli/agent/agent.py,125,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,282,comment,rsc/naming/mount_vintages.csv,Y,"accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)"
+src/main/cli/agent/agent.py,283,comment,rsc/naming/mount_vintages.csv,Y,"accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)"
 src/main/cli/agent/claude/harness.py,22,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/gemini/harness.py,25,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
 src/main/cli/agent/mount.json,12,path_str,rsc/provider,Y,"""rsc/provider"","

@@ -247,7 +247,8 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
             sys.exit(f'error: no session matching {uuid8!r} in any live store')
         if len(matches) > 1:
             sys.exit(f'error: {uuid8!r} is ambiguous — matches: '
-                     + ', '.join(f'{s.provider}/{s.id[:8]}' for _, _, _, s in matches))
+                     + ', '.join(f'{s.provider}/{s.id}' for _, _, _, s in matches)
+                     + ' — give more of the uuid: the match is a prefix match, up to the whole id')
         targets = [matches[0][:3]]
     conflicts = 0
     for row, mount_path, adapter in targets:

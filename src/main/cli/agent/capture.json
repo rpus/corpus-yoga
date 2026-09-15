@@ -11,7 +11,7 @@
       "name": "--session",
       "type": "<uuid8>",
       "cardinality": "1/agent-capture-1",
-      "help": "uuid(8) prefix of the agent to capture — identity is never guessed"
+      "help": "uuid prefix of the agent to capture, eight characters or more, matching exactly one session across every served provider — identity is never guessed; a prefix two sessions share is refused, and more of the uuid resolves it"
     },
     {
       "name": "--all",
