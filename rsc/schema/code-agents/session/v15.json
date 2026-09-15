@@ -68,6 +68,9 @@
         },
         {
           "$ref": "#/definitions/AtisLatchRecord"
+        },
+        {
+          "$ref": "#/definitions/BridgeSessionRecord"
         }
       ]
     },
@@ -188,6 +191,10 @@
         "content": {
           "description": "Optional payload. Observed as a plain string (the prompt text) on some enqueue records.",
           "type": "string"
+        },
+        "reason": {
+          "description": "Why the operation happened, on remove (2.1.263 onward). Observed value: \"absorbed_mid_turn\".",
+          "type": "string"
         }
       }
     },
@@ -282,7 +289,7 @@
     },
     "FileHistoryDelta": {
       "title": "FileHistoryDelta",
-      "description": "One tracked file's backup, recorded at edit time and linked to its owning FileHistorySnapshot — the per-file sibling the harness began writing alongside snapshots (first observed 2026-07-14: 10 records in one session, every snapshotMessageId resolving to a file-history-snapshot in the same log). All six fields present in every observed record, so all required; closed.",
+      "description": "One tracked file's backup, recorded at edit time and linked to its owning FileHistorySnapshot \u2014 the per-file sibling the harness began writing alongside snapshots (first observed 2026-07-14: 10 records in one session, every snapshotMessageId resolving to a file-history-snapshot in the same log). All six fields present in every observed record, so all required; closed.",
       "type": "object",
       "required": [
         "type",
@@ -483,6 +490,49 @@
         }
       }
     },
+    "BridgeSessionRecord": {
+      "title": "BridgeSessionRecord",
+      "description": "The VS Code bridge's binding of this session to a bridge session (Claude Code 2.1.263 onward, observed home-room 2026-09-15): written at the start of the log and again as the bridge resumes, carrying the bridge session id, the last sequence number the bridge had ingested, and the owning account and organisation. All five fields present on every observed record.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "sessionId",
+        "bridgeSessionId",
+        "lastSequenceNum",
+        "ownerAccountUuid",
+        "ownerOrganizationUuid"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "bridge-session"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "bridgeSessionId": {
+          "description": "The bridge session id, prefixed cse_. One value across every record of the observed session.",
+          "type": "string"
+        },
+        "lastSequenceNum": {
+          "description": "The last sequence number the bridge had ingested when the record was written: 0 at the start, rising through the session.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "ownerAccountUuid": {
+          "description": "The account that owns the bridge session.",
+          "$ref": "#/definitions/UuidV4"
+        },
+        "ownerOrganizationUuid": {
+          "description": "The organisation that owns the bridge session.",
+          "$ref": "#/definitions/UuidV4"
+        }
+      }
+    },
     "TurnBase": {
       "title": "TurnBase",
       "description": "Fields shared by all turn-like records: user, assistant, attachment, and system. Carries the session envelope \u2014 context about the environment in which the turn occurred. No additionalProperties: false because this schema is used in allOf alongside subtype schemas that add further properties; in draft-4, additionalProperties on a base schema does not see properties defined in sibling allOf/oneOf schemas.",
@@ -600,6 +650,21 @@
         "sourceToolAssistantUUID": {
           "description": "UUID of the assistant turn whose tool call this user turn responds to.",
           "$ref": "#/definitions/UuidV4"
+        },
+        "origin": {
+          "$ref": "#/definitions/TurnOrigin"
+        },
+        "promptSource": {
+          "description": "The surface the prompt came through (2.1.263 onward). Observed value: \"sdk\".",
+          "type": "string"
+        },
+        "classifierMetaLines": {
+          "description": "A JSON document as a string: the classifier's meta lines for the prompt (repository visibility among them), 2.1.263 onward.",
+          "type": "string"
+        },
+        "queueSkipAttachments": {
+          "description": "True when the queued prompt was submitted without its attachments (2.1.263 onward). Observed only true.",
+          "type": "boolean"
         }
       }
     },
@@ -639,6 +704,25 @@
             "string",
             "object"
           ]
+        },
+        "effort": {
+          "description": "The effort level the turn ran at (2.1.263 onward). Observed value: \"high\". Likely an open set.",
+          "type": "string"
+        },
+        "perTurnEffort": {
+          "description": "The effort level chosen for this turn alone (2.1.269 onward). Observed value: \"high\".",
+          "type": "string"
+        },
+        "apiBlockIndex": {
+          "description": "The index of this record's content block within the API response it was split from (2.1.263 onward): 0 upward.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "wireToolInputs": {
+          "$ref": "#/definitions/WireToolInputs"
+        },
+        "wireIngestContext": {
+          "$ref": "#/definitions/WireIngestContext"
         }
       }
     },
@@ -663,6 +747,20 @@
             "string",
             "object"
           ]
+        },
+        "rendered": {
+          "description": "The attachment as rendered into the conversation (2.1.263 onward): one or two blocks observed.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RenderedBlock"
+          }
+        },
+        "renderedInHumanTurn": {
+          "description": "The attachment as rendered into the human turn rather than beside it (2.1.266 onward); the same shape as rendered.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RenderedBlock"
+          }
         }
       }
     },
@@ -715,6 +813,21 @@
             "null",
             "string"
           ]
+        },
+        "retryInMs": {
+          "description": "On an api_error event: the delay before the retry, in milliseconds - a number, observed integral and fractional (reading-room sessions from harness 2.1.156; undeclared before v15).",
+          "type": "number",
+          "minimum": 0
+        },
+        "retryAttempt": {
+          "description": "On an api_error event: which retry this is, 1 upward (undeclared before v15).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxRetries": {
+          "description": "On an api_error event: the retry budget (undeclared before v15).",
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -775,7 +888,7 @@
       "additionalProperties": false,
       "properties": {
         "backupFileName": {
-          "description": "Backup name in the file-history store, <16 hex>@v<version> — the suffix agrees with the version field in every observed record. Null when the tracked file did not exist before the edit, so there was nothing to back up (observed once: a file created new in the session). Example: \"1bd1552ca6beb94a@v1\".",
+          "description": "Backup name in the file-history store, <16 hex>@v<version> \u2014 the suffix agrees with the version field in every observed record. Null when the tracked file did not exist before the edit, so there was nothing to back up (observed once: a file created new in the session). Example: \"1bd1552ca6beb94a@v1\".",
           "type": [
             "string",
             "null"
@@ -826,6 +939,21 @@
         },
         "content": {
           "$ref": "#/definitions/MessageContent"
+        }
+      }
+    },
+    "TurnOrigin": {
+      "title": "TurnOrigin",
+      "description": "Where a user turn came from (2.1.263 onward). Observed kinds: \"human\" and \"task-notification\" (a background task's completion delivered as a turn). Likely an open set.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "description": "The origin kind. Observed values: \"human\", \"task-notification\".",
+          "type": "string"
         }
       }
     },
@@ -917,6 +1045,43 @@
         }
       }
     },
+    "WireToolInputs": {
+      "title": "WireToolInputs",
+      "description": "The tool inputs as sent on the wire, keyed by tool_use id (2.1.269 onward): each value is the tool's input object as the API received it.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "WireIngestContext": {
+      "title": "WireIngestContext",
+      "description": "The harness context recorded per tool call at ingest, keyed by tool_use id (2.1.270 onward). Observed with one field, the working directory.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "cwd": {
+            "description": "Absolute path of the working directory the tool call ran in.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "RenderedBlock": {
+      "title": "RenderedBlock",
+      "description": "One block of an attachment as rendered into the conversation (2.1.263 onward): the text the model saw for it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "content": {
+          "description": "The rendered text.",
+          "type": "string"
+        }
+      }
+    },
     "MessageContent": {
       "title": "MessageContent",
       "description": "The content of a message. Either a plain string (simple text prompt) or an array of typed content blocks. The string form is observed for short user prompts; the array form is used when the message contains structured blocks (tool calls, thinking, etc.).",
@@ -931,13 +1096,14 @@
     },
     "ModelId": {
       "title": "ModelId",
-      "description": "A real Claude model id \u2014 the harness's external attribution of who authored a completed turn. The set is exhaustive over the models observed across both rooms' sessions as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220); a new model in the data is unmodelled drift and mints the next version.",
+      "description": "A real Claude model id \u2014 the harness's external attribution of who authored a completed turn. The set is exhaustive over the models observed across both rooms' sessions as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), and at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263); a new model in the data is unmodelled drift and mints the next version.",
       "type": "string",
       "enum": [
         "claude-fable-5",
         "claude-opus-4-8",
         "claude-sonnet-4-6",
-        "claude-opus-5"
+        "claude-opus-5",
+        "claude-fable-5-1"
       ]
     },
     "NotAModel": {

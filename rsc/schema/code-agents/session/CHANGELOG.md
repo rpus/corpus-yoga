@@ -6,6 +6,64 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v15
+
+The harness's growth over a month enters the record. Home-room session
+`41ff13e9-…`, written by Claude Code 2.1.263 to 2.1.270 between 2026-09-07
+and 2026-09-15 (entrypoint claude-vscode, through the VS Code bridge) and
+captured on 2026-09-15 by `corpus-yoga agent capture --provider claude`,
+carries 1598 records of 5101 that v14 refuses. Its first record is of a type
+no version knows, `bridge-session`, so no version admits the session at all.
+Validating the session record by record against v14: the bridge session
+records (237) fail as an unknown type; the assistant records (1358) fail on
+`effort`, `apiBlockIndex`, and from 2.1.269 `perTurnEffort`,
+`wireToolInputs` and `wireIngestContext`; the three `remove` queue
+operations fail on `reason`; user records carry `origin`, `promptSource`,
+`classifierMetaLines` and `queueSkipAttachments`, attachment records
+`rendered` and `renderedInHumanTurn` - each admitted below with the type
+observed - and every assistant record names a model the id set had not seen,
+claude-fable-5-1. The api_error system records also carry `retryInMs`,
+`retryAttempt` and `maxRetries`; those are not new - reading-room's sessions
+carry them from harness 2.1.156 - and v14 admitted them undeclared on the
+open system record; v15 declares them. Every other session in both rooms'
+stores on 2026-09-15 validates at v14 and validates at v15 unchanged: v14 now
+happens to reject only the kinds its era never showed.
+
+### Replaces
+
+v14
+
+#### Restricted
+
+- system records: `retryInMs` (number, 0 upward - fractional values observed),
+  `retryAttempt` and `maxRetries` (integers, 0 upward), declared where v14 left
+  them undeclared on the open system record. Non-material: every held datum
+  passes (60 api_error records across both rooms' stores, 2026-09-15).
+
+#### Relaxed
+
+- `message.model`: the model id set gains claude-fable-5-1 (home-room,
+  harness 2.1.263, first observed 2026-09-07), the fifth real model.
+- `bridge-session`: a new record type, `BridgeSessionRecord`, a closed object
+  of `type`, `sessionId`, `bridgeSessionId`, `lastSequenceNum`,
+  `ownerAccountUuid` and `ownerOrganizationUuid`, all six required since all
+  are present on every observed record.
+- assistant records: `effort` and `perTurnEffort` (strings, "high" observed),
+  `apiBlockIndex` (integer, 0 to 5 observed), `wireToolInputs`
+  (`WireToolInputs`: an object keyed by tool_use id, each an object) and
+  `wireIngestContext` (`WireIngestContext`: an object keyed by tool_use id,
+  each an object with `cwd`).
+- user records: `origin` (`TurnOrigin`: a closed object with `kind`, "human"
+  and "task-notification" observed), `promptSource` (string, "sdk"),
+  `classifierMetaLines` (string), `queueSkipAttachments` (boolean).
+- attachment records: `rendered` and `renderedInHumanTurn`, arrays of
+  `RenderedBlock` (a closed object with `content`).
+- queue operations: `reason` (string, "absorbed_mid_turn" on remove).
+
+#### Refactored
+
+None.
+
 ## v14
 
 The harness's refusal enters the record. Reading-room session `5c631cf4-…`,
