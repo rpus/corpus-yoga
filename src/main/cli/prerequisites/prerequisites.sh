@@ -545,6 +545,16 @@ check_pipeline_inputs() {
       fi
     fi
   done <<< "$p_rows"
+  # A link this machine still holds at a retired mount address (rsc/naming/mount_vintages.csv)
+  # is named with its rm; the disposal is the reader's act, never the report's (#636).
+  local o_rows o_path o_vintage
+  if [[ -x "$VENV/bin/python" ]]; then
+    o_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(p + "\x1f" + v for p, v in provider.retired_mounts()))' "$REPO_ROOT/src/main")" || return 1
+    while IFS=$'\x1f' read -r o_path o_vintage; do
+      [[ -n "$o_path" ]] || continue
+      todo orphan "$o_path is a link at a retired mount address (mount vintage $o_vintage, rsc/naming/mount_vintages.csv) - rm $o_path"
+    done <<< "$o_rows"
+  fi
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
   # it), so sync --apply cannot create it and absence is not a todo — deploying is

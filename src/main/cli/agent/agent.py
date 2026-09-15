@@ -138,7 +138,6 @@ def _claude_mount() -> Path:
 
 
 PROJECTS = _claude_mount()
-MOUNT_VINTAGES = REPO / 'rsc' / 'naming' / 'mount_vintages.csv'
 
 
 def _sha(text: str) -> str:
@@ -765,8 +764,6 @@ def mount(apply: bool) -> int:
     accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)
     named as an orphan with its rm - and --apply creates the links. Orphans are
     named, never removed: the disposal is the reader's act."""
-    import csv
-    import re
     root = registry.MOUNT_ROOT
     verdict = 0
     for row in registry.providers():
@@ -792,15 +789,8 @@ def mount(apply: bool) -> int:
             print(f'{shown} → {row["live_store"]} (created)')
         else:
             print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
-    with MOUNT_VINTAGES.open(newline='') as f:
-        legacy = [(r['id'], re.compile(r['pattern'])) for r in csv.DictReader(f) if r['status'] == 'legacy']
-    ext = REPO / 'ext'
-    candidates = [p for base in (ext, ext / 'mnt') if base.is_dir() for p in sorted(base.iterdir())]
-    for path in candidates:
-        rel = str(path.relative_to(REPO))
-        for vintage_id, pattern in legacy:
-            if pattern.match(rel) and path.is_symlink():
-                print(f'orphan: {rel} (mount vintage {vintage_id}, rsc/naming/mount_vintages.csv) - rm {rel}')
+    for rel, vintage_id in registry.retired_mounts():
+        print(f'orphan: {rel} (mount vintage {vintage_id}, rsc/naming/mount_vintages.csv) - rm {rel}')
     return verdict
 
 

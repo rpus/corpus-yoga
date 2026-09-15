@@ -69,6 +69,27 @@ def live_store(row: dict[str, str]) -> Path | None:
 
 
 MOUNT_ROOT = REPO / 'ext' / 'mnt' / 'agent'
+MOUNT_VINTAGES = REPO / 'rsc' / 'naming' / 'mount_vintages.csv'
+
+
+def retired_mounts() -> list[tuple[str, str]]:
+    """Every link this machine holds at a retired mount address: (repo-relative path,
+    vintage id), per the legacy rows of rsc/naming/mount_vintages.csv. Named for the
+    reader; nothing here removes one."""
+    import re
+    with MOUNT_VINTAGES.open(newline='') as f:
+        legacy = [(r['id'], re.compile(r['pattern'])) for r in csv.DictReader(f) if r['status'] == 'legacy']
+    ext = REPO / 'ext'
+    found = []
+    for base in (ext, ext / 'mnt'):
+        if not base.is_dir():
+            continue
+        for path in sorted(base.iterdir()):
+            rel = str(path.relative_to(REPO))
+            for vintage_id, pattern in legacy:
+                if path.is_symlink() and pattern.match(rel):
+                    found.append((rel, vintage_id))
+    return found
 
 
 def mount(row: dict[str, str]) -> Path | None:
