@@ -109,7 +109,7 @@ def _sha_lines(text: str) -> str:
 
 
 def pick_session(root: Path, uuid8: str) -> Path:
-    """The session to move, by IDENTITY: the --session uuid prefix must match
+    """The session to move, by IDENTITY: the --id uuid prefix must match
     exactly one .jsonl across the root's projects (root is a projects root or
     a machine's store dir — both nest <project>/<session>.jsonl). No recency
     guessing, no automatic choice, ever — capture moves an agent, and which

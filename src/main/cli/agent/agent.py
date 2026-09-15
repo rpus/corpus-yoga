@@ -74,16 +74,16 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent
     corpus-yoga agent list-models
     corpus-yoga agent mount [--apply]
-    corpus-yoga agent capture --provider <provider> --session <uuid8> [--to <scratch-dir>]
+    corpus-yoga agent capture --provider <provider> --id <uuid-prefix> [--to <scratch-dir>]
     corpus-yoga agent capture --provider <provider> [--to <scratch-dir>]
-    corpus-yoga agent install   --session <uuid8> --from <machine|dir> [--apply]
+    corpus-yoga agent install   --id <uuid-prefix> --from <machine|dir> [--apply]
     corpus-yoga agent capture --all [--to <scratch-dir>]
     corpus-yoga agent install   --all --from <machine|dir> [--apply]
     corpus-yoga agent demerge [--apply]
 
 capture takes --provider <name> (every session of one provider), --provider
-<name> --session <uuid8> (one of them, by uuid prefix, exactly one) or --all;
-install takes --session or --all: a NAMED agent, a named provider's totality,
+<name> --id <uuid-prefix> (one of them, by uuid prefix, exactly one) or --all;
+install takes --id or --all: a NAMED agent, a named provider's totality,
 or the named TOTALITY — git push --all /
 pull --all, safe because each per-session placement independently lands on
 the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
@@ -232,14 +232,14 @@ def model_census() -> int:
 def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
     """The extent, named: --all is every session of every served provider whose
     mount is present, each into its own store; --provider <name> is every
-    session of that provider; --provider <name> --session <uuid8> is one of
+    session of that provider; --provider <name> --id <uuid-prefix> is one of
     them. A session is named within its provider, as the browser capture names
     a conversation within its provider - a uuid's shape does not say whose it is."""
     names = [row['provider'] for row, _, _ in served()]
     if provider is not None and provider not in names:
         sys.exit(f'error: {provider!r} is not a provider the agent verb serves — served: ' + ', '.join(names))
     if uuid8 is not None and provider is None:
-        sys.exit('error: --session names a session within a provider — say which with --provider')
+        sys.exit('error: --id names a session within a provider — say which with --provider')
     targets = [(row, mount_path, adapter) for row, mount_path, adapter in served()
                if mount_path.is_dir() and (provider is None or row['provider'] == provider)]
     if not targets:
@@ -317,7 +317,7 @@ def mount(apply: bool) -> int:
 
 def main() -> int:
     # Whole surface declared (#476, #477); the keyword collision on --from
-    # (dest) is the tree's one surviving override. The --session|--all
+    # (dest) is the tree's one surviving override. The --id|--all
     # exclusivity is the declared 1/-class, enforced at parse — bare noun stays
     # the census: subparsers are not required.
     args = command_parser('agent', overrides={
@@ -331,7 +331,7 @@ def main() -> int:
     if args.verb == 'list-models':
         return model_census()
     if args.verb == 'capture':
-        return 1 if capture(args.session, args.to, args.provider) else 0
+        return 1 if capture(args.id, args.to, args.provider) else 0
 
     projects, claude = _claude()
     if args.verb == 'demerge':
@@ -349,7 +349,7 @@ def main() -> int:
     machine = ''.join(c if (c.isalnum() or c in '-_') else '-' for c in bundle.name) or 'incoming'
     if args.all:
         return 1 if claude.install_all(bundle, projects, args.apply, machine) else 0
-    session = claude.pick_session(bundle, args.session)
+    session = claude.pick_session(bundle, args.id)
     return 1 if claude.install_move(session.parent, projects, session, args.apply, machine) else 0
 
 
