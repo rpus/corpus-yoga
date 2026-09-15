@@ -12,7 +12,7 @@ Usage:
 Examples:
     python src/main/model/gen_model_candidate.py conversations rsc/schema/chat-exports/conversations/v19.json
     python src/main/model/gen_model_candidate.py memories      rsc/schema/chat-exports/memories/v3.json
-    python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v15.json
+    python src/main/model/gen_model_candidate.py session       rsc/schema/code-agents/session/v16.json
     python src/main/model/gen_model_candidate.py apiConversation rsc/schema/browser-captures/apiConversation/v10.json
 
 Output: JSON to stdout. Redirect to tmp/cache/model/<schema-type>/<version>.json for review.
