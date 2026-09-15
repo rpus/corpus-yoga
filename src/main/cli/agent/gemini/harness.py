@@ -198,10 +198,10 @@ def capture(mount: Path, outbox: Path, uuid8: str | None) -> int:
     if quiet:
         print(f'{len(quiet)} session(s) identical in local and remote: {", ".join(quiet)}')
     if conflicts:
-        print(f'DONE — effect: {written} of {len(sessions)} session(s) written, {conflicts} CONFLICT(S); '
+        print(f'DONE - effect: {written} of {len(sessions)} session(s) written, {conflicts} CONFLICT(S); '
               f'postcondition: remote ({outbox.name}) does NOT yet hold everything local holds')
     elif written:
-        print(f'DONE — effect: {written} of {len(sessions)} session(s) written; '
+        print(f'DONE - effect: {written} of {len(sessions)} session(s) written; '
               f'postcondition: remote ({outbox.name}) holds everything local holds')
     else:
         print(f'DONE — no effect: remote ({outbox.name}) already held everything local holds')

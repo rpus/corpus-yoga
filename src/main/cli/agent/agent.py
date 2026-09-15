@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-agent.py — CAPTURE agents into the store; RECEIVE them from peer machines;
+agent.py - CAPTURE agents into the store; RECEIVE them from peer machines;
 MOUNT the live stores - for every declared provider with a harness adapter (#633).
 
 The calculus (rsc/CALCULUS.md): an agent is the product session × memory;
@@ -84,7 +84,7 @@ extracts by transporting itself home, and the host demerges the residue.
 capture takes --provider <name> (every session of one provider), --provider
 <name> --id <uuid-prefix> (one of them, by uuid prefix, exactly one) or --all;
 install takes --id or --all: a NAMED agent, a named provider's totality,
-or the named TOTALITY — git push --all /
+or the named TOTALITY - git push --all /
 pull --all, safe because each per-session placement independently lands on
 the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
 component moves ONCE either way (mirrored out; merged in under a single
@@ -160,7 +160,7 @@ def own_outbox(provider: str) -> Path | None:
     rather than stopping between providers."""
     store = transport.store(provider)
     if not store.is_dir():
-        print(f'{provider}: {store.relative_to(REPO)} missing — hand-make it as a symlink to the '
+        print(f'{provider}: {store.relative_to(REPO)} missing - hand-make it as a symlink to the '
               'shared store (one subdirectory per machine name, projects nested within); skipped',
               file=sys.stderr)
         return None
@@ -171,7 +171,7 @@ def own_outbox(provider: str) -> Path | None:
 
 def peer_bundle(name: str) -> Path:
     """A source for install: a MACHINE NAME or a DIRECTORY, distinguished by shape,
-    never by lookup — machines are names (bare tokens, resolved under claude's store,
+    never by lookup - machines are names (bare tokens, resolved under claude's store,
     loud error if absent), places are paths (anything containing '/' or starting
     '~'; a scratch dir beside you is spelled ./like-this). A bare token never
     consults the CWD, so what a command means cannot depend on where you stand."""
@@ -181,7 +181,7 @@ def peer_bundle(name: str) -> Path:
     machine = store / name
     if not machine.is_dir():
         machines = sorted(d.name for d in store.iterdir() if d.is_dir()) if store.is_dir() else []
-        sys.exit(f"error: no {store.relative_to(REPO)}/{name}/ — machines present: "
+        sys.exit(f"error: no {store.relative_to(REPO)}/{name}/ - machines present: "
                  f"{', '.join(machines) or '(none)'} "
                  f"(a directory source is path-shaped: ./{name})")
     return machine
@@ -200,7 +200,7 @@ def list_agents() -> int:
         else:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
-            print(f'note: {mount_path.relative_to(REPO)} absent — no local {provider} rows '
+            print(f'note: {mount_path.relative_to(REPO)} absent - no local {provider} rows '
                   '→ run: corpus-yoga prerequisites sync --apply', file=sys.stderr)
         store = transport.store(provider)
         if store.is_dir():
@@ -237,21 +237,21 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
     a conversation within its provider - a uuid's shape does not say whose it is."""
     names = [row['provider'] for row, _, _ in served()]
     if provider is not None and provider not in names:
-        sys.exit(f'error: {provider!r} is not a provider the agent verb serves — served: ' + ', '.join(names))
+        sys.exit(f'error: {provider!r} is not a provider the agent verb serves - served: ' + ', '.join(names))
     if uuid8 is not None and provider is None:
-        sys.exit('error: --id names a session within a provider — say which with --provider')
+        sys.exit('error: --id names a session within a provider - say which with --provider')
     targets = [(row, mount_path, adapter) for row, mount_path, adapter in served()
                if mount_path.is_dir() and (provider is None or row['provider'] == provider)]
     if not targets:
-        sys.exit('error: no live store mounted — corpus-yoga agent mount --apply creates the symlinks')
+        sys.exit('error: no live store mounted - corpus-yoga agent mount --apply creates the symlinks')
     if uuid8 is not None:
         row, mount_path, adapter = targets[0]
         matches = [s for s in adapter.live_sessions(mount_path) if s.id.startswith(uuid8)]
         if not matches:
             sys.exit(f'error: no {provider} session matching {uuid8!r} in {mount_path.relative_to(REPO)}')
         if len(matches) > 1:
-            sys.exit(f'error: {uuid8!r} is ambiguous — matches: ' + ', '.join(s.id for s in matches)
-                     + ' — give more of the uuid: the match is a prefix match, up to the whole id')
+            sys.exit(f'error: {uuid8!r} is ambiguous - matches: ' + ', '.join(s.id for s in matches)
+                     + ' - give more of the uuid: the match is a prefix match, up to the whole id')
     conflicts = 0
     for row, mount_path, adapter in targets:
         name = row['provider']
@@ -274,7 +274,7 @@ def _claude() -> tuple[Path, ModuleType]:
     mount_path, adapter = registry.mount(row), transport.adapter('claude')
     assert mount_path is not None and adapter is not None
     if not mount_path.is_dir():
-        sys.exit(f'error: {mount_path.relative_to(REPO)} missing — corpus-yoga agent mount --apply creates the symlink')
+        sys.exit(f'error: {mount_path.relative_to(REPO)} missing - corpus-yoga agent mount --apply creates the symlink')
     return mount_path, adapter
 
 
