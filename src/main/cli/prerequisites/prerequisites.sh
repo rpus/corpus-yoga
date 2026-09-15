@@ -142,15 +142,26 @@ check_tools() {
   # `gen` tag), after the venv holds the tool. The tool: antlr4 (antlr4-tools, a python
   # package the venv carries) running the tool jar on the machine's java; the gate's
   # grammar.parser_current holds the parsers current where the tool is present.
-  local gen_project
-  for gen_project in "$REPO_ROOT"/rsc/rpus/grammar/*/; do
-    gen_project="$(basename "$gen_project")"
-    if compgen -G "$REPO_ROOT/src/gen/grammar/$gen_project/*.py" >/dev/null; then
-      ok "src/gen/grammar/$gen_project generated — the parser of rsc/rpus/grammar/$gen_project (corpus-yoga grammar holds it current)"
-    else
-      todo gen "src/gen/grammar/$gen_project absent — the mcp extraction and corpus-yoga test run's mcp checks need it; corpus-yoga grammar sync generates it (needs antlr4 and java below)"
-    fi
-  done
+  # What a project is, the grammar verb decides (src/main/grammar/grammar.py: a
+  # directory holding a top-level .g4), read through the venv's python (#478, #638);
+  # before the mint the rows follow it. A directory there holding no grammar is a
+  # leftover no sync can generate from, named with its rm - the reader's act.
+  local gen_kind gen_project gen_rows
+  if [[ -x "$VENV/bin/python" ]]; then
+    gen_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import grammar; print("\n".join(["project\x1f" + p.name for p in grammar.projects()] + ["orphan\x1f" + o.name for o in grammar.orphans()]))' "$REPO_ROOT/src/main/grammar")" || return 1
+    while IFS=$'\x1f' read -r gen_kind gen_project; do
+      [[ -n "$gen_project" ]] || continue
+      if [[ "$gen_kind" == orphan ]]; then
+        todo orphan "rsc/rpus/grammar/$gen_project holds no grammar (a .g4 at its top level) - a leftover no sync generates from; rm -r rsc/rpus/grammar/$gen_project"
+      elif compgen -G "$REPO_ROOT/src/gen/grammar/$gen_project/*.py" >/dev/null; then
+        ok "src/gen/grammar/$gen_project generated — the parser of rsc/rpus/grammar/$gen_project (corpus-yoga grammar holds it current)"
+      else
+        todo gen "src/gen/grammar/$gen_project absent — the mcp extraction and corpus-yoga test run's mcp checks need it; corpus-yoga grammar sync generates it, antlr4 from the venv and java from the machine"
+      fi
+    done <<< "$gen_rows"
+  else
+    info "grammars: the projects under rsc/rpus/grammar are read by the venv's python - the parser rows follow the mint: $(sync_remedy)"
+  fi
   if [[ -x "$VENV/bin/antlr4" ]]; then
     if command -v java &>/dev/null; then
       ok "antlr4 (antlr4-tools) and java ($(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')) — corpus-yoga grammar sync generates the parsers and corpus-yoga test run holds them current (grammar.parser_current)"
