@@ -1,5 +1,5 @@
 {
-  "help": "install a peer store's sessions into this machine's live session store (dry-run; --apply writes)",
+  "help": "install a peer store's claude sessions into this machine's live Claude Code store (dry-run; --apply writes) - the one adapter that vouches for a write into a live store",
   "args": [
     {
       "name": "--session",

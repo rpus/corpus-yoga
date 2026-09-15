@@ -1,5 +1,5 @@
 {
-  "help": "mirror this machine's own sessions into its store dir (what a machine pushes to the shared store)",
+  "help": "mirror this machine's own sessions of every served provider into that provider's store dir (what a machine pushes to the shared store)",
   "args": [
     {
       "name": "--session",
@@ -17,13 +17,14 @@
       "name": "--to",
       "type": "<scratch-dir>",
       "cardinality": "",
-      "help": "capture to a scratch dir instead of the store (test escape hatch — a directory, never a machine name)"
+      "help": "capture to a scratch dir instead of the stores, each provider under <scratch-dir>/<provider>/ (test escape hatch — a directory, never a machine name)"
     }
   ],
   "r": [
     "ext/mnt/agent"
   ],
   "w": [
-    "data/input/claude/code/machine-transport"
+    "data/input/claude/code/machine-transport",
+    "data/input/gemini/code/machine-transport"
   ]
 }

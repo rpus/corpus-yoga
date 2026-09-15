@@ -1942,7 +1942,7 @@ def check_grammar(run) -> None:
 
 def check_provider_registry(run) -> None:
     """The provider registry (rsc/provider/providers.csv, #628) parses, and every
-    provider src/ names - by a directory under the two browser trees, or by a
+    provider src/ names - by a directory under the two browser trees or the agent command, or by a
     data/input/<provider>/chat/ or /code/ path in a script or declaration, the two
     modalities a provider has (data/input/github/ is the forge's, not a provider's) - is a row of it: the
     registry is the one source of provider names, and a name it does not declare is a
@@ -1958,7 +1958,7 @@ def check_provider_registry(run) -> None:
         run('provider: registry parses: rsc/provider/providers.csv', bool(declared),
             None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')
     named: dict[str, set[str]] = {}
-    for tree in ('src/main/cli/browser', 'src/main/pipeline/browser-captures'):
+    for tree in ('src/main/cli/browser', 'src/main/pipeline/browser-captures', 'src/main/cli/agent'):
         for d in sorted((REPO_ROOT / tree).iterdir()):
             if d.is_dir() and d.name != '__pycache__':
                 named.setdefault(d.name, set()).add(f'{tree}/{d.name}/')
