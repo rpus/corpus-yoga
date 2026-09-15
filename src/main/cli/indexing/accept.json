@@ -5,7 +5,7 @@
       "name": "--all",
       "type": "",
       "cardinality": "",
-      "help": "accept the whole derived queue (tmp/cache/indexing/candidates.txt) as read - refused if the queue moved since list-candidates wrote it; each candidate becomes a headword with the aliases that anchor it folded in (#644)"
+      "help": "accept the whole derived queue (tmp/cache/indexing/candidates.txt) as read — refused if the queue moved since list-candidates wrote it; each candidate becomes a headword with the aliases that anchor it folded in (#644)"
     },
     {
       "name": "term",
