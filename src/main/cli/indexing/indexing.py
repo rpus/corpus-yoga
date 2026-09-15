@@ -375,7 +375,7 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
         return
     pending = pending_concepts(accepted_path, rejected_path)
     print(f'pending: {len(pending)} concept(s) undisposed'
-          + (f' — next: {pending[0]!r}' if pending else ' — fully disposed'))
+          + (f' — next: {pending[0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if pending else ' — fully disposed'))
 
 
 def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
@@ -419,8 +419,9 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
     # A nonzero queue is a violated property (every captured concept disposed),
     # stated as a FAIL atom (#535 - the dev gate's former concept_disposed
     # invocations, spoken here once); the names follow as the queue lines.
-    print(f'FAIL: pending queue: {len(pending)} concept(s) undisposed - '
-          'accept <term> / reject <concept>:'
+    print(f'FAIL: pending queue: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
+          'corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>" '
+          '(corpus-yoga indexing list-candidates reads the queue; --all disposes it as read):'
           if pending else 'pending queue: empty - fully disposed', file=sys.stderr)
     for c in pending:
         print(c)

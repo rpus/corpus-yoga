@@ -69,6 +69,7 @@ SRC                      = REPO_ROOT / 'src'
 RSC_SCHEMA               = RSC / 'schema'
 RSC_MODEL                = RSC / 'model'
 SRC_TEST_DIAGNOSTICS     = SRC / 'test' / 'dev' / 'diagnostics'
+SRC_TEST_REPAIRS         = SRC / 'test' / 'dev' / 'repairs'
 
 # The machine log is IMMUTABLE (#370): one stamped, colon-free file per run
 # under the verb directory, never rewritten; a same-second twin gains a numeric
@@ -2738,8 +2739,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
                 diag = parts[1]
                 _d = SCHEMA_DIR.get(parts[0])
                 schema_path = (_d if _d is not None else RSC_SCHEMA / parts[0]) / f'{parts[2]}.json'
-                repair     = SRC / 'test' / 'repairs'     / f'{diag}.py'
-                diagnostic = SRC / 'test' / 'diagnostics' / f'{diag}.py'
+                repair     = SRC_TEST_REPAIRS     / f'{diag}.py'
+                diagnostic = SRC_TEST_DIAGNOSTICS / f'{diag}.py'
                 if repair.exists() and schema_path.exists():
                     _add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)
                 elif diagnostic.exists() and schema_path.exists():
