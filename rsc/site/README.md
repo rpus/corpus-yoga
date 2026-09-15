@@ -36,7 +36,10 @@ root is the publish directory. Deploying is one verb:
     corpus-yoga site publish --apply  # copy into ext/mnt/site, commit, push
 ```
 
-Netlify builds on push. The copy lands new and changed files and mirrors no
+Netlify builds on push. The dry run states what changes in the corpus page in the
+page's own terms, each data table compared by its identity column
+(`src/main/model/compare_pages.py`, #652), since a line diff of two renders
+misstates the change. The copy lands new and changed files and mirrors no
 deletion: a page or directory that left the publish tree is removed from the
 site repo by hand. `ext/mnt/site` is the machine's hand-made symlink to the
 private site repo's clone (the mount by reference `corpus-yoga prerequisites`

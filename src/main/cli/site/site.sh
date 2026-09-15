@@ -4,7 +4,8 @@
 # Usage:
 #   corpus-yoga site          # status: each artifact's presence and currency, and who produces it
 #   corpus-yoga site sync     # assemble the tree from rsc/site/ - every page copied beside index.html
-#   corpus-yoga site publish [--apply]  # make rpus.co serve the tree: copy into ext/mnt/site, commit, push
+#   corpus-yoga site publish [--apply]  # make rpus.co serve the tree: copy into ext/mnt/site, commit, push;
+#                                       # the dry run states what changes in the corpus page, table by table
 #   corpus-yoga site render   # FREE: render index.html, the corpus page, from the corpus + captures
 #
 # The tree has two verbs with disjoint files: sync owns every page, a file
@@ -37,7 +38,8 @@ corpus-yoga site — the rpus.co publish tree: data/output/site/ assembled from 
 
   corpus-yoga site          status: each artifact's presence and currency, and who produces it
   corpus-yoga site sync     assemble the tree (every page copied beside index.html)
-  corpus-yoga site publish  copy the tree into ext/mnt/site, commit and push there (dry unless --apply)
+  corpus-yoga site publish  copy the tree into ext/mnt/site, commit and push there (dry unless --apply;
+                            the dry run states what changes in the corpus page, table by table)
   corpus-yoga site render   FREE: render index.html (the corpus page) from the corpus + captures
 EOF
 }
@@ -116,13 +118,22 @@ publish() {
     return 1
   fi
   # what differs: new or changed files the copy would land (deletions are not
-  # mirrored - the site repo curates its own removals)
+  # mirrored - the site repo curates its own removals). For the corpus page, what
+  # changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables
+  # compared by identity, since a line diff of two renders misstates the change (the
+  # chat column is an ordinal).
   local delta=0 f rel
   while IFS= read -r f; do
     rel="${f#"$OUT"/}"
-    if [[ ! -f "$mount/$rel" ]] || ! cmp -s "$f" "$mount/$rel"; then
+    if [[ ! -f "$mount/$rel" ]]; then
+      echo "  would land: $rel (new on rpus.co)"
+      delta=1
+    elif ! cmp -s "$f" "$mount/$rel"; then
       echo "  would land: $rel"
       delta=1
+      if [[ "$rel" == index.html ]]; then
+        "$REPO_DIR/src/run_python_script.sh" "$MODEL_DIR/compare_pages.py" "$mount/$rel" "$f" | sed 's/^/    /'
+      fi
     fi
   done < <(find "$OUT" -type f | sort)
   if [[ "$delta" == 0 && -z "$(git -C "$mount" status --porcelain)" ]]; then

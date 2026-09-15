@@ -1,5 +1,5 @@
 {
-  "help": "make rpus.co serve the publish tree: copy data/output/site/ into the ext/mnt/site clone, commit there, push - a dry run unless --apply, because it writes outside the repo and the push is what the world sees",
+  "help": "make rpus.co serve the publish tree: copy data/output/site/ into the ext/mnt/site clone, commit there, push - a dry run stating what changes in the corpus page, table by table, unless --apply, because it writes outside the repo and the push is what the world sees",
   "args": [
     {
       "name": "--apply",

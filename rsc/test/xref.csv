@@ -597,6 +597,7 @@ rsc/schema/protocol/mcpMessage/CHANGELOG.md,40,doc,rsc/reference/mcp/2026-07-28/
 rsc/schema/protocol/mcpMessage/CHANGELOG.md,44,doc,src/main/mcp/mcp_generation.py,Y,"upstream's generator would give it (`src/main/mcp/mcp_generation.py`, one rule per"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
 rsc/site/README.md,10,doc,rsc/site/corpus-yoga.html,Y,"whose source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at"
+rsc/site/README.md,41,doc,src/main/model/compare_pages.py,Y,"(`src/main/model/compare_pages.py`, #652), since a line diff of two renders"
 rsc/test/prepare-commit-msg-hook.sh,12,comment,rsc/provider/providers.csv,Y,"#            (rsc/provider/providers.csv) - the outer corpus identity coordinate, so a"
 rsc/test/prepare-commit-msg-hook.sh,28,comment,rsc/CALCULUS.md,Y,"# DRAFTED it — the same split as ""curation is capture by a user"" (rsc/CALCULUS.md)."
 rsc/test/prepare-commit-msg-hook.sh,37,comment,src/main/cli/forge/forge.csv,Y,"# messages: squash_merge_commit_message, declared in src/main/cli/forge/forge.csv and reconciled by"
@@ -801,11 +802,12 @@ src/main/cli/server/start.json,31,path_str,src/main/model/serve_assets.txt,Y,"""
 src/main/cli/site/render.json,7,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
 src/main/cli/site/site.json,8,path_str,rsc/site,Y,"""rsc/site"","
-src/main/cli/site/site.sh,14,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
-src/main/cli/site/site.sh,22,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
-src/main/cli/site/site.sh,24,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
-src/main/cli/site/site.sh,26,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/site/site.sh,31,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
+src/main/cli/site/site.sh,15,comment,rsc/site/index.template.html,Y,"# rsc/site/index.template.html, the one file under rsc/site/ that is not a page."
+src/main/cli/site/site.sh,23,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/cli/site/site.sh,25,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
+src/main/cli/site/site.sh,27,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
+src/main/cli/site/site.sh,32,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
+src/main/cli/site/site.sh,122,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-exports/summaries.py,Y,"""target"": ""src/main/pipeline/chat-exports/summaries.py"","
@@ -842,6 +844,7 @@ src/main/mcp/reproduce.sh,38,comment,src/main/mcp/reproduce.sh,Y,"#   src/main/m
 src/main/mcp/reproduce.sh,40,comment,src/main/cli/mcp/reproduce.json,Y,# Effects (declared in src/main/cli/mcp/reproduce.json): a git fetch from upstream
 src/main/mcp/reproduce.sh,42,comment,src/main/send.sh,Y,"# is written. YOGA_NO_SEND=1 refuses the run (src/main/send.sh, assert_may_send)."
 src/main/mcp/reproduce.sh,52,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
+src/main/model/compare_pages.py,22,path_str,src/main/model/compare_pages.py,Y,SELF = 'src/main/model/compare_pages.py'
 src/main/model/compare_sources.py,25,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,25,comment,src/main/model/compare_sources.py,Y,src/run_python_script.sh src/main/model/compare_sources.py     --browser-api data/input/claude/chat/browser-API     --bu
 src/main/model/compare_sources.py,37,path_str,src/main/model/compare_sources.py,Y,SELF = 'src/main/model/compare_sources.py'
