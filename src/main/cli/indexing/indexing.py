@@ -396,6 +396,11 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
     # else (term_regex, reject); otherwise 'Mathematics' would append a second entry
     # beside 'mathematics'. Merge into the already-curated headword, keeping its casing.
     existing = {h.lower(): h for h in entries}
+    if not aliases and term.lower() not in existing and MARKDOWN_DIR.is_dir():
+        # a concept accepted as the queue listed it takes the aliases the queue showed
+        # for it - the phrasings that anchor it in a turn - so one word never makes an
+        # orphan; aliases typed by hand override (#644)
+        aliases = [a for a in anchors_of(term, turn_bodies(MARKDOWN_DIR)) if a.lower() != term.lower()]
     if term.lower() in existing:
         head = existing[term.lower()]
         known = {t.lower() for t in entries[head]}
