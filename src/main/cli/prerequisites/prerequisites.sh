@@ -518,7 +518,7 @@ check_pipeline_inputs() {
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
   # machine holds, and the live harness mount the census and capture read (#628),
   # ext/mnt/agent/<provider> (#636).
-  local p_name p_live p_mount p_served p_store p_remedy p_rows
+  local p_name p_live p_mount p_served p_store p_remedy p_store_remedy p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
   if [[ -x "$VENV/bin/python" ]]; then
     # provider, live store, the mount as provider.mount() derives it, and whether the agent
@@ -536,8 +536,10 @@ check_pipeline_inputs() {
     # capture verb where an adapter serves it, and the missing adapter where none does.
     if [[ "$p_served" == served ]]; then
       p_remedy="./corpus-yoga agent capture --provider $p_name stashes it"
+      p_store_remedy="./corpus-yoga agent capture --provider $p_name creates the store and stashes the live sessions into it"
     else
       p_remedy="no harness adapter serves $p_name (src/main/cli/agent/$p_name/harness.py absent)"
+      p_store_remedy="$p_remedy"
     fi
     if [[ -d "$REPO_ROOT/$p_store" ]]; then
       n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
@@ -545,7 +547,7 @@ check_pipeline_inputs() {
       sessions="$(find -L "$REPO_ROOT/$p_store" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
       ok "code-agents: $p_store holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
     else
-      info "code-agents: no $p_store store yet — will skip; ./corpus-yoga agent capture --provider $p_name creates the store and stashes the live sessions into it"
+      info "code-agents: no $p_store store yet — will skip; $p_store_remedy"
     fi
     [[ -n "$p_live" && -n "$p_mount" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then
