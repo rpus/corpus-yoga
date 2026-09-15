@@ -352,7 +352,7 @@ def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
     CANDIDATES_TXT.write_text(report)
     pending = [l for l in report.splitlines() if l.strip()]
     print(f'{len(pending)} pending concept(s) -> {CANDIDATES_TXT.relative_to(REPO)}'
-          + (' — each anchors in the corpus by the aliases shown; dispose each: '
+          + (' - each anchors in the corpus by the aliases shown; dispose each: '
              'corpus-yoga indexing accept "<concept>" [alias ...] | reject "<concept>", or --all as read'
              if pending else ''))
     for c in pending:
@@ -483,7 +483,7 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
         return
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), MARKDOWN_DIR)
     print(f'pending: {len(anchored)} concept(s) undisposed'
-          + (f' — next: {anchored[0][0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if anchored else ' — fully disposed')
+          + (f' - next: {anchored[0][0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if anchored else ' - fully disposed')
           + (f'; {len(unanchorable)} unanchorable, named by list-candidates, not queued' if unanchorable else ''))
 
 
