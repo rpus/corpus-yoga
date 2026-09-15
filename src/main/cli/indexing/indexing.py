@@ -484,7 +484,7 @@ def pending_report(accepted_path: Path, rejected_path: Path) -> None:
         return
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), MARKDOWN_DIR)
     print(f'candidates: {len(anchored)} concept(s) undisposed'
-          + (f' - next: {anchored[0][0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if anchored else ' - fully disposed')
+          + (f' — next: {anchored[0][0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if anchored else ' — fully disposed')
           + (f'; {len(unanchorable)} unanchorable, named by list-candidates, not queued' if unanchorable else ''))
 
 
