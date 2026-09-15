@@ -6,6 +6,65 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v16
+
+The artifact machinery enters the record, and the undeclared is surveyed.
+Reading-room session `be12fa7c-…`, written by Claude Code 2.1.241 to 2.1.270
+and recaptured on 2026-09-15 at 16190 records, carries 513 that v15 refuses:
+338 `frame-link` records carrying `artifactCount`, 336 of them a count record
+with no path or url at all, from 2026-09-02; and two record types no version knew,
+`artifact-comment-monitor` (30) and `artifact-autoreact-ledger` (145), the
+harness's map of the artifacts a session watches for comments and its ledger
+of automatic replies on them. Each is admitted below as a closed object minted
+from the observed records. The same survey, over both rooms' stores, found
+eighteen keys that every version admitted undeclared on the open turn records
+since harness 2.1.201 (2026-07-05) - a tool denial's kind, an MCP result's
+source and meta, a turn's attribution to a skill or MCP tool, an error's
+text, superseded uuids, a shutdown interruption, and the nine fields of a
+`model_refusal_fallback` system event; v16 declares them with the types
+observed, as v15 declared the retry trio. Every session in both rooms' stores
+on 2026-09-15 validates at v16: v15 now happens to reject only the kinds its
+era never showed.
+
+### Replaces
+
+v15
+
+#### Restricted
+
+- user records: `toolDenialKind`, `sourceToolUseID`, `mcpMeta`,
+  `interruptedByShutdown`; assistant records: `attributionSkill`,
+  `attributionMcpServer`, `attributionMcpTool`, `errorDetails`,
+  `supersedesUuids`; system records: `direction`, `trigger`, `scope`,
+  `originalModel`, `fallbackModel`, `apiRefusalCategory`,
+  `apiRefusalExplanation` (null or string), `refusedUserMessageUuid`,
+  `retractedMessageUuids` - declared where v15 left them undeclared on the
+  open turn records. Non-material: every held datum passes (both rooms'
+  stores, 2026-09-15).
+
+#### Relaxed
+
+- `artifact-comment-monitor`: a new record type, `ArtifactCommentMonitorRecord`,
+  a closed object of `type`, `v`, `sessionId` and `artifacts`, the last a map
+  from artifact uuid to `ArtifactMonitorEntry` (`state`, `writtenAtMs`,
+  `title`), all required.
+- `artifact-autoreact-ledger`: a new record type,
+  `ArtifactAutoreactLedgerRecord`, a closed object of `type`, `v`, `sessionId`,
+  `accountUuid` and `artifacts`, the last a map from artifact uuid to
+  `ArtifactLedgerEntry` (`savedAt`, `stampHighWater` observed only null,
+  `everBaselined`, `everHadThreads`, `turnTimestamps` and `threads` observed
+  only empty), all required.
+- `frame-link`: a second shape under the one type - the count record, `type`,
+  `sessionId`, `timestamp` and `artifactCount` alone (336 of reading-room's
+  records, from 2026-09-02) beside the publish record; `path` and `frameUrl`
+  are no longer required, and a dependency keeps them a pair; `artifactCount`,
+  an integer, may also ride a publish record (2 observed).
+
+#### Refactored
+
+- `MessageContent` moves in the file: the breadth-first order repair places it
+  after the definitions the new record types reference. No validation effect.
+
 ## v15
 
 The harness's growth over a month enters the record. Home-room session
