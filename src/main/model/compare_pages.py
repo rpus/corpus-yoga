@@ -91,9 +91,16 @@ def compare_table(name: str, old: dict, new: dict, uuid_old: dict, uuid_new: dic
         shown = []
         for k in changed[:SHOWN]:
             cols = changed_columns(a[k], b[k], name)
-            shown.append(label(name, k, b[k]) + ' (' + ', '.join(f'{c} {a[k][c]} → {b[k][c]}' for c in cols) + ')')
+            shown.append(label(name, k, b[k]) + ' (' + ', '.join(f'{c} {a[k][c]} to {b[k][c]}' for c in cols) + ')')
         parts.append(f'{len(changed)} changed: ' + ', '.join(shown) + (', ...' if len(changed) > SHOWN else ''))
     return f'{name}: ' + '; '.join(parts)
+
+
+def size(table: dict) -> str:
+    """A table's extent in its own terms: rows, or for the words table words per side."""
+    if 'rows' in table:
+        return f'{len(table["rows"])} rows'
+    return ', '.join(f'{side} {len(t.get("rows", []))} words' for side, t in table.items())
 
 
 def compare_words(old: dict, new: dict) -> str:
@@ -111,21 +118,29 @@ def compare_words(old: dict, new: dict) -> str:
     return 'data-literal-words: ' + ('; '.join(parts) if parts else 'identical')
 
 
+def uuid_by_chat(page: dict) -> dict:
+    """{chat ordinal: uuid} from data-chats, by the columns the table declares."""
+    chats = page.get('data-chats')
+    if not chats:
+        return {}
+    chat, uuid = chats['columns'].index('chat'), chats['columns'].index('uuid')
+    return {row[chat]: row[uuid] for row in chats['rows']}
+
+
 def compare(old_path: Path, new_path: Path) -> list[str]:
     old_title, old = tables(old_path)
     new_title, new = tables(new_path)
     lines = []
     if old_title != new_title:
-        lines.append(f'title: "{old_title}" → "{new_title}"')
+        lines.append(f'title: "{old_title}" to "{new_title}"')
     else:
         lines.append(f'title: unchanged - "{new_title}"')
-    uuid_old = {r[0]: r[4] for r in old.get('data-chats', {}).get('rows', [])}
-    uuid_new = {r[0]: r[4] for r in new.get('data-chats', {}).get('rows', [])}
+    uuid_old, uuid_new = uuid_by_chat(old), uuid_by_chat(new)
     for name in sorted(set(old) | set(new)):
         if name not in new:
             lines.append(f'{name}: removed from the page'); continue
         if name not in old:
-            lines.append(f'{name}: new on the page ({len(new[name].get("rows", []))} rows)'); continue
+            lines.append(f'{name}: new on the page ({size(new[name])})'); continue
         if name == 'data-literal-words':
             lines.append(compare_words(old[name], new[name]))
         elif name in IDENTITY:
