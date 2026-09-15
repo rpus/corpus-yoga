@@ -62,16 +62,6 @@ def store(provider: str) -> Path:
     return REPO / 'data' / 'input' / provider / 'code' / 'machine-transport'
 
 
-def ambiguous(prefix: str, matches: list[tuple[str, str]], provider: str) -> str:
-    """The refusal when a uuid prefix names more than one record: each match with
-    its project, since one session can sit under two projects (a fork a repository
-    rename leaves), and the act that takes them all - the provider's totality -
-    because --id names one session and here there are several records of one."""
-    return (f'error: {prefix!r} names {len(matches)} records: '
-            + ', '.join(f'{project}/{sid}' for project, sid in matches)
-            + f' - --id names one session; to capture every record, take the provider\'s totality: --provider {provider}')
-
-
 def adapter(provider: str) -> ModuleType | None:
     """The provider's harness adapter, or None where none exists: the agent verb
     serves exactly the providers with one."""

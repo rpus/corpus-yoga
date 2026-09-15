@@ -25,7 +25,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, ambiguous, may_replace, move_workspace, place_log, word_placement  # noqa: E402
+from transport import Relation, Session, may_replace, move_workspace, place_log, word_placement  # noqa: E402
 
 PROVIDER = 'claude'
 
@@ -119,7 +119,8 @@ def pick_session(root: Path, uuid8: str) -> Path:
     if not matches:
         sys.exit(f'error: no session matching {uuid8!r} in {root}')
     if len(matches) > 1:
-        sys.exit(ambiguous(uuid8, [(s.parent.name, s.stem) for s in matches], PROVIDER))
+        sys.exit(f'error: {uuid8!r} is ambiguous here — matches: '
+                 + ', '.join(f'{s.parent.name}/{s.stem}' for s in matches))
     return matches[0]
 
 

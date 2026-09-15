@@ -250,7 +250,12 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
         if not matches:
             sys.exit(f'error: no {provider} session matching {uuid8!r} in {mount_path.relative_to(REPO)}')
         if len(matches) > 1:
-            sys.exit(transport.ambiguous(uuid8, [(s.project, s.id) for s in matches], row['provider']))
+            # one session can sit under two projects (the fork a repository rename leaves),
+            # so more of the uuid resolves nothing: name each record with its project, and
+            # the act that takes them all - --id names one session
+            sys.exit(f'error: {uuid8!r} names {len(matches)} records: '
+                     + ', '.join(f'{s.project}/{s.id}' for s in matches)
+                     + f" - --id names one session; to capture every record, take the provider's totality: --provider {row['provider']}")
     conflicts = 0
     for row, mount_path, adapter in targets:
         name = row['provider']
