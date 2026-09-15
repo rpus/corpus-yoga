@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "antigravitySession",
+  "description": "Schema for Antigravity session transcripts, as the harness writes them at ~/.gemini/antigravity/brain/<session>/.system_generated/logs/transcript.jsonl and transcript_full.jsonl and as corpus-yoga agent capture stashes them, converted to a JSON array (one step per line becomes one element). The family describes the step record as observed on home-room and reading-room on 2026-09-15 (Antigravity 2.13.0); the session's step database (conversation.db, protobuf) and its summaries row (summary.json) are not described here. Every definition ends with its layer, drawn from layer.csv beside this file: the record's own layers, named as a first reading, beside MCP's.",
+  "allOf": [
+    {
+      "$ref": "#/definitions/AntigravityTranscript"
+    }
+  ],
+  "definitions": {
+    "AntigravityTranscript": {
+      "title": "AntigravityTranscript",
+      "description": "An ordered sequence of steps produced by one Antigravity session, converted from transcript.jsonl (one step per line) to a JSON array. The same family describes transcript_full.jsonl beside it: the same steps with no field truncated and no truncated_fields entry. Observed on home-room (session 5bb62af7, 88 steps, 2026-09-14) and reading-room (session a821b300, 2069 steps, 2026-09-09 to 2026-09-15). Layer: step.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Step"
+      }
+    },
+    "Step": {
+      "title": "Step",
+      "description": "One step of the session: an envelope of five fields present on every observed step (step_index, source, type, status, created_at), and beside it the fields the step's type carries - a user input its content; a planner response any of content, thinking and tool_calls; a generic, system message or checkpoint step its content - plus, in the plain transcript only, the names of the fields the harness truncated. Layer: step.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_index",
+        "source",
+        "type",
+        "status",
+        "created_at"
+      ],
+      "properties": {
+        "step_index": {
+          "description": "The step's position, an integer from 0. Ascending on home-room's session and not on reading-room's, whose 2069 steps repeat indices where the harness resumed the session, so the array order is the record's order and the index a label. Layer: step.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "source": {
+          "$ref": "#/definitions/Source"
+        },
+        "type": {
+          "$ref": "#/definitions/StepType"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "created_at": {
+          "$ref": "#/definitions/AntigravityTimestamp"
+        },
+        "content": {
+          "description": "The step's text: a user input's request wrapped in the harness's tags (USER_REQUEST, ADDITIONAL_METADATA), a model's prose, a tool's output on a generic step, a system message, or a checkpoint summary. Truncated in the plain transcript where truncated_fields names it. Layer: content.",
+          "type": "string"
+        },
+        "thinking": {
+          "description": "The model's thinking on a planner response, where the harness recorded it (one step of 88 on home-room, 295 of 2069 on reading-room). Layer: content.",
+          "type": "string"
+        },
+        "tool_calls": {
+          "description": "The tool calls a planner response made, in order. Layer: tools.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/ToolCall"
+          }
+        },
+        "truncated_fields": {
+          "$ref": "#/definitions/TruncatedFields"
+        }
+      }
+    },
+    "Source": {
+      "title": "Source",
+      "description": "Who wrote the step. Observed values: USER_EXPLICIT (the person's input), MODEL (the model's planner responses and the generic steps that carry tool output), SYSTEM (system messages and checkpoints, reading-room only). Likely an open set. Layer: actor.",
+      "type": "string",
+      "enum": [
+        "USER_EXPLICIT",
+        "MODEL",
+        "SYSTEM"
+      ]
+    },
+    "StepType": {
+      "title": "StepType",
+      "description": "What kind of step. Observed values: USER_INPUT (source USER_EXPLICIT), PLANNER_RESPONSE (the model's turn: prose, thinking, tool calls), GENERIC (a tool's output, source MODEL), SYSTEM_MESSAGE and CHECKPOINT (source SYSTEM, reading-room only). Likely an open set. Layer: actor.",
+      "type": "string",
+      "enum": [
+        "USER_INPUT",
+        "PLANNER_RESPONSE",
+        "GENERIC",
+        "SYSTEM_MESSAGE",
+        "CHECKPOINT"
+      ]
+    },
+    "Status": {
+      "title": "Status",
+      "description": "The step's state when the transcript was written. Observed values: DONE, and RUNNING on 30 of reading-room's steps, captured while the session was live. Likely an open set. Layer: step.",
+      "type": "string",
+      "enum": [
+        "DONE",
+        "RUNNING"
+      ]
+    },
+    "AntigravityTimestamp": {
+      "title": "AntigravityTimestamp",
+      "description": "When the step was created: an ISO 8601 UTC timestamp to the second, no fraction. Pattern: YYYY-MM-DDThh:mm:ssZ. Example: \"2026-09-14T11:23:39Z\". Layer: step.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "ToolCall": {
+      "title": "ToolCall",
+      "description": "One tool call: the tool's name and its arguments. Names observed across both rooms: list_dir, view_file, run_command, grep_search, write_to_file, replace_file_content, manage_task, schedule, find_by_name and others; the set is the harness's. Layer: tools.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "args"
+      ],
+      "properties": {
+        "name": {
+          "description": "The tool's name as the harness registers it. Layer: tools.",
+          "type": "string"
+        },
+        "args": {
+          "description": "The arguments, an object whose keys are the tool's own; truncated in the plain transcript where truncated_fields names tool_calls. Layer: tools.",
+          "type": "object"
+        }
+      }
+    },
+    "TruncatedFields": {
+      "title": "TruncatedFields",
+      "description": "The fields of this step the harness truncated in the plain transcript, absent where nothing was; transcript_full.jsonl carries them whole and never has this entry. Observed values: content, tool_calls, thinking. Layer: truncation.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "description": "A field name of Step. The set is exhaustive: the three fields a step carries beyond its envelope are the three the harness can truncate; a fourth would mint a new version. Layer: truncation.",
+        "type": "string",
+        "enum": [
+          "content",
+          "tool_calls",
+          "thinking"
+        ]
+      }
+    }
+  }
+}
