@@ -3,7 +3,7 @@
   "args": [],
   "r": [
     "data/output/markdown",
-    "data/output/dashboard",
+    "data/output/indexing",
     "rsc/site/index.template.html",
     "data/output/artifacts/claude/chat/downloaded"
   ],

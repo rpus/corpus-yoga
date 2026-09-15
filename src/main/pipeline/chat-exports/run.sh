@@ -55,7 +55,7 @@ run_one() {
   # No blanket wipe of tmp/cache/<batch>: each stage owns (wipes or overwrites) its own
   # output subtree. A blanket wipe would destroy the validation memoisation logs,
   # forcing full revalidation every run. (The paid captures are out of reach either
-  # way — they live in data/output/dashboard/, not under tmp/cache/.)
+  # way — they live in data/output/indexing/, not under tmp/cache/.)
   local have_captures="0"
   if [[ -d "$BROWSER_API" ]]; then have_captures="1"; fi
 
@@ -68,7 +68,7 @@ run_one() {
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
   step extract_heredocs   "$SCRIPT_DIR/extract_heredocs.sh" --chat-export "$batch"
   # inference is not per-batch: the dashboard's captures are the durable
-  # single-source data/output/dashboard/ (refreshed deliberately by `corpus-yoga dashboard
+  # single-source data/output/indexing/ (refreshed deliberately by `corpus-yoga dashboard
   # capture`), which present reads. Nothing paid runs on every export.
   step present            "$SCRIPT_DIR/present.sh" --chat-export "$batch"
   step audit_files        "$SCRIPT_DIR/audit_files.sh" --chat-export "$batch"

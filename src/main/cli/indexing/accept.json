@@ -5,7 +5,7 @@
       "name": "--all",
       "type": "",
       "cardinality": "",
-      "help": "accept the whole derived queue (tmp/cache/indexing/candidates.txt) as read \u2014 refused if the queue moved since list-candidates wrote it; each candidate becomes its own headword (alias-folding stays per-term work, or edit accepted.txt after)"
+      "help": "accept the whole derived queue (tmp/cache/indexing/candidate-semantic-concepts.txt) as read \u2014 refused if the queue moved since list-candidates wrote it; each candidate becomes its own headword (alias-folding stays per-term work, or edit accepted.txt after)"
     },
     {
       "name": "term",
@@ -25,6 +25,6 @@
     "tmp/cache/indexing"
   ],
   "w": [
-    "data/output/indexing/accepted.txt"
+    "data/output/indexing/accepted-semantic-concepts.txt"
   ]
 }

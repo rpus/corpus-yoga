@@ -2,5 +2,10 @@
   "summary": "Curate and build the book index over data/output/indexing/ (bare: status)",
   "target": "src/main/cli/indexing/indexing.py",
   "calculus": "capture curate project",
-  "args": []
+  "args": [],
+  "r": [
+    "data/output/indexing",
+    "data/output/markdown",
+    "rsc/naming"
+  ]
 }

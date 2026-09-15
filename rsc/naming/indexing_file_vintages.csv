@@ -1,0 +1,5 @@
+kind,legacy,current,note
+inferred concepts,data/output/dashboard/semantic-concepts.json,data/output/indexing/inferred-semantic-concepts.json,"the model's concept proposals, written by corpus-yoga indexing capture; under the retired dashboard root until 2026-09-15 (#655), then beside the curation the same command writes, named state then kind"
+inferred categories,data/output/dashboard/chat-categories.json,data/output/indexing/inferred-chat-categories.json,"the model's category per conversation, written by corpus-yoga indexing capture; moved with the concepts on 2026-09-15 (#655)"
+accepted concepts,data/output/indexing/accepted.txt,data/output/indexing/accepted-semantic-concepts.txt,"the concepts the maintainer accepted as headwords, with aliases; renamed 2026-09-15 (#655) to read state then kind"
+rejected concepts,data/output/indexing/rejected.txt,data/output/indexing/rejected-semantic-concepts.txt,"the concepts the maintainer rejected, with reasons; renamed 2026-09-15 (#655) to read state then kind"

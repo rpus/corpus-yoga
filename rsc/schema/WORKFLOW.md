@@ -83,7 +83,7 @@ not by any check.
 When writing a CHANGELOG entry about a path that has moved or gone, **do not quote the old
 path as a code span**. `xref` reads a backticked path as a live reference, finds it missing,
 and the gate vetoes the commit. Describe the change instead — "gained the `data/` root (now
-`data/output/dashboard/…`)" rather than the old path in backticks beside the new one.
+`data/output/indexing/…`)" rather than the old path in backticks beside the new one.
 
 ---
 

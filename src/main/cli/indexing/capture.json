@@ -29,12 +29,12 @@
   },
   "r": [
     "data/output/markdown",
-    "rsc/schema/dashboard",
+    "rsc/schema/indexing",
     "rsc/site/index.template.html"
   ],
   "w": [
     "tmp/cache/indexing",
-    "data/output/dashboard"
+    "data/output/indexing"
   ],
   "log": "self"
 }
