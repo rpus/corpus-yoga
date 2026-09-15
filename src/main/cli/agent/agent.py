@@ -155,17 +155,17 @@ def served() -> list[tuple[dict, Path, ModuleType]]:
 def own_outbox(provider: str) -> Path | None:
     """The remote this machine writes for a provider:
     data/input/<provider>/code/machine-transport/<its machine-name.txt binding>.
-    The store itself is hand-made; the machine's subdirectory inside it is ours.
-    None where the store is absent: a sweep states the skip and its remedy
-    rather than stopping between providers."""
-    store = transport.store(provider)
-    if not store.is_dir():
-        print(f'{provider}: {store.relative_to(REPO)} missing — hand-make it as a symlink to the '
-              'shared store (one subdirectory per machine name, projects nested within); skipped',
-              file=sys.stderr)
+    data/input is the shared medium (iCloud, laid out per room by hand); the
+    provider's store inside it is a directory this verb creates, being what it
+    is declared to write. None where the medium is absent: a sweep states the
+    skip and its remedy rather than stopping between providers."""
+    medium = REPO / 'data' / 'input'
+    if not medium.is_dir():
+        print(f'{provider}: {medium.relative_to(REPO)} missing — the shared medium is laid out by hand '
+              '(corpus-yoga prerequisites names the convention); skipped', file=sys.stderr)
         return None
-    out = store / bound_machine()
-    out.mkdir(exist_ok=True)
+    out = transport.store(provider) / bound_machine()
+    out.mkdir(parents=True, exist_ok=True)
     return out
 
 
