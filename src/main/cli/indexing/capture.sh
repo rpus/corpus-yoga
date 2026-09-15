@@ -19,7 +19,7 @@
 #
 # Captures land durable in data/output/dashboard/ (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
-# palette is authored in rsc/site/index.html; the capture schemas live under
+# palette is authored in rsc/site/index.template.html; the capture schemas live under
 # rsc/schema/dashboard/.
 
 set -euo pipefail
@@ -109,16 +109,16 @@ Return a JSON object with exactly two keys: \"columns\" (the schema array above)
 # ── per-table capture functions ───────────────────────────────────────────────
 
 # The canonical category names — AUTHORED, not captured: read from the palette
-# inlined in the homepage template (rsc/site/index.html), the one authority. Exits
+# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits
 # non-zero (not AttributeError) if the block can't be found, so a template reformat
 # fails loudly; the caller pre-flights this before any paid call.
 canonical_categories() {
   "$REPO_DIR/src/run_python_script.sh" -c "
 import re, json, pathlib, sys
-h = pathlib.Path('$REPO_DIR/rsc/site/index.html').read_text()
+h = pathlib.Path('$REPO_DIR/rsc/site/index.template.html').read_text()
 m = re.search(r'id=\"data-categories\"[^>]*>\s*(\{.*?\})\s*</script>', h, re.S)
 if not m:
-    sys.exit('canonical_categories: no data-categories palette block in rsc/site/index.html')
+    sys.exit('canonical_categories: no data-categories palette block in rsc/site/index.template.html')
 print(', '.join(r[0] for r in json.loads(m.group(1))['rows']))
 "
 }

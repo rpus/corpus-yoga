@@ -22,3 +22,6 @@ source-native conversation id.
   `data/` root (now `data/output/dashboard/chat-categories.json`) for the four-root
   migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect.
   The narrative above keeps the pre-migration layout of 2026-07-10, the day it describes.
+- `ChatCategories` description (v1, in place) - the palette's home is named
+  `rsc/site/index.template.html`, the template's name since #650 (2026-09-15); the
+  file is the same. No validation effect.

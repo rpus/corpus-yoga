@@ -42,7 +42,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
-TEMPLATE = REPO / 'rsc' / 'site' / 'index.html'
+TEMPLATE = REPO / 'rsc' / 'site' / 'index.template.html'
 # The library's address and migration note come from library.py, the one authority (#421)
 CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'   # source-scoped helpers stay there (#407)
 MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
