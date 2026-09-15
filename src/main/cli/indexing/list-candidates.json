@@ -1,5 +1,5 @@
 {
-  "help": "derive tmp/cache/indexing/candidates.txt (the pending queue of undisposed concepts)",
+  "help": "derive tmp/cache/indexing/candidate-semantic-concepts.txt (the candidates: the captured concepts not yet accepted or rejected)",
   "args": [
     {
       "name": "--top",
@@ -9,7 +9,6 @@
     }
   ],
   "r": [
-    "data/output/dashboard",
     "data/output/indexing"
   ],
   "w": [

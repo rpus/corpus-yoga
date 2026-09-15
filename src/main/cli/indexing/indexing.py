@@ -6,7 +6,7 @@ capture. Driven by `corpus-yoga indexing` (see src/main/cli/).
 
 Building an index is the first proper USE of the corpus rather than merely writing into it.
 It scans the readable markdown library (data/output/markdown/{claude,gemini}/conversations/),
-matches the accepted headwords (data/output/indexing/accepted.txt: 'headword = alias,
+matches the accepted headwords (data/output/indexing/accepted-semantic-concepts.txt: 'headword = alias,
 ...' lines, case-insensitive on word boundaries), and writes data/output/markdown/index.md —
 one alphabetised entry per headword, locators grouped by conversation, every locator
 a link to the turn's durable anchor (message uuid for claude, role-count for
@@ -14,26 +14,26 @@ gemini), so an entry survives corpus renumbering.
 
 Human-and-agent-amenable by construction: the entry text reads as a book index
 (conversation name, turn labels H3/A7), while every locator's href is a
-machine-followable file#anchor. accepted.txt is the curation surface; the index
+machine-followable file#anchor. accepted-semantic-concepts.txt is the curation surface; the index
 is derived dressing (regenerate at will; deterministic output — no timestamps —
 so regeneration is a no-op when nothing changed, per CALCULUS L1).
 
 Curation is reproducible from the repo, on the schema system's template
 (candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
-for the three line-list formats (accepted.txt, rejected.txt, candidates.txt) and
-the loop. `list-candidates` derives the pending report into a rebuildable tmp/cache/ file
-(tmp/cache/indexing/candidates.txt) from the single-source concept capture
-(data/output/dashboard/semantic-concepts.json); every captured concept must end up
-accepted or rejected — anything else is PENDING, reported here and by the
+for the three line-list formats (accepted-semantic-concepts.txt, rejected-semantic-concepts.txt, candidate-semantic-concepts.txt) and
+the loop. `list-candidates` derives the candidates into a rebuildable tmp/cache/ file
+(tmp/cache/indexing/candidate-semantic-concepts.txt) from the single-source concept capture
+(data/output/indexing/inferred-semantic-concepts.json); every captured concept must end up
+accepted or rejected — anything else is a CANDIDATE, reported here and by the
 pre-commit data tier.
 
 The disposal acts (accept / reject) are verbs too: the judgment stays human; the
 verb only writes the durable line-lists with format discipline, then reports how
-many concepts remain pending.
+many candidates remain.
 
 Usage (via corpus-yoga indexing):
-  corpus-yoga indexing                                    # status: counts + pending queue
-  corpus-yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt
+  corpus-yoga indexing                                    # status: counts + the candidates
+  corpus-yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidate-semantic-concepts.txt
   corpus-yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
   corpus-yoga indexing accept --all                       # accept the whole queue as read
   corpus-yoga indexing reject [--reason <why>] <concept>  # reject a concept
@@ -58,8 +58,8 @@ from markdown_projection import REPO
 from declared_parser import command_parser
 
 MARKDOWN_DIR = REPO / 'data' / 'output' / 'markdown'                    # the corpus to index
-ACCEPTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'accepted.txt'  # curated headwords (read + written)
-REJECTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'rejected.txt'  # disposal record (read + written)
+ACCEPTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
+REJECTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
 
 TURN_RE = re.compile(
     r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
@@ -72,7 +72,7 @@ LOCATORS_SHOWN = 4
 
 def parse_accepted(path: Path) -> dict[str, list[str]]:
     """{headword: [headword, alias, ...]} preserving file order of headwords.
-    Absent file → empty (accepted.txt lives in git-ignored data/output/, so a fresh machine
+    Absent file → empty (accepted-semantic-concepts.txt lives in git-ignored data/output/, so a fresh machine
     before iCloud sync has none — degrade to 'no headwords', never crash)."""
     entries: dict[str, list[str]] = {}
     if not path.exists():
@@ -89,7 +89,7 @@ def parse_accepted(path: Path) -> dict[str, list[str]]:
 
 
 def parse_rejected(path: Path) -> set[str]:
-    """Lower-cased rejected concepts from data/output/indexing/rejected.txt — one per
+    """Lower-cased rejected concepts from data/output/indexing/rejected-semantic-concepts.txt — one per
     line, 'term # optional reason' (the file name says 'rejected', so no verb
     prefix). A '# …'-only line is a comment."""
     rejected = set()
@@ -103,12 +103,12 @@ def parse_rejected(path: Path) -> set[str]:
 
 def inferred_concepts() -> list[str]:
     """The finite candidate source: the single-source concept capture
-    data/output/dashboard/semantic-concepts.json (a model reading the corpus; refresh with `corpus-yoga indexing capture`).
+    data/output/indexing/inferred-semantic-concepts.json (a model reading the corpus; refresh with `corpus-yoga indexing capture`).
     Durable and shared across machines (via data/output/), so both curate one shared base — the
     24-vs-27 divergence of the old per-batch, per-machine tmp/cache/ inference is gone.
     Empty where no capture has been taken yet."""
     import json
-    f = REPO / 'data' / 'output' / 'dashboard' / 'semantic-concepts.json'
+    f = INFERRED_FILE
     if not f.exists():
         return []
     return [r[0] for r in json.loads(f.read_text()).get('rows', [])]
@@ -118,7 +118,7 @@ def term_regex(terms: list[str]) -> re.Pattern:
     """One alternation over the headword and its aliases, word-bounded where the
     term's edges are word characters (so 'S/T'-ish terms still match sanely).
     Empty terms → a NEVER-match pattern: '|'.join([]) is '' which matches every
-    string, so an empty accepted.txt would silently mark every concept covered."""
+    string, so an empty accepted-semantic-concepts.txt would silently mark every concept covered."""
     if not terms:
         return re.compile(r'(?!)')
     parts = []
@@ -223,13 +223,18 @@ STOPWORDS = frozenset(
     every each both again true false none non within without across against""".split())
 
 
-CANDIDATES_TXT = REPO / 'tmp' / 'cache' / 'indexing' / 'candidates.txt'
+INFERRED_FILE = REPO / 'data' / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
+CANDIDATES_TXT = REPO / 'tmp' / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
+# The durable files' former addresses are data, rsc/naming/indexing_file_vintages.csv
+# (#655): a file still at a legacy address is named by the status with its move,
+# never moved by machinery.
+FILE_VINTAGES = REPO / 'rsc' / 'naming' / 'indexing_file_vintages.csv'
 
 
 def _coverage(accepted_path: Path, rejected_path: Path):
     """The disposal predicate's state, in ONE place: (covered, rejected) — a regex
     over every accepted headword+alias, and the set of rejected concepts. A concept
-    is DISPOSED iff covered.search(c) or c.lower() in rejected; pending otherwise.
+    is DISPOSED iff covered.search(c) or c.lower() in rejected; a candidate otherwise.
     pending_concepts and the candidates() advisory both build from this, so 'what
     counts as disposed' has a single definition."""
     entries = parse_accepted(accepted_path)
@@ -238,9 +243,9 @@ def _coverage(accepted_path: Path, rejected_path: Path):
 
 
 def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
-    """The pending queue as a bare line-list (one concept per line) — the third
-    disposal state beside accepted.txt and rejected.txt, and a DETERMINISTIC,
-    reproducible derivation of data/output/dashboard/semantic-concepts.json − accepted −
+    """The candidates as a bare line-list (one concept per line) — the third
+    disposal state beside accepted-semantic-concepts.txt and rejected-semantic-concepts.txt, and a DETERMINISTIC,
+    reproducible derivation of data/output/indexing/inferred-semantic-concepts.json − accepted −
     rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
     data. Reproducible, so it is a rebuildable tmp/cache/ file, regenerated on demand
     (not committed, not gated)."""
@@ -250,7 +255,7 @@ def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
 
 def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
                top: int | None) -> None:
-    """Write the pending line-list (tmp/cache/indexing/candidates.txt) AND print it —
+    """Write the candidate line-list (tmp/cache/indexing/candidate-semantic-concepts.txt) AND print it —
     the queue is the deliverable, so the console leads with it, never with a
     side report. The optional frequency advisory (frequent uncovered corpus
     words, --top N) scans data/output/markdown, so it is never filed — it would differ
@@ -261,7 +266,7 @@ def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
     CANDIDATES_TXT.parent.mkdir(parents=True, exist_ok=True)
     CANDIDATES_TXT.write_text(report)
     pending = [l for l in report.splitlines() if l.strip()]
-    print(f'{len(pending)} pending concept(s) -> {CANDIDATES_TXT.relative_to(REPO)}'
+    print(f'{len(pending)} candidate concept(s) -> {CANDIDATES_TXT.relative_to(REPO)}'
           + (' — dispose each: corpus-yoga indexing accept <term> [alias ...] | reject <concept>'
              if pending else ''))
     for c in pending:
@@ -333,11 +338,11 @@ def reject(accepted_path: Path, rejected_path: Path, concept: str, reason: str) 
 
 
 def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str) -> str:
-    """Enact the DERIVED queue — tmp/cache/indexing/candidates.txt, the artifact the
+    """Enact the DERIVED queue — tmp/cache/indexing/candidate-semantic-concepts.txt, the artifact the
     reviewer read — never a live recomputation (#355). A missing or drifted queue is
     a refusal, so what is disposed is provably what was reviewed; the judgment stays
     human, its unit the list the human read. Wholesale accept forfeits alias-folding
-    (each candidate becomes its own headword; accepted.txt stays hand-editable);
+    (each candidate becomes its own headword; accepted-semantic-concepts.txt stays hand-editable);
     wholesale reject stamps the one reason on every line."""
     if not CANDIDATES_TXT.exists():
         return ('refused: no derived queue — run `corpus-yoga indexing list-candidates`, '
@@ -349,7 +354,7 @@ def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str
                 '`corpus-yoga indexing list-candidates`, re-read, then --all')
     queue = [line.strip() for line in as_read.splitlines() if line.strip()]
     if not queue:
-        return 'nothing pending — the derived queue is empty'
+        return 'no candidates — the derived queue is empty'
     for concept in queue:
         if verb == 'accept':
             print(accept(accepted_path, concept, []))
@@ -371,10 +376,10 @@ def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
 def pending_report(accepted_path: Path, rejected_path: Path) -> None:
     """The loop's feedback: how many captured concepts remain undisposed."""
     if not inferred_concepts():
-        print('pending: unknown — no concept capture on this machine (corpus-yoga indexing capture)')
+        print('candidates: unknown — no concept capture on this machine (corpus-yoga indexing capture)')
         return
     pending = pending_concepts(accepted_path, rejected_path)
-    print(f'pending: {len(pending)} concept(s) undisposed'
+    print(f'candidates: {len(pending)} concept(s) undisposed'
           + (f' — next: {pending[0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if pending else ' — fully disposed'))
 
 
@@ -395,10 +400,23 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
                   key=str.lower)
 
 
+def retired_address_report() -> None:
+    """A durable file still at a legacy address (rsc/naming/indexing_file_vintages.csv)
+    is named with its move; nothing here moves it - data/output is the shared medium,
+    and the move is the reader's act, once, seen by both rooms."""
+    import csv
+    with FILE_VINTAGES.open(newline='') as f:
+        for row in csv.DictReader(f):
+            if (REPO / row['legacy']).exists():
+                print(f"FAIL: {row['legacy']} is at a retired address - the verbs read {row['current']}; "
+                      f"move it: mv {row['legacy']} {row['current']}", file=sys.stderr)
+
+
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
     """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`): counts on
-    stderr, the pending queue as pure lines on stdout — human-amenable at the
+    stderr, the candidates as pure lines on stdout — human-amenable at the
     terminal (both interleave), agent-amenable in a pipe (queue only)."""
+    retired_address_report()
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
@@ -412,17 +430,17 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
                  f'reject the concept with a reason)' if orphans else ''),
               file=sys.stderr)
     if not inferred_concepts():
-        print('pending queue: unknown — no concept capture on this machine '
+        print('candidates: unknown — no concept capture on this machine '
               '(corpus-yoga indexing capture)', file=sys.stderr)
         return
     pending = pending_concepts(accepted_path, rejected_path)
     # A nonzero queue is a violated property (every captured concept disposed),
     # stated as a FAIL atom (#535 - the dev gate's former concept_disposed
     # invocations, spoken here once); the names follow as the queue lines.
-    print(f'FAIL: pending queue: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
+    print(f'FAIL: candidates: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
           'corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>" '
           '(corpus-yoga indexing list-candidates reads the queue; --all disposes it as read):'
-          if pending else 'pending queue: empty - fully disposed', file=sys.stderr)
+          if pending else 'candidates: none - fully disposed', file=sys.stderr)
     for c in pending:
         print(c)
 

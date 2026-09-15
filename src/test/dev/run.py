@@ -2365,7 +2365,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_effects': ['src/main/cli'],
     'check_cache_io': ['src', 'rsc/cache_io.csv'],
     'check_accumulate_contract': ['src'],
-    'check_capture_monotone': ['src', 'data/output/dashboard'],
+    'check_capture_monotone': ['src', 'data/output/indexing'],
     'check_grammar_laws': 'TREE',   # reads the citation ledger of every section
     'check_schema_validity': SCHEMA,
     'check_schema_single_version': SCHEMA,

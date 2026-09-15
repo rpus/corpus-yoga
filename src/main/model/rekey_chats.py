@@ -6,7 +6,7 @@ A stdin→stdout filter for tables whose rows reference conversations (e.g. the
 captured data-chat-categories). Ordinals are presentation, ids are identity —
 the source-native conversation id: claude's uuid, gemini's 16-hex app id (no
 uuids exist there; conv_id extracts both uniformly). The LLM speaks ordinals
-(short, reliable in a prompt), durable storage (data/output/dashboard/) speaks id
+(short, reliable in a prompt), durable storage (data/output/indexing/) speaks id
 (renumbering-proof), and presentation re-derives ordinals at injection time.
 The ordinal↔id mapping comes from the ordering authority given to
 --conversations (see _order).

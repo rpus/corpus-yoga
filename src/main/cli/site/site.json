@@ -7,7 +7,7 @@
     "data/output/site",
     "rsc/site",
     "data/output/markdown",
-    "data/output/dashboard",
+    "data/output/indexing",
     "ext/mnt/site"
   ]
 }
