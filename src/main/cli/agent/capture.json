@@ -1,29 +1,36 @@
 {
-  "help": "mirror this machine's own sessions into its store dir (what a machine pushes to the shared store)",
+  "help": "mirror this machine's own sessions of every served provider into that provider's store dir (what a machine pushes to the shared store)",
   "args": [
     {
-      "name": "--session",
-      "type": "<uuid8>",
+      "name": "--provider",
+      "type": "<provider>",
       "cardinality": "1/agent-capture-1",
-      "help": "uuid(8) prefix of the agent to capture — identity is never guessed"
+      "help": "every session of ONE served provider (the named totality of that provider's live store), or with --id one of them"
+    },
+    {
+      "name": "--id",
+      "type": "<uuid-prefix>",
+      "cardinality": "",
+      "help": "one session of the provider --provider names: a uuid prefix, eight characters or more, matching exactly one; requires --provider - a uuid's shape does not say whose it is, as the browser capture's --id says"
     },
     {
       "name": "--all",
       "type": "",
       "cardinality": "1/agent-capture-1",
-      "help": "mirror every session of every project (the whole outbox)"
+      "help": "every session of every served provider (the whole outbox of each)"
     },
     {
       "name": "--to",
       "type": "<scratch-dir>",
       "cardinality": "",
-      "help": "capture to a scratch dir instead of the store (test escape hatch — a directory, never a machine name)"
+      "help": "capture to a scratch dir instead of the stores, each provider under <scratch-dir>/<provider>/ (test escape hatch — a directory, never a machine name)"
     }
   ],
   "r": [
     "ext/mnt/agent"
   ],
   "w": [
-    "data/input/claude/code/machine-transport"
+    "data/input/claude/code/machine-transport",
+    "data/input/gemini/code/machine-transport"
   ]
 }
