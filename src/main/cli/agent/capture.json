@@ -2,6 +2,12 @@
   "help": "mirror this machine's own sessions of every served provider into that provider's store dir (what a machine pushes to the shared store)",
   "args": [
     {
+      "name": "--provider",
+      "type": "<provider>",
+      "cardinality": "",
+      "help": "restrict to one declared provider the verb serves (default: every served provider) - the same restriction corpus-yoga browser capture takes"
+    },
+    {
       "name": "--session",
       "type": "<uuid8>",
       "cardinality": "1/agent-capture-1",

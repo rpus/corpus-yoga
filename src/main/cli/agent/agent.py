@@ -74,9 +74,9 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent
     corpus-yoga agent list-models
     corpus-yoga agent mount [--apply]
-    corpus-yoga agent capture --session <uuid8> [--to <scratch-dir>]
+    corpus-yoga agent capture --session <uuid8> [--provider <provider>] [--to <scratch-dir>]
     corpus-yoga agent install   --session <uuid8> --from <machine|dir> [--apply]
-    corpus-yoga agent capture --all [--to <scratch-dir>]
+    corpus-yoga agent capture --all [--provider <provider>] [--to <scratch-dir>]
     corpus-yoga agent install   --all --from <machine|dir> [--apply]
     corpus-yoga agent demerge [--apply]
 
@@ -149,14 +149,18 @@ def served() -> list[tuple[dict, Path, ModuleType]]:
     return out
 
 
-def own_outbox(provider: str) -> Path:
+def own_outbox(provider: str) -> Path | None:
     """The remote this machine writes for a provider:
     data/input/<provider>/code/machine-transport/<its machine-name.txt binding>.
-    The store itself is hand-made; the machine's subdirectory inside it is ours."""
+    The store itself is hand-made; the machine's subdirectory inside it is ours.
+    None where the store is absent: a sweep states the skip and its remedy
+    rather than stopping between providers."""
     store = transport.store(provider)
     if not store.is_dir():
-        sys.exit(f'error: {store.relative_to(REPO)} missing — hand-make it as a symlink to the '
-                 'shared store (one subdirectory per machine name, projects nested within)')
+        print(f'{provider}: {store.relative_to(REPO)} missing — hand-make it as a symlink to the '
+              'shared store (one subdirectory per machine name, projects nested within); skipped',
+              file=sys.stderr)
+        return None
     out = store / bound_machine()
     out.mkdir(exist_ok=True)
     return out
@@ -222,10 +226,15 @@ def model_census() -> int:
     return 0
 
 
-def capture(uuid8: str | None, to: str | None) -> int:
+def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
     """capture --all sweeps every served provider whose mount is present, each
-    into its own store; --session finds the one session across them."""
-    targets = [(row, mount_path, adapter) for row, mount_path, adapter in served() if mount_path.is_dir()]
+    into its own store; --session finds the one session across them; --provider
+    restricts either to one provider, as the browser capture's does."""
+    if provider is not None and provider not in [row['provider'] for row, _, _ in served()]:
+        sys.exit(f'error: {provider!r} is not a provider the agent verb serves — served: '
+                 + ', '.join(row['provider'] for row, _, _ in served()))
+    targets = [(row, mount_path, adapter) for row, mount_path, adapter in served()
+               if mount_path.is_dir() and (provider is None or row['provider'] == provider)]
     if not targets:
         sys.exit('error: no live store mounted — corpus-yoga agent mount --apply creates the symlinks')
     if uuid8 is not None:
@@ -239,13 +248,15 @@ def capture(uuid8: str | None, to: str | None) -> int:
         targets = [matches[0][:3]]
     conflicts = 0
     for row, mount_path, adapter in targets:
-        provider = row['provider']
+        name = row['provider']
         if to:
-            outbox = Path(to).expanduser() / provider
+            outbox = Path(to).expanduser() / name
             outbox.mkdir(parents=True, exist_ok=True)
         else:
-            outbox = own_outbox(provider)
-        print(f'── {provider}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
+            outbox = own_outbox(name)
+            if outbox is None:
+                continue
+        print(f'── {name}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
         conflicts += adapter.capture(mount_path, outbox, uuid8)
     return conflicts
 
@@ -314,7 +325,7 @@ def main() -> int:
     if args.verb == 'list-models':
         return model_census()
     if args.verb == 'capture':
-        return 1 if capture(None if args.all else args.session, args.to) else 0
+        return 1 if capture(None if args.all else args.session, args.to, args.provider) else 0
 
     projects, claude = _claude()
     if args.verb == 'demerge':
