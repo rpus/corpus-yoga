@@ -545,7 +545,7 @@ check_pipeline_inputs() {
       sessions="$(find -L "$REPO_ROOT/$p_store" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
       ok "code-agents: $p_store holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
     else
-      info "code-agents: no $p_store store — will skip ($p_remedy, creating the store in data/input)"
+      info "code-agents: no $p_store store yet — will skip; ./corpus-yoga agent capture --provider $p_name creates the store and stashes the live sessions into it"
     fi
     [[ -n "$p_live" && -n "$p_mount" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then

@@ -25,8 +25,9 @@ ext/mnt/agent/<provider> per the registry (rsc/provider/providers.csv, #636) -
 HARNESS-OWNED state the provider expires at will. Each shape is one adapter,
 src/main/cli/agent/<provider>/harness.py, keeping the contract transport.py
 states (#633); this driver knows no shape. Transported agents live in the
-STORE, data/input/<provider>/code/machine-transport - a hand-made symlink on
-each machine to the same medium - keyed <machine>/<project>/..., the project
+STORE, data/input/<provider>/code/machine-transport - a directory inside
+data/input, the iCloud tree each room links as data/ by hand, which capture
+creates on its first run - keyed <machine>/<project>/..., the project
 being Claude Code's encoding of the workspace path in every provider's store.
 For claude that is <project>/<session>.jsonl + <project>/<session-uuid>/ (the
 eponymous workspace: subagent transcripts and persisted tool-results the log
@@ -155,14 +156,14 @@ def served() -> list[tuple[dict, Path, ModuleType]]:
 def own_outbox(provider: str) -> Path | None:
     """The remote this machine writes for a provider:
     data/input/<provider>/code/machine-transport/<its machine-name.txt binding>.
-    data/input is the shared medium (iCloud, laid out per room by hand); the
+    data/input is the iCloud tree each room links as data/ by hand; the
     provider's store inside it is a directory this verb creates, being what it
-    is declared to write. None where the medium is absent: a sweep states the
-    skip and its remedy rather than stopping between providers."""
+    is declared to write. None where data/input is absent: a sweep states the
+    skip and what to do rather than stopping between providers."""
     medium = REPO / 'data' / 'input'
     if not medium.is_dir():
-        print(f'{provider}: {medium.relative_to(REPO)} missing — the shared medium is laid out by hand '
-              '(corpus-yoga prerequisites names the convention); skipped', file=sys.stderr)
+        print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
+              '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
     out = transport.store(provider) / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
