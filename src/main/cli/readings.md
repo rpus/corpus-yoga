@@ -12,7 +12,7 @@ The format authorities are the schemas, not this file:
   version + CHANGELOG); the dashboard sizes its cloud by the weights, `indexing`
   borrows only the names as candidate headwords.
 - `chat-categories.json` — `rsc/schema/dashboard/chatCategories/`; id-keyed so
-  identity survives renumbering; the palette is authored in `rsc/site/index.html`.
+  identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
 - `accepted.txt` / `rejected.txt` — headword and disposal formats in
   `corpus-yoga indexing --help`; every captured concept must reach one of them.
 

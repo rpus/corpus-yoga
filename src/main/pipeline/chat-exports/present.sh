@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 CACHE_DIR="$REPO_DIR/tmp/cache/chat-exports"
-TEMPLATE="$REPO_DIR/rsc/site/index.html"
+TEMPLATE="$REPO_DIR/rsc/site/index.template.html"
 WORD_FREQ_SCRIPT="$REPO_DIR/src/main/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 TIMELINE_SCRIPT="$SCRIPT_DIR/timeline.py"

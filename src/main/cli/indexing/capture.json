@@ -30,7 +30,7 @@
   "r": [
     "data/output/markdown",
     "rsc/schema/dashboard",
-    "rsc/site/index.html"
+    "rsc/site/index.template.html"
   ],
   "w": [
     "tmp/cache/indexing",
