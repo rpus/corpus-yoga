@@ -62,7 +62,8 @@ v15
 
 #### Refactored
 
-None.
+- `MessageContent` moves in the file: the breadth-first order repair places it
+  after the definitions the new record types reference. No validation effect.
 
 ## v15
 
