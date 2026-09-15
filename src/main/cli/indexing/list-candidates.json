@@ -1,5 +1,5 @@
 {
-  "help": "derive tmp/cache/indexing/candidates.txt (the pending queue of undisposed concepts)",
+  "help": "derive tmp/cache/indexing/candidates.txt (the pending queue of undisposed concepts, each with the aliases that anchor it in a conversation turn; a concept no turn phrases is named, not queued)",
   "args": [
     {
       "name": "--top",
@@ -10,7 +10,8 @@
   ],
   "r": [
     "data/output/dashboard",
-    "data/output/indexing"
+    "data/output/indexing",
+    "data/output/markdown"
   ],
   "w": [
     "tmp/cache/indexing"

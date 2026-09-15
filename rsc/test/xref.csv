@@ -712,10 +712,11 @@ src/main/cli/indexing/capture.sh,22,comment,rsc/site/index.html,Y,# palette is a
 src/main/cli/indexing/capture.sh,33,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/indexing/capture.sh,35,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/indexing/capture.sh,112,comment,rsc/site/index.html,Y,"# inlined in the homepage template (rsc/site/index.html), the one authority. Exits"
+src/main/cli/indexing/capture.sh,277,call,src/main/cli/indexing,Y,"""$REPO_DIR/src/run_python_script.sh"" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import i"
 src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
-src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
-src/main/cli/indexing/indexing.py,244,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
+src/main/cli/indexing/indexing.py,51,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
+src/main/cli/indexing/indexing.py,333,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/mcp.json,8,path_str,rsc/schema/protocol,Y,"""rsc/schema/protocol"""
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/protocol/mcpMessage,Y,"""rsc/schema/protocol/mcpMessage"""

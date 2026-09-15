@@ -33,9 +33,10 @@ many concepts remain pending.
 
 Usage (via corpus-yoga indexing):
   corpus-yoga indexing                                    # status: counts + pending queue
-  corpus-yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt
+  corpus-yoga indexing list-candidates [--top N]          # derive tmp/cache/indexing/candidates.txt: each
+      #   pending concept with the aliases that anchor it; the unanchorable named, not queued
   corpus-yoga indexing accept <term> [alias ...]          # accept a concept (merge aliases)
-  corpus-yoga indexing accept --all                       # accept the whole queue as read
+  corpus-yoga indexing accept --all                       # accept the whole queue as read, aliases folded in
   corpus-yoga indexing reject [--reason <why>] <concept>  # reject a concept
   corpus-yoga indexing reject --all [--reason <why>]      # reject the whole queue as read
   corpus-yoga indexing sync                               # build data/output/markdown/index.md
@@ -157,6 +158,92 @@ def scan(markdown_root: Path):
     return corpus
 
 
+ANCHOR_STOPWORDS = {'a', 'an', 'and', 'as', 'at', 'by', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'vs', 'with'}
+
+
+def _fold(word: str) -> list[str]:
+    """A word and its number-folded twin: plural to singular and back, the one
+    inflection the model's paraphrase and the turn's text differ on most
+    ("commutative squares" against "a commutative square"). A capitalised word
+    is a name and keeps its form; a word ending in a double s is never a plural."""
+    if word[:1].isupper() or word.endswith('ss') or len(word) < 4:
+        return [word]
+    if word.endswith('ies'):
+        return [word, word[:-3] + 'y']
+    if word.endswith('s'):
+        return [word, word[:-1]]
+    if word.endswith('y'):
+        return [word, word[:-1] + 'ies']
+    return [word, word + 's']
+
+
+def runs_of(concept: str) -> list[str]:
+    """The concept itself, then every run of two or more of its content words,
+    longest first, then a single word only where it is hyphenated (multi-agent) -
+    a bare common word (map, square, truth) would index noise, so it is never
+    proposed. What the anchoring tries, as the reader sees it."""
+    words = [w for w in re.findall(r"[A-Za-z][A-Za-z'’-]*", concept) if w.lower() not in ANCHOR_STOPWORDS]
+    out = [concept]
+    for size in range(len(words), 1, -1):
+        out += [' '.join(words[start:start + size]) for start in range(0, len(words) - size + 1)]
+    out += [w for w in words if '-' in w]
+    seen: list[str] = []
+    for ph in out:
+        if ph.lower() not in [x.lower() for x in seen]:
+            seen.append(ph)
+    return seen
+
+
+def phrasings_of(concept: str) -> list[str]:
+    """Every phrasing the anchoring tries: each run of runs_of with each of its
+    words in either number. Deterministic, so the queue derives the same on
+    every machine that holds the corpus (#644)."""
+    out: list[str] = []
+    for run in runs_of(concept):
+        variants: list[list[str]] = [[]]
+        for w in run.split(' '):
+            variants = [v + [f] for v in variants for f in _fold(w)]
+        out += [' '.join(v) for v in variants]
+    seen: list[str] = []
+    for ph in out:
+        if ph.lower() not in [x.lower() for x in seen]:
+            seen.append(ph)
+    return seen
+
+
+def anchors_of(concept: str, bodies: list[str]) -> list[str]:
+    """The phrasings of a concept that occur in at least one conversation turn,
+    longest first - the aliases an accepted headword needs to have locators.
+    Empty means the corpus cannot index the concept as the model phrased it."""
+    found = []
+    for ph in phrasings_of(concept):
+        rx = term_regex([ph])
+        if any(rx.search(b) for b in bodies):
+            found.append(ph)
+    return found
+
+
+def turn_bodies(markdown_root: Path) -> list[str]:
+    """Every turn body the index scans - the one text the anchoring judges against."""
+    return [t[3] for _source, _stem, _rel, turns in scan(markdown_root) for t in turns]
+
+
+def anchored_split(concepts: list[str], markdown_root: Path) -> tuple[list[tuple[str, list[str]]], list[tuple[str, list[str]]]]:
+    """(anchored, unanchorable): each anchored concept with the aliases that anchor it,
+    the concept itself omitted where it anchors as spelled; each unanchorable
+    concept with the runs tried (each in either number). The queue is the
+    anchored half; the unanchorable half is named, never queued (#644)."""
+    bodies = turn_bodies(markdown_root) if markdown_root.is_dir() else []
+    anchored, unanchorable = [], []
+    for c in concepts:
+        found = anchors_of(c, bodies)
+        if found:
+            anchored.append((c, [a for a in found if a.lower() != c.lower()]))
+        else:
+            unanchorable.append((c, runs_of(c)))
+    return anchored, unanchorable
+
+
 def build(markdown_root: Path, accepted_path: Path) -> str:
     entries = parse_accepted(accepted_path)
     corpus = scan(markdown_root)
@@ -237,15 +324,18 @@ def _coverage(accepted_path: Path, rejected_path: Path):
     return covered, parse_rejected(rejected_path)
 
 
-def candidates_report(accepted_path: Path, rejected_path: Path) -> str:
-    """The pending queue as a bare line-list (one concept per line) — the third
-    disposal state beside accepted.txt and rejected.txt, and a DETERMINISTIC,
-    reproducible derivation of data/output/dashboard/semantic-concepts.json − accepted −
-    rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
-    data. Reproducible, so it is a rebuildable tmp/cache/ file, regenerated on demand
-    (not committed, not gated)."""
-    pending = pending_concepts(accepted_path, rejected_path)
-    return '\n'.join(pending) + ('\n' if pending else '')
+def candidates_report(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> str:
+    """The pending queue as a line-list in accepted.txt's own format - one concept
+    per line, `concept = alias, alias` where the concept anchors only by its
+    aliases - the third disposal state beside accepted.txt and rejected.txt, and
+    a DETERMINISTIC, reproducible derivation of
+    data/output/dashboard/semantic-concepts.json − accepted − rejected −
+    unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
+    just the data. Reproducible, so it is a rebuildable tmp/cache/ file,
+    regenerated on demand (not committed, not gated)."""
+    anchored, _ = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
+    lines = [c + (f' = {", ".join(aliases)}' if aliases else '') for c, aliases in anchored]
+    return '\n'.join(lines) + ('\n' if lines else '')
 
 
 def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
@@ -257,15 +347,22 @@ def candidates(markdown_root: Path, accepted_path: Path, rejected_path: Path,
     per machine — and it prints only when explicitly asked for: its raw word
     ranking is a prospecting aid, not the queue, and unasked it buried the
     queue under noise (user report, 2026-07-11)."""
-    report = candidates_report(accepted_path, rejected_path)
+    report = candidates_report(accepted_path, rejected_path, markdown_root)
     CANDIDATES_TXT.parent.mkdir(parents=True, exist_ok=True)
     CANDIDATES_TXT.write_text(report)
     pending = [l for l in report.splitlines() if l.strip()]
     print(f'{len(pending)} pending concept(s) -> {CANDIDATES_TXT.relative_to(REPO)}'
-          + (' — dispose each: corpus-yoga indexing accept <term> [alias ...] | reject <concept>'
+          + (' - each anchors in the corpus by the aliases shown; dispose each: '
+             'corpus-yoga indexing accept "<concept>" [alias ...] | reject "<concept>", or --all as read'
              if pending else ''))
     for c in pending:
         print(f'  {c}')
+    _, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
+    if unanchorable:
+        print(f'{len(unanchorable)} unanchorable concept(s) - no phrasing occurs in any conversation turn, '
+              'so the corpus cannot index them; named, not queued:')
+        for c, tried in unanchorable:
+            print(f'  {c}  (tried, in either number: {", ".join(tried)})')
     if top is None:
         return
 
@@ -299,6 +396,11 @@ def accept(accepted_path: Path, term: str, aliases: list[str]) -> str:
     # else (term_regex, reject); otherwise 'Mathematics' would append a second entry
     # beside 'mathematics'. Merge into the already-curated headword, keeping its casing.
     existing = {h.lower(): h for h in entries}
+    if not aliases and term.lower() not in existing and MARKDOWN_DIR.is_dir():
+        # a concept accepted as the queue listed it takes the aliases the queue showed
+        # for it - the phrasings that anchor it in a turn - so one word never makes an
+        # orphan; aliases typed by hand override (#644)
+        aliases = [a for a in anchors_of(term, turn_bodies(MARKDOWN_DIR)) if a.lower() != term.lower()]
     if term.lower() in existing:
         head = existing[term.lower()]
         known = {t.lower() for t in entries[head]}
@@ -336,27 +438,32 @@ def dispose_all(accepted_path: Path, rejected_path: Path, verb: str, reason: str
     """Enact the DERIVED queue — tmp/cache/indexing/candidates.txt, the artifact the
     reviewer read — never a live recomputation (#355). A missing or drifted queue is
     a refusal, so what is disposed is provably what was reviewed; the judgment stays
-    human, its unit the list the human read. Wholesale accept forfeits alias-folding
-    (each candidate becomes its own headword; accepted.txt stays hand-editable);
-    wholesale reject stamps the one reason on every line."""
+    human, its unit the list the human read. Wholesale accept folds each candidate's
+    anchoring aliases in (#644; accepted.txt stays hand-editable); wholesale
+    reject stamps the one reason on every line."""
     if not CANDIDATES_TXT.exists():
         return ('refused: no derived queue — run `corpus-yoga indexing list-candidates`, '
                 'read it, then --all')
     as_read = CANDIDATES_TXT.read_text()
-    live = candidates_report(accepted_path, rejected_path)
+    live = candidates_report(accepted_path, rejected_path, MARKDOWN_DIR)
     if as_read != live:
         return ('refused: the queue moved since you listed it — re-run '
                 '`corpus-yoga indexing list-candidates`, re-read, then --all')
     queue = [line.strip() for line in as_read.splitlines() if line.strip()]
     if not queue:
         return 'nothing pending — the derived queue is empty'
-    for concept in queue:
+    for line in queue:
+        # the queue line is accepted.txt's own format: the concept, then the aliases
+        # that anchor it - accepting folds them in, so a wholesale accept makes no orphan
+        concept, _, aliases = line.partition('=')
+        concept = concept.strip()
+        alias_list = [a.strip() for a in aliases.split(',') if a.strip()]
         if verb == 'accept':
-            print(accept(accepted_path, concept, []))
+            print(accept(accepted_path, concept, alias_list))
         else:
             print(reject(accepted_path, rejected_path, concept, reason))
     # the queue is disposed; re-derive so the filed artifact stays the truth
-    CANDIDATES_TXT.write_text(candidates_report(accepted_path, rejected_path))
+    CANDIDATES_TXT.write_text(candidates_report(accepted_path, rejected_path, MARKDOWN_DIR))
     word = 'accepted' if verb == 'accept' else 'rejected'
     return f'{len(queue)} concept(s) {word}, the queue as read'
 
@@ -369,13 +476,15 @@ def pending_concepts(accepted_path: Path, rejected_path: Path) -> list[str]:
 
 
 def pending_report(accepted_path: Path, rejected_path: Path) -> None:
-    """The loop's feedback: how many captured concepts remain undisposed."""
+    """The loop's feedback: how many captured concepts remain undisposed, and how
+    many the corpus cannot index and so are never queued."""
     if not inferred_concepts():
         print('pending: unknown — no concept capture on this machine (corpus-yoga indexing capture)')
         return
-    pending = pending_concepts(accepted_path, rejected_path)
-    print(f'pending: {len(pending)} concept(s) undisposed'
-          + (f' — next: {pending[0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if pending else ' — fully disposed'))
+    anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), MARKDOWN_DIR)
+    print(f'pending: {len(anchored)} concept(s) undisposed'
+          + (f' — next: {anchored[0][0]!r} (corpus-yoga indexing accept "<term>" or reject "<concept>")' if anchored else ' — fully disposed')
+          + (f'; {len(unanchorable)} unanchorable, named by list-candidates, not queued' if unanchorable else ''))
 
 
 def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
@@ -393,6 +502,23 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
                               for _source, _stem, _rel, turns in corpus
                               for _role, _n, _anchor, body in turns)),
                   key=str.lower)
+
+
+def anchor_report(concepts_file: Path, markdown_root: Path) -> None:
+    """What the paid call bought, judged before promotion (#644): of the captured
+    concepts not already disposed, which the corpus can index, by which
+    phrasings, and which it cannot - the spend on those is visible here and
+    nowhere else, since they never reach the queue."""
+    import json
+    concepts = [r[0] for r in json.loads(Path(concepts_file).read_text()).get('rows', [])]
+    covered, rejected = _coverage(ACCEPTED_FILE, REJECTED_FILE)
+    new = [c for c in concepts if not covered.search(c) and c.lower() not in rejected]
+    anchored, unanchorable = anchored_split(new, markdown_root)
+    print(f'  anchors: {len(concepts)} concept(s) captured, {len(concepts) - len(new)} already disposed; '
+          f'of the {len(new)} new, {len(anchored)} anchor in a conversation turn and will be queued'
+          + (f', {len(unanchorable)} do not and will not be:' if unanchorable else ''))
+    for c, tried in unanchorable:
+        print(f'    {c}  (tried, in either number: {", ".join(tried)})')
 
 
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
@@ -415,16 +541,22 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
         print('pending queue: unknown — no concept capture on this machine '
               '(corpus-yoga indexing capture)', file=sys.stderr)
         return
-    pending = pending_concepts(accepted_path, rejected_path)
-    # A nonzero queue is a violated property (every captured concept disposed),
+    anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
+    pending = [c for c, _ in anchored]
+    # A nonzero queue is a violated property (every queued concept disposed),
     # stated as a FAIL atom (#535 - the dev gate's former concept_disposed
-    # invocations, spoken here once); the names follow as the queue lines.
+    # invocations, spoken here once); the names follow as the queue lines. A
+    # concept the corpus cannot index is not the reader's to dispose: it is named
+    # with what was tried, and the next capture may phrase it again (#644).
     print(f'FAIL: pending queue: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
           'corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>" '
-          '(corpus-yoga indexing list-candidates reads the queue; --all disposes it as read):'
+          '(corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each; --all disposes it as read):'
           if pending else 'pending queue: empty - fully disposed', file=sys.stderr)
     for c in pending:
         print(c)
+    if unanchorable:
+        print(f'unanchorable: {len(unanchorable)} captured concept(s) no conversation turn phrases - not queued: '
+              + ', '.join(c for c, _ in unanchorable))
 
 
 def main():
