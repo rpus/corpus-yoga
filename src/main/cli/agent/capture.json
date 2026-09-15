@@ -21,7 +21,7 @@
     }
   ],
   "r": [
-    "ext/mnt/claude-code-projects"
+    "ext/mnt/agent"
   ],
   "w": [
     "data/input/claude/code/machine-transport"

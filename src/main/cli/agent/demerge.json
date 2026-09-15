@@ -9,9 +9,9 @@
     }
   ],
   "r": [
-    "ext/mnt/claude-code-projects"
+    "ext/mnt/agent"
   ],
   "w": [
-    "ext/mnt/claude-code-projects"
+    "ext/mnt/agent"
   ]
 }

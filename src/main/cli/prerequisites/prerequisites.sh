@@ -505,16 +505,18 @@ check_pipeline_inputs() {
   fi
 
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
-  # machine holds, and the live harness mount the census and capture read (#628).
+  # machine holds, and the live harness mount the census and capture read (#628),
+  # ext/mnt/agent/<provider> (#636).
   local p_name p_live p_mount p_store p_remedy p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
   if [[ -x "$VENV/bin/python" ]]; then
-    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_ROOT/src/main")" || return 1
+    # provider, live store, and the mount as provider.mount() derives it - the rule's one home.
+    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") for r in provider.providers()))' "$REPO_ROOT/src/main")" || return 1
   else
     info "providers: rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint: $(sync_remedy)"
     p_rows=''
   fi
-  while IFS=$'\x1f' read -r p_name _ p_live p_mount _ _; do
+  while IFS=$'\x1f' read -r p_name p_live p_mount; do
     [[ -n "$p_name" ]] || continue
     p_store="data/input/$p_name/code/machine-transport"
     # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
@@ -536,13 +538,23 @@ check_pipeline_inputs() {
     [[ -n "$p_live" && -n "$p_mount" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then
       info "live $p_live present — harness-owned, expires at the provider's will; $p_remedy"
-      if [[ -d "$REPO_ROOT/ext/mnt/$p_mount" ]]; then
-        ok "ext/mnt/$p_mount → $p_live (the census and capture read it)"
+      if [[ -d "$REPO_ROOT/$p_mount" ]]; then
+        ok "$p_mount → $p_live (the census and capture read it)"
       else
-        todo mount "ext/mnt/$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+        todo mount "$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
       fi
     fi
   done <<< "$p_rows"
+  # A link this machine still holds at a retired mount address (rsc/naming/mount_vintages.csv)
+  # is named with its rm; the disposal is the reader's act, never the report's (#636).
+  local o_rows o_path o_vintage
+  if [[ -x "$VENV/bin/python" ]]; then
+    o_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(p + "\x1f" + v for p, v in provider.retired_mounts()))' "$REPO_ROOT/src/main")" || return 1
+    while IFS=$'\x1f' read -r o_path o_vintage; do
+      [[ -n "$o_path" ]] || continue
+      todo orphan "$o_path is a link at a retired mount address (mount vintage $o_vintage, rsc/naming/mount_vintages.csv) - rm $o_path"
+    done <<< "$o_rows"
+  fi
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
   # it), so sync --apply cannot create it and absence is not a todo — deploying is
@@ -599,7 +611,7 @@ sync() {
   local acts=()
   _todo_has venv && acts+=("create $VENV if absent and install src/requirements.txt into it")
   _todo_has hook && acts+=("install the pre-commit hook (corpus-yoga test install-hook)")
-  _todo_has mount && acts+=("create the declared live mounts under ext/mnt/ (link_projects.sh)")
+  _todo_has mount && acts+=("mount the live agent stores under ext/mnt/agent/ (corpus-yoga agent mount --apply)")
   _todo_has gen && acts+=("generate the parsers from rsc/rpus/grammar into src/gen/grammar (corpus-yoga grammar sync)")
   if [[ ${#acts[@]} -eq 0 ]]; then
     echo "none of these is mine to fix — each names its own remedy above"
@@ -622,7 +634,7 @@ sync() {
     echo "  venv: $("$VENV/bin/python" --version 2>&1), src/requirements.txt installed"
   fi
   _todo_has hook && "$REPO_ROOT/src/main/cli/test/test.sh" install-hook
-  _todo_has mount && "$REPO_ROOT/src/main/pipeline/code-agents/link_projects.sh"
+  _todo_has mount && "$REPO_ROOT/corpus-yoga" agent mount --apply
   _todo_has gen && "$REPO_ROOT/corpus-yoga" grammar sync
   echo
   echo "what remains — re-derived, not assumed:"

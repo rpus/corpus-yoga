@@ -1,3 +1,3 @@
-provider,session_env_var,live_store,mount_name,bot_author_pattern,note
-claude,CLAUDE_CODE_SESSION_ID,~/.claude/projects,claude-code-projects,.*<noreply@anthropic\.com>,Claude Code - the variable and the store observed on home-room 2026-09-14
-gemini,,~/.gemini/antigravity,gemini-antigravity,,Antigravity 2.13.0 - the store observed on home-room 2026-09-14 (brain/<uuid>/ per session with transcript.jsonl; conversations/<uuid>.db); no session variable observed yet - the hook stamps the machine alone until one is
+provider,session_env_var,live_store,bot_author_pattern,note
+claude,CLAUDE_CODE_SESSION_ID,~/.claude/projects,.*<noreply@anthropic\.com>,Claude Code - the variable and the store observed on home-room 2026-09-14
+gemini,,~/.gemini/antigravity,,Antigravity 2.13.0 - the store observed on home-room 2026-09-14 (brain/<uuid>/ per session with transcript.jsonl; conversations/<uuid>.db); no session variable observed yet - the hook stamps the machine alone until one is

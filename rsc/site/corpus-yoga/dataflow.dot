@@ -24,7 +24,7 @@ digraph "corpus-yoga" {
   // ── ext/ (machine-local: the foreign register) ───────────────
   subgraph cluster_ext {
     label="ext/  (foreign: mnt/ by reference, lib/ by copy)"; color=gray40;
-    liveproj [label="mnt/claude-code-projects\n→ ~/.claude (live sessions)"];
+    liveproj [label="mnt/agent/<provider>\n→ the live session store (per rsc/provider)"];
     vendlib  [label="lib/serve_markdown\n(pinned render libs)", color=red3];
   }
 

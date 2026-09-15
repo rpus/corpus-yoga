@@ -5,8 +5,7 @@ command: nothing here reports. `corpus-yoga prerequisites` is the voice that say
 this machine has of each provider.
 
 One fact: providers(), the declared providers in registry order, each row as its
-columns - provider, session_env_var, live_store, mount_name, bot_author_pattern,
-note. A row states what was observed; an empty column is "not observed", and a
+columns - provider, session_env_var, live_store, bot_author_pattern, note. A row states what was observed; an empty column is "not observed", and a
 reader treats it as absent, never guesses.
 
 The sibling of machine.py: a machine is an identity and so is a provider;
@@ -25,7 +24,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 REGISTRY = REPO / 'rsc' / 'provider' / 'providers.csv'
-COLUMNS = ('provider', 'session_env_var', 'live_store', 'mount_name', 'bot_author_pattern', 'note')
+COLUMNS = ('provider', 'session_env_var', 'live_store', 'bot_author_pattern', 'note')
 SEPARATOR = '\x1f'   # the ASCII unit separator: not whitespace, so `IFS=$'\x1f' read -r` keeps an empty field
 
 
@@ -69,6 +68,32 @@ def live_store(row: dict[str, str]) -> Path | None:
     return Path(row['live_store']).expanduser() if row['live_store'] else None
 
 
+MOUNT_ROOT = REPO / 'ext' / 'mnt' / 'agent'
+MOUNT_VINTAGES = REPO / 'rsc' / 'naming' / 'mount_vintages.csv'
+
+
+def retired_mounts() -> list[tuple[str, str]]:
+    """Every link this machine holds at a retired mount address: (repo-relative path,
+    vintage id), per the legacy rows of rsc/naming/mount_vintages.csv. Named for the
+    reader; nothing here removes one."""
+    import re
+    with MOUNT_VINTAGES.open(newline='') as f:
+        legacy = [(r['id'], re.compile(r['pattern'])) for r in csv.DictReader(f) if r['status'] == 'legacy']
+    ext = REPO / 'ext'
+    found = []
+    for base in (ext, ext / 'mnt'):
+        if not base.is_dir():
+            continue
+        for path in sorted(base.iterdir()):
+            rel = str(path.relative_to(REPO))
+            for vintage_id, pattern in legacy:
+                if path.is_symlink() and pattern.match(rel):
+                    found.append((rel, vintage_id))
+    return found
+
+
 def mount(row: dict[str, str]) -> Path | None:
-    """The by-reference mount of the live store under ext/mnt/, or None."""
-    return REPO / 'ext' / 'mnt' / row['mount_name'] if row['mount_name'] else None
+    """The by-reference mount of the live store, ext/mnt/agent/<provider> (#636) -
+    the provider name is the only segment the repository adds - or None where the
+    row observes no live store."""
+    return MOUNT_ROOT / row['provider'] if row['live_store'] else None
