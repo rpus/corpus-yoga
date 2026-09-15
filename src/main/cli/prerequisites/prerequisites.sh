@@ -510,15 +510,15 @@ check_pipeline_inputs() {
   local p_name p_live p_mount p_store p_remedy p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
   if [[ -x "$VENV/bin/python" ]]; then
-    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$REPO_ROOT/src/main")" || return 1
+    # provider, live store, and the mount as provider.mount() derives it - the rule's one home.
+    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") for r in provider.providers()))' "$REPO_ROOT/src/main")" || return 1
   else
     info "providers: rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint: $(sync_remedy)"
     p_rows=''
   fi
-  while IFS=$'\x1f' read -r p_name _ p_live _ _; do
+  while IFS=$'\x1f' read -r p_name p_live p_mount; do
     [[ -n "$p_name" ]] || continue
     p_store="data/input/$p_name/code/machine-transport"
-    p_mount="ext/mnt/agent/$p_name"
     # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
     # store); a remedy naming it for another provider would name an act that does
     # not do what it says. #633 retires this branch.
@@ -535,7 +535,7 @@ check_pipeline_inputs() {
     else
       info "code-agents: no $p_store store — will skip (hand-make the symlink to the shared store; $p_remedy)"
     fi
-    [[ -n "$p_live" ]] || continue
+    [[ -n "$p_live" && -n "$p_mount" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then
       info "live $p_live present — harness-owned, expires at the provider's will; $p_remedy"
       if [[ -d "$REPO_ROOT/$p_mount" ]]; then
