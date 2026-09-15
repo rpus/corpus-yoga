@@ -52,7 +52,15 @@ REMEDY = 'antlr4 (antlr4-tools) is not in the venv - corpus-yoga prerequisites s
 
 
 def projects() -> list[Path]:
+    """A project is a directory under rsc/rpus/grammar holding a top-level .g4 - the one
+    rule; the machine report reads it here (#638)."""
     return sorted(p for p in GRAMMARS.iterdir() if p.is_dir() and list(p.glob('*.g4')))
+
+
+def orphans() -> list[Path]:
+    """A directory under rsc/rpus/grammar holding no grammar: a leftover no sync can
+    generate from, named for the reader with its rm, never removed here (#638)."""
+    return sorted(p for p in GRAMMARS.iterdir() if p.is_dir() and not list(p.glob('*.g4')))
 
 
 def tool() -> str | None:
