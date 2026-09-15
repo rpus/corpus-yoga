@@ -518,25 +518,26 @@ check_pipeline_inputs() {
   # Per declared provider (rsc/provider/providers.csv): the code-agents store this
   # machine holds, and the live harness mount the census and capture read (#628),
   # ext/mnt/agent/<provider> (#636).
-  local p_name p_live p_mount p_store p_remedy p_rows
+  local p_name p_live p_mount p_served p_store p_remedy p_rows
   # The registry is read by the venv's python (#478); before the mint, the rows follow it.
   if [[ -x "$VENV/bin/python" ]]; then
-    # provider, live store, and the mount as provider.mount() derives it - the rule's one home.
-    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") for r in provider.providers()))' "$REPO_ROOT/src/main")" || return 1
+    # provider, live store, the mount as provider.mount() derives it, and whether the agent
+    # verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
+    # each the rule's one home, none restated here.
+    p_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); sys.path.insert(0, sys.argv[2]); import provider, transport; print("\n".join(r["provider"] + "\x1f" + r["live_store"] + "\x1f" + (str(provider.mount(r).relative_to(provider.REPO)) if provider.mount(r) else "") + "\x1f" + ("served" if transport.adapter(r["provider"]) else "") for r in provider.providers()))' "$REPO_ROOT/src/main" "$REPO_ROOT/src/main/cli/agent")" || return 1
   else
     info "providers: rsc/provider/providers.csv is read by the venv's python - the per-provider rows follow the mint: $(sync_remedy)"
     p_rows=''
   fi
-  while IFS=$'\x1f' read -r p_name p_live p_mount; do
+  while IFS=$'\x1f' read -r p_name p_live p_mount p_served; do
     [[ -n "$p_name" ]] || continue
     p_store="data/input/$p_name/code/machine-transport"
-    # The capture verb serves claude alone (src/main/cli/agent/agent.py names its
-    # store); a remedy naming it for another provider would name an act that does
-    # not do what it says. #633 retires this branch.
-    if [[ "$p_name" == claude ]]; then
-      p_remedy="./corpus-yoga agent capture --all stashes it"
+    # A remedy names the act that does what it says: the provider's own extent of the
+    # capture verb where an adapter serves it, and the missing adapter where none does.
+    if [[ "$p_served" == served ]]; then
+      p_remedy="./corpus-yoga agent capture --provider $p_name stashes it"
     else
-      p_remedy="no capture verb serves $p_name yet - #633"
+      p_remedy="no harness adapter serves $p_name (src/main/cli/agent/$p_name/harness.py absent)"
     fi
     if [[ -d "$REPO_ROOT/$p_store" ]]; then
       n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
