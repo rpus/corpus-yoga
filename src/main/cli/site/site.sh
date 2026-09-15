@@ -54,7 +54,7 @@ status() {
     # The pages are the rpus.co publish layer - deploy-side, optional; the
     # quickstart teaches only the render. Prescribing sync here made every
     # pipeline run nag a verb the front door never taught.
-    echo "  – pages absent (the rpus.co publish layer) — optional: corpus-yoga site sync assembles them"
+    echo "  – pages absent (the rpus.co publish layer) - optional: corpus-yoga site sync assembles them"
   else
     local f stale=0
     while IFS= read -r f; do
@@ -158,7 +158,7 @@ sync() {
     [[ -d "$d" ]] || continue
     name="$(basename "$d")"
     rm -rf "${OUT:?}/$name"
-    echo "site: pruned $name/ — the publish tree holds pages at its root, not directories"
+    echo "site: pruned $name/ - the publish tree holds pages at its root, not directories"
     eventful=1
   done
   for f in "$OUT"/*.html; do
@@ -167,7 +167,7 @@ sync() {
     [[ "$name" == index.html ]] && continue
     if [[ ! -f "$SRC/$name" ]]; then
       rm -f "$f"
-      echo "site: pruned $name — its source left rsc/site/"
+      echo "site: pruned $name - its source left rsc/site/"
       eventful=1
     fi
   done
@@ -179,7 +179,7 @@ sync() {
     eventful=1
   done < <(page_files "$SRC")
   if [[ $eventful -eq 1 ]]; then
-    echo "DONE — effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
+    echo "DONE - effect: pages placed; postcondition: data/output/site/ serves rsc/site/ as authored (index.html stays render's)"
   else
     echo "DONE — no effect: data/output/site/ already serves rsc/site/ as authored"
   fi
