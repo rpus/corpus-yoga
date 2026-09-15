@@ -5,13 +5,13 @@
       "name": "--provider",
       "type": "<provider>",
       "cardinality": "1/agent-capture-1",
-      "help": "every session of ONE served provider (the named totality of that provider's live store)"
+      "help": "every session of ONE served provider (the named totality of that provider's live store), or with --session one of them"
     },
     {
       "name": "--session",
       "type": "<uuid8>",
-      "cardinality": "1/agent-capture-1",
-      "help": "uuid prefix of the agent to capture, eight characters or more, matching exactly one session across every served provider — identity is never guessed; a prefix two sessions share is refused, and more of the uuid resolves it"
+      "cardinality": "",
+      "help": "one session of the provider --provider names: a uuid prefix, eight characters or more, matching exactly one; requires --provider — a uuid's shape does not say whose it is, as the browser capture's --id says"
     },
     {
       "name": "--all",

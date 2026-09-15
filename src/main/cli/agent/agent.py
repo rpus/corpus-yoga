@@ -74,16 +74,17 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent
     corpus-yoga agent list-models
     corpus-yoga agent mount [--apply]
-    corpus-yoga agent capture --session <uuid8> [--to <scratch-dir>]
+    corpus-yoga agent capture --provider <provider> --session <uuid8> [--to <scratch-dir>]
     corpus-yoga agent capture --provider <provider> [--to <scratch-dir>]
     corpus-yoga agent install   --session <uuid8> --from <machine|dir> [--apply]
     corpus-yoga agent capture --all [--to <scratch-dir>]
     corpus-yoga agent install   --all --from <machine|dir> [--apply]
     corpus-yoga agent demerge [--apply]
 
-capture takes --session <uuid8> (matches by uuid prefix, exactly one), --provider
-<name> (every session of one provider) or --all; install takes --session or --all:
-a NAMED agent, a named provider's totality, or the named TOTALITY — git push --all /
+capture takes --provider <name> (every session of one provider), --provider
+<name> --session <uuid8> (one of them, by uuid prefix, exactly one) or --all;
+install takes --session or --all: a NAMED agent, a named provider's totality,
+or the named TOTALITY — git push --all /
 pull --all, safe because each per-session placement independently lands on
 the lattice (silence / fast-forward / ahead / loud CONFLICT), and the memory
 component moves ONCE either way (mirrored out; merged in under a single
@@ -229,27 +230,28 @@ def model_census() -> int:
 
 
 def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
-    """Three named extents, one per call: --session <uuid8> is one session,
-    found across every served provider; --provider <name> is every session of
-    that provider; --all is every session of every served provider whose mount
-    is present - each provider into its own store."""
-    if provider is not None and provider not in [row['provider'] for row, _, _ in served()]:
-        sys.exit(f'error: {provider!r} is not a provider the agent verb serves — served: '
-                 + ', '.join(row['provider'] for row, _, _ in served()))
+    """The extent, named: --all is every session of every served provider whose
+    mount is present, each into its own store; --provider <name> is every
+    session of that provider; --provider <name> --session <uuid8> is one of
+    them. A session is named within its provider, as the browser capture names
+    a conversation within its provider - a uuid's shape does not say whose it is."""
+    names = [row['provider'] for row, _, _ in served()]
+    if provider is not None and provider not in names:
+        sys.exit(f'error: {provider!r} is not a provider the agent verb serves — served: ' + ', '.join(names))
+    if uuid8 is not None and provider is None:
+        sys.exit('error: --session names a session within a provider — say which with --provider')
     targets = [(row, mount_path, adapter) for row, mount_path, adapter in served()
                if mount_path.is_dir() and (provider is None or row['provider'] == provider)]
     if not targets:
         sys.exit('error: no live store mounted — corpus-yoga agent mount --apply creates the symlinks')
     if uuid8 is not None:
-        matches = [(row, mount_path, adapter, s) for row, mount_path, adapter in targets
-                   for s in adapter.live_sessions(mount_path) if s.id.startswith(uuid8)]
+        row, mount_path, adapter = targets[0]
+        matches = [s for s in adapter.live_sessions(mount_path) if s.id.startswith(uuid8)]
         if not matches:
-            sys.exit(f'error: no session matching {uuid8!r} in any live store')
+            sys.exit(f'error: no {provider} session matching {uuid8!r} in {mount_path.relative_to(REPO)}')
         if len(matches) > 1:
-            sys.exit(f'error: {uuid8!r} is ambiguous — matches: '
-                     + ', '.join(f'{s.provider}/{s.id}' for _, _, _, s in matches)
+            sys.exit(f'error: {uuid8!r} is ambiguous — matches: ' + ', '.join(s.id for s in matches)
                      + ' — give more of the uuid: the match is a prefix match, up to the whole id')
-        targets = [matches[0][:3]]
     conflicts = 0
     for row, mount_path, adapter in targets:
         name = row['provider']
