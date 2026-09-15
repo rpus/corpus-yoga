@@ -772,7 +772,8 @@ src/main/cli/prerequisites/prerequisites.sh,457,path_str,src/main,Y,"if [[ -n ""
 src/main/cli/prerequisites/prerequisites.sh,471,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/main/cli/prerequisites/prerequisites.sh,518,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-agents store this
 src/main/cli/prerequisites/prerequisites.sh,525,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
-src/main/cli/prerequisites/prerequisites.sh,562,comment,rsc/naming/mount_vintages.csv,Y,# A link this machine still holds at a retired mount address (rsc/naming/mount_vintages.csv)
+src/main/cli/prerequisites/prerequisites.sh,549,comment,src/main/pipeline/code-agents/pipeline.json,Y,"# src/main/pipeline/code-agents/pipeline.json, whose input names one provider's store."
+src/main/cli/prerequisites/prerequisites.sh,571,comment,rsc/naming/mount_vintages.csv,Y,# A link this machine still holds at a retired mount address (rsc/naming/mount_vintages.csv)
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -1281,7 +1282,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/pipeline/browser-captures/pipeline.json,Y,
 ,,,src/main/pipeline/chat-exports/pipeline.json,Y,
 ,,self_only,src/main/pipeline/chat-exports/require_export.sh,Y,
-,,,src/main/pipeline/code-agents/pipeline.json,Y,
 ,,,src/main/pipeline/pipeline.schema.json,Y,
 ,,self_only,src/main/safari.py,Y,
 ,,self_only,src/main/schema_fragment.py,Y,

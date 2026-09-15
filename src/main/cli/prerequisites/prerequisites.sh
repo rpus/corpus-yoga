@@ -543,9 +543,18 @@ check_pipeline_inputs() {
     fi
     if [[ -d "$REPO_ROOT/$p_store" ]]; then
       n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
-      local sessions
-      sessions="$(find -L "$REPO_ROOT/$p_store" -name '*.jsonl' 2>/dev/null | wc -l | tr -d ' ')"
-      ok "code-agents: $p_store holds $n machine(s), $sessions session file(s) — will convert + validate into tmp/cache/"
+      # The session count is the adapter's, which reads a machine's directory as sessions in
+      # the provider's own shape (a gemini session is two transcripts and a database, not a
+      # .jsonl); what happens to the store is the code-agents pipeline's declaration,
+      # src/main/pipeline/code-agents/pipeline.json, whose input names one provider's store.
+      local sessions p_read
+      sessions="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import transport; a = transport.adapter(sys.argv[2]); store = Path(sys.argv[3]); print(sum(len(a.held_sessions(m)) for m in sorted(store.iterdir()) if m.is_dir()) if a else "?")' "$REPO_ROOT/src/main/cli/agent" "$p_name" "$REPO_ROOT/$p_store")"
+      p_read="$("$REPO_ROOT/src/run_python_script.sh" -c 'import json, sys; print("yes" if json.load(open(sys.argv[1]))["input"] == sys.argv[2] else "no")' "$REPO_ROOT/src/main/pipeline/code-agents/pipeline.json" "$p_store")"
+      if [[ "$p_read" == yes ]]; then
+        ok "code-agents: $p_store holds $n machine(s), $sessions session(s) — will convert + validate into tmp/cache/"
+      else
+        ok "code-agents: $p_store holds $n machine(s), $sessions session(s) — held; the code-agents pipeline does not read this store yet (#635)"
+      fi
     else
       info "code-agents: no $p_store store yet — will skip; $p_store_remedy"
     fi
