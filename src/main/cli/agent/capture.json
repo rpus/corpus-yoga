@@ -4,8 +4,8 @@
     {
       "name": "--provider",
       "type": "<provider>",
-      "cardinality": "",
-      "help": "restrict to one declared provider the verb serves (default: every served provider) - the same restriction corpus-yoga browser capture takes"
+      "cardinality": "1/agent-capture-1",
+      "help": "every session of ONE served provider (the named totality of that provider's live store)"
     },
     {
       "name": "--session",
@@ -17,7 +17,7 @@
       "name": "--all",
       "type": "",
       "cardinality": "1/agent-capture-1",
-      "help": "mirror every session of every project (the whole outbox)"
+      "help": "every session of every served provider (the whole outbox of each)"
     },
     {
       "name": "--to",
