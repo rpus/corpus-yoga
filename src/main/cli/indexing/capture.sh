@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # capture.sh (corpus-yoga indexing capture) — the PAID semantic reading of the corpus:
 # the model re-reads every conversation for the two index tables, weighted
-# concepts (semantic-concepts.json — the indexing queue's feedstock) and the
-# chat-to-category assignment (chat-categories.json — a categorical index the
+# concepts (inferred-semantic-concepts.json — the candidates' feedstock) and the
+# chat-to-category assignment (inferred-chat-categories.json — a categorical index the
 # site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
 # --status is the capture's read-only face: what is deposited, and how far the
@@ -17,10 +17,10 @@
 #     [--conversations <path>] [--only semantic-concepts|chat-categories] [--dry-run]
 #   src/main/cli/indexing/capture.sh --status           # deposits + currency, read-only
 #
-# Captures land durable in data/output/dashboard/ (shared across machines; the
+# Captures land durable in data/output/indexing/ as inferred-*.json (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
 # palette is authored in rsc/site/index.template.html; the capture schemas live under
-# rsc/schema/dashboard/.
+# rsc/schema/indexing/.
 
 set -euo pipefail
 
@@ -162,7 +162,7 @@ $chats" \
 }
 
 # validate_capture <staged-file> <schema-family> — the staged capture must validate
-# against the LATEST rsc/schema/dashboard/<family> version before promotion
+# against the LATEST rsc/schema/indexing/<family> version before promotion
 # (validate.py, in-memory — the markdownConversation no-matrix precedent: captures
 # validate at write time, no per-datum logs). This retired the hand-written shape
 # jq: the shape contract now lives in the schema system like every other data
@@ -170,7 +170,7 @@ $chats" \
 # beyond JSON Schema and stays checked separately below.
 validate_capture() {
   local file="$1" family="$2" schema verdict
-  schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/dashboard/$family"/v*.json | sort -V | tail -1)"
+  schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/indexing/$family"/v*.json | sort -V | tail -1)"
   verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
   [[ "$verdict" == 'Valid!' ]] || {
     echo "corpus-yoga indexing capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2
@@ -191,7 +191,7 @@ validate_capture() {
 # close and any captured-but-gone ids the proxy silently counts as coverage.
 # (The user's shape: status is; effecting; status is.) Corpus-dir sources only
 # — a batch source has no corpus_index — and no prior capture means no join.
-# coverage_of <conversations-dir> <chat-categories.json> → "captured never-captured gone total"
+# coverage_of <conversations-dir> <inferred-chat-categories.json> → "captured never-captured gone total"
 # ONE measurement, taken of whichever file is named: the durable one before the effect, the
 # staged one after it. G19's bracket is only readable if both ends measure the same thing —
 # the exact id join, never the ~M row-count proxy the status uses.
@@ -217,9 +217,9 @@ print(len(corpus & captured), len(corpus - captured), len(captured - corpus), le
 # same corpus is the defect #55 fixed one layer up.
 coverage_report() {
   local conv="$1" out captured never gone total
-  out="$(coverage_of "$conv" "$REPO_DIR/data/output/dashboard/chat-categories.json")" || return 0
+  out="$(coverage_of "$conv" "$REPO_DIR/data/output/indexing/inferred-chat-categories.json")" || return 0
   read -r captured never gone total <<< "$out"
-  if [[ -f "$REPO_DIR/data/output/dashboard/chat-categories.json" ]]; then
+  if [[ -f "$REPO_DIR/data/output/indexing/inferred-chat-categories.json" ]]; then
     echo "coverage (exact): $captured captured · $never never captured · $gone captured-but-gone"
   else
     echo "coverage (exact): no prior capture — $never conversation(s) uncovered"
@@ -235,7 +235,7 @@ coverage_report() {
 #
 # capture is DERIVE-then-DEPOSIT: both readings are captured into tmp/cache/indexing
 # (the workshop, git-ignored, corpus-scoped like tmp/cache/indexing) and validated there, then
-# PROMOTED into the durable data/output/dashboard/ only once both succeed. A failed or
+# PROMOTED into the durable data/output/indexing/ only once both succeed. A failed or
 # malformed capture — bad key, 529, non-JSON, empty rows — leaves the durable files
 # untouched; set -e aborts before the promotion step. Promotion is `mv` (an atomic
 # rename within the repo's one filesystem), the two adjacent so the mixed-vintage
@@ -249,7 +249,7 @@ capture_dashboard() {
   # corpus-scoped staging (like tmp/cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
   local stage="$REPO_DIR/tmp/cache/indexing"
-  local dest="$REPO_DIR/data/output/dashboard"
+  local dest="$REPO_DIR/data/output/indexing"
   mkdir -p "$stage" "$dest"
 
   local want_concepts=1 want_categories=1
@@ -266,15 +266,15 @@ capture_dashboard() {
   chats="$(chat_list "$conv")"
   [[ "$want_categories" == 1 ]] && categories="$(canonical_categories)"
 
-  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/dashboard/ on success)"
+  echo "capturing the index tables from ${conv#"$REPO_DIR/"}${only:+ (--only $only)} → tmp/cache/indexing (promoted to data/output/indexing/ on success)"
   if [[ "$want_concepts" == 1 ]]; then
-    capture_concepts_to "$chats" "$stage/semantic-concepts.json"
-    validate_capture "$stage/semantic-concepts.json" semanticConcepts
-    echo "  ✓ semantic-concepts.json ($(jq '.rows | length' "$stage/semantic-concepts.json") concepts)"
+    capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json"
+    validate_capture "$stage/inferred-semantic-concepts.json" semanticConcepts
+    echo "  ✓ inferred-semantic-concepts.json ($(jq '.rows | length' "$stage/inferred-semantic-concepts.json") concepts)"
   fi
   if [[ "$want_categories" == 1 ]]; then
-    capture_chat_categories "$conv" "$chats" "$categories" "$stage/chat-categories.json"
-    validate_capture "$stage/chat-categories.json" chatCategories
+    capture_chat_categories "$conv" "$chats" "$categories" "$stage/inferred-chat-categories.json"
+    validate_capture "$stage/inferred-chat-categories.json" chatCategories
     # Every assigned category MUST be an authored palette name, else present.sh's hue
     # lookup misses and those chats render uncoloured — the join's real dependency, which
     # a columns/rows shape-check alone would not catch (a model 'science'/'math' passes).
@@ -282,15 +282,15 @@ capture_dashboard() {
     off="$(jq -r --arg pal "$categories" '
       ($pal | split(", ")) as $ok
       | [.rows[][1]] | unique | map(select(. as $c | ($ok | index($c)) == null)) | join(", ")
-    ' "$stage/chat-categories.json")"
+    ' "$stage/inferred-chat-categories.json")"
     [[ -z "$off" ]] || { echo "corpus-yoga indexing capture: chat-categories assigns off-palette categories ($off) — not promoted. Palette: $categories" >&2; exit 1; }
     # The TRAILING extent (G19): the same exact join taken of the staged file, so it can be
     # compared with the leading one. A row count cannot do this job — it counted 125 while
     # the corpus held 137 and printed a ✓ beside it.
     local after captured never gone total
-    if after="$(coverage_of "$conv" "$stage/chat-categories.json")"; then
+    if after="$(coverage_of "$conv" "$stage/inferred-chat-categories.json")"; then
       read -r captured never gone total <<< "$after"
-      echo "  ✓ chat-categories.json — coverage (exact): $captured of $total captured" \
+      echo "  ✓ inferred-chat-categories.json — coverage (exact): $captured of $total captured" \
            "· $never never captured · $gone captured-but-gone"
       # Intent was "re-read all $total". Unmet intent is the thing to say out loud; a
       # capture that covers LESS than the durable one it would replace is not a new
@@ -300,7 +300,7 @@ capture_dashboard() {
         echo "  ⚠ intent unmet: the capture re-read $total conversation(s) and returned" \
              "$captured — $never uncovered"
         local before_captured=0 b
-        if b="$(coverage_of "$conv" "$dest/chat-categories.json")"; then
+        if b="$(coverage_of "$conv" "$dest/inferred-chat-categories.json")"; then
           read -r before_captured _ _ _ <<< "$b"
         fi
         if [[ "$captured" -lt "$before_captured" ]]; then
@@ -310,14 +310,14 @@ capture_dashboard() {
         fi
       fi
     else
-      echo "  ✓ chat-categories.json ($(jq '.rows | length' "$stage/chat-categories.json") assignments)" \
+      echo "  ✓ inferred-chat-categories.json ($(jq '.rows | length' "$stage/inferred-chat-categories.json") assignments)" \
            "— coverage not computable (no corpus index for this source)"
     fi
   fi
 
-  [[ "$want_concepts"   == 1 ]] && mv "$stage/semantic-concepts.json" "$dest/semantic-concepts.json"
-  [[ "$want_categories" == 1 ]] && mv "$stage/chat-categories.json"   "$dest/chat-categories.json"
-  echo "promoted → data/output/dashboard/ — both machines share it (data/output/ is iCloud, not git)"
+  [[ "$want_concepts"   == 1 ]] && mv "$stage/inferred-semantic-concepts.json" "$dest/inferred-semantic-concepts.json"
+  [[ "$want_categories" == 1 ]] && mv "$stage/inferred-chat-categories.json"   "$dest/inferred-chat-categories.json"
+  echo "promoted → data/output/indexing/ as inferred-semantic-concepts.json and inferred-chat-categories.json — both machines share it (data/output/ is iCloud, not git)"
 }
 
 # ── the capture source ────────────────────────────────────────────────────────
@@ -383,9 +383,9 @@ capture() {
 # the captures-vs-corpus half of the report the dashboard command carried
 # before it dissolved (#409); the render-vs-inputs half is `corpus-yoga site`'s.
 status() {
-  local d="$REPO_DIR/data/output/dashboard" f
-  echo "data/output/dashboard/ — the paid model captures the site render consumes"
-  for f in semantic-concepts.json chat-categories.json; do
+  local d="$REPO_DIR/data/output/indexing" f
+  echo "data/output/indexing/ — the paid model captures: the concept proposals the candidates are drawn from, the categories the site render colours by"
+  for f in inferred-semantic-concepts.json inferred-chat-categories.json; do
     if [[ -f "$d/$f" ]]; then
       echo "  ✓ $f ($(jq '.rows | length' "$d/$f") rows)"
     else
@@ -396,7 +396,7 @@ status() {
   [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
   n="$(count_conversations "$corpus")"
   [[ "$n" -gt 0 ]] || return 0
-  [[ -f "$d/chat-categories.json" ]] && m="$(jq '.rows | length' "$d/chat-categories.json")"
+  [[ -f "$d/inferred-chat-categories.json" ]] && m="$(jq '.rows | length' "$d/inferred-chat-categories.json")"
   echo "corpus: $n conversation(s) · captures cover ~$m"
   if [[ "$m" -lt "$n" ]]; then
     echo "FAIL: the captures cover ~$m of $n conversation(s) - the paid layer lags the corpus:"

@@ -147,7 +147,7 @@ present_export() {
       echo "  ⚠ data-literal-words: $(basename "$WORD_FREQ_SCRIPT") not found — skipped"
     fi
 
-    # claude-generated tables — BOTH are the durable, single-source data/output/dashboard/
+    # claude-generated tables — BOTH are the durable, single-source data/output/indexing/
     # captures (refreshed by `corpus-yoga indexing capture`), not per-batch. data-categories is
     # NOT here at all — its palette is authored, inlined static in the template (design,
     # not inference).
@@ -159,14 +159,14 @@ present_export() {
           # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
           # single-quoted description — the string is data, never a substitution
           desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `corpus-yoga indexing capture`.'
-          inferred_file="$REPO_DIR/data/output/dashboard/chat-categories.json"
+          inferred_file="$REPO_DIR/data/output/indexing/inferred-chat-categories.json"
           ;;
         data-semantic-concepts)
           cols='["word", "count"]'
           # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
           # single-quoted description — the string is data, never a substitution
-          desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/dashboard/semantic-concepts.json); refresh with `corpus-yoga indexing capture`.'
-          inferred_file="$REPO_DIR/data/output/dashboard/semantic-concepts.json"
+          desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/indexing/inferred-semantic-concepts.json); refresh with `corpus-yoga indexing capture`.'
+          inferred_file="$REPO_DIR/data/output/indexing/inferred-semantic-concepts.json"
           ;;
       esac
       if [[ -f "$inferred_file" ]]; then
@@ -190,7 +190,7 @@ present_export() {
           '{"columns": $cols, "rows": [], "note": $note}' | format_table)"
         inject "$out" "$key" "$json"
         printf '%s\n' "$json" > "$out_dir/$key.json"
-        echo "  ○ $key (pending): $note"
+        echo "  ○ $key (not captured): $note"
       fi
     done
 

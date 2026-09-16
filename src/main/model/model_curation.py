@@ -284,7 +284,7 @@ def accept_shared_name(row: dict, date: str) -> str:
 
 def reject_shared_name(row: dict, reason: str, date: str) -> str:
     """Record the false friend: a name_collision row with the reason as its
-    note - the rich-record twin of indexing's rejected.txt."""
+    note - the rich-record twin of indexing's rejected-semantic-concepts.txt."""
     note = f'rejected {date}: {reason}' if reason else f'rejected {date}'
     _append_join_row(row, 'name_collision', note)
     return f"rejected: {row['name']} - name_collision row appended to {MODEL_JOIN.relative_to(REPO)}"
