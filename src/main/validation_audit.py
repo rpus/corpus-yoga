@@ -76,7 +76,7 @@ def audit(name: str, facts: dict) -> int:
     matrix agrees with that log, and every input entry has validation output."""
     cache_root = REPO / cache_io.path_for(name)
     input_root = REPO / facts['input']
-    schema_parent = SCHEMA_ROOT / name
+    schema_parent = SCHEMA_ROOT / 'pipeline' / name
     depth = facts['subject_depth']
     fails = 0
     if not cache_root.is_dir() or not any(cache_root.iterdir()):

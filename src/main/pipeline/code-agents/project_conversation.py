@@ -2,7 +2,7 @@
 """
 project_conversation.py — project one converted session (session.json) to its
 conversation form, conversation.json, the sessionConversation datum
-(rsc/schema/code-agents/sessionConversation).
+(rsc/schema/pipeline/code-agents/sessionConversation).
 
 The conversation is the session read as TALK: user and assistant records only —
 no sidechain records (a subagent's transcript is its own session), no meta

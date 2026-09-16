@@ -8,7 +8,7 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 2026-09-09: the `UserUUID` cross-reference in v3's description fields was
 amended in place: ../../model.json with the fragment `#/default/UserUUID` became
-`../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
+`../../../../../model/model.json` with the fragment `#/UserUUID` - the cross-family
 model moved to `rsc/model/` and its table lost the `default` wrapper (#591). A
 description change is not a validation change: no new version.
 
@@ -32,6 +32,13 @@ v2
   data-0fc4c1e0-…-2026-08-24-12-30-34). States the constraint the values obey,
   restoring model_join row 145's identity claim truthfully after conversations
   narrowed its side to `UuidV4` (#527).
+
+#### Refactored
+
+- The description that points at the cross-family model (v3, in place) is the
+  relative path from the family's address since 2026-09-16 (#632),
+  `rsc/schema/pipeline/chat-exports/claude/projects/`: `../../../../../model/model.json#/UserUUID`.
+  No validation effect.
 
 ## v2
 

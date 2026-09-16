@@ -1,4 +1,3 @@
-checks
 #
 # A check is a type; a line in the report is one INVOCATION of it, over one schema,
 # A name here that never runs is the failure this file exists to catch: a check deleted,
@@ -19,6 +18,7 @@ calculus.laws_parse
 calculus.state_declared
 calculus.unenforced_names_issue
 capture.monotone_record
+checks
 cli.advertised_flags_exist
 cli.block_convergence
 cli.block_identity_stable
@@ -60,30 +60,24 @@ grammar.enforcement_map
 grammar.gated_is_cited
 grammar.laws_parse
 grammar.parent_law_defined
+grammar.parser_current
 grammar.state_declared
 grammar.unenforced_names_issue
 grammar.unenforced_not_cited
-grammar.parser_current
 imports.step_module_imports
+mcp.faces_derivable
 mcp.factoring_agrees
 mcp.factoring_current
-mcp.faces_derivable
 mcp.lineages_parse
 mcp.reproducible
 model.documented_type_grounded
+model.identity_holds
 model.join_family_grammar
 model.join_kind_declared
 model.join_pointers_valid
 model.occurrence_family_grammar
 model.occurrence_pointers_resolve
 model.occurrences_cover_edges
-provider.names_declared
-provider.registry_parses
-reference.lineage_changelog
-reference.lineage_declared
-reference.provenance_declared
-reference.verbatim
-model.identity_holds
 model.shared_type_disposed
 model.table_valid
 naming.log_path_derives_from_command
@@ -95,9 +89,17 @@ naming.venv_default_agrees
 output.plan_lines_name_their_target
 output.prescriptions_are_commands
 output.remedy_lines_are_todos
+provider.names_declared
+provider.registry_parses
 python.pyright_clean
+reference.lineage_changelog
+reference.lineage_declared
+reference.provenance_declared
+reference.verbatim
 schema.changelog_narrative
 schema.changelog_no_todo
+schema.family_mirrors_writer
+schema.pipeline_schema_placed
 schema.single_version
 schema.valid_against_meta_schema
 schema.valid_json_with_schema
@@ -110,8 +112,8 @@ structure.corpus_roots_ignored
 structure.definitions_at_bottom
 structure.enum_refines_explicit_type
 structure.field_order
-structure.keywords_declared
 structure.file_at_level_of_subject
+structure.keywords_declared
 structure.minItems_on_non_empty_arrays
 structure.no_dangling_refs
 structure.no_machine_facts_committed

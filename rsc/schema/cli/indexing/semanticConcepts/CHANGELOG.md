@@ -26,7 +26,7 @@ v1
 
 #### Refactored
 
-- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-semantic-concepts.json` since 2026-09-15 (#655), when the family moved to `rsc/schema/indexing/` beside the curation the same command writes and the file gained its state prefix. No validation effect.
+- The artifact's home in the description (latest version, in place) - `data/output/indexing/inferred-semantic-concepts.json` since 2026-09-15 (#655), when the family moved from the dashboard root of rsc/schema to the indexing root, beside the curation the same command writes and the file gained its state prefix. No validation effect.
 
 - `SemanticConcepts` description (v2, in place) — the dashboard artifact path gained the
   `data/` root (now `data/output/dashboard/semantic-concepts.json`) for the four-root

@@ -41,7 +41,7 @@ def main():
     args = p.parse_args()
 
     pipeline          = PIPELINES[args.pipeline]
-    schema_parent_dir = RSC_SCHEMA / pipeline.changelog.parent.parent.name
+    schema_parent_dir = RSC_SCHEMA / 'pipeline' / args.pipeline
 
     dirs = datum_dirs(pipeline.cache_output, pipeline.subject_depth)
     if not dirs:

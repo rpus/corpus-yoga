@@ -40,7 +40,7 @@ end of the file files the note under the *oldest* version instead: done wrongly 
 five families during the 2026-07-23 re-rooting, and caught only by checking placement
 afterwards. Some families pre-seed the section with `None.`; fill that rather than adding a
 second `#### Refactored` under the same version. The `RichLink.source` entry in
-`rsc/schema/chat-exports/conversations/CHANGELOG.md` is the worked precedent: what changed,
+`rsc/schema/pipeline/chat-exports/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,
 in which versions, "No validation effect", and what was deliberately left untouched.
 
 If a new export or capture fails validation against the current latest version, that is the
@@ -121,7 +121,7 @@ upstream publishes, and a lineage's change is a section of its own changelog
 (step 5).
 
 ```bash
-git mv rsc/schema/<pipeline>/<schema>/vN.json rsc/schema/<pipeline>/<schema>/v{N+1}.json
+git mv rsc/schema/<family>/vN.json rsc/schema/<family>/v{N+1}.json
 ```
 
 Edit `v{N+1}.json` minimally - only the changes needed to pass the failing data. The old
@@ -130,7 +130,7 @@ version's content is git history; its narrative stays in the CHANGELOG. Then
 as the change:
 
 ```bash
-git diff -M HEAD -- rsc/schema/<pipeline>/<schema>/
+git diff -M HEAD -- rsc/schema/<family>/
 ```
 
 The diff IS the change: it should read as exactly what the CHANGELOG narrative
@@ -140,7 +140,7 @@ reordered keys — means the edit did more than the change, however it happened.
 Run the BFS order repair after editing:
 
 ```bash
-src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<pipeline>/<schema>/v{N+1}.json
+src/run_python_script.sh src/test/dev/repairs/structure.bfs_order.py rsc/schema/<family>/v{N+1}.json
 ```
 
 Then run all diagnostics to catch principle violations:
@@ -153,9 +153,9 @@ A definition the root does not reach is declared, never tolerated:
 `structure.all_definitions_reachable` reads `unreachable.csv` (name, reason)
 beside the family's version file and fails on an undeclared unreachable
 definition, on a declared name the root reaches, and on a declared name that is
-no definition. `rsc/schema/chat-exports/conversations/unreachable.csv` declares
+no definition. `rsc/schema/pipeline/chat-exports/claude/conversations/unreachable.csv` declares
 the three API tool inputs no export has carried;
-`rsc/schema/protocol/mcpMessage/unreachable.csv` the result union no message
+`rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
 carries (#588).
 
 ### 3. Validate and register
@@ -231,8 +231,8 @@ review is incomplete.
 Open `rsc/model/model_join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
-   to the repo root (`rsc/schema/chat-exports/conversations#/definitions/…`,
-   `rsc/schema/code-agents/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
+   to the repo root (`rsc/schema/pipeline/chat-exports/claude/conversations#/definitions/…`,
+   `rsc/schema/pipeline/code-agents/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
    each fragment spelling the container its family's latest file spells).
    `check_schema_join` resolves a schema family against its LATEST version and a
    reference project against its lineage (`src/main/latest.py`), so a mint costs this file
@@ -304,7 +304,7 @@ declared and every declared lineage held (`reference.lineage_declared`), and eve
 pin has its changelog section (`reference.lineage_changelog`). Every house schema
 validates against the committed meta-schema (`check_schema_meta_validity`).
 
-`rsc/schema/protocol/mcpMessage/` is the house factoring of the mcp schema (#562, #598), a
+`rsc/schema/mcp/mcpMessage/` is the house factoring of the mcp schema (#562, #598), a
 committed derivation: `corpus-yoga mcp sync` (`src/main/mcp/mcp_factoring.py`)
 generates its latest version from upstream's `schema.ts` alone - every declaration
 read through the parser generated from `rsc/rpus/grammar/TypeScript` into the flat
@@ -312,17 +312,17 @@ shape upstream's generator would give it, one stated rule per TypeScript form
 (`src/main/mcp/mcp_generation.py`), composed over the extends clauses and tagged by
 the categories `src/main/mcp/mcp_extraction.py` reads (#581, #595; the two tables
 faced under `tmp/cache/mcp/`, `rsc/cache_io.csv`) - and from the hand-written tables
-beside the version file: `rsc/schema/protocol/mcpMessage/description.csv` (house
+beside the version file: `rsc/schema/mcp/mcpMessage/description.csv` (house
 text for the definitions schema.ts leaves without a JSDoc),
-`rsc/schema/protocol/mcpMessage/unreachable.csv` (the definitions no message
+`rsc/schema/mcp/mcpMessage/unreachable.csv` (the definitions no message
 carries, which `structure.all_definitions_reachable` reads and the derivation
-refuses to disagree with), `rsc/schema/protocol/mcpMessage/layer.csv` (the layers
+refuses to disagree with), `rsc/schema/mcp/mcpMessage/layer.csv` (the layers
 the protocol reads by, one row each with its reading - jsonrpc, session, resources,
 tools, prompts, content, agentic, tasks - the closed vocabulary; #595),
-`rsc/schema/protocol/mcpMessage/category_layer.csv` (the house's reading of the
-`@category` tags into those layers), `rsc/schema/protocol/mcpMessage/placement.csv`
+`rsc/schema/mcp/mcpMessage/category_layer.csv` (the house's reading of the
+`@category` tags into those layers), `rsc/schema/mcp/mcpMessage/placement.csv`
 (the definitions neither the tag nor the composition places, each with its reason)
-and `rsc/schema/protocol/mcpMessage/addition.csv` (where the house reads differently
+and `rsc/schema/mcp/mcpMessage/addition.csv` (where the house reads differently
 from upstream at a JSON Pointer: the null upstream's generator drops from
 `JSONValue`, the protocol version pinned on the `_meta` field that names it, read
 from the constant schema.ts exports). Every definition's description ends with its
@@ -339,7 +339,7 @@ never a source: the dev gate holds the file byte-identical to the derivation
 counterpart resolved and normalized, the declared additions set back
 (`mcp.factoring_agrees`), and every held lineage's `schema.ts` parsed
 (`mcp.lineages_parse`). Its history lives in
-`rsc/schema/protocol/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
+`rsc/schema/mcp/mcpMessage/CHANGELOG.md`; its mint is the sync's, not step 2's
 (#583): whenever the derivation differs from the latest version file - upstream
 moved, or the house rules did - `corpus-yoga mcp sync` prints the diff and writes the
 next version in place of the current one, by plain file operations; a version of

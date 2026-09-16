@@ -26,7 +26,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — shared modules live at its root
-from validation_matrix import write_matrix  # noqa: E402
+from validation_matrix import family_root, write_matrix  # noqa: E402
 
 
 def _digest(path):
@@ -142,7 +142,7 @@ def validate_versions(input_file, schema_dir, log_dir, label):
     while p.name != 'validation' and p != p.parent:
         p = p.parent
     if p.name == 'validation':
-        mfile = write_matrix(p.parent, Path(schema_dir).resolve().parent)
+        mfile = write_matrix(p.parent, family_root(Path(schema_dir).resolve()))
         if mfile and ran:
             print(f'  matrix: {os.path.relpath(mfile)}')
 

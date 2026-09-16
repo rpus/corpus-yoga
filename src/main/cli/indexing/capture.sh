@@ -20,7 +20,7 @@
 # Captures land durable in data/output/indexing/ as inferred-*.json (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
 # palette is authored in rsc/site/index.template.html; the capture schemas live under
-# rsc/schema/indexing/.
+# rsc/schema/cli/indexing/.
 
 set -euo pipefail
 
@@ -162,7 +162,7 @@ $chats" \
 }
 
 # validate_capture <staged-file> <schema-family> — the staged capture must validate
-# against the LATEST rsc/schema/indexing/<family> version before promotion
+# against the LATEST rsc/schema/cli/indexing/<family> version before promotion
 # (validate.py, in-memory — the markdownConversation no-matrix precedent: captures
 # validate at write time, no per-datum logs). This retired the hand-written shape
 # jq: the shape contract now lives in the schema system like every other data
@@ -170,7 +170,7 @@ $chats" \
 # beyond JSON Schema and stays checked separately below.
 validate_capture() {
   local file="$1" family="$2" schema verdict
-  schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/indexing/$family"/v*.json | sort -V | tail -1)"
+  schema="$(printf '%s\n' "$REPO_DIR/rsc/schema/cli/indexing/$family"/v*.json | sort -V | tail -1)"
   verdict="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate.py" "$file" "$schema")"
   [[ "$verdict" == 'Valid!' ]] || {
     echo "corpus-yoga indexing capture: $file fails $family $(basename "$schema" .json) — staged, NOT promoted" >&2

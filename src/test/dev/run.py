@@ -105,6 +105,8 @@ sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_
 import mcp_factoring  # noqa: E402
 import mcp_extraction  # noqa: E402  (the schema.ts reader, through the generated parser)
 import mcp_face  # noqa: E402  (the consumer and producer faces, #605)
+import provider  # noqa: E402  (src/main - the provider registry, check_schema_layout)
+import validation_matrix  # noqa: E402  (src - the one reading of a family's address under a pipeline)
 sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
 import grammar as grammar_module  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
@@ -137,7 +139,7 @@ class Pipeline:
     @property
     def changelog(self) -> Path:
         # The FIRST schema is the one whose CHANGELOG anchors the format history.
-        return RSC_SCHEMA / self.name / self.schemas[0] / 'CHANGELOG.md'
+        return SCHEMA_DIR[self.schemas[0]] / 'CHANGELOG.md'
 
     @property
     def cache_output(self) -> Path:
@@ -175,11 +177,19 @@ PIPELINES: dict[str, Pipeline] = {
     for d in _PIPELINE_DIRS if (d / 'pipeline.json').is_file()
 }
 
-# Map schema name → its directory, derived from PIPELINES.
+def _family_dir(pipeline: str, schema: str) -> Path | None:
+    """The one address of a pipeline's declared schema under rsc/schema/pipeline/<pipeline>:
+    at the provider's segment where the family's instances are one provider's, else
+    directly (#632). None where it is not at exactly one - check_schema_layout names it."""
+    return validation_matrix.family_dir(RSC_SCHEMA / 'pipeline' / pipeline, schema)
+
+
+# Map schema name → its directory, the declared schemas found at their addresses.
 SCHEMA_DIR: dict[str, Path] = {
-    schema: RSC_SCHEMA / name / schema
+    schema: d
     for name, pipeline in PIPELINES.items()
     for schema in pipeline.schemas
+    if (d := _family_dir(name, schema)) is not None
 }
 
 
@@ -459,12 +469,43 @@ def check_templates(run) -> None:
 
 
 def _schema_families() -> dict:
-    """Every versioned schema family ON DISK ({name: dir}) — the scope for all
-    schema-tier per-family checks. Not derived from the pipelines' schemas lists:
+    """Every versioned schema family ON DISK ({address under rsc/schema: dir}) — the
+    scope for all schema-tier per-family checks, found by walking for a directory that
+    holds a v*.json, at any depth. Not derived from the pipelines' schemas lists:
     a family can exist outside any pipeline (markdownConversation is validated
     in-memory at projection time) and must still be checked."""
-    return {d.name: d for d in sorted(RSC_SCHEMA.glob('*/*'))
-            if d.is_dir() and list(d.glob('v*.json'))}
+    return {d.relative_to(RSC_SCHEMA).as_posix(): d
+            for d in sorted({v.parent for v in RSC_SCHEMA.rglob('v*.json')})}
+
+
+def check_schema_layout(run) -> None:
+    """A family's address under rsc/schema is its writer's under src/main, then the
+    provider's name where the family's instances are one provider's, then the family
+    (#632): strip the family, strip a segment that is a row of rsc/provider/providers.csv,
+    and what remains is a directory under src/main or nothing. Every pipeline's declared
+    schema sits under rsc/schema/pipeline/<pipeline>, at exactly one address."""
+    providers = set(provider.provider_names())
+    families = _schema_families()
+    for key, d in sorted(families.items()):
+        parts = key.split('/')[:-1]
+        if parts and parts[-1] in providers:
+            parts = parts[:-1]
+        writer = SRC / 'main' / '/'.join(parts) if parts else SRC / 'main'
+        run(f'{key}: address mirrors its writer', writer.is_dir(),
+            None if writer.is_dir() else
+            f'src/main/{"/".join(parts)} is no directory - the family sits where no code writes against it; '
+            f'git mv it under its writer\'s path (rsc/schema/WORKFLOW.md)',
+            check='schema.family_mirrors_writer')
+    for name, pipeline in sorted(PIPELINES.items()):
+        for schema in pipeline.schemas:
+            hits = [k for k in families
+                    if k.startswith(f'pipeline/{name}/') and k.rsplit('/', 1)[-1] == schema]
+            run(f'pipeline: {name}: {schema} sits under rsc/schema/pipeline/{name}', len(hits) == 1,
+                None if len(hits) == 1 else
+                (f'found at {", ".join(hits)}' if hits else
+                 f'no family {schema} under rsc/schema/pipeline/{name}/ - the pipeline declares a schema '
+                 f'that is not at its address'),
+                check='schema.pipeline_schema_placed')
 
 
 def check_schema_validity(run) -> None:
@@ -1595,7 +1636,8 @@ def check_grammar_laws(run, cited: dict) -> None:
 
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-    schema_skips    = {s: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas}
+    schema_skips    = {SCHEMA_DIR[s]: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas
+                       if s in SCHEMA_DIR}
 
     schema_dirs = _schema_families()
     # One jobs list across every family, one _call_many: a per-family dispatch
@@ -1606,9 +1648,9 @@ def check_versioned_schema_diagnostics(run):
     # failure) - an empty count means every diagnostic was skipped: report nothing.
     families = []
     jobs = []
-    for schema_name in sorted(set(schema_skips) | set(schema_dirs)):
-        skip        = schema_skips.get(schema_name, frozenset())
-        schema_dir  = schema_dirs.get(schema_name, SCHEMA_DIR.get(schema_name))
+    for schema_name in sorted(schema_dirs):
+        schema_dir  = schema_dirs[schema_name]
+        skip        = schema_skips.get(schema_dir, frozenset())
         # the latest version is the schema, the rest history (#557): diagnostics
         # judge the version that judges data; validity and the changelog still
         # hold every version, so the history stays parseable and narrated
@@ -1649,7 +1691,7 @@ def check_schema_join(run):
         check='model.join_kind_declared')
     fails: list[str] = []
     # One grammar, one base: every cell is a versioned family dir relative to the
-    # repo root ('rsc/schema/chat-exports/conversations#…', 'rsc/reference/mcp#…'),
+    # repo root ('rsc/schema/pipeline/chat-exports/claude/conversations#…', 'rsc/reference/mcp#…'),
     # resolved against its latest version or lineage (src/main/latest.py). No per-column
     # tribal knowledge to resolve a cell.
     _check_csv_pointers(join,
@@ -1839,7 +1881,7 @@ def check_model_identity(run) -> None:
 
 def check_mcp_factoring(run) -> None:
     """The house MCP factoring (#562, #598) is a committed derivation: the latest
-    rsc/schema/protocol/mcpMessage version must be byte-identical to what
+    rsc/schema/mcp/mcpMessage version must be byte-identical to what
     corpus-yoga mcp sync generates from the committed schema.ts and the family's
     tables (mcp.factoring_current), and every definition of upstream's schema.json -
     the witness, never a source - must equal its house counterpart flattened and
@@ -1847,7 +1889,7 @@ def check_mcp_factoring(run) -> None:
     lineage's schema.ts must parse (mcp.lineages_parse)."""
     target = mcp_factoring.latest_version(mcp_factoring.FAMILY_DIR)
     if not target:
-        run('mcp: rsc/schema/protocol/mcpMessage has a version', False,
+        run('mcp: rsc/schema/mcp/mcpMessage has a version', False,
             'corpus-yoga mcp sync derives v1.json', check='mcp.has_version')
         return
     rel = target.relative_to(REPO_ROOT)
@@ -2379,8 +2421,9 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_reference': ['rsc/reference'],
     'check_provider_registry': ['rsc/provider', 'src'],
     'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],
+    'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],
     'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],
-    'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/protocol', 'src/main/mcp', 'src/gen/grammar'],
+    'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'],
     'check_mcp_reproducible': ['rsc/reference/mcp', 'src/main/mcp'],
 }
 
@@ -2614,6 +2657,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(lambda run, _c=cited_laws: check_grammar_laws(run, _c),
                     label='check_grammar_laws', tier='code')
 
+        run_section(check_schema_layout, tier='schema')
         run_section(check_schema_validity, tier='schema')
         run_section(check_schema_meta_validity, tier='schema')
         run_section(check_schema_single_version, tier='schema')
@@ -2737,8 +2781,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
             parts = name.split(': ')
             if len(parts) == 3 and re.match(r'[a-z_]+\.[a-z_]+', parts[1]):
                 diag = parts[1]
-                _d = SCHEMA_DIR.get(parts[0])
-                schema_path = (_d if _d is not None else RSC_SCHEMA / parts[0]) / f'{parts[2]}.json'
+                schema_path = RSC_SCHEMA / parts[0] / f'{parts[2]}.json'
                 repair     = SRC_TEST_REPAIRS     / f'{diag}.py'
                 diagnostic = SRC_TEST_DIAGNOSTICS / f'{diag}.py'
                 if repair.exists() and schema_path.exists():

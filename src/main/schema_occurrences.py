@@ -6,7 +6,7 @@ applies (i.e. every place the schema references it via $ref).
 
 Usage:
     src/run_python_script.sh src/main/schema_occurrences.py "#/definitions/MessageFile" \\
-        rsc/schema/chat-exports/conversations/v{N}.json conversations.json > paths.jsonl
+        rsc/schema/pipeline/chat-exports/claude/conversations/v{N}.json conversations.json > paths.jsonl
 
 Output:
     One jq-style path array per line (JSONL), e.g.

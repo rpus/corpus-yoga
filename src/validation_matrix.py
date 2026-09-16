@@ -38,10 +38,32 @@ def log_bytes(log_text: str) -> int:
     return int(m.group(1)) if m else 0
 
 
+def family_dir(root: Path, schema: str) -> Path | None:
+    """The one address of a family under a pipeline's schema root, rsc/schema/pipeline/<pipeline>
+    (#632): directly, or at the provider's segment where the family's instances are one
+    provider's. None where it is not at exactly one; the dev gate names that
+    (check_schema_layout)."""
+    hits = [d for d in sorted(root.glob(schema)) + sorted(root.glob(f'*/{schema}'))
+            if d.is_dir() and list(d.glob('v*.json'))]
+    return hits[0] if len(hits) == 1 else None
+
+
+def family_root(schema_dir: Path) -> Path:
+    """The schema root a family's matrix resolves its siblings against: for a pipeline's
+    family, rsc/schema/pipeline/<pipeline>, the directory directly under rsc/schema/pipeline
+    on its path; for any other family, its parent."""
+    for p in schema_dir.parents:
+        if p.parent.name == 'pipeline' and p.parent.parent.name == 'schema':
+            return p
+    return schema_dir.parent
+
+
 def latest_version(schema_parent_dir: Path, schema: str) -> str | None:
     """The family's latest version stem (vN), by numeric order; None if it has none."""
-    versions = sorted((schema_parent_dir / schema).glob('v*.json'),
-                      key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
+    d = family_dir(schema_parent_dir, schema)
+    if d is None:
+        return None
+    versions = sorted(d.glob('v*.json'), key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
     return versions[-1].stem if versions else None
 
 
@@ -78,13 +100,15 @@ def _row_sort_key(key):
 
 def render_rows(datum_dir: Path, schema_parent_dir: Path) -> list[str]:
     """One table row per (schema, item, version) found under datum_dir/validation/.
-    schema_parent_dir is the rsc/schema/<pipeline>/ directory the version links target."""
+    schema_parent_dir is the schema root (family_root) the version links resolve under."""
     rows = rows_from_logs(datum_dir, schema_parent_dir)
     out = []
     for key in sorted(rows, key=_row_sort_key):
         schema, item, version = key
         symbol, nbytes = rows[key]
-        vfile     = schema_parent_dir / schema / f'{version}.json'
+        fam       = family_dir(schema_parent_dir, schema)
+        assert fam is not None, f'{schema}: no family under {schema_parent_dir}'   # rows_from_logs admitted it
+        vfile     = fam / f'{version}.json'
         rel       = os.path.relpath(vfile, datum_dir)
         item_cell = f'`{item}`' if item else ''
         out.append(f'| {schema} | {item_cell} | [{version}]({rel}) | {symbol} | {nbytes:,} |')
@@ -104,7 +128,7 @@ def write_matrix(datum_dir: Path, schema_parent_dir: Path) -> Path | None:
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 3:
-        sys.exit(f'Usage: {sys.argv[0]} <datum_dir> <rsc_schema_pipeline_dir>')
+        sys.exit(f'Usage: {sys.argv[0]} <datum_dir> <schema_root>   # rsc/schema/pipeline/<pipeline>')
     out = write_matrix(Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve())
     if out:
         print(f'  matrix: {out}')

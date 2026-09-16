@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-mcp.py - the house factoring of the MCP schema, rsc/schema/protocol/mcpMessage,
+mcp.py - the house factoring of the MCP schema, rsc/schema/mcp/mcpMessage,
 generated from upstream's schema.ts alone (#598): read through the parser generated
 from the house TypeScript grammar (#597) by mcp_generation.py into the flat shape of
 every declaration, composed over the extends clauses and tagged by the categories
@@ -22,8 +22,8 @@ the commit gate by schema.changelog_narrative. Re-running is silence (L1). The w
 (mcp.factoring_current).
 
 Usage:
-    corpus-yoga mcp              # status: is rsc/schema/protocol/mcpMessage current with the snapshot?
-    corpus-yoga mcp sync         # (re-)derive rsc/schema/protocol/mcpMessage/v*.json: the diff, then the
+    corpus-yoga mcp              # status: is rsc/schema/mcp/mcpMessage current with the snapshot?
+    corpus-yoga mcp sync         # (re-)derive rsc/schema/mcp/mcpMessage/v*.json: the diff, then the
                                  # next version minted when anything differs - idempotent
     corpus-yoga mcp reproduce    # is the snapshot's schema.json what upstream's generator makes of its
                                  # schema.ts? - src/main/mcp/reproduce.sh, whose header states the run
@@ -104,7 +104,7 @@ def status() -> int:
           f'{sum(1 for t in tagged.values() if t)} category tags over {len(tagged)} declarations - '
           f'{"faced under " + str(cache) if _tables_current(declared) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes it)"}')
     for row in factoring.additions():
-        print(f'  addition: {row["definition"]} at {row["pointer"]} reads {row["house"] or "nothing"} here, {row["upstream"] or "nothing"} upstream - rsc/schema/protocol/mcpMessage/addition.csv')
+        print(f'  addition: {row["definition"]} at {row["pointer"]} reads {row["house"] or "nothing"} here, {row["upstream"] or "nothing"} upstream - rsc/schema/mcp/mcpMessage/addition.csv')
     for name, base in factoring.overrides(shapes, declared):
         print(f'  override: {name} extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
     for union, request in factoring.uncarried_results(shapes):

@@ -87,6 +87,10 @@ v4
 
 #### Refactored
 
+- The family description (v5, in place, regenerated identically by `corpus-yoga mcp sync`)
+  names `addition.csv` at the family's address since 2026-09-16 (#632),
+  `rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside
+  `src/main/mcp`, its generator. No validation effect.
 - Every definition's properties stand in schema.ts's declaration order, and every
   union's members in schema.ts's order (v4 followed upstream's generator:
   alphabetical properties, members by declaration of the member types) - 110
