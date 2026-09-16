@@ -401,15 +401,20 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
 
 
 def retired_address_report() -> None:
-    """A durable file still at a legacy address (rsc/naming/indexing_file_vintages.csv)
-    is named with its move; nothing here moves it - data/output is the shared medium,
-    and the move is the reader's act, once, seen by both rooms."""
+    """A file still at a legacy name (rsc/naming/indexing_file_vintages.csv) is named
+    with its remedy - mv for a durable file, rm for cache - and nothing here performs
+    it: data/output is the shared medium and the act is the reader's, once."""
     import csv
     with FILE_VINTAGES.open(newline='') as f:
         for row in csv.DictReader(f):
-            if (REPO / row['legacy']).exists():
+            if not (REPO / row['legacy']).exists():
+                continue
+            if row['remedy'] == 'mv':
                 print(f"FAIL: {row['legacy']} is at a retired address - the verbs read {row['current']}; "
                       f"move it: mv {row['legacy']} {row['current']}", file=sys.stderr)
+            else:
+                print(f"FAIL: {row['legacy']} is cache left at a retired name - the verbs write and read {row['current']}; "
+                      f"remove it: rm {row['legacy']}", file=sys.stderr)
 
 
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:

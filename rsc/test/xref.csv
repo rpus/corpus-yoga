@@ -725,7 +725,7 @@ src/main/cli/indexing/indexing.json,9,path_str,rsc/naming,Y,"""rsc/naming"""
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,249,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
-src/main/cli/indexing/indexing.py,404,comment,rsc/naming/indexing_file_vintages.csv,Y,A durable file still at a legacy address (rsc/naming/indexing_file_vintages.csv)
+src/main/cli/indexing/indexing.py,404,comment,rsc/naming/indexing_file_vintages.csv,Y,A file still at a legacy name (rsc/naming/indexing_file_vintages.csv) is named
 src/main/cli/indexing/indexing.py,228,comment,rsc/naming/indexing_file_vintages.csv,Y,"# The durable files' former addresses are data, rsc/naming/indexing_file_vintages.csv"
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/mcp.json,8,path_str,rsc/schema/protocol,Y,"""rsc/schema/protocol"""
