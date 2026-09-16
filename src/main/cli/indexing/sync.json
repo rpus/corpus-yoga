@@ -3,7 +3,6 @@
   "args": [],
   "step": "corpus",
   "r": [
-    "data/output/indexing",
     "data/output/indexing"
   ],
   "w": [

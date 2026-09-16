@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # capture.sh (corpus-yoga indexing capture) — the PAID semantic reading of the corpus:
 # the model re-reads every conversation for the two index tables, weighted
-# concepts (semantic-concepts.json — the indexing queue's feedstock) and the
-# chat-to-category assignment (chat-categories.json — a categorical index the
+# concepts (inferred-semantic-concepts.json — the candidates' feedstock) and the
+# chat-to-category assignment (inferred-chat-categories.json — a categorical index the
 # site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
 # --status is the capture's read-only face: what is deposited, and how far the
@@ -191,7 +191,7 @@ validate_capture() {
 # close and any captured-but-gone ids the proxy silently counts as coverage.
 # (The user's shape: status is; effecting; status is.) Corpus-dir sources only
 # — a batch source has no corpus_index — and no prior capture means no join.
-# coverage_of <conversations-dir> <chat-categories.json> → "captured never-captured gone total"
+# coverage_of <conversations-dir> <inferred-chat-categories.json> → "captured never-captured gone total"
 # ONE measurement, taken of whichever file is named: the durable one before the effect, the
 # staged one after it. G19's bracket is only readable if both ends measure the same thing —
 # the exact id join, never the ~M row-count proxy the status uses.

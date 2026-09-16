@@ -18,7 +18,7 @@ absence is shown, never invented. Bolster the values when a source grows time
 data; the KEYS are the contract.
 
 Usage:
-  present_corpus.py [--markdown <dir>] [--dashboard <dir>] [--out <dir>] [--page-out <dir>]
+  present_corpus.py [--markdown <dir>] [--indexing <dir>] [--out <dir>] [--page-out <dir>]
 
 Defaults: data/output/markdown, data/output/indexing, tmp/cache/site/presentation for the
 data tables, data/output/site for the finished page (its URL position; all repo-relative).
@@ -93,20 +93,24 @@ def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
     f = out_dir / f'{key}.json'
     f.write_text(styled)
     subprocess.run([sys.executable, str(MAIN / 'inject.py'), str(html), key, str(f)], check=True)
-    print(f'  ✓ {key}')
+    # a table injected empty because its capture is absent is said so, never ticked
+    if not table.get('rows') and str(table.get('note', '')).startswith('Not captured'):
+        print(f'  ○ {key} - not captured; the page carries the note')
+    else:
+        print(f'  ✓ {key} ({len(table.get("rows", []))} rows)')
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='render the corpus dashboard from data/output/markdown + data/output/indexing')
     ap.add_argument('--markdown', default=str(REPO / 'data' / 'output' / 'markdown'))
-    ap.add_argument('--dashboard', default=str(REPO / 'data' / 'output' / 'dashboard'))
+    ap.add_argument('--indexing', default=str(REPO / 'data' / 'output' / 'indexing'))
     ap.add_argument('--out', default=str(REPO / 'tmp' / 'cache' / 'site' / 'presentation'),
                     help='cache workshop dir for the data tables (feedstock)')
     ap.add_argument('--page-out', default=str(REPO / 'data' / 'output' / 'site'),
                     help='publish-tree dir the finished index.html lands in (its URL position)')
     args = ap.parse_args()
 
-    md_root, dash = Path(args.markdown), Path(args.dashboard)
+    md_root, dash = Path(args.markdown), Path(args.indexing)
     out_dir, page_out = Path(args.out), Path(args.page_out)
     entries = corpus_index(md_root)
     if not entries:
