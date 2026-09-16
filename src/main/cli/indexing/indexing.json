@@ -5,7 +5,6 @@
   "args": [],
   "r": [
     "data/output/indexing",
-    "data/output/markdown",
-    "rsc/naming"
+    "data/output/markdown"
   ]
 }

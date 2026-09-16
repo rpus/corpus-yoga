@@ -1,10 +1,11 @@
 referring_file,line,ref_type,referred_file,exists,line_text
 AGENTS.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
 AGENTS.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
-AGENTS.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds format histories"
-AGENTS.md,57,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-AGENTS.md,174,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
-AGENTS.md,179,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+AGENTS.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds the grammars of"
+AGENTS.md,57,doc,rsc/migration,Y,comments or if-chains; rsc/migration/ holds the moves a rename owes the
+AGENTS.md,59,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
+AGENTS.md,176,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
+AGENTS.md,181,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,9,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
 CONTRIBUTING.md,12,doc,rsc/test,Y,"gate there, and halts on red with the regenerated `rsc/test/` discarded, the checkout put"
 CONTRIBUTING.md,22,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
@@ -42,17 +43,18 @@ README.md,57,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instr
 README.md,57,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
 README.md,58,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
 README.md,58,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,59,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
-README.md,60,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,61,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,62,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
-README.md,63,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
-README.md,70,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,80,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
-README.md,81,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
-README.md,99,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,106,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,106,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,59,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
+README.md,60,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
+README.md,61,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,62,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,63,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
+README.md,64,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,71,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,81,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
+README.md,82,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
+README.md,100,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,107,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,107,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/browser-captures,Y,"""src/main/pipeline/browser-captures"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-exports,Y,"""src/main/pipeline/chat-exports"","
@@ -94,6 +96,13 @@ rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel
 rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/browser-captures/claude,browser-captures,corpus-yoga pipeline run browser-captures,src/test/dev/run.py,per-cap"
 rsc/cache_io.csv,10,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribu"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
+rsc/migration/636.sh,2,comment,rsc/migration/636.sh,Y,# rsc/migration/636.sh - the live agent stores mount at ext/mnt/agent/<provider> (#636);
+rsc/migration/636.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/655.sh,2,comment,rsc/migration/655.sh,Y,# rsc/migration/655.sh - the indexing command's files read state then kind under
+rsc/migration/655.sh,6,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
+rsc/migration/README.md,15,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
+rsc/migration/step.sh,2,comment,rsc/migration/step.sh,Y,"# rsc/migration/step.sh - the steps a migration script is made of, sourced by each"
 rsc/model/model_join.csv,2,path_str,rsc/schema/chat-exports/conversations#/definitions/ContentBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ContentBlock,rsc/schema/code-agents/session#/definitions/ContentBlock"
 rsc/model/model_join.csv,2,path_str,rsc/schema/code-agents/session#/definitions/ContentBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ContentBlock,rsc/schema/code-agents/session#/definitions/ContentBlock"
 rsc/model/model_join.csv,2,path_str,rsc/reference/mcp#/$defs/ContentBlock,Y,"rsc/schema/chat-exports/conversations#/definitions/ContentBlock,rsc/schema/code-agents/session#/definitions/ContentBlock"
@@ -631,11 +640,10 @@ src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCUL
 src/main/cli/agent/agent.py,24,comment,rsc/provider/providers.csv,Y,"ext/mnt/agent/<provider> per the registry (rsc/provider/providers.csv, #636) -"
 src/main/cli/agent/agent.py,40,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
 src/main/cli/agent/agent.py,127,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,290,comment,rsc/naming/mount_vintages.csv,Y,"accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)"
+src/main/cli/agent/agent.py,291,comment,rsc/migration/636.sh,Y,rsc/migration/636.sh's.
 src/main/cli/agent/claude/harness.py,22,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/gemini/harness.py,25,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
 src/main/cli/agent/mount.json,12,path_str,rsc/provider,Y,"""rsc/provider"","
-src/main/cli/agent/mount.json,13,path_str,rsc/naming,Y,"""rsc/naming"","
 src/main/cli/agent/transport.py,20,comment,rsc/provider/providers.csv,Y,The registry (rsc/provider/providers.csv) declares a provider; the adapter's
 src/main/cli/agent/transport.py,32,path_str,src/main/cli/agent/transport.py,Y,SELF = 'src/main/cli/agent/transport.py'
 src/main/cli/browser/browser.json,3,path_str,src/main/cli/browser/browser.sh,Y,"""target"": ""src/main/cli/browser/browser.sh"","
@@ -721,12 +729,9 @@ src/main/cli/indexing/capture.sh,33,comment,src/main/send.sh,Y,# shellcheck sour
 src/main/cli/indexing/capture.sh,35,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/indexing/capture.sh,112,comment,rsc/site/index.template.html,Y,"# inlined in the homepage template (rsc/site/index.template.html), the one authority. Exits"
 src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
-src/main/cli/indexing/indexing.json,9,path_str,rsc/naming,Y,"""rsc/naming"""
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,50,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
-src/main/cli/indexing/indexing.py,249,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
-src/main/cli/indexing/indexing.py,404,comment,rsc/naming/indexing_file_vintages.csv,Y,A durable file still at a legacy address (rsc/naming/indexing_file_vintages.csv)
-src/main/cli/indexing/indexing.py,228,comment,rsc/naming/indexing_file_vintages.csv,Y,"# The durable files' former addresses are data, rsc/naming/indexing_file_vintages.csv"
+src/main/cli/indexing/indexing.py,245,comment,src/main/cli/readings.md,Y,rejected. Its format doc lives in src/main/cli/readings.md; here it is just the
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/mcp.json,8,path_str,rsc/schema/protocol,Y,"""rsc/schema/protocol"""
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/protocol/mcpMessage,Y,"""rsc/schema/protocol/mcpMessage"""
@@ -763,7 +768,8 @@ src/main/cli/prerequisites/prerequisites.json,22,path_str,src/requirements.txt,Y
 src/main/cli/prerequisites/prerequisites.json,23,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"","
 src/main/cli/prerequisites/prerequisites.json,24,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/prerequisites/prerequisites.json,25,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
-src/main/cli/prerequisites/prerequisites.json,26,path_str,rsc/provider,Y,"""rsc/provider"""
+src/main/cli/prerequisites/prerequisites.json,26,path_str,rsc/provider,Y,"""rsc/provider"","
+src/main/cli/prerequisites/prerequisites.json,27,path_str,rsc/migration,Y,"""rsc/migration"""
 src/main/cli/prerequisites/prerequisites.sh,2,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs."
 src/main/cli/prerequisites/prerequisites.sh,17,comment,src/main/cli/prerequisites/prerequisites.sh,Y,#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention (– and ✗); all-green sections 
 src/main/cli/prerequisites/prerequisites.sh,18,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"#   src/main/cli/prerequisites/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
@@ -779,7 +785,8 @@ src/main/cli/prerequisites/prerequisites.sh,471,comment,src/main/cli/forge/forge
 src/main/cli/prerequisites/prerequisites.sh,518,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-agents store this
 src/main/cli/prerequisites/prerequisites.sh,525,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
 src/main/cli/prerequisites/prerequisites.sh,549,comment,src/main/pipeline/code-agents/pipeline.json,Y,"# src/main/pipeline/code-agents/pipeline.json, whose input names one provider's store."
-src/main/cli/prerequisites/prerequisites.sh,571,comment,rsc/naming/mount_vintages.csv,Y,# A link this machine still holds at a retired mount address (rsc/naming/mount_vintages.csv)
+src/main/cli/prerequisites/prerequisites.sh,594,path_str,src/main,Y,"[[ -e ""$script"" ]] || continue"
+src/main/cli/prerequisites/prerequisites.sh,597,path_str,src/main,Y,"if steps=""$(""$script"" 2>&1)""; then"
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -1032,7 +1039,6 @@ src/main/provider.py,3,comment,rsc/provider/providers.csv,Y,"provider.py - the p
 src/main/provider.py,12,comment,rsc/provider/README.md,Y,"rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,"
 src/main/provider.py,15,comment,src/run_python_script.sh,Y,"through src/run_python_script.sh, the venv's python (#478), so the csv grammar is"
 src/main/provider.py,21,path_str,src/main/provider.py,Y,SELF = 'src/main/provider.py'
-src/main/provider.py,77,comment,rsc/naming/mount_vintages.csv,Y,"vintage id), per the legacy rows of rsc/naming/mount_vintages.csv. Named for the"
 src/main/reference/reference.py,35,path_str,src/main/reference/reference.py,Y,SELF = 'src/main/reference/reference.py'
 src/main/safari.py,13,path_str,src/main/safari.py,Y,SELF = 'src/main/safari.py'
 src/main/schema_fragment.py,7,comment,src/run_python_script.sh,Y,"src/run_python_script.sh src/main/schema_fragment.py ""#/definitions/MessageFile"" rsc/schema/chat-exports/conversations/v"
@@ -1166,6 +1172,8 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
+,,self_only,rsc/migration/655.sh,Y,
+,,,rsc/migration/README.md,Y,
 ,,,rsc/reference/JSONSchema/README.md,Y,
 ,,,rsc/reference/JSONSchema/draft-04/CHANGELOG.md,Y,
 ,,,rsc/reference/mcp/2024-11-05/CHANGELOG.md,Y,

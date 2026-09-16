@@ -52,8 +52,10 @@ seventh principle or a smell.
   grammar for issue and PR bodies. Read the matching template before raising
   anything.
 - rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
-  process, changelog grammar included; rsc/naming/ holds format histories
-  as data - history is never encoded in comments or if-chains.
+  process, changelog grammar included; rsc/naming/ holds the grammars of
+  names that arrive from outside, as data - history is never encoded in
+  comments or if-chains; rsc/migration/ holds the moves a rename owes the
+  machine-local roots, as guarded scripts the reader runs once.
 - CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/
   syntactic-conflict rule, and the never-delete-local-files-for-a-gate
   corollary live there.

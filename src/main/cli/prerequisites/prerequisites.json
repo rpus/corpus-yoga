@@ -23,6 +23,7 @@
     "src/main/model/serve_assets.txt",
     "rsc/rpus/grammar",
     "src/gen/grammar",
-    "rsc/provider"
+    "rsc/provider",
+    "rsc/migration"
   ]
 }

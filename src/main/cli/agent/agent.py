@@ -286,10 +286,9 @@ def _claude() -> tuple[Path, ModuleType]:
 def mount(apply: bool) -> int:
     """The live agent stores mounted under ext/mnt/agent/<provider> (#636): one
     symlink per declared provider whose live store this machine holds, the target
-    from the registry row. A dry run states every move as data - each provider
-    accounted for, and every link at a retired address (rsc/naming/mount_vintages.csv)
-    named as an orphan with its rm - and --apply creates the links. Orphans are
-    named, never removed: the disposal is the reader's act."""
+    from the registry row. A dry run states every move as data, each provider
+    accounted for, and --apply creates the links. A link at a retired address is
+    rsc/migration/636.sh's."""
     root = registry.MOUNT_ROOT
     verdict = 0
     for row in registry.providers():
@@ -315,8 +314,6 @@ def mount(apply: bool) -> int:
             print(f'{shown} → {row["live_store"]} (created)')
         else:
             print(f'{shown} → {row["live_store"]} (would create; --apply creates it)')
-    for rel, vintage_id in registry.retired_mounts():
-        print(f'orphan: {rel} (mount vintage {vintage_id}, rsc/naming/mount_vintages.csv) - rm {rel}')
     return verdict
 
 

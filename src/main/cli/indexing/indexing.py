@@ -225,10 +225,6 @@ STOPWORDS = frozenset(
 
 INFERRED_FILE = REPO / 'data' / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
 CANDIDATES_TXT = REPO / 'tmp' / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
-# The durable files' former addresses are data, rsc/naming/indexing_file_vintages.csv
-# (#655): a file still at a legacy address is named by the status with its move,
-# never moved by machinery.
-FILE_VINTAGES = REPO / 'rsc' / 'naming' / 'indexing_file_vintages.csv'
 
 
 def _coverage(accepted_path: Path, rejected_path: Path):
@@ -400,23 +396,10 @@ def orphan_headwords(markdown_root: Path, accepted_path: Path) -> list[str]:
                   key=str.lower)
 
 
-def retired_address_report() -> None:
-    """A durable file still at a legacy address (rsc/naming/indexing_file_vintages.csv)
-    is named with its move; nothing here moves it - data/output is the shared medium,
-    and the move is the reader's act, once, seen by both rooms."""
-    import csv
-    with FILE_VINTAGES.open(newline='') as f:
-        for row in csv.DictReader(f):
-            if (REPO / row['legacy']).exists():
-                print(f"FAIL: {row['legacy']} is at a retired address - the verbs read {row['current']}; "
-                      f"move it: mv {row['legacy']} {row['current']}", file=sys.stderr)
-
-
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
     """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`): counts on
     stderr, the candidates as pure lines on stdout — human-amenable at the
     terminal (both interleave), agent-amenable in a pipe (queue only)."""
-    retired_address_report()
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
