@@ -568,16 +568,6 @@ check_pipeline_inputs() {
       fi
     fi
   done <<< "$p_rows"
-  # A link this machine still holds at a retired mount address (rsc/naming/mount_vintages.csv)
-  # is named with its rm; the disposal is the reader's act, never the report's (#636).
-  local o_rows o_path o_vintage
-  if [[ -x "$VENV/bin/python" ]]; then
-    o_rows="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(p + "\x1f" + v for p, v in provider.retired_mounts()))' "$REPO_ROOT/src/main")" || return 1
-    while IFS=$'\x1f' read -r o_path o_vintage; do
-      [[ -n "$o_path" ]] || continue
-      todo orphan "$o_path is a link at a retired mount address (mount vintage $o_vintage, rsc/naming/mount_vintages.csv) - rm $o_path"
-    done <<< "$o_rows"
-  fi
   # The deploy mount differs from the live-session mount in the one way that matters:
   # its TARGET is unknowable here (the site repo's clone lives wherever the human put
   # it), so sync --apply cannot create it and absence is not a todo — deploying is
@@ -592,6 +582,32 @@ check_pipeline_inputs() {
   else
     info "ext/mnt/site absent — optional, only a deploying machine needs it; hand-make: ln -s <site-repo-clone> ext/mnt/site (rsc/site/README.md)"
   fi
+}
+
+check_migration() {
+  # The moves a rename owes this machine's data/output, tmp/cache and ext/mnt, carried by
+  # the scripts under rsc/migration (#661): each run bare states its pending steps and
+  # takes none; the reader runs the named script once with --apply.
+  sec "migration (rsc/migration - the moves a rename owes this machine's local roots)"
+  local script steps line
+  for script in "$REPO_ROOT"/rsc/migration/[0-9]*.sh; do
+    [[ -e "$script" ]] || continue
+    local rel="${script#"$REPO_ROOT"/}"
+    local lines=()
+    if steps="$("$script" 2>&1)"; then
+      while IFS= read -r line; do lines+=("$line"); done <<< "$steps"
+      if [[ -n "$steps" ]]; then
+        todo migration "$rel has steps to take - run: $rel --apply"
+        printf '      %s\n' "${lines[@]}"
+      else
+        ok "$rel - nothing to do"
+      fi
+    else
+      while IFS= read -r line; do lines+=("$line"); done <<< "$steps"
+      todo migration "$rel halts - resolve by hand what it names, then run: $rel --apply"
+      printf '      %s\n' "${lines[@]}"
+    fi
+  done
 }
 
 notes() {
@@ -693,6 +709,7 @@ report() {
   check_signature_hook
   check_forge
   check_pipeline_inputs
+  check_migration
   notes
 
   # A report is information: it exits 0 unless it could not BE produced. Severity

@@ -1,4 +1,0 @@
-id,status,pattern,note
-v3,current,"^ext/mnt/agent/(?P<provider>[a-z][a-z0-9_-]*)$","one root for the live agent stores (since 2026-09-14, #636): the provider name is the only segment the repository adds; the target is the provider's live store per rsc/provider/providers.csv, the smallest directory holding every record of a session - ~/.claude/projects for claude, ~/.gemini/antigravity for gemini (a session spans brain/, conversations/ and conversation_summaries.db)"
-v2,legacy,"^ext/mnt/(?P<mount>claude-code-projects|gemini-antigravity)$","the mount named per provider by a registry column, mount_name, on main from #629 (0059639, 2026-09-14) until #636: claude-code-projects since the ext/mnt species (2026-08), gemini-antigravity linked by the sync on rooms that ran it between the two merges (reading-room, 2026-09-14)"
-v1,legacy,"^ext/claude-code-projects$","the pre-species address: the link at ext/ itself, before ext/mnt/ held the by-reference mounts (until 2026-08)"
