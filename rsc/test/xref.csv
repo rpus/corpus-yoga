@@ -631,8 +631,8 @@ rsc/schema/pipeline/chat-export/claude/users/v2.json,19,path_str,rsc/model/model
 rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/code-transport/claude/projectMemory/CHANGELOG.md,70,doc,rsc/schema,Y,"migration (#20), which `rsc/schema/` was excluded from sweeping. No validation effect."
 rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,168,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
-rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,548,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,196,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
+rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,576,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,77,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
@@ -901,8 +901,8 @@ src/main/model/gen_model_candidate.py,13,comment,src/main/model/gen_model_candid
 src/main/model/gen_model_candidate.py,13,comment,rsc/schema/pipeline/chat-export/claude/conversations/v19.json,Y,python src/main/model/gen_model_candidate.py conversations rsc/schema/pipeline/chat-export/claude/conversations/v19.json
 src/main/model/gen_model_candidate.py,14,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/pipeline/chat-export/claude/memories/v3.json
 src/main/model/gen_model_candidate.py,14,comment,rsc/schema/pipeline/chat-export/claude/memories/v3.json,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/pipeline/chat-export/claude/memories/v3.json
-src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v16.json
-src/main/model/gen_model_candidate.py,15,comment,rsc/schema/pipeline/code-transport/claude/session/v16.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v16.json
+src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v17.json
+src/main/model/gen_model_candidate.py,15,comment,rsc/schema/pipeline/code-transport/claude/session/v17.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v17.json
 src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v10
 src/main/model/gen_model_candidate.py,16,comment,rsc/schema/pipeline/chat-capture/claude/apiConversation/v10.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v10
 src/main/model/model.py,3,comment,rsc/model/model.json,Y,"model.py — per-schema definition catalogues, candidates for rsc/model/model.json."

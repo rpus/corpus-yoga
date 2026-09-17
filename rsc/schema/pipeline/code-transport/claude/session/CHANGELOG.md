@@ -6,6 +6,34 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v17
+
+Two forms the artifact machinery had not yet shown. Home-room session
+`41ff13e9-…`, written by Claude Code to 2.1.272 and recaptured on 2026-09-17 at
+9610 records, carries 50 that v16 refuses: 49 `artifact-autoreact-ledger`
+records whose entry has a `stampHighWater` of `"2026-09-15T21:24:26.450Z"`, the
+non-null form v16 recorded as unobserved, arriving once a reply on the artifact
+had been handled; and one `attachment` record of 2026-09-16, a `queued_command`
+typed while the model worked, whose `rendered[0].content` is an array of one text
+block where the session's three other queued commands render as strings.
+
+### Replaces
+
+v16
+
+#### Relaxed
+
+- `ArtifactLedgerEntry.stampHighWater`: null or a `Timestamp`, where v16 admitted
+  null alone.
+- `RenderedBlock.content`: a string or an array of `TextBlock`, where v16 admitted
+  a string alone.
+
+#### Refactored
+
+- `TextBlock` and `ContentBlock` stand earlier among the definitions: the order the
+  BFS repair gives now that `RenderedBlock` reaches `TextBlock` first. No validation
+  effect.
+
 ## v16
 
 The artifact machinery enters the record, and the undeclared is surveyed.
