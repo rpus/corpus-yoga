@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 from gen_model_candidate import generate
-from model_curation import (documented, rejected, edge_queue,
+from model_curation import (JOIN_PATH_COLUMNS, documented, rejected, edge_queue,
                             orphan_entries, coverage_gaps, unrecorded_collisions,
                             shared_name_candidates, identity_violations, emptiness_violations,
                             worksheet_rows, accept_shared_name, reject_shared_name)
@@ -152,8 +152,7 @@ def render_collision_worksheet() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     buf = io.StringIO()
     writer = csv.DictWriter(buf, fieldnames=['name', 'families',
-                                             'conversations_path', 'session_path',
-                                             'apiConversation_path', 'mcp_path',
+                                             *JOIN_PATH_COLUMNS,
                                              'relationship', 'note'])
     writer.writeheader()
     writer.writerows(rows)

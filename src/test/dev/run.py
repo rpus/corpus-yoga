@@ -1693,8 +1693,8 @@ def check_schema_join(run):
     # resolved against its latest version or lineage (src/main/latest.py). No per-column
     # tribal knowledge to resolve a cell.
     _check_csv_pointers(join,
-                        ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path'),
-                        {c: REPO_ROOT for c in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')},
+                        model_curation.JOIN_PATH_COLUMNS,
+                        {c: REPO_ROOT for c in model_curation.JOIN_PATH_COLUMNS},
                         fails)
     run('schema model_join.csv: all pointers valid', not fails,
         '\n    '.join(fails[:5]) if fails else None, check='model.join_pointers_valid')
@@ -1714,7 +1714,7 @@ def check_model_join_versions(run):
     pins: list[str] = []
     with join.open() as fh:
         for i, row in enumerate(csv.DictReader(fh), 2):
-            for col in ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path'):
+            for col in model_curation.JOIN_PATH_COLUMNS:
                 file_part = (row.get(col) or '').strip().partition('#')[0]
                 if re.search(r'v\d+\.json$', file_part):
                     pins.append(f'row {i} {col}: {file_part}')
