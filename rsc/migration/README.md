@@ -4,7 +4,8 @@ A commit renames a committed file and git carries the rename. A commit that rena
 what lives under data/output, tmp/cache or ext/mnt renames nothing there: those roots
 are laid out per room and no commit touches them. The script here named for the
 causing issue carries that move, as the move: `mv <from> <to>`, `rm <link>`, `rmdir
-<directory>` lines over the steps of step.sh.
+<directory>` and, for rebuildable cache only, `rm -r <directory>` lines over the steps of
+step.sh.
 
 - bare, a script prints each step it would take and takes none; `--apply` takes them.
 - a step whose from is absent prints nothing: a second run does nothing.

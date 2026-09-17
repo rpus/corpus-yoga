@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """
 model.py — per-schema definition catalogues, candidates for rsc/model/model.json.
-Output: tmp/cache/model/{schema}/v{N}.json for each versioned schema (flat, not mirroring
-rsc/schema/{pipeline}/{schema}/). rsc/model/model.json is hand-curated from these.
+Output: tmp/cache/model/catalogue/<family's address under rsc/schema>/v{N}.json for each
+versioned schema, keyed as rsc/model/model.json keys a family (#672), so two providers'
+families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
 
 `model` is a NOUN: the catalogues. A bare invocation shows their current state and
 writes nothing (so there is no `status` verb — the bare noun IS the status). Only
@@ -10,8 +11,9 @@ the `sync` verb writes: it brings tmp/cache/model into agreement with the schema
 re-running is silence (L1) — which is what naming it `sync` promises.
 
 Usage:
-    corpus-yoga model         # status: which catalogues exist under tmp/cache/model/
-    corpus-yoga model sync    # (re-)generate every catalogue to agree with the schemas
+    corpus-yoga model         # status: which catalogues exist under tmp/cache/model/catalogue/
+    corpus-yoga model sync    # (re-)generate every catalogue to agree with the schemas, and
+                              # remove each one no schema version derives
 """
 
 import re
@@ -45,14 +47,26 @@ def _sorted_versions(schema_dir: Path) -> list[Path]:
     )
 
 
-def _catalogues() -> list[tuple[str, Path]]:
-    """(family, schema-version file) for every versioned schema — the inventory
-    that `project` writes and `status` reports, so the two can never disagree."""
+CATALOGUE_DIR = OUT_DIR / 'catalogue'
+
+
+def _catalogues() -> list[tuple[str, Path, Path]]:
+    """(family name, schema-version file, its catalogue) for every versioned schema — the
+    inventory that `sync` writes and `status` reports, so the two can never disagree.
+    The catalogue sits at the family's address under rsc/schema (#672)."""
     out = []
     for schema_dir in sorted({v.parent for v in SCHEMA_DIR.rglob('v*.json')}):
         for version in _sorted_versions(schema_dir):
-            out.append((schema_dir.name, version))
+            out.append((schema_dir.name, version,
+                        CATALOGUE_DIR / schema_dir.relative_to(SCHEMA_DIR) / version.name))
     return out
+
+
+def _underived() -> list[Path]:
+    """Every file under the catalogue tree that no schema version derives: a version a
+    mint renamed away, a family that moved or retired."""
+    derived = {target for _, _, target in _catalogues()}
+    return sorted(f for f in CATALOGUE_DIR.rglob('*') if f.is_file() and f not in derived)
 
 
 def curation_report() -> None:
@@ -108,14 +122,19 @@ def curation_report() -> None:
 def sync() -> None:
     """The verb: bring tmp/cache/model into agreement with the schemas by (re-)generating
     every catalogue. Idempotent (L1) — the ONLY path here that writes."""
-    for name, schema in _catalogues():
-        out_dir = OUT_DIR / name
-        out_dir.mkdir(parents=True, exist_ok=True)
-        target, text = out_dir / schema.name, generate(name, schema)
+    for name, schema, target in _catalogues():
+        target.parent.mkdir(parents=True, exist_ok=True)
+        text = generate(name, schema)
         if target.exists() and target.read_text() == text:
             continue   # content-keyed (#494): current means no write
         target.write_text(text)
-        print(f'  ✓ tmp/cache/model/{name}/{schema.name}')
+        print(f'  ✓ {target.relative_to(REPO_ROOT)}')
+    for stale in _underived():
+        stale.unlink()
+        print(f'  removed {stale.relative_to(REPO_ROOT)} - no schema version derives it')
+    for directory in sorted((d for d in CATALOGUE_DIR.rglob('*') if d.is_dir()), reverse=True):
+        if not any(directory.iterdir()):
+            directory.rmdir()
     render_collision_worksheet()
     # the report is status's (bare corpus-yoga model): a sync writes, and the run's
     # tail probes status right after it - reporting here too would state every
@@ -151,11 +170,14 @@ def status() -> None:
     catalogues tmp/cache/model/ already holds and which a `project` would still
     mint, then the model.json disposal queue."""
     present, missing = [], []
-    for name, schema in _catalogues():
-        (present if (OUT_DIR / name / schema.name).exists() else missing).append(
-            f'{name}/{schema.name}')
+    for _name, _schema, target in _catalogues():
+        (present if target.exists() else missing).append(str(target.relative_to(CATALOGUE_DIR)))
     total = len(present) + len(missing)
-    print(f'tmp/cache/model: {len(present)}/{total} catalogues present')
+    print(f'tmp/cache/model/catalogue: {len(present)}/{total} catalogues present')
+    underived = _underived()
+    if underived:
+        print(f'{len(underived)} file(s) under tmp/cache/model/catalogue no schema version derives - '
+              f'corpus-yoga model sync removes them')
     if missing:
         # the count is the fact; 52 derivable filenames were the mumble - the
         # names are exactly the schema tree's, and sync mints them all

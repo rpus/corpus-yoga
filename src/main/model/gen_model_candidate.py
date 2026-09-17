@@ -15,7 +15,7 @@ Examples:
     python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v16.json
     python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v10.json
 
-Output: JSON to stdout. Redirect to tmp/cache/model/<schema-type>/<version>.json for review.
+Output: JSON to stdout. Redirect to tmp/cache/model/catalogue/<family's address>/<version>.json for review.
 Normally invoked via corpus-yoga model which handles all schemas automatically.
 """
 
