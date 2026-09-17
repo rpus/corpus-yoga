@@ -10,6 +10,7 @@ src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidati
 src/main/validation_audit.py judges the logs and matrices (corpus-yoga pipeline audit).
 """
 
+import json
 import os
 import re
 from pathlib import Path
@@ -41,10 +42,15 @@ def log_bytes(log_text: str) -> int:
 def family_dir(root: Path, schema: str) -> Path | None:
     """The one address of a family under a pipeline's schema root, rsc/schema/pipeline/<pipeline>
     (#632): directly, or at the provider's segment where the family's instances are one
-    provider's. None where it is not at exactly one; the dev gate names that
-    (check_schema_layout)."""
-    hits = [d for d in sorted(root.glob(schema)) + sorted(root.glob(f'*/{schema}'))
-            if d.is_dir() and list(d.glob('v*.json'))]
+    provider's. A pipeline's declaration (src/main/pipeline/<pipeline>/pipeline.json,
+    `schemas`) names its families by address, and the one whose last segment is schema is
+    the family; a family the declaration does not name is found by walking. None where
+    neither gives exactly one."""
+    declaration = root.parents[3] / 'src' / 'main' / 'pipeline' / root.name / 'pipeline.json'
+    declared = json.loads(declaration.read_text())['schemas'] if declaration.is_file() else []
+    named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
+    hits = named or [d for d in sorted(root.glob(schema)) + sorted(root.glob(f'*/{schema}'))
+                     if d.is_dir() and list(d.glob('v*.json'))]
     return hits[0] if len(hits) == 1 else None
 
 

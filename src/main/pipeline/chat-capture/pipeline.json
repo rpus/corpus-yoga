@@ -1,6 +1,6 @@
 {
   "schemas": [
-    "apiConversation"
+    "claude/apiConversation"
   ],
   "input": "data/input/claude/chat/API-capture",
   "input_glob": "*/",

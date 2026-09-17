@@ -44,7 +44,7 @@ MODEL_JSON = MODEL_DIR / 'model.json'
 MODEL_JOIN = MODEL_DIR / 'model_join.csv'
 REJECTED = MODEL_DIR / 'model_rejected.txt'
 
-JOIN_PATH_COLUMNS = ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')
+JOIN_PATH_COLUMNS = ('conversations_path', 'claude_session_path', 'gemini_session_path', 'apiConversation_path', 'mcp_path')
 # The obligating predicates: kinds that assert ONE type shared across families
 # (usually across pipelines, but the account-uuid edge is intra-chat-export —
 # family is the grain, the PR #36 review's surviving nit). subset is
@@ -204,7 +204,8 @@ def identity_violations() -> list:
 # A collision touching a family outside these four still lists it in the
 # worksheet's families column; the row's path cells carry what the table can.
 COLUMN_FAMILY = {'conversations_path': 'pipeline/chat-export/claude/conversations',
-                 'session_path': 'pipeline/code-transport/claude/session',
+                 'claude_session_path': 'pipeline/code-transport/claude/session',
+                 'gemini_session_path': 'pipeline/code-transport/gemini/session',
                  'apiConversation_path': 'pipeline/chat-capture/claude/apiConversation',
                  'mcp_path': None}          # a reference project, never scanned for shared names
 SCHEMA_ROOT_PREFIX = 'rsc/schema/'
@@ -259,9 +260,7 @@ def _append_join_row(row: dict, relationship: str, note: str) -> None:
     """One disposal, one appended model_join.csv row - the worksheet's path
     cells verbatim, the relationship and note the disposal's two fields."""
     with MODEL_JOIN.open('a', newline='') as fh:
-        csv.writer(fh).writerow([row['conversations_path'], row['session_path'],
-                                  row['apiConversation_path'], row['mcp_path'],
-                                  relationship, note])
+        csv.writer(fh).writerow([row[c] for c in JOIN_PATH_COLUMNS] + [relationship, note])
 
 
 def accept_shared_name(row: dict, date: str) -> str:

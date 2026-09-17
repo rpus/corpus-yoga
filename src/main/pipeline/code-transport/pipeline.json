@@ -1,8 +1,8 @@
 {
   "schemas": [
-    "session",
+    "claude/session",
     "sessionConversation",
-    "projectMemory"
+    "claude/projectMemory"
   ],
   "input": "data/input/claude/code/machine-transport",
   "input_glob": "*/-Users-*/*.jsonl",

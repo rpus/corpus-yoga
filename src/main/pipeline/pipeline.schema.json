@@ -20,7 +20,7 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "The schema names this pipeline's data validates against, each a family under rsc/schema/pipeline/<pipeline>/, at the provider's segment where the family's instances are one provider's (#632). Order is load-bearing: the FIRST entry is the schema whose CHANGELOG.md anchors the pipeline's format history."
+      "description": "The schema families this pipeline's data validates against, each by its address under rsc/schema/pipeline/<pipeline>/ - <provider>/<family> where the family's instances are one provider's, <family> otherwise (#632) - so that two providers' families of one name are two entries. Order is load-bearing: the FIRST entry is the schema whose CHANGELOG.md anchors the pipeline's format history."
     },
     "input": {
       "type": "string",
