@@ -9,7 +9,7 @@ with the root derived from their own SELF declaration (#357):
     from markdown_projection import project, render, ...
 
 Consumers: model/project_markdown.py (renders markdown), model/compare_sources.py
-(project+render to compare), pipeline/chat-exports/atomise_bulk.py (slug/assign_name
+(project+render to compare), pipeline/chat-export/atomise_bulk.py (slug/assign_name
 to name the per-conversation pieces).
 
 The per-message projection, in jq:

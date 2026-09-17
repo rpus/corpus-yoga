@@ -494,28 +494,28 @@ check_pipeline_inputs() {
   sec "pipeline inputs (this repo ships no data; you supply your own)"
   local n
 
-  n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/browser-API"/*/)"
+  n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/API-capture"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n claude capture(s) in data/input/claude/chat/browser-API — will validate + project to markdown"
+    ok "chat-capture: $n claude capture(s) in data/input/claude/chat/API-capture — will validate + project to markdown"
   else
-    info "browser-captures: no claude captures in data/input/claude/chat/browser-API — will skip (populate via: ./corpus-yoga browser capture)"
+    info "chat-capture: no claude captures in data/input/claude/chat/API-capture — will skip (populate via: ./corpus-yoga browser capture)"
   fi
 
-  n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/browser-DOM"/*/)"
+  n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/DOM-capture"/*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "browser-captures: $n gemini scrape(s) in data/input/gemini/chat/browser-DOM — markdown is the terminal artifact (browse via ./corpus-yoga server start); not validated"
+    ok "chat-capture: $n gemini scrape(s) in data/input/gemini/chat/DOM-capture — markdown is the terminal artifact (browse via ./corpus-yoga server start); not validated"
   else
-    info "browser-captures: no gemini scrapes in data/input/gemini/chat/browser-DOM — captured only via: ./corpus-yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
+    info "chat-capture: no gemini scrapes in data/input/gemini/chat/DOM-capture — captured only via: ./corpus-yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
   fi
 
   n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/bulk-export"/data-*/)"
   if [[ "$n" -gt 0 ]]; then
-    ok "chat-exports: $n bulk export(s) in data/input/claude/chat/bulk-export — will validate, extract, atomise, render"
+    ok "chat-export: $n bulk export(s) in data/input/claude/chat/bulk-export — will validate, extract, atomise, render"
   else
-    info "chat-exports: no data-* bulk export in data/input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
+    info "chat-export: no data-* bulk export in data/input/claude/chat/bulk-export — will skip (download via https://claude.ai/settings/data-privacy-controls)"
   fi
 
-  # Per declared provider (rsc/provider/providers.csv): the code-agents store this
+  # Per declared provider (rsc/provider/providers.csv): the code-transport store this
   # machine holds, and the live harness mount the census and capture read (#628),
   # ext/mnt/agent/<provider> (#636).
   local p_name p_live p_mount p_served p_store p_remedy p_store_remedy p_rows
@@ -545,18 +545,18 @@ check_pipeline_inputs() {
       n="$(count_glob_dirs "$REPO_ROOT/$p_store"/*/)"
       # The session count is the adapter's, which reads a machine's directory as sessions in
       # the provider's own shape (a gemini session is two transcripts and a database, not a
-      # .jsonl); what happens to the store is the code-agents pipeline's declaration,
-      # src/main/pipeline/code-agents/pipeline.json, whose input names one provider's store.
+      # .jsonl); what happens to the store is the code-transport pipeline's declaration,
+      # src/main/pipeline/code-transport/pipeline.json, whose input names one provider's store.
       local sessions p_read
       sessions="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import transport; a = transport.adapter(sys.argv[2]); store = Path(sys.argv[3]); print(sum(len(a.held_sessions(m)) for m in sorted(store.iterdir()) if m.is_dir()) if a else "?")' "$REPO_ROOT/src/main/cli/agent" "$p_name" "$REPO_ROOT/$p_store")"
-      p_read="$("$REPO_ROOT/src/run_python_script.sh" -c 'import json, sys; print("yes" if json.load(open(sys.argv[1]))["input"] == sys.argv[2] else "no")' "$REPO_ROOT/src/main/pipeline/code-agents/pipeline.json" "$p_store")"
+      p_read="$("$REPO_ROOT/src/run_python_script.sh" -c 'import json, sys; print("yes" if json.load(open(sys.argv[1]))["input"] == sys.argv[2] else "no")' "$REPO_ROOT/src/main/pipeline/code-transport/pipeline.json" "$p_store")"
       if [[ "$p_read" == yes ]]; then
-        ok "code-agents: $p_store holds $n machine(s), $sessions session(s) — will convert + validate into tmp/cache/"
+        ok "code-transport: $p_store holds $n machine(s), $sessions session(s) — will convert + validate into tmp/cache/"
       else
-        ok "code-agents: $p_store holds $n machine(s), $sessions session(s) — held; the code-agents pipeline does not read this store yet (#635)"
+        ok "code-transport: $p_store holds $n machine(s), $sessions session(s) — held; the code-transport pipeline does not read this store yet (#635)"
       fi
     else
-      info "code-agents: no $p_store store yet — will skip; $p_store_remedy"
+      info "code-transport: no $p_store store yet — will skip; $p_store_remedy"
     fi
     [[ -n "$p_live" && -n "$p_mount" ]] || continue
     if [[ -d "${p_live/#\~/$HOME}" ]]; then

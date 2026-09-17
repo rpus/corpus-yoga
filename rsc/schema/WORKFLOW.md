@@ -40,7 +40,7 @@ end of the file files the note under the *oldest* version instead: done wrongly 
 five families during the 2026-07-23 re-rooting, and caught only by checking placement
 afterwards. Some families pre-seed the section with `None.`; fill that rather than adding a
 second `#### Refactored` under the same version. The `RichLink.source` entry in
-`rsc/schema/pipeline/chat-exports/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,
+`rsc/schema/pipeline/chat-export/claude/conversations/CHANGELOG.md` is the worked precedent: what changed,
 in which versions, "No validation effect", and what was deliberately left untouched.
 
 If a new export or capture fails validation against the current latest version, that is the
@@ -101,13 +101,13 @@ the bulk export's whole array), a **singular** family validates *one unit*
 ### 1. Identify the failure
 
 ```bash
-src/main/pipeline/browser-captures/claude/validate.sh --browser-capture data/input/claude/chat/browser-API/<uuid>
-src/main/pipeline/chat-exports/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
-src/main/pipeline/code-agents/run.sh        --code-agent  data/input/claude/code/machine-transport/<machine>/<project>
+src/main/pipeline/chat-capture/claude/validate.sh --capture data/input/claude/chat/API-capture/<uuid>
+src/main/pipeline/chat-export/validate.sh      --chat-export   data/input/claude/chat/bulk-export/<batch>
+src/main/pipeline/code-transport/run.sh        --item        data/input/claude/code/machine-transport/<machine>/<project>
 ```
 
-(code-agents converts each `.jsonl` before validating, so its runnable unit is the
-project run.sh; `validate.sh --code-agent-session` takes the *tmp/cache/* session dir, not data/input/.)
+(code-transport converts each `.jsonl` before validating, so its runnable unit is the
+project run.sh; `validate.sh --session` takes the *tmp/cache/* session dir, not data/input/.)
 
 Read the validation log in `tmp/cache/<pipeline>/<subject>/validation/<schema>/vN.log`.
 
@@ -153,7 +153,7 @@ A definition the root does not reach is declared, never tolerated:
 `structure.all_definitions_reachable` reads `unreachable.csv` (name, reason)
 beside the family's version file and fails on an undeclared unreachable
 definition, on a declared name the root reaches, and on a declared name that is
-no definition. `rsc/schema/pipeline/chat-exports/claude/conversations/unreachable.csv` declares
+no definition. `rsc/schema/pipeline/chat-export/claude/conversations/unreachable.csv` declares
 the three API tool inputs no export has carried;
 `rsc/schema/mcp/mcpMessage/unreachable.csv` the result union no message
 carries (#588).
@@ -163,9 +163,9 @@ carries (#588).
 Re-run the pipeline to generate validation logs for the new version:
 
 ```bash
-src/main/pipeline/browser-captures/run.sh --browser-api data/input/claude/chat/browser-API
-src/main/pipeline/chat-exports/run.sh     --chat-exports     data/input/claude/chat/bulk-export
-src/main/pipeline/code-agents/run.sh    --code-agents    data/input/claude/code/machine-transport
+src/main/pipeline/chat-capture/run.sh   --input data/input/claude/chat/API-capture
+src/main/pipeline/chat-export/run.sh    --input data/input/claude/chat/bulk-export
+src/main/pipeline/code-transport/run.sh --input data/input/claude/code/machine-transport
 ```
 
 Validation runs each datum against its family's LATEST version only - the latest
@@ -231,8 +231,8 @@ review is incomplete.
 Open `rsc/model/model_join.csv` and:
 
 1. **Pointers name no versions** — every cell is a versioned FAMILY DIR relative
-   to the repo root (`rsc/schema/pipeline/chat-exports/claude/conversations#/definitions/…`,
-   `rsc/schema/pipeline/code-agents/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
+   to the repo root (`rsc/schema/pipeline/chat-export/claude/conversations#/definitions/…`,
+   `rsc/schema/pipeline/code-transport/claude/session#/definitions/…`, `rsc/reference/mcp#/$defs/…` -
    each fragment spelling the container its family's latest file spells).
    `check_schema_join` resolves a schema family against its LATEST version and a
    reference project against its lineage (`src/main/latest.py`), so a mint costs this file
@@ -389,7 +389,7 @@ corpus-yoga model        # both loops in numbers: obligations (gating) and unrec
 ```
 
 This step is falsifiable, not "if needed". Occurrence paths use the de-versioned
-family-dir grammar (`chat-exports/conversations`, resolved against the family's latest
+family-dir grammar (`chat-export/conversations`, resolved against the family's latest
 version — `model_join.csv`'s grammar), and `check_model_occurrences` gates both the
 grammar and that every instance pointer still resolves — a mint that renames a
 documented field fails there, the review prompt.

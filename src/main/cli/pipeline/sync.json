@@ -13,8 +13,8 @@
     "rsc/schema"
   ],
   "w": [
-    "tmp/cache/browser-captures",
-    "tmp/cache/chat-exports",
-    "tmp/cache/code-agents"
+    "tmp/cache/chat-capture",
+    "tmp/cache/chat-export",
+    "tmp/cache/code-transport"
   ]
 }

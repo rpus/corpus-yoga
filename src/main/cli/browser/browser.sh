@@ -32,7 +32,7 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # and what is missing without touching Safari or writing anything — the same audit
 # `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
 status() {
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/browser-captures/audit.py" \
+  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/chat-capture/audit.py" \
     --input "$REPO_DIR/data/input" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }
@@ -77,8 +77,8 @@ main() {
   fi
 
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  mkdir -p "$REPO_DIR/data/input/claude/chat/browser-API"
-  mkdir -p "$REPO_DIR/data/input/gemini/chat/browser-DOM"
+  mkdir -p "$REPO_DIR/data/input/claude/chat/API-capture"
+  mkdir -p "$REPO_DIR/data/input/gemini/chat/DOM-capture"
 
   # The extent, read off the one declaration: which providers, by which mechanisms.
   # Two restrictions can intersect to nothing, and that is an answer — reported with

@@ -71,7 +71,7 @@ def rows_from_logs(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, 
     """(schema, item, latest version) → (✓/✗/?, bytes) from the LATEST version's log under
     one datum's validation/ directory - the latest version is the schema, the rest is
     history (#557), so an older vN.log left beside it is not a row. `item` is the inner
-    subject for nested layouts (chat-exports projects), '' otherwise. This is the source
+    subject for nested layouts (chat-export projects), '' otherwise. This is the source
     of truth the datum's matrix.md renders."""
     rows: dict[tuple[str, str, str], tuple[str, int]] = {}
     vdir = datum_dir / 'validation'

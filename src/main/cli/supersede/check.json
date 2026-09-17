@@ -2,11 +2,11 @@
   "help": "compute supersession — which earlier export dirs are covered (witnessed or deposited); reports, writes nothing",
   "args": [
     {
-      "name": "--chat-exports-cache",
+      "name": "--chat-export-cache",
       "type": "<dir>",
       "cardinality": "",
       "help": "cache root holding <export>/json/ atomised pieces",
-      "default": "tmp/cache/chat-exports"
+      "default": "tmp/cache/chat-export"
     },
     {
       "name": "--bulk-exports",
@@ -16,10 +16,10 @@
       "default": "data/input/claude/chat/bulk-export"
     },
     {
-      "name": "--browser-api",
+      "name": "--api-capture",
       "type": "<dir>",
       "cardinality": "",
-      "help": "browser-API root: also compare the latest export against live captures (informational)"
+      "help": "API-capture root: also compare the latest export against live captures (informational)"
     },
     {
       "name": "--memories-output",
@@ -36,11 +36,11 @@
       "default": "data/output/markdown/claude/chat/summaries"
     }
   ],
-  "step": "chat-exports",
+  "step": "chat-export",
   "r": [
-    "tmp/cache/chat-exports",
+    "tmp/cache/chat-export",
     "data/input/claude/chat/bulk-export",
-    "data/input/claude/chat/browser-API",
+    "data/input/claude/chat/API-capture",
     "data/output/memories",
     "data/output/markdown/claude/chat/summaries",
     "rsc/naming/export_dir_vintages.csv"

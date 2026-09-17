@@ -2,8 +2,8 @@
 """
 project_markdown.py — Render conversations to flat markdown, one <name>.md per conversation,
 from either source:
-  browser-capture  data/input/claude/chat/browser-API/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
-  bulk-export      tmp/cache/chat-exports/<batch>/json/<name>.json                  (the atomised pieces;
+  browser-capture  data/input/claude/chat/API-capture/<uuid>/apiConversation.json   (named <ordinal>-<slug>)
+  bulk-export      tmp/cache/chat-export/<batch>/json/<name>.json                  (the atomised pieces;
                                                                                run atomise_bulk.py first)
 
 The markdown CLI over the shared primitives in src/main/markdown_projection.py. Markdown is
@@ -14,9 +14,9 @@ invalid/degenerate conversations are rendered honestly and flagged.
 
 Usage (output defaults per pipeline/batch; --out overrides):
   src/run_python_script.sh src/main/model/project_markdown.py \
-    --browser-api data/input/claude/chat/browser-API              # -> data/output/markdown/claude/chat/conversations/
+    --api-capture data/input/claude/chat/API-capture              # -> data/output/markdown/claude/chat/conversations/
   src/run_python_script.sh src/main/model/project_markdown.py \
-    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> tmp/cache/chat-exports/<batch>/markdown/
+    --bulk-export data/input/claude/chat/bulk-export/<batch>                       # -> tmp/cache/chat-export/<batch>/markdown/
 """
 import argparse
 import json
@@ -32,14 +32,14 @@ sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import (REPO, project, ordered, find_api_json, render,
                                  md_validator, tree_problems, deposit, conv_id)
 
-sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'chat-exports'))
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'pipeline' / 'chat-export'))
 from supersede import export_time  # noqa: E402 — the one export-ordering authority
 
 
 def _newest_batch_json():
     """The newest ATOMISED export's json/ dir (by export_time, the one ordering
     authority), or None where no batch has been atomised."""
-    cache = REPO / 'tmp' / 'cache' / 'chat-exports'
+    cache = REPO / 'tmp' / 'cache' / 'chat-export'
     atomised = [d for d in cache.glob('data-*') if (d / 'json').is_dir()]
     if not atomised:
         return None
@@ -125,16 +125,16 @@ def write_markdown(named_convs, out_dir):
 def main():
     ap = argparse.ArgumentParser()
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument('--browser-api', help='dir of <uuid>/ apiConversation capture folders')
+    src.add_argument('--api-capture', help='dir of <uuid>/ apiConversation capture folders')
     src.add_argument('--bulk-export', help='a bulk-export batch dir whose atomised json/ pieces are rendered')
     ap.add_argument('--out', help='output dir (default: tmp/cache/<pipeline>/[<batch>/]markdown)')
     args = ap.parse_args()
 
-    if args.browser_api:
+    if args.api_capture:
         # browser captures: same canonical <ordinal>-<slug> ordering (created_at) as the bulk
         # pieces. Provenance cross-checks against the newest atomised export batch (offline,
         # local — staleness vs claude.ai live stays audit --live's job).
-        apis = [api for d in sorted(p for p in Path(args.browser_api).iterdir() if p.is_dir())
+        apis = [api for d in sorted(p for p in Path(args.api_capture).iterdir() if p.is_dir())
                 if (api := find_api_json(d)) is not None]
         other = _newest_batch_json()
         other_index = (_msg_index(json.loads(f.read_text()) for f in sorted(other.glob('*.json')))
@@ -150,14 +150,14 @@ def main():
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
         # Provenance cross-checks the other way: against the capture corpus, when present.
         batch = Path(args.bulk_export)
-        json_dir = REPO / 'tmp' / 'cache' / 'chat-exports' / batch.name / 'json'
+        json_dir = REPO / 'tmp' / 'cache' / 'chat-export' / batch.name / 'json'
         if not json_dir.is_dir():
             sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
-        captures = REPO / 'data' / 'input' / 'claude' / 'chat' / 'browser-API'
+        captures = REPO / 'data' / 'input' / 'claude' / 'chat' / 'API-capture'
         cap_apis = ([api for d in sorted(p for p in captures.iterdir() if p.is_dir())
                      if (api := find_api_json(d)) is not None] if captures.is_dir() else None)
         other_index = _msg_index(cap_apis) if cap_apis else None
-        other_name = 'data/input/claude/chat/browser-API' if cap_apis else None
+        other_name = 'data/input/claude/chat/API-capture' if cap_apis else None
         # no summaries link here: tmp/cache/ stems renumber per batch, so a relative
         # link into data/output/'s stem-named folders would dangle
         named = ((f.stem, lean, tree_problems(c['chat_messages']),
@@ -166,7 +166,7 @@ def main():
                  for f in sorted(json_dir.glob('*.json'))
                  for c in (json.loads(f.read_text()),)
                  for lean in (project(c),))
-        out = Path(args.out) if args.out else REPO / 'tmp' / 'cache' / 'chat-exports' / batch.name / 'markdown'
+        out = Path(args.out) if args.out else REPO / 'tmp' / 'cache' / 'chat-export' / batch.name / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
     print(f"rendered {n_ok} conversations to {out} ({n_bad} invalid, {n_empty} empty)")

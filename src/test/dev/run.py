@@ -112,7 +112,7 @@ import grammar as grammar_module  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
 import frontier  # noqa: E402 — subject recency + vN.log reading, shared with bare `corpus-yoga model` (#373)
 
-sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-exports'))  # the shared deposit rule (check_accumulate_contract)
+sys.path.insert(0, str(SRC / 'main' / 'pipeline' / 'chat-export'))  # the shared deposit rule (check_accumulate_contract)
 import accumulate as _accumulate  # noqa: E402 — the CALCULUS accumulate operation (issue #22)
 
 sys.path.insert(0, str(SRC / 'main' / 'cli' / 'indexing'))  # index curation machinery
@@ -324,8 +324,8 @@ def check_required_files(run):
     # asserting those same paths exist is tautological (it requires whatever is present); a missing
     # schema dir simply has no versions and is invisible to the family walks instead.
     required = [
-        *[PIPELINE_ROOT / name / 'validate.sh' for name in PIPELINES if name != 'browser-captures'],
-        PIPELINE_ROOT / 'browser-captures' / 'claude' / 'validate.sh',
+        *[PIPELINE_ROOT / name / 'validate.sh' for name in PIPELINES if name != 'chat-capture'],
+        PIPELINE_ROOT / 'chat-capture' / 'claude' / 'validate.sh',
         SRC  / 'main' / 'validate.py',
         SRC  / 'main' / 'model' / 'gen_model_candidate.py',
         SRC  / 'main' / 'model' / 'model.py',
@@ -360,6 +360,20 @@ def check_pipeline_declarations(run) -> None:
             None if not errors else
             f'{errors[0].message} at {"/".join(str(x) for x in errors[0].path) or "(root)"}',
             check='structure.pipeline_declaration_validates')
+        # The name states the input (#667): the pipeline <channel>-<act> reads
+        # data/input/<provider>/<channel>/<qualifier>-<act>, of a declared provider.
+        declared = json.loads(decl.read_text()).get('input', '')
+        channel, _, act = name.partition('-')
+        parts = declared.split('/')
+        stated = (len(parts) == 5 and parts[:2] == ['data', 'input']
+                  and parts[2] in provider.provider_names()
+                  and parts[3] == channel and '-' in parts[4]
+                  and parts[4].rsplit('-', 1)[1] == act)
+        run(f'pipeline: {name}: name states its input', stated,
+            None if stated else
+            f'{declared} is not data/input/<provider>/{channel}/<qualifier>-{act} of a declared provider - '
+            f'a pipeline is named <channel>-<act>, singular, for the directories it reads',
+            check='structure.pipeline_name_states_input')
         run_sh = PIPELINE_ROOT / name / 'run.sh'
         run(f'pipeline: {name}: implements run.sh', run_sh.is_file(),
             None if run_sh.is_file() else
@@ -373,7 +387,7 @@ def check_step_imports(run) -> None:
     (#333): the run.sh steps exec these under python, so an unresolvable sys.path
     insert or import inside them is a commit-time defect the tiers' cache reads
     cannot see. Each import runs in a FRESH interpreter, because this process's
-    own sys.path (pipeline/chat-exports is already on it for the accumulate
+    own sys.path (pipeline/chat-export is already on it for the accumulate
     check) resolves the very imports a dangling insert would strand — an
     in-process import of the #333 defect passed. Both modules are
     __main__-guarded, so importing executes only their top level."""
@@ -589,7 +603,7 @@ def check_cache_io(run) -> None:
             'READ but not WRITTEN — a tmp/cache/ dependency nothing produces; name its '
             'producer in written_by, or the tmp/cache/ contract breaks' if read_no_writer else None, check='cache_io.read_implies_writer')
         # Every producer/reader RESOLVES — a rename that strands one (how
-        # tmp/cache/browser-captures/markdown happened) fails here, not silently.
+        # tmp/cache/chat-capture/markdown happened) fails here, not silently.
         unresolved = [e for e in r['written_by'] + r['read_by']
                       if not _cache_io_resolves(e, commands)]
         run(f'cache_io: {r["cache_path"]}: producers/readers resolve', not unresolved,
@@ -1691,7 +1705,7 @@ def check_schema_join(run):
         check='model.join_kind_declared')
     fails: list[str] = []
     # One grammar, one base: every cell is a versioned family dir relative to the
-    # repo root ('rsc/schema/pipeline/chat-exports/claude/conversations#…', 'rsc/reference/mcp#…'),
+    # repo root ('rsc/schema/pipeline/chat-export/claude/conversations#…', 'rsc/reference/mcp#…'),
     # resolved against its latest version or lineage (src/main/latest.py). No per-column
     # tribal knowledge to resolve a cell.
     _check_csv_pointers(join,
@@ -2000,7 +2014,7 @@ def check_provider_registry(run) -> None:
         run('provider: registry parses: rsc/provider/providers.csv', bool(declared),
             None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')
     named: dict[str, set[str]] = {}
-    for tree in ('src/main/cli/browser', 'src/main/pipeline/browser-captures', 'src/main/cli/agent'):
+    for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):
         for d in sorted((REPO_ROOT / tree).iterdir()):
             if d.is_dir() and d.name != '__pycache__':
                 named.setdefault(d.name, set()).add(f'{tree}/{d.name}/')
@@ -2289,7 +2303,7 @@ def check_capture_monotone(run) -> None:
         with tempfile.TemporaryDirectory() as td:
             base = Path(td)
             dl = base / 'downloads'
-            dest = base / 'input' / 'gemini' / 'chat' / 'browser-DOM' / 'abc123'
+            dest = base / 'input' / 'gemini' / 'chat' / 'DOM-capture' / 'abc123'
             logs = base / 'logs'
             for d in (dl, dest, logs):
                 d.mkdir(parents=True)
@@ -2331,7 +2345,7 @@ def check_capture_monotone(run) -> None:
 
 
 def check_accumulate_contract(run) -> None:
-    """The shared accumulate operation (src/main/pipeline/chat-exports/accumulate.py) obeys
+    """The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
     the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
     the content differs from the NEAREST EARLIER deposit, so the store records a
     trajectory, not a set. The design turns on cases a byte-set would get wrong —
