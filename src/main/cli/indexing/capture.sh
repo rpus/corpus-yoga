@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # capture.sh (corpus-yoga indexing capture) — the PAID semantic reading of the corpus:
-# the model re-reads every conversation for the two index tables, weighted
-# concepts (inferred-semantic-concepts.json — the candidates' feedstock) and the
+# the model reads the conversation list (the numbered titles, provider-marked) for the two index tables, weighted
+# concepts (inferred-semantic-concepts.json — the indexing queue's feedstock) and the
 # chat-to-category assignment (inferred-chat-categories.json — a categorical index the
 # site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
@@ -271,6 +271,10 @@ capture_dashboard() {
     capture_concepts_to "$chats" "$stage/inferred-semantic-concepts.json"
     validate_capture "$stage/inferred-semantic-concepts.json" semanticConcepts
     echo "  ✓ inferred-semantic-concepts.json ($(jq '.rows | length' "$stage/inferred-semantic-concepts.json") concepts)"
+    # What the call bought, judged now (#644): the index's own scan says which concepts
+    # anchor in a conversation turn and by which phrasings; the rest are named here, the
+    # one place their spend is visible, and never reach the queue.
+    "$REPO_DIR/src/run_python_script.sh" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import indexing; indexing.anchor_report(Path(sys.argv[2]), Path(sys.argv[3]))' "$SCRIPT_DIR" "$stage/inferred-semantic-concepts.json" "$conv"
   fi
   if [[ "$want_categories" == 1 ]]; then
     capture_chat_categories "$conv" "$chats" "$categories" "$stage/inferred-chat-categories.json"

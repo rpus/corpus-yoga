@@ -1,5 +1,5 @@
 {
-  "help": "derive tmp/cache/indexing/candidate-semantic-concepts.txt (the candidates: the captured concepts not yet accepted or rejected)",
+  "help": "derive tmp/cache/indexing/candidate-semantic-concepts.txt (the candidates of undisposed concepts, each with the aliases that anchor it in a conversation turn; a concept no turn phrases is named, not queued)",
   "args": [
     {
       "name": "--top",
@@ -9,7 +9,8 @@
     }
   ],
   "r": [
-    "data/output/indexing"
+    "data/output/indexing",
+    "data/output/markdown"
   ],
   "w": [
     "tmp/cache/indexing"
