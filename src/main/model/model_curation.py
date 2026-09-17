@@ -54,18 +54,13 @@ OBLIGATING_KINDS = ('identical', 'snake_cased')
 
 
 def latest_versions() -> dict:
-    """{'<pipeline>/<family>': its latest vN.json} over every versioned family."""
+    """{'<address under rsc/schema>': its latest vN.json} over every versioned family,
+    found by walking for a directory that holds a v*.json, at any depth (#632)."""
     out = {}
-    for pipe in sorted(SCHEMA_DIR.iterdir()):
-        if not pipe.is_dir():
-            continue
-        for fam in sorted(pipe.iterdir()):
-            if not fam.is_dir():
-                continue
-            versions = sorted(fam.glob('v*.json'),
-                              key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
-            if versions:
-                out[f'{pipe.name}/{fam.name}'] = versions[-1]
+    for fam in sorted({v.parent for v in SCHEMA_DIR.rglob('v*.json')}):
+        versions = sorted(fam.glob('v*.json'),
+                          key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
+        out[fam.relative_to(SCHEMA_DIR).as_posix()] = versions[-1]
     return out
 
 
@@ -208,9 +203,9 @@ def identity_violations() -> list:
 # model_join's path columns, by the family each addresses — the prefill's map.
 # A collision touching a family outside these four still lists it in the
 # worksheet's families column; the row's path cells carry what the table can.
-COLUMN_FAMILY = {'conversations_path': 'chat-exports/conversations',
-                 'session_path': 'code-agents/session',
-                 'apiConversation_path': 'browser-captures/apiConversation',
+COLUMN_FAMILY = {'conversations_path': 'pipeline/chat-exports/claude/conversations',
+                 'session_path': 'pipeline/code-agents/claude/session',
+                 'apiConversation_path': 'pipeline/browser-captures/claude/apiConversation',
                  'mcp_path': None}          # a reference project, never scanned for shared names
 SCHEMA_ROOT_PREFIX = 'rsc/schema/'
 

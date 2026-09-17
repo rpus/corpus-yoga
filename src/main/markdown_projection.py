@@ -26,7 +26,7 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-MD_SCHEMA = REPO / 'rsc' / 'schema' / 'browser-captures' / 'markdownConversation' / 'v3.json'
+MD_SCHEMA = REPO / 'rsc' / 'schema' / 'markdownConversation' / 'v3.json'
 
 
 def turn_text(msg):

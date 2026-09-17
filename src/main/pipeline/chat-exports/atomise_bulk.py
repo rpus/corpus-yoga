@@ -32,7 +32,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO, ordered
-CONV_SCHEMAS = REPO / 'rsc' / 'schema' / 'chat-exports' / 'conversations'
+CONV_SCHEMAS = REPO / 'rsc' / 'schema' / 'pipeline' / 'chat-exports' / 'claude' / 'conversations'
 
 
 def conversation_validator():

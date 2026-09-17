@@ -49,14 +49,9 @@ def _catalogues() -> list[tuple[str, Path]]:
     """(family, schema-version file) for every versioned schema — the inventory
     that `project` writes and `status` reports, so the two can never disagree."""
     out = []
-    for pipeline_dir in sorted(SCHEMA_DIR.iterdir()):
-        if not pipeline_dir.is_dir():
-            continue
-        for schema_dir in sorted(pipeline_dir.iterdir()):
-            if not schema_dir.is_dir():
-                continue
-            for version in _sorted_versions(schema_dir):
-                out.append((schema_dir.name, version))
+    for schema_dir in sorted({v.parent for v in SCHEMA_DIR.rglob('v*.json')}):
+        for version in _sorted_versions(schema_dir):
+            out.append((schema_dir.name, version))
     return out
 
 

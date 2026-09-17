@@ -6,8 +6,8 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
-The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversation/)
-and have their own versioning. See [`rsc/schema/browser-captures/apiConversation/`](../../browser-captures/apiConversation/) for that schema's history.
+The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/pipeline/browser-captures/claude/apiConversation/`](../../../browser-captures/claude/apiConversation/)
+and have their own versioning. See [`rsc/schema/pipeline/browser-captures/claude/apiConversation/`](../../../browser-captures/claude/apiConversation/) for that schema's history.
 
 ---
 

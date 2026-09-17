@@ -1,4 +1,4 @@
-run.py: code+schema 1304/1304
+run.py: code+schema 1327/1327
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -93,6 +93,10 @@ run.py: code+schema 1304/1304
   ✓ grammar.unenforced_not_cited
   ✓ grammar.parent_law_defined
   ✓ grammar.enforcement_map
+
+── check_schema_layout ───────────────────────────────────────────────────────
+  ✓ schema.family_mirrors_writer  (14/14)
+  ✓ schema.pipeline_schema_placed  (9/9)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
   ✓ schema.valid_json_with_schema  (14/14)
@@ -197,27 +201,28 @@ check_cache_io                        20     0   code       71
 check_accumulate_contract              1     0   code       77
 check_capture_monotone                 4     0   code       80
 check_grammar_laws                    12     0   code       83
-check_schema_validity                 14     0   schema     97
-check_schema_meta_validity            14     0   schema    100
-check_schema_single_version           14     0   schema    103
-check_schema_changelogs               28     0   schema    106
-check_versioned_schema_diagnostics   347     0   schema    110
-check_schema_join                      2     0   schema    137
-check_model_join_versions              1     0   schema    141
-check_model_table                      1     0   schema    144
-check_model_occurrences                3     0   schema    147
-check_model_obligations              152     0   schema    152
-check_model_identity                   1     0   schema    156
-check_grammar                          2     0   schema    159
-check_provider_registry                2     0   code      162
-check_reference                       21     0   schema    166
-check_mcp_factoring                    9     0   schema    172
-check_mcp_reproducible                 1     0   schema    178
-check_expectation                      2     0   code      181
+check_schema_layout                   23     0   schema     97
+check_schema_validity                 14     0   schema    101
+check_schema_meta_validity            14     0   schema    104
+check_schema_single_version           14     0   schema    107
+check_schema_changelogs               28     0   schema    110
+check_versioned_schema_diagnostics   347     0   schema    114
+check_schema_join                      2     0   schema    141
+check_model_join_versions              1     0   schema    145
+check_model_table                      1     0   schema    148
+check_model_occurrences                3     0   schema    151
+check_model_obligations              152     0   schema    156
+check_model_identity                   1     0   schema    160
+check_grammar                          2     0   schema    163
+check_provider_registry                2     0   code      166
+check_reference                       21     0   schema    170
+check_mcp_factoring                    9     0   schema    176
+check_mcp_reproducible                 1     0   schema    182
+check_expectation                      2     0   code      185
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 116 types, 1304/1304 invocations passing
+checks[code+schema]: 118 types, 1327/1327 invocations passing
 checks[code]: 66 types, 694/694 invocations passing
-checks[schema]: 50 types, 610/610 invocations passing
+checks[schema]: 52 types, 633/633 invocations passing
 
-dev gate: PASS — code+schema 1304/1304 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1327/1327 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

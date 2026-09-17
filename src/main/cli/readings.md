@@ -8,10 +8,10 @@ inference exactly as a model's capture is; the repo privileges neither.
 
 The format authorities are the schemas, not this file:
 
-- `inferred-semantic-concepts.json` — `rsc/schema/indexing/semanticConcepts/` (latest
+- `inferred-semantic-concepts.json` — `rsc/schema/cli/indexing/semanticConcepts/` (latest
   version + CHANGELOG); the dashboard sizes its cloud by the weights, `indexing`
   borrows only the names as candidate headwords.
-- `inferred-chat-categories.json` — `rsc/schema/indexing/chatCategories/`; id-keyed so
+- `inferred-chat-categories.json` — `rsc/schema/cli/indexing/chatCategories/`; id-keyed so
   identity survives renumbering; the palette is authored in `rsc/site/index.template.html`.
 - `accepted-semantic-concepts.txt` / `rejected-semantic-concepts.txt` — headword and disposal formats in
   `corpus-yoga indexing --help`; every captured concept must reach one of them.

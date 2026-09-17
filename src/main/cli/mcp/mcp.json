@@ -5,6 +5,6 @@
   "args": [],
   "r": [
     "rsc/reference/mcp",
-    "rsc/schema/protocol"
+    "rsc/schema/mcp"
   ]
 }

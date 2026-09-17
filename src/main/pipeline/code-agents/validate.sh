@@ -23,7 +23,7 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # latest_version_file (#557)
-SCHEMA_ROOT="$REPO_DIR/rsc/schema/code-agents"
+SCHEMA_ROOT="$REPO_DIR/rsc/schema/pipeline/code-agents"   # the pipeline's families: claude/<family> for the captured record and the memory, sessionConversation at the root (#632)
 
 parse_args() {
   session_dir=""
@@ -62,14 +62,14 @@ main() {
   if [[ "$enumerate" == "1" ]]; then
     if [[ -n "$session_dir" ]]; then
       local session; session="$(basename "$session_dir")"
-      enumerate_family "$session_dir/session.json" session \
+      enumerate_family "$session_dir/session.json" claude/session \
         "$session_dir/validation/session" "$session"
       enumerate_family "$session_dir/conversation.json" sessionConversation \
         "$session_dir/validation/sessionConversation" "$session"
     fi
     if [[ -n "$memory_dir" ]]; then
       local project; project="$(basename "$(dirname "$memory_dir")")"
-      enumerate_family "$memory_dir/memory.json" projectMemory \
+      enumerate_family "$memory_dir/memory.json" claude/projectMemory \
         "$memory_dir/validation/projectMemory" "$project/memory"
     fi
     return 0
@@ -78,7 +78,7 @@ main() {
   if [[ -n "$session_dir" ]]; then
     local session; session="$(basename "$session_dir")"
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
-      "$session_dir/session.json" "$SCHEMA_ROOT/session" \
+      "$session_dir/session.json" "$SCHEMA_ROOT/claude/session" \
       "$session_dir/validation/session" "$session"
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
       "$session_dir/conversation.json" "$SCHEMA_ROOT/sessionConversation" \
@@ -87,7 +87,7 @@ main() {
   if [[ -n "$memory_dir" ]]; then
     local project; project="$(basename "$(dirname "$memory_dir")")"
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
-      "$memory_dir/memory.json" "$SCHEMA_ROOT/projectMemory" \
+      "$memory_dir/memory.json" "$SCHEMA_ROOT/claude/projectMemory" \
       "$memory_dir/validation/projectMemory" "$project/memory"
   fi
 }

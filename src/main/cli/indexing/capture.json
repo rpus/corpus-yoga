@@ -29,7 +29,7 @@
   },
   "r": [
     "data/output/markdown",
-    "rsc/schema/indexing",
+    "rsc/schema/cli/indexing",
     "rsc/site/index.template.html"
   ],
   "w": [

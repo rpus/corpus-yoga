@@ -39,6 +39,10 @@ v9
 
 #### Refactored
 
+- The family description (v10, in place) names the bulk-export family at its address since
+  2026-09-16 (#632), `rsc/schema/pipeline/chat-exports/claude/conversations/`, the layout
+  by writer then provider that also moved this family to
+  `rsc/schema/pipeline/browser-captures/claude/`. No validation effect.
 - Schema typing rationalised, 2026-09-08 (reading-room), judged against the
   documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
   `ApiHumanMessage` and `ApiAssistantMessage` state `type: object` like every

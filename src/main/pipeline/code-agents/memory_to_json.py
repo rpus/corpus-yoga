@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 memory_to_json.py — JSONify one project's memory/ directory into memory.json,
-the projectMemory datum (rsc/schema/code-agents/projectMemory).
+the projectMemory datum (rsc/schema/pipeline/code-agents/claude/projectMemory).
 
 A project's memory/ (under data/input/claude/code/machine-transport/<machine>/<project>/, the repo-owned
 store transport populates) is an index (MEMORY.md, one '- [Title](file.md) — hook'
