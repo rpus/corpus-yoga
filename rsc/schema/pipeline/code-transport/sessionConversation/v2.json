@@ -35,7 +35,7 @@
      "minLength": 1
     },
     "title": {
-     "description": "The LAST ai-title record's aiTitle — the same dressing authority agent.py's census uses; '' where the session never received one (every observed local session is titled; the empty case is reachable by construction).",
+     "description": "The session's title as its harness gives one — claude: the LAST ai-title record's aiTitle, the same dressing authority agent.py's census uses; gemini: the summary row's title; '' where the session never received one (every observed local session is titled; the empty case is reachable by construction).",
      "type": "string"
     },
     "project": {
@@ -43,15 +43,15 @@
      "type": "string"
     },
     "session_id": {
-     "description": "The session's uuid — the .jsonl stem, the session's identity everywhere (tmp/cache/ dirs, transported copies, corpus frontmatter).",
+     "description": "The session's uuid — the name its harness stores it under (claude: the .jsonl stem; gemini: the session directory), the session's identity everywhere (tmp/cache/ dirs, transported copies, corpus frontmatter).",
      "$ref": "#/definitions/UuidV4"
     },
     "created": {
-     "description": "The earliest record timestamp in the WHOLE session (ISO 8601, milliseconds, Z) — the session's span, not the projected turns': ordering authority for corpus ordinals.",
+     "description": "The earliest record timestamp in the WHOLE session (ISO 8601, Z, to the precision the harness records: claude milliseconds, gemini seconds) — the session's span, not the projected turns': ordering authority for corpus ordinals.",
      "type": "string"
     },
     "last_activity": {
-     "description": "The latest record timestamp in the WHOLE session (ISO 8601, milliseconds, Z) — a session that ends in tool work still ends then.",
+     "description": "The latest record timestamp in the WHOLE session (ISO 8601, Z, to the harness's precision) — a session that ends in tool work still ends then.",
      "type": "string"
     },
     "messages": {
@@ -93,7 +93,7 @@
      ]
     },
     "timestamp": {
-     "description": "The source record's timestamp (ISO 8601, milliseconds, Z).",
+     "description": "The source record's timestamp (ISO 8601, Z, to the harness's precision).",
      "type": "string"
     },
     "content": {

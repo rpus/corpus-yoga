@@ -17,7 +17,9 @@
     }
   },
   "subject_depth": 3,
-  "diagnostic_skip": [
-    "composition.base_schemas_closed"
-  ]
+  "diagnostic_skip": {
+    "claude/session": [
+      "composition.base_schemas_closed"
+    ]
+  }
 }

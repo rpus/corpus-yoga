@@ -35,6 +35,10 @@ v1
 - The family description names no one provider: what projects is each provider's own rule,
   stated in its `project_conversation.py`; claude's follows as before. The corpus root reads
   `data/output/markdown/<provider>/code/conversations/`. No validation effect.
+- `title`, `session_id`, `created`, `last_activity` and `Message.timestamp` say what each
+  is for either provider: the title's source, the name the harness stores the session
+  under, and timestamps to the harness's own precision (claude milliseconds, gemini
+  seconds). No validation effect.
 
 ## v1
 

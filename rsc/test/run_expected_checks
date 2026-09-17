@@ -124,6 +124,7 @@ structure.pipeline_implements_run
 structure.pipeline_mechanism_whole
 structure.pipeline_name_states_input
 structure.pipeline_provider_served
+structure.pipeline_skip_names_family
 structure.required_subset_of_properties
 structure.self_path_matches_address
 templates.teach_signature

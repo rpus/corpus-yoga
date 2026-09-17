@@ -135,7 +135,7 @@ class Pipeline:
     subject_depth:    int
     extra_input_glob: str
     providers:        list[str]
-    diagnostic_skip:  frozenset[str]
+    diagnostic_skip:  dict[str, frozenset[str]]
 
     @property
     def changelog(self) -> Path:
@@ -162,7 +162,7 @@ def _load_pipeline(directory: Path) -> Pipeline:
         subject_depth    = facts['subject_depth'],
         extra_input_glob = facts.get('extra_input_glob', ''),
         providers        = sorted(facts.get('provider', {})),
-        diagnostic_skip  = frozenset(facts['diagnostic_skip']),
+        diagnostic_skip  = {family: frozenset(skips) for family, skips in facts['diagnostic_skip'].items()},
     )
 
 
@@ -347,6 +347,11 @@ def check_pipeline_declarations(run) -> None:
             None if not errors else
             f'{errors[0].message} at {"/".join(str(x) for x in errors[0].path) or "(root)"}',
             check='structure.pipeline_declaration_validates')
+        undeclared = sorted(set(PIPELINES[name].diagnostic_skip) - set(PIPELINES[name].schemas))
+        run(f'pipeline: {name}: every diagnostic skip names a declared family', not undeclared,
+            None if not undeclared else
+            f'diagnostic_skip names {", ".join(undeclared)}, no entry of schemas - a skip licenses one declared family',
+            check='structure.pipeline_skip_names_family')
         # The name states the input (#667): the pipeline <channel>-<act> reads
         # data/input/<provider>/<channel>/<qualifier>-<act>, of a declared provider.
         declared = json.loads(decl.read_text()).get('input', '')
@@ -1657,8 +1662,8 @@ def check_grammar_laws(run, cited: dict) -> None:
 
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-    schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / s: p.diagnostic_skip
-                       for p in PIPELINES.values() for s in p.schemas}
+    schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
+                       for p in PIPELINES.values() for family, skips in p.diagnostic_skip.items()}
 
     schema_dirs = _schema_families()
     # One jobs list across every family, one _call_many: a per-family dispatch
