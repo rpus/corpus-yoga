@@ -7,10 +7,10 @@ tmp/cache workshop (subject_dirs), and a family's versions in numeric order
 validates at its family's latest version - is the audit's (#557,
 src/main/validation_audit.py), stated per datum from the latest version's log.
 
-Recency is pipeline-specific because the corpora differ: chat-exports orders
+Recency is pipeline-specific because the corpora differ: chat-export orders
 by its export-dir name's vintage (supersede's export_time, the one ordering
-authority over rsc/naming/export_dir_vintages.csv); browser-captures the
-capture's updated_at; code-agents the max record timestamp in the session
+authority over rsc/naming/export_dir_vintages.csv); chat-capture the
+capture's updated_at; code-transport the max record timestamp in the session
 .jsonl. Keys compare only within one pipeline, so mixed key types across
 pipelines are fine.
 
@@ -29,7 +29,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))  # cache_io - the declared tmp/cache IO registry
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # supersede - the one export-ordering authority
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # supersede - the one export-ordering authority
 import cache_io  # noqa: E402
 from supersede import export_time  # noqa: E402
 

@@ -1,14 +1,14 @@
 {
   "summary": "Deposit every distinct chat-memory state; render the timeline",
-  "target": "src/main/pipeline/chat-exports/memories.py",
+  "target": "src/main/pipeline/chat-export/memories.py",
   "calculus": "accumulate normalise project L1 L4",
   "args": [
     {
-      "name": "--chat-exports-cache",
+      "name": "--chat-export-cache",
       "type": "<dir>",
       "cardinality": "",
       "help": "atomised batch cache — the archived memory-state source",
-      "default": "tmp/cache/chat-exports"
+      "default": "tmp/cache/chat-export"
     },
     {
       "name": "--memories-output",

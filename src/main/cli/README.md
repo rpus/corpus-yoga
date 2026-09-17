@@ -37,7 +37,7 @@ cannot drift from the helptext, because there is one source, not two — nothing
 no check. A flag is scoped to its verb (`cache`'s `--dry-run` lists orphans under `clean`,
 prints producer commands under `sync`); `subcommand` blank is command-level, `arg-name` blank
 describes the verb itself. The `step` column, set on a verb's own row, marks that invocation
-as a step of the named run pipeline (`chat-exports`), or of `pipeline.sh`'s whole-corpus
+as a step of the named run pipeline (`chat-export`), or of `pipeline.sh`'s whole-corpus
 tail (`corpus`) — the reduce that runs once (after every pipeline, for an operation whose
 input spans them all): the gate holds `src/main/cli/pipeline/pipeline.sh --plan` to
 invoking it by command AND verb, so the plan speaks the surface you would type and a step can
@@ -169,7 +169,7 @@ They are stated, followed, and reviewed by people.
 - **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
   what the install ritual writes.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
-  verb.** `gated` `from L9` — never a per-batch one. The chat-exports pipeline is a map over batches
+  verb.** `gated` `from L9` — never a per-batch one. The chat-export pipeline is a map over batches
   (`run_one`) then a reduce over all of them (`run_tail`); the nouns live only in the
   reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`,
   `summaries`, `supersede` are exactly the `run_tail` steps, and the plan must name each

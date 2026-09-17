@@ -3,7 +3,7 @@
 present_corpus.py — render THE CORPUS dashboard: data/output/site/index.html.
 
 The batch presenter (present.sh) renders ONE EXPORT's presentation under
-tmp/cache/chat-exports/<batch>/presentation — an export artifact, honestly filed under
+tmp/cache/chat-export/<batch>/presentation — an export artifact, honestly filed under
 its export. This is the corpus one: the keys are corpus_index's 1..N ordinals
 over data/output/markdown (every source, claude first — the same numbers the book index,
 the NN- filenames, and rekey_chats speak), the two captured tables come from
@@ -44,11 +44,11 @@ REPO = _root[0]
 SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE = REPO / 'rsc' / 'site' / 'index.template.html'
 # The library's address and migration note come from library.py, the one authority (#421)
-CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'   # source-scoped helpers stay there (#407)
+CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-export'   # source-scoped helpers stay there (#407)
 MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))
-sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-exports'))  # library.py — the artifact library's owner
+sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
 from word_freq_literal import words_from, filtered, tables  # noqa: E402 — one tokenizer for both presenters

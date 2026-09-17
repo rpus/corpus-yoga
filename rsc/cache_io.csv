@@ -1,7 +1,7 @@
 cache_path,pipeline,written_by,read_by,note
-tmp/cache/browser-captures/claude,browser-captures,corpus-yoga pipeline run browser-captures,src/test/dev/run.py,per-capture apiConversation validation logs and matrix (browser-captures pipeline)
-tmp/cache/chat-exports,chat-exports,corpus-yoga pipeline run chat-exports,src/main/pipeline/chat-exports/supersede.py; src/test/dev/run.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
-tmp/cache/code-agents,code-agents,corpus-yoga pipeline run code-agents,src/main/pipeline/code-agents/render_corpus.py; src/test/dev/run.py,converted sessions; conversation.json; memory.json; validation logs; matrices
+tmp/cache/chat-capture/claude,chat-capture,corpus-yoga pipeline run chat-capture,src/test/dev/run.py,per-capture apiConversation validation logs and matrix (chat-capture pipeline)
+tmp/cache/chat-export,chat-export,corpus-yoga pipeline run chat-export,src/main/pipeline/chat-export/supersede.py; src/test/dev/run.py,validation logs; matrices; archived components; atomised json; extracted files and heredocs; per-batch presentations
+tmp/cache/code-transport,code-transport,corpus-yoga pipeline run code-transport,src/main/pipeline/code-transport/render_corpus.py; src/test/dev/run.py,converted sessions; conversation.json; memory.json; validation logs; matrices
 tmp/cache/completions,,corpus-yoga completions sync,external:zsh; src/main/cli/prerequisites/prerequisites.sh,static zsh tab-completion derived from src/main/cli/
 tmp/cache/site,,corpus-yoga site render,,the data tables feeding the corpus page (render staging) — feedstock only (re-derived each run; the finished page lands in data/output/site/)
 tmp/cache/indexing,,corpus-yoga indexing list-candidates; corpus-yoga indexing capture,external:human; corpus-yoga indexing accept; corpus-yoga indexing reject,the candidate list (candidate-semantic-concepts.txt) and the paid capture's staging before promotion to data/output/indexing; a rebuildable derivation of data/output/indexing minus data/output/indexing curation

@@ -11,7 +11,7 @@
       "name": "item",
       "type": "<item>",
       "cardinality": "",
-      "help": "one input item under that pipeline's root (bare: the whole root); passed to the pipeline's own singular flag"
+      "help": "one input item under that pipeline's root (bare: the whole root); passed to the pipeline's run.sh as --item"
     },
     {
       "name": "--plan",
@@ -34,9 +34,9 @@
     "machine-name.txt"
   ],
   "w": [
-    "tmp/cache/browser-captures",
-    "tmp/cache/chat-exports",
-    "tmp/cache/code-agents",
+    "tmp/cache/chat-capture",
+    "tmp/cache/chat-export",
+    "tmp/cache/code-transport",
     "data/output/markdown",
     "data/output/memories"
   ],

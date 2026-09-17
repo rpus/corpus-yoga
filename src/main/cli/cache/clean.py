@@ -9,7 +9,7 @@ output). A path under tmp/cache/ that is neither an owned subtree, nor inside on
 nor an ancestor of one (a parent kept only to reach owned children) is
 RESIDUE: a former output whose producer moved or was renamed — e.g. the
 projected markdown that moved to data/output/markdown/claude/chat/conversations, orphaning
-tmp/cache/browser-captures/markdown; or a tmp/cache/<old-name>/ left by a pipeline rename.
+tmp/cache/chat-capture/markdown; or a tmp/cache/<old-name>/ left by a pipeline rename.
 
 "Not written AND not read" is the criterion — coverage by the machinery in
 either direction is what makes a tmp/cache/ path live. Being derived, an orphan is

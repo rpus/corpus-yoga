@@ -1,9 +1,9 @@
 {
   "help": "deposit new distinct states and re-render — idempotent (the only write)",
   "args": [],
-  "step": "chat-exports",
+  "step": "chat-export",
   "r": [
-    "tmp/cache/chat-exports",
+    "tmp/cache/chat-export",
     "rsc/naming/memory_deposit_vintages.csv"
   ],
   "w": [

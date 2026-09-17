@@ -1,21 +1,21 @@
 {
   "summary": "Deposit every distinct summary reading; render each conversation's index",
-  "target": "src/main/pipeline/chat-exports/summaries.py",
+  "target": "src/main/pipeline/chat-export/summaries.py",
   "calculus": "accumulate project L1 L4",
   "args": [
     {
-      "name": "--chat-exports-cache",
+      "name": "--chat-export-cache",
       "type": "<dir>",
       "cardinality": "",
       "help": "atomised batch cache",
-      "default": "tmp/cache/chat-exports"
+      "default": "tmp/cache/chat-export"
     },
     {
-      "name": "--browser-api",
+      "name": "--api-capture",
       "type": "<dir>",
       "cardinality": "",
-      "help": "browser-API root — the rolling capture source",
-      "default": "data/input/claude/chat/browser-API"
+      "help": "API-capture root — the rolling capture source",
+      "default": "data/input/claude/chat/API-capture"
     },
     {
       "name": "--conversations-output",

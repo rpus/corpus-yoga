@@ -11,8 +11,8 @@ provider lacks selects nothing, which is reported rather than substituted for.
 
 Each mechanism deposits under its own root — the capture axis of the corpus type
 system (data/input/<provider>/<channel>/<capture>/):
-  browser-API : data/input/<provider>/chat/browser-API/<id>/<id>.json
-  browser-DOM : data/input/<provider>/chat/browser-DOM/<id>/<title>.md  (+ gemini's ordering.txt)
+  API-capture : data/input/<provider>/chat/API-capture/<id>/<id>.json
+  DOM-capture : data/input/<provider>/chat/DOM-capture/<id>/<title>.md  (+ gemini's ordering.txt)
 The same conversation id names the capture dir under both roots — the id is the join.
 
 Discovery (the conversation-id listing) is shared: navigate to the provider's listing URL and scroll.
@@ -34,8 +34,8 @@ assets it names (uploads), the latter deposited into the artifact library
 (data/output/artifacts/claude/chat/downloaded/) when absent — see complete_files.
 
 Usage:
-    python capture.py --provider claude                   [--browser-api  data/input/claude/chat/browser-API]
-    python capture.py --provider gemini --id <id>         [--browser-dom  data/input/gemini/chat/browser-DOM]
+    python capture.py --provider claude                   [--api-capture  data/input/claude/chat/API-capture]
+    python capture.py --provider gemini --id <id>         [--dom-capture  data/input/gemini/chat/DOM-capture]
 """
 import argparse
 import json
@@ -477,10 +477,10 @@ def main():
     ap.add_argument('--scope', action='store_true',
                     help='print the providers and mechanisms the restrictions select, then stop — '
                          'so a caller reads the scope off the declaration instead of restating it')
-    ap.add_argument('--browser-api', default=None,
-                    help='browser-API root (default: data/input/<provider>/chat/browser-API)')
-    ap.add_argument('--browser-dom', default=None,
-                    help='browser-DOM root (default: data/input/<provider>/chat/browser-DOM)')
+    ap.add_argument('--api-capture', default=None,
+                    help='API-capture root (default: data/input/<provider>/chat/API-capture)')
+    ap.add_argument('--dom-capture', default=None,
+                    help='DOM-capture root (default: data/input/<provider>/chat/DOM-capture)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -540,8 +540,8 @@ def main():
             raise SystemExit(1)
 
     # one root per mechanism in scope; dirs appear only when captured into
-    api_root = Path(args.browser_api or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'browser-API').resolve()
-    dom_root = Path(args.browser_dom or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'browser-DOM').resolve()
+    api_root = Path(args.api_capture or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'API-capture').resolve()
+    dom_root = Path(args.dom_capture or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
     if 'DOM' in mechanisms:

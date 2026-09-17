@@ -82,7 +82,7 @@ def _library():
     corpus dressing map, imported lazily so gemini sweeps never touch it."""
     global _LIBRARY
     if _LIBRARY is None:
-        sys.path.insert(0, str(REPO_DIR / 'src' / 'main' / 'pipeline' / 'chat-exports'))
+        sys.path.insert(0, str(REPO_DIR / 'src' / 'main' / 'pipeline' / 'chat-export'))
         from library import dir_for, migration_note  # noqa: E402 — one authority (#421)
         from markdown_projection import corpus_index  # noqa: E402
         migration_note()

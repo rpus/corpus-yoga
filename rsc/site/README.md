@@ -17,7 +17,7 @@ each file here says by its name which verb reads it (#650):
   slots from the corpus and writes `data/output/site/index.html`, its URL
   position - the one file in the publish tree that `site sync` never touches.
   The per-batch pages (`present.sh`) fill the same template and stay in the
-  workshop under `tmp/cache/chat-exports/<batch>/presentation/`. A finished page
+  workshop under `tmp/cache/chat-export/<batch>/presentation/`. A finished page
   fetches nothing at runtime: this repo only ever projects the corpus as it
   stands in `data/input/`.
 

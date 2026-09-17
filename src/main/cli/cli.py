@@ -47,6 +47,8 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
+from member import members  # noqa: E402
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
@@ -63,9 +65,9 @@ def _declared_commands() -> list[str]:
     """Every command, from the tree itself — one directory each. Sorted, because a listing
     has no other order to be in; uniqueness needs no check because a directory cannot hold
     two entries of one name (G4, by construction). This level also holds the schemas, the
-    two documents, and the machinery sources; the one non-command DIRECTORY is python's
-    __pycache__, excluded by name — the gate polices any other stray."""
-    return sorted(p.name for p in CLI.iterdir() if p.is_dir() and p.name != '__pycache__')
+    two documents, and the machinery sources; a directory holding nothing but bytecode
+    is no command (member.py, #669) — the gate polices any other stray."""
+    return [p.name for p in members(CLI)]
 
 
 def commands() -> list[dict]:

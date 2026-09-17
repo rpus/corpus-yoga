@@ -23,7 +23,7 @@ sets the exit status.
 
 Usage:
   src/run_python_script.sh src/main/model/compare_sources.py \
-    --browser-api data/input/claude/chat/browser-API \
+    --api-capture data/input/claude/chat/API-capture \
     --bulk-export data/input/claude/chat/bulk-export/<batch> [--diff]
 
 Exit status is non-zero iff any shared conversation is capture-stale or divergent.
@@ -66,8 +66,8 @@ def api_by_uuid(captures_dir):
 
 def bulk_by_uuid(batch_dir):
     """The bulk side, read from the per-conversation json/ pieces project_markdown atomised out of
-    the array (tmp/cache/chat-exports/<batch>/json/) -- the 24 MB array itself is never re-read here."""
-    json_dir = REPO / 'tmp' / 'cache' / 'chat-exports' / Path(batch_dir).name / 'json'
+    the array (tmp/cache/chat-export/<batch>/json/) -- the 24 MB array itself is never re-read here."""
+    json_dir = REPO / 'tmp' / 'cache' / 'chat-export' / Path(batch_dir).name / 'json'
     if not json_dir.is_dir():
         sys.exit(f"no atomised json/ at {json_dir}; "
                  f"run project_markdown.py --bulk-export {batch_dir} first")
@@ -81,12 +81,12 @@ def bulk_by_uuid(batch_dir):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--browser-api', required=True, help='dir of <uuid>/ capture folders')
+    ap.add_argument('--api-capture', required=True, help='dir of <uuid>/ capture folders')
     ap.add_argument('--bulk-export', required=True, help='a bulk-export batch dir (reads its atomised json/ pieces)')
     ap.add_argument('--diff', action='store_true', help='print full per-conversation unified diffs')
     args = ap.parse_args()
 
-    api, api_names, api_summ = api_by_uuid(args.browser_api)
+    api, api_names, api_summ = api_by_uuid(args.api_capture)
     bulk, bulk_names, bulk_summ = bulk_by_uuid(args.bulk_export)
     shared = set(api) & set(bulk)
 

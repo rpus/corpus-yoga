@@ -28,7 +28,7 @@ SELF='src/main/cli/indexing/capture.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-PIPELINE="$REPO_DIR/src/main/pipeline/chat-exports"   # the chat pipeline's helpers (timeline)
+PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
 MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"   # the shell face of YOGA_NO_SEND (#29)

@@ -46,7 +46,7 @@ REJECTED = MODEL_DIR / 'model_rejected.txt'
 
 JOIN_PATH_COLUMNS = ('conversations_path', 'session_path', 'apiConversation_path', 'mcp_path')
 # The obligating predicates: kinds that assert ONE type shared across families
-# (usually across pipelines, but the account-uuid edge is intra-chat-exports —
+# (usually across pipelines, but the account-uuid edge is intra-chat-export —
 # family is the grain, the PR #36 review's surviving nit). subset is
 # deliberately absent (related, not one type — a judgment call per edge);
 # name_collision emphatically so (its notes record false friends).
@@ -203,9 +203,9 @@ def identity_violations() -> list:
 # model_join's path columns, by the family each addresses — the prefill's map.
 # A collision touching a family outside these four still lists it in the
 # worksheet's families column; the row's path cells carry what the table can.
-COLUMN_FAMILY = {'conversations_path': 'pipeline/chat-exports/claude/conversations',
-                 'session_path': 'pipeline/code-agents/claude/session',
-                 'apiConversation_path': 'pipeline/browser-captures/claude/apiConversation',
+COLUMN_FAMILY = {'conversations_path': 'pipeline/chat-export/claude/conversations',
+                 'session_path': 'pipeline/code-transport/claude/session',
+                 'apiConversation_path': 'pipeline/chat-capture/claude/apiConversation',
                  'mcp_path': None}          # a reference project, never scanned for shared names
 SCHEMA_ROOT_PREFIX = 'rsc/schema/'
 
@@ -338,8 +338,8 @@ def emptiness_violations(repo: Path) -> list:
     definition's required keys are a subset of its own; the scan names the
     first falsifying file per edge. Rooms without the relevant corpus skip,
     stated by the caller."""
-    doc_roots = {'null_in_api': repo / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
-                 'null_in_export': repo / 'tmp' / 'cache' / 'chat-exports'}
+    doc_roots = {'null_in_api': repo / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
+                 'null_in_export': repo / 'tmp' / 'cache' / 'chat-export'}
     emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
     out = []
     for i, row in enumerate(_join_rows(), 2):

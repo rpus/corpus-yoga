@@ -121,6 +121,7 @@ structure.no_redundant_additional_properties_true
 structure.pattern_constraints_enforced
 structure.pipeline_declaration_validates
 structure.pipeline_implements_run
+structure.pipeline_name_states_input
 structure.required_subset_of_properties
 structure.self_path_matches_address
 templates.teach_signature

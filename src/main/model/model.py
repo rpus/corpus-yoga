@@ -92,8 +92,8 @@ def curation_report() -> None:
         print(f'FAIL: model_join row {line} ({kind}) no longer holds at latest - {cells}')
         print('    → a one-sided mint falsified the edge: re-judge its relationship kind '
               '(rsc/model/model_join_kinds.csv) or restore the identity in the schemas')
-    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
-                    REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
+    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
+                    REPO_ROOT / 'tmp' / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print(f'FAIL: model_join row {line} ({kind}) falsified by the corpus - '
@@ -101,7 +101,7 @@ def curation_report() -> None:
             print('    → the always-null note is stale: re-judge the edge '
                   '(rsc/model/model_join_kinds.csv names the kinds)')
     else:
-        print('model_join emptiness edges: unchecked — no browser-API or chat-exports '
+        print('model_join emptiness edges: unchecked — no API-capture or chat-export '
               'corpus in this room')
 
 
@@ -179,14 +179,14 @@ def list_candidates() -> None:
     for line, kind, cells in identity_violations():
         print(f'  falsified identity edge: row {line} ({kind}) - {cells} - re-judge '
               'the kind in rsc/model/model_join.csv or restore the identity')
-    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'browser-API',
-                    REPO_ROOT / 'tmp' / 'cache' / 'chat-exports')
+    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
+                    REPO_ROOT / 'tmp' / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print(f'  falsified emptiness edge: row {line} ({kind}) - {cell} carries '
                   f'a value in {datum} - re-judge the kind in rsc/model/model_join.csv')
     else:
-        print('  emptiness edges: unchecked - no browser-API or chat-exports corpus in this room')
+        print('  emptiness edges: unchecked - no API-capture or chat-export corpus in this room')
 
 
 def _disposal_rows(parser, args):
