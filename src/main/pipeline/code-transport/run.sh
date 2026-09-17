@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-# Convert and validate Claude Code CLI session transcripts, from the STORE.
+# Convert and validate code session transcripts, from each provider's STORE.
 #
-# The pipeline sources data/input/claude/code/machine-transport — the repo-owned, medium-carried store
-# (<machine>/<project>/<session>.jsonl + <project>/memory/) — and NEVER touches
-# the harness-owned ~/.claude/projects, which Anthropic expires at will.
-# `corpus-yoga agent capture --all` is the capture step that populates the store
-# from the live projects root; run it early and often.
+# The pipeline sources data/input/<provider>/code/machine-transport — the repo-owned,
+# medium-carried stores (<machine>/<project>/<session>) — for every provider that has a
+# mechanism directory beside this script and a row in rsc/provider/providers.csv (#635),
+# and NEVER touches a harness-owned live store, which its provider expires at will.
+# `corpus-yoga agent capture --all` is the capture step that populates the stores; run it
+# early and often. A provider's mechanism is three files under <provider>/:
+# list_sessions.sh, session_to_json.sh and project_conversation.py, and
+# memory_to_json.py where its projects carry a memory/ directory.
 #
 # Usage:
-#   src/main/pipeline/code-transport/run.sh --item  <path>   # one project: data/input/claude/code/machine-transport/<machine>/<project>
-#   src/main/pipeline/code-transport/run.sh --input <path>   # the whole store: data/input/claude/code/machine-transport
+#   src/main/pipeline/code-transport/run.sh --item  <path>   # one project: data/input/<provider>/code/machine-transport/<machine>/<project>
+#   src/main/pipeline/code-transport/run.sh --input <path>   # the stores: data/input/<provider>/code/machine-transport, <provider> literal or named
 #   src/main/pipeline/code-transport/run.sh --plan   # print the ordered step list; run nothing
 #
 # The step lists below (machine_housekeeping, run_one, run_memory, corpus) are the
@@ -48,10 +51,27 @@ parse_args() {
     echo "       $0 --input <path/to/store-root>"
     echo
     echo "  project-directory: a machine's project under the store, e.g.:"
-    echo "    data/input/claude/code/machine-transport/<machine>/\$(pwd | tr '/' '-')"
+    echo "    data/input/<provider>/code/machine-transport/<machine>/\$(pwd | tr '/' '-')"
     echo "Pass --help for more information."
     exit 1
   fi
+}
+
+# The providers this pipeline serves: a mechanism directory here AND a row of the registry.
+# The registry is the venv python's to read (#478); the pipeline runs after the mint.
+providers() {
+  local declared p
+  declared="$("$REPO_DIR/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print("\n".join(provider.provider_names()))' "$REPO_DIR/src/main")"
+  for p in $declared; do
+    [[ -x "$SCRIPT_DIR/$p/list_sessions.sh" ]] && echo "$p"
+  done
+  return 0
+}
+
+# The provider a store path belongs to: the segment under data/input.
+provider_of() {
+  local rest="${1#*"/data/input/"}"
+  echo "${rest%%/*}"
 }
 
 prune_departed() {
@@ -60,24 +80,25 @@ prune_departed() {
   # session.json's mtime when content is unchanged for the same reason. cache
   # derivations die with their STORE datum — and the store is repo-owned, so
   # a departure there was a deliberate disposal, never harness expiry.
-  local project_dir="$1" machine="$2" name="$3"
-  for existing in "$CACHE_DIR/$machine/$name"/*/; do
+  local project_dir="$1" machine="$2" name="$3" provider="$4" held source
+  held="$("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir" 2>/dev/null | while IFS= read -r source; do basename "${source%.jsonl}"; done)"
+  for existing in "$CACHE_DIR/$provider/$machine/$name"/*/; do
     [[ -d "$existing" ]] || continue
     local sess; sess="$(basename "${existing%/}")"
     if [[ "$sess" == "memory" ]]; then
       [[ -d "${project_dir%/}/memory" ]] || rm -rf "${existing:?}"
       continue
     fi
-    [[ -f "${project_dir%/}/$sess.jsonl" ]] || rm -rf "${existing:?}"
+    grep -qx -- "$sess" <<< "$held" || rm -rf "${existing:?}"
   done
 }
 
 prune_departed_projects() {
-  # A cache project dir whose store project is gone dies whole; a top-level cache
-  # dir that is not a machine in the store (the pre-store flat layout, or a
-  # removed machine) dies too — every cache path mirrors a store path or goes.
-  local store_root="$1"
-  for machine_dir in "$CACHE_DIR"/*/; do
+  # A cache project dir whose store project is gone dies whole; a cache dir under the
+  # provider that is not a machine in its store (a removed machine) dies too — every
+  # cache path mirrors a store path or goes.
+  local store_root="$1" provider="$2"
+  for machine_dir in "$CACHE_DIR/$provider"/*/; do
     [[ -d "$machine_dir" ]] || continue
     local machine; machine="$(basename "${machine_dir%/}")"
     if [[ ! -d "${store_root%/}/$machine" ]]; then
@@ -93,54 +114,57 @@ prune_departed_projects() {
 }
 
 machine_housekeeping() {
-  step prune_departed_gen prune_departed_projects "$1"
+  step prune_departed_gen prune_departed_projects "$1" "$2"
 }
 
 project_housekeeping() {
-  step prune_departed_sessions prune_departed "$1" "$2" "$3"
+  step prune_departed_sessions prune_departed "$1" "$2" "$3" "$4"
 }
 
 run_one() {
   # Conversion only: validation is enumerated store-wide and dispatched
   # per datum-version pair (#395), then rolled up per datum.
-  local jsonl="$1" machine="$2" project_name="$3"
-  local session; session="$(basename "${jsonl%.jsonl}")"
-  local out_dir="$CACHE_DIR/$machine/$project_name/$session"
+  local source="$1" machine="$2" project_name="$3" provider="$4"
+  local session; session="$(basename "${source%.jsonl}")"
+  local out_dir="$CACHE_DIR/$provider/$machine/$project_name/$session"
   step ensure_session_dir   mkdir -p "$out_dir"
-  step jsonl_to_json        "$SCRIPT_DIR/jsonl_to_json.sh" "$jsonl" "$out_dir/session.json"
-  step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/project_conversation.py" "$out_dir"
+  step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json" || return 1
+  step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
 }
 
 run_memory() {
-  local project_dir="$1" machine="$2" name="$3" guard="$4"
-  local out_dir="$CACHE_DIR/$machine/$name/memory"
+  local project_dir="$1" machine="$2" name="$3" guard="$4" provider="$5"
+  local out_dir="$CACHE_DIR/$provider/$machine/$name/memory"
   step_if "$guard" 'when the project has a memory/ dir' memory_to_json \
-    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
+    "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
 }
 
 # ── Dispatch workers (#395): one task each, machine/project derived from the
 # task itself — a worker learns nothing from scope, so any worker can take any
 # task. Output buffers per task; dispatch_emit restores enumeration order. ──
 
-# One session conversion. The task is the store path
-# (<store>/<machine>/<project>/<session>.jsonl); machine and project derive.
+# One session conversion. The task is the session's store path
+# (<store>/<machine>/<project>/<session>, a file or a directory as its provider
+# writes one); provider, machine and project derive.
 convert_one_session() {
-  local jsonl="$1" project_dir machine name
-  project_dir="$(dirname "$jsonl")"
+  local source="$1" project_dir machine name provider
+  project_dir="$(dirname "$source")"
   machine="$(basename "$(dirname "$project_dir")")"
   name="$(basename "$project_dir")"
-  echo "$machine/$name/$(basename "${jsonl%.jsonl}")"
-  run_one "$jsonl" "$machine" "$name"
+  provider="$(provider_of "$source")"
+  echo "$provider/$machine/$name/$(basename "${source%.jsonl}")"
+  run_one "$source" "$machine" "$name" "$provider"
 }
 
 # One memory conversion. The task is the store project dir; guard is by
 # construction — only projects holding memory/ are enumerated.
 convert_one_memory() {
-  local project_dir="$1" machine name
+  local project_dir="$1" machine name provider
   machine="$(basename "$(dirname "${project_dir%/}")")"
   name="$(basename "${project_dir%/}")"
-  echo "$machine/$name/memory"
-  run_memory "$project_dir" "$machine" "$name" 1
+  provider="$(provider_of "$project_dir")"
+  echo "$provider/$machine/$name/memory"
+  run_memory "$project_dir" "$machine" "$name" 1 "$provider"
 }
 
 # One datum-version pair. The task line is validate_versions.py --pair's argv,
@@ -157,15 +181,15 @@ TASK
 
 # One family roll-up: the dir face of validate.sh over pair logs that are all
 # current, so it relays verdicts (#363) and renders the matrix. The task is
-# "session<TAB><dir>" or "memory<TAB><dir>".
+# "session<TAB><provider><TAB><dir>" or "memory<TAB><provider><TAB><dir>".
 rollup_one() {
-  local kind dir
-  IFS="$(printf '\t')" read -r kind dir <<TASK
+  local kind provider dir
+  IFS="$(printf '\t')" read -r kind provider dir <<TASK
 $1
 TASK
   case "$kind" in
-    session) step validate        "$SCRIPT_DIR/validate.sh" --session "$dir" ;;
-    memory)  step validate_memory "$SCRIPT_DIR/validate.sh" --memory  "$dir" ;;
+    session) step validate        "$SCRIPT_DIR/validate.sh" --provider "$provider" --session "$dir" ;;
+    memory)  step validate_memory "$SCRIPT_DIR/validate.sh" --provider "$provider" --memory  "$dir" ;;
   esac
 }
 
@@ -180,22 +204,23 @@ corpus() {
 # dispatch_emit restores it, so YOGA_JOBS=1 and =N emit identical bytes.
 run_store() {
   local project_dirs=("$@")
-  local project_dir machine name
+  local project_dir machine name provider
 
   local jsonls=() memory_projects=() jsonl
   for project_dir in "${project_dirs[@]}"; do
     machine="$(basename "$(dirname "${project_dir%/}")")"
     name="$(basename "${project_dir%/}")"
-    echo "$machine/$name"
-    project_housekeeping "$project_dir" "$machine" "$name"
+    provider="$(provider_of "$project_dir")"
+    echo "$provider/$machine/$name"
+    project_housekeeping "$project_dir" "$machine" "$name" "$provider"
     local found=0
-    for jsonl in "${project_dir%/}"/*.jsonl; do
-      [[ -f "$jsonl" ]] || continue
+    while IFS= read -r jsonl; do
+      [[ -n "$jsonl" ]] || continue
       jsonls+=("$jsonl")
       found=1
-    done
-    [[ "$found" == "1" ]] || echo "  (no .jsonl files found)"
-    [[ -d "${project_dir%/}/memory" ]] && memory_projects+=("${project_dir%/}")
+    done < <("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir")
+    [[ "$found" == "1" ]] || echo "  (no sessions found)"
+    [[ -d "${project_dir%/}/memory" && -f "$SCRIPT_DIR/$provider/memory_to_json.py" ]] && memory_projects+=("${project_dir%/}")
   done
 
   if [[ ${#jsonls[@]} -gt 0 ]]; then
@@ -215,20 +240,22 @@ run_store() {
     machine="$(basename "$(dirname "$project_dir")")"
     name="$(basename "$project_dir")"
     session="$(basename "${jsonl%.jsonl}")"
-    out_dir="$CACHE_DIR/$machine/$name/$session"
+    provider="$(provider_of "$jsonl")"
+    out_dir="$CACHE_DIR/$provider/$machine/$name/$session"
     while IFS= read -r line; do
       pairs+=("$line")
-    done < <("$SCRIPT_DIR/validate.sh" --enumerate --session "$out_dir")
-    rollups+=("$(printf 'session\t%s' "$out_dir")")
+    done < <("$SCRIPT_DIR/validate.sh" --enumerate --provider "$provider" --session "$out_dir")
+    rollups+=("$(printf 'session\t%s\t%s' "$provider" "$out_dir")")
   done
   for project_dir in ${memory_projects[@]+"${memory_projects[@]}"}; do
     machine="$(basename "$(dirname "$project_dir")")"
     name="$(basename "$project_dir")"
-    out_dir="$CACHE_DIR/$machine/$name/memory"
+    provider="$(provider_of "$project_dir")"
+    out_dir="$CACHE_DIR/$provider/$machine/$name/memory"
     while IFS= read -r line; do
       pairs+=("$line")
-    done < <("$SCRIPT_DIR/validate.sh" --enumerate --memory "$out_dir")
-    rollups+=("$(printf 'memory\t%s' "$out_dir")")
+    done < <("$SCRIPT_DIR/validate.sh" --enumerate --provider "$provider" --memory "$out_dir")
+    rollups+=("$(printf 'memory\t%s\t%s' "$provider" "$out_dir")")
   done
 
   if [[ ${#pairs[@]} -gt 0 ]]; then
@@ -242,19 +269,24 @@ run_store() {
 }
 
 print_plan() {
-  echo "code-transport steps — once, against the store root:"
-  machine_housekeeping '<store-root>'
+  local provider mechanism
+  echo "code-transport steps — once per provider, against its store root:"
+  machine_housekeeping '<store-root>' '<provider>'
   echo "then per machine/project directory:"
-  project_housekeeping '<project-dir>' '<machine>' '<project>'
-  echo "then per session .jsonl, dispatched to the next free worker (#395):"
-  run_one '<session>.jsonl' '<machine>' '<project>'
-  echo "then per project with a memory/ dir, dispatched likewise:"
-  run_memory '<project-dir>' '<machine>' '<project>' '0'
+  project_housekeeping '<project-dir>' '<machine>' '<project>' '<provider>'
+  for mechanism in "$SCRIPT_DIR"/*/list_sessions.sh; do
+    provider="$(basename "$(dirname "$mechanism")")"
+    echo "then per $provider session, dispatched to the next free worker (#395):"
+    run_one '<session>' '<machine>' '<project>' "$provider"
+    [[ -f "$SCRIPT_DIR/$provider/memory_to_json.py" ]] || continue
+    echo "then per $provider project with a memory/ dir, dispatched likewise:"
+    run_memory '<project-dir>' '<machine>' '<project>' '0' "$provider"
+  done
   echo "then per datum-version pair across the run, dispatched likewise:"
   validate_one_pair "$(printf '<input>\t<schema-file>\t<log-dir>\t<label>')"
   echo "then per datum, the family roll-up, dispatched likewise:"
-  rollup_one "$(printf 'session\t<session-dir>')"
-  rollup_one "$(printf 'memory\t<memory-dir>')"
+  rollup_one "$(printf 'session\t<provider>\t<session-dir>')"
+  rollup_one "$(printf 'memory\t<provider>\t<memory-dir>')"
   echo "then once, after all projects:"
   corpus
 }
@@ -272,21 +304,28 @@ main() {
     return 0
   fi
 
-  if [[ ! -d "$code_projects" ]]; then
-    echo "no store at $code_projects (hand-make data/input/claude/code/machine-transport as a symlink to the shared store;"
-    echo "populate it via: corpus-yoga agent capture --all)"
-    exit 0
-  fi
-  local store_root; store_root="$(cd "$code_projects" && pwd)"
-  machine_housekeeping "$store_root"
-  local project_dirs=() machine_dir project_dir
-  for machine_dir in "$store_root"/*/; do
-    [[ -d "$machine_dir" ]] || continue
-    for project_dir in "${machine_dir%/}"/-Users-*/; do
-      [[ -d "$project_dir" ]] || continue
-      project_dirs+=("${project_dir%/}")
+  # Every served provider's store: <provider> in the path is each provider in turn, and
+  # a path naming one provider is that provider's alone.
+  local project_dirs=() machine_dir project_dir provider store store_root stores=0
+  for provider in $(providers); do
+    store="${code_projects//<provider>/$provider}"
+    [[ "$(provider_of "$store")" == "$provider" ]] || continue
+    if [[ ! -d "$store" ]]; then
+      echo "no store at ${store#"$REPO_DIR/"} — will skip (populate it via: corpus-yoga agent capture --provider $provider)"
+      continue
+    fi
+    stores=$((stores + 1))
+    store_root="$(cd "$store" && pwd)"
+    machine_housekeeping "$store_root" "$provider"
+    for machine_dir in "$store_root"/*/; do
+      [[ -d "$machine_dir" ]] || continue
+      for project_dir in "${machine_dir%/}"/*/; do
+        [[ -d "$project_dir" ]] || continue
+        project_dirs+=("${project_dir%/}")
+      done
     done
   done
+  if [[ "$stores" == "0" ]]; then exit 0; fi
   if [[ ${#project_dirs[@]} -gt 0 ]]; then
     run_store "${project_dirs[@]}"
   fi

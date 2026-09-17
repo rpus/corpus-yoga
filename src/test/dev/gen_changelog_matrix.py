@@ -17,6 +17,7 @@ Where <pipeline> is any key from PIPELINES in run.py.
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -30,7 +31,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — shared modules live at it
 from run import PIPELINES, REPO_ROOT, RSC_SCHEMA  # noqa: E402
 from validation_matrix import HEADER, render_rows, write_matrix  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))
-from validation_audit import datum_dirs  # noqa: E402 — the data gate's own enumeration (#535)
+from validation_audit import datum_dirs, sources  # noqa: E402 — the data gate's own enumeration (#535)
 
 
 def main():
@@ -43,7 +44,9 @@ def main():
     pipeline          = PIPELINES[args.pipeline]
     schema_parent_dir = RSC_SCHEMA / 'pipeline' / args.pipeline
 
-    dirs = datum_dirs(pipeline.cache_output, pipeline.subject_depth)
+    facts = json.loads((REPO_ROOT / 'src' / 'main' / 'pipeline' / args.pipeline / 'pipeline.json').read_text())
+    dirs = [d for _label, _input, cache_root, _globs in sources(args.pipeline, facts)
+            for d in datum_dirs(cache_root, pipeline.subject_depth)]
     if not dirs:
         sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
                  f'→ run: corpus-yoga pipeline run {args.pipeline}')

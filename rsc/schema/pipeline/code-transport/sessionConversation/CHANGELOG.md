@@ -6,6 +6,40 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v2
+
+Minted 2026-09-17 on home-room so that a gemini code session projects into this family
+beside claude's (#635). Validates the projections of the two captured Antigravity
+sessions, home-room's 5bb62af7 (2 turns) and reading-room's a821b300 (227 turns), and every claude
+session as before.
+
+### Replaces
+
+v1
+
+#### Restricted
+
+- `SessionConversation` requires `provider`, the provider whose harness recorded the
+  session, and `harness`, that harness's name: a conversation says whose it is, and the
+  render reads both from it and from nowhere else. Every projection is rewritten by its
+  provider's `project_conversation.py` on the run that brings this version.
+
+#### Relaxed
+
+- `Message.uuid` is optional. A claude record carries a uuid; an Antigravity step carries
+  none, its step indices repeating where the harness resumed the session, so a gemini
+  turn is anchored in the corpus by role and count, as a gemini chat's turns are.
+
+#### Refactored
+
+- The family description names no one provider: what projects is each provider's own rule,
+  stated in its `project_conversation.py`; claude's follows as before. The corpus root reads
+  `data/output/markdown/<provider>/code/conversations/`. No validation effect.
+- `title`, `session_id`, `created`, `last_activity` and `Message.timestamp` say what each
+  is for either provider: the title's source, the name the harness stores the session
+  under, and timestamps to the harness's own precision (claude milliseconds, gemini
+  seconds). No validation effect.
+
 ## v1
 
 Inaugural version, minted 2026-07-11 from the six local sessions (two projects).

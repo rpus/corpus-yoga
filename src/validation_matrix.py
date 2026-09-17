@@ -39,7 +39,7 @@ def log_bytes(log_text: str) -> int:
     return int(m.group(1)) if m else 0
 
 
-def family_dir(root: Path, schema: str) -> Path | None:
+def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path | None:
     """The one address of a family under a pipeline's schema root, rsc/schema/pipeline/<pipeline>
     (#632): directly, or at the provider's segment where the family's instances are one
     provider's. A pipeline's declaration (src/main/pipeline/<pipeline>/pipeline.json,
@@ -49,6 +49,14 @@ def family_dir(root: Path, schema: str) -> Path | None:
     declaration = root.parents[3] / 'src' / 'main' / 'pipeline' / root.name / 'pipeline.json'
     declared = json.loads(declaration.read_text())['schemas'] if declaration.is_file() else []
     named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
+    if len(named) > 1 and datum_dir is not None:
+        # two providers' families of one name (#635): the datum sits under its provider's
+        # directory of the cache, tmp/cache/<pipeline>/<provider>/..., and the family under
+        # the same segment of the schema root - that one segment, never any component, or a
+        # machine or project named for a provider would match both
+        parts = datum_dir.parts
+        under = [parts[i + 2] for i in range(len(parts) - 2) if parts[i:i + 2] == ('cache', root.name)]
+        named = [f for f in named if under and f.relative_to(root).parts[0] == under[-1]]
     hits = named or [d for d in sorted(root.glob(schema)) + sorted(root.glob(f'*/{schema}'))
                      if d.is_dir() and list(d.glob('v*.json'))]
     return hits[0] if len(hits) == 1 else None
@@ -64,9 +72,9 @@ def family_root(schema_dir: Path) -> Path:
     return schema_dir.parent
 
 
-def latest_version(schema_parent_dir: Path, schema: str) -> str | None:
+def latest_version(schema_parent_dir: Path, schema: str, datum_dir: Path | None = None) -> str | None:
     """The family's latest version stem (vN), by numeric order; None if it has none."""
-    d = family_dir(schema_parent_dir, schema)
+    d = family_dir(schema_parent_dir, schema, datum_dir)
     if d is None:
         return None
     versions = sorted(d.glob('v*.json'), key=lambda f: [int(x) for x in re.findall(r'\d+', f.stem)])
@@ -85,7 +93,7 @@ def rows_from_logs(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, 
         return rows
     for schema_dir in sorted(d for d in vdir.iterdir() if d.is_dir()):
         schema = schema_dir.name
-        latest = latest_version(schema_parent_dir, schema)
+        latest = latest_version(schema_parent_dir, schema, datum_dir)
         if latest is None:
             continue
         direct = schema_dir / f'{latest}.log'
@@ -112,7 +120,7 @@ def render_rows(datum_dir: Path, schema_parent_dir: Path) -> list[str]:
     for key in sorted(rows, key=_row_sort_key):
         schema, item, version = key
         symbol, nbytes = rows[key]
-        fam       = family_dir(schema_parent_dir, schema)
+        fam       = family_dir(schema_parent_dir, schema, datum_dir)
         assert fam is not None, f'{schema}: no family under {schema_parent_dir}'   # rows_from_logs admitted it
         vfile     = fam / f'{version}.json'
         rel       = os.path.relpath(vfile, datum_dir)

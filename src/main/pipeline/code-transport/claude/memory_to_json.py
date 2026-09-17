@@ -21,7 +21,7 @@ the shape the memory format prescribes, not general YAML; anything beyond it
 should fail validation loudly rather than parse silently.
 
 Usage:
-    src/run_python_script.sh src/main/pipeline/code-transport/memory_to_json.py \
+    src/run_python_script.sh src/main/pipeline/code-transport/claude/memory_to_json.py \
         <memory-dir> <output.json>
 """
 import json
