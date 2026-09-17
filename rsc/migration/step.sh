@@ -39,6 +39,16 @@ remove() {
   if (( APPLY )); then rm "$link"; fi
 }
 
+# discard <directory>: a directory of rebuildable cache at a retired address, removed with
+# what it holds; only under tmp/cache, where every file is a derivation some verb rewrites.
+discard() {
+  local dir="$1"
+  [[ "$dir" == tmp/cache/* ]] || { echo "FAIL: discard $dir - only a directory under tmp/cache is discarded" >&2; exit 1; }
+  [[ -d "$dir" && ! -L "$dir" ]] || return 0
+  echo "rm -r $dir"
+  if (( APPLY )); then rm -r "$dir"; fi
+}
+
 # retire <directory>: a directory nothing writes any more, removed once empty - bare,
 # once the moves stated above it would have emptied it; a directory still holding
 # files is named and left.

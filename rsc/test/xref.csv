@@ -104,8 +104,10 @@ rsc/migration/655.sh,2,comment,rsc/migration/655.sh,Y,# rsc/migration/655.sh - t
 rsc/migration/655.sh,6,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/667.sh,2,comment,rsc/migration/667.sh,Y,"# rsc/migration/667.sh - a pipeline is named <channel>-<act>, singular, and reads the"
 rsc/migration/667.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
+rsc/migration/672.sh,2,comment,rsc/migration/672.sh,Y,# rsc/migration/672.sh - a family's catalogue sits under tmp/cache/model/catalogue at the
+rsc/migration/672.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/README.md,1,doc,rsc/migration,Y,# rsc/migration - the moves a rename owes the machine-local roots
-rsc/migration/README.md,15,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
+rsc/migration/README.md,16,doc,rsc/naming,Y,"rsc/naming holds the grammars of names that arrive from outside the repository, which"
 rsc/migration/step.sh,2,comment,rsc/migration/step.sh,Y,"# rsc/migration/step.sh - the steps a migration script is made of, sourced by each"
 rsc/model/model_join.csv,2,path_str,rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ContentBlock,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ContentBlock,rsc/schema/pipeline/code-transport/claude"
 rsc/model/model_join.csv,2,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/ContentBlock,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ContentBlock,rsc/schema/pipeline/code-transport/claude"
@@ -892,10 +894,11 @@ src/main/model/gen_model_candidate.py,15,comment,rsc/schema/pipeline/code-transp
 src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v10
 src/main/model/gen_model_candidate.py,16,comment,rsc/schema/pipeline/chat-capture/claude/apiConversation/v10.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v10
 src/main/model/model.py,3,comment,rsc/model/model.json,Y,"model.py — per-schema definition catalogues, candidates for rsc/model/model.json."
-src/main/model/model.py,5,comment,rsc/model/model.json,Y,rsc/schema/{pipeline}/{schema}/). rsc/model/model.json is hand-curated from these.
-src/main/model/model.py,27,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
-src/main/model/model.py,90,path_str,rsc/model/model_join.csv,Y,print('rsc/model/model_join.csv — every cross-family shared name disposed')
-src/main/model/model.py,67,path_str,rsc/model/model.json,Y,print(f'rsc/model/model.json — {len(documented())} documented · {len(rejected())} rejected · '
+src/main/model/model.py,5,comment,rsc/model/model.json,Y,"versioned schema, keyed as rsc/model/model.json keys a family (#672), so two providers'"
+src/main/model/model.py,6,comment,rsc/model/model.json,Y,families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
+src/main/model/model.py,29,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
+src/main/model/model.py,104,path_str,rsc/model/model_join.csv,Y,print('rsc/model/model_join.csv — every cross-family shared name disposed')
+src/main/model/model.py,81,path_str,rsc/model/model.json,Y,print(f'rsc/model/model.json — {len(documented())} documented · {len(rejected())} rejected · '
 src/main/model/model_curation.py,4,comment,rsc/model/model.json,Y,"rsc/model/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/model/model_rejected.txt,Y,rsc/model/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
 src/main/model/model_curation.py,33,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'
@@ -1193,6 +1196,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/audit/README.md,Y,
 ,,self_only,rsc/migration/655.sh,Y,
 ,,self_only,rsc/migration/667.sh,Y,
+,,self_only,rsc/migration/672.sh,Y,
 ,,,rsc/migration/README.md,Y,
 ,,,rsc/reference/JSONSchema/README.md,Y,
 ,,,rsc/reference/JSONSchema/draft-04/CHANGELOG.md,Y,
