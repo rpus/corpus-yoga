@@ -1,13 +1,22 @@
 {
   "schemas": [
     "claude/session",
+    "gemini/session",
     "sessionConversation",
     "claude/projectMemory"
   ],
-  "input": "data/input/claude/code/machine-transport",
-  "input_glob": "*/-Users-*/*.jsonl",
+  "input": "data/input/<provider>/code/machine-transport",
+  "provider": {
+    "claude": {
+      "input_glob": "*/*/*.jsonl",
+      "extra_input_glob": "*/*/memory/"
+    },
+    "gemini": {
+      "input_glob": "*/*/*/",
+      "extra_input_glob": ""
+    }
+  },
   "subject_depth": 3,
-  "extra_input_glob": "*/-Users-*/memory/",
   "diagnostic_skip": [
     "composition.base_schemas_closed"
   ]

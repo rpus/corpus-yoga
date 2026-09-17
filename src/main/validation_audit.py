@@ -70,14 +70,30 @@ def input_subjects(input_root: Path, globs: list[str], depth: int) -> list:
     return sorted(result)
 
 
+def sources(name: str, facts: dict) -> list[tuple[str, Path, Path, list[str]]]:
+    """(label, input root, cache root, globs) for each store a pipeline reads: one, or one
+    per provider where the declared input carries <provider> (#635) - the cache then
+    holds a directory per provider under the pipeline's root."""
+    cache_root = REPO / cache_io.path_for(name)
+    if '<provider>' not in facts['input']:
+        globs = [g for g in (facts['input_glob'], facts.get('extra_input_glob', '')) if g]
+        return [(name, REPO / facts['input'], cache_root, globs)]
+    return [(f'{name}/{p}', REPO / facts['input'].replace('<provider>', p), cache_root / p,
+             [g for g in (f['input_glob'], f.get('extra_input_glob', '')) if g])
+            for p, f in sorted(facts['provider'].items())]
+
+
 def audit(name: str, facts: dict) -> int:
+    """Every store the pipeline reads, judged alike; returns the number of FAIL atoms."""
+    return sum(audit_source(name, label, input_root, cache_root, globs, facts['subject_depth'])
+               for label, input_root, cache_root, globs in sources(name, facts))
+
+
+def audit_source(pipeline: str, name: str, input_root: Path, cache_root: Path, globs: list[str], depth: int) -> int:
     """One pipeline's judgments; returns the number of FAIL atoms stated. The latest
     version is the schema (#557): every datum validates at each family's latest, its
     matrix agrees with that log, and every input entry has validation output."""
-    cache_root = REPO / cache_io.path_for(name)
-    input_root = REPO / facts['input']
-    schema_parent = SCHEMA_ROOT / 'pipeline' / name
-    depth = facts['subject_depth']
+    schema_parent = SCHEMA_ROOT / 'pipeline' / pipeline
     fails = 0
     if not cache_root.is_dir() or not any(cache_root.iterdir()):
         print(f'{name}: no validation output in this room - nothing to audit')
@@ -102,22 +118,21 @@ def audit(name: str, facts: dict) -> int:
         mfile = datum_dir / 'matrix.md'
         if not mfile.exists():
             print(f'FAIL: {name}: matrix missing: {leaf(subject)} - {mfile.relative_to(REPO)}; '
-                  f'to regenerate: corpus-yoga pipeline sync {name}')
+                  f'to regenerate: corpus-yoga pipeline sync {pipeline}')
             fails += 1
             continue
         if parse_matrix_file(mfile) != {k: sym for k, (sym, _) in expected.items()}:
             print(f'FAIL: {name}: matrix stale: {leaf(subject)} - matrix.md disagrees with its '
-                  f'latest-version logs; to regenerate: corpus-yoga pipeline sync {name}')
+                  f'latest-version logs; to regenerate: corpus-yoga pipeline sync {pipeline}')
             fails += 1
             continue
         matrices[0] += 1
-    globs = [g for g in (facts['input_glob'], facts.get('extra_input_glob', '')) if g]
     raw = input_subjects(input_root, globs, depth)
     for subject in sorted(raw if depth == 1 else [' / '.join(parts) for parts in raw]):
         inputs[1] += 1
         if subject not in processed:
             print(f'FAIL: {name}: input unprocessed: {leaf(subject)} - no validation output under '
-                  f'{cache_root.relative_to(REPO)}/; corpus-yoga pipeline run {name}')
+                  f'{cache_root.relative_to(REPO)}/; corpus-yoga pipeline run {pipeline}')
             fails += 1
         else:
             inputs[0] += 1

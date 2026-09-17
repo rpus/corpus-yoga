@@ -15,25 +15,12 @@ Usage:
     cat input.jsonl | python jsonl_to_json.py        # reads from stdin
 """
 
-import filecmp
 import json
-import os
 import sys
 from pathlib import Path
 
-
-def _write_if_changed(path, write):
-    """Write via a sibling temp file; keep the existing file (and its mtime) when the
-    content is identical. The output's mtime is downstream validation's memoisation
-    key — an unchanged session must not look new, or every run revalidates it."""
-    tmp = path + '.tmp'
-    with open(tmp, 'w') as dst:
-        result = write(dst)
-    if os.path.exists(path) and filecmp.cmp(tmp, path, shallow=False):
-        os.remove(tmp)
-    else:
-        os.replace(tmp, path)
-    return result
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))   # the pipeline's shared write
+from write_if_changed import write_if_changed as _write_if_changed  # noqa: E402
 
 
 def convert(src, dst):

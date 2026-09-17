@@ -20,7 +20,7 @@ last_activity are the min/max record timestamps — the whole session's span,
 not the projected turns' (a session that ends in tool work still ends then).
 
 Usage:
-    src/run_python_script.sh src/main/pipeline/code-transport/project_conversation.py \
+    src/run_python_script.sh src/main/pipeline/code-transport/claude/project_conversation.py \
         <session-dir>    # reads <session-dir>/session.json, writes conversation.json beside it
 """
 import json
@@ -64,7 +64,9 @@ def project_session(records, session_id, project):
                          'role': 'human' if kind == 'user' else 'assistant',
                          'timestamp': r['timestamp'],
                          'content': text})
-    return {'title': title,
+    return {'provider': 'claude',
+            'harness': 'Claude Code',
+            'title': title,
             'project': project,
             'session_id': session_id,
             'created': times[0] if times else '',

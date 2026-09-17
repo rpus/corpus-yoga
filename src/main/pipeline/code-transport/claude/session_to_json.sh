@@ -2,11 +2,11 @@
 # Convert a JSON Lines file to a JSON array and create a human-readable symlink.
 #
 # Usage:
-#   src/main/pipeline/code-transport/jsonl_to_json.sh <input.jsonl> <output.json>
+#   src/main/pipeline/code-transport/claude/session_to_json.sh <input.jsonl> <output.json>
 
 set -euo pipefail
 
-SELF='src/main/pipeline/code-transport/jsonl_to_json.sh'
+SELF='src/main/pipeline/code-transport/claude/session_to_json.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }

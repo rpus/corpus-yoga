@@ -546,14 +546,14 @@ check_pipeline_inputs() {
       # The session count is the adapter's, which reads a machine's directory as sessions in
       # the provider's own shape (a gemini session is two transcripts and a database, not a
       # .jsonl); what happens to the store is the code-transport pipeline's declaration,
-      # src/main/pipeline/code-transport/pipeline.json, whose input names one provider's store.
+      # src/main/pipeline/code-transport/pipeline.json, whose provider member names the stores it reads.
       local sessions p_read
       sessions="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import transport; a = transport.adapter(sys.argv[2]); store = Path(sys.argv[3]); print(sum(len(a.held_sessions(m)) for m in sorted(store.iterdir()) if m.is_dir()) if a else "?")' "$REPO_ROOT/src/main/cli/agent" "$p_name" "$REPO_ROOT/$p_store")"
-      p_read="$("$REPO_ROOT/src/run_python_script.sh" -c 'import json, sys; print("yes" if json.load(open(sys.argv[1]))["input"] == sys.argv[2] else "no")' "$REPO_ROOT/src/main/pipeline/code-transport/pipeline.json" "$p_store")"
+      p_read="$("$REPO_ROOT/src/run_python_script.sh" -c 'import json, sys; d = json.load(open(sys.argv[1])); print("yes" if sys.argv[3] in d.get("provider", {}) and d["input"].replace("<provider>", sys.argv[3]) == sys.argv[2] else "no")' "$REPO_ROOT/src/main/pipeline/code-transport/pipeline.json" "$p_store" "$p_name")"
       if [[ "$p_read" == yes ]]; then
         ok "code-transport: $p_store holds $n machine(s), $sessions session(s) — will convert + validate into tmp/cache/"
       else
-        ok "code-transport: $p_store holds $n machine(s), $sessions session(s) — held; the code-transport pipeline does not read this store yet (#635)"
+        ok "code-transport: $p_store holds $n machine(s), $sessions session(s) — held; the code-transport pipeline declares no provider $p_name (src/main/pipeline/code-transport/pipeline.json)"
       fi
     else
       info "code-transport: no $p_store store yet — will skip; $p_store_remedy"

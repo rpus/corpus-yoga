@@ -98,6 +98,8 @@ rsc/audit/prompt.md,17,doc,rsc/test,Y,"- sibling-shape: every family of parallel
 rsc/cache_io.csv,2,path_str,src/test/dev/run.py,Y,"tmp/cache/chat-capture/claude,chat-capture,corpus-yoga pipeline run chat-capture,src/test/dev/run.py,per-capture apiConv"
 rsc/cache_io.csv,10,path_str,src/test/dev/run.py,Y,"tmp/cache/test,,corpus-yoga test run,src/test/dev/run.py,per-section replay cache (subject stat-hash + recorded contribu"
 rsc/machine/README.md,15,doc,src/main/machine.py,Y,"`src/main/machine.py` reads both and is a library, not a command: `machines()` and"
+rsc/migration/635.sh,2,comment,rsc/migration/635.sh,Y,# rsc/migration/635.sh - the code-transport cache holds a directory per provider (#635):
+rsc/migration/635.sh,8,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/636.sh,2,comment,rsc/migration/636.sh,Y,# rsc/migration/636.sh - the live agent stores mount at ext/mnt/agent/<provider> (#636);
 rsc/migration/636.sh,7,comment,rsc/migration/step.sh,Y,# shellcheck source=rsc/migration/step.sh
 rsc/migration/655.sh,2,comment,rsc/migration/655.sh,Y,# rsc/migration/655.sh - the indexing command's files read state then kind under
@@ -484,6 +486,14 @@ rsc/model/model_join.csv,220,path_str,rsc/schema/pipeline/code-transport/claude/
 rsc/model/model_join.csv,220,path_str,rsc/reference/mcp#/$defs/SamplingMessage/properties/content,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/MessageContent,,,rsc/reference/mcp#/$defs/SamplingMessag"
 rsc/model/model_join.csv,221,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/Session,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/Session,rsc/schema/pipeline/code-transport/gemini/sessio"
 rsc/model/model_join.csv,221,path_str,rsc/schema/pipeline/code-transport/gemini/session#/definitions/Session,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/Session,rsc/schema/pipeline/code-transport/gemini/sessio"
+rsc/model/model_join.csv,222,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/TextBlock/properties/text,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/TextBlock/properties/text,rsc/schema/pipeline/code-trans"
+rsc/model/model_join.csv,222,path_str,rsc/schema/pipeline/code-transport/gemini/session#/definitions/Step/properties/content,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/TextBlock/properties/text,rsc/schema/pipeline/code-trans"
+rsc/model/model_join.csv,223,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/ThinkingBlock/properties/thinking,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ThinkingBlock/properties/thinking,rsc/schema/pipeline/co"
+rsc/model/model_join.csv,223,path_str,rsc/schema/pipeline/code-transport/gemini/session#/definitions/Step/properties/thinking,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ThinkingBlock/properties/thinking,rsc/schema/pipeline/co"
+rsc/model/model_join.csv,224,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/ToolUseBlock/properties/name,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ToolUseBlock/properties/name,rsc/schema/pipeline/code-tr"
+rsc/model/model_join.csv,224,path_str,rsc/schema/pipeline/code-transport/gemini/session#/definitions/ToolCall/properties/name,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ToolUseBlock/properties/name,rsc/schema/pipeline/code-tr"
+rsc/model/model_join.csv,225,path_str,rsc/schema/pipeline/code-transport/claude/session#/definitions/ToolUseBlock/properties/input,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ToolUseBlock/properties/input,rsc/schema/pipeline/code-t"
+rsc/model/model_join.csv,225,path_str,rsc/schema/pipeline/code-transport/gemini/session#/definitions/ToolCall/properties/args,Y,",rsc/schema/pipeline/code-transport/claude/session#/definitions/ToolUseBlock/properties/input,rsc/schema/pipeline/code-t"
 rsc/provider/README.md,14,doc,rsc/test/prepare-commit-msg-hook.sh,Y,hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
 rsc/provider/README.md,18,doc,src/main/provider.py,Y,capture keys its mechanisms by declared names; `src/main/provider.py` is the
 rsc/provider/README.md,22,doc,src,Y,by a directory or a data path under `src/` is a row here.
@@ -624,7 +634,7 @@ rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,5,doc,rsc/schema/
 rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,168,doc,rsc/rpus/documenter.json,Y,judged against the documenter `rsc/rpus/documenter.json`). No validation
 rsc/schema/pipeline/code-transport/claude/session/CHANGELOG.md,548,doc,src/main/pipeline/code-transport/run.sh,Y,discovered iteratively by running `src/main/pipeline/code-transport/run.sh` and re-tightening:
 rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,43,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
+rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,73,doc,rsc/schema,Y,"`cache/` → `tmp/cache/`, for the four-root migration (#20), which `rsc/schema/` was"
 rsc/site/README.md,1,doc,rsc/site,Y,"# rsc/site - the rpus.co web surface, as authored"
 rsc/site/README.md,10,doc,rsc/site/corpus-yoga.html,Y,"whose source has left. `rsc/site/corpus-yoga.html` is the corpus-yoga landing, served at"
 rsc/site/README.md,41,doc,src/main/model/compare_pages.py,Y,"(`src/main/model/compare_pages.py`, #652), since a line diff of two renders"
@@ -804,7 +814,7 @@ src/main/cli/prerequisites/prerequisites.sh,457,path_str,src/main,Y,"if [[ -n ""
 src/main/cli/prerequisites/prerequisites.sh,471,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
 src/main/cli/prerequisites/prerequisites.sh,518,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
 src/main/cli/prerequisites/prerequisites.sh,525,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
-src/main/cli/prerequisites/prerequisites.sh,549,comment,src/main/pipeline/code-transport/pipeline.json,Y,"# src/main/pipeline/code-transport/pipeline.json, whose input names one provider's store."
+src/main/cli/prerequisites/prerequisites.sh,549,comment,src/main/pipeline/code-transport/pipeline.json,Y,"# src/main/pipeline/code-transport/pipeline.json, whose provider member names the stores it reads."
 src/main/cli/prerequisites/prerequisites.sh,594,path_str,src/main,Y,"[[ -e ""$script"" ]] || continue"
 src/main/cli/prerequisites/prerequisites.sh,597,path_str,src/main,Y,"if steps=""$(""$script"" 2>&1)""; then"
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
@@ -1019,43 +1029,68 @@ src/main/pipeline/chat-export/timeline.py,14,comment,src/main/pipeline/chat-expo
 src/main/pipeline/chat-export/timeline.py,26,path_str,src/main/pipeline/chat-export/timeline.py,Y,SELF = 'src/main/pipeline/chat-export/timeline.py'
 src/main/pipeline/chat-export/validate.sh,12,comment,src/main/pipeline/chat-export/validate.sh,Y,#   src/main/pipeline/chat-export/validate.sh --chat-export <path/to/data-directory>
 src/main/pipeline/chat-export/validate.sh,23,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/code-transport/jsonl_to_json.sh,5,comment,src/main/pipeline/code-transport/jsonl_to_json.sh,Y,#   src/main/pipeline/code-transport/jsonl_to_json.sh <input.jsonl> <output.json>
-src/main/pipeline/code-transport/jsonl_to_json.sh,30,call,src/main/pipeline/code-transport/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
-src/main/pipeline/code-transport/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/memory_to_json.py         <memory-dir> <output.json>
-src/main/pipeline/code-transport/memory_to_json.py,24,comment,src/main/pipeline/code-transport/memory_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/memory_to_json.py         <memory-dir> <output.json>
-src/main/pipeline/code-transport/project_conversation.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/project_conversation.py         <session-dir>    # reads <sess
-src/main/pipeline/code-transport/project_conversation.py,23,comment,src/main/pipeline/code-transport/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/project_conversation.py         <session-dir>    # reads <sess
-src/main/pipeline/code-transport/render_corpus.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/render_corpus.py [--out <dir>]
-src/main/pipeline/code-transport/render_corpus.py,24,comment,src/main/pipeline/code-transport/render_corpus.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/render_corpus.py [--out <dir>]
+src/main/pipeline/code-transport/claude/list_sessions.sh,6,comment,src/main/pipeline/code-transport/claude/list_sessions.sh,Y,#   src/main/pipeline/code-transport/claude/list_sessions.sh <store>/<machine>/<project>
+src/main/pipeline/code-transport/claude/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/memory_to_json.py         <memory-dir> <output.json>
+src/main/pipeline/code-transport/claude/memory_to_json.py,24,comment,src/main/pipeline/code-transport/claude/memory_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/memory_to_json.py         <memory-dir> <output.json>
+src/main/pipeline/code-transport/claude/project_conversation.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/project_conversation.py         <session-dir>    # read
+src/main/pipeline/code-transport/claude/project_conversation.py,23,comment,src/main/pipeline/code-transport/claude/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/project_conversation.py         <session-dir>    # read
+src/main/pipeline/code-transport/claude/session_to_json.sh,5,comment,src/main/pipeline/code-transport/claude/session_to_json.sh,Y,#   src/main/pipeline/code-transport/claude/session_to_json.sh <input.jsonl> <output.json>
+src/main/pipeline/code-transport/claude/session_to_json.sh,30,call,src/main/pipeline/code-transport/claude/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
+src/main/pipeline/code-transport/gemini/list_sessions.sh,6,comment,src/main/pipeline/code-transport/gemini/list_sessions.sh,Y,#   src/main/pipeline/code-transport/gemini/list_sessions.sh <store>/<machine>/<project>
+src/main/pipeline/code-transport/gemini/project_conversation.py,20,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/project_conversation.py         <session-dir>    # read
+src/main/pipeline/code-transport/gemini/project_conversation.py,20,comment,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/project_conversation.py         <session-dir>    # read
+src/main/pipeline/code-transport/gemini/project_conversation.py,28,path_str,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,SELF = 'src/main/pipeline/code-transport/gemini/project_conversation.py'
+src/main/pipeline/code-transport/gemini/session_to_json.sh,7,comment,src/main/pipeline/code-transport/gemini/session_to_json.sh,Y,#   src/main/pipeline/code-transport/gemini/session_to_json.sh <session-dir> <output.json>
+src/main/pipeline/code-transport/gemini/session_to_json.sh,19,call,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/transcript_to_json.py"" ""$1"" ""$2"""
+src/main/pipeline/code-transport/gemini/transcript_to_json.py,10,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py         <session-dir> <output.jso
+src/main/pipeline/code-transport/gemini/transcript_to_json.py,10,comment,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/transcript_to_json.py         <session-dir> <output.jso
+src/main/pipeline/code-transport/gemini/transcript_to_json.py,17,path_str,src/main/pipeline/code-transport/gemini/transcript_to_json.py,Y,SELF = 'src/main/pipeline/code-transport/gemini/transcript_to_json.py'
+src/main/pipeline/code-transport/render_corpus.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/render_corpus.py [--out-root <dir>]
+src/main/pipeline/code-transport/render_corpus.py,24,comment,src/main/pipeline/code-transport/render_corpus.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/render_corpus.py [--out-root <dir>]
 src/main/pipeline/code-transport/render_corpus.py,31,path_str,src/main/pipeline/code-transport/render_corpus.py,Y,SELF = 'src/main/pipeline/code-transport/render_corpus.py'
-src/main/pipeline/code-transport/run.sh,11,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --item  <path>   # one project: data/input/claude/code/machine-transport/<ma
-src/main/pipeline/code-transport/run.sh,12,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --input <path>   # the whole store: data/input/claude/code/machine-transport
-src/main/pipeline/code-transport/run.sh,13,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --plan   # print the ordered step list; run nothing
-src/main/pipeline/code-transport/run.sh,17,comment,src/main/steps.sh,Y,# src/main/steps.sh).
-src/main/pipeline/code-transport/run.sh,27,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/code-transport/run.sh,110,call,src/main/pipeline/code-transport/jsonl_to_json.sh,Y,"step jsonl_to_json        ""$SCRIPT_DIR/jsonl_to_json.sh"" ""$jsonl"" ""$out_dir/session.json"""
-src/main/pipeline/code-transport/run.sh,111,call,src/main/pipeline/code-transport/project_conversation.py,Y,"step project_conversation ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/project_conversation.py"" ""$out_dir"""
-src/main/pipeline/code-transport/run.sh,118,call,src/main/pipeline/code-transport/memory_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/memory_to_json.py"" ""${project_dir%/}/memory"" ""$out_dir/memory.json"""
-src/main/pipeline/code-transport/run.sh,130,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
-src/main/pipeline/code-transport/run.sh,131,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,133,path_str,src/main/pipeline/code-transport,Y,"run_one ""$jsonl"" ""$machine"" ""$name"""
-src/main/pipeline/code-transport/run.sh,143,path_str,src/main/pipeline/code-transport,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" 1"
-src/main/pipeline/code-transport/run.sh,167,call,src/main/pipeline/code-transport/validate.sh,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --session ""$dir"" ;;"
-src/main/pipeline/code-transport/run.sh,168,call,src/main/pipeline/code-transport/validate.sh,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --memory  ""$dir"" ;;"
-src/main/pipeline/code-transport/run.sh,173,call,src/main/pipeline/code-transport/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
-src/main/pipeline/code-transport/run.sh,190,path_str,src/main/pipeline/code-transport,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"""
-src/main/pipeline/code-transport/run.sh,215,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
-src/main/pipeline/code-transport/run.sh,216,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,221,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --session ""$out_dir"")"
-src/main/pipeline/code-transport/run.sh,225,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
-src/main/pipeline/code-transport/run.sh,226,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,230,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --memory ""$out_dir"")"
-src/main/pipeline/code-transport/run.sh,270,path_str,src/main/pipeline/code-transport,Y,"run_store ""$project_dir"""
-src/main/pipeline/code-transport/run.sh,286,path_str,src/main/pipeline/code-transport,Y,"[[ -d ""$project_dir"" ]] || continue"
-src/main/pipeline/code-transport/validate.sh,5,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --session <path/to/session-dir>
-src/main/pipeline/code-transport/validate.sh,6,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --memory  <path/to/cache-memory-dir>
-src/main/pipeline/code-transport/validate.sh,7,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --enumerate --session <dir>
-src/main/pipeline/code-transport/validate.sh,24,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/pipeline/code-transport/run.sh,6,comment,rsc/provider/providers.csv,Y,"# mechanism directory beside this script and a row in rsc/provider/providers.csv (#635),"
+src/main/pipeline/code-transport/run.sh,14,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --item  <path>   # one project: data/input/<provider>/code/machine-transport
+src/main/pipeline/code-transport/run.sh,15,comment,src/main/pipeline/code-transport/run.sh,Y,"#   src/main/pipeline/code-transport/run.sh --input <path>   # the stores: data/input/<provider>/code/machine-transport,"
+src/main/pipeline/code-transport/run.sh,16,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --plan   # print the ordered step list; run nothing
+src/main/pipeline/code-transport/run.sh,20,comment,src/main/steps.sh,Y,# src/main/steps.sh).
+src/main/pipeline/code-transport/run.sh,30,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/pipeline/code-transport/run.sh,84,call,src/main/pipeline/code-transport,Y,"held=""$(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"" | while IFS= read -r source; do basename ""${source%.json"
+src/main/pipeline/code-transport/run.sh,152,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
+src/main/pipeline/code-transport/run.sh,153,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,156,call,src/main/pipeline/code-transport,Y,"run_one ""$source"" ""$machine"" ""$name"" ""$provider"""
+src/main/pipeline/code-transport/run.sh,165,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,167,path_str,src/main/pipeline/code-transport,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" 1 ""$provider"""
+src/main/pipeline/code-transport/run.sh,191,call,src/main/pipeline/code-transport/validate.sh,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,191,call,src/main/pipeline/code-transport,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,192,call,src/main/pipeline/code-transport/validate.sh,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --memory  ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,192,call,src/main/pipeline/code-transport,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --memory  ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,197,call,src/main/pipeline/code-transport/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
+src/main/pipeline/code-transport/run.sh,213,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,215,path_str,src/main/pipeline/code-transport,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"" ""$provider"""
+src/main/pipeline/code-transport/run.sh,221,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"")"
+src/main/pipeline/code-transport/run.sh,240,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
+src/main/pipeline/code-transport/run.sh,241,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,247,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --session ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,247,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --session ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,248,path_str,src/main/pipeline/code-transport,Y,"rollups+=(""$(printf 'session\t%s\t%s' ""$provider"" ""$out_dir"")"")"
+src/main/pipeline/code-transport/run.sh,251,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
+src/main/pipeline/code-transport/run.sh,252,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,253,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,257,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --memory ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,257,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --memory ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,258,path_str,src/main/pipeline/code-transport,Y,"rollups+=(""$(printf 'memory\t%s\t%s' ""$provider"" ""$out_dir"")"")"
+src/main/pipeline/code-transport/run.sh,277,call,src/main/pipeline/code-transport,Y,"for mechanism in ""$SCRIPT_DIR""/*/list_sessions.sh; do"
+src/main/pipeline/code-transport/run.sh,280,path_str,src/main/pipeline/code-transport,Y,"run_one '<session>' '<machine>' '<project>' ""$provider"""
+src/main/pipeline/code-transport/run.sh,283,path_str,src/main/pipeline/code-transport,Y,"run_memory '<project-dir>' '<machine>' '<project>' '0' ""$provider"""
+src/main/pipeline/code-transport/run.sh,302,path_str,src/main/pipeline/code-transport,Y,"run_store ""$project_dir"""
+src/main/pipeline/code-transport/run.sh,312,path_str,src/main/pipeline/code-transport,Y,"[[ ""$(provider_of ""$store"")"" == ""$provider"" ]] || continue"
+src/main/pipeline/code-transport/run.sh,319,path_str,src/main/pipeline/code-transport,Y,"machine_housekeeping ""$store_root"" ""$provider"""
+src/main/pipeline/code-transport/run.sh,323,path_str,src/main/pipeline/code-transport,Y,"[[ -d ""$project_dir"" ]] || continue"
+src/main/pipeline/code-transport/validate.sh,5,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --provider <p> --session <path/to/session-dir>
+src/main/pipeline/code-transport/validate.sh,6,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --provider <p> --memory  <path/to/cache-memory-dir>
+src/main/pipeline/code-transport/validate.sh,7,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --enumerate --provider <p> --session <dir>
+src/main/pipeline/code-transport/validate.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/pipeline/code-transport/write_if_changed.py,11,path_str,src/main/pipeline/code-transport/write_if_changed.py,Y,SELF = 'src/main/pipeline/code-transport/write_if_changed.py'
 src/main/provider.py,3,comment,rsc/provider/providers.csv,Y,"provider.py - the provider registry (rsc/provider/providers.csv). A LIBRARY, not a"
 src/main/provider.py,12,comment,rsc/provider/README.md,Y,"rsc/provider/README.md states the registry's one rule. STDLIB-ONLY,"
 src/main/provider.py,15,comment,src/run_python_script.sh,Y,"through src/run_python_script.sh, the venv's python (#478), so the csv grammar is"
@@ -1081,7 +1116,7 @@ src/run_python_script.sh,5,comment,src/run_python_script.sh,Y,#   src/run_python
 src/schema_walk.py,5,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,(rsc/reference/JSONSchema/draft-04/schema.json) rather than restated (#571).
 src/schema_walk.py,25,path_str,src/schema_walk.py,Y,SELF = 'src/schema_walk.py'
 src/schema_walk.py,31,path_str,rsc/reference/JSONSchema/draft-04/schema.json,Y,META_SCHEMA = REPO / 'rsc/reference/JSONSchema/draft-04/schema.json'
-src/test/dev/gen_changelog_matrix.py,23,path_str,src/test/dev/gen_changelog_matrix.py,Y,SELF = 'src/test/dev/gen_changelog_matrix.py'
+src/test/dev/gen_changelog_matrix.py,24,path_str,src/test/dev/gen_changelog_matrix.py,Y,SELF = 'src/test/dev/gen_changelog_matrix.py'
 src/test/dev/repairs/documentation.every_definition_has_title_and_description.py,4,comment,src/test/dev/repairs/documentation.every_definition_has_title_and_description.py,Y,Usage: python src/test/dev/repairs/documentation.every_definition_has_title_and_description.py <schema>
 src/test/dev/repairs/naming.title_matches_key.py,4,comment,src/test/dev/repairs/naming.title_matches_key.py,Y,Usage: python src/test/dev/repairs/naming.title_matches_key.py <schema>
 src/test/dev/repairs/naming.upper_camel_case.py,4,comment,src/test/dev/repairs/naming.upper_camel_case.py,Y,Usage: python src/test/dev/repairs/naming.upper_camel_case.py <schema> <old_name> <new_name>
@@ -1095,74 +1130,76 @@ src/test/dev/repairs/structure.required_subset_of_properties.py,4,comment,src/te
 src/test/dev/run.py,6,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh
 src/test/dev/run.py,7,comment,src/test/dev/run.sh,Y,src/test/dev/run.sh --fix   # run all fix commands; stages nothing
 src/test/dev/run.py,60,path_str,src/test/dev/run.py,Y,SELF = 'src/test/dev/run.py'
-src/test/dev/run.py,422,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (#50's one exemption)."
-src/test/dev/run.py,483,comment,rsc/provider/providers.csv,Y,"(#632): strip the family, strip a segment that is a row of rsc/provider/providers.csv,"
-src/test/dev/run.py,558,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
-src/test/dev/run.py,704,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
-src/test/dev/run.py,710,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
-src/test/dev/run.py,1520,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
-src/test/dev/run.py,1541,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
-src/test/dev/run.py,1771,comment,rsc/model/model.json,Y,"rsc/model/model.json is the table of documented shared types - a name, its"
-src/test/dev/run.py,1772,comment,rsc/model/model.schema.json,Y,"description, its occurrences by family - and rsc/model/model.schema.json is"
-src/test/dev/run.py,1839,comment,rsc/model/model_rejected.txt,Y,covered by a rejection in rsc/model/model_rejected.txt. One check per
-src/test/dev/run.py,1933,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts (#576): src/main/mcp/reproduce.sh fetches upstream at the
-src/test/dev/run.py,1984,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv, #628) parses, and every"
-src/test/dev/run.py,2063,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
-src/test/dev/run.py,2229,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
-src/test/dev/run.py,2241,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
-src/test/dev/run.py,2329,comment,src/main/pipeline/chat-export/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
-src/test/dev/run.py,2330,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/dev/run.py,2381,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2381,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2382,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2382,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2383,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2383,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2387,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
-src/test/dev/run.py,2388,path_str,rsc/model,Y,"MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
-src/test/dev/run.py,2001,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
-src/test/dev/run.py,2001,path_str,src/main/pipeline/chat-capture,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
-src/test/dev/run.py,2001,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
-src/test/dev/run.py,2401,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
-src/test/dev/run.py,2403,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
-src/test/dev/run.py,2416,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
-src/test/dev/run.py,2417,path_str,rsc/provider,Y,"'check_provider_registry': ['rsc/provider', 'src'],"
-src/test/dev/run.py,2420,path_str,rsc/rpus/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
-src/test/dev/run.py,2420,path_str,src/main/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
-src/test/dev/run.py,2420,path_str,src/gen/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
-src/test/dev/run.py,2421,path_str,src/gen/grammar,Y,"'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'],"
-src/test/dev/run.py,2859,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
-src/test/dev/run.py,2398,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
-src/test/dev/run.py,2418,path_str,rsc/reference/JSONSchema,Y,"'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],"
-src/test/dev/run.py,2419,path_str,src/main,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
-src/test/dev/run.py,2419,path_str,rsc/provider,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
-src/test/dev/run.py,336,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
-src/test/dev/run.py,968,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
-src/test/dev/run.py,1971,path_str,src/gen/grammar,Y,detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
-src/test/dev/run.py,1999,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
-src/test/dev/run.py,495,path_str,src/main,Y,"f'src/main/{""/"".join(parts)} is no directory - the family sits where no code writes against it; '"
-src/test/dev/run.py,1019,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,1019,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
-src/test/dev/run.py,1977,path_str,src/gen/grammar,Y,"detail = None if ok else (f'src/gen/grammar/{project.name}: {"", "".join(differing)} differ from what '"
-src/test/dev/run.py,2205,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
-src/test/dev/run.py,3066,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,3067,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
-src/test/dev/run.py,2783,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2785,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,904,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
-src/test/dev/run.py,1136,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
-src/test/dev/run.py,1214,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
-src/test/dev/run.py,1499,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
-src/test/dev/run.py,1556,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
-src/test/dev/run.py,1615,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
-src/test/dev/run.py,1693,comment,src/main/latest.py,Y,# resolved against its latest version or lineage (src/main/latest.py). No per-column
-src/test/dev/run.py,2511,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
-src/test/dev/run.py,2522,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2522,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2681,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
-src/test/dev/run.py,2747,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,3114,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,3114,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,445,comment,rsc/machine/machines.csv,Y,"rsc/machine/machines.csv are vocabulary, not machine facts (#50's one exemption)."
+src/test/dev/run.py,506,comment,rsc/provider/providers.csv,Y,"(#632): strip the family, strip a segment that is a row of rsc/provider/providers.csv,"
+src/test/dev/run.py,581,comment,rsc/cache_io.csv,Y,"The declared tmp/cache/ IO registry (rsc/cache_io.csv) must not lie: it parses, it"
+src/test/dev/run.py,727,comment,rsc/CALCULUS.md,Y,calculus term a row cites is defined in rsc/CALCULUS.md (the vocabulary is
+src/test/dev/run.py,733,comment,src/main/cli/pipeline/pipeline.sh,Y,a declared `step` marks is invoked BY COMMAND AND VERB in the src/main/cli/pipeline/pipeline.sh --plan
+src/test/dev/run.py,1543,comment,src/main/cli/README.md,Y,The CLI's grammar (the law list in src/main/cli/README.md) and the checks that enforce
+src/test/dev/run.py,1564,comment,rsc/CALCULUS.md,Y,"surface. The parent must exist in rsc/CALCULUS.md (calculus_terms is the authority),"
+src/test/dev/run.py,1794,comment,rsc/model/model.json,Y,"rsc/model/model.json is the table of documented shared types - a name, its"
+src/test/dev/run.py,1795,comment,rsc/model/model.schema.json,Y,"description, its occurrences by family - and rsc/model/model.schema.json is"
+src/test/dev/run.py,1862,comment,rsc/model/model_rejected.txt,Y,covered by a rejection in rsc/model/model_rejected.txt. One check per
+src/test/dev/run.py,1956,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts (#576): src/main/mcp/reproduce.sh fetches upstream at the
+src/test/dev/run.py,2007,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv, #628) parses, and every"
+src/test/dev/run.py,2086,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
+src/test/dev/run.py,2252,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+src/test/dev/run.py,2264,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
+src/test/dev/run.py,2352,comment,src/main/pipeline/chat-export/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
+src/test/dev/run.py,2353,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/dev/run.py,2404,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2404,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2405,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2405,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2406,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2406,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2410,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
+src/test/dev/run.py,2411,path_str,rsc/model,Y,"MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
+src/test/dev/run.py,2024,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
+src/test/dev/run.py,2024,path_str,src/main/pipeline/chat-capture,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
+src/test/dev/run.py,2024,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
+src/test/dev/run.py,2424,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
+src/test/dev/run.py,2426,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
+src/test/dev/run.py,2439,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
+src/test/dev/run.py,2440,path_str,rsc/provider,Y,"'check_provider_registry': ['rsc/provider', 'src'],"
+src/test/dev/run.py,2443,path_str,rsc/rpus/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
+src/test/dev/run.py,2443,path_str,src/main/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
+src/test/dev/run.py,2443,path_str,src/gen/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
+src/test/dev/run.py,2444,path_str,src/gen/grammar,Y,"'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'],"
+src/test/dev/run.py,2882,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,2421,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
+src/test/dev/run.py,2441,path_str,rsc/reference/JSONSchema,Y,"'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],"
+src/test/dev/run.py,2442,path_str,src/main,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
+src/test/dev/run.py,2442,path_str,rsc/provider,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
+src/test/dev/run.py,338,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
+src/test/dev/run.py,991,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
+src/test/dev/run.py,1994,path_str,src/gen/grammar,Y,detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
+src/test/dev/run.py,2022,path_str,rsc/provider/providers.csv,Y,"None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')"
+src/test/dev/run.py,518,path_str,src/main,Y,"f'src/main/{""/"".join(parts)} is no directory - the family sits where no code writes against it; '"
+src/test/dev/run.py,1042,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
+src/test/dev/run.py,1042,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
+src/test/dev/run.py,383,path_str,src/main/pipeline,Y,"f'src/main/pipeline/{name}/{p}/ lacks {"", "".join(absent)} - run.sh calls each by the provider\'s name',"
+src/test/dev/run.py,2000,path_str,src/gen/grammar,Y,"detail = None if ok else (f'src/gen/grammar/{project.name}: {"", "".join(differing)} differ from what '"
+src/test/dev/run.py,2228,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
+src/test/dev/run.py,3089,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,3090,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,372,path_str,src/main/pipeline,Y,(f'src/main/pipeline/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
+src/test/dev/run.py,2806,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2808,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,927,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
+src/test/dev/run.py,1159,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
+src/test/dev/run.py,1237,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
+src/test/dev/run.py,1522,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in `src/main/cli/pipeline/pipeline.sh --plan` as a line naming the COMMAND and its VERB — so the
+src/test/dev/run.py,1579,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
+src/test/dev/run.py,1638,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
+src/test/dev/run.py,1716,comment,src/main/latest.py,Y,# resolved against its latest version or lineage (src/main/latest.py). No per-column
+src/test/dev/run.py,2534,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
+src/test/dev/run.py,2545,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2545,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2704,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
+src/test/dev/run.py,2770,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/dev/run.py,3137,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,3137,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
@@ -1196,6 +1233,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,corpus-yoga.code-workspace,Y,
 ,,,pyrightconfig.json,Y,
 ,,,rsc/audit/README.md,Y,
+,,self_only,rsc/migration/635.sh,Y,
 ,,self_only,rsc/migration/655.sh,Y,
 ,,self_only,rsc/migration/667.sh,Y,
 ,,self_only,rsc/migration/672.sh,Y,
@@ -1243,7 +1281,7 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/pipeline/code-transport/gemini/session/layer.csv,Y,
 ,,,rsc/schema/pipeline/code-transport/gemini/session/v1.json,Y,
 ,,,rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,Y,
-,,,rsc/schema/pipeline/code-transport/sessionConversation/v1.json,Y,
+,,,rsc/schema/pipeline/code-transport/sessionConversation/v2.json,Y,
 ,,,src/main/append_only.py,Y,
 ,,,src/main/cli/agent/agent.json,Y,
 ,,,src/main/cli/agent/capture.json,Y,
@@ -1328,6 +1366,14 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/pipeline/chat-capture/pipeline.json,Y,
 ,,,src/main/pipeline/chat-export/pipeline.json,Y,
 ,,self_only,src/main/pipeline/chat-export/require_export.sh,Y,
+,,self_only,src/main/pipeline/code-transport/claude/list_sessions.sh,Y,
+,,self_only,src/main/pipeline/code-transport/claude/memory_to_json.py,Y,
+,,self_only,src/main/pipeline/code-transport/claude/project_conversation.py,Y,
+,,self_only,src/main/pipeline/code-transport/claude/session_to_json.sh,Y,
+,,self_only,src/main/pipeline/code-transport/gemini/list_sessions.sh,Y,
+,,self_only,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,
+,,self_only,src/main/pipeline/code-transport/gemini/session_to_json.sh,Y,
+,,self_only,src/main/pipeline/code-transport/write_if_changed.py,Y,
 ,,,src/main/pipeline/pipeline.schema.json,Y,
 ,,self_only,src/main/safari.py,Y,
 ,,self_only,src/main/schema_fragment.py,Y,

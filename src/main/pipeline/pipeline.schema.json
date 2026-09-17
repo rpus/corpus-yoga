@@ -6,10 +6,21 @@
   "required": [
     "schemas",
     "input",
-    "input_glob",
     "subject_depth",
-    "extra_input_glob",
     "diagnostic_skip"
+  ],
+  "oneOf": [
+    {
+      "required": [
+        "input_glob",
+        "extra_input_glob"
+      ]
+    },
+    {
+      "required": [
+        "provider"
+      ]
+    }
   ],
   "additionalProperties": false,
   "properties": {
@@ -25,17 +36,41 @@
     "input": {
       "type": "string",
       "minLength": 1,
-      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it."
+      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it. A literal <provider> segment stands for each provider the `provider` member names, one store each (#635)."
     },
     "input_glob": {
       "type": "string",
       "minLength": 1,
       "description": "The glob under input that selects one datum. A trailing slash selects directories; no trailing slash selects files."
     },
+    "provider": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "The providers the pipeline reads, each a row of rsc/provider/providers.csv with a mechanism directory of its name beside the declaration, and each with the globs that select its data under its own store: a provider writes a session as its harness does, a file or a directory. Present exactly when input carries <provider>; the cache then holds one directory per provider under the pipeline's root.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "input_glob",
+          "extra_input_glob"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "input_glob": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The glob under this provider's input that selects one datum."
+          },
+          "extra_input_glob": {
+            "type": "string",
+            "description": "A second input shape beyond input_glob, at the same subject depth. Empty when the provider has one shape."
+          }
+        }
+      }
+    },
     "subject_depth": {
       "type": "integer",
       "minimum": 1,
-      "description": "How many path components under the pipeline's cache root name one subject."
+      "description": "How many path components under the pipeline's cache root name one subject - under each provider's directory of that root, where the input is per provider."
     },
     "extra_input_glob": {
       "type": "string",

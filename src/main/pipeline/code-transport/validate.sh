@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
-# Validate converted Claude Code CLI data against all schema versions.
+# Validate converted code session data against each family's latest version.
 #
 # Usage:
-#   src/main/pipeline/code-transport/validate.sh --session <path/to/session-dir>
-#   src/main/pipeline/code-transport/validate.sh --memory  <path/to/cache-memory-dir>
-#   src/main/pipeline/code-transport/validate.sh --enumerate --session <dir>
+#   src/main/pipeline/code-transport/validate.sh --provider <p> --session <path/to/session-dir>
+#   src/main/pipeline/code-transport/validate.sh --provider <p> --memory  <path/to/cache-memory-dir>
+#   src/main/pipeline/code-transport/validate.sh --enumerate --provider <p> --session <dir>
 #
-# A session dir holds two data: session.json (the session family) and
-# conversation.json (its sessionConversation projection); both validate here.
-# A cache memory dir holds memory.json (the projectMemory family).
+# A session dir holds two data: session.json (the provider's own session family,
+# <provider>/session) and conversation.json (its sessionConversation projection, the one
+# family every provider shares); both validate here. A cache memory dir holds memory.json
+# (the provider's projectMemory family).
 #
 # --enumerate prints the datum-version tasks instead of running them (#395):
 # one line per pair, tab-separated <input> <schema-file> <log-dir> <label> —
@@ -23,27 +24,29 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # latest_version_file (#557)
-SCHEMA_ROOT="$REPO_DIR/rsc/schema/pipeline/code-transport"   # the pipeline's families: claude/<family> for the captured record and the memory, sessionConversation at the root (#632)
+SCHEMA_ROOT="$REPO_DIR/rsc/schema/pipeline/code-transport"   # the pipeline's families: <provider>/<family> for the captured record and the memory, sessionConversation at the root (#632)
 
 parse_args() {
   session_dir=""
   memory_dir=""
+  provider=""
   enumerate="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --enumerate)          enumerate="1";    shift   ;;
+      --provider) provider="$2"; shift 2 ;;
       --session) session_dir="$2"; shift 2 ;;
       --memory)  memory_dir="$2";  shift 2 ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
         echo "Unknown argument: $1"
-        echo "Usage: $0 --session <path> | --memory <path>"
+        echo "Usage: $0 --provider <provider> (--session <path> | --memory <path>)"
         echo "Pass --help for more information."; exit 1 ;;
     esac
   done
-  if [[ -z "$session_dir" && -z "$memory_dir" ]]; then
-    echo "Usage: $0 --session <path/to/session-directory>"
-    echo "       $0 --memory  <path/to/cache-memory-directory>"
+  if [[ -z "$provider" || ( -z "$session_dir" && -z "$memory_dir" ) ]]; then
+    echo "Usage: $0 --provider <provider> --session <path/to/session-directory>"
+    echo "       $0 --provider <provider> --memory  <path/to/cache-memory-directory>"
     echo "Pass --help for more information."
     exit 1
   fi
@@ -62,14 +65,14 @@ main() {
   if [[ "$enumerate" == "1" ]]; then
     if [[ -n "$session_dir" ]]; then
       local session; session="$(basename "$session_dir")"
-      enumerate_family "$session_dir/session.json" claude/session \
+      enumerate_family "$session_dir/session.json" "$provider/session" \
         "$session_dir/validation/session" "$session"
       enumerate_family "$session_dir/conversation.json" sessionConversation \
         "$session_dir/validation/sessionConversation" "$session"
     fi
     if [[ -n "$memory_dir" ]]; then
       local project; project="$(basename "$(dirname "$memory_dir")")"
-      enumerate_family "$memory_dir/memory.json" claude/projectMemory \
+      enumerate_family "$memory_dir/memory.json" "$provider/projectMemory" \
         "$memory_dir/validation/projectMemory" "$project/memory"
     fi
     return 0
@@ -78,7 +81,7 @@ main() {
   if [[ -n "$session_dir" ]]; then
     local session; session="$(basename "$session_dir")"
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
-      "$session_dir/session.json" "$SCHEMA_ROOT/claude/session" \
+      "$session_dir/session.json" "$SCHEMA_ROOT/$provider/session" \
       "$session_dir/validation/session" "$session"
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
       "$session_dir/conversation.json" "$SCHEMA_ROOT/sessionConversation" \
@@ -87,7 +90,7 @@ main() {
   if [[ -n "$memory_dir" ]]; then
     local project; project="$(basename "$(dirname "$memory_dir")")"
     "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/validate_versions.py" \
-      "$memory_dir/memory.json" "$SCHEMA_ROOT/claude/projectMemory" \
+      "$memory_dir/memory.json" "$SCHEMA_ROOT/$provider/projectMemory" \
       "$memory_dir/validation/projectMemory" "$project/memory"
   fi
 }

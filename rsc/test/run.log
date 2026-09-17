@@ -1,4 +1,4 @@
-run.py: code+schema 1363/1363
+run.py: code+schema 1376/1376
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -8,12 +8,14 @@ run.py: code+schema 1363/1363
   ✓ structure.pipeline_declaration_validates  (3/3)
   ✓ structure.pipeline_name_states_input  (3/3)
   ✓ structure.pipeline_implements_run  (3/3)
+  ✓ structure.pipeline_provider_served  (2/2)
+  ✓ structure.pipeline_mechanism_whole  (2/2)
 
 ── check_step_imports ────────────────────────────────────────────────────────
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (86/86)
+  ✓ structure.self_path_matches_address  (92/92)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -49,8 +51,8 @@ run.py: code+schema 1363/1363
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (76/76)
-  ✓ structure.file_at_level_of_subject  (33/33)
+  ✓ output.plan_lines_name_their_target  (78/78)
+  ✓ structure.file_at_level_of_subject  (34/34)
   ✓ structure.cli_declaration_mirrors_the_api  (22/22)
   ✓ structure.cli_declaration_validates  (66/66)
   ✓ cli.every_form_listed  (42/42)
@@ -97,7 +99,7 @@ run.py: code+schema 1363/1363
 
 ── check_schema_layout ───────────────────────────────────────────────────────
   ✓ schema.family_mirrors_writer  (15/15)
-  ✓ schema.pipeline_schema_placed  (9/9)
+  ✓ schema.pipeline_schema_placed  (10/10)
 
 ── check_schema_validity ─────────────────────────────────────────────────────
   ✓ schema.valid_json_with_schema  (15/15)
@@ -114,7 +116,7 @@ run.py: code+schema 1363/1363
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (15/15)
-  ✓ composition.base_schemas_closed  (12/12)
+  ✓ composition.base_schemas_closed  (11/11)
   ✓ composition.discriminator_values_disjoint  (15/15)
   ✓ composition.no_additional_properties_on_subtypes  (15/15)
   ✓ composition.wrapper_has_five_fields  (15/15)
@@ -188,42 +190,42 @@ run.py: code+schema 1363/1363
 
 stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
-check_pipeline_declarations            9     0   code        7
-check_step_imports                     2     0   code       12
-check_self_paths                      86     0   code       15
-check_committed_tree                   2     0   code       18
-check_templates                        2     0   code       22
-check_xref                             2     0   code       25
-check_cli_surface                    518     0   code       29
-check_cli_verb_help                   19     0   code       62
-check_cli_exclusive_classes            6     0   code       65
-check_effects                          2     0   code       68
-check_cache_io                        20     0   code       72
-check_accumulate_contract              1     0   code       78
-check_capture_monotone                 4     0   code       81
-check_grammar_laws                    12     0   code       84
-check_schema_layout                   24     0   schema     98
-check_schema_validity                 15     0   schema    102
-check_schema_meta_validity            15     0   schema    105
-check_schema_single_version           15     0   schema    108
-check_schema_changelogs               30     0   schema    111
-check_versioned_schema_diagnostics   372     0   schema    115
-check_schema_join                      2     0   schema    142
-check_model_join_versions              1     0   schema    146
-check_model_table                      1     0   schema    149
-check_model_occurrences                3     0   schema    152
-check_model_obligations              152     0   schema    157
-check_model_identity                   1     0   schema    161
-check_grammar                          2     0   schema    164
-check_provider_registry                2     0   code      167
-check_reference                       21     0   schema    171
-check_mcp_factoring                    9     0   schema    177
-check_mcp_reproducible                 1     0   schema    183
-check_expectation                      2     0   code      186
+check_pipeline_declarations           13     0   code        7
+check_step_imports                     2     0   code       14
+check_self_paths                      92     0   code       17
+check_committed_tree                   2     0   code       20
+check_templates                        2     0   code       24
+check_xref                             2     0   code       27
+check_cli_surface                    521     0   code       31
+check_cli_verb_help                   19     0   code       64
+check_cli_exclusive_classes            6     0   code       67
+check_effects                          2     0   code       70
+check_cache_io                        20     0   code       74
+check_accumulate_contract              1     0   code       80
+check_capture_monotone                 4     0   code       83
+check_grammar_laws                    12     0   code       86
+check_schema_layout                   25     0   schema    100
+check_schema_validity                 15     0   schema    104
+check_schema_meta_validity            15     0   schema    107
+check_schema_single_version           15     0   schema    110
+check_schema_changelogs               30     0   schema    113
+check_versioned_schema_diagnostics   371     0   schema    117
+check_schema_join                      2     0   schema    144
+check_model_join_versions              1     0   schema    148
+check_model_table                      1     0   schema    151
+check_model_occurrences                3     0   schema    154
+check_model_obligations              152     0   schema    159
+check_model_identity                   1     0   schema    163
+check_grammar                          2     0   schema    166
+check_provider_registry                2     0   code      169
+check_reference                       21     0   schema    173
+check_mcp_factoring                    9     0   schema    179
+check_mcp_reproducible                 1     0   schema    185
+check_expectation                      2     0   code      188
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 119 types, 1363/1363 invocations passing
-checks[code]: 67 types, 699/699 invocations passing
+checks[code+schema]: 121 types, 1376/1376 invocations passing
+checks[code]: 69 types, 712/712 invocations passing
 checks[schema]: 52 types, 664/664 invocations passing
 
-dev gate: PASS — code+schema 1363/1363 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1376/1376 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

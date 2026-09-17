@@ -134,6 +134,7 @@ class Pipeline:
     input_glob:       str
     subject_depth:    int
     extra_input_glob: str
+    providers:        list[str]
     diagnostic_skip:  frozenset[str]
 
     @property
@@ -157,9 +158,10 @@ def _load_pipeline(directory: Path) -> Pipeline:
         name             = directory.name,
         schemas          = facts['schemas'],
         input            = REPO_ROOT / facts['input'],
-        input_glob       = facts['input_glob'],
+        input_glob       = facts.get('input_glob', ''),
         subject_depth    = facts['subject_depth'],
-        extra_input_glob = facts['extra_input_glob'],
+        extra_input_glob = facts.get('extra_input_glob', ''),
+        providers        = sorted(facts.get('provider', {})),
         diagnostic_skip  = frozenset(facts['diagnostic_skip']),
     )
 
@@ -350,8 +352,9 @@ def check_pipeline_declarations(run) -> None:
         declared = json.loads(decl.read_text()).get('input', '')
         channel, _, act = name.partition('-')
         parts = declared.split('/')
+        served = PIPELINES[name].providers
         stated = (len(parts) == 5 and parts[:2] == ['data', 'input']
-                  and parts[2] in provider.provider_names()
+                  and (parts[2] in provider.provider_names() if not served else parts[2] == '<provider>')
                   and parts[3] == channel and '-' in parts[4]
                   and parts[4].rsplit('-', 1)[1] == act)
         run(f'pipeline: {name}: name states its input', stated,
@@ -359,6 +362,26 @@ def check_pipeline_declarations(run) -> None:
             f'{declared} is not data/input/<provider>/{channel}/<qualifier>-{act} of a declared provider - '
             f'a pipeline is named <channel>-<act>, singular, for the directories it reads',
             check='structure.pipeline_name_states_input')
+        # A provider the declaration names is a row of the registry with a mechanism
+        # directory of its name beside the declaration, and the reverse (#635).
+        placed = {d.name for d in members(PIPELINE_ROOT / name)} & set(provider.provider_names())
+        for p in sorted(set(served) | (placed if served else set())):
+            ok = p in served and p in placed
+            run(f'pipeline: {name}: provider {p} is declared, registered and has its mechanism', ok,
+                None if ok else
+                (f'src/main/pipeline/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
+                 f'pipeline.json names provider {p}, which is '
+                 + ('no row of rsc/provider/providers.csv' if p not in provider.provider_names()
+                    else f'without src/main/pipeline/{name}/{p}/')),
+                check='structure.pipeline_provider_served')
+            # run.sh reaches a provider's mechanism by its name, so no reference names these
+            # files: the three every mechanism holds are held here instead.
+            absent = [f for f in ('list_sessions.sh', 'session_to_json.sh', 'project_conversation.py')
+                      if ok and not (PIPELINE_ROOT / name / p / f).is_file()]
+            run(f'pipeline: {name}: provider {p} holds its mechanism whole', not absent,
+                None if not absent else
+                f'src/main/pipeline/{name}/{p}/ lacks {", ".join(absent)} - run.sh calls each by the provider\'s name',
+                check='structure.pipeline_mechanism_whole')
         run_sh = PIPELINE_ROOT / name / 'run.sh'
         run(f'pipeline: {name}: implements run.sh', run_sh.is_file(),
             None if run_sh.is_file() else
