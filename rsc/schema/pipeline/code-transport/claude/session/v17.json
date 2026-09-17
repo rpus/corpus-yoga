@@ -1132,8 +1132,15 @@
           "minimum": 0
         },
         "stampHighWater": {
-          "description": "The high-water stamp of replies handled. Observed only null (no reply handled yet on any observed artifact); its non-null form is unobserved.",
-          "type": "null"
+          "description": "The high-water stamp of replies handled: null while no reply has been handled on the artifact, then the timestamp of the latest one.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
         },
         "everBaselined": {
           "description": "Whether the artifact was ever baselined. Observed only true.",
@@ -1319,8 +1326,18 @@
       ],
       "properties": {
         "content": {
-          "description": "The rendered text.",
-          "type": "string"
+          "description": "The rendered text: a string, or text blocks where the attachment is a queued command whose prompt is itself blocks.",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/TextBlock"
+              }
+            }
+          ]
         }
       }
     },
@@ -1394,6 +1411,29 @@
         }
       }
     },
+    "TextBlock": {
+      "title": "TextBlock",
+      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
+      "type": "object",
+      "required": [
+        "type",
+        "text"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text"
+          ],
+          "description": "(discriminator)"
+        },
+        "text": {
+          "description": "The text content.",
+          "type": "string"
+        }
+      }
+    },
     "ContentBlock": {
       "title": "ContentBlock",
       "description": "A single content block within a message. Discriminated by type: text, tool_use, tool_result, thinking, image, document, or fallback.",
@@ -1426,29 +1466,6 @@
           "$ref": "#/definitions/FallbackBlock"
         }
       ]
-    },
-    "TextBlock": {
-      "title": "TextBlock",
-      "description": "A plain text content block. Corresponds to MCP TextContent (rsc/reference/mcp#/$defs/TextContent); the CLI format omits _meta and annotations.",
-      "type": "object",
-      "required": [
-        "type",
-        "text"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "text"
-          ],
-          "description": "(discriminator)"
-        },
-        "text": {
-          "description": "The text content.",
-          "type": "string"
-        }
-      }
     },
     "ToolUseBlock": {
       "title": "ToolUseBlock",
