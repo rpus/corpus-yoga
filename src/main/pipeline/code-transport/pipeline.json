@@ -12,7 +12,7 @@
       "extra_input_glob": "*/*/memory/"
     },
     "gemini": {
-      "input_glob": "*/*/*/",
+      "input_glob": "*/*/*/transcript*.jsonl",
       "extra_input_glob": ""
     }
   },

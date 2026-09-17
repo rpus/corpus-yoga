@@ -1036,7 +1036,7 @@ src/main/pipeline/code-transport/claude/project_conversation.py,23,comment,src/r
 src/main/pipeline/code-transport/claude/project_conversation.py,23,comment,src/main/pipeline/code-transport/claude/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/project_conversation.py         <session-dir>    # read
 src/main/pipeline/code-transport/claude/session_to_json.sh,5,comment,src/main/pipeline/code-transport/claude/session_to_json.sh,Y,#   src/main/pipeline/code-transport/claude/session_to_json.sh <input.jsonl> <output.json>
 src/main/pipeline/code-transport/claude/session_to_json.sh,30,call,src/main/pipeline/code-transport/claude/jsonl_to_json.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/jsonl_to_json.py"" ""$jsonl"" ""$json_out"""
-src/main/pipeline/code-transport/gemini/list_sessions.sh,8,comment,src/main/pipeline/code-transport/gemini/list_sessions.sh,Y,#   src/main/pipeline/code-transport/gemini/list_sessions.sh <store>/<machine>/<project>
+src/main/pipeline/code-transport/gemini/list_sessions.sh,11,comment,src/main/pipeline/code-transport/gemini/list_sessions.sh,Y,#   src/main/pipeline/code-transport/gemini/list_sessions.sh <store>/<machine>/<project>
 src/main/pipeline/code-transport/gemini/project_conversation.py,20,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/project_conversation.py         <session-dir>    # read
 src/main/pipeline/code-transport/gemini/project_conversation.py,20,comment,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/gemini/project_conversation.py         <session-dir>    # read
 src/main/pipeline/code-transport/gemini/project_conversation.py,28,path_str,src/main/pipeline/code-transport/gemini/project_conversation.py,Y,SELF = 'src/main/pipeline/code-transport/gemini/project_conversation.py'
@@ -1054,7 +1054,7 @@ src/main/pipeline/code-transport/run.sh,15,comment,src/main/pipeline/code-transp
 src/main/pipeline/code-transport/run.sh,16,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --plan   # print the ordered step list; run nothing
 src/main/pipeline/code-transport/run.sh,20,comment,src/main/steps.sh,Y,# src/main/steps.sh).
 src/main/pipeline/code-transport/run.sh,30,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/code-transport/run.sh,84,call,src/main/pipeline/code-transport,Y,"held=""$(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"" | while IFS= read -r source; do basename ""${source%.json"
+src/main/pipeline/code-transport/run.sh,84,call,src/main/pipeline/code-transport,Y,"held=""$(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"" 2>/dev/null | while IFS= read -r source; do basename ""${"
 src/main/pipeline/code-transport/run.sh,152,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
 src/main/pipeline/code-transport/run.sh,153,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
 src/main/pipeline/code-transport/run.sh,156,call,src/main/pipeline/code-transport,Y,"run_one ""$source"" ""$machine"" ""$name"" ""$provider"""

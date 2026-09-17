@@ -54,7 +54,9 @@ def datum_dirs(cache_root: Path, depth: int) -> list[Path]:
 
 def input_subjects(input_root: Path, globs: list[str], depth: int) -> list:
     """Each input entry as its cache subject: a bare name at depth 1, else the tuple of
-    path parts relative to the input root (files contribute their stem)."""
+    path parts relative to the input root (files contribute their stem), cut to the
+    subject's depth - a glob may select a file inside the subject's directory (a gemini
+    session's transcript), and several such files are one subject."""
     if not input_root.exists():
         return []
     if depth == 1:
@@ -66,8 +68,8 @@ def input_subjects(input_root: Path, globs: list[str], depth: int) -> list:
             if item.is_dir() != dirs_only:
                 continue
             rel = item.relative_to(input_root)
-            result.append(rel.parts[:-1] + (item.name if dirs_only else item.stem,))
-    return sorted(result)
+            result.append((rel.parts[:-1] + (item.name if dirs_only else item.stem,))[:depth])
+    return sorted(set(result))
 
 
 def sources(name: str, facts: dict) -> list[tuple[str, Path, Path, list[str]]]:

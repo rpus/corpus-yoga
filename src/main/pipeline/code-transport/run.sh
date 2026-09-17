@@ -81,7 +81,7 @@ prune_departed() {
   # derivations die with their STORE datum — and the store is repo-owned, so
   # a departure there was a deliberate disposal, never harness expiry.
   local project_dir="$1" machine="$2" name="$3" provider="$4" held source
-  held="$("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir" | while IFS= read -r source; do basename "${source%.jsonl}"; done)"
+  held="$("$SCRIPT_DIR/$provider/list_sessions.sh" "$project_dir" 2>/dev/null | while IFS= read -r source; do basename "${source%.jsonl}"; done)"
   for existing in "$CACHE_DIR/$provider/$machine/$name"/*/; do
     [[ -d "$existing" ]] || continue
     local sess; sess="$(basename "${existing%/}")"
@@ -128,7 +128,7 @@ run_one() {
   local session; session="$(basename "${source%.jsonl}")"
   local out_dir="$CACHE_DIR/$provider/$machine/$project_name/$session"
   step ensure_session_dir   mkdir -p "$out_dir"
-  step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json"
+  step session_to_json      "$SCRIPT_DIR/$provider/session_to_json.sh" "$source" "$out_dir/session.json" || return 1
   step project_conversation "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/project_conversation.py" "$out_dir"
 }
 

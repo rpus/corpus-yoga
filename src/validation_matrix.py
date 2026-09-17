@@ -51,8 +51,12 @@ def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path |
     named = [root / a for a in declared if a.rsplit('/', 1)[-1] == schema]
     if len(named) > 1 and datum_dir is not None:
         # two providers' families of one name (#635): the datum sits under its provider's
-        # directory of the cache, and the family under the same segment of the schema root
-        named = [f for f in named if f.relative_to(root).parts[0] in datum_dir.parts]
+        # directory of the cache, tmp/cache/<pipeline>/<provider>/..., and the family under
+        # the same segment of the schema root - that one segment, never any component, or a
+        # machine or project named for a provider would match both
+        parts = datum_dir.parts
+        under = [parts[i + 2] for i in range(len(parts) - 2) if parts[i:i + 2] == ('cache', root.name)]
+        named = [f for f in named if under and f.relative_to(root).parts[0] == under[-1]]
     hits = named or [d for d in sorted(root.glob(schema)) + sorted(root.glob(f'*/{schema}'))
                      if d.is_dir() and list(d.glob('v*.json'))]
     return hits[0] if len(hits) == 1 else None
