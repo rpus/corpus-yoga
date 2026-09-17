@@ -107,6 +107,7 @@ import mcp_extraction  # noqa: E402  (the schema.ts reader, through the generate
 import mcp_face  # noqa: E402  (the consumer and producer faces, #605)
 import provider  # noqa: E402  (src/main - the provider registry, check_schema_layout)
 import validation_matrix  # noqa: E402  (src - the one reading of a family's address under a pipeline)
+from member import is_member, members  # noqa: E402  (src/main - the one reading of membership by placement)
 sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
 import grammar as grammar_module  # noqa: E402
 from latest import latest_file, lineages  # noqa: E402  (src/main - the one reading of the latest)
@@ -169,8 +170,7 @@ def _load_pipeline(directory: Path) -> Pipeline:
 # gate's list and the CLI's cannot drift apart. A member without a declaration stays OUT
 # of the dict but IN _PIPELINE_UNDECLARED, so check_pipeline_declarations can name it
 # instead of the import dying on it.
-_PIPELINE_DIRS = [d for d in sorted(PIPELINE_ROOT.iterdir())
-                  if d.is_dir() and d.name != '__pycache__']
+_PIPELINE_DIRS = members(PIPELINE_ROOT)
 _PIPELINE_UNDECLARED = [d.name for d in _PIPELINE_DIRS if not (d / 'pipeline.json').is_file()]
 PIPELINES: dict[str, Pipeline] = {
     d.name: _load_pipeline(d)
@@ -1386,7 +1386,8 @@ def check_cli_surface(run) -> None:
     cli_root = CLI  # noqa: kept as a local name for the checks below
     declared = {c['command'] for c in cmds}
     stray = sorted(p.name for p in cli_root.iterdir()
-                   if p.name not in ('README.md', 'readings.md', '__pycache__')
+                   if (p.is_file() or is_member(p))
+                   and p.name not in ('README.md', 'readings.md', '__pycache__')
                    and not p.name.endswith('.schema.json')
                    and p.suffix not in ('.py', '.sh')
                    and p.name not in declared)
@@ -2015,9 +2016,8 @@ def check_provider_registry(run) -> None:
             None if declared else 'rsc/provider/providers.csv declares no provider', check='provider.registry_parses')
     named: dict[str, set[str]] = {}
     for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):
-        for d in sorted((REPO_ROOT / tree).iterdir()):
-            if d.is_dir() and d.name != '__pycache__':
-                named.setdefault(d.name, set()).add(f'{tree}/{d.name}/')
+        for d in members(REPO_ROOT / tree):
+            named.setdefault(d.name, set()).add(f'{tree}/{d.name}/')
     for path in sorted((REPO_ROOT / 'src').rglob('*')):
         if path.is_file() and path.suffix in ('.py', '.sh', '.json'):
             for m in re.finditer(r'data/input/([a-z][a-z0-9_-]*)/(?:chat|code)/', path.read_text(errors='ignore')):
@@ -2213,9 +2213,7 @@ def check_effects(run):
                 yield m.group(1).rstrip('/'), i
 
     uncovered = []
-    for cmd_dir in sorted(cli_root.iterdir()):
-        if not cmd_dir.is_dir() or cmd_dir.name == '__pycache__':
-            continue
+    for cmd_dir in members(cli_root):
         rows, machinery = set(), set()
         for j in cmd_dir.glob('*.json'):
             d = json.loads(j.read_text())

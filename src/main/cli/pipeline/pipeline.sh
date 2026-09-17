@@ -40,6 +40,8 @@ pipelines() {
   local d
   for d in "$REPO_ROOT"/src/main/pipeline/*/; do
     [[ -d "$d" ]] || continue
+    # a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)
+    [[ -n "$(find "$d" -type f -not -path '*/__pycache__/*' -print -quit)" ]] || continue
     basename "$d"
   done
 }
