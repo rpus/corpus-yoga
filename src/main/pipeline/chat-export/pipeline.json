@@ -1,10 +1,10 @@
 {
   "schemas": [
-    "conversations",
-    "memories",
-    "projects",
-    "users",
-    "login_history"
+    "claude/conversations",
+    "claude/memories",
+    "claude/projects",
+    "claude/users",
+    "claude/login_history"
   ],
   "input": "data/input/claude/chat/bulk-export",
   "input_glob": "data-*/",

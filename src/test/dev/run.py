@@ -106,7 +106,6 @@ import mcp_factoring  # noqa: E402
 import mcp_extraction  # noqa: E402  (the schema.ts reader, through the generated parser)
 import mcp_face  # noqa: E402  (the consumer and producer faces, #605)
 import provider  # noqa: E402  (src/main - the provider registry, check_schema_layout)
-import validation_matrix  # noqa: E402  (src - the one reading of a family's address under a pipeline)
 from member import is_member, members  # noqa: E402  (src/main - the one reading of membership by placement)
 sys.path.insert(0, str(SRC / 'main' / 'grammar'))  # the generated parsers (check_grammar)
 import grammar as grammar_module  # noqa: E402
@@ -140,7 +139,7 @@ class Pipeline:
     @property
     def changelog(self) -> Path:
         # The FIRST schema is the one whose CHANGELOG anchors the format history.
-        return SCHEMA_DIR[self.schemas[0]] / 'CHANGELOG.md'
+        return RSC_SCHEMA / 'pipeline' / self.name / self.schemas[0] / 'CHANGELOG.md'
 
     @property
     def cache_output(self) -> Path:
@@ -177,20 +176,6 @@ PIPELINES: dict[str, Pipeline] = {
     for d in _PIPELINE_DIRS if (d / 'pipeline.json').is_file()
 }
 
-def _family_dir(pipeline: str, schema: str) -> Path | None:
-    """The one address of a pipeline's declared schema under rsc/schema/pipeline/<pipeline>:
-    at the provider's segment where the family's instances are one provider's, else
-    directly (#632). None where it is not at exactly one - check_schema_layout names it."""
-    return validation_matrix.family_dir(RSC_SCHEMA / 'pipeline' / pipeline, schema)
-
-
-# Map schema name → its directory, the declared schemas found at their addresses.
-SCHEMA_DIR: dict[str, Path] = {
-    schema: d
-    for name, pipeline in PIPELINES.items()
-    for schema in pipeline.schemas
-    if (d := _family_dir(name, schema)) is not None
-}
 
 
 def _leaf(subject: str) -> str:
@@ -512,13 +497,11 @@ def check_schema_layout(run) -> None:
             check='schema.family_mirrors_writer')
     for name, pipeline in sorted(PIPELINES.items()):
         for schema in pipeline.schemas:
-            hits = [k for k in families
-                    if k.startswith(f'pipeline/{name}/') and k.rsplit('/', 1)[-1] == schema]
-            run(f'pipeline: {name}: {schema} sits under rsc/schema/pipeline/{name}', len(hits) == 1,
-                None if len(hits) == 1 else
-                (f'found at {", ".join(hits)}' if hits else
-                 f'no family {schema} under rsc/schema/pipeline/{name}/ - the pipeline declares a schema '
-                 f'that is not at its address'),
+            placed = f'pipeline/{name}/{schema}' in families
+            run(f'pipeline: {name}: {schema} sits under rsc/schema/pipeline/{name}', placed,
+                None if placed else
+                f'no family at rsc/schema/pipeline/{name}/{schema} - the pipeline declares a schema '
+                f'that is not at its address',
                 check='schema.pipeline_schema_placed')
 
 
@@ -1651,8 +1634,8 @@ def check_grammar_laws(run, cited: dict) -> None:
 
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
-    schema_skips    = {SCHEMA_DIR[s]: p.diagnostic_skip for p in PIPELINES.values() for s in p.schemas
-                       if s in SCHEMA_DIR}
+    schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / s: p.diagnostic_skip
+                       for p in PIPELINES.values() for s in p.schemas}
 
     schema_dirs = _schema_families()
     # One jobs list across every family, one _call_many: a per-family dispatch

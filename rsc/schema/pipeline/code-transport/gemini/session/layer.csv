@@ -1,0 +1,6 @@
+"layer","reading"
+"step","The step's envelope: its position, its state and when it was created - the fields every step carries, and the transcript as their ordered sequence."
+"actor","Who wrote the step and what kind of step it is: the person, the model or the system, and the input, planner response, generic, system-message or checkpoint kinds."
+"content","What the step says: the content the step carries and the model's thinking where the harness recorded it."
+"tools","The tool calls a planner response makes: each a name and its arguments, in the harness's own vocabulary."
+"truncation","What the plain transcript left out: the names of the fields the harness truncated, whole in the full transcript."
