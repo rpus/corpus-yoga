@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "memories",
+  "description": "One account's memory state, from a data export - since 2026-08-24 one object per file (the export placed it under memories/<account uuid>.json; the deposit hoists it to memories.json, the maintainer's ruling), where the pre-manifest export wrapped the same object in a single-element array.",
+  "type": "object",
+  "default": [
+    {
+      "conversations_memory": "",
+      "account_uuid": ""
+    }
+  ],
+  "required": [
+    "conversations_memory",
+    "account_uuid"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "conversations_memory": {
+      "type": "string"
+    },
+    "memory_files": {
+      "description": "The account's memory files, the store claude.ai's memory_read tool reads: markdown files under /areas, /topics and the like. Present from the export of 2026-09-17; absent before.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "content",
+          "updated_at"
+        ],
+        "properties": {
+          "path": {
+            "description": "The file's path in the store. Example: \"/areas/yoga-corpus.md\".",
+            "type": "string"
+          },
+          "content": {
+            "description": "The file's markdown, front matter included.",
+            "type": "string"
+          },
+          "updated_at": {
+            "description": "When the file was last written: ISO 8601 with microseconds and a +00:00 offset. Example: \"2026-08-24T18:03:24.375476+00:00\".",
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+\\+00:00$"
+          }
+        }
+      }
+    },
+    "account_uuid": {
+      "description": "../../../../../model/model.json#/UserUUID",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    }
+  }
+}

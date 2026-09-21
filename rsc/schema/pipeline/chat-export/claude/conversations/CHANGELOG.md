@@ -19,6 +19,53 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v20
+
+The export of 2026-09-17, deposited on home-room on 2026-09-21: 122 conversations,
+four of which v19 refuses. It is the coupled change of apiConversation v11, minted
+in the same cycle from the captures of the same conversations, and it shows three
+things the captures do not.
+
+The `memory_read` tool, claude.ai's Memory integration reading the account's
+memory files, on 8 blocks from 2026-08-26: the icon `bookText`, and a result whose
+`structured_content`, null until now, is the memory read - one document, or
+`{documents}` of two or three. Its input is where the two sources part: the
+2026-08 calls name their memories as a list of paths, which the live captures of
+the same conversations show as an empty input. A second tool no version knew,
+`web_search_fast`, once, on 2026-08-28: a query in, ten knowledge items out, as
+`web_search`. And a content block type no version knew, `injected_prompt_block`,
+on 14 human messages of two conversations (2026-08-26 to 2026-09-01): a prompt
+claude.ai injected beside what the person typed, its `injection_source`
+`date_note` or `melange_tombstone`. The captures carry no such block. Both held
+exports validate at v20.
+
+### Replaces
+
+v19
+
+#### Relaxed
+
+- `memory_read`: `MemoryReadToolUseBlock` with `ToolInputMemoryRead` (a closed
+  object of a required `path`, one string or a list of them) and
+  `MemoryReadToolResultBlock`.
+- `ToolResultBlockBase.structured_content`: null, a `MemoryDocument` or a
+  `MemoryDocumentList`, where v19 admitted null alone; `MemoryDocument`,
+  `MemoryDocumentParsed`, `MemoryDocumentTarget` and `MemoryDocumentList` are
+  apiConversation v11's definitions, one definition under one name
+  (rsc/model/model_join.csv).
+- `web_search_fast`: `WebSearchFastToolUseBlock`, its input `ToolInputWebSearch`,
+  and `WebSearchFastToolResultBlock`.
+- `ContentBlock`: a fifth member, `InjectedPromptBlock`, a closed object of `type`,
+  `prompt`, `injection_source`, `initial_turn_only`,
+  `skip_on_truncated_continuation`, `flags` and the two timestamps, all required.
+- `IconName`: `bookText`, as apiConversation v11, so the two remain one definition.
+
+#### Refactored
+
+- The `ContentBlock` description names the fifth member and says the API union
+  lacks it. The definitions stand in the order the BFS repair gives with the new
+  ones placed. No validation effect.
+
 ## v19
 
 Now validates the manifest-era export of 2026-08-24 (the c3cfcf28 export), whose one v18 failure - the record-by-record sweep found exactly one failing block in 118 conversations - is a thinking block of 2026-08-23 carrying signature null with empty thinking and thinking_hidden true.

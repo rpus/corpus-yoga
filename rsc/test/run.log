@@ -1,4 +1,4 @@
-run.py: code+schema 1380/1380
+run.py: code+schema 1392/1392
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -158,8 +158,8 @@ run.py: code+schema 1380/1380
   ✓ model.occurrences_cover_edges
 
 ── check_model_obligations ───────────────────────────────────────────────────
-  ✓ model.shared_type_disposed  (77/77)
-  ✓ model.documented_type_grounded  (73/73)
+  ✓ model.shared_type_disposed  (83/83)
+  ✓ model.documented_type_grounded  (79/79)
 
 ── check_model_identity ──────────────────────────────────────────────────────
   ✓ model.identity_holds
@@ -215,7 +215,7 @@ check_schema_join                      2     0   schema    145
 check_model_join_versions              1     0   schema    149
 check_model_table                      1     0   schema    152
 check_model_occurrences                3     0   schema    155
-check_model_obligations              150     0   schema    160
+check_model_obligations              162     0   schema    160
 check_model_identity                   1     0   schema    164
 check_grammar                          2     0   schema    167
 check_provider_registry                2     0   code      170
@@ -225,8 +225,8 @@ check_mcp_reproducible                 1     0   schema    186
 check_expectation                      2     0   code      189
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 122 types, 1380/1380 invocations passing
+checks[code+schema]: 122 types, 1392/1392 invocations passing
 checks[code]: 70 types, 715/715 invocations passing
-checks[schema]: 52 types, 665/665 invocations passing
+checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1380/1380 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1392/1392 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

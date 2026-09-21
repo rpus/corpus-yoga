@@ -29,11 +29,12 @@ and its rich-content display carries `url: null`; both blocks wear a new icon,
 null, as two tool_result blocks carry `hidden_in_chat`. All 121 captures validate
 at v11.
 
-No bulk export held shows `memory_read` or `bookText` (the latest is of 2026-08-24),
-so the conversations family is not minted: a family admits a form when its own data
-first exhibit it. rsc/model/model_join.csv records the divergence: `IconName`, one
-definition with the export's since 2026-08-25, is a superset of it from this version,
-and its entry in rsc/model/model.json retires until an export shows `bookText`.
+The export of 2026-09-17, deposited on home-room on 2026-09-21, shows the same tool
+and icon, so conversations v20 is minted in the same cycle, the coupled change:
+`IconName` stays one definition with the export's, and the memory definitions are
+shared under one name (rsc/model/model_join.csv). Where the two sources differ is
+`memory_read`'s input, empty here on the 2026-08 calls that the export shows as a
+list of paths.
 
 ### Replaces
 
