@@ -18,6 +18,25 @@ amended in place: the fragment `#/UserUUID` became `#/default/UserUUID`
 learned to follow `../` links and caught it. A description change is not a
 validation change: no new version.
 
+## v4
+
+The memory files arrive. The export of 2026-09-17, deposited on home-room on
+2026-09-21 with its per-account file hoisted to memories.json as the ruling of
+2026-08-24 has it, carries `memory_files` beside `conversations_memory`: eight
+files, each a `path`, its markdown `content` and an `updated_at` - the store
+claude.ai's `memory_read` tool reads, which conversations v20 and apiConversation
+v11 admit in the same cycle. The export of 2026-08-24 has no such key and validates
+as before.
+
+### Replaces
+
+v3
+
+#### Relaxed
+
+- `memory_files`: an optional array of closed objects of `path`, `content` and
+  `updated_at`, all required.
+
 ## v3
 
 ### Replaces

@@ -13,6 +13,58 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v11
+
+The Memory integration reads, and the API catches up with the export's envelope.
+Reading-room's browser capture of 2026-09-17 brought the store to 121 captures, 16
+of which v10 refuses, every refused form claude.ai's. 119 thinking blocks of 12
+captures carry `alternative_display_type` and `flags`, null in every one, where 252
+blocks carry neither. Four captures of 2026-08-26 to 2026-09-15 use a tool no version
+knew, `memory_read`: its input is empty or the one memory's `path`; its result's
+text item has no `uuid` in the two later captures; its `structured_content`, null
+until now, is the memory it read - one document, or `{documents}` of two or three -
+and its rich-content display carries `url: null`; both blocks wear a new icon,
+`bookText`. Seven tool_use blocks of five captures, across four tools, carry
+`approval_key_legacy` null, and two carry `hidden_in_chat` and `tool_identifier`,
+null, as two tool_result blocks carry `hidden_in_chat`. All 121 captures validate
+at v11.
+
+The export of 2026-09-17, deposited on home-room on 2026-09-21, shows the same tool
+and icon, so conversations v20 is minted in the same cycle, the coupled change:
+`IconName` stays one definition with the export's, and the memory definitions are
+shared under one name (rsc/model/model_join.csv). Where the two sources differ is
+`memory_read`'s input, empty here on the 2026-08 calls that the export shows as a
+list of paths.
+
+### Replaces
+
+v10
+
+#### Relaxed
+
+- `ApiThinkingBlock`: optional `alternative_display_type` and `flags`, each null.
+- `memory_read`: a new tool - `MemoryReadToolUseBlock` with `ToolInputMemoryRead`
+  (a closed object of an optional `path`) and `MemoryReadToolResultBlock`. `ToolName`
+  is left as it is: no datum needs the name there, it already omits `tool_search` and
+  `search_mcp_registry`, and it is one definition with the export's.
+- `ApiToolResultBlockBase.structured_content`: null, a `MemoryDocument` or a
+  `MemoryDocumentList`, where v10 admitted null alone. `MemoryDocument` is a closed
+  object of `path`, `path_segments`, `version`, `updated_at`, `parsed`
+  (`MemoryDocumentParsed`) and `target` (`MemoryDocumentTarget`), with
+  `display_path_segments` and `memory_op_kind` (`"read"`) optional; the parsed
+  memory's `metadata`, `wikilinks` and `wikilink_refs` are admitted empty, as
+  observed, their element forms unadmitted.
+- `ToolResultContentItem`: `uuid` no longer required.
+- `ApiRichContentItem`: an item's `url` is null or a string.
+- `IconName`: `bookText`.
+- `ApiToolUseBlockBase`: `approval_key_legacy` null or a string; optional
+  `hidden_in_chat` and `tool_identifier`, each null. `ApiToolResultBlockBase`:
+  optional `hidden_in_chat`, null.
+
+#### Refactored
+
+- The new definitions stand where the BFS repair places them; no earlier definition moved. No validation effect.
+
 ## v10
 
 Now validates capture 6178046a (2026-08-13, 'The danger of active

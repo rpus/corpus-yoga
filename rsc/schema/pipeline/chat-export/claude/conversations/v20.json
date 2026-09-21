@@ -156,7 +156,7 @@
     },
     "ContentBlock": {
       "title": "ContentBlock",
-      "description": "Corresponds exactly to the API content block union. The API defines the same three types: text, tool_use, tool_result. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
+      "description": "The API content block union - text, tool_use, tool_result, with thinking - and, from the export of 2026-09-17, the injected prompt block, claude.ai's own, which the API union lacks. See: https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview",
       "type": "object",
       "allOf": [
         {
@@ -175,6 +175,9 @@
         },
         {
           "$ref": "#/definitions/ToolResultBlock"
+        },
+        {
+          "$ref": "#/definitions/InjectedPromptBlock"
         }
       ]
     },
@@ -399,6 +402,9 @@
           "$ref": "#/definitions/McpToolUseBlock"
         },
         {
+          "$ref": "#/definitions/MemoryReadToolUseBlock"
+        },
+        {
           "$ref": "#/definitions/MemoryUserEditsToolUseBlock"
         },
         {
@@ -430,6 +436,9 @@
         },
         {
           "$ref": "#/definitions/WebFetchToolUseBlock"
+        },
+        {
+          "$ref": "#/definitions/WebSearchFastToolUseBlock"
         },
         {
           "$ref": "#/definitions/WebSearchToolUseBlock"
@@ -465,6 +474,9 @@
           "$ref": "#/definitions/McpToolResultBlock"
         },
         {
+          "$ref": "#/definitions/MemoryReadToolResultBlock"
+        },
+        {
           "$ref": "#/definitions/MemoryUserEditsToolResultBlock"
         },
         {
@@ -498,9 +510,68 @@
           "$ref": "#/definitions/WebFetchToolResultBlock"
         },
         {
+          "$ref": "#/definitions/WebSearchFastToolResultBlock"
+        },
+        {
           "$ref": "#/definitions/WebSearchToolResultBlock"
         }
       ]
+    },
+    "InjectedPromptBlock": {
+      "title": "InjectedPromptBlock",
+      "description": "A prompt claude.ai injected into a human message beside what the person typed. First observed in the export of 2026-09-17, on 14 human messages of two conversations dated 2026-08-26 to 2026-09-01; the live captures of the same conversations carry no such block.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "prompt",
+        "injection_source",
+        "initial_turn_only",
+        "skip_on_truncated_continuation",
+        "flags",
+        "start_timestamp",
+        "stop_timestamp"
+      ],
+      "properties": {
+        "type": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "injected_prompt_block"
+          ]
+        },
+        "prompt": {
+          "description": "The injected text.",
+          "type": "string"
+        },
+        "injection_source": {
+          "description": "What injected it. Observed values: \"date_note\" (the current date) and \"melange_tombstone\". Likely an open set.",
+          "type": "string",
+          "enum": [
+            "date_note",
+            "melange_tombstone"
+          ]
+        },
+        "initial_turn_only": {
+          "description": "Whether the injection belongs to the conversation's first turn alone. Observed only false.",
+          "type": "boolean"
+        },
+        "skip_on_truncated_continuation": {
+          "description": "Whether a truncated continuation drops the injection. Observed only false.",
+          "type": "boolean"
+        },
+        "flags": {
+          "description": "Always null.",
+          "type": "null"
+        },
+        "start_timestamp": {
+          "$ref": "#/definitions/Timestamp"
+        },
+        "stop_timestamp": {
+          "description": "Equal to start_timestamp in every observed block.",
+          "$ref": "#/definitions/Timestamp"
+        }
+      }
     },
     "Citation": {
       "title": "Citation",
@@ -786,6 +857,27 @@
         }
       }
     },
+    "MemoryReadToolUseBlock": {
+      "title": "MemoryReadToolUseBlock",
+      "description": "Tool use block for the memory_read tool, claude.ai's first-party Memory integration reading the memories it keeps for the account. First observed 2026-08-26.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "memory_read"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputMemoryRead"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
     "MemoryUserEditsToolUseBlock": {
       "title": "MemoryUserEditsToolUseBlock",
       "description": "Tool use block for the memory_user_edits tool. Uses ToolInputBash (coincidental structural overlap \u2014 command is a verb like view/add/remove/replace, not a shell command).",
@@ -1017,6 +1109,27 @@
         "input"
       ]
     },
+    "WebSearchFastToolUseBlock": {
+      "title": "WebSearchFastToolUseBlock",
+      "description": "Tool use block for the web_search_fast tool, a first-party web search observed once, on 2026-08-28. Its input is a query, as web_search's is, so it uses ToolInputWebSearch.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "web_search_fast"
+          ]
+        },
+        "input": {
+          "$ref": "#/definitions/ToolInputWebSearch"
+        }
+      },
+      "required": [
+        "name",
+        "input"
+      ]
+    },
     "WebSearchToolUseBlock": {
       "title": "WebSearchToolUseBlock",
       "description": "Tool use block for the web_search tool. Also used for conversation_search (same input shape).",
@@ -1133,8 +1246,18 @@
           "type": "boolean"
         },
         "structured_content": {
-          "description": "Always null in observed exports. Possibly reserved for future use.",
-          "type": "null"
+          "description": "Null but on a memory_read result, which carries the memory it read: one document, or a list of them.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/MemoryDocument"
+            },
+            {
+              "$ref": "#/definitions/MemoryDocumentList"
+            }
+          ]
         },
         "meta": {
           "description": "Metadata for the tool result. May be null or contain output format info. Observed non-null values include {output_format_category: 'md'|'none'|'other'}.",
@@ -1259,6 +1382,23 @@
           "$ref": "#/definitions/NamespacedToolName"
         }
       }
+    },
+    "MemoryReadToolResultBlock": {
+      "title": "MemoryReadToolResultBlock",
+      "description": "Tool result block for the memory_read tool: a text item, a rich-content display of each memory read, and the memory itself as structured_content.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "memory_read"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
     },
     "MemoryUserEditsToolResultBlock": {
       "title": "MemoryUserEditsToolResultBlock",
@@ -1447,6 +1587,23 @@
         "name"
       ]
     },
+    "WebSearchFastToolResultBlock": {
+      "title": "WebSearchFastToolResultBlock",
+      "description": "Tool result block for the web_search_fast tool: knowledge items, as web_search returns them.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "(discriminator)",
+          "type": "string",
+          "enum": [
+            "web_search_fast"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
     "WebSearchToolResultBlock": {
       "title": "WebSearchToolResultBlock",
       "description": "Tool result block for the web_search tool.",
@@ -1510,6 +1667,7 @@
         {
           "type": "string",
           "enum": [
+            "bookText",
             "commandLine",
             "edit",
             "file",
@@ -1639,6 +1797,32 @@
       "pattern": "^[^:]+:[^:]+$",
       "not": {
         "$ref": "#/definitions/ToolName"
+      }
+    },
+    "ToolInputMemoryRead": {
+      "title": "ToolInputMemoryRead",
+      "description": "Input for the memory_read tool: the memories to read. The conversations of 2026-08 name two or three paths as a list; those of 2026-09 name one path as a string. The live captures of the 2026-08 conversations show the input empty, which no export does.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "description": "One memory's path, or a list of paths. Example: \"/areas/yoga-corpus.md\".",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
       }
     },
     "ToolInputMemoryUserEdits": {
@@ -1983,6 +2167,80 @@
         }
       }
     },
+    "MemoryDocument": {
+      "title": "MemoryDocument",
+      "description": "One memory as the memory_read tool returns it: a markdown file of the account's memory store, addressed by path and version, with its parsed front matter and body.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "path_segments",
+        "version",
+        "updated_at",
+        "parsed",
+        "target"
+      ],
+      "properties": {
+        "path": {
+          "description": "The memory's path in the store. Example: \"/topics/interests.md\".",
+          "type": "string"
+        },
+        "path_segments": {
+          "description": "The path split at its slashes.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "display_path_segments": {
+          "description": "The path segments as the UI titles them. Example: [\"Areas\", \"Yoga Corpus\"]. Present on a single-document result, absent inside a document list.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "version": {
+          "description": "The memory's version, twelve hex digits observed.",
+          "type": "string"
+        },
+        "updated_at": {
+          "description": "When the memory was last written.",
+          "$ref": "#/definitions/Timestamp"
+        },
+        "parsed": {
+          "$ref": "#/definitions/MemoryDocumentParsed"
+        },
+        "target": {
+          "$ref": "#/definitions/MemoryDocumentTarget"
+        },
+        "memory_op_kind": {
+          "description": "The operation that produced the document. Observed value: \"read\", from 2026-09-15; absent before.",
+          "type": "string",
+          "enum": [
+            "read"
+          ]
+        }
+      }
+    },
+    "MemoryDocumentList": {
+      "title": "MemoryDocumentList",
+      "description": "Several memories returned by one memory_read (two or three observed, the 2026-08 conversations whose input is empty).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documents"
+      ],
+      "properties": {
+        "documents": {
+          "description": "The memories read.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/MemoryDocument"
+          }
+        }
+      }
+    },
     "DisplayContentCodeBlock": {
       "title": "DisplayContentCodeBlock",
       "description": "A code block rendering hint for the claude.ai UI. Observed in both ToolUseBlock and ToolResultBlock display_content.",
@@ -2275,6 +2533,74 @@
         },
         "destination_url": {
           "type": "string"
+        }
+      }
+    },
+    "MemoryDocumentParsed": {
+      "title": "MemoryDocumentParsed",
+      "description": "A memory file parsed: its front matter's name and description, and its body.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description",
+        "body",
+        "body_has_rewritten_wikilinks",
+        "metadata",
+        "wikilinks",
+        "wikilink_refs"
+      ],
+      "properties": {
+        "name": {
+          "description": "The memory's name, from its front matter.",
+          "type": "string"
+        },
+        "description": {
+          "description": "The memory's one-line description, from its front matter.",
+          "type": "string"
+        },
+        "body": {
+          "description": "The memory's markdown body.",
+          "type": "string"
+        },
+        "body_has_rewritten_wikilinks": {
+          "description": "Whether the body's wikilinks were rewritten. Observed only false.",
+          "type": "boolean"
+        },
+        "metadata": {
+          "description": "Further front matter. Observed only empty.",
+          "type": "object",
+          "maxProperties": 0
+        },
+        "wikilinks": {
+          "description": "The body's wikilinks. Observed only empty; the element form is unobserved.",
+          "type": "array",
+          "maxItems": 0
+        },
+        "wikilink_refs": {
+          "description": "The wikilinks' references. Observed only empty; the element form is unobserved.",
+          "type": "array",
+          "maxItems": 0
+        }
+      }
+    },
+    "MemoryDocumentTarget": {
+      "title": "MemoryDocumentTarget",
+      "description": "What the read was aimed at.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file_path",
+        "files_list"
+      ],
+      "properties": {
+        "file_path": {
+          "description": "The path read; the document's own path in every observed result.",
+          "type": "string"
+        },
+        "files_list": {
+          "description": "Whether the read was a listing of files. Observed only false.",
+          "type": "boolean"
         }
       }
     },
