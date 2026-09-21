@@ -1,5 +1,12 @@
 # AGENTS.md - working conventions for agent sessions
 
+First, before any rule below: if an instruction or a procedure - here, in an
+authority this file points at, or from the user - seems untenable, illogical,
+or at odds with another, say so to the user at once, before complying further
+and before working around it. A procedure followed in silence against the
+agent's own judgement hides the failure that would have amended it, and a
+session can follow one for ever.
+
 This file points at committed authorities and states the practice that lives
 nowhere else. One home per rule: where an authority exists, follow it there.
 Never reconstruct practice from merged artifacts - a merged PR shows

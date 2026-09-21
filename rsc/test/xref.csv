@@ -1,11 +1,11 @@
 referring_file,line,ref_type,referred_file,exists,line_text
-AGENTS.md,54,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
-AGENTS.md,54,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
-AGENTS.md,55,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds the grammars of"
-AGENTS.md,57,doc,rsc/migration,Y,comments or if-chains; rsc/migration/ holds the moves a rename owes the
-AGENTS.md,59,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
-AGENTS.md,176,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
-AGENTS.md,181,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
+AGENTS.md,61,doc,rsc/CALCULUS.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
+AGENTS.md,61,doc,rsc/schema/WORKFLOW.md,Y,- rsc/CALCULUS.md holds the laws; rsc/schema/WORKFLOW.md the schema
+AGENTS.md,62,doc,rsc/naming,Y,"process, changelog grammar included; rsc/naming/ holds the grammars of"
+AGENTS.md,64,doc,rsc/migration,Y,comments or if-chains; rsc/migration/ holds the moves a rename owes the
+AGENTS.md,66,doc,rsc/test,Y,"- CONTRIBUTING.md is the merge authority: the forge commands, the rsc/test/"
+AGENTS.md,183,doc,src/main/cli/forge/merge.json,Y,words. Its declaration (src/main/cli/forge/merge.json) is the authority
+AGENTS.md,188,doc,src/main/cli/forge/forge.csv,Y,"COMMIT_MESSAGES, rows of src/main/cli/forge/forge.csv, explained in"
 CONTRIBUTING.md,9,doc,src/main/cli/forge/forge.csv,Y,"declared settings (`src/main/cli/forge/forge.csv`, reconciled by `corpus-yoga forge` and"
 CONTRIBUTING.md,12,doc,rsc/test,Y,"gate there, and halts on red with the regenerated `rsc/test/` discarded, the checkout put"
 CONTRIBUTING.md,22,doc,src/main/cli/forge/forge.csv,Y,`./corpus-yoga forge sync --apply` makes the forge agree with `src/main/cli/forge/forge.csv` rather than
