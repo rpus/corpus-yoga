@@ -42,10 +42,11 @@ FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 # The default source is the projected corpus itself (data/output/markdown — every source's
 # conversations dir combined, claude first), whose filenames carry the cached
 # ordering — read back by markdown_projection.corpus_index, the format authority.
-# Each line carries a [source] marker: the stem's <source> dir prefix on a
-# multi-source corpus (claude / gemini / code — a code session's id is a 36-char
-# uuid too, so the id shape alone cannot name it), falling back to the id shape
-# for a single conversations dir — the concept capture tags its rows from these.
+# Each line carries a [source] marker, the conversation's PROVIDER and nothing else, a
+# chat and a code session alike: the first segment of the stem on a corpus root
+# (<provider>/<channel>/<file>), falling back to the id shape for a single
+# conversations dir. The concept capture tags its rows from these, so every marker is
+# a value the provider column admits (#682).
 # A batch source (conversations.json or atomised json/) still works via
 # timeline.py, re-deriving the claude numbering with ordered() (no markers: a
 # batch is claude by construction, and the prompt says so).
@@ -57,11 +58,8 @@ import sys
 sys.path.insert(0, '$REPO_DIR/src/main')
 from markdown_projection import corpus_index
 for n, stem, title, cid in corpus_index('$src'):
-    # stem is <provider>/<channel>/<file> at a corpus root; the marker keeps its
-    # historical vocabulary (claude | gemini | code) — 'code' names the channel
     parts = stem.split('/')
-    source = ('code' if len(parts) == 3 and parts[1] == 'code' else parts[0]) \
-        if len(parts) > 1 else ('claude' if len(cid) == 36 else 'gemini')
+    source = parts[0] if len(parts) > 1 else ('claude' if len(cid) == 36 else 'gemini')
     print(f'{n} [{source}]: {title}')
 "
   else
