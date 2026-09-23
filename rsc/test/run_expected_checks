@@ -47,6 +47,7 @@ documentation.discriminator_fields_annotated
 documentation.every_definition_has_title_and_description
 documentation.null_only_fields_documented
 documentation.open_set_enums_documented
+effects.consumer_reads
 effects.enact_faces_agree
 effects.extent_covered
 effects.send_switch_read_once

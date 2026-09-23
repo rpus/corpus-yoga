@@ -29,6 +29,6 @@
     ]
   },
   "w": [
-    "data/input/github/forge/gh-CLI"
+    "tmp/stage/input/github/forge/gh-CLI"
   ]
 }

@@ -281,8 +281,10 @@ seventh principle or a smell.
   nothing else. No narration, no provenance, no dates, no history; the
   retirement gradient is plainer name, smaller structure, declaration,
   generated code. History lives in commit messages and changelogs.
-- Declarations: `r` and `w` hold repo-relative file path prefixes only;
-  anything reaching outside the tree is a send or x by definition. What is
+- Declarations: `r`, `w` and `consumes` hold repo-relative file path
+  prefixes only - `consumes` the prefixes a verb removes after reading, a
+  dequeue from another command's `w`; anything reaching outside the tree is a
+  send or x by definition. What is
   intent, how is extent: prose says what a verb is FOR; its effects render
   from the declaration and are never restated by hand.
 - Every script declares SELF as its repo-relative address and derives its

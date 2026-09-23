@@ -34,8 +34,8 @@ assets it names (uploads), the latter deposited into the artifact library
 (data/output/artifacts/claude/chat/downloaded/) when absent — see complete_files.
 
 Usage:
-    python capture.py --provider claude                   [--api-capture  data/input/claude/chat/API-capture]
-    python capture.py --provider gemini --id <id>         [--dom-capture  data/input/gemini/chat/DOM-capture]
+    python capture.py --provider claude                   [--api-capture  tmp/stage/input/claude/chat/API-capture]
+    python capture.py --provider gemini --id <id>         [--dom-capture  tmp/stage/input/gemini/chat/DOM-capture]
 """
 import argparse
 import json
@@ -478,9 +478,9 @@ def main():
                     help='print the providers and mechanisms the restrictions select, then stop — '
                          'so a caller reads the scope off the declaration instead of restating it')
     ap.add_argument('--api-capture', default=None,
-                    help='API-capture root (default: data/input/<provider>/chat/API-capture)')
+                    help='API-capture root (default: tmp/stage/input/<provider>/chat/API-capture, the stage - corpus-yoga stage promote reaches data/input)')
     ap.add_argument('--dom-capture', default=None,
-                    help='DOM-capture root (default: data/input/<provider>/chat/DOM-capture)')
+                    help='DOM-capture root (default: tmp/stage/input/<provider>/chat/DOM-capture, the stage)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -540,8 +540,10 @@ def main():
             raise SystemExit(1)
 
     # one root per mechanism in scope; dirs appear only when captured into
-    api_root = Path(args.api_capture or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'API-capture').resolve()
-    dom_root = Path(args.dom_capture or REPO_DIR / 'data' / 'input' / args.provider / 'chat' / 'DOM-capture').resolve()
+    # a capture writes to the stage, tmp/stage/input/..., the address its unit will have
+    # under data/input; corpus-yoga stage promote is what reaches shared storage (#687)
+    api_root = Path(args.api_capture or REPO_DIR / 'tmp' / 'stage' / 'input' / args.provider / 'chat' / 'API-capture').resolve()
+    dom_root = Path(args.dom_capture or REPO_DIR / 'tmp' / 'stage' / 'input' / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
     if 'DOM' in mechanisms:
@@ -577,7 +579,8 @@ def main():
             # of the corpus is not a deletion story. Said loudly, both numbers
             # named; the sweep proceeds but never passes as full.
             roots = [r for r, m in ((api_root, 'API'), (dom_root, 'DOM')) if m in mechanisms]
-            existing = len({d.name for root in roots if root.is_dir()
+            held = [REPO_DIR / 'data' / 'input' / args.provider / 'chat' / c for c in ('API-capture', 'DOM-capture')]
+            existing = len({d.name for root in held if root.is_dir()
                             for d in root.iterdir() if d.is_dir()})
             if len(ids) < existing:
                 emit(f'FAIL: discovered {len(ids)} conversation(s) but {existing} already '
