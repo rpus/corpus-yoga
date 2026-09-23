@@ -23,7 +23,7 @@
       "name": "--stage",
       "type": "",
       "cardinality": "",
-      "help": "read shared storage with this room's stage laid over it (tmp/stage), so that what is captured and not yet promoted is run before the merge that licenses its promotion"
+      "help": "read shared storage with this room's stage laid over it (tmp/input), so that what is captured and not yet promoted is run before the merge that licenses its promotion"
     }
   ],
   "sends": {
@@ -38,7 +38,7 @@
     "data/input",
     "rsc",
     "machine-name.txt",
-    "tmp/stage"
+    "tmp/input"
   ],
   "w": [
     "tmp/cache/chat-capture",

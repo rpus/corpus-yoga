@@ -291,7 +291,7 @@ Each law names its current enforcement (or the incident that taught it).
   CLOSURE holds for the free inputs the run produces, so the run renders it;
   the paid captures enter it as a declared vintage, never as a currency claim.
 - **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
-  what its source returned, under a stamp, into the room's stage, `tmp/stage/`, at
+  what its source returned, under a stamp, into the room's stage, `tmp/input/`, at
   the address its unit will have under `data/input/`, and reads no other capture
   (#687). Whether a staged unit is the held one, extends it, falls short of it or
   diverges from it is decided at the one reduce that reaches shared storage,

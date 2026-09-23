@@ -34,8 +34,8 @@ assets it names (uploads), the latter deposited into the artifact library
 (data/output/artifacts/claude/chat/downloaded/) when absent — see complete_files.
 
 Usage:
-    python capture.py --provider claude                   [--api-capture  tmp/stage/claude/chat/API-capture]
-    python capture.py --provider gemini --id <id>         [--dom-capture  tmp/stage/gemini/chat/DOM-capture]
+    python capture.py --provider claude                   [--api-capture  tmp/input/claude/chat/API-capture]
+    python capture.py --provider gemini --id <id>         [--dom-capture  tmp/input/gemini/chat/DOM-capture]
 """
 import argparse
 import json
@@ -478,9 +478,9 @@ def main():
                     help='print the providers and mechanisms the restrictions select, then stop — '
                          'so a caller reads the scope off the declaration instead of restating it')
     ap.add_argument('--api-capture', default=None,
-                    help='API-capture root (default: tmp/stage/<provider>/chat/API-capture, the stage - corpus-yoga stage promote reaches data/input)')
+                    help='API-capture root (default: tmp/input/<provider>/chat/API-capture, the stage - corpus-yoga stage promote reaches data/input)')
     ap.add_argument('--dom-capture', default=None,
-                    help='DOM-capture root (default: tmp/stage/<provider>/chat/DOM-capture, the stage)')
+                    help='DOM-capture root (default: tmp/input/<provider>/chat/DOM-capture, the stage)')
     ap.add_argument('--id', metavar='ID',
                     help='Capture ONE conversation — in place if the front tab shows it, '
                          'else navigated to in a work tab; default is to discover and capture all')
@@ -540,10 +540,10 @@ def main():
             raise SystemExit(1)
 
     # one root per mechanism in scope; dirs appear only when captured into
-    # a capture writes to the stage, tmp/stage/..., the address its unit will have
+    # a capture writes to the stage, tmp/input/..., the address its unit will have
     # under data/input; corpus-yoga stage promote is what reaches shared storage (#687)
-    api_root = Path(args.api_capture or REPO_DIR / 'tmp' / 'stage' / args.provider / 'chat' / 'API-capture').resolve()
-    dom_root = Path(args.dom_capture or REPO_DIR / 'tmp' / 'stage' / args.provider / 'chat' / 'DOM-capture').resolve()
+    api_root = Path(args.api_capture or REPO_DIR / 'tmp' / 'input' / args.provider / 'chat' / 'API-capture').resolve()
+    dom_root = Path(args.dom_capture or REPO_DIR / 'tmp' / 'input' / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
     if 'DOM' in mechanisms:
