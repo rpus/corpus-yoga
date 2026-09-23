@@ -1,6 +1,24 @@
 {
-  "help": "promote what this room has staged into shared storage - each unit related to the held one of its address (new, identical, extends, ahead, diverged) and written only where nothing held would be lost; the rest named and left staged. A dry run unless --apply",
+  "help": "promote what this room has staged into shared storage - every unit, one provider's, or one unit of one provider - each related to the held one of its address (new, identical, extends, ahead, diverged) and written only where nothing held would be lost; the rest named and left in tmp/input. A dry run unless --apply",
   "args": [
+    {
+      "name": "--provider",
+      "type": "<provider>",
+      "cardinality": "1/input-promote-1",
+      "help": "every staged unit of ONE provider, or with --id one of them"
+    },
+    {
+      "name": "--id",
+      "type": "<unit-prefix>",
+      "cardinality": "",
+      "help": "one unit of the provider --provider names: a prefix of its address under the provider (a conversation id, a session's machine/project/id, an export's data-* name) matching exactly one; requires --provider"
+    },
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "1/input-promote-1",
+      "help": "every staged unit of every provider"
+    },
     {
       "name": "--apply",
       "type": "",
