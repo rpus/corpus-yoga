@@ -18,7 +18,7 @@
     "rsc/cache_io.csv",
     "tmp/cache"
   ],
-  "w": [
+  "consumes": [
     "tmp/cache"
   ]
 }

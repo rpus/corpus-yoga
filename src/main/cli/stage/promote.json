@@ -1,0 +1,21 @@
+{
+  "help": "promote what this room has staged into shared storage - each unit related to the held one of its address (new, identical, extends, ahead, diverged) and written only where nothing held would be lost; the rest named and left staged. A dry run unless --apply",
+  "args": [
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "",
+      "help": "write the promotable units and remove them from the stage - without it, what would be promoted is only reported"
+    }
+  ],
+  "r": [
+    "tmp/stage",
+    "data/input"
+  ],
+  "w": [
+    "data/input"
+  ],
+  "consumes": [
+    "tmp/stage"
+  ]
+}

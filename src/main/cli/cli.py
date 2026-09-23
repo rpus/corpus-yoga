@@ -413,7 +413,7 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     if any(t in ('-h', '--help') for t in rest):
         return  # a help invocation is a read-only face, log-free by construction (#474)
     d = json.loads(declaration.read_text())
-    if not (d.get('w') or d.get('sends')) or d.get('log') == 'self':
+    if not (d.get('w') or d.get('consumes') or d.get('sends')) or d.get('log') == 'self':
         return
     import time
     stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
