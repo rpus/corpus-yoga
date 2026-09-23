@@ -52,7 +52,7 @@ input_of() {
   local declared; declared="$(jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json")"
   # --stage: the pipelines read the overlay, the store with this room's stage laid over
   # it (src/main/stage.py), at the same address under tmp/cache/overlay (#687)
-  if [[ -n "${stage:-}" ]]; then echo "${declared/#data\//tmp/cache/overlay/}"; else echo "$declared"; fi
+  if [[ -n "${stage:-}" ]]; then echo "${declared/#data\/input\//tmp/cache/overlay/}"; else echo "$declared"; fi
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
