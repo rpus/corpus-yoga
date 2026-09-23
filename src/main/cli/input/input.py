@@ -8,9 +8,14 @@ and reads nothing (L10). This command is the one reduce over the room's input ag
 `promote`, the units the relation licenses written into shared storage and taken off
 tmp/input, the rest named and left - a dry run unless --apply.
 
-    corpus-yoga input                    # status: each staged unit's relation
-    corpus-yoga input promote            # what would be promoted, and what refused
-    corpus-yoga input promote --apply    # promote
+    corpus-yoga input                                      # status: each staged unit's relation
+    corpus-yoga input promote --all                        # what would be promoted, and what refused
+    corpus-yoga input promote --provider <p> [--id <unit>] # one provider's units, or one of them
+    corpus-yoga input promote ... --apply                  # promote
+
+The extent is named as the agent capture names it: --all, or --provider, or
+--provider with --id, where --id is a prefix of the unit's address under the
+provider matching exactly one; a uuid's shape does not say whose it is.
 
 The relations are src/main/append_only.py's; the measure each kind is related by is
 src/main/input.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
@@ -68,10 +73,26 @@ def status() -> int:
     return 0
 
 
-def promote(apply: bool) -> int:
-    rows = survey()
+def extent(rows, provider: str | None, unit_id: str | None) -> list:
+    """The units the flags name, or a refusal that names what they matched."""
+    if provider is None:
+        return rows
+    mine = [r for r in rows if r[0].parts[0] == provider]
+    if unit_id is None:
+        return mine
+    hits = [r for r in mine if any(part.startswith(unit_id) for part in r[0].parts[1:]) or
+            r[0].relative_to(provider).as_posix().startswith(unit_id)]
+    if len(hits) != 1:
+        names = ', '.join(str(r[0]) for r in hits) or 'nothing'
+        sys.exit(f'error: --id {unit_id!r} names {len(hits)} staged unit(s) of {provider}: {names} - '
+                 f'--id names one; corpus-yoga input lists them')
+    return hits
+
+
+def promote(apply: bool, provider: str | None, unit_id: str | None) -> int:
+    rows = extent(survey(), provider, unit_id)
     if not rows:
-        print('input promote: nothing staged')
+        print('input promote: nothing staged' + (f' for {provider}' if provider else ''))
         return 0
     written = cleared = refused = 0
     for unit, relation, detail in rows:
@@ -110,7 +131,9 @@ def _prune_empty(root: Path) -> None:
 def main() -> int:
     args = command_parser('input').parse_args()
     if args.verb == 'promote':
-        return promote(args.apply)
+        if args.id is not None and args.provider is None:
+            sys.exit('error: --id names a unit within a provider - say which with --provider')
+        return promote(args.apply, args.provider, args.id)
     return status()
 
 
