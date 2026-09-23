@@ -35,7 +35,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 from send import SendRefused, assert_may_send  # noqa: E402
 
 STORE = REPO / 'data' / 'input' / 'claude' / 'chat' / 'bulk-export'    # where manifests are deposited by hand
-STAGE = REPO / 'tmp' / 'input' / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga stage promote reaches the store (#687)
+STAGE = REPO / 'tmp' / 'input' / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga input promote reaches the store (#687)
 
 
 def derived_data_name(manifest_path: Path) -> str:

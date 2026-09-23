@@ -1,5 +1,5 @@
 {
-  "help": "capture browser-reachable chats via Safari into the stage, tmp/input/ - corpus-yoga stage promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
+  "help": "capture browser-reachable chats via Safari into the room's input, tmp/input/ - corpus-yoga input promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
   "args": [
     {
       "name": "--provider",

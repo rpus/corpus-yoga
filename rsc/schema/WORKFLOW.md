@@ -169,9 +169,9 @@ src/main/pipeline/code-transport/run.sh --input data/input/claude/code/machine-t
 ```
 
 A datum the latest version refuses is, from #687, a datum the room has staged and
-cannot promote: `corpus-yoga stage` names it, and the mint is tested over the stage
-before the merge that licenses its promotion - `corpus-yoga pipeline run --stage` reads
-shared storage with this room's stage laid over it, so the run above is that one.
+cannot promote: `corpus-yoga input` names it, and the mint is tested over the room's input
+before the merge that licenses its promotion - `corpus-yoga pipeline run --overlay` reads
+shared storage with this room's tmp/input laid over it, so the run above is that one.
 
 Validation runs each datum against its family's LATEST version only - the latest
 version is the schema, the rest is this file's history (#557) - and renders the datum's

@@ -27,15 +27,15 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `tmp/input/` | captured, not yet promoted | local | a recapture — and, for a code session whose live log the provider has since expired, that session; `corpus-yoga stage promote` moves what validates into `data/input/` |
+| `tmp/input/` | captured, not yet promoted | local | a recapture — and, for a code session whose live log the provider has since expired, that session; `corpus-yoga input promote` moves what validates into `data/input/` |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
 A capture writes to `tmp/input/`, at the address its unit will have under `data/input/`,
-and reads nothing; `corpus-yoga stage promote` is the one writer of `data/input/`: it
+and reads nothing; `corpus-yoga input promote` is the one writer of `data/input/`: it
 relates each staged unit to the held one - new, identical, extends, ahead, diverged - and
 promotes only where nothing held would be lost, naming the rest (#687). `corpus-yoga
-pipeline run --stage` reads the store with this room's stage laid over it.
+pipeline run --overlay` reads the store with this room's tmp/input laid over it.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
 `gemini` have channels `chat`, `code` and captures `bulk-export`, `API-capture`,
