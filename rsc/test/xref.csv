@@ -25,38 +25,38 @@ README.md,10,doc,src/main/cli/prerequisites/prerequisites.sh,Y,"./src/main/cli/p
 README.md,27,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,27,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,29,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-README.md,52,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,53,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
-README.md,54,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,54,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,54,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,54,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,55,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,55,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,55,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,55,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,55,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,55,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,56,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
-README.md,57,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,57,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,57,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,57,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,57,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,58,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,58,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,59,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
-README.md,60,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
-README.md,61,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,62,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,63,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
-README.md,64,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
-README.md,71,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,81,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
-README.md,82,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
-README.md,100,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,107,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,107,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,59,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,60,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
+README.md,61,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,61,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,61,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,61,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,62,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,62,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,62,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,62,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,62,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,62,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,63,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
+README.md,64,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,64,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,64,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,64,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,64,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,65,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,65,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,66,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
+README.md,67,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
+README.md,68,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,69,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,70,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
+README.md,71,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,78,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,88,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
+README.md,89,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
+README.md,107,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,114,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,114,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/chat-capture,Y,"""src/main/pipeline/chat-capture"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-export,Y,"""src/main/pipeline/chat-export"","
@@ -691,7 +691,7 @@ src/main/cli/agent/agent.py,6,comment,rsc/CALCULUS.md,Y,The calculus (rsc/CALCUL
 src/main/cli/agent/agent.py,24,comment,rsc/provider/providers.csv,Y,"ext/mnt/agent/<provider> per the registry (rsc/provider/providers.csv, #636) -"
 src/main/cli/agent/agent.py,40,comment,rsc/machine/machines.csv,Y,"binding, which rsc/machine/machines.csv must declare - and install --from"
 src/main/cli/agent/agent.py,127,path_str,src/main/cli/agent/agent.py,Y,SELF = 'src/main/cli/agent/agent.py'
-src/main/cli/agent/agent.py,291,comment,rsc/migration/636.sh,Y,rsc/migration/636.sh's.
+src/main/cli/agent/agent.py,294,comment,rsc/migration/636.sh,Y,rsc/migration/636.sh's.
 src/main/cli/agent/claude/harness.py,22,path_str,src/main/cli/agent/claude/harness.py,Y,SELF = 'src/main/cli/agent/claude/harness.py'
 src/main/cli/agent/gemini/harness.py,25,path_str,src/main/cli/agent/gemini/harness.py,Y,SELF = 'src/main/cli/agent/gemini/harness.py'
 src/main/cli/agent/mount.json,12,path_str,rsc/provider,Y,"""rsc/provider"","
@@ -810,8 +810,9 @@ src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck so
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/pipeline/pipeline.sh,43,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)"
-src/main/cli/pipeline/pipeline.sh,373,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,408,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,54,comment,src/main/stage.py,Y,"# it (src/main/stage.py), at the same address under tmp/cache/overlay (#687)"
+src/main/cli/pipeline/pipeline.sh,378,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
+src/main/cli/pipeline/pipeline.sh,413,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.json,15,path_str,rsc/machine,Y,"""rsc/machine"","
@@ -873,6 +874,10 @@ src/main/cli/site/site.sh,27,comment,src/main/cli/parse_argv.sh,Y,# shellcheck s
 src/main/cli/site/site.sh,32,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/site.sh,122,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
+src/main/cli/stage/stage.json,3,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
+src/main/cli/stage/stage.py,15,comment,src/main/append_only.py,Y,The relations are src/main/append_only.py's; the measure each kind is related by is
+src/main/cli/stage/stage.py,16,comment,src/main/stage.py,Y,src/main/stage.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
+src/main/cli/stage/stage.py,26,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/supersede/check.json,46,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
@@ -1127,6 +1132,8 @@ src/main/schema_path.py,7,comment,src/run_python_script.sh,Y,"src/run_python_scr
 src/main/schema_path.py,7,comment,src/main/schema_path.py,Y,"src/run_python_script.sh src/main/schema_path.py ""[4, 'chat_messages', 8, 'files', 0]"" rsc/schema/pipeline/chat-export/c"
 src/main/send.py,19,comment,src/test/dev/run.py,Y,in src/test/dev/run.py. Two readings of one switch is how the polarity of `== '1'` and `!= '1'`
 src/main/send.sh,4,comment,src/main/send.py,Y,"# The ONE fact has two faces, one per language: src/main/send.py for python, this file for"
+src/main/stage.py,9,comment,src/main/append_only.py,Y,"(L4), naming the rest (L6). One relation vocabulary, src/main/append_only.py's, serves"
+src/main/stage.py,27,path_str,src/main/stage.py,Y,SELF = 'src/main/stage.py'
 src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
@@ -1165,34 +1172,34 @@ src/test/dev/run.py,1867,comment,rsc/model/model_rejected.txt,Y,covered by a rej
 src/test/dev/run.py,1961,comment,src/main/mcp/reproduce.sh,Y,committed schema.ts (#576): src/main/mcp/reproduce.sh fetches upstream at the
 src/test/dev/run.py,2012,comment,rsc/provider/providers.csv,Y,"The provider registry (rsc/provider/providers.csv, #628) parses, and every"
 src/test/dev/run.py,2091,comment,rsc/reference/JSONSchema/draft-04/schema.json,Y,"(rsc/reference/JSONSchema/draft-04/schema.json), the dialect every one of them"
-src/test/dev/run.py,2257,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
-src/test/dev/run.py,2269,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
-src/test/dev/run.py,2357,comment,src/main/pipeline/chat-export/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
-src/test/dev/run.py,2358,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
-src/test/dev/run.py,2409,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2409,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
-src/test/dev/run.py,2410,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2410,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
-src/test/dev/run.py,2411,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2411,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
-src/test/dev/run.py,2415,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
-src/test/dev/run.py,2416,path_str,rsc/model,Y,"MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
+src/test/dev/run.py,2258,comment,rsc/test/xref.csv,Y,rsc/test/xref.csv. Used only when check_xref replayed from the section cache
+src/test/dev/run.py,2270,comment,rsc/test/xref.csv,Y,"The table is computed here, in-process; only render writes rsc/test/xref.csv"
+src/test/dev/run.py,2358,comment,src/main/pipeline/chat-export/accumulate.py,Y,The shared accumulate operation (src/main/pipeline/chat-export/accumulate.py) obeys
+src/test/dev/run.py,2359,comment,rsc/CALCULUS.md,Y,the contract issue #22 unified it to and rsc/CALCULUS.md states: deposit iff
+src/test/dev/run.py,2410,path_str,src/test/dev/run.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2410,path_str,src/test/dev/xref.py,Y,"GATE_SOURCES = ['src/test/dev/run.py', 'src/test/dev/xref.py',"
+src/test/dev/run.py,2411,path_str,rsc/test/run_expected_checks,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2411,path_str,rsc/test/xref_expected_score,Y,"'rsc/test/run_expected_checks', 'rsc/test/xref_expected_score']"
+src/test/dev/run.py,2412,path_str,rsc/test/run.log,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2412,path_str,rsc/test/xref.csv,Y,"ARTIFACTS = {'rsc/test/run.log', 'rsc/test/xref.csv'}"
+src/test/dev/run.py,2416,path_str,rsc/schema,Y,SCHEMA = ['rsc/schema']
+src/test/dev/run.py,2417,path_str,rsc/model,Y,"MODEL = ['rsc/model']   # the cross-family model: the table, its schema, the join, its kinds, the rejections"
 src/test/dev/run.py,2029,path_str,src/main/cli/browser,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
 src/test/dev/run.py,2029,path_str,src/main/pipeline/chat-capture,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
 src/test/dev/run.py,2029,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
-src/test/dev/run.py,2429,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
-src/test/dev/run.py,2431,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
-src/test/dev/run.py,2444,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
-src/test/dev/run.py,2445,path_str,rsc/provider,Y,"'check_provider_registry': ['rsc/provider', 'src'],"
-src/test/dev/run.py,2448,path_str,rsc/rpus/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
-src/test/dev/run.py,2448,path_str,src/main/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
-src/test/dev/run.py,2448,path_str,src/gen/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
-src/test/dev/run.py,2449,path_str,src/gen/grammar,Y,"'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'],"
-src/test/dev/run.py,2887,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
-src/test/dev/run.py,2426,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
-src/test/dev/run.py,2446,path_str,rsc/reference/JSONSchema,Y,"'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],"
-src/test/dev/run.py,2447,path_str,src/main,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
-src/test/dev/run.py,2447,path_str,rsc/provider,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
+src/test/dev/run.py,2430,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
+src/test/dev/run.py,2432,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
+src/test/dev/run.py,2445,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
+src/test/dev/run.py,2446,path_str,rsc/provider,Y,"'check_provider_registry': ['rsc/provider', 'src'],"
+src/test/dev/run.py,2449,path_str,rsc/rpus/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
+src/test/dev/run.py,2449,path_str,src/main/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
+src/test/dev/run.py,2449,path_str,src/gen/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
+src/test/dev/run.py,2450,path_str,src/gen/grammar,Y,"'check_mcp_factoring': ['rsc/reference/mcp', 'rsc/schema/mcp', 'src/main/mcp', 'src/gen/grammar'],"
+src/test/dev/run.py,2888,comment,rsc/test/run.log,Y,"'committed' is rsc/test/run.log (code+schema only, byte-identical on any"
+src/test/dev/run.py,2427,path_str,rsc/CALCULUS.md,Y,"'check_cli_surface': (['src', 'rsc/CALCULUS.md']"
+src/test/dev/run.py,2447,path_str,rsc/reference/JSONSchema,Y,"'check_schema_meta_validity': SCHEMA + ['rsc/reference/JSONSchema'],"
+src/test/dev/run.py,2448,path_str,src/main,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
+src/test/dev/run.py,2448,path_str,rsc/provider,Y,"'check_schema_layout': SCHEMA + ['src/main', 'rsc/provider'],"
 src/test/dev/run.py,338,path_str,src/main/pipeline,Y,f'src/main/pipeline/{name}/ has no pipeline.json — a member without a '
 src/test/dev/run.py,996,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) == 'rsc/test/xref.csv':"
 src/test/dev/run.py,1999,path_str,src/gen/grammar,Y,detail = (f'src/gen/grammar/{project.name} is absent - corpus-yoga grammar sync generates it from '
@@ -1202,12 +1209,12 @@ src/test/dev/run.py,1047,path_str,rsc/test/xref.csv,Y,"if rel.parts[0] in ('tmp'
 src/test/dev/run.py,1047,path_str,src/test/dev/run.py,Y,"if rel.parts[0] in ('tmp', '.git', 'data') or str(rel) in ('rsc/test/xref.csv', 'src/test/dev/run.py'):"
 src/test/dev/run.py,388,path_str,src/main/pipeline,Y,"f'src/main/pipeline/{name}/{p}/ lacks {"", "".join(absent)} - run.sh calls each by the provider\'s name',"
 src/test/dev/run.py,2005,path_str,src/gen/grammar,Y,"detail = None if ok else (f'src/gen/grammar/{project.name}: {"", "".join(differing)} differ from what '"
-src/test/dev/run.py,2233,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
-src/test/dev/run.py,3094,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
-src/test/dev/run.py,3095,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
+src/test/dev/run.py,2234,path_str,src/test,Y,if (tgt and not tgt.startswith('src/test/')
+src/test/dev/run.py,3095,path_str,rsc/test/run.log,Y,"('rsc/test/run.log', run_result.committed_text, written_committed),"
+src/test/dev/run.py,3096,path_str,rsc/test/xref.csv,Y,"('rsc/test/xref.csv', run_result.xref_csv_text, written_xref),"
 src/test/dev/run.py,377,path_str,src/main/pipeline,Y,(f'src/main/pipeline/{name}/{p}/ exists and pipeline.json names no provider {p}' if p in placed else
-src/test/dev/run.py,2811,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
-src/test/dev/run.py,2813,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2812,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {repair.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
+src/test/dev/run.py,2814,path_str,src/run_python_script.sh,Y,"_add(f'src/run_python_script.sh {diagnostic.relative_to(REPO_ROOT)} {schema_path.relative_to(REPO_ROOT)}', name)"
 src/test/dev/run.py,932,comment,rsc/test/pre-commit-hook.sh,Y,"# src/ AND rsc/: rsc/test/pre-commit-hook.sh is shell that gets installed and run, and"
 src/test/dev/run.py,1164,comment,src/main/send.py,Y,"# A send is refusable through one switch, and src/main/send.py is the only place that"
 src/test/dev/run.py,1242,comment,src/main/cli/forge/sync.json,Y,# the command green (the PR #114 review's finding: src/main/cli/forge/sync.json's
@@ -1215,13 +1222,13 @@ src/test/dev/run.py,1527,comment,src/main/cli/pipeline/pipeline.sh,Y,# appear in
 src/test/dev/run.py,1584,comment,rsc/CALCULUS.md,Y,"# from the grammar or a corpus law from rsc/CALCULUS.md, and a citation is stated if"
 src/test/dev/run.py,1643,comment,rsc/CALCULUS.md,Y,"# G3 IS L5 applied to the surface, so rsc/CALCULUS.md stays the authority for the"
 src/test/dev/run.py,1721,comment,src/main/latest.py,Y,# resolved against its latest version or lineage (src/main/latest.py). No per-column
-src/test/dev/run.py,2539,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
-src/test/dev/run.py,2550,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2550,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
-src/test/dev/run.py,2709,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
-src/test/dev/run.py,2775,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
-src/test/dev/run.py,3142,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
-src/test/dev/run.py,3142,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,2540,comment,rsc/test/run.log,Y,# Two buffers: the committed rsc/test/run.log renders from results (identical
+src/test/dev/run.py,2551,comment,src/main/cli/README.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2551,comment,rsc/CALCULUS.md,Y,"# src/main/cli/README.md (G<n>) or a corpus law from rsc/CALCULUS.md (L<n>), two"
+src/test/dev/run.py,2710,comment,rsc/test/xref.csv,Y,# xref_rows is None. The committed rsc/test/xref.csv is already at that
+src/test/dev/run.py,2776,comment,rsc/test/run.log,Y,# any clone; this script writes it to rsc/test/run.log itself) and the
+src/test/dev/run.py,3143,comment,rsc/test/run.log,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
+src/test/dev/run.py,3143,comment,rsc/test/xref.csv,Y,# settle loop above already wrote rsc/test/run.log and rsc/test/xref.csv
 src/test/dev/run.sh,5,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh [--fix]    # --fix runs every fix command; stages nothing
 src/test/dev/run.sh,6,comment,src/test/dev/run.sh,Y,#   src/test/dev/run.sh --fresh     # ignore the section cache: re-run every check
 src/test/dev/run.sh,36,comment,rsc/test/run.log,Y,# git diff rsc/test/run.log
@@ -1304,7 +1311,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,rsc/schema/pipeline/code-transport/gemini/session/v1.json,Y,
 ,,,rsc/schema/pipeline/code-transport/sessionConversation/CHANGELOG.md,Y,
 ,,,rsc/schema/pipeline/code-transport/sessionConversation/v2.json,Y,
-,,,src/main/append_only.py,Y,
 ,,,src/main/cli/agent/agent.json,Y,
 ,,,src/main/cli/agent/capture.json,Y,
 ,,self_only,src/main/cli/agent/claude/harness.py,Y,
@@ -1369,6 +1375,8 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/site/render.json,Y,
 ,,,src/main/cli/site/site.json,Y,
 ,,,src/main/cli/site/sync.json,Y,
+,,,src/main/cli/stage/promote.json,Y,
+,,,src/main/cli/stage/stage.json,Y,
 ,,,src/main/cli/subcommand.schema.json,Y,
 ,,,src/main/cli/summaries/summaries.json,Y,
 ,,,src/main/cli/summaries/sync.json,Y,

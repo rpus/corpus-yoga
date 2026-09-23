@@ -20,9 +20,10 @@
     ]
   },
   "r": [
-    "data/input/claude/chat/bulk-export"
+    "data/input/claude/chat/bulk-export",
+    "tmp/stage/input/claude/chat/bulk-export"
   ],
   "w": [
-    "data/input/claude/chat/bulk-export"
+    "tmp/stage/input/claude/chat/bulk-export"
   ]
 }

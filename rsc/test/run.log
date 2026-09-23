@@ -1,4 +1,4 @@
-run.py: code+schema 1392/1392
+run.py: code+schema 1411/1411
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ run.py: code+schema 1392/1392
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (92/92)
+  ✓ structure.self_path_matches_address  (94/94)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -33,16 +33,16 @@ run.py: code+schema 1392/1392
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (21/21)
-  ✓ cli.calculus_defined  (21/21)
-  ✓ cli.advertised_flags_exist  (15/15)
-  ✓ cli.docstring_flags_advertised  (19/19)
-  ✓ cli.subcommands_dispatch  (19/19)
-  ✓ cli.target_flags_advertised  (19/19)
-  ✓ cli.help_one_screen  (19/19)
+  ✓ cli.target_exists  (22/22)
+  ✓ cli.calculus_defined  (22/22)
+  ✓ cli.advertised_flags_exist  (16/16)
+  ✓ cli.docstring_flags_advertised  (20/20)
+  ✓ cli.subcommands_dispatch  (20/20)
+  ✓ cli.target_flags_advertised  (20/20)
+  ✓ cli.help_one_screen  (20/20)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (21/21)
+  ✓ naming.target_stem_matches_command  (22/22)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (18/18)
   ✓ output.prescriptions_are_commands  (63/63)
@@ -54,10 +54,10 @@ run.py: code+schema 1392/1392
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (78/78)
   ✓ structure.file_at_level_of_subject  (34/34)
-  ✓ structure.cli_declaration_mirrors_the_api  (22/22)
-  ✓ structure.cli_declaration_validates  (66/66)
-  ✓ cli.every_form_listed  (42/42)
-  ✓ cli.flag_not_axis_value  (20/20)
+  ✓ structure.cli_declaration_mirrors_the_api  (23/23)
+  ✓ structure.cli_declaration_validates  (68/68)
+  ✓ cli.every_form_listed  (44/44)
+  ✓ cli.flag_not_axis_value  (21/21)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
@@ -70,13 +70,14 @@ run.py: code+schema 1392/1392
 
 ── check_effects ─────────────────────────────────────────────────────────────
   ✓ effects.writers_disjoint
+  ✓ effects.consumer_reads
   ✓ effects.extent_covered
 
 ── check_cache_io ────────────────────────────────────────────────────────────
   ✓ cache_io.registry_parses
   ✓ cache_io.pipeline_tags_match
-  ✓ cache_io.read_implies_writer  (9/9)
-  ✓ cache_io.paths_resolve  (9/9)
+  ✓ cache_io.read_implies_writer  (10/10)
+  ✓ cache_io.paths_resolve  (10/10)
 
 ── check_accumulate_contract ─────────────────────────────────────────────────
   ✓ accumulate.trajectory_contract
@@ -193,40 +194,40 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations           16     0   code        7
 check_step_imports                     2     0   code       15
-check_self_paths                      92     0   code       18
+check_self_paths                      94     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    521     0   code       32
+check_cli_surface                    535     0   code       32
 check_cli_verb_help                   19     0   code       65
 check_cli_exclusive_classes            6     0   code       68
-check_effects                          2     0   code       71
-check_cache_io                        20     0   code       75
-check_accumulate_contract              1     0   code       81
-check_capture_monotone                 4     0   code       84
-check_grammar_laws                    12     0   code       87
-check_schema_layout                   25     0   schema    101
-check_schema_validity                 15     0   schema    105
-check_schema_meta_validity            15     0   schema    108
-check_schema_single_version           15     0   schema    111
-check_schema_changelogs               30     0   schema    114
-check_versioned_schema_diagnostics   374     0   schema    118
-check_schema_join                      2     0   schema    145
-check_model_join_versions              1     0   schema    149
-check_model_table                      1     0   schema    152
-check_model_occurrences                3     0   schema    155
-check_model_obligations              162     0   schema    160
-check_model_identity                   1     0   schema    164
-check_grammar                          2     0   schema    167
-check_provider_registry                2     0   code      170
-check_reference                       21     0   schema    174
-check_mcp_factoring                    9     0   schema    180
-check_mcp_reproducible                 1     0   schema    186
-check_expectation                      2     0   code      189
+check_effects                          3     0   code       71
+check_cache_io                        22     0   code       76
+check_accumulate_contract              1     0   code       82
+check_capture_monotone                 4     0   code       85
+check_grammar_laws                    12     0   code       88
+check_schema_layout                   25     0   schema    102
+check_schema_validity                 15     0   schema    106
+check_schema_meta_validity            15     0   schema    109
+check_schema_single_version           15     0   schema    112
+check_schema_changelogs               30     0   schema    115
+check_versioned_schema_diagnostics   374     0   schema    119
+check_schema_join                      2     0   schema    146
+check_model_join_versions              1     0   schema    150
+check_model_table                      1     0   schema    153
+check_model_occurrences                3     0   schema    156
+check_model_obligations              162     0   schema    161
+check_model_identity                   1     0   schema    165
+check_grammar                          2     0   schema    168
+check_provider_registry                2     0   code      171
+check_reference                       21     0   schema    175
+check_mcp_factoring                    9     0   schema    181
+check_mcp_reproducible                 1     0   schema    187
+check_expectation                      2     0   code      190
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 122 types, 1392/1392 invocations passing
-checks[code]: 70 types, 715/715 invocations passing
+checks[code+schema]: 123 types, 1411/1411 invocations passing
+checks[code]: 71 types, 734/734 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1392/1392 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1411/1411 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

@@ -1,5 +1,5 @@
 {
-  "help": "capture browser-reachable chats via Safari into data/input/ (a bare `corpus-yoga browser` audits capture-health)",
+  "help": "capture browser-reachable chats via Safari into the stage, tmp/stage/input/ - corpus-yoga stage promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
   "args": [
     {
       "name": "--provider",
@@ -38,11 +38,13 @@
     ]
   },
   "w": [
-    "data/input/claude/chat/API-capture",
-    "data/input/gemini/chat/DOM-capture",
+    "tmp/stage/input/claude/chat/API-capture",
+    "tmp/stage/input/gemini/chat/DOM-capture",
     "data/output/artifacts/claude/chat/downloaded"
   ],
   "r": [
+    "data/input/claude/chat",
+    "data/input/gemini/chat",
     "data/output/markdown",
     "machine-name.txt"
   ],
