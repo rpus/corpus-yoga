@@ -489,7 +489,7 @@ main() {
   # --stage: the overlay is built first, and every root below is its address (#687).
   if [[ -n "$stage" ]]; then
     echo "── stage ─────────────────────────────────────────────────────────────────"
-    "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import stage; from pathlib import Path; s, t = stage.overlay(Path(sys.argv[2])); print(f"overlay: {s} unit(s) of data/input, {t} of tmp/stage laid over them -> tmp/cache/overlay")' "$REPO_ROOT/src/main" "$REPO_ROOT/tmp/cache/overlay" || { echo "FAIL: stage: the overlay could not be built"; }
+    "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import stage; from pathlib import Path; s, t = stage.overlay(Path(sys.argv[2])); print(f"overlay: {s} unit(s) of data/input, {t} of tmp/input laid over them -> tmp/cache/overlay")' "$REPO_ROOT/src/main" "$REPO_ROOT/tmp/cache/overlay" || { echo "FAIL: stage: the overlay could not be built"; }
     echo ""
   fi
   if should_run chat-capture; then

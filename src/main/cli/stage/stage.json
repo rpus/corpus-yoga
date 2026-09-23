@@ -4,7 +4,7 @@
   "calculus": "supersession L3 L4 L6 L10",
   "args": [],
   "r": [
-    "tmp/stage",
+    "tmp/input",
     "data/input"
   ]
 }
