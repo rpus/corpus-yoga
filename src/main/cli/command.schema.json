@@ -42,7 +42,7 @@
         "type": "string",
         "minLength": 1
       },
-      "description": "Reads (#29): repo-relative path prefixes this declaration reads - the r of the rwx triad. Conservative and coarse is correct; the entry is a claim the gate may hold."
+      "description": "Reads (#29): repo-relative path prefixes this declaration reads - the r of the rwx triad. A row names the narrowest prefixes that cover what the code opens - two narrow rows before one wide one - since a prefix nothing under it is read by says nothing, and covers a stale literal as readily as a live one (effects.extent_covered reads rows against literals). The entry is a claim the gate may hold."
     },
     "w": {
       "type": "array",
