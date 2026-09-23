@@ -787,9 +787,9 @@ src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candida
 src/main/cli/indexing/indexing.py,51,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,334,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
 src/main/cli/input/input.json,3,path_str,src/main/cli/input/input.py,Y,"""target"": ""src/main/cli/input/input.py"","
-src/main/cli/input/input.py,15,comment,src/main/append_only.py,Y,The relations are src/main/append_only.py's; the measure each kind is related by is
-src/main/cli/input/input.py,16,comment,src/main/input.py,Y,src/main/input.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
-src/main/cli/input/input.py,26,path_str,src/main/cli/input/input.py,Y,SELF = 'src/main/cli/input/input.py'
+src/main/cli/input/input.py,20,comment,src/main/append_only.py,Y,The relations are src/main/append_only.py's; the measure each kind is related by is
+src/main/cli/input/input.py,21,comment,src/main/input.py,Y,src/main/input.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
+src/main/cli/input/input.py,31,path_str,src/main/cli/input/input.py,Y,SELF = 'src/main/cli/input/input.py'
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"""
 src/main/cli/mcp/sync.json,9,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"","

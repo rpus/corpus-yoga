@@ -1,4 +1,4 @@
-run.py: code+schema 1411/1411
+run.py: code+schema 1413/1413
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ run.py: code+schema 1411/1411
   ✓ cli.verb_help_answered  (19/19)
 
 ── check_cli_exclusive_classes ───────────────────────────────────────────────
-  ✓ cli.exclusive_class_parses  (6/6)
+  ✓ cli.exclusive_class_parses  (8/8)
 
 ── check_effects ─────────────────────────────────────────────────────────────
   ✓ effects.writers_disjoint
@@ -200,7 +200,7 @@ check_templates                        2     0   code       25
 check_xref                             2     0   code       28
 check_cli_surface                    535     0   code       32
 check_cli_verb_help                   19     0   code       65
-check_cli_exclusive_classes            6     0   code       68
+check_cli_exclusive_classes            8     0   code       68
 check_effects                          3     0   code       71
 check_cache_io                        22     0   code       76
 check_accumulate_contract              1     0   code       82
@@ -226,8 +226,8 @@ check_mcp_reproducible                 1     0   schema    187
 check_expectation                      2     0   code      190
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 123 types, 1411/1411 invocations passing
-checks[code]: 71 types, 734/734 invocations passing
+checks[code+schema]: 123 types, 1413/1413 invocations passing
+checks[code]: 71 types, 736/736 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1411/1411 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1413/1413 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
