@@ -9,13 +9,13 @@
     }
   ],
   "r": [
-    "tmp/stage",
+    "tmp/input",
     "data/input"
   ],
   "w": [
     "data/input"
   ],
   "consumes": [
-    "tmp/stage"
+    "tmp/input"
   ]
 }

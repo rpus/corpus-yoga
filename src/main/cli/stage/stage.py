@@ -2,7 +2,7 @@
 """
 stage.py (corpus-yoga stage) - what this room has captured and not yet promoted.
 
-A capture writes under tmp/stage, at the address its unit will have under data/input,
+A capture writes under tmp/input, at the address its unit will have under data/input,
 and reads nothing (L10). This command is the one reduce over stage against store
 (#687): bare, each staged unit and where it stands to the held one of its address;
 `promote`, the units the relation licenses written into shared storage and taken off
@@ -35,8 +35,8 @@ from append_only import Relation, may_replace  # noqa: E402
 import stage as staging  # noqa: E402
 
 REMEDY = {
-    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy: rm -r tmp/stage/{unit}',
-    Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/stage/{unit} keeps the held',
+    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy: rm -r tmp/input/{unit}',
+    Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/input/{unit} keeps the held',
 }
 
 
@@ -55,7 +55,7 @@ def word(unit: Path, relation: Relation, detail: str) -> str:
 def status() -> int:
     rows = survey()
     if not rows:
-        print('tmp/stage: nothing staged - every capture this room has made is promoted')
+        print('tmp/input: nothing staged - every capture this room has made is promoted')
         return 0
     counts = {r: 0 for r in Relation}
     for unit, relation, detail in rows:
@@ -63,7 +63,7 @@ def status() -> int:
         print(word(unit, relation, detail))
     promotable = counts[Relation.ABSENT] + counts[Relation.EXTENDS]
     refused = counts[Relation.AHEAD] + counts[Relation.DIVERGED]
-    print(f'tmp/stage: {len(rows)} unit(s) - {promotable} promotable, {counts[Relation.IDENTICAL]} identical, '
+    print(f'tmp/input: {len(rows)} unit(s) - {promotable} promotable, {counts[Relation.IDENTICAL]} identical, '
           f'{refused} refused' + (' - corpus-yoga stage promote --apply promotes' if promotable or counts[Relation.IDENTICAL] else ''))
     return 0
 

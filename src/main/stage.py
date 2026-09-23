@@ -2,8 +2,8 @@
 stage.py - where a captured unit stands to the held one, per kind of data, and the
 stage a capture writes to before promotion (#687).
 
-A capture writes what its source returned under tmp/stage, at the address it will have
-under data/input - tmp/stage/<provider>/<channel>/<capture>/... - and reads nothing (L10). Promotion is the one reduce over stage
+A capture writes what its source returned under tmp/input, at the address it will have
+under data/input - tmp/input/<provider>/<channel>/<capture>/... - and reads nothing (L10). Promotion is the one reduce over stage
 against store: it relates each staged unit to the held unit of the same address, and
 writes only where the relation licenses it - never where anything held would be lost
 (L4), naming the rest (L6). One relation vocabulary, src/main/append_only.py's, serves
@@ -33,12 +33,12 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 from append_only import Relation, relate  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 
-STAGE = REPO / 'tmp' / 'stage'
+STAGE = REPO / 'tmp' / 'input'
 STORE = REPO / 'data' / 'input'
 
 
 def staged(store_path: Path) -> Path:
-    """The stage twin of a store path: the same address under tmp/stage."""
+    """The stage twin of a store path: the same address under tmp/input."""
     return STAGE / store_path.relative_to(STORE)
 
 

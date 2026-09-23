@@ -27,11 +27,11 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `tmp/stage/` | captured, not yet promoted | local | a recapture — and, for a code session whose live log the provider has since expired, that session; `corpus-yoga stage promote` moves what validates into `data/input/` |
+| `tmp/input/` | captured, not yet promoted | local | a recapture — and, for a code session whose live log the provider has since expired, that session; `corpus-yoga stage promote` moves what validates into `data/input/` |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-A capture writes to `tmp/stage/`, at the address its unit will have under `data/input/`,
+A capture writes to `tmp/input/`, at the address its unit will have under `data/input/`,
 and reads nothing; `corpus-yoga stage promote` is the one writer of `data/input/`: it
 relates each staged unit to the held one - new, identical, extends, ahead, diverged - and
 promotes only where nothing held would be lost, naming the rest (#687). `corpus-yoga
