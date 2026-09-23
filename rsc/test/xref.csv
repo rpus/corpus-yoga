@@ -79,7 +79,7 @@ rsc/CALCULUS.md,168,doc,rsc/model/model_join.csv,Y,`rsc/model/model_join.csv` ed
 rsc/CALCULUS.md,170,doc,rsc/model/model.json,Y,`rsc/model/model.json` or reject into `rsc/model/model_rejected.txt` →
 rsc/CALCULUS.md,170,doc,rsc/model/model_rejected.txt,Y,`rsc/model/model.json` or reject into `rsc/model/model_rejected.txt` →
 rsc/CALCULUS.md,248,doc,rsc/naming/library_dir_vintages.csv,Y,"and recognisable are both DATA (rsc/naming/library_dir_vintages.csv), so"
-rsc/CALCULUS.md,298,doc,src/main/stage.py,Y,`corpus-yoga stage promote` (`src/main/stage.py`: the five relations of
+rsc/CALCULUS.md,298,doc,src/main/input.py,Y,`corpus-yoga input promote` (`src/main/input.py`: the five relations of
 rsc/CALCULUS.md,299,doc,src/main/append_only.py,Y,"`src/main/append_only.py` over a measure per kind), and beyond it where the"
 rsc/CALCULUS.md,320,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
 rsc/CALCULUS.md,320,doc,rsc/naming/memory_deposit_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`):"
@@ -786,6 +786,10 @@ src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,51,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,334,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
+src/main/cli/input/input.json,3,path_str,src/main/cli/input/input.py,Y,"""target"": ""src/main/cli/input/input.py"","
+src/main/cli/input/input.py,15,comment,src/main/append_only.py,Y,The relations are src/main/append_only.py's; the measure each kind is related by is
+src/main/cli/input/input.py,16,comment,src/main/input.py,Y,src/main/input.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
+src/main/cli/input/input.py,26,path_str,src/main/cli/input/input.py,Y,SELF = 'src/main/cli/input/input.py'
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"""
 src/main/cli/mcp/sync.json,9,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"","
@@ -812,7 +816,7 @@ src/main/cli/pipeline/pipeline.sh,28,comment,src/main/steps.sh,Y,# shellcheck so
 src/main/cli/pipeline/pipeline.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/pipeline/pipeline.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/pipeline/pipeline.sh,43,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)"
-src/main/cli/pipeline/pipeline.sh,54,comment,src/main/stage.py,Y,"# it (src/main/stage.py), at the same address under tmp/cache/overlay (#687)"
+src/main/cli/pipeline/pipeline.sh,54,comment,src/main/input.py,Y,"# it (src/main/input.py), at the same address under tmp/cache/overlay (#687)"
 src/main/cli/pipeline/pipeline.sh,378,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
 src/main/cli/pipeline/pipeline.sh,413,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
@@ -876,10 +880,6 @@ src/main/cli/site/site.sh,27,comment,src/main/cli/parse_argv.sh,Y,# shellcheck s
 src/main/cli/site/site.sh,32,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/site.sh,122,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
-src/main/cli/stage/stage.json,3,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
-src/main/cli/stage/stage.py,15,comment,src/main/append_only.py,Y,The relations are src/main/append_only.py's; the measure each kind is related by is
-src/main/cli/stage/stage.py,16,comment,src/main/stage.py,Y,src/main/stage.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
-src/main/cli/stage/stage.py,26,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/supersede/check.json,46,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
@@ -894,6 +894,8 @@ src/main/cli/test/test.sh,29,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit
 src/main/cli/test/xref.json,9,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,38,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
+src/main/input.py,9,comment,src/main/append_only.py,Y,"(L4), naming the rest (L6). One relation vocabulary, src/main/append_only.py's, serves"
+src/main/input.py,27,path_str,src/main/input.py,Y,SELF = 'src/main/input.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
@@ -1134,8 +1136,6 @@ src/main/schema_path.py,7,comment,src/run_python_script.sh,Y,"src/run_python_scr
 src/main/schema_path.py,7,comment,src/main/schema_path.py,Y,"src/run_python_script.sh src/main/schema_path.py ""[4, 'chat_messages', 8, 'files', 0]"" rsc/schema/pipeline/chat-export/c"
 src/main/send.py,19,comment,src/test/dev/run.py,Y,in src/test/dev/run.py. Two readings of one switch is how the polarity of `== '1'` and `!= '1'`
 src/main/send.sh,4,comment,src/main/send.py,Y,"# The ONE fact has two faces, one per language: src/main/send.py for python, this file for"
-src/main/stage.py,9,comment,src/main/append_only.py,Y,"(L4), naming the rest (L6). One relation vocabulary, src/main/append_only.py's, serves"
-src/main/stage.py,27,path_str,src/main/stage.py,Y,SELF = 'src/main/stage.py'
 src/main/validate.py,4,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json> <schema.json>
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
@@ -1352,6 +1352,8 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/indexing/list-candidates.json,Y,
 ,,,src/main/cli/indexing/reject.json,Y,
 ,,,src/main/cli/indexing/sync.json,Y,
+,,,src/main/cli/input/input.json,Y,
+,,,src/main/cli/input/promote.json,Y,
 ,,,src/main/cli/mcp/mcp.json,Y,
 ,,,src/main/cli/mcp/sync.json,Y,
 ,,,src/main/cli/memories/memories.json,Y,
@@ -1377,8 +1379,6 @@ src/validation_matrix.py,10,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/site/render.json,Y,
 ,,,src/main/cli/site/site.json,Y,
 ,,,src/main/cli/site/sync.json,Y,
-,,,src/main/cli/stage/promote.json,Y,
-,,,src/main/cli/stage/stage.json,Y,
 ,,,src/main/cli/subcommand.schema.json,Y,
 ,,,src/main/cli/summaries/summaries.json,Y,
 ,,,src/main/cli/summaries/sync.json,Y,

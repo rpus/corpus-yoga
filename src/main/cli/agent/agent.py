@@ -166,7 +166,7 @@ def own_outbox(provider: str) -> Path | None:
               '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
     # the outbox is the STAGE twin of the store, tmp/input/...: a capture reads
-    # nothing it does not write (L10), and corpus-yoga stage promote relates each staged
+    # nothing it does not write (L10), and corpus-yoga input promote relates each staged
     # session to the held one and writes what extends it (#687)
     out = REPO / 'tmp' / 'input' / transport.store(provider).relative_to(REPO / 'data' / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,7 @@
       "name": "--apply",
       "type": "",
       "cardinality": "",
-      "help": "write the promotable units and remove them from the stage - without it, what would be promoted is only reported"
+      "help": "write the promotable units and remove them from tmp/input - without it, what would be promoted is only reported"
     }
   ],
   "r": [

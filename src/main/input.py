@@ -1,6 +1,6 @@
 """
-stage.py - where a captured unit stands to the held one, per kind of data, and the
-stage a capture writes to before promotion (#687).
+input.py - where a captured unit stands to the held one, per kind of data, and the
+room's input a capture writes to before promotion (#687).
 
 A capture writes what its source returned under tmp/input, at the address it will have
 under data/input - tmp/input/<provider>/<channel>/<capture>/... - and reads nothing (L10). Promotion is the one reduce over stage
@@ -24,7 +24,7 @@ import shutil
 import sys
 from pathlib import Path
 
-SELF = 'src/main/stage.py'
+SELF = 'src/main/input.py'
 _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
@@ -38,7 +38,7 @@ STORE = REPO / 'data' / 'input'
 
 
 def staged(store_path: Path) -> Path:
-    """The stage twin of a store path: the same address under tmp/input."""
+    """The tmp/input twin of a data/input path: the same address one root over."""
     return STAGE / store_path.relative_to(STORE)
 
 
@@ -65,7 +65,7 @@ def kind(rel: Path) -> str:
 
 
 def units(root: Path) -> list[Path]:
-    """The promotable units under a root (the stage or the store), each a path relative
+    """The promotable units under a root (tmp/input or data/input), each a path relative
     to it: a session is its log file; an api capture and a
     dom capture are their conversation directory; an export is its data-* directory; a
     file at a unit's address (an ordering capture, a manifest) and anything else is a
@@ -80,11 +80,11 @@ def units(root: Path) -> list[Path]:
 
 
 def overlay(out: Path) -> tuple[int, int]:
-    """A view of data/input with this room's stage laid over it, as a tree of links under
-    out: every unit of the store linked at its address, then every staged unit linked
+    """A view of data/input with this room's tmp/input laid over it, as a tree of links under
+    out: every unit of data/input linked at its address, then every unit of tmp/input linked
     over it. The pipelines read the view where they would read data/input, so a mint
     is tested over what the room has captured before the merge that licenses its
-    promotion (#687). Returns (units of the store, units of the stage) linked."""
+    promotion (#687). Returns (units of data/input, units of tmp/input) linked."""
     if out.exists():
         shutil.rmtree(out)
     counts = []
