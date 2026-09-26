@@ -310,6 +310,10 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
     True, False with the reason, or None where no pipeline selects the unit."""
     if unit.pipeline is None or unit.cache is None:
         return None, 'no pipeline selects it - promoted on its relation alone'
+    schemas = pipelines()[unit.pipeline]['schemas']
+    judges = [s for s in schemas if unit.provider is None or '/' not in s or s.startswith(unit.provider + '/')]
+    if not judges:
+        return None, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
     cache = unit.cache
     remedy = f'corpus-yoga pipeline run {unit.pipeline} --overlay validates it'
     by_family: dict[str, list[Path]] = {}
@@ -320,11 +324,10 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
     own = _own_digests(unit)
     recorded = cache / 'source.sha256'
     converted = recorded.is_file() and recorded.read_text().strip() in own
-    schemas = pipelines()[unit.pipeline]['schemas']
     words = []
     for leaf, logs in sorted(by_family.items()):
         log = max(logs, key=lambda f: int(''.join(c for c in f.stem if c.isdigit()) or 0))
-        family = next((s for s in schemas if s.rsplit('/', 1)[-1] == leaf.split('/')[0]), leaf)
+        family = next((s for s in judges if s.rsplit('/', 1)[-1] == leaf.split('/')[0]), leaf)
         text = log.read_text().splitlines()
         if len(text) < 3:
             return False, f'no verdict at {family} - {remedy}'
