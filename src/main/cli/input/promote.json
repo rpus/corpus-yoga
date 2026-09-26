@@ -28,12 +28,18 @@
   ],
   "r": [
     "tmp/input",
-    "data/input"
+    "data/input",
+    "tmp/cache/chat-capture",
+    "tmp/cache/chat-export",
+    "tmp/cache/code-transport"
   ],
   "w": [
     "data/input"
   ],
   "consumes": [
     "tmp/input"
+  ],
+  "x": [
+    "git"
   ]
 }
