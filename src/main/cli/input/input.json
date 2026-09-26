@@ -5,6 +5,12 @@
   "args": [],
   "r": [
     "tmp/input",
-    "data/input"
+    "data/input",
+    "tmp/cache/chat-capture",
+    "tmp/cache/chat-export",
+    "tmp/cache/code-transport"
+  ],
+  "x": [
+    "git"
   ]
 }

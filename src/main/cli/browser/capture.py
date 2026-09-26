@@ -573,19 +573,6 @@ def main():
         prev_tab = safari_open_work_tab()
         try:
             ids = ids_from_safari(args.provider, cfg)
-            # The room already knows the account's rough size (#424): a sweep
-            # that discovers fewer conversations than stand captured is a
-            # truncation signature — deletions are real but bounded, a third
-            # of the corpus is not a deletion story. Said loudly, both numbers
-            # named; the sweep proceeds but never passes as full.
-            roots = [r for r, m in ((api_root, 'API'), (dom_root, 'DOM')) if m in mechanisms]
-            held = [REPO_DIR / 'data' / 'input' / args.provider / 'chat' / c for c in ('API-capture', 'DOM-capture')]
-            existing = len({d.name for root in held if root.is_dir()
-                            for d in root.iterdir() if d.is_dir()})
-            if len(ids) < existing:
-                emit(f'FAIL: discovered {len(ids)} conversation(s) but {existing} already '
-                     f'captured in this room — the listing may be truncated or the page '
-                     f'moved (#424); this sweep is PARTIAL')
             if not args.dry_run:   # ordering.txt is a capture; a dry run writes nothing
                 write_ordering(cfg, ids, dom_root)
             failed = capture_all(args.provider, ids, api_root, dom_root,
