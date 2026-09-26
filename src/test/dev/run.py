@@ -379,10 +379,13 @@ def check_pipeline_declarations(run) -> None:
                  + ('no row of rsc/provider/providers.csv' if p not in provider.provider_names()
                     else f'without src/main/pipeline/{name}/{p}/')),
                 check='structure.pipeline_provider_served')
-            # run.sh reaches a provider's mechanism by its name, so no reference names these
-            # files: the three every mechanism holds are held here instead.
-            absent = [f for f in ('list_sessions.sh', 'session_to_json.sh', 'project_conversation.py')
-                      if ok and not (PIPELINE_ROOT / name / p / f).is_file()]
+            # run.sh reaches a provider's mechanism by the provider's name ($provider/<file>),
+            # so no reference names these files: what run.sh reaches that way is held here,
+            # less what it first tests for with -f, which a provider may lack.
+            runner = (PIPELINE_ROOT / name / 'run.sh').read_text()
+            reached = set(re.findall(r'\$provider/([A-Za-z_]+\.(?:sh|py))', runner))
+            optional = set(re.findall(r'-f "\$SCRIPT_DIR/\$provider/([A-Za-z_]+\.(?:sh|py))"', runner))
+            absent = [f for f in sorted(reached - optional) if ok and not (PIPELINE_ROOT / name / p / f).is_file()]
             run(f'pipeline: {name}: provider {p} holds its mechanism whole', not absent,
                 None if not absent else
                 f'src/main/pipeline/{name}/{p}/ lacks {", ".join(absent)} - run.sh calls each by the provider\'s name',
