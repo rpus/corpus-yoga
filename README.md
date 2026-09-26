@@ -32,10 +32,13 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
 A capture writes to `tmp/input/`, at the address its unit will have under `data/input/`,
-and reads nothing; `corpus-yoga input promote` is the one writer of `data/input/`: it
-relates each staged unit to the held one - new, identical, extends, ahead, diverged - and
-promotes only where nothing held would be lost, naming the rest (#687). `corpus-yoga
-pipeline run --overlay` reads the store with this room's tmp/input laid over it.
+and reads nothing. `corpus-yoga pipeline run --overlay` runs the pipelines over the store
+with this room's `tmp/input/` laid over it, and their cached verdicts are the validation:
+`corpus-yoga input promote` is the one writer of `data/input/`, and it promotes a unit only
+where it relates to the held one without loss - new, identical, extends, never ahead or
+diverged - and every family its pipeline declares finds it valid at origin/main's version;
+the rest it names and leaves (#687). So: capture, `pipeline run --overlay`, `input`,
+`input promote --all --apply`, `pipeline run`.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
 `gemini` have channels `chat`, `code` and captures `bulk-export`, `API-capture`,

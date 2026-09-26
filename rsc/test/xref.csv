@@ -25,38 +25,38 @@ README.md,10,doc,src/main/cli/prerequisites/prerequisites.sh,Y,"./src/main/cli/p
 README.md,27,doc,rsc,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,27,doc,src,Y,| `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 README.md,29,doc,rsc/cache_io.csv,Y,| `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-README.md,59,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
-README.md,60,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
-README.md,61,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,61,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,61,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,61,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
-README.md,62,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,62,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,62,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,62,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,62,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,62,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
-README.md,63,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
-README.md,64,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,64,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,64,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,64,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,64,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
-README.md,65,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,65,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
-README.md,66,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
-README.md,67,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
-README.md,68,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
-README.md,69,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
-README.md,70,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
-README.md,71,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
-README.md,78,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
-README.md,88,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
-README.md,89,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
-README.md,107,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
-README.md,114,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
-README.md,114,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,62,doc,src/main/cli/README.md,Y,"- the command surface: `src/main/cli/` (one file per command, one per subcommand) — grammar and gates: `src/main/cli/REA"
+README.md,63,doc,rsc/CALCULUS.md,Y,"- the doctrine (operations, laws L1–L10): `rsc/CALCULUS.md` (`corpus-yoga calculus`)"
+README.md,64,doc,src/main,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,64,doc,src/main/markdown_projection.py,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,64,doc,rsc/schema/WORKFLOW.md,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,64,doc,rsc/schema,Y,- every data shape: `rsc/schema/<writer>/[<provider>/]<family>/vN.json` - a family sits at the path of the code that wri
+README.md,65,doc,rsc/model/model.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,65,doc,rsc/model/model.schema.json,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,65,doc,rsc/model/model_join.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,65,doc,rsc/model/model_join_kinds.csv,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,65,doc,rsc/model/model_rejected.txt,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,65,doc,rsc/schema/WORKFLOW.md,Y,"- the cross-family model: `rsc/model/model.json`, the table of shared types across the families (name, description, occu"
+README.md,66,doc,rsc/reference,Y,"- every upstream reference artefact: `rsc/reference/<project>/<lineage>/…`, byte-for-byte, every lineage upstream publis"
+README.md,67,doc,rsc/rpus/grammar/JSONSchema/draft04.g4,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,67,doc,rsc/rpus/grammar/TypeScript,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,67,doc,src/requirements.txt,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,67,doc,rsc/rpus/documenter.json,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,67,doc,src/gen/grammar,Y,"- the maintainer's own schema instruments, brought from the rpus repositories to read and judge the shapes above: `rsc/r"
+README.md,68,doc,rsc/naming/library_dir_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,68,doc,rsc/naming/memory_deposit_vintages.csv,Y,"- naming vintages (as data): `rsc/naming/library_dir_vintages.csv`, `rsc/naming/memory_deposit_vintages.csv`"
+README.md,69,doc,rsc/migration,Y,"- the moves a rename owes the machine-local roots (data/output, tmp/cache, ext/mnt): `rsc/migration/<issue>.sh`, one per"
+README.md,70,doc,rsc/provider/providers.csv,Y,"- the provider registry: `rsc/provider/providers.csv` (the AI providers the repository knows, as data - what the commit "
+README.md,71,doc,rsc/machine/machines.csv,Y,- the machine registry: `rsc/machine/machines.csv`; this machine's binding to it: the gitignored `machine-name.txt` at t
+README.md,72,doc,rsc/test/prepare-commit-msg-hook.sh,Y,- commit trailers (the `Signature:` grammar): `rsc/test/prepare-commit-msg-hook.sh` (the hook that stamps it)
+README.md,73,doc,src/main/cli/forge/forge.csv,Y,"- the forge's merge settings (server-side, so declared here as data): `src/main/cli/forge/forge.csv` (`corpus-yoga prere"
+README.md,74,doc,src/test/dev/run.py,Y,- the checks: `src/test/dev/run.py` (`corpus-yoga test run`); cross-references: `corpus-yoga test xref` (bare `corpus-yo
+README.md,81,doc,src/main/cli/browser/capture.command,Y,(or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
+README.md,91,doc,src/main/cli/prerequisites/prerequisites.sh,Y,`jq` and Python 3; `./src/main/cli/prerequisites/prerequisites.sh sync --apply` creates the
+README.md,92,doc,src/requirements.txt,Y,"shared venv (`~/venvs/general`, override via `VENV=`) and installs `src/requirements.txt` -"
+README.md,110,doc,CONTRIBUTING.md,Y,settings: `./CONTRIBUTING.md`. The reader of this file holds the other gate already:
+README.md,117,doc,rsc/site,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
+README.md,117,doc,rsc/site/README.md,Y,Pages for <https://rpus.co> live under `rsc/site/`; deploy per `rsc/site/README.md`.
 pyrightconfig.json,7,path_str,src/main,Y,"""src/main"","
 pyrightconfig.json,8,path_str,src/main/pipeline/chat-capture,Y,"""src/main/pipeline/chat-capture"","
 pyrightconfig.json,9,path_str,src/main/pipeline/chat-export,Y,"""src/main/pipeline/chat-export"","
@@ -787,9 +787,9 @@ src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candida
 src/main/cli/indexing/indexing.py,51,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
 src/main/cli/indexing/indexing.py,334,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
 src/main/cli/input/input.json,3,path_str,src/main/cli/input/input.py,Y,"""target"": ""src/main/cli/input/input.py"","
-src/main/cli/input/input.py,20,comment,src/main/append_only.py,Y,The relations are src/main/append_only.py's; the measure each kind is related by is
-src/main/cli/input/input.py,21,comment,src/main/input.py,Y,src/main/input.py's. A unit is promoted on ABSENT (new) and EXTENDS (the held unit
-src/main/cli/input/input.py,31,path_str,src/main/cli/input/input.py,Y,SELF = 'src/main/cli/input/input.py'
+src/main/cli/input/input.py,17,comment,src/main/append_only.py,Y,"The relations are src/main/append_only.py's; the measure each kind is related by, and"
+src/main/cli/input/input.py,19,comment,src/main/input.py,Y,corpus-yoga pipeline run --overlay - are src/main/input.py's. A unit is promoted on
+src/main/cli/input/input.py,35,path_str,src/main/cli/input/input.py,Y,SELF = 'src/main/cli/input/input.py'
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"""
 src/main/cli/mcp/sync.json,9,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"","
@@ -828,7 +828,7 @@ src/main/cli/prerequisites/prerequisites.json,23,path_str,src/main/model/serve_a
 src/main/cli/prerequisites/prerequisites.json,24,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/prerequisites/prerequisites.json,25,path_str,src/gen/grammar,Y,"""src/gen/grammar"","
 src/main/cli/prerequisites/prerequisites.json,26,path_str,rsc/provider,Y,"""rsc/provider"","
-src/main/cli/prerequisites/prerequisites.json,27,path_str,rsc/migration,Y,"""rsc/migration"""
+src/main/cli/prerequisites/prerequisites.json,27,path_str,rsc/migration,Y,"""rsc/migration"","
 src/main/cli/prerequisites/prerequisites.sh,2,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# src/main/cli/prerequisites/prerequisites.sh — what this machine has, and what it still needs."
 src/main/cli/prerequisites/prerequisites.sh,17,comment,src/main/cli/prerequisites/prerequisites.sh,Y,#   src/main/cli/prerequisites/prerequisites.sh              # what still needs attention (– and ✗); all-green sections 
 src/main/cli/prerequisites/prerequisites.sh,18,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"#   src/main/cli/prerequisites/prerequisites.sh --show-all   # the full report, including satisfied (✓) items"
@@ -844,8 +844,8 @@ src/main/cli/prerequisites/prerequisites.sh,471,comment,src/main/cli/forge/forge
 src/main/cli/prerequisites/prerequisites.sh,518,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
 src/main/cli/prerequisites/prerequisites.sh,525,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
 src/main/cli/prerequisites/prerequisites.sh,549,comment,src/main/pipeline/code-transport/pipeline.json,Y,"# src/main/pipeline/code-transport/pipeline.json, whose provider member names the stores it reads."
-src/main/cli/prerequisites/prerequisites.sh,594,path_str,src/main,Y,"[[ -e ""$script"" ]] || continue"
-src/main/cli/prerequisites/prerequisites.sh,597,path_str,src/main,Y,"if steps=""$(""$script"" 2>&1)""; then"
+src/main/cli/prerequisites/prerequisites.sh,611,path_str,src/main,Y,"[[ -e ""$script"" ]] || continue"
+src/main/cli/prerequisites/prerequisites.sh,614,path_str,src/main,Y,"if steps=""$(""$script"" 2>&1)""; then"
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -894,8 +894,10 @@ src/main/cli/test/test.sh,29,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit
 src/main/cli/test/xref.json,9,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,38,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
-src/main/input.py,9,comment,src/main/append_only.py,Y,"(L4), naming the rest (L6). One relation vocabulary, src/main/append_only.py's, serves"
-src/main/input.py,27,path_str,src/main/input.py,Y,SELF = 'src/main/input.py'
+src/main/input.py,9,comment,src/main/append_only.py,Y,"RELATION - one vocabulary, src/main/append_only.py's five relations, taken over a"
+src/main/input.py,40,path_str,src/main/input.py,Y,SELF = 'src/main/input.py'
+src/main/input.py,257,path_str,rsc/schema/pipeline,Y,"fam_dir = f'rsc/schema/pipeline/{pipeline}/{family.split(""/projects/"")[0] if ""/projects/"" in family else family}'"
+src/main/input.py,259,path_str,rsc/schema/pipeline,Y,"fam_dir = f'rsc/schema/pipeline/{pipeline}/{family.split(""/"")[0]}/projects'"
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
@@ -1085,38 +1087,38 @@ src/main/pipeline/code-transport/run.sh,15,comment,src/main/pipeline/code-transp
 src/main/pipeline/code-transport/run.sh,16,comment,src/main/pipeline/code-transport/run.sh,Y,#   src/main/pipeline/code-transport/run.sh --plan   # print the ordered step list; run nothing
 src/main/pipeline/code-transport/run.sh,20,comment,src/main/steps.sh,Y,# src/main/steps.sh).
 src/main/pipeline/code-transport/run.sh,30,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/code-transport/run.sh,84,call,src/main/pipeline/code-transport,Y,"held=""$(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"" 2>/dev/null | while IFS= read -r source; do basename ""${"
-src/main/pipeline/code-transport/run.sh,152,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
-src/main/pipeline/code-transport/run.sh,153,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,156,call,src/main/pipeline/code-transport,Y,"run_one ""$source"" ""$machine"" ""$name"" ""$provider"""
-src/main/pipeline/code-transport/run.sh,165,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,167,path_str,src/main/pipeline/code-transport,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" 1 ""$provider"""
-src/main/pipeline/code-transport/run.sh,191,call,src/main/pipeline/code-transport/validate.sh,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
-src/main/pipeline/code-transport/run.sh,191,call,src/main/pipeline/code-transport,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
-src/main/pipeline/code-transport/run.sh,192,call,src/main/pipeline/code-transport/validate.sh,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --memory  ""$dir"" ;;"
-src/main/pipeline/code-transport/run.sh,192,call,src/main/pipeline/code-transport,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --memory  ""$dir"" ;;"
-src/main/pipeline/code-transport/run.sh,197,call,src/main/pipeline/code-transport/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
-src/main/pipeline/code-transport/run.sh,213,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,215,path_str,src/main/pipeline/code-transport,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"" ""$provider"""
-src/main/pipeline/code-transport/run.sh,221,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"")"
-src/main/pipeline/code-transport/run.sh,240,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
-src/main/pipeline/code-transport/run.sh,241,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,247,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --session ""$out_dir"")"
-src/main/pipeline/code-transport/run.sh,247,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --session ""$out_dir"")"
-src/main/pipeline/code-transport/run.sh,248,path_str,src/main/pipeline/code-transport,Y,"rollups+=(""$(printf 'session\t%s\t%s' ""$provider"" ""$out_dir"")"")"
-src/main/pipeline/code-transport/run.sh,251,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
-src/main/pipeline/code-transport/run.sh,252,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,253,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
-src/main/pipeline/code-transport/run.sh,257,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --memory ""$out_dir"")"
-src/main/pipeline/code-transport/run.sh,257,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --memory ""$out_dir"")"
-src/main/pipeline/code-transport/run.sh,258,path_str,src/main/pipeline/code-transport,Y,"rollups+=(""$(printf 'memory\t%s\t%s' ""$provider"" ""$out_dir"")"")"
-src/main/pipeline/code-transport/run.sh,277,call,src/main/pipeline/code-transport,Y,"for mechanism in ""$SCRIPT_DIR""/*/list_sessions.sh; do"
-src/main/pipeline/code-transport/run.sh,280,path_str,src/main/pipeline/code-transport,Y,"run_one '<session>' '<machine>' '<project>' ""$provider"""
-src/main/pipeline/code-transport/run.sh,283,path_str,src/main/pipeline/code-transport,Y,"run_memory '<project-dir>' '<machine>' '<project>' '0' ""$provider"""
-src/main/pipeline/code-transport/run.sh,302,path_str,src/main/pipeline/code-transport,Y,"run_store ""$project_dir"""
-src/main/pipeline/code-transport/run.sh,312,path_str,src/main/pipeline/code-transport,Y,"[[ ""$(provider_of ""$store"")"" == ""$provider"" ]] || continue"
-src/main/pipeline/code-transport/run.sh,319,path_str,src/main/pipeline/code-transport,Y,"machine_housekeeping ""$store_root"" ""$provider"""
-src/main/pipeline/code-transport/run.sh,323,path_str,src/main/pipeline/code-transport,Y,"[[ -d ""$project_dir"" ]] || continue"
+src/main/pipeline/code-transport/run.sh,95,call,src/main/pipeline/code-transport,Y,"held=""$(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"" 2>/dev/null | while IFS= read -r source; do basename ""${"
+src/main/pipeline/code-transport/run.sh,164,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
+src/main/pipeline/code-transport/run.sh,165,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,168,call,src/main/pipeline/code-transport,Y,"run_one ""$source"" ""$machine"" ""$name"" ""$provider"""
+src/main/pipeline/code-transport/run.sh,177,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,179,path_str,src/main/pipeline/code-transport,Y,"run_memory ""$project_dir"" ""$machine"" ""$name"" 1 ""$provider"""
+src/main/pipeline/code-transport/run.sh,203,call,src/main/pipeline/code-transport/validate.sh,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,203,call,src/main/pipeline/code-transport,Y,"session) step validate        ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --session ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,204,call,src/main/pipeline/code-transport/validate.sh,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --memory  ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,204,call,src/main/pipeline/code-transport,Y,"memory)  step validate_memory ""$SCRIPT_DIR/validate.sh"" --provider ""$provider"" --memory  ""$dir"" ;;"
+src/main/pipeline/code-transport/run.sh,209,call,src/main/pipeline/code-transport/render_corpus.py,Y,"step render_corpus ""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/render_corpus.py"""
+src/main/pipeline/code-transport/run.sh,225,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,227,path_str,src/main/pipeline/code-transport,Y,"project_housekeeping ""$project_dir"" ""$machine"" ""$name"" ""$provider"""
+src/main/pipeline/code-transport/run.sh,233,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/$provider/list_sessions.sh"" ""$project_dir"")"
+src/main/pipeline/code-transport/run.sh,252,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
+src/main/pipeline/code-transport/run.sh,253,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,259,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --session ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,259,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --session ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,260,path_str,src/main/pipeline/code-transport,Y,"rollups+=(""$(printf 'session\t%s\t%s' ""$provider"" ""$out_dir"")"")"
+src/main/pipeline/code-transport/run.sh,263,path_str,src/main/pipeline/code-transport,Y,"machine=""$(basename ""$(dirname ""$project_dir"")"")"""
+src/main/pipeline/code-transport/run.sh,264,path_str,src/main/pipeline/code-transport,Y,"name=""$(basename ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,265,path_str,src/main/pipeline/code-transport,Y,"provider=""$(provider_of ""$project_dir"")"""
+src/main/pipeline/code-transport/run.sh,269,call,src/main/pipeline/code-transport/validate.sh,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --memory ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,269,call,src/main/pipeline/code-transport,Y,"done < <(""$SCRIPT_DIR/validate.sh"" --enumerate --provider ""$provider"" --memory ""$out_dir"")"
+src/main/pipeline/code-transport/run.sh,270,path_str,src/main/pipeline/code-transport,Y,"rollups+=(""$(printf 'memory\t%s\t%s' ""$provider"" ""$out_dir"")"")"
+src/main/pipeline/code-transport/run.sh,289,call,src/main/pipeline/code-transport,Y,"for mechanism in ""$SCRIPT_DIR""/*/list_sessions.sh; do"
+src/main/pipeline/code-transport/run.sh,292,path_str,src/main/pipeline/code-transport,Y,"run_one '<session>' '<machine>' '<project>' ""$provider"""
+src/main/pipeline/code-transport/run.sh,295,path_str,src/main/pipeline/code-transport,Y,"run_memory '<project-dir>' '<machine>' '<project>' '0' ""$provider"""
+src/main/pipeline/code-transport/run.sh,314,path_str,src/main/pipeline/code-transport,Y,"run_store ""$project_dir"""
+src/main/pipeline/code-transport/run.sh,324,path_str,src/main/pipeline/code-transport,Y,"[[ ""$(provider_of ""$store"")"" == ""$provider"" ]] || continue"
+src/main/pipeline/code-transport/run.sh,331,path_str,src/main/pipeline/code-transport,Y,"machine_housekeeping ""$store_root"" ""$provider"""
+src/main/pipeline/code-transport/run.sh,335,path_str,src/main/pipeline/code-transport,Y,"[[ -d ""$project_dir"" ]] || continue"
 src/main/pipeline/code-transport/validate.sh,5,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --provider <p> --session <path/to/session-dir>
 src/main/pipeline/code-transport/validate.sh,6,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --provider <p> --memory  <path/to/cache-memory-dir>
 src/main/pipeline/code-transport/validate.sh,7,comment,src/main/pipeline/code-transport/validate.sh,Y,#   src/main/pipeline/code-transport/validate.sh --enumerate --provider <p> --session <dir>

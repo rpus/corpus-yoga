@@ -43,6 +43,9 @@ def main() -> int:
             print('warning: dropped truncated final line', file=sys.stderr)   # a session captured mid-append
             lines = lines[:-1]
     write_if_changed(out, lambda dst: dst.write('[\n' + ',\n'.join(lines) + '\n]\n'))
+    # the source this datum was converted from, digested beside it (#687)
+    import hashlib
+    Path(out).with_name('source.sha256').write_text(hashlib.sha256(source.read_bytes()).hexdigest() + '\n')
     summary = session_dir / 'summary.json'
     text = summary.read_text() if summary.is_file() else '{}'
     write_if_changed(out + '.summary', lambda dst: dst.write(text))
