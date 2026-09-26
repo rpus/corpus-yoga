@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Pipeline",
-  "description": "A pipeline's own declaration: src/main/pipeline/<pipeline>/pipeline.json. Its DIRECTORY is the pipeline name, so the name is not a field here \u2014 and a directory cannot hold two entries of one name, which is how uniqueness stops being a check. The filename is uniform (pipeline.json, the kind, not the instance): cli/'s <noun>.json convention marks the bare command's declaration among its verb files, a role that does not exist inside a pipeline directory, and three siblings should share one shape down to the filename. This schema lives beside what it describes rather than under rsc/schema/, which is the data domain: the pipeline declaration is this repo's own interface, not corpus data. Derivables are absent by construction: the remedy command is `corpus-yoga pipeline run <name>`, the format history is rsc/schema/<name>/<schemas[0]>/CHANGELOG.md, and the cache root comes from rsc/cache_io.csv \u2014 each a function of the name, so declaring them could only contradict the derivation.",
+  "description": "A pipeline's own declaration: src/main/pipeline/<pipeline>/pipeline.json. Its DIRECTORY is the pipeline name, so the name is not a field here — and a directory cannot hold two entries of one name, which is how uniqueness stops being a check. The filename is uniform (pipeline.json, the kind, not the instance): cli/'s <noun>.json convention marks the bare command's declaration among its verb files, a role that does not exist inside a pipeline directory, and three siblings should share one shape down to the filename. This schema lives beside what it describes rather than under rsc/schema/, which is the data domain: the pipeline declaration is this repo's own interface, not corpus data. Derivables are absent by construction: the remedy command is `corpus-yoga pipeline run <name>`, the format history is rsc/schema/<name>/<schemas[0]>/CHANGELOG.md, and the cache root comes from rsc/cache_io.csv — each a function of the name, so declaring them could only contradict the derivation.",
   "type": "object",
   "required": [
     "schemas",
@@ -13,7 +13,10 @@
     {
       "required": [
         "input_glob",
-        "extra_input_glob"
+        "extra_input_glob",
+        "measure",
+        "extra_measure",
+        "companion"
       ]
     },
     {
@@ -36,7 +39,7 @@
     "input": {
       "type": "string",
       "minLength": 1,
-      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it. A literal <provider> segment stands for each provider the `provider` member names, one store each (#635)."
+      "description": "The repo-relative directory under data/input/ the pipeline reads. The one committed authority for this path: run.sh reads it from here rather than restating it. A literal <provider> segment stands for each provider the `provider` member names, one store each (#635). A literal <qualifier> segment stands for each provider's declared qualifier."
     },
     "input_glob": {
       "type": "string",
@@ -51,7 +54,10 @@
         "type": "object",
         "required": [
           "input_glob",
-          "extra_input_glob"
+          "extra_input_glob",
+          "measure",
+          "extra_measure",
+          "companion"
         ],
         "additionalProperties": false,
         "properties": {
@@ -63,6 +69,30 @@
           "extra_input_glob": {
             "type": "string",
             "description": "A second input shape beyond input_glob, at the same subject depth. Empty when the provider has one shape."
+          },
+          "qualifier": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What <qualifier> in input stands for under this provider's store - the capture directory's qualifier, API or DOM. Present exactly when input carries <qualifier>."
+          },
+          "measure": {
+            "type": "string",
+            "enum": [
+              "prefix",
+              "message-uuids",
+              "turn-extent",
+              "mirror",
+              "whole"
+            ],
+            "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/input.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
+          },
+          "extra_measure": {
+            "type": "string",
+            "description": "The measure of a unit extra_input_glob selects, as measure. Empty exactly when extra_input_glob is."
+          },
+          "companion": {
+            "type": "string",
+            "description": "A path beside a unit input_glob selects as a file, that moves with it, <stem> standing for the file's stem: claude's workspace <stem>/ beside <stem>.jsonl. Empty where a unit's files lie within it."
           }
         }
       }
@@ -75,6 +105,25 @@
     "extra_input_glob": {
       "type": "string",
       "description": "A second input shape the pipeline demands beyond input_glob, at the same subject depth; the trailing-slash convention is per glob. Empty when the pipeline has one shape."
+    },
+    "measure": {
+      "type": "string",
+      "enum": [
+        "prefix",
+        "message-uuids",
+        "turn-extent",
+        "mirror",
+        "whole"
+      ],
+      "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/input.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
+    },
+    "extra_measure": {
+      "type": "string",
+      "description": "The measure of a unit extra_input_glob selects, as measure. Empty exactly when extra_input_glob is."
+    },
+    "companion": {
+      "type": "string",
+      "description": "A path beside a unit input_glob selects as a file, that moves with it, <stem> standing for the file's stem: claude's workspace <stem>/ beside <stem>.jsonl. Empty where a unit's files lie within it."
     },
     "diagnostic_skip": {
       "type": "object",

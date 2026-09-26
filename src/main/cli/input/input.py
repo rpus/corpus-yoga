@@ -14,8 +14,8 @@ rest named and left - a dry run unless --apply.
     corpus-yoga input promote --provider <p> [--id <unit>] # one provider's units, or one of them
     corpus-yoga input promote ... --apply                  # promote
 
-The relations are src/main/append_only.py's; the measure each kind is related by, and
-the verdict - the pipelines' cached logs at origin/main's versions, made by
+What a unit is (the pipeline declarations' selection), the measure each kind is related
+by, and the verdict - the pipelines' cached logs at origin/main's versions, made by
 corpus-yoga pipeline run --overlay - are src/main/input.py's. A unit is promoted on
 ABSENT (new) and EXTENDS (the held unit gains and loses nothing) with a green verdict,
 or with none where no pipeline validates its kind; an IDENTICAL unit is taken out of
@@ -40,8 +40,9 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
-from append_only import Relation, may_replace, relate  # noqa: E402
+from append_only import Relation, may_replace  # noqa: E402
 import input as staging  # noqa: E402
+from input import Unit  # noqa: E402
 
 REMEDY = {
     Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy: rm -r tmp/input/{unit}',
@@ -49,15 +50,13 @@ REMEDY = {
 }
 
 
-def survey() -> list[tuple[Path, list[Path], Relation, str, bool | None, str]]:
-    """(unit, its files, relation, the relation's words, verdict, the verdict's words)."""
-    if not staging.STAGE.is_dir():
-        return []
+def survey() -> list[tuple[Unit, Relation, str, bool | None, str]]:
+    """(unit, relation, the relation's words, verdict, the verdict's words)."""
     rows = []
-    for unit, files in staging.units(staging.STAGE).items():
+    for unit in staging.units(staging.STAGE):
         relation, detail = staging.relation(unit)
         ok, words = staging.verdict(unit) if may_replace(relation) else (None, '')
-        rows.append((unit, files, relation, detail, ok, words))
+        rows.append((unit, relation, detail, ok, words))
     return rows
 
 
@@ -65,10 +64,10 @@ def promotable(relation: Relation, ok: bool | None) -> bool:
     return may_replace(relation) and ok is not False
 
 
-def word(unit: Path, relation: Relation, detail: str, ok: bool | None, words: str) -> str:
+def word(unit: Unit, relation: Relation, detail: str, ok: bool | None, words: str) -> str:
     verb = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
             Relation.AHEAD: 'AHEAD - refused', Relation.DIVERGED: 'DIVERGED - refused'}[relation]
-    line = f'  {unit}: {verb} ({detail})'
+    line = f'  {unit.address}: {verb} ({detail})'
     if may_replace(relation):
         line += f'; {words}' if ok is not False else f'; REFUSED - {words}'
     return line
@@ -80,7 +79,7 @@ def status() -> int:
         print('tmp/input: nothing staged - every capture this room has made is promoted')
         return 0
     n_promote = n_identical = n_refused = 0
-    for unit, _files, relation, detail, ok, words in rows:
+    for unit, relation, detail, ok, words in rows:
         print(word(unit, relation, detail, ok, words))
         if relation is Relation.IDENTICAL:
             n_identical += 1
@@ -97,50 +96,37 @@ def extent(rows, provider: str | None, unit_id: str | None) -> list:
     """The units the flags name, or a refusal that names what they matched."""
     if provider is None:
         return rows
-    mine = [r for r in rows if r[0].parts[0] == provider]
+    mine = [r for r in rows if r[0].address.parts[0] == provider]
     if unit_id is None:
         return mine
-    hits = [r for r in mine if any(part.startswith(unit_id) for part in r[0].parts[1:])]
+    hits = [r for r in mine if any(part.startswith(unit_id) for part in r[0].address.parts[1:])]
     if len(hits) != 1:
-        names = ', '.join(str(r[0]) for r in hits) or 'nothing'
+        names = ', '.join(str(r[0].address) for r in hits) or 'nothing'
         sys.exit(f'error: --id {unit_id!r} names {len(hits)} staged unit(s) of {provider}: {names} - '
                  f'--id names one; corpus-yoga input lists them')
     return hits
 
 
-def _place(unit: Path, files: list[Path]) -> None:
-    """Write the unit into the store: a directory unit replaces the held directory whole; a
-    claude session's log replaces the held log and its workspace files each move by prefix,
-    a file the held workspace is ahead of or diverged from left staged."""
-    s, h = staging.STAGE / unit, staging.STORE / unit
-    if s.is_dir() or s.is_file():
+def _place(unit: Unit) -> None:
+    """Write the unit into the store: each of its members - its directory, or its file and
+    the companion that moves with it - replaces the held one whole."""
+    for rel in unit.members:
+        s, h = staging.STAGE / rel, staging.STORE / rel
         h.parent.mkdir(parents=True, exist_ok=True)
-        if h.exists() or h.is_symlink():
-            shutil.rmtree(h) if h.is_dir() else h.unlink()
+        if h.is_symlink() or h.is_file():
+            h.unlink()
+        elif h.is_dir():
+            shutil.rmtree(h)
         shutil.move(str(s), str(h))
-        return
-    for rel in files:                                    # a claude session: log and workspace files
-        src, dst = staging.STAGE / rel, staging.STORE / rel
-        r = relate(src.read_bytes(), dst.read_bytes() if dst.exists() else None)
-        if may_replace(r) or r is Relation.IDENTICAL:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            if r is Relation.IDENTICAL:
-                src.unlink()
-            else:
-                shutil.move(str(src), str(dst))
-        else:
-            print(f'    {rel}: {r.value} - left staged')
 
 
-def _clear(unit: Path, files: list[Path]) -> None:
-    s = staging.STAGE / unit
-    if s.is_dir():
-        shutil.rmtree(s)
-    elif s.is_file():
-        s.unlink()
-    else:
-        for rel in files:
-            (staging.STAGE / rel).unlink()
+def _clear(unit: Unit) -> None:
+    for rel in unit.members:
+        s = staging.STAGE / rel
+        if s.is_dir():
+            shutil.rmtree(s)
+        elif s.exists():
+            s.unlink()
 
 
 def promote(apply: bool, provider: str | None, unit_id: str | None) -> int:
@@ -149,21 +135,21 @@ def promote(apply: bool, provider: str | None, unit_id: str | None) -> int:
         print('input promote: nothing staged' + (f' for {provider}' if provider else ''))
         return 0
     written = cleared = refused = 0
-    for unit, files, relation, detail, ok, words in rows:
+    for unit, relation, detail, ok, words in rows:
         if relation is Relation.IDENTICAL:
             print(word(unit, relation, detail, ok, words) + (' - cleared from tmp/input' if apply else ' - would clear from tmp/input'))
             if apply:
-                _clear(unit, files)
+                _clear(unit)
             cleared += 1
         elif promotable(relation, ok):
             print(word(unit, relation, detail, ok, words) + (' - promoted' if apply else ' - would promote'))
             if apply:
-                _place(unit, files)
+                _place(unit)
             written += 1
         else:
             print(word(unit, relation, detail, ok, words))
             if relation in REMEDY:
-                print('    ' + REMEDY[relation].format(unit=unit))
+                print('    ' + REMEDY[relation].format(unit=unit.address))
             refused += 1
     if apply:
         _prune_empty(staging.STAGE)

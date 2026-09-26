@@ -2,9 +2,25 @@
   "schemas": [
     "claude/apiConversation"
   ],
-  "input": "data/input/claude/chat/API-capture",
-  "input_glob": "*/",
+  "input": "data/input/<provider>/chat/<qualifier>-capture",
+  "provider": {
+    "claude": {
+      "qualifier": "API",
+      "input_glob": "*/",
+      "extra_input_glob": "",
+      "measure": "message-uuids",
+      "extra_measure": "",
+      "companion": ""
+    },
+    "gemini": {
+      "qualifier": "DOM",
+      "input_glob": "*/",
+      "extra_input_glob": "ordering.txt",
+      "measure": "turn-extent",
+      "extra_measure": "mirror",
+      "companion": ""
+    }
+  },
   "subject_depth": 1,
-  "extra_input_glob": "",
   "diagnostic_skip": {}
 }

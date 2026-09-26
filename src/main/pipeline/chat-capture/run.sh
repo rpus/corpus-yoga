@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# Validate browser-captured API JSON files against the apiConversation schema.
+# Validate browser-captured API JSON files against the apiConversation schema, and
+# project every provider's captures - claude's API captures, gemini's DOM captures - into
+# the markdown corpus.
 #
 # Usage:
 #   src/main/pipeline/chat-capture/run.sh
-#   src/main/pipeline/chat-capture/run.sh --input data/input/claude/chat/API-capture
+#   src/main/pipeline/chat-capture/run.sh --input 'data/input/<provider>/chat/<qualifier>-capture'
 #   src/main/pipeline/chat-capture/run.sh --item  data/input/claude/chat/API-capture/<uuid>
 #   src/main/pipeline/chat-capture/run.sh --plan   # print the ordered step list; run nothing
 #
@@ -23,13 +25,14 @@ source "$REPO_DIR/src/main/steps.sh"
 parse_args() {
   capture_dir=""
   # The default input root is the DECLARED one: pipeline.json is the one committed
-  # authority for this path — read, never restated.
-  api_capture="$REPO_DIR/$(jq -r .input "$SCRIPT_DIR/pipeline.json")"
+  # authority for this path — read, never restated. It is a template, <provider> and
+  # <qualifier> resolved per provider by resolve_input.
+  input_root="$REPO_DIR/$(jq -r .input "$SCRIPT_DIR/pipeline.json")"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --item)  capture_dir="$2";  shift 2 ;;
-      --input) if [[ $# -gt 1 && "${2-}" != --* ]]; then api_capture="$2"; shift 2; else shift; fi ;;
+      --input) if [[ $# -gt 1 && "${2-}" != --* ]]; then input_root="$2"; shift 2; else shift; fi ;;
       --plan)             plan="1"; shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
       *)
@@ -46,7 +49,7 @@ run_one() {
 }
 
 run_corpus() {
-  local root="${1%/}"
+  local root="${1%/}" dom_root="${2%/}" store="${3%/}"
   # validate: announces itself once and folds the all-current captures into one
   # summary line, so a 95-capture steady state is one line
   step validate              "$SCRIPT_DIR/claude/validate.sh" --api-capture "$root"
@@ -57,19 +60,19 @@ run_corpus() {
   # presentation tree beside claude's projections (data/output/markdown/{claude,gemini}),
   # anchoring each turn heading; a slug collision gets the conversation id prefixed.
   step gemini_project_markdown  "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/gemini/project_markdown.py"
+    "$SCRIPT_DIR/gemini/project_markdown.py" --dom-capture "$dom_root"
   # audit: capture-health report against the fresh projections — findings
   # inform, never gate: severity attaches to the RECORD, and the record was already
   # schema-validated above
   step_ok audit     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit.py" \
-    --input "$REPO_DIR/data/input" \
+    --input "$store" \
     --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
 }
 
 print_plan() {
   echo "chat-capture steps — corpus mode (default):"
-  run_corpus '<captures-root>'
+  run_corpus '<captures-root>' '<scrapes-root>' '<store-root>'
   echo "single-capture mode (--item <dir>): the validate step only"
 }
 
@@ -81,15 +84,21 @@ main() {
   if [[ -n "$capture_dir" ]]; then
     run_one "$(cd "$capture_dir" && pwd)"
   else
-    if [[ ! -d "$api_capture" ]]; then
-      echo "no captures in $api_capture (populate via: corpus-yoga browser capture)"
+    # Each provider's store is the template made its own; the store root above
+    # <provider> is what the audit walks.
+    local api_root dom_root store
+    api_root="$(resolve_input "$input_root" "$SCRIPT_DIR/pipeline.json" claude)"
+    dom_root="$(resolve_input "$input_root" "$SCRIPT_DIR/pipeline.json" gemini)"
+    store="${input_root%%/<provider>/*}"
+    if [[ ! -d "$api_root" ]]; then
+      echo "no captures in $api_root (populate via: corpus-yoga browser capture --provider claude)"
       exit 0
     fi
-    local root; root="$(cd "$api_capture" && pwd)"
+    local root; root="$(cd "$api_root" && pwd)"
     if ! compgen -G "$root/*/" > /dev/null; then
       echo "no captures in $root"
     else
-      run_corpus "$root"
+      run_corpus "$root" "$dom_root" "$store"
     fi
   fi
 }
