@@ -24,6 +24,7 @@
     "rsc/rpus/grammar",
     "src/gen/grammar",
     "rsc/provider",
-    "rsc/migration"
+    "rsc/migration",
+    "tmp/input"
   ]
 }
