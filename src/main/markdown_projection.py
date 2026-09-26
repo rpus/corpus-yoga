@@ -158,7 +158,8 @@ def corpus_index(md_dir):
     # corpus-root detection FIRST: data/output/markdown legitimately holds *.md of its own
     # (index.md, the book index), so the presence of <provider>/<channel>/conversations
     # dirs is what marks a root; a bare dir of conversation files is the single-source
-    # case. Order: claude first (canonical), then alphabetical; channels alphabetical
+    # case, the one case whose stem is the bare '<NN>-<slug>' - under a root the stem is
+    # always '<provider>/<channel>/<NN>-<slug>', one channel or many (#692). Order: claude first (canonical), then alphabetical; channels alphabetical
     # within a provider (chat before code) — the same corpus sequence the fused
     # layout produced (claude, claude×code, gemini), so ordinals are stable across
     # the unfusing.
@@ -177,7 +178,7 @@ def corpus_index(md_dir):
             if t and cid:
                 n += 1
                 stem = (f'{d.parent.parent.name}/{d.parent.name}/{f.stem}'
-                        if len(dirs) > 1 else f.stem)
+                        if d is not root else f.stem)
                 out.append((n, stem, t.group(1), cid))
     return out
 
