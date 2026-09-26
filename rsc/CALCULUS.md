@@ -290,18 +290,19 @@ Each law names its current enforcement (or the incident that taught it).
   outlier that forced this law, is re-judged with its input set split (#494):
   CLOSURE holds for the free inputs the run produces, so the run renders it;
   the paid captures enter it as a declared vintage, never as a currency claim.
-- **L10 — Capture is map; comparison is reduce.** `unenforced (#512)` — A capture writes
-  what its source returned, under a stamp, into `data/input/`, and reads no other
-  capture. Whether two deposits are the same, or one supersedes the other, is
-  decided where the pipelines reduce — in `tmp/cache/` and `data/output/` — never
-  at capture (bulk exports and `corpus-yoga supersede check`; sessions and
-  `render_corpus.py`; `corpus-yoga forge capture` since the maintainer's ruling of
-  2026-08-23, #497). Two captures predate the law and read the store they write
-  into, each because its store is keyed by identity rather than by stamp:
-  `corpus-yoga agent capture` (a session's bytes, to relate local to remote) and
-  `corpus-yoga browser capture` (a conversation's `.md`, to refuse a shorter walk and to
-  unlink a superseded slug). #512 holds whether they come under the law or are
-  its stated exceptions.
+- **L10 — Capture is map; comparison is reduce.** `by construction` — A capture writes
+  what its source returned, under a stamp, into the room's input, `tmp/input/`, at
+  the address its unit will have under `data/input/`, and reads no other capture
+  (#687). Whether a staged unit is the held one, extends it, falls short of it or
+  diverges from it is decided at the one reduce that reaches shared storage,
+  `corpus-yoga input promote` (`src/main/input.py`: the five relations of
+  `src/main/append_only.py` over a measure per kind), and beyond it where the
+  pipelines reduce — in `tmp/cache/` and `data/output/` (bulk exports and
+  `corpus-yoga supersede check`; sessions and `render_corpus.py`; `corpus-yoga forge
+  capture` since the maintainer's ruling of 2026-08-23, #497). The two captures that
+  read the store they wrote, each to guard its own write - `corpus-yoga agent capture`
+  by a session's byte prefix, `corpus-yoga browser capture` by a scrape's turn extent -
+  no longer write the store, and their measures are promotion's; #512 closes on that.
 
 ---
 

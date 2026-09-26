@@ -56,7 +56,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 from enact import quote  # noqa: E402
 from send import SendRefused, assert_may_send  # noqa: E402
 
-STORE = REPO / 'data' / 'input' / 'github' / 'forge' / 'gh-CLI'
+STORE = REPO / 'tmp' / 'input' / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga input promote reaches the store (#687)
 REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 
 LISTS = [

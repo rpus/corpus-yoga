@@ -1,0 +1,16 @@
+{
+  "summary": "this room's input, tmp/input: captured and not yet promoted to shared storage (bare: each unit and where it stands to the held one)",
+  "target": "src/main/cli/input/input.py",
+  "calculus": "supersession L3 L4 L6 L10",
+  "args": [],
+  "r": [
+    "tmp/input",
+    "data/input",
+    "tmp/cache/chat-capture",
+    "tmp/cache/chat-export",
+    "tmp/cache/code-transport"
+  ],
+  "x": [
+    "git"
+  ]
+}

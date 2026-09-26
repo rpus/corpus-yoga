@@ -2118,13 +2118,18 @@ def check_effects(run):
     share its workshop; every other containment is two hands on one file."""
     cli_root = CLI  # noqa: kept as a local name for the checks below
     claims = []
+    unread = []
     for f in sorted(cli_root.glob('*/*.json')):
         d = json.loads(f.read_text())
         owner = f'{f.parent.name} {f.stem}' if f.stem != f.parent.name else f.parent.name
         for w in d.get('w', []):
             claims.append((owner, w.rstrip('/'), bool(d.get('step')),
-                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name,
-                           (f.parent.name, f.stem) == ('cache', 'clean')))
+                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name))
+        # a consumed prefix is a dequeue from another command's w (#687): no claim on
+        # the file, but the consumer reads what it removes - held here
+        for c in d.get('consumes', []):
+            if not any(c.rstrip('/') == r.rstrip('/') or c.startswith(r.rstrip('/') + '/') for r in d.get('r', [])):
+                unread.append(f'{owner} consumes:{c} without an r row covering it')
     bad = []
     for i in range(len(claims)):
         for j in range(i + 1, len(claims)):
@@ -2139,17 +2144,13 @@ def check_effects(run):
             if pa == pb or pa.startswith(pb + '/') or pb.startswith(pa + '/'):
                 if (a[3] and b[2]) or (b[3] and a[2]):
                     continue   # a pipeline containing its own declared step's w
-                if a[5] or b[5]:
-                    # the janitor's w is the COMPLEMENT of the registry: cache
-                    # clean deletes only tmp/cache subtrees no cache_io row
-                    # owns (it never descends into an owned workshop), so its
-                    # containment of every workshop is the subject, not a
-                    # second hand on the same file
-                    continue
                 bad.append(f'{a[0]} w:{pa} ∩ {b[0]} w:{pb}')
     run('effects: writers are disjoint (each w prefix claimed once)',
         not bad, '; '.join(bad[:5]) if bad else None, law='L6',
         check='effects.writers_disjoint')
+    run('effects: every consumed prefix is read by its consumer',
+        not unread, '; '.join(unread[:5]) if unread else None, law='L6',
+        check='effects.consumer_reads')
 
     # -- extent coverage (#430): the suspicion list as a check ---------------
     # A path-shaped literal in a command's machinery that no declared r/w row
@@ -2228,7 +2229,7 @@ def check_effects(run):
         rows, machinery = set(), set()
         for j in cmd_dir.glob('*.json'):
             d = json.loads(j.read_text())
-            rows |= {x.rstrip('/') for x in d.get('r', []) + d.get('w', [])}
+            rows |= {x.rstrip('/') for x in d.get('r', []) + d.get('w', []) + d.get('consumes', [])}
             tgt = d.get('target')
             if (tgt and not tgt.startswith('src/test/')
                     and tgt.endswith(('.py', '.sh', '.applescript'))

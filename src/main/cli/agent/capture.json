@@ -30,7 +30,7 @@
     "ext/mnt/agent"
   ],
   "w": [
-    "data/input/claude/code/machine-transport",
-    "data/input/gemini/code/machine-transport"
+    "tmp/input/claude/code/machine-transport",
+    "tmp/input/gemini/code/machine-transport"
   ]
 }

@@ -34,7 +34,8 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from send import SendRefused, assert_may_send  # noqa: E402
 
-STORE = REPO / 'data' / 'input' / 'claude' / 'chat' / 'bulk-export'
+STORE = REPO / 'data' / 'input' / 'claude' / 'chat' / 'bulk-export'    # where manifests are deposited by hand
+STAGE = REPO / 'tmp' / 'input' / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga input promote reaches the store (#687)
 
 
 def derived_data_name(manifest_path: Path) -> str:
@@ -92,9 +93,13 @@ def main(argv: list[str]) -> int:
         return 1
     manifest = json.loads(manifest_path.read_text())
     files = manifest.get('data_files', [])
-    target = store / derived_data_name(manifest_path)
+    name = derived_data_name(manifest_path)
+    target = (to if to else STAGE) / name
     print(f'{manifest_path.name}: {len(files)} file(s), version {manifest.get("version")}')
-    print(f'  -> {target.name}/')
+    print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
+    if (store / name).is_dir():
+        print(f'export capture: NOT DONE - {name}/ is held in shared storage; nothing fetched, no URL spent')
+        return 1
     if target.exists():
         print(f'export capture: NOT DONE - {target.name}/ already exists; nothing fetched, '
               'no URL spent. If it holds an earlier or partial capture, the human moves it '

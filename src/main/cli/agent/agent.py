@@ -165,7 +165,10 @@ def own_outbox(provider: str) -> Path | None:
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
               '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
-    out = transport.store(provider) / bound_machine()
+    # the outbox is the STAGE twin of the store, tmp/input/...: a capture reads
+    # nothing it does not write (L10), and corpus-yoga input promote relates each staged
+    # session to the held one and writes what extends it (#687)
+    out = REPO / 'tmp' / 'input' / transport.store(provider).relative_to(REPO / 'data' / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 

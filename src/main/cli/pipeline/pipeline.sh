@@ -49,7 +49,10 @@ pipelines() {
 # The declared input root, repo-relative: pipeline.json is the one committed authority
 # for this path — read here, never restated.
 input_of() {
-  jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json"
+  local declared; declared="$(jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json")"
+  # --overlay: the pipelines read the overlay, the store with this room's stage laid over
+  # it (src/main/input.py), at the same address under tmp/cache/overlay (#687)
+  if [[ -n "${overlay:-}" ]]; then echo "${declared/#data\/input\//tmp/cache/overlay/}"; else echo "$declared"; fi
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
@@ -91,11 +94,13 @@ parse_args() {
   only=""
   item=""
   plan=""
+  overlay=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --plan) plan="1";                                               shift ;;
+      --overlay) overlay="1";                                             shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan]"; echo "Pass --help for more information."; exit 1 ;;
+      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan] [--overlay]"; echo "Pass --help for more information."; exit 1 ;;
       # A POSITIONAL names the pipeline. One way to say one thing:
       # the noun-verb-object the surface already reads as, validated against the pipelines
       # that exist rather than against a list someone maintains.
@@ -481,6 +486,12 @@ main() {
 
   # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
   # path the wrapper passes and the path the pipeline documents cannot disagree.
+  # --overlay: the overlay is built first, and every root below is its address (#687).
+  if [[ -n "$overlay" ]]; then
+    echo "── overlay ─────────────────────────────────────────────────────────────────"
+    "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import input; from pathlib import Path; s, t = input.overlay(Path(sys.argv[2])); print(f"overlay: {s} unit(s) of data/input, {t} of tmp/input laid over them -> tmp/cache/overlay")' "$REPO_ROOT/src/main" "$REPO_ROOT/tmp/cache/overlay" || { echo "FAIL: stage: the overlay could not be built"; }
+    echo ""
+  fi
   if should_run chat-capture; then
     run_pipeline_safe  chat-capture "$REPO_ROOT/$(input_of chat-capture)"
   fi
