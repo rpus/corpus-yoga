@@ -584,6 +584,23 @@ check_pipeline_inputs() {
   fi
 }
 
+check_input() {
+  # The room's input, tmp/input: what this room has captured and not yet promoted to shared
+  # storage (#687) - machine-local state, so it belongs in this report; the count is
+  # corpus-yoga input's, read through the venv's python.
+  sec "input (tmp/input - captured in this room, not yet promoted; corpus-yoga input relates each unit to the held one)"
+  [[ -x "$VENV/bin/python" ]] || return 0
+  local staged
+  staged="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import input; print(len(input.units(input.STAGE)) if input.STAGE.is_dir() else 0)' "$REPO_ROOT/src/main" 2>/dev/null || echo "?")"
+  if [[ "$staged" == "0" ]]; then
+    ok "tmp/input: nothing staged - every capture this room has made is promoted"
+  elif [[ "$staged" == "?" ]]; then
+    info "tmp/input: could not be read - corpus-yoga input says why"
+  else
+    todo input "tmp/input holds $staged unit(s) captured and not yet promoted - corpus-yoga input relates each to the held one; corpus-yoga input promote --all --apply promotes what validates"
+  fi
+}
+
 check_migration() {
   # The moves a rename owes this machine's data/output, tmp/cache and ext/mnt, carried by
   # the scripts under rsc/migration (#661): each run bare states its pending steps and
@@ -709,6 +726,7 @@ report() {
   check_signature_hook
   check_forge
   check_pipeline_inputs
+  check_input
   check_migration
   notes
 
