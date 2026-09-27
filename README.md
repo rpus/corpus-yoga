@@ -33,10 +33,11 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 
 A capture writes to `tmp/stage/input/`, at the address its unit will have under
 `data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
-the data tier and the tmp tier, each defaulting to the checkout's own, and `corpus-yoga
-pipeline rehearse` is the checkout's own code run over a rehearsal's own tiers under
-`tmp/stage/rehearsal/<stamp>/`, its input the shared `tmp/stage/input/`, judging the staged
-units there and writing its own directory alone; the verdicts it caches are the
+every script reads its data and tmp under one root, the checkout's, or a rehearsal's under
+`tmp/stage/rehearsal/<stamp>/` when `CORPUS_YOGA_REHEARSAL` names the stamp, and
+`corpus-yoga pipeline rehearse` is the checkout's own code run under that name, its input
+the shared `tmp/stage/input/`, judging the staged units there and writing its own directory
+alone; the verdicts it caches are the
 validation, and a rehearsal stands as evidence until `corpus-yoga stage clean` removes it. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
 `agent promote`, `export promote`, `forge promote`, over the same extent words as its
 `capture` - is the one writer of `data/input/`, and it promotes a unit only where it

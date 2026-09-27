@@ -1,5 +1,5 @@
 {
-  "help": "the pipelines over the stage, in a rehearsal of its own: the checkout's own code run with the data tier tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and the tmp tier tmp/stage/rehearsal/<stamp>/tmp (src/main/tier.py), <stamp> the stamp of this run's log; the verdicts the promote verbs read, and evidence that stands until corpus-yoga stage clean disposes of it",
+  "help": "the pipelines over the stage, in a rehearsal of its own: the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and tmp/stage/rehearsal/<stamp>/tmp; the verdicts the promote verbs read, and evidence that stands until corpus-yoga stage clean disposes of it. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
   "args": [
     {
       "name": "pipeline",
@@ -15,5 +15,6 @@
   ],
   "w": [
     "tmp/stage/rehearsal"
-  ]
+  ],
+  "log": "self"
 }
