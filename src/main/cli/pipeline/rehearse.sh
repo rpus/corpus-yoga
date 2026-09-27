@@ -33,8 +33,8 @@ main() {
   if [[ -n "${CORPUS_YOGA_LOG:-}" ]]; then stamp="$(basename "$CORPUS_YOGA_LOG" .log)"; else stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"; fi
   rehearsal="$STAGE_DIR/rehearsal/$stamp"
   mkdir -p "$STAGE_DIR/input" "$rehearsal/data/output" "$rehearsal/tmp"
-  ln -s ../../input "$rehearsal/data/input"
-  echo "rehearse: tmp/stage/rehearsal/$stamp - corpus-yoga pipeline run$* with CORPUS_YOGA_DATA=tmp/stage/rehearsal/$stamp/data (input -> tmp/stage/input) and CORPUS_YOGA_TMP=tmp/stage/rehearsal/$stamp/tmp (src/main/tier.py)"
+  ln -s ../../../input "$rehearsal/data/input"   # tmp/stage/rehearsal/<stamp>/data/input -> tmp/stage/input
+  echo "rehearse: tmp/stage/rehearsal/$stamp - corpus-yoga pipeline run${*:+ $*} with CORPUS_YOGA_DATA=tmp/stage/rehearsal/$stamp/data (input -> tmp/stage/input) and CORPUS_YOGA_TMP=tmp/stage/rehearsal/$stamp/tmp (src/main/tier.py)"
   echo
   CORPUS_YOGA_DATA="$rehearsal/data" CORPUS_YOGA_TMP="$rehearsal/tmp" CORPUS_YOGA_REHEARSAL=1 "$REPO_ROOT/corpus-yoga" pipeline run "$@"
 }
