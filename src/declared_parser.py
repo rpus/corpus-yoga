@@ -64,12 +64,22 @@ def _path_arg_types() -> set:
     return PATH_ARG_TYPES
 
 
+def _tier_path(declared: str) -> str:
+    """A declared repo-relative path under the tiers in force (src/main/tier.py, #702): a
+    default naming data/ or tmp/ resolves to the rehearsal's when one is named, the
+    checkout's otherwise - never against the working directory, and never the checkout's
+    from inside a rehearsal."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
+    import tier
+    return str(tier.path(declared))
+
+
 def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
     """Each declared row becomes one add_argument call; overrides supply the
     residue and may not invent an argument the declaration lacks. A declared
     default is data (#477): a path-typed argument's default is repo-relative and
-    resolves against the root here, any other passes verbatim — and the help
-    shows the value as declared, so no help prose restates it."""
+    resolves through the tier contract here (#702), any other passes verbatim — and the
+    help shows the value as declared, so no help prose restates it."""
     groups: dict[str, object] = {}
     for r in rows:
         if not r['arg-name']:
@@ -78,8 +88,7 @@ def _add_arguments(parser, rows: list[dict], overrides: dict) -> None:
         card = r['cardinality']
         if r.get('default') is not None:
             declared = r['default']
-            value = (str(Path(__file__).resolve().parent.parent / declared)
-                     if r['arg-type'] in _path_arg_types() else declared)
+            value = _tier_path(declared) if r['arg-type'] in _path_arg_types() else declared
             kwargs.setdefault('default', value)
             kwargs['help'] = f"{kwargs['help']} (default: {declared})"
         if '/' in card:
