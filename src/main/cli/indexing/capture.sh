@@ -403,7 +403,8 @@ status() {
   [[ -f "$d/inferred-chat-categories.json" ]] && m="$(jq '.rows | length' "$d/inferred-chat-categories.json")"
   echo "corpus: $n conversation(s) · captures cover ~$m"
   if [[ "$m" -lt "$n" ]]; then
-    echo "FAIL: the captures cover ~$m of $n conversation(s) - the paid layer lags the corpus:"
+    # a notice, never a failure (#675): no verb failed, and only the reader's paid act clears it
+    echo "the captures cover ~$m of $n conversation(s) - the paid layer lags the corpus:"
     echo "    → run: corpus-yoga indexing capture   # PAID — the model re-reads the corpus"
   fi
 }

@@ -83,7 +83,7 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
             f.write(line + '\n')
     # the verdict as data, beside the log, the one thing a reader reads (#701)
     verdict.write(os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0],
-                  input_file, input_digest, input_bytes, input_lines,
+                  os.path.realpath(input_file), input_digest, input_bytes, input_lines,   # the file, not a link to it
                   schema_path, schema_digest, result[0] == 'Valid!', result[0], at)
 
     return result[0]

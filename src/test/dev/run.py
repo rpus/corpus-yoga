@@ -1665,11 +1665,14 @@ def check_grammar_laws(run, cited: dict) -> None:
 
 def check_tier_contract(run) -> None:
     """Every data or tmp path under src/main derives from the tier contract (#702):
-    src/main/tier.py and its shell twin are the one home, and no other script builds
-    REPO / 'data', REPO / 'tmp', $REPO_DIR/data or $REPO_DIR/tmp by hand - a rehearsal is
+    src/main/tier.py and its shell twin are the one home, and no other script builds a
+    path through the literal segment 'data' or 'tmp' from a root of its own - REPO,
+    parents[3], $REPO_DIR - by hand - a rehearsal is
     the checkout's own code run over other tiers, which such a path would escape."""
-    py = re.compile(r"REPO\w*\s*/\s*'(data|tmp)'")
-    sh = re.compile(r'\$\{?REPO_(DIR|ROOT)\}?/(data|tmp)(/|")')
+    # a Path built through the literal segment 'data' or 'tmp' from any root-shaped
+    # expression - REPO, repo, parents[3], _root[0] - and the shell's $<ROOT>/data, /tmp
+    py = re.compile(r"/\s*'(data|tmp)'\s*/")
+    sh = re.compile(r'\$\{?[A-Z_]*(DIR|ROOT)\}?/(data|tmp)(/|")')
     found = []
     for f in sorted((SRC / 'main').rglob('*')):
         if f.suffix not in ('.py', '.sh') or f.name in ('tier.py', 'tier.sh') or '__pycache__' in f.parts or 'gen' in f.parts:

@@ -119,7 +119,7 @@ class Unit:
         if self.pipeline is None or stamp is None:
             return None
         rel = Path(cache_io.path_for(self.pipeline)).relative_to('tmp/cache')
-        return tier.rehearsal(stamp) / 'tmp' / 'cache' / rel / (self.provider or '') / Path(*self.subject)
+        return tier.rehearsal_tmp(stamp) / 'cache' / rel / (self.provider or '') / Path(*self.subject)
 
 
 def pipelines() -> dict[str, dict]:

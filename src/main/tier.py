@@ -36,6 +36,11 @@ def rehearsal(stamp: str) -> Path:
     return REHEARSALS / stamp
 
 
+def rehearsal_tmp(stamp: str) -> Path:
+    """A named rehearsal's tmp tier - where its verdicts are - whatever tiers are in force."""
+    return REHEARSALS / stamp / 'tmp'
+
+
 def newest_rehearsal() -> str | None:
     """The stamp of the newest rehearsal, or None: the stamp is a label whose lexical order
     is the stamping order; order and currency between rehearsals are the records' digests."""

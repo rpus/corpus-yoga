@@ -64,6 +64,11 @@ def status() -> int:
         print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
         return 0
     print(f'tmp/stage/: input {_human(_size(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
+    # machinery names orphans and removes none: an entry that is neither the input nor
+    # the rehearsals is not this tier's, and its removal is the reader's act
+    strangers = [e for e in sorted(TIER.iterdir()) if e.name not in ('input', 'rehearsal')]
+    for e in strangers:
+        print(f'  not this tier\'s: {e.relative_to(REPO).as_posix()} ({_human(_size(e))}) - nothing here reads or removes it; rm -r it by hand')
     stamps = rehearsals()
     if not stamps:
         print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
