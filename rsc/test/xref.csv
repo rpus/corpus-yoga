@@ -672,6 +672,7 @@ rsc/test/prepare-commit-msg-hook.sh,41,comment,rsc/test/prepare-commit-msg-hook.
 rsc/test/prepare-commit-msg-hook.sh,62,comment,rsc/provider/providers.csv,Y,"# The registry (rsc/provider/providers.csv): one row per declared provider - provider,"
 rsc/test/prepare-commit-msg-hook.sh,64,comment,src/main/provider.py,Y,"# src/main/provider.py one row per line, the fields separated by the ASCII unit"
 rsc/test/prepare-commit-msg-hook.sh,68,comment,src/run_python_script.sh,Y,# The rendering runs the venv's python through src/run_python_script.sh (#478). Where
+src/declared_parser.py,68,comment,src/main/tier.py,Y,"A declared repo-relative path under the tiers in force (src/main/tier.py, #702): a"
 src/main/cli/README.md,3,doc,src/main/cli/cli.py,Y,This directory IS the terminal surface (machinery: `src/main/cli/cli.py`; launcher: the root
 src/main/cli/README.md,7,doc,src/main/cli/browser,Y,"`ls src/main/cli/browser/` is its verb list, and what a verb accepts is"
 src/main/cli/README.md,8,doc,src/main/cli/browser/capture.json,Y,"`cat src/main/cli/browser/capture.json` — no parser, no column headers, no join."
