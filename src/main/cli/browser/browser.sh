@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into the room's input,
-# tmp/stage/data/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# tmp/stage/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
 # promote what was captured into data/input/ - the same extent words for both, a bare
 # call of either refused (#641). Scope is two independent restrictions, intersected;
 # neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
@@ -11,7 +11,7 @@
 #   corpus-yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
 #   corpus-yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   corpus-yoga browser capture --provider claude --id <id>  # one conversation
-#   corpus-yoga browser promote --all | --provider <p> [--id <id>]   # what capture staged, into data/input
+#   corpus-yoga browser promote --all | --provider <p> [--id <id>] [--rehearsal <stamp>]   # what capture staged, into data/input
 #
 #   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
@@ -141,7 +141,7 @@ main() {
   if [[ -z "$dry_run" ]]; then
     local extent="--all"
     [[ -n "$provider" ]] && extent="--provider $provider${id:+ --id $id}"
-    echo "browser capture: staged under tmp/stage/data/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent"
+    echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent"
   fi
   return $rc
 }

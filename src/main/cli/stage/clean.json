@@ -1,5 +1,5 @@
 {
-  "help": "remove what the stage no longer needs: the last rehearsal's room, cache and output, and every staged unit the store holds byte-equal; a refused unit is evidence and stays",
+  "help": "remove what the stage no longer needs: every rehearsal under tmp/stage/rehearsal, named, which is the disposal of evidence, and every staged unit the store holds byte-equal; a refused unit is evidence of another kind and stays",
   "args": [
     {
       "name": "--dry-run",

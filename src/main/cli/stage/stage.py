@@ -3,16 +3,16 @@
 stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its noun.
 
     corpus-yoga stage                   # status: each subtree and its size, the last rehearsal, the units' counts
-    corpus-yoga stage clean --dry-run   # what the janitor would remove, with sizes
+    corpus-yoga stage clean --dry-run   # what the janitor would remove: each rehearsal by name, each unit held byte-equal
     corpus-yoga stage clean --apply     # remove it
 
-The tier (src/main/tier.py, src/main/corpus.py): data/input is what the captures write;
-tmp and data/output are what corpus-yoga pipeline rehearse derives and projects, the
-checkout's own code run over the stage's tiers.
-The per-unit relations stay with each capturing noun's bare status and with bare
-corpus-yoga pipeline; this face counts them. The janitor removes the rehearsal's derived
-tiers and every staged unit the store holds byte-equal - a unit already promoted; a refused
-unit is evidence and stays until the reader removes it by hand.
+The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared
+by every rehearsal; rehearsal/<stamp> is what one rehearsal derived, named by its log's
+stamp - evidence that stands until removed. The per-unit relations stay with each
+capturing noun's bare status and with bare corpus-yoga pipeline; this face counts them
+against the newest rehearsal. The janitor removes every rehearsal, each named, and every
+staged unit the store holds byte-equal - a unit already promoted; a refused unit is
+evidence of another kind and stays until the reader removes it by hand.
 """
 import shutil
 import sys
@@ -30,8 +30,7 @@ import corpus  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 
 TIER = tier.STAGE
-DERIVED = (('tmp',), ('data', 'output'))                    # what a rehearsal derives and projects, as parts of the tier
-REHEARSALS = tier.TMP / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record
+LOGS = tier.TMP / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record, by the same stamp
 
 
 def _size(p: Path) -> int:
@@ -48,20 +47,28 @@ def _human(n: float) -> str:
     return f'{n:.1f}T'
 
 
+def _header(stamp: str) -> str:
+    """The rehearsal's record: its log's header - time, room, commit - and the command as typed."""
+    log = LOGS / f'{stamp}.log'
+    if not log.is_file():
+        return 'no log under tmp/logs/pipeline/rehearse - run by path, not by the launcher'
+    return ' · '.join(log.read_text().splitlines()[:2])
+
+
+def rehearsals() -> list[str]:
+    return sorted(d.name for d in tier.REHEARSALS.iterdir() if d.is_dir()) if tier.REHEARSALS.is_dir() else []
+
+
 def status() -> int:
     if not TIER.is_dir():
         print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
         return 0
-    parts = [f'{d.relative_to(TIER).as_posix()} {_human(_size(d))}' for d in sorted(TIER.glob('*/*')) if d.is_dir()]
-    print('tmp/stage/: ' + (', '.join(parts) if parts else 'empty'))
-    logs = sorted(REHEARSALS.glob('*.log')) if REHEARSALS.is_dir() else []
-    if logs:
-        # the log's header names the time, the room and the commit; its second line is the
-        # command as typed, the extent
-        head = logs[-1].read_text().splitlines()[:2]
-        print(f'  last rehearsal: {" · ".join(head)} ({logs[-1].relative_to(REPO)})')
-    else:
-        print('  last rehearsal: none - corpus-yoga pipeline rehearse makes one')
+    print(f'tmp/stage/: input {_human(_size(tier.STAGE_INPUT)) if tier.STAGE_INPUT.exists() else "absent"}')
+    stamps = rehearsals()
+    if not stamps:
+        print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
+    for stamp in stamps:
+        print(f'  rehearsal {stamp} ({_human(_size(tier.rehearsal(stamp)))}): {_header(stamp)}')
     rows = corpus.survey()
     if not rows:
         print('  units: none staged')
@@ -69,17 +76,15 @@ def status() -> int:
     held = sum(1 for u, rel, _d, ok, _w in rows if corpus.promotable(rel, ok) and corpus.redundant(u))
     promotable = sum(1 for u, rel, _d, ok, _w in rows if corpus.promotable(rel, ok)) - held
     refused = len(rows) - held - promotable
-    print(f'  units: {len(rows)} staged - {promotable} promotable, {held} held already (byte-equal), {refused} refused; '
-          f'the relations: corpus-yoga pipeline, or each capturing noun bare')
+    print(f'  units: {len(rows)} staged - {promotable} promotable, {held} held already (byte-equal), {refused} refused'
+          + (f', judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
     return 0
 
 
 def clean(apply: bool) -> int:
     doomed: list[tuple[str, Path]] = []
-    for parts in DERIVED:
-        sub = TIER.joinpath(*parts)
-        if sub.exists():
-            doomed.append((f'{sub.relative_to(REPO).as_posix()} (the last rehearsal\'s)', sub))
+    for stamp in rehearsals():
+        doomed.append((f'rehearsal {stamp} - the disposal of evidence: {_header(stamp)}', tier.rehearsal(stamp)))
     units = [u for u in corpus.units(corpus.STAGE) if corpus.redundant(u)] if corpus.STAGE.is_dir() else []
     if not doomed and not units:
         print('stage clean: DONE - nothing to remove')
@@ -96,7 +101,7 @@ def clean(apply: bool) -> int:
         print(f'  {verb} {unit.address}: held byte-equal in data/input')
         if apply:
             corpus.remove(unit)
-    print(f'stage clean: {"DONE" if apply else "would"} - {len(doomed)} derived tier(s), {len(units)} unit(s) held byte-equal'
+    print(f'stage clean: {"DONE" if apply else "would"} - {len(doomed)} rehearsal(s), {len(units)} unit(s) held byte-equal'
           + ('' if apply else ' (--apply removes them)'))
     return 0
 

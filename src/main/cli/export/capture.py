@@ -36,7 +36,7 @@ import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402
 
 STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # where manifests are deposited by hand
-STAGE = tier.STAGE_DATA / 'input' / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga export promote reaches the store (#687)
+STAGE = tier.STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga export promote reaches the store (#687)
 
 
 def derived_data_name(manifest_path: Path) -> str:
@@ -128,7 +128,7 @@ def main(argv: list[str]) -> int:
           f'({fetched} file(s), as the manifest listed them)')
     if not to:
         # the act names the next acts (#687)
-        print('export capture: staged under tmp/stage/data/input/claude/chat/bulk-export, not promoted - '
+        print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '
               'corpus-yoga pipeline rehearse chat-export, then corpus-yoga export promote')
     return 0
 

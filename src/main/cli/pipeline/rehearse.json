@@ -1,5 +1,5 @@
 {
-  "help": "the pipelines over the stage: the checkout's own code run with the data tier tmp/stage/data and the tmp tier tmp/stage/tmp (src/main/tier.py), so that the staged units are judged and projected there and nothing of the checkout's own tiers is read or written; the verdicts the promote verbs read",
+  "help": "the pipelines over the stage, in a rehearsal of its own: the checkout's own code run with the data tier tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and the tmp tier tmp/stage/rehearsal/<stamp>/tmp (src/main/tier.py), <stamp> the stamp of this run's log; the verdicts the promote verbs read, and evidence that stands until corpus-yoga stage clean disposes of it",
   "args": [
     {
       "name": "pipeline",
@@ -9,12 +9,11 @@
     }
   ],
   "r": [
-    "tmp/stage/data/input",
+    "tmp/stage/input",
     "rsc",
     "machine-name.txt"
   ],
   "w": [
-    "tmp/stage/data/output",
-    "tmp/stage/tmp"
+    "tmp/stage/rehearsal"
   ]
 }

@@ -425,6 +425,7 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     while log.exists():
         log = log_dir / f'{stamp}-{suffix}.log'
         suffix += 1
+    os.environ['CORPUS_YOGA_LOG'] = str(log)   # the verb's record; a rehearsal names its directory by this stamp
     tee = subprocess.Popen(['tee', str(log)], stdin=subprocess.PIPE)
     assert tee.stdin is not None  # stdin=PIPE guarantees the handle
     os.dup2(tee.stdin.fileno(), 1)
