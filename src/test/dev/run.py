@@ -2476,7 +2476,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_validity': SCHEMA,
     'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
-    'check_verdict_record': ['src/validation_matrix.py', 'src/main/verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
+    'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
     'check_model_join_versions': SCHEMA + MODEL,

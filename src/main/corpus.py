@@ -37,7 +37,7 @@ else:
 
 VERDICT - the pipelines are the one validator, and a rehearsal is where they judge the
 stage: each datum's verdict is the record the validation step wrote under tmp/stage/cache
-at the unit's cache address (src/main/verdict.py, #701), at the family's latest version; the
+at the unit's cache address (src/main/validation_verdict.py, #701), at the family's latest version; the
 log beside it is never read. A unit is promotable when every family judged there has a
 current green record - its datum digest one of the staged unit's own files (or, for a
 converted datum, the recorded digest of its source one of them), and its schema digest
@@ -80,7 +80,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
 from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
-import verdict as verdicts  # noqa: E402
+import validation_verdict as verdicts  # noqa: E402
 
 STAGE = REPO / 'tmp' / 'stage' / 'input'         # what the captures write
 STAGE_CACHE = REPO / 'tmp' / 'stage' / 'cache'   # what a rehearsal derives
@@ -343,7 +343,7 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
         return None, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
     cache = unit.cache
     remedy = f'corpus-yoga pipeline rehearse {unit.pipeline} judges it'
-    # the verdict is its record (src/main/verdict.py, #701); the log beside it is never read
+    # the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read
     by_family: dict[str, list[Path]] = {}
     for rec in (cache / 'validation').rglob(f'v*{verdicts.SUFFIX}'):
         by_family.setdefault(rec.parent.relative_to(cache / 'validation').as_posix(), []).append(rec)

@@ -3,7 +3,7 @@
 validation_matrix.py — render a datum's machine-local validation matrix from its verdicts.
 
 Each datum directory under tmp/cache/ whose validation/ holds vN.verdict.json records
-(src/main/verdict.py, #701) gets a single sibling matrix.md summarising them (schema × version →
+(src/main/validation_verdict.py, #701) gets a single sibling matrix.md summarising them (schema × version →
 ✓/✗, bytes). The matrix is derived state: git-ignored, co-located with its datum, and
 written by validation itself (validate_versions.py) whenever the records change — so it can
 never be stale. No reader here opens a vN.log: the log is the inspection's grist, and a
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
-import verdict  # noqa: E402 — src/main/verdict.py, the record (#701)
+import validation_verdict as verdict  # noqa: E402 — the record (#701)
 
 PREAMBLE = """# validation matrix
 

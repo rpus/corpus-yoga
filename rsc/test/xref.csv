@@ -896,10 +896,10 @@ src/main/corpus.py,4,comment,rsc/CALCULUS.md,Y,storage (#687). The home rsc/CALC
 src/main/corpus.py,11,comment,src/main/cli/pipeline/rehearse.sh,Y,and reads nothing (L10). `corpus-yoga pipeline rehearse` (src/main/cli/pipeline/rehearse.sh)
 src/main/corpus.py,20,comment,src/main/validation_audit.py,Y,"audit's subjects (src/main/validation_audit.py) and the datum's cache address,"
 src/main/corpus.py,24,comment,src/main/append_only.py,Y,"RELATION - the five relations of src/main/append_only.py, derived once from an order:"
-src/main/corpus.py,40,comment,src/main/verdict.py,Y,"at the unit's cache address (src/main/verdict.py, #701), at the family's latest version; the"
+src/main/corpus.py,40,comment,src/main/validation_verdict.py,Y,"at the unit's cache address (src/main/validation_verdict.py, #701), at the family's latest version; the"
 src/main/corpus.py,73,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
 src/main/corpus.py,312,path_str,rsc/schema/pipeline,Y,fam_dir = f'rsc/schema/pipeline/{pipeline}/{family}'
-src/main/corpus.py,346,comment,src/main/verdict.py,Y,"# the verdict is its record (src/main/verdict.py, #701); the log beside it is never read"
+src/main/corpus.py,346,comment,src/main/validation_verdict.py,Y,"# the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read"
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,38,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
@@ -1149,7 +1149,7 @@ src/main/validate.py,4,comment,src/main/validate.py,Y,src/run_python_script.sh s
 src/main/validate.py,5,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate.py,5,comment,src/main/validate.py,Y,src/run_python_script.sh src/main/validate.py <data.json#/path/to/value> <schema.json#/definitions/Foo>
 src/main/validate_inspection.py,69,path_str,src/run_python_script.sh,Y,"f'src/run_python_script.sh ""{occurrences_script}"" ""{schema_ptr}""'"
-src/main/validate_versions.py,4,comment,src/main/verdict.py,Y,"datum-version pair. The record (src/main/verdict.py, #701) is what every reader reads - the"
+src/main/validate_versions.py,4,comment,src/main/validation_verdict.py,Y,"datum-version pair. The record (src/main/validation_verdict.py, #701) is what every reader reads - the"
 src/main/validate_versions.py,26,path_str,src/main/validate_versions.py,Y,SELF = 'src/main/validate_versions.py'
 src/main/validation_audit.py,16,path_str,src/main/validation_audit.py,Y,SELF = 'src/main/validation_audit.py'
 src/main/validation_audit.py,57,comment,src/main/corpus.py,Y,Each input entry as its cache subject - the units src/main/corpus.py selects for the
@@ -1202,10 +1202,10 @@ src/test/dev/run.py,2069,path_str,src/main/pipeline/chat-capture,Y,"for tree in 
 src/test/dev/run.py,2069,path_str,src/main/cli/agent,Y,"for tree in ('src/main/cli/browser', 'src/main/pipeline/chat-capture', 'src/main/cli/agent'):"
 src/test/dev/run.py,2470,path_str,src/declared_parser.py,Y,"'check_cli_exclusive_classes': ['src/main/cli', 'src/declared_parser.py'],"
 src/test/dev/run.py,2472,path_str,rsc/cache_io.csv,Y,"'check_cache_io': ['src', 'rsc/cache_io.csv'],"
-src/test/dev/run.py,2479,path_str,src/validation_matrix.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/verdict.py', 'src/main/validate_versions.py', 'src/main/c"
-src/test/dev/run.py,2479,path_str,src/main/verdict.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/verdict.py', 'src/main/validate_versions.py', 'src/main/c"
-src/test/dev/run.py,2479,path_str,src/main/validate_versions.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/verdict.py', 'src/main/validate_versions.py', 'src/main/c"
-src/test/dev/run.py,2479,path_str,src/main/corpus.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/verdict.py', 'src/main/validate_versions.py', 'src/main/c"
+src/test/dev/run.py,2479,path_str,src/validation_matrix.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', "
+src/test/dev/run.py,2479,path_str,src/main/validation_verdict.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', "
+src/test/dev/run.py,2479,path_str,src/main/validate_versions.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', "
+src/test/dev/run.py,2479,path_str,src/main/corpus.py,Y,"'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', "
 src/test/dev/run.py,2486,path_str,rsc/reference,Y,"'check_reference': ['rsc/reference'],"
 src/test/dev/run.py,2487,path_str,rsc/provider,Y,"'check_provider_registry': ['rsc/provider', 'src'],"
 src/test/dev/run.py,2490,path_str,rsc/rpus/grammar,Y,"'check_grammar': ['rsc/rpus/grammar', 'src/main/grammar', 'src/gen/grammar'],"
@@ -1270,7 +1270,7 @@ src/test/usr/pipeline/code-transport/debug_code_session_record.py,29,path_str,sr
 src/test/usr/pipeline/code-transport/debug_code_session_record.py,34,path_str,rsc/schema/pipeline/code-transport/claude/session,Y,SCHEMA_PATH = sorted((REPO_ROOT / 'rsc/schema/pipeline/code-transport/claude/session').glob('v*.json'))[-1]   # the one 
 src/test/usr/pipeline/code-transport/survey_code_session.py,10,comment,src/test/usr/pipeline/code-transport/survey_code_session.py,Y,python src/test/usr/pipeline/code-transport/survey_code_session.py ~/.claude/projects/{project-slug}/*.jsonl
 src/test/usr/pipeline/code-transport/survey_code_session.py,11,comment,src/test/usr/pipeline/code-transport/survey_code_session.py,Y,python src/test/usr/pipeline/code-transport/survey_code_session.py data/input/claude/code/machine-transport/{machine}/{p
-src/validation_matrix.py,6,comment,src/main/verdict.py,Y,"(src/main/verdict.py, #701) gets a single sibling matrix.md summarising them (schema × version →"
+src/validation_matrix.py,6,comment,src/main/validation_verdict.py,Y,"(src/main/validation_verdict.py, #701) gets a single sibling matrix.md summarising them (schema × version →"
 src/validation_matrix.py,11,comment,src/test/dev/gen_changelog_matrix.py,Y,src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating;
 src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/validation_audit.py judges the records and matrices (corpus-yoga pipeline audit).
 ,,,AGENTS.md,Y,
