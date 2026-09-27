@@ -75,14 +75,13 @@ def latest_version(schema_parent_dir: Path, schema: str, datum_dir: Path | None 
 
 
 def _row(log_dir: Path, latest: str) -> tuple[str, int] | None:
-    """(✓/✗/?, datum bytes) for the latest version's judgment in log_dir, from its record;
-    a log with no record is a judgment not recorded: unknown."""
+    """(✓/✗, datum bytes) for the latest version's judgment in log_dir, from its record; a
+    log with no record is no row - a judgment not recorded, which the audit reads as an
+    input unprocessed and the run's validate step makes anew."""
     record = verdict.read(verdict.path_for(log_dir, latest))
-    if record is not None:
-        return verdict.symbol(record), int(record.get('datum_bytes', 0))
-    if (log_dir / f'{latest}.log').is_file():
-        return '?', 0
-    return None
+    if record is None:
+        return None
+    return verdict.symbol(record), int(record.get('datum_bytes', 0))
 
 
 def rows_from_records(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, str, str], tuple[str, int]]:

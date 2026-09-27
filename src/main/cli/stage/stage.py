@@ -29,7 +29,7 @@ import corpus  # noqa: E402
 
 TIER = REPO / 'tmp' / 'stage'
 DERIVED = ('cache', 'output', 'room')
-RECORD = TIER / 'rehearsal.txt'
+REHEARSALS = REPO / 'tmp' / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record
 
 
 def _size(p: Path) -> int:
@@ -52,8 +52,12 @@ def status() -> int:
         return 0
     parts = [f'{d.name} {_human(_size(d))}' for d in sorted(TIER.iterdir()) if d.is_dir()]
     print('tmp/stage/: ' + (', '.join(parts) if parts else 'empty'))
-    if RECORD.is_file():
-        print(f'  last rehearsal: {RECORD.read_text().strip()}')
+    logs = sorted(REHEARSALS.glob('*.log')) if REHEARSALS.is_dir() else []
+    if logs:
+        # the log's header names the time, the room and the commit; its second line is the
+        # command as typed, the extent
+        head = logs[-1].read_text().splitlines()[:2]
+        print(f'  last rehearsal: {" · ".join(head)} ({logs[-1].relative_to(REPO)})')
     else:
         print('  last rehearsal: none - corpus-yoga pipeline rehearse makes one')
     rows = corpus.survey()
@@ -73,8 +77,6 @@ def clean(apply: bool) -> int:
     for name in DERIVED:
         if (TIER / name).exists():
             doomed.append((f'tmp/stage/{name} (the last rehearsal\'s)', TIER / name))
-    if RECORD.exists():
-        doomed.append(('tmp/stage/rehearsal.txt', RECORD))
     units = [u for u in corpus.units(corpus.STAGE) if corpus.redundant(u)] if corpus.STAGE.is_dir() else []
     if not doomed and not units:
         print('stage clean: DONE - nothing to remove')
