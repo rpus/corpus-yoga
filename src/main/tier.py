@@ -3,13 +3,13 @@ tier.py - the tiers as a declared contract (#702), the one home every script der
 data and tmp paths from. Every script computes its code root, REPO, from its own address;
 the only fact it lacks is which layout its tiers are read from, and that is one name:
 CORPUS_YOGA_REHEARSAL, the stamp of a rehearsal, names the rehearsal's own root under
-STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or
+TMP_STAGE, and unset names the checkout's. DATA_ROOT is that root, REPO or
 tmp/stage/rehearsal/<stamp>, and DATA and TMP are its data and tmp. No path is ever
 passed, only the name the layout resolves, so nothing but a rehearsal can rebind a tier.
 
-The stage, STAGE, is the checkout's, a constant: STAGE_INPUT is what the captures write,
+The stage, TMP_STAGE, is the checkout's, a constant: TMP_STAGE_INPUT is what the captures write,
 shared by every rehearsal, and each rehearsal under REHEARSALS holds only what it derived -
-data/input a link to STAGE_INPUT, data/output its preview, tmp/cache its verdicts.
+data/input a link to TMP_STAGE_INPUT, data/output its preview, tmp/cache its verdicts.
 src/main/tier.sh is the shell twin. The dev gate holds that no other script under
 src/main builds a data or tmp path from its root by hand.
 """
@@ -22,9 +22,9 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 
-STAGE = REPO / 'tmp' / 'stage'
-STAGE_INPUT = STAGE / 'input'          # what the captures write
-REHEARSALS = STAGE / 'rehearsal'       # <stamp>/data/{input -> ../../../input, output}, <stamp>/tmp/cache
+TMP_STAGE = REPO / 'tmp' / 'stage'    # the checkout's stage, a constant
+TMP_STAGE_INPUT = TMP_STAGE / 'input'  # what the captures write
+REHEARSALS = TMP_STAGE / 'rehearsal'       # <stamp>/data/{input -> ../../../input, output}, <stamp>/tmp/cache
 
 REHEARSAL = os.environ.get('CORPUS_YOGA_REHEARSAL') or None
 DATA_ROOT = REHEARSALS / REHEARSAL if REHEARSAL else REPO

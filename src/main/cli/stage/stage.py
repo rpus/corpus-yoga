@@ -29,7 +29,7 @@ from declared_parser import command_parser  # noqa: E402
 import corpus  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 
-TIER = tier.STAGE
+TIER = tier.TMP_STAGE
 LOGS = tier.TMP / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record, by the same stamp
 
 
@@ -63,7 +63,7 @@ def status() -> int:
     if not TIER.is_dir():
         print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
         return 0
-    print(f'tmp/stage/: input {_human(_size(tier.STAGE_INPUT)) if tier.STAGE_INPUT.exists() else "absent"}')
+    print(f'tmp/stage/: input {_human(_size(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
     stamps = rehearsals()
     if not stamps:
         print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')

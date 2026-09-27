@@ -57,7 +57,7 @@ import tier  # noqa: E402 — the tiers, one home (#702)
 from enact import quote  # noqa: E402
 from send import SendRefused, assert_may_send  # noqa: E402
 
-STORE = tier.STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (#687)
+STORE = tier.TMP_STAGE_INPUT / 'github' / 'forge' / 'gh-CLI'   # the stage twin of data/input's; corpus-yoga forge promote reaches the store (#687)
 REVIEW_COUNTS = 'src/main/cli/forge/review-counts.graphql'
 
 LISTS = [

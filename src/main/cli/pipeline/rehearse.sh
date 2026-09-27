@@ -29,9 +29,9 @@ source "$REPO_ROOT/src/main/tier.sh"
 main() {
   local stamp rehearsal log room head
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
-  rehearsal="$STAGE_DIR/rehearsal/$stamp"
+  rehearsal="$TMP_STAGE/rehearsal/$stamp"
   log="$TMP_DIR/logs/pipeline/rehearse/$stamp.log"
-  mkdir -p "$STAGE_DIR/input" "$rehearsal/data/output" "$rehearsal/tmp" "$(dirname "$log")"
+  mkdir -p "$TMP_STAGE/input" "$rehearsal/data/output" "$rehearsal/tmp" "$(dirname "$log")"
   ln -s ../../../input "$rehearsal/data/input"   # tmp/stage/rehearsal/<stamp>/data/input -> tmp/stage/input
   # the log's header is the rehearsal's record: the stamp, the room, the commit, then the
   # command as typed - what corpus-yoga stage reads

@@ -36,7 +36,7 @@ import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402
 
 STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # where manifests are deposited by hand
-STAGE = tier.STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga export promote reaches the store (#687)
+STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga export promote reaches the store (#687)
 
 
 def derived_data_name(manifest_path: Path) -> str:

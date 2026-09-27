@@ -169,7 +169,7 @@ def own_outbox(provider: str) -> Path | None:
     # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
     # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
     # session to the held one and writes what extends it (#687)
-    out = tier.STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
+    out = tier.TMP_STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 

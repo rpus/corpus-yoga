@@ -87,7 +87,7 @@ import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 
-STAGE = tier.STAGE_INPUT                 # what the captures write
+STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
 STORE = tier.DATA / 'input'
 REHEARSAL: str | None = None             # the rehearsal a verdict is read from; None is the newest
 
