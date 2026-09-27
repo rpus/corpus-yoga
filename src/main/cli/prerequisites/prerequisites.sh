@@ -597,7 +597,7 @@ check_input() {
   elif [[ "$staged" == "?" ]]; then
     info "tmp/input: could not be read - corpus-yoga input says why"
   else
-    todo input "tmp/input holds $staged unit(s) captured and not yet promoted - corpus-yoga input relates each to the held one; corpus-yoga input promote --all --apply promotes what validates"
+    todo input "tmp/input holds $staged unit(s) captured and not yet promoted - corpus-yoga input relates each to the held one and names the promote verb that reaches it (corpus-yoga browser|agent|export|forge promote)"
   fi
 }
 

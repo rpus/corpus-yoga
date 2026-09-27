@@ -1,0 +1,18 @@
+{
+  "help": "promote what corpus-yoga export capture staged into shared storage: each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the pipelines' verdict from corpus-yoga pipeline run --overlay; written only where nothing held would be lost, the rest named and left in tmp/input",
+  "args": [],
+  "r": [
+    "tmp/input/claude/chat/bulk-export",
+    "data/input/claude/chat/bulk-export",
+    "tmp/cache/chat-export"
+  ],
+  "w": [
+    "data/input/claude/chat/bulk-export"
+  ],
+  "consumes": [
+    "tmp/input/claude/chat/bulk-export"
+  ],
+  "x": [
+    "git"
+  ]
+}

@@ -478,7 +478,7 @@ def main():
                     help='print the providers and mechanisms the restrictions select, then stop — '
                          'so a caller reads the scope off the declaration instead of restating it')
     ap.add_argument('--api-capture', default=None,
-                    help='API-capture root (default: tmp/input/<provider>/chat/API-capture - corpus-yoga input promote reaches data/input)')
+                    help='API-capture root (default: tmp/input/<provider>/chat/API-capture - corpus-yoga browser promote reaches data/input)')
     ap.add_argument('--dom-capture', default=None,
                     help='DOM-capture root (default: tmp/input/<provider>/chat/DOM-capture)')
     ap.add_argument('--id', metavar='ID',
@@ -541,7 +541,7 @@ def main():
 
     # one root per mechanism in scope; dirs appear only when captured into
     # a capture writes to the room's input, tmp/input/..., the address its unit will have
-    # under data/input; corpus-yoga input promote is what reaches shared storage (#687)
+    # under data/input; corpus-yoga browser promote is what reaches shared storage (#687)
     api_root = Path(args.api_capture or REPO_DIR / 'tmp' / 'input' / args.provider / 'chat' / 'API-capture').resolve()
     dom_root = Path(args.dom_capture or REPO_DIR / 'tmp' / 'input' / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:

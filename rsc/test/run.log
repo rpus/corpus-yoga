@@ -1,4 +1,4 @@
-run.py: code+schema 1420/1420
+run.py: code+schema 1424/1424
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -35,11 +35,11 @@ run.py: code+schema 1420/1420
   ✓ cli.commands_alphabetical
   ✓ cli.target_exists  (22/22)
   ✓ cli.calculus_defined  (22/22)
-  ✓ cli.advertised_flags_exist  (16/16)
-  ✓ cli.docstring_flags_advertised  (20/20)
-  ✓ cli.subcommands_dispatch  (20/20)
-  ✓ cli.target_flags_advertised  (20/20)
-  ✓ cli.help_one_screen  (20/20)
+  ✓ cli.advertised_flags_exist  (15/15)
+  ✓ cli.docstring_flags_advertised  (19/19)
+  ✓ cli.subcommands_dispatch  (19/19)
+  ✓ cli.target_flags_advertised  (19/19)
+  ✓ cli.help_one_screen  (19/19)
   ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (22/22)
@@ -55,18 +55,18 @@ run.py: code+schema 1420/1420
   ✓ output.plan_lines_name_their_target  (80/80)
   ✓ structure.file_at_level_of_subject  (35/35)
   ✓ structure.cli_declaration_mirrors_the_api  (23/23)
-  ✓ structure.cli_declaration_validates  (68/68)
+  ✓ structure.cli_declaration_validates  (71/71)
   ✓ cli.every_form_listed  (44/44)
-  ✓ cli.flag_not_axis_value  (21/21)
+  ✓ cli.flag_not_axis_value  (20/20)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (7/7)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
-  ✓ cli.verb_help_answered  (19/19)
+  ✓ cli.verb_help_answered  (22/22)
 
 ── check_cli_exclusive_classes ───────────────────────────────────────────────
-  ✓ cli.exclusive_class_parses  (8/8)
+  ✓ cli.exclusive_class_parses  (12/12)
 
 ── check_effects ─────────────────────────────────────────────────────────────
   ✓ effects.writers_disjoint
@@ -198,9 +198,9 @@ check_self_paths                      94     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    538     0   code       32
-check_cli_verb_help                   19     0   code       65
-check_cli_exclusive_classes            8     0   code       68
+check_cli_surface                    535     0   code       32
+check_cli_verb_help                   22     0   code       65
+check_cli_exclusive_classes           12     0   code       68
 check_effects                          3     0   code       71
 check_cache_io                        22     0   code       76
 check_accumulate_contract              1     0   code       82
@@ -226,8 +226,8 @@ check_mcp_reproducible                 1     0   schema    187
 check_expectation                      2     0   code      190
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 123 types, 1420/1420 invocations passing
-checks[code]: 71 types, 743/743 invocations passing
+checks[code+schema]: 123 types, 1424/1424 invocations passing
+checks[code]: 71 types, 747/747 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1420/1420 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1424/1424 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
