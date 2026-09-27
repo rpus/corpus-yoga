@@ -1,0 +1,26 @@
+{
+  "help": "the pipelines over data/input with this room's stage, tmp/stage/input, laid over it - in a room of the stage's own (tmp/stage/room) whose cache is tmp/stage/cache and whose output is tmp/stage/output, each seeded from the room's before the run; the verdicts the promote verbs read. Writes the stage's cache, output and room alone",
+  "args": [
+    {
+      "name": "pipeline",
+      "type": "<pipeline>",
+      "cardinality": "",
+      "help": "one pipeline by name (bare: all of them), as corpus-yoga pipeline run takes it"
+    }
+  ],
+  "r": [
+    "data/input",
+    "data/output",
+    "tmp/cache",
+    "tmp/stage/input",
+    "src",
+    "rsc",
+    "corpus-yoga",
+    "machine-name.txt"
+  ],
+  "w": [
+    "tmp/stage/cache",
+    "tmp/stage/output",
+    "tmp/stage/room"
+  ]
+}

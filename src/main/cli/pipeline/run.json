@@ -18,12 +18,6 @@
       "type": "",
       "cardinality": "",
       "help": "print the ordered step plan; run nothing"
-    },
-    {
-      "name": "--overlay",
-      "type": "",
-      "cardinality": "",
-      "help": "read shared storage with this room's tmp/input laid over it (tmp/input), so that what is captured and not yet promoted is run before the merge that licenses its promotion"
     }
   ],
   "sends": {
@@ -37,16 +31,14 @@
   "r": [
     "data/input",
     "rsc",
-    "machine-name.txt",
-    "tmp/input"
+    "machine-name.txt"
   ],
   "w": [
     "tmp/cache/chat-capture",
     "tmp/cache/chat-export",
     "tmp/cache/code-transport",
     "data/output/markdown",
-    "data/output/memories",
-    "tmp/cache/overlay"
+    "data/output/memories"
   ],
   "x": [
     "jq"

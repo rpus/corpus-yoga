@@ -1,5 +1,5 @@
 {
-  "help": "promote what corpus-yoga agent capture staged into shared storage: each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the pipelines' verdict from corpus-yoga pipeline run --overlay; written only where nothing held would be lost, the rest named and left in tmp/input",
+  "help": "promote what corpus-yoga agent capture staged into shared storage: each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the verdict corpus-yoga pipeline rehearse cached; written only where nothing held would be lost, the rest named and left in tmp/stage/input",
   "args": [
     {
       "name": "--provider",
@@ -21,19 +21,19 @@
     }
   ],
   "r": [
-    "tmp/input/claude/code/machine-transport",
-    "tmp/input/gemini/code/machine-transport",
+    "tmp/stage/input/claude/code/machine-transport",
+    "tmp/stage/input/gemini/code/machine-transport",
     "data/input/claude/code/machine-transport",
     "data/input/gemini/code/machine-transport",
-    "tmp/cache/code-transport"
+    "tmp/stage/cache/code-transport"
   ],
   "w": [
     "data/input/claude/code/machine-transport",
     "data/input/gemini/code/machine-transport"
   ],
   "consumes": [
-    "tmp/input/claude/code/machine-transport",
-    "tmp/input/gemini/code/machine-transport"
+    "tmp/stage/input/claude/code/machine-transport",
+    "tmp/stage/input/gemini/code/machine-transport"
   ],
   "x": [
     "git"

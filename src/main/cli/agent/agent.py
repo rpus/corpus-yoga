@@ -165,10 +165,10 @@ def own_outbox(provider: str) -> Path | None:
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
               '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
-    # the outbox is the STAGE twin of the store, tmp/input/...: a capture reads
+    # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
     # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
     # session to the held one and writes what extends it (#687)
-    out = REPO / 'tmp' / 'input' / transport.store(provider).relative_to(REPO / 'data' / 'input') / bound_machine()
+    out = REPO / 'tmp' / 'stage' / 'input' / transport.store(provider).relative_to(REPO / 'data' / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 
@@ -330,7 +330,10 @@ def main() -> int:
     }).parse_args()
 
     if args.verb is None:
-        return list_agents()   # bare noun → the census (local + store sessions), read-only status
+        rc = list_agents()   # bare noun → the census (local + store sessions), read-only status
+        import corpus
+        corpus.report('agent')
+        return rc
     if args.verb == 'mount':
         return mount(args.apply)
     if args.verb == 'list-models':
@@ -338,8 +341,8 @@ def main() -> int:
     if args.verb == 'capture':
         return 1 if capture(args.id, args.to, args.provider) else 0
     if args.verb == 'promote':
-        import input as staging
-        return staging.promote('agent', staging.extent('agent', args.provider, args.all, args.id))
+        import corpus
+        return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id))
 
     projects, claude = _claude()
     if args.verb == 'demerge':

@@ -21,7 +21,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
 from validation_matrix import rows_from_logs  # noqa: E402
 import cache_io  # noqa: E402
 import frontier  # noqa: E402
-import input as corpus_input  # noqa: E402 — the one selection of units (#687)
+import corpus  # noqa: E402 — the one selection of units (#687)
 
 SCHEMA_ROOT = REPO / 'rsc' / 'schema'
 
@@ -54,12 +54,12 @@ def datum_dirs(cache_root: Path, depth: int) -> list[Path]:
 
 
 def input_subjects(input_root: Path, globs: list[str], depth: int) -> list:
-    """Each input entry as its cache subject - the units src/main/input.py selects for the
+    """Each input entry as its cache subject - the units src/main/corpus.py selects for the
     same globs at the same depth (#687): a bare name at depth 1, where a datum is a
     directory, else the tuple of path parts the subject is cut to."""
     store = dict(pipeline=None, provider=None, input=Path('.'), globs=[(g, 'prefix') for g in globs],
                  companion='', depth=depth)
-    units = corpus_input.select(input_root, store)
+    units = corpus.select(input_root, store)
     if depth == 1:
         return sorted(u.subject[0] for u in units if (input_root / u.address).is_dir())
     return sorted({u.subject for u in units})
@@ -69,12 +69,12 @@ def sources(name: str, facts: dict) -> list[tuple[str, Path, Path, list[str]]]:
     """(label, input root, cache root, globs) for each store a pipeline reads: one, or one
     per provider where the declared input carries <provider> (#635) - the cache then
     holds a directory per provider under the pipeline's root. The stores are
-    src/main/input.py's rows over the same declaration (#687)."""
+    src/main/corpus.py's rows over the same declaration (#687)."""
     cache_root = REPO / cache_io.path_for(name)
     return [(name if s['provider'] is None else f'{name}/{s["provider"]}',
              REPO / 'data' / 'input' / s['input'], cache_root / (s['provider'] or ''),
              [g for g, _measure in s['globs']])
-            for s in corpus_input.stores({name: facts})]
+            for s in corpus.stores({name: facts})]
 
 
 def audit(name: str, facts: dict) -> int:
