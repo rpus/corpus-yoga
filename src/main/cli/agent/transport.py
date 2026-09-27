@@ -35,6 +35,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
+import tier  # noqa: E402 — the tiers, one home (#702)
 from append_only import Relation, growth, may_replace, relate  # noqa: E402
 
 AGENT_DIR = REPO / 'src' / 'main' / 'cli' / 'agent'
@@ -59,7 +60,7 @@ def project_key(workspace: str) -> str:
 
 
 def store(provider: str) -> Path:
-    return REPO / 'data' / 'input' / provider / 'code' / 'machine-transport'
+    return tier.DATA / 'input' / provider / 'code' / 'machine-transport'
 
 
 def adapter(provider: str) -> ModuleType | None:

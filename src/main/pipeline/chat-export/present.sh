@@ -12,14 +12,16 @@ SELF='src/main/pipeline/chat-export/present.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-CACHE_DIR="$REPO_DIR/tmp/cache/chat-export"
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
+CACHE_DIR="$TMP_DIR/cache/chat-export"
 TEMPLATE="$REPO_DIR/rsc/site/index.template.html"
 WORD_FREQ_SCRIPT="$REPO_DIR/src/main/word_freq_literal.py"
 FORMAT_TABLE_SCRIPT="$REPO_DIR/src/main/format_table.py"
 TIMELINE_SCRIPT="$SCRIPT_DIR/timeline.py"
 CHECK_HARVESTED_SCRIPT="$SCRIPT_DIR/check_harvested.py"
 FILES_FROM_DOWNLOADED_SCRIPT="$SCRIPT_DIR/files_from_downloaded.py"
-DOWNLOADED_DIR="$REPO_DIR/data/output/artifacts/claude/chat/downloaded"
+DOWNLOADED_DIR="$DATA_DIR/output/artifacts/claude/chat/downloaded"
 
 # ── jq snippets ───────────────────────────────────────────────────────────────
 
@@ -159,14 +161,14 @@ present_export() {
           # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
           # single-quoted description — the string is data, never a substitution
           desc='A join table assigning each chat to one category (palette authored in the template). Stored id-keyed — claude uuid / gemini app id (identity survives corpus renumbering); the chat index here is re-derived at presentation time as the canonical 1-based ordinal (created_at order) from markdown_projection.ordered(). The durable single-source capture; refresh with `corpus-yoga indexing capture`.'
-          inferred_file="$REPO_DIR/data/output/indexing/inferred-chat-categories.json"
+          inferred_file="$DATA_DIR/output/indexing/inferred-chat-categories.json"
           ;;
         data-semantic-concepts)
           cols='["word", "count"]'
           # shellcheck disable=SC2016  # the backticks are markdown emphasis in a
           # single-quoted description — the string is data, never a substitution
           desc='Weights are inferred concept salience, not raw frequencies. The durable single-source concept capture (data/output/indexing/inferred-semantic-concepts.json); refresh with `corpus-yoga indexing capture`.'
-          inferred_file="$REPO_DIR/data/output/indexing/inferred-semantic-concepts.json"
+          inferred_file="$DATA_DIR/output/indexing/inferred-semantic-concepts.json"
           ;;
       esac
       if [[ -f "$inferred_file" ]]; then

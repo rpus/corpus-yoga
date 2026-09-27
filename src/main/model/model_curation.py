@@ -37,6 +37,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 import sys as _sys
 _sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 from latest import latest_file  # noqa: E402
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
 MODEL_DIR = REPO / 'rsc' / 'model'
@@ -243,7 +244,7 @@ def shared_name_candidates() -> list[dict]:
     return rows
 
 
-WORKSHEET = REPO / 'tmp' / 'cache' / 'model' / 'shared_name_candidates.csv'
+WORKSHEET = tier.TMP / 'cache' / 'model' / 'shared_name_candidates.csv'
 
 
 def worksheet_rows() -> list[dict] | None:

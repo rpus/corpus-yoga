@@ -132,6 +132,7 @@ REPO = _root[0]
 
 sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
 from machine import bound_machine  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
@@ -160,15 +161,15 @@ def own_outbox(provider: str) -> Path | None:
     provider's store inside it is a directory this verb creates, being what it
     is declared to write. None where data/input is absent: a sweep states the
     skip and what to do rather than stopping between providers."""
-    medium = REPO / 'data' / 'input'
+    medium = tier.DATA / 'input'
     if not medium.is_dir():
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
               '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
-    # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
+    # the outbox is the stage twin of the store, tmp/stage/data/input/...: a capture reads
     # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
     # session to the held one and writes what extends it (#687)
-    out = REPO / 'tmp' / 'stage' / 'input' / transport.store(provider).relative_to(REPO / 'data' / 'input') / bound_machine()
+    out = tier.STAGE_DATA / 'input' / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 
@@ -276,7 +277,7 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
         # the act names the next acts (#687): what was captured waits in the stage until
         # the pipeline has judged it and the same extent is promoted
         extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
-        print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
+        print(f'agent capture: staged under tmp/stage/data/input/<provider>/code/machine-transport, not promoted - '
               f'corpus-yoga pipeline rehearse code-transport, then corpus-yoga agent promote {extent}')
     return conflicts
 

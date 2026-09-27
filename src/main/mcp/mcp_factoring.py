@@ -91,6 +91,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from schema_walk import schema_nodes, rebuilt  # noqa: E402  (positions derived from the meta-schema, #571)
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 from latest import latest_file  # noqa: E402
 import mcp_extraction as extraction  # noqa: E402  (sibling module)
 import mcp_generation as generation  # noqa: E402  (sibling module)
@@ -104,7 +105,7 @@ LAYER_RULE   = FAMILY_DIR / 'category_layer.csv'
 PLACEMENT    = FAMILY_DIR / 'placement.csv'
 UNREACHABLE  = FAMILY_DIR / 'unreachable.csv'
 ADDITION     = FAMILY_DIR / 'addition.csv'
-CACHE_DIR    = REPO / 'tmp/cache/mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
+CACHE_DIR    = tier.TMP / 'cache' / 'mcp'          # the extracted tables' readable face (rsc/cache_io.csv)
 COMPOSITION  = CACHE_DIR / 'composition.csv'
 CATEGORIES   = CACHE_DIR / 'category.csv'
 FAMILY       = 'mcpMessage'

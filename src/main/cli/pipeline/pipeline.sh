@@ -26,6 +26,8 @@ SELF='src/main/cli/pipeline/pipeline.sh'
 _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
@@ -361,7 +363,7 @@ prep_pipeline_safe() {
   fi
 }
 
-LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+LOG_FILE="$TMP_DIR/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -449,7 +451,7 @@ main() {
   ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
-  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · a rehearsal in tmp/stage/room}"
+  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · a rehearsal over tmp/stage}"
 
 
   require_cmd jq "install via: brew install jq"
@@ -489,16 +491,16 @@ main() {
   # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
   # path the wrapper passes and the path the pipeline documents cannot disagree.
   if should_run chat-capture; then
-    run_pipeline_safe  chat-capture "$REPO_ROOT/$(input_of chat-capture)"
+    run_pipeline_safe  chat-capture "$(tier_path "$(input_of chat-capture)")"
   fi
 
   if should_run chat-export; then
     prep_pipeline_safe chat-export
-    run_pipeline_safe  chat-export "$REPO_ROOT/$(input_of chat-export)"
+    run_pipeline_safe  chat-export "$(tier_path "$(input_of chat-export)")"
   fi
 
   if should_run code-transport; then
-    run_pipeline_safe  code-transport "$REPO_ROOT/$(input_of code-transport)"
+    run_pipeline_safe  code-transport "$(tier_path "$(input_of code-transport)")"
   fi
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a

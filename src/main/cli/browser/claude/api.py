@@ -16,6 +16,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_DIR = _root[0]
 sys.path.insert(0, str(REPO_DIR / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 from safari import safari_fetch_api_json, safari_fetch_asset, process_chain  # noqa: E402
 
 
@@ -87,7 +88,7 @@ def _library():
         from markdown_projection import corpus_index  # noqa: E402
         migration_note()
         dressing = {}
-        md_root = REPO_DIR / 'data' / 'output' / 'markdown'
+        md_root = tier.DATA / 'output' / 'markdown'
         if md_root.is_dir():
             dressing = {cid: f'{n:03d}-{stem.rsplit("/", 1)[-1].split("-", 1)[-1]}'
                         for n, stem, _title, cid in corpus_index(str(md_root))}

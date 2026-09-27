@@ -15,12 +15,14 @@ SELF='src/main/cli/server/server.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # run diagnostics live under tmp/logs/ (time-keyed, human-facing); tmp/cache/ holds only
 # datum-keyed derived state (validation logs are memoisation + matrix input)
 # One immutable log per daemon start (#370): stamped, colon-free, under the verb directory.
-LOG_FILE="$REPO_DIR/tmp/logs/server/start/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+LOG_FILE="$TMP_DIR/logs/server/start/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
 PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdown.py")
 
 # print only the leading usage block (comment lines until the first non-comment line),
@@ -56,7 +58,7 @@ start() {
       *) [[ "$1" == "--markdown" ]] && have_md=1; pyargs+=("$1"); shift ;;
     esac
   done
-  [[ "$have_md" -eq 0 ]] && pyargs+=(--markdown "$REPO_DIR/data/output/markdown")
+  [[ "$have_md" -eq 0 ]] && pyargs+=(--markdown "$DATA_DIR/output/markdown")
   mkdir -p "$(dirname "$LOG_FILE")"
   export PYTHONUNBUFFERED=1
   if [[ "$daemon" -eq 1 ]]; then

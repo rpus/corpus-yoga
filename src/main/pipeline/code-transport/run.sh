@@ -25,7 +25,9 @@ SELF='src/main/pipeline/code-transport/run.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-CACHE_DIR="$REPO_DIR/tmp/cache/code-transport"
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
+CACHE_DIR="$TMP_DIR/cache/code-transport"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"

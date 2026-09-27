@@ -17,8 +17,10 @@ SELF='src/main/pipeline/chat-export/validate.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 SCHEMA_DIR="$REPO_DIR/rsc/schema/pipeline/chat-export/claude"
-CACHE_DIR="$REPO_DIR/tmp/cache/chat-export"
+CACHE_DIR="$TMP_DIR/cache/chat-export"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"   # dispatch/dispatch_emit — next-free dispatch (#395)

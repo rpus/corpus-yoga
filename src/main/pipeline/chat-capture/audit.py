@@ -43,6 +43,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (#421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
@@ -255,7 +256,7 @@ def main():
     ap.add_argument('--input', default='input',
                     help='input root, typed <provider>/<channel>/<capture> — the audit '
                          'derives claude/chat/API-capture and gemini/chat/DOM-capture')
-    ap.add_argument('--api', default='data/output/markdown/claude/chat/conversations',
+    ap.add_argument('--api', default=str(tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'),
                     help='dir of api-sourced markdown (project_markdown output)')
     ap.add_argument('--live', action='store_true',
                     help='also drive Safari (work tab): claude listing updated_at check; '

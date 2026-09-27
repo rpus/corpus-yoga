@@ -6,8 +6,9 @@ stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its
     corpus-yoga stage clean --dry-run   # what the janitor would remove, with sizes
     corpus-yoga stage clean --apply     # remove it
 
-The tier (src/main/corpus.py): input is what the captures write; cache, output and room
-are what corpus-yoga pipeline rehearse derives and projects, rebuilt at every rehearsal.
+The tier (src/main/tier.py, src/main/corpus.py): data/input is what the captures write;
+tmp and data/output are what corpus-yoga pipeline rehearse derives and projects, the
+checkout's own code run over the stage's tiers.
 The per-unit relations stay with each capturing noun's bare status and with bare
 corpus-yoga pipeline; this face counts them. The janitor removes the rehearsal's derived
 tiers and every staged unit the store holds byte-equal - a unit already promoted; a refused
@@ -26,10 +27,11 @@ sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 from declared_parser import command_parser  # noqa: E402
 import corpus  # noqa: E402
+import tier  # noqa: E402 — the tiers, one home (#702)
 
-TIER = REPO / 'tmp' / 'stage'
-DERIVED = ('cache', 'output', 'room')
-REHEARSALS = REPO / 'tmp' / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record
+TIER = tier.STAGE
+DERIVED = (('tmp',), ('data', 'output'))                    # what a rehearsal derives and projects, as parts of the tier
+REHEARSALS = tier.TMP / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record
 
 
 def _size(p: Path) -> int:
@@ -50,7 +52,7 @@ def status() -> int:
     if not TIER.is_dir():
         print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
         return 0
-    parts = [f'{d.name} {_human(_size(d))}' for d in sorted(TIER.iterdir()) if d.is_dir()]
+    parts = [f'{d.relative_to(TIER).as_posix()} {_human(_size(d))}' for d in sorted(TIER.glob('*/*')) if d.is_dir()]
     print('tmp/stage/: ' + (', '.join(parts) if parts else 'empty'))
     logs = sorted(REHEARSALS.glob('*.log')) if REHEARSALS.is_dir() else []
     if logs:
@@ -74,9 +76,10 @@ def status() -> int:
 
 def clean(apply: bool) -> int:
     doomed: list[tuple[str, Path]] = []
-    for name in DERIVED:
-        if (TIER / name).exists():
-            doomed.append((f'tmp/stage/{name} (the last rehearsal\'s)', TIER / name))
+    for parts in DERIVED:
+        sub = TIER.joinpath(*parts)
+        if sub.exists():
+            doomed.append((f'{sub.relative_to(REPO).as_posix()} (the last rehearsal\'s)', sub))
     units = [u for u in corpus.units(corpus.STAGE) if corpus.redundant(u)] if corpus.STAGE.is_dir() else []
     if not doomed and not units:
         print('stage clean: DONE - nothing to remove')

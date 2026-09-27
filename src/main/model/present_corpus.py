@@ -48,6 +48,7 @@ CHAT_PIPELINE = REPO / 'src' / 'main' / 'pipeline' / 'chat-export'   # source-sc
 MAIN = REPO / 'src' / 'main'   # the shared-primitives tier: common code at src/main's root
 
 sys.path.insert(0, str(REPO / 'src' / 'main'))
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner
 sys.path.insert(0, str(SCRIPT_DIR))
 from markdown_projection import corpus_index, turn_seq  # noqa: E402 — the format authority owns the parsers
@@ -102,11 +103,11 @@ def write_table(out_dir: Path, key: str, table: dict, html: Path) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='render the corpus dashboard from data/output/markdown + data/output/indexing')
-    ap.add_argument('--markdown', default=str(REPO / 'data' / 'output' / 'markdown'))
-    ap.add_argument('--indexing', default=str(REPO / 'data' / 'output' / 'indexing'))
-    ap.add_argument('--out', default=str(REPO / 'tmp' / 'cache' / 'site' / 'presentation'),
+    ap.add_argument('--markdown', default=str(tier.DATA / 'output' / 'markdown'))
+    ap.add_argument('--indexing', default=str(tier.DATA / 'output' / 'indexing'))
+    ap.add_argument('--out', default=str(tier.TMP / 'cache' / 'site' / 'presentation'),
                     help='cache workshop dir for the data tables (feedstock)')
-    ap.add_argument('--page-out', default=str(REPO / 'data' / 'output' / 'site'),
+    ap.add_argument('--page-out', default=str(tier.DATA / 'output' / 'site'),
                     help='publish-tree dir the finished index.html lands in (its URL position)')
     args = ap.parse_args()
 

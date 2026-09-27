@@ -20,6 +20,8 @@ SELF='src/main/pipeline/chat-export/require_export.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 
 parse_args() {
   while [[ $# -gt 0 ]]; do
@@ -31,7 +33,7 @@ parse_args() {
 }
 
 check_exports() {
-  local ext_dir="$REPO_DIR/data/input/claude/chat/bulk-export"
+  local ext_dir="$DATA_DIR/input/claude/chat/bulk-export"
   for d in "$ext_dir"/data-*/; do
     [[ -d "$d" ]] && return 0
   done

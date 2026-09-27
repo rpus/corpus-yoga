@@ -1,5 +1,5 @@
 {
-  "help": "the pipelines over data/input with this room's stage, tmp/stage/input, laid over it - in a room of the stage's own (tmp/stage/room) whose cache is tmp/stage/cache and whose output is tmp/stage/output, each seeded from the room's before the run; the verdicts the promote verbs read. Writes the stage's cache, output and room alone",
+  "help": "the pipelines over the stage: the checkout's own code run with the data tier tmp/stage/data and the tmp tier tmp/stage/tmp (src/main/tier.py), so that the staged units are judged and projected there and nothing of the checkout's own tiers is read or written; the verdicts the promote verbs read",
   "args": [
     {
       "name": "pipeline",
@@ -9,18 +9,12 @@
     }
   ],
   "r": [
-    "data/input",
-    "data/output",
-    "tmp/cache",
-    "tmp/stage/input",
-    "src",
+    "tmp/stage/data/input",
     "rsc",
-    "corpus-yoga",
     "machine-name.txt"
   ],
   "w": [
-    "tmp/stage/cache",
-    "tmp/stage/output",
-    "tmp/stage/room"
+    "tmp/stage/data/output",
+    "tmp/stage/tmp"
   ]
 }

@@ -27,15 +27,16 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `cache/`, `output/`, `room/`: nothing — `corpus-yoga pipeline rehearse` rebuilds them; `corpus-yoga stage clean` is the tier's janitor |
+| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `data/input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `tmp/`, `data/output/`: nothing — `corpus-yoga pipeline rehearse` rebuilds them; `corpus-yoga stage clean` is the tier's janitor |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-A capture writes to `tmp/stage/input/`, at the address its unit will have under
-`data/input/`, and reads nothing. `corpus-yoga pipeline rehearse` runs the pipelines over
-the store with this room's stage laid over it, in a room of the stage's own under
-`tmp/stage/`, writing the stage's `cache/` and `output/` alone; the verdicts it caches are
-the validation. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
+A capture writes to `tmp/stage/data/input/`, at the address its unit will have under
+`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
+the data tier and the tmp tier, each defaulting to the checkout's own, and `corpus-yoga
+pipeline rehearse` is the checkout's own code run over the stage's - `tmp/stage/data` and
+`tmp/stage/tmp` - judging the staged units there and writing the stage alone; the
+verdicts it caches are the validation. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
 `agent promote`, `export promote`, `forge promote`, over the same extent words as its
 `capture` - is the one writer of `data/input/`, and it promotes a unit only where it
 relates to the held one without loss - new, identical, extends, never ahead or diverged -

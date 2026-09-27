@@ -22,12 +22,13 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))   # src/main/, for send
+import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402 — ~/.zshrc is outside the tree: a send (#29)
 from cli import (  # noqa: E402 — one reader of the declaration, and it is cli
     PATH_ARG_TYPES, REPO, commands, command_rows, subcommands_of, _subcommand_desc,
 )
 
-COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
+COMPLETION_OUT = tier.TMP / 'cache' / 'completions' / '_yoga'
 
 
 # The comments that DELIMIT the block `install` writes into ~/.zshrc, and by which

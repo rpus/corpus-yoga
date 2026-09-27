@@ -20,6 +20,8 @@ SELF='src/main/cli/site/site.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"
 # shellcheck source=src/main/enact.sh
@@ -27,7 +29,7 @@ source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 SRC="$REPO_DIR/rsc/site"
-OUT="$REPO_DIR/data/output/site"
+OUT="$DATA_DIR/output/site"
 MODEL_DIR="$REPO_DIR/src/main/model"
 # shellcheck source=src/main/model/corpus_shape.sh
 source "$MODEL_DIR/corpus_shape.sh"   # the corpus's shape, stated once

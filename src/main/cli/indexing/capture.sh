@@ -28,6 +28,8 @@ SELF='src/main/cli/indexing/capture.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 PIPELINE="$REPO_DIR/src/main/pipeline/chat-export"   # the chat pipeline's helpers (timeline)
 MODEL_DIR="$REPO_DIR/src/main/model"                  # the corpus tier: shape, rekey
 # shellcheck source=src/main/send.sh
@@ -215,9 +217,9 @@ print(len(corpus & captured), len(corpus - captured), len(captured - corpus), le
 # same corpus is the defect #55 fixed one layer up.
 coverage_report() {
   local conv="$1" out captured never gone total
-  out="$(coverage_of "$conv" "$REPO_DIR/data/output/indexing/inferred-chat-categories.json")" || return 0
+  out="$(coverage_of "$conv" "$DATA_DIR/output/indexing/inferred-chat-categories.json")" || return 0
   read -r captured never gone total <<< "$out"
-  if [[ -f "$REPO_DIR/data/output/indexing/inferred-chat-categories.json" ]]; then
+  if [[ -f "$DATA_DIR/output/indexing/inferred-chat-categories.json" ]]; then
     echo "coverage (exact): $captured captured · $never never captured · $gone captured-but-gone"
   else
     echo "coverage (exact): no prior capture — $never conversation(s) uncovered"
@@ -246,8 +248,8 @@ capture_dashboard() {
   local conv="$1" only="${2:-}"
   # corpus-scoped staging (like tmp/cache/indexing): the capture is a reading of the
   # whole corpus, tied to no batch
-  local stage="$REPO_DIR/tmp/cache/indexing"
-  local dest="$REPO_DIR/data/output/indexing"
+  local stage="$TMP_DIR/cache/indexing"
+  local dest="$DATA_DIR/output/indexing"
   mkdir -p "$stage" "$dest"
 
   local want_concepts=1 want_categories=1
@@ -332,7 +334,7 @@ capture_dashboard() {
 # capture works the moment the corpus exists. Reading from a batch's cache, or from
 # an input file, couples the dashboard to a layer above the output it describes.
 corpus_conversations() {
-  local d="$REPO_DIR/data/output/markdown"
+  local d="$DATA_DIR/output/markdown"
   has_conversations "$d" && echo "$d"
 }
 
@@ -361,7 +363,7 @@ capture() {
   # was the whole audit trail. A paid call is not reproducible for free, so the log is not a
   # convenience here — it is the only evidence. Path per the command/verb rule (#54).
   local log
-  log="$REPO_DIR/tmp/logs/indexing/capture/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+  log="$TMP_DIR/logs/indexing/capture/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
   mkdir -p "$(dirname "$log")"
   exec > >(tee -a "$log") 2>&1
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
@@ -385,7 +387,7 @@ capture() {
 # the captures-vs-corpus half of the report the dashboard command carried
 # before it dissolved (#409); the render-vs-inputs half is `corpus-yoga site`'s.
 status() {
-  local d="$REPO_DIR/data/output/indexing" f
+  local d="$DATA_DIR/output/indexing" f
   echo "data/output/indexing/ — the paid model captures: the concept proposals the candidates are drawn from, the categories the site render colours by"
   for f in inferred-semantic-concepts.json inferred-chat-categories.json; do
     if [[ -f "$d/$f" ]]; then
@@ -394,7 +396,7 @@ status() {
       echo "  ○ $f — not captured yet"
     fi
   done
-  local corpus="$REPO_DIR/data/output/markdown" n m=0
+  local corpus="$DATA_DIR/output/markdown" n m=0
   [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
   n="$(count_conversations "$corpus")"
   [[ "$n" -gt 0 ]] || return 0

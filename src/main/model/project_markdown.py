@@ -29,6 +29,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import (REPO, project, ordered, find_api_json, render,
                                  md_validator, tree_problems, deposit, conv_id)
 
@@ -39,7 +40,7 @@ from supersede import export_time  # noqa: E402 — the one export-ordering auth
 def _newest_batch_json():
     """The newest ATOMISED export's json/ dir (by export_time, the one ordering
     authority), or None where no batch has been atomised."""
-    cache = REPO / 'tmp' / 'cache' / 'chat-export'
+    cache = tier.TMP / 'cache' / 'chat-export'
     atomised = [d for d in cache.glob('data-*') if (d / 'json').is_dir()]
     if not atomised:
         return None
@@ -145,15 +146,15 @@ def main():
                   f'../summaries/{name}/index.md')
                  for _, name, api in ordered(apis)
                  for lean in (project(api),)]
-        out = Path(args.out) if args.out else REPO / 'data' / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
+        out = Path(args.out) if args.out else tier.DATA / 'output' / 'markdown' / 'claude' / 'chat' / 'conversations'
     else:
         # bulk export: render the pieces atomise_bulk.py wrote, inheriting each piece's name.
         # Provenance cross-checks the other way: against the capture corpus, when present.
         batch = Path(args.bulk_export)
-        json_dir = REPO / 'tmp' / 'cache' / 'chat-export' / batch.name / 'json'
+        json_dir = tier.TMP / 'cache' / 'chat-export' / batch.name / 'json'
         if not json_dir.is_dir():
             sys.exit(f"no atomised json/ at {json_dir}; run atomise_bulk.py --bulk-export {batch} first")
-        captures = REPO / 'data' / 'input' / 'claude' / 'chat' / 'API-capture'
+        captures = tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture'
         cap_apis = ([api for d in sorted(p for p in captures.iterdir() if p.is_dir())
                      if (api := find_api_json(d)) is not None] if captures.is_dir() else None)
         other_index = _msg_index(cap_apis) if cap_apis else None
@@ -166,7 +167,7 @@ def main():
                  for f in sorted(json_dir.glob('*.json'))
                  for c in (json.loads(f.read_text()),)
                  for lean in (project(c),))
-        out = Path(args.out) if args.out else REPO / 'tmp' / 'cache' / 'chat-export' / batch.name / 'markdown'
+        out = Path(args.out) if args.out else tier.TMP / 'cache' / 'chat-export' / batch.name / 'markdown'
 
     n_ok, n_bad, n_empty = write_markdown(named, out)
     print(f"rendered {n_ok} conversations to {out} ({n_bad} invalid, {n_empty} empty)")

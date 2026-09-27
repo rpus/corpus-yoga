@@ -4,19 +4,20 @@ of its address, whether the pipelines have found it valid, and its promotion int
 storage (#687). The home rsc/CALCULUS.md's roadmap names for the Mergeable protocol; this is
 its first face, promotion, and the four older comparisons it names stand as they are.
 
-THE STAGE - the room's stage is one root, tmp/stage, laid out as the room's tiers are:
-tmp/stage/input is what the captures write, at the address each unit will have under
-data/input; tmp/stage/cache is what a rehearsal derives, the twin of tmp/cache; and
-tmp/stage/output is what it projects, the twin of data/output. A capture writes its stage
-and reads nothing (L10). `corpus-yoga pipeline rehearse` (src/main/cli/pipeline/rehearse.sh)
-runs the pipelines over data/input with tmp/stage/input laid over it and writes the stage's
-cache and output alone; the whole of it is undone by removing tmp/stage.
+THE STAGE - the room's stage is one root, tmp/stage, laid out as the room's tiers are
+(src/main/tier.py, #702): tmp/stage/data/input is what the captures write, at the address
+each unit will have under data/input; tmp/stage/tmp/cache is what a rehearsal derives, the
+twin of tmp/cache; tmp/stage/data/output is what it projects, the twin of data/output. A
+capture writes its stage and reads nothing (L10). `corpus-yoga pipeline rehearse`
+(src/main/cli/pipeline/rehearse.sh) is the checkout's own code run over the stage's tiers -
+CORPUS_YOGA_DATA=tmp/stage/data, CORPUS_YOGA_TMP=tmp/stage/tmp - so it judges the staged
+units alone and writes the stage alone; the whole of it is undone by removing tmp/stage.
 
 UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipeline.json):
 under the declared input of each provider, every match of input_glob or extra_input_glob,
 cut to subject_depth, is one unit - a directory with everything under it, or a file with
 its declared companion (<stem> standing for the file's stem: claude's workspace <stem>/
-beside <stem>.jsonl). One selection names the stage's units, the rehearsal's view, the
+beside <stem>.jsonl). One selection names the stage's units, the
 audit's subjects (src/main/validation_audit.py) and the datum's cache address,
 <cache root>[/<provider>]/<subject>. A file no declaration selects is a unit of its own,
 measured by its bytes and validated by nothing.
@@ -36,7 +37,7 @@ else:
     whole           held whole or not at all: identical, else diverged
 
 VERDICT - the pipelines are the one validator, and a rehearsal is where they judge the
-stage: each datum's verdict is the record the validation step wrote under tmp/stage/cache
+stage: each datum's verdict is the record the validation step wrote under tmp/stage/tmp/cache
 at the unit's cache address (src/main/validation_verdict.py, #701), at the family's latest version; the
 log beside it is never read. A unit is promotable when every family judged there has a
 current green record - its datum digest one of the staged unit's own files (or, for a
@@ -50,7 +51,7 @@ PROMOTE - each capturing noun has the verb: what `corpus-yoga browser capture` s
 `corpus-yoga browser promote` promotes, over the same extent words (--provider <p> |
 --all, --id <prefix>); agent, export and forge likewise. A noun's units are the staged
 units under the roots its capture declares it writes (src/main/cli/<noun>/capture.json's
-w rows under tmp/stage/input). Every staged unit gets its verdict; the relation refuses
+w rows under tmp/stage/data/input). Every staged unit gets its verdict; the relation refuses
 only where the held copy would lose something (AHEAD, DIVERGED). Promotion is a copy,
 never a move: the unit's members are written over the held ones by address, byte-equal
 being silence, and the stage is never written by promote - the captures own it, and
@@ -81,10 +82,11 @@ from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
+import tier  # noqa: E402 — the tiers, one home (#702)
 
-STAGE = REPO / 'tmp' / 'stage' / 'input'         # what the captures write
-STAGE_CACHE = REPO / 'tmp' / 'stage' / 'cache'   # what a rehearsal derives
-STORE = REPO / 'data' / 'input'
+STAGE = tier.STAGE_DATA / 'input'        # what the captures write
+STAGE_CACHE = tier.STAGE_TMP / 'cache'   # what a rehearsal derives
+STORE = tier.DATA / 'input'
 PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
 CLI_ROOT = REPO / 'src' / 'main' / 'cli'
 NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote
@@ -94,7 +96,7 @@ NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each
 
 @dataclass
 class Unit:
-    address: Path                 # relative to the input root (data/input, tmp/stage/input, the view)
+    address: Path                 # relative to the input root (data/input or tmp/stage/data/input)
     members: list[Path]           # the paths that make it: its directory, or its file and companion
     files: list[Path]             # every file under the members
     selected: list[Path]          # the files the glob selected - what the measure reads
@@ -375,38 +377,12 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
     return True, 'validates at ' + ', '.join(words) + ' (origin/main)'
 
 
-# -- view ----------------------------------------------------------------------------------
-
-def view(out: Path) -> tuple[int, int]:
-    """data/input with this room's stage laid over it, as a tree of links under out: every
-    unit of the store linked by its members at their addresses, then every staged unit
-    linked over it. The rehearsal's room reads it as its data/input. Returns (units of
-    data/input, units of tmp/stage/input) linked."""
-    if out.exists():
-        shutil.rmtree(out)
-    counts = []
-    for root in (STORE, STAGE):
-        n = 0
-        for unit in units(root):
-            for rel in unit.members:
-                link = out / rel
-                if link.is_symlink() or link.is_file():
-                    link.unlink()
-                elif link.is_dir():
-                    shutil.rmtree(link)
-                link.parent.mkdir(parents=True, exist_ok=True)
-                link.symlink_to(root / rel)
-            n += 1
-        counts.append(n)
-    return counts[0], counts[1]
-
-
 # -- promote -------------------------------------------------------------------------------
 
 def roots_of(noun: str) -> list[Path]:
-    """The stage roots a noun's capture declares it writes, relative to tmp/stage/input."""
+    """The stage roots a noun's capture declares it writes, relative to tmp/stage/data/input."""
     decl = json.loads((CLI_ROOT / noun / 'capture.json').read_text())
-    return [Path(w.removeprefix('tmp/stage/input/')) for w in decl.get('w', []) if w.startswith('tmp/stage/input/')]
+    return [Path(w.removeprefix('tmp/stage/data/input/')) for w in decl.get('w', []) if w.startswith('tmp/stage/data/input/')]
 
 
 def noun_of(unit: Unit) -> str | None:
@@ -418,8 +394,8 @@ def noun_of(unit: Unit) -> str | None:
 
 
 REMEDY = {
-    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy by hand: rm -r tmp/stage/input/{unit}',
-    Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/stage/input/{unit} keeps the held',
+    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy by hand: rm -r tmp/stage/data/input/{unit}',
+    Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/stage/data/input/{unit} keeps the held',
 }
 
 
@@ -564,7 +540,7 @@ def report(noun: str | None) -> int:
     `corpus-yoga pipeline` shows it (every unit, by pipeline). Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     if not rows:
-        print(f'stage: nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input')
+        print(f'stage: nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/data/input')
         return 0
     by_noun: dict[str, int] = {}
     unjudged = refused = held = 0
@@ -594,8 +570,7 @@ def report(noun: str | None) -> int:
 def main(argv: list[str]) -> int:
     """`corpus.py promote <noun> [--provider <p> | --all] [--id <prefix>]` - a capturing
     noun's promote verb, its argv already validated against the noun's declaration;
-    `corpus.py report [<noun>]` - the stage as a status face shows it; `corpus.py view
-    <dir>` - the rehearsal's data/input; `corpus.py count` - the staged units, a number."""
+    `corpus.py report [<noun>]` - the stage as a status face shows it; `corpus.py count` - the staged units, a number."""
     ap = argparse.ArgumentParser(add_help=False)
     sub = ap.add_subparsers(dest='act', required=True)
     pr = sub.add_parser('promote', add_help=False)
@@ -605,8 +580,6 @@ def main(argv: list[str]) -> int:
     pr.add_argument('--id', default=None)
     rp = sub.add_parser('report', add_help=False)
     rp.add_argument('noun', nargs='?', choices=NOUNS, default=None)
-    vw = sub.add_parser('view', add_help=False)
-    vw.add_argument('out')
     sub.add_parser('count', add_help=False)
     args = ap.parse_args(argv)
     if args.act == 'promote':
@@ -615,10 +588,6 @@ def main(argv: list[str]) -> int:
         return promote(args.noun, extent(args.noun, args.provider, args.all, args.id))
     if args.act == 'report':
         return report(args.noun)
-    if args.act == 'view':
-        held, staged = view(Path(args.out))
-        print(f'view: {held} unit(s) of data/input, {staged} of tmp/stage/input laid over them')
-        return 0
     print(len(units(STAGE)))
     return 0
 

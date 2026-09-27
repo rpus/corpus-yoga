@@ -28,11 +28,13 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
-LIBRARY = REPO / 'data' / 'output' / 'artifacts' / 'claude' / 'chat' / 'downloaded'
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
+LIBRARY = tier.DATA / 'output' / 'artifacts' / 'claude' / 'chat' / 'downloaded'
 # The pre-#421 address. data/output/ is durable and shared, so the store moves
 # ONCE by hand; the machinery meets an unmigrated machine with a stated note,
 # never a silently empty library.
-LIBRARY_OLD = REPO / 'data' / 'output' / 'artifacts' / 'downloaded'
+LIBRARY_OLD = tier.DATA / 'output' / 'artifacts' / 'downloaded'
 _noted = False
 
 
