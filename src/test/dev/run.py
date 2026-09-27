@@ -1663,6 +1663,43 @@ def check_grammar_laws(run, cited: dict) -> None:
     run(f'grammar: {len(laws)} laws — {summary}', True, check='grammar.enforcement_map')
 
 
+def check_verdict_record(run) -> None:
+    """A verdict is read from its record, never from the log's text (#701): a red log whose
+    inspection dumps a datum that carries the validator's own word must read red. The
+    fixture is synthetic - a datum directory with one family, its latest version, a log
+    that says 'Validation error' and then 'Valid!' inside the dumped instance, and beside
+    it the record that says invalid; a log with no record reads unknown."""
+    import tempfile
+    sys.path.insert(0, str(SRC))
+    from validation_matrix import rows_from_records
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        schema_root = root / 'rsc' / 'schema' / 'pipeline' / 'chat-capture'
+        (schema_root / 'claude' / 'apiConversation').mkdir(parents=True)
+        (schema_root / 'claude' / 'apiConversation' / 'v1.json').write_text('{}')
+        datum = root / 'tmp' / 'cache' / 'chat-capture' / 'claude' / 'datum'
+        log_dir = datum / 'validation' / 'apiConversation'
+        log_dir.mkdir(parents=True)
+        (log_dir / 'v1.log').write_text('2026-09-27T00:00:00+00:00\n'
+                                         'datum.json: 3 lines, 40 bytes · sha256 aa\n'
+                                         'v1.json: 2 bytes · sha256 bb\n'
+                                         'Validation error: Additional properties are not allowed\n'
+                                         '--- instance ---\n'
+                                         "{\"text\": \"the validator ends with print('Valid!')\"}\n")
+        rows = rows_from_records(datum, schema_root)
+        unknown = rows.get(('apiConversation', '', 'v1'), ('?', 0))[0]
+        run('validation: a log without a record reads unknown, whatever its text says', unknown == '?',
+            None if unknown == '?' else f'read {unknown} from the log text alone', check='validation.verdict_is_record')
+        (log_dir / 'v1.verdict.json').write_text('{"datum": "datum.json", "datum_sha256": "aa", "datum_bytes": 40, '
+                                                  '"datum_lines": 3, "schema": "v1.json", "schema_sha256": "bb", '
+                                                  '"version": "v1", "verdict": "invalid", "reason": "Validation error", '
+                                                  '"at": "2026-09-27T00:00:00+00:00"}\n')
+        rows = rows_from_records(datum, schema_root)
+        got = rows.get(('apiConversation', '', 'v1'), ('?', 0))[0]
+        run("validation: a red record reads red though the log's dumped instance says Valid!", got == '✗',
+            None if got == '✗' else f'read {got} - the verdict came from the text, not the record', check='validation.verdict_is_record')
+
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
@@ -2439,6 +2476,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_validity': SCHEMA,
     'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
+    'check_verdict_record': ['src/validation_matrix.py', 'src/main/verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
     'check_model_join_versions': SCHEMA + MODEL,
@@ -2690,6 +2728,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_schema_single_version, tier='schema')
         run_section(check_schema_changelogs, tier='schema')
 
+        run_section(check_verdict_record, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

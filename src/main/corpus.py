@@ -36,12 +36,13 @@ else:
     whole           held whole or not at all: identical, else diverged
 
 VERDICT - the pipelines are the one validator, and a rehearsal is where they judge the
-stage: each datum's verdict is the log the pipeline cached under tmp/stage/cache at the
-unit's cache address, at the family's latest version. A unit is promotable when every
-family judged there has a current green verdict - the log's datum digest one of the staged
-unit's own files (or, for a converted datum, the recorded digest of its source one of them),
-and the log's schema digest that of origin/main's version of the family, so that a form
-only a branch's schema admits waits for the merge that licenses it. A unit no pipeline
+stage: each datum's verdict is the record the validation step wrote under tmp/stage/cache
+at the unit's cache address (src/main/verdict.py, #701), at the family's latest version; the
+log beside it is never read. A unit is promotable when every family judged there has a
+current green record - its datum digest one of the staged unit's own files (or, for a
+converted datum, the recorded digest of its source one of them), and its schema digest
+that of origin/main's version of the family, so that a form only a branch's schema admits
+waits for the merge that licenses it. A unit no pipeline
 selects, or whose pipeline declares no family for its provider, is promoted on its
 relation alone and says so.
 
@@ -79,6 +80,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
 from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
+import verdict as verdicts  # noqa: E402
 
 STAGE = REPO / 'tmp' / 'stage' / 'input'         # what the captures write
 STAGE_CACHE = REPO / 'tmp' / 'stage' / 'cache'   # what a rehearsal derives
@@ -341,34 +343,35 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
         return None, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
     cache = unit.cache
     remedy = f'corpus-yoga pipeline rehearse {unit.pipeline} judges it'
+    # the verdict is its record (src/main/verdict.py, #701); the log beside it is never read
     by_family: dict[str, list[Path]] = {}
-    for log in (cache / 'validation').rglob('v*.log'):
-        by_family.setdefault(log.parent.relative_to(cache / 'validation').as_posix(), []).append(log)
+    for rec in (cache / 'validation').rglob(f'v*{verdicts.SUFFIX}'):
+        by_family.setdefault(rec.parent.relative_to(cache / 'validation').as_posix(), []).append(rec)
     if not by_family:
         return False, f'no verdict - {remedy}'
     own = _own_digests(unit)
     recorded = cache / 'source.sha256'
     converted = recorded.is_file() and recorded.read_text().strip() in own
     words = []
-    for leaf, logs in sorted(by_family.items()):
-        log = max(logs, key=lambda f: int(''.join(c for c in f.stem if c.isdigit()) or 0))
+    for leaf, recs in sorted(by_family.items()):
+        latest = max(recs, key=lambda f: int(''.join(c for c in f.name.split('.')[0] if c.isdigit()) or 0))
+        version = latest.name[:-len(verdicts.SUFFIX)]
         family = next((s for s in judges if s.rsplit('/', 1)[-1] == leaf.split('/')[0]), leaf)
-        text = log.read_text().splitlines()
-        if len(text) < 3:
+        record = verdicts.read(latest)
+        if record is None:
             return False, f'no verdict at {family} - {remedy}'
-        datum = text[1].rsplit('sha256 ', 1)[-1].strip()
-        if datum not in own and not converted:
+        if record['datum_sha256'] not in own and not converted:
             return False, f'the verdict at {family} is not on this staged unit - {remedy}'
         main_digest, main_version = _main_schema_digest(unit.pipeline, family)
-        if main_digest is None or not text[2].rstrip().endswith(f'sha256 {main_digest}'):
-            if main_version == log.stem:
-                return False, (f'the verdict at {family} {log.stem} is against a schema origin/main does not hold - '
+        if main_digest is None or record['schema_sha256'] != main_digest:
+            if main_version == version:
+                return False, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
                                f'corpus-yoga pipeline rehearse {unit.pipeline} re-judges it')
-            return False, (f'the verdict at {family} is at {log.stem} of this checkout, which origin/main does not hold '
+            return False, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
                            f'({main_version} there) - the mint\'s merge licenses the promotion')
-        if 'Valid!' not in log.read_text():
-            return False, f'fails {family} {log.stem} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'
-        words.append(f'{family} {log.stem}')
+        if record['verdict'] != 'valid':
+            return False, f'fails {family} {version} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'
+        words.append(f'{family} {version}')
     return True, 'validates at ' + ', '.join(words) + ' (origin/main)'
 
 
