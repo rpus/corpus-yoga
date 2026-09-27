@@ -21,6 +21,7 @@
   "w": [
     "tmp/stage/cache",
     "tmp/stage/output",
-    "tmp/stage/room"
+    "tmp/stage/room",
+    "tmp/stage/rehearsal.txt"
   ]
 }

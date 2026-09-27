@@ -49,10 +49,15 @@ PROMOTE - each capturing noun has the verb: what `corpus-yoga browser capture` s
 `corpus-yoga browser promote` promotes, over the same extent words (--provider <p> |
 --all, --id <prefix>); agent, export and forge likewise. A noun's units are the staged
 units under the roots its capture declares it writes (src/main/cli/<noun>/capture.json's
-w rows under tmp/stage/input). Promotion moves the unit into data/input; its verdict stays
-in the stage's cache, and the plain run judges the promoted datum again from the same
-bytes - two hands on tmp/cache would break L6 as effects.writers_disjoint holds it. Each
-noun's bare status, and bare `corpus-yoga pipeline`, report the stage.
+w rows under tmp/stage/input). Every staged unit gets its verdict; the relation refuses
+only where the held copy would lose something (AHEAD, DIVERGED). Promotion is a copy,
+never a move: the unit's members are written over the held ones by address, byte-equal
+being silence, and the stage is never written by promote - the captures own it, and
+`corpus-yoga stage clean` is its one janitor, removing a rehearsal's derived tiers and the
+units the store holds byte-equal. A promoted unit's verdict stays in the stage's cache,
+and the plain run judges the promoted datum again from the same bytes - two hands on
+tmp/cache would break L6 as effects.writers_disjoint holds it. Each noun's bare status,
+bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 """
 import argparse
 import hashlib
@@ -410,31 +415,35 @@ def noun_of(unit: Unit) -> str | None:
 
 
 REMEDY = {
-    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy: rm -r tmp/stage/input/{unit}',
+    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy by hand: rm -r tmp/stage/input/{unit}',
     Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/stage/input/{unit} keeps the held',
 }
 
 
 def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str, bool | None, str]]:
     """(unit, relation, the relation's words, verdict, the verdict's words), for the units
-    given or for everything staged."""
+    given or for everything staged. Every unit gets its verdict: an identical capture in a
+    form the family refuses is refused like any other."""
     rows = []
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
-        ok, words = verdict(unit) if may_replace(rel) else (None, '')
+        ok, words = verdict(unit) if rel not in REFUSING else (None, '')
         rows.append((unit, rel, detail, ok, words))
     return rows
 
 
+REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
+
+
 def promotable(rel: Relation, ok: bool | None) -> bool:
-    return may_replace(rel) and ok is not False
+    return rel not in REFUSING and ok is not False
 
 
 def word(unit: Unit, rel: Relation, detail: str, ok: bool | None, words: str) -> str:
     verb = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
             Relation.AHEAD: 'AHEAD - refused', Relation.DIVERGED: 'DIVERGED - refused'}[rel]
     line = f'  {unit.address}: {verb} ({detail})'
-    if may_replace(rel):
+    if rel not in REFUSING:
         line += f'; {words}' if ok is not False else f'; REFUSED - {words}'
     return line
 
@@ -462,61 +471,88 @@ def extent(noun: str, provider: str | None, everything: bool, unit_id: str | Non
     return hits
 
 
-def _place(unit: Unit) -> None:
-    """Write the unit into the store: each of its members - its directory, or its file and
-    the companion that moves with it - replaces the held one whole."""
+def _tree_files(path: Path) -> dict[str, Path]:
+    if path.is_file():
+        return {'': path}
+    if not path.is_dir():
+        return {}
+    return {f.relative_to(path).as_posix(): f for f in sorted(path.rglob('*')) if f.is_file() and f.name != '.DS_Store'}
+
+
+def redundant(unit: Unit) -> bool:
+    """Whether every member of the staged unit is byte-identical to the held one - a unit
+    already promoted, which only the stage's janitor removes."""
     for rel in unit.members:
-        s, h = STAGE / rel, STORE / rel
-        h.parent.mkdir(parents=True, exist_ok=True)
-        if h.is_symlink() or h.is_file():
-            h.unlink()
-        elif h.is_dir():
-            shutil.rmtree(h)
-        shutil.move(str(s), str(h))
+        staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
+        if staged.keys() != held.keys():
+            return False
+        if any(staged[k].read_bytes() != held[k].read_bytes() for k in staged):
+            return False
+    return True
 
 
-def _clear(unit: Unit) -> None:
+def _copy(unit: Unit) -> int:
+    """Write the unit over the held one by address, member by member: a file whose bytes
+    the store holds is left alone, a differing or missing file is written, a held file the
+    member no longer has is removed - the member replaced whole, byte-equal being silence.
+    The stage is not written. Returns the files written or removed."""
+    changed = 0
+    for rel in unit.members:
+        staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
+        for key, src in staged.items():
+            dst = (STORE / rel) if key == '' else (STORE / rel / key)
+            if key in held and held[key].read_bytes() == src.read_bytes():
+                continue
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if dst.is_dir():
+                shutil.rmtree(dst)
+            shutil.copy2(src, dst)
+            changed += 1
+        for key, old in held.items():
+            if key not in staged:
+                old.unlink()
+                changed += 1
+    return changed
+
+
+def remove(unit: Unit) -> None:
+    """Take the unit out of the stage - the janitor's act (corpus-yoga stage clean), never
+    promotion's."""
     for rel in unit.members:
         s = STAGE / rel
         if s.is_dir():
             shutil.rmtree(s)
         elif s.exists():
             s.unlink()
-
-
-def _prune_empty(root: Path) -> None:
-    if not root.is_dir():
-        return
-    for d in sorted((p for p in root.rglob('*') if p.is_dir()), reverse=True):
+    for d in sorted((p for p in STAGE.rglob('*') if p.is_dir()), reverse=True):
         if not any(d.iterdir()):
             d.rmdir()
 
 
 def promote(noun: str, selected: list[Unit]) -> int:
-    """Promote the units: each promotable one written into the store and taken out of
-    tmp/stage/input, each identical one taken out unwritten, the rest named and left. Exit 1
-    while anything was refused."""
+    """Promote the units: each promotable one copied over the held one by address, the rest
+    named and left; the stage is never written. Exit 1 while anything was refused."""
     rows = survey(selected)
     if not rows:
         print(f'{noun} promote: nothing staged')
         return 0
-    written = cleared = refused = 0
+    written = unchanged = refused = 0
     for unit, rel, detail, ok, words in rows:
-        if rel is Relation.IDENTICAL:
-            print(word(unit, rel, detail, ok, words) + ' - cleared from tmp/stage/input')
-            _clear(unit)
-            cleared += 1
-        elif promotable(rel, ok):
-            print(word(unit, rel, detail, ok, words) + ' - promoted')
-            _place(unit)
-            written += 1
+        if promotable(rel, ok):
+            n = _copy(unit)
+            if n:
+                print(word(unit, rel, detail, ok, words) + f' - promoted ({n} file(s) written)')
+                written += 1
+            else:
+                print(word(unit, rel, detail, ok, words) + ' - held already, byte-equal')
+                unchanged += 1
         else:
             print(word(unit, rel, detail, ok, words))
             if rel in REMEDY:
                 print('    ' + REMEDY[rel].format(unit=unit.address))
             refused += 1
-    _prune_empty(STAGE)
-    print(f'{noun} promote: DONE - {written} promoted, {cleared} identical cleared, {refused} refused and left staged')
+    print(f'{noun} promote: DONE - {written} promoted, {unchanged} held already, {refused} refused; '
+          f'the stage keeps every unit - corpus-yoga stage clean removes what is held byte-equal')
     return 1 if refused else 0
 
 
@@ -528,22 +564,27 @@ def report(noun: str | None) -> int:
         print(f'stage: nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input')
         return 0
     by_noun: dict[str, int] = {}
-    unjudged = refused = identical = 0
+    unjudged = refused = held = 0
     for unit, rel, detail, ok, words in rows:
-        print(word(unit, rel, detail, ok, words))
-        if rel is Relation.IDENTICAL:
-            identical += 1
-        elif promotable(rel, ok):
-            n = noun_of(unit) or '?'
-            by_noun[n] = by_noun.get(n, 0) + 1
+        line = word(unit, rel, detail, ok, words)
+        if promotable(rel, ok):
+            if redundant(unit):
+                held += 1
+                line += ' - held already, byte-equal'
+            else:
+                n = noun_of(unit) or '?'
+                by_noun[n] = by_noun.get(n, 0) + 1
         else:
             refused += 1
             if ok is False and 'no verdict' in words:
                 unjudged += 1
+        print(line)
     tail = ''.join(f'; corpus-yoga {n} promote --all promotes {k}' for n, k in sorted(by_noun.items()))
     if unjudged:
         tail += f'; corpus-yoga pipeline rehearse judges {unjudged} without a verdict'
-    print(f'stage: {len(rows)} unit(s) - {sum(by_noun.values())} promotable, {identical} identical, {refused} refused{tail}')
+    if held:
+        tail += f'; corpus-yoga stage clean removes {held} held byte-equal'
+    print(f'stage: {len(rows)} unit(s) - {sum(by_noun.values())} promotable, {held} held already, {refused} refused{tail}')
     return 0
 
 

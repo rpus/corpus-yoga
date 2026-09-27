@@ -27,7 +27,7 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `cache/`, `output/`, `room/`: nothing — `corpus-yoga pipeline rehearse` rebuilds them |
+| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `cache/`, `output/`, `room/`: nothing — `corpus-yoga pipeline rehearse` rebuilds them; `corpus-yoga stage clean` is the tier's janitor |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
@@ -40,9 +40,11 @@ the validation. Each capturing noun's `promote` verb - `corpus-yoga browser prom
 `capture` - is the one writer of `data/input/`, and it promotes a unit only where it
 relates to the held one without loss - new, identical, extends, never ahead or diverged -
 and every family its pipeline declares finds it valid at origin/main's version; the rest
-it names and leaves (#687). So: `browser capture --provider claude`, `pipeline rehearse`,
-`browser promote --provider claude`, `pipeline run`; each noun's bare status, and bare
-`corpus-yoga pipeline`, report the stage.
+it names (#687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
+stage clean` removes what a rehearsal derived and the units the store holds byte-equal.
+So: `browser capture --provider claude`, `pipeline rehearse chat-capture`, `browser promote
+--provider claude`, `pipeline run chat-capture`; `corpus-yoga stage` reports the tier, and
+each noun's bare status the units.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
 `gemini` have channels `chat`, `code` and captures `bulk-export`, `API-capture`,

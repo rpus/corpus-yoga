@@ -48,7 +48,8 @@ main() {
   ln -s "$STAGE/cache" "$ROOM/tmp/cache"
   ln -s "$STAGE/output" "$ROOM/data/output"
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" view "$ROOM/data/input"
-  echo "rehearse: corpus-yoga pipeline run$* in tmp/stage/room"
+  echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ') $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)') ${*:-every pipeline}" > "$STAGE/rehearsal.txt"
+  echo "rehearse: corpus-yoga pipeline run$* in tmp/stage/room (recorded in tmp/stage/rehearsal.txt)"
   echo
   CORPUS_YOGA_REHEARSAL=1 "$ROOM/corpus-yoga" pipeline run "$@"
 }
