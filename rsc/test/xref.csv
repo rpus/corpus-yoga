@@ -620,10 +620,10 @@ rsc/schema/mcp/mcpMessage/CHANGELOG.md,40,doc,rsc/reference/mcp/2026-07-28/schem
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,44,doc,src/main/mcp/mcp_generation.py,Y,"upstream's generator would give it (`src/main/mcp/mcp_generation.py`, one rule per"
 rsc/schema/mcp/mcpMessage/CHANGELOG.md,92,doc,rsc/schema/mcp/mcpMessage,Y,"`rsc/schema/mcp/mcpMessage/`, the layout by writer that moved the family beside"
 rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,35,doc,rsc/model/model_join.csv,Y,shared under one name (rsc/model/model_join.csv). Where the two sources differ is
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,95,doc,rsc/schema/pipeline/chat-export/claude/conversations,Y,"2026-09-16 (#632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout"
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,97,doc,rsc/schema/pipeline/chat-capture/claude,Y,`rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
-rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,99,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,61,doc,rsc/model/model_join.csv,Y,shared under one name (rsc/model/model_join.csv). Where the two sources differ is
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,121,doc,rsc/schema/pipeline/chat-export/claude/conversations,Y,"2026-09-16 (#632), `rsc/schema/pipeline/chat-export/claude/conversations/`, the layout"
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,123,doc,rsc/schema/pipeline/chat-capture/claude,Y,`rsc/schema/pipeline/chat-capture/claude/`. No validation effect.
+rsc/schema/pipeline/chat-capture/claude/apiConversation/CHANGELOG.md,125,doc,rsc/rpus/documenter.json,Y,documenter (`rsc/rpus/documenter.json`) beside the draft-04 meta-schema:
 rsc/schema/pipeline/chat-export/claude/conversations/CHANGELOG.md,5,doc,rsc/schema/WORKFLOW.md,Y,"`validation/` logs, rendered at validation time (see `rsc/schema/WORKFLOW.md`)."
 rsc/schema/pipeline/chat-export/claude/conversations/CHANGELOG.md,9,doc,rsc/schema/pipeline/chat-capture/claude/apiConversation,Y,The API-format variants (`ApiConversation` etc.) live in [`rsc/schema/pipeline/chat-capture/claude/apiConversation/`](..
 rsc/schema/pipeline/chat-export/claude/conversations/CHANGELOG.md,10,doc,rsc/schema/pipeline/chat-capture/claude/apiConversation,Y,and have their own versioning. See [`rsc/schema/pipeline/chat-capture/claude/apiConversation/`](../../../chat-capture/cl
@@ -960,8 +960,8 @@ src/main/model/gen_model_candidate.py,14,comment,src/main/model/gen_model_candid
 src/main/model/gen_model_candidate.py,14,comment,rsc/schema/pipeline/chat-export/claude/memories/v4.json,Y,python src/main/model/gen_model_candidate.py memories      rsc/schema/pipeline/chat-export/claude/memories/v4.json
 src/main/model/gen_model_candidate.py,15,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v17.json
 src/main/model/gen_model_candidate.py,15,comment,rsc/schema/pipeline/code-transport/claude/session/v17.json,Y,python src/main/model/gen_model_candidate.py session       rsc/schema/pipeline/code-transport/claude/session/v17.json
-src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v11
-src/main/model/gen_model_candidate.py,16,comment,rsc/schema/pipeline/chat-capture/claude/apiConversation/v11.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v11
+src/main/model/gen_model_candidate.py,16,comment,src/main/model/gen_model_candidate.py,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v12
+src/main/model/gen_model_candidate.py,16,comment,rsc/schema/pipeline/chat-capture/claude/apiConversation/v12.json,Y,python src/main/model/gen_model_candidate.py apiConversation rsc/schema/pipeline/chat-capture/claude/apiConversation/v12
 src/main/model/model.py,3,comment,rsc/model/model.json,Y,"model.py — per-schema definition catalogues, candidates for rsc/model/model.json."
 src/main/model/model.py,5,comment,rsc/model/model.json,Y,"versioned schema, keyed as rsc/model/model.json keys a family (#672), so two providers'"
 src/main/model/model.py,6,comment,rsc/model/model.json,Y,families of one name are two catalogues. rsc/model/model.json is hand-curated from these.

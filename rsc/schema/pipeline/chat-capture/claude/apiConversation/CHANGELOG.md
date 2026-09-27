@@ -13,6 +13,32 @@ holds - the same review catch as conversations v19's signature, applied where
 the reviewer found it. No validation effect: no new version. The fresh captures
 of 2026-08-24 validate identically before and after.
 
+## v12
+
+claude.ai's API returns two flags on every conversation that no version knew.
+Reading-room's browser capture of 2026-09-27 fetched all 121 conversations of the
+account, staged under tmp/stage/input on PR #689's branch, and `corpus-yoga pipeline
+rehearse` refused every one at v11: each carries `is_archived` and `workspace_upgraded`
+at the top of the conversation object, false in all 121, where the held captures of
+2026-09-17 carry neither. Both are admitted as optional booleans, so that every capture
+held before 2026-09-27 validates at v12 unchanged; all 121 held and all 121 staged
+captures do, on reading-room, 2026-09-27 (#698). Nothing reached shared storage this
+time: the stage held the refused captures, where PR #678's sixteen of 2026-09-17 had
+landed in data/input.
+
+### Replaces
+
+v11
+
+#### Relaxed
+
+- `ApiConversation`: optional `is_archived` and `workspace_upgraded`, each a boolean,
+  observed false on every conversation of 2026-09-27.
+
+#### Refactored
+
+None.
+
 ## v11
 
 The Memory integration reads, and the API catches up with the export's envelope.
