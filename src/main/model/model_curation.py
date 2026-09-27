@@ -338,8 +338,8 @@ def emptiness_violations(repo: Path) -> list:
     definition's required keys are a subset of its own; the scan names the
     first falsifying file per edge. Rooms without the relevant corpus skip,
     stated by the caller."""
-    doc_roots = {'null_in_api': repo / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
-                 'null_in_export': repo / 'tmp' / 'cache' / 'chat-export'}
+    doc_roots = {'null_in_api': tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
+                 'null_in_export': tier.TMP / 'cache' / 'chat-export'}
     emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
     out = []
     for i, row in enumerate(_join_rows(), 2):
