@@ -597,7 +597,7 @@ check_stage() {
   elif [[ "$staged" == "?" ]]; then
     info "tmp/stage/input: could not be read - corpus-yoga pipeline says why"
   else
-    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted - corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
+    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted - corpus-yoga stage counts them; corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
   fi
 }
 

@@ -1,0 +1,24 @@
+{
+  "help": "remove what the stage no longer needs: the last rehearsal's room, cache and output, and every staged unit the store holds byte-equal; a refused unit is evidence and stays",
+  "args": [
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "1/stage-clean-1",
+      "help": "name what would be removed, with sizes; remove nothing"
+    },
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "1/stage-clean-1",
+      "help": "remove it"
+    }
+  ],
+  "r": [
+    "tmp/stage",
+    "data/input"
+  ],
+  "consumes": [
+    "tmp/stage"
+  ]
+}
