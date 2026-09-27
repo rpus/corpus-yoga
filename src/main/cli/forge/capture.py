@@ -154,6 +154,9 @@ def main(argv: list[str]) -> int:
         (target / name).write_bytes(render(got[name]))
         print(f'  {name}: {count(name, got[name])}')
     print(f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
+    if not to:
+        # the act names the next act (#687): no pipeline reads the ledger, so no rehearsal
+        print('forge capture: staged under tmp/stage/input/github/forge/gh-CLI, not promoted - corpus-yoga forge promote')
     return 0
 
 

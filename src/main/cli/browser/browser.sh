@@ -134,6 +134,13 @@ main() {
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
+  # The act names the next acts (#687): what was captured waits in the stage until the
+  # pipeline has judged it and the same extent is promoted.
+  if [[ -z "$dry_run" ]]; then
+    local extent="--all"
+    [[ -n "$provider" ]] && extent="--provider $provider${id:+ --id $id}"
+    echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent"
+  fi
   return $rc
 }
 
