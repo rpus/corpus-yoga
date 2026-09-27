@@ -543,8 +543,8 @@ def main():
     # one root per mechanism in scope; dirs appear only when captured into
     # a capture writes to the room's stage, tmp/stage/input/..., the address its unit will have
     # under data/input; corpus-yoga browser promote is what reaches shared storage (#687)
-    api_root = Path(args.api_capture or tier.STAGE_INPUT / args.provider / 'chat' / 'API-capture').resolve()
-    dom_root = Path(args.dom_capture or tier.STAGE_INPUT / args.provider / 'chat' / 'DOM-capture').resolve()
+    api_root = Path(args.api_capture or tier.TMP_STAGE_INPUT / args.provider / 'chat' / 'API-capture').resolve()
+    dom_root = Path(args.dom_capture or tier.TMP_STAGE_INPUT / args.provider / 'chat' / 'DOM-capture').resolve()
     if 'API' in mechanisms:
         api_root.mkdir(parents=True, exist_ok=True)
     if 'DOM' in mechanisms:

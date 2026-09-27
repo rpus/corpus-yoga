@@ -3,13 +3,13 @@
 # Every script computes its code root itself; the one fact it lacks is which layout its
 # tiers are read from, and that is one name: CORPUS_YOGA_REHEARSAL, a rehearsal's stamp,
 # names the rehearsal's root under tmp/stage/rehearsal, unset the checkout's. DATA_ROOT is
-# that root, DATA_DIR and TMP_DIR its data and tmp; STAGE_DIR is the checkout's stage, a
+# that root, DATA_DIR and TMP_DIR its data and tmp; TMP_STAGE is the checkout's stage, a
 # constant. tier_path turns a declared repo-relative path (data/..., tmp/...) into the
 # tier's. Sourced, never run; the names are the sourcing script's own, never exported.
 _tier_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIER_REPO="${_tier_dir%/src/main}"
 # shellcheck disable=SC2034  # the sourcing script's to use
-STAGE_DIR="$TIER_REPO/tmp/stage"
+TMP_STAGE="$TIER_REPO/tmp/stage"
 if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TIER_REPO/tmp/stage/rehearsal/$CORPUS_YOGA_REHEARSAL"; else DATA_ROOT="$TIER_REPO"; fi
 DATA_DIR="$DATA_ROOT/data"
 TMP_DIR="$DATA_ROOT/tmp"
