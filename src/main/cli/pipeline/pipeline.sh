@@ -449,15 +449,6 @@ main() {
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
   echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · a rehearsal in tmp/stage/room}"
 
-  # The run opens with the bare noun's status, the stage included (#687): what this
-  # run reads is data/input alone, so what sits in tmp/stage/input unpromoted is said
-  # here, once, before a green run could pass for a run over it. A rehearsal is the run
-  # over the stage and skips the report.
-  if [[ -z "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
-    echo "── pipelines ──────────────────────────────────────────────────────────────"
-    status
-    echo ""
-  fi
 
   require_cmd jq "install via: brew install jq"
   require_venv

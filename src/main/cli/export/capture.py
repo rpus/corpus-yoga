@@ -125,6 +125,10 @@ def main(argv: list[str]) -> int:
         fetched += 1
     print(f'export capture: DONE - {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/ '
           f'({fetched} file(s), as the manifest listed them)')
+    if not to:
+        # the act names the next acts (#687)
+        print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '
+              'corpus-yoga pipeline rehearse chat-export, then corpus-yoga export promote')
     return 0
 
 

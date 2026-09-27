@@ -272,6 +272,12 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
                 continue
         print(f'── {name}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
         conflicts += adapter.capture(mount_path, outbox, uuid8)
+    if not to:
+        # the act names the next acts (#687): what was captured waits in the stage until
+        # the pipeline has judged it and the same extent is promoted
+        extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
+        print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
+              f'corpus-yoga pipeline rehearse code-transport, then corpus-yoga agent promote {extent}')
     return conflicts
 
 
