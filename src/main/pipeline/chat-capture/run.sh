@@ -18,6 +18,8 @@ SELF='src/main/pipeline/chat-capture/run.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -27,7 +29,7 @@ parse_args() {
   # The default input root is the DECLARED one: pipeline.json is the one committed
   # authority for this path — read, never restated. It is a template, <provider> and
   # <qualifier> resolved per provider by resolve_input.
-  input_root="$REPO_DIR/$(jq -r .input "$SCRIPT_DIR/pipeline.json")"
+  input_root="$(tier_path "$(jq -r .input "$SCRIPT_DIR/pipeline.json")")"
   plan="0"
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -67,7 +69,7 @@ run_corpus() {
   step_ok audit     "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/audit.py" \
     --input "$store" \
-    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
+    --api "$DATA_DIR/output/markdown/claude/chat/conversations"
 }
 
 print_plan() {

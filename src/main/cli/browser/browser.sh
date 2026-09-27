@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into the room's input,
-# tmp/stage/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# tmp/stage/data/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
 # promote what was captured into data/input/ - the same extent words for both, a bare
 # call of either refused (#641). Scope is two independent restrictions, intersected;
 # neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
@@ -27,6 +27,8 @@ SELF='src/main/cli/browser/browser.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
@@ -35,8 +37,8 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
 status() {
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/chat-capture/audit.py" \
-    --input "$REPO_DIR/data/input" \
-    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
+    --input "$DATA_DIR/input" \
+    --api "$DATA_DIR/output/markdown/claude/chat/conversations"
 }
 
 main() {
@@ -118,8 +120,8 @@ main() {
     [[ -n "$p" ]] || continue
     providers+=("$p")
     provider_mechs+=("$mechs")
-    logs+=("$REPO_DIR/tmp/logs/browser/capture/$p/$stamp.log")
-    mkdir -p "$REPO_DIR/tmp/logs/browser/capture/$p"
+    logs+=("$TMP_DIR/logs/browser/capture/$p/$stamp.log")
+    mkdir -p "$TMP_DIR/logs/browser/capture/$p"
   done <<< "$scope"
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
@@ -139,7 +141,7 @@ main() {
   if [[ -z "$dry_run" ]]; then
     local extent="--all"
     [[ -n "$provider" ]] && extent="--provider $provider${id:+ --id $id}"
-    echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent"
+    echo "browser capture: staged under tmp/stage/data/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent"
   fi
   return $rc
 }

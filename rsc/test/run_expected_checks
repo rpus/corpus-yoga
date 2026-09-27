@@ -129,6 +129,7 @@ structure.pipeline_skip_names_family
 structure.required_subset_of_properties
 structure.self_path_matches_address
 templates.teach_signature
+tier.paths_from_contract
 validation.verdict_is_record
 xref.no_bad_pointers
 xref.score_matches_expectation

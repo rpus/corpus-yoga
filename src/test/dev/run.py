@@ -1663,6 +1663,28 @@ def check_grammar_laws(run, cited: dict) -> None:
     run(f'grammar: {len(laws)} laws — {summary}', True, check='grammar.enforcement_map')
 
 
+def check_tier_contract(run) -> None:
+    """Every data or tmp path under src/main derives from the tier contract (#702):
+    src/main/tier.py and its shell twin are the one home, and no other script builds
+    REPO / 'data', REPO / 'tmp', $REPO_DIR/data or $REPO_DIR/tmp by hand - a rehearsal is
+    the checkout's own code run over other tiers, which such a path would escape."""
+    py = re.compile(r"REPO\w*\s*/\s*'(data|tmp)'")
+    sh = re.compile(r'\$\{?REPO_(DIR|ROOT)\}?/(data|tmp)(/|")')
+    found = []
+    for f in sorted((SRC / 'main').rglob('*')):
+        if f.suffix not in ('.py', '.sh') or f.name in ('tier.py', 'tier.sh') or '__pycache__' in f.parts or 'gen' in f.parts:
+            continue
+        pat = py if f.suffix == '.py' else sh
+        for i, line in enumerate(f.read_text().splitlines(), 1):
+            if line.strip().startswith('#'):
+                continue
+            if pat.search(line):
+                found.append(f'{f.relative_to(REPO_ROOT)}:{i}')
+    run('tier: every data and tmp path under src/main derives from src/main/tier.py or tier.sh', not found,
+        ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
+        check='tier.paths_from_contract')
+
+
 def check_verdict_record(run) -> None:
     """A verdict is read from its record, never from the log's text (#701): a red log whose
     inspection dumps a datum that carries the validator's own word must read red. The
@@ -2475,6 +2497,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_validity': SCHEMA,
     'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
+    'check_tier_contract': ['src/main'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2727,6 +2750,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_schema_single_version, tier='schema')
         run_section(check_schema_changelogs, tier='schema')
 
+        run_section(check_tier_contract, tier='code')
         run_section(check_verdict_record, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')

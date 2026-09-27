@@ -31,7 +31,9 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[3]
-CACHE_DIR    = REPO_ROOT / 'tmp' / 'cache' / 'chat-export'
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
+CACHE_DIR    = tier.TMP / 'cache' / 'chat-export'
 
 QUERIES: list[tuple[str, str, str]] = [
     (

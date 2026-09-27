@@ -55,12 +55,13 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import REPO
 from declared_parser import command_parser
 
-MARKDOWN_DIR = REPO / 'data' / 'output' / 'markdown'                    # the corpus to index
-ACCEPTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
-REJECTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
+MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
+ACCEPTED_FILE = tier.DATA / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
+REJECTED_FILE = tier.DATA / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
 
 TURN_RE = re.compile(
     r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
@@ -310,8 +311,8 @@ STOPWORDS = frozenset(
     every each both again true false none non within without across against""".split())
 
 
-INFERRED_FILE = REPO / 'data' / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
-CANDIDATES_TXT = REPO / 'tmp' / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
+INFERRED_FILE = tier.DATA / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
+CANDIDATES_TXT = tier.TMP / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
 
 
 def _coverage(accepted_path: Path, rejected_path: Path):

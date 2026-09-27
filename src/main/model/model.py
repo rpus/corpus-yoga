@@ -31,13 +31,15 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT  = SCRIPT_DIR.parents[2]
 SCHEMA_DIR = REPO_ROOT / 'rsc' / 'schema'
-OUT_DIR    = REPO_ROOT / 'tmp' / 'cache' / 'model'
+OUT_DIR    = tier.TMP / 'cache' / 'model'
 
 
 def _sorted_versions(schema_dir: Path) -> list[Path]:
@@ -106,8 +108,8 @@ def curation_report() -> None:
         print(f'FAIL: model_join row {line} ({kind}) no longer holds at latest - {cells}')
         print('    → a one-sided mint falsified the edge: re-judge its relationship kind '
               '(rsc/model/model_join_kinds.csv) or restore the identity in the schemas')
-    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
-                    REPO_ROOT / 'tmp' / 'cache' / 'chat-export')
+    corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
+                    tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print(f'FAIL: model_join row {line} ({kind}) falsified by the corpus - '
@@ -200,8 +202,8 @@ def list_candidates() -> None:
     for line, kind, cells in identity_violations():
         print(f'  falsified identity edge: row {line} ({kind}) - {cells} - re-judge '
               'the kind in rsc/model/model_join.csv or restore the identity')
-    corpus_roots = (REPO_ROOT / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
-                    REPO_ROOT / 'tmp' / 'cache' / 'chat-export')
+    corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
+                    tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
             print(f'  falsified emptiness edge: row {line} ({kind}) - {cell} carries '

@@ -15,6 +15,8 @@ from pathlib import Path
 
 SELF = 'src/main/validation_audit.py'
 REPO = next(p for p in Path(__file__).resolve().parents if (p / SELF).is_file())
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
@@ -70,9 +72,9 @@ def sources(name: str, facts: dict) -> list[tuple[str, Path, Path, list[str]]]:
     per provider where the declared input carries <provider> (#635) - the cache then
     holds a directory per provider under the pipeline's root. The stores are
     src/main/corpus.py's rows over the same declaration (#687)."""
-    cache_root = REPO / cache_io.path_for(name)
+    cache_root = tier.path(cache_io.path_for(name))
     return [(name if s['provider'] is None else f'{name}/{s["provider"]}',
-             REPO / 'data' / 'input' / s['input'], cache_root / (s['provider'] or ''),
+             tier.DATA / 'input' / s['input'], cache_root / (s['provider'] or ''),
              [g for g, _measure in s['globs']])
             for s in corpus.stores({name: facts})]
 

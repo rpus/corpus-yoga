@@ -48,12 +48,13 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 from member import members  # noqa: E402
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
 COLUMNS = ('command', 'target', 'calculus', 'summary')
-COMPLETION_OUT = REPO / 'tmp' / 'cache' / 'completions' / '_yoga'
+COMPLETION_OUT = tier.TMP / 'cache' / 'completions' / '_yoga'
 def _declaration(command: str) -> pathlib.Path:
     """Where a command declares itself: <command>/<command>.json, always. EVERY command is
     a directory, including one with no subcommands — so gaining a verb is adding a file
@@ -417,7 +418,7 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
         return
     import time
     stamp = time.strftime('%Y-%m-%dT%H%M%SZ', time.gmtime())
-    log_dir = REPO / 'tmp' / 'logs' / row['command'] / verb
+    log_dir = tier.TMP / 'logs' / row['command'] / verb
     log_dir.mkdir(parents=True, exist_ok=True)
     log = log_dir / f'{stamp}.log'
     suffix = 2

@@ -12,10 +12,12 @@ SELF='src/main/cli/export/export.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
-STORE="$REPO_DIR/data/input/claude/chat/bulk-export"
+STORE="$DATA_DIR/input/claude/chat/bulk-export"
 
 # rows mirror the store: one line per manifest (payload dir beside it or not),
 # one per batch dir — a read face, no writes.

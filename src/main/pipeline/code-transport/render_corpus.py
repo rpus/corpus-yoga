@@ -34,6 +34,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main — the format authority
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import MD033_PRAGMA, REPO, assign_name, deposit  # noqa: E402
 
 
@@ -67,10 +68,10 @@ def render_session(conv):
 
 def main() -> int:
     ap = argparse.ArgumentParser(description='render session conversations into the corpus')
-    ap.add_argument('--out-root', default=str(REPO / 'data' / 'output' / 'markdown'))
+    ap.add_argument('--out-root', default=str(tier.DATA / 'output' / 'markdown'))
     args = ap.parse_args()
 
-    cache = REPO / 'tmp' / 'cache' / 'code-transport'
+    cache = tier.TMP / 'cache' / 'code-transport'
     rendered = 0
     for provider_dir in sorted(d for d in cache.glob('*') if d.is_dir()):
         rendered += render_provider(provider_dir, Path(args.out_root) / provider_dir.name / 'code' / 'conversations')

@@ -171,8 +171,8 @@ src/main/pipeline/code-transport/run.sh --input data/input/claude/code/machine-t
 A datum the latest version refuses is, from #687, a datum the room has staged and
 cannot promote: the capturing noun's bare status names it, and the mint is tested over the
 room's stage before the merge that licenses its promotion - `corpus-yoga pipeline rehearse`
-runs the pipelines over shared storage with this room's tmp/stage/input laid over it, in a
-room of the stage's own, so the run above is that one.
+runs the checkout's own code over the stage's tiers, tmp/stage/data and tmp/stage/tmp
+(src/main/tier.py), so the run above is that one over the staged units.
 
 Validation runs each datum against its family's LATEST version only - the latest
 version is the schema, the rest is this file's history (#557) - and renders the datum's
