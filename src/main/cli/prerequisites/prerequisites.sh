@@ -590,16 +590,16 @@ check_stage() {
   # The room's stage, tmp/stage: what this room has captured and not yet promoted to shared
   # storage (#687) - machine-local state, so it belongs in this report; the count is
   # src/main/corpus.py's, read through the venv's python.
-  sec "stage (tmp/stage/data/input - captured in this room, not yet promoted; each capturing noun's bare status relates its units to the held ones)"
+  sec "stage (tmp/stage/input - captured in this room, not yet promoted; each capturing noun's bare status relates its units to the held ones)"
   [[ -x "$VENV/bin/python" ]] || return 0
   local staged
   staged="$("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" count 2>/dev/null || echo "?")"
   if [[ "$staged" == "0" ]]; then
-    ok "tmp/stage/data/input: nothing staged - every capture this room has made is promoted"
+    ok "tmp/stage/input: nothing staged - every capture this room has made is promoted"
   elif [[ "$staged" == "?" ]]; then
-    info "tmp/stage/data/input: could not be read - corpus-yoga pipeline says why"
+    info "tmp/stage/input: could not be read - corpus-yoga pipeline says why"
   else
-    todo stage "tmp/stage/data/input holds $staged unit(s) captured and not yet promoted - corpus-yoga stage counts them; corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
+    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted - corpus-yoga stage counts them; corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
   fi
 }
 

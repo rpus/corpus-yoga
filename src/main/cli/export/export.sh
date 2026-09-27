@@ -4,7 +4,7 @@
 # Usage:
 #   corpus-yoga export                                  # status: manifests held, payloads captured
 #   corpus-yoga export capture [--manifest <file>] [--to <dir>]
-#   corpus-yoga export promote                          # what capture staged, into data/input
+#   corpus-yoga export promote [--rehearsal <stamp>]    # what capture staged, into data/input, judged by that rehearsal (default: the newest)
 
 set -euo pipefail
 

@@ -18,14 +18,20 @@
       "type": "",
       "cardinality": "1/agent-promote-1",
       "help": "every unit the agent capture staged, every provider"
+    },
+    {
+      "name": "--rehearsal",
+      "type": "<stamp>",
+      "cardinality": "",
+      "help": "the rehearsal whose verdicts are read, by the stamp of its log (default: the newest under tmp/stage/rehearsal); a record's digests refuse a judgement of bytes since recaptured"
     }
   ],
   "r": [
-    "tmp/stage/data/input/claude/code/machine-transport",
-    "tmp/stage/data/input/gemini/code/machine-transport",
+    "tmp/stage/input/claude/code/machine-transport",
+    "tmp/stage/input/gemini/code/machine-transport",
     "data/input/claude/code/machine-transport",
     "data/input/gemini/code/machine-transport",
-    "tmp/stage/tmp/cache/code-transport"
+    "tmp/stage/rehearsal"
   ],
   "w": [
     "data/input/claude/code/machine-transport",

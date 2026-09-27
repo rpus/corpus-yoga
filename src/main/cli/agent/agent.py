@@ -166,10 +166,10 @@ def own_outbox(provider: str) -> Path | None:
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
               '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
-    # the outbox is the stage twin of the store, tmp/stage/data/input/...: a capture reads
+    # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
     # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
     # session to the held one and writes what extends it (#687)
-    out = tier.STAGE_DATA / 'input' / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
+    out = tier.STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 
@@ -277,7 +277,7 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
         # the act names the next acts (#687): what was captured waits in the stage until
         # the pipeline has judged it and the same extent is promoted
         extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
-        print(f'agent capture: staged under tmp/stage/data/input/<provider>/code/machine-transport, not promoted - '
+        print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
               f'corpus-yoga pipeline rehearse code-transport, then corpus-yoga agent promote {extent}')
     return conflicts
 
@@ -348,8 +348,9 @@ def main() -> int:
     if args.verb == 'capture':
         return 1 if capture(args.id, args.to, args.provider) else 0
     if args.verb == 'promote':
+        # --rehearsal <stamp> names the rehearsal whose verdicts are read; bare, the newest
         import corpus
-        return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id))
+        return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id), args.rehearsal)
 
     projects, claude = _claude()
     if args.verb == 'demerge':
