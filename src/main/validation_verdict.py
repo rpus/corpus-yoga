@@ -1,5 +1,5 @@
 """
-verdict.py - a validation's verdict as data: one record per (datum, version), written by
+validation_verdict.py - a validation's verdict as data: one record per (datum, version), written by
 the validation step where it judges and read by every consumer of a verdict - the skip
 path, the matrix, the audit, the stage's survey (#701). The log beside it is the
 inspection's grist, which no reader parses: a datum's content has no way to state its

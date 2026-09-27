@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Validate one JSON file against versioned schemas, one log and one verdict record per
-datum-version pair. The record (src/main/verdict.py, #701) is what every reader reads - the
+datum-version pair. The record (src/main/validation_verdict.py, #701) is what every reader reads - the
 skip path here, the matrix, the audit, the stage's survey; the log is the inspection's
 grist and no reader parses it.
 
@@ -30,7 +30,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — shared modules live at its root
 from validation_matrix import family_root, write_matrix  # noqa: E402
-import verdict  # noqa: E402
+import validation_verdict as verdict  # noqa: E402
 
 
 def _digest(path):
