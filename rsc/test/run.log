@@ -1,4 +1,4 @@
-run.py: code+schema 1435/1435
+run.py: code+schema 1434/1434
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ run.py: code+schema 1435/1435
   ✓ cli.completions_parse
   ✓ naming.target_stem_matches_command  (22/22)
   ✓ shell.shellcheck_clean
-  ✓ naming.log_path_derives_from_command  (13/13)
+  ✓ naming.log_path_derives_from_command  (12/12)
   ✓ output.prescriptions_are_commands  (63/63)
   ✓ output.remedy_lines_are_todos
   ✓ naming.venv_default_agrees  (2/2)
@@ -204,7 +204,7 @@ check_self_paths                      96     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    540     0   code       32
+check_cli_surface                    539     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           14     0   code       68
 check_effects                          3     0   code       71
@@ -234,8 +234,8 @@ check_mcp_reproducible                 1     0   schema    193
 check_expectation                      2     0   code      196
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 125 types, 1435/1435 invocations passing
-checks[code]: 73 types, 758/758 invocations passing
+checks[code+schema]: 125 types, 1434/1434 invocations passing
+checks[code]: 73 types, 757/757 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1435/1435 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1434/1434 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

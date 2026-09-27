@@ -10,8 +10,9 @@ tier shared by every rehearsal; and each rehearsal has a directory of its own, t
 rehearsal/<stamp>, named by the stamp of its log, holding only what it derived - a data tier
 whose input links to tmp/stage/input and whose output is its preview, a tmp tier with the
 verdicts. A capture writes the stage's input and reads nothing (L10). `corpus-yoga pipeline
-rehearse` (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run over one
-rehearsal's tiers, so it judges the staged units alone and writes its own directory alone;
+rehearse` (src/main/cli/pipeline/rehearse.sh) is the checkout's own code run with
+CORPUS_YOGA_REHEARSAL=<stamp>, the one name the contract resolves to that rehearsal's tiers,
+so it judges the staged units alone and writes its own directory alone;
 a rehearsal is evidence, disposed of by corpus-yoga stage clean and nothing else.
 
 UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipeline.json):

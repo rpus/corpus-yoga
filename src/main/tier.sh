@@ -1,17 +1,18 @@
 # shellcheck shell=bash
-# tier.sh — the tiers as a declared contract (#702), the shell twin of src/main/tier.py:
-# DATA_DIR and TMP_DIR, each defaulting to the checkout's own, CORPUS_YOGA_DATA and
-# CORPUS_YOGA_TMP naming other tiers; STAGE_DIR the checkout's stage. tier_path turns a
-# declared repo-relative path (data/..., tmp/...) into the tier's. Sourced, never run.
-# The three names are this script's own, derived each time the twin is sourced and never
-# exported: the contract's environment is CORPUS_YOGA_DATA and CORPUS_YOGA_TMP alone, and a
-# child that needs the tiers sources the twin itself.
+# tier.sh — the tiers as a declared contract (#702), the shell twin of src/main/tier.py.
+# Every script computes its code root itself; the one fact it lacks is which layout its
+# tiers are read from, and that is one name: CORPUS_YOGA_REHEARSAL, a rehearsal's stamp,
+# names the rehearsal's root under tmp/stage/rehearsal, unset the checkout's. DATA_ROOT is
+# that root, DATA_DIR and TMP_DIR its data and tmp; STAGE_DIR is the checkout's stage, a
+# constant. tier_path turns a declared repo-relative path (data/..., tmp/...) into the
+# tier's. Sourced, never run; the names are the sourcing script's own, never exported.
 _tier_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TIER_REPO="${_tier_dir%/src/main}"
-DATA_DIR="${CORPUS_YOGA_DATA:-$TIER_REPO/data}"
-TMP_DIR="${CORPUS_YOGA_TMP:-$TIER_REPO/tmp}"
-# shellcheck disable=SC2034  # the sourcing script's to use, like the two above
+# shellcheck disable=SC2034  # the sourcing script's to use
 STAGE_DIR="$TIER_REPO/tmp/stage"
+if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then DATA_ROOT="$TIER_REPO/tmp/stage/rehearsal/$CORPUS_YOGA_REHEARSAL"; else DATA_ROOT="$TIER_REPO"; fi
+DATA_DIR="$DATA_ROOT/data"
+TMP_DIR="$DATA_ROOT/tmp"
 
 tier_path() {
   case "$1" in
