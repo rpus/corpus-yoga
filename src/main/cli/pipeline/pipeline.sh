@@ -394,7 +394,9 @@ run_corpus_tail() {
   step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" sync
   # The data gate's own validation judgments (#535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
-  step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit
+  # a run of one pipeline audits that pipeline: the audit takes the name (#545), and a
+  # whole-cache audit after one pipeline's run would judge the others' unrefreshed records
+  step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
   # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): each noun's read-only status IS its L9 currency mechanism (#409) —
   # indexing's carries the paid captures' lag, site's the corpus page's, model's

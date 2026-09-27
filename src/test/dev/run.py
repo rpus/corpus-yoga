@@ -1668,7 +1668,7 @@ def check_verdict_record(run) -> None:
     inspection dumps a datum that carries the validator's own word must read red. The
     fixture is synthetic - a datum directory with one family, its latest version, a log
     that says 'Validation error' and then 'Valid!' inside the dumped instance, and beside
-    it the record that says invalid; a log with no record reads unknown."""
+    it the record that says invalid; a log with no record is no row."""
     import tempfile
     sys.path.insert(0, str(SRC))
     from validation_matrix import rows_from_records
@@ -1687,9 +1687,8 @@ def check_verdict_record(run) -> None:
                                          '--- instance ---\n'
                                          "{\"text\": \"the validator ends with print('Valid!')\"}\n")
         rows = rows_from_records(datum, schema_root)
-        unknown = rows.get(('apiConversation', '', 'v1'), ('?', 0))[0]
-        run('validation: a log without a record reads unknown, whatever its text says', unknown == '?',
-            None if unknown == '?' else f'read {unknown} from the log text alone', check='validation.verdict_is_record')
+        run('validation: a log without a record is no row, whatever its text says', not rows,
+            None if not rows else f'read {rows} from the log text alone', check='validation.verdict_is_record')
         (log_dir / 'v1.verdict.json').write_text('{"datum": "datum.json", "datum_sha256": "aa", "datum_bytes": 40, '
                                                   '"datum_lines": 3, "schema": "v1.json", "schema_sha256": "bb", '
                                                   '"version": "v1", "verdict": "invalid", "reason": "Validation error", '

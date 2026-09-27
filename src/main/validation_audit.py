@@ -97,9 +97,11 @@ def audit_source(pipeline: str, name: str, input_root: Path, cache_root: Path, g
     matrices = [0, 0]; inputs = [0, 0]; at_latest = [0, 0]
     for datum_dir in datum_dirs(cache_root, depth):
         subject = ' / '.join(datum_dir.relative_to(cache_root).parts)
+        expected = rows_from_records(datum_dir, schema_parent)
+        if not expected:
+            continue   # logs without records (#701): no judgment here - the input reads unprocessed below
         processed.add(subject)
         matrices[1] += 1
-        expected = rows_from_records(datum_dir, schema_parent)
         for (family, item, version), (symbol, _bytes) in expected.items():
             at_latest[1] += 1
             if symbol == '✓':
