@@ -25,6 +25,6 @@
     "src/gen/grammar",
     "rsc/provider",
     "rsc/migration",
-    "tmp/input"
+    "tmp/stage/input"
   ]
 }

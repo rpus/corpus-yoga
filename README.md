@@ -27,20 +27,22 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
-| `tmp/input/` | captured, not yet promoted | local | a recapture — and, for a code session whose live log the provider has since expired, that session; the capturing noun's `promote` verb moves what validates into `data/input/` |
+| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `cache/`, `output/`, `room/`: nothing — `corpus-yoga pipeline rehearse` rebuilds them |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
 
-A capture writes to `tmp/input/`, at the address its unit will have under `data/input/`,
-and reads nothing. `corpus-yoga pipeline run --overlay` runs the pipelines over the store
-with this room's `tmp/input/` laid over it, and their cached verdicts are the validation:
-each capturing noun's `promote` verb - `corpus-yoga browser promote`, `agent promote`,
-`export promote`, `forge promote`, over the same extent words as its `capture` - is the
-one writer of `data/input/`, and it promotes a unit only where it relates to the held one
-without loss - new, identical, extends, never ahead or diverged - and every family its
-pipeline declares finds it valid at origin/main's version; the rest it names and leaves
-(#687). So: `browser capture --provider claude`, `pipeline run --overlay`, `browser
-promote --provider claude`, `pipeline run`; `corpus-yoga input` reports the stage.
+A capture writes to `tmp/stage/input/`, at the address its unit will have under
+`data/input/`, and reads nothing. `corpus-yoga pipeline rehearse` runs the pipelines over
+the store with this room's stage laid over it, in a room of the stage's own under
+`tmp/stage/`, writing the stage's `cache/` and `output/` alone; the verdicts it caches are
+the validation. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
+`agent promote`, `export promote`, `forge promote`, over the same extent words as its
+`capture` - is the one writer of `data/input/`, and it promotes a unit only where it
+relates to the held one without loss - new, identical, extends, never ahead or diverged -
+and every family its pipeline declares finds it valid at origin/main's version; the rest
+it names and leaves (#687). So: `browser capture --provider claude`, `pipeline rehearse`,
+`browser promote --provider claude`, `pipeline run`; each noun's bare status, and bare
+`corpus-yoga pipeline`, report the stage.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
 `gemini` have channels `chat`, `code` and captures `bulk-export`, `API-capture`,

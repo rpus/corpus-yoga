@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Capture conversations from browser-reachable providers into the room's input,
-# tmp/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# tmp/stage/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
 # promote what was captured into data/input/ - the same extent words for both, a bare
 # call of either refused (#641). Scope is two independent restrictions, intersected;
 # neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
@@ -42,8 +42,8 @@ status() {
 main() {
   case "${1-}" in
     capture) shift; parse_argv browser capture "$@" ;;
-    promote) shift; parse_argv browser promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/input.py" browser "$@" ;;
-    '') status; exit $? ;;   # bare noun → status (read-only), never a capture
+    promote) shift; parse_argv browser promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote browser "$@" ;;
+    '') status; "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" report browser; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac

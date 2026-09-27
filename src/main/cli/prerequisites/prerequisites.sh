@@ -584,20 +584,20 @@ check_pipeline_inputs() {
   fi
 }
 
-check_input() {
-  # The room's input, tmp/input: what this room has captured and not yet promoted to shared
+check_stage() {
+  # The room's stage, tmp/stage: what this room has captured and not yet promoted to shared
   # storage (#687) - machine-local state, so it belongs in this report; the count is
-  # corpus-yoga input's, read through the venv's python.
-  sec "input (tmp/input - captured in this room, not yet promoted; corpus-yoga input relates each unit to the held one)"
+  # src/main/corpus.py's, read through the venv's python.
+  sec "stage (tmp/stage/input - captured in this room, not yet promoted; each capturing noun's bare status relates its units to the held ones)"
   [[ -x "$VENV/bin/python" ]] || return 0
   local staged
-  staged="$("$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import input; print(len(input.units(input.STAGE)) if input.STAGE.is_dir() else 0)' "$REPO_ROOT/src/main" 2>/dev/null || echo "?")"
+  staged="$("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" count 2>/dev/null || echo "?")"
   if [[ "$staged" == "0" ]]; then
-    ok "tmp/input: nothing staged - every capture this room has made is promoted"
+    ok "tmp/stage/input: nothing staged - every capture this room has made is promoted"
   elif [[ "$staged" == "?" ]]; then
-    info "tmp/input: could not be read - corpus-yoga input says why"
+    info "tmp/stage/input: could not be read - corpus-yoga pipeline says why"
   else
-    todo input "tmp/input holds $staged unit(s) captured and not yet promoted - corpus-yoga input relates each to the held one and names the promote verb that reaches it (corpus-yoga browser|agent|export|forge promote)"
+    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted - corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
   fi
 }
 
@@ -726,7 +726,7 @@ report() {
   check_signature_hook
   check_forge
   check_pipeline_inputs
-  check_input
+  check_stage
   check_migration
   notes
 

@@ -84,7 +84,7 @@
               "mirror",
               "whole"
             ],
-            "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/input.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
+            "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/corpus.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
           },
           "extra_measure": {
             "type": "string",
@@ -115,7 +115,7 @@
         "mirror",
         "whole"
       ],
-      "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/input.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
+      "description": "How a unit input_glob selects is related to the held one of its address at promotion, a row of src/main/corpus.py's MEASURE (#687): prefix - the bytes of each selected file, each by prefix; message-uuids - the set of message uuids of <unit>/<unit>.json, by inclusion; turn-extent - (human turns, total turns) of the unit's markdown, componentwise; mirror - a mirror of a single-writer source, identical or replaced whole; whole - held whole or not at all."
     },
     "extra_measure": {
       "type": "string",

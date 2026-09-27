@@ -9,6 +9,7 @@
 #   corpus-yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
 #                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
+#   corpus-yoga pipeline rehearse [<pipeline>]    # the same run, the stage laid over the store, in tmp/stage
 #   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #
@@ -49,10 +50,7 @@ pipelines() {
 # The declared input root, repo-relative: pipeline.json is the one committed authority
 # for this path — read here, never restated.
 input_of() {
-  local declared; declared="$(jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json")"
-  # --overlay: the pipelines read the overlay, the store with this room's stage laid over
-  # it (src/main/input.py), at the same address under tmp/cache/overlay (#687)
-  if [[ -n "${overlay:-}" ]]; then echo "${declared/#data\/input\//tmp/cache/overlay/}"; else echo "$declared"; fi
+  jq -r .input "$REPO_ROOT/src/main/pipeline/$1/pipeline.json"
 }
 
 # The bare noun lists the pipelines; `run` runs what it lists. One glob feeds both, so the
@@ -88,19 +86,18 @@ status() {
     printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `corpus-yoga pipeline | awk '{print $1}'` works
   done
   echo "  → local input state: corpus-yoga prerequisites · each pipeline's steps: corpus-yoga pipeline run --plan"
+  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" report
 }
 
 parse_args() {
   only=""
   item=""
   plan=""
-  overlay=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --plan) plan="1";                                               shift ;;
-      --overlay) overlay="1";                                             shift ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan] [--overlay]"; echo "Pass --help for more information."; exit 1 ;;
+      -*) echo "Unknown argument: $1"; echo "Usage: $0 run [<pipeline>] [--plan]"; echo "Pass --help for more information."; exit 1 ;;
       # A POSITIONAL names the pipeline. One way to say one thing:
       # the noun-verb-object the surface already reads as, validated against the pipelines
       # that exist rather than against a list someone maintains.
@@ -450,7 +447,7 @@ main() {
   ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
-  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty"
+  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · a rehearsal in tmp/stage/room}"
 
   require_cmd jq "install via: brew install jq"
   require_venv
@@ -470,7 +467,9 @@ main() {
   # stage table like any other; a red commit gate is a failing stage, and the
   # run continues so the product half of the report still speaks.
   echo "── tests ─────────────────────────────────────────────────────────────────"
-  if ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
+  if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
+    echo "tests: skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)"
+  elif ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
     if ! section_has_fail "tests"; then
       local tests_reds tests_last
       tests_reds="$(section_dev_gate_reds "tests")"
@@ -486,12 +485,6 @@ main() {
 
   # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
   # path the wrapper passes and the path the pipeline documents cannot disagree.
-  # --overlay: the overlay is built first, and every root below is its address (#687).
-  if [[ -n "$overlay" ]]; then
-    echo "── overlay ─────────────────────────────────────────────────────────────────"
-    "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import input; from pathlib import Path; s, t = input.overlay(Path(sys.argv[2])); print(f"overlay: {s} unit(s) of data/input, {t} of tmp/input laid over them -> tmp/cache/overlay")' "$REPO_ROOT/src/main" "$REPO_ROOT/tmp/cache/overlay" || { echo "FAIL: stage: the overlay could not be built"; }
-    echo ""
-  fi
   if should_run chat-capture; then
     run_pipeline_safe  chat-capture "$REPO_ROOT/$(input_of chat-capture)"
   fi
@@ -564,6 +557,7 @@ case "${1-}" in
   '')        status; exit 0 ;;
   --names)   pipelines; exit 0 ;;
   run)       shift; parse_argv pipeline run "$@" ;;
+  rehearse)  shift; parse_argv pipeline rehearse "$@"; exec "$REPO_ROOT/src/main/cli/pipeline/rehearse.sh" "$@" ;;
   sync)      shift; parse_argv pipeline sync "$@"; sync_matrices "$@"; exit $? ;;
   audit)     shift; parse_argv pipeline audit "$@"; "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/validation_audit.py" "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
@@ -571,7 +565,7 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run, sync, audit (bare: status)" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run, rehearse, sync, audit (bare: status)" >&2; exit 1 ;;
 esac
 
 # --plan runs before the log exists: it writes nothing, not even a log file.

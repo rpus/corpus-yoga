@@ -1,5 +1,5 @@
 {
-  "help": "promote what corpus-yoga browser capture staged into shared storage: each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the pipelines' verdict from corpus-yoga pipeline run --overlay; written only where nothing held would be lost, the rest named and left in tmp/input",
+  "help": "promote what corpus-yoga browser capture staged into shared storage: each unit related to the held one of its address (new, identical, extends, ahead, diverged) and, where a family validates it, judged by the verdict corpus-yoga pipeline rehearse cached; written only where nothing held would be lost, the rest named and left in tmp/stage/input",
   "args": [
     {
       "name": "--provider",
@@ -21,19 +21,19 @@
     }
   ],
   "r": [
-    "tmp/input/claude/chat/API-capture",
-    "tmp/input/gemini/chat/DOM-capture",
+    "tmp/stage/input/claude/chat/API-capture",
+    "tmp/stage/input/gemini/chat/DOM-capture",
     "data/input/claude/chat/API-capture",
     "data/input/gemini/chat/DOM-capture",
-    "tmp/cache/chat-capture"
+    "tmp/stage/cache/chat-capture"
   ],
   "w": [
     "data/input/claude/chat/API-capture",
     "data/input/gemini/chat/DOM-capture"
   ],
   "consumes": [
-    "tmp/input/claude/chat/API-capture",
-    "tmp/input/gemini/chat/DOM-capture"
+    "tmp/stage/input/claude/chat/API-capture",
+    "tmp/stage/input/gemini/chat/DOM-capture"
   ],
   "x": [
     "git"
