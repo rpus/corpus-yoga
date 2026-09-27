@@ -4,6 +4,7 @@
 # Usage:
 #   corpus-yoga export                                  # status: manifests held, payloads captured
 #   corpus-yoga export capture [--manifest <file>] [--to <dir>]
+#   corpus-yoga export promote                          # what capture staged, into data/input
 
 set -euo pipefail
 
@@ -57,6 +58,7 @@ status() {
 case "${1-}" in
   '')        status ;;
   capture)   shift; parse_argv export capture "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/export/capture.py" "$@" ;;
+  promote)   shift; parse_argv export promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/input.py" export "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "corpus-yoga export: unknown argument: $1 (try: corpus-yoga export --help)" >&2; exit 1 ;;
 esac

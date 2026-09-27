@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# Capture conversations from browser-reachable providers into
-# data/input/<provider>/chat/browser-{API,DOM}/, via Safari (open and logged in).
-# The `corpus-yoga browser` target. Scope is two independent restrictions, intersected; neither
-# adds: a provider has the mechanisms it has (claude API — DOM retired, #418; gemini DOM).
+# Capture conversations from browser-reachable providers into the room's input,
+# tmp/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# promote what was captured into data/input/ - the same extent words for both, a bare
+# call of either refused (#641). Scope is two independent restrictions, intersected;
+# neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
 #
 # Usage:
 #   corpus-yoga browser                                      # free, local: are the captures any good?
-#   corpus-yoga browser capture                              # every provider, every mechanism it has
+#   corpus-yoga browser capture --all                        # every provider, every mechanism it has
 #   corpus-yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
 #   corpus-yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   corpus-yoga browser capture --provider claude --id <id>  # one conversation
+#   corpus-yoga browser promote --all | --provider <p> [--id <id>]   # what capture staged, into data/input
 #
 #   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
@@ -40,13 +42,15 @@ status() {
 main() {
   case "${1-}" in
     capture) shift; parse_argv browser capture "$@" ;;
+    promote) shift; parse_argv browser promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/input.py" browser "$@" ;;
     '') status; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: corpus-yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
+    *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac
-  local provider="" mechanism="" id="" dry_run=""
+  local provider="" mechanism="" id="" dry_run="" all=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --all) all="1"; shift ;;
       --provider)
         case "${2-}" in
           claude|gemini) provider="$2"; shift 2 ;;
@@ -64,9 +68,15 @@ main() {
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
     esac
   done
+  # The extent is named, never inferred (#641): --all, or one provider, or one of its
+  # conversations - the same three words corpus-yoga browser promote takes.
+  if [[ -z "$provider" && -z "$all" ]]; then
+    echo "error: corpus-yoga browser capture names its extent: --all, --provider claude|gemini, or --provider claude|gemini --id <id>" >&2
+    exit 1
+  fi
 
   # An id belongs to exactly one provider, and its SHAPE cannot say which: a claude chat
   # uuid and a code-session uuid are both 36 chars. So --id is meaningless without
@@ -77,8 +87,6 @@ main() {
   fi
 
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  mkdir -p "$REPO_DIR/data/input/claude/chat/API-capture"
-  mkdir -p "$REPO_DIR/data/input/gemini/chat/DOM-capture"
 
   # The extent, read off the one declaration: which providers, by which mechanisms.
   # Two restrictions can intersect to nothing, and that is an answer — reported with

@@ -39,7 +39,14 @@ for a converted datum, the recorded digest of its source one of them), and the l
 schema digest that of origin/main's version of the family, so that a form only a branch's
 schema admits waits for the merge that licenses it. A unit no pipeline selects is
 promoted on its relation alone, and says so.
+
+PROMOTE - each capturing noun has the verb: what `corpus-yoga browser capture` staged,
+`corpus-yoga browser promote` promotes, over the same extent words (--provider <p> |
+--all, --id <prefix>); agent, export and forge likewise. A noun's units are the staged
+units under the roots its capture declares it writes (src/main/cli/<noun>/capture.json's
+w rows under tmp/input). `corpus-yoga input`, bare, is the report over every noun's.
 """
+import argparse
 import hashlib
 import json
 import shutil
@@ -56,13 +63,15 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
-from append_only import Relation  # noqa: E402
+from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 
 STAGE = REPO / 'tmp' / 'input'
 STORE = REPO / 'data' / 'input'
 PIPELINE_ROOT = REPO / 'src' / 'main' / 'pipeline'
+CLI_ROOT = REPO / 'src' / 'main' / 'cli'
+NOUNS = ('browser', 'agent', 'export', 'forge')      # the capturing nouns, each with promote
 
 
 # -- unit ----------------------------------------------------------------------------------
@@ -372,3 +381,148 @@ def overlay(out: Path) -> tuple[int, int]:
             n += 1
         counts.append(n)
     return counts[0], counts[1]
+
+
+# -- promote -------------------------------------------------------------------------------
+
+def roots_of(noun: str) -> list[Path]:
+    """The stage roots a noun's capture declares it writes, relative to tmp/input."""
+    decl = json.loads((CLI_ROOT / noun / 'capture.json').read_text())
+    return [Path(w.removeprefix('tmp/input/')) for w in decl.get('w', []) if w.startswith('tmp/input/')]
+
+
+def noun_of(unit: Unit) -> str | None:
+    """The capturing noun whose promote verb reaches the unit, or None."""
+    for noun in NOUNS:
+        if any(unit.address.is_relative_to(root) for root in roots_of(noun)):
+            return noun
+    return None
+
+
+REMEDY = {
+    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy: rm -r tmp/input/{unit}',
+    Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/input/{unit} keeps the held',
+}
+
+
+def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str, bool | None, str]]:
+    """(unit, relation, the relation's words, verdict, the verdict's words), for the units
+    given or for everything staged."""
+    rows = []
+    for unit in (units(STAGE) if selected is None else selected):
+        rel, detail = relation(unit)
+        ok, words = verdict(unit) if may_replace(rel) else (None, '')
+        rows.append((unit, rel, detail, ok, words))
+    return rows
+
+
+def promotable(rel: Relation, ok: bool | None) -> bool:
+    return may_replace(rel) and ok is not False
+
+
+def word(unit: Unit, rel: Relation, detail: str, ok: bool | None, words: str) -> str:
+    verb = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
+            Relation.AHEAD: 'AHEAD - refused', Relation.DIVERGED: 'DIVERGED - refused'}[rel]
+    line = f'  {unit.address}: {verb} ({detail})'
+    if may_replace(rel):
+        line += f'; {words}' if ok is not False else f'; REFUSED - {words}'
+    return line
+
+
+def extent(noun: str, provider: str | None, everything: bool, unit_id: str | None) -> list[Unit]:
+    """The staged units a noun's promote names: every unit under the noun's roots, or one
+    provider's, or one unit of that provider by a prefix of a component of its address."""
+    roots = roots_of(noun)
+    if provider is not None:
+        mine = [r for r in roots if r.parts[0] == provider]
+        if not mine:
+            sys.exit(f'error: {noun} captures nothing of {provider!r} - it captures: '
+                     + ', '.join(sorted({r.parts[0] for r in roots})))
+        roots = mine
+    elif not everything and any(r.parts[0] in ('claude', 'gemini') for r in roots) and len({r.parts[0] for r in roots}) > 1:
+        sys.exit(f'error: corpus-yoga {noun} promote names its extent: --all, --provider <p>, or --provider <p> --id <prefix>')
+    chosen = [u for u in units(STAGE) if any(u.address.is_relative_to(r) for r in roots)]
+    if unit_id is None:
+        return chosen
+    hits = [u for u in chosen if any(part.startswith(unit_id) for part in u.address.parts[1:])]
+    if len(hits) != 1:
+        names = ', '.join(str(u.address) for u in hits) or 'nothing'
+        sys.exit(f'error: --id {unit_id!r} names {len(hits)} staged unit(s) of {provider}: {names} - '
+                 f'--id names one; corpus-yoga input lists them')
+    return hits
+
+
+def _place(unit: Unit) -> None:
+    """Write the unit into the store: each of its members - its directory, or its file and
+    the companion that moves with it - replaces the held one whole."""
+    for rel in unit.members:
+        s, h = STAGE / rel, STORE / rel
+        h.parent.mkdir(parents=True, exist_ok=True)
+        if h.is_symlink() or h.is_file():
+            h.unlink()
+        elif h.is_dir():
+            shutil.rmtree(h)
+        shutil.move(str(s), str(h))
+
+
+def _clear(unit: Unit) -> None:
+    for rel in unit.members:
+        s = STAGE / rel
+        if s.is_dir():
+            shutil.rmtree(s)
+        elif s.exists():
+            s.unlink()
+
+
+def _prune_empty(root: Path) -> None:
+    if not root.is_dir():
+        return
+    for d in sorted((p for p in root.rglob('*') if p.is_dir()), reverse=True):
+        if not any(d.iterdir()):
+            d.rmdir()
+
+
+def promote(noun: str, selected: list[Unit]) -> int:
+    """Promote the units: each promotable one written into the store and taken out of
+    tmp/input, each identical one taken out unwritten, the rest named and left. Exit 1
+    while anything was refused."""
+    rows = survey(selected)
+    if not rows:
+        print(f'{noun} promote: nothing staged')
+        return 0
+    written = cleared = refused = 0
+    for unit, rel, detail, ok, words in rows:
+        if rel is Relation.IDENTICAL:
+            print(word(unit, rel, detail, ok, words) + ' - cleared from tmp/input')
+            _clear(unit)
+            cleared += 1
+        elif promotable(rel, ok):
+            print(word(unit, rel, detail, ok, words) + ' - promoted')
+            _place(unit)
+            written += 1
+        else:
+            print(word(unit, rel, detail, ok, words))
+            if rel in REMEDY:
+                print('    ' + REMEDY[rel].format(unit=unit.address))
+            refused += 1
+    _prune_empty(STAGE)
+    print(f'{noun} promote: DONE - {written} promoted, {cleared} identical cleared, {refused} refused and left staged')
+    return 1 if refused else 0
+
+
+def main(argv: list[str]) -> int:
+    """`input.py <noun> [--provider <p> | --all] [--id <prefix>]` - the promote verb of a
+    capturing noun, its argv already validated against the noun's declaration."""
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument('noun', choices=NOUNS)
+    ap.add_argument('--provider', default=None)
+    ap.add_argument('--all', action='store_true')
+    ap.add_argument('--id', default=None)
+    args = ap.parse_args(argv)
+    if args.id is not None and args.provider is None:
+        sys.exit('error: --id names a unit within a provider - say which with --provider')
+    return promote(args.noun, extent(args.noun, args.provider, args.all, args.id))
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
