@@ -18,7 +18,7 @@ REPO = next(p for p in Path(__file__).resolve().parents if (p / SELF).is_file())
 sys.path.insert(0, str(REPO / 'src'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'cache'))
-from validation_matrix import rows_from_logs  # noqa: E402
+from validation_matrix import rows_from_records  # noqa: E402
 import cache_io  # noqa: E402
 import frontier  # noqa: E402
 import corpus  # noqa: E402 — the one selection of units (#687)
@@ -99,7 +99,7 @@ def audit_source(pipeline: str, name: str, input_root: Path, cache_root: Path, g
         subject = ' / '.join(datum_dir.relative_to(cache_root).parts)
         processed.add(subject)
         matrices[1] += 1
-        expected = rows_from_logs(datum_dir, schema_parent)
+        expected = rows_from_records(datum_dir, schema_parent)
         for (family, item, version), (symbol, _bytes) in expected.items():
             at_latest[1] += 1
             if symbol == '✓':

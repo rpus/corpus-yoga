@@ -1,4 +1,4 @@
-run.py: code+schema 1434/1434
+run.py: code+schema 1437/1437
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ run.py: code+schema 1434/1434
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (80/80)
-  ✓ structure.file_at_level_of_subject  (35/35)
+  ✓ structure.file_at_level_of_subject  (36/36)
   ✓ structure.cli_declaration_mirrors_the_api  (23/23)
   ✓ structure.cli_declaration_validates  (73/73)
   ✓ cli.every_form_listed  (44/44)
@@ -115,6 +115,9 @@ run.py: code+schema 1434/1434
 ── check_schema_changelogs ───────────────────────────────────────────────────
   ✓ schema.changelog_narrative  (15/15)
   ✓ schema.changelog_no_todo  (15/15)
+
+── check_verdict_record ──────────────────────────────────────────────────────
+  ✓ validation.verdict_is_record  (2/2)
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (15/15)
@@ -198,7 +201,7 @@ check_self_paths                      95     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    543     0   code       32
+check_cli_surface                    544     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           14     0   code       68
 check_effects                          3     0   code       71
@@ -211,23 +214,24 @@ check_schema_validity                 15     0   schema    106
 check_schema_meta_validity            15     0   schema    109
 check_schema_single_version           15     0   schema    112
 check_schema_changelogs               30     0   schema    115
-check_versioned_schema_diagnostics   374     0   schema    119
-check_schema_join                      2     0   schema    146
-check_model_join_versions              1     0   schema    150
-check_model_table                      1     0   schema    153
-check_model_occurrences                3     0   schema    156
-check_model_obligations              162     0   schema    161
-check_model_identity                   1     0   schema    165
-check_grammar                          2     0   schema    168
-check_provider_registry                2     0   code      171
-check_reference                       21     0   schema    175
-check_mcp_factoring                    9     0   schema    181
-check_mcp_reproducible                 1     0   schema    187
-check_expectation                      2     0   code      190
+check_verdict_record                   2     0   code      119
+check_versioned_schema_diagnostics   374     0   schema    122
+check_schema_join                      2     0   schema    149
+check_model_join_versions              1     0   schema    153
+check_model_table                      1     0   schema    156
+check_model_occurrences                3     0   schema    159
+check_model_obligations              162     0   schema    164
+check_model_identity                   1     0   schema    168
+check_grammar                          2     0   schema    171
+check_provider_registry                2     0   code      174
+check_reference                       21     0   schema    178
+check_mcp_factoring                    9     0   schema    184
+check_mcp_reproducible                 1     0   schema    190
+check_expectation                      2     0   code      193
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 123 types, 1434/1434 invocations passing
-checks[code]: 71 types, 757/757 invocations passing
+checks[code+schema]: 124 types, 1437/1437 invocations passing
+checks[code]: 72 types, 760/760 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1434/1434 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1437/1437 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """
-Validate one JSON file against versioned schemas, one log per datum-version pair.
+Validate one JSON file against versioned schemas, one log and one verdict record per
+datum-version pair. The record (src/main/verdict.py, #701) is what every reader reads - the
+skip path here, the matrix, the audit, the stage's survey; the log is the inspection's
+grist and no reader parses it.
 
 Two faces:
   <input_file> <schema_dir> <log_dir> <label>          every version in the
@@ -27,6 +30,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — shared modules live at its root
 from validation_matrix import family_root, write_matrix  # noqa: E402
+import verdict  # noqa: E402
 
 
 def _digest(path):
@@ -39,21 +43,14 @@ def _digest(path):
     return h.hexdigest()
 
 
-def _log_current(log_out, input_digest, schema_digest):
-    """True iff the existing log records exactly this datum × schema BY CONTENT:
-    lines 2-3 carry the pair's digests. No clock is consulted, so a fresh
-    worktree's birth-mtimes cannot fake staleness (#367). An old-format log
-    (no digest) is not current and revalidates once — the stated migration
-    cost. The log IS the memoisation."""
-    try:
-        with open(log_out) as fh:
-            next(fh)
-            input_line = next(fh)
-            schema_line = next(fh)
-    except (OSError, StopIteration):
-        return False
-    return input_line.rstrip().endswith(f'sha256 {input_digest}') and \
-        schema_line.rstrip().endswith(f'sha256 {schema_digest}')
+def _record_current(log_out, input_digest, schema_digest):
+    """True iff the verdict record beside the log judges exactly this datum × schema BY
+    CONTENT: its two digests. No clock is consulted, so a fresh worktree's birth-mtimes
+    cannot fake staleness (#367). A log with no record - one written before #701 - is
+    not current and revalidates once, the stated migration cost. The record IS the
+    memoisation."""
+    log_dir, version = os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0]
+    return verdict.current(verdict.read(verdict.path_for(log_dir, version)), input_digest, schema_digest)
 
 
 def _validate_one(input_file, schema_path, log_out, input_digest):
@@ -77,12 +74,17 @@ def _validate_one(input_file, schema_path, log_out, input_digest):
         except Exception as e:  # noqa: BLE001 — any inspection failure is non-fatal
             body.append(f'(inspection failed: {e})')
 
+    at = datetime.now().astimezone().replace(microsecond=0).isoformat()
     with open(log_out, 'w') as f:
-        f.write(datetime.now().astimezone().replace(microsecond=0).isoformat() + '\n')
+        f.write(at + '\n')
         f.write(f'{input_file}: {input_lines} lines, {input_bytes} bytes · sha256 {input_digest}\n')
         f.write(f'{schema_path}: {schema_bytes} bytes · sha256 {schema_digest}\n')
         for line in body:
             f.write(line + '\n')
+    # the verdict as data, beside the log, the one thing a reader reads (#701)
+    verdict.write(os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0],
+                  input_file, input_digest, input_bytes, input_lines,
+                  schema_path, schema_digest, result[0] == 'Valid!', result[0], at)
 
     return result[0]
 
@@ -97,7 +99,7 @@ def validate_pair(input_file, schema_path, log_dir, label):
     version = os.path.splitext(os.path.basename(schema_path))[0]
     log_out = os.path.join(log_dir, f'{version}.log')
     input_digest = _digest(input_file)
-    if _log_current(log_out, input_digest, _digest(schema_path)):
+    if _record_current(log_out, input_digest, _digest(schema_path)):
         return
     _validate_one(input_file, schema_path, log_out, input_digest)
 
@@ -118,8 +120,8 @@ def validate_versions(input_file, schema_dir, log_dir, label):
     log_out = os.path.join(log_dir, f'{version}.log')
     input_digest = _digest(input_file)
     ran = False
-    if _log_current(log_out, input_digest, _digest(schema_path)):
-        status = _log_status(log_out)
+    if _record_current(log_out, input_digest, _digest(schema_path)):
+        status = _record_status(log_out)
         note = ' (current — skipped)'
     else:
         status = _validate_one(input_file, schema_path, log_out, input_digest)
@@ -134,7 +136,7 @@ def validate_versions(input_file, schema_dir, log_dir, label):
         print('    → see: rsc/schema/WORKFLOW.md  # the data has outgrown the latest version — mint the next')
 
     # Validation owns the datum's machine-local matrix: re-render matrix.md from the
-    # logs just written, so it can never lag them. The datum dir is the parent of the
+    # records just written, so it can never lag them. The datum dir is the parent of the
     # 'validation' component of log_dir (which may nest further, e.g. projects/<uuid>).
     # Announce it only when something was (re)validated — an all-current datum's
     # matrix is unchanged and its path is not news.
@@ -147,13 +149,13 @@ def validate_versions(input_file, schema_dir, log_dir, label):
             print(f'  matrix: {os.path.relpath(mfile)}')
 
 
-def _log_status(log_out):
-    """The verdict a current log recorded: its 'Valid!' line, else its last line."""
-    text = Path(log_out).read_text()
-    if 'Valid!' in text:
-        return 'Valid!'
-    lines = [l for l in text.splitlines() if l.strip()]
-    return lines[-1] if lines else '(empty log)'
+def _record_status(log_out):
+    """The verdict a current record holds, in the validator's own words: 'Valid!', or its
+    first line of error."""
+    log_dir, version = os.path.dirname(log_out), os.path.splitext(os.path.basename(log_out))[0]
+    record = verdict.read(verdict.path_for(log_dir, version))
+    assert record is not None, log_out   # current implies a record
+    return 'Valid!' if record['verdict'] == 'valid' else record['reason']
 
 
 if __name__ == '__main__':
