@@ -23,8 +23,8 @@ at the naming: a directory that gained a file while being emptied is emptied aga
 tail is the verdict - DONE only when every named entry went, NOT DONE naming what was
 NOT removed. The two faces are one derivation: one list of entries, one loop, the flag
 deciding only whether the act runs after the line, so the dry run is the apply with the
-act elided. The apply relays, beneath its lines and above its verdict, by
-relaying the bare status, the certified state after the act.
+act elided. The apply relays the bare status, the certified state after the act, beneath
+its lines and above its verdict, which is its last line.
 """
 import shutil
 import sys
