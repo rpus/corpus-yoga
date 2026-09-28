@@ -1,5 +1,5 @@
 {
-  "help": "stage a manifest and its payload: the manifest copied from where the download left it; each file the manifest lists taken as fetched where it sits beside the manifest (the archive, or what Safari unpacked it into - a folder per export, since every export names its archives alike), else fetched from its one-use export_url through the Safari session, each download named by the export's star, into the data-* directory sharing that star (manifest-<X>.json beside data-<X>/) - refused if that directory is staged or held",
+  "help": "stage a manifest and its payload: the manifest copied from where the download left it, each file it lists fetched from its one-use export_url through the Safari session - each download named by the export's star - and unpacked into the data-* directory sharing that star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
   "args": [
     {
       "name": "--manifest",
@@ -16,20 +16,19 @@
   ],
   "x": [
     "--manifest <file>",
-    "~/Downloads (what sits beside the manifest; where Safari puts what it fetches)"
+    "~/Downloads (where Safari puts what the verb fetches, moved out on arrival)"
   ],
   "sends": {
     "osascript": [
       "drives Safari against the logged-in session - fronting claude.ai, evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
     ],
     "fetch (in-page, session-authenticated)": [
-      "GETs each export_url the manifest lists that nothing beside the manifest already holds; each URL is one-use, so the fetch consumes it (refused loudly under YOGA_NO_SEND)"
+      "GETs each export_url the manifest lists; each URL is one-use, so the fetch consumes it (refused loudly under YOGA_NO_SEND)"
     ]
   },
   "r": [
     "data/input/claude/chat/bulk-export",
-    "tmp/stage/input/claude/chat/bulk-export",
-    "rsc/naming/export_archive_members.csv"
+    "tmp/stage/input/claude/chat/bulk-export"
   ],
   "w": [
     "tmp/stage/input/claude/chat/bulk-export"
