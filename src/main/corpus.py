@@ -429,15 +429,6 @@ def promotable(rel: Relation, ok: bool | None) -> bool:
     return rel not in REFUSING and ok is not False
 
 
-def word(unit: Unit, rel: Relation, detail: str, ok: bool | None, words: str) -> str:
-    verb = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
-            Relation.AHEAD: 'AHEAD - refused', Relation.DIVERGED: 'DIVERGED - refused'}[rel]
-    line = f'  {unit.address}: {verb} ({detail})'
-    if rel not in REFUSING:
-        line += f'; {words}' if ok is not False else f'; REFUSED - {words}'
-    return line
-
-
 def extent(noun: str, provider: str | None, everything: bool, unit_id: str | None) -> list[Unit]:
     """The staged units a noun's promote names: every unit under the noun's roots, or one
     provider's, or one unit of that provider by a prefix of a component of its address."""
@@ -519,10 +510,35 @@ def remove(unit: Unit) -> None:
             d.rmdir()
 
 
+def say(groups: dict[str, list[str]]) -> None:
+    """A verdict shared by many units is said once, with its count, and the units listed
+    beneath it by address and relation: a stage of 121 units refused for one reason reads
+    as one reason and 121 addresses, and a unit that differs stands alone under its own."""
+    for heading, lines in groups.items():
+        print(f'  {heading}: {len(lines)} unit' + ('' if len(lines) == 1 else 's'))
+        for line in lines:
+            print(f'    {line}')
+
+
+def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
+    name = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
+            Relation.AHEAD: 'ahead', Relation.DIVERGED: 'diverged'}[rel]
+    return f'{unit.address}: {name} ({detail})'
+
+
+def _refusal(unit: Unit, rel: Relation, ok: bool | None, words: str) -> tuple[str, str]:
+    """(the heading a refused unit stands under, what follows its line)."""
+    if rel in REFUSING:
+        remedy = '→ run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members)
+        return f'{rel.name} - refused: {REMEDY[rel]}', f'\n      {remedy}'
+    return f'REFUSED - {words}', ''
+
+
 def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
     """Promote the units, their verdicts read from the named rehearsal (the newest unless
-    stamp): each promotable one copied over the held one by address, the rest named and
-    left; the stage is never written. Exit 1 while anything was refused."""
+    stamp): each promotable one copied over the held one by address, the rest named; the
+    stage is never written. The lines are grouped by what they share, the certified state
+    follows as evidence, and the verdict is the last line. Exit 1 while anything was refused."""
     global REHEARSAL
     if stamp is not None:
         if not tier.rehearsal(stamp).is_dir():
@@ -530,37 +546,32 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
         REHEARSAL = stamp
     rows = survey(selected)
     if not rows:
-        print(f'{noun} promote: nothing staged')
+        print(f'{noun} promote: DONE - nothing staged')
         return 0
+    groups: dict[str, list[str]] = {}
     written = unchanged = refused = 0
-    refused_units: list[Unit] = []
     for unit, rel, detail, ok, words in rows:
+        line = _unit_line(unit, rel, detail)
         if promotable(rel, ok):
             n = _copy(unit)
             if n:
-                print(word(unit, rel, detail, ok, words) + f' - promoted ({n} file(s) written)')
+                groups.setdefault(f'promoted - {words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
                 written += 1
             else:
-                print(word(unit, rel, detail, ok, words) + ' - held already, byte-equal')
+                groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
                 unchanged += 1
         else:
-            print(word(unit, rel, detail, ok, words))
-            if rel in REMEDY:
-                # the remedy is a line the reader can paste, whole, in the form every
-                # prescription here takes: every member of the unit, quoted
-                print('    ' + REMEDY[rel])
-                print('    → run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members))
+            heading, after = _refusal(unit, rel, ok, words)
+            groups.setdefault(heading, []).append(line + after)
             refused += 1
-            refused_units.append(unit)
-    # one ask, one verdict: DONE only when nothing asked for was left undone
-    counts = f'promoted {written}, held already {unchanged}'
-    if refused:
-        print(f'{noun} promote: NOT DONE - {counts}; refused {refused}: ' + ', '.join(str(u.address) for u in refused_units))
-    else:
-        print(f'{noun} promote: DONE - {counts}')
-    # the noun's read-only status is the certified state after the act, informing and never gating
+    say(groups)
+    # the noun's read-only status is the certified state after the act: evidence, beneath
+    # the lines and above the verdict, informing and never gating
     print()
     stage_status()
+    print()
+    # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
+    print(f'{noun} promote: {"NOT DONE" if refused else "DONE"} - promoted {written}, held already {unchanged}, refused {refused}')
     return 1 if refused else 0
 
 
@@ -626,27 +637,32 @@ def stage_status() -> int:
 
 def report(noun: str | None) -> int:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
-    `corpus-yoga pipeline` shows it (every unit, by pipeline). Writes nothing."""
+    `corpus-yoga pipeline` shows it (every unit). The lines are grouped by what they share.
+    Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     if not rows:
         print(f'stage: nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input')
         return 0
+    groups: dict[str, list[str]] = {}
     by_noun: dict[str, int] = {}
     unjudged = refused = held = 0
     for unit, rel, detail, ok, words in rows:
-        line = word(unit, rel, detail, ok, words)
+        line = _unit_line(unit, rel, detail)
         if promotable(rel, ok):
             if redundant(unit):
                 held += 1
-                line += ' - held already, byte-equal'
+                groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
             else:
                 n = noun_of(unit) or '?'
                 by_noun[n] = by_noun.get(n, 0) + 1
+                groups.setdefault(f'promotable - {words}', []).append(line)
         else:
             refused += 1
-            if ok is False and 'no verdict' in words:
+            if ok is False and words.startswith(('no verdict', 'no rehearsal')):
                 unjudged += 1
-        print(line)
+            heading, after = _refusal(unit, rel, ok, words)
+            groups.setdefault(heading, []).append(line + after)
+    say(groups)
     tail = ''.join(f'; corpus-yoga {n} promote --all promotes {k}' for n, k in sorted(by_noun.items()))
     if unjudged:
         tail += f'; corpus-yoga pipeline rehearse judges {unjudged} without a verdict'

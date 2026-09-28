@@ -23,7 +23,7 @@ at the naming: a directory that gained a file while being emptied is emptied aga
 tail is the verdict - DONE only when every named entry went, NOT DONE naming what was
 NOT removed. The two faces are one derivation: one list of entries, one loop, the flag
 deciding only whether the act runs after the line, so the dry run is the apply with the
-act elided. The apply ends by
+act elided. The apply relays, beneath its lines and above its verdict, by
 relaying the bare status, the certified state after the act.
 """
 import shutil
@@ -135,13 +135,16 @@ def clean(apply: bool) -> int:
     if not apply:
         print(f'stage clean: would remove {counts}' + (' (--apply removes them)' if counts != 'nothing' else ''))
         return 0
+    # the noun's read-only status is the certified state after the act: evidence, beneath
+    # the lines and above the verdict, informing and never gating
+    print()
+    corpus.stage_status()
+    print()
+    # one ask, one verdict, the last line
     if left:
         print(f'stage clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
     else:
         print(f'stage clean: DONE - removed {counts}')
-    # the noun's read-only status is the certified state after the act, informing and never gating
-    print()
-    corpus.stage_status()
     return 1 if left else 0
 
 
