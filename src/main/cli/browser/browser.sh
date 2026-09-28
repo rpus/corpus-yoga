@@ -147,7 +147,7 @@ main() {
       compgen -G "$TMP_STAGE/input/$p/chat/*/*" > /dev/null && staged="1"
     done
     if [[ -n "$staged" ]]; then
-      echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent" \
+      echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse, then corpus-yoga browser promote $extent" \
         | tee -a ${logs[@]+"${logs[@]}"}
     fi
   fi

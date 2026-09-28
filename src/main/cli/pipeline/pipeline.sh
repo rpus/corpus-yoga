@@ -9,7 +9,7 @@
 #   corpus-yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
 #                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
-#   corpus-yoga pipeline rehearse [<pipeline>]    # the same run, the stage laid over the store, in tmp/stage
+#   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in tmp/stage
 #   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #

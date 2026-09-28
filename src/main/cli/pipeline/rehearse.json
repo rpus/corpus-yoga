@@ -1,13 +1,6 @@
 {
-  "help": "the pipelines over the stage, in a rehearsal of its own: the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and tmp/stage/rehearsal/<stamp>/tmp; the verdicts the promote verbs read, and evidence that stands until corpus-yoga stage clean disposes of it. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
-  "args": [
-    {
-      "name": "pipeline",
-      "type": "<pipeline>",
-      "cardinality": "",
-      "help": "one pipeline by name (bare: all of them), as corpus-yoga pipeline run takes it"
-    }
-  ],
+  "help": "the stage's judgement, whole: every pipeline over everything staged, in a rehearsal of its own - the checkout's own code run with CORPUS_YOGA_REHEARSAL=<stamp>, which the tier contract (src/main/tier.py) resolves to tmp/stage/rehearsal/<stamp>/data, whose input is tmp/stage/input, and tmp/stage/rehearsal/<stamp>/tmp. It takes no extent, so the newest rehearsal is the verdict for every unit. Its log, tmp/logs/pipeline/rehearse/<stamp>.log, shares the stamp",
+  "args": [],
   "r": [
     "tmp/stage/input",
     "rsc",

@@ -3,7 +3,13 @@
 # own code run over a rehearsal's own tiers (#687, #702).
 #
 # Usage:
-#   corpus-yoga pipeline rehearse [<pipeline>]   # every pipeline, or one by name, as run takes it
+#   corpus-yoga pipeline rehearse   # every pipeline over everything staged
+#
+# A rehearsal is the stage's judgement, whole: it takes no extent, so the newest
+# rehearsal is the verdict for every staged unit, an older stamp is an older judgement
+# whole, and the stamps are one linear order. A pipeline with nothing staged skips and
+# says so. The store is large and one pipeline's run is the usual act there; the stage
+# is small by construction and gets one judgement.
 #
 # A rehearsal is an act with an anchor - a commit, an extent, the staged bytes it judged -
 # and what it derives is evidence, so each has a directory of its own, tmp/stage/rehearsal/
@@ -39,10 +45,10 @@ main() {
   head="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   {
     echo "pipeline rehearse — $stamp · room: $room · $head"
-    echo "corpus-yoga pipeline rehearse${*:+ $*}"
-    echo "rehearse: tmp/stage/rehearsal/$stamp - corpus-yoga pipeline run${*:+ $*} with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input)"
+    echo "corpus-yoga pipeline rehearse"
+    echo "rehearse: tmp/stage/rehearsal/$stamp - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input)"
     echo
-    CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run "$@"
+    CORPUS_YOGA_REHEARSAL="$stamp" "$REPO_ROOT/corpus-yoga" pipeline run
   } 2>&1 | tee "$log"
   return "${PIPESTATUS[0]}"
 }

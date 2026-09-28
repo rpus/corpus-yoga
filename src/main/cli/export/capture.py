@@ -129,7 +129,7 @@ def main(argv: list[str]) -> int:
     if not to:
         # the act names the next acts (#687)
         print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '
-              'corpus-yoga pipeline rehearse chat-export, then corpus-yoga export promote')
+              'corpus-yoga pipeline rehearse, then corpus-yoga export promote')
     return 0
 
 
