@@ -93,11 +93,12 @@ Signature: <machine>/<provider>/<session>
 
 <!-- The test line is WHAT THE REVIEWER TYPES (#695): a numbered list of commands, from
      the branch checkout, in the order they are typed, each followed by the line it
-     prints. The first is the fetch that brings the checkout level with the branch; the
-     second is `corpus-yoga completions sync`, the reader's own first act on a checkout,
-     since a branch may have changed the surface the completions were made from (#710);
-     then the commands that exercise THIS change, and no others - the machine report or
-     the command table only where the change makes them say something. Every line that
+     prints. The first is the fetch that brings the checkout level with the branch. Where
+     the raiser expects the completions to need it - the change touches the declared
+     surface, src/main/cli - the second is `corpus-yoga completions sync`, recommended as
+     the reader's first act on the checkout (#710); where it does not, the step is left
+     out. Then the commands that exercise THIS change, and no others - the machine report
+     or the command table only where the change makes them say something. Every line that
      says what a command prints is pasted from a run, never composed. The author's own
      evidence (worktree runs, planted stores) comes after the list, never in its place. The use line is TWO COLUMNS per flow the PR changes: the commands typed on
      main beside the commands typed on the branch, each with what it writes, so that the
@@ -107,6 +108,7 @@ Signature: <machine>/<provider>/<session>
 - **test** — <arbiter: which gate(s) arbitrate this change — then the list:
   1. `git fetch origin && git reset --hard origin/<branch>` — the checkout level
   2. `corpus-yoga completions sync` — `wrote tmp/cache/completions/_yoga`
+     <only where this change touches the declared surface; otherwise leave the step out>
   3. `corpus-yoga <command>` — <the line it prints, pasted from a run>
   ... then the author's evidence, beneath the list>
 - **use** — <per flow the PR changes, two columns — the commands typed on main beside the
