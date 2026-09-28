@@ -1,5 +1,5 @@
 {
-  "help": "stage a manifest and its payload: the manifest copied from where the download left it; each file the manifest lists taken as fetched where the download left it beside the manifest (the archive, or what Safari unpacked it into), else fetched from its one-use export_url through the Safari session into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/) - refused if that directory is staged or held",
+  "help": "stage a manifest and its payload: the manifest copied from where the download left it; each file the manifest lists taken as fetched where it sits beside the manifest (the archive, or what Safari unpacked it into - a folder per export, since every export names its archives alike), else fetched from its one-use export_url through the Safari session, each download named by the export's star, into the data-* directory sharing that star (manifest-<X>.json beside data-<X>/) - refused if that directory is staged or held",
   "args": [
     {
       "name": "--manifest",
