@@ -533,6 +533,7 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
         print(f'{noun} promote: nothing staged')
         return 0
     written = unchanged = refused = 0
+    refused_units: list[Unit] = []
     for unit, rel, detail, ok, words in rows:
         if promotable(rel, ok):
             n = _copy(unit)
@@ -550,9 +551,77 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
                 print('    ' + REMEDY[rel])
                 print('    → run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members))
             refused += 1
-    print(f'{noun} promote: DONE - {written} promoted, {unchanged} held already, {refused} refused; '
-          f'the stage keeps every unit - corpus-yoga stage clean removes what is held byte-equal')
+            refused_units.append(unit)
+    # one ask, one verdict: DONE only when nothing asked for was left undone
+    counts = f'promoted {written}, held already {unchanged}'
+    if refused:
+        print(f'{noun} promote: NOT DONE - {counts}; refused {refused}: ' + ', '.join(str(u.address) for u in refused_units))
+    else:
+        print(f'{noun} promote: DONE - {counts}')
+    # the noun's read-only status is the certified state after the act, informing and never gating
+    print()
+    stage_status()
     return 1 if refused else 0
+
+
+def size_of(p: Path) -> int:
+    if p.is_file() or p.is_symlink():
+        return p.lstat().st_size
+    return sum(f.lstat().st_size for f in p.rglob('*') if f.is_file() or f.is_symlink())
+
+
+def human(n: float) -> str:
+    for unit in ('B', 'K', 'M', 'G'):
+        if n < 1024:
+            return f'{n:.0f}{unit}'
+        n /= 1024
+    return f'{n:.1f}T'
+
+
+def rehearsal_header(stamp: str) -> str:
+    """The rehearsal's record: its log's header - time, room, commit - and the command as typed."""
+    log = tier.TMP / 'logs' / 'pipeline' / 'rehearse' / f'{stamp}.log'
+    if not log.is_file():
+        return 'no log under tmp/logs/pipeline/rehearse - run by path, not by the launcher'
+    return ' · '.join(log.read_text().splitlines()[:2])
+
+
+def rehearsals() -> list[str]:
+    return sorted(d.name for d in tier.REHEARSALS.iterdir() if d.is_dir()) if tier.REHEARSALS.is_dir() else []
+
+
+def orphans() -> list[Path]:
+    """What sits under tmp/stage and is neither the input nor the rehearsals."""
+    stage = tier.TMP_STAGE
+    return [e for e in sorted(stage.iterdir()) if e.name not in ('input', 'rehearsal')] if stage.is_dir() else []
+
+
+def stage_status() -> int:
+    """Bare corpus-yoga stage: the tier's state, read-only - the input's size, each orphan
+    with the janitor as its remedy, each rehearsal with its record, the units' counts
+    against the newest. Every effective stage verb ends by relaying it."""
+    stage = tier.TMP_STAGE
+    if not stage.is_dir():
+        print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
+        return 0
+    print(f'tmp/stage/: input {human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
+    for e in orphans():
+        print(f'  orphan: {e.relative_to(REPO).as_posix()} ({human(size_of(e))}) - nothing reads it; corpus-yoga stage clean --apply removes it')
+    stamps = rehearsals()
+    if not stamps:
+        print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
+    for stamp in stamps:
+        print(f'  rehearsal {stamp} ({human(size_of(tier.rehearsal(stamp)))}): {rehearsal_header(stamp)}')
+    rows = survey()
+    if not rows:
+        print('  units: none staged')
+        return 0
+    held = sum(1 for u, rel, _d, ok, _w in rows if promotable(rel, ok) and redundant(u))
+    ready = sum(1 for u, rel, _d, ok, _w in rows if promotable(rel, ok)) - held
+    refused = len(rows) - held - ready
+    print(f'  units: {len(rows)} staged - {ready} promotable, {held} held already (byte-equal), {refused} refused'
+          + (f', judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
+    return 0
 
 
 def report(noun: str | None) -> int:
