@@ -67,6 +67,7 @@ bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 import argparse
 import hashlib
 import json
+import shlex
 import shutil
 import subprocess
 import sys
@@ -404,8 +405,8 @@ def noun_of(unit: Unit) -> str | None:
 
 
 REMEDY = {
-    Relation.AHEAD:    'the held unit holds more - recapture, or remove the staged copy by hand: rm -r tmp/stage/input/{unit}',
-    Relation.DIVERGED: 'each holds what the other lacks - inspect both, then keep one: rm -r tmp/stage/input/{unit} keeps the held',
+    Relation.AHEAD:    'the held unit holds more - recapture it; to drop the staged copy instead:',
+    Relation.DIVERGED: 'each holds what the other lacks - inspect both; to keep the held one and drop the staged copy:',
 }
 
 
@@ -544,7 +545,10 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
         else:
             print(word(unit, rel, detail, ok, words))
             if rel in REMEDY:
-                print('    ' + REMEDY[rel].format(unit=unit.address))
+                # the remedy is a line the reader can paste, whole, in the form every
+                # prescription here takes: every member of the unit, quoted
+                print('    ' + REMEDY[rel])
+                print('    → run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members))
             refused += 1
     print(f'{noun} promote: DONE - {written} promoted, {unchanged} held already, {refused} refused; '
           f'the stage keeps every unit - corpus-yoga stage clean removes what is held byte-equal')
