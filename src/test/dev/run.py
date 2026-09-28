@@ -1725,10 +1725,11 @@ def check_verdict_record(run) -> None:
 
 
 def check_unit_companion(run) -> None:
-    """The bulk export <X> is one unit, named by <X>, of two members: manifest-<X>.json and
-    data-<X>/, by the chat-export declaration itself (#687). Either member alone is the
-    same unit, unpaired, naming the member absent. The fixture is synthetic - one export
-    whole, one with its manifest alone, one with its payload alone."""
+    """The staged bulk export <X> is one unit, named by <X>, by the chat-export declaration
+    itself (#687): its member is data-<X>/, which promotion copies, and its record is
+    manifest-<X>.json, which stays in the stage. Either alone is the same unit, unpaired,
+    naming what is absent. The fixture is synthetic - one export whole, one with its
+    manifest alone, one with its payload alone."""
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
@@ -1741,12 +1742,13 @@ def check_unit_companion(run) -> None:
             (base / name / 'conversations.json').write_text('[]')
         (base / 'manifest-2026-01-01-whole.json').write_text('{}')
         (base / 'manifest-2026-02-02-manifest.json').write_text('{}')
-        got = sorted((unit.address.name, sorted(m.name for m in unit.members), list(getattr(unit, 'missing', ['?'])))
+        got = sorted((unit.address.name, [m.name for m in unit.members],
+                      [m.name for m in getattr(unit, 'record', [Path('?')])], list(unit.missing))
                      for unit in corpus.select(root, store))
-        expected = [('2026-01-01-whole', ['data-2026-01-01-whole', 'manifest-2026-01-01-whole.json'], []),
-                    ('2026-02-02-manifest', ['manifest-2026-02-02-manifest.json'], ['data-2026-02-02-manifest/']),
-                    ('2026-03-03-payload', ['data-2026-03-03-payload'], ['manifest-2026-03-03-payload.json'])]
-        run('stage: a bulk export is one unit named by its star, paired or unpaired', got == expected,
+        expected = [('2026-01-01-whole', ['data-2026-01-01-whole'], ['manifest-2026-01-01-whole.json'], []),
+                    ('2026-02-02-manifest', [], ['manifest-2026-02-02-manifest.json'], ['data-2026-02-02-manifest/']),
+                    ('2026-03-03-payload', ['data-2026-03-03-payload'], [], ['manifest-2026-03-03-payload.json'])]
+        run('stage: a staged bulk export is one unit named by its star, its manifest the record that stays', got == expected,
             None if got == expected else f'selected {got}, where the units are {expected}',
             check='stage.export_is_one_unit')
 

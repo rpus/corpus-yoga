@@ -23,7 +23,7 @@ status() {
     echo "export: nothing held or staged - request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>"
     return 0
   fi
-  echo "export: an export <X> is manifest-<X>.json and data-<X>/ together"
+  echo "export: a staged export <X> is data-<X>/ with manifest-<X>.json, its capture's record; shared storage holds data-<X>/"
   echo "$lines"
 }
 
