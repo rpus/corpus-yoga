@@ -21,12 +21,15 @@ The janitor's lines keep their tenses: "will remove" before each act, "did" or "
 whether it was carried out. An entry is removed as it stands at the act, not as it stood
 at the naming: a directory that gained a file while being emptied is emptied again. The
 tail is the verdict - DONE only when every named entry went, NOT DONE naming what was
-NOT removed - and the apply ends by
+NOT removed. The two faces are one derivation: one list of entries, one loop, the flag
+deciding only whether the act runs after the line, so the dry run is the apply with the
+act elided. The apply ends by
 relaying the bare status, the certified state after the act.
 """
 import shutil
 import sys
 from pathlib import Path
+from typing import Callable
 
 SELF = 'src/main/cli/stage/stage.py'
 _file = Path(__file__).resolve()
@@ -58,65 +61,84 @@ def _remove(path: Path) -> str | None:
     return why
 
 
-PLURAL = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'unit held byte-equal': 'units held byte-equal'}
+KINDS = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'unit held byte-equal': 'units held byte-equal',
+         'directory left empty': 'directories left empty'}   # each kind of entry, and its plural
 
 
 def _count(n: int, kind: str) -> str:
-    return f'{n} {kind if n == 1 else PLURAL[kind]}'
+    return f'{n} {kind if n == 1 else KINDS[kind]}'
 
 
-def clean(apply: bool) -> int:
-    entries: list[tuple[str, str, Path | corpus.Unit]] = []   # (kind, label, what to remove)
-    for stamp in corpus.rehearsals():
-        entries.append(('rehearsal', f'rehearsal {stamp} - the disposal of evidence: {corpus.rehearsal_header(stamp)}: '
-                                     f'{corpus.human(corpus.size_of(tier.rehearsal(stamp)))}', tier.rehearsal(stamp)))
+def _rmdir(path: Path) -> str | None:
+    """Remove a directory only if it is empty: the rehearsals' own, once they are gone."""
+    try:
+        path.rmdir()
+    except OSError as e:
+        return (e.strerror or str(e)).lower()
+    return None
+
+
+def _unit(unit: corpus.Unit) -> str | None:
+    try:
+        corpus.remove(unit)
+    except OSError as e:
+        return (e.strerror or str(e)).lower()
+    return None
+
+
+def entries() -> list[tuple[str, str, str, Callable[[], str | None]]]:
+    """Everything the janitor acts on, in the order it acts: (kind, name, the line's
+    label, the act). The one list both faces walk - the dry run is the apply with the act
+    elided, so the two cannot disagree. The rehearsals' directory is an entry of its own,
+    after the rehearsals it holds, when everything it holds is in the list."""
+    out: list[tuple[str, str, str, Callable[[], str | None]]] = []
+    stamps = corpus.rehearsals()
+    for stamp in stamps:
+        path = tier.rehearsal(stamp)
+        out.append(('rehearsal', path.relative_to(REPO).as_posix(),
+                    f'rehearsal {stamp} - the disposal of evidence: {corpus.rehearsal_header(stamp)}: '
+                    f'{corpus.human(corpus.size_of(path))}', lambda path=path: _remove(path)))
+    parent = tier.REHEARSALS
+    if parent.is_dir() and all(c.is_dir() and c.name in stamps for c in parent.iterdir()):
+        name = parent.relative_to(REPO).as_posix()
+        out.append(('directory left empty', name, f'{name}, left empty', lambda: _rmdir(parent)))
     for e in corpus.orphans():
-        entries.append(('orphan', f'orphan {e.relative_to(REPO).as_posix()} - neither the input nor a rehearsal: '
-                                  f'{corpus.human(corpus.size_of(e))}', e))
+        name = e.relative_to(REPO).as_posix()
+        out.append(('orphan', name, f'orphan {name} - neither the input nor a rehearsal: {corpus.human(corpus.size_of(e))}',
+                    lambda e=e: _remove(e)))
     if corpus.STAGE.is_dir():
         for unit in corpus.units(corpus.STAGE):
             if corpus.redundant(unit):
-                entries.append(('unit held byte-equal', f'{unit.address}: held byte-equal in data/input', unit))
-    kinds = ('rehearsal', 'orphan', 'unit held byte-equal')
-    if not apply:
-        for _kind, label, _what in entries:
-            print(f'  would remove {label}')
-        would = {kind: sum(1 for k, _, _ in entries if k == kind) for kind in kinds}
-        print('stage clean: would remove ' + (', '.join(_count(would[kind], kind) for kind in kinds if would[kind]) or 'nothing')
-              + (' (--apply removes them)' if entries else ''))
-        return 0
-    removed = {kind: 0 for kind in kinds}
+                out.append(('unit held byte-equal', str(unit.address), f'{unit.address}: held byte-equal in data/input',
+                            lambda unit=unit: _unit(unit)))
+    return out
+
+
+def clean(apply: bool) -> int:
+    """One loop over the one list; the flag decides only whether the act runs after the line."""
+    did = {kind: 0 for kind in KINDS}
     left: list[str] = []
-    for kind, label, what in entries:
+    for kind, name, label, act in entries():
+        if not apply:
+            print(f'  would remove {label}')
+            did[kind] += 1
+            continue
         print(f'  will remove {label}')
-        if isinstance(what, corpus.Unit):
-            try:
-                corpus.remove(what)
-                why = None
-            except OSError as e:
-                why = (e.strerror or str(e)).lower()
-            name = str(what.address)
-        else:
-            why = _remove(what)
-            name = what.relative_to(REPO).as_posix()
+        why = act()
         if why is None:
             print('    did')
-            removed[kind] += 1
+            did[kind] += 1
         else:
             print(f'    did NOT - {why}')
             left.append(f'{kind}: {name} - {why}')
-    # the rehearsals' directory goes with the last rehearsal: an empty directory is not data
-    if tier.REHEARSALS.is_dir() and not any(tier.REHEARSALS.iterdir()):
-        print(f'  will remove {tier.REHEARSALS.relative_to(REPO).as_posix()}, left empty')
-        why = _remove(tier.REHEARSALS)
-        print('    did' if why is None else f'    did NOT - {why}')
-        if why is not None:
-            left.append(f'{tier.REHEARSALS.relative_to(REPO).as_posix()} - {why}')
-    did = ', '.join(_count(removed[kind], kind) for kind in kinds if removed[kind]) or 'nothing'
+    counts = ', '.join(_count(did[kind], kind) for kind in KINDS if did[kind]) or 'nothing'
+    if not apply:
+        print(f'stage clean: would remove {counts}' + (' (--apply removes them)' if counts != 'nothing' else ''))
+        return 0
     if left:
-        print(f'stage clean: NOT DONE - removed {did}; NOT removed ' + '; '.join(left))
+        print(f'stage clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
     else:
-        print(f'stage clean: DONE - removed {did}')
+        print(f'stage clean: DONE - removed {counts}')
     # the noun's read-only status is the certified state after the act, informing and never gating
     print()
     corpus.stage_status()
