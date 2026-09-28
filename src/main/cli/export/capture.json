@@ -1,18 +1,21 @@
 {
-  "help": "fetch a manifest's payload from its one-use export_urls into the data-* directory sharing the manifest's star (manifest-<X>.json becomes data-<X>/) - refused if it exists; bare lists the manifests held and requires --manifest",
+  "help": "stage a manifest and its payload: the manifest copied from where the download left it, each file fetched from its one-use export_url into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/) - refused if that directory is staged or held",
   "args": [
     {
       "name": "--manifest",
       "type": "<file>",
-      "cardinality": "",
-      "help": "the manifest to fetch - required to fetch anything: each export_url is one-use, so no default picks one; bare lists the candidates"
+      "cardinality": "1",
+      "help": "the manifest, wherever the download left it - required: each export_url is one-use, so no default picks one"
     },
     {
       "name": "--to",
       "type": "<dir>",
       "cardinality": "",
-      "help": "deposit under a directory instead of the store (test escape hatch - a directory, never a machine name)"
+      "help": "stage under a directory instead of the stage (test escape hatch - a directory, never a machine name)"
     }
+  ],
+  "x": [
+    "--manifest <file>"
   ],
   "sends": {
     "https://claude.ai/export/... (urllib)": [

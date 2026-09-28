@@ -92,7 +92,7 @@
           },
           "companion": {
             "type": "string",
-            "description": "A path beside a unit input_glob selects as a file, that moves with it, <stem> standing for the file's stem: claude's workspace <stem>/ beside <stem>.jsonl. Empty where a unit's files lie within it."
+            "description": "A path beside a unit input_glob selects, that moves with it: <stem> standing for the stem of a unit that is a file (claude's workspace <stem>/ beside <stem>.jsonl), <star> for what the glob's * matched in the unit's name (the bulk export's manifest-<star>.json beside data-<star>/). Empty where a unit's files lie within it."
           }
         }
       }
@@ -123,7 +123,7 @@
     },
     "companion": {
       "type": "string",
-      "description": "A path beside a unit input_glob selects as a file, that moves with it, <stem> standing for the file's stem: claude's workspace <stem>/ beside <stem>.jsonl. Empty where a unit's files lie within it."
+      "description": "A path beside a unit input_glob selects, that moves with it: <stem> standing for the stem of a unit that is a file (claude's workspace <stem>/ beside <stem>.jsonl), <star> for what the glob's * matched in the unit's name (the bulk export's manifest-<star>.json beside data-<star>/). Empty where a unit's files lie within it."
     },
     "diagnostic_skip": {
       "type": "object",

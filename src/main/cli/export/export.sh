@@ -2,8 +2,8 @@
 # export.sh (corpus-yoga export) — the bulk export: manifests and their captured payloads.
 #
 # Usage:
-#   corpus-yoga export                                  # status: manifests held, payloads captured
-#   corpus-yoga export capture [--manifest <file>] [--to <dir>]
+#   corpus-yoga export                                  # status: the manifests and payloads held and staged
+#   corpus-yoga export capture --manifest <file> [--to <dir>]   # the manifest where the download left it
 #   corpus-yoga export promote [--rehearsal <stamp>]    # what capture staged, into data/input, judged by that rehearsal (default: the newest)
 
 set -euo pipefail
@@ -18,43 +18,42 @@ source "$REPO_DIR/src/main/tier.sh"
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
 STORE="$DATA_DIR/input/claude/chat/bulk-export"
+STAGE="$TMP_STAGE/input/claude/chat/bulk-export"
 
-# rows mirror the store: one line per manifest (payload dir beside it or not),
-# one per batch dir — a read face, no writes.
-status() {
-  if [[ ! -d "$STORE" ]]; then
-    echo "export: no store at data/input/claude/chat/bulk-export — nothing deposited"
-    return 0
-  fi
-  local store_rel="${STORE#"$REPO_DIR/"}"
-  local found=0 m stem batch d derived="" unfetched=()
-  for m in "$STORE"/manifest-*.json; do
+# one line per manifest of a root, then one per data-* directory no manifest there names
+manifests() {
+  local root="$1" state="$2" m stem batch d derived=""
+  [[ -d "$root" ]] || return 0
+  for m in "$root"/manifest-*.json; do
     [[ -e "$m" ]] || continue
-    found=1; stem="$(basename "$m" .json)"
+    stem="$(basename "$m" .json)"
     # the same derivation capture.py performs: the prefix swapped, the star kept whole
     batch="data-${stem#manifest-}"
     derived="$derived $batch"
-    if [[ -d "$STORE/$batch" ]]; then
-      echo "  $(basename "$m"): payload held in $batch/ — the one-use URLs are spent; to dispose of the dead index:"
-      echo "    → run: rm $store_rel/$(basename "$m")"
+    if [[ -d "$root/$batch" ]]; then
+      echo "  $state: $(basename "$m") with $batch/ - its one-use URLs spent"
     else
-      unfetched+=("$(basename "$m")")
+      echo "  $state: $(basename "$m") without $batch/ - unfetched:"
+      echo "    → run: corpus-yoga export capture --manifest ${m#"$TIER_REPO/"}"
     fi
   done
-  for d in "$STORE"/data-*/; do
+  for d in "$root"/data-*/; do
     [[ -d "$d" ]] || continue
-    found=1
     case " $derived " in *" $(basename "$d") "*) continue ;; esac
-    echo "  export $(basename "$d"): no manifest held for it (the pre-manifest vintage, or its manifest disposed)"
+    echo "  $state: $(basename "$d")/ without a manifest"
   done
-  if (( ${#unfetched[@]} )); then
-    echo "  ${#unfetched[@]} unfetched; to fetch:"
-    local f
-    for f in "${unfetched[@]}"; do
-      echo "    → run: ./corpus-yoga export capture --manifest $store_rel/$f"
-    done
+}
+
+# a read face, no writes: what shared storage holds, then what the stage holds
+status() {
+  local lines
+  lines="$(manifests "$STORE" held; manifests "$STAGE" staged)"
+  if [[ -z "$lines" ]]; then
+    echo "export: nothing held or staged - request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>"
+    return 0
   fi
-  [[ "$found" == 1 ]] || echo "export: store empty — request one at https://claude.ai/settings/data-privacy-controls, deposit the emailed manifest here"
+  echo "export: ${STORE#"$TIER_REPO/"} (held), ${STAGE#"$TIER_REPO/"} (staged)"
+  echo "$lines"
 }
 
 case "${1-}" in

@@ -1,16 +1,17 @@
 #!/usr/bin/env python
-"""capture.py (corpus-yoga export capture) - fetch a deposited manifest's payload.
+"""capture.py (corpus-yoga export capture) - stage a manifest and the payload it lists.
 
-The manifest arrives by hand (the emailed link downloads it; the reader deposits
-it in data/input/claude/chat/bulk-export/). This verb reads the manifest named
-by --manifest - its source, and no other capture (L10) - and fetches each
-listed zip from its export_url into the data-* directory sharing the
-manifest's own star: manifest-<X>.json becomes data-<X>/, the prefix swapped
-and nothing else derived (the maintainer's ruling, 2026-08-24). If that directory
-already exists the capture refuses before any URL is touched - the one-use
-URLs are spent only once the directory is this run's own. Bare invocation fetches
-nothing: it lists the manifests held and requires --manifest, because a
-default would silently pick which one-use URLs to spend.
+The emailed link downloads the manifest; --manifest names it wherever the download
+left it. This verb reads that file - its source, and no other capture (L10) -
+copies it into the stage, and fetches each listed zip from its export_url into
+the data-* directory sharing the manifest's own star: manifest-<X>.json beside
+data-<X>/, the prefix swapped and nothing else derived. The two are one unit
+(src/main/pipeline/chat-export/pipeline.json's companion), which
+corpus-yoga export promote copies into shared storage as a pair. If the directory
+is staged or held, or a different manifest of the name is staged, the capture
+refuses before any URL is touched - the one-use URLs are spent only once the
+directory is this run's own. --manifest is required: a default would silently
+pick which one-use URLs to spend.
 
 Each export_url is ONE-USE: a fetch consumes it, so every downloaded byte is the
 payload's last chance. Each file is therefore written the moment its fetch
@@ -19,9 +20,10 @@ deposit is whole or absent per FILE, never per manifest: a death mid-run keeps
 every completed file and loses only the one in flight, named loudly.
 
 Usage:
-    src/run_python_script.sh src/main/cli/export/capture.py [--manifest <file>] [--to <dir>]
+    src/run_python_script.sh src/main/cli/export/capture.py --manifest <file> [--to <dir>]
 """
 import json
+import shutil
 import sys
 import urllib.request
 from pathlib import Path
@@ -35,8 +37,8 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402
 
-STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # where manifests are deposited by hand
-STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the payload lands; corpus-yoga export promote reaches the store (#687)
+STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
+STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (#687)
 
 
 def derived_data_name(manifest_path: Path) -> str:
@@ -46,21 +48,6 @@ def derived_data_name(manifest_path: Path) -> str:
         sys.exit(f'export capture: NOT DONE - {manifest_path.name} does not start with '
                  'manifest-')
     return f'data-{stem.removeprefix("manifest-")}'
-
-
-def list_manifests(store: Path) -> int:
-    manifests = sorted(store.glob('manifest-*.json')) if store.is_dir() else []
-    if not manifests:
-        print(f'export capture: NOT DONE - no manifest-*.json in {store} '
-              '(deposit the emailed manifest there first)')
-        return 1
-    print('export capture: NOT DONE - name the manifest to fetch; each export_url is '
-          'one-use, so no default picks one:')
-    for m in manifests:
-        held = (store / derived_data_name(m)).is_dir()
-        state = 'payload held' if held else 'unfetched'
-        print(f'  --manifest {m} ({state})')
-    return 1
 
 
 def fetch_one(url: str, dest: Path) -> int:
@@ -84,10 +71,12 @@ def main(argv: list[str]) -> int:
         elif arg == '--to' and argv:
             to = Path(argv.pop(0))
         else:
-            sys.exit(f'usage: {SELF} [--manifest <file>] [--to <dir>]')
+            sys.exit(f'usage: {SELF} --manifest <file> [--to <dir>]')
     store = to if to else STORE
     if manifest_arg is None:
-        return list_manifests(store)
+        print('export capture: NOT DONE - --manifest <file> is required, the manifest where the '
+              'download left it; corpus-yoga export lists what is held and staged')
+        return 1
     manifest_path = manifest_arg
     if not manifest_path.is_file():
         print(f'export capture: NOT DONE - {manifest_path} is not a file')
@@ -96,6 +85,7 @@ def main(argv: list[str]) -> int:
     files = manifest.get('data_files', [])
     name = derived_data_name(manifest_path)
     target = (to if to else STAGE) / name
+    staged_manifest = target.with_name(manifest_path.name)
     print(f'{manifest_path.name}: {len(files)} file(s), version {manifest.get("version")}')
     print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
     if (store / name).is_dir():
@@ -106,12 +96,20 @@ def main(argv: list[str]) -> int:
               'no URL spent. If it holds an earlier or partial capture, the human moves it '
               'aside; this verb never overwrites a deposit')
         return 1
+    same = staged_manifest.exists() and staged_manifest.samefile(manifest_path)
+    if staged_manifest.exists() and not same and staged_manifest.read_bytes() != manifest_path.read_bytes():
+        print(f'export capture: NOT DONE - a different {staged_manifest.name} is staged; nothing fetched, '
+              'no URL spent')
+        return 1
     try:
         assert_may_send('export_url fetches (export capture) - each URL is one-use')
     except SendRefused as refused:
         print(f'export capture: NOT DONE - {refused}')
         return 1
     target.mkdir(parents=True, exist_ok=False)
+    if not same:
+        shutil.copyfile(manifest_path, staged_manifest)
+    print(f'  {staged_manifest.name}: staged beside {target.name}/')
     fetched = 0
     for entry in files:
         dest = target / entry['filename']
@@ -125,7 +123,7 @@ def main(argv: list[str]) -> int:
         print(f'  {entry["filename"]}: {size} bytes ({entry["category"]})')
         fetched += 1
     print(f'export capture: DONE - {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/ '
-          f'({fetched} file(s), as the manifest listed them)')
+          f'({fetched} file(s), as the manifest listed them) and {staged_manifest.name} beside it')
     if not to:
         # the act names the next acts (#687)
         print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '

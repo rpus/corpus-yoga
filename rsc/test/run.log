@@ -1,4 +1,4 @@
-run.py: code+schema 1434/1434
+run.py: code+schema 1435/1435
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -122,6 +122,9 @@ run.py: code+schema 1434/1434
 ── check_verdict_record ──────────────────────────────────────────────────────
   ✓ validation.verdict_is_record  (2/2)
 
+── check_unit_companion ──────────────────────────────────────────────────────
+  ✓ stage.unit_has_companion
+
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (15/15)
   ✓ composition.base_schemas_closed  (14/14)
@@ -219,23 +222,24 @@ check_schema_single_version           15     0   schema    112
 check_schema_changelogs               30     0   schema    115
 check_tier_contract                    1     0   code      119
 check_verdict_record                   2     0   code      122
-check_versioned_schema_diagnostics   374     0   schema    125
-check_schema_join                      2     0   schema    152
-check_model_join_versions              1     0   schema    156
-check_model_table                      1     0   schema    159
-check_model_occurrences                3     0   schema    162
-check_model_obligations              162     0   schema    167
-check_model_identity                   1     0   schema    171
-check_grammar                          2     0   schema    174
-check_provider_registry                2     0   code      177
-check_reference                       21     0   schema    181
-check_mcp_factoring                    9     0   schema    187
-check_mcp_reproducible                 1     0   schema    193
-check_expectation                      2     0   code      196
+check_unit_companion                   1     0   code      125
+check_versioned_schema_diagnostics   374     0   schema    128
+check_schema_join                      2     0   schema    155
+check_model_join_versions              1     0   schema    159
+check_model_table                      1     0   schema    162
+check_model_occurrences                3     0   schema    165
+check_model_obligations              162     0   schema    170
+check_model_identity                   1     0   schema    174
+check_grammar                          2     0   schema    177
+check_provider_registry                2     0   code      180
+check_reference                       21     0   schema    184
+check_mcp_factoring                    9     0   schema    190
+check_mcp_reproducible                 1     0   schema    196
+check_expectation                      2     0   code      199
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 125 types, 1434/1434 invocations passing
-checks[code]: 73 types, 757/757 invocations passing
+checks[code+schema]: 126 types, 1435/1435 invocations passing
+checks[code]: 74 types, 758/758 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1434/1434 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1435/1435 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

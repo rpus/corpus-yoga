@@ -11,7 +11,7 @@
   "extra_input_glob": "",
   "measure": "whole",
   "extra_measure": "",
-  "companion": "",
+  "companion": "manifest-<star>.json",
   "subject_depth": 1,
   "diagnostic_skip": {}
 }

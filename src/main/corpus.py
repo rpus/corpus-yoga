@@ -19,7 +19,9 @@ UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipel
 under the declared input of each provider, every match of input_glob or extra_input_glob,
 cut to subject_depth, is one unit - a directory with everything under it, or a file with
 its declared companion (<stem> standing for the file's stem: claude's workspace <stem>/
-beside <stem>.jsonl). One selection names the stage's units, the
+beside <stem>.jsonl), or a directory with the companion its name's star names (<star>
+standing for what the glob's * matched: the bulk export's manifest-<star>.json beside
+data-<star>/). One selection names the stage's units, the
 audit's subjects (src/main/validation_audit.py) and the datum's cache address,
 <cache root>[/<provider>]/<subject>. A file no declaration selects is a unit of its own,
 measured by its bytes and validated by nothing.
@@ -67,6 +69,7 @@ bare `corpus-yoga pipeline` and bare `corpus-yoga stage` report the stage.
 import argparse
 import hashlib
 import json
+import re
 import shlex
 import shutil
 import subprocess
@@ -159,6 +162,29 @@ def _files_under(root: Path, path: Path) -> list[Path]:
     return [f.relative_to(root) for f in sorted(path.rglob('*')) if f.is_file() and f.name != '.DS_Store']
 
 
+def _companion(declared: str, glob: str, unit_path: Path, base: Path) -> Path | None:
+    """The path the declared companion names beside a unit, or None where it names none:
+    <stem> is a file's stem, <star> what the * of the glob's component matched in the
+    unit's name."""
+    name = declared.rstrip('/')
+    if '<stem>' in name:
+        if not unit_path.is_file():
+            return None
+        name = name.replace('<stem>', unit_path.stem)
+    if '<star>' in name:
+        components = glob.split('/')
+        index = len(unit_path.relative_to(base).parts) - 1
+        component = components[index] if index < len(components) else ''
+        if component.count('*') != 1:
+            return None
+        before, after = component.split('*')
+        matched = re.fullmatch(re.escape(before) + '(.*)' + re.escape(after), unit_path.name)
+        if matched is None:
+            return None
+        name = name.replace('<star>', matched.group(1))
+    return unit_path.parent / name
+
+
 def select(root: Path, store: dict) -> list[Unit]:
     """The units one store's declaration selects under root."""
     base = root / store['input']
@@ -178,10 +204,9 @@ def select(root: Path, store: dict) -> list[Unit]:
             unit = units.get(address)
             if unit is None:
                 members = [address]
-                if store['companion'] and unit_path.is_file():
-                    companion = unit_path.parent / store['companion'].replace('<stem>', unit_path.stem).rstrip('/')
-                    if companion.exists():
-                        members.append(companion.relative_to(root))
+                companion = _companion(store['companion'], glob, unit_path, base) if store['companion'] else None
+                if companion is not None and companion.exists():
+                    members.append(companion.relative_to(root))
                 files = [f for m in members for f in _files_under(root, root / m)]
                 unit = Unit(address, members, files, [], measure, store['pipeline'], store['provider'], subject)
                 units[address] = unit
