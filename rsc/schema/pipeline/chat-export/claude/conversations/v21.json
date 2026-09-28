@@ -275,10 +275,26 @@
           ]
         },
         "start_timestamp": {
-          "$ref": "#/definitions/Timestamp"
+          "description": "Null on every text block written since 2026-08-28 in the export of 2026-09-28 (24 blocks, reading-room; the API capture of the same conversation carries each timestamp), a Timestamp on every earlier one. The API capture is the durable source of the timestamps the export no longer writes. Undeclared before v21.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
         },
         "stop_timestamp": {
-          "$ref": "#/definitions/Timestamp"
+          "description": "Null where start_timestamp is null, a Timestamp otherwise. Undeclared before v21.",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Timestamp"
+            }
+          ]
         },
         "text": {
           "type": "string"
@@ -545,11 +561,14 @@
           "type": "string"
         },
         "injection_source": {
-          "description": "What injected it. Observed values: \"date_note\" (the current date) and \"melange_tombstone\". Likely an open set.",
+          "description": "What injected it. Observed values: \"date_note\" (the current date), \"melange_tombstone\", and since 2026-09-27 (the export of 2026-09-28, reading-room) \"memory_block_head\" (the user memory snapshot), \"agent_listing\" and \"deferred_tools_delta\" (the harness's system reminders in a conversation run from Claude Code). Likely an open set.",
           "type": "string",
           "enum": [
             "date_note",
-            "melange_tombstone"
+            "melange_tombstone",
+            "memory_block_head",
+            "agent_listing",
+            "deferred_tools_delta"
           ]
         },
         "initial_turn_only": {
