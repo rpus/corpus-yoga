@@ -27,7 +27,6 @@ Usage:
 import json
 import shutil
 import sys
-import csv
 import time
 import zipfile
 from pathlib import Path
@@ -43,7 +42,6 @@ from send import SendRefused, assert_may_send  # noqa: E402
 from safari import (PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js, safari_fetch_file,  # noqa: E402
                     safari_navigate, safari_open_work_tab)
 
-MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what each category's archive holds at its root
 FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under: fronted once, its login checked
 
 STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
@@ -57,15 +55,6 @@ def derived_data_name(manifest_path: Path) -> str:
         sys.exit(f'export capture: NOT DONE - {manifest_path.name} does not start with '
                  'manifest-')
     return f'data-{stem.removeprefix("manifest-")}'
-
-
-def archive_members() -> dict[str, list[str]]:
-    """category -> the members its archive holds at its root (rsc/naming/export_archive_members.csv)."""
-    out: dict[str, list[str]] = {}
-    with MEMBERS_CSV.open(newline='') as f:
-        for row in csv.DictReader(f):
-            out.setdefault(row['category'], []).append(row['member'])
-    return out
 
 
 def deposit(archive: Path, target: Path) -> list[str]:
@@ -91,57 +80,6 @@ def hoist(target: Path, member: str) -> str | None:
             path.rmdir()
             return 'memories.json'
     return member
-
-
-def beside(manifest_path: Path, entry: dict, members: dict[str, list[str]]) -> tuple[str, list[Path]] | None:
-    """What the download left beside the manifest for this entry, taken as fetched: the
-    archive under its own name; the directory Safari unpacks a many-entry archive into,
-    named by the archive's stem; or the members themselves, which Safari leaves at the top
-    when it unpacks an archive of one entry - the members each category's archive holds
-    being data (rsc/naming/export_archive_members.csv). Returns (kind, paths) or None."""
-    here = manifest_path.parent
-    archive = here / entry['filename']
-    if archive.is_file():
-        return 'archive', [archive]
-    unpacked = here / Path(entry['filename']).stem
-    if unpacked.is_dir():
-        return 'unpacked', [unpacked]
-    wanted = [here / m for m in members.get(entry['category'], [])]
-    if wanted and all(p.exists() for p in wanted):
-        return 'members', wanted
-    return None
-
-
-def other_manifests(manifest_path: Path) -> list[Path]:
-    """The other manifests in the manifest's folder. Every export names its archives alike,
-    so what sits beside a manifest is that export's only where the folder holds no other:
-    a folder per export, which Safari's 'ask for each download' gives the reader."""
-    return sorted(m for m in manifest_path.parent.glob('manifest-*.json') if m.resolve() != manifest_path.resolve())
-
-
-def take(kind: str, paths: list[Path], target: Path) -> list[str]:
-    """Copy what sits beside the manifest into the payload, in the deposit's form."""
-    if kind == 'archive':
-        staged = target / paths[0].name
-        shutil.copyfile(paths[0], staged)
-        return deposit(staged, target)
-    if kind == 'unpacked':
-        out = []
-        for item in sorted(paths[0].iterdir()):
-            if item.is_dir():
-                shutil.copytree(item, target / item.name)
-            else:
-                shutil.copyfile(item, target / item.name)
-            out.append(hoist(target, item.name))
-        return out
-    out = []
-    for item in paths:
-        if item.is_dir():
-            shutil.copytree(item, target / item.name)
-        else:
-            shutil.copyfile(item, target / item.name)
-        out.append(hoist(target, item.name))
-    return out
 
 
 def front_session() -> tuple[str | None, str | None]:
@@ -220,18 +158,7 @@ def main(argv: list[str]) -> int:
         print(f'export capture: NOT DONE - a different {staged_manifest.name} is staged; nothing fetched, '
               'no URL spent')
         return 1
-    members = archive_members()
-    found = {entry['filename']: beside(manifest_path, entry, members) for entry in files}
-    others = other_manifests(manifest_path)
-    if others and any(found.values()):
-        print(f'export capture: NOT DONE - {len(others)} other manifest(s) beside {manifest_path.name} '
-              f'({", ".join(m.name for m in others)}), and files that could be any of their exports: '
-              'what sits beside a manifest is taken as its export only where the folder holds no other manifest - '
-              'give each export a folder of its own (Safari: File download location, ask for each download); '
-              'nothing staged, no URL spent')
-        return 1
-    to_fetch = [entry for entry in files if found[entry['filename']] is None]
-    if to_fetch:
+    if files:
         try:
             assert_may_send('export_url fetches through the Safari session (export capture) - each URL is one-use')
         except SendRefused as refused:
@@ -251,14 +178,6 @@ def main(argv: list[str]) -> int:
     fetched = 0
     failed: list[str] = []
     for entry in files:
-        beside_it = found[entry['filename']]
-        if beside_it is not None:
-            kind, paths = beside_it
-            got = take(kind, paths, target)
-            print(f'  {entry["filename"]} ({entry["category"]}): taken as fetched from beside the manifest, '
-                  f'{kind} - {", ".join(got)}')
-            fetched += 1
-            continue
         got, words = fetch(entry, target)
         if got is None:
             print(f'  {words}')
@@ -278,8 +197,7 @@ def main(argv: list[str]) -> int:
         return 1
     if failed:
         print(f'export capture: NOT DONE - {fetched} of {len(files)} file(s) in {target.name}/, '
-              f'incomplete: {"; ".join(failed)} - the manifest lists what is owed, and a later run '
-              'takes what sits beside it')
+              f'incomplete: {"; ".join(failed)} - the manifest lists what is owed')
         return 1
     print(f'export capture: DONE - {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/ '
           f'({fetched} file(s), as the manifest listed them) and {staged_manifest.name} beside it')
