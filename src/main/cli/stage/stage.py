@@ -2,8 +2,8 @@
 """
 stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its noun.
 
-    corpus-yoga stage                   # status: each subtree and its size, the last rehearsal, the units' counts
-    corpus-yoga stage clean --dry-run   # what the janitor would remove: each rehearsal by name, each unit held byte-equal
+    corpus-yoga stage                   # status: the input, each orphan, each rehearsal, the units' counts
+    corpus-yoga stage clean --dry-run   # what the janitor would remove: each rehearsal, each orphan, each unit held byte-equal
     corpus-yoga stage clean --apply     # remove it
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared
@@ -11,10 +11,17 @@ by every rehearsal; rehearsal/<stamp> is what one rehearsal derived, named by it
 stamp - evidence that stands until removed. The per-unit relations stay with each
 capturing noun's bare status and with bare corpus-yoga pipeline; this face counts them
 against the newest rehearsal. The janitor clears its tier as corpus-yoga cache clean clears
-its own: every rehearsal, each named, every staged unit the store holds byte-equal - a unit
-already promoted - and every entry under tmp/stage that is neither the input nor a
-rehearsal, an orphan of an earlier layout. A refused unit is evidence of another kind and
-is never the janitor's.
+its own: every rehearsal, each named, and the rehearsals' directory once it holds none;
+every staged unit the store holds byte-equal - a unit already promoted; and every entry
+under tmp/stage that is neither the input nor a rehearsal, an orphan of an earlier layout.
+A refused unit is evidence of another kind and is never the janitor's.
+
+The janitor's lines keep their tenses: "will remove" before each act, "did" or "did NOT -
+<why>" after it, so a log read after a crash shows the intention and, entry by entry,
+whether it was carried out. An entry is removed as it stands at the act, not as it stood
+at the naming: a directory that gained a file while being emptied is emptied again. The
+tail is the verdict - DONE only when every named entry went - and the apply ends by
+relaying the bare status, the certified state after the act.
 """
 import shutil
 import sys
@@ -31,100 +38,91 @@ from declared_parser import command_parser  # noqa: E402
 import corpus  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 
-TIER = tier.TMP_STAGE
-LOGS = tier.TMP / 'logs' / 'pipeline' / 'rehearse'   # each rehearsal's log, its record, by the same stamp
+PASSES = 3   # the Finder writes into a directory being emptied; a second pass is the whole remedy
 
 
-def _size(p: Path) -> int:
-    if p.is_file() or p.is_symlink():
-        return p.lstat().st_size
-    return sum(f.lstat().st_size for f in p.rglob('*') if f.is_file() or f.is_symlink())
+def _remove(path: Path) -> str | None:
+    """Remove the entry as it stands at the act. None when it is gone, else why it is not."""
+    why = 'still present'
+    for _ in range(PASSES):
+        try:
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            elif path.exists() or path.is_symlink():
+                path.unlink()
+        except OSError as e:
+            why = (e.strerror or str(e)).lower()
+        if not (path.exists() or path.is_symlink()):
+            return None
+    return why
 
 
-def _human(n: float) -> str:
-    for unit in ('B', 'K', 'M', 'G'):
-        if n < 1024:
-            return f'{n:.0f}{unit}'
-        n /= 1024
-    return f'{n:.1f}T'
-
-
-def _header(stamp: str) -> str:
-    """The rehearsal's record: its log's header - time, room, commit - and the command as typed."""
-    log = LOGS / f'{stamp}.log'
-    if not log.is_file():
-        return 'no log under tmp/logs/pipeline/rehearse - run by path, not by the launcher'
-    return ' · '.join(log.read_text().splitlines()[:2])
-
-
-def orphans() -> list[Path]:
-    """What sits under tmp/stage and is neither the input nor the rehearsals."""
-    return [e for e in sorted(TIER.iterdir()) if e.name not in ('input', 'rehearsal')] if TIER.is_dir() else []
-
-
-def rehearsals() -> list[str]:
-    return sorted(d.name for d in tier.REHEARSALS.iterdir() if d.is_dir()) if tier.REHEARSALS.is_dir() else []
-
-
-def status() -> int:
-    if not TIER.is_dir():
-        print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
-        return 0
-    print(f'tmp/stage/: input {_human(_size(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
-    # an entry that is neither the input nor the rehearsals is an orphan of the tier,
-    # named here with the janitor as its remedy
-    for e in orphans():
-        print(f'  orphan: {e.relative_to(REPO).as_posix()} ({_human(_size(e))}) - nothing reads it; corpus-yoga stage clean --apply removes it')
-    stamps = rehearsals()
-    if not stamps:
-        print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
-    for stamp in stamps:
-        print(f'  rehearsal {stamp} ({_human(_size(tier.rehearsal(stamp)))}): {_header(stamp)}')
-    rows = corpus.survey()
-    if not rows:
-        print('  units: none staged')
-        return 0
-    held = sum(1 for u, rel, _d, ok, _w in rows if corpus.promotable(rel, ok) and corpus.redundant(u))
-    promotable = sum(1 for u, rel, _d, ok, _w in rows if corpus.promotable(rel, ok)) - held
-    refused = len(rows) - held - promotable
-    print(f'  units: {len(rows)} staged - {promotable} promotable, {held} held already (byte-equal), {refused} refused'
-          + (f', judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
-    return 0
+def _plural(n: int, noun: str) -> str:
+    return f'{n} {noun}' + ('' if n == 1 else 's')
 
 
 def clean(apply: bool) -> int:
-    doomed: list[tuple[str, Path]] = []
-    for stamp in rehearsals():
-        doomed.append((f'rehearsal {stamp} - the disposal of evidence: {_header(stamp)}', tier.rehearsal(stamp)))
-    strangers = orphans()
-    for e in strangers:
-        doomed.append((f'orphan {e.relative_to(REPO).as_posix()} - neither the input nor a rehearsal', e))
-    units = [u for u in corpus.units(corpus.STAGE) if corpus.redundant(u)] if corpus.STAGE.is_dir() else []
-    if not doomed and not units:
-        print('stage clean: DONE - nothing to remove')
+    entries: list[tuple[str, str, Path | corpus.Unit]] = []   # (kind, label, what to remove)
+    for stamp in corpus.rehearsals():
+        entries.append(('rehearsal', f'rehearsal {stamp} - the disposal of evidence: {corpus.rehearsal_header(stamp)}: '
+                                     f'{corpus.human(corpus.size_of(tier.rehearsal(stamp)))}', tier.rehearsal(stamp)))
+    for e in corpus.orphans():
+        entries.append(('orphan', f'orphan {e.relative_to(REPO).as_posix()} - neither the input nor a rehearsal: '
+                                  f'{corpus.human(corpus.size_of(e))}', e))
+    if corpus.STAGE.is_dir():
+        for unit in corpus.units(corpus.STAGE):
+            if corpus.redundant(unit):
+                entries.append(('unit held byte-equal', f'{unit.address}: held byte-equal in data/input', unit))
+    kinds = ('rehearsal', 'orphan', 'unit held byte-equal')
+    if not apply:
+        for _kind, label, _what in entries:
+            print(f'  would remove {label}')
+        print('stage clean: would remove ' + (', '.join(_plural(sum(1 for k, _, _ in entries if k == kind), kind) for kind in kinds)
+                                                if entries else 'nothing') + (' (--apply removes them)' if entries else ''))
         return 0
-    verb = 'removed' if apply else 'would remove'
-    for label, path in doomed:
-        print(f'  {verb} {label}: {_human(_size(path))}')
-        if apply:
-            if path.is_dir() and not path.is_symlink():
-                shutil.rmtree(path)
-            else:
-                path.unlink()
-    for unit in units:
-        print(f'  {verb} {unit.address}: held byte-equal in data/input')
-        if apply:
-            corpus.remove(unit)
-    print(f'stage clean: {"DONE" if apply else "would"} - {len(doomed) - len(strangers)} rehearsal(s), {len(strangers)} orphan(s), {len(units)} unit(s) held byte-equal'
-          + ('' if apply else ' (--apply removes them)'))
-    return 0
+    removed = {kind: 0 for kind in kinds}
+    left: list[str] = []
+    for kind, label, what in entries:
+        print(f'  will remove {label}')
+        if isinstance(what, corpus.Unit):
+            try:
+                corpus.remove(what)
+                why = None
+            except OSError as e:
+                why = (e.strerror or str(e)).lower()
+            name = str(what.address)
+        else:
+            why = _remove(what)
+            name = what.relative_to(REPO).as_posix()
+        if why is None:
+            print('    did')
+            removed[kind] += 1
+        else:
+            print(f'    did NOT - {why}')
+            left.append(f'{kind}: {name} - {why}')
+    # the rehearsals' directory goes with the last rehearsal: an empty directory is not data
+    if tier.REHEARSALS.is_dir() and not any(tier.REHEARSALS.iterdir()):
+        print(f'  will remove {tier.REHEARSALS.relative_to(REPO).as_posix()}, left empty')
+        why = _remove(tier.REHEARSALS)
+        print('    did' if why is None else f'    did NOT - {why}')
+        if why is not None:
+            left.append(f'{tier.REHEARSALS.relative_to(REPO).as_posix()} - {why}')
+    did = ', '.join(_plural(removed[kind], kind) for kind in kinds if removed[kind]) or 'nothing'
+    if left:
+        print(f'stage clean: NOT DONE - removed {did}; not removed ' + '; '.join(left))
+    else:
+        print(f'stage clean: DONE - removed {did}')
+    # the noun's read-only status is the certified state after the act, informing and never gating
+    print()
+    corpus.stage_status()
+    return 1 if left else 0
 
 
 def main() -> int:
     args = command_parser('stage').parse_args()
     if args.verb == 'clean':
         return clean(bool(args.apply))
-    return status()
+    return corpus.stage_status()
 
 
 if __name__ == '__main__':
