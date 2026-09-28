@@ -1725,11 +1725,10 @@ def check_verdict_record(run) -> None:
 
 
 def check_unit_companion(run) -> None:
-    """A unit moves with its declared companion (#687): the bulk export's manifest beside
-    its payload directory is a member of that directory's unit, by the chat-export
-    declaration itself, so a promotion copies the pair. The fixture is synthetic - one
-    data-<X>/ and its manifest-<X>.json, and a second manifest no directory shares the
-    star of."""
+    """The bulk export <X> is one unit, named by <X>, of two members: manifest-<X>.json and
+    data-<X>/, by the chat-export declaration itself (#687). Either member alone is the
+    same unit, unpaired, naming the member absent. The fixture is synthetic - one export
+    whole, one with its manifest alone, one with its payload alone."""
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
@@ -1737,16 +1736,19 @@ def check_unit_companion(run) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         base = root / store['input']
-        (base / 'data-2026-01-01-batch').mkdir(parents=True)
-        (base / 'data-2026-01-01-batch' / 'conversations.json').write_text('[]')
-        (base / 'manifest-2026-01-01-batch.json').write_text('{}')
-        (base / 'manifest-2026-02-02-other.json').write_text('{}')
-        selected = corpus.select(root, store)
-        members = sorted(m.name for unit in selected for m in unit.members)
-        expected = ['data-2026-01-01-batch', 'manifest-2026-01-01-batch.json']
-        run("stage: the bulk export's manifest is a member of its payload's unit", members == expected,
-            None if members == expected else f'the unit has {members}, where {expected} move together',
-            check='stage.unit_has_companion')
+        for name in ('data-2026-01-01-whole', 'data-2026-03-03-payload'):
+            (base / name).mkdir(parents=True)
+            (base / name / 'conversations.json').write_text('[]')
+        (base / 'manifest-2026-01-01-whole.json').write_text('{}')
+        (base / 'manifest-2026-02-02-manifest.json').write_text('{}')
+        got = sorted((unit.address.name, sorted(m.name for m in unit.members), list(getattr(unit, 'missing', ['?'])))
+                     for unit in corpus.select(root, store))
+        expected = [('2026-01-01-whole', ['data-2026-01-01-whole', 'manifest-2026-01-01-whole.json'], []),
+                    ('2026-02-02-manifest', ['manifest-2026-02-02-manifest.json'], ['data-2026-02-02-manifest/']),
+                    ('2026-03-03-payload', ['data-2026-03-03-payload'], ['manifest-2026-03-03-payload.json'])]
+        run('stage: a bulk export is one unit named by its star, paired or unpaired', got == expected,
+            None if got == expected else f'selected {got}, where the units are {expected}',
+            check='stage.export_is_one_unit')
 
 
 def check_versioned_schema_diagnostics(run):

@@ -92,7 +92,7 @@
           },
           "companion": {
             "type": "string",
-            "description": "A path beside a unit input_glob selects, that moves with it: <stem> standing for the stem of a unit that is a file (claude's workspace <stem>/ beside <stem>.jsonl), <star> for what the glob's * matched in the unit's name (the bulk export's manifest-<star>.json beside data-<star>/). Empty where a unit's files lie within it."
+            "description": "A path beside what input_glob selects, that moves with it. With <stem>, the stem of a selected file, it is that file's companion and the file is the unit: claude's workspace <stem>/ beside <stem>.jsonl. With <star>, what the glob's * matched, the unit is named by the star and is both members together, unpaired and never promoted where one is absent: the bulk export <X> is manifest-<X>.json and data-<X>/. Empty where a unit's files lie within it."
           }
         }
       }
@@ -123,7 +123,7 @@
     },
     "companion": {
       "type": "string",
-      "description": "A path beside a unit input_glob selects, that moves with it: <stem> standing for the stem of a unit that is a file (claude's workspace <stem>/ beside <stem>.jsonl), <star> for what the glob's * matched in the unit's name (the bulk export's manifest-<star>.json beside data-<star>/). Empty where a unit's files lie within it."
+      "description": "A path beside what input_glob selects, that moves with it. With <stem>, the stem of a selected file, it is that file's companion and the file is the unit: claude's workspace <stem>/ beside <stem>.jsonl. With <star>, what the glob's * matched, the unit is named by the star and is both members together, unpaired and never promoted where one is absent: the bulk export <X> is manifest-<X>.json and data-<X>/. Empty where a unit's files lie within it."
     },
     "diagnostic_skip": {
       "type": "object",

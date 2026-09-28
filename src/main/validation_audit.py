@@ -63,7 +63,7 @@ def input_subjects(input_root: Path, globs: list[str], depth: int) -> list:
                  companion='', depth=depth)
     units = corpus.select(input_root, store)
     if depth == 1:
-        return sorted(u.subject[0] for u in units if (input_root / u.address).is_dir())
+        return sorted(u.subject[0] for u in units if (input_root / u.path).is_dir())
     return sorted({u.subject for u in units})
 
 
