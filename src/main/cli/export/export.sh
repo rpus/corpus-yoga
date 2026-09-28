@@ -31,16 +31,16 @@ manifests() {
     batch="data-${stem#manifest-}"
     derived="$derived $batch"
     if [[ -d "$root/$batch" ]]; then
-      echo "  $state: $(basename "$m") with $batch/ - its one-use URLs spent"
+      echo "  $state: $(basename "$m") paired with $batch/ - its one-use URLs spent"
     else
-      echo "  $state: $(basename "$m") without $batch/ - unfetched:"
+      echo "  $state: $(basename "$m") unpaired - no $batch/ beside it; to fetch its payload:"
       echo "    → run: corpus-yoga export capture --manifest ${m#"$TIER_REPO/"}"
     fi
   done
   for d in "$root"/data-*/; do
     [[ -d "$d" ]] || continue
     case " $derived " in *" $(basename "$d") "*) continue ;; esac
-    echo "  $state: $(basename "$d")/ without a manifest"
+    echo "  $state: $(basename "$d")/ unpaired - no manifest beside it"
   done
 }
 
