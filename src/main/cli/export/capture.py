@@ -28,6 +28,7 @@ import json
 import shutil
 import sys
 import csv
+import re
 import time
 import zipfile
 from pathlib import Path
@@ -130,13 +131,15 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
     url, filename = entry['export_url'], entry['filename']
     member = archive_member(entry['category'])
     # Safari replaces a same-named directory on unpacking, but a same-named FILE it keeps and
-    # names the arrival <stem>-2<ext>, -3, ...: every such name is a candidate, and the arrival
-    # is whichever exists with an inode it did not have before
-    def variants(name: str) -> list[Path]:
+    # names the arrival <stem>-2<ext>, -3, ...: any name of that shape is the archive's or the
+    # member's, and the arrival is whichever exists with an inode it did not have before
+    def shape(name: str) -> re.Pattern:
         stem, ext = (name.rsplit('.', 1) + [''])[:2] if '.' in name else (name, '')
-        return [DOWNLOADS / name] + [DOWNLOADS / (f'{stem}-{n}.{ext}' if ext else f'{stem}-{n}') for n in range(2, 10)]
-    candidates = {**{v: 'archive' for v in variants(filename)}, **{v: 'unpacked' for v in variants(member)}}
-    before = {path: _inode(path) for path in candidates}
+        return re.compile(re.escape(stem) + r'(-\d+)?' + (r'\.' + re.escape(ext) if ext else '') + '$')
+    shapes = {shape(filename): 'archive', shape(member): 'unpacked'}
+    def candidates() -> dict[Path, str]:
+        return {entry: kind for entry in DOWNLOADS.iterdir() for pattern, kind in shapes.items() if pattern.match(entry.name)}
+    before = {path: _inode(path) for path in candidates()}
     print(f'fetch: {url}')
     safari_navigate(url)
     deadline = time.time() + ARRIVAL_TIMEOUT
@@ -144,9 +147,9 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
         said = safari_eval_js('String(document.body.innerText).slice(0, 200)').replace('\n', ' | ')
         if 'has been used' in said or 'Expired link' in said:
             return None, f'{filename}: nothing arrived; the page says: {said}'
-        for path, kind in candidates.items():
+        for path, kind in candidates().items():
             now = _inode(path)
-            if now is not None and now != before[path] and not any(b.name.endswith('.download') for b in DOWNLOADS.glob(f'{Path(filename).stem}*')):
+            if now is not None and now != before.get(path) and not any(b.name.endswith('.download') for b in DOWNLOADS.glob(f'{Path(filename).stem}*')):
                 if kind == 'archive':
                     if not zipfile.is_zipfile(path):
                         continue   # still being written
