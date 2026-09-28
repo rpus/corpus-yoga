@@ -20,7 +20,8 @@ The janitor's lines keep their tenses: "will remove" before each act, "did" or "
 <why>" after it, so a log read after a crash shows the intention and, entry by entry,
 whether it was carried out. An entry is removed as it stands at the act, not as it stood
 at the naming: a directory that gained a file while being emptied is emptied again. The
-tail is the verdict - DONE only when every named entry went - and the apply ends by
+tail is the verdict - DONE only when every named entry went, NOT DONE naming what was
+NOT removed - and the apply ends by
 relaying the bare status, the certified state after the act.
 """
 import shutil
@@ -113,7 +114,7 @@ def clean(apply: bool) -> int:
             left.append(f'{tier.REHEARSALS.relative_to(REPO).as_posix()} - {why}')
     did = ', '.join(_count(removed[kind], kind) for kind in kinds if removed[kind]) or 'nothing'
     if left:
-        print(f'stage clean: NOT DONE - removed {did}; not removed ' + '; '.join(left))
+        print(f'stage clean: NOT DONE - removed {did}; NOT removed ' + '; '.join(left))
     else:
         print(f'stage clean: DONE - removed {did}')
     # the noun's read-only status is the certified state after the act, informing and never gating
