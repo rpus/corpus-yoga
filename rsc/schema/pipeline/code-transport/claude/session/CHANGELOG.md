@@ -6,6 +6,51 @@ and git-ignored: each datum directory under `tmp/cache/` carries a `matrix.md` b
 
 ---
 
+## v18
+
+A record kind no version knew. Reading-room session `be12fa7c-…`, written by Claude
+Code 2.1.283 and captured on 2026-09-28 by `corpus-yoga agent capture --all` into the
+stage of PR #689's branch, carries three `cost-state` records that v17 refuses - the
+session's running cost and effort totals, `totalCostUSD` and the durations and line
+counts all 0, `totalDuration` climbing across the three, `modelUsage` an empty object,
+`hasUnknownModelCost` false - the first written after a record of 12:57:55Z that day;
+the held copy of the same session, captured before, has none, and no other captured
+session of either machine has one. `corpus-yoga pipeline rehearse code-transport` read
+the log `fails claude/session v17`, and nothing reached shared storage (#713).
+
+The same log carries a second form, found when the mint was validated by hand: from
+record 17931, of 2026-09-26T18:59:33Z, every completed assistant record - 909 of them,
+every one but the log's single API-error record - carries `advisorModel`
+(`"claude-fable-5-1"` throughout), `serverClassifierRequest` (a v4 uuid, 508 distinct)
+and, inside `message`, `input_transformations` (an array of `{path, reason, type}`,
+127 distinct paths of the form `messages.N.content.0`, reasons
+`prefix_binding_mismatch` and `model_binding_mismatch`, type `thinking_dropped`
+alone). The held copy of the session, captured 2026-09-17 at 17846 records, has none
+of the three; the 5730 assistant records before 17931 have none.
+
+### Replaces
+
+v17
+
+#### Relaxed
+
+- `Record` - gains `CostStateRecord`: type "cost-state", `sessionId` a `UuidV4`, the six
+  totals and two durations numbers, `startTime` a number, `modelUsage` an object
+  observed empty and closed until a member is observed, `hasUnknownModelCost` a
+  boolean; every property required, none observed absent.
+- `AssistantTurnType` - optional `advisorModel` (a `ModelId`) and
+  `serverClassifierRequest` (a `UuidV4`), absent on every record before 2026-09-26
+  and on the API-error record.
+- `AssistantMessage` - optional `input_transformations`, an array of
+  `InputTransformation`: `path`, `reason` and `type`, strings, all required, the
+  observed values in their descriptions.
+
+#### Refactored
+
+- `ModelId` stands before `RenderedBlock`, and `InputTransformation` after
+  `StopDetails`: the order the BFS repair gives now that `AssistantTurnType` reaches
+  `ModelId` first. No validation effect.
+
 ## v17
 
 Two forms the artifact machinery had not yet shown. Home-room session
