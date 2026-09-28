@@ -517,6 +517,8 @@ rsc/model/model_join.csv,231,path_str,rsc/schema/pipeline/chat-export/claude/con
 rsc/model/model_join.csv,231,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ToolInputMemoryRead,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/ToolInputMemoryRead,,,rsc/schema/pipeline/chat-capture"
 rsc/model/model_join.csv,232,path_str,rsc/schema/pipeline/chat-export/claude/conversations#/definitions/MemoryReadToolUseBlock,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/MemoryReadToolUseBlock,,,rsc/schema/pipeline/chat-capt"
 rsc/model/model_join.csv,232,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/MemoryReadToolUseBlock,Y,"rsc/schema/pipeline/chat-export/claude/conversations#/definitions/MemoryReadToolUseBlock,,,rsc/schema/pipeline/chat-capt"
+rsc/model/model_join.csv,233,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ApiConversation/properties/is_archived,Y,",,,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ApiConversation/properties/is_archived,,api_only"
+rsc/model/model_join.csv,234,path_str,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ApiConversation/properties/workspace_upgraded,Y,",,,rsc/schema/pipeline/chat-capture/claude/apiConversation#/definitions/ApiConversation/properties/workspace_upgraded,,a"
 rsc/provider/README.md,14,doc,rsc/test/prepare-commit-msg-hook.sh,Y,hook (`rsc/test/prepare-commit-msg-hook.sh`) attests a session only for a
 rsc/provider/README.md,18,doc,src/main/provider.py,Y,capture keys its mechanisms by declared names; `src/main/provider.py` is the
 rsc/provider/README.md,22,doc,src,Y,by a directory or a data path under `src/` is a row here.
