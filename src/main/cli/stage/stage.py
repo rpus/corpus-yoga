@@ -57,8 +57,11 @@ def _remove(path: Path) -> str | None:
     return why
 
 
-def _plural(n: int, noun: str) -> str:
-    return f'{n} {noun}' + ('' if n == 1 else 's')
+PLURAL = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'unit held byte-equal': 'units held byte-equal'}
+
+
+def _count(n: int, kind: str) -> str:
+    return f'{n} {kind if n == 1 else PLURAL[kind]}'
 
 
 def clean(apply: bool) -> int:
@@ -77,8 +80,9 @@ def clean(apply: bool) -> int:
     if not apply:
         for _kind, label, _what in entries:
             print(f'  would remove {label}')
-        print('stage clean: would remove ' + (', '.join(_plural(sum(1 for k, _, _ in entries if k == kind), kind) for kind in kinds)
-                                                if entries else 'nothing') + (' (--apply removes them)' if entries else ''))
+        would = {kind: sum(1 for k, _, _ in entries if k == kind) for kind in kinds}
+        print('stage clean: would remove ' + (', '.join(_count(would[kind], kind) for kind in kinds if would[kind]) or 'nothing')
+              + (' (--apply removes them)' if entries else ''))
         return 0
     removed = {kind: 0 for kind in kinds}
     left: list[str] = []
@@ -107,7 +111,7 @@ def clean(apply: bool) -> int:
         print('    did' if why is None else f'    did NOT - {why}')
         if why is not None:
             left.append(f'{tier.REHEARSALS.relative_to(REPO).as_posix()} - {why}')
-    did = ', '.join(_plural(removed[kind], kind) for kind in kinds if removed[kind]) or 'nothing'
+    did = ', '.join(_count(removed[kind], kind) for kind in kinds if removed[kind]) or 'nothing'
     if left:
         print(f'stage clean: NOT DONE - removed {did}; not removed ' + '; '.join(left))
     else:
