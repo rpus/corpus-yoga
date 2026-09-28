@@ -62,7 +62,7 @@ def _remove(path: Path) -> str | None:
 
 
 KINDS = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'unit held byte-equal': 'units held byte-equal',
-         'directory left empty': 'directories left empty'}   # each kind of entry, and its plural
+         'empty directory': 'empty directories'}   # each kind of entry, and its plural
 
 
 def _count(n: int, kind: str) -> str:
@@ -101,7 +101,7 @@ def entries() -> list[tuple[str, str, str, Callable[[], str | None]]]:
     parent = tier.REHEARSALS
     if parent.is_dir() and all(c.is_dir() and c.name in stamps for c in parent.iterdir()):
         name = parent.relative_to(REPO).as_posix()
-        out.append(('directory left empty', name, f'{name}, left empty', lambda: _rmdir(parent)))
+        out.append(('empty directory', name, f'(empty) {name}', lambda: _rmdir(parent)))   # the state before the path, a qualifier
     for e in corpus.orphans():
         name = e.relative_to(REPO).as_posix()
         out.append(('orphan', name, f'orphan {name} - neither the input nor a rehearsal: {corpus.human(corpus.size_of(e))}',
