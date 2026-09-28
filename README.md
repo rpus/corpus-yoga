@@ -45,7 +45,7 @@ relates to the held one without loss - new, identical, extends, never ahead or d
 and every family its pipeline declares finds it valid at origin/main's version; the rest
 it names (#687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
 stage clean` removes what a rehearsal derived and the units the store holds byte-equal.
-So: `browser capture --provider claude`, `pipeline rehearse chat-capture`, `browser promote
+So: `browser capture --provider claude`, `pipeline rehearse`, `browser promote
 --provider claude`, `pipeline run chat-capture`; `corpus-yoga stage` reports the tier, and
 each noun's bare status the units.
 

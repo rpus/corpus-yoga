@@ -278,7 +278,7 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
         # the pipeline has judged it and the same extent is promoted
         extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
         print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
-              f'corpus-yoga pipeline rehearse code-transport, then corpus-yoga agent promote {extent}')
+              f'corpus-yoga pipeline rehearse, then corpus-yoga agent promote {extent}')
     return conflicts
 
 

@@ -353,7 +353,7 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
     if not judges:
         return None, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
     cache = unit.cache
-    remedy = f'corpus-yoga pipeline rehearse {unit.pipeline} judges it'
+    remedy = 'corpus-yoga pipeline rehearse judges it'
     if cache is None:
         return False, f'no rehearsal - {remedy}'
     # the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read
@@ -379,7 +379,7 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
         if main_digest is None or record['schema_sha256'] != main_digest:
             if main_version == version:
                 return False, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
-                               f'corpus-yoga pipeline rehearse {unit.pipeline} re-judges it')
+                               'corpus-yoga pipeline rehearse re-judges it')
             return False, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
                            f'({main_version} there) - the mint\'s merge licenses the promotion')
         if record['verdict'] != 'valid':
@@ -632,6 +632,17 @@ def stage_status() -> int:
     refused = len(rows) - held - ready
     print(f'  units: {len(rows)} staged - {ready} promotable, {held} held already (byte-equal), {refused} refused'
           + (f', judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
+    # the counts by kind - pipeline and provider - so that a total says what it counts
+    kinds: dict[str, list[int]] = {}
+    for u, rel, _d, ok, _w in rows:
+        kind = '/'.join(x for x in (u.pipeline or 'no pipeline', u.provider or u.address.parts[0]) if x)
+        tally = kinds.setdefault(kind, [0, 0, 0])
+        if promotable(rel, ok):
+            tally[1 if redundant(u) else 0] += 1
+        else:
+            tally[2] += 1
+    for kind, (k_ready, k_held, k_refused) in sorted(kinds.items()):
+        print(f'    {kind}: {k_ready + k_held + k_refused} staged - {k_ready} promotable, {k_held} held already, {k_refused} refused')
     return 0
 
 
