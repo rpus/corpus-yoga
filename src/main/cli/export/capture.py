@@ -173,8 +173,10 @@ def main(argv: list[str]) -> int:
         prev_tab = None
     target.mkdir(parents=True, exist_ok=False)
     if not same:
-        shutil.copyfile(manifest_path, staged_manifest)
-    print(f'  {staged_manifest.name}: staged beside {target.name}/')
+        # the manifest is consumed: its links are spent here, and a spent manifest has no use
+        # but as the unit's record - moved, as the browser capture moves what Safari downloaded
+        shutil.move(str(manifest_path), staged_manifest)
+    print(f'  {staged_manifest.name}: staged beside {target.name}/' + ('' if same else f' (moved from {manifest_path})'))
     fetched = 0
     failed: list[str] = []
     for entry in files:
@@ -191,7 +193,7 @@ def main(argv: list[str]) -> int:
         # nothing landed: no directory that reads as a payload, no manifest that reads as staged
         shutil.rmtree(target)
         if not same:
-            staged_manifest.unlink()
+            shutil.move(str(staged_manifest), manifest_path)   # the reader's file back where it was
         print(f'export capture: NOT DONE - 0 of {len(files)} file(s) fetched: {"; ".join(failed)}; '
               'nothing staged')
         return 1
