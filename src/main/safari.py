@@ -205,15 +205,17 @@ def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
 FETCH_STATUS_VAR = 'window.__corpusYogaFetchStatus'
 
 
-def safari_fetch_file(url, filename, timeout=DOWNLOAD_TIMEOUT):
+def safari_fetch_file(url, name, timeout=DOWNLOAD_TIMEOUT):
     """Fetch a session-authenticated URL in the front claude.ai page (#716 - a bulk
-    export's one-use export_url) and download it as `<filename>.part`: the blob typed
-    as octet-stream and the name not an archive's, so Safari saves the bytes as they came
-    and does not unpack them. Returns (the Downloads path or None, the HTTP status the
-    page saw or None) - the status is what the fetch observed, kept in the page for the
-    caller to read, so a refusal is reported as the response it was."""
+    export's one-use export_url) and download it as `<name>.part`: the blob typed as
+    octet-stream and the name not an archive's, so Safari saves the bytes as they came and
+    does not unpack them. `name` is the caller's unique name for this download - the
+    arrival is awaited by that exact name and no clock, so nothing else in Downloads can
+    be mistaken for it. Returns (the Downloads path or None, the HTTP status the page saw
+    or None) - the status is what the fetch observed, kept in the page for the caller to
+    read, so a refusal is reported as the response it was."""
     assert_may_send(f'fetch {url}')
-    part = filename + '.part'
+    part = name + '.part'
     js = (
         "(async function() {"
         f"  {FETCH_STATUS_VAR} = 'pending';"
@@ -239,7 +241,12 @@ def safari_fetch_file(url, filename, timeout=DOWNLOAD_TIMEOUT):
         time.sleep(0.5)
     if status is None or not status.startswith('2'):
         return None, status
-    return _await_download(part, start, deadline), status
+    arrival = DOWNLOADS / part
+    while time.time() < deadline:
+        if arrival.is_file():   # finalized: an in-flight arrival is a <part>.download bundle, not this file
+            return arrival, status
+        time.sleep(0.5)
+    return None, status
 
 
 def wait_for_log(after_time, timeout):

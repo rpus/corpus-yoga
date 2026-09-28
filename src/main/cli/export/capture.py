@@ -100,23 +100,23 @@ def beside(manifest_path: Path, entry: dict, members: dict[str, list[str]]) -> t
     when it unpacks an archive of one entry - the members each category's archive holds
     being data (rsc/naming/export_archive_members.csv). Returns (kind, paths) or None."""
     here = manifest_path.parent
-    born = manifest_path.stat().st_birthtime   # the manifest is downloaded before its links are clicked
-    def fresh(path: Path) -> bool:
-        # every export names its archives alike, so a name says nothing of which export a file
-        # came from; what Safari wrote after this manifest arrived is this manifest's. An unpacked
-        # file's modification and birth times are the archive's, not the download's; its inode
-        # change time is when it was written here and nothing can backdate it
-        return path.exists() and path.stat().st_ctime >= born
     archive = here / entry['filename']
-    if archive.is_file() and fresh(archive):
+    if archive.is_file():
         return 'archive', [archive]
     unpacked = here / Path(entry['filename']).stem
-    if unpacked.is_dir() and fresh(unpacked):
+    if unpacked.is_dir():
         return 'unpacked', [unpacked]
     wanted = [here / m for m in members.get(entry['category'], [])]
-    if wanted and all(fresh(p) for p in wanted):
+    if wanted and all(p.exists() for p in wanted):
         return 'members', wanted
     return None
+
+
+def other_manifests(manifest_path: Path) -> list[Path]:
+    """The other manifests in the manifest's folder. Every export names its archives alike,
+    so what sits beside a manifest is that export's only where the folder holds no other:
+    a folder per export, which Safari's 'ask for each download' gives the reader."""
+    return sorted(m for m in manifest_path.parent.glob('manifest-*.json') if m.resolve() != manifest_path.resolve())
 
 
 def take(kind: str, paths: list[Path], target: Path) -> list[str]:
@@ -165,7 +165,7 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
     None where nothing arrived, the words saying the response the page saw."""
     url, filename = entry['export_url'], entry['filename']
     print(f'fetch: {url}')
-    got, status = safari_fetch_file(url, filename)
+    got, status = safari_fetch_file(url, f'{target.name}-{filename}')   # the export's star names the download
     if got is None:
         seen = f'HTTP {status}' if status else 'no response read within the timeout'
         return None, f'{filename}: {seen} from the session; nothing arrived'
@@ -222,6 +222,14 @@ def main(argv: list[str]) -> int:
         return 1
     members = archive_members()
     found = {entry['filename']: beside(manifest_path, entry, members) for entry in files}
+    others = other_manifests(manifest_path)
+    if others and any(found.values()):
+        print(f'export capture: NOT DONE - {len(others)} other manifest(s) beside {manifest_path.name} '
+              f'({", ".join(m.name for m in others)}), and files that could be any of their exports: '
+              'what sits beside a manifest is taken as its export only where the folder holds no other manifest - '
+              'give each export a folder of its own (Safari: File download location, ask for each download); '
+              'nothing staged, no URL spent')
+        return 1
     to_fetch = [entry for entry in files if found[entry['filename']] is None]
     if to_fetch:
         try:
