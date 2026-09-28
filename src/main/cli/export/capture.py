@@ -115,7 +115,7 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
         # the file; named as what arrived, and never deposited as a payload
         head = staged.read_bytes()[:60]
         staged.unlink()
-        return None, f'{filename}: HTTP {status} but the body is not an archive ({size} bytes, beginning {head!r}); nothing deposited'
+        return None, f'{filename}: HTTP {status}, not an archive ({size} bytes, beginning {head!r}); not deposited'
     return deposit(staged, target), f'{filename}: HTTP {status}, {size} bytes'
 
 
@@ -178,32 +178,24 @@ def main(argv: list[str]) -> int:
         shutil.move(str(manifest_path), staged_manifest)
     print(f'  {staged_manifest.name}: staged beside {target.name}/' + ('' if same else f' (moved from {manifest_path})'))
     fetched = 0
-    failed: list[str] = []
     for entry in files:
         got, words = fetch(entry, target)
         if got is None:
             print(f'  {words}')
-            failed.append(entry['filename'])
             continue
         print(f'  {words} ({entry["category"]}) - {", ".join(got)}')
         fetched += 1
     if prev_tab is not None:
         safari_close_work_tab(prev_tab)   # the reader's tab back, whatever the fetches did
-    if fetched == 0:
-        # nothing landed: no directory that reads as a payload; the manifest stays staged,
-        # unpaired, the record of the attempt and the retry's input
-        shutil.rmtree(target)
-        rel = staged_manifest.relative_to(REPO) if staged_manifest.is_relative_to(REPO) else staged_manifest
-        print(f'export capture: NOT DONE - 0 of {len(files)} file(s) fetched: {"; ".join(failed)}; '
-              f'{staged_manifest.name} staged alone, unpaired')
-        print(f'    → run: corpus-yoga export capture --manifest {rel}')
+    # one ask, one verdict: what was fetched of what the manifest lists. Whether the unit is
+    # whole is read afterwards from the manifest beside it, by every face, not from here.
+    where = target.relative_to(REPO) if target.is_relative_to(REPO) else target
+    if fetched < len(files):
+        print(f'export capture: NOT DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
+              f'{staged_manifest.name} beside it')
         return 1
-    if failed:
-        print(f'export capture: NOT DONE - {fetched} of {len(files)} file(s) in {target.name}/, '
-              f'incomplete: {"; ".join(failed)} - the manifest lists what is owed')
-        return 1
-    print(f'export capture: DONE - {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/ '
-          f'({fetched} file(s), as the manifest listed them) and {staged_manifest.name} beside it')
+    print(f'export capture: DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
+          f'{staged_manifest.name} beside it')
     if not to:
         # the act names the next acts (#687)
         print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '
