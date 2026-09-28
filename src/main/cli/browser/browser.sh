@@ -137,11 +137,19 @@ main() {
     i=$((i + 1))
   done
   # The act names the next acts (#687): what was captured waits in the stage until the
-  # pipeline has judged it and the same extent is promoted.
+  # pipeline has judged it and the same extent is promoted. The line is said where
+  # something is staged, and it is part of the capture's record: each provider's log
+  # carries it, as it carries the line that opened the capture.
   if [[ -z "$dry_run" ]]; then
-    local extent="--all"
+    local extent="--all" staged=""
     [[ -n "$provider" ]] && extent="--provider $provider${id:+ --id $id}"
-    echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent"
+    for p in ${providers[@]+"${providers[@]}"}; do
+      compgen -G "$TMP_STAGE/input/$p/chat/*/*" > /dev/null && staged="1"
+    done
+    if [[ -n "$staged" ]]; then
+      echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse chat-capture, then corpus-yoga browser promote $extent" \
+        | tee -a ${logs[@]+"${logs[@]}"}
+    fi
   fi
   return $rc
 }
