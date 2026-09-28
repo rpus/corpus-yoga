@@ -1724,6 +1724,31 @@ def check_verdict_record(run) -> None:
             None if got == '✗' else f'read {got} - the verdict came from the text, not the record', check='validation.verdict_is_record')
 
 
+def check_unit_companion(run) -> None:
+    """A unit moves with its declared companion (#687): the bulk export's manifest beside
+    its payload directory is a member of that directory's unit, by the chat-export
+    declaration itself, so a promotion copies the pair. The fixture is synthetic - one
+    data-<X>/ and its manifest-<X>.json, and a second manifest no directory shares the
+    star of."""
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    store = next(s for s in corpus.stores() if s['pipeline'] == 'chat-export')
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        base = root / store['input']
+        (base / 'data-2026-01-01-batch').mkdir(parents=True)
+        (base / 'data-2026-01-01-batch' / 'conversations.json').write_text('[]')
+        (base / 'manifest-2026-01-01-batch.json').write_text('{}')
+        (base / 'manifest-2026-02-02-other.json').write_text('{}')
+        selected = corpus.select(root, store)
+        members = sorted(m.name for unit in selected for m in unit.members)
+        expected = ['data-2026-01-01-batch', 'manifest-2026-01-01-batch.json']
+        run("stage: the bulk export's manifest is a member of its payload's unit", members == expected,
+            None if members == expected else f'the unit has {members}, where {expected} move together',
+            check='stage.unit_has_companion')
+
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
@@ -2501,6 +2526,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
     'check_tier_contract': ['src/main'],
+    'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2755,6 +2781,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
 
         run_section(check_tier_contract, tier='code')
         run_section(check_verdict_record, tier='code')
+        run_section(check_unit_companion, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

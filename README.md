@@ -84,8 +84,9 @@ reading-room, 2026-08-22, at 17e173c (#498).
 
 ## Getting data
 
-Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
-the emailed `data-*` into `data/input/claude/chat/bulk-export/`. Browser captures:
+Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; the
+emailed link downloads a manifest, and `corpus-yoga export capture --manifest <file>`
+stages it with the payload it lists. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `corpus-yoga browser capture`
 (or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
