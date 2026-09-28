@@ -5,9 +5,9 @@ The emailed link downloads the manifest; --manifest names it wherever the downlo
 left it. This verb reads that file - its source, and no other capture (L10) -
 copies it into the stage, and fetches each listed zip from its export_url into
 the data-* directory sharing the manifest's own star: manifest-<X>.json beside
-data-<X>/, the prefix swapped and nothing else derived. The two are one unit
-(src/main/pipeline/chat-export/pipeline.json's companion), which
-corpus-yoga export promote copies into shared storage as a pair. If the directory
+data-<X>/, the prefix swapped and nothing else derived. The two are the one
+unit <X> (src/main/pipeline/chat-export/pipeline.json's companion), which
+corpus-yoga export promote copies into shared storage whole. If the directory
 is staged or held, or a different manifest of the name is staged, the capture
 refuses before any URL is touched - the one-use URLs are spent only once the
 directory is this run's own. --manifest is required: a default would silently

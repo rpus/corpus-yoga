@@ -19,12 +19,14 @@ UNIT - what a pipeline's declaration selects (src/main/pipeline/<pipeline>/pipel
 under the declared input of each provider, every match of input_glob or extra_input_glob,
 cut to subject_depth, is one unit - a directory with everything under it, or a file with
 its declared companion (<stem> standing for the file's stem: claude's workspace <stem>/
-beside <stem>.jsonl), or a directory with the companion its name's star names (<star>
-standing for what the glob's * matched: the bulk export's manifest-<star>.json beside
-data-<star>/). One selection names the stage's units, the
+beside <stem>.jsonl). Where the companion names <star>, what the glob's * matched, the
+unit is named by the star and is its two members together: the bulk export <X> is
+manifest-<X>.json and data-<X>/, paired where both are present, unpaired where one is,
+and an unpaired unit is never promoted. One selection names the stage's units, the
 audit's subjects (src/main/validation_audit.py) and the datum's cache address,
-<cache root>[/<provider>]/<subject>. A file no declaration selects is a unit of its own,
-measured by its bytes and validated by nothing.
+<cache root>[/<provider>]/<subject>, the subject being the name of the datum the steps
+read. A file no declaration selects is a unit of its own, measured by its bytes and
+validated by nothing.
 
 RELATION - the five relations of src/main/append_only.py, derived once from an order:
 ABSENT where nothing is held; IDENTICAL where the measures are equal; EXTENDS where the
@@ -115,6 +117,13 @@ class Unit:
     pipeline: str | None          # the pipeline whose declaration selected it, or None
     provider: str | None
     subject: tuple[str, ...] = field(default_factory=tuple)   # its cache address under the pipeline's root[/provider]
+    datum: Path | None = None     # the member the pipeline reads, where the unit is named by a star and not by it
+    missing: list[str] = field(default_factory=list)          # the members absent, by name: an unpaired unit's
+
+    @property
+    def path(self) -> Path:
+        """Where the pipeline's datum lies, relative to the input root."""
+        return self.datum if self.datum is not None else self.address
 
     @property
     def cache(self) -> Path | None:
@@ -162,27 +171,39 @@ def _files_under(root: Path, path: Path) -> list[Path]:
     return [f.relative_to(root) for f in sorted(path.rglob('*')) if f.is_file() and f.name != '.DS_Store']
 
 
-def _companion(declared: str, glob: str, unit_path: Path, base: Path) -> Path | None:
-    """The path the declared companion names beside a unit, or None where it names none:
-    <stem> is a file's stem, <star> what the * of the glob's component matched in the
-    unit's name."""
-    name = declared.rstrip('/')
-    if '<stem>' in name:
-        if not unit_path.is_file():
-            return None
-        name = name.replace('<stem>', unit_path.stem)
-    if '<star>' in name:
-        components = glob.split('/')
-        index = len(unit_path.relative_to(base).parts) - 1
-        component = components[index] if index < len(components) else ''
-        if component.count('*') != 1:
-            return None
-        before, after = component.split('*')
-        matched = re.fullmatch(re.escape(before) + '(.*)' + re.escape(after), unit_path.name)
-        if matched is None:
-            return None
-        name = name.replace('<star>', matched.group(1))
-    return unit_path.parent / name
+def _star(pattern: str, name: str) -> str | None:
+    """What the one * of a pattern matched in a name, or None where it matches nothing."""
+    if pattern.count('*') != 1:
+        return None
+    before, after = pattern.split('*')
+    matched = re.fullmatch(re.escape(before) + '(.*)' + re.escape(after), name)
+    return matched.group(1) if matched else None
+
+
+def _select_pairs(root: Path, store: dict) -> list[Unit]:
+    """The units of a store whose companion names <star>: one per star, found from either
+    member, its members the ones present and its missing the ones absent."""
+    base = root / store['input']
+    pattern, measure = store['globs'][0]
+    datum_form, companion_form = pattern.rstrip('/'), store['companion']
+    found: dict[str, None] = {}
+    for item in sorted(base.glob(datum_form)):
+        if item.is_dir() == pattern.endswith('/'):
+            found[_star(datum_form, item.name) or ''] = None
+    for item in sorted(base.glob(companion_form.replace('<star>', '*'))):
+        found[_star(companion_form.replace('<star>', '*'), item.name) or ''] = None
+    out = []
+    for star in sorted(s for s in found if s):
+        datum = base / datum_form.replace('*', star)
+        companion = base / companion_form.replace('<star>', star)
+        members = [m.relative_to(root) for m in (datum, companion) if m.exists()]
+        missing = [name for m, name in ((datum, datum.name + ('/' if pattern.endswith('/') else '')),
+                                        (companion, companion.name)) if not m.exists()]
+        files = [f for m in members for f in _files_under(root, root / m)]
+        selected = [datum.relative_to(root)] if datum.exists() else []
+        out.append(Unit((base / star).relative_to(root), members, files, selected, measure, store['pipeline'],
+                        store['provider'], (datum.name,), datum.relative_to(root), missing))
+    return out
 
 
 def select(root: Path, store: dict) -> list[Unit]:
@@ -190,6 +211,8 @@ def select(root: Path, store: dict) -> list[Unit]:
     base = root / store['input']
     if not base.is_dir():
         return []
+    if '<star>' in store['companion']:
+        return _select_pairs(root, store)
     units: dict[Path, Unit] = {}
     for pattern, measure in store['globs']:
         glob, dirs_only = pattern.rstrip('/'), pattern.endswith('/')
@@ -204,9 +227,10 @@ def select(root: Path, store: dict) -> list[Unit]:
             unit = units.get(address)
             if unit is None:
                 members = [address]
-                companion = _companion(store['companion'], glob, unit_path, base) if store['companion'] else None
-                if companion is not None and companion.exists():
-                    members.append(companion.relative_to(root))
+                if store['companion'] and unit_path.is_file():
+                    companion = unit_path.parent / store['companion'].replace('<stem>', unit_path.stem).rstrip('/')
+                    if companion.exists():
+                        members.append(companion.relative_to(root))
                 files = [f for m in members for f in _files_under(root, root / m)]
                 unit = Unit(address, members, files, [], measure, store['pipeline'], store['provider'], subject)
                 units[address] = unit
@@ -243,7 +267,7 @@ def _bytes_of(root: Path, unit: Unit):
 
 
 def _uuids_of(root: Path, unit: Unit):
-    conv = root / unit.address / f'{unit.address.name}.json'
+    conv = root / unit.path / f'{unit.path.name}.json'
     if not conv.is_file():
         return None
     try:
@@ -253,16 +277,27 @@ def _uuids_of(root: Path, unit: Unit):
 
 
 def _extent_of(root: Path, unit: Unit):
-    mds = sorted((root / unit.address).glob('*.md')) if (root / unit.address).is_dir() else []
+    mds = sorted((root / unit.path).glob('*.md')) if (root / unit.path).is_dir() else []
     return max((turn_extent(m.read_text()) for m in mds), default=None)
 
 
 def _tree_of(root: Path, unit: Unit):
-    path = root / unit.address
-    if not path.exists():
+    """{file: digest} over the unit's members present under root: a file by its path within
+    its one member, or from beside the members where the unit has two."""
+    present = [m for m in ([unit.path] if unit.datum is None else [unit.datum.with_name(n.rstrip('/')) for n in
+                           sorted({m.name for m in unit.members} | {n.rstrip('/') for n in unit.missing})])
+               if (root / m).exists()]
+    if not present:
         return None
-    return {f.relative_to(path).as_posix() if path.is_dir() else f.name: _digest((root / f if not f.is_absolute() else f).read_bytes())
-            for f in [root / rel for rel in _files_under(root, path)]}
+    tree = {}
+    for member in present:
+        for rel in _files_under(root, root / member):
+            if unit.datum is not None:
+                key = rel.relative_to(member.parent).as_posix()
+            else:
+                key = rel.relative_to(member).as_posix() if (root / member).is_dir() else rel.name
+            tree[key] = _digest((root / rel).read_bytes())
+    return tree
 
 
 def _leq_prefix(a, b) -> bool:
@@ -360,10 +395,10 @@ def _own_digests(unit: Unit) -> set[str]:
     """What a verdict on this staged unit can name as its datum: each file's digest, and
     the digest of the unit's tree as run.sh records a converted directory's source."""
     own = {_digest((STAGE / rel).read_bytes()) for rel in unit.files}
-    root = STAGE / unit.address
+    root = STAGE / unit.path
     if root.is_dir():
-        lines = ''.join(f'{rel.relative_to(unit.address).as_posix()} {_digest((STAGE / rel).read_bytes())}\n'
-                        for rel in unit.files if rel.is_relative_to(unit.address))
+        lines = ''.join(f'{rel.relative_to(unit.path).as_posix()} {_digest((STAGE / rel).read_bytes())}\n'
+                        for rel in unit.files if rel.is_relative_to(unit.path))
         own.add(_digest(lines.encode()))
     return own
 
@@ -442,12 +477,16 @@ def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str
     rows = []
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
+        if unit.missing:
+            rows.append((unit, rel, f'{detail}; no {", ".join(unit.missing)} staged', False, UNPAIRED))
+            continue
         ok, words = verdict(unit) if rel not in REFUSING else (None, '')
         rows.append((unit, rel, detail, ok, words))
     return rows
 
 
 REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
+UNPAIRED = 'unpaired - a unit of two members is promoted with both'
 
 
 def promotable(rel: Relation, ok: bool | None) -> bool:
@@ -553,7 +592,7 @@ def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
 
 def _refusal(unit: Unit, rel: Relation, ok: bool | None, words: str) -> tuple[str, str]:
     """(the heading a refused unit stands under, what follows its line)."""
-    if rel in REFUSING:
+    if rel in REFUSING and not unit.missing:
         remedy = '→ run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members)
         return f'{rel.name} - refused: {REMEDY[rel]}', f'\n      {remedy}'
     return f'REFUSED - {words}', ''
@@ -671,6 +710,38 @@ def stage_status() -> int:
     return 0
 
 
+def _declares(noun: str, verb: str, flag: str) -> bool:
+    declared = json.loads((CLI_ROOT / noun / f'{verb}.json').read_text())
+    return any(arg['name'] == flag for arg in declared.get('args', []))
+
+
+def _whole_extent(noun: str) -> str:
+    """The words after `promote` that name everything the noun staged: --all where its
+    promote declares the flag, nothing where the verb has no extent."""
+    return ' --all' if _declares(noun, 'promote', '--all') else ''
+
+
+def pairs(noun: str) -> int:
+    """The noun's units of two members, held and staged, each paired or unpaired, naming
+    what is absent. Writes nothing."""
+    roots = roots_of(noun)
+    for state, root in (('held', STORE), ('staged', STAGE)):
+        for store in stores():
+            if '<star>' not in store['companion'] or not any(store['input'].is_relative_to(r) for r in roots):
+                continue
+            for unit in select(root, store):
+                present = ' and '.join(m.name + ('/' if (root / m).is_dir() else '') for m in unit.members)
+                if not unit.missing:
+                    print(f'  {state}: {unit.address.name} paired - {present}')
+                    continue
+                print(f'  {state}: {unit.address.name} unpaired - {present} with no {", ".join(unit.missing)} beside it')
+                if unit.datum not in unit.members and _declares(noun, 'capture', '--manifest'):
+                    where = (root / unit.members[0]).relative_to(REPO)
+                    print('    to fetch its payload, where its URLs are unspent:')
+                    print(f'      → run: corpus-yoga {noun} capture --manifest {shlex.quote(str(where))}')
+    return 0
+
+
 def report(noun: str | None) -> int:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
     `corpus-yoga pipeline` shows it (every unit). The lines are grouped by what they share.
@@ -699,7 +770,7 @@ def report(noun: str | None) -> int:
             heading, after = _refusal(unit, rel, ok, words)
             groups.setdefault(heading, []).append(line + after)
     say(groups)
-    tail = ''.join(f'; corpus-yoga {n} promote --all promotes {k}' for n, k in sorted(by_noun.items()))
+    tail = ''.join(f'; corpus-yoga {n} promote{_whole_extent(n)} promotes {k}' for n, k in sorted(by_noun.items()))
     if unjudged:
         tail += f'; corpus-yoga pipeline rehearse judges {unjudged} without a verdict'
     if held:
@@ -711,7 +782,8 @@ def report(noun: str | None) -> int:
 def main(argv: list[str]) -> int:
     """`corpus.py promote <noun> [--provider <p> | --all] [--id <prefix>]` - a capturing
     noun's promote verb, its argv already validated against the noun's declaration;
-    `corpus.py report [<noun>]` - the stage as a status face shows it; `corpus.py count` - the staged units, a number."""
+    `corpus.py report [<noun>]` - the stage as a status face shows it; `corpus.py pairs <noun>` -
+    the noun's units of two members, held and staged; `corpus.py count` - the staged units, a number."""
     ap = argparse.ArgumentParser(add_help=False)
     sub = ap.add_subparsers(dest='act', required=True)
     pr = sub.add_parser('promote', add_help=False)
@@ -722,6 +794,8 @@ def main(argv: list[str]) -> int:
     pr.add_argument('--rehearsal', default=None)
     rp = sub.add_parser('report', add_help=False)
     rp.add_argument('noun', nargs='?', choices=NOUNS, default=None)
+    pa = sub.add_parser('pairs', add_help=False)
+    pa.add_argument('noun', choices=NOUNS)
     sub.add_parser('count', add_help=False)
     args = ap.parse_args(argv)
     if args.act == 'promote':
@@ -730,6 +804,8 @@ def main(argv: list[str]) -> int:
         return promote(args.noun, extent(args.noun, args.provider, args.all, args.id), args.rehearsal)
     if args.act == 'report':
         return report(args.noun)
+    if args.act == 'pairs':
+        return pairs(args.noun)
     print(len(units(STAGE)))
     return 0
 
