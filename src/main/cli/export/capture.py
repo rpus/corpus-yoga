@@ -190,12 +190,13 @@ def main(argv: list[str]) -> int:
     if prev_tab is not None:
         safari_close_work_tab(prev_tab)   # the reader's tab back, whatever the fetches did
     if fetched == 0:
-        # nothing landed: no directory that reads as a payload, no manifest that reads as staged
+        # nothing landed: no directory that reads as a payload; the manifest stays staged,
+        # unpaired, the record of the attempt and the retry's input
         shutil.rmtree(target)
-        if not same:
-            shutil.move(str(staged_manifest), manifest_path)   # the reader's file back where it was
+        rel = staged_manifest.relative_to(REPO) if staged_manifest.is_relative_to(REPO) else staged_manifest
         print(f'export capture: NOT DONE - 0 of {len(files)} file(s) fetched: {"; ".join(failed)}; '
-              'nothing staged')
+              f'{staged_manifest.name} staged alone, unpaired')
+        print(f'    → run: corpus-yoga export capture --manifest {rel}')
         return 1
     if failed:
         print(f'export capture: NOT DONE - {fetched} of {len(files)} file(s) in {target.name}/, '

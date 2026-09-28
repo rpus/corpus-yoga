@@ -15,7 +15,7 @@
     }
   ],
   "x": [
-    "--manifest <file> (consumed: moved into the stage as the unit's record; moved back where nothing was fetched)",
+    "--manifest <file> (consumed: moved into the stage as the unit's record)",
     "~/Downloads (where Safari puts what the verb fetches, moved out on arrival)"
   ],
   "sends": {
