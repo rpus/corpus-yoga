@@ -10,9 +10,11 @@ The tier (src/main/tier.py, src/main/corpus.py): input is what the captures writ
 by every rehearsal; rehearsal/<stamp> is what one rehearsal derived, named by its log's
 stamp - evidence that stands until removed. The per-unit relations stay with each
 capturing noun's bare status and with bare corpus-yoga pipeline; this face counts them
-against the newest rehearsal. The janitor removes every rehearsal, each named, and every
-staged unit the store holds byte-equal - a unit already promoted; a refused unit is
-evidence of another kind and stays until the reader removes it by hand.
+against the newest rehearsal. The janitor clears its tier as corpus-yoga cache clean clears
+its own: every rehearsal, each named, every staged unit the store holds byte-equal - a unit
+already promoted - and every entry under tmp/stage that is neither the input nor a
+rehearsal, an orphan of an earlier layout. A refused unit is evidence of another kind and
+is never the janitor's.
 """
 import shutil
 import sys
@@ -55,6 +57,11 @@ def _header(stamp: str) -> str:
     return ' · '.join(log.read_text().splitlines()[:2])
 
 
+def orphans() -> list[Path]:
+    """What sits under tmp/stage and is neither the input nor the rehearsals."""
+    return [e for e in sorted(TIER.iterdir()) if e.name not in ('input', 'rehearsal')] if TIER.is_dir() else []
+
+
 def rehearsals() -> list[str]:
     return sorted(d.name for d in tier.REHEARSALS.iterdir() if d.is_dir()) if tier.REHEARSALS.is_dir() else []
 
@@ -64,11 +71,10 @@ def status() -> int:
         print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
         return 0
     print(f'tmp/stage/: input {_human(_size(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
-    # machinery names orphans and removes none: an entry that is neither the input nor
-    # the rehearsals is not this tier's, and its removal is the reader's act
-    strangers = [e for e in sorted(TIER.iterdir()) if e.name not in ('input', 'rehearsal')]
-    for e in strangers:
-        print(f'  not this tier\'s: {e.relative_to(REPO).as_posix()} ({_human(_size(e))}) - nothing here reads or removes it; rm -r it by hand')
+    # an entry that is neither the input nor the rehearsals is an orphan of the tier,
+    # named here with the janitor as its remedy
+    for e in orphans():
+        print(f'  orphan: {e.relative_to(REPO).as_posix()} ({_human(_size(e))}) - nothing reads it; corpus-yoga stage clean --apply removes it')
     stamps = rehearsals()
     if not stamps:
         print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
@@ -90,6 +96,9 @@ def clean(apply: bool) -> int:
     doomed: list[tuple[str, Path]] = []
     for stamp in rehearsals():
         doomed.append((f'rehearsal {stamp} - the disposal of evidence: {_header(stamp)}', tier.rehearsal(stamp)))
+    strangers = orphans()
+    for e in strangers:
+        doomed.append((f'orphan {e.relative_to(REPO).as_posix()} - neither the input nor a rehearsal', e))
     units = [u for u in corpus.units(corpus.STAGE) if corpus.redundant(u)] if corpus.STAGE.is_dir() else []
     if not doomed and not units:
         print('stage clean: DONE - nothing to remove')
@@ -106,7 +115,7 @@ def clean(apply: bool) -> int:
         print(f'  {verb} {unit.address}: held byte-equal in data/input')
         if apply:
             corpus.remove(unit)
-    print(f'stage clean: {"DONE" if apply else "would"} - {len(doomed)} rehearsal(s), {len(units)} unit(s) held byte-equal'
+    print(f'stage clean: {"DONE" if apply else "would"} - {len(doomed) - len(strangers)} rehearsal(s), {len(strangers)} orphan(s), {len(units)} unit(s) held byte-equal'
           + ('' if apply else ' (--apply removes them)'))
     return 0
 
