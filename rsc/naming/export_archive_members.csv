@@ -1,0 +1,6 @@
+category,member,note
+light_metadata,light_metadata-000,"a directory: the archive holds login_history.json and users.json, and Safari unpacks a many-entry archive into a directory named by the archive's stem"
+conversations,conversations.json,"every conversation of the account, one array: the archive's one entry, which Safari unpacks as the file itself"
+memories,memories,"a directory holding memories/<account uuid>.json since 2026-08-24; the deposit hoists the one file to memories.json (rsc/schema/pipeline/chat-export/claude/memories/CHANGELOG.md, v4)"
+projects,projects,"a directory: projects/<project uuid>.json, one per project"
+frames,artifacts,"a directory: artifacts/<artifact uuid>/, one per artifact - the frames category unpacks to the artifacts directory"
