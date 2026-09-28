@@ -288,13 +288,12 @@ def _check_csv_pointers(csv_path: Path, columns: tuple, base_for: dict, fails: l
 # ── Checks ────────────────────────────────────────────────────────────────────
 
 def _machine_anchor() -> str:
-    """The provenance line every machine-facing log opens with (#365): the room
-    this machine is bound to (or its stated absence — a worktree carries no
-    binding), the commit the tree stood at, and clean/dirty with the count."""
-    try:
-        room = (REPO_ROOT / 'machine-name.txt').read_text().strip()
-    except OSError:
-        room = '(unbound)'
+    """The provenance line every machine-facing log opens with (#365): the Signature
+    triad the commit hook stamps - the machine this checkout is bound to (or 'unbound':
+    a worktree carries no binding), the provider and session that ran it where the
+    environment declares one (#704) - the commit the tree stood at, and clean/dirty
+    with the count."""
+    from provider import signature
     def _git(*args):
         proc = subprocess.run(['git', '-C', str(REPO_ROOT), *args],
                               capture_output=True, text=True)
@@ -303,7 +302,7 @@ def _machine_anchor() -> str:
     sha = _git('rev-parse', '--short', 'HEAD') or '(no git)'
     dirty_n = len([l for l in _git('status', '--porcelain').splitlines() if l])
     dirty = 'clean' if dirty_n == 0 else f'dirty ({dirty_n})'
-    return f'room: {room} · {branch} @ {sha}, {dirty}'
+    return f'{signature()} · {branch} @ {sha}, {dirty}'
 
 
 def check_required_files(run):

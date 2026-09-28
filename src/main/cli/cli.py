@@ -50,6 +50,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
 from member import members  # noqa: E402
+from provider import signature  # noqa: E402 - the Signature triad, one home (#704)
 
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
@@ -431,11 +432,10 @@ def _log_enacting(row: dict, rest: list[str]) -> None:
     os.dup2(tee.stdin.fileno(), 2)
     tee.stdin.close()
     os.environ['PYTHONUNBUFFERED'] = '1'
-    name_file = REPO / 'machine-name.txt'
-    room = name_file.read_text().strip() if name_file.is_file() else ''
     head = subprocess.run(['git', '-C', str(REPO), 'rev-parse', '--short', 'HEAD'],
                           capture_output=True, text=True).stdout.strip()
-    print(f"{row['command']} {verb} — {stamp} · room: {room or '(unbound)'} · {head or '(no git)'}",
+    # the header names who ran the verb by the Signature triad the commit hook stamps (#704)
+    print(f"{row['command']} {verb} — {stamp} · {signature()} · {head or '(no git)'}",
           flush=True)
     print(' '.join(['corpus-yoga', row['command'], *rest]), flush=True)
 

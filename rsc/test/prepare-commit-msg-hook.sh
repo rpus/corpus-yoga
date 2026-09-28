@@ -50,37 +50,26 @@ case "$source_type" in merge|squash) exit 0 ;; esac
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || exit 0
 repo="$(cd "$script_dir/../.." 2>/dev/null && pwd)" || exit 0
 
-# The machine binding: machine-local, uncommitted, and rooted beside the other
-# machine-local entries. Its own .gitignore rule is what lets this name it whole.
-binding="$repo/machine-name.txt"
-machine='unbound'; [[ -f "$binding" ]] && machine="$(cat "$binding" 2>/dev/null || echo unbound)"
-# A hook that rewrites commit messages must trust no input it didn't spell: a stray
-# newline/space/slash in the binding would corrupt the trailer (a multiline value
-# breaks out of it entirely). Hold it to the charset agent.py holds machine labels to.
-machine="$(tr -cd 'A-Za-z0-9_-' <<< "$machine")"; [[ -n "$machine" ]] || machine='unbound'
-
-# The registry (rsc/provider/providers.csv): one row per declared provider - provider,
-# session variable, live store, bot co-author pattern, note - rendered by
-# src/main/provider.py one row per line, the fields separated by the ASCII unit
-# separator, so this hook parses no csv. The first row whose declared variable this
-# environment carries is the drafter; a row with no variable, or a variable this
-# environment lacks, attests nothing, and the machine alone is claimed.
-# The rendering runs the venv's python through src/run_python_script.sh (#478). Where
-# that cannot run - no venv on this machine - the machine alone is claimed, nothing is
-# stripped, and the commit proceeds: best-effort, as the header rules; the pre-commit
-# gate runs the same venv and has already refused a commit it cannot serve.
-rows="$("$repo/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$repo/src/main")" \
-  || { echo "prepare-commit-msg: the provider registry did not render (src/run_python_script.sh) - the machine alone is claimed" >&2; rows=''; }
-signature="Signature: ${machine}"
+# The triad is derived in one place, src/main/provider.py's signature() (#704): the
+# machine from machine-name.txt, the provider from the first row of the registry
+# (rsc/provider/providers.csv) whose declared session variable this environment carries,
+# the session as that variable's first eight characters - and the machine alone where no
+# row's variable is set. Every verb's log opens with the same triad (src/main/provider.sh),
+# so a log and a commit carry one key. The derivation runs the venv's python through
+# src/run_python_script.sh (#478). Where that cannot run - no venv on this machine - the
+# machine alone is claimed, nothing is stripped, and the commit proceeds: best-effort, as
+# the header rules; the pre-commit gate runs the same venv and has already refused a
+# commit it cannot serve.
+# shellcheck source=src/main/provider.sh
+source "$repo/src/main/provider.sh" 2>/dev/null || exit 0
+signature="Signature: $(provider_signature "$repo")"
+# The registry's rows, rendered one per line with the fields separated by the ASCII unit
+# separator, so this hook parses no csv: the bot co-author patterns to strip.
+rows="$("$repo/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import provider; print(provider.lines())' "$repo/src/main" 2>/dev/null)" || rows=''
 bot_filter=''
-while IFS=$'\x1f' read -r provider session_var _live bot _note; do
+while IFS=$'\x1f' read -r provider _session_var _live bot _note; do
   [[ -n "$provider" ]] || continue
-  provider="$(tr -cd 'A-Za-z0-9_-' <<< "$provider")"
   [[ -n "$bot" ]] && bot_filter="${bot_filter:+$bot_filter|}$bot"
-  if [[ -n "$session_var" && "$signature" == "Signature: ${machine}" ]]; then
-    session="${!session_var:-}"
-    [[ -n "$session" ]] && signature="Signature: ${machine}/${provider}/${session:0:8}"
-  fi
 done <<< "$rows"
 
 # Strip the model co-authors the registry declares, each anchored on its harness's bot

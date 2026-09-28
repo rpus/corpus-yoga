@@ -16,6 +16,8 @@ through src/run_python_script.sh, the venv's python (#478), so the csv grammar i
 read in one place.
 """
 import csv
+import os
+import re
 from pathlib import Path
 
 SELF = 'src/main/provider.py'
@@ -66,6 +68,36 @@ def live_store(row: dict[str, str]) -> Path | None:
     """The harness's live session store on this machine, or None where the row
     observes none."""
     return Path(row['live_store']).expanduser() if row['live_store'] else None
+
+
+BINDING = REPO / 'machine-name.txt'   # the machine's self-name: machine-local, uncommitted
+
+
+def machine() -> str:
+    """This machine's binding, held to the charset a machine label may carry - a stray
+    newline, space or slash would corrupt a trailer - or 'unbound' where there is none."""
+    try:
+        name = re.sub(r'[^A-Za-z0-9_-]', '', BINDING.read_text())
+    except OSError:
+        name = ''
+    return name or 'unbound'
+
+
+def signature() -> str:
+    """The Signature triad (#704): `<machine>/<provider>/<session>` where the first row
+    whose declared session variable this environment carries is the drafter, the session
+    its first eight characters; `<machine>` alone otherwise. Attests only what the
+    environment positively provides: absence of a session is not evidence of a human. The
+    commit hook stamps this as the `Signature:` trailer and every verb's log opens with it,
+    so the triad is derived here and restated nowhere."""
+    name = machine()
+    for r in providers():
+        var = r['session_env_var']
+        session = os.environ.get(var, '') if var else ''
+        if session:
+            provider_name = re.sub(r'[^A-Za-z0-9_-]', '', r['provider'])
+            return f'{name}/{provider_name}/{session[:8]}'
+    return name
 
 
 MOUNT_ROOT = REPO / 'ext' / 'mnt' / 'agent'

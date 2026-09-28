@@ -34,6 +34,8 @@ source "$REPO_ROOT/src/main/steps.sh"
 source "$REPO_ROOT/src/main/send.sh"   # may_send — the shell face of YOGA_NO_SEND (#29)
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_ROOT/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/provider.sh
+source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 : "${VENV:=$HOME/venvs/general}"
 
 # The pipelines: the subdirectories of src/main/pipeline/. Membership is placement —
@@ -441,17 +443,18 @@ print_plan() {
 
 main() {
   parse_args "$@"
-  # The header anchors the log's evidence (#365): the room this machine is bound
-  # to (or its stated absence — a worktree carries no binding), the commit the
-  # tree stood at, and clean/dirty with the count. Every claim below dereferences
-  # against this line instead of against archaeology.
-  local room ref dirty
-  room="$(cat "$REPO_ROOT/machine-name.txt" 2>/dev/null || echo '(unbound)')"
+  # The header anchors the log's evidence (#365): the Signature triad the commit hook
+  # stamps - the machine this checkout is bound to (or 'unbound' - a worktree carries no
+  # binding), the provider and session that ran it where the environment declares one
+  # (#704) - the commit the tree stood at, and clean/dirty with the count. Every claim
+  # below dereferences against this line instead of against archaeology.
+  local signature ref dirty
+  signature="$(provider_signature "$REPO_ROOT")"
   ref="$(git -C "$REPO_ROOT" branch --show-current 2>/dev/null)"
   ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
-  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
+  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · $signature · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
 
 
   require_cmd jq "install via: brew install jq"
