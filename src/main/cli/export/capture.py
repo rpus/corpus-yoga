@@ -27,7 +27,9 @@ Usage:
 import json
 import shutil
 import sys
-import urllib.request
+import csv
+import time
+import zipfile
 from pathlib import Path
 
 SELF = 'src/main/cli/export/capture.py'
@@ -38,6 +40,11 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402
+from safari import (PAGE_LOAD_WAIT, safari_eval_js, safari_fetch_file, safari_focus,  # noqa: E402
+                    safari_navigate)
+
+MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what each category's archive holds at its root
+FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under: fronted once, its login checked
 
 STORE = tier.DATA / 'input' / 'claude' / 'chat' / 'bulk-export'    # what is held: a staged name held there is refused
 STAGE = tier.TMP_STAGE_INPUT / 'claude' / 'chat' / 'bulk-export'   # where the manifest and its payload land; corpus-yoga export promote reaches the store (#687)
@@ -52,16 +59,110 @@ def derived_data_name(manifest_path: Path) -> str:
     return f'data-{stem.removeprefix("manifest-")}'
 
 
-def fetch_one(url: str, dest: Path) -> int:
-    """One file, streamed to .part and renamed on success - the rename is the deposit."""
-    part = dest.with_name(dest.name + '.part')
+def archive_members() -> dict[str, list[str]]:
+    """category -> the members its archive holds at its root (rsc/naming/export_archive_members.csv)."""
+    out: dict[str, list[str]] = {}
+    with MEMBERS_CSV.open(newline='') as f:
+        for row in csv.DictReader(f):
+            out.setdefault(row['category'], []).append(row['member'])
+    return out
+
+
+def deposit(archive: Path, target: Path) -> list[str]:
+    """Unpack an archive at the payload's root - the form the pipeline reads, the held
+    payloads' own - and remove the archive. The memories archive's one per-account file
+    is hoisted to memories.json, the ruling of 2026-08-24 (the memories family's
+    CHANGELOG, v4). Returns the members deposited."""
+    with zipfile.ZipFile(archive) as z:
+        z.extractall(target)
+        names = sorted({n.split('/', 1)[0] for n in z.namelist() if n.strip('/')})
+    archive.unlink()
+    return [name for name in names if hoist(target, name)]
+
+
+def hoist(target: Path, member: str) -> str | None:
+    """A memories/ directory holding one file becomes memories.json; every other member
+    stays as unpacked. Returns the member's name as deposited."""
+    path = target / member
+    if member == 'memories' and path.is_dir():
+        files = [f for f in path.iterdir() if f.is_file()]
+        if len(files) == 1:
+            files[0].rename(target / 'memories.json')
+            path.rmdir()
+            return 'memories.json'
+    return member
+
+
+def beside(manifest_path: Path, entry: dict, members: dict[str, list[str]]) -> tuple[str, list[Path]] | None:
+    """What the download left beside the manifest for this entry, taken as fetched: the
+    archive under its own name; the directory Safari unpacks a many-entry archive into,
+    named by the archive's stem; or the members themselves, which Safari leaves at the top
+    when it unpacks an archive of one entry - the members each category's archive holds
+    being data (rsc/naming/export_archive_members.csv). Returns (kind, paths) or None."""
+    here = manifest_path.parent
+    archive = here / entry['filename']
+    if archive.is_file():
+        return 'archive', [archive]
+    unpacked = here / Path(entry['filename']).stem
+    if unpacked.is_dir():
+        return 'unpacked', [unpacked]
+    wanted = [here / m for m in members.get(entry['category'], [])]
+    if wanted and all(p.exists() for p in wanted):
+        return 'members', wanted
+    return None
+
+
+def take(kind: str, paths: list[Path], target: Path) -> list[str]:
+    """Copy what sits beside the manifest into the payload, in the deposit's form."""
+    if kind == 'archive':
+        staged = target / paths[0].name
+        shutil.copyfile(paths[0], staged)
+        return deposit(staged, target)
+    if kind == 'unpacked':
+        out = []
+        for item in sorted(paths[0].iterdir()):
+            if item.is_dir():
+                shutil.copytree(item, target / item.name)
+            else:
+                shutil.copyfile(item, target / item.name)
+            out.append(hoist(target, item.name))
+        return out
+    out = []
+    for item in paths:
+        if item.is_dir():
+            shutil.copytree(item, target / item.name)
+        else:
+            shutil.copyfile(item, target / item.name)
+        out.append(hoist(target, item.name))
+    return out
+
+
+def front_session() -> str | None:
+    """Front claude.ai in Safari once, as the browser capture fronts its listing, and read
+    where it landed: a login page is the session's absence, said before any URL is spent."""
+    safari_focus()
+    safari_navigate(FRONT_URL)
+    time.sleep(PAGE_LOAD_WAIT)
+    landed = safari_eval_js('String(location.href)') or '(URL unreadable)'
+    if 'login' in landed:
+        return landed
+    return None
+
+
+def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
+    """One export_url through the session: the archive lands in Downloads as .part, is
+    moved into the payload and unpacked there. Returns (members deposited, the words) -
+    None where nothing arrived, the words saying the response the page saw."""
+    url, filename = entry['export_url'], entry['filename']
     print(f'fetch: {url}')
-    print(f'    -> {dest}')
-    with urllib.request.urlopen(url) as response, open(part, 'wb') as out:
-        while chunk := response.read(1 << 16):
-            out.write(chunk)
-    part.rename(dest)
-    return dest.stat().st_size
+    got, status = safari_fetch_file(url, filename)
+    if got is None:
+        seen = f'HTTP {status}' if status else 'no response read within the timeout'
+        return None, f'{filename}: {seen} from the session; nothing arrived'
+    staged = target / filename
+    shutil.move(str(got), staged)
+    size = staged.stat().st_size
+    return deposit(staged, target), f'{filename}: HTTP {status}, {size} bytes'
 
 
 def main(argv: list[str]) -> int:
@@ -103,27 +204,55 @@ def main(argv: list[str]) -> int:
         print(f'export capture: NOT DONE - a different {staged_manifest.name} is staged; nothing fetched, '
               'no URL spent')
         return 1
-    try:
-        assert_may_send('export_url fetches (export capture) - each URL is one-use')
-    except SendRefused as refused:
-        print(f'export capture: NOT DONE - {refused}')
-        return 1
+    members = archive_members()
+    found = {entry['filename']: beside(manifest_path, entry, members) for entry in files}
+    to_fetch = [entry for entry in files if found[entry['filename']] is None]
+    if to_fetch:
+        try:
+            assert_may_send('export_url fetches through the Safari session (export capture) - each URL is one-use')
+        except SendRefused as refused:
+            print(f'export capture: NOT DONE - {refused}; nothing staged, no URL spent')
+            return 1
+        logged_out = front_session()
+        if logged_out:
+            print(f'export capture: NOT DONE - Safari is logged out of claude.ai (landed on {logged_out}); '
+                  'log in and re-run; nothing staged, no URL spent')
+            return 1
     target.mkdir(parents=True, exist_ok=False)
     if not same:
         shutil.copyfile(manifest_path, staged_manifest)
     print(f'  {staged_manifest.name}: staged beside {target.name}/')
     fetched = 0
+    failed: list[str] = []
     for entry in files:
-        dest = target / entry['filename']
-        try:
-            size = fetch_one(entry['export_url'], dest)
-        except Exception as error:
-            print(f'export capture: NOT DONE - {entry["filename"]} failed ({error}); '
-                  f'{fetched} of {len(files)} file(s) deposited in {target.name}/ and kept - '
-                  'a spent URL cannot be refetched, so what landed is the record')
-            return 1
-        print(f'  {entry["filename"]}: {size} bytes ({entry["category"]})')
+        beside_it = found[entry['filename']]
+        if beside_it is not None:
+            kind, paths = beside_it
+            got = take(kind, paths, target)
+            print(f'  {entry["filename"]} ({entry["category"]}): taken as fetched from beside the manifest, '
+                  f'{kind} - {", ".join(got)}')
+            fetched += 1
+            continue
+        got, words = fetch(entry, target)
+        if got is None:
+            print(f'  {words}')
+            failed.append(entry['filename'])
+            continue
+        print(f'  {words} ({entry["category"]}) - {", ".join(got)}')
         fetched += 1
+    if fetched == 0:
+        # nothing landed: no directory that reads as a payload, no manifest that reads as staged
+        shutil.rmtree(target)
+        if not same:
+            staged_manifest.unlink()
+        print(f'export capture: NOT DONE - 0 of {len(files)} file(s) fetched: {"; ".join(failed)}; '
+              'nothing staged')
+        return 1
+    if failed:
+        print(f'export capture: NOT DONE - {fetched} of {len(files)} file(s) in {target.name}/, '
+              f'incomplete: {"; ".join(failed)} - the manifest lists what is owed, and a later run '
+              'takes what sits beside it')
+        return 1
     print(f'export capture: DONE - {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/ '
           f'({fetched} file(s), as the manifest listed them) and {staged_manifest.name} beside it')
     if not to:
