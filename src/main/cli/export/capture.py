@@ -40,8 +40,8 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402
-from safari import (PAGE_LOAD_WAIT, safari_eval_js, safari_fetch_file, safari_focus,  # noqa: E402
-                    safari_navigate)
+from safari import (PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js, safari_fetch_file,  # noqa: E402
+                    safari_navigate, safari_open_work_tab)
 
 MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what each category's archive holds at its root
 FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under: fronted once, its login checked
@@ -100,14 +100,21 @@ def beside(manifest_path: Path, entry: dict, members: dict[str, list[str]]) -> t
     when it unpacks an archive of one entry - the members each category's archive holds
     being data (rsc/naming/export_archive_members.csv). Returns (kind, paths) or None."""
     here = manifest_path.parent
+    born = manifest_path.stat().st_birthtime   # the manifest is downloaded before its links are clicked
+    def fresh(path: Path) -> bool:
+        # every export names its archives alike, so a name says nothing of which export a file
+        # came from; what Safari wrote after this manifest arrived is this manifest's. An unpacked
+        # file's modification and birth times are the archive's, not the download's; its inode
+        # change time is when it was written here and nothing can backdate it
+        return path.exists() and path.stat().st_ctime >= born
     archive = here / entry['filename']
-    if archive.is_file():
+    if archive.is_file() and fresh(archive):
         return 'archive', [archive]
     unpacked = here / Path(entry['filename']).stem
-    if unpacked.is_dir():
+    if unpacked.is_dir() and fresh(unpacked):
         return 'unpacked', [unpacked]
     wanted = [here / m for m in members.get(entry['category'], [])]
-    if wanted and all(p.exists() for p in wanted):
+    if wanted and all(fresh(p) for p in wanted):
         return 'members', wanted
     return None
 
@@ -137,16 +144,19 @@ def take(kind: str, paths: list[Path], target: Path) -> list[str]:
     return out
 
 
-def front_session() -> str | None:
-    """Front claude.ai in Safari once, as the browser capture fronts its listing, and read
-    where it landed: a login page is the session's absence, said before any URL is spent."""
-    safari_focus()
+def front_session() -> tuple[str | None, str | None]:
+    """Front claude.ai in a work tab of Safari's own, as the browser capture does for a sweep
+    - never the reader's front tab - and read where it landed: a login page is the session's
+    absence, said before any URL is spent. Returns (the login page landed on, or None; the
+    reader's tab to restore)."""
+    prev_tab = safari_open_work_tab()
     safari_navigate(FRONT_URL)
     time.sleep(PAGE_LOAD_WAIT)
     landed = safari_eval_js('String(location.href)') or '(URL unreadable)'
     if 'login' in landed:
-        return landed
-    return None
+        safari_close_work_tab(prev_tab)
+        return landed, None
+    return None, prev_tab
 
 
 def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
@@ -162,6 +172,12 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
     staged = target / filename
     shutil.move(str(got), staged)
     size = staged.stat().st_size
+    if not zipfile.is_zipfile(staged):
+        # a 2xx whose body is not an archive - what a spent link serves, a page in place of
+        # the file; named as what arrived, and never deposited as a payload
+        head = staged.read_bytes()[:60]
+        staged.unlink()
+        return None, f'{filename}: HTTP {status} but the body is not an archive ({size} bytes, beginning {head!r}); nothing deposited'
     return deposit(staged, target), f'{filename}: HTTP {status}, {size} bytes'
 
 
@@ -213,11 +229,13 @@ def main(argv: list[str]) -> int:
         except SendRefused as refused:
             print(f'export capture: NOT DONE - {refused}; nothing staged, no URL spent')
             return 1
-        logged_out = front_session()
+        logged_out, prev_tab = front_session()
         if logged_out:
             print(f'export capture: NOT DONE - Safari is logged out of claude.ai (landed on {logged_out}); '
                   'log in and re-run; nothing staged, no URL spent')
             return 1
+    else:
+        prev_tab = None
     target.mkdir(parents=True, exist_ok=False)
     if not same:
         shutil.copyfile(manifest_path, staged_manifest)
@@ -240,6 +258,8 @@ def main(argv: list[str]) -> int:
             continue
         print(f'  {words} ({entry["category"]}) - {", ".join(got)}')
         fetched += 1
+    if prev_tab is not None:
+        safari_close_work_tab(prev_tab)   # the reader's tab back, whatever the fetches did
     if fetched == 0:
         # nothing landed: no directory that reads as a payload, no manifest that reads as staged
         shutil.rmtree(target)
