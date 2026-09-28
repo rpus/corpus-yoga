@@ -27,6 +27,7 @@ Usage:
 import json
 import shutil
 import sys
+import csv
 import time
 import zipfile
 from pathlib import Path
@@ -39,8 +40,11 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import tier  # noqa: E402 — the tiers, one home (#702)
 from send import SendRefused, assert_may_send  # noqa: E402
-from safari import (PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js, safari_fetch_file,  # noqa: E402
+from safari import (DOWNLOADS, PAGE_LOAD_WAIT, safari_close_work_tab, safari_eval_js,  # noqa: E402
                     safari_navigate, safari_open_work_tab)
+
+MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what each category's archive unpacks to in Downloads
+ARRIVAL_TIMEOUT = 300   # seconds a download may take to arrive and unpack; conversations.json is tens of MB
 
 FRONT_URL = 'https://claude.ai/'   # the session the export URLs are read under: fronted once, its login checked
 
@@ -69,7 +73,7 @@ def deposit(archive: Path, target: Path) -> list[str]:
     return [name for name in names if hoist(target, name)]
 
 
-def hoist(target: Path, member: str) -> str | None:
+def hoist(target: Path, member: str) -> str:
     """A memories/ directory holding one file becomes memories.json; every other member
     stays as unpacked. Returns the member's name as deposited."""
     path = target / member
@@ -97,26 +101,64 @@ def front_session() -> tuple[str | None, str | None]:
     return None, prev_tab
 
 
+def archive_member(category: str) -> str:
+    """The name a category's archive unpacks to in Downloads (rsc/naming/export_archive_members.csv)."""
+    with MEMBERS_CSV.open(newline='') as f:
+        for row in csv.DictReader(f):
+            if row['category'] == category:
+                return row['member']
+    sys.exit(f'export capture: NOT DONE - {category}: no row in {MEMBERS_CSV.relative_to(REPO)} says what its archive unpacks to')
+
+
+def _inode(path: Path) -> int | None:
+    try:
+        return path.stat().st_ino
+    except OSError:
+        return None
+
+
 def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
-    """One export_url through the session: the archive lands in Downloads as .part, is
-    moved into the payload and unpacked there. Returns (members deposited, the words) -
-    None where nothing arrived, the words saying the response the page saw."""
+    """One export_url, by navigation: the export page asks claude.ai for a signed storage URL
+    and downloads from it, which an in-page fetch cannot (the storage refuses it), so the work
+    tab is navigated to the export_url and Safari takes the download under the server's name,
+    unpacking it on arrival where it opens safe files. The arrival is known by name and
+    inode, never by clock: the archive under its own name, or what it unpacks to, exists with
+    an inode it did not have before - Safari replaces a same-named entry, so a stale one is
+    told from the new by inode. What arrives is moved into the payload and deposited there.
+    Returns (members deposited, the words) - None where nothing arrived, the words saying
+    what the page said."""
     url, filename = entry['export_url'], entry['filename']
+    member = archive_member(entry['category'])
+    # Safari replaces a same-named directory on unpacking, but a same-named FILE it keeps and
+    # names the arrival <stem>-2<ext>, -3, ...: every such name is a candidate, and the arrival
+    # is whichever exists with an inode it did not have before
+    def variants(name: str) -> list[Path]:
+        stem, ext = (name.rsplit('.', 1) + [''])[:2] if '.' in name else (name, '')
+        return [DOWNLOADS / name] + [DOWNLOADS / (f'{stem}-{n}.{ext}' if ext else f'{stem}-{n}') for n in range(2, 10)]
+    candidates = {**{v: 'archive' for v in variants(filename)}, **{v: 'unpacked' for v in variants(member)}}
+    before = {path: _inode(path) for path in candidates}
     print(f'fetch: {url}')
-    got, status = safari_fetch_file(url, f'{target.name}-{filename}')   # the export's star names the download
-    if got is None:
-        seen = f'HTTP {status}' if status else 'no response read within the timeout'
-        return None, f'{filename}: {seen} from the session; nothing arrived'
-    staged = target / filename
-    shutil.move(str(got), staged)
-    size = staged.stat().st_size
-    if not zipfile.is_zipfile(staged):
-        # a 2xx whose body is not an archive - what a spent link serves, a page in place of
-        # the file; named as what arrived, and never deposited as a payload
-        head = staged.read_bytes()[:60]
-        staged.unlink()
-        return None, f'{filename}: HTTP {status}, not an archive ({size} bytes, beginning {head!r}); not deposited'
-    return deposit(staged, target), f'{filename}: HTTP {status}, {size} bytes'
+    safari_navigate(url)
+    deadline = time.time() + ARRIVAL_TIMEOUT
+    while time.time() < deadline:
+        said = safari_eval_js('String(document.body.innerText).slice(0, 200)').replace('\n', ' | ')
+        if 'has been used' in said or 'Expired link' in said:
+            return None, f'{filename}: nothing arrived; the page says: {said}'
+        for path, kind in candidates.items():
+            now = _inode(path)
+            if now is not None and now != before[path] and not any(b.name.endswith('.download') for b in DOWNLOADS.glob(f'{Path(filename).stem}*')):
+                if kind == 'archive':
+                    if not zipfile.is_zipfile(path):
+                        continue   # still being written
+                    staged = target / filename
+                    shutil.move(str(path), staged)
+                    size = staged.stat().st_size
+                    return deposit(staged, target), f'{filename}: {size} bytes, unpacked here'
+                shutil.move(str(path), target / member)   # under the member's own name, whatever Safari called the arrival
+                return [hoist(target, member)], f'{filename}: unpacked by Safari as {path.name}'
+        time.sleep(1)
+    said = safari_eval_js('String(document.body.innerText).slice(0, 200)').replace('\n', ' | ')
+    return None, f'{filename}: nothing arrived within {ARRIVAL_TIMEOUT}s; the page says: {said or "(nothing readable)"}'
 
 
 def main(argv: list[str]) -> int:

@@ -163,23 +163,6 @@ def safari_fetch_api_json(uuid, timeout=DOWNLOAD_TIMEOUT):
     return None
 
 
-def _await_download(filename, start, deadline):
-    """The finalized arrival in Downloads of a download asked for as `filename` after
-    `start`, or None at the deadline. Safari may dedupe a colliding name to
-    'name (1).ext' — accept any fresh arrival whose stem starts with the asked-for stem.
-    Finalized only: an in-flight arrival is a <name>.download bundle, and a bundle moved
-    away mid-flight evaporates — Safari finalizes the file into Downloads by file
-    reference and cleans up the bundle wherever the move put it."""
-    while time.time() < deadline:
-        for f in DOWNLOADS.glob('*'):
-            if (f.is_file() and not f.name.endswith('.download')
-                    and f.stat().st_mtime > start
-                    and f.name.startswith(Path(filename).stem)):
-                return f
-        time.sleep(0.5)
-    return None
-
-
 def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
     """Fetch a session-authenticated asset URL (#422 — the file handles the API
     capture names, e.g. /api/<org>/files/<uuid>/document_pdf) in the front
@@ -199,54 +182,21 @@ def safari_fetch_asset(url_path, filename, timeout=DOWNLOAD_TIMEOUT):
     )
     start = time.time()
     safari_eval_js(js)
-    return _await_download(filename, start, start + timeout)
-
-
-FETCH_STATUS_VAR = 'window.__corpusYogaFetchStatus'
-
-
-def safari_fetch_file(url, name, timeout=DOWNLOAD_TIMEOUT):
-    """Fetch a session-authenticated URL in the front claude.ai page (#716 - a bulk
-    export's one-use export_url) and download it as `<name>.part`: the blob typed as
-    octet-stream and the name not an archive's, so Safari saves the bytes as they came and
-    does not unpack them. `name` is the caller's unique name for this download - the
-    arrival is awaited by that exact name and no clock, so nothing else in Downloads can
-    be mistaken for it. Returns (the Downloads path or None, the HTTP status the page saw
-    or None) - the status is what the fetch observed, kept in the page for the caller to
-    read, so a refusal is reported as the response it was."""
-    assert_may_send(f'fetch {url}')
-    part = name + '.part'
-    js = (
-        "(async function() {"
-        f"  {FETCH_STATUS_VAR} = 'pending';"
-        f"  const r = await fetch({json.dumps(url)}, {{credentials: 'include'}});"
-        f"  {FETCH_STATUS_VAR} = String(r.status);"
-        "  if (!r.ok) return;"
-        "  const a = document.createElement('a');"
-        "  a.href = URL.createObjectURL(new Blob([await r.blob()], {type: 'application/octet-stream'}));"
-        f"  a.download = {json.dumps(part)};"
-        "  document.body.appendChild(a); a.click();"
-        "  document.body.removeChild(a); URL.revokeObjectURL(a.href);"
-        "})();"
-    )
-    start = time.time()
     deadline = start + timeout
-    safari_eval_js(js)
-    status = None
     while time.time() < deadline:
-        seen = safari_eval_js(f'String({FETCH_STATUS_VAR})')
-        if seen and seen not in ('pending', 'undefined', ''):
-            status = seen
-            break
+        for f in DOWNLOADS.glob('*'):
+            # Safari may dedupe a colliding name to 'name (1).ext' — accept any
+            # fresh arrival whose stem starts with the asked-for stem. Finalized
+            # only: an in-flight arrival is a <name>.download bundle, and a
+            # bundle moved away mid-flight evaporates — Safari finalizes the
+            # file into Downloads by file reference and cleans up the bundle
+            # wherever the move put it.
+            if (f.is_file() and not f.name.endswith('.download')
+                    and f.stat().st_mtime > start
+                    and f.name.startswith(Path(filename).stem)):
+                return f
         time.sleep(0.5)
-    if status is None or not status.startswith('2'):
-        return None, status
-    arrival = DOWNLOADS / part
-    while time.time() < deadline:
-        if arrival.is_file():   # finalized: an in-flight arrival is a <part>.download bundle, not this file
-            return arrival, status
-        time.sleep(0.5)
-    return None, status
+    return None
 
 
 def wait_for_log(after_time, timeout):

@@ -1,5 +1,5 @@
 {
-  "help": "stage a manifest and its payload: the manifest moved from where the download left it, each file it lists fetched from its one-use export_url through the Safari session - each download named by the export's star - and unpacked into the data-* directory sharing that star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
+  "help": "stage a manifest and its payload: the manifest moved from where the download left it, each file it lists downloaded by navigating Safari to its one-use export_url - the export page fetches a signed storage URL and Safari takes the download, unpacking it where it opens safe files - and deposited into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
   "args": [
     {
       "name": "--manifest",
@@ -16,19 +16,20 @@
   ],
   "x": [
     "--manifest <file> (consumed: moved into the stage as the unit's record)",
-    "~/Downloads (where Safari puts what the verb fetches, moved out on arrival)"
+    "~/Downloads (where Safari puts each download, under the server's name, replacing a same-named entry; moved out on arrival)"
   ],
   "sends": {
     "osascript": [
-      "drives Safari against the logged-in session - fronting claude.ai, evaluating JS in the front document (refused loudly under YOGA_NO_SEND)"
+      "drives Safari against the logged-in session - fronting claude.ai in a work tab, navigating it to each export_url, reading the page (refused loudly under YOGA_NO_SEND)"
     ],
-    "fetch (in-page, session-authenticated)": [
-      "GETs each export_url the manifest lists; each URL is one-use, so the fetch consumes it (refused loudly under YOGA_NO_SEND)"
+    "navigation to each export_url (Safari)": [
+      "the export page asks claude.ai for a signed storage URL and Safari downloads from it; each URL is one-use, so the navigation consumes it (refused loudly under YOGA_NO_SEND)"
     ]
   },
   "r": [
     "data/input/claude/chat/bulk-export",
-    "tmp/stage/input/claude/chat/bulk-export"
+    "tmp/stage/input/claude/chat/bulk-export",
+    "rsc/naming/export_archive_members.csv"
   ],
   "w": [
     "tmp/stage/input/claude/chat/bulk-export"
