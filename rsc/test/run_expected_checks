@@ -106,6 +106,7 @@ schema.valid_against_meta_schema
 schema.valid_json_with_schema
 shell.shellcheck_clean
 stage.export_is_one_unit
+stage.states_are_told_apart
 structure.all_definitions_reachable
 structure.bfs_order
 structure.cli_declaration_mirrors_the_api

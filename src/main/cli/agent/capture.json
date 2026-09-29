@@ -18,12 +18,6 @@
       "type": "",
       "cardinality": "1/agent-capture-1",
       "help": "every session of every served provider (the whole outbox of each)"
-    },
-    {
-      "name": "--to",
-      "type": "<scratch-dir>",
-      "cardinality": "",
-      "help": "capture to a scratch dir instead of the stores, each provider under <scratch-dir>/<provider>/ (test escape hatch — a directory, never a machine name)"
     }
   ],
   "r": [

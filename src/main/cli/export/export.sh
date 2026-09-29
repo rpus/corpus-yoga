@@ -3,7 +3,7 @@
 #
 # Usage:
 #   corpus-yoga export                                  # status: the manifests and payloads held and staged
-#   corpus-yoga export capture --manifest <file> [--to <dir>]   # the manifest where the download left it
+#   corpus-yoga export capture --manifest <file>      # the manifest where the download left it
 #   corpus-yoga export promote [--rehearsal <stamp>]    # what capture staged, into data/input, judged by that rehearsal (default: the newest)
 
 set -euo pipefail

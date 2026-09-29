@@ -22,7 +22,7 @@ deposit is whole or absent per FILE, never per manifest: a death mid-run keeps
 every completed file and loses only the one in flight, named loudly.
 
 Usage:
-    src/run_python_script.sh src/main/cli/export/capture.py --manifest <file> [--to <dir>]
+    src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
 """
 import json
 import shutil
@@ -171,16 +171,13 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
 
 
 def main(argv: list[str]) -> int:
-    manifest_arg = to = None
+    manifest_arg = None
     while argv:
         arg = argv.pop(0)
         if arg == '--manifest' and argv:
             manifest_arg = Path(argv.pop(0))
-        elif arg == '--to' and argv:
-            to = Path(argv.pop(0))
         else:
-            sys.exit(f'usage: {SELF} --manifest <file> [--to <dir>]')
-    store = to if to else STORE
+            sys.exit(f'usage: {SELF} --manifest <file>')
     if manifest_arg is None:
         print('export capture: NOT DONE - --manifest <file> is required, the manifest where the '
               'download left it; corpus-yoga export lists what is held and staged')
@@ -192,11 +189,11 @@ def main(argv: list[str]) -> int:
     manifest = json.loads(manifest_path.read_text())
     files = manifest.get('data_files', [])
     name = derived_data_name(manifest_path)
-    target = (to if to else STAGE) / name
+    target = STAGE / name
     staged_manifest = target.with_name(manifest_path.name)
     print(f'{manifest_path.name}: {len(files)} file(s), version {manifest.get("version")}')
     print(f'  -> {target.relative_to(REPO) if target.is_relative_to(REPO) else target}/')
-    if (store / name).is_dir():
+    if (STORE / name).is_dir():
         print(f'export capture: NOT DONE - {name}/ is held in shared storage; nothing fetched, no URL spent')
         return 1
     if target.exists():
@@ -247,10 +244,9 @@ def main(argv: list[str]) -> int:
         return 1
     print(f'export capture: DONE - fetched {fetched} of {len(files)} file(s) into {where}/, '
           f'{staged_manifest.name} beside it')
-    if not to:
-        # the act names the next acts (#687)
-        print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '
-              'corpus-yoga pipeline rehearse, then corpus-yoga export promote')
+    # the act names the next acts (#687)
+    print('export capture: staged under tmp/stage/input/claude/chat/bulk-export, not promoted - '
+          'corpus-yoga pipeline rehearse, then corpus-yoga export promote')
     return 0
 
 

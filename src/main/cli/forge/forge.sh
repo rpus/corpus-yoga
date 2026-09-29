@@ -6,7 +6,7 @@
 #   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge prune [--apply] # forget what the forge no longer has
-#   corpus-yoga forge capture [--to <dir>] # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
 #   corpus-yoga forge promote [--rehearsal <stamp>]   # what capture staged, into data/input/github/forge/gh-CLI/
 
 set -euo pipefail

@@ -75,10 +75,10 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent
     corpus-yoga agent list-models
     corpus-yoga agent mount [--apply]
-    corpus-yoga agent capture --provider <provider> --id <uuid-prefix> [--to <scratch-dir>]
-    corpus-yoga agent capture --provider <provider> [--to <scratch-dir>]
+    corpus-yoga agent capture --provider <provider> --id <uuid-prefix>
+    corpus-yoga agent capture --provider <provider>
     corpus-yoga agent install   --id <uuid-prefix> --from <machine|dir> [--apply]
-    corpus-yoga agent capture --all [--to <scratch-dir>]
+    corpus-yoga agent capture --all
     corpus-yoga agent install   --all --from <machine|dir> [--apply]
     corpus-yoga agent demerge [--apply]
 
@@ -96,11 +96,8 @@ not.
 
 The endpoint asymmetry is the model, not an accident: capture takes NO
 destination — it pushes this machine's own ref, the only legal one
-(single-writer branches) — so --to is purely a scratch/test escape hatch and
-takes a bare directory, never a machine name - each provider's sessions land
-under <scratch-dir>/<provider>/. install must NAME its source ref:
-a peer machine under claude's store, or (the same scratch affordance, symmetric) a
-directory. The two are distinguished by SHAPE, never by lookup: a bare token
+(single-writer branches). install must NAME its source ref:
+a peer machine under claude's store, or a directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a machine, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
 
@@ -234,7 +231,7 @@ def model_census() -> int:
     return 0
 
 
-def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
+def capture(uuid8: str | None, provider: str | None) -> int:
     """The extent, named: --all is every session of every served provider whose
     mount is present, each into its own store; --provider <name> is every
     session of that provider; --provider <name> --id <uuid-prefix> is one of
@@ -264,21 +261,16 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
     conflicts = 0
     for row, mount_path, adapter in targets:
         name = row['provider']
-        if to:
-            outbox = Path(to).expanduser() / name
-            outbox.mkdir(parents=True, exist_ok=True)
-        else:
-            outbox = own_outbox(name)
-            if outbox is None:
-                continue
+        outbox = own_outbox(name)
+        if outbox is None:
+            continue
         print(f'── {name}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
         conflicts += adapter.capture(mount_path, outbox, uuid8)
-    if not to:
-        # the act names the next acts (#687): what was captured waits in the stage until
-        # the pipeline has judged it and the same extent is promoted
-        extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
-        print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
-              f'corpus-yoga pipeline rehearse, then corpus-yoga agent promote {extent}')
+    # the act names the next acts (#687): what was captured waits in the stage until
+    # the pipeline has judged it and the same extent is promoted
+    extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
+    print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
+          f'corpus-yoga pipeline rehearse, then corpus-yoga agent promote {extent}')
     return conflicts
 
 
@@ -346,7 +338,7 @@ def main() -> int:
     if args.verb == 'list-models':
         return model_census()
     if args.verb == 'capture':
-        return 1 if capture(args.id, args.to, args.provider) else 0
+        return 1 if capture(args.id, args.provider) else 0
     if args.verb == 'promote':
         # --rehearsal <stamp> names the rehearsal whose verdicts are read; bare, the newest
         import corpus

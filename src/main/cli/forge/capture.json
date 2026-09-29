@@ -1,13 +1,6 @@
 {
-  "help": "deposit the forge's ledger - issues, pull requests, comments, reviews, labels, blocked_by edges, the repository record - under data/input/github/forge/gh-CLI/<stamp>/, one file per read; every run deposits, and a deposit holds only what the forge returned",
-  "args": [
-    {
-      "name": "--to",
-      "type": "<dir>",
-      "cardinality": "",
-      "help": "deposit under a directory instead of the store (test escape hatch - a directory, never a machine name)"
-    }
-  ],
+  "help": "deposit the forge's ledger - issues, pull requests, comments, reviews, labels, blocked_by edges, the repository record - under tmp/stage/input/github/forge/gh-CLI/<stamp>/, one file per read; every run deposits, and a deposit holds only what the forge returned",
+  "args": [],
   "sends": {
     "gh api repos/{owner}/{repo}/issues": [
       "reads every issue and pull request, and each issue's blocked_by edges"

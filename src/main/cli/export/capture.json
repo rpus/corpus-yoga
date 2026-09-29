@@ -6,12 +6,6 @@
       "type": "<file>",
       "cardinality": "1",
       "help": "the manifest, wherever the download left it - required: each export_url is one-use, so no default picks one"
-    },
-    {
-      "name": "--to",
-      "type": "<dir>",
-      "cardinality": "",
-      "help": "stage under a directory instead of the stage (test escape hatch - a directory, never a machine name)"
     }
   ],
   "x": [

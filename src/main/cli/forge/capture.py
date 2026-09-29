@@ -39,7 +39,7 @@ relation (blocking derives from it); not captured: commit status checks, event
 timelines, reactions, the dependency graph beyond blocked_by.
 
 Usage:
-    src/run_python_script.sh src/main/cli/forge/capture.py <stamp> [--to <dir>]
+    src/run_python_script.sh src/main/cli/forge/capture.py <stamp>
 """
 import json
 import os
@@ -132,12 +132,9 @@ def count(name: str, value: Captured) -> int:
 
 
 def main(argv: list[str]) -> int:
-    stamp, to = argv[0], None
-    if len(argv) == 3 and argv[1] == '--to':
-        to = Path(argv[2])
-    elif len(argv) != 1:
-        sys.exit(f'usage: {SELF} <stamp> [--to <dir>]')
-    store = to if to else STORE
+    if len(argv) != 1:
+        sys.exit(f'usage: {SELF} <stamp>')
+    stamp = argv[0]
     os.chdir(REPO)  # gh resolves {owner}/{repo} from the checkout's remote
     try:
         assert_may_send('gh api (forge capture)')
@@ -148,16 +145,15 @@ def main(argv: list[str]) -> int:
     except subprocess.CalledProcessError:
         print('forge capture: NOT DONE - a gh api read failed (the NOT-done line above names it); nothing deposited')
         return 1
-    rel = store.relative_to(REPO) if store.is_relative_to(REPO) else store
-    target = store / stamp
+    rel = STORE.relative_to(REPO)
+    target = STORE / stamp
     target.mkdir(parents=True, exist_ok=False)
     for name in ROSTER:
         (target / name).write_bytes(render(got[name]))
         print(f'  {name}: {count(name, got[name])}')
     print(f'forge capture: DONE - deposited {rel}/{stamp}/ ({len(ROSTER)} files)')
-    if not to:
-        # the act names the next act (#687): no pipeline reads the ledger, so no rehearsal
-        print('forge capture: staged under tmp/stage/input/github/forge/gh-CLI, not promoted - corpus-yoga forge promote')
+    # the act names the next act (#687): no pipeline reads the ledger, so no rehearsal
+    print('forge capture: staged under tmp/stage/input/github/forge/gh-CLI, not promoted - corpus-yoga forge promote')
     return 0
 
 

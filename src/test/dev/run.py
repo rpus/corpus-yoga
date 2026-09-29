@@ -1753,6 +1753,37 @@ def check_unit_companion(run) -> None:
             check='stage.export_is_one_unit')
 
 
+def check_unit_state(run) -> None:
+    """A staged unit is in one of five states, and the stage's counts are of those states
+    (#687): promotable, held already, refused - a relation or a family gave its verdict
+    against it - incomplete, and unjudged, the state before any verdict, whose remedy is
+    a rehearsal. No status line prescribes a removal: a refused unit is the reader's to
+    reconcile, an incomplete one the janitor's."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    from append_only import Relation
+    state = getattr(corpus, 'state', None)
+    judgement = getattr(corpus, 'Judgement', None)
+    if state is None or judgement is None:
+        run('stage: a unit not yet judged is counted unjudged, never refused', False,
+            'src/main/corpus.py derives no state: its counts call refused whatever is not promotable',
+            check='stage.states_are_told_apart')
+        return
+    whole = corpus.Unit(Path('a/b'), [Path('a/b')], [], [], 'prefix', 'chat-capture', 'claude')
+    lacking = corpus.Unit(Path('a/c'), [Path('a/c')], [], [], 'whole', 'chat-export', None, missing=['x.json'])
+    got = [state(lacking, Relation.ABSENT, judgement.UNJUDGED), state(whole, Relation.ABSENT, judgement.UNJUDGED),
+           state(whole, Relation.EXTENDS, judgement.REFUSED), state(whole, Relation.DIVERGED, judgement.NONE),
+           state(whole, Relation.ABSENT, judgement.VALID)]
+    expected = ['incomplete', 'unjudged', 'refused', 'refused', 'promotable']
+    run('stage: a unit not yet judged is counted unjudged, never refused', got == expected,
+        None if got == expected else f'the states read {got}, where they are {expected}',
+        check='stage.states_are_told_apart')
+    prescribed = [line.strip() for line in (SRC / 'main' / 'corpus.py').read_text().splitlines()
+                  if '→ run: rm' in line]
+    run('stage: no status line prescribes a removal', not prescribed,
+        None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')
+
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
@@ -2531,6 +2562,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_changelogs': SCHEMA,
     'check_tier_contract': ['src/main'],
     'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
+    'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2786,6 +2818,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_tier_contract, tier='code')
         run_section(check_verdict_record, tier='code')
         run_section(check_unit_companion, tier='code')
+        run_section(check_unit_state, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

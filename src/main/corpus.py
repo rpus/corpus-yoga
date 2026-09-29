@@ -79,6 +79,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Callable
 
@@ -417,25 +418,32 @@ def _own_digests(unit: Unit) -> set[str]:
     return own
 
 
-def verdict(unit: Unit) -> tuple[bool | None, str]:
-    """Whether the pipelines have found the staged unit valid at origin/main's versions:
-    True, False with the reason, or None where no pipeline selects the unit."""
+class Judgement(Enum):
+    VALID = 'valid'          # every family judged it, green, at origin/main's versions
+    REFUSED = 'refused'      # a family gave its verdict against it
+    UNJUDGED = 'unjudged'    # no verdict stands on these bytes: the state before one, a rehearsal its remedy
+    NONE = 'none'            # no family judges it: promoted on its relation alone
+
+
+def verdict(unit: Unit) -> tuple[Judgement, str]:
+    """What the pipelines have found of the staged unit at origin/main's versions, and the
+    words for it."""
     if unit.pipeline is None:
-        return None, 'no pipeline selects it - promoted on its relation alone'
+        return Judgement.NONE, 'no pipeline selects it - promoted on its relation alone'
     schemas = pipelines()[unit.pipeline]['schemas']
     judges = [s for s in schemas if unit.provider is None or '/' not in s or s.startswith(unit.provider + '/')]
     if not judges:
-        return None, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
+        return Judgement.NONE, f'no family of {unit.pipeline} validates {unit.provider}\'s - promoted on its relation alone'
     cache = unit.cache
     remedy = 'corpus-yoga pipeline rehearse judges it'
     if cache is None:
-        return False, f'no rehearsal - {remedy}'
+        return Judgement.UNJUDGED, f'no rehearsal - {remedy}'
     # the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read
     by_family: dict[str, list[Path]] = {}
     for rec in (cache / 'validation').rglob(f'v*{verdicts.SUFFIX}'):
         by_family.setdefault(rec.parent.relative_to(cache / 'validation').as_posix(), []).append(rec)
     if not by_family:
-        return False, f'no verdict - {remedy}'
+        return Judgement.UNJUDGED, f'no verdict - {remedy}'
     own = _own_digests(unit)
     recorded = cache / 'source.sha256'
     converted = recorded.is_file() and recorded.read_text().strip() in own
@@ -446,20 +454,20 @@ def verdict(unit: Unit) -> tuple[bool | None, str]:
         family = next((s for s in judges if s.rsplit('/', 1)[-1] == leaf.split('/')[0]), leaf)
         record = verdicts.read(latest)
         if record is None:
-            return False, f'no verdict at {family} - {remedy}'
+            return Judgement.UNJUDGED, f'no verdict at {family} - {remedy}'
         if record['datum_sha256'] not in own and not converted:
-            return False, f'the verdict at {family} is not on this staged unit - {remedy}'
+            return Judgement.UNJUDGED, f'the verdict at {family} is not on this staged unit - {remedy}'
         main_digest, main_version = _main_schema_digest(unit.pipeline, family)
         if main_digest is None or record['schema_sha256'] != main_digest:
             if main_version == version:
-                return False, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
+                return Judgement.UNJUDGED, (f'the verdict at {family} {version} is against a schema origin/main does not hold - '
                                'corpus-yoga pipeline rehearse re-judges it')
-            return False, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
+            return Judgement.REFUSED, (f'the verdict at {family} is at {version} of this checkout, which origin/main does not hold '
                            f'({main_version} there) - the mint\'s merge licenses the promotion')
         if record['verdict'] != 'valid':
-            return False, f'fails {family} {version} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'
+            return Judgement.REFUSED, f'fails {family} {version} - a version is owed, or the datum is ruled out (rsc/schema/WORKFLOW.md)'
         words.append(f'{family} {version}')
-    return True, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {rehearsal_stamp()})'
+    return Judgement.VALID, 'validates at ' + ', '.join(words) + f' (origin/main; rehearsal {rehearsal_stamp()})'
 
 
 # -- promote -------------------------------------------------------------------------------
@@ -479,32 +487,32 @@ def noun_of(unit: Unit) -> str | None:
 
 
 REMEDY = {
-    Relation.AHEAD:    'the held unit holds more - recapture it; to drop the staged copy instead:',
-    Relation.DIVERGED: 'each holds what the other lacks - inspect both; to keep the held one and drop the staged copy:',
+    Relation.AHEAD:    'the held unit holds more - a recapture replaces the staged copy',
+    Relation.DIVERGED: 'each holds what the other lacks - the reader reconciles the two',
 }
 
 
-def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str, bool | None, str]]:
-    """(unit, relation, the relation's words, verdict, the verdict's words), for the units
-    given or for everything staged. Every unit gets its verdict: an identical capture in a
-    form the family refuses is refused like any other."""
+def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str, Judgement, str]]:
+    """(unit, relation, the relation's words, judgement, the judgement's words), for the
+    units given or for everything staged. Every unit gets its verdict: an identical capture
+    in a form the family refuses is refused like any other."""
     rows = []
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
         if unit.missing:
             whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
             rows.append((unit, Relation.ABSENT if not unit.members else rel,
-                         f'no {", ".join(unit.missing)} staged', False,
+                         f'no {", ".join(unit.missing)} staged', Judgement.UNJUDGED,
                          INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
             continue
-        ok, words = verdict(unit) if rel not in REFUSING else (None, '')
+        ok, words = verdict(unit) if rel not in REFUSING else (Judgement.NONE, '')
         rows.append((unit, rel, detail, ok, words))
     return rows
 
 
 REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
-UNPAIRED = 'unpaired - a staged unit is promoted where its record stands beside it'
-INCOMPLETE = 'incomplete - {n} member(s) the record lists are not in the payload; corpus-yoga stage clean --apply removes it'
+UNPAIRED = 'unpaired, its record or its payload absent; corpus-yoga stage clean --apply removes it'
+INCOMPLETE = '{n} member(s) the record lists are not in the payload; corpus-yoga stage clean --apply removes it'
 
 
 def incomplete() -> list[Unit]:
@@ -526,8 +534,36 @@ def refuse_rehearsal() -> int:
     return 1
 
 
-def promotable(rel: Relation, ok: bool | None) -> bool:
-    return rel not in REFUSING and ok is not False
+STATES: tuple[str, ...] = ('promotable', 'held already', 'refused', 'incomplete', 'unjudged')
+
+
+def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
+    """The one of STATES a staged unit is in. Refused is a verdict given against it, by its
+    relation or by a family; unjudged is the state before any verdict."""
+    if unit.missing:
+        return 'incomplete'
+    if rel in REFUSING or judgement is Judgement.REFUSED:
+        return 'refused'
+    if judgement is Judgement.UNJUDGED:
+        return 'unjudged'
+    return 'held already' if redundant(unit) else 'promotable'
+
+
+def tally(rows: list) -> dict[str, int]:
+    counts: dict[str, int] = {s: 0 for s in STATES}
+    for unit, rel, _detail, judgement, _words in rows:
+        counts[state(unit, rel, judgement)] += 1
+    return counts
+
+
+def counted(counts: dict[str, int]) -> str:
+    """The counts in words, every state named, so that a total's parts are the states the
+    units are in."""
+    return ', '.join(f'{counts[s]} {s}' for s in STATES)
+
+
+def promotable(rel: Relation, ok: Judgement) -> bool:
+    return rel not in REFUSING and ok in (Judgement.VALID, Judgement.NONE)
 
 
 def extent(noun: str, provider: str | None, everything: bool, unit_id: str | None) -> list[Unit]:
@@ -629,14 +665,13 @@ def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
     return f'{unit.address}: {name} ({detail})'
 
 
-def _refusal(unit: Unit, rel: Relation, ok: bool | None, words: str) -> tuple[str, str]:
-    """(the heading a refused unit stands under, what follows its line)."""
-    remedy = '→ run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members + unit.record)
-    if unit.missing:
-        return f'REFUSED - {words}', ''   # the janitor's, named in the words (#721)
-    if rel in REFUSING:
-        return f'{rel.name} - refused: {REMEDY[rel]}', f'\n      {remedy}'
-    return f'REFUSED - {words}', ''
+def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
+    """The heading a unit that is not promoted stands under: its state, then why. No
+    heading prescribes a removal - an incomplete unit is the janitor's, named in its
+    words (#721), and a refused one the reader's to reconcile."""
+    if rel in REFUSING and not unit.missing:
+        return f'REFUSED - {rel.name.lower()}: {REMEDY[rel]}'
+    return f'{state(unit, rel, ok).upper()} - {words}'
 
 
 def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
@@ -654,10 +689,11 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
         print(f'{noun} promote: DONE - nothing staged')
         return 0
     groups: dict[str, list[str]] = {}
-    written = unchanged = refused = 0
+    written = unchanged = 0
+    left: dict[str, int] = {s: 0 for s in STATES[2:]}
     for unit, rel, detail, ok, words in rows:
         line = _unit_line(unit, rel, detail)
-        if promotable(rel, ok):
+        if promotable(rel, ok) and not unit.missing:
             n = _copy(unit)
             if n:
                 groups.setdefault(f'promoted - {words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
@@ -666,9 +702,8 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
                 groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
                 unchanged += 1
         else:
-            heading, after = _refusal(unit, rel, ok, words)
-            groups.setdefault(heading, []).append(line + after)
-            refused += 1
+            groups.setdefault(_heading(unit, rel, ok, words), []).append(line)
+            left[state(unit, rel, ok)] += 1
     say(groups)
     # the noun's read-only status is the certified state after the act: evidence, beneath
     # the lines and above the verdict, informing and never gating
@@ -676,8 +711,10 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
     stage_status()
     print()
     # one ask, one verdict, the last line: DONE only when nothing asked for was left undone
-    print(f'{noun} promote: {"NOT DONE" if refused else "DONE"} - promoted {written}, held already {unchanged}, refused {refused}')
-    return 1 if refused else 0
+    undone = sum(left.values())
+    print(f'{noun} promote: {"NOT DONE" if undone else "DONE"} - promoted {written}, held already {unchanged}, '
+          + ', '.join(f'{s} {left[s]}' for s in left))
+    return 1 if undone else 0
 
 
 def size_of(p: Path) -> int:
@@ -732,22 +769,16 @@ def stage_status() -> int:
     if not rows:
         print('  units: none staged')
         return 0
-    held = sum(1 for u, rel, _d, ok, _w in rows if promotable(rel, ok) and redundant(u))
-    ready = sum(1 for u, rel, _d, ok, _w in rows if promotable(rel, ok)) - held
-    refused = len(rows) - held - ready
-    print(f'  units: {len(rows)} staged - {ready} promotable, {held} held already (byte-equal), {refused} refused'
-          + (f', judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
+    print(f'  units: {len(rows)} staged - {counted(tally(rows))}'
+          + (f'; judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
     # the counts by kind - pipeline and provider - so that a total says what it counts
-    kinds: dict[str, list[int]] = {}
-    for u, rel, _d, ok, _w in rows:
+    kinds: dict[str, list] = {}
+    for row in rows:
+        u = row[0]
         kind = '/'.join(x for x in (u.pipeline or 'no pipeline', u.provider or u.address.parts[0]) if x)
-        tally = kinds.setdefault(kind, [0, 0, 0])
-        if promotable(rel, ok):
-            tally[1 if redundant(u) else 0] += 1
-        else:
-            tally[2] += 1
-    for kind, (k_ready, k_held, k_refused) in sorted(kinds.items()):
-        print(f'    {kind}: {k_ready + k_held + k_refused} staged - {k_ready} promotable, {k_held} held already, {k_refused} refused')
+        kinds.setdefault(kind, []).append(row)
+    for kind, of_kind in sorted(kinds.items()):
+        print(f'    {kind}: {len(of_kind)} staged - {counted(tally(of_kind))}')
     return 0
 
 
@@ -802,30 +833,26 @@ def report(noun: str | None) -> int:
         return 0
     groups: dict[str, list[str]] = {}
     by_noun: dict[str, int] = {}
-    unjudged = refused = held = 0
     for unit, rel, detail, ok, words in rows:
         line = _unit_line(unit, rel, detail)
-        if promotable(rel, ok):
-            if redundant(unit):
-                held += 1
-                groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
-            else:
-                n = noun_of(unit) or '?'
-                by_noun[n] = by_noun.get(n, 0) + 1
-                groups.setdefault(f'promotable - {words}', []).append(line)
+        is_in = state(unit, rel, ok)
+        if is_in == 'held already':
+            groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
+        elif is_in == 'promotable':
+            n = noun_of(unit) or '?'
+            by_noun[n] = by_noun.get(n, 0) + 1
+            groups.setdefault(f'promotable - {words}', []).append(line)
         else:
-            refused += 1
-            if ok is False and words.startswith(('no verdict', 'no rehearsal')):
-                unjudged += 1
-            heading, after = _refusal(unit, rel, ok, words)
-            groups.setdefault(heading, []).append(line + after)
+            groups.setdefault(_heading(unit, rel, ok, words), []).append(line)
     say(groups)
+    counts = tally(rows)
     tail = ''.join(f'; corpus-yoga {n} promote{_whole_extent(n)} promotes {k}' for n, k in sorted(by_noun.items()))
-    if unjudged:
-        tail += f'; corpus-yoga pipeline rehearse judges {unjudged} without a verdict'
-    if held:
-        tail += f'; corpus-yoga stage clean removes {held} held byte-equal'
-    print(f'stage: {len(rows)} unit(s) - {sum(by_noun.values())} promotable, {held} held already, {refused} refused{tail}')
+    if counts['unjudged']:
+        tail += f"; corpus-yoga pipeline rehearse judges {counts['unjudged']} unjudged"
+    removable = counts['held already'] + counts['incomplete']
+    if removable:
+        tail += f'; corpus-yoga stage clean removes {removable} held already or incomplete'
+    print(f'stage: {len(rows)} unit(s) - {counted(counts)}{tail}')
     return 0
 
 
