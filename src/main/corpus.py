@@ -96,6 +96,7 @@ import validation_verdict as verdicts  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
+MEMBERS_CSV = REPO / 'rsc' / 'naming' / 'export_archive_members.csv'   # what a bulk export's deposit holds, per archive category (#721)
 STORE = tier.DATA / 'input'
 REHEARSAL: str | None = None             # the rehearsal a verdict is read from; None is the newest
 
@@ -183,6 +184,24 @@ def _star(pattern: str, name: str) -> str | None:
     return matched.group(1) if matched else None
 
 
+def _deposit_missing(manifest: Path, payload: Path) -> list[str]:
+    """A bulk export's completeness, on sight (#721): the manifest lists the archives its
+    capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit
+    holds, and the payload holds those members or it does not. The members owed and absent,
+    by name; empty for a complete export."""
+    import csv
+    try:
+        categories = [f['category'] for f in json.loads(manifest.read_text()).get('data_files', [])]
+    except (OSError, ValueError, TypeError, KeyError):
+        return ['(the manifest is unreadable)']
+    with MEMBERS_CSV.open(newline='') as f:
+        deposits = {}
+        for row in csv.DictReader(f):
+            deposits.setdefault(row['category'], []).append(row['deposit'])
+    return [member for c in categories for member in deposits.get(c, [f'({c}: no row in {MEMBERS_CSV.name})'])
+            if not (payload / member).exists()]
+
+
 def _select_pairs(root: Path, store: dict) -> list[Unit]:
     """The units of a store whose companion names <star>: one per star, found from the
     datum or the companion, the datum its member, the companion its record, and its
@@ -204,6 +223,8 @@ def _select_pairs(root: Path, store: dict) -> list[Unit]:
         record = [companion.relative_to(root)] if companion.exists() else []
         missing = [name for m, name in ((datum, datum.name + ('/' if pattern.endswith('/') else '')),
                                         (companion, companion.name)) if not m.exists()]
+        if not missing:
+            missing = _deposit_missing(companion, datum)   # complete, or the members the record says are owed
         files = [f for m in members + record for f in _files_under(root, root / m)]
         out.append(Unit((base / star).relative_to(root), members, files, list(members), measure, store['pipeline'],
                         store['provider'], (datum.name,), datum.relative_to(root), record, missing))
@@ -471,8 +492,10 @@ def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
         if unit.missing:
+            whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
             rows.append((unit, Relation.ABSENT if not unit.members else rel,
-                         f'no {", ".join(unit.missing)} staged', False, UNPAIRED))
+                         f'no {", ".join(unit.missing)} staged', False,
+                         INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
             continue
         ok, words = verdict(unit) if rel not in REFUSING else (None, '')
         rows.append((unit, rel, detail, ok, words))
@@ -481,6 +504,26 @@ def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str
 
 REFUSING = (Relation.AHEAD, Relation.DIVERGED)   # the relations under which the held copy would lose something
 UNPAIRED = 'unpaired - a staged unit is promoted where its record stands beside it'
+INCOMPLETE = 'incomplete - {n} member(s) the record lists are not in the payload; corpus-yoga stage clean --apply removes it'
+
+
+def incomplete() -> list[Unit]:
+    """The staged units whose record or payload is absent, or whose payload lacks what the
+    record lists - never a rehearsal's input, always the janitor's (#721)."""
+    return [u for u in units(STAGE) if u.missing] if STAGE.is_dir() else []
+
+
+def refuse_rehearsal() -> int:
+    """The stage's word before a rehearsal: 1, with the units named and the janitor as the
+    remedy, while any staged unit is incomplete; 0 where every unit is whole (#721)."""
+    bad = incomplete()
+    if not bad:
+        return 0
+    print(f'rehearse: NOT DONE - the stage holds {len(bad)} incomplete unit(s), which no pipeline is shown:')
+    for u in bad:
+        print(f'  {u.address}: missing {", ".join(u.missing)}')
+    print('    → run: corpus-yoga stage clean --apply')
+    return 1
 
 
 def promotable(rel: Relation, ok: bool | None) -> bool:
@@ -521,11 +564,11 @@ def _tree_files(path: Path) -> dict[str, Path]:
 def redundant(unit: Unit) -> bool:
     """Whether every member of the staged unit is byte-identical to the held one - a unit
     already promoted, which only the stage's janitor removes."""
-    if not unit.members:
+    if not unit.members or unit.missing:
         return False
     for rel in unit.members:
         staged, held = _tree_files(STAGE / rel), _tree_files(STORE / rel)
-        if staged.keys() != held.keys():
+        if not held or staged.keys() != held.keys():   # an empty staged member and an absent held one are not the same thing
             return False
         if any(staged[k].read_bytes() != held[k].read_bytes() for k in staged):
             return False
@@ -590,7 +633,7 @@ def _refusal(unit: Unit, rel: Relation, ok: bool | None, words: str) -> tuple[st
     """(the heading a refused unit stands under, what follows its line)."""
     remedy = '→ run: rm -r ' + ' '.join(shlex.quote(f'tmp/stage/input/{m.as_posix()}') for m in unit.members + unit.record)
     if unit.missing:
-        return f'REFUSED - {words}, or dropped', f'\n      {remedy}'
+        return f'REFUSED - {words}', ''   # the janitor's, named in the words (#721)
     if rel in REFUSING:
         return f'{rel.name} - refused: {REMEDY[rel]}', f'\n      {remedy}'
     return f'REFUSED - {words}', ''
@@ -735,7 +778,11 @@ def pairs(noun: str) -> int:
         for unit in select(STAGE, store):
             present = ' and '.join(p.name + ('/' if (STAGE / p).is_dir() else '') for p in unit.members + unit.record)
             if not unit.missing:
-                print(f'  staged: {unit.address.name} paired - {present}')
+                print(f'  staged: {unit.address.name} complete - {present}')
+                continue
+            if unit.members and unit.record:
+                print(f'  staged: {unit.address.name} incomplete - {present}, missing {", ".join(unit.missing)}; '
+                      'corpus-yoga stage clean --apply removes it')
                 continue
             print(f'  staged: {unit.address.name} unpaired - {present} with no {", ".join(unit.missing)} beside it')
             if not unit.members and _declares(noun, 'capture', '--manifest'):

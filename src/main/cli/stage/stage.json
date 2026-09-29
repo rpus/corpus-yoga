@@ -5,7 +5,8 @@
   "args": [],
   "r": [
     "tmp/stage",
-    "data/input"
+    "data/input",
+    "rsc/naming/export_archive_members.csv"
   ],
   "x": [
     "git"

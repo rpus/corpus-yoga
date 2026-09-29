@@ -824,6 +824,7 @@ src/main/cli/pipeline/pipeline.sh,35,comment,src/main/cli/parse_argv.sh,Y,# shel
 src/main/cli/pipeline/pipeline.sh,46,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)"
 src/main/cli/pipeline/pipeline.sh,377,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
 src/main/cli/pipeline/pipeline.sh,414,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/rehearse.json,8,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/pipeline/rehearse.sh,20,comment,src/main/tier.py,Y,"# the one name the tier contract (src/main/tier.py) resolves to those tiers, so every"
 src/main/cli/pipeline/rehearse.sh,32,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
@@ -891,7 +892,9 @@ src/main/cli/site/site.sh,29,comment,src/main/cli/parse_argv.sh,Y,# shellcheck s
 src/main/cli/site/site.sh,34,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
 src/main/cli/site/site.sh,124,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
+src/main/cli/stage/clean.json,20,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,3,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
+src/main/cli/stage/stage.json,9,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared"
 src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared"
 src/main/cli/stage/stage.py,34,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
@@ -914,8 +917,9 @@ src/main/corpus.py,28,comment,src/main/validation_audit.py,Y,"audit's subjects (
 src/main/corpus.py,33,comment,src/main/append_only.py,Y,"RELATION - the five relations of src/main/append_only.py, derived once from an order:"
 src/main/corpus.py,50,comment,src/main/validation_verdict.py,Y,"(src/main/validation_verdict.py, #701), at the family's latest version; the log beside it is"
 src/main/corpus.py,85,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
-src/main/corpus.py,376,path_str,rsc/schema/pipeline,Y,fam_dir = f'rsc/schema/pipeline/{pipeline}/{family}'
-src/main/corpus.py,412,comment,src/main/validation_verdict.py,Y,"# the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read"
+src/main/corpus.py,189,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
+src/main/corpus.py,397,path_str,rsc/schema/pipeline,Y,fam_dir = f'rsc/schema/pipeline/{pipeline}/{family}'
+src/main/corpus.py,433,comment,src/main/validation_verdict.py,Y,"# the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read"
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,38,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'

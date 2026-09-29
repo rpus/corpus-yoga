@@ -4,7 +4,8 @@
   "r": [
     "tmp/stage/input",
     "rsc",
-    "machine-name.txt"
+    "machine-name.txt",
+    "rsc/naming/export_archive_members.csv"
   ],
   "w": [
     "tmp/stage/rehearsal"
