@@ -77,6 +77,9 @@
         },
         {
           "$ref": "#/definitions/ArtifactAutoreactLedgerRecord"
+        },
+        {
+          "$ref": "#/definitions/CostStateRecord"
         }
       ]
     },
@@ -627,6 +630,80 @@
         }
       }
     },
+    "CostStateRecord": {
+      "title": "CostStateRecord",
+      "description": "The session's running cost and effort totals, written by Claude Code 2.1.283 and later. Observed reading-room 2026-09-28 in session be12fa7c-664e-42b8-b6e3-60af1409c6f8, three records, differing only in totalDuration; undeclared before v18.",
+      "type": "object",
+      "required": [
+        "type",
+        "sessionId",
+        "totalCostUSD",
+        "totalAPIDuration",
+        "totalAPIDurationWithoutRetries",
+        "totalToolDuration",
+        "totalLinesAdded",
+        "totalLinesRemoved",
+        "totalDuration",
+        "startTime",
+        "modelUsage",
+        "hasUnknownModelCost"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "cost-state"
+          ],
+          "description": "(discriminator)"
+        },
+        "sessionId": {
+          "$ref": "#/definitions/UuidV4"
+        },
+        "totalCostUSD": {
+          "description": "The session's spend in US dollars. Observed 0.",
+          "type": "number"
+        },
+        "totalAPIDuration": {
+          "description": "Milliseconds spent in API calls, retries included. Observed 0.",
+          "type": "number"
+        },
+        "totalAPIDurationWithoutRetries": {
+          "description": "Milliseconds spent in API calls, retries excluded. Observed 0.",
+          "type": "number"
+        },
+        "totalToolDuration": {
+          "description": "Milliseconds spent in tool calls. Observed 0.",
+          "type": "number"
+        },
+        "totalLinesAdded": {
+          "description": "Lines added to files by the session. Observed 0.",
+          "type": "number"
+        },
+        "totalLinesRemoved": {
+          "description": "Lines removed from files by the session. Observed 0.",
+          "type": "number"
+        },
+        "totalDuration": {
+          "description": "Milliseconds since startTime, a running total: 204177292, 204782434 and 204855016 in the three records observed.",
+          "type": "number"
+        },
+        "startTime": {
+          "description": "The session's start as epoch milliseconds. Observed 1790244260497.",
+          "type": "number"
+        },
+        "modelUsage": {
+          "description": "Usage by model. Observed empty in every record; its members are undeclared until observed.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "hasUnknownModelCost": {
+          "description": "Whether a model's cost was unknown to the harness. Observed false.",
+          "type": "boolean"
+        }
+      }
+    },
     "TurnBase": {
       "title": "TurnBase",
       "description": "Fields shared by all turn-like records: user, assistant, attachment, and system. Carries the session envelope \u2014 context about the environment in which the turn occurred. No additionalProperties: false because this schema is used in allOf alongside subtype schemas that add further properties; in draft-4, additionalProperties on a base schema does not see properties defined in sibling allOf/oneOf schemas.",
@@ -856,6 +933,14 @@
           "items": {
             "$ref": "#/definitions/UuidV4"
           }
+        },
+        "advisorModel": {
+          "description": "The model consulted as advisor for the turn (harness 2.1.283, observed reading-room from 2026-09-26T18:59:33Z on every completed assistant record and on no API-error record). Observed value: \"claude-fable-5-1\". Undeclared before v18.",
+          "$ref": "#/definitions/ModelId"
+        },
+        "serverClassifierRequest": {
+          "description": "The id of the server-side classifier request the turn was checked by (harness 2.1.283, observed reading-room from 2026-09-26T18:59:33Z beside advisorModel). Undeclared before v18.",
+          "$ref": "#/definitions/UuidV4"
         }
       }
     },
@@ -1291,6 +1376,13 @@
             "null",
             "object"
           ]
+        },
+        "input_transformations": {
+          "description": "What the API changed in the request before the turn ran (harness 2.1.283, observed reading-room from 2026-09-26T18:59:33Z on every completed assistant record). Undeclared before v18.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InputTransformation"
+          }
         }
       }
     },
@@ -1316,6 +1408,18 @@
         }
       }
     },
+    "ModelId": {
+      "title": "ModelId",
+      "description": "A real Claude model id \u2014 the harness's external attribution of who authored a completed turn. The set is exhaustive over the models observed across both rooms' sessions as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), and at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263); a new model in the data is unmodelled drift and mints the next version.",
+      "type": "string",
+      "enum": [
+        "claude-fable-5",
+        "claude-opus-4-8",
+        "claude-sonnet-4-6",
+        "claude-opus-5",
+        "claude-fable-5-1"
+      ]
+    },
     "RenderedBlock": {
       "title": "RenderedBlock",
       "description": "One block of an attachment as rendered into the conversation (2.1.263 onward): the text the model saw for it.",
@@ -1340,18 +1444,6 @@
           ]
         }
       }
-    },
-    "ModelId": {
-      "title": "ModelId",
-      "description": "A real Claude model id \u2014 the harness's external attribution of who authored a completed turn. The set is exhaustive over the models observed across both rooms' sessions as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), and at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263); a new model in the data is unmodelled drift and mints the next version.",
-      "type": "string",
-      "enum": [
-        "claude-fable-5",
-        "claude-opus-4-8",
-        "claude-sonnet-4-6",
-        "claude-opus-5",
-        "claude-fable-5-1"
-      ]
     },
     "MessageContent": {
       "title": "MessageContent",
@@ -1408,6 +1500,31 @@
             "null",
             "string"
           ]
+        }
+      }
+    },
+    "InputTransformation": {
+      "title": "InputTransformation",
+      "description": "One change the API made to the request: the block at path was dropped for the reason given. Observed reading-room 2026-09-26 to 2026-09-28: 127 distinct paths of the form messages.N.content.0, reason \"prefix_binding_mismatch\" or \"model_binding_mismatch\", type \"thinking_dropped\" alone. Likely open sets.",
+      "type": "object",
+      "required": [
+        "path",
+        "reason",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "The request path of the block changed, e.g. \"messages.131.content.0\".",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Why. Observed values: \"prefix_binding_mismatch\", \"model_binding_mismatch\".",
+          "type": "string"
+        },
+        "type": {
+          "description": "What was done. Observed value: \"thinking_dropped\".",
+          "type": "string"
         }
       }
     },
