@@ -24,6 +24,8 @@ source "$REPO_DIR/src/main/send.sh"
 source "$REPO_DIR/src/main/enact.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
+# shellcheck source=src/main/provider.sh
+source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 
 # rows: STATUS \t key \t detail \t remedy — parsed by status() and `corpus-yoga prerequisites`
 reconcile() {
@@ -412,7 +414,7 @@ merge() {
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
   mkdir -p "$TMP_DIR/logs/forge/merge"
   log="$TMP_DIR/logs/forge/merge/$stamp.log"
-  { echo "forge merge — $stamp · room: $(cat "$REPO_DIR/machine-name.txt" 2>/dev/null || echo '(unbound)') · $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null)"
+  { echo "forge merge — $stamp · $(provider_signature "$REPO_DIR") · $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null)"
     echo "corpus-yoga forge merge $pr"
     merge_chain "$pr"
   } 2>&1 | tee "$log"

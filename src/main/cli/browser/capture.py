@@ -110,17 +110,16 @@ RUN = {'t0': None, 'total': 0, 'done': 0, 'failed': [], 'at': '', 'log': None}
 
 
 def anchor(provider, mechanisms, conv_id):
-    """The log's first words (#412): stamp, room, commit, invocation — written
-    before any work, so a wordless log is impossible."""
-    binding = REPO_DIR / 'machine-name.txt'
-    room = binding.read_text().strip() if binding.exists() else '(unbound room)'
+    """The log's first words (#412): stamp, the Signature triad the commit hook stamps
+    (#704), commit, invocation — written before any work, so a wordless log is
+    impossible."""
     head = subprocess.run(['git', '-C', str(REPO_DIR), 'rev-parse', '--short', 'HEAD'],
                           capture_output=True, text=True).stdout.strip() or '(no commit)'
     dirty = bool(subprocess.run(['git', '-C', str(REPO_DIR), 'status', '--porcelain'],
                                 capture_output=True, text=True).stdout.strip())
     stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     what = f'--provider {provider} --mechanism {"+".join(mechanisms)}' + (f' --id {conv_id}' if conv_id else '')
-    emit(f'{stamp} · {room} · {head}{" (dirty)" if dirty else ""}')
+    emit(f'{stamp} · {registry.signature()} · {head}{" (dirty)" if dirty else ""}')
     emit(f'corpus-yoga browser capture {what}')
 
 

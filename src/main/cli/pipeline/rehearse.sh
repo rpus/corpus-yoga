@@ -31,9 +31,11 @@ REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_ROOT/src/main/tier.sh"
+# shellcheck source=src/main/provider.sh
+source "$REPO_ROOT/src/main/provider.sh"   # provider_signature - the log header's triad (#704)
 
 main() {
-  local stamp rehearsal log room head
+  local stamp rehearsal log head
   # the stage's word first (#721): a rehearsal judges a stage the stage reads as whole, and
   # no pipeline is shown an incomplete unit - the janitor is the remedy
   "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
@@ -42,12 +44,11 @@ main() {
   log="$TMP_DIR/logs/pipeline/rehearse/$stamp.log"
   mkdir -p "$TMP_STAGE/input" "$rehearsal/data/output" "$rehearsal/tmp" "$(dirname "$log")"
   ln -s ../../../input "$rehearsal/data/input"   # tmp/stage/rehearsal/<stamp>/data/input -> tmp/stage/input
-  # the log's header is the rehearsal's record: the stamp, the room, the commit, then the
-  # command as typed - what corpus-yoga stage reads
-  room="$(cat "$REPO_ROOT/machine-name.txt" 2>/dev/null || echo '(unbound)')"
+  # the log's header is the rehearsal's record: the stamp, the Signature triad the commit
+  # hook stamps (#704), the commit, then the command as typed - what corpus-yoga stage reads
   head="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   {
-    echo "pipeline rehearse — $stamp · room: $room · $head"
+    echo "pipeline rehearse — $stamp · $(provider_signature "$REPO_ROOT") · $head"
     echo "corpus-yoga pipeline rehearse"
     echo "rehearse: tmp/stage/rehearsal/$stamp - corpus-yoga pipeline run with CORPUS_YOGA_REHEARSAL=$stamp (src/main/tier.py: data and tmp under that directory, its input tmp/stage/input)"
     echo

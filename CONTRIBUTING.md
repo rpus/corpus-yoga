@@ -71,7 +71,10 @@ conversation, not the record.
 
 Every commit is signed `Signature: machine/provider/session` by the local
 `prepare-commit-msg` hook (`rsc/test/prepare-commit-msg-hook.sh`), which also drops the
-model co-author (it is derivable from the session).
+model co-author (it is derivable from the session). Every verb's log under `tmp/logs/`
+opens with the same triad in its header line, so a log names the session that ran the
+verb as a commit names the session that drafted it; `src/main/provider.py`'s
+`signature()` is the one derivation, and `src/main/provider.sh` its shell face.
 
 A merge conflict is almost always confined to the check's four regenerated artifacts,
 in two pairs — a derived file and the curated expectation beside it:
