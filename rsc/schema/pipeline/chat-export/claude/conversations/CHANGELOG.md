@@ -19,6 +19,39 @@ no tool-use block of this family names them, so no block references their inputs
 (v19, reading-room, 2026-09-09). A description change is not a validation change:
 no new version.
 
+## v21
+
+The export stops timestamping text. The export of 2026-09-28, captured on
+reading-room by `corpus-yoga export capture` into the stage of PR #689's branch,
+carries 24 text blocks whose `start_timestamp` and `stop_timestamp` are null - all in
+one conversation, `d11565d6-…`, in its 12 human and 12 assistant messages of
+2026-09-27 - where v20 requires a `Timestamp` on a text block and admits null on tool
+results alone. Across the whole export the newest message whose text blocks still
+carry timestamps is of 2026-08-28; the API capture of the same conversation, staged the
+same day, carries a timestamp on every one of those 24 blocks, matching each message's
+`created_at` to the second. claude.ai's export has stopped writing text-block
+timestamps since 2026-08-28 while its API still returns them: a loss in the export,
+admitted here as it comes, the API capture recorded as the timestamps' durable source
+(#718). The same conversation carries seven `injected_prompt_block`s whose `injection_source` no version knew: `memory_block_head`, `agent_listing`, `deferred_tools_delta`. The export of 2026-09-21 has neither form and validates as before.
+
+### Replaces
+
+v20
+
+#### Relaxed
+
+- `TextBlock.start_timestamp` and `TextBlock.stop_timestamp`: null or a `Timestamp`,
+  where v20 admitted a `Timestamp` alone - the relaxation v13 made for tool results,
+  now for text.
+- `InjectedPromptBlock.injection_source`: three values more, `memory_block_head`,
+  `agent_listing` and `deferred_tools_delta`, seven blocks of the same conversation on
+  2026-09-27 - the user memory snapshot and the harness's system reminders in a
+  conversation run from Claude Code - beside `date_note` and `melange_tombstone`.
+
+#### Refactored
+
+- None.
+
 ## v20
 
 The export of 2026-09-17, deposited on home-room on 2026-09-21: 122 conversations,
