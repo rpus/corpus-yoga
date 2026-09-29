@@ -732,7 +732,7 @@ def human(n: float) -> str:
 
 
 def rehearsal_header(stamp: str) -> str:
-    """The rehearsal's record: its log's header - time, room, commit - and the command as typed."""
+    """The rehearsal's record: its log's header - time, Signature, commit - and the command as typed."""
     log = tier.TMP / 'logs' / 'pipeline' / 'rehearse' / f'{stamp}.log'
     if not log.is_file():
         return 'no log under tmp/logs/pipeline/rehearse - run by path, not by the launcher'
