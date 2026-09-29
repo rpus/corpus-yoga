@@ -34,6 +34,9 @@ source "$REPO_ROOT/src/main/tier.sh"
 
 main() {
   local stamp rehearsal log room head
+  # the stage's word first (#721): a rehearsal judges a stage the stage reads as whole, and
+  # no pipeline is shown an incomplete unit - the janitor is the remedy
+  "$REPO_ROOT/src/run_python_script.sh" -c 'import sys; sys.path.insert(0, sys.argv[1]); import corpus; sys.exit(corpus.refuse_rehearsal())' "$REPO_ROOT/src/main"
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
   rehearsal="$TMP_STAGE/rehearsal/$stamp"
   log="$TMP_DIR/logs/pipeline/rehearse/$stamp.log"

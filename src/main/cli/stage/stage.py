@@ -62,7 +62,7 @@ def _remove(path: Path) -> str | None:
 
 
 KINDS = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'unit held byte-equal': 'units held byte-equal',
-         'empty directory': 'empty directories'}   # each kind of entry, and its plural
+         'incomplete unit': 'incomplete units', 'empty directory': 'empty directories'}   # each kind of entry, and its plural
 
 
 def _count(n: int, kind: str) -> str:
@@ -110,6 +110,10 @@ def entries() -> list[tuple[str, str, str, Callable[[], str | None]]]:
         for unit in corpus.units(corpus.STAGE):
             if corpus.redundant(unit):
                 out.append(('unit held byte-equal', str(unit.address), f'{unit.address}: held byte-equal in data/input',
+                            lambda unit=unit: _unit(unit)))
+            elif unit.missing:
+                # its record says what it lacks, so what it is is decidable on sight (#721)
+                out.append(('incomplete unit', str(unit.address), f'{unit.address}: incomplete - missing {", ".join(unit.missing)}',
                             lambda unit=unit: _unit(unit)))
     return out
 

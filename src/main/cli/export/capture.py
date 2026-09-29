@@ -103,11 +103,11 @@ def front_session() -> tuple[str | None, str | None]:
 
 
 def archive_member(category: str) -> str:
-    """The name a category's archive unpacks to in Downloads (rsc/naming/export_archive_members.csv)."""
+    """The name a category's archive arrives as in Downloads (rsc/naming/export_archive_members.csv)."""
     with MEMBERS_CSV.open(newline='') as f:
         for row in csv.DictReader(f):
             if row['category'] == category:
-                return row['member']
+                return row['arrival']
     sys.exit(f'export capture: NOT DONE - {category}: no row in {MEMBERS_CSV.relative_to(REPO)} says what its archive unpacks to')
 
 
