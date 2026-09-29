@@ -16,6 +16,7 @@ import io
 import json
 import sys
 from collections import Counter
+from collections.abc import Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -25,7 +26,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, may_replace, move_workspace, place_log, word_placement  # noqa: E402
+from transport import Relation, Session, may_replace, move_workspace, place_log, strings, word_placement  # noqa: E402
 
 PROVIDER = 'claude'
 
@@ -62,6 +63,26 @@ def live_sessions(mount: Path) -> list[Session]:
 
 def held_sessions(machine_dir: Path) -> list[Session]:
     return _sessions(machine_dir)
+
+
+def written(session: Session) -> Iterator[str]:
+    """Every string a tool call of the session carried as its input - the commands it
+    ran, the files it wrote - in the record's order (#631): the session's own log, then
+    its subagents', whose logs lie in its companion directory and whose acts are its."""
+    companion = session.path.with_suffix('')
+    for log in [session.path] + (sorted(companion.rglob('*.jsonl')) if companion.is_dir() else []):
+        with log.open() as f:
+            for line in f:
+                if '"tool_use"' not in line:
+                    continue
+                try:
+                    record = json.loads(line)
+                except ValueError:
+                    continue
+                content = (record.get('message') or {}).get('content')
+                for block in content if isinstance(content, list) else []:
+                    if isinstance(block, dict) and block.get('type') == 'tool_use':
+                        yield from strings(block.get('input'))
 
 
 def capture(mount: Path, outbox: Path, uuid8: str | None) -> int:

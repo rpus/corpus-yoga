@@ -15,7 +15,8 @@
 #            provider's row declares (CLAUDE_CODE_SESSION_ID for claude); a row that
 #            declares no variable is never attested, since nothing was observed.
 #            It is the JOIN KEY into the captured session corpus
-#            (data/input/<provider>/code/machine-transport/); the MODEL that did the work
+#            (data/input/<provider>/code/machine-transport/), a join corpus-yoga agent
+#            list-drafters holds (#631); the MODEL that did the work
 #            is DERIVABLE from it (corpus-yoga agent list-models), accurately and plurally — so it
 #            is never asserted here. This retired `Co-Authored-By: <model>`.
 #

@@ -1894,6 +1894,44 @@ def check_facts(run) -> None:
                 '  - ""', '  - null', '  - 2', 'empty: {}', 'none: []']
     run('facts: a status prints its facts as YAML a reader loads back', got == expected,
         None if got == expected else f'the lines read {got}', check='facts.lines_are_yaml')
+def check_drafters(run) -> None:
+    """A Signature is read by the grammar that writes it, and a message's first Signature
+    is its drafter (#631): the join of main's messages to the store's sessions rests on
+    both, and neither needs a store to be shown."""
+    sys.path.insert(0, str(SRC / 'main'))
+    sys.path.insert(0, str(SRC / 'main' / 'cli' / 'agent'))
+    import provider
+    read = getattr(provider, 'read_signature', None)
+    if read is None:
+        run('drafters: a Signature is read by the grammar that writes it', False,
+            'src/main/provider.py writes the Signature and reads none: nothing joins a message to its session',
+            check='drafters.signature_is_read_as_written')
+        return
+    cases = {'Signature: reading-room/claude/be12fa7c': ('reading-room', 'claude', 'be12fa7c'),
+             'Signature: home-room': ('home-room', None, None),
+             f'Signature: {provider.signature()}': tuple((provider.signature().split('/') + [None, None])[:3]),
+             'Signature: <machine>/<provider>/<session>': None,
+             'Signature: reading-room/claude': None,
+             'Signature: reading-room   # typed by hand': None,
+             '  Signature: reading-room': None}
+    wrong = [f'{line!r} read {read(line)}, not {want}' for line, want in cases.items() if read(line) != want]
+    run('drafters: a Signature is read by the grammar that writes it', not wrong,
+        '; '.join(wrong) if wrong else None, check='drafters.signature_is_read_as_written')
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('drafters', SRC / 'main' / 'cli' / 'agent' / 'drafters.py')
+    assert spec and spec.loader
+    drafters = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(drafters)
+    body = ('* one message (#1): its text\n\nSignature: home-room/claude/41ff13e9\n'
+            'Signature: reading-room/claude/be12fa7c\nSignature: reading-room\n\n'
+            '* a second, by the room\'s own shell\n\nSignature: reading-room\n\nthe forge\'s own closing words\n')
+    expected = [('* one message (#1): its text', [('home-room', 'claude', '41ff13e9'),
+                                                  ('reading-room', 'claude', 'be12fa7c'),
+                                                  ('reading-room', None, None)]),
+                ("* a second, by the room's own shell", [('reading-room', None, None)])]
+    got = drafters.drafted(body)
+    run("drafters: a message's first Signature is its drafter, the rest its co-drafters", got == expected,
+        None if got == expected else f'the body read {got}', check='drafters.first_signature_is_the_drafter')
 
 
 def check_versioned_schema_diagnostics(run):
@@ -2678,6 +2716,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_store': ['src/main/corpus.py', 'src/main/validation_audit.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
     'check_export_atoms': ['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'],
+    'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2937,6 +2976,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_store, tier='code')
         run_section(check_facts, tier='code')
         run_section(check_export_atoms, tier='code')
+        run_section(check_drafters, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

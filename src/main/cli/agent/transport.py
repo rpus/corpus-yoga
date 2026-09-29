@@ -23,6 +23,7 @@ transported to is data/input/<provider>/code/machine-transport/<machine>/<projec
 the project key being Claude Code's encoding of the workspace path, so one
 workspace lands under one name in every provider's store.
 """
+from collections.abc import Iterator
 import importlib.util
 import sys
 from dataclasses import dataclass
@@ -50,6 +51,18 @@ class Session:
     title: str
     size: int      # bytes the record occupies
     mtime: float   # the record's last write
+
+
+def strings(value: object) -> Iterator[str]:
+    """Every string a tool call's input holds, at any depth, in order."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from strings(v)
+    elif isinstance(value, list):
+        for v in value:
+            yield from strings(v)
 
 
 def project_key(workspace: str) -> str:

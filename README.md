@@ -92,7 +92,7 @@ stages it with the payload it lists. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `corpus-yoga browser capture`
 (or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
-Code sessions: `corpus-yoga agent capture --all`. The forge's ledger (issues, pull
+Code sessions: `corpus-yoga agent capture --all`; `corpus-yoga agent list-drafters` reads the Signatures on main against the sessions held. The forge's ledger (issues, pull
 requests, comments, reviews, labels, blocked_by edges): `corpus-yoga forge capture` -
 one stamped deposit under `data/input/github/forge/gh-CLI/` per run. Paid model readings:
 `corpus-yoga indexing capture` (needs `ANTHROPIC_API_KEY` set; `corpus-yoga prerequisites`

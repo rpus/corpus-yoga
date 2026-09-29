@@ -19,6 +19,7 @@ import json
 import sqlite3
 import sys
 import tempfile
+from collections.abc import Iterator
 from datetime import datetime
 from pathlib import Path
 
@@ -28,7 +29,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
-from transport import Relation, Session, move_workspace, place_log, project_key, word_placement  # noqa: E402
+from transport import Relation, Session, move_workspace, place_log, project_key, strings, word_placement  # noqa: E402
 
 PROVIDER = 'gemini'
 TRANSCRIPTS = ('transcript.jsonl', 'transcript_full.jsonl')
@@ -102,6 +103,25 @@ def held_sessions(machine_dir: Path) -> list[Session]:
                                _size([s / t for t in TRANSCRIPTS] + [s / 'conversation.db']),
                                transcript.stat().st_mtime if transcript.is_file() else 0.0))
     return out
+
+
+def written(session: Session) -> Iterator[str]:
+    """Every string a tool call of the session carried as its arguments - the commands
+    it ran, the files it wrote - in the record's order (#631); from the full transcript
+    where the session has one, since the other truncates long fields."""
+    logs = [d / t for t in reversed(TRANSCRIPTS) for d in (session.path, _logs(session.path))]
+    log = next((p for p in logs if p.is_file()), None)
+    if log is None:
+        return
+    with log.open() as f:
+        for line in f:
+            try:
+                record = json.loads(line)
+            except ValueError:
+                continue
+            for call in record.get('tool_calls') or []:
+                if isinstance(call, dict):
+                    yield from strings(call.get('args'))
 
 
 def _snapshot(db: Path) -> bytes:
