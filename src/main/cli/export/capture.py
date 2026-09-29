@@ -157,6 +157,12 @@ def fetch(entry: dict, target: Path) -> tuple[list[str] | None, str]:
                     shutil.move(str(path), staged)
                     size = staged.stat().st_size
                     return deposit(staged, target), f'{filename}: {size} bytes, unpacked here'
+                if member == Path(filename).stem:
+                    # Safari unpacks a many-entry archive into a directory named by the archive's
+                    # stem; the deposit holds the entries themselves at the root, as unpacking there does
+                    names = [hoist(target, shutil.move(str(item), target / item.name) and item.name) for item in sorted(path.iterdir())]
+                    path.rmdir()
+                    return names, f'{filename}: unpacked by Safari as {path.name}/'
                 shutil.move(str(path), target / member)   # under the member's own name, whatever Safari called the arrival
                 return [hoist(target, member)], f'{filename}: unpacked by Safari as {path.name}'
         time.sleep(1)
