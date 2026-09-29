@@ -52,13 +52,12 @@ eighth principle or a smell.
    becomes a template line, a check, or a rule here - filed as a should,
    asserted by a PR, guarded where a property stands. Any pivot, however
    unplanned, starts by filing its should.
-7. **Every agent is a provider.** An agent that changes this repository is a
-   row of the provider registry (rsc/provider/providers.csv), with the store
-   its sessions live in, before its work is merged. A message's first
-   Signature names the session that drafted it; the corpus holds that
-   session, and the claim is read from the session's own record
-   (`corpus-yoga agent list-drafters`), never taken from the commit. The
-   repository's own agents are its first subject.
+7. **Every agent is a provider.** An agent that changes this repository
+   should be a row of the provider registry (rsc/provider/providers.csv)
+   before its work is merged, and a message's first Signature should name
+   the session that drafted it. What a Signature claims is read from the
+   session's own record, never taken from the commit:
+   `corpus-yoga agent list-drafters` reports it and gates nothing.
 
 ## authorities
 
