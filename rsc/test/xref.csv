@@ -1036,12 +1036,12 @@ src/main/pipeline/chat-export/extract_files.py,31,path_str,src/main/pipeline/cha
 src/main/pipeline/chat-export/extract_files.sh,3,comment,src/main/pipeline/chat-export/extract_files.sh,Y,#   src/main/pipeline/chat-export/extract_files.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-5
 src/main/pipeline/chat-export/extract_files.sh,4,comment,src/main/pipeline/chat-export/extract_files.sh,Y,#   src/main/pipeline/chat-export/extract_files.sh --chat-exports data/input/claude/chat/bulk-export
 src/main/pipeline/chat-export/extract_files.sh,12,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
-src/main/pipeline/chat-export/extract_files.sh,21,call,src/main/pipeline/chat-export/extract_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
+src/main/pipeline/chat-export/extract_files.sh,23,call,src/main/pipeline/chat-export/extract_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_files.py"" --chat-export ""$d"" > ""$log_path"" 2>&1 \"
 src/main/pipeline/chat-export/extract_heredocs.py,35,path_str,src/main/pipeline/chat-export/extract_heredocs.py,Y,SELF = 'src/main/pipeline/chat-export/extract_heredocs.py'
 src/main/pipeline/chat-export/extract_heredocs.sh,3,comment,src/main/pipeline/chat-export/extract_heredocs.sh,Y,#   src/main/pipeline/chat-export/extract_heredocs.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-0
 src/main/pipeline/chat-export/extract_heredocs.sh,4,comment,src/main/pipeline/chat-export/extract_heredocs.sh,Y,#   src/main/pipeline/chat-export/extract_heredocs.sh --chat-exports data/input/claude/chat/bulk-export
 src/main/pipeline/chat-export/extract_heredocs.sh,12,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
-src/main/pipeline/chat-export/extract_heredocs.sh,21,call,src/main/pipeline/chat-export/extract_heredocs.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1"
+src/main/pipeline/chat-export/extract_heredocs.sh,23,call,src/main/pipeline/chat-export/extract_heredocs.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/extract_heredocs.py"" --chat-export ""$d"" > ""$log_path"" 2>&1 \"
 src/main/pipeline/chat-export/library.py,21,comment,rsc/naming/library_dir_vintages.csv,Y,rsc/naming/library_dir_vintages.csv.
 src/main/pipeline/chat-export/library.py,26,path_str,src/main/pipeline/chat-export/library.py,Y,SELF = 'src/main/pipeline/chat-export/library.py'
 src/main/pipeline/chat-export/memories.py,30,comment,src/main/cli/pipeline/pipeline.sh,Y,Usage (wired into src/main/cli/pipeline/pipeline.sh after the per-batch stages):
@@ -1070,16 +1070,16 @@ src/main/pipeline/chat-export/run.sh,7,comment,src/main/pipeline/chat-export/run
 src/main/pipeline/chat-export/run.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
 src/main/pipeline/chat-export/run.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/pipeline/chat-export/run.sh,22,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/chat-export/run.sh,66,call,src/main/pipeline/chat-export/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,71,call,src/main/pipeline/chat-export/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,72,call,src/main/pipeline/chat-export/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,73,call,src/main/pipeline/chat-export/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,77,call,src/main/pipeline/chat-export/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,78,call,src/main/pipeline/chat-export/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,83,call,src/main/pipeline/chat-export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,112,call,src/main/pipeline/chat-export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
-src/main/pipeline/chat-export/run.sh,120,call,src/main/pipeline/chat-export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
-src/main/pipeline/chat-export/run.sh,131,call,src/main/pipeline/chat-export/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" check \"
+src/main/pipeline/chat-export/run.sh,73,call,src/main/pipeline/chat-export/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,78,call,src/main/pipeline/chat-export/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,79,call,src/main/pipeline/chat-export/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,80,call,src/main/pipeline/chat-export/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,84,call,src/main/pipeline/chat-export/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,85,call,src/main/pipeline/chat-export/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,90,call,src/main/pipeline/chat-export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,119,call,src/main/pipeline/chat-export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
+src/main/pipeline/chat-export/run.sh,127,call,src/main/pipeline/chat-export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
+src/main/pipeline/chat-export/run.sh,138,call,src/main/pipeline/chat-export/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" check \"
 src/main/pipeline/chat-export/summaries.py,35,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/summaries.py [sync] \
 src/main/pipeline/chat-export/summaries.py,35,comment,src/main/pipeline/chat-export/summaries.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/summaries.py [sync] \
 src/main/pipeline/chat-export/summaries.py,46,path_str,src/main/pipeline/chat-export/summaries.py,Y,SELF = 'src/main/pipeline/chat-export/summaries.py'

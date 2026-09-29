@@ -18,7 +18,10 @@ run_one() {
   local name; name="$(basename "$d")"
   local log_path="$CACHE_DIR/$name/extracted_heredocs/extract_heredocs.log"
   mkdir -p "$(dirname "$log_path")"
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1
+  # the step's output is its log; a failure's last words are relayed to the run, so that a
+  # step that stated its finding is never reported as having stated none (#720)
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1 \
+    || { echo "FAIL: extract_heredocs: $(tail -1 "$log_path")"; return 1; }
 }
 
 parse_args() {
