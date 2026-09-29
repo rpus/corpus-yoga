@@ -19,7 +19,7 @@ run_one() {
   local log_path="$CACHE_DIR/$name/extracted_files/extract_files.log"
   mkdir -p "$(dirname "$log_path")"
   # the step's output is its log; a failure's last words are relayed to the run, so that a
-  # step that stated its finding is never reported as having stated none (#720)
+  # step that stated its finding is never reported as having stated none (#722)
   "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_files.py" --chat-export "$d" > "$log_path" 2>&1 \
     || { echo "FAIL: extract_files: $(tail -1 "$log_path")"; return 1; }
 }

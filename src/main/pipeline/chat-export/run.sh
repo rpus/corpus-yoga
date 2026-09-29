@@ -56,13 +56,6 @@ parse_args() {
 
 run_one() {
   local batch="${1%/}"
-  # An export is held whole or not at all, and the stage can hold one that is not (#720):
-  # a capture whose downloads failed leaves the directory without its conversations. One
-  # stated skip, never the stage - the exports beside it are judged.
-  if [[ ! -f "$batch/conversations.json" ]]; then
-    echo "skipping $(basename "$batch"): no conversations.json - an incomplete export"
-    return 0
-  fi
   # No blanket wipe of tmp/cache/<batch>: each stage owns (wipes or overwrites) its own
   # output subtree. A blanket wipe would destroy the validation memoisation logs,
   # forcing full revalidation every run. (The paid captures are out of reach either

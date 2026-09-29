@@ -1070,16 +1070,16 @@ src/main/pipeline/chat-export/run.sh,7,comment,src/main/pipeline/chat-export/run
 src/main/pipeline/chat-export/run.sh,10,comment,src/main/steps.sh,Y,# --plan prints exactly the lists that execute (see src/main/steps.sh).
 src/main/pipeline/chat-export/run.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/pipeline/chat-export/run.sh,22,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
-src/main/pipeline/chat-export/run.sh,73,call,src/main/pipeline/chat-export/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,78,call,src/main/pipeline/chat-export/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,79,call,src/main/pipeline/chat-export/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,80,call,src/main/pipeline/chat-export/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,84,call,src/main/pipeline/chat-export/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,85,call,src/main/pipeline/chat-export/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,90,call,src/main/pipeline/chat-export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,119,call,src/main/pipeline/chat-export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
-src/main/pipeline/chat-export/run.sh,127,call,src/main/pipeline/chat-export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
-src/main/pipeline/chat-export/run.sh,138,call,src/main/pipeline/chat-export/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" check \"
+src/main/pipeline/chat-export/run.sh,66,call,src/main/pipeline/chat-export/validate.sh,Y,"step validate           ""$SCRIPT_DIR/validate.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,71,call,src/main/pipeline/chat-export/archive_components.py,Y,"""$SCRIPT_DIR/archive_components.py"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,72,call,src/main/pipeline/chat-export/extract_files.sh,Y,"step extract_files      ""$SCRIPT_DIR/extract_files.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,73,call,src/main/pipeline/chat-export/extract_heredocs.sh,Y,"step extract_heredocs   ""$SCRIPT_DIR/extract_heredocs.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,77,call,src/main/pipeline/chat-export/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,78,call,src/main/pipeline/chat-export/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,83,call,src/main/pipeline/chat-export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
+src/main/pipeline/chat-export/run.sh,112,call,src/main/pipeline/chat-export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
+src/main/pipeline/chat-export/run.sh,120,call,src/main/pipeline/chat-export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
+src/main/pipeline/chat-export/run.sh,131,call,src/main/pipeline/chat-export/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" check \"
 src/main/pipeline/chat-export/summaries.py,35,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/summaries.py [sync] \
 src/main/pipeline/chat-export/summaries.py,35,comment,src/main/pipeline/chat-export/summaries.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/summaries.py [sync] \
 src/main/pipeline/chat-export/summaries.py,46,path_str,src/main/pipeline/chat-export/summaries.py,Y,SELF = 'src/main/pipeline/chat-export/summaries.py'
