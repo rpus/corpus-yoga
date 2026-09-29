@@ -9,8 +9,8 @@
 #
 # The slot after `test` holds WHICH check, not a verb: `run` is the whole suite, `xref`
 # is one of them. That is why `corpus-yoga xref check` retired — `check` meant "reports, writes
-# nothing" on supersede and "rebuild the table and write it" here, one word for opposite
-# effects on the tree (#49).
+# nothing" elsewhere and "rebuild the table and write it" here, one word for opposite
+# effects on the tree (#49); the supersession verdict is its bare noun since #715.
 
 set -euo pipefail
 

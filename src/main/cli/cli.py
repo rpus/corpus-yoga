@@ -505,7 +505,7 @@ def main() -> int:
         return 0
     # A bare noun (advertised verbs, no args) shows status, then tails with its usage
     # — the one tail that works everywhere, naming every verb that applies. Verbs
-    # (check/run/supersede: no advertised verbs) act on a bare invocation, so they
+    # (check/run: no advertised verbs) act on a bare invocation, so they
     # keep the plain execv path and no tail.
     if not rest and subcommands_of(row['command']):
         rc = _run_status(row)

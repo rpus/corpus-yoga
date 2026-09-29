@@ -1,9 +1,21 @@
 {
-  "summary": "Do later bulk exports supersede earlier ones? Computed; never assumed",
+  "summary": "do later bulk exports supersede earlier ones? computed, never assumed: the verdict with its working (bare), and its janitor (clean), which removes a deletable export with its manifest and its shadow",
   "target": "src/main/pipeline/chat-export/supersede.py",
   "calculus": "supersession L3",
-  "args": [],
+  "args": [
+    {
+      "name": "--api-capture",
+      "type": "<dir>",
+      "cardinality": "",
+      "help": "API-capture root: also compare the latest export against live captures (informational)"
+    }
+  ],
   "r": [
+    "tmp/cache/chat-export",
+    "data/input/claude/chat/bulk-export",
+    "data/input/claude/chat/API-capture",
+    "data/output/memories",
+    "data/output/markdown/claude/chat/summaries",
     "rsc/naming/export_dir_vintages.csv"
   ]
 }

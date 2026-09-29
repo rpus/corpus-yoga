@@ -17,7 +17,6 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
 # shellcheck source=src/main/tier.sh
 source "$REPO_DIR/src/main/tier.sh"
-CACHE_DIR="$TMP_DIR/cache/chat-export"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -126,10 +125,11 @@ run_tail() {
   # superseded (their lattice join). Also compares the latest batch against the
   # live-capture corpus per conversation: capture-ahead is normal post-snapshot
   # growth; capture-stale names conversations to recapture in place. Divergence is
-  # a fact, not an error.
+  # a fact, not an error. The step is the janitor's dry run (#715): the verdict with
+  # its working, then what corpus-yoga supersede clean --apply, the reader's act,
+  # would remove.
   step_ok supersede  "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/supersede.py" check \
-    --chat-export-cache "$CACHE_DIR" --api-capture "$API_CAPTURE"
+    "$SCRIPT_DIR/supersede.py" clean --dry-run --api-capture "$API_CAPTURE"
 }
 
 print_plan() {

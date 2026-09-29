@@ -298,7 +298,7 @@ Each law names its current enforcement (or the incident that taught it).
   each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
   `src/main/append_only.py` over a measure per kind), and beyond it where the
   pipelines reduce — in `tmp/cache/` and `data/output/` (bulk exports and
-  `corpus-yoga supersede check`; sessions and `render_corpus.py`; `corpus-yoga forge
+  `corpus-yoga supersede`; sessions and `render_corpus.py`; `corpus-yoga forge
   capture` since the maintainer's ruling of 2026-08-23, #497). The two captures that
   read the store they wrote, each to guard its own write - `corpus-yoga agent capture`
   by a session's byte prefix, `corpus-yoga browser capture` by a scrape's turn extent -
