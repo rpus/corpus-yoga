@@ -146,8 +146,16 @@ def survey() -> tuple[dict, list, int, str]:
 
 
 def _capture(machine: str, provider: str, session: str) -> str:
-    where = '' if machine == bound_machine() else f'on {machine}, '
-    return f'{where}corpus-yoga agent capture --provider {provider} --id {session}'
+    """The capture that brings the session's record level, and where it runs: only the
+    room whose live store holds a session can capture it. A machine that is no room of
+    the store - a session run in the provider's cloud, or under no binding - has no such
+    store, so the session is resumed on a room first."""
+    capture = f'corpus-yoga agent capture --provider {provider} --id {session}'
+    if machine == bound_machine():
+        return capture
+    if machine in rooms_of(provider):
+        return f'on {machine}, {capture}'
+    return f'{machine} is no room of the store - resume the session on a room, then {capture}'
 
 
 def brief() -> int:
