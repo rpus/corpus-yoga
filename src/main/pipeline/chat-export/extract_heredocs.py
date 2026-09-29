@@ -38,6 +38,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import ordered
 from library import assert_uuid8_unique, dir_for, LIBRARY
 
@@ -189,7 +190,7 @@ def process(conversations_path: Path, out_dir: Path) -> None:
 
 
 SCRIPT_DIR     = Path(__file__).resolve().parent
-CACHE_DIR     = SCRIPT_DIR.parents[3] / 'tmp' / 'cache' / 'chat-export'
+CACHE_DIR     = tier.TMP / 'cache' / 'chat-export'
 
 
 def main():

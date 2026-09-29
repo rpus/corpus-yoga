@@ -1,28 +1,31 @@
 {
-  "help": "fetch a manifest's payload from its one-use export_urls into the data-* directory sharing the manifest's star (manifest-<X>.json becomes data-<X>/) - refused if it exists; bare lists the manifests held and requires --manifest",
+  "help": "stage a manifest and its payload: the manifest moved from where the download left it, each file it lists downloaded by navigating Safari to its one-use export_url - the export page fetches a signed storage URL and Safari takes the download, unpacking it where it opens safe files - and deposited into the data-* directory sharing the manifest's star (manifest-<X>.json beside data-<X>/); refused if that directory is staged or held",
   "args": [
     {
       "name": "--manifest",
       "type": "<file>",
-      "cardinality": "",
-      "help": "the manifest to fetch - required to fetch anything: each export_url is one-use, so no default picks one; bare lists the candidates"
-    },
-    {
-      "name": "--to",
-      "type": "<dir>",
-      "cardinality": "",
-      "help": "deposit under a directory instead of the store (test escape hatch - a directory, never a machine name)"
+      "cardinality": "1",
+      "help": "the manifest, wherever the download left it - required: each export_url is one-use, so no default picks one"
     }
   ],
+  "x": [
+    "--manifest <file> (consumed: moved into the stage as the unit's record)",
+    "~/Downloads (where Safari puts each download, under the server's name, replacing a same-named entry; moved out on arrival)"
+  ],
   "sends": {
-    "https://claude.ai/export/... (urllib)": [
-      "WRITES nothing outward, but each export_url is one-use: the fetch consumes it (refused loudly under YOGA_NO_SEND)"
+    "osascript": [
+      "drives Safari against the logged-in session - fronting claude.ai in a work tab, navigating it to each export_url, reading the page (refused loudly under YOGA_NO_SEND)"
+    ],
+    "navigation to each export_url (Safari)": [
+      "the export page asks claude.ai for a signed storage URL and Safari downloads from it; each URL is one-use, so the navigation consumes it (refused loudly under YOGA_NO_SEND)"
     ]
   },
   "r": [
-    "data/input/claude/chat/bulk-export"
+    "data/input/claude/chat/bulk-export",
+    "tmp/stage/input/claude/chat/bulk-export",
+    "rsc/naming/export_archive_members.csv"
   ],
   "w": [
-    "data/input/claude/chat/bulk-export"
+    "tmp/stage/input/claude/chat/bulk-export"
   ]
 }

@@ -15,13 +15,17 @@ SELF='src/main/pipeline/chat-export/run.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-CACHE_DIR="$REPO_DIR/tmp/cache/chat-export"
-# The cross-source join reads chat-capture' input at ITS declared root — the
-# sibling's pipeline.json is the one committed authority for that path.
-API_CAPTURE="$REPO_DIR/$(jq -r .input "$REPO_DIR/src/main/pipeline/chat-capture/pipeline.json")"
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
+CACHE_DIR="$TMP_DIR/cache/chat-export"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
+
+# The cross-source join reads chat-capture's claude input at ITS declared root — the
+# sibling's pipeline.json is the one committed authority for that path.
+API_CAPTURE="$(resolve_input "$(tier_path "$(jq -r .input "$REPO_DIR/src/main/pipeline/chat-capture/pipeline.json")")" \
+  "$REPO_DIR/src/main/pipeline/chat-capture/pipeline.json" claude)"
 
 parse_args() {
   chat_export=""

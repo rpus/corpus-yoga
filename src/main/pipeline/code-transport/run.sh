@@ -25,7 +25,9 @@ SELF='src/main/pipeline/code-transport/run.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-CACHE_DIR="$REPO_DIR/tmp/cache/code-transport"
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
+CACHE_DIR="$TMP_DIR/cache/code-transport"
 
 # shellcheck source=src/main/steps.sh
 source "$REPO_DIR/src/main/steps.sh"
@@ -68,10 +70,21 @@ providers() {
   return 0
 }
 
-# The provider a store path belongs to: the segment under data/input.
+# The provider a store path belongs to: the segment before /code/machine-transport,
+# under whichever root the store is read from - data/input, or the overlay (#687).
 provider_of() {
-  local rest="${1#*"/data/input/"}"
-  echo "${rest%%/*}"
+  local head="${1%%/code/machine-transport*}"
+  echo "${head##*/}"
+}
+
+# The digest of what a memory datum was converted from - the directory's files by
+# relative path and bytes - written beside the conversion as source.sha256, so that a
+# verdict on the converted datum can be tied to the source it was taken over (#687:
+# promotion reads it against the staged unit). A session's converter records its own
+# source, the one file it read.
+record_source() {
+  local src="$1" out_dir="$2"
+  (cd "$src" && find . -type f ! -name .DS_Store | sort | while IFS= read -r f; do printf '%s ' "${f#./}"; shasum -a 256 "$f" | cut -d' ' -f1; done) | shasum -a 256 | cut -d' ' -f1 > "$out_dir/source.sha256"
 }
 
 prune_departed() {
@@ -137,6 +150,7 @@ run_memory() {
   local out_dir="$CACHE_DIR/$provider/$machine/$name/memory"
   step_if "$guard" 'when the project has a memory/ dir' memory_to_json \
     "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/$provider/memory_to_json.py" "${project_dir%/}/memory" "$out_dir/memory.json"
+  step_if "$guard" 'when the project has a memory/ dir' record_source record_source "${project_dir%/}/memory" "$out_dir"
 }
 
 # ── Dispatch workers (#395): one task each, machine/project derived from the

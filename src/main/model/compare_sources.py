@@ -40,6 +40,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import REPO, project, find_api_json, render, turn_seq
 
 
@@ -67,7 +68,7 @@ def api_by_uuid(captures_dir):
 def bulk_by_uuid(batch_dir):
     """The bulk side, read from the per-conversation json/ pieces project_markdown atomised out of
     the array (tmp/cache/chat-export/<batch>/json/) -- the 24 MB array itself is never re-read here."""
-    json_dir = REPO / 'tmp' / 'cache' / 'chat-export' / Path(batch_dir).name / 'json'
+    json_dir = tier.TMP / 'cache' / 'chat-export' / Path(batch_dir).name / 'json'
     if not json_dir.is_dir():
         sys.exit(f"no atomised json/ at {json_dir}; "
                  f"run project_markdown.py --bulk-export {batch_dir} first")

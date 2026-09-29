@@ -6,7 +6,8 @@
 #   corpus-yoga forge sync [--apply]  # make the forge agree with src/main/cli/forge/forge.csv
 #   corpus-yoga forge merge <pr>      # the reviewer's one act (#483): refuse, relocate if the base moved, stand at the head and run the data gate, flip the body, squash, converge
 #   corpus-yoga forge prune [--apply] # forget what the forge no longer has
-#   corpus-yoga forge capture [--to <dir>] # deposit the forge's ledger under data/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge capture            # deposit the forge's ledger under tmp/stage/input/github/forge/gh-CLI/<stamp>/ - nothing, if unchanged
+#   corpus-yoga forge promote [--rehearsal <stamp>]   # what capture staged, into data/input/github/forge/gh-CLI/
 
 set -euo pipefail
 
@@ -14,6 +15,8 @@ SELF='src/main/cli/forge/forge.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 DECLARED="$REPO_DIR/src/main/cli/forge/forge.csv"
 # shellcheck source=src/main/send.sh
 source "$REPO_DIR/src/main/send.sh"
@@ -407,8 +410,8 @@ merge() {
   local pr="$1"
   local stamp log rc
   stamp="$(date -u '+%Y-%m-%dT%H%M%SZ')"
-  mkdir -p "$REPO_DIR/tmp/logs/forge/merge"
-  log="$REPO_DIR/tmp/logs/forge/merge/$stamp.log"
+  mkdir -p "$TMP_DIR/logs/forge/merge"
+  log="$TMP_DIR/logs/forge/merge/$stamp.log"
   { echo "forge merge — $stamp · room: $(cat "$REPO_DIR/machine-name.txt" 2>/dev/null || echo '(unbound)') · $(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null)"
     echo "corpus-yoga forge merge $pr"
     merge_chain "$pr"
@@ -517,12 +520,12 @@ relocation_point() {  # <base-ref> <head-ref>
 relocated() {  # <base> <head> <old-sha>
   local base="$1" head="$2" old_sha="$3"
   local wt onto held own merged_pr conflicted guard=0 oid
-  wt="$REPO_DIR/tmp/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-$head"
+  wt="$TMP_DIR/forge/merge/$(date -u '+%Y-%m-%dT%H%M%SZ')-$head"
   dispose() {
     git -C "$REPO_DIR" worktree remove --force "$wt" >/dev/null 2>&1 || true
     git -C "$REPO_DIR" worktree prune >/dev/null 2>&1 || true
   }
-  mkdir -p "$REPO_DIR/tmp/forge/merge"
+  mkdir -p "$TMP_DIR/forge/merge"
   enact git -C "$REPO_DIR" worktree add --detach "$wt" "refs/remotes/origin/$head" >&2 \
     || { echo "relocation halted — could not open a worktree at origin/$head" >&2; return 1; }
   # A paused rebase is an EXPECTED state, not a failure (#485): the attempt
@@ -725,11 +728,12 @@ capture() {
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
 
 case "${1-}" in
-  '')        status ;;
+  '')        status; "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" report forge ;;
   sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
   prune)     shift; parse_argv forge prune "$@"; prune "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;
   capture)   shift; parse_argv forge capture "$@"; capture "$@" ;;
+  promote)   shift; parse_argv forge promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote forge "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;
   *)         echo "corpus-yoga forge: unknown argument: $1 (try: corpus-yoga forge --help)" >&2; exit 1 ;;
 esac

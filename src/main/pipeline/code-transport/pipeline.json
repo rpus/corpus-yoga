@@ -9,11 +9,17 @@
   "provider": {
     "claude": {
       "input_glob": "*/*/*.jsonl",
-      "extra_input_glob": "*/*/memory/"
+      "extra_input_glob": "*/*/memory/",
+      "measure": "prefix",
+      "extra_measure": "mirror",
+      "companion": "<stem>/"
     },
     "gemini": {
       "input_glob": "*/*/*/transcript*.jsonl",
-      "extra_input_glob": ""
+      "extra_input_glob": "",
+      "measure": "prefix",
+      "extra_measure": "",
+      "companion": ""
     }
   },
   "subject_depth": 3,

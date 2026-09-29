@@ -80,6 +80,8 @@ _file = Path(__file__).resolve()
 _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
+sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
@@ -497,7 +499,7 @@ def main():
     # declaration puts them there.
     args = command_parser('supersede').parse_args()
     if args.verb is None:
-        return status(Path(DEFAULT_CACHE), Path(DEFAULT_BULK))
+        return status(tier.path(DEFAULT_CACHE), tier.path(DEFAULT_BULK))
     return check(args)
 
 

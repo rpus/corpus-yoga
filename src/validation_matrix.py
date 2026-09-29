@@ -1,42 +1,35 @@
 #!/usr/bin/env python
 """
-validation_matrix.py — render a datum's machine-local validation matrix from its logs.
+validation_matrix.py — render a datum's machine-local validation matrix from its verdicts.
 
-Each datum directory under tmp/cache/ whose validation/ holds vN.log files gets a single
-sibling matrix.md summarising them (schema × version → ✓/✗, bytes). The matrix is
-derived state: git-ignored, co-located with its datum, and written by validation
-itself (validate_versions.py) whenever the logs change — so it can never be stale.
+Each datum directory under tmp/cache/ whose validation/ holds vN.verdict.json records
+(src/main/validation_verdict.py, #701) gets a single sibling matrix.md summarising them (schema × version →
+✓/✗, bytes). The matrix is derived state: git-ignored, co-located with its datum, and
+written by validation itself (validate_versions.py) whenever the records change — so it can
+never be stale. No reader here opens a vN.log: the log is the inspection's grist, and a
+datum's content has no way to state its own verdict.
 src/test/dev/gen_changelog_matrix.py re-renders or aggregates without revalidating;
-src/main/validation_audit.py judges the logs and matrices (corpus-yoga pipeline audit).
+src/main/validation_audit.py judges the records and matrices (corpus-yoga pipeline audit).
 """
 
 import json
 import os
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / 'main'))
+import validation_verdict as verdict  # noqa: E402 — the record (#701)
 
 PREAMBLE = """# validation matrix
 
 Machine-local (git-ignored): whether this datum validates at each family's latest
-version, derived from that version's log under validation/ at validation time.
+version, derived from that version's verdict record under validation/ at validation time.
 The version narrative lives in the committed CHANGELOG.md beside each schema.
 """
 
 HEADER = ['| Schema | Item | Version | Result | Bytes |',
           '| --- | --- | :---: | :---: | ---: |']
-
-
-def result_symbol(log_text: str) -> str:
-    if 'Valid!' in log_text:
-        return '✓'
-    if 'Validation error' in log_text:
-        return '✗'
-    return '?'
-
-
-def log_bytes(log_text: str) -> int:
-    m = re.search(r': (?:\d+ lines, )?(\d+) bytes', log_text)
-    return int(m.group(1)) if m else 0
 
 
 def family_dir(root: Path, schema: str, datum_dir: Path | None = None) -> Path | None:
@@ -81,12 +74,22 @@ def latest_version(schema_parent_dir: Path, schema: str, datum_dir: Path | None 
     return versions[-1].stem if versions else None
 
 
-def rows_from_logs(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, str, str], tuple[str, int]]:
-    """(schema, item, latest version) → (✓/✗/?, bytes) from the LATEST version's log under
-    one datum's validation/ directory - the latest version is the schema, the rest is
-    history (#557), so an older vN.log left beside it is not a row. `item` is the inner
-    subject for nested layouts (chat-export projects), '' otherwise. This is the source
-    of truth the datum's matrix.md renders."""
+def _row(log_dir: Path, latest: str) -> tuple[str, int] | None:
+    """(✓/✗, datum bytes) for the latest version's judgment in log_dir, from its record; a
+    log with no record is no row - a judgment not recorded, which the audit reads as an
+    input unprocessed and the run's validate step makes anew."""
+    record = verdict.read(verdict.path_for(log_dir, latest))
+    if record is None:
+        return None
+    return verdict.symbol(record), int(record.get('datum_bytes', 0))
+
+
+def rows_from_records(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, str, str], tuple[str, int]]:
+    """(schema, item, latest version) → (✓/✗/?, bytes) from the LATEST version's verdict
+    record under one datum's validation/ directory - the latest version is the schema, the
+    rest is history (#557), so an older record left beside it is not a row. `item` is the
+    inner subject for nested layouts (chat-export projects), '' otherwise. This is the
+    source of truth the datum's matrix.md renders."""
     rows: dict[tuple[str, str, str], tuple[str, int]] = {}
     vdir = datum_dir / 'validation'
     if not vdir.is_dir():
@@ -96,14 +99,14 @@ def rows_from_logs(datum_dir: Path, schema_parent_dir: Path) -> dict[tuple[str, 
         latest = latest_version(schema_parent_dir, schema, datum_dir)
         if latest is None:
             continue
-        direct = schema_dir / f'{latest}.log'
-        if direct.is_file():
-            text = direct.read_text()
-            rows[(schema, '', latest)] = (result_symbol(text), log_bytes(text))
+        direct = _row(schema_dir, latest)
+        if direct is not None:
+            rows[(schema, '', latest)] = direct
         for entry in sorted(schema_dir.iterdir()):
-            if entry.is_dir() and (entry / f'{latest}.log').is_file():
-                text = (entry / f'{latest}.log').read_text()
-                rows[(schema, entry.name, latest)] = (result_symbol(text), log_bytes(text))
+            if entry.is_dir():
+                nested = _row(entry, latest)
+                if nested is not None:
+                    rows[(schema, entry.name, latest)] = nested
     return rows
 
 
@@ -115,13 +118,13 @@ def _row_sort_key(key):
 def render_rows(datum_dir: Path, schema_parent_dir: Path) -> list[str]:
     """One table row per (schema, item, version) found under datum_dir/validation/.
     schema_parent_dir is the schema root (family_root) the version links resolve under."""
-    rows = rows_from_logs(datum_dir, schema_parent_dir)
+    rows = rows_from_records(datum_dir, schema_parent_dir)
     out = []
     for key in sorted(rows, key=_row_sort_key):
         schema, item, version = key
         symbol, nbytes = rows[key]
         fam       = family_dir(schema_parent_dir, schema, datum_dir)
-        assert fam is not None, f'{schema}: no family under {schema_parent_dir}'   # rows_from_logs admitted it
+        assert fam is not None, f'{schema}: no family under {schema_parent_dir}'   # rows_from_records admitted it
         vfile     = fam / f'{version}.json'
         rel       = os.path.relpath(vfile, datum_dir)
         item_cell = f'`{item}`' if item else ''
@@ -130,7 +133,7 @@ def render_rows(datum_dir: Path, schema_parent_dir: Path) -> list[str]:
 
 
 def write_matrix(datum_dir: Path, schema_parent_dir: Path) -> Path | None:
-    """Write (or rewrite) datum_dir/matrix.md. Returns its path, or None if no logs."""
+    """Write (or rewrite) datum_dir/matrix.md. Returns its path, or None if no records."""
     body = render_rows(datum_dir, schema_parent_dir)
     if not body:
         return None
@@ -146,3 +149,4 @@ if __name__ == '__main__':
     out = write_matrix(Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve())
     if out:
         print(f'  matrix: {out}')
+

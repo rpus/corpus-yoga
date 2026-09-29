@@ -37,6 +37,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 import sys as _sys
 _sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import tier  # noqa: E402 — the tiers, one home (#702)
 from latest import latest_file  # noqa: E402
 SCHEMA_DIR = REPO / 'rsc' / 'schema'
 MODEL_DIR = REPO / 'rsc' / 'model'
@@ -243,7 +244,7 @@ def shared_name_candidates() -> list[dict]:
     return rows
 
 
-WORKSHEET = REPO / 'tmp' / 'cache' / 'model' / 'shared_name_candidates.csv'
+WORKSHEET = tier.TMP / 'cache' / 'model' / 'shared_name_candidates.csv'
 
 
 def worksheet_rows() -> list[dict] | None:
@@ -337,8 +338,8 @@ def emptiness_violations(repo: Path) -> list:
     definition's required keys are a subset of its own; the scan names the
     first falsifying file per edge. Rooms without the relevant corpus skip,
     stated by the caller."""
-    doc_roots = {'null_in_api': repo / 'data' / 'input' / 'claude' / 'chat' / 'API-capture',
-                 'null_in_export': repo / 'tmp' / 'cache' / 'chat-export'}
+    doc_roots = {'null_in_api': tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
+                 'null_in_export': tier.TMP / 'cache' / 'chat-export'}
     emptiness_kinds = {k for k, c in kinds().items() if c == 'emptiness'}
     out = []
     for i, row in enumerate(_join_rows(), 2):

@@ -75,10 +75,10 @@ extracts by transporting itself home, and the host demerges the residue.
     corpus-yoga agent
     corpus-yoga agent list-models
     corpus-yoga agent mount [--apply]
-    corpus-yoga agent capture --provider <provider> --id <uuid-prefix> [--to <scratch-dir>]
-    corpus-yoga agent capture --provider <provider> [--to <scratch-dir>]
+    corpus-yoga agent capture --provider <provider> --id <uuid-prefix>
+    corpus-yoga agent capture --provider <provider>
     corpus-yoga agent install   --id <uuid-prefix> --from <machine|dir> [--apply]
-    corpus-yoga agent capture --all [--to <scratch-dir>]
+    corpus-yoga agent capture --all
     corpus-yoga agent install   --all --from <machine|dir> [--apply]
     corpus-yoga agent demerge [--apply]
 
@@ -96,11 +96,8 @@ not.
 
 The endpoint asymmetry is the model, not an accident: capture takes NO
 destination — it pushes this machine's own ref, the only legal one
-(single-writer branches) — so --to is purely a scratch/test escape hatch and
-takes a bare directory, never a machine name - each provider's sessions land
-under <scratch-dir>/<provider>/. install must NAME its source ref:
-a peer machine under claude's store, or (the same scratch affordance, symmetric) a
-directory. The two are distinguished by SHAPE, never by lookup: a bare token
+(single-writer branches). install must NAME its source ref:
+a peer machine under claude's store, or a directory. The two are distinguished by SHAPE, never by lookup: a bare token
 is a machine, a path-shaped token (containing '/') is a directory — so meaning
 never depends on the CWD.
 
@@ -132,6 +129,7 @@ REPO = _root[0]
 
 sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
+import tier  # noqa: E402 — the tiers, one home (#702)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
 from machine import bound_machine  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
@@ -160,12 +158,15 @@ def own_outbox(provider: str) -> Path | None:
     provider's store inside it is a directory this verb creates, being what it
     is declared to write. None where data/input is absent: a sweep states the
     skip and what to do rather than stopping between providers."""
-    medium = REPO / 'data' / 'input'
+    medium = tier.DATA / 'input'
     if not medium.is_dir():
         print(f'{provider}: {medium.relative_to(REPO)} is missing - link data/ to the shared iCloud tree '
               '(corpus-yoga prerequisites shows the convention), then run this again; skipped', file=sys.stderr)
         return None
-    out = transport.store(provider) / bound_machine()
+    # the outbox is the stage twin of the store, tmp/stage/input/...: a capture reads
+    # nothing it does not write (L10), and corpus-yoga agent promote relates each staged
+    # session to the held one and writes what extends it (#687)
+    out = tier.TMP_STAGE_INPUT / transport.store(provider).relative_to(tier.DATA / 'input') / bound_machine()
     out.mkdir(parents=True, exist_ok=True)
     return out
 
@@ -230,7 +231,7 @@ def model_census() -> int:
     return 0
 
 
-def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
+def capture(uuid8: str | None, provider: str | None) -> int:
     """The extent, named: --all is every session of every served provider whose
     mount is present, each into its own store; --provider <name> is every
     session of that provider; --provider <name> --id <uuid-prefix> is one of
@@ -260,15 +261,16 @@ def capture(uuid8: str | None, to: str | None, provider: str | None) -> int:
     conflicts = 0
     for row, mount_path, adapter in targets:
         name = row['provider']
-        if to:
-            outbox = Path(to).expanduser() / name
-            outbox.mkdir(parents=True, exist_ok=True)
-        else:
-            outbox = own_outbox(name)
-            if outbox is None:
-                continue
+        outbox = own_outbox(name)
+        if outbox is None:
+            continue
         print(f'── {name}: {mount_path.relative_to(REPO)} → {outbox.relative_to(REPO) if outbox.is_relative_to(REPO) else outbox}')
         conflicts += adapter.capture(mount_path, outbox, uuid8)
+    # the act names the next acts (#687): what was captured waits in the stage until
+    # the pipeline has judged it and the same extent is promoted
+    extent = '--all' if provider is None else f'--provider {provider}' + (f' --id {uuid8}' if uuid8 else '')
+    print(f'agent capture: staged under tmp/stage/input/<provider>/code/machine-transport, not promoted - '
+          f'corpus-yoga pipeline rehearse, then corpus-yoga agent promote {extent}')
     return conflicts
 
 
@@ -327,13 +329,20 @@ def main() -> int:
     }).parse_args()
 
     if args.verb is None:
-        return list_agents()   # bare noun → the census (local + store sessions), read-only status
+        rc = list_agents()   # bare noun → the census (local + store sessions), read-only status
+        import corpus
+        corpus.report('agent')
+        return rc
     if args.verb == 'mount':
         return mount(args.apply)
     if args.verb == 'list-models':
         return model_census()
     if args.verb == 'capture':
-        return 1 if capture(args.id, args.to, args.provider) else 0
+        return 1 if capture(args.id, args.provider) else 0
+    if args.verb == 'promote':
+        # --rehearsal <stamp> names the rehearsal whose verdicts are read; bare, the newest
+        import corpus
+        return corpus.promote('agent', corpus.extent('agent', args.provider, args.all, args.id), args.rehearsal)
 
     projects, claude = _claude()
     if args.verb == 'demerge':

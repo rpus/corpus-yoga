@@ -9,14 +9,19 @@ SELF='src/main/pipeline/chat-export/extract_heredocs.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
-CACHE_DIR="$REPO_DIR/tmp/cache/chat-export"
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
+CACHE_DIR="$TMP_DIR/cache/chat-export"
 
 run_one() {
   local d="${1%/}"
   local name; name="$(basename "$d")"
   local log_path="$CACHE_DIR/$name/extracted_heredocs/extract_heredocs.log"
   mkdir -p "$(dirname "$log_path")"
-  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1
+  # the step's output is its log; a failure's last words are relayed to the run, so that a
+  # step that stated its finding is never reported as having stated none (#722)
+  "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/extract_heredocs.py" --chat-export "$d" > "$log_path" 2>&1 \
+    || { echo "FAIL: extract_heredocs: $(tail -1 "$log_path")"; return 1; }
 }
 
 parse_args() {

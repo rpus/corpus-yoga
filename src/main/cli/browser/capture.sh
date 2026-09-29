@@ -23,6 +23,8 @@ SELF='src/main/cli/browser/capture.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 
 main() {
   # --run-log: a caller that already opened the run's log (browser.sh, whose
@@ -41,7 +43,7 @@ main() {
   fi
   echo "src/main/cli/browser/$(basename "$0") ($provider)"
   local log rc=0
-  log="${run_log:-$REPO_DIR/tmp/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H%M%SZ').log}"
+  log="${run_log:-$TMP_DIR/logs/browser/capture/$provider/$(date -u '+%Y-%m-%dT%H%M%SZ').log}"
   mkdir -p "$(dirname "$log")"
   # Name the log FIRST: a Shortcut invocation shows this output in a transient
   # dialog (if at all), and any 'see the run log' advice is useless unless the

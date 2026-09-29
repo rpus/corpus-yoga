@@ -35,6 +35,7 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import REPO, MD033_PRAGMA, deposit, turn_extent, conv_id
 
 HEADING = re.compile(r'^## (Human|Gemini) \((\d+)\)$', flags=re.M)
@@ -61,8 +62,8 @@ def anchored(md):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--dom-capture', default=str(REPO / 'data' / 'input' / 'gemini' / 'chat' / 'DOM-capture'))
-    ap.add_argument('--out', default=str(REPO / 'data' / 'output' / 'markdown' / 'gemini' / 'chat' / 'conversations'))
+    ap.add_argument('--dom-capture', default=str(tier.DATA / 'input' / 'gemini' / 'chat' / 'DOM-capture'))
+    ap.add_argument('--out', default=str(tier.DATA / 'output' / 'markdown' / 'gemini' / 'chat' / 'conversations'))
     args = ap.parse_args()
 
     src = Path(args.dom_capture)

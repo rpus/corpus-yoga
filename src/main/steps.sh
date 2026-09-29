@@ -18,6 +18,8 @@
 #   step_if    <guard> <note> <name> <cmd...>     # runs iff guard is "1"
 #   step_ok    <name> <cmd...>                    # informational: never gates
 #   step_if_ok <guard> <note> <name> <cmd...>     # both of the above
+#   resolve_input <path> <pipeline.json> <provider>  # <provider> and <qualifier> in a
+#                                                    # declared input path made the provider's
 
 # Sourced file: SELF and _self_dir here overwrite the sourcing script's —
 # safe only because every sourcer's own guard has already run by its source line.
@@ -175,3 +177,13 @@ dispatch_emit() {
 }
 
 dispatch_done() { rm -rf "$DISPATCH_DIR"; unset DISPATCH_DIR DISPATCH_N; }
+
+# A declared input path resolved for one provider: <provider> its name, <qualifier> the
+# qualifier its row of pipeline.json's provider member declares (#687). The one place a
+# runner turns the declaration's template into a store it can read.
+resolve_input() {
+  local qualifier out
+  qualifier="$(jq -r --arg p "$3" '.provider[$p].qualifier // ""' "$2")"
+  out="${1//<provider>/$3}"
+  echo "${out//<qualifier>/$qualifier}"
+}

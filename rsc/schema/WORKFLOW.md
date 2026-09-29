@@ -168,6 +168,12 @@ src/main/pipeline/chat-export/run.sh    --input data/input/claude/chat/bulk-expo
 src/main/pipeline/code-transport/run.sh --input data/input/claude/code/machine-transport
 ```
 
+A datum the latest version refuses is, from #687, a datum the room has staged and
+cannot promote: the capturing noun's bare status names it, and the mint is tested over the
+room's stage before the merge that licenses its promotion - `corpus-yoga pipeline rehearse`
+runs the checkout's own code over a rehearsal's own tiers under tmp/stage/rehearsal/<stamp>
+(src/main/tier.py), so the run above is that one over the staged units.
+
 Validation runs each datum against its family's LATEST version only - the latest
 version is the schema, the rest is this file's history (#557) - and renders the datum's
 machine-local validation matrix: a `matrix.md` in the datum's directory under `tmp/cache/`,

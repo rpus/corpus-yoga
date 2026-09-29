@@ -379,10 +379,13 @@ def check_pipeline_declarations(run) -> None:
                  + ('no row of rsc/provider/providers.csv' if p not in provider.provider_names()
                     else f'without src/main/pipeline/{name}/{p}/')),
                 check='structure.pipeline_provider_served')
-            # run.sh reaches a provider's mechanism by its name, so no reference names these
-            # files: the three every mechanism holds are held here instead.
-            absent = [f for f in ('list_sessions.sh', 'session_to_json.sh', 'project_conversation.py')
-                      if ok and not (PIPELINE_ROOT / name / p / f).is_file()]
+            # run.sh reaches a provider's mechanism by the provider's name ($provider/<file>),
+            # so no reference names these files: what run.sh reaches that way is held here,
+            # less what it first tests for with -f, which a provider may lack.
+            runner = (PIPELINE_ROOT / name / 'run.sh').read_text()
+            reached = set(re.findall(r'\$provider/([A-Za-z_]+\.(?:sh|py))', runner))
+            optional = set(re.findall(r'-f "\$SCRIPT_DIR/\$provider/([A-Za-z_]+\.(?:sh|py))"', runner))
+            absent = [f for f in sorted(reached - optional) if ok and not (PIPELINE_ROOT / name / p / f).is_file()]
             run(f'pipeline: {name}: provider {p} holds its mechanism whole', not absent,
                 None if not absent else
                 f'src/main/pipeline/{name}/{p}/ lacks {", ".join(absent)} - run.sh calls each by the provider\'s name',
@@ -1660,6 +1663,127 @@ def check_grammar_laws(run, cited: dict) -> None:
     run(f'grammar: {len(laws)} laws — {summary}', True, check='grammar.enforcement_map')
 
 
+def check_tier_contract(run) -> None:
+    """Every data or tmp path under src/main derives from the tier contract (#702):
+    src/main/tier.py and its shell twin are the one home, and no other script builds a
+    path through the literal segment 'data' or 'tmp' from a root of its own - REPO,
+    parents[3], $REPO_DIR - by hand - a rehearsal is
+    the checkout's own code run over other tiers, which such a path would escape."""
+    # a Path built through the literal segment 'data' or 'tmp' from any root-shaped
+    # expression - REPO, repo, parents[3], _root[0] - and the shell's $<ROOT>/data, /tmp
+    py = re.compile(r"/\s*'(data|tmp)'\s*/")
+    sh = re.compile(r'\$\{?[A-Z_]*(DIR|ROOT)\}?/(data|tmp)(/|")')
+    found = []
+    for f in sorted((SRC / 'main').rglob('*')):
+        if f.suffix not in ('.py', '.sh') or f.name in ('tier.py', 'tier.sh') or '__pycache__' in f.parts or 'gen' in f.parts:
+            continue
+        pat = py if f.suffix == '.py' else sh
+        for i, line in enumerate(f.read_text().splitlines(), 1):
+            if line.strip().startswith('#'):
+                continue
+            if pat.search(line):
+                found.append(f'{f.relative_to(REPO_ROOT)}:{i}')
+    run('tier: every data and tmp path under src/main derives from src/main/tier.py or tier.sh', not found,
+        ('; '.join(found[:8]) + (f'; ... {len(found)} total' if len(found) > 8 else '')) if found else None,
+        check='tier.paths_from_contract')
+
+
+def check_verdict_record(run) -> None:
+    """A verdict is read from its record, never from the log's text (#701): a red log whose
+    inspection dumps a datum that carries the validator's own word must read red. The
+    fixture is synthetic - a datum directory with one family, its latest version, a log
+    that says 'Validation error' and then 'Valid!' inside the dumped instance, and beside
+    it the record that says invalid; a log with no record is no row."""
+    import tempfile
+    sys.path.insert(0, str(SRC))
+    from validation_matrix import rows_from_records
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        schema_root = root / 'rsc' / 'schema' / 'pipeline' / 'chat-capture'
+        (schema_root / 'claude' / 'apiConversation').mkdir(parents=True)
+        (schema_root / 'claude' / 'apiConversation' / 'v1.json').write_text('{}')
+        datum = root / 'tmp' / 'cache' / 'chat-capture' / 'claude' / 'datum'
+        log_dir = datum / 'validation' / 'apiConversation'
+        log_dir.mkdir(parents=True)
+        (log_dir / 'v1.log').write_text('2026-09-27T00:00:00+00:00\n'
+                                         'datum.json: 3 lines, 40 bytes · sha256 aa\n'
+                                         'v1.json: 2 bytes · sha256 bb\n'
+                                         'Validation error: Additional properties are not allowed\n'
+                                         '--- instance ---\n'
+                                         "{\"text\": \"the validator ends with print('Valid!')\"}\n")
+        rows = rows_from_records(datum, schema_root)
+        run('validation: a log without a record is no row, whatever its text says', not rows,
+            None if not rows else f'read {rows} from the log text alone', check='validation.verdict_is_record')
+        (log_dir / 'v1.verdict.json').write_text('{"datum": "datum.json", "datum_sha256": "aa", "datum_bytes": 40, '
+                                                  '"datum_lines": 3, "schema": "v1.json", "schema_sha256": "bb", '
+                                                  '"version": "v1", "verdict": "invalid", "reason": "Validation error", '
+                                                  '"at": "2026-09-27T00:00:00+00:00"}\n')
+        rows = rows_from_records(datum, schema_root)
+        got = rows.get(('apiConversation', '', 'v1'), ('?', 0))[0]
+        run("validation: a red record reads red though the log's dumped instance says Valid!", got == '✗',
+            None if got == '✗' else f'read {got} - the verdict came from the text, not the record', check='validation.verdict_is_record')
+
+
+def check_unit_companion(run) -> None:
+    """The staged bulk export <X> is one unit, named by <X>, by the chat-export declaration
+    itself (#687): its member is data-<X>/, which promotion copies, and its record is
+    manifest-<X>.json, which stays in the stage. Either alone is the same unit, unpaired,
+    naming what is absent. The fixture is synthetic - one export whole, one with its
+    manifest alone, one with its payload alone."""
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    store = next(s for s in corpus.stores() if s['pipeline'] == 'chat-export')
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        base = root / store['input']
+        for name in ('data-2026-01-01-whole', 'data-2026-03-03-payload'):
+            (base / name).mkdir(parents=True)
+            (base / name / 'conversations.json').write_text('[]')
+        (base / 'manifest-2026-01-01-whole.json').write_text('{}')
+        (base / 'manifest-2026-02-02-manifest.json').write_text('{}')
+        got = sorted((unit.address.name, [m.name for m in unit.members],
+                      [m.name for m in getattr(unit, 'record', [Path('?')])], list(unit.missing))
+                     for unit in corpus.select(root, store))
+        expected = [('2026-01-01-whole', ['data-2026-01-01-whole'], ['manifest-2026-01-01-whole.json'], []),
+                    ('2026-02-02-manifest', [], ['manifest-2026-02-02-manifest.json'], ['data-2026-02-02-manifest/']),
+                    ('2026-03-03-payload', ['data-2026-03-03-payload'], [], ['manifest-2026-03-03-payload.json'])]
+        run('stage: a staged bulk export is one unit named by its star, its manifest the record that stays', got == expected,
+            None if got == expected else f'selected {got}, where the units are {expected}',
+            check='stage.export_is_one_unit')
+
+
+def check_unit_state(run) -> None:
+    """A staged unit is in one of five states, and the stage's counts are of those states
+    (#687): promotable, held already, refused - a relation or a family gave its verdict
+    against it - incomplete, and unjudged, the state before any verdict, whose remedy is
+    a rehearsal. No status line prescribes a removal: a refused unit is the reader's to
+    reconcile, an incomplete one the janitor's."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    from append_only import Relation
+    state = getattr(corpus, 'state', None)
+    judgement = getattr(corpus, 'Judgement', None)
+    if state is None or judgement is None:
+        run('stage: a unit not yet judged is counted unjudged, never refused', False,
+            'src/main/corpus.py derives no state: its counts call refused whatever is not promotable',
+            check='stage.states_are_told_apart')
+        return
+    whole = corpus.Unit(Path('a/b'), [Path('a/b')], [], [], 'prefix', 'chat-capture', 'claude')
+    lacking = corpus.Unit(Path('a/c'), [Path('a/c')], [], [], 'whole', 'chat-export', None, missing=['x.json'])
+    got = [state(lacking, Relation.ABSENT, judgement.UNJUDGED), state(whole, Relation.ABSENT, judgement.UNJUDGED),
+           state(whole, Relation.EXTENDS, judgement.REFUSED), state(whole, Relation.DIVERGED, judgement.NONE),
+           state(whole, Relation.ABSENT, judgement.VALID)]
+    expected = ['incomplete', 'unjudged', 'refused', 'refused', 'promotable']
+    run('stage: a unit not yet judged is counted unjudged, never refused', got == expected,
+        None if got == expected else f'the states read {got}, where they are {expected}',
+        check='stage.states_are_told_apart')
+    prescribed = [line.strip() for line in (SRC / 'main' / 'corpus.py').read_text().splitlines()
+                  if '→ run: rm' in line]
+    run('stage: no status line prescribes a removal', not prescribed,
+        None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')
+
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
@@ -2118,13 +2242,18 @@ def check_effects(run):
     share its workshop; every other containment is two hands on one file."""
     cli_root = CLI  # noqa: kept as a local name for the checks below
     claims = []
+    unread = []
     for f in sorted(cli_root.glob('*/*.json')):
         d = json.loads(f.read_text())
         owner = f'{f.parent.name} {f.stem}' if f.stem != f.parent.name else f.parent.name
         for w in d.get('w', []):
             claims.append((owner, w.rstrip('/'), bool(d.get('step')),
-                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name,
-                           (f.parent.name, f.stem) == ('cache', 'clean')))
+                           (f.parent.name, f.stem) == ('pipeline', 'run'), f.parent.name))
+        # a consumed prefix is a dequeue from another command's w (#687): no claim on
+        # the file, but the consumer reads what it removes - held here
+        for c in d.get('consumes', []):
+            if not any(c.rstrip('/') == r.rstrip('/') or c.startswith(r.rstrip('/') + '/') for r in d.get('r', [])):
+                unread.append(f'{owner} consumes:{c} without an r row covering it')
     bad = []
     for i in range(len(claims)):
         for j in range(i + 1, len(claims)):
@@ -2139,17 +2268,13 @@ def check_effects(run):
             if pa == pb or pa.startswith(pb + '/') or pb.startswith(pa + '/'):
                 if (a[3] and b[2]) or (b[3] and a[2]):
                     continue   # a pipeline containing its own declared step's w
-                if a[5] or b[5]:
-                    # the janitor's w is the COMPLEMENT of the registry: cache
-                    # clean deletes only tmp/cache subtrees no cache_io row
-                    # owns (it never descends into an owned workshop), so its
-                    # containment of every workshop is the subject, not a
-                    # second hand on the same file
-                    continue
                 bad.append(f'{a[0]} w:{pa} ∩ {b[0]} w:{pb}')
     run('effects: writers are disjoint (each w prefix claimed once)',
         not bad, '; '.join(bad[:5]) if bad else None, law='L6',
         check='effects.writers_disjoint')
+    run('effects: every consumed prefix is read by its consumer',
+        not unread, '; '.join(unread[:5]) if unread else None, law='L6',
+        check='effects.consumer_reads')
 
     # -- extent coverage (#430): the suspicion list as a check ---------------
     # A path-shaped literal in a command's machinery that no declared r/w row
@@ -2228,7 +2353,7 @@ def check_effects(run):
         rows, machinery = set(), set()
         for j in cmd_dir.glob('*.json'):
             d = json.loads(j.read_text())
-            rows |= {x.rstrip('/') for x in d.get('r', []) + d.get('w', [])}
+            rows |= {x.rstrip('/') for x in d.get('r', []) + d.get('w', []) + d.get('consumes', [])}
             tgt = d.get('target')
             if (tgt and not tgt.startswith('src/test/')
                     and tgt.endswith(('.py', '.sh', '.applescript'))
@@ -2435,6 +2560,10 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_schema_validity': SCHEMA,
     'check_schema_single_version': SCHEMA,
     'check_schema_changelogs': SCHEMA,
+    'check_tier_contract': ['src/main'],
+    'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
+    'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
+    'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
     'check_model_join_versions': SCHEMA + MODEL,
@@ -2686,6 +2815,10 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_schema_single_version, tier='schema')
         run_section(check_schema_changelogs, tier='schema')
 
+        run_section(check_tier_contract, tier='code')
+        run_section(check_verdict_record, tier='code')
+        run_section(check_unit_companion, tier='code')
+        run_section(check_unit_state, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

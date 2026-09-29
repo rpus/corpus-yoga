@@ -9,6 +9,7 @@
 #   corpus-yoga pipeline run [<pipeline>] [<item>]  # run what bare lists, one of them by name, or
 #                                            # one input item of that one
 #     --plan            print the ordered step plan; run nothing
+#   corpus-yoga pipeline rehearse                 # every pipeline over everything staged, in tmp/stage
 #   corpus-yoga pipeline sync [<pipeline>]        # re-render each datum's matrix.md from its vN.logs
 #   corpus-yoga pipeline audit [<pipeline>]       # the validation-output judgments (the run's tail step)
 #
@@ -25,6 +26,8 @@ SELF='src/main/cli/pipeline/pipeline.sh'
 _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_ROOT/src/main/tier.sh"
 # shellcheck source=src/main/steps.sh
 source "$REPO_ROOT/src/main/steps.sh"
 # shellcheck source=src/main/send.sh
@@ -85,6 +88,7 @@ status() {
     printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `corpus-yoga pipeline | awk '{print $1}'` works
   done
   echo "  → local input state: corpus-yoga prerequisites · each pipeline's steps: corpus-yoga pipeline run --plan"
+  "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" report
 }
 
 parse_args() {
@@ -359,7 +363,7 @@ prep_pipeline_safe() {
   fi
 }
 
-LOG_FILE="$REPO_ROOT/tmp/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
+LOG_FILE="$TMP_DIR/logs/pipeline/run/$(date -u '+%Y-%m-%dT%H%M%SZ').log"
 
 # The whole-corpus tail: the root-level REDUCE, run once after every pipeline —
 # for operations whose input spans them all (the pipelines' own run_tails fold
@@ -392,7 +396,9 @@ run_corpus_tail() {
   step model "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/model/model.py" sync
   # The data gate's own validation judgments (#535): the checks the dev gate
   # held as its data tier, spoken here once, as the verb a reader can type.
-  step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit
+  # a run of one pipeline audits that pipeline: the audit takes the name (#545), and a
+  # whole-cache audit after one pipeline's run would judge the others' unrefreshed records
+  step pipeline "$REPO_ROOT/src/main/cli/pipeline/pipeline.sh" audit ${only:+"$only"}
   # Bare nouns DELIBERATELY (not the dropped-verb bug class the plan gate
   # guards): each noun's read-only status IS its L9 currency mechanism (#409) —
   # indexing's carries the paid captures' lag, site's the corpus page's, model's
@@ -445,7 +451,8 @@ main() {
   ref="${ref:-(detached)} @ $(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo '(no git)')"
   dirty="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | grep -c . || true)"
   [[ "$dirty" -eq 0 ]] && dirty="clean" || dirty="dirty ($dirty)"
-  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty"
+  echo "$(basename "$0") $* — $(date -u '+%Y-%m-%dT%H:%M:%SZ') · room: $room · $ref, $dirty${CORPUS_YOGA_REHEARSAL:+ · rehearsal $CORPUS_YOGA_REHEARSAL}"
+
 
   require_cmd jq "install via: brew install jq"
   require_venv
@@ -465,7 +472,9 @@ main() {
   # stage table like any other; a red commit gate is a failing stage, and the
   # run continues so the product half of the report still speaks.
   echo "── tests ─────────────────────────────────────────────────────────────────"
-  if ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
+  if [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]]; then
+    echo "tests: skipped - a rehearsal runs the pipelines alone; the dev gate is the checkout's (corpus-yoga test run)"
+  elif ! step tests "$REPO_ROOT/src/test/dev/run.sh"; then
     if ! section_has_fail "tests"; then
       local tests_reds tests_last
       tests_reds="$(section_dev_gate_reds "tests")"
@@ -482,16 +491,16 @@ main() {
   # Each pipeline runs over its DECLARED input root (pipeline.json's input), so the
   # path the wrapper passes and the path the pipeline documents cannot disagree.
   if should_run chat-capture; then
-    run_pipeline_safe  chat-capture "$REPO_ROOT/$(input_of chat-capture)"
+    run_pipeline_safe  chat-capture "$(tier_path "$(input_of chat-capture)")"
   fi
 
   if should_run chat-export; then
     prep_pipeline_safe chat-export
-    run_pipeline_safe  chat-export "$REPO_ROOT/$(input_of chat-export)"
+    run_pipeline_safe  chat-export "$(tier_path "$(input_of chat-export)")"
   fi
 
   if should_run code-transport; then
-    run_pipeline_safe  code-transport "$REPO_ROOT/$(input_of code-transport)"
+    run_pipeline_safe  code-transport "$(tier_path "$(input_of code-transport)")"
   fi
 
   # the whole-corpus reduce: over whatever is projected — idempotent, so a
@@ -553,6 +562,7 @@ case "${1-}" in
   '')        status; exit 0 ;;
   --names)   pipelines; exit 0 ;;
   run)       shift; parse_argv pipeline run "$@" ;;
+  rehearse)  shift; parse_argv pipeline rehearse "$@"; exec "$REPO_ROOT/src/main/cli/pipeline/rehearse.sh" "$@" ;;
   sync)      shift; parse_argv pipeline sync "$@"; sync_matrices "$@"; exit $? ;;
   audit)     shift; parse_argv pipeline audit "$@"; "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/validation_audit.py" "$@"; exit $? ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
@@ -560,7 +570,7 @@ case "${1-}" in
   # a bare --plan reaching here without `run` is a caller from before the verb existed,
   # and is accepted rather than failed: the flag says what was meant.
   --plan) ;;
-  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run, sync, audit (bare: status)" >&2; exit 1 ;;
+  *) echo "corpus-yoga pipeline: unknown verb ${1} — takes: run, rehearse, sync, audit (bare: status)" >&2; exit 1 ;;
 esac
 
 # --plan runs before the log exists: it writes nothing, not even a log file.

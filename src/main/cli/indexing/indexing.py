@@ -55,12 +55,13 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import tier  # noqa: E402 — the tiers, one home (#702)
 from markdown_projection import REPO
 from declared_parser import command_parser
 
-MARKDOWN_DIR = REPO / 'data' / 'output' / 'markdown'                    # the corpus to index
-ACCEPTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
-REJECTED_FILE = REPO / 'data' / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
+MARKDOWN_DIR = tier.DATA / 'output' / 'markdown'                    # the corpus to index
+ACCEPTED_FILE = tier.DATA / 'output' / 'indexing' / 'accepted-semantic-concepts.txt'  # the concepts accepted as headwords (read + written)
+REJECTED_FILE = tier.DATA / 'output' / 'indexing' / 'rejected-semantic-concepts.txt'  # the concepts rejected, with reasons (read + written)
 
 TURN_RE = re.compile(
     r'^## (?P<role>Human|Claude|Gemini) \((?P<n>\d+)\) <a id="(?P<anchor>[^"]+)"></a>$',
@@ -310,8 +311,8 @@ STOPWORDS = frozenset(
     every each both again true false none non within without across against""".split())
 
 
-INFERRED_FILE = REPO / 'data' / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
-CANDIDATES_TXT = REPO / 'tmp' / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
+INFERRED_FILE = tier.DATA / 'output' / 'indexing' / 'inferred-semantic-concepts.json'  # the model's proposals, corpus-yoga indexing capture's (read)
+CANDIDATES_TXT = tier.TMP / 'cache' / 'indexing' / 'candidate-semantic-concepts.txt'
 
 
 def _coverage(accepted_path: Path, rejected_path: Path):
@@ -533,8 +534,8 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
           file=sys.stderr)
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
-        print(('FAIL: ' if orphans else '')
-              + f'orphans: {len(orphans)} accepted headword(s) with zero corpus locators'
+        # a notice, never a failure (#675): the reader's curation, not a verb's, clears it
+        print(f'orphans: {len(orphans)} accepted headword(s) with zero corpus locators'
               + (f' — {", ".join(orphans)} (fix the aliases, or remove the line and '
                  f'reject the concept with a reason)' if orphans else ''),
               file=sys.stderr)
@@ -544,12 +545,12 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
         return
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
-    # A nonzero queue is a violated property (every queued concept disposed),
-    # stated as a FAIL atom (#535 - the dev gate's former concept_disposed
-    # invocations, spoken here once); the names follow as the queue lines. A
-    # concept the corpus cannot index is not the reader's to dispose: it is named
-    # with what was tried, and the next capture may phrase it again (#644).
-    print(f'FAIL: candidates: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
+    # A nonzero queue is the reader's act awaiting, stated with its remedy as a notice
+    # the gate does not count (#675): no verb failed to produce it, and only the
+    # reader's disposal clears it. The names follow as the queue lines. A concept the
+    # corpus cannot index is not the reader's to dispose: it is named with what was
+    # tried, and the next capture may phrase it again (#644).
+    print(f'candidates: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
           'corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>" '
           '(corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each; --all disposes it as read):'
           if pending else 'candidates: none - fully disposed', file=sys.stderr)

@@ -1,11 +1,11 @@
 {
-  "help": "capture browser-reachable chats via Safari into data/input/ (a bare `corpus-yoga browser` audits capture-health)",
+  "help": "capture browser-reachable chats via Safari into the room's stage, tmp/stage/input/ - corpus-yoga browser promote reaches data/input (a bare `corpus-yoga browser` audits capture-health)",
   "args": [
     {
       "name": "--provider",
       "type": "claude|gemini",
-      "cardinality": "",
-      "help": "restrict to one provider: claude | gemini (default: every provider)"
+      "cardinality": "1/browser-capture-1",
+      "help": "every conversation of ONE provider: claude | gemini; or with --id one of them"
     },
     {
       "name": "--mechanism",
@@ -18,6 +18,12 @@
       "type": "<id>",
       "cardinality": "",
       "help": "capture ONE conversation (the audit FAILs name it); requires --provider — an id's shape does not say whose it is"
+    },
+    {
+      "name": "--all",
+      "type": "",
+      "cardinality": "1/browser-capture-1",
+      "help": "every conversation of every provider, every mechanism it has"
     },
     {
       "name": "--dry-run",
@@ -38,11 +44,13 @@
     ]
   },
   "w": [
-    "data/input/claude/chat/API-capture",
-    "data/input/gemini/chat/DOM-capture",
+    "tmp/stage/input/claude/chat/API-capture",
+    "tmp/stage/input/gemini/chat/DOM-capture",
     "data/output/artifacts/claude/chat/downloaded"
   ],
   "r": [
+    "data/input/claude/chat",
+    "data/input/gemini/chat",
     "data/output/markdown",
     "machine-name.txt"
   ],

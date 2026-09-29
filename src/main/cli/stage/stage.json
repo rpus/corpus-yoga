@@ -1,0 +1,14 @@
+{
+  "summary": "the room's stage, tmp/stage: what is captured and not yet promoted, and what a rehearsal derived (bare: the tier's status; clean: its one janitor)",
+  "target": "src/main/cli/stage/stage.py",
+  "calculus": "supersession L3 L4 L6 L10",
+  "args": [],
+  "r": [
+    "tmp/stage",
+    "data/input",
+    "rsc/naming/export_archive_members.csv"
+  ],
+  "x": [
+    "git"
+  ]
+}

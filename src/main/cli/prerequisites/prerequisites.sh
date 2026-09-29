@@ -24,6 +24,8 @@ SELF='src/main/cli/prerequisites/prerequisites.sh'
 _self_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="${_self_dir%/"${SELF%/*}"}"
 [[ "${REPO_ROOT}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_ROOT/src/main/tier.sh"
 : "${VENV:=$HOME/venvs/general}"
 # shellcheck source=src/main/send.sh
 source "$REPO_ROOT/src/main/send.sh"   # assert_may_send — the shell face of YOGA_NO_SEND (#29)
@@ -494,21 +496,21 @@ check_pipeline_inputs() {
   sec "pipeline inputs (this repo ships no data; you supply your own)"
   local n
 
-  n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/API-capture"/*/)"
+  n="$(count_glob_dirs "$DATA_DIR/input/claude/chat/API-capture"/*/)"
   if [[ "$n" -gt 0 ]]; then
     ok "chat-capture: $n claude capture(s) in data/input/claude/chat/API-capture — will validate + project to markdown"
   else
     info "chat-capture: no claude captures in data/input/claude/chat/API-capture — will skip (populate via: ./corpus-yoga browser capture)"
   fi
 
-  n="$(count_glob_dirs "$REPO_ROOT/data/input/gemini/chat/DOM-capture"/*/)"
+  n="$(count_glob_dirs "$DATA_DIR/input/gemini/chat/DOM-capture"/*/)"
   if [[ "$n" -gt 0 ]]; then
     ok "chat-capture: $n gemini scrape(s) in data/input/gemini/chat/DOM-capture — markdown is the terminal artifact (browse via ./corpus-yoga server start); not validated"
   else
     info "chat-capture: no gemini scrapes in data/input/gemini/chat/DOM-capture — captured only via: ./corpus-yoga browser capture --provider gemini (DOM is its only mechanism); not processed further"
   fi
 
-  n="$(count_glob_dirs "$REPO_ROOT/data/input/claude/chat/bulk-export"/data-*/)"
+  n="$(count_glob_dirs "$DATA_DIR/input/claude/chat/bulk-export"/data-*/)"
   if [[ "$n" -gt 0 ]]; then
     ok "chat-export: $n bulk export(s) in data/input/claude/chat/bulk-export — will validate, extract, atomise, render"
   else
@@ -581,6 +583,23 @@ check_pipeline_inputs() {
     fi
   else
     info "ext/mnt/site absent — optional, only a deploying machine needs it; hand-make: ln -s <site-repo-clone> ext/mnt/site (rsc/site/README.md)"
+  fi
+}
+
+check_stage() {
+  # The room's stage, tmp/stage: what this room has captured and not yet promoted to shared
+  # storage (#687) - machine-local state, so it belongs in this report; the count is
+  # src/main/corpus.py's, read through the venv's python.
+  sec "stage (tmp/stage/input - captured in this room, not yet promoted; each capturing noun's bare status relates its units to the held ones)"
+  [[ -x "$VENV/bin/python" ]] || return 0
+  local staged
+  staged="$("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" count 2>/dev/null || echo "?")"
+  if [[ "$staged" == "0" ]]; then
+    ok "tmp/stage/input: nothing staged - every capture this room has made is promoted"
+  elif [[ "$staged" == "?" ]]; then
+    info "tmp/stage/input: could not be read - corpus-yoga pipeline says why"
+  else
+    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted - corpus-yoga stage counts them; corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
   fi
 }
 
@@ -709,6 +728,7 @@ report() {
   check_signature_hook
   check_forge
   check_pipeline_inputs
+  check_stage
   check_migration
   notes
 

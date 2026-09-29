@@ -5,11 +5,12 @@
 # export is not an error; the pipeline simply has nothing to do.
 # No network access, no writes, no interactive steps — a prerequisite check only.
 #
-# To download a bulk export:
+# To bring in a bulk export:
 #   1. Log in to https://claude.ai
 #   2. Settings → Privacy → Export Data → Export (All)
-#   3. Click the download link in the emailed confirmation
-#   4. Extract the downloaded archive into data/input/claude/chat/bulk-export/
+#   3. Download the manifest the emailed confirmation links
+#   4. corpus-yoga export capture --manifest <the manifest, where the download left it>
+#      then corpus-yoga pipeline rehearse, then corpus-yoga export promote (#687, #716)
 #
 # Usage:
 #   src/main/pipeline/chat-export/require_export.sh
@@ -20,6 +21,8 @@ SELF='src/main/pipeline/chat-export/require_export.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 
 parse_args() {
   while [[ $# -gt 0 ]]; do
@@ -31,7 +34,7 @@ parse_args() {
 }
 
 check_exports() {
-  local ext_dir="$REPO_DIR/data/input/claude/chat/bulk-export"
+  local ext_dir="$DATA_DIR/input/claude/chat/bulk-export"
   for d in "$ext_dir"/data-*/; do
     [[ -d "$d" ]] && return 0
   done

@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# Capture conversations from browser-reachable providers into
-# data/input/<provider>/chat/browser-{API,DOM}/, via Safari (open and logged in).
-# The `corpus-yoga browser` target. Scope is two independent restrictions, intersected; neither
-# adds: a provider has the mechanisms it has (claude API — DOM retired, #418; gemini DOM).
+# Capture conversations from browser-reachable providers into the room's input,
+# tmp/stage/input/<provider>/chat/{API,DOM}-capture/, via Safari (open and logged in), and
+# promote what was captured into data/input/ - the same extent words for both, a bare
+# call of either refused (#641). Scope is two independent restrictions, intersected;
+# neither adds: a provider has the mechanisms it has (claude API; gemini DOM).
 #
 # Usage:
 #   corpus-yoga browser                                      # free, local: are the captures any good?
-#   corpus-yoga browser capture                              # every provider, every mechanism it has
+#   corpus-yoga browser capture --all                        # every provider, every mechanism it has
 #   corpus-yoga browser capture --provider gemini            # one provider (--mechanism API|DOM restricts too)
 #   corpus-yoga browser capture --provider claude --dry-run  # discovery + extent, nothing captured
 #   corpus-yoga browser capture --provider claude --id <id>  # one conversation
+#   corpus-yoga browser promote --all | --provider <p> [--id <id>] [--rehearsal <stamp>]   # what capture staged, into data/input
 #
 #   A claude capture COMPLETES each conversation's record (#422): the JSON, and the file
 #   assets it names (uploads), deposited into data/output/artifacts/claude/chat/downloaded/
@@ -25,6 +27,8 @@ SELF='src/main/cli/browser/browser.sh'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 [[ "${REPO_DIR}/$SELF" -ef "${BASH_SOURCE[0]}" ]] || { echo "${BASH_SOURCE[0]}: not at its declared address $SELF" >&2; exit 1; }
+# shellcheck source=src/main/tier.sh
+source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
@@ -33,20 +37,22 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 # `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
 status() {
   "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/chat-capture/audit.py" \
-    --input "$REPO_DIR/data/input" \
-    --api "$REPO_DIR/data/output/markdown/claude/chat/conversations"
+    --input "$DATA_DIR/input" \
+    --api "$DATA_DIR/output/markdown/claude/chat/conversations"
 }
 
 main() {
   case "${1-}" in
     capture) shift; parse_argv browser capture "$@" ;;
-    '') status; exit $? ;;   # bare noun → status (read-only), never a capture
+    promote) shift; parse_argv browser promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote browser "$@" ;;
+    '') status; "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" report browser; exit $? ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-    *) echo "Usage: corpus-yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
+    *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac
-  local provider="" mechanism="" id="" dry_run=""
+  local provider="" mechanism="" id="" dry_run="" all=""
   while [[ $# -gt 0 ]]; do
     case "$1" in
+      --all) all="1"; shift ;;
       --provider)
         case "${2-}" in
           claude|gemini) provider="$2"; shift 2 ;;
@@ -64,9 +70,15 @@ main() {
           *) id="$2"; shift 2 ;;
         esac ;;
       --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
-      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture [--provider claude|gemini] [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
+      *) echo "Unknown argument: $1"; echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]"; echo "Pass corpus-yoga browser -h for more information."; exit 1 ;;
     esac
   done
+  # The extent is named, never inferred (#641): --all, or one provider, or one of its
+  # conversations - the same three words corpus-yoga browser promote takes.
+  if [[ -z "$provider" && -z "$all" ]]; then
+    echo "error: corpus-yoga browser capture names its extent: --all, --provider claude|gemini, or --provider claude|gemini --id <id>" >&2
+    exit 1
+  fi
 
   # An id belongs to exactly one provider, and its SHAPE cannot say which: a claude chat
   # uuid and a code-session uuid are both 36 chars. So --id is meaningless without
@@ -77,8 +89,6 @@ main() {
   fi
 
   echo "${SCRIPT_DIR#"$REPO_DIR/"}/$(basename "$0")"
-  mkdir -p "$REPO_DIR/data/input/claude/chat/API-capture"
-  mkdir -p "$REPO_DIR/data/input/gemini/chat/DOM-capture"
 
   # The extent, read off the one declaration: which providers, by which mechanisms.
   # Two restrictions can intersect to nothing, and that is an answer — reported with
@@ -110,8 +120,8 @@ main() {
     [[ -n "$p" ]] || continue
     providers+=("$p")
     provider_mechs+=("$mechs")
-    logs+=("$REPO_DIR/tmp/logs/browser/capture/$p/$stamp.log")
-    mkdir -p "$REPO_DIR/tmp/logs/browser/capture/$p"
+    logs+=("$TMP_DIR/logs/browser/capture/$p/$stamp.log")
+    mkdir -p "$TMP_DIR/logs/browser/capture/$p"
   done <<< "$scope"
   # Capture each provider the restrictions leave in scope, regardless of another
   # failing, then surface a non-zero exit if any did. The scope comes from
@@ -126,6 +136,21 @@ main() {
       ${id:+--id "$id"} ${dry_run:+--dry-run} || rc=$?
     i=$((i + 1))
   done
+  # The act names the next acts (#687): what was captured waits in the stage until the
+  # pipeline has judged it and the same extent is promoted. The line is said where
+  # something is staged, and it is part of the capture's record: each provider's log
+  # carries it, as it carries the line that opened the capture.
+  if [[ -z "$dry_run" ]]; then
+    local extent="--all" staged=""
+    [[ -n "$provider" ]] && extent="--provider $provider${id:+ --id $id}"
+    for p in ${providers[@]+"${providers[@]}"}; do
+      compgen -G "$TMP_STAGE/input/$p/chat/*/*" > /dev/null && staged="1"
+    done
+    if [[ -n "$staged" ]]; then
+      echo "browser capture: staged under tmp/stage/input/<provider>/chat, not promoted - corpus-yoga pipeline rehearse, then corpus-yoga browser promote $extent" \
+        | tee -a ${logs[@]+"${logs[@]}"}
+    fi
+  fi
   return $rc
 }
 

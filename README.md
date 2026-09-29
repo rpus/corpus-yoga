@@ -27,8 +27,27 @@ prints man entries; `./corpus-yoga <command> <verb> --help` asks each target its
 | `.` + `rsc/` + `src/` | machinery | git | none — clone again |
 | `data/input/` | input | iCloud | none — as long as iCloud holds it |
 | `tmp/cache/` | cache | local | none — `corpus-yoga cache sync` rebuilds it from the registry (`rsc/cache_io.csv`) |
+| `tmp/stage/` | captured, rehearsed, not yet promoted | local | `input/`: a recapture — and, for a code session whose live log the provider has since expired, that session; `rehearsal/<stamp>/`: evidence — a rehearsal's verdicts and preview, remade by `corpus-yoga pipeline rehearse`; `corpus-yoga stage clean` is the tier's janitor |
 | `tmp/logs/` | run history | local | disposable |
 | `data/output/` | historical accumulation | iCloud | the one irreplaceable tier — deposits, curation, readings |
+
+A capture writes to `tmp/stage/input/`, at the address its unit will have under
+`data/input/`, and reads nothing. The tiers are a declared contract (`src/main/tier.py`):
+every script reads its data and tmp under one root, the checkout's, or a rehearsal's under
+`tmp/stage/rehearsal/<stamp>/` when `CORPUS_YOGA_REHEARSAL` names the stamp, and
+`corpus-yoga pipeline rehearse` is the checkout's own code run under that name, its input
+the shared `tmp/stage/input/`, judging the staged units there and writing its own directory
+alone; the verdicts it caches are the
+validation, and a rehearsal stands as evidence until `corpus-yoga stage clean` removes it. Each capturing noun's `promote` verb - `corpus-yoga browser promote`,
+`agent promote`, `export promote`, `forge promote`, over the same extent words as its
+`capture` - is the one writer of `data/input/`, and it promotes a unit only where it
+relates to the held one without loss - new, identical, extends, never ahead or diverged -
+and every family its pipeline declares finds it valid at origin/main's version; the rest
+it names (#687). Promotion is a copy: the stage is never written by it, and `corpus-yoga
+stage clean` removes what a rehearsal derived and the units the store holds byte-equal.
+So: `browser capture --provider claude`, `pipeline rehearse`, `browser promote
+--provider claude`, `pipeline run chat-capture`; `corpus-yoga stage` reports the tier, and
+each noun's bare status the units.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,
 `gemini` have channels `chat`, `code` and captures `bulk-export`, `API-capture`,
@@ -65,8 +84,9 @@ reading-room, 2026-08-22, at 17e173c (#498).
 
 ## Getting data
 
-Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; unzip
-the emailed `data-*` into `data/input/claude/chat/bulk-export/`. Browser captures:
+Bulk export: claude.ai → Settings → Data privacy controls → "Export data"; the
+emailed link downloads a manifest, and `corpus-yoga export capture --manifest <file>`
+stages it with the payload it lists. Browser captures:
 Safari logged in to claude.ai / gemini.google.com, then `corpus-yoga browser capture`
 (or the macOS Shortcut: `open -a Terminal src/main/cli/browser/capture.command`
 — Terminal holds the folder permissions; Shortcuts' own shell is silently denied).
