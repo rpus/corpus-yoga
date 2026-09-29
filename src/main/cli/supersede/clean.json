@@ -1,0 +1,30 @@
+{
+  "help": "remove what the verdict licenses, as corpus-yoga stage clean clears the stage: each deletable export with the manifest beside it and its shadow under tmp/cache/chat-export, and each orphaned shadow - the verdict with its working printed first, the evidence for the act; the apply relays the verdict over what remains",
+  "step": "chat-export",
+  "args": [
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "1/supersede-clean-1",
+      "help": "the verdict, then what the janitor would remove, with sizes; remove nothing - the chat-export run's tail"
+    },
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "1/supersede-clean-1",
+      "help": "remove it"
+    }
+  ],
+  "r": [
+    "tmp/cache/chat-export",
+    "data/input/claude/chat/bulk-export",
+    "data/input/claude/chat/API-capture",
+    "data/output/memories",
+    "data/output/markdown/claude/chat/summaries",
+    "rsc/naming/export_dir_vintages.csv"
+  ],
+  "consumes": [
+    "data/input/claude/chat/bulk-export",
+    "tmp/cache/chat-export"
+  ]
+}

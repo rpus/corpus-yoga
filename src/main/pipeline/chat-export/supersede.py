@@ -47,25 +47,36 @@ deposited or superseded. Verdicts describe what exists
 NOW: re-run after any deletion, since deleting a witness expires the
 licences it carried.
 
+A witness counts only while it is kept (#715): the exports are judged latest first, the
+latest kept, an earlier one deletable when a KEPT later export or a deposit covers each
+of its components, and an export found uncovered kept in its turn, so the verdict
+licenses one act over every deletable export at once and no order among them matters.
+
 A tmp/cache/ export dir whose data/input/ datum is gone is an ORPHANED DERIVATION — the
 shadow of an export already disposed of, not an export. Its archive copies are
 complete, so left in it would keep passing for a live export (and witnessing
-others) indefinitely; it is excluded from the comparison and WARNed with its
-rm remedy — datum-scoped tmp/cache/ dirs die with their data/input/ datum (README), but
-deletion stays deliberate, so the machinery names the orphan rather than
-resurrecting it.
+others) indefinitely; it is excluded from the comparison and named, and the janitor
+removes it - datum-scoped tmp/cache/ dirs die with their data/input/ datum (README).
 
-Usage:
-  src/run_python_script.sh src/main/pipeline/chat-export/supersede.py \
-    [--chat-export-cache tmp/cache/chat-export] [--bulk-exports data/input/claude/chat/bulk-export] \
-    [--memories-output data/output/memories] \
-    [--summaries-output data/output/markdown/claude/chat/summaries] \
+The verdict is the bare noun's whole act, and its disposal is the janitor (#715):
+
+  corpus-yoga supersede                    # the verdict with its working; writes nothing
+  corpus-yoga supersede clean --dry-run    # the verdict, then what it would remove: each deletable
+                                           # export with its manifest and its shadow, each orphaned shadow
+  corpus-yoga supersede clean --apply      # remove it, then the verdict over what remains
+
+  src/run_python_script.sh src/main/pipeline/chat-export/supersede.py [clean (--dry-run | --apply)] \
     [--api-capture <API-capture root; no default — when given, also compares the latest export against live captures, informationally>]
 
-Requires the exports' atomised json/ (written by the chat-export pipeline);
+The roots it reads - tmp/cache/chat-export, data/input/claude/chat/bulk-export, data/output/memories,
+data/output/markdown/claude/chat/summaries - are the declaration's, resolved through the tier
+contract (src/main/tier.py, #702): no path is passed, so a rehearsal's name rebinds them all.
+
+The chat-export run's tail is the dry run: the verdict, and what a reader's apply would
+remove. Requires the exports' atomised json/ (written by the chat-export pipeline);
 memories/projects/users are read from the export's tmp/cache/ archive copies (written
 by archive_components.py; data/input/ raw fallback for cache dirs predating that step).
-Exit 0 iff every earlier export is covered (witnessed or deposited).
+The bare noun exits 0 iff every earlier export is covered.
 """
 import csv
 import hashlib
@@ -82,6 +93,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
+import corpus  # noqa: E402 - human, size_of: the store's sizes in one spelling
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
@@ -99,6 +111,10 @@ def _rel(p: Path) -> Path:
 
 
 VINTAGES_CSV = REPO_ROOT / 'rsc' / 'naming' / 'export_dir_vintages.csv'
+CACHE = 'tmp/cache/chat-export'                                   # the exports' shadows: <export>/json/ and the archived components
+BULK = 'data/input/claude/chat/bulk-export'                        # the exports and their manifests
+MEMORIES_OUTPUT = 'data/output/memories'                           # the memory deposits - a deposit is the unconditional licence
+SUMMARIES_OUTPUT = 'data/output/markdown/claude/chat/summaries'   # the summary deposits, likewise
 
 
 def _vintages():
@@ -371,136 +387,214 @@ def _warn_unparseable(unparseable):
         print(f'FAIL: {n} matches no vintage in rsc/naming/export_dir_vintages.csv - ordering may be wrong', file=sys.stderr)
 
 
-def status(root, ext_root):
-    """Bare noun → read-only inventory: which export dirs exist, in what order, which
-    are orphaned derivations. Computes no coverage and writes nothing — `supersede
-    check` does the comparison."""
-    live, orphans, unparseable = _gather(root, ext_root)
-    _warn_unparseable(unparseable)
-    for d in orphans:
-        print(f'FAIL: orphaned derivation {d.name} - no {_rel(ext_root / d.name)} beside it, '
-              f'excluded from any comparison; dispose the shadow with: rm -r {_rel(d)}')
-    if not live:
-        print(f'supersede: no export dirs with atomised json/ under {_rel(root)}')
-        return 0
-    print(f'supersede: {len(live)} export dir(s) with atomised json/ under {_rel(root)}; '
-          f'latest {live[-1].name}'
-          + (f'; {len(orphans)} orphaned derivation(s) excluded' if orphans else ''))
-    print('  run `corpus-yoga supersede check` to compute supersession')
-    return 0
 
-
-def check(args):
-    """The `check` verb: the full supersession comparison — for each earlier export dir,
-    whether every component is witnessed by a later export or deposited, with the working
-    shown. Reads every export's atoms; writes nothing. Exit 0 iff all covered."""
-    root = Path(args.chat_export_cache)
-    ext_root = Path(args.bulk_exports)
+def verdict(args) -> tuple[list[Path], list[Path], bool]:
+    """The supersession verdict - the bare noun's whole act and the janitor's derivation,
+    one function (#715): for each earlier export, whether every component survives in a
+    KEPT export or a deposit, the working shown. Judged latest first, so that a witness
+    counts only while it is kept (the module docstring). Reads every export's atoms;
+    writes nothing. Returns (the deletable exports in time order, the orphaned shadows,
+    whether every earlier export is covered)."""
+    root, ext_root = tier.path(CACHE), tier.path(BULK)
     exports, orphans, unparseable = _gather(root, ext_root)
     _warn_unparseable(unparseable)
     # Orphaned derivations (docstring): a tmp/cache/ dir with no data/input/ datum beside it must
     # not feed the comparison — its archive copies are complete, so it would keep passing
     # for a live export (and witnessing others) after the data it derives from was disposed.
     for d in orphans:
-        print(f'FAIL: orphaned derivation {d.name} - no {_rel(ext_root / d.name)} beside it; '
-              'excluded from comparison. If the export was deliberately deleted, this '
-              'shadow is the disposal\'s one remaining step:')
-        print(f'    → run: rm -r {_rel(d)}')
-
+        print(f'FAIL: orphaned derivation {d.name} - no {_rel(ext_root / d.name)} beside it; excluded from '
+              'comparison - the shadow of an export disposed of, which corpus-yoga supersede clean removes')
     if not exports:
-        print(f'no export dirs with atomised json/ under {root} — nothing to compare')
-        return 0
+        print(f'supersede: no export dirs with atomised json/ under {_rel(root)} - nothing to compare')
+        return [], orphans, True
 
     latest = exports[-1]
     all_units = {b.name: {name: fn(b, ext_root / b.name) for name, fn in COMPONENTS}
                  for b in exports}
     latest_units = all_units[latest.name]
     if len(exports) < 2:
-        print(f'1 export dir with atomised json/ under {root} — no earlier exports to compare')
+        print(f'supersede: 1 export dir with atomised json/ under {_rel(root)} - no earlier export to compare')
     else:
         print(f'latest: {latest.name} — ' + ', '.join(
             f'{len(latest_units[name])} {name}' for name, _ in COMPONENTS))
 
     # Show the working: an export is deletable iff every atom it holds survives
     # somewhere durable that is KEPT — for each component, name the WITNESSES
-    # (later exports whose verified ⊑ covers it: a licence conditional on the
-    # witness's own retention) and the unconditional DEPOSITS (memories: the
-    # byte-identical data/output/memories copy; summaries: every reading held verbatim
-    # in the summaries output — deposits outlive every export). Witnessed-by-later
-    # relies on nothing but per-pair verified subset — diachronic appending is
-    # checked, never assumed. Verdicts describe what exists NOW: re-run after
-    # any deletion, since deleting a witness expires the licences it carried.
-    covered_all = True
-    deletable = []
-    summ_fps = summaries_deposit_fps(Path(args.summaries_output))
-    for i, b in enumerate(exports[:-1]):
+    # (kept later exports whose verified ⊑ covers it) and the unconditional DEPOSITS
+    # (memories: the byte-identical data/output/memories copy; summaries: every reading
+    # held verbatim in the summaries output — deposits outlive every export).
+    # Witnessed-by-later relies on nothing but per-pair verified subset — diachronic
+    # appending is checked, never assumed. Latest first: the latest is kept, and an
+    # export found uncovered is kept and witnesses the ones before it.
+    summ_fps = summaries_deposit_fps(tier.path(SUMMARIES_OUTPUT))
+    kept = {latest.name}
+    judged: dict[str, tuple[list[str], list[str]]] = {}   # export name -> (the working, its uncovered components)
+    for i in range(len(exports) - 2, -1, -1):
+        b = exports[i]
         ext_dir = ext_root / b.name
         working, uncovered = [], []
         for name, _ in COMPONENTS:
             earlier = all_units[b.name][name]
             witnesses = [w.name for w in exports[i + 1:]
-                         if covers(earlier, all_units[w.name][name])]
-            dep = deposit_witness(b, ext_dir, Path(args.memories_output)) if name == 'memories' else None
+                         if w.name in kept and covers(earlier, all_units[w.name][name])]
+            dep = deposit_witness(b, ext_dir, tier.path(MEMORIES_OUTPUT)) if name == 'memories' else None
             if dep is not None:
-                working.append(f'    memories: copied — {dep} is byte-identical (unconditional)'
+                working.append(f'    memories: copied — {_rel(dep)} is byte-identical (unconditional)'
                                + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
             elif (name == 'summaries' and earlier
                   and all(atoms <= summ_fps for _k, (_n2, atoms) in earlier.items())):
                 working.append(f'    summaries: deposited — every reading held verbatim in '
-                               f'{args.summaries_output} (unconditional)'
+                               f'{_rel(tier.path(SUMMARIES_OUTPUT))} (unconditional)'
                                + (f'; also ⊑ {", ".join(_short(w) for w in witnesses)}' if witnesses else ''))
             elif witnesses:
-                working.append(f'    {name} ⊑ {", ".join(_short(w) for w in witnesses)}'
-                               ' (while one of these is kept)')
+                working.append(f'    {name} ⊑ {", ".join(_short(w) for w in witnesses)} (kept)')
             else:
                 uncovered.append(name)
                 _, details = compare_component(earlier, latest_units[name])
                 working += details
+        judged[b.name] = (working, uncovered)
+        if uncovered:
+            kept.add(b.name)
+
+    deletable = []
+    for b in exports[:-1]:
+        working, uncovered = judged[b.name]
         if not uncovered:
             print(f'{b.name} → deletable; the working:')
             deletable.append(b)
         else:
             print(f'FAIL: {b.name} holds unique {", ".join(uncovered)} data - '
-                  'found in no later export and no deposit')
+                  'found in no kept export and no deposit')
         for line in working:
             print(line)
-        covered_all = covered_all and not uncovered
+    covered_all = all(not judged[b.name][1] for b in exports[:-1])
 
     if len(exports) >= 2:
         # The deletability verdict - a computed CONCLUSION, stated as untiered
-        # prose (#530): it violates no property and licenses a human act.
-        print((
-            f'keep {latest.name}; every earlier export dir is covered — '
-            'export-witnessed licences hold while their witnesses are kept, deposit '
-            'licences unconditionally; re-run after any deletion'
-            if covered_all else
-            'some earlier export dir(s) hold data found nowhere else (FAIL lines above) - '
-            'not deletable until deposited or superseded'))
-        # Each licensed disposal is its own prose line - the reason plus one
-        # runnable command over BOTH dirs (the export and its tmp/cache/ derivation
-        # together, so no orphaned-derivation FAIL ever follows a licensed deletion).
-        for b in deletable:
-            print(f'  {b.name} deletable - every atom witnessed or deposited; to dispose:')
-            print(f'    → run: rm -r {_rel(ext_root / b.name)} {_rel(b)}')
-    sufficient = covered_all
+        # prose (#530): it violates no property and licenses one act, the janitor's.
+        held = len(exports) - 1 - len(deletable)
+        if covered_all:
+            print(f'keep {latest.name}; every earlier export is covered by a kept export or a deposit - '
+                  f'corpus-yoga supersede clean removes the {len(deletable)} deletable, '
+                  'each with its manifest and its shadow')
+        else:
+            print(f'keep {latest.name} and the {held} earlier export(s) holding data found nowhere else '
+                  '(the FAIL lines above); '
+                  + (f'corpus-yoga supersede clean removes the {len(deletable)} deletable, each with its manifest and its shadow'
+                     if deletable else 'none is deletable'))
 
     if args.api_capture and Path(args.api_capture).is_dir():
         compare_vs_captures(latest, latest_units['conversations'], None, Path(args.api_capture))
+    return deletable, orphans, covered_all
 
-    return 0 if sufficient else 1
+
+# ── the janitor: one list of entries, one loop, the flag deciding only whether the act runs ──
+
+KINDS = {'export': 'exports', 'manifest': 'manifests', 'shadow': 'shadows',
+         'orphaned shadow': 'orphaned shadows'}   # each kind of entry, and its plural
+PASSES = 3   # the Finder writes into a directory being emptied; a second pass is the whole remedy
 
 
-DEFAULT_CACHE = 'tmp/cache/chat-export'
-DEFAULT_BULK = 'data/input/claude/chat/bulk-export'
+def _remove(path: Path) -> str | None:
+    """Remove the entry as it stands at the act. None when it is gone, else why it is not."""
+    import shutil
+    why = 'still present'
+    for _ in range(PASSES):
+        try:
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            elif path.exists() or path.is_symlink():
+                path.unlink()
+        except OSError as e:
+            why = (e.strerror or str(e)).lower()
+        if not (path.exists() or path.is_symlink()):
+            return None
+    return why
+
+
+def _count(n: int, kind: str) -> str:
+    return f'{n} {kind if n == 1 else KINDS[kind]}'
+
+
+def _manifest_of(ext_root: Path, export: Path) -> Path | None:
+    """The export's record beside it - manifest-<X>.json for data-<X>/, the pairing the
+    stage promotes by (src/main/corpus.py) - or None where the store holds no record."""
+    manifest = ext_root / f'manifest-{export.name[len("data-"):]}.json'
+    return manifest if manifest.is_file() else None
+
+
+def entries(deletable: list[Path], orphans: list[Path], ext_root: Path):
+    """Everything the janitor acts on, in the order it acts: (kind, name, the line's label,
+    the act). The one list both faces walk - the dry run is the apply with the act elided."""
+    out = []
+    for b in deletable:
+        datum = ext_root / b.name
+        out.append(('export', _rel(datum).as_posix(),
+                    f'export {_rel(datum)} - every atom witnessed by a kept export or deposited: '
+                    f'{corpus.human(corpus.size_of(datum))}', lambda datum=datum: _remove(datum)))
+        manifest = _manifest_of(ext_root, b)
+        if manifest is not None:
+            out.append(('manifest', _rel(manifest).as_posix(),
+                        f'manifest {_rel(manifest)} - the export\'s record: {corpus.human(corpus.size_of(manifest))}',
+                        lambda manifest=manifest: _remove(manifest)))
+        out.append(('shadow', _rel(b).as_posix(),
+                    f'shadow {_rel(b)} - its derivation in the cache: {corpus.human(corpus.size_of(b))}',
+                    lambda b=b: _remove(b)))
+    for d in orphans:
+        out.append(('orphaned shadow', _rel(d).as_posix(),
+                    f'orphaned shadow {_rel(d)} - no export beside it: {corpus.human(corpus.size_of(d))}',
+                    lambda d=d: _remove(d)))
+    return out
+
+
+def clean(args, apply: bool) -> int:
+    """The verdict first, its working the evidence for the act; then one loop over the one
+    list, the flag deciding only whether the act runs after the line. The apply relays the
+    verdict re-derived over what remains, beneath its lines and above its own verdict, the
+    last line."""
+    deletable, orphans, _covered = verdict(args)
+    rows = entries(deletable, orphans, tier.path(BULK))
+    did = {kind: 0 for kind in KINDS}
+    left: list[str] = []
+    if rows:
+        print()
+    for kind, name, label, act in rows:
+        if not apply:
+            print(f'  would remove {label}')
+            did[kind] += 1
+            continue
+        print(f'  will remove {label}')
+        why = act()
+        if why is None:
+            print('    did')
+            did[kind] += 1
+        else:
+            print(f'    did NOT - {why}')
+            left.append(f'{kind}: {name} - {why}')
+    counts = ', '.join(_count(did[kind], kind) for kind in KINDS if did[kind]) or 'nothing'
+    if not apply:
+        print(f'supersede clean: would remove {counts}' + (' (--apply removes them)' if counts != 'nothing' else ''))
+        return 0
+    # the verdict over what remains is the certified state after the act: evidence, beneath
+    # the lines and above the last line, informing and never gating
+    print()
+    verdict(args)
+    print()
+    if left:
+        print(f'supersede clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
+    else:
+        print(f'supersede clean: DONE - removed {counts}')
+    return 1 if left else 0
 
 
 def main():
-    # Whole surface declared (#476, #477): the flags live on `check` because the
-    # declaration puts them there.
+    # Whole surface declared (#476, #477): --api-capture on the noun, and on clean the flag
+    # that decides whether the act runs; the roots are the tier contract's (#702).
     args = command_parser('supersede').parse_args()
-    if args.verb is None:
-        return status(tier.path(DEFAULT_CACHE), tier.path(DEFAULT_BULK))
-    return check(args)
+    if args.verb == 'clean':
+        return clean(args, bool(args.apply))
+    _deletable, _orphans, covered = verdict(args)
+    return 0 if covered else 1
 
 
 if __name__ == '__main__':
