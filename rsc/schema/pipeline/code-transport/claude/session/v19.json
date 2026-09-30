@@ -632,7 +632,7 @@
     },
     "CostStateRecord": {
       "title": "CostStateRecord",
-      "description": "The session's running cost and effort totals, written by Claude Code 2.1.283 and later. Observed reading-room 2026-09-28 in session be12fa7c-664e-42b8-b6e3-60af1409c6f8, three records, differing only in totalDuration; undeclared before v18.",
+      "description": "The session's running cost and effort totals, written by Claude Code 2.1.283 and later. Observed reading-room in session be12fa7c-664e-42b8-b6e3-60af1409c6f8: three records by 2026-09-28, their totals 0 and modelUsage empty, differing only in totalDuration, and two more on 2026-09-29 carrying the totals and the usage per model; undeclared before v18.",
       "type": "object",
       "required": [
         "type",
@@ -661,31 +661,31 @@
           "$ref": "#/definitions/UuidV4"
         },
         "totalCostUSD": {
-          "description": "The session's spend in US dollars. Observed 0.",
+          "description": "The session's spend in US dollars. Observed 0, and 264.73448374999964 on 2026-09-29.",
           "type": "number"
         },
         "totalAPIDuration": {
-          "description": "Milliseconds spent in API calls, retries included. Observed 0.",
+          "description": "Milliseconds spent in API calls, retries included. Observed 0, and 15628591 on 2026-09-29.",
           "type": "number"
         },
         "totalAPIDurationWithoutRetries": {
-          "description": "Milliseconds spent in API calls, retries excluded. Observed 0.",
+          "description": "Milliseconds spent in API calls, retries excluded. Observed 0, and 15580187 on 2026-09-29.",
           "type": "number"
         },
         "totalToolDuration": {
-          "description": "Milliseconds spent in tool calls. Observed 0.",
+          "description": "Milliseconds spent in tool calls. Observed 0, and 3269989 on 2026-09-29.",
           "type": "number"
         },
         "totalLinesAdded": {
-          "description": "Lines added to files by the session. Observed 0.",
+          "description": "Lines added to files by the session. Observed 0, and 1157 on 2026-09-29.",
           "type": "number"
         },
         "totalLinesRemoved": {
-          "description": "Lines removed from files by the session. Observed 0.",
+          "description": "Lines removed from files by the session. Observed 0, and 8 on 2026-09-29.",
           "type": "number"
         },
         "totalDuration": {
-          "description": "Milliseconds since startTime, a running total: 204177292, 204782434 and 204855016 in the three records observed.",
+          "description": "Milliseconds since startTime, a running total: 204177292, 204782434 and 204855016 in the three records of 2026-09-28, 447108308 and 447191547 in the two of 2026-09-29.",
           "type": "number"
         },
         "startTime": {
@@ -693,10 +693,11 @@
           "type": "number"
         },
         "modelUsage": {
-          "description": "Usage by model. Observed empty in every record; its members are undeclared until observed.",
+          "description": "Usage by model, keyed by ModelId. Empty in the three records of 2026-09-28; two members on 2026-09-29, claude-fable-5-1 and claude-haiku-4-5-20251001. The dialect types no key, so the key's type is stated here and held by no keyword, as the artifact maps' uuid keys are.",
           "type": "object",
-          "additionalProperties": false,
-          "properties": {}
+          "additionalProperties": {
+            "$ref": "#/definitions/ModelUsage"
+          }
         },
         "hasUnknownModelCost": {
           "description": "Whether a model's cost was unknown to the harness. Observed false.",
@@ -1245,6 +1246,51 @@
         }
       }
     },
+    "ModelUsage": {
+      "title": "ModelUsage",
+      "description": "One model's share of a session's usage, a member of a cost-state record's modelUsage. Observed reading-room 2026-09-29 in session be12fa7c-664e-42b8-b6e3-60af1409c6f8, two members in each of two records; undeclared before v19.",
+      "type": "object",
+      "required": [
+        "inputTokens",
+        "outputTokens",
+        "thinkingTokens",
+        "cacheReadInputTokens",
+        "cacheCreationInputTokens",
+        "webSearchRequests",
+        "costUSD"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "inputTokens": {
+          "description": "Input tokens sent to the model, uncached. Observed 33673 and 67130.",
+          "type": "integer"
+        },
+        "outputTokens": {
+          "description": "Output tokens the model wrote. Observed 880839 and 6572.",
+          "type": "integer"
+        },
+        "thinkingTokens": {
+          "description": "Tokens the model spent thinking. Observed 282189 and 0.",
+          "type": "integer"
+        },
+        "cacheReadInputTokens": {
+          "description": "Input tokens read from the prompt cache. Observed 484103095 and 0.",
+          "type": "integer"
+        },
+        "cacheCreationInputTokens": {
+          "description": "Input tokens written to the prompt cache. Observed 4961733 and 0.",
+          "type": "integer"
+        },
+        "webSearchRequests": {
+          "description": "Web searches the model's turns made. Observed 0.",
+          "type": "integer"
+        },
+        "costUSD": {
+          "description": "The model's share of the session's spend in US dollars. Observed 264.63449374999965 and 0.09999.",
+          "type": "number"
+        }
+      }
+    },
     "Entrypoint": {
       "title": "Entrypoint",
       "description": "The Claude Code surface that created this record. Observed values: \"cli\" (terminal), \"claude-vscode\" (VS Code extension). Likely an open set as new integrations are added.",
@@ -1410,14 +1456,15 @@
     },
     "ModelId": {
       "title": "ModelId",
-      "description": "A real Claude model id \u2014 the harness's external attribution of who authored a completed turn. The set is exhaustive over the models observed across both rooms' sessions as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), and at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263); a new model in the data is unmodelled drift and mints the next version.",
+      "description": "A real Claude model id, as the harness names a model. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here. The set is exhaustive over the ids observed in any such member across both rooms' sessions: as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263), and at v19 by claude-haiku-4-5-20251001 (reading-room session be12fa7c, a key of a cost-state record's modelUsage, first observed 2026-09-29, authoring no turn there); a new model in the data is unmodelled drift and mints the next version.",
       "type": "string",
       "enum": [
         "claude-fable-5",
         "claude-opus-4-8",
         "claude-sonnet-4-6",
         "claude-opus-5",
-        "claude-fable-5-1"
+        "claude-fable-5-1",
+        "claude-haiku-4-5-20251001"
       ]
     },
     "RenderedBlock": {
