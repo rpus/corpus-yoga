@@ -693,7 +693,7 @@
           "type": "number"
         },
         "modelUsage": {
-          "description": "Usage by model, keyed by model id. Empty in the three records of 2026-09-28; two members on 2026-09-29, claude-fable-5-1 and claude-haiku-4-5-20251001. The key is an open string and not a ModelId: the models a harness calls are a wider set than the models that author a turn, and claude-haiku-4-5-20251001 authors none in the session observed.",
+          "description": "Usage by model, keyed by ModelId. Empty in the three records of 2026-09-28; two members on 2026-09-29, claude-fable-5-1 and claude-haiku-4-5-20251001. The dialect types no key, so the key's type is stated here and held by no keyword, as the artifact maps' uuid keys are.",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/ModelUsage"
@@ -1456,14 +1456,15 @@
     },
     "ModelId": {
       "title": "ModelId",
-      "description": "A real Claude model id \u2014 the harness's external attribution of who authored a completed turn. The set is exhaustive over the models observed across both rooms' sessions as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), and at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263); a new model in the data is unmodelled drift and mints the next version.",
+      "description": "A real Claude model id, as the harness names a model. What a model did - authored a turn, advised one, refused, was fallen back to, was used - is said by the member that carries the id, never here. The set is exhaustive over the ids observed in any such member across both rooms' sessions: as at 2026-07-10 (claude-fable-5 and claude-opus-4-8 in home-room's logs; claude-sonnet-4-6 in reading-room's `yoga agent models` census), joined at v12 by claude-opus-5 (reading-room's sessions, first observed 2026-07-25, harness 2.1.220), at v15 by claude-fable-5-1 (home-room session 41ff13e9, first observed 2026-09-07, harness 2.1.263), and at v19 by claude-haiku-4-5-20251001 (reading-room session be12fa7c, a key of a cost-state record's modelUsage, first observed 2026-09-29, authoring no turn there); a new model in the data is unmodelled drift and mints the next version.",
       "type": "string",
       "enum": [
         "claude-fable-5",
         "claude-opus-4-8",
         "claude-sonnet-4-6",
         "claude-opus-5",
-        "claude-fable-5-1"
+        "claude-fable-5-1",
+        "claude-haiku-4-5-20251001"
       ]
     },
     "RenderedBlock": {

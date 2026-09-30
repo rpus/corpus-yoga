@@ -22,9 +22,16 @@ removed - and whose `modelUsage` holds two members keyed by model id,
 15:46:46Z read the log `fails claude/session v18` at the first of the two, and nothing
 reached shared storage (#733).
 
-`claude-haiku-4-5-20251001` is no member of `ModelId` and authors no turn of the
-session: the harness calls it beside the model that drafts. So the usage's key is an
-open string, and `ModelId` keeps its meaning, the models that author a completed turn.
+`claude-haiku-4-5-20251001` was no member of `ModelId`, and authors no turn of the
+session: the harness calls it beside the model that drafts. `ModelId`'s description
+had said "the harness's external attribution of who authored a completed turn", which
+is the definition of one member, `AssistantMessage.model`, and not of the type - the
+type's five other members say of themselves that the model advised, refused, or was
+fallen back to or from (the maintainer's ruling, reading-room 2026-09-30). The type is
+a model id; what a model did is said where the id is carried. So `ModelId` gains the
+id, and the usage is keyed by `ModelId`. The draft-04 dialect has no keyword that
+types a key, so the key's type is stated in `modelUsage`'s description, as the
+artifact maps' uuid keys are stated in theirs.
 
 Validated by hand over the staged log: v18 refuses the two records and no other; v19
 refuses none.
@@ -40,11 +47,14 @@ v18
 - `ModelUsage` - new: `inputTokens`, `outputTokens`, `thinkingTokens`,
   `cacheReadInputTokens`, `cacheCreationInputTokens` and `webSearchRequests` integers,
   `costUSD` a number, every one required and none observed absent; closed.
+- `ModelId` - gains `claude-haiku-4-5-20251001`, in every member typed by it.
 
 #### Refactored
 
 - `CostStateRecord` and its totals say in their descriptions what is observed of them
   on 2026-09-29 beside the 0 of 2026-09-28.
+- `ModelId`'s description defines the type, a model id as the harness names it, and
+  leaves each role to the member that carries the id.
 - `ModelUsage` stands after `ArtifactLedgerEntry`, where the order repair places it.
 
 ## v18
