@@ -16,6 +16,8 @@
         "extra_input_glob",
         "measure",
         "extra_measure",
+        "unit",
+        "extra_unit",
         "companion"
       ]
     },
@@ -57,6 +59,8 @@
           "extra_input_glob",
           "measure",
           "extra_measure",
+          "unit",
+          "extra_unit",
           "companion"
         ],
         "additionalProperties": false,
@@ -90,6 +94,15 @@
             "type": "string",
             "description": "The measure of a unit extra_input_glob selects, as measure. Empty exactly when extra_input_glob is."
           },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (#736)."
+          },
+          "extra_unit": {
+            "type": "string",
+            "description": "What one thing extra_input_glob selects is called. Empty exactly when extra_input_glob is."
+          },
           "companion": {
             "type": "string",
             "description": "A path beside what input_glob selects. With <stem>, the stem of a selected file, it moves with that file and the file is the unit: claude's workspace <stem>/ beside <stem>.jsonl. With <star>, what the glob's * matched, the unit is named by the star and the companion is its record, held by the stage alone and never promoted, the unit unpaired and refused where either is absent: the staged bulk export <X> is data-<X>/ with manifest-<X>.json, the record of what its capture fetched. Empty where a unit's files lie within it."
@@ -120,6 +133,15 @@
     "extra_measure": {
       "type": "string",
       "description": "The measure of a unit extra_input_glob selects, as measure. Empty exactly when extra_input_glob is."
+    },
+    "unit": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What one thing input_glob selects is called, in the singular - the word a count of them is given under (#736): a capture, an export, a session."
+    },
+    "extra_unit": {
+      "type": "string",
+      "description": "What one thing extra_input_glob selects is called. Empty exactly when extra_input_glob is."
     },
     "companion": {
       "type": "string",

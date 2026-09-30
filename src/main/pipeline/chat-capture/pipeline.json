@@ -10,6 +10,8 @@
       "extra_input_glob": "",
       "measure": "message-uuids",
       "extra_measure": "",
+      "unit": "capture",
+      "extra_unit": "",
       "companion": ""
     },
     "gemini": {
@@ -18,6 +20,8 @@
       "extra_input_glob": "ordering.txt",
       "measure": "turn-extent",
       "extra_measure": "mirror",
+      "unit": "capture",
+      "extra_unit": "ordering",
       "companion": ""
     }
   },
