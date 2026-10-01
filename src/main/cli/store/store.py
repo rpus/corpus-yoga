@@ -13,7 +13,8 @@ declaration selects, at an address. Three readings, and nothing written:
               or contained by the measure its pipeline declares - with the unit that
               holds it: one thing at several addresses;
   ahead       for each live store this room mounts, what it holds that the store does
-              not - a session new or grown, a memory changed - with the capture, by
+              not - a session new, grown or diverged, a memory changed - related by the
+              measure its pipeline declares, which is promotion's, with the capture, by
               extent, that stages exactly that.
 
 The third is a status's to say and never a capture's: a capture reads no capture (L10),
@@ -67,17 +68,33 @@ class Ahead:
     provider: str
     kind: str                 # what its selection's declaration calls it
     name: str                 # a session's id, a memory's project
-    state: str                # new, grown, changed, level or behind
+    state: str                # new, grown, changed, level, behind or diverged
     live: str                 # the live side, in words
     held: str                 # the held side, in words; empty where nothing is held
+    agree: int = 0            # for a diverged session, the bytes the two agree on before they part
     link: str = ''            # the project whose directory this one is a link to
     capture: str = ''         # the capture, by extent, that stages exactly this; empty where a session's capture brings it
 
 
+def _logs(path: Path, pattern: str) -> dict[str, bytes]:
+    """The files a session's measure reads, by name: the session's own file, or under its
+    directory the files its pipeline's glob names, wherever the harness keeps them."""
+    if path.is_file():
+        return {path.name: path.read_bytes()}
+    found = sorted(path.glob(pattern)) or sorted(path.rglob(pattern))
+    return {f.name: f.read_bytes() for f in found if f.is_file()}
+
+
+STATE = {corpus.Relation.ABSENT: 'new', corpus.Relation.IDENTICAL: 'level', corpus.Relation.EXTENDS: 'grown',
+         corpus.Relation.AHEAD: 'behind', corpus.Relation.DIVERGED: 'diverged'}
+
+
 def ahead() -> tuple[list[Ahead], list[str]]:
     """The third reading, as rows: every session and second-selection unit of each live
-    store this room mounts, against the held one - and the mounts that are absent, by
-    path. Reads the live stores and the store; writes nothing."""
+    store this room mounts, against the held one, related by the measure the pipeline
+    declares for its kind - the one promotion relates by, so the two readings cannot
+    disagree - and the mounts that are absent, by path. Reads the live stores and the
+    store; writes nothing."""
     room = registry.machine()
     rows: list[Ahead] = []
     absent: list[str] = []
@@ -90,15 +107,29 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             absent.append(mount.relative_to(REPO).as_posix())
             continue
         held_dir = transport.store(name) / room
-        held: dict[str, int] = {}
+        declared = next(s for s in corpus.stores() if s['pipeline'] == 'code-transport' and s['provider'] == name)
+        glob, measure, kind = declared['globs'][0]
+        _value, leq, _words = corpus.MEASURE[measure]
+        pattern = glob.rsplit('/', 1)[-1]
+        copies: dict[str, list] = {}
         for s in (adapter.held_sessions(held_dir) if held_dir.is_dir() else []):
-            held[s.id] = max(held.get(s.id, 0), s.size)
+            copies.setdefault(s.id, []).append(s)
         for s in adapter.live_sessions(mount):
             capture = f'corpus-yoga agent capture --provider {name} --id {s.id[:8]}'
-            size = held.get(s.id)
-            state = 'new' if size is None else 'grown' if s.size > size else 'behind' if s.size < size else 'level'
-            rows.append(Ahead(name, 'session', s.id[:8], state, corpus.human(s.size),
-                              '' if size is None else corpus.human(size),
+            # the held copy at the session's own address, else the fullest copy under another name
+            held_copy = next((c for c in copies.get(s.id, []) if c.project == s.project),
+                             max(copies.get(s.id, []), key=lambda c: c.size, default=None))
+            live_logs = _logs(s.path, pattern)
+            held_logs = _logs(held_copy.path, pattern) if held_copy is not None else None
+            state = STATE[corpus.derive(live_logs, held_logs, leq)]
+            agree = 0
+            if state == 'diverged' and held_logs is not None:
+                for key, mine in live_logs.items():
+                    theirs = held_logs.get(key, b'')
+                    agree = next((i for i, (a, b) in enumerate(zip(mine, theirs)) if a != b), min(len(mine), len(theirs)))
+                    break
+            rows.append(Ahead(name, kind, s.id[:8], state, corpus.human(s.size),
+                              '' if held_copy is None else corpus.human(held_copy.size), agree=agree,
                               capture=capture if state in ('new', 'grown') else ''))
         for kind, path in _live_extras(name, mount):
             project = path.parent.name
@@ -106,12 +137,12 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             held_copy = held_dir / project / path.name
             live_tree = _tree(path)
             if not held_copy.is_dir():
-                rows.append(Ahead(name, kind, project, 'new', f'{len(live_tree)} file(s)', '', link))
+                rows.append(Ahead(name, kind, project, 'new', f'{len(live_tree)} file(s)', '', link=link))
                 continue
             held_tree = _tree(held_copy)
             differ = sum(1 for k in set(live_tree) | set(held_tree) if live_tree.get(k) != held_tree.get(k))
             rows.append(Ahead(name, kind, project, 'changed' if differ else 'level', f'{len(live_tree)} file(s)',
-                              f'{differ} differ' if differ else 'the same', link))
+                              f'{differ} differ' if differ else 'the same', link=link))
     return rows, absent
 
 
@@ -119,13 +150,16 @@ def say(rows: list[Ahead], absent: list[str]) -> tuple[int, int]:
     """The third reading's lines, from its rows; returns (ahead, level)."""
     for mount in absent:
         print(f'  {mount}: absent - no live store is read there; corpus-yoga prerequisites sync --apply mounts it')
-    found = [r for r in rows if r.state in ('new', 'grown', 'changed')]
+    found = [r for r in rows if r.state in ('new', 'grown', 'changed', 'diverged')]
     for r in rows:
         link = f'; a link to {r.link}\'s, so one directory under two names' if r.link else ''
         if r.kind == 'session' and r.state in ('new', 'grown'):
             print(f'  {r.provider} session {r.name}: {r.live} live, {r.held + " held" if r.held else "not held"} - {r.capture}')
         elif r.kind == 'session' and r.state == 'behind':
             print(f'  {r.provider} session {r.name}: {r.live} live, {r.held} held - the store holds more than the live store does')
+        elif r.kind == 'session' and r.state == 'diverged':
+            print(f'  {r.provider} session {r.name}: {r.live} live, {r.held} held - diverged: the two agree for {r.agree} bytes and then part; '
+                  'a capture of it would be refused at promotion, and the reader reconciles the two')
         elif r.state == 'new':
             print(f'  {r.provider} {r.kind} of {r.name}: {r.live} live, not held{link} - staged with a session of its project')
         elif r.state == 'changed':

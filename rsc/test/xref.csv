@@ -917,7 +917,7 @@ src/main/cli/store/store.json,3,path_str,src/main/cli/store/store.py,Y,"""target
 src/main/cli/store/store.json,9,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
 src/main/cli/store/store.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/store/store.py,7,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
-src/main/cli/store/store.py,28,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
+src/main/cli/store/store.py,29,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
 src/main/cli/supersede/clean.json,24,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
