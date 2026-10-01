@@ -36,6 +36,7 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))   # the harness adapters: what a live store holds
 from declared_parser import command_parser  # noqa: E402
 import corpus  # noqa: E402
+import facts  # noqa: E402
 import provider as registry  # noqa: E402
 
 transport = importlib.import_module('transport')   # src/main/cli/agent/transport.py, by the path inserted above
@@ -146,39 +147,42 @@ def ahead() -> tuple[list[Ahead], list[str]]:
     return rows, absent
 
 
-def say(rows: list[Ahead], absent: list[str]) -> tuple[int, int]:
-    """The third reading's lines, from its rows; returns (ahead, level)."""
-    for mount in absent:
-        print(f'  {mount}: absent - no live store is read there; corpus-yoga prerequisites sync --apply mounts it')
-    found = [r for r in rows if r.state in ('new', 'grown', 'changed', 'diverged')]
+def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[list, int, int]:
+    """The third reading as facts: each live thing that is ahead as an item, with its state
+    and what stages it; the absent mounts; returns (the items, ahead, level)."""
+    items: list = [{'mount': m, 'state': 'absent', 'remedy': 'no live store is read there; corpus-yoga prerequisites sync --apply mounts it'}
+                   for m in absent]
     for r in rows:
-        link = f'; a link to {r.link}\'s, so one directory under two names' if r.link else ''
-        if r.kind == 'session' and r.state in ('new', 'grown'):
-            print(f'  {r.provider} session {r.name}: {r.live} live, {r.held + " held" if r.held else "not held"} - {r.capture}')
-        elif r.kind == 'session' and r.state == 'behind':
-            print(f'  {r.provider} session {r.name}: {r.live} live, {r.held} held - the store holds more than the live store does')
-        elif r.kind == 'session' and r.state == 'diverged':
-            print(f'  {r.provider} session {r.name}: {r.live} live, {r.held} held - diverged: the two agree for {r.agree} bytes and then part; '
-                  'a capture of it would be refused at promotion, and the reader reconciles the two')
-        elif r.state == 'new':
-            print(f'  {r.provider} {r.kind} of {r.name}: {r.live} live, not held{link} - staged with a session of its project')
-        elif r.state == 'changed':
-            print(f'  {r.provider} {r.kind} of {r.name}: {r.held.split()[0]} of {r.live} differ from the held ones{link} - '
-                  'staged with a session of its project')
-    if not rows and not absent:
-        print('  no live store is mounted in this workspace')
-    return len(found), sum(1 for r in rows if r.state == 'level')
+        if r.state == 'level':
+            continue
+        item: dict = {f'{r.provider} {r.kind}': r.name, 'state': r.state, 'live': r.live}
+        if r.held:
+            item['held'] = r.held
+        if r.state == 'diverged':
+            item['agree for'] = f'{r.agree} bytes'
+            item['then'] = 'a capture of it would be refused at promotion; the reader reconciles the two'
+        if r.state == 'behind':
+            item['then'] = 'the store holds more than the live store does'
+        if r.link:
+            item['link to'] = r.link
+        if r.capture:
+            item['capture'] = r.capture
+        elif r.kind != 'session' and r.state in ('new', 'changed'):
+            item['capture'] = 'with a session of its project'
+        items.append(item)
+    found = sum(1 for r in rows if r.state in ('new', 'grown', 'changed', 'diverged'))
+    return items, found, sum(1 for r in rows if r.state == 'level')
 
 
 def main() -> int:
     command_parser('store').parse_args()
-    held, twice = corpus.store_status()
-    print('ahead - what this room\'s live stores hold that the store does not:')
-    found, level = say(*ahead())
-    if not found:
-        print(f'  nothing: {level} live unit(s) level with the held ones')
-    print(f'store: {held} unit(s) held; {twice} held more than once; {found} ahead in this room\'s live stores'
-          + (f', {level} level' if found else ''))
+    out, held, twice = corpus.store_facts()
+    rows, absent = ahead()
+    items, found, level = ahead_facts(rows, absent)
+    out['ahead'] = items if items else ('no live store is mounted in this workspace' if not rows else f'nothing: {level} live unit(s) level with the held ones')
+    out['store'] = (f'{held} unit(s) held; {twice} held more than once; {found} ahead in this room\'s live stores'
+                    + (f', {level} level' if found else ''))
+    facts.say(out)
     return 0
 
 

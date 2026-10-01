@@ -55,6 +55,7 @@ effects.sends_declared
 effects.writers_disjoint
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
+facts.lines_are_yaml
 files.required_exists
 grammar.citation_is_stated
 grammar.enforcement_map

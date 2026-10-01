@@ -1817,6 +1817,29 @@ def check_store(run) -> None:
         None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
 
 
+def check_facts(run) -> None:
+    """A status's facts print as YAML a reader loads back (#740): a mapping's keys in order,
+    a list's items with a dash, a nested fact indented beneath its heading, and a string
+    quoted exactly where YAML would read it as a number, a boolean, null, a time or a
+    mapping - so that the lines are the data."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import importlib
+    try:
+        facts = importlib.import_module('facts')
+    except ModuleNotFoundError:
+        run('facts: a status prints its facts as YAML a reader loads back', False,
+            'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')
+        return
+    got = facts.lines({'held': {'a/b capture': 121}, 'twice': [{'memory': 'x/memory', 'identical to': 'y/memory'}],
+                       'odd': ['121', 'true', '2026-09-30T121242Z', '-Users-x', 'a: b', 'word #tag', '', None, 2],
+                       'empty': {}, 'none': []})
+    expected = ['held:', '  a/b capture: 121', 'twice:', '  - memory: x/memory', '    identical to: y/memory', 'odd:',
+                '  - "121"', '  - "true"', '  - "2026-09-30T121242Z"', '  - -Users-x', '  - "a: b"', '  - "word #tag"',
+                '  - ""', '  - null', '  - 2', 'empty: {}', 'none: []']
+    run('facts: a status prints its facts as YAML a reader loads back', got == expected,
+        None if got == expected else f'the lines read {got}', check='facts.lines_are_yaml')
+
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
@@ -2597,6 +2620,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
     'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
+    'check_facts': ['src/main/facts.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2854,6 +2878,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_unit_companion, tier='code')
         run_section(check_unit_state, tier='code')
         run_section(check_store, tier='code')
+        run_section(check_facts, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

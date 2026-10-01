@@ -94,6 +94,7 @@ from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
+import facts  # noqa: E402 - the one printer of a status's facts (#740)
 import tier  # noqa: E402 — the tiers, one home (#702)
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
@@ -750,34 +751,45 @@ def orphans() -> list[Path]:
     return [e for e in sorted(stage.iterdir()) if e.name not in ('input', 'rehearsal')] if stage.is_dir() else []
 
 
-def stage_status() -> int:
-    """Bare corpus-yoga stage: the tier's state, read-only - the input's size, each orphan
-    with the janitor as its remedy, each rehearsal with its record, the units' counts
-    against the newest. Every effective stage verb ends by relaying it."""
+def stage_facts() -> dict:
+    """Bare corpus-yoga stage as facts (#741): the input's size, each orphan with the janitor
+    as its remedy, each rehearsal with its record, the units' counts against the newest
+    rehearsal by state, then by what each count is of, and the verdict last."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
-        print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
-        return 0
-    print(f'tmp/stage/: input {human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
-    for e in orphans():
-        print(f'  orphan: {e.relative_to(REPO).as_posix()} ({human(size_of(e))}) - nothing reads it; corpus-yoga stage clean --apply removes it')
+        return {'tmp/stage': 'absent - nothing captured since the last clean, no rehearsal made'}
+    facts: dict = {'tmp/stage': {'input': human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent'}}
+    facts['tmp/stage']['orphans'] = [
+        {'path': e.relative_to(REPO).as_posix(), 'size': human(size_of(e)),
+         'remedy': 'nothing reads it; corpus-yoga stage clean --apply removes it'} for e in orphans()]
     stamps = rehearsals()
-    if not stamps:
-        print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
-    for stamp in stamps:
-        print(f'  rehearsal {stamp} ({human(size_of(tier.rehearsal(stamp)))}): {rehearsal_header(stamp)}')
+    facts['tmp/stage']['rehearsals'] = ([{'stamp': s, 'size': human(size_of(tier.rehearsal(s))), 'record': rehearsal_header(s)}
+                                         for s in stamps] if stamps else 'none - corpus-yoga pipeline rehearse makes one')
     rows = survey()
     if not rows:
-        print('  units: none staged')
-        return 0
-    print(f'  units: {len(rows)} staged - {counted(tally(rows))}'
-          + (f'; judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
+        facts['units'] = 'none staged'
+        facts['stage'] = 'nothing staged'
+        return facts
+    counts = tally(rows)
+    units: dict = {'staged': len(rows), **counts}
+    if stamps:
+        units['judged by'] = f'rehearsal {stamps[-1]}'
+    units['relations'] = 'corpus-yoga pipeline, or each capturing noun bare'
     # the counts by what is counted - pipeline, provider and the unit's declared name (#736)
     kinds: dict[str, list] = {}
     for row in rows:
         kinds.setdefault(counted_as(row[0]), []).append(row)
     for kind, of_kind in sorted(kinds.items()):
-        print(f'    {kind}: {len(of_kind)} staged - {counted(tally(of_kind))}')
+        units[kind] = {'staged': len(of_kind), **tally(of_kind)}
+    facts['units'] = units
+    facts['stage'] = f'{len(rows)} unit(s) staged - {counted(counts)}' + (f'; judged by rehearsal {stamps[-1]}' if stamps else '')
+    return facts
+
+
+def stage_status() -> int:
+    """Bare corpus-yoga stage: the tier's state, read-only, as facts (#741). Every effective
+    stage verb ends by relaying it."""
+    facts.say(stage_facts())
     return 0
 
 
@@ -818,34 +830,35 @@ def held_twice(root: Path) -> list[tuple[Unit, Unit, str]]:
     return sorted(out, key=lambda row: row[0].address)
 
 
-def store_status() -> tuple[int, int]:
-    """Bare corpus-yoga store, its first two readings (#738): the units shared storage
-    holds, by what each count is of, with anything no pipeline selects and no capturing
-    noun writes; then every unit held more than once. Writes nothing. Returns (units held,
-    units held more than once)."""
+def store_facts() -> tuple[dict, int, int]:
+    """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
+    shared storage holds, by what each count is of, with anything no pipeline selects and
+    no capturing noun writes; then every unit held more than once with the unit that holds
+    it. Writes nothing. Returns (the facts, units held, units held more than once)."""
     if not STORE.is_dir():
-        print('data/input/: absent - this workspace holds no store')
-        return 0, 0
+        return {'data/input': 'absent - this workspace holds no store'}, 0, 0
     held = units(STORE)
-    print(f'data/input/: {human(size_of(STORE))}, {sum(len(u.files) for u in held)} file(s) in {len(held)} unit(s)')
+    out: dict = {'data/input': {'size': human(size_of(STORE)), 'files': sum(len(u.files) for u in held), 'units': len(held)}}
     kinds: dict[str, int] = {}
     for unit in held:
         kinds[counted_as(unit)] = kinds.get(counted_as(unit), 0) + 1
-    for kind, n in sorted(kinds.items()):
-        print(f'  {kind}: {n} held')
+    out['held'] = dict(sorted(kinds.items()))
+    stray = []
     for unit in held:
         if unit.pipeline is None and noun_of(unit) is None:
-            print(f'  stray: {unit.address} ({human(size_of(STORE / unit.address))}) - no pipeline selects it and no capturing noun writes there')
+            stray.append({'path': unit.address.as_posix(), 'size': human(size_of(STORE / unit.address)),
+                          'why': 'no pipeline selects it and no capturing noun writes there'})
         elif not unit.members and unit.record:
-            print(f'  stray: {unit.record[0]} ({human(size_of(STORE / unit.record[0]))}) - the record of a unit the store does not hold')
+            stray.append({'path': unit.record[0].as_posix(), 'size': human(size_of(STORE / unit.record[0])),
+                          'why': 'the record of a unit the store does not hold'})
+    out['stray'] = stray
     twice = held_twice(STORE)
-    print('held more than once - a unit whose content another of its kind holds whole:')
-    if not twice:
-        print('  none')
-    for unit, holder, how in twice:
-        print(f'  {unit.kind} {unit.address} ({human(size_of(STORE / unit.path))}): '
-              f'{"identical to" if how == "identical" else "held whole within"} {holder.address} ({human(size_of(STORE / holder.path))})')
-    return len(held), len(twice)
+    out['held more than once'] = [
+        {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
+         ('identical to' if how == 'identical' else 'held whole within'): holder.address.as_posix(),
+         'holder size': human(size_of(STORE / holder.path))}
+        for unit, holder, how in twice]
+    return out, len(held), len(twice)
 
 
 def _declares(noun: str, verb: str, flag: str) -> bool:
