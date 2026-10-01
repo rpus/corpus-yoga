@@ -94,6 +94,7 @@ from append_only import Relation, may_replace  # noqa: E402
 from markdown_projection import turn_extent  # noqa: E402
 import cache_io  # noqa: E402
 import validation_verdict as verdicts  # noqa: E402
+import facts  # noqa: E402 - the one printer of a status's facts (#740)
 import tier  # noqa: E402 — the tiers, one home (#702)
 
 STAGE = tier.TMP_STAGE_INPUT                 # what the captures write
@@ -124,6 +125,7 @@ class Unit:
     datum: Path | None = None     # the member the pipeline reads, where the unit is named by a star and not by it
     record: list[Path] = field(default_factory=list)          # what the stage alone holds of it: never promoted
     missing: list[str] = field(default_factory=list)          # what is absent of a unit named by a star, by name
+    kind: str = 'file'            # what its selection's declaration calls it; what no pipeline selects is a file
 
     @property
     def path(self) -> Path:
@@ -155,8 +157,8 @@ def resolve(template: str, provider: str | None, facts: dict) -> str:
 
 def stores(declared: dict[str, dict] | None = None) -> list[dict]:
     """One row per store a pipeline reads - one, or one per provider where the input carries
-    <provider>: pipeline, provider, input (relative to data/input), globs [(glob, measure)],
-    companion, depth."""
+    <provider>: pipeline, provider, input (relative to data/input), globs [(glob, measure,
+    the unit's name)], companion, depth."""
     out = []
     for name, facts in (declared if declared is not None else pipelines()).items():
         forms = sorted(facts['provider'].items()) if 'provider' in facts else [(None, facts)]
@@ -164,8 +166,8 @@ def stores(declared: dict[str, dict] | None = None) -> list[dict]:
             out.append(dict(
                 pipeline=name, provider=provider,
                 input=Path(resolve(facts['input'], provider, facts).removeprefix('data/input/')),
-                globs=[(g, m) for g, m in ((f['input_glob'], f['measure']),
-                                           (f['extra_input_glob'], f['extra_measure'])) if g],
+                globs=[(g, m, k) for g, m, k in ((f['input_glob'], f['measure'], f['unit']),
+                                                 (f['extra_input_glob'], f['extra_measure'], f['extra_unit'])) if g],
                 companion=f['companion'], depth=facts['subject_depth']))
     return out
 
@@ -208,7 +210,7 @@ def _select_pairs(root: Path, store: dict) -> list[Unit]:
     datum or the companion, the datum its member, the companion its record, and its
     missing whichever is absent."""
     base = root / store['input']
-    pattern, measure = store['globs'][0]
+    pattern, measure, kind = store['globs'][0]
     datum_form, companion_form = pattern.rstrip('/'), store['companion']
     found: dict[str, None] = {}
     for item in sorted(base.glob(datum_form)):
@@ -228,7 +230,7 @@ def _select_pairs(root: Path, store: dict) -> list[Unit]:
             missing = _deposit_missing(companion, datum)   # complete, or the members the record says are owed
         files = [f for m in members + record for f in _files_under(root, root / m)]
         out.append(Unit((base / star).relative_to(root), members, files, list(members), measure, store['pipeline'],
-                        store['provider'], (datum.name,), datum.relative_to(root), record, missing))
+                        store['provider'], (datum.name,), datum.relative_to(root), record, missing, kind))
     return out
 
 
@@ -240,7 +242,7 @@ def select(root: Path, store: dict) -> list[Unit]:
     if '<star>' in store['companion']:
         return _select_pairs(root, store)
     units: dict[Path, Unit] = {}
-    for pattern, measure in store['globs']:
+    for pattern, measure, kind in store['globs']:
         glob, dirs_only = pattern.rstrip('/'), pattern.endswith('/')
         for item in sorted(base.glob(glob)):
             if item.is_dir() != dirs_only:
@@ -258,7 +260,7 @@ def select(root: Path, store: dict) -> list[Unit]:
                     if companion.exists():
                         members.append(companion.relative_to(root))
                 files = [f for m in members for f in _files_under(root, root / m)]
-                unit = Unit(address, members, files, [], measure, store['pipeline'], store['provider'], subject)
+                unit = Unit(address, members, files, [], measure, store['pipeline'], store['provider'], subject, kind=kind)
                 units[address] = unit
             unit.selected.append(item.relative_to(root))
     return list(units.values())
@@ -749,37 +751,114 @@ def orphans() -> list[Path]:
     return [e for e in sorted(stage.iterdir()) if e.name not in ('input', 'rehearsal')] if stage.is_dir() else []
 
 
-def stage_status() -> int:
-    """Bare corpus-yoga stage: the tier's state, read-only - the input's size, each orphan
-    with the janitor as its remedy, each rehearsal with its record, the units' counts
-    against the newest. Every effective stage verb ends by relaying it."""
+def stage_facts() -> dict:
+    """Bare corpus-yoga stage as facts (#741): the input's size, each orphan with the janitor
+    as its remedy, each rehearsal with its record, the units' counts against the newest
+    rehearsal by state, then by what each count is of, and the verdict last."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
-        print('tmp/stage/: absent - nothing captured since the last clean, no rehearsal made')
-        return 0
-    print(f'tmp/stage/: input {human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else "absent"}')
-    for e in orphans():
-        print(f'  orphan: {e.relative_to(REPO).as_posix()} ({human(size_of(e))}) - nothing reads it; corpus-yoga stage clean --apply removes it')
+        return {'tmp/stage': 'absent - nothing captured since the last clean, no rehearsal made'}
+    facts: dict = {'tmp/stage': {'input': human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent'}}
+    facts['tmp/stage']['orphans'] = [
+        {'path': e.relative_to(REPO).as_posix(), 'size': human(size_of(e)),
+         'remedy': 'nothing reads it; corpus-yoga stage clean --apply removes it'} for e in orphans()]
     stamps = rehearsals()
-    if not stamps:
-        print('  rehearsals: none - corpus-yoga pipeline rehearse makes one')
-    for stamp in stamps:
-        print(f'  rehearsal {stamp} ({human(size_of(tier.rehearsal(stamp)))}): {rehearsal_header(stamp)}')
+    facts['tmp/stage']['rehearsals'] = ([{'stamp': s, 'size': human(size_of(tier.rehearsal(s))), 'record': rehearsal_header(s)}
+                                         for s in stamps] if stamps else 'none - corpus-yoga pipeline rehearse makes one')
     rows = survey()
     if not rows:
-        print('  units: none staged')
-        return 0
-    print(f'  units: {len(rows)} staged - {counted(tally(rows))}'
-          + (f'; judged by rehearsal {stamps[-1]}' if stamps else '') + '; the relations: corpus-yoga pipeline, or each capturing noun bare')
-    # the counts by kind - pipeline and provider - so that a total says what it counts
+        facts['units'] = 'none staged'
+        facts['stage'] = 'nothing staged'
+        return facts
+    counts = tally(rows)
+    units: dict = {'staged': len(rows), **counts}
+    if stamps:
+        units['judged by'] = f'rehearsal {stamps[-1]}'
+    units['relations'] = 'corpus-yoga pipeline, or each capturing noun bare'
+    # the counts by what is counted - pipeline, provider and the unit's declared name (#736)
     kinds: dict[str, list] = {}
     for row in rows:
-        u = row[0]
-        kind = '/'.join(x for x in (u.pipeline or 'no pipeline', u.provider or u.address.parts[0]) if x)
-        kinds.setdefault(kind, []).append(row)
+        kinds.setdefault(counted_as(row[0]), []).append(row)
     for kind, of_kind in sorted(kinds.items()):
-        print(f'    {kind}: {len(of_kind)} staged - {counted(tally(of_kind))}')
+        units[kind] = {'staged': len(of_kind), **tally(of_kind)}
+    facts['units'] = units
+    facts['stage'] = f'{len(rows)} unit(s) staged - {counted(counts)}' + (f'; judged by rehearsal {stamps[-1]}' if stamps else '')
+    return facts
+
+
+def stage_status() -> int:
+    """Bare corpus-yoga stage: the tier's state, read-only, as facts (#741). Every effective
+    stage verb ends by relaying it."""
+    facts.say(stage_facts())
     return 0
+
+
+def counted_as(unit: Unit) -> str:
+    """What a count of the unit is a count of: its pipeline and provider, then the name its
+    selection's declaration gives it (#736)."""
+    where = '/'.join(x for x in (unit.pipeline or 'no pipeline', unit.provider or unit.address.parts[0]) if x)
+    return f'{where} {unit.kind}'
+
+
+def held_twice(root: Path) -> list[tuple[Unit, Unit, str]]:
+    """Every unit under root whose content another unit of its kind holds whole (#738):
+    (the unit, the unit that holds it, 'identical' or 'contained'). Two units are compared
+    where they share a name and a kind, by the measure their pipeline declares; a measure
+    whose order relates everything - mirror's - holds only what is equal. Of identical
+    units the one at the first address is the holder; a unit a fuller one contains is
+    named with the fullest."""
+    groups: dict[tuple, list[Unit]] = {}
+    for unit in units(root):
+        if unit.pipeline is not None:
+            groups.setdefault((unit.pipeline, unit.provider, unit.kind, unit.path.name), []).append(unit)
+    out: list[tuple[Unit, Unit, str]] = []
+    for group in groups.values():
+        if len(group) < 2:
+            continue
+        value, leq, _words = MEASURE[group[0].measure]
+        values = [(u, value(root, u)) for u in group]
+        for unit, mine in values:
+            if mine is None:
+                continue
+            containers = [o for o, theirs in values if o is not unit and theirs is not None and theirs != mine
+                          and leq is not _leq_any and leq(mine, theirs)]
+            equals = [o for o, theirs in values if o is not unit and theirs == mine and o.address < unit.address]
+            if containers:
+                out.append((unit, max(containers, key=lambda o: size_of(root / o.path)), 'contained'))
+            elif equals:
+                out.append((unit, min(equals, key=lambda o: o.address), 'identical'))
+    return sorted(out, key=lambda row: row[0].address)
+
+
+def store_facts() -> tuple[dict, int, int]:
+    """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
+    shared storage holds, by what each count is of, with anything no pipeline selects and
+    no capturing noun writes; then every unit held more than once with the unit that holds
+    it. Writes nothing. Returns (the facts, units held, units held more than once)."""
+    if not STORE.is_dir():
+        return {'data/input': 'absent - this workspace holds no store'}, 0, 0
+    held = units(STORE)
+    out: dict = {'data/input': {'size': human(size_of(STORE)), 'files': sum(len(u.files) for u in held), 'units': len(held)}}
+    kinds: dict[str, int] = {}
+    for unit in held:
+        kinds[counted_as(unit)] = kinds.get(counted_as(unit), 0) + 1
+    out['held'] = dict(sorted(kinds.items()))
+    stray = []
+    for unit in held:
+        if unit.pipeline is None and noun_of(unit) is None:
+            stray.append({'path': unit.address.as_posix(), 'size': human(size_of(STORE / unit.address)),
+                          'why': 'no pipeline selects it and no capturing noun writes there'})
+        elif not unit.members and unit.record:
+            stray.append({'path': unit.record[0].as_posix(), 'size': human(size_of(STORE / unit.record[0])),
+                          'why': 'the record of a unit the store does not hold'})
+    out['stray'] = stray
+    twice = held_twice(STORE)
+    out['held more than once'] = [
+        {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
+         ('identical to' if how == 'identical' else 'held whole within'): holder.address.as_posix(),
+         'holder size': human(size_of(STORE / holder.path))}
+        for unit, holder, how in twice]
+    return out, len(held), len(twice)
 
 
 def _declares(noun: str, verb: str, flag: str) -> bool:

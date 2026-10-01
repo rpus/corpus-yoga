@@ -12,6 +12,8 @@
       "extra_input_glob": "*/*/memory/",
       "measure": "prefix",
       "extra_measure": "mirror",
+      "unit": "session",
+      "extra_unit": "memory",
       "companion": "<stem>/"
     },
     "gemini": {
@@ -19,6 +21,8 @@
       "extra_input_glob": "",
       "measure": "prefix",
       "extra_measure": "",
+      "unit": "session",
+      "extra_unit": "",
       "companion": ""
     }
   },

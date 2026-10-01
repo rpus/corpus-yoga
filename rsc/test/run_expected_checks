@@ -55,6 +55,7 @@ effects.sends_declared
 effects.writers_disjoint
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
+facts.lines_are_yaml
 files.required_exists
 grammar.citation_is_stated
 grammar.enforcement_map
@@ -107,6 +108,8 @@ schema.valid_json_with_schema
 shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart
+store.held_twice_is_found
+store.unit_names_its_kind
 structure.all_definitions_reachable
 structure.bfs_order
 structure.cli_declaration_mirrors_the_api

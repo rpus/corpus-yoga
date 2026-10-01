@@ -1783,6 +1783,63 @@ def check_unit_state(run) -> None:
         None if not prescribed else f'src/main/corpus.py prints {prescribed[0]}', check='stage.states_are_told_apart')
 
 
+def check_store(run) -> None:
+    """A unit knows what it is called, and a unit another of its kind holds whole is found
+    (#736, #738): over a scratch root, a session whose log is a prefix of the same
+    session's under another project is contained, a memory equal to another's is
+    identical, and what differs is neither."""
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    twice = getattr(corpus, 'held_twice', None)
+    if twice is None:
+        run('store: a unit another of its kind holds whole is found', False,
+            'src/main/corpus.py relates a staged unit to the held one of its address and nothing else: '
+            'one thing held at two addresses is found by no one', check='store.held_twice_is_found')
+        return
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch)
+        store = root / 'claude' / 'code' / 'machine-transport' / 'a-room'
+        for project, session, log, note in (('one', '11111111-aaaa', b'abc\n', b'same'),
+                                            ('two', '11111111-aaaa', b'abc\ndef\n', b'same'),
+                                            ('three', '22222222-bbbb', b'xyz\n', b'other')):
+            (store / project / 'memory').mkdir(parents=True)
+            (store / project / f'{session}.jsonl').write_bytes(log)
+            (store / project / 'memory' / 'note.md').write_bytes(note)
+        found = corpus.units(root)
+        kinds = sorted({u.kind for u in found})
+        run('store: a unit is called what its selection\'s declaration calls it', kinds == ['memory', 'session'],
+            None if kinds == ['memory', 'session'] else f'the kinds read {kinds}', check='store.unit_names_its_kind')
+        got = [(u.address.relative_to(store.relative_to(root)).as_posix(), h.address.relative_to(store.relative_to(root)).as_posix(), how)
+               for u, h, how in twice(root)]
+    expected = [('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained'), ('two/memory', 'one/memory', 'identical')]
+    run('store: a unit another of its kind holds whole is found', got == expected,
+        None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
+
+
+def check_facts(run) -> None:
+    """A status's facts print as YAML a reader loads back (#740): a mapping's keys in order,
+    a list's items with a dash, a nested fact indented beneath its heading, and a string
+    quoted exactly where YAML would read it as a number, a boolean, null, a time or a
+    mapping - so that the lines are the data."""
+    sys.path.insert(0, str(SRC / 'main'))
+    import importlib
+    try:
+        facts = importlib.import_module('facts')
+    except ModuleNotFoundError:
+        run('facts: a status prints its facts as YAML a reader loads back', False,
+            'src/main has no printer of facts: every status prints prose of its own', check='facts.lines_are_yaml')
+        return
+    got = facts.lines({'held': {'a/b capture': 121}, 'twice': [{'memory': 'x/memory', 'identical to': 'y/memory'}],
+                       'odd': ['121', 'true', '2026-09-30T121242Z', '-Users-x', 'a: b', 'word #tag', '', None, 2],
+                       'empty': {}, 'none': []})
+    expected = ['held:', '  a/b capture: 121', 'twice:', '  - memory: x/memory', '    identical to: y/memory', 'odd:',
+                '  - "121"', '  - "true"', '  - "2026-09-30T121242Z"', '  - -Users-x', '  - "a: b"', '  - "word #tag"',
+                '  - ""', '  - null', '  - 2', 'empty: {}', 'none: []']
+    run('facts: a status prints its facts as YAML a reader loads back', got == expected,
+        None if got == expected else f'the lines read {got}', check='facts.lines_are_yaml')
+
+
 def check_versioned_schema_diagnostics(run):
     all_diagnostics = sorted(SRC_TEST_DIAGNOSTICS.glob('*.py'))
     schema_skips    = {RSC_SCHEMA / 'pipeline' / p.name / family: skips
@@ -2562,6 +2619,8 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_tier_contract': ['src/main'],
     'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
+    'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
+    'check_facts': ['src/main/facts.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2818,6 +2877,8 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_verdict_record, tier='code')
         run_section(check_unit_companion, tier='code')
         run_section(check_unit_state, tier='code')
+        run_section(check_store, tier='code')
+        run_section(check_facts, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')
