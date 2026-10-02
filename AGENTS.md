@@ -85,8 +85,12 @@ seventh principle or a smell.
   itself, and any pivot starts by filing its should.
 - An issue's title carries its "should" - the property that should hold,
   never the instrument that should exist. An issue closes only on
-  demonstration. The should is the issue's identity: editing it is
-  supersession, an explicit act, never amendment.
+  demonstration. The should is the issue's identity: an edit that would
+  invalidate an open PR aiming at the issue changes it, and is
+  supersession, an explicit act; an edit that invalidates none - a
+  correction, a clearer statement of the same should, a detail a ruling
+  has settled - is amendment, made in place, the forge's revision history
+  its record.
 - Every PR closes at least one issue. A struggling PR keeps working, fails
   honestly, or closes a different genuine issue - an issue cannot shrink.
   An issue a PR can only advance is restructured into PR-sized parts, in
