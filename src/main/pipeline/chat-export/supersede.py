@@ -214,7 +214,7 @@ def load_captures(captures_dir):
     return convs, names
 
 
-def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
+def compare_vs_captures(latest, latest_convs, latest_names, captures_dir, export=None):
     """Directional per-conversation supersession between the latest bulk export and the
     live-capture corpus (the data frontier). Informational: capture-ahead is the normal
     post-snapshot direction; capture-stale names conversations to recapture in place;
@@ -244,18 +244,18 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir):
           f'{len(capture_only)} capture-only (absent from this export)')
     # Each mismatched conversation is its own FAIL: atom - counted by
     # pipeline.sh's stage table and folded into the run's verdict (#446).
-    def _blank(stem: str) -> bool:
+    # the conversations as the export holds them, read once: a conversation is known
+    # here by its uuid, since the unit's name is the conversation's title (#743)
+    held = {c['uuid']: c for c in atoms._conversations(export) if c.get('uuid')} if export is not None else {}
+
+    def _blank(uuid: str) -> bool:
         """No content in any message (e.g. a stray blank send): the export's
         record is complete however long it is kept — nothing worth capturing."""
-        try:
-            c = json.loads((latest / 'json' / f'{stem}.json').read_text())
-        except (OSError, ValueError):
-            return False
-        msgs = c.get('chat_messages', [])
-        return all(not m.get('text') and not m.get('content') for m in msgs)
+        msgs = held.get(uuid, {}).get('chat_messages', [])
+        return bool(msgs) and all(not m.get('text') and not m.get('content') for m in msgs)
 
     for u in export_only:
-        if not latest_convs[u][1] or _blank(latest_convs[u][0]):
+        if not latest_convs[u][1] or _blank(u):
             print(f'  export-only {latest_convs[u][0]} ({u}): blank (no message content) — '
                   'the export holds its complete record; nothing to capture')
             continue
@@ -387,7 +387,7 @@ def verdict(args) -> tuple[list[Path], list[Path], bool]:
                      if deletable else 'none is deletable'))
 
     if args.api_capture and Path(args.api_capture).is_dir():
-        compare_vs_captures(latest, latest_units['conversations'], None, Path(args.api_capture))
+        compare_vs_captures(latest, latest_units['conversations'], None, Path(args.api_capture), ext_root / latest.name)
     return deletable, orphans, covered_all
 
 
