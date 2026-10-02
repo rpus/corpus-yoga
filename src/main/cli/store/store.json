@@ -1,13 +1,15 @@
 {
-  "summary": "shared storage, data/input, in the stage's terms: the units held, what is held more than once, and what this room's live stores hold beyond it (bare: the status; writes nothing)",
+  "summary": "shared storage, data/input, in the stage's terms: the units held, the duplicates, and what this room's live stores hold beyond it (bare: the status, writes nothing; clean: its one janitor)",
   "target": "src/main/cli/store/store.py",
   "calculus": "supersession L3 L10",
   "args": [],
   "r": [
     "data/input",
+    "tmp/cache",
     "ext/mnt/agent",
     "rsc/provider/providers.csv",
-    "rsc/naming/export_archive_members.csv"
+    "rsc/naming/export_archive_members.csv",
+    "rsc/cache_io.csv"
   ],
   "x": [
     "git"

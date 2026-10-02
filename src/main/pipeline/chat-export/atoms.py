@@ -16,7 +16,7 @@ and a summary reading deposited verbatim in data/output/markdown/claude/chat/sum
 are kept whatever becomes of the export, so they count for nothing an export must still
 hold. One export is held whole within another when every component's pairs are a subset
 of the other's. This is the one home of the atoms: corpus.py's measure table loads it,
-and src/main/pipeline/chat-export/supersede.py reads through it until #744 retires it.
+and compare_captures.py reads the conversations through it.
 """
 import hashlib
 import json

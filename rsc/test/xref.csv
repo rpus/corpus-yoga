@@ -73,7 +73,9 @@ pyrightconfig.json,17,path_str,src/main/model,Y,"""src/main/model"","
 pyrightconfig.json,20,path_str,src/main/grammar,Y,"""src/main/grammar"","
 pyrightconfig.json,21,path_str,src/gen/grammar/TypeScript,Y,"""src/gen/grammar/TypeScript"""
 rsc/CALCULUS.md,18,doc,src/main/cli/cli.py,Y,for the corpus-yoga CLI's command table (`calculus_terms()` in `src/main/cli/cli.py`;
-rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-export/supersede.py,Y,equality of snapshots. (`src/main/pipeline/chat-export/supersede.py` atomisers.)
+rsc/CALCULUS.md,80,doc,src/main/pipeline/chat-export/atoms.py,Y,equality of snapshots. (`src/main/pipeline/chat-export/atoms.py` atomisers.)
+rsc/CALCULUS.md,86,doc,src/main/pipeline/chat-export/atoms.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/pipeline/chat-export/atoms.py`, the export's measure; `src/main/corpus."
+rsc/CALCULUS.md,86,doc,src/main/corpus.py,Y,"principle*; user-stated, 2026-07-05). (`src/main/pipeline/chat-export/atoms.py`, the export's measure; `src/main/corpus."
 rsc/CALCULUS.md,103,doc,src/main/pipeline/chat-export/accumulate.py,Y,"implementation: `accumulate()` in `src/main/pipeline/chat-export/accumulate.py`, called"
 rsc/CALCULUS.md,112,doc,src/main/cli/agent/agent.py,Y,semantics checked: `src/main/cli/agent/agent.py` (`corpus-yoga agent`) —
 rsc/CALCULUS.md,135,doc,rsc/naming/library_dir_vintages.csv,Y,"(`rsc/naming/library_dir_vintages.csv`,"
@@ -837,7 +839,7 @@ src/main/cli/pipeline/pipeline.sh,35,comment,src/main/cli/parse_argv.sh,Y,# shel
 src/main/cli/pipeline/pipeline.sh,37,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/pipeline/pipeline.sh,48,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)"
 src/main/cli/pipeline/pipeline.sh,379,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,416,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,423,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.json,8,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/pipeline/rehearse.sh,20,comment,src/main/tier.py,Y,"# the one name the tier contract (src/main/tier.py) resolves to those tiers, so every"
 src/main/cli/pipeline/rehearse.sh,32,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
@@ -912,17 +914,18 @@ src/main/cli/stage/stage.json,3,path_str,src/main/cli/stage/stage.py,Y,"""target
 src/main/cli/stage/stage.json,9,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.py,9,comment,src/main/tier.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared"
 src/main/cli/stage/stage.py,9,comment,src/main/corpus.py,Y,"The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared"
-src/main/cli/stage/stage.py,34,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
+src/main/cli/stage/stage.py,33,path_str,src/main/cli/stage/stage.py,Y,SELF = 'src/main/cli/stage/stage.py'
+src/main/cli/store/clean.json,22,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/clean.json,23,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/clean.json,24,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
 src/main/cli/store/store.json,3,path_str,src/main/cli/store/store.py,Y,"""target"": ""src/main/cli/store/store.py"","
-src/main/cli/store/store.json,9,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
-src/main/cli/store/store.json,10,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
-src/main/cli/store/store.py,7,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
-src/main/cli/store/store.py,29,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
+src/main/cli/store/store.json,10,path_str,rsc/provider/providers.csv,Y,"""rsc/provider/providers.csv"","
+src/main/cli/store/store.json,11,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"","
+src/main/cli/store/store.json,12,path_str,rsc/cache_io.csv,Y,"""rsc/cache_io.csv"""
+src/main/cli/store/store.py,9,comment,src/main/corpus.py,Y,The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
+src/main/cli/store/store.py,38,path_str,src/main/cli/store/store.py,Y,SELF = 'src/main/cli/store/store.py'
 src/main/cli/subcommand.schema.json,29,$ref,src/main/cli/argument.schema.json,Y,"""$ref"": ""argument.schema.json#"""
 src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/summaries.py,Y,"""target"": ""src/main/pipeline/chat-export/summaries.py"","
-src/main/cli/supersede/clean.json,24,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
-src/main/cli/supersede/supersede.json,3,path_str,src/main/pipeline/chat-export/supersede.py,Y,"""target"": ""src/main/pipeline/chat-export/supersede.py"","
-src/main/cli/supersede/supersede.json,19,path_str,rsc/naming/export_dir_vintages.csv,Y,"""rsc/naming/export_dir_vintages.csv"""
 src/main/cli/test/install-hook.json,5,path_str,rsc/test,Y,"""rsc/test"""
 src/main/cli/test/run.json,34,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/test/run.json,35,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
@@ -1032,12 +1035,11 @@ src/main/pipeline/chat-capture/run.sh,65,call,src/main/pipeline/chat-capture/gem
 src/main/pipeline/chat-capture/run.sh,70,call,src/main/pipeline/chat-capture/audit.py,Y,"""$SCRIPT_DIR/audit.py"" \"
 src/main/pipeline/chat-capture/run.sh,92,path_str,src/main/pipeline/chat-capture/pipeline.json,Y,"api_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" claude)"""
 src/main/pipeline/chat-capture/run.sh,93,path_str,src/main/pipeline/chat-capture/pipeline.json,Y,"dom_root=""$(resolve_input ""$input_root"" ""$SCRIPT_DIR/pipeline.json"" gemini)"""
-src/main/pipeline/chat-export/archive_components.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/archive_components.py       --chat-export data/input/claude/chat/
-src/main/pipeline/chat-export/archive_components.py,24,comment,src/main/pipeline/chat-export/archive_components.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/archive_components.py       --chat-export data/input/claude/chat/
+src/main/pipeline/chat-export/archive_components.py,23,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/archive_components.py       --chat-export data/input/claude/chat/
+src/main/pipeline/chat-export/archive_components.py,23,comment,src/main/pipeline/chat-export/archive_components.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/archive_components.py       --chat-export data/input/claude/chat/
 src/main/pipeline/chat-export/atomise_bulk.py,18,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-exp
 src/main/pipeline/chat-export/atomise_bulk.py,18,comment,src/main/pipeline/chat-export/atomise_bulk.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/atomise_bulk.py     --bulk-export data/input/claude/chat/bulk-exp
 src/main/pipeline/chat-export/atomise_bulk.py,28,path_str,src/main/pipeline/chat-export/atomise_bulk.py,Y,SELF = 'src/main/pipeline/chat-export/atomise_bulk.py'
-src/main/pipeline/chat-export/atoms.py,19,comment,src/main/pipeline/chat-export/supersede.py,Y,and src/main/pipeline/chat-export/supersede.py reads through it until #744 retires it.
 src/main/pipeline/chat-export/atoms.py,26,path_str,src/main/pipeline/chat-export/atoms.py,Y,SELF = 'src/main/pipeline/chat-export/atoms.py'
 src/main/pipeline/chat-export/audit_files.py,14,comment,src/main/pipeline/chat-export/extract_files.py,Y,ef       Files written to tmp/cache/<export>/extracted_files/ by src/main/pipeline/chat-export/extract_files.py
 src/main/pipeline/chat-export/audit_files.py,17,comment,src/main/pipeline/chat-export/extract_heredocs.py,Y,by src/main/pipeline/chat-export/extract_heredocs.py (heredoc target was /mnt/user-data/outputs/).
@@ -1057,6 +1059,9 @@ src/main/pipeline/chat-export/audit_files.sh,23,call,src/main/pipeline/chat-expo
 src/main/pipeline/chat-export/audit_files.sh,24,call,src/main/pipeline/chat-export/query_files.py,Y,"""$REPO_DIR/src/run_python_script.sh"" ""$SCRIPT_DIR/query_files.py"" ""$@"""
 src/main/pipeline/chat-export/check_harvested.py,10,comment,src/main/pipeline/chat-export/library.py,Y,src/main/pipeline/chat-export/library.py and the uuid column of data-chats.json) — its <ordinal>-<slug>-<uuid8> names su
 src/main/pipeline/chat-export/check_harvested.py,24,path_str,src/main/pipeline/chat-export/check_harvested.py,Y,SELF = 'src/main/pipeline/chat-export/check_harvested.py'
+src/main/pipeline/chat-export/compare_captures.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/compare_captures.py --api-capture <root>
+src/main/pipeline/chat-export/compare_captures.py,14,comment,src/main/pipeline/chat-export/compare_captures.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/compare_captures.py --api-capture <root>
+src/main/pipeline/chat-export/compare_captures.py,21,path_str,src/main/pipeline/chat-export/compare_captures.py,Y,SELF = 'src/main/pipeline/chat-export/compare_captures.py'
 src/main/pipeline/chat-export/extract_files.py,15,comment,src/main/pipeline/chat-export/library.py,Y,"(<ordinal>-<slug>-<uuid8>, resolved via src/main/pipeline/chat-export/library.py — ordinals renumber"
 src/main/pipeline/chat-export/extract_files.py,31,path_str,src/main/pipeline/chat-export/extract_files.py,Y,SELF = 'src/main/pipeline/chat-export/extract_files.py'
 src/main/pipeline/chat-export/extract_files.sh,3,comment,src/main/pipeline/chat-export/extract_files.sh,Y,#   src/main/pipeline/chat-export/extract_files.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-5
@@ -1103,24 +1108,20 @@ src/main/pipeline/chat-export/run.sh,72,call,src/main/pipeline/chat-export/extra
 src/main/pipeline/chat-export/run.sh,76,call,src/main/pipeline/chat-export/present.sh,Y,"step present            ""$SCRIPT_DIR/present.sh"" --chat-export ""$batch"""
 src/main/pipeline/chat-export/run.sh,77,call,src/main/pipeline/chat-export/audit_files.sh,Y,"step audit_files        ""$SCRIPT_DIR/audit_files.sh"" --chat-export ""$batch"""
 src/main/pipeline/chat-export/run.sh,82,call,src/main/pipeline/chat-export/atomise_bulk.py,Y,"""$SCRIPT_DIR/atomise_bulk.py"" --bulk-export ""$batch"""
-src/main/pipeline/chat-export/run.sh,111,call,src/main/pipeline/chat-export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
-src/main/pipeline/chat-export/run.sh,119,call,src/main/pipeline/chat-export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
-src/main/pipeline/chat-export/run.sh,132,call,src/main/pipeline/chat-export/supersede.py,Y,"""$SCRIPT_DIR/supersede.py"" clean --dry-run --api-capture ""$API_CAPTURE"""
+src/main/pipeline/chat-export/run.sh,112,call,src/main/pipeline/chat-export/memories.py,Y,"""$SCRIPT_DIR/memories.py"" sync"
+src/main/pipeline/chat-export/run.sh,120,call,src/main/pipeline/chat-export/summaries.py,Y,"""$SCRIPT_DIR/summaries.py"" sync"
+src/main/pipeline/chat-export/run.sh,127,call,src/main/pipeline/chat-export/compare_captures.py,Y,"""$SCRIPT_DIR/compare_captures.py"" --api-capture ""$API_CAPTURE"""
 src/main/pipeline/chat-export/summaries.py,35,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/summaries.py [sync] \
 src/main/pipeline/chat-export/summaries.py,35,comment,src/main/pipeline/chat-export/summaries.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/summaries.py [sync] \
 src/main/pipeline/chat-export/summaries.py,46,path_str,src/main/pipeline/chat-export/summaries.py,Y,SELF = 'src/main/pipeline/chat-export/summaries.py'
-src/main/pipeline/chat-export/supersede.py,68,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/supersede.py [clean (--dry-run | --apply)]     [--api-capture <AP
-src/main/pipeline/chat-export/supersede.py,68,comment,src/main/pipeline/chat-export/supersede.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/supersede.py [clean (--dry-run | --apply)]     [--api-capture <AP
-src/main/pipeline/chat-export/supersede.py,72,comment,src/main/tier.py,Y,"contract (src/main/tier.py, #702): no path is passed, so a rehearsal's name rebinds them all."
-src/main/pipeline/chat-export/supersede.py,89,path_str,src/main/pipeline/chat-export/supersede.py,Y,SELF = 'src/main/pipeline/chat-export/supersede.py'
-src/main/pipeline/chat-export/supersede.py,123,comment,rsc/naming/export_dir_vintages.csv,Y,"The export-dir naming vintages, as data (rsc/naming/export_dir_vintages.csv),"
-src/main/pipeline/chat-export/supersede.py,424,comment,src/main/corpus.py,Y,stage promotes by (src/main/corpus.py) - or None where the store holds no record.
 src/main/pipeline/chat-export/timeline.py,14,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/timeline.py <conversations.json> --table chats
 src/main/pipeline/chat-export/timeline.py,14,comment,src/main/pipeline/chat-export/timeline.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/timeline.py <conversations.json> --table chats
 src/main/pipeline/chat-export/timeline.py,26,path_str,src/main/pipeline/chat-export/timeline.py,Y,SELF = 'src/main/pipeline/chat-export/timeline.py'
 src/main/pipeline/chat-export/validate.sh,12,comment,src/main/pipeline/chat-export/validate.sh,Y,#   src/main/pipeline/chat-export/validate.sh --chat-export <path/to/data-directory>
 src/main/pipeline/chat-export/validate.sh,20,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/pipeline/chat-export/validate.sh,25,comment,src/main/steps.sh,Y,# shellcheck source=src/main/steps.sh
+src/main/pipeline/chat-export/vintage.py,6,comment,rsc/naming/export_dir_vintages.csv,Y,"rsc/naming/export_dir_vintages.csv, one row per vintage, each a pattern with named groups"
+src/main/pipeline/chat-export/vintage.py,17,path_str,src/main/pipeline/chat-export/vintage.py,Y,SELF = 'src/main/pipeline/chat-export/vintage.py'
 src/main/pipeline/code-transport/claude/list_sessions.sh,6,comment,src/main/pipeline/code-transport/claude/list_sessions.sh,Y,#   src/main/pipeline/code-transport/claude/list_sessions.sh <store>/<machine>/<project>
 src/main/pipeline/code-transport/claude/memory_to_json.py,24,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/memory_to_json.py         <memory-dir> <output.json>
 src/main/pipeline/code-transport/claude/memory_to_json.py,24,comment,src/main/pipeline/code-transport/claude/memory_to_json.py,Y,src/run_python_script.sh src/main/pipeline/code-transport/claude/memory_to_json.py         <memory-dir> <output.json>
@@ -1476,12 +1477,11 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/site/sync.json,Y,
 ,,,src/main/cli/stage/clean.json,Y,
 ,,,src/main/cli/stage/stage.json,Y,
+,,,src/main/cli/store/clean.json,Y,
 ,,,src/main/cli/store/store.json,Y,
 ,,,src/main/cli/subcommand.schema.json,Y,
 ,,,src/main/cli/summaries/summaries.json,Y,
 ,,,src/main/cli/summaries/sync.json,Y,
-,,,src/main/cli/supersede/clean.json,Y,
-,,,src/main/cli/supersede/supersede.json,Y,
 ,,,src/main/cli/test/install-hook.json,Y,
 ,,,src/main/cli/test/run.json,Y,
 ,,,src/main/cli/test/test.json,Y,
@@ -1494,6 +1494,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/model/rekey_chats.py,Y,
 ,,self_only,src/main/model/serve_markdown.py,Y,
 ,,self_only,src/main/pipeline/chat-export/require_export.sh,Y,
+,,self_only,src/main/pipeline/chat-export/vintage.py,Y,
 ,,self_only,src/main/pipeline/code-transport/claude/list_sessions.sh,Y,
 ,,self_only,src/main/pipeline/code-transport/claude/memory_to_json.py,Y,
 ,,self_only,src/main/pipeline/code-transport/claude/project_conversation.py,Y,

@@ -8,8 +8,8 @@ two exports ten hours apart, identical updated_at), carried by every bulk export
 and every browser capture, and lossy between snapshots: the backend regenerates it
 at will, exports supersede each other, captures refresh in place. Each distinct
 reading is deposited once, durably, so batches and captures may churn while no
-reading is ever lost — and supersede' summaries component recognises the
-deposits as its unconditional licence.
+reading is ever lost — and the export's measure (atoms.py) reads the deposits
+as the summaries' unconditional licence.
 
 The summary store and the chat-memory library are the two callers of the shared
 CALCULUS accumulate operation (accumulate.py); this one keys deposits per
@@ -53,7 +53,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 from markdown_projection import REPO, find_api_json
 
 from declared_parser import command_parser  # noqa: E402
-from supersede import export_time  # noqa: E402 — the one export-ordering authority
+from vintage import export_time  # noqa: E402 — the one export-ordering authority
 from accumulate import accumulate, nearest_earlier_deposit  # noqa: E402 — the one deposit rule
 
 # A summary folder holds <stamp>.md deposits beside two non-deposits: index.md

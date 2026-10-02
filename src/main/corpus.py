@@ -661,6 +661,52 @@ def _copy(unit: Unit) -> int:
     return changed
 
 
+PASSES = 3   # the Finder writes into a directory being emptied; a second pass is the whole remedy
+
+
+def dispose(path: Path) -> str | None:
+    """Remove the entry as it stands at the act - a janitor's one act. None when it is
+    gone, else why it is not."""
+    why = 'still present'
+    for _ in range(PASSES):
+        try:
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            elif path.exists() or path.is_symlink():
+                path.unlink()
+        except OSError as e:
+            why = (e.strerror or str(e)).lower()
+        if not (path.exists() or path.is_symlink()):
+            return None
+    return why
+
+
+def shadow(unit: Unit) -> Path | None:
+    """The unit's derivation under the checkout's cache, at the address the pipeline writes
+    it - what only the unit feeds, and goes with it (#744)."""
+    if unit.pipeline is None:
+        return None
+    rel = Path(cache_io.path_for(unit.pipeline)).relative_to('tmp/cache')
+    return tier.TMP / 'cache' / rel / (unit.provider or '') / Path(*unit.subject)
+
+
+def orphaned_shadows() -> list[Path]:
+    """Every directory under the cache at a held kind's depth that is no held unit's shadow:
+    the derivation of a unit the store no longer holds, which would pass for one (#744)."""
+    held = [u for u in units(STORE) if u.pipeline is not None]
+    shadows = {shadow(u) for u in held}
+    depths: dict[tuple, int] = {}
+    for u in held:
+        depths[(u.pipeline, u.provider)] = len(u.subject)
+    out: list[Path] = []
+    for (pipeline, provider), depth in sorted(depths.items(), key=lambda kv: (kv[0][0], kv[0][1] or '')):
+        root = tier.TMP / 'cache' / Path(cache_io.path_for(pipeline)).relative_to('tmp/cache') / (provider or '')
+        if not root.is_dir():
+            continue
+        out += [d for d in sorted(root.glob('/'.join(['*'] * depth))) if d.is_dir() and d not in shadows]
+    return out
+
+
 def remove(unit: Unit) -> None:
     """Take the unit out of the stage - the janitor's act (corpus-yoga stage clean), never
     promotion's. Its record goes with it."""
@@ -824,15 +870,18 @@ def counted_as(unit: Unit) -> str:
     return f'{where} {unit.kind}'
 
 
-def held_twice(root: Path) -> list[tuple[Unit, Unit, str, str]]:
+def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> list[tuple[Unit, Unit, str, str]]:
     """Every duplicate under root - a unit whose content another unit of its kind holds, the
     same at two addresses or whole within the other's by the kind's measure (#738, #743):
     (the unit, the unit that holds it, 'identical' or 'contained', the measure's words).
     Two units are compared where they share a kind and - unless the kind's measure relates
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
     declares; a measure whose order relates everything - mirror's - holds only what is
-    equal. Of identical units the one at the first address is the holder; a unit a fuller
-    one contains is named with the fullest."""
+    equal. Of identical units the holder is the newest: the one at an address `newest`
+    names - a live directory that is a link, since a link is made from the newer to the
+    older - then one a live store still writes, `live`, so that the copy a capture renews
+    is the one kept, and failing both the one at the first address; a unit a fuller one
+    contains is named with the fullest."""
     groups: dict[tuple, list[Unit]] = {}
     for unit in units(root):
         if unit.pipeline is not None:
@@ -849,18 +898,20 @@ def held_twice(root: Path) -> list[tuple[Unit, Unit, str, str]]:
                 continue
             containers = [o for o, theirs in values if o is not unit and theirs is not None and theirs != mine
                           and leq is not _leq_any and leq(mine, theirs)]
-            equals = [o for o, theirs in values if o is not unit and theirs == mine and o.address < unit.address]
+            equals = [o for o, theirs in values if o is not unit and theirs == mine]
+            # among identical copies one is the holder: a live one, else the first address
+            keeper = min(equals + [unit], key=lambda o: (o.address not in newest, o.address not in live, o.address)) if equals else unit
             if containers:
                 holder, how = max(containers, key=lambda o: size_of(root / o.path)), 'contained'
-            elif equals:
-                holder, how = min(equals, key=lambda o: o.address), 'identical'
+            elif equals and keeper is not unit:
+                holder, how = keeper, 'identical'
             else:
                 continue
             out.append((unit, holder, how, words(mine, next(v for o, v in values if o is holder), unit)))
     return sorted(out, key=lambda row: row[0].address)
 
 
-def store_facts() -> tuple[dict, int, int]:
+def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[dict, int, int]:
     """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
@@ -882,7 +933,7 @@ def store_facts() -> tuple[dict, int, int]:
             stray.append({'path': unit.record[0].as_posix(), 'size': human(size_of(STORE / unit.record[0])),
                           'why': 'the record of a unit the store does not hold'})
     out['stray'] = stray
-    twice = held_twice(STORE)
+    twice = held_twice(STORE, live, newest)
     out['duplicates'] = [
         {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
          ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),

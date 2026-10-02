@@ -65,7 +65,7 @@ run_one() {
   step validate           "$SCRIPT_DIR/validate.sh" --chat-export "$batch"
   # archive_components: the batch's non-conversation components (memories/projects/
   # users) verbatim into tmp/cache/<batch>/ — the cache dir is then the complete record of
-  # the four-component snapshot, and supersede reads all four from that root
+  # the four-component snapshot
   step archive_components "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/archive_components.py" --chat-export "$batch"
   step extract_files      "$SCRIPT_DIR/extract_files.sh" --chat-export "$batch"
@@ -99,8 +99,9 @@ run_one() {
 # eligible for a command (a declared `step`) iff it is a corpus-wide operation
 # meaningful to invoke standalone — which is precisely the run_tail character. A run_one
 # per-batch stage (`--item <batch>`) is internal machinery; giving it a noun would
-# be claiming a batch-scoped map step is a standalone corpus operation. The three here —
-# memories, summaries, supersede — are exactly cli.steps().
+# be claiming a batch-scoped map step is a standalone corpus operation. The two here —
+# memories, summaries — are this pipeline's cli.steps(); the comparison after them is a
+# step and no command.
 run_tail() {
   # memories: every distinct memory state deposits into the durable
   # data/output/memories/ (snapshot-time-keyed, content-deduplicated — the memory document
@@ -117,19 +118,13 @@ run_tail() {
   # summaries-divergent batch; the verdict below stays unprejudiced.
   step summaries "$REPO_DIR/src/run_python_script.sh" \
     "$SCRIPT_DIR/summaries.py" sync
-  # supersede: a batch is a synchronised snapshot of FOUR components
-  # (conversations, memories, projects, users), licensed as FIVE — a conversation's
-  # summary is a per-snapshot oracle reading, checked as its own component — each
-  # put through the same unprejudiced unit/atom subset check; no component is
-  # assumed append-only or mutable; a batch is deletable iff EVERY component is
-  # superseded (their lattice join). Also compares the latest batch against the
-  # live-capture corpus per conversation: capture-ahead is normal post-snapshot
-  # growth; capture-stale names conversations to recapture in place. Divergence is
-  # a fact, not an error. The step is the janitor's dry run (#715): the verdict with
-  # its working, then what corpus-yoga supersede clean --apply, the reader's act,
-  # would remove.
-  step_ok supersede  "$REPO_DIR/src/run_python_script.sh" \
-    "$SCRIPT_DIR/supersede.py" clean --dry-run --api-capture "$API_CAPTURE"
+  # compare_captures: the latest batch against the live-capture corpus per
+  # conversation: capture-ahead is normal post-snapshot growth; capture-stale names
+  # conversations to recapture in place. Divergence is a fact, not an error. Whether an
+  # earlier batch is held whole within a later one is the store's reading, by the
+  # export's atoms (#743), and its disposal the store's janitor in the corpus tail (#744).
+  step_ok compare_captures "$REPO_DIR/src/run_python_script.sh" \
+    "$SCRIPT_DIR/compare_captures.py" --api-capture "$API_CAPTURE"
 }
 
 print_plan() {

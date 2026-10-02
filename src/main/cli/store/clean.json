@@ -1,0 +1,30 @@
+{
+  "help": "remove what the status reads as duplicated, as corpus-yoga stage clean clears the stage: each duplicate of either species - identical to another unit of its kind, or contained by one by the kind's measure - with what only it feeds, its members, its record and its shadow under tmp/cache, the holder kept; and each orphaned shadow, the cache's derivation of a unit the store no longer holds. The status is re-read beneath the lines",
+  "step": "corpus",
+  "args": [
+    {
+      "name": "--dry-run",
+      "type": "",
+      "cardinality": "1/store-clean-1",
+      "help": "name what would be removed, with sizes; remove nothing - the corpus run's tail"
+    },
+    {
+      "name": "--apply",
+      "type": "",
+      "cardinality": "1/store-clean-1",
+      "help": "remove it"
+    }
+  ],
+  "r": [
+    "data/input",
+    "tmp/cache",
+    "ext/mnt/agent",
+    "rsc/provider/providers.csv",
+    "rsc/naming/export_archive_members.csv",
+    "rsc/cache_io.csv"
+  ],
+  "consumes": [
+    "data/input",
+    "tmp/cache"
+  ]
+}
