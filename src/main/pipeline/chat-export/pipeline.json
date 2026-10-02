@@ -9,7 +9,7 @@
   "input": "data/input/claude/chat/bulk-export",
   "input_glob": "data-*/",
   "extra_input_glob": "",
-  "measure": "whole",
+  "measure": "atoms",
   "extra_measure": "",
   "unit": "export",
   "extra_unit": "",

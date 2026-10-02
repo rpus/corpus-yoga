@@ -93,6 +93,8 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import atoms  # noqa: E402 - the export's atoms, one home (#743)
 import corpus  # noqa: E402 - human, size_of: the store's sizes in one spelling
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
@@ -147,99 +149,17 @@ def export_time(name):
     return None
 
 
-def _canon(value):
-    """Canonical form of a bounded JSON value — atoms carry the VALUE itself
-    (set equality is then exact string equality, no fingerprint, no collision
-    caveat). Right for the bounded components: memory fields, user objects."""
-    return json.dumps(value, sort_keys=True, ensure_ascii=False)
-
-
+# The atoms are atoms.py's (#743): each component read from the raw export, the cache's
+# archive copies no longer consulted, and the deposits as atoms.py reads them.
 def _fp(value):
-    """Content fingerprint of an arbitrary JSON value — for atoms over
-    UNBOUNDED content (project doc bodies), where carrying the value itself
-    would make atom sets as large as the corpus."""
-    return hashlib.sha256(_canon(value).encode()).hexdigest()[:16]
+    return atoms.fingerprint(value)
 
 
-# ── component atomisers: export -> {unit key: (display name, set of atoms)} ────
-
-def units_conversations(gen_dir, ext_dir):
-    units = {}
-    for f in sorted((gen_dir / 'json').glob('*.json')):
-        c = json.load(f.open())
-        u = c.get('uuid')
-        if u:
-            units[u] = (f.stem, {m['uuid'] for m in c.get('chat_messages', []) if m.get('uuid')})
-    return units
+def _wrap(read):
+    return lambda gen_dir, ext_dir: read(ext_dir)
 
 
-def units_summaries(gen_dir, ext_dir):
-    """Each conversation's summary as ONE fingerprinted atom. The summary is a
-    per-snapshot oracle READING (a nondeterministic emission: the same transcript has
-    been observed to re-read differently — №99, capture vs export, identical
-    updated_at), so a later export covers it only by carrying the IDENTICAL summary;
-    a divergent later summary is a NEW reading, not a superseding one, and deleting
-    the earlier export would destroy a reading that exists nowhere else. Message
-    coverage says nothing about this — hence its own component in the licence.
-    Empty summaries contribute no unit (nothing to lose, nothing to orphan)."""
-    units = {}
-    for f in sorted((gen_dir / 'json').glob('*.json')):
-        c = json.load(f.open())
-        u, s = c.get('uuid'), c.get('summary')
-        if u and s:
-            units[u] = (f.stem, {_fp(s)})
-    return units
-
-
-def _component_path(gen_dir, ext_dir, *rel):
-    """Prefer the export's tmp/cache/ archive copy (written by archive_components.py);
-    fall back to the raw data/input/ export dir for cache dirs predating the archive step."""
-    archived = gen_dir.joinpath(*rel)
-    return archived if archived.exists() else ext_dir / rel[-1]
-
-
-def units_memories(gen_dir, ext_dir):
-    path = _component_path(gen_dir, ext_dir, 'memories', 'memories.json')
-    if not path.exists():
-        return {}
-    units = {}
-    data = json.loads(path.read_text())
-    # both eras carry one account's object: the pre-manifest export wrapped it in a
-    # single-element array, the manifest era ships it bare (memories v2) - one rule reads both
-    for m in (data if isinstance(data, list) else [data]):
-        key = m.get('account_uuid', '?')
-        atoms = {(field, _canon(value)) for field, value in m.items() if field != 'account_uuid'}
-        units[key] = ('memories', atoms)
-    return units
-
-
-def units_projects(gen_dir, ext_dir):
-    units = {}
-    proj_dir = _component_path(gen_dir, ext_dir, 'projects')
-    for f in sorted(proj_dir.glob('*.json')) if proj_dir.is_dir() else []:
-        p = json.loads(f.read_text())
-        # uniform (kind, constituent id, fingerprint) atoms; the envelope has exactly
-        # one constituent, so its id slot is empty
-        atoms = {('doc', d['uuid'], _fp([d.get('filename'), d.get('content')]))
-                 for d in p.get('docs', [])}
-        atoms.add(('meta', '', _fp([p.get('name'), p.get('description'), p.get('prompt_template')])))
-        units[p.get('uuid', f.stem)] = (p.get('name', f.stem), atoms)
-    return units
-
-
-def units_users(gen_dir, ext_dir):
-    path = _component_path(gen_dir, ext_dir, 'users', 'users.json')
-    if not path.exists():
-        return {}
-    return {u.get('uuid', '?'): (u.get('full_name', 'user'), {_canon(u)})
-            for u in json.loads(path.read_text())}
-
-
-COMPONENTS = [('conversations', units_conversations),
-              ('summaries', units_summaries),
-              ('memories', units_memories),
-              ('projects', units_projects),
-              ('users', units_users)]
+COMPONENTS = [(name, _wrap(read)) for name, read in atoms.COMPONENTS]
 
 
 def compare_component(earlier, latest):
@@ -272,28 +192,11 @@ def _short(export_name: str) -> str:
 
 
 def deposit_witness(gen_dir, ext_dir, lib_dir: Path):
-    """The deposit file byte-identical to this export's memory state, or None —
-    the unconditional licence: a copy that outlives every export."""
-    path = _component_path(gen_dir, ext_dir, 'memories', 'memories.json')
-    if not path.exists() or not lib_dir.is_dir():
-        return None
-    text = path.read_text()
-    for f in sorted(lib_dir.glob('*.json')):
-        if f.read_text() == text:
-            return f
-    return None
+    return atoms.memories_deposited(ext_dir, lib_dir)
 
 
 def summaries_deposit_fps(lib_dir: Path):
-    """Fingerprints of every deposited summary reading (summaries.py's
-    verbatim <ts>.md / browser-capture.md files) — the summaries component's
-    unconditional licence: deposits outlive every export and every capture refresh."""
-    fps = set()
-    if lib_dir.is_dir():
-        for f in lib_dir.glob('*/*.md'):
-            if f.name != 'index.md':
-                fps.add(_fp(f.read_text()))
-    return fps
+    return atoms.summaries_deposited(lib_dir)
 
 
 # ── captures cross-check (conversations only: that is what the capture source has) ─
