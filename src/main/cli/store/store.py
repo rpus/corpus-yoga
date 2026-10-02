@@ -2,7 +2,7 @@
 """
 store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (#738).
 
-    corpus-yoga store    # status: the units held, what is held more than once, what this room's live stores hold beyond it
+    corpus-yoga store    # status: the units held, the duplicates, what this room's live stores hold beyond it
 
 The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 declaration selects, at an address. Three readings, and nothing written:
