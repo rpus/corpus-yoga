@@ -99,6 +99,26 @@ STATE = {corpus.Relation.ABSENT: 'new', corpus.Relation.IDENTICAL: 'level', corp
          corpus.Relation.AHEAD: 'behind', corpus.Relation.DIVERGED: 'diverged'}
 
 
+def live_addresses() -> frozenset[Path]:
+    """The store addresses this room's live stores still write: each live session's, each
+    live second-selection unit's - what a capture of this room would renew, so the copy the
+    store keeps of an identical pair is the one a capture keeps level (#744)."""
+    room = registry.machine()
+    out: set[Path] = set()
+    for row in registry.providers():
+        name = row['provider']
+        mount, adapter = registry.mount(row), transport.adapter(name)
+        if mount is None or adapter is None or not mount.is_dir():
+            continue
+        under = transport.store(name).relative_to(corpus.STORE) / room
+        for s in adapter.live_sessions(mount):
+            out.add(under / s.project / s.path.name)
+        for _kind, path in _live_extras(name, mount):
+            if not path.is_symlink():   # a link holds nothing: the directory it points to is the live one
+                out.add(under / path.parent.name / path.name)
+    return frozenset(out)
+
+
 def ahead() -> tuple[list[Ahead], list[str]]:
     """The third reading, as rows: every session and second-selection unit of each live
     store this room mounts, against the held one, related by the measure the pipeline
@@ -202,7 +222,7 @@ def entries() -> list[tuple[str, dict, list[Path]]]:
     """Everything the janitor acts on, in the order it acts: (kind, the entry's facts, the
     paths that go). The one list both faces walk."""
     out: list[tuple[str, dict, list[Path]]] = []
-    for unit, holder, how, by in corpus.held_twice(corpus.STORE):
+    for unit, holder, how, by in corpus.held_twice(corpus.STORE, live_addresses()):
         paths = [corpus.STORE / m for m in unit.members + unit.record]
         own = corpus.shadow(unit)
         if own is not None and own.exists():
@@ -244,7 +264,7 @@ def clean(apply: bool) -> int:
         return 0
     # the status over what remains is the certified state after the act: beneath the lines
     # and above the verdict, informing and never gating
-    out, held, twice = corpus.store_facts()
+    out, held, twice = corpus.store_facts(live_addresses())
     facts.say(out)
     if left:
         print(f'store clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
@@ -257,7 +277,7 @@ def main() -> int:
     args = command_parser('store').parse_args()
     if args.verb == 'clean':
         return clean(bool(args.apply))
-    out, held, twice = corpus.store_facts()
+    out, held, twice = corpus.store_facts(live_addresses())
     rows, absent = ahead()
     items, found, level = ahead_facts(rows, absent)
     out['ahead'] = items if items else ('no live store is mounted in this workspace' if not rows else f'nothing: {level} live unit(s) level with the held ones')
