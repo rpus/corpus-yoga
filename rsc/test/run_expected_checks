@@ -110,6 +110,7 @@ stage.export_is_one_unit
 stage.states_are_told_apart
 store.export_is_held_within_a_later_one
 store.held_twice_is_found
+store.rows_read_by_the_audit
 store.unit_names_its_kind
 structure.all_definitions_reachable
 structure.bfs_order

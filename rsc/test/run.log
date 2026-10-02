@@ -1,4 +1,4 @@
-run.py: code+schema 1453/1453
+run.py: code+schema 1456/1456
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -131,6 +131,7 @@ run.py: code+schema 1453/1453
 ── check_store ───────────────────────────────────────────────────────────────
   ✓ store.unit_names_its_kind
   ✓ store.held_twice_is_found
+  ✓ store.rows_read_by_the_audit  (3/3)
 
 ── check_facts ───────────────────────────────────────────────────────────────
   ✓ facts.lines_are_yaml
@@ -237,26 +238,26 @@ check_tier_contract                    1     0   code      119
 check_verdict_record                   2     0   code      122
 check_unit_companion                   1     0   code      125
 check_unit_state                       2     0   code      128
-check_store                            2     0   code      131
-check_facts                            1     0   code      135
-check_export_atoms                     1     0   code      138
-check_versioned_schema_diagnostics   374     0   schema    141
-check_schema_join                      2     0   schema    168
-check_model_join_versions              1     0   schema    172
-check_model_table                      1     0   schema    175
-check_model_occurrences                3     0   schema    178
-check_model_obligations              162     0   schema    183
-check_model_identity                   1     0   schema    187
-check_grammar                          2     0   schema    190
-check_provider_registry                2     0   code      193
-check_reference                       21     0   schema    197
-check_mcp_factoring                    9     0   schema    203
-check_mcp_reproducible                 1     0   schema    209
-check_expectation                      2     0   code      212
+check_store                            5     0   code      131
+check_facts                            1     0   code      136
+check_export_atoms                     1     0   code      139
+check_versioned_schema_diagnostics   374     0   schema    142
+check_schema_join                      2     0   schema    169
+check_model_join_versions              1     0   schema    173
+check_model_table                      1     0   schema    176
+check_model_occurrences                3     0   schema    179
+check_model_obligations              162     0   schema    184
+check_model_identity                   1     0   schema    188
+check_grammar                          2     0   schema    191
+check_provider_registry                2     0   code      194
+check_reference                       21     0   schema    198
+check_mcp_factoring                    9     0   schema    204
+check_mcp_reproducible                 1     0   schema    210
+check_expectation                      2     0   code      213
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 131 types, 1453/1453 invocations passing
-checks[code]: 79 types, 776/776 invocations passing
+checks[code+schema]: 132 types, 1456/1456 invocations passing
+checks[code]: 80 types, 779/779 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1453/1453 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1456/1456 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
