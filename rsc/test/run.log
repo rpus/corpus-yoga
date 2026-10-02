@@ -1,4 +1,4 @@
-run.py: code+schema 1458/1458
+run.py: code+schema 1453/1453
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ run.py: code+schema 1458/1458
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (98/98)
+  ✓ structure.self_path_matches_address  (99/99)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -33,16 +33,16 @@ run.py: code+schema 1458/1458
   ✓ cli.table_parses
   ✓ cli.commands_unique
   ✓ cli.commands_alphabetical
-  ✓ cli.target_exists  (23/23)
-  ✓ cli.calculus_defined  (23/23)
+  ✓ cli.target_exists  (22/22)
+  ✓ cli.calculus_defined  (22/22)
   ✓ cli.advertised_flags_exist  (16/16)
   ✓ cli.docstring_flags_advertised  (20/20)
   ✓ cli.subcommands_dispatch  (20/20)
   ✓ cli.target_flags_advertised  (20/20)
   ✓ cli.help_one_screen  (20/20)
-  ✓ cli.verb_accepts_command_flags  (3/3)
+  ✓ cli.verb_accepts_command_flags  (2/2)
   ✓ cli.completions_parse
-  ✓ naming.target_stem_matches_command  (23/23)
+  ✓ naming.target_stem_matches_command  (22/22)
   ✓ shell.shellcheck_clean
   ✓ naming.log_path_derives_from_command  (12/12)
   ✓ output.prescriptions_are_commands  (64/64)
@@ -52,11 +52,11 @@ run.py: code+schema 1458/1458
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (82/82)
+  ✓ output.plan_lines_name_their_target  (84/84)
   ✓ structure.file_at_level_of_subject  (39/39)
-  ✓ structure.cli_declaration_mirrors_the_api  (24/24)
-  ✓ structure.cli_declaration_validates  (74/74)
-  ✓ cli.every_form_listed  (46/46)
+  ✓ structure.cli_declaration_mirrors_the_api  (23/23)
+  ✓ structure.cli_declaration_validates  (73/73)
+  ✓ cli.every_form_listed  (44/44)
   ✓ cli.flag_not_axis_value  (21/21)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
@@ -216,11 +216,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations           20     0   code        7
 check_step_imports                     2     0   code       15
-check_self_paths                      98     0   code       18
+check_self_paths                      99     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    552     0   code       32
+check_cli_surface                    546     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           16     0   code       68
 check_effects                          3     0   code       71
@@ -255,8 +255,8 @@ check_mcp_reproducible                 1     0   schema    209
 check_expectation                      2     0   code      212
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 131 types, 1458/1458 invocations passing
-checks[code]: 79 types, 781/781 invocations passing
+checks[code+schema]: 131 types, 1453/1453 invocations passing
+checks[code]: 79 types, 776/776 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1458/1458 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1453/1453 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

@@ -130,7 +130,7 @@ They are stated, followed, and reviewed by people.
 - **G2 — Bare is status: free, local, and read-only.** `unenforced (#47, #52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
-  `model`, `supersede`, `xref`); the command's *whole act* where it has no verb and that
+  `model`, `store`, `xref`); the command's *whole act* where it has no verb and that
   act is one free idempotent step (`check`, `prerequisites` — `run` left this set when it
   became `pipeline run`, and #40 takes `check` to `test run`, leaving `prerequisites` alone
   or nothing); and a *usage refusal* where the verb is required
@@ -171,9 +171,10 @@ They are stated, followed, and reviewed by people.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
   verb.** `gated` `from L9` — never a per-batch one. The chat-export pipeline is a map over batches
   (`run_one`) then a reduce over all of them (`run_tail`); the nouns live only in the
-  reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`,
-  `summaries`, `supersede` are exactly the `run_tail` steps, and the plan must name each
-  by command AND verb — a bare noun would silently be a status no-op under G2.
+  reduce, because only a whole-corpus step is meaningful to invoke standalone. `memories`
+  and `summaries` are chat-export's `run_tail` steps and `store clean` the corpus tail's,
+  and the plan must name each by command AND verb — a bare noun would silently be a status
+  no-op under G2.
 - **G20 — What a command installs outside the repo is identified by a stable token, and
   every instance of it is removed.** `gated` `from L1` — the marker delimiting an installed
   block carries advice to the reader, and advice is edited; identity is the part that must

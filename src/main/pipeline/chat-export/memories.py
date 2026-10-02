@@ -18,8 +18,8 @@ memory costs nothing, a rewrite is preserved forever, and a reverted-then-back
 document redeposits honestly. Deposits are never modified or removed; they
 outlive their batches, which is the point: once a batch's memory state is
 deposited, the batch's memories-divergence no longer blocks its deletion
-(supersede stays unprejudiced — the deposit report here is the licence,
-not a carve-out there).
+(the export's measure, atoms.py, stays unprejudiced — the deposit report
+here is the licence, not a carve-out there).
 
 The projection renders every deposit to data/output/markdown/claude/chat/memories/<stamp>.md (this
 stage owns that subtree). The memory content is already markdown inside the
@@ -39,7 +39,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from supersede import export_time
+from vintage import export_time
 from accumulate import accumulate  # the one deposit rule (issue #22)
 
 SELF = 'src/main/pipeline/chat-export/memories.py'

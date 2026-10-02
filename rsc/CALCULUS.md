@@ -77,13 +77,13 @@ per-corpus code.
   collision caveat — user simplification, 2026-07-08), fingerprints only where
   content is unbounded (project doc bodies).
   Envelope timestamps are excluded: supersession claims retained *data*, not byte
-  equality of snapshots. (`src/main/pipeline/chat-export/supersede.py` atomisers.)
+  equality of snapshots. (`src/main/pipeline/chat-export/atoms.py` atomisers.)
 
 - **supersession (⊑)** — per unit: `subset` / `ORPHANED` (unit absent later —
   unique data) / `DIVERGENT` (atoms missing later — unique data). Per product:
   the conjunction over components. Verdicts are **computed, never assumed** — no
   component's class is encoded into the verdict logic (the *unprejudiced
-  principle*; user-stated, 2026-07-05). (`supersede.py`.)
+  principle*; user-stated, 2026-07-05). (`src/main/pipeline/chat-export/atoms.py`, the export's measure; `src/main/corpus.py`'s one reading over every kind.)
 
 - **merge / union** — per class, as tabled above. Identity-keyed sets union
   trivially because keys are global; the only genuine collisions (overlapping
@@ -298,7 +298,7 @@ Each law names its current enforcement (or the incident that taught it).
   each capturing noun's `promote` verb (`src/main/corpus.py`: the five relations of
   `src/main/append_only.py` over a measure per kind), and beyond it where the
   pipelines reduce — in `tmp/cache/` and `data/output/` (bulk exports and
-  `corpus-yoga supersede`; sessions and `render_corpus.py`; `corpus-yoga forge
+  `corpus-yoga store`; sessions and `render_corpus.py`; `corpus-yoga forge
   capture` since the maintainer's ruling of 2026-08-23, #497). The two captures that
   read the store they wrote, each to guard its own write - `corpus-yoga agent capture`
   by a session's byte prefix, `corpus-yoga browser capture` by a scrape's turn extent -
@@ -368,7 +368,7 @@ the fact.
 ## Encoding roadmap
 
 The generic interface already exists in embryo, four times:
-`supersede.py`'s `COMPONENTS` (atomisers + one generic comparator),
+`atoms.py`'s `COMPONENTS` (atomisers + one generic comparator),
 `library.py` (identity resolution + dressing normalisation + set merge),
 `memories.py` (mutable-document accumulation), and
 `src/main/cli/agent/agent.py` (prefix-supersession + the memory-folder

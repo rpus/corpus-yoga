@@ -661,6 +661,52 @@ def _copy(unit: Unit) -> int:
     return changed
 
 
+PASSES = 3   # the Finder writes into a directory being emptied; a second pass is the whole remedy
+
+
+def dispose(path: Path) -> str | None:
+    """Remove the entry as it stands at the act - a janitor's one act. None when it is
+    gone, else why it is not."""
+    why = 'still present'
+    for _ in range(PASSES):
+        try:
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            elif path.exists() or path.is_symlink():
+                path.unlink()
+        except OSError as e:
+            why = (e.strerror or str(e)).lower()
+        if not (path.exists() or path.is_symlink()):
+            return None
+    return why
+
+
+def shadow(unit: Unit) -> Path | None:
+    """The unit's derivation under the checkout's cache, at the address the pipeline writes
+    it - what only the unit feeds, and goes with it (#744)."""
+    if unit.pipeline is None:
+        return None
+    rel = Path(cache_io.path_for(unit.pipeline)).relative_to('tmp/cache')
+    return tier.TMP / 'cache' / rel / (unit.provider or '') / Path(*unit.subject)
+
+
+def orphaned_shadows() -> list[Path]:
+    """Every directory under the cache at a held kind's depth that is no held unit's shadow:
+    the derivation of a unit the store no longer holds, which would pass for one (#744)."""
+    held = [u for u in units(STORE) if u.pipeline is not None]
+    shadows = {shadow(u) for u in held}
+    depths: dict[tuple, int] = {}
+    for u in held:
+        depths[(u.pipeline, u.provider)] = len(u.subject)
+    out: list[Path] = []
+    for (pipeline, provider), depth in sorted(depths.items(), key=lambda kv: (kv[0][0], kv[0][1] or '')):
+        root = tier.TMP / 'cache' / Path(cache_io.path_for(pipeline)).relative_to('tmp/cache') / (provider or '')
+        if not root.is_dir():
+            continue
+        out += [d for d in sorted(root.glob('/'.join(['*'] * depth))) if d.is_dir() and d not in shadows]
+    return out
+
+
 def remove(unit: Unit) -> None:
     """Take the unit out of the stage - the janitor's act (corpus-yoga stage clean), never
     promotion's. Its record goes with it."""

@@ -96,7 +96,7 @@ Code sessions: `corpus-yoga agent capture --all`. The forge's ledger (issues, pu
 requests, comments, reviews, labels, blocked_by edges): `corpus-yoga forge capture` -
 one stamped deposit under `data/input/github/forge/gh-CLI/` per run. Paid model readings:
 `corpus-yoga indexing capture` (needs `ANTHROPIC_API_KEY` set; `corpus-yoga prerequisites`
-reports it), rendered free by `corpus-yoga site render`. Batch disposal is computed, never assumed: `corpus-yoga supersede` states the verdict with its working, and `corpus-yoga supersede clean` is its janitor.
+reports it), rendered free by `corpus-yoga site render`. Disposal is computed, never assumed: `corpus-yoga store` reads what is duplicated, an earlier export held whole within a later one among it, and `corpus-yoga store clean` is its janitor.
 
 ## Prerequisites
 

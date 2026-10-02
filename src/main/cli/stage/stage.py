@@ -3,7 +3,7 @@
 stage.py (corpus-yoga stage) - the room's stage, tmp/stage, as the cache has its noun.
 
     corpus-yoga stage                   # status: the input, each orphan, each rehearsal, the units' counts
-    corpus-yoga stage clean --dry-run   # what the janitor would remove: each rehearsal, each orphan, each unit held byte-equal
+    corpus-yoga stage clean --dry-run   # what the janitor would remove: each rehearsal, each orphan, each duplicate of a held unit
     corpus-yoga stage clean --apply     # remove it
 
 The tier (src/main/tier.py, src/main/corpus.py): input is what the captures write, shared
@@ -12,7 +12,7 @@ stamp - evidence that stands until removed. The per-unit relations stay with eac
 capturing noun's bare status and with bare corpus-yoga pipeline; this face counts them
 against the newest rehearsal. The janitor clears its tier as corpus-yoga cache clean clears
 its own: every rehearsal, each named, and the rehearsals' directory once it holds none;
-every staged unit the store holds byte-equal - a unit already promoted; and every entry
+every staged unit identical to the held one, a duplicate, already promoted; and every entry
 under tmp/stage that is neither the input nor a rehearsal, an orphan of an earlier layout.
 A refused unit is evidence of another kind and is never the janitor's.
 
@@ -26,7 +26,6 @@ deciding only whether the act runs after the line, so the dry run is the apply w
 act elided. The apply relays the bare status, the certified state after the act, beneath
 its lines and above its verdict, which is its last line.
 """
-import shutil
 import sys
 from pathlib import Path
 from typing import Callable
@@ -42,26 +41,7 @@ from declared_parser import command_parser  # noqa: E402
 import corpus  # noqa: E402
 import tier  # noqa: E402 — the tiers, one home (#702)
 
-PASSES = 3   # the Finder writes into a directory being emptied; a second pass is the whole remedy
-
-
-def _remove(path: Path) -> str | None:
-    """Remove the entry as it stands at the act. None when it is gone, else why it is not."""
-    why = 'still present'
-    for _ in range(PASSES):
-        try:
-            if path.is_dir() and not path.is_symlink():
-                shutil.rmtree(path)
-            elif path.exists() or path.is_symlink():
-                path.unlink()
-        except OSError as e:
-            why = (e.strerror or str(e)).lower()
-        if not (path.exists() or path.is_symlink()):
-            return None
-    return why
-
-
-KINDS = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'unit held byte-equal': 'units held byte-equal',
+KINDS = {'rehearsal': 'rehearsals', 'orphan': 'orphans', 'duplicate': 'duplicates',
          'incomplete unit': 'incomplete units', 'empty directory': 'empty directories'}   # each kind of entry, and its plural
 
 
@@ -97,7 +77,7 @@ def entries() -> list[tuple[str, str, str, Callable[[], str | None]]]:
         path = tier.rehearsal(stamp)
         out.append(('rehearsal', path.relative_to(REPO).as_posix(),
                     f'rehearsal {stamp} - the disposal of evidence: {corpus.rehearsal_header(stamp)}: '
-                    f'{corpus.human(corpus.size_of(path))}', lambda path=path: _remove(path)))
+                    f'{corpus.human(corpus.size_of(path))}', lambda path=path: corpus.dispose(path)))
     parent = tier.REHEARSALS
     if parent.is_dir() and all(c.is_dir() and c.name in stamps for c in parent.iterdir()):
         name = parent.relative_to(REPO).as_posix()
@@ -105,11 +85,11 @@ def entries() -> list[tuple[str, str, str, Callable[[], str | None]]]:
     for e in corpus.orphans():
         name = e.relative_to(REPO).as_posix()
         out.append(('orphan', name, f'orphan {name} - neither the input nor a rehearsal: {corpus.human(corpus.size_of(e))}',
-                    lambda e=e: _remove(e)))
+                    lambda e=e: corpus.dispose(e)))
     if corpus.STAGE.is_dir():
         for unit in corpus.units(corpus.STAGE):
             if corpus.redundant(unit):
-                out.append(('unit held byte-equal', str(unit.address), f'{unit.address}: held byte-equal in data/input',
+                out.append(('duplicate', str(unit.address), f'{unit.address}: identical to the held unit',
                             lambda unit=unit: _unit(unit)))
             elif unit.missing:
                 # its record says what it lacks, so what it is is decidable on sight (#721)

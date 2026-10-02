@@ -2,7 +2,9 @@
 """
 store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (#738).
 
-    corpus-yoga store    # status: the units held, the duplicates, what this room's live stores hold beyond it
+    corpus-yoga store                   # status: the units held, the duplicates, what this room's live stores hold beyond it
+    corpus-yoga store clean --dry-run   # what the janitor would remove: each duplicate with what only it feeds, each orphaned shadow
+    corpus-yoga store clean --apply     # remove it
 
 The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 declaration selects, at an address. Three readings, and nothing written:
@@ -20,6 +22,13 @@ declaration selects, at an address. Three readings, and nothing written:
 The third is a status's to say and never a capture's: a capture reads no capture (L10),
 so it cannot know what is held, and stages all its source holds; a status may relate the
 live store to the held one, and the reader captures by the extent it names.
+
+The janitor, store clean, acts on the second reading (#744): each duplicate, of either
+species, goes with what only it feeds - its members, its record and its shadow under the
+cache - and the holder stays; an orphaned shadow, the cache's derivation of a unit the
+store no longer holds, goes too. Its lines keep their tenses - will remove before each
+act, did or did NOT after - the status is re-read beneath them, and the verdict is the
+last line, DONE only when every entry went; the dry run is the apply with the act elided.
 """
 import importlib
 import sys
@@ -174,8 +183,80 @@ def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[list, int, int]:
     return items, found, sum(1 for r in rows if r.state == 'level')
 
 
+KINDS = {'duplicate': 'duplicates', 'orphaned shadow': 'orphaned shadows'}   # each kind of entry, and its plural
+
+
+def _count(n: int, kind: str) -> str:
+    return f'{n} {kind if n == 1 else KINDS[kind]}'
+
+
+def _dispose_all(paths: list[Path]) -> str | None:
+    for path in paths:
+        why = corpus.dispose(path)
+        if why is not None:
+            return f'{path.relative_to(REPO) if path.is_relative_to(REPO) else path}: {why}'
+    return None
+
+
+def entries() -> list[tuple[str, dict, list[Path]]]:
+    """Everything the janitor acts on, in the order it acts: (kind, the entry's facts, the
+    paths that go). The one list both faces walk."""
+    out: list[tuple[str, dict, list[Path]]] = []
+    for unit, holder, how, by in corpus.held_twice(corpus.STORE):
+        paths = [corpus.STORE / m for m in unit.members + unit.record]
+        own = corpus.shadow(unit)
+        if own is not None and own.exists():
+            paths.append(own)
+        item = {unit.kind: unit.address.as_posix(), ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),
+                'by': by, 'size': corpus.human(sum(corpus.size_of(p) for p in paths)),
+                'goes': [p.relative_to(REPO).as_posix() if p.is_relative_to(REPO) else str(p) for p in paths]}
+        out.append(('duplicate', item, paths))
+    for d in corpus.orphaned_shadows():
+        out.append(('orphaned shadow', {'shadow': d.relative_to(REPO).as_posix(), 'why': 'the store holds no unit it derives from',
+                                         'size': corpus.human(corpus.size_of(d))}, [d]))
+    return out
+
+
+def clean(apply: bool) -> int:
+    """One loop over the one list; the flag decides only whether the act runs after the lines."""
+    rows = entries()
+    did = {kind: 0 for kind in KINDS}
+    left: list[str] = []
+    print('would remove:' if not apply else 'will remove:' if rows else 'will remove: []')
+    if not rows and not apply:
+        print('  []')
+    for kind, item, paths in rows:
+        for line in facts.lines([item], 1):
+            print(line)
+        if not apply:
+            did[kind] += 1
+            continue
+        why = _dispose_all(paths)
+        if why is None:
+            print('    did: removed')
+            did[kind] += 1
+        else:
+            print(f'    did: NOT - {why}')
+            left.append(f'{kind}: {why}')
+    counts = ', '.join(_count(did[kind], kind) for kind in KINDS if did[kind]) or 'nothing'
+    if not apply:
+        print(f'store clean: would remove {counts}' + (' (--apply removes them)' if counts != 'nothing' else ''))
+        return 0
+    # the status over what remains is the certified state after the act: beneath the lines
+    # and above the verdict, informing and never gating
+    out, held, twice = corpus.store_facts()
+    facts.say(out)
+    if left:
+        print(f'store clean: NOT DONE - removed {counts}; NOT removed ' + '; '.join(left))
+    else:
+        print(f'store clean: DONE - removed {counts}')
+    return 1 if left else 0
+
+
 def main() -> int:
-    command_parser('store').parse_args()
+    args = command_parser('store').parse_args()
+    if args.verb == 'clean':
+        return clean(bool(args.apply))
     out, held, twice = corpus.store_facts()
     rows, absent = ahead()
     items, found, level = ahead_facts(rows, absent)
