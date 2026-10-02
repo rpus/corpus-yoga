@@ -108,6 +108,7 @@ schema.valid_json_with_schema
 shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart
+store.export_is_held_within_a_later_one
 store.held_twice_is_found
 store.unit_names_its_kind
 structure.all_definitions_reachable

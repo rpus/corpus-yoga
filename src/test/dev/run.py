@@ -1811,10 +1811,47 @@ def check_store(run) -> None:
         run('store: a unit is called what its selection\'s declaration calls it', kinds == ['memory', 'session'],
             None if kinds == ['memory', 'session'] else f'the kinds read {kinds}', check='store.unit_names_its_kind')
         got = [(u.address.relative_to(store.relative_to(root)).as_posix(), h.address.relative_to(store.relative_to(root)).as_posix(), how)
-               for u, h, how in twice(root)]
+               for u, h, how, _by in twice(root)]
     expected = [('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained'), ('two/memory', 'one/memory', 'identical')]
     run('store: a unit another of its kind holds whole is found', got == expected,
         None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
+
+
+def check_export_atoms(run) -> None:
+    """An earlier export is held whole within a later one by its atoms (#743): over a
+    scratch root, an export whose conversations, memories and users are all among a later
+    export's is contained, and one holding a message the later lacks is not; a memory state
+    the deposits hold counts for nothing the export must still hold."""
+    import json as json_
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    import corpus
+    if 'atoms' not in corpus.MEASURE:
+        run('store: an export is held whole within a later one by its atoms', False,
+            'src/main/corpus.py relates two exports by the bytes of their trees alone: no earlier export is ever read as held within a later one',
+            check='store.export_is_held_within_a_later_one')
+        return
+    with tempfile.TemporaryDirectory() as scratch:
+        root = Path(scratch) / 'data' / 'input'
+        bulk = root / 'claude' / 'chat' / 'bulk-export'
+        account = '0fc4c1e0-4719-4e10-997a-697bf05599af'
+        def export(name, convs, memory):
+            d = bulk / name
+            d.mkdir(parents=True)
+            (d / 'conversations.json').write_text(json_.dumps(
+                [{'uuid': c, 'name': c, 'summary': f's-{c}', 'chat_messages': [{'uuid': f'{c}-{i}'} for i in range(n)]} for c, n in convs]))
+            (d / 'memories.json').write_text(json_.dumps({'account_uuid': account, 'note': memory}))
+            (d / 'users.json').write_text(json_.dumps([{'uuid': 'u1', 'full_name': 'me'}]))
+        export(f'data-{account}-1700000000-aaaaaaaa-2026-01-01-00-00-00', [('c1', 2)], 'early')
+        export(f'data-{account}-1700000100-bbbbbbbb-2026-01-02-00-00-00', [('c1', 3), ('c2', 3)], 'later')
+        export(f'data-{account}-1700000200-cccccccc-2026-01-03-00-00-00', [('c1', 4)], 'later')   # a message the second lacks, and lacking its c2
+        deposits = Path(scratch) / 'data' / 'output' / 'memories'
+        deposits.mkdir(parents=True)
+        (deposits / '2026-01-01T000000Z.json').write_text(json_.dumps({'account_uuid': account, 'note': 'early'}))
+        got = [(u.address.name[-28:-20], h.address.name[-28:-20], how) for u, h, how, _by in corpus.held_twice(root)]
+    expected = [('aaaaaaaa', 'bbbbbbbb', 'contained')]
+    run('store: an export is held whole within a later one by its atoms', got == expected,
+        None if got == expected else f'held twice read {got}', check='store.export_is_held_within_a_later_one')
 
 
 def check_facts(run) -> None:
@@ -2621,6 +2658,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
     'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
+    'check_export_atoms': ['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
     'check_schema_join': SCHEMA + MODEL,
@@ -2879,6 +2917,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_unit_state, tier='code')
         run_section(check_store, tier='code')
         run_section(check_facts, tier='code')
+        run_section(check_export_atoms, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
         run_section(check_model_join_versions, tier='schema')

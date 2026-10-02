@@ -48,7 +48,7 @@ stage clean` removes what a rehearsal derived and the units the store holds byte
 So: `browser capture --provider claude`, `pipeline rehearse`, `browser promote
 --provider claude`, `pipeline run chat-capture`; `corpus-yoga stage` reports the tier, and
 each noun's bare status the units; `corpus-yoga store` reads shared storage in the same
-terms - what is held, what is held more than once, and what this room's live stores hold
+terms - what is held, what is duplicated, and what this room's live stores hold
 beyond it.
 
 Inputs are typed `data/input/<provider>/<channel>/<capture>/` — providers `claude`,

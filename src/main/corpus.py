@@ -360,6 +360,28 @@ def _words_whole(staged, held, unit: Unit) -> str:
     return 'held whole or not at all'
 
 
+def _export_atoms():
+    """The bulk export's measure, src/main/pipeline/chat-export/atoms.py, loaded where it lives (#743)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('chat_export_atoms', PIPELINE_ROOT / 'chat-export' / 'atoms.py')
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _atoms_of(root: Path, unit: Unit):
+    return _export_atoms().value(root, unit)
+
+
+def _leq_atoms(a, b) -> bool:
+    return _export_atoms().leq(a, b)
+
+
+def _words_atoms(staged, held, unit: Unit) -> str:
+    return _export_atoms().words(staged, held, unit)
+
+
 # measure name: (value under a root, the order, the words) - a new kind of unit adds a row
 MEASURE: dict[str, tuple[Callable, Callable, Callable]] = {
     'prefix':        (_bytes_of,  _leq_prefix, _words_bytes),
@@ -367,7 +389,9 @@ MEASURE: dict[str, tuple[Callable, Callable, Callable]] = {
     'turn-extent':   (_extent_of, _leq_pair,   _words_extent),
     'mirror':        (_tree_of,   _leq_any,    _words_mirror),
     'whole':         (_tree_of,   _leq_equal,  _words_whole),
+    'atoms':         (_atoms_of,  _leq_atoms,  _words_atoms),
 }
+ACROSS_THE_KIND = {'atoms'}   # measures whose units are compared with every other of their kind, not with the same-named alone
 
 
 def derive(staged, held, leq: Callable) -> Relation:
@@ -800,22 +824,25 @@ def counted_as(unit: Unit) -> str:
     return f'{where} {unit.kind}'
 
 
-def held_twice(root: Path) -> list[tuple[Unit, Unit, str]]:
-    """Every unit under root whose content another unit of its kind holds whole (#738):
-    (the unit, the unit that holds it, 'identical' or 'contained'). Two units are compared
-    where they share a name and a kind, by the measure their pipeline declares; a measure
-    whose order relates everything - mirror's - holds only what is equal. Of identical
-    units the one at the first address is the holder; a unit a fuller one contains is
-    named with the fullest."""
+def held_twice(root: Path) -> list[tuple[Unit, Unit, str, str]]:
+    """Every duplicate under root - a unit whose content another unit of its kind holds, the
+    same at two addresses or whole within the other's by the kind's measure (#738, #743):
+    (the unit, the unit that holds it, 'identical' or 'contained', the measure's words).
+    Two units are compared where they share a kind and - unless the kind's measure relates
+    every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
+    declares; a measure whose order relates everything - mirror's - holds only what is
+    equal. Of identical units the one at the first address is the holder; a unit a fuller
+    one contains is named with the fullest."""
     groups: dict[tuple, list[Unit]] = {}
     for unit in units(root):
         if unit.pipeline is not None:
-            groups.setdefault((unit.pipeline, unit.provider, unit.kind, unit.path.name), []).append(unit)
-    out: list[tuple[Unit, Unit, str]] = []
+            name = '' if unit.measure in ACROSS_THE_KIND else unit.path.name
+            groups.setdefault((unit.pipeline, unit.provider, unit.kind, name), []).append(unit)
+    out: list[tuple[Unit, Unit, str, str]] = []
     for group in groups.values():
         if len(group) < 2:
             continue
-        value, leq, _words = MEASURE[group[0].measure]
+        value, leq, words = MEASURE[group[0].measure]
         values = [(u, value(root, u)) for u in group]
         for unit, mine in values:
             if mine is None:
@@ -824,17 +851,20 @@ def held_twice(root: Path) -> list[tuple[Unit, Unit, str]]:
                           and leq is not _leq_any and leq(mine, theirs)]
             equals = [o for o, theirs in values if o is not unit and theirs == mine and o.address < unit.address]
             if containers:
-                out.append((unit, max(containers, key=lambda o: size_of(root / o.path)), 'contained'))
+                holder, how = max(containers, key=lambda o: size_of(root / o.path)), 'contained'
             elif equals:
-                out.append((unit, min(equals, key=lambda o: o.address), 'identical'))
+                holder, how = min(equals, key=lambda o: o.address), 'identical'
+            else:
+                continue
+            out.append((unit, holder, how, words(mine, next(v for o, v in values if o is holder), unit)))
     return sorted(out, key=lambda row: row[0].address)
 
 
 def store_facts() -> tuple[dict, int, int]:
     """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
-    no capturing noun writes; then every unit held more than once with the unit that holds
-    it. Writes nothing. Returns (the facts, units held, units held more than once)."""
+    no capturing noun writes; then every duplicate with the unit that holds it. Writes
+    nothing. Returns (the facts, units held, duplicates)."""
     if not STORE.is_dir():
         return {'data/input': 'absent - this workspace holds no store'}, 0, 0
     held = units(STORE)
@@ -853,11 +883,11 @@ def store_facts() -> tuple[dict, int, int]:
                           'why': 'the record of a unit the store does not hold'})
     out['stray'] = stray
     twice = held_twice(STORE)
-    out['held more than once'] = [
+    out['duplicates'] = [
         {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
-         ('identical to' if how == 'identical' else 'held whole within'): holder.address.as_posix(),
-         'holder size': human(size_of(STORE / holder.path))}
-        for unit, holder, how in twice]
+         ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),
+         'holder size': human(size_of(STORE / holder.path)), 'by': by}
+        for unit, holder, how, by in twice]
     return out, len(held), len(twice)
 
 

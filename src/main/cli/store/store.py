@@ -2,16 +2,16 @@
 """
 store.py (corpus-yoga store) - shared storage, data/input, as the stage has its noun (#738).
 
-    corpus-yoga store    # status: the units held, what is held more than once, what this room's live stores hold beyond it
+    corpus-yoga store    # status: the units held, the duplicates, what this room's live stores hold beyond it
 
 The store read in the stage's terms (src/main/corpus.py): a unit is what a pipeline's
 declaration selects, at an address. Three readings, and nothing written:
 
   held        the units by pipeline, provider and kind, and any file no pipeline selects
               and no capturing noun writes;
-  held twice  every unit whose content another unit of its kind holds whole - identical,
-              or contained by the measure its pipeline declares - with the unit that
-              holds it: one thing at several addresses;
+  duplicates  every unit whose content another unit of its kind holds - identical, the
+              same at two addresses, or contained, whole within the other's by the measure
+              its pipeline declares - with the unit that holds it;
   ahead       for each live store this room mounts, what it holds that the store does
               not - a session new, grown or diverged, a memory changed - related by the
               measure its pipeline declares, which is promotion's, with the capture, by
@@ -180,7 +180,7 @@ def main() -> int:
     rows, absent = ahead()
     items, found, level = ahead_facts(rows, absent)
     out['ahead'] = items if items else ('no live store is mounted in this workspace' if not rows else f'nothing: {level} live unit(s) level with the held ones')
-    out['store'] = (f'{held} unit(s) held; {twice} held more than once; {found} ahead in this room\'s live stores'
+    out['store'] = (f'{held} unit(s) held; {twice} duplicate(s); {found} ahead in this room\'s live stores'
                     + (f', {level} level' if found else ''))
     facts.say(out)
     return 0
