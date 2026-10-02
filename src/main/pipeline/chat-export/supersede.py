@@ -214,7 +214,7 @@ def load_captures(captures_dir):
     return convs, names
 
 
-def compare_vs_captures(latest, latest_convs, latest_names, captures_dir, export=None):
+def compare_vs_captures(latest, latest_convs, captures_dir, export):
     """Directional per-conversation supersession between the latest bulk export and the
     live-capture corpus (the data frontier). Informational: capture-ahead is the normal
     post-snapshot direction; capture-stale names conversations to recapture in place;
@@ -246,7 +246,7 @@ def compare_vs_captures(latest, latest_convs, latest_names, captures_dir, export
     # pipeline.sh's stage table and folded into the run's verdict (#446).
     # the conversations as the export holds them, read once: a conversation is known
     # here by its uuid, since the unit's name is the conversation's title (#743)
-    held = {c['uuid']: c for c in atoms._conversations(export) if c.get('uuid')} if export is not None else {}
+    held = {c['uuid']: c for c in atoms._conversations(export) if c.get('uuid')}
 
     def _blank(uuid: str) -> bool:
         """No content in any message (e.g. a stray blank send): the export's
@@ -387,7 +387,7 @@ def verdict(args) -> tuple[list[Path], list[Path], bool]:
                      if deletable else 'none is deletable'))
 
     if args.api_capture and Path(args.api_capture).is_dir():
-        compare_vs_captures(latest, latest_units['conversations'], None, Path(args.api_capture), ext_root / latest.name)
+        compare_vs_captures(latest, latest_units['conversations'], Path(args.api_capture), ext_root / latest.name)
     return deletable, orphans, covered_all
 
 
