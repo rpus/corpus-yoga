@@ -825,7 +825,8 @@ def counted_as(unit: Unit) -> str:
 
 
 def held_twice(root: Path) -> list[tuple[Unit, Unit, str, str]]:
-    """Every unit under root whose content another unit of its kind holds whole (#738, #743):
+    """Every duplicate under root - a unit whose content another unit of its kind holds, the
+    same at two addresses or whole within the other's by the kind's measure (#738, #743):
     (the unit, the unit that holds it, 'identical' or 'contained', the measure's words).
     Two units are compared where they share a kind and - unless the kind's measure relates
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
@@ -862,8 +863,8 @@ def held_twice(root: Path) -> list[tuple[Unit, Unit, str, str]]:
 def store_facts() -> tuple[dict, int, int]:
     """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
-    no capturing noun writes; then every unit held more than once with the unit that holds
-    it. Writes nothing. Returns (the facts, units held, units held more than once)."""
+    no capturing noun writes; then every duplicate with the unit that holds it. Writes
+    nothing. Returns (the facts, units held, duplicates)."""
     if not STORE.is_dir():
         return {'data/input': 'absent - this workspace holds no store'}, 0, 0
     held = units(STORE)
@@ -882,9 +883,9 @@ def store_facts() -> tuple[dict, int, int]:
                           'why': 'the record of a unit the store does not hold'})
     out['stray'] = stray
     twice = held_twice(STORE)
-    out['held more than once'] = [
+    out['duplicates'] = [
         {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
-         ('identical to' if how == 'identical' else 'held whole within'): holder.address.as_posix(),
+         ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),
          'holder size': human(size_of(STORE / holder.path)), 'by': by}
         for unit, holder, how, by in twice]
     return out, len(held), len(twice)
