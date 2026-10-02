@@ -870,16 +870,17 @@ def counted_as(unit: Unit) -> str:
     return f'{where} {unit.kind}'
 
 
-def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[tuple[Unit, Unit, str, str]]:
+def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> list[tuple[Unit, Unit, str, str]]:
     """Every duplicate under root - a unit whose content another unit of its kind holds, the
     same at two addresses or whole within the other's by the kind's measure (#738, #743):
     (the unit, the unit that holds it, 'identical' or 'contained', the measure's words).
     Two units are compared where they share a kind and - unless the kind's measure relates
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
     declares; a measure whose order relates everything - mirror's - holds only what is
-    equal. Of identical units the holder is the one at an address a live store still writes
-    - `live`, the addresses the room's live stores hold, so that the copy a capture renews
-    is the one kept - and failing that the one at the first address; a unit a fuller one
+    equal. Of identical units the holder is the newest: the one at an address `newest`
+    names - a live directory that is a link, since a link is made from the newer to the
+    older - then one a live store still writes, `live`, so that the copy a capture renews
+    is the one kept, and failing both the one at the first address; a unit a fuller one
     contains is named with the fullest."""
     groups: dict[tuple, list[Unit]] = {}
     for unit in units(root):
@@ -899,7 +900,7 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[tuple[Un
                           and leq is not _leq_any and leq(mine, theirs)]
             equals = [o for o, theirs in values if o is not unit and theirs == mine]
             # among identical copies one is the holder: a live one, else the first address
-            keeper = min(equals + [unit], key=lambda o: (o.address not in live, o.address)) if equals else unit
+            keeper = min(equals + [unit], key=lambda o: (o.address not in newest, o.address not in live, o.address)) if equals else unit
             if containers:
                 holder, how = max(containers, key=lambda o: size_of(root / o.path)), 'contained'
             elif equals and keeper is not unit:
@@ -910,7 +911,7 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset()) -> list[tuple[Un
     return sorted(out, key=lambda row: row[0].address)
 
 
-def store_facts(live: frozenset[Path] = frozenset()) -> tuple[dict, int, int]:
+def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[dict, int, int]:
     """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
@@ -932,7 +933,7 @@ def store_facts(live: frozenset[Path] = frozenset()) -> tuple[dict, int, int]:
             stray.append({'path': unit.record[0].as_posix(), 'size': human(size_of(STORE / unit.record[0])),
                           'why': 'the record of a unit the store does not hold'})
     out['stray'] = stray
-    twice = held_twice(STORE, live)
+    twice = held_twice(STORE, live, newest)
     out['duplicates'] = [
         {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
          ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),
