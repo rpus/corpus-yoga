@@ -33,6 +33,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 
@@ -71,7 +72,7 @@ def _underived() -> list[Path]:
     return sorted(f for f in CATALOGUE_DIR.rglob('*') if f.is_file() and f not in derived)
 
 
-def curation_report() -> None:
+def curation_report() -> dict:
     """Both disposal loops, in numbers (issue #19; model_curation.py): the step
     that used to read 'update model.json if needed' now reports whether it IS
     needed. Loop 1 is leisurely (name collisions awaiting a model_join edge or a
@@ -80,45 +81,46 @@ def curation_report() -> None:
     queue = edge_queue()
     orphans = orphan_entries()
     gaps = coverage_gaps()
-    print(f'rsc/model/model.json — {len(documented())} documented · {len(rejected())} rejected · '
-          f'{len(queue)} shared type(s) obligated by model_join and undisposed · '
-          f'{len(orphans)} documented but ungrounded · {len(gaps)} documented incompletely'
-          + (' (GATES)' if queue or orphans or gaps else ''))
-    for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0])):
-        print(f'  ✗ {"/".join(sorted(names))} — model_join row(s) {", ".join(map(str, rows))}: '
-              'document in rsc/model/model.json | reject into rsc/model/model_rejected.txt')
-    for name in orphans:
-        print(f'  ✗ {name} — documented with no grounding model_join edge: '
-              'curate the asserting edge, or retire the entry')
-    for name, fams in sorted(gaps.items()):
-        print(f'  ✗ {name} — occurrences omit data famil(y/ies) its edge asserts: '
-              f'{", ".join(fams)} — add the occurrence(s)')
+    table: dict = {'documented': len(documented()), 'rejected': len(rejected()),
+                   'obligated by model_join and undisposed': len(queue),
+                   'documented but ungrounded': len(orphans), 'documented incompletely': len(gaps)}
+    if queue or orphans or gaps:
+        table['gates'] = 'corpus-yoga test run holds each as check_model_obligations'
+    table['undisposed'] = [{'/'.join(sorted(names)): f'model_join row(s) {", ".join(map(str, rows))}',
+                            'remedy': 'document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt'}
+                           for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0]))] or 'none'
+    table['ungrounded'] = [{name: 'documented with no grounding model_join edge',
+                            'remedy': 'curate the asserting edge, or retire the entry'} for name in orphans] or 'none'
+    table['incomplete'] = [{name: f'occurrences omit data famil(y/ies) its edge asserts: {", ".join(fams)}',
+                            'remedy': 'add the occurrence(s)'} for name, fams in sorted(gaps.items())] or 'none'
+    out: dict = {'rsc/model/model.json': table}
     shared = unrecorded_collisions()
+    join: dict = {}
     if shared:
-        print(f'FAIL: rsc/model/model_join.csv - {len(shared)} definition name(s) '
-              'appear in two or more schema families with no row recording whether '
-              'the definitions are one shared type or mere namesakes')
-        print('    → record a verdict by adding one model_join.csv row per name, its '
-              'relationship column choosing a kind from rsc/model/model_join_kinds.csv '
-              '(identical / subset / name_collision / ...); machine-checked proposals '
-              'sit ready to paste in tmp/cache/model/shared_name_candidates.csv')
+        join['FAIL'] = (f'{len(shared)} definition name(s) appear in two or more schema families with no row '
+                        'recording whether the definitions are one shared type or mere namesakes')
+        join['remedy'] = ('record a verdict by adding one model_join.csv row per name, its relationship column '
+                          'choosing a kind from rsc/model/model_join_kinds.csv (identical / subset / name_collision / ...); '
+                          'machine-checked proposals sit ready to paste in tmp/cache/model/shared_name_candidates.csv')
     else:
-        print('rsc/model/model_join.csv — every cross-family shared name disposed')
+        join['shared names'] = 'every cross-family shared name disposed'
     for line, kind, cells in identity_violations():
-        print(f'FAIL: model_join row {line} ({kind}) no longer holds at latest - {cells}')
-        print('    → a one-sided mint falsified the edge: re-judge its relationship kind '
-              '(rsc/model/model_join_kinds.csv) or restore the identity in the schemas')
+        join[f'row {line} ({kind})'] = {
+            'FAIL': f'no longer holds at latest - {cells}',
+            'remedy': 'a one-sided mint falsified the edge: re-judge its relationship kind '
+                      '(rsc/model/model_join_kinds.csv) or restore the identity in the schemas'}
     corpus_roots = (tier.DATA / 'input' / 'claude' / 'chat' / 'API-capture',
                     tier.TMP / 'cache' / 'chat-export')
     if any(r.is_dir() for r in corpus_roots):
         for line, kind, cell, datum in emptiness_violations(REPO_ROOT):
-            print(f'FAIL: model_join row {line} ({kind}) falsified by the corpus - '
-                  f'{cell} carries a value in {datum}')
-            print('    → the always-null note is stale: re-judge the edge '
-                  '(rsc/model/model_join_kinds.csv names the kinds)')
+            join[f'row {line} ({kind})'] = {
+                'FAIL': f'falsified by the corpus - {cell} carries a value in {datum}',
+                'remedy': 'the always-null note is stale: re-judge the edge (rsc/model/model_join_kinds.csv names the kinds)'}
+        join['emptiness edges'] = 'checked against the corpus'
     else:
-        print('model_join emptiness edges: unchecked — no API-capture or chat-export '
-              'corpus in this room')
+        join['emptiness edges'] = 'unchecked - no API-capture or chat-export corpus in this room'
+    out['rsc/model/model_join.csv'] = join
+    return out
 
 
 def sync() -> None:
@@ -174,16 +176,17 @@ def status() -> None:
     for _name, _schema, target in _catalogues():
         (present if target.exists() else missing).append(str(target.relative_to(CATALOGUE_DIR)))
     total = len(present) + len(missing)
-    print(f'tmp/cache/model/catalogue: {len(present)}/{total} catalogues present')
+    catalogue: dict = {'present': f'{len(present)}/{total}'}
     underived = _underived()
     if underived:
-        print(f'{len(underived)} file(s) under tmp/cache/model/catalogue no schema version derives - '
-              f'corpus-yoga model sync removes them')
+        catalogue['underived'] = f'{len(underived)} file(s) no schema version derives'
+        catalogue['remedy'] = 'corpus-yoga model sync removes them'
     if missing:
         # the count is the fact; 52 derivable filenames were the mumble - the
         # names are exactly the schema tree's, and sync mints them all
-        print(f'{len(missing)} catalogue(s) not yet projected - corpus-yoga model sync mints them')
-    curation_report()
+        catalogue['not yet projected'] = len(missing)
+        catalogue['remedy'] = 'corpus-yoga model sync mints them' + (', and removes the underived' if underived else '')
+    facts.say({'tmp/cache/model/catalogue': catalogue, **curation_report()})
 
 
 def list_candidates() -> None:

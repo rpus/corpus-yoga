@@ -814,7 +814,7 @@ src/main/cli/indexing/capture.sh,277,call,src/main/cli/indexing,Y,"""$REPO_DIR/s
 src/main/cli/indexing/indexing.json,3,path_str,src/main/cli/indexing/indexing.py,Y,"""target"": ""src/main/cli/indexing/indexing.py"","
 src/main/cli/indexing/indexing.py,22,comment,src/main/cli/readings.md,Y,(candidates -> disposal record -> coverage gate): see src/main/cli/readings.md
 src/main/cli/indexing/indexing.py,51,path_str,src/main/cli/indexing/indexing.py,Y,SELF = 'src/main/cli/indexing/indexing.py'
-src/main/cli/indexing/indexing.py,335,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
+src/main/cli/indexing/indexing.py,336,comment,src/main/cli/readings.md,Y,unanchorable. Its format doc lives in src/main/cli/readings.md; here it is
 src/main/cli/mcp/mcp.json,3,path_str,src/main/mcp/mcp.py,Y,"""target"": ""src/main/mcp/mcp.py"","
 src/main/cli/mcp/sync.json,6,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"""
 src/main/cli/mcp/sync.json,9,path_str,rsc/schema/mcp/mcpMessage,Y,"""rsc/schema/mcp/mcpMessage"","
@@ -912,7 +912,7 @@ src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/
 src/main/cli/site/site.sh,27,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/site/site.sh,29,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/site/site.sh,34,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
-src/main/cli/site/site.sh,124,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
+src/main/cli/site/site.sh,130,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,20,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,3,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
@@ -997,8 +997,8 @@ src/main/model/model.py,3,comment,rsc/model/model.json,Y,"model.py — per-schem
 src/main/model/model.py,5,comment,rsc/model/model.json,Y,"versioned schema, keyed as rsc/model/model.json keys a family (#672), so two providers'"
 src/main/model/model.py,6,comment,rsc/model/model.json,Y,families of one name are two catalogues. rsc/model/model.json is hand-curated from these.
 src/main/model/model.py,29,path_str,src/main/model/model.py,Y,SELF = 'src/main/model/model.py'
-src/main/model/model.py,106,path_str,rsc/model/model_join.csv,Y,print('rsc/model/model_join.csv — every cross-family shared name disposed')
-src/main/model/model.py,83,path_str,rsc/model/model.json,Y,print(f'rsc/model/model.json — {len(documented())} documented · {len(rejected())} rejected · '
+src/main/model/model.py,96,path_str,rsc/model/model.json,Y,out: dict = {'rsc/model/model.json': table}
+src/main/model/model.py,122,path_str,rsc/model/model_join.csv,Y,out['rsc/model/model_join.csv'] = join
 src/main/model/model_curation.py,4,comment,rsc/model/model.json,Y,"rsc/model/model.json is the hand-curated cross-family type reference, and its"
 src/main/model/model_curation.py,19,comment,rsc/model/model_rejected.txt,Y,rsc/model/model_rejected.txt. Reported per shared type by `corpus-yoga test run`'s
 src/main/model/model_curation.py,33,path_str,src/main/model/model_curation.py,Y,SELF = 'src/main/model/model_curation.py'
