@@ -18,6 +18,8 @@
 #   step_if    <guard> <note> <name> <cmd...>     # runs iff guard is "1"
 #   step_ok    <name> <cmd...>                    # informational: never gates
 #   step_if_ok <guard> <note> <name> <cmd...>     # both of the above
+#   steps_verdict                                 # ends a body errexit does not stop:
+#                                                 # non-zero iff a gating step was
 #   resolve_input <path> <pipeline.json> <provider>  # <provider> and <qualifier> in a
 #                                                    # declared input path made the provider's
 
@@ -75,27 +77,55 @@ plan_impl() {
 plan_line() {
   local caller="$1" name="$2"; shift 2
   local cmd="$1"; shift
-  local args impl
-  args="$(plan_args "$@")"
+  local impl
   impl="$(plan_impl "$caller" "$cmd" "$@")"
+  printf '  %-58s %s' "$(step_label "$name" "$@")" "$impl"
+}
+
+# the step as the plan names it: the name, as the corpus-yoga command where it is one,
+# with its non-path arguments (#45)
+step_label() {
+  local name="$1"; shift
   local label="$name"
   if [[ -f "$STEPS_REPO/src/main/cli/$name/$name.json" ]] || [[ -f "$STEPS_REPO/src/main/cli/$name.json" ]]; then
     label="corpus-yoga $name"
   fi
-  printf '  %-58s %s' "$label$args" "$impl"
+  echo "$label$(plan_args "$@")"
+}
+
+# A gating step's non-zero exit stops a runner under errexit, and is recorded here for
+# the runner errexit cannot stop - a function run in a pipeline, as the corpus tail is -
+# so that steps_verdict returns it (#749).
+STEPS_FAILED=''
+step_gated() {
+  local name="$1"; shift
+  local status=0
+  "$@" || status=$?
+  [[ "$status" -eq 0 ]] || STEPS_FAILED+="${STEPS_FAILED:+; }$(step_label "$name" "${@:2}") (status $status)"
+  return "$status"
 }
 
 step() {
   local name="$1"; shift
   if [[ "${plan:-0}" == "1" ]]; then plan_line "${BASH_SOURCE[1]}" "$name" "$@"; echo; return 0; fi
-  "$@"
+  step_gated "$name" "$@"
 }
 
 step_if() {
   local guard="$1" note="$2" name="$3"; shift 3
   if [[ "${plan:-0}" == "1" ]]; then echo "$(plan_line "${BASH_SOURCE[1]}" "$name" "$@") (only $note)"; return 0; fi
   if [[ "$guard" != "1" ]]; then return 0; fi
-  "$@"
+  step_gated "$name" "$@"
+}
+
+# The last line of a runner body that errexit does not stop: states which gating steps
+# exited non-zero, and returns non-zero iff one did - a step that dies there is read as
+# the runner's failure, never as passed (#749).
+steps_verdict() {
+  [[ "${plan:-0}" == "1" ]] && return 0
+  [[ -n "$STEPS_FAILED" ]] || return 0
+  echo "step exited non-zero: $STEPS_FAILED"
+  return 1
 }
 
 step_ok() {

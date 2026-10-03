@@ -388,6 +388,7 @@ run_corpus_tail() {
   # Not under --plan: the plan lists STEPS, and a banner is a log boundary, not a step —
   # the line above it ("then once, over the whole corpus") already says the same thing.
   [[ "${plan:-0}" == "1" ]] || echo "── corpus ────────────────────────────────────────────────────────────────"
+  STEPS_FAILED=''   # this body's record alone: the tests step's failure is the tests section's
   step indexing "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/indexing/indexing.py" sync
   # Free derivations refreshed before anything probes them (#494): the corpus
@@ -417,6 +418,9 @@ run_corpus_tail() {
   [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]] && outside=0
   step_if_ok "$outside" 'outside a rehearsal' store "$REPO_ROOT/src/run_python_script.sh" \
     "$REPO_ROOT/src/main/cli/store/store.py" clean --dry-run
+  # run in a pipeline (main's tee), where errexit is silent: the gating steps' failures
+  # are this function's return, and the run states the atom (#749)
+  steps_verdict
 }
 
 # The pipelines' own --plan output is the one authority on their step order
