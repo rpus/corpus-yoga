@@ -22,10 +22,10 @@ retirement gradient.
 
 ## principles
 
-Six generators; nearly every rule below is an instance of exactly one. They
+Seven generators; nearly every rule below is an instance of exactly one. They
 decide the case no rule yet covers, and they govern edits to this file: a
-candidate rule that is not an instance of some principle is either a
-seventh principle or a smell.
+candidate rule that is not an instance of some principle is either an
+eighth principle or a smell.
 
 1. **Anchor every claim.** A claim is a function of the state it names -
    verdicts of (base sha, head sha), facts of a room and a date, time-words
@@ -52,6 +52,12 @@ seventh principle or a smell.
    becomes a template line, a check, or a rule here - filed as a should,
    asserted by a PR, guarded where a property stands. Any pivot, however
    unplanned, starts by filing its should.
+7. **Every agent is a provider.** An agent that changes this repository
+   should be a row of the provider registry (rsc/provider/providers.csv)
+   before its work is merged, and a message's first Signature should name
+   the session that drafted it. What a Signature claims is read from the
+   session's own record, never taken from the commit:
+   `corpus-yoga agent list-drafters` reports it and gates nothing.
 
 ## authorities
 

@@ -1,4 +1,4 @@
-run.py: code+schema 1456/1456
+run.py: code+schema 1465/1465
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ run.py: code+schema 1456/1456
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (99/99)
+  ✓ structure.self_path_matches_address  (100/100)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -52,15 +52,15 @@ run.py: code+schema 1456/1456
   ✓ effects.enact_faces_agree
   ✓ effects.sends_declared
   ✓ python.pyright_clean
-  ✓ output.plan_lines_name_their_target  (84/84)
-  ✓ structure.file_at_level_of_subject  (39/39)
+  ✓ output.plan_lines_name_their_target  (87/87)
+  ✓ structure.file_at_level_of_subject  (40/40)
   ✓ structure.cli_declaration_mirrors_the_api  (23/23)
-  ✓ structure.cli_declaration_validates  (73/73)
+  ✓ structure.cli_declaration_validates  (74/74)
   ✓ cli.every_form_listed  (44/44)
   ✓ cli.flag_not_axis_value  (21/21)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
-  ✓ cli.step_invokes_verb  (7/7)
+  ✓ cli.step_invokes_verb  (8/8)
 
 ── check_cli_verb_help ───────────────────────────────────────────────────────
   ✓ cli.verb_help_answered  (23/23)
@@ -138,6 +138,10 @@ run.py: code+schema 1456/1456
 
 ── check_export_atoms ────────────────────────────────────────────────────────
   ✓ store.export_is_held_within_a_later_one
+
+── check_drafters ────────────────────────────────────────────────────────────
+  ✓ drafters.signature_is_read_as_written
+  ✓ drafters.first_signature_is_the_drafter
 
 ── check_versioned_schema_diagnostics ────────────────────────────────────────
   ✓ composition.base_not_used_directly  (15/15)
@@ -217,11 +221,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations           20     0   code        7
 check_step_imports                     2     0   code       15
-check_self_paths                      99     0   code       18
+check_self_paths                     100     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    546     0   code       32
+check_cli_surface                    552     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           16     0   code       68
 check_effects                          3     0   code       71
@@ -241,23 +245,24 @@ check_unit_state                       2     0   code      128
 check_store                            5     0   code      131
 check_facts                            1     0   code      136
 check_export_atoms                     1     0   code      139
-check_versioned_schema_diagnostics   374     0   schema    142
-check_schema_join                      2     0   schema    169
-check_model_join_versions              1     0   schema    173
-check_model_table                      1     0   schema    176
-check_model_occurrences                3     0   schema    179
-check_model_obligations              162     0   schema    184
-check_model_identity                   1     0   schema    188
-check_grammar                          2     0   schema    191
-check_provider_registry                2     0   code      194
-check_reference                       21     0   schema    198
-check_mcp_factoring                    9     0   schema    204
-check_mcp_reproducible                 1     0   schema    210
-check_expectation                      2     0   code      213
+check_drafters                         2     0   code      142
+check_versioned_schema_diagnostics   374     0   schema    146
+check_schema_join                      2     0   schema    173
+check_model_join_versions              1     0   schema    177
+check_model_table                      1     0   schema    180
+check_model_occurrences                3     0   schema    183
+check_model_obligations              162     0   schema    188
+check_model_identity                   1     0   schema    192
+check_grammar                          2     0   schema    195
+check_provider_registry                2     0   code      198
+check_reference                       21     0   schema    202
+check_mcp_factoring                    9     0   schema    208
+check_mcp_reproducible                 1     0   schema    214
+check_expectation                      2     0   code      217
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 132 types, 1456/1456 invocations passing
-checks[code]: 80 types, 779/779 invocations passing
+checks[code+schema]: 134 types, 1465/1465 invocations passing
+checks[code]: 82 types, 788/788 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1456/1456 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1465/1465 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

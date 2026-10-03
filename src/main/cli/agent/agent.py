@@ -74,6 +74,7 @@ extracts by transporting itself home, and the host demerges the residue.
 
     corpus-yoga agent
     corpus-yoga agent list-models
+    corpus-yoga agent list-drafters           # src/main/cli/agent/drafters.py: main's Signatures against the sessions held
     corpus-yoga agent mount [--apply]
     corpus-yoga agent capture --provider <provider> --id <uuid-prefix>
     corpus-yoga agent capture --provider <provider>
@@ -330,6 +331,8 @@ def main() -> int:
 
     if args.verb is None:
         rc = list_agents()   # bare noun → the census (local + store sessions), read-only status
+        import drafters
+        drafters.brief()     # the sessions main names as drafters, against the census above (#631)
         import corpus
         corpus.report('agent')
         return rc
@@ -337,6 +340,9 @@ def main() -> int:
         return mount(args.apply)
     if args.verb == 'list-models':
         return model_census()
+    if args.verb == 'list-drafters':
+        import drafters
+        return drafters.report()
     if args.verb == 'capture':
         return 1 if capture(args.id, args.provider) else 0
     if args.verb == 'promote':

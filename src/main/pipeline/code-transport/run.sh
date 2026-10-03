@@ -209,6 +209,12 @@ TASK
 
 corpus() {
   step render_corpus "$REPO_DIR/src/run_python_script.sh" "$SCRIPT_DIR/render_corpus.py"
+  # the Signatures on main against the store's sessions (#631): the store of record is the
+  # checkout's, and a rehearsal's tiers are the stage's, so a rehearsal does not run it
+  local outside=1
+  [[ -n "${CORPUS_YOGA_REHEARSAL:-}" ]] && outside=0
+  step_if_ok "$outside" 'outside a rehearsal' agent "$REPO_DIR/src/run_python_script.sh" \
+    "$REPO_DIR/src/main/cli/agent/agent.py" list-drafters
 }
 
 # The whole run over the given store project dirs, in four dispatched phases

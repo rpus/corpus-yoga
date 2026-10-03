@@ -100,6 +100,17 @@ def signature() -> str:
     return name
 
 
+SIGNATURE = re.compile(r'Signature: ([A-Za-z0-9_-]+)(?:/([A-Za-z0-9_-]+)/([A-Za-z0-9_-]{1,8}))?')
+
+
+def read_signature(line: str) -> tuple[str, str | None, str | None] | None:
+    """A line as the Signature signature() writes - (machine, provider, session), the last
+    two None where it names the machine alone - or None where the line is no Signature:
+    a placeholder quoted in a message, a line indented or commented, is prose."""
+    m = SIGNATURE.fullmatch(line.rstrip())
+    return (m.group(1), m.group(2), m.group(3)) if m else None
+
+
 MOUNT_ROOT = REPO / 'ext' / 'mnt' / 'agent'
 
 
