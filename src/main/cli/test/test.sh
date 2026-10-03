@@ -58,14 +58,18 @@ install_hook() {
 }
 
 status() {
-  echo "checks: src/test/dev/run.py — $(grep -c '^def check_' "$REPO_DIR/src/test/dev/run.py") check sections"
-  echo "  expectation: rsc/test/run_expected_checks · report: rsc/test/run.log · xrefs: rsc/test/xref.csv"
-  local hook
+  # the facts (#753): the checks and their expectation, the hook, through the one printer
+  local hook state remedy=''
   if hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)" && [[ -L "$hook" ]]; then
-    echo "  hook: installed → $(readlink "$hook")"
+    state="installed, a link to $(readlink "$hook")"
   else
-    echo "  hook: not installed — corpus-yoga test install-hook"
+    state="not installed"; remedy="corpus-yoga test install-hook"
   fi
+  jq -n --arg n "$(grep -c '^def check_' "$REPO_DIR/src/test/dev/run.py")" --arg hook "$state" --arg remedy "$remedy" \
+    '{test: ({checks: {"src/test/dev/run.py": ($n + " check sections"), expectation: "rsc/test/run_expected_checks",
+                        report: "rsc/test/run.log", xrefs: "rsc/test/xref.csv"},
+              hook: $hook} + (if $remedy != "" then {remedy: $remedy} else {} end))}' \
+    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
 }
 
 case "${1-}" in

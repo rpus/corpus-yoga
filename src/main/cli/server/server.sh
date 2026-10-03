@@ -30,13 +30,10 @@ PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdow
 help() { awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; }
 
 status() {
-  local pid
+  # the facts (#753): the daemon, the render assets, through the one printer
+  local pid daemon
   pid="$(pgrep -f 'serve_markdown.py' 2>/dev/null | head -1 || true)"
-  if [[ -n "$pid" ]]; then
-    echo "serve_markdown daemon: running (pid $pid)"
-  else
-    echo "serve_markdown daemon: not running"
-  fi
+  if [[ -n "$pid" ]]; then daemon="running (pid $pid)"; else daemon="not running"; fi
   # render-asset presence — a bare file tally against the manifest (the authoritative
   # readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)
   local manifest="$REPO_DIR/src/main/model/serve_assets.txt" dir="$REPO_DIR/ext/lib/serve_markdown"
@@ -46,8 +43,9 @@ status() {
     [[ -z "$f" ]] && continue
     total=$((total + 1)); [[ -f "$dir/$f" ]] && present=$((present + 1))
   done < "$manifest"
-  echo "render assets: $present/$total present in ext/lib/serve_markdown"
-  echo "verbs: start | stop | ensure-assets    (corpus-yoga server --help)"
+  jq -n --arg d "$daemon" --arg a "$present/$total present in ext/lib/serve_markdown" \
+    '{server: {"serve_markdown daemon": $d, "render assets": $a}}' \
+    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
 }
 
 start() {

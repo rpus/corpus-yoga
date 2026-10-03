@@ -731,10 +731,18 @@ def say(groups: dict[str, list[str]]) -> None:
             print(f'    {line}')
 
 
+RELATION_NAME = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
+                 Relation.AHEAD: 'ahead', Relation.DIVERGED: 'diverged'}
+
+
 def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
-    name = {Relation.ABSENT: 'new', Relation.IDENTICAL: 'identical', Relation.EXTENDS: 'extends',
-            Relation.AHEAD: 'ahead', Relation.DIVERGED: 'diverged'}[rel]
-    return f'{unit.address}: {name} ({detail})'
+    return f'{unit.address}: {RELATION_NAME[rel]} ({detail})'
+
+
+def _unit_fact(unit: Unit, rel: Relation, detail: str) -> dict:
+    """The unit as one fact: its address, with its relation to the held one and the
+    measure's detail of it."""
+    return {unit.address.as_posix(): f'{RELATION_NAME[rel]} ({detail})'}
 
 
 def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
@@ -953,58 +961,65 @@ def _whole_extent(noun: str) -> str:
     return ' --all' if _declares(noun, 'promote', '--all') else ''
 
 
-def pairs(noun: str) -> int:
-    """The noun's units named by a star: the held ones, a member each and a record where
-    shared storage holds one from before the stage; the staged ones, each paired or
-    unpaired, naming what is absent. Writes nothing."""
+def pairs_facts(noun: str) -> dict:
+    """The noun's units named by a star, as facts (#753): the held ones, a member each and
+    a record where shared storage holds one from before the stage; the staged ones, each
+    paired or unpaired, naming what is absent. Writes nothing."""
     roots = roots_of(noun)
+    held: list[dict] = []
+    staged: list[dict] = []
     for store in stores():
         if '<star>' not in store['companion'] or not any(store['input'].is_relative_to(r) for r in roots):
             continue
         for unit in select(STORE, store):
             for path in unit.members:
-                print(f'  held: {unit.address.name} - {path.name}/')
+                held.append({unit.address.name: f'{path.name}/'})
             for path in unit.record:
-                print(f'  held: {unit.address.name} - {path.name}, which nothing reads: a record is the stage\'s')
+                held.append({unit.address.name: path.name, 'note': 'a record, which nothing reads: a record is the stage\'s'})
         for unit in select(STAGE, store):
             present = ' and '.join(p.name + ('/' if (STAGE / p).is_dir() else '') for p in unit.members + unit.record)
             if not unit.missing:
-                print(f'  staged: {unit.address.name} complete - {present}')
+                staged.append({unit.address.name: f'complete - {present}'})
                 continue
             if unit.members and unit.record:
-                print(f'  staged: {unit.address.name} incomplete - {present}, missing {", ".join(unit.missing)}; '
-                      'corpus-yoga stage clean --apply removes it')
+                staged.append({unit.address.name: f'incomplete - {present}, missing {", ".join(unit.missing)}',
+                               'remedy': 'corpus-yoga stage clean --apply removes it'})
                 continue
-            print(f'  staged: {unit.address.name} unpaired - {present} with no {", ".join(unit.missing)} beside it')
+            item = {unit.address.name: f'unpaired - {present} with no {", ".join(unit.missing)} beside it'}
             if not unit.members and _declares(noun, 'capture', '--manifest'):
                 where = (STAGE / unit.record[0]).relative_to(REPO)
-                print('    to fetch its payload, where its URLs are unspent:')
-                print(f'      → run: corpus-yoga {noun} capture --manifest {shlex.quote(str(where))}')
+                item['remedy'] = (f'corpus-yoga {noun} capture --manifest {shlex.quote(str(where))} '
+                                  'fetches its payload, where its URLs are unspent')
+            staged.append(item)
+    return {'held': held, 'staged': staged}
+
+
+def pairs(noun: str) -> int:
+    facts.say(pairs_facts(noun))
     return 0
 
 
-def report(noun: str | None) -> int:
+def report_facts(noun: str | None) -> dict:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
-    `corpus-yoga pipeline` shows it (every unit). The lines are grouped by what they share.
+    `corpus-yoga pipeline` shows it (every unit), as facts (#753): the units grouped under
+    the verdict they share - each an address with its relation - and the verdict last.
     Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     if not rows:
-        print(f'stage: nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input')
-        return 0
-    groups: dict[str, list[str]] = {}
+        return {'stage': f'nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input'}
+    groups: dict[str, list[dict]] = {}
     by_noun: dict[str, int] = {}
     for unit, rel, detail, ok, words in rows:
-        line = _unit_line(unit, rel, detail)
+        item = _unit_fact(unit, rel, detail)
         is_in = state(unit, rel, ok)
         if is_in == 'held already':
-            groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
+            groups.setdefault(f'held already, byte-equal - {words}', []).append(item)
         elif is_in == 'promotable':
             n = noun_of(unit) or '?'
             by_noun[n] = by_noun.get(n, 0) + 1
-            groups.setdefault(f'promotable - {words}', []).append(line)
+            groups.setdefault(f'promotable - {words}', []).append(item)
         else:
-            groups.setdefault(_heading(unit, rel, ok, words), []).append(line)
-    say(groups)
+            groups.setdefault(_heading(unit, rel, ok, words), []).append(item)
     counts = tally(rows)
     tail = ''.join(f'; corpus-yoga {n} promote{_whole_extent(n)} promotes {k}' for n, k in sorted(by_noun.items()))
     if counts['unjudged']:
@@ -1012,7 +1027,11 @@ def report(noun: str | None) -> int:
     removable = counts['held already'] + counts['incomplete']
     if removable:
         tail += f'; corpus-yoga stage clean removes {removable} held already or incomplete'
-    print(f'stage: {len(rows)} unit(s) - {counted(counts)}{tail}')
+    return {'staged': groups, 'stage': f'{len(rows)} unit(s) - {counted(counts)}{tail}'}
+
+
+def report(noun: str | None) -> int:
+    facts.say(report_facts(noun))
     return 0
 
 

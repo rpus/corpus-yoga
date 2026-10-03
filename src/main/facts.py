@@ -7,10 +7,15 @@ a heading over the items it covers. The lines are YAML, so the same artifact is 
 human by its shape and loaded by a machine as data; no width is enforced, since a line
 that is one fact is as long as its fact. The emitter covers what a status holds -
 mappings, lists, strings, numbers, booleans and None - and quotes a string wherever YAML
-would otherwise read it as something else.
+would otherwise read it as something else. Run as a script, it reads the facts as JSON
+on stdin and prints them - the same printer for a noun written in shell, which builds
+its facts with jq (#753).
 """
 import json
 import re
+import sys
+
+SELF = 'src/main/facts.py'
 
 STEP = 2   # the indentation of a subordinate fact
 
@@ -72,3 +77,7 @@ def lines(facts, depth: int = 0) -> list[str]:
 
 def say(facts) -> None:
     print('\n'.join(lines(facts)))
+
+
+if __name__ == '__main__':
+    say(json.load(sys.stdin))

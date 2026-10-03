@@ -40,6 +40,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 from latest import lineages  # noqa: E402
 
@@ -135,30 +136,36 @@ def _reading(project: Path) -> tuple[list[dict], list[str]]:
         state = 'missing' if row is None else ('drifted' if row['sha256'] != digest else 'current')
         items.append({**item, 'bytes': body, 'headers': headers, 'sha256': digest, 'state': state, 'row': row})
         if state != 'current':
-            lines.append(f'  {state}: {item["lineage"]}/{item["file"]}'
-                         + (f' - upstream hashes {digest[:12]}, provenance.csv pins {row["sha256"][:12]}' if row else ''))
+            lines.append({f'{item["lineage"]}/{item["file"]}': state
+                          + (f' - upstream hashes {digest[:12]}, provenance.csv pins {row["sha256"][:12]}' if row else '')})
     return items, lines
 
 
 def status() -> int:
+    """Each project's held lineages against upstream, as facts (#753); 1 while any file is
+    missing or drifted."""
     stale = 0
+    out: dict = {}
     for project in projects():
         name = project.name
         held = [d.name for d in lineages(project)]
         table = rows(project)
         if not may_send():
-            print(f'reference: {name}: holds {len(held)} lineage(s) {held}, {len(table)} pinned file(s) - '
-                  'currency UNVERIFIED (YOGA_NO_SEND=1 refuses the probe)')
+            out[name] = {'lineages held': held, 'pinned files': len(table),
+                         'currency': 'UNVERIFIED - YOGA_NO_SEND=1 refuses the probe'}
             continue
         items, lines = _reading(project)
         listing = declaration(project).get('lineage_listing')
         upstream = sorted({i['lineage'] for i in items}) if listing else held
-        print(f'reference: {name}: upstream lists {len(upstream)} lineage(s), held {len(held)}; '
-              f'{sum(1 for i in items if i["state"] == "current")}/{len(items)} file(s) hash as pinned'
-              + ('' if not lines else f' - {len(lines)} to fetch (corpus-yoga reference sync)'))
-        for line in lines:
-            print(line)
+        item: dict = {'lineages upstream': len(upstream), 'lineages held': held,
+                      'files hashing as pinned': f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}'}
+        if lines:
+            item['to fetch'] = lines
+            item['remedy'] = 'corpus-yoga reference sync'
+        out[name] = item
         stale += len(lines)
+    out['reference'] = f'{len(out)} project(s), {stale} file(s) to fetch'
+    facts.say(out)
     return 1 if stale else 0
 
 
