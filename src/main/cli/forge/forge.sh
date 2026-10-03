@@ -248,62 +248,43 @@ base_branch() {
   (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
 }
 
-status() {
-  local refuse_class=0 st key detail remedy
-  echo "forge settings — declared: src/main/cli/forge/forge.csv; live: this checkout's remote"
-  while IFS=$'\t' read -r st key detail remedy; do
-    [[ -z "$st" ]] && continue
-    case "$st" in
-      OK)         echo "  ✓ $key: $detail" ;;
-      DRIFT)      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1 ;;
-      MOVED)      echo "  – $key: $detail"; echo "    → run: $remedy" ;;
-      UNVERIFIED) echo "  ✗ $key: $detail"; refuse_class=1 ;;
-      *)          echo "  – $key: $detail" ;;
-    esac
-  done < <(reconcile)
+# rows_json — the TSV rows on stdin (STATUS \t key \t detail [\t remedy]) as a JSON list of
+# facts: each `{key: detail, state: <status, lower-cased>}` with its remedy where one stands
+rows_json() {
+  jq -R -s 'split("\n") | map(select(length > 0) | split("\t")
+    | {(.[1]): .[2], state: (.[0] | ascii_downcase)} + (if (.[3] // "") != "" then {remedy: .[3]} else {} end))'
+}
 
+status() {
+  # the facts (#753): the declared settings against the live forge, the branches the
+  # forge knows, the tracking refs it has dropped, this checkout's gate and upstream -
+  # each row a fact with its state, a remedy beside it, the verdict last. Returns 1 on
+  # refuse-class drift, the merge's gate.
+  local refuse_class=0 settings branches_rows stale gate_rows
+  settings="$(reconcile | rows_json)"
+  grep -q '"state": *"\(drift\|unverified\)"' <<< "$settings" && refuse_class=1
   local rows
   rows="$(branches)" || return 1
-  if [[ -n "$rows" ]]; then
-    echo "branches — what the forge says about each"
-    local d=""
-    while IFS=$'\t' read -r st key detail remedy; do
-      [[ -z "$st" ]] && continue
-      case "$st" in
-        DELETABLE|SERVER_DELETABLE) echo "  – $key: $detail"; d=1 ;;
-        UNVERIFIED)                 echo "  ✗ $key: $detail"; refuse_class=1 ;;
-        *)                          echo "  – $key: $detail" ;;
-      esac
-      [[ -z "$remedy" ]] || echo "    → run: $remedy   # then it is deletable"
-    done <<< "$rows"
-    [[ -z "$d" ]] || echo "    → run: corpus-yoga forge prune"
-  fi
-
-  local stale
-  stale="$(stale_tracking)" || return 1
-  if [[ -n "$stale" ]]; then
-    echo "remote-tracking refs — branches the forge has deleted"
-    local any=""
-    while IFS=$'\t' read -r st key detail; do
-      [[ -z "$st" ]] && continue
-      case "$st" in
-        STALE)      echo "  – $key: $detail"; any=1 ;;
-        UNVERIFIED) echo "  ✗ $key: $detail"; refuse_class=1 ;;
-        *)          echo "  – $key: $detail" ;;
-      esac
-    done <<< "$stale"
-    [[ -z "$any" ]] || echo "    → run: corpus-yoga forge prune"
-  fi
-
-  echo "this checkout's gate, and this checkout against its own upstream"
-  while IFS=$'\t' read -r st key detail remedy; do
-    [[ -z "$st" ]] && continue
-    if [[ "$st" == OK ]]; then
-      echo "  ✓ $key: $detail"
-    else
-      echo "  ✗ $key: $detail"; echo "    → run: $remedy"; refuse_class=1
-    fi
-  done < <(gate; upstream)
+  branches_rows="$(rows_json <<< "$rows")"
+  grep -q '"state": *"unverified"' <<< "$branches_rows" && refuse_class=1
+  local raw_stale
+  raw_stale="$(stale_tracking)" || return 1
+  stale="$(rows_json <<< "$raw_stale")"
+  grep -q '"state": *"unverified"' <<< "$stale" && refuse_class=1
+  gate_rows="$( (gate; upstream) | rows_json)"
+  grep -q '"state": *"\(wrong\|unverified\)"' <<< "$gate_rows" && refuse_class=1
+  local verdict="ready - no refuse-class drift"
+  [[ "$refuse_class" -eq 0 ]] || verdict="refuse-class drift - corpus-yoga forge merge refuses while it stands"
+  jq -n --argjson settings "$settings" --argjson branches "$branches_rows" --argjson stale "$stale" \
+        --argjson gate "$gate_rows" --arg verdict "$verdict" '
+    {"forge settings": {declared: "src/main/cli/forge/forge.csv", live: "this checkout'"'"'s remote", rows: $settings}}
+    + (if ($branches | length) > 0 then {branches: ($branches
+         + (if any($branches[]; .state == "deletable" or .state == "server_deletable")
+            then [{remedy: "corpus-yoga forge prune removes each deletable branch"}] else [] end))} else {} end)
+    + (if ($stale | length) > 0 then {"remote-tracking refs": ($stale
+         + (if any($stale[]; .state == "stale") then [{remedy: "corpus-yoga forge prune"}] else [] end))} else {} end)
+    + {"this checkout": $gate, forge: $verdict}' \
+    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
   return "$refuse_class"
 }
 

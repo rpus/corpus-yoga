@@ -54,11 +54,15 @@ _todo=()
 # section header prints lazily — only when its first shown line (– or ✗) appears — so an
 # all-satisfied section vanishes entirely. The bare `corpus-yoga` invocation shows this report,
 # so its default is the short "what still needs attention" list.
+# The report's rows (#753): section \t kind \t text, collected as the checks run and
+# printed once, as facts, by report_facts - a row's embedded remedy marker (→ run:,
+# install via:, reinstall:, replace:, refresh:) becomes its own fact there.
 _hdr=""
+_rows=()
 sec()    { _hdr="$*"; }
-_flush() { if [[ -n "$_hdr" ]]; then echo "$_hdr"; _hdr=""; fi; }
-ok()     { if (( SHOW_ALL )); then _flush; echo "  ✓ $*"; fi; }
-info()   { _flush; echo "  – $*"; }
+_row()   { _rows+=("$_hdr"$'\t'"$1"$'\t'"$2"); }
+ok()     { if (( SHOW_ALL )); then _row ok "$*"; fi; }
+info()   { _row note "$*"; }
 # A line the reader should ACT on, as against one that merely says how things stand.
 # Both render as – in the report; only these reach `sync`, which is why the distinction
 # lives here rather than in a filter downstream trying to guess from the wording.
@@ -66,8 +70,48 @@ info()   { _flush; echo "  – $*"; }
 # own (`gen` too: the parsers generated from the house grammars), anything else is the
 # reader's. sync matches on the tag, never on the wording,
 # because a message is prose and prose gets rewritten.
-todo()   { local tag="$1"; shift; _flush; echo "  – $*"; _todo+=("$tag"$'\t'"$*"); }
-bad()    { _flush; echo "  ✗ $*"; missing_required=1; }
+todo()   { local tag="$1"; shift; _row todo "$*"; _todo+=("$tag"$'\t'"$*"); }
+bad()    { _row missing "$*"; missing_required=1; }
+
+# The rows as facts through the one printer, src/main/facts.py: under the venv's python
+# where it exists, under python3 before the venv is minted, and as the bare rows where
+# neither runs (a row above says so).
+report_facts() {
+  local verdict="$1" python
+  if [[ -x "$VENV/bin/python" ]]; then python="$VENV/bin/python"
+  elif command -v python3 &>/dev/null; then python="$(command -v python3)"
+  else
+    local r
+    for r in ${_rows[@]+"${_rows[@]}"}; do echo "$r"; done
+    echo "prerequisites: $verdict"
+    return 0
+  fi
+  local rows_file
+  rows_file="$(mktemp "${TMPDIR:-/tmp}/prerequisites.XXXXXX")"
+  printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
+  "$python" - "$REPO_ROOT/src/main" "$verdict" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$rows_file" <<'PY'
+import re, sys
+sys.path.insert(0, sys.argv[1])
+import facts
+MARKER = re.compile(r'\s*[-—]?\s*(→ run:|install via:|reinstall:|replace:|refresh:)\s*')
+out = {'report': sys.argv[3]}
+for line in open(sys.argv[4]).read().splitlines():
+    if not line.strip():
+        continue
+    section, kind, text = line.split('\t', 2)
+    item = {}
+    m = MARKER.search(text)
+    if m:
+        item[kind] = text[:m.start()].rstrip(' -—')
+        item['remedy'] = text[m.end():].strip()
+    else:
+        item[kind] = text
+    out.setdefault(section, []).append(item)
+out['prerequisites'] = sys.argv[2]
+facts.say(out)
+PY
+  rm -f "$rows_file"
+}
 # The sync, spelt as the reader can run it at the moment the row is read: through the
 # launcher once the venv exists (the launcher refuses without one), else by its script.
 sync_remedy() {
@@ -289,14 +333,12 @@ check_machine() {
   local legacy="$REPO_ROOT/rsc"; legacy+="/machines/self.txt"
   if [[ -f "$legacy" ]]; then
     local lrel="${legacy#"$REPO_ROOT/"}"
-    info "legacy binding at $lrel — the binding moved to $rel (2026-07-17); migrate it:"
-    echo "    → run: mv $lrel $rel && rmdir $(dirname "$lrel")"
+    todo reader "legacy binding at $lrel — the binding moved to $rel (2026-07-17); migrate it → run: mv $lrel $rel && rmdir $(dirname "$lrel")"
   fi
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo machine "unbound — capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first, then bind:"
-    echo "    → run: echo <declared-machine-name> > $rel"
+    todo machine "unbound — capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first, then bind → run: echo <declared-machine-name> > $rel"
     info "declared: ${declared:-none}"
     return
   fi
@@ -306,8 +348,7 @@ check_machine() {
   else
     # the same declaredness gate machine.py gives every consumer: an undeclared
     # binding would mint a phantom machine in the shared transport store
-    info "bound: $name — but rsc/machine/machines.csv does not declare it (declared: ${declared:-none})"
-    echo "    ↳ add a \"$name\" row to rsc/machine/machines.csv, or fix $rel"
+    info "bound: $name — but rsc/machine/machines.csv does not declare it (declared: ${declared:-none}); add a \"$name\" row to rsc/machine/machines.csv, or fix $rel"
   fi
 }
 
@@ -361,10 +402,9 @@ check_cli() {
   elif (( comp_resolves )); then
     ok "zsh resolves the corpus-yoga completion"
   else
-    info "zsh does not resolve the corpus-yoga completions"
     # ./corpus-yoga: same bootstrap case as above — no resolving completion may well mean
     # no alias either, and ./corpus-yoga works in both worlds; bare corpus-yoga only in one.
-    echo "    → run: ./corpus-yoga completions install-latest (then restart terminal)"
+    todo reader "zsh does not resolve the corpus-yoga completions → run: ./corpus-yoga completions install-latest (then restart terminal)"
   fi
 }
 
@@ -704,8 +744,7 @@ sync() {
 }
 
 report() {
-  echo "$(basename "$0") — $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-
+  _rows=()
   check_machine
   check_tools
   check_venv
@@ -739,12 +778,12 @@ report() {
   # Ruled 2026-07-31 (#141): the old exit-1-on-✗ made a pipelines-only machine
   # scriptably blocked by a hook it will never trigger.
   if [[ "$missing_required" -eq 1 ]]; then
-    echo "✗ item(s) above — each names what breaks and its remedy; this report only informs (exit 0)"
+    report_facts "missing item(s) above - each names what breaks and its remedy; this report only informs (exit 0)"
   elif (( SHOW_ALL )); then
-    echo "ready — corpus-yoga pipeline run (pipelines without input data are skipped)"
+    report_facts "ready - corpus-yoga pipeline run (pipelines without input data are skipped)"
   else
     # Default is failures-only; if we reach here nothing above needed attention.
-    echo "ready — corpus-yoga pipeline run · full report: corpus-yoga prerequisites --show-all · commands: corpus-yoga -h"
+    report_facts "ready - corpus-yoga pipeline run; the full report is corpus-yoga prerequisites --show-all, the commands corpus-yoga -h"
   fi
 }
 
