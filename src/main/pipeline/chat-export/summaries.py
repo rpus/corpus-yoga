@@ -50,6 +50,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from markdown_projection import REPO, find_api_json
 
 from declared_parser import command_parser  # noqa: E402
@@ -162,11 +163,11 @@ def _warn_twins(root: Path) -> int:
     twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
         if root.is_dir() else 0
     if twins:
-        print(f'FAIL: {twins} twin deposit(s) in the summaries store - byte-identical '
-              'to their nearest earlier sibling, which the deposit rule never writes:')
-        print('    → investigate: this is a NEW defect in whatever wrote them. The '
-              're-stamp bug is fixed and its one-shot repair retired; nothing in the '
-              'current machinery can mint a twin.')
+        facts.say({'twins': {
+            'FAIL': f'{twins} twin deposit(s) in the summaries store - byte-identical to their nearest '
+                    'earlier sibling, which the deposit rule never writes',
+            'remedy': 'investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its '
+                      'one-shot repair retired, and nothing in the current machinery can mint a twin'}})
     return twins
 
 
@@ -184,8 +185,8 @@ def status(root: Path) -> int:
             rolling += (f.name == 'browser-capture.md')
             readings += (f.name != 'browser-capture.md')
     shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
-    print(f'summaries: {len(folders)} conversation folder(s), {readings} deposited '
-          f'reading(s), {rolling} rolling capture reading(s) in {shown}')
+    facts.say({'summaries': {'conversation folders': len(folders), 'deposited readings': readings,
+                             'rolling capture readings': rolling, 'in': shown.as_posix()}})
     _warn_twins(root)
     return 0
 

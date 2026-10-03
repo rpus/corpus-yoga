@@ -23,6 +23,7 @@ sys.path.insert(0, str(REPO_ROOT / 'src'))   # src/, for declared_parser
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))   # src/main/, for send
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from send import SendRefused, assert_may_send  # noqa: E402 — ~/.zshrc is outside the tree: a send (#29)
 from cli import (  # noqa: E402 — one reader of the declaration, and it is cli
     PATH_ARG_TYPES, REPO, commands, command_rows, subcommands_of, _subcommand_desc,
@@ -328,16 +329,17 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    remedy = './corpus-yoga completions sync (then restart terminal)' if blocks >= 1 else './corpus-yoga completions install-latest (then restart terminal)'
-    state = (f'not written — `{remedy}`' if not written else
-             'current' if current else f'STALE — `{remedy}`')
-    print(f'completions: {tilde(COMPLETION_OUT)} — {state}')
+    remedy = 'corpus-yoga completions sync, then a new shell' if blocks >= 1 else 'corpus-yoga completions install-latest, then a new shell'
+    out: dict = {COMPLETION_OUT.relative_to(REPO).as_posix(): 'not written' if not written else 'current' if current else 'STALE'}
+    if not written or not current:
+        out['remedy'] = remedy
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
-    print('  ~/.zshrc: ' + ('not wired — `./corpus-yoga completions install-latest`' if not blocks
-                            else 'wired' if blocks == 1
-                            else f'wired {blocks} times — `./corpus-yoga completions install-latest` '
-                                 f'removes every block and writes one'))
+    out['~/.zshrc'] = 'not wired' if not blocks else 'wired' if blocks == 1 else f'wired {blocks} times'
+    if blocks != 1:
+        out['~/.zshrc remedy'] = ('corpus-yoga completions install-latest' if not blocks
+                                  else 'corpus-yoga completions install-latest removes every block and writes one')
+    facts.say({'completions': out})
     return 0
 
 

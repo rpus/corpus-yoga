@@ -766,7 +766,7 @@ src/main/cli/command.schema.json,35,$ref,src/main/cli/argument.schema.json,Y,"""
 src/main/cli/commands/commands.json,3,path_str,src/main/cli/commands/commands.py,Y,"""target"": ""src/main/cli/commands/commands.py"","
 src/main/cli/completions/completions.json,3,path_str,src/main/cli/completions/completions.py,Y,"""target"": ""src/main/cli/completions/completions.py"","
 src/main/cli/completions/completions.py,17,path_str,src/main/cli/completions/completions.py,Y,SELF = 'src/main/cli/completions/completions.py'
-src/main/cli/completions/completions.py,117,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
+src/main/cli/completions/completions.py,118,comment,src/main/cli/README.md,Y,# Flags are scoped to their verb (src/main/cli/README.md): offer each
 src/main/cli/export/capture.json,26,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/export/capture.py,9,comment,src/main/pipeline/chat-export/pipeline.json,Y,staged unit <X> (src/main/pipeline/chat-export/pipeline.json's companion):
 src/main/cli/export/capture.py,25,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/export/capture.py --manifest <file>
@@ -901,7 +901,7 @@ src/main/cli/server/server.sh,7,comment,src/main/cli/server/server.sh,Y,#   src/
 src/main/cli/server/server.sh,8,comment,src/main/cli/server/server.sh,Y,"#   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit"
 src/main/cli/server/server.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/server/server.sh,20,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/server/server.sh,41,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)"
+src/main/cli/server/server.sh,38,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)"
 src/main/cli/server/start.json,31,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
 src/main/cli/site/render.json,7,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
@@ -951,6 +951,7 @@ src/main/corpus.py,467,comment,src/main/validation_verdict.py,Y,"# the verdict i
 src/main/facts.py,18,path_str,src/main/facts.py,Y,SELF = 'src/main/facts.py'
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,38,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
+src/main/grammar/grammar.py,101,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
 src/main/latest.py,14,path_str,src/main/latest.py,Y,SELF = 'src/main/latest.py'
 src/main/machine.py,9,comment,rsc/machine/machines.csv,Y,machines()       the declared machines (rsc/machine/machines.csv) — the registry.
 src/main/machine.py,40,path_str,src/main/machine.py,Y,SELF = 'src/main/machine.py'
@@ -960,7 +961,8 @@ src/main/markdown_projection.py,12,comment,src/main/pipeline/chat-export/atomise
 src/main/markdown_projection.py,24,path_str,src/main/markdown_projection.py,Y,SELF = 'src/main/markdown_projection.py'
 src/main/mcp/mcp.py,29,comment,src/main/mcp/reproduce.sh,Y,"# schema.ts? - src/main/mcp/reproduce.sh, whose header states the run"
 src/main/mcp/mcp.py,39,path_str,src/main/mcp/mcp.py,Y,SELF = 'src/main/mcp/mcp.py'
-src/main/mcp/mcp.py,185,path_str,src/main/mcp/reproduce.sh,Y,script = str(REPO / 'src/main/mcp/reproduce.sh')
+src/main/mcp/mcp.py,116,path_str,rsc/schema/mcp/mcpMessage/CHANGELOG.md,Y,'why': 'rsc/schema/mcp/mcpMessage/CHANGELOG.md'} for row in factoring.additions()]
+src/main/mcp/mcp.py,201,path_str,src/main/mcp/reproduce.sh,Y,script = str(REPO / 'src/main/mcp/reproduce.sh')
 src/main/mcp/mcp_extraction.py,38,path_str,src/main/mcp/mcp_extraction.py,Y,SELF = 'src/main/mcp/mcp_extraction.py'
 src/main/mcp/mcp_face.py,24,comment,rsc/cache_io.csv,Y,"derivation's other faces (rsc/cache_io.csv), never committed: they are readings of"
 src/main/mcp/mcp_face.py,33,path_str,src/main/mcp/mcp_face.py,Y,SELF = 'src/main/mcp/mcp_face.py'
@@ -1085,7 +1087,7 @@ src/main/pipeline/chat-export/memories.py,30,comment,src/main/cli/pipeline/pipel
 src/main/pipeline/chat-export/memories.py,31,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/pipeline/chat-export/memories.py       [--chat-export-cache tmp/cache/chat-export] [--
 src/main/pipeline/chat-export/memories.py,31,comment,src/main/pipeline/chat-export/memories.py,Y,src/run_python_script.sh src/main/pipeline/chat-export/memories.py       [--chat-export-cache tmp/cache/chat-export] [--
 src/main/pipeline/chat-export/memories.py,45,path_str,src/main/pipeline/chat-export/memories.py,Y,SELF = 'src/main/pipeline/chat-export/memories.py'
-src/main/pipeline/chat-export/memories.py,62,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
+src/main/pipeline/chat-export/memories.py,63,comment,rsc/naming/memory_deposit_vintages.csv,Y,Deposit-filename formats AS DATA: rsc/naming/memory_deposit_vintages.csv
 src/main/pipeline/chat-export/present.sh,4,comment,src/main/model/present_corpus.py,Y,# The corpus page render is src/main/model/present_corpus.py (corpus-yoga site render).
 src/main/pipeline/chat-export/present.sh,6,comment,src/main/pipeline/chat-export/present.sh,Y,#   src/main/pipeline/chat-export/present.sh --chat-export data/input/claude/chat/bulk-export/data-2026-04-07-07-52-05-b
 src/main/pipeline/chat-export/present.sh,7,comment,src/main/pipeline/chat-export/present.sh,Y,#   src/main/pipeline/chat-export/present.sh --chat-exports data/input/claude/chat/bulk-export
