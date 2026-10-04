@@ -1944,13 +1944,17 @@ def check_status_facts(run) -> None:
             check='status.lines_load_as_yaml')
 
     # The machine report's rows are keyed by what each is about (#771): in the full
-    # report no row stands under a kind - ok, note, todo - and no list holds its rows.
+    # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
     proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'prerequisites', '--show-all'], capture_output=True, text=True,
                           env=env, cwd=REPO_ROOT, timeout=300)
     try:
         report = yaml.load(proc.stdout, Loader=Strict)
-        kinds = sorted({f'{section}/{key}' for section, rows in report.items() if isinstance(rows, dict)
-                        for key in rows if key in ('ok', 'note', 'todo')})
+        def keyed_by_kind(node, path: str = '') -> list[str]:
+            if not isinstance(node, dict):
+                return []
+            return [f'{path}/{key}' for key in node if key in ('ok', 'note', 'todo', 'stands', 'missing')] + [
+                found for key, value in node.items() for found in keyed_by_kind(value, f'{path}/{key}' if path else str(key))]
+        kinds = sorted(keyed_by_kind(report))
         listed = listed_structure(report) or next((section for section, rows in report.items() if isinstance(rows, list)), None)
         why = (f'rows stand under a kind that names nothing: {", ".join(kinds[:4])}' if kinds
                else f'the rows of {listed} are a list' if listed else None)
