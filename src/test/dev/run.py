@@ -1732,10 +1732,10 @@ def check_unit_companion(run) -> None:
     import tempfile
     sys.path.insert(0, str(SRC / 'main'))
     import corpus
-    store = next(s for s in corpus.stores() if s['pipeline'] == 'chat-export')
+    store = next(s for s in corpus.stores() if s.pipeline == 'chat-export')
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        base = root / store['input']
+        base = root / store.input
         for name in ('data-2026-01-01-whole', 'data-2026-03-03-payload'):
             (base / name).mkdir(parents=True)
             (base / name / 'conversations.json').write_text('[]')
@@ -1811,29 +1811,10 @@ def check_store(run) -> None:
         run('store: a unit is called what its selection\'s declaration calls it', kinds == ['memory', 'session'],
             None if kinds == ['memory', 'session'] else f'the kinds read {kinds}', check='store.unit_names_its_kind')
         got = [(u.address.relative_to(store.relative_to(root)).as_posix(), h.address.relative_to(store.relative_to(root)).as_posix(), how)
-               for u, h, how, _by in twice(root)]
+               for u, h, how in ((d.unit, d.holder, d.how) for d in twice(root))]
     expected = [('one/11111111-aaaa.jsonl', 'two/11111111-aaaa.jsonl', 'contained'), ('two/memory', 'one/memory', 'identical')]
     run('store: a unit another of its kind holds whole is found', got == expected,
         None if got == expected else f'held twice read {got}', check='store.held_twice_is_found')
-    # The audit reads the store's rows as corpus.py declares them (#749): a reader behind
-    # the rows' shape dies in the usr gate's corpus tail, and this is where it is held.
-    import importlib.util
-    spec = importlib.util.spec_from_file_location('validation_audit', SRC / 'main' / 'validation_audit.py')
-    assert spec is not None and spec.loader is not None
-    audit = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(audit)
-    with tempfile.TemporaryDirectory() as scratch:
-        for name, facts in audit.frontier.pipelines():
-            declared = [store['globs'] for store in corpus.stores({name: facts})]
-            try:
-                read = [globs for _label, _input, _cache, globs in audit.sources(name, facts)]
-                for globs in read:
-                    audit.input_subjects(Path(scratch), globs, facts['subject_depth'])
-                why = None if read == declared else f'the audit reads {read} where the store declares {declared}'
-            except Exception as error:   # the defect is the raise itself: read as a finding, not a crash
-                why = f'{type(error).__name__}: {error}'
-            run(f'store: {name}: the audit reads its rows as corpus.py declares them', why is None, why,
-                check='store.rows_read_by_the_audit')
 
 
 def check_status_facts(run) -> None:
@@ -1895,7 +1876,7 @@ def check_export_atoms(run) -> None:
         deposits = Path(scratch) / 'data' / 'output' / 'memories'
         deposits.mkdir(parents=True)
         (deposits / '2026-01-01T000000Z.json').write_text(json_.dumps({'account_uuid': account, 'note': 'early'}))
-        got = [(u.address.name[-28:-20], h.address.name[-28:-20], how) for u, h, how, _by in corpus.held_twice(root)]
+        got = [(d.unit.address.name[-28:-20], d.holder.address.name[-28:-20], d.how) for d in corpus.held_twice(root)]
     expected = [('aaaaaaaa', 'bbbbbbbb', 'contained')]
     run('store: an export is held whole within a later one by its atoms', got == expected,
         None if got == expected else f'held twice read {got}', check='store.export_is_held_within_a_later_one')
@@ -2741,7 +2722,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_tier_contract': ['src/main'],
     'check_unit_companion': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
-    'check_store': ['src/main/corpus.py', 'src/main/validation_audit.py', 'src/main/pipeline'],
+    'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
     'check_export_atoms': ['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'],
     'check_status_facts': ['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'],
