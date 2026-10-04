@@ -58,6 +58,7 @@ effects.writers_disjoint
 empirical.nullable_fields_surveyed
 empirical.oneOf_branches_evidenced
 facts.lines_are_yaml
+facts.reads_back_what_it_prints
 files.required_exists
 grammar.citation_is_stated
 grammar.enforcement_map
@@ -109,9 +110,9 @@ schema.valid_json_with_schema
 shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart
-store.export_is_held_within_a_later_one
 status.lines_load_as_yaml
 status.remedy_names_a_command
+store.export_is_held_within_a_later_one
 store.held_twice_is_found
 store.unit_names_its_kind
 structure.all_definitions_reachable
@@ -140,5 +141,6 @@ structure.self_path_matches_address
 templates.teach_signature
 tier.paths_from_contract
 validation.verdict_is_record
+walkthrough.walks_and_runs
 xref.no_bad_pointers
 xref.score_matches_expectation

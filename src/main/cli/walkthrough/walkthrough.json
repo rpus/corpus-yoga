@@ -1,0 +1,9 @@
+{
+  "summary": "walk the room's state as one tree, each noun's bare status beneath its name - n next, m more, b back, x runs the command the walk stands on, q quits; keys from the terminal, or as lines on stdin",
+  "target": "src/main/cli/walkthrough/walkthrough.py",
+  "calculus": "",
+  "args": [],
+  "x": [
+    "corpus-yoga"
+  ]
+}

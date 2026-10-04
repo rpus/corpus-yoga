@@ -1810,6 +1810,9 @@ def check_status_facts(run) -> None:
     has, or a standard tool - read from the constructor's call sites, so a remedy a rare
     state alone would say is held before that state."""
     import subprocess
+    sys.path.insert(0, str(SRC / 'main'))
+    import importlib
+    status_facts = importlib.import_module('facts')
     try:
         import yaml
     except ModuleNotFoundError:
@@ -1920,6 +1923,13 @@ def check_status_facts(run) -> None:
         try:
             loaded = yaml.load(proc.stdout, Loader=Strict)
             why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
+            if why is None and getattr(status_facts, 'load', None) is not None:
+                # the printer's own reader reads what the YAML reader reads (#766)
+                try:
+                    if status_facts.load(proc.stdout) != loaded:
+                        why = 'the printer\'s reader and the YAML reader read it differently'
+                except ValueError as error:
+                    why = f'the printer\'s reader refuses it: {error}'
             if why is None:
                 # a dash means a bare value (#765): a collection of named things is a mapping keyed by their names
                 nested = listed_structure(loaded)
@@ -1992,6 +2002,87 @@ def check_facts(run) -> None:
                 '  - ""', '  - null', '  - 2', 'empty: {}', 'none: []']
     run('facts: a status prints its facts as YAML a reader loads back', got == expected,
         None if got == expected else f'the lines read {got}', check='facts.lines_are_yaml')
+    # The printer's own reader is its inverse (#766): what it prints it reads back, and
+    # a YAML reader reads the same - so a reader of a status needs nothing but the printer.
+    load = getattr(facts, 'load', None)
+    if load is None:
+        run('facts: the printer reads back what it prints', False,
+            'src/main/facts.py prints and does not read: a reader of a status needs a YAML library', check='facts.reads_back_what_it_prints')
+        return
+    sample = {'held': {'a/b capture': 121}, 'odd': ['121', 'true', '2026-09-30T121242Z', '-Users-x', 'a: b', 'word #tag', '', None, 2, 1.5],
+              'empty': {}, 'none': [], 'deep': {'x': {'y': {'z': ['p', 'q']}}}, 'a: key': 'v', 'of lists': [['a', 'b'], ['c']],
+              'of mappings': [{'memory': 'x/memory', 'identical to': 'y/memory'}]}
+    text = '\n'.join(facts.lines(sample))
+    try:
+        import yaml
+        theirs = yaml.safe_load(text)
+    except ModuleNotFoundError:
+        theirs = sample
+    try:
+        mine = load(text)
+        why = None if mine == sample == theirs else f'read back {mine}; a YAML reader read {theirs}'
+    except ValueError as error:
+        why = f'the reader refused what the printer wrote: {error}'
+    run('facts: the printer reads back what it prints', why is None, why, check='facts.reads_back_what_it_prints')
+    try:
+        load('a: 1\na: 2')
+        twice = 'a key that stands twice in one mapping was read'
+    except ValueError:
+        twice = None
+    run('facts: the reader refuses a key that stands twice', twice is None, twice, check='facts.reads_back_what_it_prints')
+
+
+def check_walkthrough(run) -> None:
+    """The walkthrough walks the room's state and runs a command it reaches (#766): driven
+    by lines on stdin as a reader's keys drive it, it starts on the machine report, n
+    reaches the pipeline noun, m reads its status and descends, b returns, and x on a key
+    that is a command runs it and re-reads; each step is a document the printer's reader
+    loads."""
+    import subprocess
+    sys.path.insert(0, str(SRC / 'main'))
+    import importlib
+    facts = importlib.import_module('facts')
+    target = CLI / 'walkthrough' / 'walkthrough.py'
+    if not target.is_file() or getattr(facts, 'load', None) is None:
+        run('walkthrough: a reader walks the room and runs a command it reaches', False,
+            'corpus-yoga walkthrough is no command: a status is read whole, in the printer\'s order', check='walkthrough.walks_and_runs')
+        return
+    env = {**os.environ, 'YOGA_NO_SEND': '1'}
+    nouns = sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command']))
+    order = [n for n in ('prerequisites', 'stage', 'store') if n in nouns] + [n for n in nouns if n not in ('prerequisites', 'stage', 'store')]
+    said = facts.load(subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'pipeline'], capture_output=True, text=True, env=env, cwd=REPO_ROOT).stdout)
+    beneath = list(said['pipelines'])
+    command = 'corpus-yoga prerequisites'
+    keys = ['n'] * order.index('pipeline') + ['m', 'm'] + ['n'] * beneath.index(command) + ['b', 'n', 'x', 'q']
+    proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough'], input='\n'.join(keys) + '\n', capture_output=True, text=True,
+                          env=env, cwd=REPO_ROOT, timeout=300)
+    documents = proc.stdout.split('\n---\n')
+    steps = []
+    for document in documents:
+        try:
+            steps.append(facts.load(document))
+        except ValueError:
+            steps.append(None)            # what a command printed in the foreground: its own, not a step
+    def step(index):
+        return steps[index] if -len(steps) <= index < len(steps) and isinstance(steps[index], dict) else {}
+    arrive = len(order) - 1 - (len(order) - 1 - order.index('pipeline')) + 2 + beneath.index(command)   # the step that first stands on the command
+    wants = [
+        ('it starts on the machine report', step(0).get('at') == 'the room' and step(0).get('key') == 'prerequisites'),
+        ('n reaches the pipeline noun', step(order.index('pipeline')).get('key') == 'pipeline'),
+        ('m reads a status and descends into it', step(order.index('pipeline') + 2).get('at') == 'pipeline / pipelines'),
+        ('it stands on the command', step(arrive).get('key') == command and str(step(arrive).get('runs', '')).startswith('x - ')),
+        ('b goes back over the last move', step(arrive + 1).get('key') == beneath[beneath.index(command) - 1]),
+        ('x runs the command and says so', any(isinstance(s, dict) and s.get('ran') == command and s.get('exit') == 0 for s in steps)),
+        ('it says where it left', step(-1).get('walkthrough') == f'left at pipeline / pipelines / {command}'),
+        ('a step says the size of what m would give, never the thing', all(
+            isinstance(s.get('holds', ''), str) and 'value' not in s for s in steps if isinstance(s, dict) and 'key' in s)),
+    ]
+    failed = [what for what, held in wants if not held]
+    run('walkthrough: a reader walks the room and runs a command it reaches', not failed,
+        None if not failed else 'not so: ' + '; '.join(failed) + f' (exit {proc.returncode}; {proc.stderr.strip()[-120:]})',
+        check='walkthrough.walks_and_runs')
+
+
 def check_drafters(run) -> None:
     """A Signature is read by the grammar that writes it, and a message's first Signature
     is its drafter (#631): the join of main's messages to the store's sessions rests on
@@ -2813,6 +2904,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_unit_state': ['src/main/corpus.py', 'src/main/append_only.py'],
     'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
+    'check_walkthrough': ['src/main/cli', 'src/main/facts.py', 'corpus-yoga'],
     'check_export_atoms': ['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'],
     'check_status_facts': ['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'],
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
@@ -3076,6 +3168,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_facts, tier='code')
         run_section(check_export_atoms, tier='code')
         run_section(check_status_facts, tier='code')
+        run_section(check_walkthrough, tier='code')
         run_section(check_drafters, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')
