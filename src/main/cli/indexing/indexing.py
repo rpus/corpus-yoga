@@ -46,6 +46,7 @@ Usage (via corpus-yoga indexing):
 """
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 SELF = 'src/main/cli/indexing/indexing.py'
@@ -524,26 +525,57 @@ def anchor_report(concepts_file: Path, markdown_root: Path) -> None:
         print(f'    {c}  (tried, in either number: {", ".join(tried)})')
 
 
-def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
+@dataclass
+class Disposal:
+    entries: int
+    record: str = facts.named('in', default='')
+
+
+@dataclass
+class Orphans:
+    accepted_headwords_with_zero_corpus_locators: list[str]
+    remedy: facts.Act
+
+
+@dataclass
+class Candidates:
+    queue: str | None = None
+    undisposed: list[str] | None = None
+    remedy: facts.Command | facts.Act | None = None
+
+
+@dataclass
+class Unanchorable:
+    concepts: list[str] = facts.named('captured concepts no conversation turn phrases, not queued')
+
+
+@dataclass
+class Indexing:
+    """The curation surface: the disposal record's counts, its orphans, the candidate queue
+    with the reader's acts as its remedy, and what the corpus cannot anchor."""
+    accepted: Disposal
+    rejected: Disposal
+    orphans: Orphans | str | None = None
+    candidates: Candidates | str | None = None
+    unanchorable: Unanchorable | None = None
+
+
+def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Indexing:
     """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`) as facts
-    (#753): the disposal record's counts, its orphans, the candidate queue with the
-    reader's acts as its remedy, and what the corpus cannot anchor."""
+    (#753, #759)."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
-    out: dict = {'accepted': {'entries': n_accepted, 'in': a_rel.as_posix()},
-                 'rejected': {'entries': n_rejected, 'in': r_rel.as_posix()}}
+    out = Indexing(Disposal(n_accepted, a_rel.as_posix()), Disposal(n_rejected, r_rel.as_posix()))
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
         # a notice, never a failure (#675): the reader's curation, not a verb's, clears it
-        out['orphans'] = ({'accepted headwords with zero corpus locators': orphans,
-                           'remedy': 'fix the aliases, or remove the line and reject the concept with a reason'}
-                          if orphans else 'none - every accepted headword has a corpus locator')
+        out.orphans = (Orphans(orphans, facts.Act('fix the aliases, or remove the line and reject the concept with a reason'))
+                       if orphans else 'none - every accepted headword has a corpus locator')
     if not inferred_concepts():
-        out['candidates'] = {'queue': 'unknown - no concept capture on this machine',
-                             'remedy': 'corpus-yoga indexing capture'}
-        facts.say({'indexing': out})
-        return
+        out.candidates = Candidates(queue='unknown - no concept capture on this machine',
+                                    remedy=facts.Command('corpus-yoga indexing capture'))
+        return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
     # A nonzero queue is the reader's act awaiting, stated with its remedy as a notice
@@ -551,15 +583,65 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Non
     # reader's disposal clears it. A concept the corpus cannot index is not the
     # reader's to dispose: it is named with what was tried, and the next capture may
     # phrase it again (#644).
-    out['candidates'] = ({'undisposed': pending,
-                          'remedy': 'each is the reader\'s act - corpus-yoga indexing accept "<term>" or '
-                                    'corpus-yoga indexing reject "<concept>" --reason "<why>"; '
-                                    'corpus-yoga indexing list-candidates reads the queue with the aliases '
-                                    'that anchor each, and --all disposes it as read'}
-                         if pending else 'none - fully disposed')
+    out.candidates = (Candidates(undisposed=pending, remedy=facts.Act(
+        'each is the reader\'s act - corpus-yoga indexing accept "<term>" or '
+        'corpus-yoga indexing reject "<concept>" --reason "<why>"; '
+        'corpus-yoga indexing list-candidates reads the queue with the aliases '
+        'that anchor each, and --all disposes it as read')) if pending else 'none - fully disposed')
     if unanchorable:
-        out['unanchorable'] = {'captured concepts no conversation turn phrases, not queued': [c for c, _ in unanchorable]}
-    facts.say({'indexing': out})
+        out.unanchorable = Unanchorable([c for c, _ in unanchorable])
+    return out
+
+
+@dataclass
+class Currency:
+    """The paid captures against the corpus they read."""
+    conversations: int
+    covered_by_the_captures: int
+    lag: str | None = None
+    remedy: facts.Command | None = None
+
+
+@dataclass
+class Captures:
+    """The paid model captures held: the concept proposals the candidates are drawn from,
+    the categories the site render colours by."""
+    paid_captures: dict[str, str]
+    corpus: Currency | None = None
+
+
+@dataclass
+class Status:
+    indexing: Indexing
+    captures: Captures = facts.named('data/output/indexing')
+
+
+def captures() -> Captures:
+    """The paid captures' standing, and how far the paid layer lags the corpus (L9: the
+    captures are paid, so no run step keeps them fresh). The corpus is counted by its
+    shape's one home, src/main/model/corpus_shape.sh."""
+    import json
+    import subprocess
+    held_dir = tier.DATA / 'output' / 'indexing'
+    rows: dict[str, int | None] = {}
+    for name in ('inferred-semantic-concepts.json', 'inferred-chat-categories.json'):
+        path = held_dir / name
+        rows[name] = len(json.loads(path.read_text()).get('rows', [])) if path.is_file() else None
+    out = Captures({name: 'not captured yet' if n is None else f'{n} rows' for name, n in rows.items()})
+    corpus = tier.DATA / 'output' / 'markdown'
+    if not corpus.is_dir():
+        return out                # L8: no corpus yet - nothing to be current against
+    shape = REPO_ROOT / 'src' / 'main' / 'model' / 'corpus_shape.sh'
+    counted = subprocess.run(['bash', '-c', 'source "$1"; count_conversations "$2"', 'count', str(shape), str(corpus)],
+                             capture_output=True, text=True).stdout.strip()
+    n, m = int(counted or 0), rows['inferred-chat-categories.json'] or 0
+    if n > 0:
+        # a lag is a notice, never a failure (#675): no verb failed, and only the reader's paid act clears it
+        out.corpus = Currency(n, m)
+        if m < n:
+            out.corpus.lag = 'the paid layer lags the corpus'
+            out.corpus.remedy = facts.Command('corpus-yoga indexing capture', 'PAID, the model re-reads the corpus')
+    return out
 
 
 def main():
@@ -615,11 +697,8 @@ def main():
         return
 
     # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
-    # capture's own status face (deposits + the paid layer's currency, #409)
-    status(accepted_path, rejected_path, MARKDOWN_DIR)
-    sys.stdout.flush()   # the child's facts follow this process's in the one stream
-    import subprocess
-    subprocess.run(['bash', str(Path(__file__).resolve().parent / 'capture.sh'), '--status'], check=False)
+    # paid captures' standing (deposits + the paid layer's currency, #409)
+    facts.say(Status(status(accepted_path, rejected_path, MARKDOWN_DIR), captures()))
 
 
 if __name__ == '__main__':

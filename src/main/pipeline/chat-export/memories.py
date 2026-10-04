@@ -36,6 +36,7 @@ import csv
 import json
 import re
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -162,6 +163,18 @@ def render(deposits, out_dir):
                   because='its deposit is gone')
 
 
+@dataclass
+class Memories:
+    deposits: int
+    store: str = facts.named('in')
+    memory_states_in_the_cache: int = 0
+
+
+@dataclass
+class Status:
+    memories: Memories
+
+
 def status(memories_output: Path, chat_export_cache: Path) -> int:
     """The bare-noun default: show current state, write nothing. Reports how many
     deposits the store already holds and how many memory states sit in the cache
@@ -169,7 +182,7 @@ def status(memories_output: Path, chat_export_cache: Path) -> int:
     n = len(list(memories_output.glob('*.json'))) if memories_output.is_dir() else 0
     states = memory_states(chat_export_cache)
     store = memories_output.relative_to(REPO) if memories_output.is_relative_to(REPO) else memories_output
-    facts.say({'memories': {'deposits': n, 'in': store.as_posix(), 'memory states in the cache': len(states)}})
+    facts.say(Status(Memories(n, store.as_posix(), len(states))))
     return 0
 
 

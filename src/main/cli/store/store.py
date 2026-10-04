@@ -85,6 +85,29 @@ class Ahead:
     link: str = ''            # the project whose directory this one is a link to
     capture: str = ''         # the capture, by extent, that stages exactly this; empty where a session's capture brings it
 
+    def facts(self) -> dict:
+        """The live thing as the status states it: its state, both sides, and what stages it."""
+        staged_by: facts.Command | facts.Act | None = None
+        if self.capture:
+            staged_by = facts.Command(self.capture)
+        elif self.kind != 'session' and self.state in ('new', 'changed'):
+            staged_by = facts.Act('with a session of its project')
+        then = {'diverged': 'a capture of it would be refused at promotion; the reader reconciles the two',
+                'behind': 'the store holds more than the live store does'}.get(self.state)
+        return {f'{self.provider} {self.kind}': self.name, 'state': self.state, 'live': self.live,
+                'held': self.held or None,
+                'agree for': f'{self.agree} bytes' if self.state == 'diverged' else None,
+                'then': then, 'link to': self.link or None, 'capture': staged_by}
+
+
+@dataclass
+class AbsentMount:
+    """A live store this room does not mount: nothing is read there."""
+    mount: str
+    state: str = 'absent'
+    why: str = 'no live store is read there'
+    remedy: facts.Command = facts.Command('corpus-yoga prerequisites sync --apply', 'mounts it')
+
 
 def _logs(path: Path, pattern: str) -> dict[str, bytes]:
     """The files a session's measure reads, by name: the session's own file, or under its
@@ -181,29 +204,11 @@ def ahead() -> tuple[list[Ahead], list[str]]:
     return rows, absent
 
 
-def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[list, int, int]:
-    """The third reading as facts: each live thing that is ahead as an item, with its state
-    and what stages it; the absent mounts; returns (the items, ahead, level)."""
-    items: list = [{'mount': m, 'state': 'absent', 'remedy': 'no live store is read there; corpus-yoga prerequisites sync --apply mounts it'}
-                   for m in absent]
-    for r in rows:
-        if r.state == 'level':
-            continue
-        item: dict = {f'{r.provider} {r.kind}': r.name, 'state': r.state, 'live': r.live}
-        if r.held:
-            item['held'] = r.held
-        if r.state == 'diverged':
-            item['agree for'] = f'{r.agree} bytes'
-            item['then'] = 'a capture of it would be refused at promotion; the reader reconciles the two'
-        if r.state == 'behind':
-            item['then'] = 'the store holds more than the live store does'
-        if r.link:
-            item['link to'] = r.link
-        if r.capture:
-            item['capture'] = r.capture
-        elif r.kind != 'session' and r.state in ('new', 'changed'):
-            item['capture'] = 'with a session of its project'
-        items.append(item)
+def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[list[Ahead | AbsentMount], int, int]:
+    """The third reading as facts: the absent mounts, then each live thing that is not level
+    with the held one; returns (the items, ahead, level)."""
+    items: list[Ahead | AbsentMount] = [AbsentMount(m) for m in absent]
+    items += [r for r in rows if r.state != 'level']
     found = sum(1 for r in rows if r.state in ('new', 'grown', 'changed', 'diverged'))
     return items, found, sum(1 for r in rows if r.state == 'level')
 
@@ -252,7 +257,7 @@ def clean(apply: bool) -> int:
     if not rows and not apply:
         print('  []')
     for kind, item, paths in rows:
-        for line in facts.lines([item], 1):
+        for line in facts.lines(facts.plain([item]), 1):
             print(line)
         if not apply:
             did[kind] += 1
@@ -286,9 +291,9 @@ def main() -> int:
     out, held, twice = corpus.store_facts(*live_addresses())
     rows, absent = ahead()
     items, found, level = ahead_facts(rows, absent)
-    out['ahead'] = items if items else ('no live store is mounted in this workspace' if not rows else f'nothing: {level} live unit(s) level with the held ones')
-    out['store'] = (f'{held} unit(s) held; {twice} duplicate(s); {found} ahead in this room\'s live stores'
-                    + (f', {level} level' if found else ''))
+    out.ahead = items if items else ('no live store is mounted in this workspace' if not rows else f'nothing: {level} live unit(s) level with the held ones')
+    out.store = (f'{held} unit(s) held; {twice} duplicate(s); {found} ahead in this room\'s live stores'
+                 + (f', {level} level' if found else ''))
     facts.say(out)
     return 0
 

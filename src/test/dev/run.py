@@ -1820,7 +1820,12 @@ def check_store(run) -> None:
 def check_status_facts(run) -> None:
     """Every noun's bare status is its facts as YAML (#753): run as the reader runs it, in
     this checkout with sends refused, what it prints loads as one mapping - the lines are
-    the data - and the usage line the CLI appends is one of its pairs."""
+    the data - and the usage line the CLI appends is one of its pairs. A key that stands
+    twice in one mapping is refused, where YAML's own reader keeps the last in silence
+    (#759). And a remedy the reader types names a command (#759): every Command a status
+    constructs from a literal is a corpus-yoga command the CLI declares, with a verb it
+    has, or a standard tool - read from the constructor's call sites, so a remedy a rare
+    state alone would say is held before that state."""
     import subprocess
     try:
         import yaml
@@ -1829,12 +1834,57 @@ def check_status_facts(run) -> None:
             'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga prerequisites sync --apply',
             check='status.lines_load_as_yaml')
         return
+
+    class Strict(yaml.SafeLoader):
+        pass
+
+    def mapping_without_duplicates(loader, node, deep=False):
+        keys = [loader.construct_object(key, deep=deep) for key, _value in node.value]
+        twice = sorted({str(key) for key in keys if keys.count(key) > 1})
+        if twice:
+            raise yaml.constructor.ConstructorError(None, None, f'the key {twice[0]!r} stands twice in one mapping', node.start_mark)
+        return loader.construct_mapping(node, deep)
+
+    Strict.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, mapping_without_duplicates)
+
+    declared = {c['command'] for c in cli.commands()}
+    STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'gh', 'brew', 'echo', 'mkdir', 'open', 'pip'}
+    for path in sorted((SRC / 'main').rglob('*.py')):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not (isinstance(node, ast.Call) and node.args
+                    and (getattr(node.func, 'attr', None) == 'Command' or getattr(node.func, 'id', None) == 'Command')):
+                continue
+            first = node.args[0]
+            if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                literal, whole = first.value, True
+            elif isinstance(first, ast.JoinedStr) and first.values and isinstance(first.values[0], ast.Constant):
+                literal, whole = str(first.values[0].value), False   # the head of an f-string: its tail is computed
+            else:
+                continue                  # computed elsewhere: a row's remedy, a field
+            words = literal.split()
+            if not whole and not literal.endswith(' '):
+                words = words[:-1]        # the last word runs into the computed part
+            why = None
+            if not words:
+                continue
+            if words[0] == 'corpus-yoga':
+                if len(words) > 1 and words[1] not in declared:
+                    why = f'`corpus-yoga {words[1]}` is no declared command'
+                elif len(words) > 2 and not words[2].startswith(('-', '<')):
+                    verbs = set(cli.subcommands_of(words[1]))
+                    if verbs and words[2] not in verbs:
+                        why = f'`corpus-yoga {words[1]} {words[2]}` - its verbs are {sorted(verbs)}'
+            elif words[0] not in STANDARD:
+                why = f'`{words[0]}` is neither corpus-yoga nor a standard tool - a path is not a command a reader types'
+            run(f'remedy: {path.relative_to(REPO_ROOT)}:{node.lineno} names a command a reader types', why is None, why,
+                check='status.remedy_names_a_command')
+
     env = {**os.environ, 'YOGA_NO_SEND': '1'}
     for noun in sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command'])):
         proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), noun], capture_output=True, text=True,
                               env=env, cwd=REPO_ROOT, timeout=300)
         try:
-            loaded = yaml.safe_load(proc.stdout)
+            loaded = yaml.load(proc.stdout, Loader=Strict)
             why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
         except yaml.YAMLError as error:
             mark = getattr(error, 'problem_mark', None)

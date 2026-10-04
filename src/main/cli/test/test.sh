@@ -57,23 +57,8 @@ install_hook() {
   echo "  deliberate WIP is git commit --no-verify"
 }
 
-status() {
-  # the facts (#753): the checks and their expectation, the hook, through the one printer
-  local hook state remedy=''
-  if hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null)" && [[ -L "$hook" ]]; then
-    state="installed, a link to $(readlink "$hook")"
-  else
-    state="not installed"; remedy="corpus-yoga test install-hook"
-  fi
-  jq -n --arg n "$(grep -c '^def check_' "$REPO_DIR/src/test/dev/run.py")" --arg hook "$state" --arg remedy "$remedy" \
-    '{test: ({checks: {"src/test/dev/run.py": ($n + " check sections"), expectation: "rsc/test/run_expected_checks",
-                        report: "rsc/test/run.log", xrefs: "rsc/test/xref.csv"},
-              hook: $hook} + (if $remedy != "" then {remedy: $remedy} else {} end))}' \
-    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-}
-
 case "${1-}" in
-  '')           status ;;
+  '')           exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/test/status.py" ;;
   run)          shift; parse_argv test run "$@"; exec "$REPO_DIR/src/test/dev/run.sh" "$@" ;;
   xref)         shift; parse_argv test xref "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/test/dev/xref.py" "$@" ;;
   install-hook) shift; parse_argv test install-hook "$@"; install_hook "$@" ;;

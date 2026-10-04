@@ -11,6 +11,7 @@ venv exists.
 """
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -319,6 +320,19 @@ def uninstall_completion() -> int:
     return 0
 
 
+@dataclass
+class Completions:
+    script: str = facts.named('tmp/cache/completions/_yoga')    # written and current with the table, or not
+    remedy: facts.Command | None = None
+    zshrc: str = facts.named('~/.zshrc', default='')            # how many times the block that wires it stands there
+    zshrc_remedy: facts.Command | None = facts.named('~/.zshrc remedy', default=None)
+
+
+@dataclass
+class Status:
+    completions: Completions
+
+
 def completion_status() -> int:
     """The bare-noun default: show current state, write nothing. Whether the _yoga
     file is written (and current with the table) and whether ~/.zshrc is wired."""
@@ -329,17 +343,16 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    remedy = 'corpus-yoga completions sync, then a new shell' if blocks >= 1 else 'corpus-yoga completions install-latest, then a new shell'
-    out: dict = {COMPLETION_OUT.relative_to(REPO).as_posix(): 'not written' if not written else 'current' if current else 'STALE'}
-    if not written or not current:
-        out['remedy'] = remedy
+    sync = facts.Command('corpus-yoga completions sync' if blocks >= 1 else 'corpus-yoga completions install-latest', 'then a new shell')
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
-    out['~/.zshrc'] = 'not wired' if not blocks else 'wired' if blocks == 1 else f'wired {blocks} times'
-    if blocks != 1:
-        out['~/.zshrc remedy'] = ('corpus-yoga completions install-latest' if not blocks
-                                  else 'corpus-yoga completions install-latest removes every block and writes one')
-    facts.say({'completions': out})
+    wiring = (None if blocks == 1 else facts.Command('corpus-yoga completions install-latest',
+                                                     '' if not blocks else 'removes every block and writes one'))
+    facts.say(Status(Completions(
+        script='not written' if not written else 'current' if current else 'STALE',
+        remedy=None if written and current else sync,
+        zshrc='not wired' if not blocks else 'wired' if blocks == 1 else f'wired {blocks} times',
+        zshrc_remedy=wiring)))
     return 0
 
 

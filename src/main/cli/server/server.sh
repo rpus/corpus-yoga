@@ -29,25 +29,6 @@ PY=("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/model/serve_markdow
 # not every '# ' comment in the file
 help() { awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; }
 
-status() {
-  # the facts (#753): the daemon, the render assets, through the one printer
-  local pid daemon
-  pid="$(pgrep -f 'serve_markdown.py' 2>/dev/null | head -1 || true)"
-  if [[ -n "$pid" ]]; then daemon="running (pid $pid)"; else daemon="not running"; fi
-  # render-asset presence — a bare file tally against the manifest (the authoritative
-  # readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)
-  local manifest="$REPO_DIR/src/main/model/serve_assets.txt" dir="$REPO_DIR/ext/lib/serve_markdown"
-  local total=0 present=0 line f
-  while IFS= read -r line; do
-    line="${line%%#*}"; f="${line%%[[:space:]]*}"
-    [[ -z "$f" ]] && continue
-    total=$((total + 1)); [[ -f "$dir/$f" ]] && present=$((present + 1))
-  done < "$manifest"
-  jq -n --arg d "$daemon" --arg a "$present/$total present in ext/lib/serve_markdown" \
-    '{server: {"serve_markdown daemon": $d, "render assets": $a}}' \
-    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-}
-
 start() {
   local daemon=0 have_md=0 pyargs=()
   while [[ $# -gt 0 ]]; do
@@ -79,7 +60,7 @@ stop() {
 }
 
 case "${1:-}" in
-  "")             status ;;   # bare noun → status; there is no `status` verb (this IS it)
+  "")             exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/server/status.py" ;;   # bare noun → status; there is no `status` verb (this IS it)
   -h|--help|help) help ;;
   start)          shift; parse_argv server start "$@"; start "$@" ;;
   stop)           shift; parse_argv server stop "$@"; stop ;;

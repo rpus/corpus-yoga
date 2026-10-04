@@ -53,60 +53,48 @@ page_files() {  # <root>
 }
 
 status() {
-  # the facts (#753): the publish tree against its sources, the corpus page, the deploy
-  # mount, through the one printer
-  local pages='[]' f
-  if [[ ! -d "$OUT" ]]; then
-    # The pages are the rpus.co publish layer - deploy-side, optional; the
-    # quickstart teaches only the render. Prescribing sync here made every
-    # pipeline run nag a verb the front door never taught.
-    pages='"absent - the rpus.co publish layer, optional; corpus-yoga site sync assembles them"'
-  else
-    while IFS= read -r f; do
-      if [[ ! -f "$OUT/$f" ]]; then
-        pages="$(jq --arg f "$f" '. + [{($f): "absent from the tree"}]' <<< "$pages")"
-      elif ! cmp -s "$SRC/$f" "$OUT/$f"; then
-        pages="$(jq --arg f "$f" '. + [{($f): ("differs from rsc/site/" + $f)}]' <<< "$pages")"
-      fi
-    done < <(page_files "$SRC")
-    # the run syncs before this probe (#494): a stale tree here is rsc/site/ edited
-    # outside a run
-    [[ "$pages" == '[]' ]] && pages='"current with rsc/site/"'
-  fi
-  local deploy
-  if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
-    deploy="the mount ext/mnt/site is present; cp -R data/output/site/ ext/mnt/site/, then commit and push there"
-  elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
-    # a machine that once deployed and moved its clone — the reader most surprised by
-    # "no mount", and the one who least needs the convention; say what prerequisites says
-    deploy="ext/mnt/site is a dangling link to $(readlink "$REPO_DIR/ext/mnt/site") - repoint it at the site repo's clone, or remove it"
-  else
-    deploy="no ext/mnt/site mount on this machine - optional; corpus-yoga prerequisites shows the convention"
-  fi
-  # The corpus page is its own layer (render's, the quickstart's subject):
-  # stated ALWAYS — an absent tree must not silence the one site verb the
-  # front door teaches.
-  jq -n --argjson pages "$pages" --argjson page "$(render_currency)" --arg deploy "$deploy" \
-    '{site: {"publish tree": "data/output/site/ (rpus.co)", sources: "rsc/site/", pages: $pages,
-             "index.html": $page, deploy: $deploy}}' \
-    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-}
-
-# The page's standing (#409, #494): the run renders it before this probe runs, so
-# "behind" on the free axis is unreachable by construction; the page declares
-# the inputs it was rendered from (its title: the corpus it folds; its export
-# tooltip: the captures' coverage), so a lag in the paid layer reads as what it
-# is, stated - indexing's status carries the paid prescription. No clock keys.
-render_currency() {
-  # the corpus page as a fact (JSON): its title, or the FAIL atom with its remedy
-  local render="$OUT/index.html"
-  if [[ ! -f "$render" ]]; then
-    jq -n '{FAIL: "absent - the corpus page is unbuilt", remedy: "corpus-yoga pipeline run renders it, or corpus-yoga site render"}'
-    return 0
-  fi
-  local declared
-  declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$render" | head -1)"
-  jq -n --arg t "${declared:-title absent}" '{"the corpus page": $t, producer: "corpus-yoga site render"}'
+  # the rows (#759): the publish tree against its sources, the corpus page, the deploy
+  # mount - which status.py types and says as one shape
+  {
+    if [[ ! -d "$OUT" ]]; then
+      # The pages are the rpus.co publish layer - deploy-side, optional; the
+      # quickstart teaches only the render. Prescribing sync here made every
+      # pipeline run nag a verb the front door never taught.
+      printf 'pages\t%s\n' "absent - the rpus.co publish layer, optional; corpus-yoga site sync assembles them"
+    else
+      local f
+      # the run syncs before this probe (#494): a stale tree here is rsc/site/ edited
+      # outside a run
+      while IFS= read -r f; do
+        if [[ ! -f "$OUT/$f" ]]; then
+          printf 'page\t%s\t%s\n' "$f" "absent from the tree"
+        elif ! cmp -s "$SRC/$f" "$OUT/$f"; then
+          printf 'page\t%s\t%s\n' "$f" "differs from rsc/site/$f"
+        fi
+      done < <(page_files "$SRC")
+    fi
+    # The corpus page is its own layer (render's, the quickstart's subject):
+    # stated ALWAYS — an absent tree must not silence the one site verb the
+    # front door teaches. The page declares the inputs it was rendered from (its
+    # title: the corpus it folds), so a lag in the paid layer reads as what it is,
+    # stated - indexing's status carries the paid prescription. No clock keys (#409, #494).
+    local render="$OUT/index.html" declared
+    if [[ ! -f "$render" ]]; then
+      printf 'index\tABSENT\n'
+    else
+      declared="$(sed -n 's/.*<title>\(.*\)<\/title>.*/\1/p' "$render" | head -1)"
+      printf 'index\t%s\n' "${declared:-title absent}"
+    fi
+    if [[ -d "$REPO_DIR/ext/mnt/site/." ]]; then
+      printf 'deploy\t%s\n' "the mount ext/mnt/site is present; cp -R data/output/site/ ext/mnt/site/, then commit and push there"
+    elif [[ -L "$REPO_DIR/ext/mnt/site" ]]; then
+      # a machine that once deployed and moved its clone — the reader most surprised by
+      # "no mount", and the one who least needs the convention; say what prerequisites says
+      printf 'deploy\t%s\n' "ext/mnt/site is a dangling link to $(readlink "$REPO_DIR/ext/mnt/site") - repoint it at the site repo's clone, or remove it"
+    else
+      printf 'deploy\t%s\n' "no ext/mnt/site mount on this machine - optional; corpus-yoga prerequisites shows the convention"
+    fi
+  } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/site/status.py"
 }
 
 render() {
