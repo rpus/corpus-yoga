@@ -539,21 +539,40 @@ REMEDY = {
 }
 
 
-def survey(selected: list[Unit] | None = None) -> list[tuple[Unit, Relation, str, Judgement, str]]:
-    """(unit, relation, the relation's words, judgement, the judgement's words), for the
-    units given or for everything staged. Every unit gets its verdict: an identical capture
-    in a form the family refuses is refused like any other."""
+@dataclass(frozen=True)
+class Judged:
+    """A staged unit as the survey reads it: where it stands to the held one, and its verdict."""
+    unit: Unit
+    relation: Relation
+    detail: str                   # the measure's words for the relation
+    judgement: Judgement
+    words: str                    # the judgement's words
+
+    @property
+    def state(self) -> str:
+        """The one of STATES the unit is in."""
+        return state(self.unit, self.relation, self.judgement)
+
+    @property
+    def promotable(self) -> bool:
+        return promotable(self.relation, self.judgement) and not self.unit.missing
+
+
+def survey(selected: list[Unit] | None = None) -> list[Judged]:
+    """Each unit given, or everything staged, with its relation and its verdict. Every unit
+    gets its verdict: an identical capture in a form the family refuses is refused like any
+    other."""
     rows = []
     for unit in (units(STAGE) if selected is None else selected):
         rel, detail = relation(unit)
         if unit.missing:
             whole = bool(unit.members and unit.record)   # both stand, and the record says what is owed
-            rows.append((unit, Relation.ABSENT if not unit.members else rel,
-                         f'no {", ".join(unit.missing)} staged', Judgement.UNJUDGED,
-                         INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
+            rows.append(Judged(unit, Relation.ABSENT if not unit.members else rel,
+                               f'no {", ".join(unit.missing)} staged', Judgement.UNJUDGED,
+                               INCOMPLETE.format(n=len(unit.missing)) if whole else UNPAIRED))
             continue
         ok, words = verdict(unit) if rel not in REFUSING else (Judgement.NONE, '')
-        rows.append((unit, rel, detail, ok, words))
+        rows.append(Judged(unit, rel, detail, ok, words))
     return rows
 
 
@@ -596,10 +615,10 @@ def state(unit: Unit, rel: Relation, judgement: Judgement) -> str:
     return 'held already' if redundant(unit) else 'promotable'
 
 
-def tally(rows: list) -> dict[str, int]:
+def tally(rows: list[Judged]) -> dict[str, int]:
     counts: dict[str, int] = {s: 0 for s in STATES}
-    for unit, rel, _detail, judgement, _words in rows:
-        counts[state(unit, rel, judgement)] += 1
+    for row in rows:
+        counts[row.state] += 1
     return counts
 
 
@@ -760,10 +779,18 @@ def _unit_line(unit: Unit, rel: Relation, detail: str) -> str:
     return f'{unit.address}: {RELATION_NAME[rel]} ({detail})'
 
 
-def _unit_fact(unit: Unit, rel: Relation, detail: str) -> dict:
-    """The unit as one fact: its address, with its relation to the held one and the
-    measure's detail of it."""
-    return {unit.address.as_posix(): f'{RELATION_NAME[rel]} ({detail})'}
+@dataclass(frozen=True)
+class StagedUnit:
+    """A staged unit as one fact: its address, with its relation to the held one."""
+    address: Path
+    relation: str                 # the relation's name, with the measure's detail of it
+
+    def facts(self) -> dict:
+        return {self.address.as_posix(): self.relation}
+
+
+def _unit_fact(row: Judged) -> StagedUnit:
+    return StagedUnit(row.unit.address, f'{RELATION_NAME[row.relation]} ({row.detail})')
 
 
 def _heading(unit: Unit, rel: Relation, ok: Judgement, words: str) -> str:
@@ -792,19 +819,19 @@ def promote(noun: str, selected: list[Unit], stamp: str | None = None) -> int:
     groups: dict[str, list[str]] = {}
     written = unchanged = 0
     left: dict[str, int] = {s: 0 for s in STATES[2:]}
-    for unit, rel, detail, ok, words in rows:
-        line = _unit_line(unit, rel, detail)
-        if promotable(rel, ok) and not unit.missing:
-            n = _copy(unit)
+    for row in rows:
+        line = _unit_line(row.unit, row.relation, row.detail)
+        if row.promotable:
+            n = _copy(row.unit)
             if n:
-                groups.setdefault(f'promoted - {words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
+                groups.setdefault(f'promoted - {row.words}', []).append(f'{line} - {n} file' + ('' if n == 1 else 's') + ' written')
                 written += 1
             else:
-                groups.setdefault(f'held already, byte-equal - {words}', []).append(line)
+                groups.setdefault(f'held already, byte-equal - {row.words}', []).append(line)
                 unchanged += 1
         else:
-            groups.setdefault(_heading(unit, rel, ok, words), []).append(line)
-            left[state(unit, rel, ok)] += 1
+            groups.setdefault(_heading(row.unit, row.relation, row.judgement, row.words), []).append(line)
+            left[row.state] += 1
     say(groups)
     # the noun's read-only status is the certified state after the act: evidence, beneath
     # the lines and above the verdict, informing and never gating
@@ -850,39 +877,87 @@ def orphans() -> list[Path]:
     return [e for e in sorted(stage.iterdir()) if e.name not in ('input', 'rehearsal')] if stage.is_dir() else []
 
 
-def stage_facts() -> dict:
-    """Bare corpus-yoga stage as facts (#741): the input's size, each orphan with the janitor
-    as its remedy, each rehearsal with its record, the units' counts against the newest
-    rehearsal by state, then by what each count is of, and the verdict last."""
+@dataclass
+class Orphan:
+    path: Path
+    size: str
+    why: str
+    remedy: facts.Command
+
+
+@dataclass
+class Rehearsal:
+    stamp: str
+    size: str
+    record: str                   # the rehearsal's own header: what it judged, at which commit
+
+
+@dataclass
+class StageTier:
+    input: str                    # the staged input's size, or that it is absent
+    orphans: list[Orphan]
+    rehearsals: list[Rehearsal] | str
+
+
+@dataclass
+class Counts:
+    """How many staged units, and how many in each of STATES."""
+    staged: int
+    promotable: int
+    held_already: int
+    refused: int
+    incomplete: int
+    unjudged: int
+
+    @classmethod
+    def of(cls, rows: list[Judged]) -> 'Counts':
+        counts = tally(rows)
+        return cls(len(rows), *(counts[s] for s in STATES))
+
+
+@dataclass
+class StagedUnits(Counts):
+    judged_by: str | None         # the rehearsal the verdicts are read from
+    relations: str                # where each unit's relation is read
+    kinds: dict[str, Counts]      # the counts by what is counted: pipeline, provider, the unit's declared name (#736)
+
+
+@dataclass
+class StageStatus:
+    """Bare corpus-yoga stage: the tier's state."""
+    tmp_stage: StageTier | str = facts.named('tmp/stage')
+    units: StagedUnits | str | None = None
+    stage: str | None = None      # the verdict
+
+
+def stage_facts() -> StageStatus:
+    """Bare corpus-yoga stage as facts (#741, #759): the input's size, each orphan with the
+    janitor as its remedy, each rehearsal with its record, the units' counts against the
+    newest rehearsal by state, then by what each count is of, and the verdict last."""
     stage = tier.TMP_STAGE
     if not stage.is_dir():
-        return {'tmp/stage': 'absent - nothing captured since the last clean, no rehearsal made'}
-    facts: dict = {'tmp/stage': {'input': human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent'}}
-    facts['tmp/stage']['orphans'] = [
-        {'path': e.relative_to(REPO).as_posix(), 'size': human(size_of(e)),
-         'remedy': 'nothing reads it; corpus-yoga stage clean --apply removes it'} for e in orphans()]
+        return StageStatus('absent - nothing captured since the last clean, no rehearsal made')
     stamps = rehearsals()
-    facts['tmp/stage']['rehearsals'] = ([{'stamp': s, 'size': human(size_of(tier.rehearsal(s))), 'record': rehearsal_header(s)}
-                                         for s in stamps] if stamps else 'none - corpus-yoga pipeline rehearse makes one')
+    out = StageStatus(StageTier(
+        input=human(size_of(tier.TMP_STAGE_INPUT)) if tier.TMP_STAGE_INPUT.exists() else 'absent',
+        orphans=[Orphan(e.relative_to(REPO), human(size_of(e)), 'nothing reads it',
+                        facts.Command('corpus-yoga stage clean --apply', 'removes it')) for e in orphans()],
+        rehearsals=([Rehearsal(s, human(size_of(tier.rehearsal(s))), rehearsal_header(s)) for s in stamps]
+                    if stamps else 'none - corpus-yoga pipeline rehearse makes one')))
     rows = survey()
     if not rows:
-        facts['units'] = 'none staged'
-        facts['stage'] = 'nothing staged'
-        return facts
-    counts = tally(rows)
-    units: dict = {'staged': len(rows), **counts}
-    if stamps:
-        units['judged by'] = f'rehearsal {stamps[-1]}'
-    units['relations'] = 'corpus-yoga pipeline, or each capturing noun bare'
-    # the counts by what is counted - pipeline, provider and the unit's declared name (#736)
-    kinds: dict[str, list] = {}
+        out.units, out.stage = 'none staged', 'nothing staged'
+        return out
+    kinds: dict[str, list[Judged]] = {}
     for row in rows:
-        kinds.setdefault(counted_as(row[0]), []).append(row)
-    for kind, of_kind in sorted(kinds.items()):
-        units[kind] = {'staged': len(of_kind), **tally(of_kind)}
-    facts['units'] = units
-    facts['stage'] = f'{len(rows)} unit(s) staged - {counted(counts)}' + (f'; judged by rehearsal {stamps[-1]}' if stamps else '')
-    return facts
+        kinds.setdefault(counted_as(row.unit), []).append(row)
+    counts = tally(rows)
+    out.units = StagedUnits(len(rows), *(counts[s] for s in STATES),
+                            judged_by=f'rehearsal {stamps[-1]}' if stamps else None,
+                            relations='corpus-yoga pipeline, or each capturing noun bare',
+                            kinds={kind: Counts.of(of_kind) for kind, of_kind in sorted(kinds.items())})
+    out.stage = f'{len(rows)} unit(s) staged - {counted(counts)}' + (f'; judged by rehearsal {stamps[-1]}' if stamps else '')
+    return out
 
 
 def stage_status() -> int:
@@ -948,35 +1023,71 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozense
     return sorted(out, key=lambda duplicate: duplicate.unit.address)
 
 
-def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[dict, int, int]:
-    """Bare corpus-yoga store, its first two readings as facts (#738, #741): the units
+@dataclass
+class Held:
+    size: str
+    files: int
+    units: int
+
+
+@dataclass
+class Stray:
+    path: Path
+    size: str
+    why: str
+
+
+@dataclass
+class HeldTwice:
+    """A duplicate as the status states it: the unit under its kind, the unit that holds it
+    under how it does."""
+    duplicate: Duplicate
+    size: str
+    holder_size: str
+
+    def facts(self) -> dict:
+        d = self.duplicate
+        return {d.unit.kind: d.unit.address, 'size': self.size,
+                ('identical to' if d.how == 'identical' else 'contained by'): d.holder.address,
+                'holder size': self.holder_size, 'by': d.by}
+
+
+@dataclass
+class StoreStatus:
+    """Bare corpus-yoga store: shared storage in the stage's terms."""
+    data_input: Held | str = facts.named('data/input')
+    held: dict[str, int] | None = None        # the units by what each count is of
+    stray: list[Stray] | None = None          # what no pipeline selects and no capturing noun writes
+    duplicates: list[HeldTwice] | None = None
+    ahead: list | str | None = None           # what this room's live stores hold beyond it - the store noun's reading
+    store: str | None = None                  # the verdict
+
+
+def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[StoreStatus, int, int]:
+    """Bare corpus-yoga store, its first two readings as facts (#738, #741, #759): the units
     shared storage holds, by what each count is of, with anything no pipeline selects and
     no capturing noun writes; then every duplicate with the unit that holds it. Writes
     nothing. Returns (the facts, units held, duplicates)."""
     if not STORE.is_dir():
-        return {'data/input': 'absent - this workspace holds no store'}, 0, 0
+        return StoreStatus('absent - this workspace holds no store'), 0, 0
     held = units(STORE)
-    out: dict = {'data/input': {'size': human(size_of(STORE)), 'files': sum(len(u.files) for u in held), 'units': len(held)}}
     kinds: dict[str, int] = {}
     for unit in held:
         kinds[counted_as(unit)] = kinds.get(counted_as(unit), 0) + 1
-    out['held'] = dict(sorted(kinds.items()))
     stray = []
     for unit in held:
         if unit.pipeline is None and noun_of(unit) is None:
-            stray.append({'path': unit.address.as_posix(), 'size': human(size_of(STORE / unit.address)),
-                          'why': 'no pipeline selects it and no capturing noun writes there'})
+            stray.append(Stray(unit.address, human(size_of(STORE / unit.address)),
+                               'no pipeline selects it and no capturing noun writes there'))
         elif not unit.members and unit.record:
-            stray.append({'path': unit.record[0].as_posix(), 'size': human(size_of(STORE / unit.record[0])),
-                          'why': 'the record of a unit the store does not hold'})
-    out['stray'] = stray
+            stray.append(Stray(unit.record[0], human(size_of(STORE / unit.record[0])),
+                               'the record of a unit the store does not hold'))
     twice = held_twice(STORE, live, newest)
-    out['duplicates'] = [
-        {d.unit.kind: d.unit.address.as_posix(), 'size': human(size_of(STORE / d.unit.path)),
-         ('identical to' if d.how == 'identical' else 'contained by'): d.holder.address.as_posix(),
-         'holder size': human(size_of(STORE / d.holder.path)), 'by': d.by}
-        for d in twice]
-    return out, len(held), len(twice)
+    return StoreStatus(
+        Held(human(size_of(STORE)), sum(len(u.files) for u in held), len(held)),
+        held=dict(sorted(kinds.items())), stray=stray,
+        duplicates=[HeldTwice(d, human(size_of(STORE / d.unit.path)), human(size_of(STORE / d.holder.path))) for d in twice],
+    ), len(held), len(twice)
 
 
 def _declares(noun: str, verb: str, flag: str) -> bool:
@@ -990,37 +1101,55 @@ def _whole_extent(noun: str) -> str:
     return ' --all' if _declares(noun, 'promote', '--all') else ''
 
 
-def pairs_facts(noun: str) -> dict:
-    """The noun's units named by a star, as facts (#753): the held ones, a member each and
-    a record where shared storage holds one from before the stage; the staged ones, each
+@dataclass
+class Paired:
+    """An export named by a star, as the status states it: held or staged, with what stands
+    of it and what would complete it."""
+    name: str
+    standing: str
+    note: str | None = None
+    remedy: facts.Command | None = None
+
+    def facts(self) -> dict:
+        return {self.name: self.standing, 'note': self.note, 'remedy': self.remedy}
+
+
+@dataclass
+class Pairs:
+    held: list[Paired]
+    staged: list[Paired]
+
+
+def pairs_facts(noun: str) -> Pairs:
+    """The noun's units named by a star, as facts (#753, #759): the held ones, a member each
+    and a record where shared storage holds one from before the stage; the staged ones, each
     paired or unpaired, naming what is absent. Writes nothing."""
     roots = roots_of(noun)
-    held: list[dict] = []
-    staged: list[dict] = []
+    out = Pairs([], [])
     for store in stores():
         if '<star>' not in store.companion or not any(store.input.is_relative_to(r) for r in roots):
             continue
         for unit in select(STORE, store):
             for path in unit.members:
-                held.append({unit.address.name: f'{path.name}/'})
+                out.held.append(Paired(unit.address.name, f'{path.name}/'))
             for path in unit.record:
-                held.append({unit.address.name: path.name, 'note': 'a record, which nothing reads: a record is the stage\'s'})
+                out.held.append(Paired(unit.address.name, path.name, note='a record, which nothing reads: a record is the stage\'s'))
         for unit in select(STAGE, store):
             present = ' and '.join(p.name + ('/' if (STAGE / p).is_dir() else '') for p in unit.members + unit.record)
             if not unit.missing:
-                staged.append({unit.address.name: f'complete - {present}'})
+                out.staged.append(Paired(unit.address.name, f'complete - {present}'))
                 continue
             if unit.members and unit.record:
-                staged.append({unit.address.name: f'incomplete - {present}, missing {", ".join(unit.missing)}',
-                               'remedy': 'corpus-yoga stage clean --apply removes it'})
+                out.staged.append(Paired(unit.address.name, f'incomplete - {present}, missing {", ".join(unit.missing)}',
+                                         remedy=facts.Command('corpus-yoga stage clean --apply', 'removes it')))
                 continue
-            item = {unit.address.name: f'unpaired - {present} with no {", ".join(unit.missing)} beside it'}
+            item = Paired(unit.address.name, f'unpaired - {present} with no {", ".join(unit.missing)} beside it')
             if not unit.members and _declares(noun, 'capture', '--manifest'):
                 where = (STAGE / unit.record[0]).relative_to(REPO)
-                item['remedy'] = (f'corpus-yoga {noun} capture --manifest {shlex.quote(str(where))} '
-                                  'fetches its payload, where its URLs are unspent')
-            staged.append(item)
-    return {'held': held, 'staged': staged}
+                item.remedy = facts.Command(f'corpus-yoga {noun} capture --manifest {shlex.quote(str(where))}',
+                                            'fetches its payload, where its URLs are unspent')
+            out.staged.append(item)
+    return out
 
 
 def pairs(noun: str) -> int:
@@ -1028,27 +1157,34 @@ def pairs(noun: str) -> int:
     return 0
 
 
-def report_facts(noun: str | None) -> dict:
+@dataclass
+class StageReport:
+    """The stage as a noun's bare status shows it: the units under the verdict they share,
+    and the verdict."""
+    staged: dict[str, list[StagedUnit]] | None
+    stage: str
+
+
+def report_facts(noun: str | None) -> StageReport:
     """The stage as a noun's bare status shows it (its capture's units), or as bare
-    `corpus-yoga pipeline` shows it (every unit), as facts (#753): the units grouped under
-    the verdict they share - each an address with its relation - and the verdict last.
+    `corpus-yoga pipeline` shows it (every unit), as facts (#753, #759): the units grouped
+    under the verdict they share - each an address with its relation - and the verdict last.
     Writes nothing."""
     rows = survey([u for u in units(STAGE) if noun is None or noun_of(u) == noun])
     if not rows:
-        return {'stage': f'nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input'}
-    groups: dict[str, list[dict]] = {}
+        return StageReport(None, f'nothing {noun + " capture" if noun else "captured and"} staged in tmp/stage/input')
+    groups: dict[str, list[StagedUnit]] = {}
     by_noun: dict[str, int] = {}
-    for unit, rel, detail, ok, words in rows:
-        item = _unit_fact(unit, rel, detail)
-        is_in = state(unit, rel, ok)
-        if is_in == 'held already':
-            groups.setdefault(f'held already, byte-equal - {words}', []).append(item)
-        elif is_in == 'promotable':
-            n = noun_of(unit) or '?'
+    for row in rows:
+        if row.state == 'held already':
+            heading = f'held already, byte-equal - {row.words}'
+        elif row.state == 'promotable':
+            n = noun_of(row.unit) or '?'
             by_noun[n] = by_noun.get(n, 0) + 1
-            groups.setdefault(f'promotable - {words}', []).append(item)
+            heading = f'promotable - {row.words}'
         else:
-            groups.setdefault(_heading(unit, rel, ok, words), []).append(item)
+            heading = _heading(row.unit, row.relation, row.judgement, row.words)
+        groups.setdefault(heading, []).append(_unit_fact(row))
     counts = tally(rows)
     tail = ''.join(f'; corpus-yoga {n} promote{_whole_extent(n)} promotes {k}' for n, k in sorted(by_noun.items()))
     if counts['unjudged']:
@@ -1056,7 +1192,7 @@ def report_facts(noun: str | None) -> dict:
     removable = counts['held already'] + counts['incomplete']
     if removable:
         tail += f'; corpus-yoga stage clean removes {removable} held already or incomplete'
-    return {'staged': groups, 'stage': f'{len(rows)} unit(s) - {counted(counts)}{tail}'}
+    return StageReport(groups, f'{len(rows)} unit(s) - {counted(counts)}{tail}')
 
 
 def report(noun: str | None) -> int:

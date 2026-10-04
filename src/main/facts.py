@@ -10,10 +10,20 @@ mappings, lists, strings, numbers, booleans and None - and quotes a string where
 would otherwise read it as something else. Run as a script, it reads the facts as JSON
 on stdin and prints them - the same printer for a noun written in shell, which builds
 its facts with jq (#753).
+
+A status's facts are a named shape (#759): a dataclass whose fields are the facts it
+holds, so that a reader takes them as fields and the type check holds the keys. A field
+prints under its name's words, or under the key `named` gives it; a field that is None is
+not printed; a shape whose keys are its data - an address, a session's id - says so in a
+`facts` method. Two facts every status shares are types of their own: a remedy, the
+command a reader types (Command) or the reader's own act in words (Act), and a finding
+(Finding), the FAIL the usr gate's table counts.
 """
 import json
 import re
 import sys
+from dataclasses import dataclass, field, fields, is_dataclass
+from pathlib import PurePath
 
 SELF = 'src/main/facts.py'
 
@@ -75,8 +85,61 @@ def lines(facts, depth: int = 0) -> list[str]:
     return [pad + scalar(facts)]
 
 
-def say(facts) -> None:
-    print('\n'.join(lines(facts)))
+def named(label: str, **kwargs):
+    """A field that prints under a key its name cannot spell - a path, a name with a dot."""
+    return field(metadata={'key': label}, **kwargs)
+
+
+@dataclass(frozen=True)
+class Command:
+    """A remedy the reader types: a corpus-yoga command, or a standard tool's."""
+    line: str                     # the command as typed
+    does: str = ''                # what it does, where the line does not say
+
+    def said(self) -> str:
+        return f'{self.line} - {self.does}' if self.does else self.line
+
+
+@dataclass(frozen=True)
+class Act:
+    """A remedy that is the reader's own act, in words: nothing types it."""
+    words: str
+
+    def said(self) -> str:
+        return self.words
+
+
+@dataclass(frozen=True)
+class Finding:
+    """What a status found wrong: the FAIL the usr gate's stage table counts, and its remedy."""
+    FAIL: str
+    remedy: Command | Act | None = None
+
+
+def plain(shape):
+    """The shape as the mappings, lists and scalars the printer prints: a dataclass its
+    fields in order under their keys, None omitted; one that says itself, its words; one
+    with a `facts` method, what that returns."""
+    if is_dataclass(shape) and not isinstance(shape, type):
+        said = getattr(shape, 'said', None)
+        if callable(said):
+            return said()
+        own = getattr(shape, 'facts', None)
+        if callable(own):
+            return plain(own())
+        return {f.metadata.get('key', f.name.replace('_', ' ')): plain(getattr(shape, f.name))
+                for f in fields(shape) if getattr(shape, f.name) is not None}
+    if isinstance(shape, dict):
+        return {key: plain(value) for key, value in shape.items() if value is not None}
+    if isinstance(shape, (list, tuple)):
+        return [plain(item) for item in shape]
+    if isinstance(shape, PurePath):
+        return shape.as_posix()
+    return shape
+
+
+def say(shape) -> None:
+    print('\n'.join(lines(plain(shape))))
 
 
 if __name__ == '__main__':
