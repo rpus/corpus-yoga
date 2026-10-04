@@ -2058,7 +2058,7 @@ def check_walkthrough(run) -> None:
     machine report, whose help stands beside its status and says what its declaration
     says; n reaches the pipeline noun, m reads its status and descends, b returns, and x
     on a key that is a command runs it and re-reads. Each step is a document the printer's
-    reader loads, and says the head alone."""
+    reader loads, and says the head alone; the mark before a step is the key that made it."""
     import subprocess
     sys.path.insert(0, str(SRC / 'main'))
     import importlib
@@ -2081,7 +2081,7 @@ def check_walkthrough(run) -> None:
     proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough'], input='\n'.join(keys) + '\n', capture_output=True, text=True,
                           env=env, cwd=REPO_ROOT, timeout=300)
     steps = []
-    for document in proc.stdout.split('\n---\n'):
+    for document in re.split(r'\n-.-\n', proc.stdout):       # a mark is the key that made the step after it
         try:
             steps.append(facts.load(document))
         except ValueError:
@@ -2103,6 +2103,8 @@ def check_walkthrough(run) -> None:
         ('b goes back over the last move', step(arrive + 1).get('key') == beneath[beneath.index(command) - 1]),
         ('x runs the command and says so', any(isinstance(s, dict) and s.get('ran') == command and s.get('exit') == 0 for s in steps)),
         ('it says where it left', step(-1).get('walkthrough') == f'left at pipeline / status / pipelines / {command}'),
+        ('the marks between its steps are the keys pressed, in order',
+         [mark for mark in re.findall(r'^-(.)-$', proc.stdout, re.M) if mark != '-'] == keys),
         ('a step says the size of what m would give, and a value only once m asks', all(
             isinstance(s.get('holds', ''), str) for s in steps if isinstance(s, dict) and 'key' in s)
             and sum(1 for s in steps if isinstance(s, dict) and 'value' in s) == 1),

@@ -19,7 +19,8 @@ and the size and shape of what m would give - so many keys, so many bare values,
 of so many words - never the thing itself, so the reader chooses to descend knowing what
 follows and no step scrolls. A key is read from the terminal as it is pressed, or as a
 line on stdin, so a model or a test walks as a reader does. Each step is said as facts,
-one YAML document per step. The
+one YAML document per step, and the mark between two steps is the key that made the
+second - `-n-`, `-m-`, `-b-`, `-x-`, `-q-` - so the transcript is its own history. The
 walk needs nothing outside the standard library: before the venv exists it has one noun,
 the machine report, whose remedies are the first steps.
 """
@@ -306,10 +307,11 @@ def main() -> int:
     try:
         facts.say(walk.step(keys=True))
         sys.stdout.flush()
+        left = 'q'                                        # the key the walk ended on; the end of stdin leaves as q does
         for key in keys:
             if key == 'q':
                 break
-            print('---')
+            print(f'-{key}-')
             if key == 'x':
                 keys.restore()                            # the command has the terminal as the reader's shell gave it
                 try:
@@ -319,14 +321,14 @@ def main() -> int:
                 if isinstance(ran, str):
                     facts.say(walk.step(ran))
                 else:
-                    print('---')                          # what the command printed stands between the two marks, its own
+                    print('---')                          # what the command printed stands between the key's mark and this one, its own
                     facts.say(ran)
                     print('---')
                     facts.say(walk.step())
             else:
                 facts.say(walk.step(walk.move(key)))
             sys.stdout.flush()
-        print('---')
+        print(f'-{left}-')
         facts.say(Left('left at ' + ' / '.join(walk.path)))
     finally:
         keys.restore()
