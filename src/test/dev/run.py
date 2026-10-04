@@ -2074,6 +2074,8 @@ def check_walkthrough(run) -> None:
         ('b goes back over the last move', step(arrive + 1).get('key') == beneath[beneath.index(command) - 1]),
         ('x runs the command and says so', any(isinstance(s, dict) and s.get('ran') == command and s.get('exit') == 0 for s in steps)),
         ('it says where it left', step(-1).get('walkthrough') == f'left at pipeline / pipelines / {command}'),
+        ('a step says the size of what m would give, never the thing', all(
+            isinstance(s.get('holds', ''), str) and 'value' not in s for s in steps if isinstance(s, dict) and 'key' in s)),
     ]
     failed = [what for what, held in wants if not held]
     run('walkthrough: a reader walks the room and runs a command it reaches', not failed,

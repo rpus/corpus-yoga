@@ -7,13 +7,17 @@ descends into it - the lines are the data (#753), so the walk has no second inte
 any noun. Four keys move it, one row of the keyboard, and a fifth leaves:
 
   n  next   the next sibling at this depth - pressed from the top, the outline
-  m  more   into the node the walk stands on: its first child
+  m  more   into the node the walk stands on: its first child, or its value where it holds one
   b  back   over the last move
   x  run    the command the walk stands on, in the foreground; the state is read again after
   q  quit
 
-A key is read from the terminal as it is pressed, or as a line on stdin, so a model or a
-test walks as a reader does. Each step is said as facts, one YAML document per step. The
+A key is the head of what it holds, and a step says the head alone: the key, its place,
+and the size and shape of what m would give - so many keys, so many bare values, a value
+of so many words - never the thing itself, so the reader chooses to descend knowing what
+follows and no step scrolls. A key is read from the terminal as it is pressed, or as a
+line on stdin, so a model or a test walks as a reader does. Each step is said as facts,
+one YAML document per step. The
 walk needs nothing outside the standard library: before the venv exists it has one noun,
 the machine report, whose remedies are the first steps.
 """
@@ -88,8 +92,8 @@ class Step:
     at: str                                           # the path to the node's parent
     key: str
     place: str                                        # its position among its siblings
-    value: object = None                              # what it holds, where that is one value
-    holds: list[str] | str | None = None              # its children's keys, where it holds several things: the outline one level in
+    holds: str | None = None                          # the size and shape of what m would give, never the thing
+    value: object = None                              # the value, once m has asked for it
     runs: str | None = None                           # what x would run, where the key is a command
     note: str | None = None                           # why the last key moved nothing
     keys: str | None = None
@@ -111,7 +115,8 @@ class Walk:
     """The tree, and the walk's place in it: the path of keys from the top."""
     tree: dict = field(default_factory=dict)
     path: list[str] = field(default_factory=list)
-    history: list[list[str]] = field(default_factory=list)
+    history: list[tuple[list[str], bool]] = field(default_factory=list)
+    shown: bool = False                               # whether m has asked for the value the walk stands on
 
     def __post_init__(self):
         self.tree = {noun: UNREAD for noun in nouns()}
@@ -143,6 +148,12 @@ class Walk:
             return list(here)
         return [str(item) for item in here] if isinstance(here, list) else None
 
+    def leaf(self) -> bool:
+        """Whether the walk stands on a key that holds one value."""
+        if len(self.path) == 1 and self.tree[self.path[0]] is UNREAD:
+            return False
+        return not isinstance(self.node(self.path), (dict, list)) and isinstance(self.node(self.path[:-1]), dict)
+
     def move(self, key: str) -> str | None:
         """Take one key; the note where it moved nothing."""
         if key == 'n':
@@ -150,18 +161,23 @@ class Walk:
             place = around.index(self.path[-1])
             if place + 1 == len(around):
                 return f'the last of {len(around)} - b goes back'
-            self.history.append(list(self.path))
-            self.path[-1] = around[place + 1]
+            self.history.append((list(self.path), self.shown))
+            self.path[-1], self.shown = around[place + 1], False
         elif key == 'm':
             beneath = self.children()
-            if not beneath:
-                return 'nothing beneath - n goes on, b goes back'
-            self.history.append(list(self.path))
-            self.path.append(beneath[0])
+            if beneath:
+                self.history.append((list(self.path), self.shown))
+                self.path.append(beneath[0])
+                self.shown = False
+            elif self.leaf() and not self.shown:
+                self.history.append((list(self.path), self.shown))
+                self.shown = True
+            else:
+                return 'nothing more - n goes on, b goes back'
         elif key == 'b':
             if not self.history:
                 return 'the walk began here'
-            self.path = self.history.pop()
+            self.path, self.shown = self.history.pop()
         else:
             return f'{key!r} is no key - {KEYS}'
         return None
@@ -171,12 +187,20 @@ class Walk:
         key = self.path[-1]
         unread = len(self.path) == 1 and self.tree[key] is UNREAD
         here = None if unread else self.node(self.path)
-        parent = self.node(self.path[:-1])
-        beneath = None if unread else ([str(item) for item in here] if isinstance(here, list) else list(here) if isinstance(here, dict) else None)
+        if unread:
+            holds = 'its status, unread - m reads it'
+        elif isinstance(here, dict):
+            holds = f'{len(here)} key' + ('' if len(here) == 1 else 's')
+        elif isinstance(here, list):
+            holds = f'{len(here)} bare value' + ('' if len(here) == 1 else 's')
+        elif self.leaf():
+            words = len(str(here).split())
+            holds = f'a value, {words} word' + ('' if words == 1 else 's')
+        else:
+            holds = None                              # a bare value: the key is all of it
         command = command_of(key)
         return Step(' / '.join(self.path[:-1]) or 'the room', key, f'{around.index(key) + 1} of {len(around)}',
-                    value=None if unread or beneath is not None or isinstance(parent, list) else here,
-                    holds='its status - m reads it' if unread else beneath,
+                    holds=holds, value=here if self.shown else None,
                     runs='x - ' + ' '.join(key.split()) if command else None,
                     note=note, keys=KEYS if keys else None)
 
@@ -190,6 +214,7 @@ class Walk:
         done = subprocess.run(command, cwd=REPO)
         self.tree = {noun: UNREAD for noun in nouns()}
         self.history.clear()
+        self.shown = False
         while len(self.path) > 1 and not self._stands():
             self.path.pop()                           # the state moved: stand on what is left of the path
         return Ran(' '.join(self.path[-1].split()) if command_of(self.path[-1]) else ' '.join(command[1:]), done.returncode)
