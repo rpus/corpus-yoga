@@ -1180,10 +1180,26 @@ def report_facts(noun: str | None) -> StageReport:
     return StageReport(groups, f'{len(rows)} unit(s) - {counted(counts)}{tail}')
 
 
+def held_rows() -> list[tuple[str, str, str, int, str, str]]:
+    """What each pipeline holds, a row per store and kind it declares: pipeline, provider,
+    kind, the units held, the store's address, and the capturing noun that writes there.
+    The store's own reading, for a reader in another language (#771)."""
+    found = units(STORE) if STORE.is_dir() else []
+    out = []
+    for store in stores():
+        noun = next((n for n in NOUNS if any(store.input.is_relative_to(r) for r in roots_of(n))), '')
+        for selection in store.globs:
+            count = sum(1 for u in found if (u.pipeline, u.provider, u.kind) == (store.pipeline, store.provider, selection.kind))
+            out.append((store.pipeline, store.provider or store.input.parts[0], selection.kind, count,
+                        f'data/input/{store.input.as_posix()}', noun))
+    return out
+
+
 def main(argv: list[str]) -> int:
     """`corpus.py promote <noun> [--provider <p> | --all] [--id <prefix>]` - a capturing
     noun's promote verb, its argv already validated against the noun's declaration;
-    `corpus.py count` - the staged units, a number."""
+    `corpus.py count` - the staged units, a number; `corpus.py held` - what each pipeline
+    holds, tab-separated rows."""
     ap = argparse.ArgumentParser(add_help=False)
     sub = ap.add_subparsers(dest='act', required=True)
     pr = sub.add_parser('promote', add_help=False)
@@ -1193,11 +1209,16 @@ def main(argv: list[str]) -> int:
     pr.add_argument('--id', default=None)
     pr.add_argument('--rehearsal', default=None)
     sub.add_parser('count', add_help=False)
+    sub.add_parser('held', add_help=False)
     args = ap.parse_args(argv)
     if args.act == 'promote':
         if args.id is not None and args.provider is None:
             sys.exit('error: --id names a unit within a provider - say which with --provider')
         return promote(args.noun, extent(args.noun, args.provider, args.all, args.id), args.rehearsal)
+    if args.act == 'held':
+        for row in held_rows():
+            print('\t'.join(str(cell) for cell in row))
+        return 0
     print(len(units(STAGE)))
     return 0
 

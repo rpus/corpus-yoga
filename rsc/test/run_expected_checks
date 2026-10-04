@@ -100,6 +100,7 @@ reference.lineage_changelog
 reference.lineage_declared
 reference.provenance_declared
 reference.verbatim
+report.rows_are_keyed_by_subject
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.family_mirrors_writer
