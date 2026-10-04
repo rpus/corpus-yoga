@@ -775,6 +775,7 @@ src/main/cli/export/capture.py,25,comment,src/main/cli/export/capture.py,Y,src/r
 src/main/cli/export/capture.py,36,path_str,src/main/cli/export/capture.py,Y,SELF = 'src/main/cli/export/capture.py'
 src/main/cli/export/export.json,3,path_str,src/main/cli/export/export.sh,Y,"""target"": ""src/main/cli/export/export.sh"","
 src/main/cli/export/export.sh,15,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
+src/main/cli/export/status.py,10,path_str,src/main/cli/export/status.py,Y,SELF = 'src/main/cli/export/status.py'
 src/main/cli/forge/capture.py,42,comment,src/run_python_script.sh,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp>
 src/main/cli/forge/capture.py,42,comment,src/main/cli/forge/capture.py,Y,src/run_python_script.sh src/main/cli/forge/capture.py <stamp>
 src/main/cli/forge/capture.py,50,path_str,src/main/cli/forge/capture.py,Y,SELF = 'src/main/cli/forge/capture.py'
@@ -791,11 +792,13 @@ src/main/cli/forge/forge.sh,25,comment,src/main/cli/parse_argv.sh,Y,# shellcheck
 src/main/cli/forge/forge.sh,27,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/forge/forge.sh,67,comment,src/main/cli/forge/superseded-heads.graphql,Y,# src/main/cli/forge/superseded-heads.graphql
 src/main/cli/forge/forge.sh,204,comment,rsc/test/pre-commit-hook.sh,Y,# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
-src/main/cli/forge/forge.sh,416,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
-src/main/cli/forge/forge.sh,555,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
-src/main/cli/forge/forge.sh,704,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
+src/main/cli/forge/forge.sh,391,comment,src/main/cli/forge/superseded-heads.graphql,Y,# timeline's beforeCommits (src/main/cli/forge/superseded-heads.graphql). A stacked
+src/main/cli/forge/forge.sh,530,comment,src/test/dev/run.sh,Y,# src/test/dev/run.sh gates the tree the current directory belongs to.
+src/main/cli/forge/forge.sh,679,comment,src/main/cli/forge/capture.py,Y,# The capture is src/main/cli/forge/capture.py's; this face only stamps the deposit.
 src/main/cli/forge/reconcile.py,5,comment,src/main/cli/forge/forge.csv,Y,"src/main/cli/forge/forge.csv. One row per declared setting, OK or DRIFT, each"
 src/main/cli/forge/reconcile.py,15,path_str,src/main/cli/forge/reconcile.py,Y,SELF = 'src/main/cli/forge/reconcile.py'
+src/main/cli/forge/status.py,15,path_str,src/main/cli/forge/status.py,Y,SELF = 'src/main/cli/forge/status.py'
+src/main/cli/forge/status.py,72,path_str,src/main/cli/forge/forge.csv,Y,"Settings('src/main/cli/forge/forge.csv', ""this checkout's remote"", by_section.get('settings', [])),"
 src/main/cli/grammar/grammar.json,3,path_str,src/main/grammar/grammar.py,Y,"""target"": ""src/main/grammar/grammar.py"","
 src/main/cli/grammar/grammar.json,7,path_str,rsc/rpus/grammar,Y,"""rsc/rpus/grammar"","
 src/main/cli/grammar/grammar.json,8,path_str,src/gen/grammar,Y,"""src/gen/grammar"""
@@ -844,12 +847,13 @@ src/main/cli/pipeline/pipeline.sh,33,comment,src/main/send.sh,Y,# shellcheck sou
 src/main/cli/pipeline/pipeline.sh,35,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/pipeline/pipeline.sh,37,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
 src/main/cli/pipeline/pipeline.sh,48,comment,src/main/member.py,Y,"# a directory git emptied in a rename keeps its bytecode and is no member (src/main/member.py, #669)"
-src/main/cli/pipeline/pipeline.sh,384,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
-src/main/cli/pipeline/pipeline.sh,432,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
+src/main/cli/pipeline/pipeline.sh,378,comment,rsc/CALCULUS.md,Y,"# Membership: L9 — Currency (rsc/CALCULUS.md), which carries the CLOSURE and"
+src/main/cli/pipeline/pipeline.sh,426,comment,src/main/steps.sh,Y,# (each prints exactly the step list it executes — see src/main/steps.sh);
 src/main/cli/pipeline/rehearse.json,8,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/pipeline/rehearse.sh,20,comment,src/main/tier.py,Y,"# the one name the tier contract (src/main/tier.py) resolves to those tiers, so every"
 src/main/cli/pipeline/rehearse.sh,32,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/pipeline/rehearse.sh,34,comment,src/main/provider.sh,Y,# shellcheck source=src/main/provider.sh
+src/main/cli/pipeline/status.py,11,path_str,src/main/cli/pipeline/status.py,Y,SELF = 'src/main/cli/pipeline/status.py'
 src/main/cli/pipeline/sync.json,13,path_str,rsc/schema,Y,"""rsc/schema"""
 src/main/cli/prerequisites/prerequisites.json,3,path_str,src/main/cli/prerequisites/prerequisites.sh,Y,"""target"": ""src/main/cli/prerequisites/prerequisites.sh"","
 src/main/cli/prerequisites/prerequisites.json,15,path_str,rsc/machine,Y,"""rsc/machine"","
@@ -867,19 +871,20 @@ src/main/cli/prerequisites/prerequisites.sh,27,comment,src/main/tier.sh,Y,# shel
 src/main/cli/prerequisites/prerequisites.sh,30,comment,src/main/send.sh,Y,# shellcheck source=src/main/send.sh
 src/main/cli/prerequisites/prerequisites.sh,32,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/prerequisites/prerequisites.sh,76,comment,src/main/facts.py,Y,"# The rows as facts through the one printer, src/main/facts.py: under the venv's python"
-src/main/cli/prerequisites/prerequisites.sh,191,comment,src/main/grammar/grammar.py,Y,"# What a project is, the grammar verb decides (src/main/grammar/grammar.py: a"
-src/main/cli/prerequisites/prerequisites.sh,317,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
-src/main/cli/prerequisites/prerequisites.sh,476,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"# co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry"
-src/main/cli/prerequisites/prerequisites.sh,492,comment,src/test/dev/run.sh,Y,"# (src/test/dev/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
-src/main/cli/prerequisites/prerequisites.sh,499,path_str,src/main/cli/prerequisites,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
-src/main/cli/prerequisites/prerequisites.sh,499,path_str,src/main,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
-src/main/cli/prerequisites/prerequisites.sh,513,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
-src/main/cli/prerequisites/prerequisites.sh,560,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
-src/main/cli/prerequisites/prerequisites.sh,567,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
-src/main/cli/prerequisites/prerequisites.sh,591,comment,src/main/pipeline/code-transport/pipeline.json,Y,"# src/main/pipeline/code-transport/pipeline.json, whose provider member names the stores it reads."
-src/main/cli/prerequisites/prerequisites.sh,632,comment,src/main/corpus.py,Y,"# src/main/corpus.py's, read through the venv's python."
-src/main/cli/prerequisites/prerequisites.sh,653,path_str,src/main,Y,"[[ -e ""$script"" ]] || continue"
-src/main/cli/prerequisites/prerequisites.sh,656,path_str,src/main,Y,"if steps=""$(""$script"" 2>&1)""; then"
+src/main/cli/prerequisites/prerequisites.sh,171,comment,src/main/grammar/grammar.py,Y,"# What a project is, the grammar verb decides (src/main/grammar/grammar.py: a"
+src/main/cli/prerequisites/prerequisites.sh,297,comment,rsc/machine/README.md,Y,"# The binding names this machine (rsc/machine/README.md): rooted, gitignored,"
+src/main/cli/prerequisites/prerequisites.sh,456,comment,rsc/test/prepare-commit-msg-hook.sh,Y,"# co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry"
+src/main/cli/prerequisites/prerequisites.sh,472,comment,src/test/dev/run.sh,Y,"# (src/test/dev/run.sh, ""the committing tree wins""). Expecting THIS tree's path would raise"
+src/main/cli/prerequisites/prerequisites.sh,479,path_str,src/main/cli/prerequisites,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
+src/main/cli/prerequisites/prerequisites.sh,479,path_str,src/main,Y,"if [[ -n ""$dir"" && ""$dir/$(basename ""$link"")"" == ""$script"" ]]; then"
+src/main/cli/prerequisites/prerequisites.sh,493,comment,src/main/cli/forge/forge.csv,Y,# the server: no clone can see them and no git config holds them. src/main/cli/forge/forge.csv is the
+src/main/cli/prerequisites/prerequisites.sh,540,comment,rsc/provider/providers.csv,Y,# Per declared provider (rsc/provider/providers.csv): the code-transport store this
+src/main/cli/prerequisites/prerequisites.sh,547,comment,src/main/cli/agent/transport.py,Y,# verb serves the provider - a harness adapter present (src/main/cli/agent/transport.py):
+src/main/cli/prerequisites/prerequisites.sh,571,comment,src/main/pipeline/code-transport/pipeline.json,Y,"# src/main/pipeline/code-transport/pipeline.json, whose provider member names the stores it reads."
+src/main/cli/prerequisites/prerequisites.sh,612,comment,src/main/corpus.py,Y,"# src/main/corpus.py's, read through the venv's python."
+src/main/cli/prerequisites/prerequisites.sh,633,path_str,src/main,Y,"[[ -e ""$script"" ]] || continue"
+src/main/cli/prerequisites/prerequisites.sh,636,path_str,src/main,Y,"if steps=""$(""$script"" 2>&1)""; then"
+src/main/cli/prerequisites/report.py,15,path_str,src/main/cli/prerequisites/report.py,Y,SELF = 'src/main/cli/prerequisites/report.py'
 src/main/cli/prerequisites/sync.json,18,path_str,rsc/machine,Y,"""rsc/machine"","
 src/main/cli/prerequisites/sync.json,19,path_str,rsc/test,Y,"""rsc/test"","
 src/main/cli/prerequisites/sync.json,25,path_str,src/requirements.txt,Y,"""src/requirements.txt"","
@@ -903,8 +908,8 @@ src/main/cli/server/server.sh,7,comment,src/main/cli/server/server.sh,Y,#   src/
 src/main/cli/server/server.sh,8,comment,src/main/cli/server/server.sh,Y,"#   src/main/cli/server/server.sh ensure-assets   # fetch the render libs into ext/lib/, then exit"
 src/main/cli/server/server.sh,18,comment,src/main/tier.sh,Y,# shellcheck source=src/main/tier.sh
 src/main/cli/server/server.sh,20,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
-src/main/cli/server/server.sh,38,comment,src/main/cli/prerequisites/prerequisites.sh,Y,"# readiness report, with versions, is src/main/cli/prerequisites/prerequisites.sh's check_dependencies)"
 src/main/cli/server/start.json,31,path_str,src/main/model/serve_assets.txt,Y,"""src/main/model/serve_assets.txt"""
+src/main/cli/server/status.py,10,path_str,src/main/cli/server/status.py,Y,SELF = 'src/main/cli/server/status.py'
 src/main/cli/site/render.json,7,path_str,rsc/site/index.template.html,Y,"""rsc/site/index.template.html"","
 src/main/cli/site/site.json,3,path_str,src/main/cli/site/site.sh,Y,"""target"": ""src/main/cli/site/site.sh"","
 src/main/cli/site/site.json,8,path_str,rsc/site,Y,"""rsc/site"","
@@ -914,7 +919,9 @@ src/main/cli/site/site.sh,25,comment,src/main/send.sh,Y,# shellcheck source=src/
 src/main/cli/site/site.sh,27,comment,src/main/enact.sh,Y,# shellcheck source=src/main/enact.sh
 src/main/cli/site/site.sh,29,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/site/site.sh,34,comment,src/main/model/corpus_shape.sh,Y,# shellcheck source=src/main/model/corpus_shape.sh
-src/main/cli/site/site.sh,130,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
+src/main/cli/site/site.sh,118,comment,src/main/model/compare_pages.py,Y,"# changes in the page's own terms (#652, src/main/model/compare_pages.py): its tables"
+src/main/cli/site/status.py,12,path_str,src/main/cli/site/status.py,Y,SELF = 'src/main/cli/site/status.py'
+src/main/cli/site/status.py,50,path_str,rsc/site,Y,"facts.say(Status(Site('data/output/site/ (rpus.co)', 'rsc/site/', stale or standing, index,"
 src/main/cli/site/sync.json,5,path_str,rsc/site,Y,"""rsc/site"""
 src/main/cli/stage/clean.json,20,path_str,rsc/naming/export_archive_members.csv,Y,"""rsc/naming/export_archive_members.csv"""
 src/main/cli/stage/stage.json,3,path_str,src/main/cli/stage/stage.py,Y,"""target"": ""src/main/cli/stage/stage.py"","
@@ -936,6 +943,11 @@ src/main/cli/summaries/summaries.json,3,path_str,src/main/pipeline/chat-export/s
 src/main/cli/test/install-hook.json,5,path_str,rsc/test,Y,"""rsc/test"""
 src/main/cli/test/run.json,34,path_str,rsc/test/run.log,Y,"""rsc/test/run.log"","
 src/main/cli/test/run.json,35,path_str,rsc/test/xref.csv,Y,"""rsc/test/xref.csv"""
+src/main/cli/test/status.py,10,path_str,src/main/cli/test/status.py,Y,SELF = 'src/main/cli/test/status.py'
+src/main/cli/test/status.py,25,path_str,rsc/test/run_expected_checks,Y,expectation: str = 'rsc/test/run_expected_checks'
+src/main/cli/test/status.py,26,path_str,rsc/test/run.log,Y,report: str = 'rsc/test/run.log'
+src/main/cli/test/status.py,27,path_str,rsc/test/xref.csv,Y,xrefs: str = 'rsc/test/xref.csv'
+src/main/cli/test/status.py,24,path_str,src/test/dev/run.py,Y,sections: str = facts.named('src/test/dev/run.py')
 src/main/cli/test/test.json,3,path_str,src/main/cli/test/test.sh,Y,"""target"": ""src/main/cli/test/test.sh"","
 src/main/cli/test/test.sh,21,comment,src/main/cli/parse_argv.sh,Y,# shellcheck source=src/main/cli/parse_argv.sh
 src/main/cli/test/test.sh,29,comment,rsc/test/pre-commit-hook.sh,Y,"# pre-commit is a COPY of rsc/test/pre-commit-hook.sh, which is the one authority on what"
@@ -950,7 +962,6 @@ src/main/corpus.py,86,path_str,src/main/corpus.py,Y,SELF = 'src/main/corpus.py'
 src/main/corpus.py,211,comment,rsc/naming/export_archive_members.csv,Y,"capture was to fetch, rsc/naming/export_archive_members.csv what each one's deposit"
 src/main/corpus.py,445,path_str,rsc/schema/pipeline,Y,fam_dir = f'rsc/schema/pipeline/{pipeline}/{family}'
 src/main/corpus.py,488,comment,src/main/validation_verdict.py,Y,"# the verdict is its record (src/main/validation_verdict.py, #701); the log beside it is never read"
-src/main/facts.py,28,path_str,src/main/facts.py,Y,SELF = 'src/main/facts.py'
 src/main/grammar/grammar.py,10,comment,src/requirements.txt,Y,"(antlr4-tools and antlr4-python3-runtime in src/requirements.txt, one version)."
 src/main/grammar/grammar.py,39,path_str,src/main/grammar/grammar.py,Y,SELF = 'src/main/grammar/grammar.py'
 src/main/grammar/grammar.py,120,path_str,rsc/rpus/grammar,Y,source = f'rsc/rpus/grammar/{project.name}'
@@ -1455,12 +1466,14 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,self_only,src/main/cli/export/capture.py,Y,
 ,,,src/main/cli/export/export.json,Y,
 ,,,src/main/cli/export/promote.json,Y,
+,,self_only,src/main/cli/export/status.py,Y,
 ,,,src/main/cli/forge/capture.json,Y,
 ,,self_only,src/main/cli/forge/flip.py,Y,
 ,,,src/main/cli/forge/forge.json,Y,
 ,,,src/main/cli/forge/promote.json,Y,
 ,,,src/main/cli/forge/prune.json,Y,
 ,,self_only,src/main/cli/forge/reconcile.py,Y,
+,,self_only,src/main/cli/forge/status.py,Y,
 ,,,src/main/cli/grammar/grammar.json,Y,
 ,,,src/main/cli/grammar/sync.json,Y,
 ,,,src/main/cli/indexing/accept.json,Y,
@@ -1482,18 +1495,22 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/pipeline/pipeline.json,Y,
 ,,,src/main/cli/pipeline/rehearse.json,Y,
 ,,,src/main/cli/pipeline/run.json,Y,
+,,self_only,src/main/cli/pipeline/status.py,Y,
 ,,,src/main/cli/pipeline/sync.json,Y,
 ,,,src/main/cli/prerequisites/prerequisites.json,Y,
+,,self_only,src/main/cli/prerequisites/report.py,Y,
 ,,,src/main/cli/prerequisites/sync.json,Y,
 ,,,src/main/cli/reference/reference.json,Y,
 ,,,src/main/cli/reference/sync.json,Y,
 ,,,src/main/cli/server/ensure-assets.json,Y,
 ,,,src/main/cli/server/server.json,Y,
 ,,,src/main/cli/server/start.json,Y,
+,,self_only,src/main/cli/server/status.py,Y,
 ,,,src/main/cli/server/stop.json,Y,
 ,,,src/main/cli/site/publish.json,Y,
 ,,,src/main/cli/site/render.json,Y,
 ,,,src/main/cli/site/site.json,Y,
+,,self_only,src/main/cli/site/status.py,Y,
 ,,,src/main/cli/site/sync.json,Y,
 ,,,src/main/cli/stage/clean.json,Y,
 ,,,src/main/cli/stage/stage.json,Y,
@@ -1504,6 +1521,7 @@ src/validation_matrix.py,12,comment,src/main/validation_audit.py,Y,src/main/vali
 ,,,src/main/cli/summaries/sync.json,Y,
 ,,,src/main/cli/test/install-hook.json,Y,
 ,,,src/main/cli/test/run.json,Y,
+,,self_only,src/main/cli/test/status.py,Y,
 ,,,src/main/cli/test/test.json,Y,
 ,,,src/main/cli/test/xref.json,Y,
 ,,,src/main/enact.py,Y,

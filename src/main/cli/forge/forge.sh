@@ -248,44 +248,19 @@ base_branch() {
   (cd "$REPO_DIR" && gh repo view --json defaultBranchRef --jq .defaultBranchRef.name 2>/dev/null) || echo main
 }
 
-# rows_json — the TSV rows on stdin (STATUS \t key \t detail [\t remedy]) as a JSON list of
-# facts: each `{key: detail, state: <status, lower-cased>}` with its remedy where one stands
-rows_json() {
-  jq -R -s 'split("\n") | map(select(length > 0) | split("\t")
-    | {(.[1]): .[2], state: (.[0] | ascii_downcase)} + (if (.[3] // "") != "" then {remedy: .[3]} else {} end))'
-}
-
+# The standing report (#759): each probe's rows under its section's name, typed and said as
+# one shape by status.py - with --stage, the stage's units after it. Returns 1 on
+# refuse-class drift, the merge's gate.
 status() {
-  # the facts (#753): the declared settings against the live forge, the branches the
-  # forge knows, the tracking refs it has dropped, this checkout's gate and upstream -
-  # each row a fact with its state, a remedy beside it, the verdict last. Returns 1 on
-  # refuse-class drift, the merge's gate.
-  local refuse_class=0 settings branches_rows stale gate_rows
-  settings="$(reconcile | rows_json)"
-  grep -q '"state": *"\(drift\|unverified\)"' <<< "$settings" && refuse_class=1
-  local rows
+  local rows raw_stale
   rows="$(branches)" || return 1
-  branches_rows="$(rows_json <<< "$rows")"
-  grep -q '"state": *"unverified"' <<< "$branches_rows" && refuse_class=1
-  local raw_stale
   raw_stale="$(stale_tracking)" || return 1
-  stale="$(rows_json <<< "$raw_stale")"
-  grep -q '"state": *"unverified"' <<< "$stale" && refuse_class=1
-  gate_rows="$( (gate; upstream) | rows_json)"
-  grep -q '"state": *"\(wrong\|unverified\)"' <<< "$gate_rows" && refuse_class=1
-  local verdict="ready - no refuse-class drift"
-  [[ "$refuse_class" -eq 0 ]] || verdict="refuse-class drift - corpus-yoga forge merge refuses while it stands"
-  jq -n --argjson settings "$settings" --argjson branches "$branches_rows" --argjson stale "$stale" \
-        --argjson gate "$gate_rows" --arg verdict "$verdict" '
-    {"forge settings": {declared: "src/main/cli/forge/forge.csv", live: "this checkout'"'"'s remote", rows: $settings}}
-    + (if ($branches | length) > 0 then {branches: ($branches
-         + (if any($branches[]; .state == "deletable" or .state == "server_deletable")
-            then [{remedy: "corpus-yoga forge prune removes each deletable branch"}] else [] end))} else {} end)
-    + (if ($stale | length) > 0 then {"remote-tracking refs": ($stale
-         + (if any($stale[]; .state == "stale") then [{remedy: "corpus-yoga forge prune"}] else [] end))} else {} end)
-    + {"this checkout": $gate, forge: $verdict}' \
-    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-  return "$refuse_class"
+  {
+    reconcile | awk '{print "settings\t" $0}'
+    awk '{print "branches\t" $0}' <<< "$rows"
+    awk '{print "refs\t" $0}' <<< "$raw_stale"
+    { gate; upstream; } | awk '{print "checkout\t" $0}'
+  } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" "$@"
 }
 
 prune() {
@@ -711,7 +686,7 @@ capture() {
 [[ "${BASH_SOURCE[0]}" == "${0}" ]] || return 0
 
 case "${1-}" in
-  '')        status; "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" report forge ;;
+  '')        status --stage ;;
   sync)      shift; parse_argv forge sync "$@"; sync "$@" ;;
   prune)     shift; parse_argv forge prune "$@"; prune "$@" ;;
   merge)     shift; parse_argv forge merge "$@"; merge "$@" ;;

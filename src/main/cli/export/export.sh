@@ -15,26 +15,8 @@ REPO_DIR="${SCRIPT_DIR%/"${SELF%/*}"}"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
-# a read face, no writes: the exports held and staged, each paired or unpaired
-status() {
-  # the facts (#753): the exports held and staged, through corpus.py's own facts, under
-  # what an export is; nothing held or staged names where one is requested
-  local lines
-  lines="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" pairs export)"
-  if [[ "$lines" == $'held: []\nstaged: []' ]]; then
-    jq -n '{export: "nothing held or staged",
-            remedy: "request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>"}' \
-      | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-    return 0
-  fi
-  jq -n '{export: {"a staged export <X>": "data-<X>/ with manifest-<X>.json, its capture'"'"'s record",
-                   "shared storage holds": "data-<X>/"}}' \
-    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-  echo "$lines"
-}
-
 case "${1-}" in
-  '')        status; "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" report export ;;
+  '')        exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/export/status.py" ;;   # a read face, no writes
   capture)   shift; parse_argv export capture "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/export/capture.py" "$@" ;;
   promote)   shift; parse_argv export promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote export "$@" ;;
   --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0" ;;

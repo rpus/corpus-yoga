@@ -7,9 +7,7 @@ a heading over the items it covers. The lines are YAML, so the same artifact is 
 human by its shape and loaded by a machine as data; no width is enforced, since a line
 that is one fact is as long as its fact. The emitter covers what a status holds -
 mappings, lists, strings, numbers, booleans and None - and quotes a string wherever YAML
-would otherwise read it as something else. Run as a script, it reads the facts as JSON
-on stdin and prints them - the same printer for a noun written in shell, which builds
-its facts with jq (#753).
+would otherwise read it as something else.
 
 A status's facts are a named shape (#759): a dataclass whose fields are the facts it
 holds, so that a reader takes them as fields and the type check holds the keys. A field
@@ -17,15 +15,19 @@ prints under its name's words, or under the key `named` gives it; a field that i
 not printed; a shape whose keys are its data - an address, a session's id - says so in a
 `facts` method. Two facts every status shares are types of their own: a remedy, the
 command a reader types (Command) or the reader's own act in words (Act), and a finding
-(Finding), the FAIL the usr gate's table counts.
+(Finding), the FAIL the usr gate's table counts. A noun written in shell hands its rows to
+a status module beside it, which types them: no shell builds facts.
 """
+from __future__ import annotations
+
 import json
 import re
-import sys
 from dataclasses import dataclass, field, fields, is_dataclass
 from pathlib import PurePath
+from typing import TYPE_CHECKING
 
-SELF = 'src/main/facts.py'
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 STEP = 2   # the indentation of a subordinate fact
 
@@ -138,9 +140,7 @@ def plain(shape):
     return shape
 
 
-def say(shape) -> None:
+def say(shape: DataclassInstance) -> None:
+    """Print a status: its named shape, as YAML. A status is said once, whole, so that its
+    keys are the fields of one type."""
     print('\n'.join(lines(plain(shape))))
-
-
-if __name__ == '__main__':
-    say(json.load(sys.stdin))

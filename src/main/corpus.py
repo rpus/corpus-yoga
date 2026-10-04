@@ -1152,11 +1152,6 @@ def pairs_facts(noun: str) -> Pairs:
     return out
 
 
-def pairs(noun: str) -> int:
-    facts.say(pairs_facts(noun))
-    return 0
-
-
 @dataclass
 class StageReport:
     """The stage as a noun's bare status shows it: the units under the verdict they share,
@@ -1195,16 +1190,10 @@ def report_facts(noun: str | None) -> StageReport:
     return StageReport(groups, f'{len(rows)} unit(s) - {counted(counts)}{tail}')
 
 
-def report(noun: str | None) -> int:
-    facts.say(report_facts(noun))
-    return 0
-
-
 def main(argv: list[str]) -> int:
     """`corpus.py promote <noun> [--provider <p> | --all] [--id <prefix>]` - a capturing
     noun's promote verb, its argv already validated against the noun's declaration;
-    `corpus.py report [<noun>]` - the stage as a status face shows it; `corpus.py pairs <noun>` -
-    the noun's units named by a star, held and staged; `corpus.py count` - the staged units, a number."""
+    `corpus.py count` - the staged units, a number."""
     ap = argparse.ArgumentParser(add_help=False)
     sub = ap.add_subparsers(dest='act', required=True)
     pr = sub.add_parser('promote', add_help=False)
@@ -1213,20 +1202,12 @@ def main(argv: list[str]) -> int:
     pr.add_argument('--all', action='store_true')
     pr.add_argument('--id', default=None)
     pr.add_argument('--rehearsal', default=None)
-    rp = sub.add_parser('report', add_help=False)
-    rp.add_argument('noun', nargs='?', choices=NOUNS, default=None)
-    pa = sub.add_parser('pairs', add_help=False)
-    pa.add_argument('noun', choices=NOUNS)
     sub.add_parser('count', add_help=False)
     args = ap.parse_args(argv)
     if args.act == 'promote':
         if args.id is not None and args.provider is None:
             sys.exit('error: --id names a unit within a provider - say which with --provider')
         return promote(args.noun, extent(args.noun, args.provider, args.all, args.id), args.rehearsal)
-    if args.act == 'report':
-        return report(args.noun)
-    if args.act == 'pairs':
-        return pairs(args.noun)
     print(len(units(STAGE)))
     return 0
 

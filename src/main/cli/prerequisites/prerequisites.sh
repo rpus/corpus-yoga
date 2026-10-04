@@ -55,8 +55,8 @@ _todo=()
 # all-satisfied section vanishes entirely. The bare `corpus-yoga` invocation shows this report,
 # so its default is the short "what still needs attention" list.
 # The report's rows (#753): section \t kind \t text, collected as the checks run and
-# printed once, as facts, by report_facts - a row's embedded remedy marker (→ run:,
-# install via:, reinstall:, replace:, refresh:) becomes its own fact there.
+# said once, as one shape, by report.py - a row's embedded remedy marker (→ run:,
+# install via:, reinstall:, replace:, refresh:) becomes its remedy there (#759).
 _hdr=""
 _rows=()
 sec()    { _hdr="$*"; }
@@ -89,27 +89,7 @@ report_facts() {
   local rows_file
   rows_file="$(mktemp "${TMPDIR:-/tmp}/prerequisites.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
-  "$python" - "$REPO_ROOT/src/main" "$verdict" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$rows_file" <<'PY'
-import re, sys
-sys.path.insert(0, sys.argv[1])
-import facts
-MARKER = re.compile(r'\s*[-—]?\s*(→ run:|install via:|reinstall:|replace:|refresh:)\s*')
-out = {'report': sys.argv[3]}
-for line in open(sys.argv[4]).read().splitlines():
-    if not line.strip():
-        continue
-    section, kind, text = line.split('\t', 2)
-    item = {}
-    m = MARKER.search(text)
-    if m:
-        item[kind] = text[:m.start()].rstrip(' -—')
-        item['remedy'] = text[m.end():].strip()
-    else:
-        item[kind] = text
-    out.setdefault(section, []).append(item)
-out['prerequisites'] = sys.argv[2]
-facts.say(out)
-PY
+  "$python" "$REPO_ROOT/src/main/cli/prerequisites/report.py" "$rows_file" "$verdict" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
   rm -f "$rows_file"
 }
 # The sync, spelt as the reader can run it at the moment the row is read: through the
