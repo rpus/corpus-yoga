@@ -1896,18 +1896,18 @@ def check_status_facts(run) -> None:
         logical.append((opened, pending + text))
         pending = ''
     for number, text in logical:
-        call = re.search(r'\b(todo \S+|bad) "', text)
-        if call is None or text.lstrip().startswith('#'):
+        call = re.match(r'\s*(?:\S+\)\s+)?(todo \S+|bad) ', text)   # the call opens the statement, or a case arm
+        if call is None:
             continue
         try:
-            tokens = shlex.split(text[call.start():])
+            tokens = shlex.split(text[call.start(1):])
         except ValueError:
             run(f'remedy: {report.relative_to(REPO_ROOT)}:{number} is a row a reader can parse', False,
                 'the call does not split into its arguments', check='status.remedy_names_a_command')
             continue
         arguments = tokens[2:] if tokens[0] == 'todo' else tokens[1:]
         stop = next((i for i, token in enumerate(arguments) if token in (';;', ';', '&&', '||')), len(arguments))
-        for command in arguments[1:stop:2]:
+        for command in arguments[2:stop:2]:        # after the row's subject and what stands
             words = command.split()
             if not words or words[0].startswith('$'):
                 continue                  # computed where the row is emitted: a path the check found, a remedy another verb wrote
@@ -1942,6 +1942,22 @@ def check_status_facts(run) -> None:
             why = f'{getattr(error, "problem", error)}{where}: {line.strip()[:100]}'
         run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
             check='status.lines_load_as_yaml')
+
+    # The machine report's rows are keyed by what each is about (#771): in the full
+    # report no row stands under a kind - ok, note, todo - and no list holds its rows.
+    proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'prerequisites', '--show-all'], capture_output=True, text=True,
+                          env=env, cwd=REPO_ROOT, timeout=300)
+    try:
+        report = yaml.load(proc.stdout, Loader=Strict)
+        kinds = sorted({f'{section}/{key}' for section, rows in report.items() if isinstance(rows, dict)
+                        for key in rows if key in ('ok', 'note', 'todo')})
+        listed = listed_structure(report) or next((section for section, rows in report.items() if isinstance(rows, list)), None)
+        why = (f'rows stand under a kind that names nothing: {", ".join(kinds[:4])}' if kinds
+               else f'the rows of {listed} are a list' if listed else None)
+    except yaml.YAMLError as error:
+        why = f'the full report does not load: {getattr(error, "problem", error)}'
+    run('report: every row of the machine report is keyed by what it is about', why is None, why,
+        check='report.rows_are_keyed_by_subject')
 
 
 def check_export_atoms(run) -> None:

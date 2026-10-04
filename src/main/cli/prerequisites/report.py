@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 """
 report.py - `corpus-yoga prerequisites`' report: the rows prerequisites.sh collects as its
-checks run - `<section> <kind> <text> [<command> <what it does>]...`, tab-separated, in the
-file named - typed and said as
-one shape (#759). A row's commands are columns of their own, `<command> <what it does>` in
-pairs after the text, and a row that carries any is keyed by what stands with its commands
-beneath (#763, #765). Runs under the venv's python, or under python3 before the venv is
-minted.
+checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,
+tab-separated, in the file named - typed and said as
+one shape (#759). A row is keyed by what it is about (#771); its commands are columns of
+their own, `<command> <what it does>` in pairs, and stand beneath it (#763, #765). Runs
+under the venv's python, or under python3 before the venv is minted.
 
 usage: report.py <rows-file> <verdict> <stamp>
 """
@@ -24,26 +23,13 @@ sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
 
 @dataclass
-class Section:
-    """One section of the report, its rows by kind (#763, #765). A row that stands with no
-    command to act on it is a bare statement under its kind - ok, note, todo. A row the
-    reader acts on is keyed by what stands, the commands that act on it beneath, each with
-    what it does; one that is required and absent stands under `missing`."""
-    ok: list[str]
-    note: list[str]
-    todo: list[str]
-    acts: dict[str, dict[str, str]]       # what stands, then each command with what it does
-    missing: dict[str, dict[str, str]]
-
-    def facts(self) -> dict:
-        return {'ok': self.ok or None, 'note': self.note or None, 'todo': self.todo or None,
-                **self.acts, 'missing': self.missing or None}
-
-
-@dataclass
 class Report:
+    """The report: each section its subjects, each subject what stands of it - a value where
+    that is all, and where the reader can act, `stands` (or `missing`, where the thing is
+    required and absent) with the commands that act on it beneath, each with what it does
+    (#763, #771). A subject `a / b` stands beneath `a`."""
     stamp: str
-    sections: dict[str, Section]
+    sections: dict[str, dict]
     verdict: str
 
     def facts(self) -> dict:
@@ -52,19 +38,22 @@ class Report:
 
 def main() -> int:
     rows_file, verdict, stamp = sys.argv[1:4]
-    sections: dict[str, Section] = {}
+    sections: dict[str, dict] = {}
     for line in Path(rows_file).read_text().splitlines():
         if not line.strip():
             continue
-        name, kind, text, *rest = line.split('\t')
-        section = sections.setdefault(name, Section([], [], [], {}, {}))
+        name, kind, subject, stands, *rest = line.split('\t')
         commands = {rest[i]: rest[i + 1] if i + 1 < len(rest) else '' for i in range(0, len(rest), 2) if rest[i]}
-        if not commands:
-            {'ok': section.ok, 'note': section.note}.get(kind, section.todo).append(text)
-        elif kind == 'missing':
-            section.missing[text] = commands
-        else:
-            section.acts[text] = commands
+        at = sections.setdefault(name, {})
+        *above, last = [part.strip() for part in subject.split(' / ')]
+        for part in above:
+            beneath = at.setdefault(part, {})
+            if not isinstance(beneath, dict):         # a subject that stands and also holds others: its own standing moves beneath it
+                beneath = at[part] = {'stands': beneath}
+            at = beneath
+        while last in at:                             # two rows of one subject: both are said
+            last += ' (again)'
+        at[last] = {('missing' if kind == 'missing' else 'stands'): stands, **commands} if commands else stands
     facts.say(Report(stamp, sections, verdict))
     return 0
 
