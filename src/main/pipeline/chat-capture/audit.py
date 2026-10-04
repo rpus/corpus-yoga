@@ -44,6 +44,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main/ on the path
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'browser'))  # the acquisition machinery --live reaches (#380)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'pipeline' / 'chat-export'))  # library.py — the artifact library's owner (#421)
 from markdown_projection import turn_seq, conv_id  # the format authority owns the parsers
@@ -55,6 +56,8 @@ RENDER_CEILING = 10
 
 
 def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list[str]:
+    """The offline findings on gemini's DOM captures, as facts (#753): each finding a
+    FAIL under the conversation it names, with its remedy; the count last."""
     # gemini has no API capture, so the DOM capture IS the record — but its projection
     # is numbered like every other conversation, so the WARN can still name it the way
     # the corpus does rather than by uuid alone.
@@ -66,6 +69,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
             projected[cid] = f.stem
             projected_text[cid] = text
     suspects = []
+    findings: dict = {}
     placeholder_convs = 0
     for d in sorted(captures_dir.iterdir()):
         mds = sorted(d.glob('*.md')) if d.is_dir() else []
@@ -78,13 +82,10 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
         if '[no capture' in s:
             placeholder_convs += 1
     for cid, name in suspects:
-        print(f'FAIL: {name} ({cid[:8]}): shows exactly {RENDER_CEILING} human turns - '
-              f'the gemini page renders only the last {RENDER_CEILING}, so earlier turns are '
-              'likely missing from this DOM capture; to recapture:')
-        print(f'    → run: corpus-yoga browser capture --provider gemini --id {cid}'
-              '  # walks the page — takes a couple of minutes')
-    if placeholder_convs:
-        print(f'gemini: {placeholder_convs} DOM capture(s) contain "[no capture" placeholder text')
+        findings[f'{name} ({cid[:8]})'] = {
+            'FAIL': f'shows exactly {RENDER_CEILING} human turns - the gemini page renders only the last '
+                    f'{RENDER_CEILING}, so earlier turns are likely missing from this DOM capture',
+            'remedy': f'corpus-yoga browser capture --provider gemini --id {cid} walks the page, a couple of minutes'}
     # The capture against the rendering derived FROM it. gemini has no API, so nothing
     # else corroborates either one -- and `corpus-yoga pipeline run` rewrites the projection from
     # the capture every time, so a divergence means the two have already parted company.
@@ -97,35 +98,38 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
             text = mds[0].read_text()
             cid = conv_id(text) or d.name
             if cid not in projected_text:
-                print(f'FAIL: {mds[0].stem} ({cid[:8]}): captured but not projected - '
-                      f'the gemini step of `corpus-yoga pipeline run` produces it')
+                findings[f'{mds[0].stem} ({cid[:8]})'] = {'FAIL': 'captured but not projected',
+                                                           'remedy': 'the gemini step of corpus-yoga pipeline run produces it'}
                 suspects.append((cid, mds[0].stem))
                 continue
             cap, proj = turn_seq(text), turn_seq(projected_text[cid])
             if len(cap) != len(proj):
-                print(f'FAIL: {projected[cid]} ({cid[:8]}): capture holds {len(cap)} turns, '
-                      f'its projection {len(proj)} — the projection is derived from the '
-                      f'capture, so they cannot legitimately differ')
+                findings[f'{projected[cid]} ({cid[:8]})'] = {
+                    'FAIL': f'capture holds {len(cap)} turns, its projection {len(proj)} - the projection is '
+                            'derived from the capture, so they cannot legitimately differ'}
                 suspects.append((cid, projected[cid]))
             elif any(a != b for a, b in zip(cap, proj)):
                 first = next(i for i, (a, b) in enumerate(zip(cap, proj)) if a != b)
-                print(f'FAIL: {projected[cid]} ({cid[:8]}): capture and projection differ '
-                      f'from turn {first + 1} of {len(cap)} — the projection is derived from '
-                      f'the capture, so they cannot legitimately differ')
+                findings[f'{projected[cid]} ({cid[:8]})'] = {
+                    'FAIL': f'capture and projection differ from turn {first + 1} of {len(cap)} - the projection '
+                            'is derived from the capture, so they cannot legitimately differ'}
                 suspects.append((cid, projected[cid]))
         unprojected = sorted(set(projected_text) -
                              {conv_id(sorted(d.glob('*.md'))[0].read_text()) or d.name
                               for d in captures_dir.iterdir()
                               if d.is_dir() and list(d.glob('*.md'))})
         for cid in unprojected:
-            print(f'FAIL: {projected[cid]} ({cid[:8]}): projected but no capture remains - '
-                  f'the rendering has outlived the record it was derived from')
+            findings[f'{projected[cid]} ({cid[:8]})'] = {
+                'FAIL': 'projected but no capture remains - the rendering has outlived the record it was derived from'}
             suspects.append((cid, projected[cid]))
 
     checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
-    print(f'gemini: {checked} DOM capture(s) checked against their projections '
-          f'(no API capture exists, so nothing corroborates the record itself) — '
-          + ('nothing flagged' if not suspects else f'{len(suspects)} suspect(s), WARNed above'))
+    out: dict = {'DOM captures checked against their projections': checked,
+                 'corroboration': 'none - no API capture exists, so nothing corroborates the record itself'}
+    if placeholder_convs:
+        out['with "[no capture" placeholder text'] = placeholder_convs
+    out['findings'] = findings if findings else 'nothing flagged'
+    facts.say({'gemini': out})
     return [f'{n} ({c[:8]})' for c, n in suspects]
 
 
@@ -157,13 +161,13 @@ GEMINI_TAIL_JS = """(function(){
 })()"""
 
 
-def report_live(provider: str, findings: list[tuple[str, str, str]]) -> list[str]:
-    """Print each finding under the provider that produced it, with the command that acts
-    on it — never a bare id in a list that has left its provider behind. Returns the
-    findings for the caller's exit status."""
-    for kind, cid, detail in findings:
-        print(f'  {provider} {kind} {cid}: {detail}')
-        print(f'    → run: corpus-yoga browser capture --provider {provider} --id {cid}')
+def report_live(provider: str, summary: dict, findings: list[tuple[str, str, str]]) -> list[str]:
+    """The live pass's facts under the provider that produced them (#753): the summary,
+    then each finding with the command that acts on it - never a bare id in a list that
+    has left its provider behind. Returns the findings for the caller's exit status."""
+    summary['findings'] = [{cid: f'{kind} - {detail}', 'remedy': f'corpus-yoga browser capture --provider {provider} --id {cid}'}
+                           for kind, cid, detail in findings] or 'none'
+    facts.say({f'{provider} live': summary})
     return [f'{provider} {kind} {cid}' for kind, cid, _ in findings]
 
 
@@ -180,7 +184,7 @@ def live_claude(captures_dir: Path) -> list[str]:
             break
         time.sleep(0.5)
     if not raw or raw.startswith('ERROR'):
-        print(f'claude live: listing fetch failed ({raw or "timeout"})')
+        facts.say({'claude live': f'listing fetch failed ({raw or "timeout"})'})
         return []
     listing = dict(json.loads(raw))
 
@@ -197,11 +201,10 @@ def live_claude(captures_dir: Path) -> list[str]:
         elif updated > captured[uuid]:
             found.append(('PROGRESSED', uuid, f'captured {captured[uuid]} < updated {updated}'))
     unlisted = sorted(set(captured) - set(listing))
-    print(f'claude live: {len(listing)} conversations listed; '
-          f'{sum(1 for k, _, _ in found if k == "NEW")} new, '
-          f'{sum(1 for k, _, _ in found if k == "PROGRESSED")} progressed, '
-          f'{len(unlisted)} captured-but-no-longer-listed (deleted/archived?)')
-    return report_live('claude', found)
+    return report_live('claude', {'conversations listed': len(listing),
+                                  'new': sum(1 for k, _, _ in found if k == 'NEW'),
+                                  'progressed': sum(1 for k, _, _ in found if k == 'PROGRESSED'),
+                                  'captured but no longer listed': len(unlisted)}, found)
 
 
 def live_gemini(captures_dir: Path) -> list[str]:
@@ -240,11 +243,11 @@ def live_gemini(captures_dir: Path) -> list[str]:
             found.append(('PROGRESSED', cid, f'"{mds[0].stem}" — rendered tail no longer '
                                              f'matches the captured last turns'))
     unlisted = sorted(set(captured_dirs) - set(ids))
-    print(f'gemini live: {len(ids)} conversations listed; '
-          f'{sum(1 for k, _, _ in found if k == "NEW")} new, '
-          f'{sum(1 for k, _, _ in found if k == "PROGRESSED")} progressed '
-          f'(tail-checked {checked}), {len(unlisted)} captured-but-no-longer-listed')
-    return report_live('gemini', found)
+    return report_live('gemini', {'conversations listed': len(ids),
+                                  'new': sum(1 for k, _, _ in found if k == 'NEW'),
+                                  'progressed': sum(1 for k, _, _ in found if k == 'PROGRESSED'),
+                                  'tail-checked': checked,
+                                  'captured but no longer listed': len(unlisted)}, found)
 
 
 def main():
@@ -281,8 +284,8 @@ def main():
     if want('claude'):
         # the absence is the report: with DOM retired there is no second render to
         # reconcile the record against, and schema validation already ran per capture
-        print('claude: no offline check — the API capture is the record (DOM retired); '
-              '--live compares it against the account')
+        facts.say({'claude': {'offline check': 'none - the API capture is the record (DOM retired)',
+                              'live': '--live compares it against the account'}})
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
@@ -290,7 +293,8 @@ def main():
         corpus_root = Path(args.api).parents[2]
         suspects += audit_gemini(gemini_dom, corpus_root / 'gemini' / 'chat' / 'conversations')
     elif want('gemini'):
-        print(f'gemini: skipped ({gemini_dom} absent)')
+        shown = gemini_dom.relative_to(REPO) if gemini_dom.is_relative_to(REPO) else gemini_dom
+        facts.say({'gemini': f'skipped - {shown} absent'})
 
     actionable = []
     if args.live:

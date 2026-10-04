@@ -131,6 +131,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # declared_parser — modules both tiers import
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # machine.py owns the machine binding
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))  # the transport contract
 from machine import bound_machine  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
@@ -196,6 +197,7 @@ def list_agents() -> int:
     its title as the adapter reads it - derived on demand, never stored (L5).
     Framing on stderr; data lines on stdout (pipeable)."""
     rows: list[tuple[transport.Session, str]] = []
+    absent: list[dict] = []
     for row, mount_path, adapter in served():
         provider = row['provider']
         if mount_path.is_dir():
@@ -203,16 +205,28 @@ def list_agents() -> int:
         else:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
-            print(f'note: {mount_path.relative_to(REPO)} absent — no local {provider} rows '
-                  '→ run: corpus-yoga prerequisites sync --apply', file=sys.stderr)
+            absent.append({mount_path.relative_to(REPO).as_posix(): f'absent - no local {provider} rows',
+                           'remedy': 'corpus-yoga prerequisites sync --apply'})
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
                 rows += [(s, machine.name) for s in adapter.held_sessions(machine)]
-    print(f'{"uuid8":<8}  {"provider":<8}  {"where":<14}  {"size":>7}  {"last-write":<16}  title', file=sys.stderr)
-    for s, where in rows:
-        t = datetime.fromtimestamp(s.mtime).strftime('%Y-%m-%d %H:%M')
-        print(f'{s.id[:8]}  {s.provider:<8}  {where:<14}  {s.size / 1e6:6.1f}M  {t}  {s.title}')
+    # the facts (#753): each session under where it is and its provider - its title, size
+    # and last write - the local store first, then each machine's held copies
+    where_order = ['local'] + sorted({w for _s, w in rows if w != 'local'})
+    sessions: dict = {}
+    for where in where_order:
+        by_provider: dict = {}
+        for s, w in rows:
+            if w == where:
+                t = datetime.fromtimestamp(s.mtime).strftime('%Y-%m-%d %H:%M')
+                by_provider.setdefault(s.provider, []).append({s.id[:8]: s.title, 'size': f'{s.size / 1e6:.1f}M', 'last write': t})
+        if by_provider:
+            sessions[where] = by_provider
+    out: dict = {'sessions': sessions or 'none'}
+    if absent:
+        out['mounts'] = absent
+    facts.say(out)
     return 0
 
 

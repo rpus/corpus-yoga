@@ -49,6 +49,7 @@ assert _root, f'{_file} is not at its declared address {SELF}'
 REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 # renamed on import: this file's own deposit() puts memory STATES into the
 # library; the shared one puts rendered FILES into a directory (#426)
 from markdown_projection import deposit as deposit_files  # noqa: E402
@@ -168,7 +169,7 @@ def status(memories_output: Path, chat_export_cache: Path) -> int:
     n = len(list(memories_output.glob('*.json'))) if memories_output.is_dir() else 0
     states = memory_states(chat_export_cache)
     store = memories_output.relative_to(REPO) if memories_output.is_relative_to(REPO) else memories_output
-    print(f'memories: {n} deposit(s) in {store}; {len(states)} memory state(s) in the cache')
+    facts.say({'memories': {'deposits': n, 'in': store.as_posix(), 'memory states in the cache': len(states)}})
     return 0
 
 

@@ -56,6 +56,7 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main/ on the path
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from markdown_projection import REPO
 from declared_parser import command_parser
 
@@ -524,41 +525,41 @@ def anchor_report(concepts_file: Path, markdown_root: Path) -> None:
 
 
 def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> None:
-    """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`): counts on
-    stderr, the candidates as pure lines on stdout — human-amenable at the
-    terminal (both interleave), agent-amenable in a pipe (queue only)."""
+    """Read-only state of data/output/indexing/ (bare `corpus-yoga indexing`) as facts
+    (#753): the disposal record's counts, its orphans, the candidate queue with the
+    reader's acts as its remedy, and what the corpus cannot anchor."""
     a_rel = accepted_path.relative_to(REPO) if accepted_path.is_relative_to(REPO) else accepted_path
     r_rel = rejected_path.relative_to(REPO) if rejected_path.is_relative_to(REPO) else rejected_path
     n_accepted, n_rejected = len(parse_accepted(accepted_path)), len(parse_rejected(rejected_path))
-    print(f'accepted: {n_accepted} entries ({a_rel}); rejected: {n_rejected} ({r_rel})',
-          file=sys.stderr)
+    out: dict = {'accepted': {'entries': n_accepted, 'in': a_rel.as_posix()},
+                 'rejected': {'entries': n_rejected, 'in': r_rel.as_posix()}}
     if markdown_root.is_dir() and n_accepted:
         orphans = orphan_headwords(markdown_root, accepted_path)
         # a notice, never a failure (#675): the reader's curation, not a verb's, clears it
-        print(f'orphans: {len(orphans)} accepted headword(s) with zero corpus locators'
-              + (f' — {", ".join(orphans)} (fix the aliases, or remove the line and '
-                 f'reject the concept with a reason)' if orphans else ''),
-              file=sys.stderr)
+        out['orphans'] = ({'accepted headwords with zero corpus locators': orphans,
+                           'remedy': 'fix the aliases, or remove the line and reject the concept with a reason'}
+                          if orphans else 'none - every accepted headword has a corpus locator')
     if not inferred_concepts():
-        print('candidates: unknown — no concept capture on this machine '
-              '(corpus-yoga indexing capture)', file=sys.stderr)
+        out['candidates'] = {'queue': 'unknown - no concept capture on this machine',
+                             'remedy': 'corpus-yoga indexing capture'}
+        facts.say({'indexing': out})
         return
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]
     # A nonzero queue is the reader's act awaiting, stated with its remedy as a notice
     # the gate does not count (#675): no verb failed to produce it, and only the
-    # reader's disposal clears it. The names follow as the queue lines. A concept the
-    # corpus cannot index is not the reader's to dispose: it is named with what was
-    # tried, and the next capture may phrase it again (#644).
-    print(f'candidates: {len(pending)} concept(s) undisposed - each is the reader\'s act: '
-          'corpus-yoga indexing accept "<term>" or corpus-yoga indexing reject "<concept>" --reason "<why>" '
-          '(corpus-yoga indexing list-candidates reads the queue with the aliases that anchor each; --all disposes it as read):'
-          if pending else 'candidates: none - fully disposed', file=sys.stderr)
-    for c in pending:
-        print(c)
+    # reader's disposal clears it. A concept the corpus cannot index is not the
+    # reader's to dispose: it is named with what was tried, and the next capture may
+    # phrase it again (#644).
+    out['candidates'] = ({'undisposed': pending,
+                          'remedy': 'each is the reader\'s act - corpus-yoga indexing accept "<term>" or '
+                                    'corpus-yoga indexing reject "<concept>" --reason "<why>"; '
+                                    'corpus-yoga indexing list-candidates reads the queue with the aliases '
+                                    'that anchor each, and --all disposes it as read'}
+                         if pending else 'none - fully disposed')
     if unanchorable:
-        print(f'unanchorable: {len(unanchorable)} captured concept(s) no conversation turn phrases - not queued: '
-              + ', '.join(c for c, _ in unanchorable))
+        out['unanchorable'] = {'captured concepts no conversation turn phrases, not queued': [c for c, _ in unanchorable]}
+    facts.say({'indexing': out})
 
 
 def main():
@@ -616,6 +617,7 @@ def main():
     # bare `corpus-yoga indexing`: read-only status of the curation surface, then the
     # capture's own status face (deposits + the paid layer's currency, #409)
     status(accepted_path, rejected_path, MARKDOWN_DIR)
+    sys.stdout.flush()   # the child's facts follow this process's in the one stream
     import subprocess
     subprocess.run(['bash', str(Path(__file__).resolve().parent / 'capture.sh'), '--status'], check=False)
 

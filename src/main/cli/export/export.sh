@@ -17,13 +17,19 @@ source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
 # a read face, no writes: the exports held and staged, each paired or unpaired
 status() {
+  # the facts (#753): the exports held and staged, through corpus.py's own facts, under
+  # what an export is; nothing held or staged names where one is requested
   local lines
   lines="$("$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" pairs export)"
-  if [[ -z "$lines" ]]; then
-    echo "export: nothing held or staged - request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>"
+  if [[ "$lines" == $'held: []\nstaged: []' ]]; then
+    jq -n '{export: "nothing held or staged",
+            remedy: "request an export at https://claude.ai/settings/data-privacy-controls, then corpus-yoga export capture --manifest <the downloaded manifest>"}' \
+      | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
     return 0
   fi
-  echo "export: a staged export <X> is data-<X>/ with manifest-<X>.json, its capture's record; shared storage holds data-<X>/"
+  jq -n '{export: {"a staged export <X>": "data-<X>/ with manifest-<X>.json, its capture'"'"'s record",
+                   "shared storage holds": "data-<X>/"}}' \
+    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
   echo "$lines"
 }
 

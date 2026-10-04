@@ -42,6 +42,8 @@ _root = [p for p in _file.parents if p / SELF == _file]
 assert _root, f'{_file} is not at its declared address {SELF}'
 REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ — modules both tiers import
+sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from declared_parser import command_parser  # noqa: E402
 
 import mcp_factoring as factoring  # noqa: E402  (sibling module)
@@ -99,35 +101,49 @@ def status() -> int:
     cache = factoring.CACHE_DIR.relative_to(REPO)
     tagged = factoring.categories()
     gen = factoring.generated()
-    print(f'mcp: {ts}: {len(gen.interfaces)} interfaces, {len(gen.aliases)} aliases and {len(gen.constants)} constants generated; '
-          f'{sum(len(b) for b in declared.values())} extends rows over {len(declared)} definitions, '
-          f'{sum(1 for t in tagged.values() if t)} category tags over {len(tagged)} declarations - '
-          f'{"faced under " + str(cache) if _tables_current(declared) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes it)"}')
-    for row in factoring.additions():
-        print(f'  addition: {row["definition"]} at {row["pointer"]} reads {row["house"] or "nothing"} here, {row["upstream"] or "nothing"} upstream - rsc/schema/mcp/mcpMessage/addition.csv')
-    for name, base in factoring.overrides(shapes, declared):
-        print(f'  override: {name} extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
-    for union, request in factoring.uncarried_results(shapes):
-        print(f'  uncarried: {union} - no message carries it, since {ts} declares no {request} - stands unreachable, '
-              f'declared in {factoring.UNREACHABLE.relative_to(REPO)}')
+    # the facts (#753): what the grammar generated from schema.ts and the tables faced
+    # from it, each ruling the factoring records, then the family's file against its
+    # derivation, the verdict last
+    out: dict = {ts.as_posix(): {
+        'generated': {'interfaces': len(gen.interfaces), 'aliases': len(gen.aliases), 'constants': len(gen.constants)},
+        'extends rows': sum(len(b) for b in declared.values()), 'definitions': len(declared),
+        'category tags': sum(1 for t in tagged.values() if t), 'declarations': len(tagged),
+        'tables': f'faced under {cache}' if _tables_current(declared) else f'NOT faced under {cache}'}}
+    if not _tables_current(declared):
+        out[ts.as_posix()]['remedy'] = 'corpus-yoga mcp sync writes them'
+    out['additions'] = [{row['definition']: f'at {row["pointer"]} reads {row["house"] or "nothing"} here, '
+                                            f'{row["upstream"] or "nothing"} upstream',
+                         'why': 'rsc/schema/mcp/mcpMessage/CHANGELOG.md'} for row in factoring.additions()]
+    out['overrides'] = [{name: f'extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow'}
+                        for name, base in factoring.overrides(shapes, declared)]
+    out['uncarried'] = [{union: f'no message carries it, since {ts} declares no {request} - stands unreachable',
+                         'declared in': factoring.UNREACHABLE.relative_to(REPO).as_posix()}
+                        for union, request in factoring.uncarried_results(shapes)]
     if not target.exists():
-        print(f'mcp: {rel} absent - corpus-yoga mcp sync derives it')
+        out[rel.as_posix()] = 'absent'
+        out['mcp'] = f'{rel} absent - corpus-yoga mcp sync derives it'
+        facts.say(out)
         return 1
     have = target.read_text()
     bad = factoring.disagreements(json.loads(have), snap, factoring.additions(), factoring.generated().constants)
     current = have == wanted
-    print(f'mcp: {rel} {"current" if current else "STALE"} with {snapshot_path.relative_to(REPO)} and {ts}'
-          f' · {len(json.loads(have).get("definitions", {}))} definitions · '
-          f'{"agrees with the snapshot" if not bad else f"{len(bad)} disagreement(s)"}')
-    print(f'  faces: consumer and producer {"faced under " + str(cache) if face.current(json.loads(have)) else "NOT faced under " + str(cache) + " (corpus-yoga mcp sync writes them)"}')
-    print('  layers: ' + ' · '.join(f'{layer} {n}' for layer, n in factoring.partition(json.loads(wanted)).items()))
-    for line in bad[:5]:
-        print(f'  {line}')
+    family: dict = {'derivation': 'current' if current else 'STALE',
+                    'with': [snapshot_path.relative_to(REPO).as_posix(), ts.as_posix()],
+                    'definitions': len(json.loads(have).get('definitions', {})),
+                    'snapshot': 'agrees' if not bad else f'{len(bad)} disagreement(s)'}
+    if bad:
+        family['disagreements'] = bad[:5]
+    family['faces'] = ('consumer and producer faced under ' + str(cache) if face.current(json.loads(have))
+                       else 'consumer and producer NOT faced under ' + str(cache) + ' - corpus-yoga mcp sync writes them')
+    family['layers'] = dict(factoring.partition(json.loads(wanted)))
     if not current:
         changed = sum(1 for l in _diff(have, wanted, rel.name, 'derivation').splitlines()
                       if l[:1] in '+-' and not l.startswith(('+++', '---')))
-        print(f'  the derivation differs by {changed} line(s) - corpus-yoga mcp sync prints the diff and '
-              f'mints {_successor(target).name} in place of {rel.name}')
+        family['differs by'] = f'{changed} line(s)'
+        family['remedy'] = f'corpus-yoga mcp sync prints the diff and mints {_successor(target).name} in place of {rel.name}'
+    out[rel.as_posix()] = family
+    out['mcp'] = f'{rel} {"current" if current else "STALE"}, {"agreeing" if not bad else "disagreeing"} with the snapshot'
+    facts.say(out)
     return 0 if current and not bad else 1
 
 

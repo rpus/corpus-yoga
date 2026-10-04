@@ -23,6 +23,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
 USAGE = (__doc__ or '').strip()
 
@@ -31,7 +32,7 @@ def status() -> int:
     """The bare-noun default: show current state, write nothing."""
     cache = tier.TMP / 'cache'
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
-    print(f'tmp/cache/: {len(subs)} subtree(s) present' + (f': {", ".join(subs)}' if subs else ' (empty)'))
+    facts.say({'tmp/cache': {'subtrees': subs or 'none'}, 'cache': f'{len(subs)} subtree(s) present'})
     return 0
 
 

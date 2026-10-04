@@ -43,6 +43,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src'))  # src/ - modules both tiers import
 from declared_parser import command_parser  # noqa: E402
 sys.path.insert(0, str(REPO / 'src' / 'main'))  # src/main - the tier's shared modules
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from send import may_send, assert_may_send, SendRefused  # noqa: E402
 
 GRAMMARS = REPO / 'rsc' / 'rpus' / 'grammar'
@@ -90,26 +91,34 @@ def held(project: Path) -> dict[str, str]:
 
 
 def status() -> int:
+    """Each project's generated parsers against its grammar, as facts (#753); 1 while any
+    is absent or stale."""
     stale = 0
+    out: dict = {}
     for project in projects():
         rel = (GENERATED / project.name).relative_to(REPO)
         have = held(project)
+        source = f'rsc/rpus/grammar/{project.name}'
         if not have:
             stale += 1
-            print(f'grammar: {project.name}: {rel} ABSENT - corpus-yoga grammar sync generates it from rsc/rpus/grammar/{project.name}')
+            out[project.name] = {'generated': f'{rel} ABSENT', 'remedy': f'corpus-yoga grammar sync generates it from {source}'}
             continue
+        item: dict = {'generated': rel.as_posix(), 'files': len(have)}
         if not tool() or not may_send():
-            reason = 'YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv'
-            print(f'grammar: {project.name}: {len(have)} generated file(s) under {rel} - currency UNVERIFIED ({reason})')
-            continue
-        want = generated(project)
-        differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
-        if differing:
-            stale += 1
-            print(f'grammar: {project.name}: {rel} STALE against rsc/rpus/grammar/{project.name} - '
-                  f'{", ".join(differing)} differ - corpus-yoga grammar sync regenerates')
+            item['currency'] = 'UNVERIFIED - ' + ('YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv')
         else:
-            print(f'grammar: {project.name}: {rel} current with rsc/rpus/grammar/{project.name} ({len(want)} files, antlr4 {TOOL_VERSION})')
+            want = generated(project)
+            differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
+            if differing:
+                stale += 1
+                item['currency'] = f'STALE against {source}'
+                item['differing'] = differing
+                item['remedy'] = 'corpus-yoga grammar sync regenerates'
+            else:
+                item['currency'] = f'current with {source} (antlr4 {TOOL_VERSION})'
+        out[project.name] = item
+    out['grammar'] = f'{len(out)} project(s), {stale} absent or stale'
+    facts.say(out)
     return 1 if stale else 0
 
 

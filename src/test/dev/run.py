@@ -1836,6 +1836,34 @@ def check_store(run) -> None:
                 check='store.rows_read_by_the_audit')
 
 
+def check_status_facts(run) -> None:
+    """Every noun's bare status is its facts as YAML (#753): run as the reader runs it, in
+    this checkout with sends refused, what it prints loads as one mapping - the lines are
+    the data - and the usage line the CLI appends is one of its pairs."""
+    import subprocess
+    try:
+        import yaml
+    except ModuleNotFoundError:
+        run('status: a YAML reader arbitrates the statuses', False,
+            'PyYAML is not in the venv - it is in src/requirements.txt: corpus-yoga prerequisites sync --apply',
+            check='status.lines_load_as_yaml')
+        return
+    env = {**os.environ, 'YOGA_NO_SEND': '1'}
+    for noun in sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command'])):
+        proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), noun], capture_output=True, text=True,
+                              env=env, cwd=REPO_ROOT, timeout=300)
+        try:
+            loaded = yaml.safe_load(proc.stdout)
+            why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
+        except yaml.YAMLError as error:
+            mark = getattr(error, 'problem_mark', None)
+            where = f' at line {mark.line + 1}' if mark is not None else ''
+            line = proc.stdout.splitlines()[mark.line] if mark is not None and mark.line < len(proc.stdout.splitlines()) else ''
+            why = f'{getattr(error, "problem", error)}{where}: {line.strip()[:100]}'
+        run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
+            check='status.lines_load_as_yaml')
+
+
 def check_export_atoms(run) -> None:
     """An earlier export is held whole within a later one by its atoms (#743): over a
     scratch root, an export whose conversations, memories and users are all among a later
@@ -2716,6 +2744,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_store': ['src/main/corpus.py', 'src/main/validation_audit.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
     'check_export_atoms': ['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'],
+    'check_status_facts': ['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'],
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
     'check_verdict_record': ['src/validation_matrix.py', 'src/main/validation_verdict.py', 'src/main/validate_versions.py', 'src/main/corpus.py'],
     'check_versioned_schema_diagnostics': SCHEMA,
@@ -2976,6 +3005,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_store, tier='code')
         run_section(check_facts, tier='code')
         run_section(check_export_atoms, tier='code')
+        run_section(check_status_facts, tier='code')
         run_section(check_drafters, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')

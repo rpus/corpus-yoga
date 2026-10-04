@@ -34,6 +34,7 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 sys.path.insert(0, str(REPO / 'src' / 'main' / 'cli' / 'agent'))
 import provider as registry  # noqa: E402
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 import transport  # noqa: E402
 from machine import bound_machine  # noqa: E402
 
@@ -164,14 +165,17 @@ def brief() -> int:
     sessions, alone, _co, head = survey()
     if not sessions and not alone:
         return 0
-    print(f'drafters on {REF} @ {head}:')
+    out: dict = {}
     for provider in sorted({p for _m, p, _s in sessions}):
         named = sorted(k for k in sessions if k[1] == provider)
         absent = [k for k in named if not held(k[1], k[2])]
-        print(f'  {provider}: {len(named)} session(s) named, {len(named) - len(absent)} held'
-              + ''.join(f'; {"/".join(k)} is held nowhere - {_capture(*k)}' for k in absent))
-    print(f'  a machine alone: {len(alone)} message(s); '
-          'corpus-yoga agent list-drafters reads each message against its drafter\'s record')
+        item: dict = {'sessions named': len(named), 'held': len(named) - len(absent)}
+        if absent:
+            item['held nowhere'] = [{'/'.join(k): 'held nowhere', 'remedy': _capture(*k)} for k in absent]
+        out[provider] = item
+    out['a machine alone'] = {'messages': len(alone),
+                              'read by': 'corpus-yoga agent list-drafters, each message against its drafter\'s record'}
+    facts.say({f'drafters on {REF} @ {head}': out})
     return 0
 
 

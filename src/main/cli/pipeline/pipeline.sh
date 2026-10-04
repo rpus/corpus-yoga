@@ -66,8 +66,9 @@ input_of() {
 # is the same work as `corpus-yoga pipeline run`, spelled out. The decorated status is for people;
 # neither is derived from the other's text.
 status() {
-  echo "pipelines (src/main/pipeline/<name>/; processing only — acquisition is corpus-yoga browser|agent|indexing capture):"
-  local name phases nested v
+  # the facts (#753): each pipeline's phases, where the plan and the input state are
+  # read, then the stage's units through corpus.py's own facts
+  local name phases nested v rows='{}'
   for name in $(pipelines); do
     phases=""
     prep_step "$name" >/dev/null 2>&1 && phases+="prep "
@@ -87,9 +88,13 @@ status() {
       done
       [[ -n "$nested" ]] && phases+="validate($nested)"
     fi
-    printf '  %-18s %s\n' "$name" "${phases:-—}"   # name FIRST: `corpus-yoga pipeline | awk '{print $1}'` works
+    rows="$(jq --arg n "$name" --arg p "${phases% }" '. + {($n): $p}' <<< "$rows")"
   done
-  echo "  → local input state: corpus-yoga prerequisites · each pipeline's steps: corpus-yoga pipeline run --plan"
+  jq -n --argjson rows "$rows" '{pipelines: ($rows + {
+      "processing only": "acquisition is corpus-yoga browser, agent or indexing capture",
+      "steps": "corpus-yoga pipeline run --plan",
+      "input state": "corpus-yoga prerequisites"})}' \
+    | "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/facts.py"
   "$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" report
 }
 

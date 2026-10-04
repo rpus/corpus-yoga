@@ -387,26 +387,32 @@ capture() {
 # the captures-vs-corpus half of the report the dashboard command carried
 # before it dissolved (#409); the render-vs-inputs half is `corpus-yoga site`'s.
 status() {
-  local d="$DATA_DIR/output/indexing" f
-  echo "data/output/indexing/ — the paid model captures: the concept proposals the candidates are drawn from, the categories the site render colours by"
+  # the facts (#753): the paid captures held - the concept proposals the candidates are
+  # drawn from, the categories the site render colours by - and their currency against
+  # the corpus, through the one printer
+  local d="$DATA_DIR/output/indexing" f held='{}'
   for f in inferred-semantic-concepts.json inferred-chat-categories.json; do
     if [[ -f "$d/$f" ]]; then
-      echo "  ✓ $f ($(jq '.rows | length' "$d/$f") rows)"
+      held="$(jq --arg f "$f" --arg r "$(jq '.rows | length' "$d/$f") rows" '. + {($f): $r}' <<< "$held")"
     else
-      echo "  ○ $f — not captured yet"
+      held="$(jq --arg f "$f" '. + {($f): "not captured yet"}' <<< "$held")"
     fi
   done
-  local corpus="$DATA_DIR/output/markdown" n m=0
-  [[ -d "$corpus" ]] || return 0   # L8: no corpus yet — nothing to be current against
-  n="$(count_conversations "$corpus")"
-  [[ "$n" -gt 0 ]] || return 0
-  [[ -f "$d/inferred-chat-categories.json" ]] && m="$(jq '.rows | length' "$d/inferred-chat-categories.json")"
-  echo "corpus: $n conversation(s) · captures cover ~$m"
-  if [[ "$m" -lt "$n" ]]; then
-    # a notice, never a failure (#675): no verb failed, and only the reader's paid act clears it
-    echo "the captures cover ~$m of $n conversation(s) - the paid layer lags the corpus:"
-    echo "    → run: corpus-yoga indexing capture   # PAID — the model re-reads the corpus"
+  local corpus="$DATA_DIR/output/markdown" n=0 m=0 currency='null'
+  if [[ -d "$corpus" ]]; then   # L8: no corpus yet — nothing to be current against
+    n="$(count_conversations "$corpus")"
+    [[ -f "$d/inferred-chat-categories.json" ]] && m="$(jq '.rows | length' "$d/inferred-chat-categories.json")"
+    if [[ "$n" -gt 0 && "$m" -lt "$n" ]]; then
+      # a notice, never a failure (#675): no verb failed, and only the reader's paid act clears it
+      currency="$(jq -n --arg n "$n" --arg m "$m" '{conversations: ($n | tonumber), "covered by the captures": ($m | tonumber),
+        lag: "the paid layer lags the corpus", remedy: "corpus-yoga indexing capture - PAID, the model re-reads the corpus"}')"
+    elif [[ "$n" -gt 0 ]]; then
+      currency="$(jq -n --arg n "$n" --arg m "$m" '{conversations: ($n | tonumber), "covered by the captures": ($m | tonumber)}')"
+    fi
   fi
+  jq -n --argjson held "$held" --argjson c "$currency" \
+    '{"data/output/indexing": ({"paid captures": $held} + (if $c != null then {corpus: $c} else {} end))}' \
+    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
 }
 
 main() {
