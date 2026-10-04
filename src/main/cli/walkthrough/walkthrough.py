@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 """
 walkthrough.py - `corpus-yoga walkthrough`: the room's state as one tree, walked by the
-reader (#766). The tree's first level is the nouns that have a bare status, the machine
-report first; a noun's facts are what its bare status prints, loaded when the walk first
-descends into it - the lines are the data (#753), so the walk has no second interface to
-any noun. Four keys move it, one row of the keyboard, and a fifth leaves:
+reader (#766). The tree's first level is the commands, the machine report first. Under
+each stand its status, where it has one - what its bare status prints, loaded when the
+walk first descends into it: the lines are the data (#753), so the walk has no second
+interface to any noun - and its help: its declaration, as it states it (#770). So help is
+read as the state is, with the same keys, and what does not vary with the room is read
+beside what does. Four keys move it, one row of the keyboard, and a fifth leaves:
 
   n  next   the next sibling at this depth - pressed from the top, the outline
   m  more   into the node the walk stands on: its first child, or its value where it holds one
@@ -23,6 +25,7 @@ the machine report, whose remedies are the first steps.
 """
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
@@ -50,11 +53,44 @@ def venv() -> bool:
 
 
 def nouns() -> list[str]:
-    """Every command with a bare status - one that declares a verb beside itself - the
-    room's state first."""
-    with_status = sorted(d.name for d in CLI.iterdir()
-                         if (d / f'{d.name}.json').is_file() and any(f.stem != d.name for f in d.glob('*.json')))
-    return [n for n in FIRST if n in with_status] + [n for n in with_status if n not in FIRST]
+    """Every declared command, the room's state first."""
+    declared = sorted(d.name for d in CLI.iterdir() if (d / f'{d.name}.json').is_file())
+    return [n for n in FIRST if n in declared] + [n for n in declared if n not in FIRST]
+
+
+def reports(noun: str) -> bool:
+    """Whether the command has a bare status: it declares a verb beside itself."""
+    return any(f.stem != noun for f in (CLI / noun).glob('*.json'))
+
+
+EFFECT = {'r': 'reads', 'w': 'writes', 'consumes': 'consumes', 'x': 'runs', 'sends': 'sends'}   # a declaration's effects, in words
+
+
+def said(declared: dict, summary: str) -> dict:
+    """One declaration as the walk shows it: what it is, what its things are, its
+    arguments each with its help, and its effects."""
+    out: dict = {'summary': declared.get(summary, '')}
+    if declared.get('explanation'):
+        out['explanation'] = declared['explanation']
+    arguments = {a['name']: a['help'] for a in declared.get('args', [])}
+    if arguments:
+        out['arguments'] = arguments
+    out.update({word: declared[key] for key, word in EFFECT.items() if declared.get(key)})
+    return out
+
+
+def help_of(noun: str) -> dict:
+    """A command's help: its declaration, then each verb's beneath its name."""
+    out = said(json.loads((CLI / noun / f'{noun}.json').read_text()), 'summary')
+    verbs = {f.stem: said(json.loads(f.read_text()), 'help') for f in sorted((CLI / noun).glob('*.json')) if f.stem != noun}
+    if verbs:
+        out['verbs'] = verbs
+    return out
+
+
+def room() -> dict:
+    """The tree before anything is read: each command's status unread, its help beside it."""
+    return {noun: ({'status': UNREAD} if reports(noun) else {}) | {'help': help_of(noun)} for noun in nouns()}
 
 
 def status(noun: str):
@@ -119,17 +155,18 @@ class Walk:
     shown: bool = False                               # whether m has asked for the value the walk stands on
 
     def __post_init__(self):
-        self.tree = {noun: UNREAD for noun in nouns()}
+        self.tree = room()
         self.path = [next(iter(self.tree))]
 
-    def node(self, path: list[str]):
-        """What stands at the path, reading a noun's status where the path first enters it."""
+    def node(self, path: list[str], read: bool = False):
+        """What stands at the path. A status is read where the path passes through it, or
+        ends on it and `read` asks; until then it stands unread."""
         at = self.tree
         for depth, key in enumerate(path):
             if isinstance(at, list):
                 return None
-            if depth == 0 and at[key] is UNREAD and len(path) > 1:
-                at[key] = status(key)
+            if at[key] is UNREAD and (read or depth + 1 < len(path)):
+                at[key] = status(path[0])
             at = at[key]
         return at
 
@@ -140,19 +177,16 @@ class Walk:
         return list(parent) if isinstance(parent, dict) else []
 
     def children(self) -> list[str] | None:
-        """The keys beneath the node; None where it holds one value. Entering a noun reads its status."""
-        if len(self.path) == 1 and self.tree[self.path[0]] is UNREAD:
-            self.tree[self.path[0]] = status(self.path[0])
-        here = self.node(self.path)
+        """The keys beneath the node; None where it holds one value. Entering a status reads it."""
+        here = self.node(self.path, read=True)
         if isinstance(here, dict):
             return list(here)
         return [str(item) for item in here] if isinstance(here, list) else None
 
     def leaf(self) -> bool:
         """Whether the walk stands on a key that holds one value."""
-        if len(self.path) == 1 and self.tree[self.path[0]] is UNREAD:
-            return False
-        return not isinstance(self.node(self.path), (dict, list)) and isinstance(self.node(self.path[:-1]), dict)
+        here = self.node(self.path)
+        return here is not UNREAD and not isinstance(here, (dict, list)) and isinstance(self.node(self.path[:-1]), dict)
 
     def move(self, key: str) -> str | None:
         """Take one key; the note where it moved nothing."""
@@ -185,10 +219,9 @@ class Walk:
     def step(self, note: str | None = None, keys: bool = False) -> Step:
         around = self.siblings()
         key = self.path[-1]
-        unread = len(self.path) == 1 and self.tree[key] is UNREAD
-        here = None if unread else self.node(self.path)
-        if unread:
-            holds = 'its status, unread - m reads it'
+        here = self.node(self.path)
+        if here is UNREAD:
+            holds = 'unread - m reads it'
         elif isinstance(here, dict):
             holds = f'{len(here)} key' + ('' if len(here) == 1 else 's')
         elif isinstance(here, list):
@@ -200,7 +233,7 @@ class Walk:
             holds = None                              # a bare value: the key is all of it
         command = command_of(key)
         return Step(' / '.join(self.path[:-1]) or 'the room', key, f'{around.index(key) + 1} of {len(around)}',
-                    holds=holds, value=here if self.shown else None,
+                    holds=holds, value=here if self.shown and here is not UNREAD else None,
                     runs='x - ' + ' '.join(key.split()) if command else None,
                     note=note, keys=KEYS if keys else None)
 
@@ -212,7 +245,7 @@ class Walk:
                 '; this one holds a placeholder, and is the reader\'s to type' if '<' in self.path[-1] else '')
         sys.stdout.flush()
         done = subprocess.run(command, cwd=REPO)
-        self.tree = {noun: UNREAD for noun in nouns()}
+        self.tree = room()
         self.history.clear()
         self.shown = False
         while len(self.path) > 1 and not self._stands():
