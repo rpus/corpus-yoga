@@ -32,6 +32,7 @@ Usage:
 import shutil
 import subprocess
 import sys
+from dataclasses import dataclass
 import tempfile
 from pathlib import Path
 
@@ -90,35 +91,51 @@ def held(project: Path) -> dict[str, str]:
     return {p.name: p.read_text() for p in sorted(out.glob('*.py'))} if out.is_dir() else {}
 
 
+@dataclass
+class Project:
+    generated: str                # where the generated parsers lie, or that they are absent
+    files: int | None = None
+    currency: str | None = None   # against the grammar they are generated from
+    differing: list[str] | None = None
+    remedy: facts.Command | None = None
+
+
+@dataclass
+class Status:
+    projects: dict[str, Project]
+    grammar: str                  # the verdict
+
+    def facts(self) -> dict:
+        return {**self.projects, 'grammar': self.grammar}
+
+
 def status() -> int:
     """Each project's generated parsers against its grammar, as facts (#753); 1 while any
     is absent or stale."""
     stale = 0
-    out: dict = {}
+    projects_: dict[str, Project] = {}
     for project in projects():
         rel = (GENERATED / project.name).relative_to(REPO)
         have = held(project)
         source = f'rsc/rpus/grammar/{project.name}'
         if not have:
             stale += 1
-            out[project.name] = {'generated': f'{rel} ABSENT', 'remedy': f'corpus-yoga grammar sync generates it from {source}'}
+            projects_[project.name] = Project(f'{rel} ABSENT', remedy=facts.Command('corpus-yoga grammar sync', f'generates it from {source}'))
             continue
-        item: dict = {'generated': rel.as_posix(), 'files': len(have)}
+        item = Project(rel.as_posix(), files=len(have))
         if not tool() or not may_send():
-            item['currency'] = 'UNVERIFIED - ' + ('YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv')
+            item.currency = 'UNVERIFIED - ' + ('YOGA_NO_SEND=1 refuses the tool' if tool() else 'antlr4 not in the venv')
         else:
             want = generated(project)
             differing = sorted(n for n in set(have) | set(want) if have.get(n) != want.get(n))
             if differing:
                 stale += 1
-                item['currency'] = f'STALE against {source}'
-                item['differing'] = differing
-                item['remedy'] = 'corpus-yoga grammar sync regenerates'
+                item.currency, item.differing = f'STALE against {source}', differing
+                item.remedy = facts.Command('corpus-yoga grammar sync', 'regenerates')
             else:
-                item['currency'] = f'current with {source} (antlr4 {TOOL_VERSION})'
-        out[project.name] = item
-    out['grammar'] = f'{len(out)} project(s), {stale} absent or stale'
-    facts.say(out)
+                item.currency = f'current with {source} (antlr4 {TOOL_VERSION})'
+        projects_[project.name] = item
+    facts.say(Status(projects_, f'{len(projects_)} project(s), {stale} absent or stale'))
     return 1 if stale else 0
 
 

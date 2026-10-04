@@ -17,6 +17,7 @@ STDLIB-ONLY, like everything it routes to.
 """
 import os
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -28,11 +29,22 @@ VERBS = {'clean': 'clean.py', 'sync': 'sync.py'}
 USAGE = (__doc__ or '').strip()
 
 
+@dataclass
+class Tree:
+    subtrees: list[str] | str
+
+
+@dataclass
+class Status:
+    tmp_cache: Tree = facts.named('tmp/cache')
+    cache: str = ''               # the verdict
+
+
 def status() -> int:
     """The bare-noun default: show current state, write nothing."""
     cache = tier.TMP / 'cache'
     subs = sorted(p.name for p in cache.iterdir() if p.is_dir()) if cache.is_dir() else []
-    facts.say({'tmp/cache': {'subtrees': subs or 'none'}, 'cache': f'{len(subs)} subtree(s) present'})
+    facts.say(Status(Tree(subs or 'none'), f'{len(subs)} subtree(s) present'))
     return 0
 
 

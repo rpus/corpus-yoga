@@ -29,6 +29,7 @@ import hashlib
 import json
 import re
 import sys
+from dataclasses import dataclass
 import urllib.request
 from pathlib import Path
 
@@ -124,7 +125,7 @@ def _pin(project: Path, item: dict, headers: dict) -> str:
     return f'etag {etag}' if etag else f'sha256 {hashlib.sha256(item["bytes"]).hexdigest()}'
 
 
-def _reading(project: Path) -> tuple[list[dict], list[str]]:
+def _reading(project: Path) -> tuple[list[dict], list[dict[str, str]]]:
     """Every wanted item with its live bytes, and the lines to print: what is
     missing, what drifted. Sends."""
     held = {(r['lineage'], r['file']): r for r in rows(project)}
@@ -141,31 +142,49 @@ def _reading(project: Path) -> tuple[list[dict], list[str]]:
     return items, lines
 
 
+@dataclass
+class Project:
+    lineages_upstream: int | None = None
+    lineages_held: list[str] | None = None
+    pinned_files: int | None = None
+    files_hashing_as_pinned: str | None = None
+    currency: str | None = None
+    to_fetch: list[dict[str, str]] | None = None
+    remedy: facts.Command | None = None
+
+
+@dataclass
+class Status:
+    projects: dict[str, Project]
+    reference: str                # the verdict
+
+    def facts(self) -> dict:
+        return {**self.projects, 'reference': self.reference}
+
+
 def status() -> int:
     """Each project's held lineages against upstream, as facts (#753); 1 while any file is
     missing or drifted."""
     stale = 0
-    out: dict = {}
+    out: dict[str, Project] = {}
     for project in projects():
         name = project.name
         held = [d.name for d in lineages(project)]
         table = rows(project)
         if not may_send():
-            out[name] = {'lineages held': held, 'pinned files': len(table),
-                         'currency': 'UNVERIFIED - YOGA_NO_SEND=1 refuses the probe'}
+            out[name] = Project(lineages_held=held, pinned_files=len(table),
+                                currency='UNVERIFIED - YOGA_NO_SEND=1 refuses the probe')
             continue
         items, lines = _reading(project)
         listing = declaration(project).get('lineage_listing')
         upstream = sorted({i['lineage'] for i in items}) if listing else held
-        item: dict = {'lineages upstream': len(upstream), 'lineages held': held,
-                      'files hashing as pinned': f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}'}
+        item = Project(lineages_upstream=len(upstream), lineages_held=held,
+                       files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
         if lines:
-            item['to fetch'] = lines
-            item['remedy'] = 'corpus-yoga reference sync'
+            item.to_fetch, item.remedy = lines, facts.Command('corpus-yoga reference sync')
         out[name] = item
         stale += len(lines)
-    out['reference'] = f'{len(out)} project(s), {stale} file(s) to fetch'
-    facts.say(out)
+    facts.say(Status(out, f'{len(out)} project(s), {stale} file(s) to fetch'))
     return 1 if stale else 0
 
 

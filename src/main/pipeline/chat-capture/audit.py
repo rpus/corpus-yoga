@@ -35,6 +35,7 @@ import json
 import re
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
 
 SELF = 'src/main/pipeline/chat-capture/audit.py'
@@ -55,9 +56,54 @@ from safari import SendRefused   # --live sends; the refusal has to be catchable
 RENDER_CEILING = 10
 
 
-def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list[str]:
-    """The offline findings on gemini's DOM captures, as facts (#753): each finding a
-    FAIL under the conversation it names, with its remedy; the count last."""
+@dataclass
+class Claude:
+    offline_check: str
+    live: str
+
+
+@dataclass
+class Gemini:
+    """The offline findings on gemini's DOM captures: each a FAIL under the conversation it names."""
+    checked: int = facts.named('DOM captures checked against their projections')
+    corroboration: str = 'none - no API capture exists, so nothing corroborates the record itself'
+    placeholders: int | None = facts.named('with "[no capture" placeholder text', default=None)
+    findings: dict[str, facts.Finding] | str = 'nothing flagged'
+
+
+@dataclass
+class Moved:
+    """A conversation the live pass found new or progressed, with the capture that acts on it."""
+    conversation: str
+    standing: str
+    remedy: facts.Command
+
+    def facts(self) -> dict:
+        return {self.conversation: self.standing, 'remedy': self.remedy}
+
+
+@dataclass
+class Live:
+    """One provider's live pass: the account's listing against the captures."""
+    conversations_listed: int
+    new: int
+    progressed: int
+    captured_but_no_longer_listed: int
+    tail_checked: int | None = facts.named('tail-checked', default=None)
+    findings: list[Moved] | str = 'none'
+
+
+@dataclass
+class Audit:
+    """The capture audit: each provider's offline standing, and its live pass where one ran."""
+    claude: Claude | None = None
+    gemini: Gemini | str | None = None
+    claude_live: Live | str | None = None
+    gemini_live: Live | str | None = None
+
+
+def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> tuple[Gemini, list[str]]:
+    """The offline findings on gemini's DOM captures (#753, #759), and the suspects' names."""
     # gemini has no API capture, so the DOM capture IS the record — but its projection
     # is numbered like every other conversation, so the WARN can still name it the way
     # the corpus does rather than by uuid alone.
@@ -69,7 +115,7 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
             projected[cid] = f.stem
             projected_text[cid] = text
     suspects = []
-    findings: dict = {}
+    findings: dict[str, facts.Finding] = {}
     placeholder_convs = 0
     for d in sorted(captures_dir.iterdir()):
         mds = sorted(d.glob('*.md')) if d.is_dir() else []
@@ -82,10 +128,10 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
         if '[no capture' in s:
             placeholder_convs += 1
     for cid, name in suspects:
-        findings[f'{name} ({cid[:8]})'] = {
-            'FAIL': f'shows exactly {RENDER_CEILING} human turns - the gemini page renders only the last '
-                    f'{RENDER_CEILING}, so earlier turns are likely missing from this DOM capture',
-            'remedy': f'corpus-yoga browser capture --provider gemini --id {cid} walks the page, a couple of minutes'}
+        findings[f'{name} ({cid[:8]})'] = facts.Finding(
+            f'shows exactly {RENDER_CEILING} human turns - the gemini page renders only the last '
+            f'{RENDER_CEILING}, so earlier turns are likely missing from this DOM capture',
+            facts.Command(f'corpus-yoga browser capture --provider gemini --id {cid}', 'walks the page, a couple of minutes'))
     # The capture against the rendering derived FROM it. gemini has no API, so nothing
     # else corroborates either one -- and `corpus-yoga pipeline run` rewrites the projection from
     # the capture every time, so a divergence means the two have already parted company.
@@ -98,39 +144,34 @@ def audit_gemini(captures_dir: Path, projection_dir: Path | None = None) -> list
             text = mds[0].read_text()
             cid = conv_id(text) or d.name
             if cid not in projected_text:
-                findings[f'{mds[0].stem} ({cid[:8]})'] = {'FAIL': 'captured but not projected',
-                                                           'remedy': 'the gemini step of corpus-yoga pipeline run produces it'}
+                findings[f'{mds[0].stem} ({cid[:8]})'] = facts.Finding(
+                    'captured but not projected', facts.Command('corpus-yoga pipeline run', 'its gemini step produces it'))
                 suspects.append((cid, mds[0].stem))
                 continue
             cap, proj = turn_seq(text), turn_seq(projected_text[cid])
             if len(cap) != len(proj):
-                findings[f'{projected[cid]} ({cid[:8]})'] = {
-                    'FAIL': f'capture holds {len(cap)} turns, its projection {len(proj)} - the projection is '
-                            'derived from the capture, so they cannot legitimately differ'}
+                findings[f'{projected[cid]} ({cid[:8]})'] = facts.Finding(
+                    f'capture holds {len(cap)} turns, its projection {len(proj)} - the projection is '
+                    'derived from the capture, so they cannot legitimately differ')
                 suspects.append((cid, projected[cid]))
             elif any(a != b for a, b in zip(cap, proj)):
                 first = next(i for i, (a, b) in enumerate(zip(cap, proj)) if a != b)
-                findings[f'{projected[cid]} ({cid[:8]})'] = {
-                    'FAIL': f'capture and projection differ from turn {first + 1} of {len(cap)} - the projection '
-                            'is derived from the capture, so they cannot legitimately differ'}
+                findings[f'{projected[cid]} ({cid[:8]})'] = facts.Finding(
+                    f'capture and projection differ from turn {first + 1} of {len(cap)} - the projection '
+                    'is derived from the capture, so they cannot legitimately differ')
                 suspects.append((cid, projected[cid]))
         unprojected = sorted(set(projected_text) -
                              {conv_id(sorted(d.glob('*.md'))[0].read_text()) or d.name
                               for d in captures_dir.iterdir()
                               if d.is_dir() and list(d.glob('*.md'))})
         for cid in unprojected:
-            findings[f'{projected[cid]} ({cid[:8]})'] = {
-                'FAIL': 'projected but no capture remains - the rendering has outlived the record it was derived from'}
+            findings[f'{projected[cid]} ({cid[:8]})'] = facts.Finding(
+                'projected but no capture remains - the rendering has outlived the record it was derived from')
             suspects.append((cid, projected[cid]))
 
     checked = sum(1 for d in sorted(captures_dir.iterdir()) if d.is_dir() and list(d.glob('*.md')))
-    out: dict = {'DOM captures checked against their projections': checked,
-                 'corroboration': 'none - no API capture exists, so nothing corroborates the record itself'}
-    if placeholder_convs:
-        out['with "[no capture" placeholder text'] = placeholder_convs
-    out['findings'] = findings if findings else 'nothing flagged'
-    facts.say({'gemini': out})
-    return [f'{n} ({c[:8]})' for c, n in suspects]
+    return (Gemini(checked, placeholders=placeholder_convs or None, findings=findings or 'nothing flagged'),
+            [f'{n} ({c[:8]})' for c, n in suspects])
 
 
 def _alnum(s: str) -> str:
@@ -161,17 +202,14 @@ GEMINI_TAIL_JS = """(function(){
 })()"""
 
 
-def report_live(provider: str, summary: dict, findings: list[tuple[str, str, str]]) -> list[str]:
-    """The live pass's facts under the provider that produced them (#753): the summary,
-    then each finding with the command that acts on it - never a bare id in a list that
-    has left its provider behind. Returns the findings for the caller's exit status."""
-    summary['findings'] = [{cid: f'{kind} - {detail}', 'remedy': f'corpus-yoga browser capture --provider {provider} --id {cid}'}
-                           for kind, cid, detail in findings] or 'none'
-    facts.say({f'{provider} live': summary})
-    return [f'{provider} {kind} {cid}' for kind, cid, _ in findings]
+def moved(provider: str, findings: list[tuple[str, str, str]]) -> list[Moved] | str:
+    """Each live finding under the conversation it names, with the command that acts on it -
+    never a bare id in a list that has left its provider behind."""
+    return [Moved(cid, f'{kind} - {detail}', facts.Command(f'corpus-yoga browser capture --provider {provider} --id {cid}'))
+            for kind, cid, detail in findings] or 'none'
 
 
-def live_claude(captures_dir: Path) -> list[str]:
+def live_claude(captures_dir: Path) -> tuple[Live | str, list[str]]:
     """One listing fetch: every conversation's updated_at vs the captured JSONs'."""
     from safari import safari_navigate, safari_eval_js, PAGE_LOAD_WAIT
     safari_navigate('https://claude.ai/recents')
@@ -184,8 +222,7 @@ def live_claude(captures_dir: Path) -> list[str]:
             break
         time.sleep(0.5)
     if not raw or raw.startswith('ERROR'):
-        facts.say({'claude live': f'listing fetch failed ({raw or "timeout"})'})
-        return []
+        return f'listing fetch failed ({raw or "timeout"})', []
     listing = dict(json.loads(raw))
 
     captured = {}
@@ -201,13 +238,12 @@ def live_claude(captures_dir: Path) -> list[str]:
         elif updated > captured[uuid]:
             found.append(('PROGRESSED', uuid, f'captured {captured[uuid]} < updated {updated}'))
     unlisted = sorted(set(captured) - set(listing))
-    return report_live('claude', {'conversations listed': len(listing),
-                                  'new': sum(1 for k, _, _ in found if k == 'NEW'),
-                                  'progressed': sum(1 for k, _, _ in found if k == 'PROGRESSED'),
-                                  'captured but no longer listed': len(unlisted)}, found)
+    return (Live(len(listing), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
+                 len(unlisted), findings=moved('claude', found)),
+            [f'claude {kind} {cid}' for kind, cid, _ in found])
 
 
-def live_gemini(captures_dir: Path) -> list[str]:
+def live_gemini(captures_dir: Path) -> tuple[Live | str, list[str]]:
     """Browse the listing for NEW ids; tail-check each captured conversation
     (append-only: an unchanged rendered tail means an unchanged conversation)."""
     from capture import PROVIDERS, ids_from_safari, wait_for_ready
@@ -243,11 +279,9 @@ def live_gemini(captures_dir: Path) -> list[str]:
             found.append(('PROGRESSED', cid, f'"{mds[0].stem}" — rendered tail no longer '
                                              f'matches the captured last turns'))
     unlisted = sorted(set(captured_dirs) - set(ids))
-    return report_live('gemini', {'conversations listed': len(ids),
-                                  'new': sum(1 for k, _, _ in found if k == 'NEW'),
-                                  'progressed': sum(1 for k, _, _ in found if k == 'PROGRESSED'),
-                                  'tail-checked': checked,
-                                  'captured but no longer listed': len(unlisted)}, found)
+    return (Live(len(ids), sum(1 for k, _, _ in found if k == 'NEW'), sum(1 for k, _, _ in found if k == 'PROGRESSED'),
+                 len(unlisted), tail_checked=checked, findings=moved('gemini', found)),
+            [f'gemini {kind} {cid}' for kind, cid, _ in found])
 
 
 def main():
@@ -271,46 +305,53 @@ def main():
                          'which to pay for is the reader\'s to choose')
     args = ap.parse_args()
 
-    root = Path(args.input)
+    shape, found = audit(Path(args.input), Path(args.api), args.provider, args.live)
+    facts.say(shape)
+    return 1 if found else 0
+
+
+def audit(root: Path, api: Path, provider: str | None = None, live: bool = False) -> tuple[Audit, bool]:
+    """The audit as its shape, and whether anything actionable was found: the offline pass
+    over the captures under root, and with live the account's listing against them."""
     claude_api = root / 'claude' / 'chat' / 'API-capture'
     gemini_dom = root / 'gemini' / 'chat' / 'DOM-capture'
-    suspects = []
+    suspects: list[str] = []
+    out = Audit()
 
     # one restriction, applied wherever the audit is partitioned by provider — the
     # offline pass included, so `--provider claude` means the same thing throughout
-    def want(provider):
-        return args.provider in (None, provider)
+    def want(name):
+        return provider in (None, name)
 
     if want('claude'):
         # the absence is the report: with DOM retired there is no second render to
         # reconcile the record against, and schema validation already ran per capture
-        facts.say({'claude': {'offline check': 'none - the API capture is the record (DOM retired)',
-                              'live': '--live compares it against the account'}})
+        out.claude = Claude('none - the API capture is the record (DOM retired)', '--live compares it against the account')
 
     if want('gemini') and gemini_dom.is_dir():
         # every provider's projection sits under the one corpus root, so gemini's is
-        # named from it rather than guessed: --api gives claude's, three levels down
-        corpus_root = Path(args.api).parents[2]
-        suspects += audit_gemini(gemini_dom, corpus_root / 'gemini' / 'chat' / 'conversations')
+        # named from it rather than guessed: api gives claude's, three levels down
+        corpus_root = api.parents[2]
+        out.gemini, suspects = audit_gemini(gemini_dom, corpus_root / 'gemini' / 'chat' / 'conversations')
     elif want('gemini'):
         shown = gemini_dom.relative_to(REPO) if gemini_dom.is_relative_to(REPO) else gemini_dom
-        facts.say({'gemini': f'skipped - {shown} absent'})
+        out.gemini = f'skipped - {shown} absent'
 
-    actionable = []
-    if args.live:
+    actionable: list[str] = []
+    if live:
         from safari import safari_open_work_tab, safari_close_work_tab
         prev_tab = safari_open_work_tab()
         try:
-            # each pass prints its own findings as it completes them, so no id ever
-            # appears in a list that has left the provider which produced it behind
             if claude_api.is_dir() and want('claude'):
-                actionable += live_claude(claude_api)
+                out.claude_live, moved_ = live_claude(claude_api)
+                actionable += moved_
             if gemini_dom.is_dir() and want('gemini'):
-                actionable += live_gemini(gemini_dom)
+                out.gemini_live, moved_ = live_gemini(gemini_dom)
+                actionable += moved_
         finally:
             safari_close_work_tab(prev_tab)
 
-    return 1 if (suspects or actionable) else 0
+    return out, bool(suspects or actionable)
 
 
 if __name__ == '__main__':

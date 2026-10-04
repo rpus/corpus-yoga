@@ -5,17 +5,12 @@
 # chat-to-category assignment (inferred-chat-categories.json — a categorical index the
 # site render consumes). One paid sweep, one derive-then-deposit bracket.
 #
-# --status is the capture's read-only face: what is deposited, and how far the
-# paid layer lags the corpus — the currency mechanism `corpus-yoga indexing` (bare)
-# appends and the usr gate's corpus tail hoists (L9: the captures are paid, so
-# no run step may keep them fresh). Bare, this file CAPTURES: `corpus-yoga indexing
-# capture` with no flags once landed here argless and got the status instead —
-# a paid verb advising its reader to run itself.
+# This file CAPTURES, bare or with flags; what is deposited and how far the paid
+# layer lags the corpus is `corpus-yoga indexing`'s to say (indexing.py).
 #
 # Usage (via `corpus-yoga indexing capture`, or directly):
 #   src/main/cli/indexing/capture.sh                    # PAID (needs ANTHROPIC_API_KEY)
 #     [--conversations <path>] [--only semantic-concepts|chat-categories] [--dry-run]
-#   src/main/cli/indexing/capture.sh --status           # deposits + currency, read-only
 #
 # Captures land durable in data/output/indexing/ as inferred-*.json (shared across machines; the
 # path keeps the artifact's name — the rendered page it feeds); the category
@@ -383,43 +378,7 @@ capture() {
   capture_dashboard "$conv" "$only"
 }
 
-# The capture's own status: the deposits, then the paid layer's currency —
-# the captures-vs-corpus half of the report the dashboard command carried
-# before it dissolved (#409); the render-vs-inputs half is `corpus-yoga site`'s.
-status() {
-  # the facts (#753): the paid captures held - the concept proposals the candidates are
-  # drawn from, the categories the site render colours by - and their currency against
-  # the corpus, through the one printer
-  local d="$DATA_DIR/output/indexing" f held='{}'
-  for f in inferred-semantic-concepts.json inferred-chat-categories.json; do
-    if [[ -f "$d/$f" ]]; then
-      held="$(jq --arg f "$f" --arg r "$(jq '.rows | length' "$d/$f") rows" '. + {($f): $r}' <<< "$held")"
-    else
-      held="$(jq --arg f "$f" '. + {($f): "not captured yet"}' <<< "$held")"
-    fi
-  done
-  local corpus="$DATA_DIR/output/markdown" n=0 m=0 currency='null'
-  if [[ -d "$corpus" ]]; then   # L8: no corpus yet — nothing to be current against
-    n="$(count_conversations "$corpus")"
-    [[ -f "$d/inferred-chat-categories.json" ]] && m="$(jq '.rows | length' "$d/inferred-chat-categories.json")"
-    if [[ "$n" -gt 0 && "$m" -lt "$n" ]]; then
-      # a notice, never a failure (#675): no verb failed, and only the reader's paid act clears it
-      currency="$(jq -n --arg n "$n" --arg m "$m" '{conversations: ($n | tonumber), "covered by the captures": ($m | tonumber),
-        lag: "the paid layer lags the corpus", remedy: "corpus-yoga indexing capture - PAID, the model re-reads the corpus"}')"
-    elif [[ "$n" -gt 0 ]]; then
-      currency="$(jq -n --arg n "$n" --arg m "$m" '{conversations: ($n | tonumber), "covered by the captures": ($m | tonumber)}')"
-    fi
-  fi
-  jq -n --argjson held "$held" --argjson c "$currency" \
-    '{"data/output/indexing": ({"paid captures": $held} + (if $c != null then {corpus: $c} else {} end))}' \
-    | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/facts.py"
-}
-
 main() {
-  if [[ "${1-}" == "--status" ]]; then
-    status
-    return 0
-  fi
   capture "$@"
 }
 

@@ -32,20 +32,11 @@ source "$REPO_DIR/src/main/tier.sh"
 # shellcheck source=src/main/cli/parse_argv.sh
 source "$REPO_DIR/src/main/cli/parse_argv.sh"
 
-# The bare-noun default: the capture-health audit, read-only. Shows what is captured
-# and what is missing without touching Safari or writing anything — the same audit
-# `capture` runs first, run alone. There is no `status` verb; the bare noun IS it.
-status() {
-  "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/pipeline/chat-capture/audit.py" \
-    --input "$DATA_DIR/input" \
-    --api "$DATA_DIR/output/markdown/claude/chat/conversations"
-}
-
 main() {
   case "${1-}" in
     capture) shift; parse_argv browser capture "$@" ;;
     promote) shift; parse_argv browser promote "$@"; exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" promote browser "$@" ;;
-    '') status; "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/corpus.py" report browser; exit $? ;;   # bare noun → status (read-only), never a capture
+    '') exec "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/browser/status.py" ;;   # bare noun → status (read-only), never a capture
     --help|-h) awk 'NR>1 && /^#/ {sub(/^# ?/, ""); print; next} NR>1 {exit}' "$0"; exit 0 ;;
     *) echo "Usage: corpus-yoga browser capture (--provider claude|gemini | --all) [--mechanism API|DOM] [--id <id>] [--dry-run]  (corpus-yoga browser -h for details)" >&2; exit 1 ;;
   esac

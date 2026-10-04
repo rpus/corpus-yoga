@@ -23,6 +23,7 @@ git and the store; writes nothing.
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 SELF = 'src/main/cli/agent/drafters.py'
@@ -159,24 +160,56 @@ def _capture(machine: str, provider: str, session: str) -> str:
     return f'{machine} is no room of the store - resume the session on a room, then {capture}'
 
 
-def brief() -> int:
-    """The bare noun's lines: per provider, the sessions main names as drafters and how
+@dataclass
+class Nowhere:
+    """A session main names as a drafter that no room's store holds, with what would hold it."""
+    session: str
+    remedy: str                   # the capture that would, or what the reader does first
+
+    def facts(self) -> dict:
+        typed = self.remedy.startswith('corpus-yoga ')
+        return {self.session: 'held nowhere', 'remedy': facts.Command(self.remedy) if typed else facts.Act(self.remedy)}
+
+
+@dataclass
+class Named:
+    sessions_named: int
+    held: int
+    held_nowhere: list[Nowhere] | None = None
+
+
+@dataclass
+class Alone:
+    """The messages signed by a machine alone: the room's own shell."""
+    messages: int
+    read_by: str = 'corpus-yoga agent list-drafters, each message against its drafter\'s record'
+
+
+@dataclass
+class Brief:
+    """Per provider, the sessions main names as drafters and how many the store holds."""
+    ref: str
+    head: str
+    providers: dict[str, Named]
+    alone: Alone
+
+    def facts(self) -> dict:
+        return {**self.providers, 'a machine alone': self.alone}
+
+
+def brief() -> Brief | None:
+    """The bare noun's facts: per provider, the sessions main names as drafters and how
     many the store holds. Opens no session."""
     sessions, alone, _co, head = survey()
     if not sessions and not alone:
-        return 0
-    out: dict = {}
+        return None
+    out = Brief(REF, head, {}, Alone(len(alone)))
     for provider in sorted({p for _m, p, _s in sessions}):
         named = sorted(k for k in sessions if k[1] == provider)
         absent = [k for k in named if not held(k[1], k[2])]
-        item: dict = {'sessions named': len(named), 'held': len(named) - len(absent)}
-        if absent:
-            item['held nowhere'] = [{'/'.join(k): 'held nowhere', 'remedy': _capture(*k)} for k in absent]
-        out[provider] = item
-    out['a machine alone'] = {'messages': len(alone),
-                              'read by': 'corpus-yoga agent list-drafters, each message against its drafter\'s record'}
-    facts.say({f'drafters on {REF} @ {head}': out})
-    return 0
+        out.providers[provider] = Named(len(named), len(named) - len(absent),
+                                        [Nowhere('/'.join(k), _capture(*k)) for k in absent] or None)
+    return out
 
 
 def report() -> int:

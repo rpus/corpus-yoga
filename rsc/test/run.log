@@ -1,4 +1,4 @@
-run.py: code+schema 1470/1470
+run.py: code+schema 1472/1472
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -16,7 +16,7 @@ run.py: code+schema 1470/1470
   ✓ imports.step_module_imports  (2/2)
 
 ── check_self_paths ──────────────────────────────────────────────────────────
-  ✓ structure.self_path_matches_address  (101/101)
+  ✓ structure.self_path_matches_address  (102/102)
 
 ── check_committed_tree ──────────────────────────────────────────────────────
   ✓ structure.corpus_roots_ignored
@@ -53,7 +53,7 @@ run.py: code+schema 1470/1470
   ✓ effects.sends_declared
   ✓ python.pyright_clean
   ✓ output.plan_lines_name_their_target  (87/87)
-  ✓ structure.file_at_level_of_subject  (40/40)
+  ✓ structure.file_at_level_of_subject  (41/41)
   ✓ structure.cli_declaration_mirrors_the_api  (23/23)
   ✓ structure.cli_declaration_validates  (74/74)
   ✓ cli.every_form_listed  (44/44)
@@ -223,11 +223,11 @@ stage                               pass  fail   tier     line
 check_required_files                  10     0   code        4
 check_pipeline_declarations           20     0   code        7
 check_step_imports                     2     0   code       15
-check_self_paths                     101     0   code       18
+check_self_paths                     102     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    539     0   code       32
+check_cli_surface                    540     0   code       32
 check_cli_verb_help                   23     0   code       65
 check_cli_exclusive_classes           16     0   code       68
 check_effects                          3     0   code       71
@@ -264,8 +264,8 @@ check_mcp_reproducible                 1     0   schema    216
 check_expectation                      2     0   code      219
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 134 types, 1470/1470 invocations passing
-checks[code]: 82 types, 793/793 invocations passing
+checks[code+schema]: 134 types, 1472/1472 invocations passing
+checks[code]: 82 types, 795/795 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1470/1470 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1472/1472 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

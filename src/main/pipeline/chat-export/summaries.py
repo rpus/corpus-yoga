@@ -40,6 +40,7 @@ Usage (bare = status, the verb writes — the memories shape):
 import json
 import re
 import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -154,21 +155,47 @@ def twins_of(folder: Path) -> list[Path]:
     return out
 
 
-def _warn_twins(root: Path) -> int:
-    """Report the store's twin count — the standing detector, kept permanently
+def _twins(root: Path) -> tuple[int, facts.Finding | None]:
+    """The store's twin count and its finding — the standing detector, kept permanently
     now that the one-shot repair has retired. nearest_earlier_deposit cannot
     write a twin, so a nonzero count is a NEW defect to investigate, not the
     artifact class the repair cleared. A FAIL: atom, counted by the run
     tail's stage table and folded into the verdict."""
     twins = sum(len(twins_of(d)) for d in root.iterdir() if d.is_dir()) \
         if root.is_dir() else 0
-    if twins:
-        facts.say({'twins': {
-            'FAIL': f'{twins} twin deposit(s) in the summaries store - byte-identical to their nearest '
-                    'earlier sibling, which the deposit rule never writes',
-            'remedy': 'investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its '
-                      'one-shot repair retired, and nothing in the current machinery can mint a twin'}})
+    if not twins:
+        return 0, None
+    return twins, facts.Finding(
+        f'{twins} twin deposit(s) in the summaries store - byte-identical to their nearest '
+        'earlier sibling, which the deposit rule never writes',
+        facts.Act('investigate - a NEW defect in whatever wrote them; the re-stamp bug is fixed, its '
+                  'one-shot repair retired, and nothing in the current machinery can mint a twin'))
+
+
+@dataclass
+class Twins:
+    twins: facts.Finding
+
+
+def _warn_twins(root: Path) -> int:
+    twins, finding = _twins(root)
+    if finding is not None:
+        facts.say(Twins(finding))
     return twins
+
+
+@dataclass
+class Summaries:
+    conversation_folders: int
+    deposited_readings: int
+    rolling_capture_readings: int
+    store: str = facts.named('in', default='')
+
+
+@dataclass
+class Status:
+    summaries: Summaries
+    twins: facts.Finding | None = None
 
 
 def status(root: Path) -> int:
@@ -185,9 +212,7 @@ def status(root: Path) -> int:
             rolling += (f.name == 'browser-capture.md')
             readings += (f.name != 'browser-capture.md')
     shown = root.relative_to(REPO) if root.is_relative_to(REPO) else root
-    facts.say({'summaries': {'conversation folders': len(folders), 'deposited readings': readings,
-                             'rolling capture readings': rolling, 'in': shown.as_posix()}})
-    _warn_twins(root)
+    facts.say(Status(Summaries(len(folders), readings, rolling, shown.as_posix()), _twins(root)[1]))
     return 0
 
 

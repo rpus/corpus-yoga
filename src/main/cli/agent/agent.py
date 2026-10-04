@@ -118,7 +118,9 @@ AND its guid-dir together; delete only the file and the sidebar advertises a
 ghost, whose only offered remedy is the tombstone that started this note.
 """
 import sys
+from dataclasses import dataclass
 from datetime import datetime
+from typing import TYPE_CHECKING
 from pathlib import Path
 from types import ModuleType
 
@@ -137,6 +139,10 @@ from machine import bound_machine  # noqa: E402
 from declared_parser import command_parser  # noqa: E402
 import provider as registry  # noqa: E402
 import transport  # noqa: E402
+
+if TYPE_CHECKING:                 # named for the status's shape; imported where they are used
+    import corpus
+    import drafters
 
 
 def served() -> list[tuple[dict, Path, ModuleType]]:
@@ -191,13 +197,42 @@ def peer_bundle(name: str) -> Path:
     return machine
 
 
-def list_agents() -> int:
+@dataclass
+class Session:
+    """A session in the census: under its id, its title as the adapter reads it."""
+    id: str
+    title: str
+    size: str
+    last_write: str
+
+    def facts(self) -> dict:
+        return {self.id: self.title, 'size': self.size, 'last write': self.last_write}
+
+
+@dataclass
+class Mount:
+    """A live store this room does not mount: which rows cannot appear, and what makes them."""
+    path: str
+    standing: str
+    remedy: facts.Command
+
+    def facts(self) -> dict:
+        return {self.path: self.standing, 'remedy': self.remedy}
+
+
+@dataclass
+class Census:
+    sessions: dict[str, dict[str, list[Session]]] | str   # by where it is - local, then each machine - and provider
+    mounts: list[Mount] | None = None
+
+
+def list_agents() -> Census:
     """The sidebar-independent census: every session in each served provider's
     live store and in each machine's dir of that provider's store, dressed with
     its title as the adapter reads it - derived on demand, never stored (L5).
     Framing on stderr; data lines on stdout (pipeable)."""
     rows: list[tuple[transport.Session, str]] = []
-    absent: list[dict] = []
+    absent: list[Mount] = []
     for row, mount_path, adapter in served():
         provider = row['provider']
         if mount_path.is_dir():
@@ -205,8 +240,8 @@ def list_agents() -> int:
         else:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
-            absent.append({mount_path.relative_to(REPO).as_posix(): f'absent - no local {provider} rows',
-                           'remedy': 'corpus-yoga prerequisites sync --apply'})
+            absent.append(Mount(mount_path.relative_to(REPO).as_posix(), f'absent - no local {provider} rows',
+                                facts.Command('corpus-yoga prerequisites sync --apply')))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -214,20 +249,30 @@ def list_agents() -> int:
     # the facts (#753): each session under where it is and its provider - its title, size
     # and last write - the local store first, then each machine's held copies
     where_order = ['local'] + sorted({w for _s, w in rows if w != 'local'})
-    sessions: dict = {}
+    sessions: dict[str, dict[str, list[Session]]] = {}
     for where in where_order:
-        by_provider: dict = {}
+        by_provider: dict[str, list[Session]] = {}
         for s, w in rows:
             if w == where:
                 t = datetime.fromtimestamp(s.mtime).strftime('%Y-%m-%d %H:%M')
-                by_provider.setdefault(s.provider, []).append({s.id[:8]: s.title, 'size': f'{s.size / 1e6:.1f}M', 'last write': t})
+                by_provider.setdefault(s.provider, []).append(Session(s.id[:8], s.title, f'{s.size / 1e6:.1f}M', t))
         if by_provider:
             sessions[where] = by_provider
-    out: dict = {'sessions': sessions or 'none'}
-    if absent:
-        out['mounts'] = absent
-    facts.say(out)
-    return 0
+    return Census(sessions or 'none', absent or None)
+
+
+@dataclass
+class Status:
+    sessions: dict[str, dict[str, list[Session]]] | str
+    mounts: list[Mount] | None
+    drafters: 'drafters.Brief | None'                     # said under its ref and head
+    staged: 'dict[str, list[corpus.StagedUnit]] | None'
+    stage: str
+
+    def facts(self) -> dict:
+        brief = self.drafters
+        key = f'drafters on {brief.ref} @ {brief.head}' if brief is not None else 'drafters'
+        return {'sessions': self.sessions, 'mounts': self.mounts, key: brief, 'staged': self.staged, 'stage': self.stage}
 
 
 def model_census() -> int:
@@ -344,12 +389,15 @@ def main() -> int:
     }).parse_args()
 
     if args.verb is None:
-        rc = list_agents()   # bare noun → the census (local + store sessions), read-only status
+        # bare noun → one shape (#759): the census (local + store sessions), the sessions
+        # main names as drafters against it (#631), the stage's units of the agent's captures
+        census = list_agents()
         import drafters
-        drafters.brief()     # the sessions main names as drafters, against the census above (#631)
+        brief = drafters.brief()
         import corpus
-        corpus.report('agent')
-        return rc
+        report = corpus.report_facts('agent')
+        facts.say(Status(census.sessions, census.mounts, brief, report.staged, report.stage))
+        return 0
     if args.verb == 'mount':
         return mount(args.apply)
     if args.verb == 'list-models':
