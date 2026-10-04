@@ -92,7 +92,6 @@ naming.upper_camel_case
 naming.venv_default_agrees
 output.plan_lines_name_their_target
 output.prescriptions_are_commands
-output.remedy_lines_are_todos
 provider.names_declared
 provider.registry_parses
 python.pyright_clean

@@ -1112,24 +1112,6 @@ def check_cli_surface(run) -> None:
             f'{", ".join(unknown)} — advertised: {sorted(advertised) or "(none)"}',
             law='G17', check='output.prescriptions_are_commands')
 
-    # A report line that prescribes a REMEDY is a to-do, and must be emitted as one:
-    # `sync` lists the to-dos, so an actionable line left as `info` is invisible there
-    # while the report still shows it — and `sync` then says "every prerequisite is
-    # satisfied" about a machine that has work outstanding. Four lines were exactly that
-    # when sync landed, two of them inside case arms my reclassification pass never
-    # matched. The markers below are the unambiguous ones: "populate via" and "stash it"
-    # sit on lines describing absent DATA, which is context, not a task.
-    prereq = (CLI / 'prerequisites' / 'prerequisites.sh').read_text()
-    REMEDY = ('→ run:', 'install via:', 'reinstall:', 'refresh:')
-    mislabelled = [line.strip()[:80] for line in prereq.splitlines()
-                   if 'info "' in line and any(m in line for m in REMEDY)]
-    run('prerequisites: every line prescribing a remedy is emitted as a to-do',
-        not mislabelled,
-        None if not mislabelled else
-        f'{len(mislabelled)} info line(s) carry a remedy and so never reach `sync`: '
-        + '; '.join(mislabelled[:2]),
-        check='output.remedy_lines_are_todos')
-
     # One venv, declared in several shell entrypoints and once more for the editor —
     # so they are read and compared here rather than described. A comment naming which
     # files set it is a list that rots: a file is added and nothing points at it.
@@ -1849,6 +1831,20 @@ def check_status_facts(run) -> None:
 
     declared = {c['command'] for c in cli.commands()}
     STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'gh', 'brew', 'echo', 'mkdir', 'open', 'pip'}
+
+    def no_command(words: list[str]) -> str | None:
+        """Why the words name no command a reader types; None where they name one."""
+        if words[0] == 'corpus-yoga':
+            if len(words) > 1 and words[1] not in declared:
+                return f'`corpus-yoga {words[1]}` is no declared command'
+            if len(words) > 2 and not words[2].startswith(('-', '<')):
+                verbs = set(cli.subcommands_of(words[1]))
+                if verbs and words[2] not in verbs:
+                    return f'`corpus-yoga {words[1]} {words[2]}` - its verbs are {sorted(verbs)}'
+            return None
+        if words[0] not in STANDARD:
+            return f'`{words[0]}` is neither corpus-yoga nor a standard tool - a path is not a command a reader types'
+        return None
     for path in sorted((SRC / 'main').rglob('*.py')):
         for node in ast.walk(ast.parse(path.read_text())):
             if not (isinstance(node, ast.Call) and node.args
@@ -1864,19 +1860,45 @@ def check_status_facts(run) -> None:
             words = literal.split()
             if not whole and not literal.endswith(' '):
                 words = words[:-1]        # the last word runs into the computed part
-            why = None
             if not words:
                 continue
-            if words[0] == 'corpus-yoga':
-                if len(words) > 1 and words[1] not in declared:
-                    why = f'`corpus-yoga {words[1]}` is no declared command'
-                elif len(words) > 2 and not words[2].startswith(('-', '<')):
-                    verbs = set(cli.subcommands_of(words[1]))
-                    if verbs and words[2] not in verbs:
-                        why = f'`corpus-yoga {words[1]} {words[2]}` - its verbs are {sorted(verbs)}'
-            elif words[0] not in STANDARD:
-                why = f'`{words[0]}` is neither corpus-yoga nor a standard tool - a path is not a command a reader types'
+            why = no_command(words)
             run(f'remedy: {path.relative_to(REPO_ROOT)}:{node.lineno} names a command a reader types', why is None, why,
+                check='status.remedy_names_a_command')
+
+    # The prerequisites report's rows carry their commands as columns (#763): the same
+    # judgement over each `todo` and `bad` call's command arguments, where they are literal.
+    import shlex
+    report = CLI / 'prerequisites' / 'prerequisites.sh'
+    logical: list[tuple[int, str]] = []
+    pending, opened = '', 0
+    for number, text in enumerate(report.read_text().splitlines(), 1):
+        if not pending:
+            opened = number
+        if text.rstrip().endswith('\\'):
+            pending += text.rstrip()[:-1] + ' '
+            continue
+        logical.append((opened, pending + text))
+        pending = ''
+    for number, text in logical:
+        call = re.search(r'\b(todo \S+|bad) "', text)
+        if call is None or text.lstrip().startswith('#'):
+            continue
+        try:
+            tokens = shlex.split(text[call.start():])
+        except ValueError:
+            run(f'remedy: {report.relative_to(REPO_ROOT)}:{number} is a row a reader can parse', False,
+                'the call does not split into its arguments', check='status.remedy_names_a_command')
+            continue
+        arguments = tokens[2:] if tokens[0] == 'todo' else tokens[1:]
+        stop = next((i for i, token in enumerate(arguments) if token in (';;', ';', '&&', '||')), len(arguments))
+        for command in arguments[1:stop:2]:
+            words = command.split()
+            if not words or words[0].startswith('$'):
+                continue                  # computed where the row is emitted: a path the check found, a remedy another verb wrote
+            words[0] = words[0].removeprefix('./')
+            why = no_command(words)
+            run(f'remedy: {report.relative_to(REPO_ROOT)}:{number} `{command[:40]}` names a command a reader types', why is None, why,
                 check='status.remedy_names_a_command')
 
     env = {**os.environ, 'YOGA_NO_SEND': '1'}
