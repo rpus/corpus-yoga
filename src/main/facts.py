@@ -90,6 +90,89 @@ def lines(facts, depth: int = 0) -> list[str]:
     return [pad + scalar(facts)]
 
 
+# -- reading: the printer's inverse ------------------------------------------------------------
+
+_NUMBER = re.compile(r'-?\d+(\.\d+)?(e[-+]?\d+)?')
+
+
+def _scalar(text: str):
+    """One printed value read back: what `scalar` wrote, and an empty mapping or list."""
+    if text.startswith('"'):
+        return json.loads(text)
+    if text in ('null', 'true', 'false'):
+        return {'null': None, 'true': True, 'false': False}[text]
+    if text in ('{}', '[]'):
+        return {} if text == '{}' else []
+    if _NUMBER.fullmatch(text):
+        return float(text) if ('.' in text or 'e' in text) else int(text)
+    return text
+
+
+def _pair(text: str) -> tuple[str, str] | None:
+    """A line as a key and what follows its colon; None where the line is no pair."""
+    if text.startswith('"'):
+        try:
+            key, end = json.JSONDecoder().raw_decode(text)
+        except ValueError:
+            return None
+        if not isinstance(key, str) or text[end:end + 1] != ':' or text[end + 1:end + 2] not in ('', ' '):
+            return None
+        return key, text[end + 1:].strip()
+    at = text.find(': ')
+    if at != -1:
+        return text[:at], text[at + 2:].strip()
+    return (text[:-1], '') if text.endswith(':') else None
+
+
+def _block(rows: list[tuple[int, str]], start: int, indent: int):
+    """The mapping or list whose lines stand at `indent` from row `start`: (it, the row after it)."""
+    at = start
+    if rows[at][1] == '-' or rows[at][1].startswith('- '):
+        items: list = []
+        while at < len(rows) and rows[at][0] == indent and (rows[at][1] == '-' or rows[at][1].startswith('- ')):
+            rest = rows[at][1][1:].strip()
+            if not rest:                              # a list beneath the dash
+                item, at = _block(rows, at + 1, rows[at + 1][0])
+            elif _pair(rest) is not None:             # a mapping whose first pair shares the dash's line
+                rows[at] = (indent + STEP, rest)
+                item, at = _block(rows, at, indent + STEP)
+            else:
+                item, at = _scalar(rest), at + 1
+            items.append(item)
+        return items, at
+    out: dict = {}
+    while at < len(rows) and rows[at][0] == indent:
+        pair = _pair(rows[at][1])
+        if pair is None:
+            raise ValueError(f'line {at + 1} is neither a pair nor an item: {rows[at][1][:60]}')
+        key, rest = pair
+        if key in out:
+            raise ValueError(f'the key {key!r} stands twice in one mapping')
+        if rest:
+            out[key], at = _scalar(rest), at + 1
+        elif at + 1 < len(rows) and rows[at + 1][0] > indent:
+            out[key], at = _block(rows, at + 1, rows[at + 1][0])
+        else:
+            raise ValueError(f'the key {key!r} holds nothing')
+    if at < len(rows) and rows[at][0] > indent:
+        raise ValueError(f'line {at + 1} is indented under nothing: {rows[at][1][:60]}')
+    return out, at
+
+
+def load(text: str):
+    """What `lines` printed, read back as the mappings, lists and scalars it was printed
+    from: the printer's inverse, and no more of YAML than the printer writes. It needs
+    nothing outside the standard library, so a reader of a status runs where the printer
+    does (#766); the dev gate holds the two as inverses against a YAML reader."""
+    rows = [(len(line) - len(line.lstrip(' ')), line.strip()) for line in text.splitlines() if line.strip()]
+    if not rows:
+        return {}
+    out, at = _block(rows, 0, rows[0][0])
+    if at != len(rows):
+        raise ValueError(f'line {at + 1} stands outside what precedes it: {rows[at][1][:60]}')
+    return out
+
+
 def named(label: str, **kwargs):
     """A field that prints under a key its name cannot spell - a path, a name with a dot."""
     return field(metadata={'key': label}, **kwargs)

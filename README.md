@@ -9,6 +9,7 @@ corpus.
 ```bash
 ./src/main/cli/prerequisites/prerequisites.sh sync --apply   # pre-venv, once: mint the venv (bare, the same report read-only)
 ./corpus-yoga prerequisites          # read-only: what this machine can run
+./corpus-yoga walkthrough            # walk the room's state: n next, m more, b back, x runs the command it stands on
 ./corpus-yoga browser capture        # acquire: Safari sweep into data/input/
 ./corpus-yoga pipeline run           # the usr gate: validate, extract, project (--plan previews)
 ./corpus-yoga server start --daemon  # read the corpus at http://localhost:8182

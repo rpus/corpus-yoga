@@ -789,7 +789,9 @@ report() {
 main() {
   # The sync verb's argv is the declaration's to answer (#474); the command-level
   # flags (--show-all) stay parse_args's, which cli.py's command help already covers.
-  if [[ "${1-}" == sync ]]; then parse_argv prerequisites sync "${@:2}"; fi
+  # parse_argv renders under the venv's python (#478), so it answers only where the venv
+  # stands; before the mint, parse_args below takes sync and --apply itself (#757)
+  if [[ "${1-}" == sync && -x "$VENV/bin/python" ]]; then parse_argv prerequisites sync "${@:2}"; fi
   parse_args "$@"
   if [[ "$SYNC" == 1 ]]; then sync; else report; fi
 }
