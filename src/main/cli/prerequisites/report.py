@@ -4,8 +4,9 @@ report.py - `corpus-yoga prerequisites`' report: the rows prerequisites.sh colle
 checks run - `<section> <kind> <text> [<command> <what it does>]...`, tab-separated, in the
 file named - typed and said as
 one shape (#759). A row's commands are columns of their own, `<command> <what it does>` in
-pairs after the text, and a row that carries any is keyed by them (#763). Runs under the
-venv's python, or under python3 before the venv is minted.
+pairs after the text, and a row that carries any is keyed by what stands with its commands
+beneath (#763, #765). Runs under the venv's python, or under python3 before the venv is
+minted.
 
 usage: report.py <rows-file> <verdict> <stamp>
 """
@@ -22,28 +23,27 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
 
-STANDS = {'todo': 'for', 'missing': 'missing'}   # under which key a row that carries commands says what stands
-
-
 @dataclass
-class Item:
-    """One row of the report. A row that asks the reader to act is keyed by the commands
-    that act on it, each with what it does, and says what stands beneath them (#763); any
-    other is what stands, under its kind - ok, note, about, or a todo no command acts on."""
-    kind: str
-    text: str
-    commands: list[facts.Command]
+class Section:
+    """One section of the report, its rows by kind (#763, #765). A row that stands with no
+    command to act on it is a bare statement under its kind - ok, note, todo. A row the
+    reader acts on is keyed by what stands, the commands that act on it beneath, each with
+    what it does; one that is required and absent stands under `missing`."""
+    ok: list[str]
+    note: list[str]
+    todo: list[str]
+    acts: dict[str, dict[str, str]]       # what stands, then each command with what it does
+    missing: dict[str, dict[str, str]]
 
     def facts(self) -> dict:
-        if not self.commands:
-            return {self.kind: self.text}
-        return {**{command.line: command.does for command in self.commands}, STANDS.get(self.kind, self.kind): self.text}
+        return {'ok': self.ok or None, 'note': self.note or None, 'todo': self.todo or None,
+                **self.acts, 'missing': self.missing or None}
 
 
 @dataclass
 class Report:
     stamp: str
-    sections: dict[str, list[Item]]
+    sections: dict[str, Section]
     verdict: str
 
     def facts(self) -> dict:
@@ -52,13 +52,19 @@ class Report:
 
 def main() -> int:
     rows_file, verdict, stamp = sys.argv[1:4]
-    sections: dict[str, list[Item]] = {}
+    sections: dict[str, Section] = {}
     for line in Path(rows_file).read_text().splitlines():
         if not line.strip():
             continue
-        section, kind, text, *rest = line.split('\t')
-        commands = [facts.Command(rest[i], rest[i + 1] if i + 1 < len(rest) else '') for i in range(0, len(rest), 2) if rest[i]]
-        sections.setdefault(section, []).append(Item(kind, text, commands))
+        name, kind, text, *rest = line.split('\t')
+        section = sections.setdefault(name, Section([], [], [], {}, {}))
+        commands = {rest[i]: rest[i + 1] if i + 1 < len(rest) else '' for i in range(0, len(rest), 2) if rest[i]}
+        if not commands:
+            {'ok': section.ok, 'note': section.note}.get(kind, section.todo).append(text)
+        elif kind == 'missing':
+            section.missing[text] = commands
+        else:
+            section.acts[text] = commands
     facts.say(Report(stamp, sections, verdict))
     return 0
 

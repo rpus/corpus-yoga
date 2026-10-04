@@ -56,19 +56,18 @@ _todo=()
 # so its default is the short "what still needs attention" list.
 # The report's rows (#753, #763): section \t kind \t text [\t command \t what it does]...,
 # collected as the checks run and said once, as one shape, by report.py. A command is a
-# column of its own, never a clause of the text: report.py keys the row by it.
-#   sec  <name> [<what the section is>]
+# column of its own, never a clause of the text: report.py nests it beneath what stands.
+# A section is named and no more: what a section is, the help says.
+#   sec  <name>
 #   ok   <text>                                  # only in the full report
 #   info <text>                                  # how things stand: it takes no command
 #   todo <tag> <text> [<command> <what it does>]...
 #   bad  <text> <command> <what it does> [...]   # required, and absent
 _hdr=""
-_about=""
 _rows=()
-sec()    { _hdr="$1"; _about="${2-}"; }
+sec()    { _hdr="$1"; }
 _row() {
   local row="$_hdr"$'\t'"$1"$'\t'"$2"; shift 2
-  if [[ -n "$_about" ]]; then _rows+=("$_hdr"$'\t'"about"$'\t'"$_about"); _about=""; fi
   while [[ $# -gt 0 ]]; do row+=$'\t'"$1"$'\t'"${2-}"; shift; [[ $# -eq 0 ]] || shift; done
   _rows+=("$row")
 }
@@ -218,11 +217,11 @@ check_tools() {
 }
 
 check_venv() {
-  sec "venv" "$VENV - override via VENV=..."
+  sec "venv"
   if [[ -x "$VENV/bin/python" ]]; then
-    ok "exists ($("$VENV/bin/python" --version 2>&1)) — every .py target runs in it"
+    ok "$VENV exists ($("$VENV/bin/python" --version 2>&1)) - every .py target runs in it; VENV= names another"
   else
-    todo venv "not found - nothing python runs, corpus-yoga included (#478)" "$(sync_remedy)" "creates it and installs src/requirements.txt"
+    todo venv "$VENV not found - nothing python runs, corpus-yoga included (#478); VENV= names another" "$(sync_remedy)" "creates it and installs src/requirements.txt"
   fi
 }
 
@@ -237,7 +236,7 @@ check_venv() {
 #   file existence check. Absence is only ever an informational –, never a ✗.
 check_dependencies() {
   local header="$1" manifest="$2" extract="$3" probe="$4" subject="$5" remediation="$6"
-  sec "${header%% (*}" "$(sed -E 's/^[^(]*\((.*)\)$/\1/' <<< "$header")"
+  sec "$header"
   if [[ ! -f "$manifest" ]]; then
     info "manifest not found (unexpected) — nothing can say what this machine is missing"
     return
@@ -316,7 +315,7 @@ check_machine() {
   local binding="$REPO_ROOT/machine-name.txt"
   local rel="${binding#"$REPO_ROOT/"}"
   local registry="$REPO_ROOT/rsc/machine/machines.csv"
-  sec "machine" "its own name for itself - never shared, never transported"
+  sec "machine"
   # The pre-move location, built in pieces — for the same reason the rooted
   # binding is not. This path must exist on NO clean clone, so a
   # committed literal naming it would be a dangling reference, and would resolve
@@ -350,7 +349,7 @@ check_machine() {
 }
 
 check_cli() {
-  sec "corpus-yoga CLI" "tables: src/main/cli/"
+  sec "corpus-yoga CLI"
   # `corpus-yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
@@ -411,7 +410,7 @@ check_git_identity() {
   # only, never a sync act: a global identity is not this repo's to choose (the
   # ext/mnt/site ruling — report where the value cannot be known), unlike the venv
   # two lines below, whose contents ARE the repo's declaration.
-  sec "git" "the tool, and the identity commits require"
+  sec "git"
   if ! command -v git &>/dev/null; then
     todo reader "git not installed - nothing here works without it" "brew install git" "installs it"
     return
@@ -438,7 +437,7 @@ check_git_hook() {
   # The one voice for this fact. A second probe — run.sh reporting on its own
   # installation, in its own words — is two answers to one question, and the copy
   # is free to soften into advice on the very branches where nothing is vetting.
-  sec "pre-commit hook" "the repo's commit gate; until installed, nothing vets a commit"
+  sec "pre-commit hook"
   local hook
   if ! command -v git &>/dev/null; then
     info "git not installed — reported with its remedy in the git section above"
@@ -472,7 +471,7 @@ check_signature_hook() {
   # A convention, not a gate: it stamps the Signature: trailer and strips the model
   # co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry
   # no signature — never a failure, so this reports informationally even when installed.
-  sec "signature hook" "stamps Signature: machine/provider/session; strips the model co-author"
+  sec "signature hook"
   local script hook link dir
   if ! command -v git &>/dev/null; then
     info "git not installed — reported with its remedy in the git section above"
@@ -513,7 +512,7 @@ check_forge() {
   # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
   # unverifiable is reported, never vetoed (the deterministic gate stays offline-
   # reproducible, which is why this lives here and not in corpus-yoga test run).
-  sec "forge settings" "declared: src/main/cli/forge/forge.csv; server-side, so unverifiable offline"
+  sec "forge settings"
   local status key detail remedy
   while IFS=$'\t' read -r status key detail remedy; do
     [[ -z "$status" ]] && continue
@@ -530,7 +529,7 @@ check_forge() {
 }
 
 check_pipeline_inputs() {
-  sec "pipeline inputs" "this repo ships no data; you supply your own"
+  sec "pipeline inputs"
   local n
 
   n="$(count_glob_dirs "$DATA_DIR/input/claude/chat/API-capture"/*/)"
@@ -627,7 +626,7 @@ check_stage() {
   # The room's stage, tmp/stage: what this room has captured and not yet promoted to shared
   # storage (#687) - machine-local state, so it belongs in this report; the count is
   # src/main/corpus.py's, read through the venv's python.
-  sec "stage" "tmp/stage/input - captured in this room, not yet promoted"
+  sec "stage"
   [[ -x "$VENV/bin/python" ]] || return 0
   local staged
   staged="$("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" count 2>/dev/null || echo "?")"
@@ -647,7 +646,7 @@ check_migration() {
   # The moves a rename owes this machine's data/output, tmp/cache and ext/mnt, carried by
   # the scripts under rsc/migration (#661): each run bare states its pending steps and
   # takes none; the reader runs the named script once with --apply.
-  sec "migration" "rsc/migration - the moves a rename owes this machine's local roots"
+  sec "migration"
   local script steps line
   for script in "$REPO_ROOT"/rsc/migration/[0-9]*.sh; do
     [[ -e "$script" ]] || continue
@@ -749,13 +748,13 @@ report() {
   check_tools
   check_venv
   check_dependencies \
-    "python requirements (corpus-yoga pipeline run — manifest: src/requirements.txt)" \
+    "python requirements" \
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
     "corpus-yoga prerequisites sync --apply, or automatically on the next corpus-yoga pipeline run"
   check_dependencies \
-    "markdown viewer render libs (corpus-yoga server — manifest: src/main/model/serve_assets.txt)" \
+    "markdown viewer render libs" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
     asset_extract asset_probe \
     "render assets present in ext/lib/serve_markdown" \

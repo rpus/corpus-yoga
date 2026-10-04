@@ -24,57 +24,68 @@ import facts  # noqa: E402
 REFUSING = {'settings': ('drift', 'unverified'), 'branches': ('unverified',), 'refs': ('unverified',),
             'checkout': ('wrong', 'unverified')}     # the states under which the merge refuses
 TYPED = ('corpus-yoga ', 'git ', 'gh ')              # how a remedy the reader types begins
+DOES = {('settings', 'drift'): 'sets it as declared',
+        ('settings', 'moved'): 'names the repository as the forge answers for it',
+        ('checkout', 'wrong'): 'puts it right'}      # what a row's remedy does, where the row gives the command alone
 
 
 @dataclass
 class Row:
-    """One probe's answer: what it is about, what it found, its state, and the remedy where one stands."""
-    key: str
-    detail: str
+    """One probe's answer: what stands, its state, and the remedy where one stands."""
+    stands: str
     state: str
-    remedy: str = ''
-
-    def facts(self) -> dict:
-        remedy = None if not self.remedy else facts.Command(self.remedy) if self.remedy.startswith(TYPED) else facts.Act(self.remedy)
-        return {self.key: self.detail, 'state': self.state, 'remedy': remedy}
+    remedy: facts.Command | facts.Act | None = None
 
 
 @dataclass
-class Settings:
-    declared: str
-    live: str
-    rows: list[Row]
+class Section:
+    rows: dict[str, Row]          # by what each probe is about
+    remedy: facts.Command | None = None
+
+    def facts(self) -> dict:
+        return {**self.rows, 'remedy': self.remedy}
+
+
+@dataclass
+class Settings(Section):
+    declared: str = 'src/main/cli/forge/forge.csv'
+    live: str = "this checkout's remote"
+
+    def facts(self) -> dict:
+        return {'declared': self.declared, 'live': self.live, **self.rows}
 
 
 @dataclass
 class Status:
     forge_settings: Settings
-    branches: list[Row] | None
-    branches_remedy: facts.Command | None
-    refs: list[Row] | None = facts.named('remote-tracking refs', default=None)
-    refs_remedy: facts.Command | None = facts.named('remote-tracking refs remedy', default=None)
-    checkout: list[Row] | None = facts.named('this checkout', default=None)
-    staged: dict[str, list[corpus.StagedUnit]] | None = None
+    branches: Section | None
+    refs: Section | None = facts.named('remote-tracking refs', default=None)
+    checkout: Section | None = facts.named('this checkout', default=None)
+    staged: dict[str, dict[str, str]] | None = None
     stage: str | None = None
     forge: str = ''               # the verdict
 
 
 def main() -> int:
-    by_section: dict[str, list[Row]] = {}
+    by_section: dict[str, dict[str, Row]] = {}
     for line in sys.stdin.read().splitlines():
         cells = line.split('\t')
         if len(cells) < 4 or not cells[1]:
             continue
-        by_section.setdefault(cells[0], []).append(Row(cells[2], cells[3], cells[1].lower(), cells[4] if len(cells) > 4 else ''))
-    refused = any(row.state in REFUSING[section] for section, rows in by_section.items() for row in rows if section in REFUSING)
-    branches, refs = by_section.get('branches'), by_section.get('refs')
+        section, state, said = cells[0], cells[1].lower(), cells[4] if len(cells) > 4 else ''
+        remedy = None if not said else facts.Command(said, DOES.get((section, state), 'then it is deletable')) \
+            if said.startswith(TYPED) else facts.Act(said)
+        by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
+    refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
+                  for row in rows.values())
+    branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
     out = Status(
-        Settings('src/main/cli/forge/forge.csv', "this checkout's remote", by_section.get('settings', [])),
-        branches,
-        facts.Command('corpus-yoga forge prune', 'removes each deletable branch')
-        if branches and any(row.state in ('deletable', 'server_deletable') for row in branches) else None,
-        refs, facts.Command('corpus-yoga forge prune') if refs and any(row.state == 'stale' for row in refs) else None,
-        by_section.get('checkout'),
+        Settings(by_section.get('settings', {})),
+        Section(branches, facts.Command('corpus-yoga forge prune', 'removes each deletable branch')
+                if any(row.state in ('deletable', 'server_deletable') for row in branches.values()) else None) if branches else None,
+        Section(refs, facts.Command('corpus-yoga forge prune', 'drops each stale ref')
+                if any(row.state == 'stale' for row in refs.values()) else None) if refs else None,
+        Section(checkout) if checkout else None,
         forge='refuse-class drift - corpus-yoga forge merge refuses while it stands' if refused else 'ready - no refuse-class drift')
     if '--stage' in sys.argv[1:]:
         report = corpus.report_facts('forge')

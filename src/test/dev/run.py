@@ -1804,7 +1804,8 @@ def check_status_facts(run) -> None:
     this checkout with sends refused, what it prints loads as one mapping - the lines are
     the data - and the usage line the CLI appends is one of its pairs. A key that stands
     twice in one mapping is refused, where YAML's own reader keeps the last in silence
-    (#759). And a remedy the reader types names a command (#759): every Command a status
+    (#759), and a list holds only scalars: a dash means a bare value, and a collection of
+    named things is a mapping keyed by their names (#765). And a remedy the reader types names a command (#759): every Command a status
     constructs from a literal is a corpus-yoga command the CLI declares, with a verb it
     has, or a standard tool - read from the constructor's call sites, so a remedy a rare
     state alone would say is held before that state."""
@@ -1828,6 +1829,17 @@ def check_status_facts(run) -> None:
         return loader.construct_mapping(node, deep)
 
     Strict.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, mapping_without_duplicates)
+
+    def listed_structure(node, path: str = '') -> str | None:
+        """Where a list in the loaded facts holds something that is not a scalar; None where none does."""
+        if isinstance(node, dict):
+            for key, value in node.items():
+                found = listed_structure(value, f'{path}/{key}' if path else str(key))
+                if found is not None:
+                    return found
+        elif isinstance(node, list):
+            return path if any(isinstance(item, (dict, list)) for item in node) else None
+        return None
 
     declared = {c['command'] for c in cli.commands()}
     STANDARD = {'rm', 'mv', 'cp', 'ln', 'git', 'gh', 'brew', 'echo', 'mkdir', 'open', 'pip'}
@@ -1908,6 +1920,11 @@ def check_status_facts(run) -> None:
         try:
             loaded = yaml.load(proc.stdout, Loader=Strict)
             why = None if isinstance(loaded, dict) else f'loads as {type(loaded).__name__}, not a mapping'
+            if why is None:
+                # a dash means a bare value (#765): a collection of named things is a mapping keyed by their names
+                nested = listed_structure(loaded)
+                if nested is not None:
+                    why = f'the list at {nested} holds a mapping or a list - a collection is keyed by its members\' names'
         except yaml.YAMLError as error:
             mark = getattr(error, 'problem_mark', None)
             where = f' at line {mark.line + 1}' if mark is not None else ''

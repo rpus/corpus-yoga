@@ -22,17 +22,17 @@ import facts  # noqa: E402
 class Pipelines:
     phases: dict[str, str]        # each pipeline's phases, in the order they run
     processing_only: str = 'acquisition is corpus-yoga browser, agent or indexing capture'
-    steps: facts.Command = facts.Command('corpus-yoga pipeline run --plan')
-    input_state: facts.Command = facts.Command('corpus-yoga prerequisites')
+    steps: facts.Command = facts.Command('corpus-yoga pipeline run --plan', "prints each pipeline's steps")
+    input_state: facts.Command = facts.Command('corpus-yoga prerequisites', 'reports the input state')
 
     def facts(self) -> dict:
-        return {**self.phases, 'processing only': self.processing_only, 'steps': self.steps, 'input state': self.input_state}
+        return {**self.phases, 'processing only': self.processing_only, **self.steps.facts(), **self.input_state.facts()}
 
 
 @dataclass
 class Status:
     pipelines: Pipelines
-    staged: dict[str, list[corpus.StagedUnit]] | None
+    staged: dict[str, dict[str, str]] | None
     stage: str
 
 

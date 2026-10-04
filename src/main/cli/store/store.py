@@ -85,17 +85,21 @@ class Ahead:
     link: str = ''            # the project whose directory this one is a link to
     capture: str = ''         # the capture, by extent, that stages exactly this; empty where a session's capture brings it
 
+    @property
+    def key(self) -> str:
+        """What the live thing is called: its provider, its kind, its name."""
+        return f'{self.provider} {self.kind} {self.name}'
+
     def facts(self) -> dict:
         """The live thing as the status states it: its state, both sides, and what stages it."""
         staged_by: facts.Command | facts.Act | None = None
         if self.capture:
-            staged_by = facts.Command(self.capture)
+            staged_by = facts.Command(self.capture, 'stages it')
         elif self.kind != 'session' and self.state in ('new', 'changed'):
             staged_by = facts.Act('with a session of its project')
         then = {'diverged': 'a capture of it would be refused at promotion; the reader reconciles the two',
                 'behind': 'the store holds more than the live store does'}.get(self.state)
-        return {f'{self.provider} {self.kind}': self.name, 'state': self.state, 'live': self.live,
-                'held': self.held or None,
+        return {'state': self.state, 'live': self.live, 'held': self.held or None,
                 'agree for': f'{self.agree} bytes' if self.state == 'diverged' else None,
                 'then': then, 'link to': self.link or None, 'capture': staged_by}
 
@@ -103,7 +107,6 @@ class Ahead:
 @dataclass
 class AbsentMount:
     """A live store this room does not mount: nothing is read there."""
-    mount: str
     state: str = 'absent'
     why: str = 'no live store is read there'
     remedy: facts.Command = facts.Command('corpus-yoga prerequisites sync --apply', 'mounts it')
@@ -204,11 +207,11 @@ def ahead() -> tuple[list[Ahead], list[str]]:
     return rows, absent
 
 
-def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[list[Ahead | AbsentMount], int, int]:
-    """The third reading as facts: the absent mounts, then each live thing that is not level
-    with the held one; returns (the items, ahead, level)."""
-    items: list[Ahead | AbsentMount] = [AbsentMount(m) for m in absent]
-    items += [r for r in rows if r.state != 'level']
+def ahead_facts(rows: list[Ahead], absent: list[str]) -> tuple[dict[str, Ahead | AbsentMount], int, int]:
+    """The third reading as facts: the absent mounts, by path, then each live thing that is
+    not level with the held one, by what it is called; returns (the items, ahead, level)."""
+    items: dict[str, Ahead | AbsentMount] = {m: AbsentMount() for m in absent}
+    items.update({r.key: r for r in rows if r.state != 'level'})
     found = sum(1 for r in rows if r.state in ('new', 'grown', 'changed', 'diverged'))
     return items, found, sum(1 for r in rows if r.state == 'level')
 

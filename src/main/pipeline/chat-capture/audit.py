@@ -74,12 +74,8 @@ class Gemini:
 @dataclass
 class Moved:
     """A conversation the live pass found new or progressed, with the capture that acts on it."""
-    conversation: str
     standing: str
     remedy: facts.Command
-
-    def facts(self) -> dict:
-        return {self.conversation: self.standing, 'remedy': self.remedy}
 
 
 @dataclass
@@ -90,7 +86,7 @@ class Live:
     progressed: int
     captured_but_no_longer_listed: int
     tail_checked: int | None = facts.named('tail-checked', default=None)
-    findings: list[Moved] | str = 'none'
+    findings: dict[str, Moved] | str = 'none'   # by conversation
 
 
 @dataclass
@@ -202,11 +198,11 @@ GEMINI_TAIL_JS = """(function(){
 })()"""
 
 
-def moved(provider: str, findings: list[tuple[str, str, str]]) -> list[Moved] | str:
+def moved(provider: str, findings: list[tuple[str, str, str]]) -> dict[str, Moved] | str:
     """Each live finding under the conversation it names, with the command that acts on it -
     never a bare id in a list that has left its provider behind."""
-    return [Moved(cid, f'{kind} - {detail}', facts.Command(f'corpus-yoga browser capture --provider {provider} --id {cid}'))
-            for kind, cid, detail in findings] or 'none'
+    return {cid: Moved(f'{kind} - {detail}', facts.Command(f'corpus-yoga browser capture --provider {provider} --id {cid}', 'recaptures it'))
+            for kind, cid, detail in findings} or 'none'
 
 
 def live_claude(captures_dir: Path) -> tuple[Live | str, list[str]]:

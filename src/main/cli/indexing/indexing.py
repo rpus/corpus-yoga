@@ -574,7 +574,7 @@ def status(accepted_path: Path, rejected_path: Path, markdown_root: Path) -> Ind
                        if orphans else 'none - every accepted headword has a corpus locator')
     if not inferred_concepts():
         out.candidates = Candidates(queue='unknown - no concept capture on this machine',
-                                    remedy=facts.Command('corpus-yoga indexing capture'))
+                                    remedy=facts.Command('corpus-yoga indexing capture', 'PAID, the model reads the corpus for its concepts'))
         return out
     anchored, unanchorable = anchored_split(pending_concepts(accepted_path, rejected_path), markdown_root)
     pending = [c for c, _ in anchored]

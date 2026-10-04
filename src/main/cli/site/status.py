@@ -21,14 +21,14 @@ import facts  # noqa: E402
 @dataclass
 class CorpusPage:
     title: str = facts.named('the corpus page')
-    producer: facts.Command = facts.Command('corpus-yoga site render')
+    producer: facts.Command = facts.Command('corpus-yoga site render', 'renders it')
 
 
 @dataclass
 class Site:
     publish_tree: str
     sources: str
-    pages: list[dict[str, str]] | str
+    pages: dict[str, str] | str   # each stale page by its file, or that all are current
     index: CorpusPage | facts.Finding = facts.named('index.html')
     deploy: str = ''
 
@@ -40,7 +40,7 @@ class Status:
 
 def main() -> int:
     rows = [row.split('\t') for row in sys.stdin.read().splitlines() if row.strip()]
-    stale = [{row[1]: row[2]} for row in rows if row[0] == 'page']
+    stale = {row[1]: row[2] for row in rows if row[0] == 'page'}
     standing = next((row[1] for row in rows if row[0] == 'pages'), 'current with rsc/site/')
     title = next((row[1] for row in rows if row[0] == 'index'), 'ABSENT')
     index: CorpusPage | facts.Finding = CorpusPage(title)

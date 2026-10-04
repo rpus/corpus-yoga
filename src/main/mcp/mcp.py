@@ -103,14 +103,10 @@ class SchemaTs:
 
 @dataclass
 class Ruling:
-    """One ruling the factoring records, under the definition it is about."""
-    definition: str
+    """One ruling the factoring records."""
     ruling: str
     why: str | None = None
     declared_in: str | None = None
-
-    def facts(self) -> dict:
-        return {self.definition: self.ruling, 'why': self.why, 'declared in': self.declared_in}
 
 
 @dataclass
@@ -131,9 +127,9 @@ class Family:
 class Status:
     ts_path: str
     ts: SchemaTs
-    additions: list[Ruling]
-    overrides: list[Ruling]
-    uncarried: list[Ruling]
+    additions: dict[str, Ruling]  # each by the definition it is about, an addition with where in it
+    overrides: dict[str, Ruling]
+    uncarried: dict[str, Ruling]
     family_path: str
     family: Family | str | None = None
     mcp: str | None = None        # the verdict
@@ -173,14 +169,14 @@ def status() -> int:
                  sum(1 for t in tagged.values() if t), len(tagged),
                  tables=f'faced under {cache}' if _tables_current(declared) else f'NOT faced under {cache}',
                  remedy=None if _tables_current(declared) else facts.Command('corpus-yoga mcp sync', 'writes them')),
-        additions=[Ruling(row['definition'], f'at {row["pointer"]} reads {row["house"] or "nothing"} here, '
-                                             f'{row["upstream"] or "nothing"} upstream',
-                          why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()],
-        overrides=[Ruling(name, f'extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
-                   for name, base in factoring.overrides(shapes, declared)],
-        uncarried=[Ruling(union, f'no message carries it, since {ts} declares no {request} - stands unreachable',
-                          declared_in=factoring.UNREACHABLE.relative_to(REPO).as_posix())
-                   for union, request in factoring.uncarried_results(shapes)],
+        additions={f'{row["definition"]} at {row["pointer"]}': Ruling(
+            f'reads {row["house"] or "nothing"} here, {row["upstream"] or "nothing"} upstream',
+            why='rsc/schema/mcp/mcpMessage/CHANGELOG.md') for row in factoring.additions()},
+        overrides={name: Ruling(f'extends {base} in {ts} but narrows a property of it - stands flat, since allOf cannot narrow')
+                   for name, base in factoring.overrides(shapes, declared)},
+        uncarried={union: Ruling(f'no message carries it, since {ts} declares no {request} - stands unreachable',
+                                 declared_in=factoring.UNREACHABLE.relative_to(REPO).as_posix())
+                   for union, request in factoring.uncarried_results(shapes)},
         family_path=rel.as_posix())
     if not target.exists():
         out.family = 'absent'

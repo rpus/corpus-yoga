@@ -75,13 +75,9 @@ def _underived() -> list[Path]:
 
 @dataclass
 class Undisposed:
-    """A shared type the curation owes a disposal: its name, what stands of it, the remedy."""
-    name: str
+    """A shared type the curation owes a disposal: what stands of it, and the remedy."""
     standing: str
     remedy: facts.Act
-
-    def facts(self) -> dict:
-        return {self.name: self.standing, 'remedy': self.remedy}
 
 
 @dataclass
@@ -93,9 +89,9 @@ class Table:
     documented_but_ungrounded: int = 0
     documented_incompletely: int = 0
     gates: str | None = None
-    undisposed: list[Undisposed] | str = 'none'
-    ungrounded: list[Undisposed] | str = 'none'
-    incomplete: list[Undisposed] | str = 'none'
+    undisposed: dict[str, Undisposed] | str = 'none'   # each by the type's name
+    ungrounded: dict[str, Undisposed] | str = 'none'
+    incomplete: dict[str, Undisposed] | str = 'none'
 
 
 @dataclass
@@ -125,13 +121,14 @@ def curation_report() -> tuple[Table, Join]:
     table = Table(
         len(documented()), len(rejected()), len(queue), len(orphans), len(gaps),
         gates='corpus-yoga test run holds each as check_model_obligations' if queue or orphans or gaps else None,
-        undisposed=[Undisposed('/'.join(sorted(names)), f'model_join row(s) {", ".join(map(str, rows))}',
-                               facts.Act('document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt'))
-                    for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0]))] or 'none',
-        ungrounded=[Undisposed(name, 'documented with no grounding model_join edge',
-                               facts.Act('curate the asserting edge, or retire the entry')) for name in orphans] or 'none',
-        incomplete=[Undisposed(name, f'occurrences omit data famil(y/ies) its edge asserts: {", ".join(fams)}',
-                               facts.Act('add the occurrence(s)')) for name, fams in sorted(gaps.items())] or 'none')
+        undisposed={'/'.join(sorted(names)): Undisposed(
+            f'model_join row(s) {", ".join(map(str, rows))}',
+            facts.Act('document in rsc/model/model.json, or reject into rsc/model/model_rejected.txt'))
+            for names, rows in sorted(queue.items(), key=lambda kv: sorted(kv[0]))} or 'none',
+        ungrounded={name: Undisposed('documented with no grounding model_join edge',
+                                     facts.Act('curate the asserting edge, or retire the entry')) for name in orphans} or 'none',
+        incomplete={name: Undisposed(f'occurrences omit data famil(y/ies) its edge asserts: {", ".join(fams)}',
+                                     facts.Act('add the occurrence(s)')) for name, fams in sorted(gaps.items())} or 'none')
     shared = unrecorded_collisions()
     collisions = None
     if shared:

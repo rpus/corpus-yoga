@@ -321,11 +321,15 @@ def uninstall_completion() -> int:
 
 
 @dataclass
-class Completions:
-    script: str = facts.named('tmp/cache/completions/_yoga')    # written and current with the table, or not
+class Standing:
+    state: str
     remedy: facts.Command | None = None
-    zshrc: str = facts.named('~/.zshrc', default='')            # how many times the block that wires it stands there
-    zshrc_remedy: facts.Command | None = facts.named('~/.zshrc remedy', default=None)
+
+
+@dataclass
+class Completions:
+    script: Standing = facts.named('tmp/cache/completions/_yoga')   # written and current with the table, or not
+    zshrc: Standing = facts.named('~/.zshrc')                       # how many times the block that wires it stands there
 
 
 @dataclass
@@ -343,16 +347,16 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    sync = facts.Command('corpus-yoga completions sync' if blocks >= 1 else 'corpus-yoga completions install-latest', 'then a new shell')
+    write = 'corpus-yoga completions sync' if blocks >= 1 else 'corpus-yoga completions install-latest'
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
-    wiring = (None if blocks == 1 else facts.Command('corpus-yoga completions install-latest',
-                                                     '' if not blocks else 'removes every block and writes one'))
     facts.say(Status(Completions(
-        script='not written' if not written else 'current' if current else 'STALE',
-        remedy=None if written and current else sync,
-        zshrc='not wired' if not blocks else 'wired' if blocks == 1 else f'wired {blocks} times',
-        zshrc_remedy=wiring)))
+        Standing('not written' if not written else 'current' if current else 'STALE',
+                 None if written and current else facts.Command(write, 'writes it from the table; then a new shell')),
+        Standing('not wired' if not blocks else 'wired' if blocks == 1 else f'wired {blocks} times',
+                 None if blocks == 1 else facts.Command(
+                     'corpus-yoga completions install-latest',
+                     'wires it; then a new shell' if not blocks else 'removes every block and writes one; then a new shell')))))
     return 0
 
 

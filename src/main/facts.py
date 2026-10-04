@@ -12,10 +12,13 @@ would otherwise read it as something else.
 A status's facts are a named shape (#759): a dataclass whose fields are the facts it
 holds, so that a reader takes them as fields and the type check holds the keys. A field
 prints under its name's words, or under the key `named` gives it; a field that is None is
-not printed; a shape whose keys are its data - an address, a session's id - says so in a
-`facts` method. Two facts every status shares are types of their own: a remedy, the
-command a reader types (Command) or the reader's own act in words (Act), and a finding
-(Finding), the FAIL the usr gate's table counts. A noun written in shell hands its rows to
+not printed; a shape whose keys are its data says so in a `facts` method. A collection is
+a mapping keyed by its members' names, each member's facts beneath its name, so that a
+dash means only a bare value with nothing to key it by, and the nesting alone says what
+belongs to what (#765). Two facts every status shares are types of their own: a remedy,
+the command a reader types (Command) or the reader's own act in words (Act), and a finding
+(Finding), the FAIL the usr gate's table counts. A Command prints as a pair, the line its
+key and what it does its value: what is typed is always a whole scalar. A noun written in shell hands its rows to
 a status module beside it, which types them: no shell builds facts.
 """
 from __future__ import annotations
@@ -96,10 +99,10 @@ def named(label: str, **kwargs):
 class Command:
     """A remedy the reader types: a corpus-yoga command, or a standard tool's."""
     line: str                     # the command as typed
-    does: str = ''                # what it does, where the line does not say
+    does: str                     # what it does
 
-    def said(self) -> str:
-        return f'{self.line} - {self.does}' if self.does else self.line
+    def facts(self) -> dict:
+        return {self.line: self.does}
 
 
 @dataclass(frozen=True)

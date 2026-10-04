@@ -125,11 +125,12 @@ def _pin(project: Path, item: dict, headers: dict) -> str:
     return f'etag {etag}' if etag else f'sha256 {hashlib.sha256(item["bytes"]).hexdigest()}'
 
 
-def _reading(project: Path) -> tuple[list[dict], list[dict[str, str]]]:
+def _reading(project: Path) -> tuple[list[dict], dict[str, str]]:
     """Every wanted item with its live bytes, and the lines to print: what is
     missing, what drifted. Sends."""
     held = {(r['lineage'], r['file']): r for r in rows(project)}
-    items, lines = [], []
+    items: list[dict] = []
+    lines: dict[str, str] = {}
     for item in wanted(project):
         body, headers = _get(item['url'])
         digest = hashlib.sha256(body).hexdigest()
@@ -137,8 +138,8 @@ def _reading(project: Path) -> tuple[list[dict], list[dict[str, str]]]:
         state = 'missing' if row is None else ('drifted' if row['sha256'] != digest else 'current')
         items.append({**item, 'bytes': body, 'headers': headers, 'sha256': digest, 'state': state, 'row': row})
         if state != 'current':
-            lines.append({f'{item["lineage"]}/{item["file"]}': state
-                          + (f' - upstream hashes {digest[:12]}, provenance.csv pins {row["sha256"][:12]}' if row else '')})
+            lines[f'{item["lineage"]}/{item["file"]}'] = state + (
+                f' - upstream hashes {digest[:12]}, provenance.csv pins {row["sha256"][:12]}' if row else '')
     return items, lines
 
 
@@ -149,7 +150,7 @@ class Project:
     pinned_files: int | None = None
     files_hashing_as_pinned: str | None = None
     currency: str | None = None
-    to_fetch: list[dict[str, str]] | None = None
+    to_fetch: dict[str, str] | None = None   # by file: missing, or drifted from its pin
     remedy: facts.Command | None = None
 
 
@@ -181,7 +182,7 @@ def status() -> int:
         item = Project(lineages_upstream=len(upstream), lineages_held=held,
                        files_hashing_as_pinned=f'{sum(1 for i in items if i["state"] == "current")}/{len(items)}')
         if lines:
-            item.to_fetch, item.remedy = lines, facts.Command('corpus-yoga reference sync')
+            item.to_fetch, item.remedy = lines, facts.Command('corpus-yoga reference sync', 'fetches them')
         out[name] = item
         stale += len(lines)
     facts.say(Status(out, f'{len(out)} project(s), {stale} file(s) to fetch'))

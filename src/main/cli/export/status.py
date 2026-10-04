@@ -22,15 +22,15 @@ class Exports:
     """What an export is, then the ones held and the ones staged."""
     form: str = facts.named('a staged export <X>', default="data-<X>/ with manifest-<X>.json, its capture's record")
     shared: str = facts.named('shared storage holds', default='data-<X>/')
-    held: list[corpus.Paired] | None = None
-    staged: list[corpus.Paired] | None = None
+    held: dict[str, corpus.Paired] | None = None
+    staged: dict[str, corpus.Paired] | None = None
 
 
 @dataclass
 class Status:
     export: Exports | str
     remedy: facts.Act | None
-    staged: dict[str, list[corpus.StagedUnit]] | None
+    staged: dict[str, dict[str, str]] | None
     stage: str
 
 

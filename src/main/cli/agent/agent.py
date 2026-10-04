@@ -140,8 +140,7 @@ from declared_parser import command_parser  # noqa: E402
 import provider as registry  # noqa: E402
 import transport  # noqa: E402
 
-if TYPE_CHECKING:                 # named for the status's shape; imported where they are used
-    import corpus
+if TYPE_CHECKING:                 # named for the status's shape; imported where it is used
     import drafters
 
 
@@ -199,31 +198,26 @@ def peer_bundle(name: str) -> Path:
 
 @dataclass
 class Session:
-    """A session in the census: under its id, its title as the adapter reads it."""
-    id: str
+    """A session in the census: its title as the adapter reads it, its size, its last write."""
     title: str
     size: str
     last_write: str
-
-    def facts(self) -> dict:
-        return {self.id: self.title, 'size': self.size, 'last write': self.last_write}
 
 
 @dataclass
 class Mount:
     """A live store this room does not mount: which rows cannot appear, and what makes them."""
-    path: str
     standing: str
     remedy: facts.Command
 
-    def facts(self) -> dict:
-        return {self.path: self.standing, 'remedy': self.remedy}
+
+Sessions = dict[str, dict[str, dict[str, dict[str, Session]]]]   # by where - local, then each machine - provider, project and id
 
 
 @dataclass
 class Census:
-    sessions: dict[str, dict[str, list[Session]]] | str   # by where it is - local, then each machine - and provider
-    mounts: list[Mount] | None = None
+    sessions: Sessions | str
+    mounts: dict[str, Mount] | None = None    # by path
 
 
 def list_agents() -> Census:
@@ -232,7 +226,7 @@ def list_agents() -> Census:
     its title as the adapter reads it - derived on demand, never stored (L5).
     Framing on stderr; data lines on stdout (pipeable)."""
     rows: list[tuple[transport.Session, str]] = []
-    absent: list[Mount] = []
+    absent: dict[str, Mount] = {}
     for row, mount_path, adapter in served():
         provider = row['provider']
         if mount_path.is_dir():
@@ -240,8 +234,8 @@ def list_agents() -> Census:
         else:
             # a census that silently omits a side is a lie of absence: say which rows
             # cannot appear and how to make them appear
-            absent.append(Mount(mount_path.relative_to(REPO).as_posix(), f'absent - no local {provider} rows',
-                                facts.Command('corpus-yoga prerequisites sync --apply')))
+            absent[mount_path.relative_to(REPO).as_posix()] = Mount(
+                f'absent - no local {provider} rows', facts.Command('corpus-yoga prerequisites sync --apply', 'mounts it'))
         store = transport.store(provider)
         if store.is_dir():
             for machine in sorted(p for p in store.iterdir() if p.is_dir()):
@@ -249,24 +243,22 @@ def list_agents() -> Census:
     # the facts (#753): each session under where it is and its provider - its title, size
     # and last write - the local store first, then each machine's held copies
     where_order = ['local'] + sorted({w for _s, w in rows if w != 'local'})
-    sessions: dict[str, dict[str, list[Session]]] = {}
+    sessions: Sessions = {}
     for where in where_order:
-        by_provider: dict[str, list[Session]] = {}
         for s, w in rows:
             if w == where:
                 t = datetime.fromtimestamp(s.mtime).strftime('%Y-%m-%d %H:%M')
-                by_provider.setdefault(s.provider, []).append(Session(s.id[:8], s.title, f'{s.size / 1e6:.1f}M', t))
-        if by_provider:
-            sessions[where] = by_provider
+                sessions.setdefault(where, {}).setdefault(s.provider, {}).setdefault(s.project, {})[s.id[:8]] = Session(
+                    s.title, f'{s.size / 1e6:.1f}M', t)
     return Census(sessions or 'none', absent or None)
 
 
 @dataclass
 class Status:
-    sessions: dict[str, dict[str, list[Session]]] | str
-    mounts: list[Mount] | None
+    sessions: Sessions | str
+    mounts: dict[str, Mount] | None
     drafters: 'drafters.Brief | None'                     # said under its ref and head
-    staged: 'dict[str, list[corpus.StagedUnit]] | None'
+    staged: dict[str, dict[str, str]] | None
     stage: str
 
     def facts(self) -> dict:
