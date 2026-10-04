@@ -45,8 +45,8 @@ def main():
     schema_parent_dir = RSC_SCHEMA / 'pipeline' / args.pipeline
 
     facts = json.loads((REPO_ROOT / 'src' / 'main' / 'pipeline' / args.pipeline / 'pipeline.json').read_text())
-    dirs = [d for _label, _input, cache_root, _globs in sources(args.pipeline, facts)
-            for d in datum_dirs(cache_root, pipeline.subject_depth)]
+    dirs = [d for source in sources(args.pipeline, facts)
+            for d in datum_dirs(source.cache_root, pipeline.subject_depth)]
     if not dirs:
         sys.exit(f'no validated data under {pipeline.cache_output.relative_to(REPO_ROOT)} — '
                  f'→ run: corpus-yoga pipeline run {args.pipeline}')

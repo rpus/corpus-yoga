@@ -62,12 +62,12 @@ def _live_extras(name: str, mount: Path) -> list[tuple[str, Path]]:
     the glob without its first segment is the glob over the mount."""
     out = []
     for store in corpus.stores():
-        if store['provider'] != name or not str(store['input']).endswith('code/machine-transport'):
+        if store.provider != name or not str(store.input).endswith('code/machine-transport'):
             continue
-        for glob, _measure, kind in store['globs'][1:]:
-            for found in sorted(mount.glob(glob.split('/', 1)[1].rstrip('/'))):
-                if found.is_dir() == glob.endswith('/'):
-                    out.append((kind, found))
+        for extra in store.globs[1:]:
+            for found in sorted(mount.glob(extra.pattern.split('/', 1)[1].rstrip('/'))):
+                if found.is_dir() == extra.pattern.endswith('/'):
+                    out.append((extra.kind, found))
     return out
 
 
@@ -142,8 +142,8 @@ def ahead() -> tuple[list[Ahead], list[str]]:
             absent.append(mount.relative_to(REPO).as_posix())
             continue
         held_dir = transport.store(name) / room
-        declared = next(s for s in corpus.stores() if s['pipeline'] == 'code-transport' and s['provider'] == name)
-        glob, measure, kind = declared['globs'][0]
+        declared = next(s for s in corpus.stores() if s.pipeline == 'code-transport' and s.provider == name)
+        glob, measure, kind = declared.globs[0].pattern, declared.globs[0].measure, declared.globs[0].kind
         _value, leq, _words = corpus.MEASURE[measure]
         pattern = glob.rsplit('/', 1)[-1]
         copies: dict[str, list] = {}
@@ -227,7 +227,8 @@ def entries() -> list[tuple[str, dict, list[Path]]]:
     """Everything the janitor acts on, in the order it acts: (kind, the entry's facts, the
     paths that go). The one list both faces walk."""
     out: list[tuple[str, dict, list[Path]]] = []
-    for unit, holder, how, by in corpus.held_twice(corpus.STORE, *live_addresses()):
+    for duplicate in corpus.held_twice(corpus.STORE, *live_addresses()):
+        unit, holder, how, by = duplicate.unit, duplicate.holder, duplicate.how, duplicate.by
         paths = [corpus.STORE / m for m in unit.members + unit.record]
         own = corpus.shadow(unit)
         if own is not None and own.exists():

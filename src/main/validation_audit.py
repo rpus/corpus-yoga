@@ -11,6 +11,7 @@ counted by the run's stage table; the exit is 1 iff any FAIL was stated.
 import json
 import re
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 SELF = 'src/main/validation_audit.py'
@@ -55,40 +56,44 @@ def datum_dirs(cache_root: Path, depth: int) -> list[Path]:
     return sorted(v.parent for v in cache_root.glob(glob) if v.is_dir())
 
 
-def input_subjects(input_root: Path, globs: list[tuple[str, str, str]], depth: int) -> list:
-    """Each input entry as its cache subject - the units src/main/corpus.py selects for the
-    same globs, as the store declares them, at the same depth (#687): a bare name at depth
-    1, where a datum is a directory, else the tuple of path parts the subject is cut to."""
-    store = dict(pipeline=None, provider=None, input=Path('.'), globs=globs, companion='', depth=depth)
-    units = corpus.select(input_root, store)
-    if depth == 1:
-        return sorted(u.subject[0] for u in units if (input_root / u.path).is_dir())
+def input_subjects(store: corpus.Store) -> list:
+    """Each input entry of a store as its cache subject - the units src/main/corpus.py
+    selects for it under data/input (#687): a bare name at depth 1, where a datum is a
+    directory, else the tuple of path parts the subject is cut to."""
+    root = tier.DATA / 'input'
+    units = corpus.select(root, store)
+    if store.depth == 1:
+        return sorted(u.subject[0] for u in units if (root / u.path).is_dir())
     return sorted({u.subject for u in units})
 
 
-def sources(name: str, facts: dict) -> list[tuple[str, Path, Path, list[tuple[str, str, str]]]]:
-    """(label, input root, cache root, globs) for each store a pipeline reads: one, or one
-    per provider where the declared input carries <provider> (#635) - the cache then
-    holds a directory per provider under the pipeline's root. The stores are
-    src/main/corpus.py's rows over the same declaration (#687), the globs its
-    (glob, measure, kind) as the row holds them."""
+@dataclass(frozen=True)
+class Source:
+    """One store a pipeline reads, with where its validation output lies."""
+    label: str                    # the pipeline, with the provider where the declared input carries one
+    store: corpus.Store
+    cache_root: Path              # the pipeline's cache root, a directory per provider under it
+
+
+def sources(name: str, facts: dict) -> list[Source]:
+    """Each store a pipeline reads: one, or one per provider where the declared input
+    carries <provider> (#635) - the cache then holds a directory per provider under the
+    pipeline's root. The stores are src/main/corpus.py's rows over the same declaration (#687)."""
     cache_root = tier.path(cache_io.path_for(name))
-    return [(name if s['provider'] is None else f'{name}/{s["provider"]}',
-             tier.DATA / 'input' / s['input'], cache_root / (s['provider'] or ''), s['globs'])
+    return [Source(name if s.provider is None else f'{name}/{s.provider}', s, cache_root / (s.provider or ''))
             for s in corpus.stores({name: facts})]
 
 
 def audit(name: str, facts: dict) -> int:
     """Every store the pipeline reads, judged alike; returns the number of FAIL atoms."""
-    return sum(audit_source(name, label, input_root, cache_root, globs, facts['subject_depth'])
-               for label, input_root, cache_root, globs in sources(name, facts))
+    return sum(audit_source(name, source) for source in sources(name, facts))
 
 
-def audit_source(pipeline: str, name: str, input_root: Path, cache_root: Path,
-                 globs: list[tuple[str, str, str]], depth: int) -> int:
-    """One pipeline's judgments; returns the number of FAIL atoms stated. The latest
-    version is the schema (#557): every datum validates at each family's latest, its
+def audit_source(pipeline: str, source: Source) -> int:
+    """One pipeline's judgments over one store; returns the number of FAIL atoms stated. The
+    latest version is the schema (#557): every datum validates at each family's latest, its
     matrix agrees with that log, and every input entry has validation output."""
+    name, cache_root, depth = source.label, source.cache_root, source.store.depth
     schema_parent = SCHEMA_ROOT / 'pipeline' / pipeline
     fails = 0
     if not cache_root.is_dir() or not any(cache_root.iterdir()):
@@ -125,7 +130,7 @@ def audit_source(pipeline: str, name: str, input_root: Path, cache_root: Path,
             fails += 1
             continue
         matrices[0] += 1
-    raw = input_subjects(input_root, globs, depth)
+    raw = input_subjects(source.store)
     for subject in sorted(raw if depth == 1 else [' / '.join(parts) for parts in raw]):
         inputs[1] += 1
         if subject not in processed:

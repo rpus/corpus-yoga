@@ -155,19 +155,38 @@ def resolve(template: str, provider: str | None, facts: dict) -> str:
             .replace('<qualifier>', facts['provider'][provider].get('qualifier', '')))
 
 
-def stores(declared: dict[str, dict] | None = None) -> list[dict]:
+@dataclass(frozen=True)
+class Glob:
+    """One selection a store declares: what it matches, and what a unit it selects is."""
+    pattern: str                  # the glob under the store's input; a trailing / selects directories
+    measure: str                  # a row of MEASURE
+    kind: str                     # what the declaration calls a unit it selects
+
+
+@dataclass(frozen=True)
+class Store:
+    """One store a pipeline reads, as its declaration states it (#751): every reader of a
+    row reads these fields, held to them by the dev gate's type check."""
+    pipeline: str
+    provider: str | None
+    input: Path                   # relative to data/input
+    globs: tuple[Glob, ...]       # the pipeline's selection first, then its second where it declares one
+    companion: str                # what stands beside a selected datum, by <stem> or <star>; '' where nothing does
+    depth: int                    # the path parts a unit's subject is cut to
+
+
+def stores(declared: dict[str, dict] | None = None) -> list[Store]:
     """One row per store a pipeline reads - one, or one per provider where the input carries
-    <provider>: pipeline, provider, input (relative to data/input), globs [(glob, measure,
-    the unit's name)], companion, depth."""
+    <provider>."""
     out = []
     for name, facts in (declared if declared is not None else pipelines()).items():
         forms = sorted(facts['provider'].items()) if 'provider' in facts else [(None, facts)]
         for provider, f in forms:
-            out.append(dict(
+            out.append(Store(
                 pipeline=name, provider=provider,
                 input=Path(resolve(facts['input'], provider, facts).removeprefix('data/input/')),
-                globs=[(g, m, k) for g, m, k in ((f['input_glob'], f['measure'], f['unit']),
-                                                 (f['extra_input_glob'], f['extra_measure'], f['extra_unit'])) if g],
+                globs=tuple(Glob(g, m, k) for g, m, k in ((f['input_glob'], f['measure'], f['unit']),
+                                                          (f['extra_input_glob'], f['extra_measure'], f['extra_unit'])) if g),
                 companion=f['companion'], depth=facts['subject_depth']))
     return out
 
@@ -205,13 +224,14 @@ def _deposit_missing(manifest: Path, payload: Path) -> list[str]:
             if not (payload / member).exists()]
 
 
-def _select_pairs(root: Path, store: dict) -> list[Unit]:
+def _select_pairs(root: Path, store: Store) -> list[Unit]:
     """The units of a store whose companion names <star>: one per star, found from the
     datum or the companion, the datum its member, the companion its record, and its
     missing whichever is absent."""
-    base = root / store['input']
-    pattern, measure, kind = store['globs'][0]
-    datum_form, companion_form = pattern.rstrip('/'), store['companion']
+    base = root / store.input
+    first = store.globs[0]
+    pattern, measure, kind = first.pattern, first.measure, first.kind
+    datum_form, companion_form = pattern.rstrip('/'), store.companion
     found: dict[str, None] = {}
     for item in sorted(base.glob(datum_form)):
         if item.is_dir() == pattern.endswith('/'):
@@ -229,38 +249,39 @@ def _select_pairs(root: Path, store: dict) -> list[Unit]:
         if not missing:
             missing = _deposit_missing(companion, datum)   # complete, or the members the record says are owed
         files = [f for m in members + record for f in _files_under(root, root / m)]
-        out.append(Unit((base / star).relative_to(root), members, files, list(members), measure, store['pipeline'],
-                        store['provider'], (datum.name,), datum.relative_to(root), record, missing, kind))
+        out.append(Unit((base / star).relative_to(root), members, files, list(members), measure, store.pipeline,
+                        store.provider, (datum.name,), datum.relative_to(root), record, missing, kind))
     return out
 
 
-def select(root: Path, store: dict) -> list[Unit]:
+def select(root: Path, store: Store) -> list[Unit]:
     """The units one store's declaration selects under root."""
-    base = root / store['input']
+    base = root / store.input
     if not base.is_dir():
         return []
-    if '<star>' in store['companion']:
+    if '<star>' in store.companion:
         return _select_pairs(root, store)
     units: dict[Path, Unit] = {}
-    for pattern, measure, kind in store['globs']:
+    for selection in store.globs:
+        pattern, measure, kind = selection.pattern, selection.measure, selection.kind
         glob, dirs_only = pattern.rstrip('/'), pattern.endswith('/')
         for item in sorted(base.glob(glob)):
             if item.is_dir() != dirs_only:
                 continue
             rel = item.relative_to(base)
-            depth = store['depth']
+            depth = store.depth
             subject = (rel.parts[:-1] + (item.name if dirs_only else item.stem,))[:depth]
             unit_path = base.joinpath(*rel.parts[:depth]) if (len(rel.parts) > depth or item.is_dir()) else item
             address = unit_path.relative_to(root)
             unit = units.get(address)
             if unit is None:
                 members = [address]
-                if store['companion'] and unit_path.is_file():
-                    companion = unit_path.parent / store['companion'].replace('<stem>', unit_path.stem).rstrip('/')
+                if store.companion and unit_path.is_file():
+                    companion = unit_path.parent / store.companion.replace('<stem>', unit_path.stem).rstrip('/')
                     if companion.exists():
                         members.append(companion.relative_to(root))
                 files = [f for m in members for f in _files_under(root, root / m)]
-                unit = Unit(address, members, files, [], measure, store['pipeline'], store['provider'], subject, kind=kind)
+                unit = Unit(address, members, files, [], measure, store.pipeline, store.provider, subject, kind=kind)
                 units[address] = unit
             unit.selected.append(item.relative_to(root))
     return list(units.values())
@@ -878,10 +899,18 @@ def counted_as(unit: Unit) -> str:
     return f'{where} {unit.kind}'
 
 
-def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> list[tuple[Unit, Unit, str, str]]:
+@dataclass(frozen=True)
+class Duplicate:
+    """A unit whose content another unit of its kind holds."""
+    unit: Unit
+    holder: Unit                  # the unit that holds it
+    how: str                      # 'identical', the same at two addresses, or 'contained', whole within the holder's
+    by: str                       # the measure's words for the two
+
+
+def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> list[Duplicate]:
     """Every duplicate under root - a unit whose content another unit of its kind holds, the
-    same at two addresses or whole within the other's by the kind's measure (#738, #743):
-    (the unit, the unit that holds it, 'identical' or 'contained', the measure's words).
+    same at two addresses or whole within the other's by the kind's measure (#738, #743).
     Two units are compared where they share a kind and - unless the kind's measure relates
     every unit of the kind, as the export's atoms do - a name, by the measure their pipeline
     declares; a measure whose order relates everything - mirror's - holds only what is
@@ -895,7 +924,7 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozense
         if unit.pipeline is not None:
             name = '' if unit.measure in ACROSS_THE_KIND else unit.path.name
             groups.setdefault((unit.pipeline, unit.provider, unit.kind, name), []).append(unit)
-    out: list[tuple[Unit, Unit, str, str]] = []
+    out: list[Duplicate] = []
     for group in groups.values():
         if len(group) < 2:
             continue
@@ -915,8 +944,8 @@ def held_twice(root: Path, live: frozenset[Path] = frozenset(), newest: frozense
                 holder, how = keeper, 'identical'
             else:
                 continue
-            out.append((unit, holder, how, words(mine, next(v for o, v in values if o is holder), unit)))
-    return sorted(out, key=lambda row: row[0].address)
+            out.append(Duplicate(unit, holder, how, words(mine, next(v for o, v in values if o is holder), unit)))
+    return sorted(out, key=lambda duplicate: duplicate.unit.address)
 
 
 def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = frozenset()) -> tuple[dict, int, int]:
@@ -943,10 +972,10 @@ def store_facts(live: frozenset[Path] = frozenset(), newest: frozenset[Path] = f
     out['stray'] = stray
     twice = held_twice(STORE, live, newest)
     out['duplicates'] = [
-        {unit.kind: unit.address.as_posix(), 'size': human(size_of(STORE / unit.path)),
-         ('identical to' if how == 'identical' else 'contained by'): holder.address.as_posix(),
-         'holder size': human(size_of(STORE / holder.path)), 'by': by}
-        for unit, holder, how, by in twice]
+        {d.unit.kind: d.unit.address.as_posix(), 'size': human(size_of(STORE / d.unit.path)),
+         ('identical to' if d.how == 'identical' else 'contained by'): d.holder.address.as_posix(),
+         'holder size': human(size_of(STORE / d.holder.path)), 'by': d.by}
+        for d in twice]
     return out, len(held), len(twice)
 
 
@@ -969,7 +998,7 @@ def pairs_facts(noun: str) -> dict:
     held: list[dict] = []
     staged: list[dict] = []
     for store in stores():
-        if '<star>' not in store['companion'] or not any(store['input'].is_relative_to(r) for r in roots):
+        if '<star>' not in store.companion or not any(store.input.is_relative_to(r) for r in roots):
             continue
         for unit in select(STORE, store):
             for path in unit.members:
