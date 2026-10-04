@@ -161,21 +161,10 @@ def _capture(machine: str, provider: str, session: str) -> str:
 
 
 @dataclass
-class Nowhere:
-    """A session main names as a drafter that no room's store holds, with what would hold it."""
-    session: str
-    remedy: str                   # the capture that would, or what the reader does first
-
-    def facts(self) -> dict:
-        typed = self.remedy.startswith('corpus-yoga ')
-        return {self.session: 'held nowhere', 'remedy': facts.Command(self.remedy) if typed else facts.Act(self.remedy)}
-
-
-@dataclass
 class Named:
     sessions_named: int
     held: int
-    held_nowhere: list[Nowhere] | None = None
+    held_nowhere: dict[str, facts.Command | facts.Act] | None = None   # by session: the capture that would hold it, or what the reader does first
 
 
 @dataclass
@@ -207,8 +196,10 @@ def brief() -> Brief | None:
     for provider in sorted({p for _m, p, _s in sessions}):
         named = sorted(k for k in sessions if k[1] == provider)
         absent = [k for k in named if not held(k[1], k[2])]
-        out.providers[provider] = Named(len(named), len(named) - len(absent),
-                                        [Nowhere('/'.join(k), _capture(*k)) for k in absent] or None)
+        remedies = {'/'.join(k): _capture(*k) for k in absent}
+        out.providers[provider] = Named(len(named), len(named) - len(absent), {
+            session: facts.Command(remedy, 'captures it') if remedy.startswith('corpus-yoga ') else facts.Act(remedy)
+            for session, remedy in remedies.items()} or None)
     return out
 
 

@@ -54,24 +54,40 @@ _todo=()
 # section header prints lazily — only when its first shown line (– or ✗) appears — so an
 # all-satisfied section vanishes entirely. The bare `corpus-yoga` invocation shows this report,
 # so its default is the short "what still needs attention" list.
-# The report's rows (#753): section \t kind \t text, collected as the checks run and
-# said once, as one shape, by report.py - a row's embedded remedy marker (→ run:,
-# install via:, reinstall:, replace:, refresh:) becomes its remedy there (#759).
+# The report's rows (#753, #763): section \t kind \t text [\t command \t what it does]...,
+# collected as the checks run and said once, as one shape, by report.py. A command is a
+# column of its own, never a clause of the text: report.py nests it beneath what stands.
+# A section is named and no more: what a section is, the help says.
+#   sec  <name>
+#   ok   <text>                                  # only in the full report
+#   info <text>                                  # how things stand: it takes no command
+#   todo <tag> <text> [<command> <what it does>]...
+#   bad  <text> <command> <what it does> [...]   # required, and absent
 _hdr=""
 _rows=()
-sec()    { _hdr="$*"; }
-_row()   { _rows+=("$_hdr"$'\t'"$1"$'\t'"$2"); }
-ok()     { if (( SHOW_ALL )); then _row ok "$*"; fi; }
-info()   { _row note "$*"; }
+sec()    { _hdr="$1"; }
+_row() {
+  local row="$_hdr"$'\t'"$1"$'\t'"$2"; shift 2
+  while [[ $# -gt 0 ]]; do row+=$'\t'"$1"$'\t'"${2-}"; shift; [[ $# -eq 0 ]] || shift; done
+  _rows+=("$row")
+}
+# the row as sync lists it: the text, then its commands
+_said() {
+  local out="$1" sep=': '; shift
+  while [[ $# -gt 0 ]]; do out+="$sep$1"; sep='; '; shift; [[ $# -eq 0 ]] || shift; done
+  echo "$out"
+}
+ok()     { if (( SHOW_ALL )); then _row ok "$1"; fi; }
+info()   { [[ $# -eq 1 ]] || { echo "prerequisites: info takes its text alone - a row with a command is a todo or a bad" >&2; exit 2; }; _row note "$1"; }
 # A line the reader should ACT on, as against one that merely says how things stand.
-# Both render as – in the report; only these reach `sync`, which is why the distinction
-# lives here rather than in a filter downstream trying to guess from the wording.
-# todo <tag> <message> — the tag says WHO can fix it: `venv` and `hook` are the repo's
+# Only these reach `sync`, and only these and `bad` carry commands, which is why the
+# distinction lives here rather than in a filter downstream trying to guess from the wording.
+# todo <tag> <message> ... — the tag says WHO can fix it: `venv` and `hook` are the repo's
 # own (`gen` too: the parsers generated from the house grammars), anything else is the
 # reader's. sync matches on the tag, never on the wording,
 # because a message is prose and prose gets rewritten.
-todo()   { local tag="$1"; shift; _row todo "$*"; _todo+=("$tag"$'\t'"$*"); }
-bad()    { _row missing "$*"; missing_required=1; }
+todo()   { local tag="$1"; shift; _row todo "$@"; _todo+=("$tag"$'\t'"$(_said "$@")"); }
+bad()    { _row missing "$@"; missing_required=1; }
 
 # The rows as facts through the one printer, src/main/facts.py: under the venv's python
 # where it exists, under python3 before the venv is minted, and as the bare rows where
@@ -112,12 +128,12 @@ check_tools() {
   if command -v jq &>/dev/null; then
     ok "jq ($(jq --version 2>/dev/null)) — every pipeline's json work runs through it"
   else
-    bad "jq not found — no pipeline runs without it; install via: brew install jq"
+    bad "jq not found - no pipeline runs without it" "brew install jq" "installs it"
   fi
   if command -v python3 &>/dev/null; then
     ok "python3 ($(python3 --version 2>&1)) — the one surviving python3 (#478): it mints the venv; everything else runs the venv's python"
   else
-    bad "Python 3 not found — nothing runs without it, the CLI included; install via: brew install python"
+    bad "Python 3 not found - nothing runs without it, the CLI included" "brew install python" "installs it"
   fi
   # Informational, never a ✗: absent, the gate skips its type check and still gates
   # deterministically. pyright is Pylance's own engine and reads the same
@@ -137,7 +153,7 @@ check_tools() {
   if [[ -n "$pyright_bin" ]]; then
     ok "pyright ($("$pyright_bin" --version 2>/dev/null | head -1 | awk '{print $2}')) — corpus-yoga test run type-checks src/ against pyrightconfig.json"
   else
-    todo venv "pyright not found — corpus-yoga test run skips its type check; it is in src/requirements.txt: $(sync_remedy)"
+    todo venv "pyright not found - corpus-yoga test run skips its type check; it is in src/requirements.txt" "$(sync_remedy)" "installs the requirements"
   fi
   # Informational, never a ✗: the gate skips its shellcheck pass when the tool is absent,
   # so a clone without it still gates deterministically — it simply lints nothing, and
@@ -145,7 +161,7 @@ check_tools() {
   if command -v shellcheck &>/dev/null; then
     ok "shellcheck ($(shellcheck --version | awk '/^version:/ {print $2}')) — corpus-yoga test run lints every src/**/*.sh"
   else
-    todo reader "shellcheck not found — corpus-yoga test run skips its shell lint; install via: brew install shellcheck"
+    todo reader "shellcheck not found - corpus-yoga test run skips its shell lint" "brew install shellcheck" "installs it"
   fi
   # Informational, never a ✗: the gate's mcp.reproducible check (corpus-yoga mcp reproduce)
   # runs upstream's generator in a node container, and skips when no docker daemon
@@ -157,10 +173,10 @@ check_tools() {
     if docker_server="$(docker info --format '{{.ServerVersion}}' 2>/dev/null)" && [[ -n "$docker_server" ]]; then
       ok "docker (daemon $docker_server) — corpus-yoga test run reproduces the mcp snapshot through upstream's generator (mcp.reproducible); corpus-yoga mcp reproduce runs it alone"
     else
-      todo reader "docker daemon not running — corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses; start it (Docker Desktop: open -a Docker)"
+      todo reader "docker daemon not running - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses" "open -a Docker" "starts Docker Desktop"
     fi
   else
-    todo reader "docker not found — corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses; install via: brew install --cask docker"
+    todo reader "docker not found - corpus-yoga test run skips mcp.reproducible and corpus-yoga mcp reproduce refuses" "brew install --cask docker" "installs it"
   fi
   # The parsers the house grammars generate (src/gen/grammar, machine-local, gitignored)
   # are what the mcp extraction and the gate's mcp checks run through: absent, they fail
@@ -178,11 +194,11 @@ check_tools() {
     while IFS=$'\x1f' read -r gen_kind gen_project; do
       [[ -n "$gen_project" ]] || continue
       if [[ "$gen_kind" == orphan ]]; then
-        todo orphan "rsc/rpus/grammar/$gen_project holds no grammar (a .g4 at its top level) - a leftover no sync generates from; rm -r rsc/rpus/grammar/$gen_project"
+        todo orphan "rsc/rpus/grammar/$gen_project holds no grammar (a .g4 at its top level) - a leftover no sync generates from" "rm -r rsc/rpus/grammar/$gen_project" "removes it"
       elif compgen -G "$REPO_ROOT/src/gen/grammar/$gen_project/*.py" >/dev/null; then
         ok "src/gen/grammar/$gen_project generated — the parser of rsc/rpus/grammar/$gen_project (corpus-yoga grammar holds it current)"
       else
-        todo gen "src/gen/grammar/$gen_project absent — the mcp extraction and corpus-yoga test run's mcp checks need it; corpus-yoga grammar sync generates it, antlr4 from the venv and java from the machine"
+        todo gen "src/gen/grammar/$gen_project absent - the mcp extraction and corpus-yoga test run's mcp checks need it" "corpus-yoga grammar sync" "generates it, antlr4 from the venv and java from the machine"
       fi
     done <<< "$gen_rows"
   else
@@ -192,20 +208,20 @@ check_tools() {
     if command -v java &>/dev/null; then
       ok "antlr4 (antlr4-tools) and java ($(java -version 2>&1 | head -1 | sed -E 's/^[^"]*"([^"]*)".*/\1/')) — corpus-yoga grammar sync generates the parsers and corpus-yoga test run holds them current (grammar.parser_current)"
     else
-      todo reader "java not found — antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; install via: brew install openjdk"
+      todo reader "java not found - antlr4 has no runtime to run its tool on; corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current" "brew install openjdk" "installs it"
     fi
   else
-    todo venv "antlr4 not found — corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt: $(sync_remedy)"
+    todo venv "antlr4 not found - corpus-yoga grammar sync refuses and corpus-yoga test run cannot hold the parsers current; it is in src/requirements.txt" "$(sync_remedy)" "installs the requirements"
   fi
   ok "bash $BASH_VERSION (3.2+ suffices; scripts avoid 4.x features)"
 }
 
 check_venv() {
-  sec "venv ($VENV — override via VENV=...)"
+  sec "venv"
   if [[ -x "$VENV/bin/python" ]]; then
-    ok "exists ($("$VENV/bin/python" --version 2>&1)) — every .py target runs in it"
+    ok "$VENV exists ($("$VENV/bin/python" --version 2>&1)) - every .py target runs in it; VENV= names another"
   else
-    todo venv "not found — nothing python runs, corpus-yoga included (#478); $(sync_remedy) creates it and installs src/requirements.txt"
+    todo venv "$VENV not found - nothing python runs, corpus-yoga included (#478); VENV= names another" "$(sync_remedy)" "creates it and installs src/requirements.txt"
   fi
 }
 
@@ -299,7 +315,7 @@ check_machine() {
   local binding="$REPO_ROOT/machine-name.txt"
   local rel="${binding#"$REPO_ROOT/"}"
   local registry="$REPO_ROOT/rsc/machine/machines.csv"
-  sec "machine (its own name for itself — never shared, never transported)"
+  sec "machine"
   # The pre-move location, built in pieces — for the same reason the rooted
   # binding is not. This path must exist on NO clean clone, so a
   # committed literal naming it would be a dangling reference, and would resolve
@@ -313,12 +329,12 @@ check_machine() {
   local legacy="$REPO_ROOT/rsc"; legacy+="/machines/self.txt"
   if [[ -f "$legacy" ]]; then
     local lrel="${legacy#"$REPO_ROOT/"}"
-    todo reader "legacy binding at $lrel — the binding moved to $rel (2026-07-17); migrate it → run: mv $lrel $rel && rmdir $(dirname "$lrel")"
+    todo reader "legacy binding at $lrel - the binding moved to $rel (2026-07-17)" "mv $lrel $rel && rmdir $(dirname "$lrel")" "migrates it"
   fi
   local declared=""
   [[ -f "$registry" ]] && declared="$(tail -n +2 "$registry" | cut -d, -f1 | tr '\n' ' ')"
   if [[ ! -f "$binding" ]]; then
-    todo machine "unbound — capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first, then bind → run: echo <declared-machine-name> > $rel"
+    todo machine "unbound - capture cannot address the store and the Signature trailer cannot name this machine; declare it in rsc/machine/machines.csv first" "echo <declared-machine-name> > $rel" "binds it"
     info "declared: ${declared:-none}"
     return
   fi
@@ -333,7 +349,7 @@ check_machine() {
 }
 
 check_cli() {
-  sec "corpus-yoga CLI (tables: src/main/cli/)"
+  sec "corpus-yoga CLI"
   # `corpus-yoga completions` (bare) is itself the read-only status — written/current/stale
   # and wired-or-not — so defer to that one voice rather than re-deriving here.
   # cli.py is stdlib-only, so any Python 3 suffices — no venv needed.
@@ -361,16 +377,16 @@ check_cli() {
       # needed (#610) — reserving install-latest (and terminal restart) for unwired shells.
       *STALE*)
         if (( comp_resolves )); then
-          todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions sync (then restart terminal)"
+          todo reader "zsh completions stale vs src/main/cli/" "./corpus-yoga completions sync" "refreshes them; then restart the terminal"
         else
-          todo reader "zsh completions stale vs src/main/cli/ → refresh: ./corpus-yoga completions install-latest (then restart terminal)"
+          todo reader "zsh completions stale vs src/main/cli/" "./corpus-yoga completions install-latest" "refreshes and wires them; then restart the terminal"
         fi
         ;;
       *)
         if (( comp_resolves )); then
-          todo reader "zsh completions not generated → run: ./corpus-yoga completions sync (then restart terminal)"
+          todo reader "zsh completions not generated" "./corpus-yoga completions sync" "generates them; then restart the terminal"
         else
-          todo reader "zsh completions not generated → run: ./corpus-yoga completions install-latest (then restart terminal)"
+          todo reader "zsh completions not generated" "./corpus-yoga completions install-latest" "generates and wires them; then restart the terminal"
         fi
         ;;
     esac
@@ -384,7 +400,7 @@ check_cli() {
   else
     # ./corpus-yoga: same bootstrap case as above — no resolving completion may well mean
     # no alias either, and ./corpus-yoga works in both worlds; bare corpus-yoga only in one.
-    todo reader "zsh does not resolve the corpus-yoga completions → run: ./corpus-yoga completions install-latest (then restart terminal)"
+    todo reader "zsh does not resolve the corpus-yoga completions" "./corpus-yoga completions install-latest" "wires them; then restart the terminal"
   fi
 }
 
@@ -394,9 +410,9 @@ check_git_identity() {
   # only, never a sync act: a global identity is not this repo's to choose (the
   # ext/mnt/site ruling — report where the value cannot be known), unlike the venv
   # two lines below, whose contents ARE the repo's declaration.
-  sec "git (the tool, and the identity commits require)"
+  sec "git"
   if ! command -v git &>/dev/null; then
-    todo reader "git not installed — nothing here works without it; install via: brew install git"
+    todo reader "git not installed - nothing here works without it" "brew install git" "installs it"
     return
   fi
   ok "git $(git --version | awk '{print $3}')"
@@ -413,7 +429,7 @@ check_git_identity() {
     elif [[ -n "$s1$s2" ]]; then scope=" (name: --$s1, email: --$s2)"; fi
     ok "identity: $n <$e>$scope"
   else
-    todo reader "git identity unset — the first commit refuses; set: git config --global user.name '<name>' && git config --global user.email '<email>'"
+    todo reader "git identity unset - the first commit refuses" "git config --global user.name '<name>'" "names the committer" "git config --global user.email '<email>'" "gives the address"
   fi
 }
 
@@ -421,7 +437,7 @@ check_git_hook() {
   # The one voice for this fact. A second probe — run.sh reporting on its own
   # installation, in its own words — is two answers to one question, and the copy
   # is free to soften into advice on the very branches where nothing is vetting.
-  sec "pre-commit hook (the repo's commit gate; until installed, nothing vets a commit)"
+  sec "pre-commit hook"
   local hook
   if ! command -v git &>/dev/null; then
     info "git not installed — reported with its remedy in the git section above"
@@ -441,13 +457,13 @@ check_git_hook() {
   # points at disarms the gate in silence and every commit lands unchecked until someone
   # reads this line. Report the symlink form as work to do.
   if [[ -L "$hook" ]]; then
-    bad "hook is a symlink to $(readlink "$hook") — a rename dangles it and git then skips it in silence; reinstall: ./corpus-yoga test install-hook"
+    bad "hook is a symlink to $(readlink "$hook") - a rename dangles it and git then skips it in silence" "./corpus-yoga test install-hook" "reinstalls it"
   elif cmp -s "$hook" "$REPO_ROOT/rsc/test/pre-commit-hook.sh"; then
     ok "installed: a copy of rsc/test/pre-commit-hook.sh, which runs corpus-yoga test run"
   elif [[ -e "$hook" ]]; then
-    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh — replace: ./corpus-yoga test install-hook"
+    bad "a pre-commit hook exists but is not rsc/test/pre-commit-hook.sh" "./corpus-yoga test install-hook" "replaces it"
   else
-    bad "not installed — nothing vets a commit; install via: ./corpus-yoga test install-hook"
+    bad "not installed - nothing vets a commit" "./corpus-yoga test install-hook" "installs it"
   fi
 }
 
@@ -455,7 +471,7 @@ check_signature_hook() {
   # A convention, not a gate: it stamps the Signature: trailer and strips the model
   # co-author (grammar: rsc/test/prepare-commit-msg-hook.sh). Absent, commits simply carry
   # no signature — never a failure, so this reports informationally even when installed.
-  sec "signature hook (stamps Signature: machine/provider/session; strips the model co-author)"
+  sec "signature hook"
   local script hook link dir
   if ! command -v git &>/dev/null; then
     info "git not installed — reported with its remedy in the git section above"
@@ -479,12 +495,12 @@ check_signature_hook() {
     if [[ -n "$dir" && "$dir/$(basename "$link")" == "$script" ]]; then
       ok "installed: the symlink to rsc/test/prepare-commit-msg-hook.sh"
     else
-      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook")) — reinstall: ./corpus-yoga test install-hook"
+      todo signature-hook "hook symlink points elsewhere ($(readlink "$hook"))" "./corpus-yoga test install-hook" "reinstalls it"
     fi
   elif [[ -e "$hook" ]]; then
-    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink — replace: ./corpus-yoga test install-hook"
+    todo signature-hook "a prepare-commit-msg hook exists but is not the symlink" "./corpus-yoga test install-hook" "replaces it"
   else
-    todo signature-hook "not installed — ./corpus-yoga test install-hook"
+    todo signature-hook "not installed" "./corpus-yoga test install-hook" "installs it"
   fi
 }
 
@@ -496,14 +512,14 @@ check_forge() {
   # not once per reader. Network- and auth-dependent, so it NEVER fails the run:
   # unverifiable is reported, never vetoed (the deterministic gate stays offline-
   # reproducible, which is why this lives here and not in corpus-yoga test run).
-  sec "forge settings (declared: src/main/cli/forge/forge.csv; server-side, so unverifiable offline)"
+  sec "forge settings"
   local status key detail remedy
   while IFS=$'\t' read -r status key detail remedy; do
     [[ -z "$status" ]] && continue
     case "$status" in
       OK)    ok   "$key: $detail" ;;
-      DRIFT) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
-      MOVED) todo reader "$key: $detail"; echo "    → run: $remedy" ;;
+      DRIFT) todo reader "$key: $detail" "$remedy" "sets it as declared" ;;
+      MOVED) todo reader "$key: $detail" "$remedy" "names the repository as the forge answers for it" ;;
       *)     info "$key: $detail" ;;
     esac
   # Sourced in the subshell this substitution already is: `reconcile` is the derivation
@@ -513,7 +529,7 @@ check_forge() {
 }
 
 check_pipeline_inputs() {
-  sec "pipeline inputs (this repo ships no data; you supply your own)"
+  sec "pipeline inputs"
   local n
 
   n="$(count_glob_dirs "$DATA_DIR/input/claude/chat/API-capture"/*/)"
@@ -586,7 +602,7 @@ check_pipeline_inputs() {
       if [[ -d "$REPO_ROOT/$p_mount" ]]; then
         ok "$p_mount → $p_live (the census and capture read it)"
       else
-        todo mount "$p_mount absent — the live-session mount the census and capture read; corpus-yoga prerequisites sync --apply creates it"
+        todo mount "$p_mount absent - the live-session mount the census and capture read" "corpus-yoga prerequisites sync --apply" "creates it"
       fi
     fi
   done <<< "$p_rows"
@@ -610,7 +626,7 @@ check_stage() {
   # The room's stage, tmp/stage: what this room has captured and not yet promoted to shared
   # storage (#687) - machine-local state, so it belongs in this report; the count is
   # src/main/corpus.py's, read through the venv's python.
-  sec "stage (tmp/stage/input - captured in this room, not yet promoted; each capturing noun's bare status relates its units to the held ones)"
+  sec "stage"
   [[ -x "$VENV/bin/python" ]] || return 0
   local staged
   staged="$("$REPO_ROOT/src/run_python_script.sh" "$REPO_ROOT/src/main/corpus.py" count 2>/dev/null || echo "?")"
@@ -619,7 +635,10 @@ check_stage() {
   elif [[ "$staged" == "?" ]]; then
     info "tmp/stage/input: could not be read - corpus-yoga pipeline says why"
   else
-    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted - corpus-yoga stage counts them; corpus-yoga pipeline rehearse judges them; each capturing noun's bare status names what its promote would do (corpus-yoga browser|agent|export|forge promote)"
+    todo stage "tmp/stage/input holds $staged unit(s) captured and not yet promoted" \
+      "corpus-yoga pipeline rehearse" "judges them" \
+      "corpus-yoga stage" "counts them" \
+      "corpus-yoga pipeline" "relates each to the held one; a capturing noun's bare status names what its promote would do"
   fi
 }
 
@@ -627,7 +646,7 @@ check_migration() {
   # The moves a rename owes this machine's data/output, tmp/cache and ext/mnt, carried by
   # the scripts under rsc/migration (#661): each run bare states its pending steps and
   # takes none; the reader runs the named script once with --apply.
-  sec "migration (rsc/migration - the moves a rename owes this machine's local roots)"
+  sec "migration"
   local script steps line
   for script in "$REPO_ROOT"/rsc/migration/[0-9]*.sh; do
     [[ -e "$script" ]] || continue
@@ -636,15 +655,15 @@ check_migration() {
     if steps="$("$script" 2>&1)"; then
       while IFS= read -r line; do lines+=("$line"); done <<< "$steps"
       if [[ -n "$steps" ]]; then
-        todo migration "$rel has steps to take - run: $rel --apply"
-        printf '      %s\n' "${lines[@]}"
+        todo migration "$rel has steps to take" "$rel --apply" "takes them"
+        for line in "${lines[@]}"; do info "$rel would: $line"; done
       else
         ok "$rel - nothing to do"
       fi
     else
       while IFS= read -r line; do lines+=("$line"); done <<< "$steps"
-      todo migration "$rel halts - resolve by hand what it names, then run: $rel --apply"
-      printf '      %s\n' "${lines[@]}"
+      todo migration "$rel halts - resolve by hand what it names" "$rel --apply" "then takes its steps"
+      for line in "${lines[@]}"; do info "$rel says: $line"; done
     fi
   done
 }
@@ -729,13 +748,13 @@ report() {
   check_tools
   check_venv
   check_dependencies \
-    "python requirements (corpus-yoga pipeline run — manifest: src/requirements.txt)" \
+    "python requirements" \
     "$REPO_ROOT/src/requirements.txt" \
     req_extract req_probe \
     "requirements installed" \
     "corpus-yoga prerequisites sync --apply, or automatically on the next corpus-yoga pipeline run"
   check_dependencies \
-    "markdown viewer render libs (corpus-yoga server — manifest: src/main/model/serve_assets.txt)" \
+    "markdown viewer render libs" \
     "$REPO_ROOT/src/main/model/serve_assets.txt" \
     asset_extract asset_probe \
     "render assets present in ext/lib/serve_markdown" \

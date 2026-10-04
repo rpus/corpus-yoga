@@ -24,7 +24,7 @@ from library import migration_note  # noqa: E402 - on the path audit.py inserts:
 @dataclass
 class Status(capture_audit.Audit):
     """The audit's standing, then the staged units the browser captured and the stage's verdict."""
-    staged: dict[str, list[corpus.StagedUnit]] | None = None
+    staged: dict[str, dict[str, str]] | None = None
     stage: str = ''
 
 

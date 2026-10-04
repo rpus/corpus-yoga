@@ -49,7 +49,7 @@ def main() -> int:
     facts.say(Status(Test(
         Checks(f"{len(re.findall(r'^def check_', run, re.M))} check sections"),
         f'installed, a link to {os.readlink(hook)}' if installed and hook is not None else 'not installed',
-        None if installed else facts.Command('corpus-yoga test install-hook'))))
+        None if installed else facts.Command('corpus-yoga test install-hook', 'installs it'))))
     return 0
 
 
