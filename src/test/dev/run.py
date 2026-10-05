@@ -2207,7 +2207,7 @@ def check_completions(run) -> None:
     copy of the declared surface, a zsh that has pressed tab once is offered, at its next
     tab, a verb declared in between. And the status says whether zsh is set up for this
     copy (#521, #784), over a planted home: no lines, this copy's lines, another copy's,
-    a copy that is gone, and lines `install` would not write."""
+    a copy that is gone, lines `install` would not write, and lines zsh does not load."""
     import shutil
     import subprocess
     import tempfile
@@ -2264,23 +2264,24 @@ _corpus-yoga
     if zsh is None:
         return
     here = [f'fpath=({CLI / "completions"} $fpath)', f"alias corpus-yoga='{REPO_ROOT / 'corpus-yoga'}'"]
-    def planted(home: Path, lines: list[str] | None) -> None:
+    def planted(home: Path, lines: list[str] | None, below: bool) -> None:
         if lines is not None:
-            (home / '.zshrc').write_text('\n'.join(['# corpus-yoga tab-completion', *lines, '# end corpus-yoga tab-completion',
-                                                    'autoload -Uz compinit', 'compinit -u', '']))
+            ours, zsh_own = ['# corpus-yoga tab-completion', *lines, '# end corpus-yoga tab-completion'], ['autoload -Uz compinit', 'compinit -u']
+            (home / '.zshrc').write_text('\n'.join([*zsh_own, *ours, ''] if below else [*ours, *zsh_own, '']))
     cases = {
         'no lines in ~/.zshrc': (None, 'not set up in zsh', True),
         'the lines of this copy': (here, 'set up', False),
         'the lines of another copy': ([here[0], "alias corpus-yoga='~/other/corpus-yoga'"], 'set up for a different copy of corpus-yoga, at ~/other', True),
         'the lines of a copy that is gone': ([here[0], "alias corpus-yoga='~/gone/corpus-yoga'"], 'set up for a copy of corpus-yoga that is gone, at ~/gone', True),
         'lines install would not write': (['fpath=(~/elsewhere $fpath)', here[1]], 'set up, but not as corpus-yoga completions install sets it up', True),
+        'the lines of this copy below compinit': (here, 'written in ~/.zshrc, but zsh does not load it', True),
     }
     for case, (lines, expected, owed) in cases.items():
         with tempfile.TemporaryDirectory() as scratch:
             home = Path(scratch).resolve()
             (home / 'other').mkdir()
             (home / 'other' / 'corpus-yoga').write_text('')
-            planted(home, lines)
+            planted(home, lines, below=case.endswith('below compinit'))
             asked = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'completions'], capture_output=True, text=True, cwd=REPO_ROOT,
                                    env={**os.environ, 'HOME': str(home), 'YOGA_NO_SEND': '1'}, timeout=120)
         try:

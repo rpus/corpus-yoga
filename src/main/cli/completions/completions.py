@@ -150,20 +150,23 @@ def install_completion() -> int:
         lines[idx:idx] = [*block(), '']
         where = f'added at line {idx + 1}, above compinit'
     text = '\n'.join(lines) + '\n'
-    if text == before:
+    if text == before and loads() is not False:
         print(f'{tilde(zshrc)}: tab-completion is already set up - nothing written')
         return 0
-    try:
-        assert_may_send('write ~/.zshrc (completions install)')
-    except SendRefused as refused:
-        print(f'completions install: NOT DONE - {refused}')
-        return 1
-    zshrc.write_text(text)
-    print(f'{tilde(zshrc)}: four lines {where}')
-    for line in block():
-        print(f'    {line}')
+    if text == before:
+        print(f'{tilde(zshrc)}: the four lines stand as they should, and zsh does not load them')
+    else:
+        try:
+            assert_may_send('write ~/.zshrc (completions install)')
+        except SendRefused as refused:
+            print(f'completions install: NOT DONE - {refused}')
+            return 1
+        zshrc.write_text(text)
+        print(f'{tilde(zshrc)}: four lines {where}')
+        for line in block():
+            print(f'    {line}')
     # compinit keeps the list of completion files it found in ~/.zcompdump and can judge
-    # a list made before this write current; the next terminal would then not complete.
+    # a list made before these lines current; the next terminal would then not complete.
     dumps = sorted(Path.home().glob('.zcompdump*'))
     for d in dumps:
         d.unlink()
@@ -240,7 +243,9 @@ def standing() -> Completions:
         return Completions('not set up in zsh',
                            facts.Command(INSTALL, 'adds four lines to ~/.zshrc; open a new terminal afterwards'))
     if found == [block()[1:-1]]:
-        return Completions('set up' if loaded else 'written in ~/.zshrc, but zsh does not load it')
+        return Completions('set up') if loaded else Completions(
+            'written in ~/.zshrc, but zsh does not load it',
+            facts.Command(INSTALL, 'puts its lines where zsh reads them; open a new terminal afterwards'))
     aliased = [match.group(1) for lines in found for line in lines
                if (match := re.fullmatch(r"alias corpus-yoga='(.*)'", line))]
     other = next((Path(a).expanduser() for a in aliased if Path(a).expanduser() != LAUNCHER), None)

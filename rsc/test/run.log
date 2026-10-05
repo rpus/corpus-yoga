@@ -1,4 +1,4 @@
-run.py: code+schema 1515/1515
+run.py: code+schema 1516/1516
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ run.py: code+schema 1515/1515
 ── check_completions ─────────────────────────────────────────────────────────
   ✓ completions.offers_the_commands_as_they_are
   ✓ completions.sync_runs_the_install
-  ✓ completions.status_says_one_thing  (5/5)
+  ✓ completions.status_says_one_thing  (6/6)
 
 ── check_drafters ────────────────────────────────────────────────────────────
   ✓ drafters.signature_is_read_as_written
@@ -260,7 +260,7 @@ check_facts                            3     0   code      134
 check_export_atoms                     1     0   code      138
 check_status_facts                    66     0   code      141
 check_walkthrough                      1     0   code      147
-check_completions                      7     0   code      150
+check_completions                      8     0   code      150
 check_drafters                         2     0   code      155
 check_versioned_schema_diagnostics   374     0   schema    159
 check_schema_join                      2     0   schema    186
@@ -277,8 +277,8 @@ check_mcp_reproducible                 1     0   schema    227
 check_expectation                      2     0   code      230
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 141 types, 1515/1515 invocations passing
-checks[code]: 89 types, 838/838 invocations passing
+checks[code+schema]: 141 types, 1516/1516 invocations passing
+checks[code]: 89 types, 839/839 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1515/1515 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1516/1516 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
