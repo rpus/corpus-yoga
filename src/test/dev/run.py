@@ -2163,10 +2163,14 @@ def check_walkthrough(run) -> None:
     # Every spot is addressed by its JSON pointer (#775): the walk starts where one names,
     # a slash within a key is ~1, the nearest spot stands in for one that is not there, and
     # the walk leaves with the command that continues it.
+    exits: dict[str, int] = {}
+
     def walked(pointer: str, pressed: str, bare: bool = False) -> list:
         typed = pointer.split(' ') if bare else [pointer]     # typed bare, the shell splits it at each space
-        said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough', *typed], input=pressed, capture_output=True, text=True,
-                              env=env, cwd=REPO_ROOT, timeout=300).stdout
+        asked = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough', *typed], input=pressed, capture_output=True, text=True,
+                               env=env, cwd=REPO_ROOT, timeout=300)
+        exits[pointer] = asked.returncode
+        said = asked.stdout
         out = []
         for document in re.split(r'\n-.-\n', said):
             try:
@@ -2182,8 +2186,11 @@ def check_walkthrough(run) -> None:
         ('a pointer starts the walk on its spot', summary[0].get('at') == '/prerequisites/help/summary' and summary[0].get('key') == 'summary'
          and summary[1].get('value') == declared['summary']),
         ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'tmp/stage' and slashed[0].get('at') == '/stage/status/tmp~1stage'),
-        ('where no spot stands the nearest does, and the walk says so', astray[0].get('at') == '/prerequisites/help'
-         and 'no spot stands at /prerequisites/help/nonesuch/deeper' in str(astray[0].get('note'))),
+        ('where no spot stands the longest truncation that does, and the walk says so', astray[0].get('at') == '/prerequisites/help'
+         and 'the longest part of it that stands is /prerequisites/help' in str(astray[0].get('note'))),
+        ('its exit is 0 where it went as asked', proc.returncode == 0 and exits.get('/prerequisites/help/summary') == 0),
+        ('its exit is 3 where the pointer names no spot', exits.get('/prerequisites/help/nonesuch/deeper') == 3),
+        ('an argument that is no pointer is refused, exit 2, with no walk', walked('nonesuch', 'q\n') == [{}] and exits.get('nonesuch') == 2),
         ('a space within a key is read, quoted or typed bare', walked(spaced, 'q\n')[0].get('at') == spaced
          and walked(spaced, 'q\n', bare=True)[0].get('at') == spaced),
         ('it leaves with the command that continues it', summary[-1].get('walkthrough') == 'left at /prerequisites/help/summary'
