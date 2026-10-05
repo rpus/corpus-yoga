@@ -201,18 +201,6 @@ stale_tracking() {
   done <<< "$out"
 }
 
-# rows: STATUS \t key \t detail \t remedy — the authority is rsc/test/pre-commit-hook.sh
-gate() {
-  local hook accepted="$REPO_DIR/rsc/test/pre-commit-hook.sh"
-  hook="$(git -C "$REPO_DIR" rev-parse --git-path hooks/pre-commit 2>/dev/null || true)"
-  [[ -z "$hook" || "$hook" = /* ]] || hook="$REPO_DIR/$hook"
-  if [[ -n "$hook" ]] && cmp -s "$hook" "$accepted"; then
-    echo -e "OK\tpre-commit\ta copy of rsc/test/pre-commit-hook.sh\t"
-  else
-    echo -e "WRONG\tpre-commit\tnot the accepted hook — commits from here are not being vetted\tcorpus-yoga test install-hook"
-  fi
-}
-
 upstream() {
   local current sha
   current="$(git -C "$REPO_DIR" branch --show-current)"
@@ -259,7 +247,7 @@ status() {
     reconcile | awk '{print "settings\t" $0}'
     awk '{print "branches\t" $0}' <<< "$rows"
     awk '{print "refs\t" $0}' <<< "$raw_stale"
-    { gate; upstream; } | awk '{print "checkout\t" $0}'
+    upstream | awk '{print "checkout\t" $0}'
   } | "$REPO_DIR/src/run_python_script.sh" "$REPO_DIR/src/main/cli/forge/status.py" "$@"
 }
 

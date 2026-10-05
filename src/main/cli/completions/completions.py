@@ -330,6 +330,20 @@ class Standing:
 class Completions:
     script: Standing = facts.named('tmp/cache/completions/_yoga')   # written and current with the table, or not
     zshrc: Standing = facts.named('~/.zshrc')                       # how many times the block that wires it stands there
+    zsh: Standing = facts.named('zsh')                              # whether an interactive shell resolves the completion
+
+
+def resolves() -> bool | None:
+    """Whether zsh completes corpus-yoga, asked of zsh: fpath is scanned when compinit
+    runs, so a line added after it stands in ~/.zshrc and does nothing - presence of a
+    string is not the fact, resolution is. An interactive shell sources the rc and answers
+    for itself. None where there is no zsh."""
+    import shutil
+    import subprocess
+    if shutil.which('zsh') is None:
+        return None
+    asked = subprocess.run(['zsh', '-ic', 'print -r -- ${+_comps[corpus-yoga]}'], capture_output=True, text=True)
+    return (asked.stdout.strip().splitlines() or [''])[-1] == '1'
 
 
 @dataclass
@@ -347,7 +361,12 @@ def completion_status() -> int:
     # wired" about a block those two can see (or would refuse to see)
     blocks = sum(1 for l in (zshrc.read_text().splitlines() if zshrc.exists() else [])
                  if is_completion_marker(l))
-    write = 'corpus-yoga completions sync' if blocks >= 1 else 'corpus-yoga completions install-latest'
+    resolved = resolves()
+    # ./corpus-yoga in every remedy: the bare word is a machine-global binding to one
+    # checkout (the ~/.zshrc alias install-latest writes), so in any other checkout it
+    # runs that tree's code; ./ names this tree's (#514). Where zsh resolves the
+    # completion only the file needs writing (#610); an unwired shell needs install-latest.
+    write = './corpus-yoga completions sync' if resolved else './corpus-yoga completions install-latest'
     # A count, not a yes/no: two blocks is a state the file can reach and the reader
     # cannot see from here, and the second one's fpath entry shadows the first.
     facts.say(Status(Completions(
@@ -355,8 +374,12 @@ def completion_status() -> int:
                  None if written and current else facts.Command(write, 'writes it from the table; then a new shell')),
         Standing('not wired' if not blocks else 'wired' if blocks == 1 else f'wired {blocks} times',
                  None if blocks == 1 else facts.Command(
-                     'corpus-yoga completions install-latest',
-                     'wires it; then a new shell' if not blocks else 'removes every block and writes one; then a new shell')))))
+                     './corpus-yoga completions install-latest',
+                     'wires it; then a new shell' if not blocks else 'removes every block and writes one; then a new shell')),
+        Standing('not present - tab-completion is not applicable on this machine') if resolved is None
+        else Standing('resolves the completion') if resolved
+        else Standing('does not resolve the completion - no shell is wired to it',
+                      facts.Command('./corpus-yoga completions install-latest', 'wires it; then a new shell')))))
     return 0
 
 

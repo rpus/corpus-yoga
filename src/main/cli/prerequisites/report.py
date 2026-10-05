@@ -2,14 +2,19 @@
 """
 report.py - `corpus-yoga prerequisites`' report: the rows prerequisites.sh collects as its
 checks run - `<section> <kind> <subject> <what stands> [<command> <what it does>]...`,
-tab-separated, in the file named - typed and said as
-one shape (#759). A row is keyed by what it is about (#771); its commands are columns of
-their own, `<command> <what it does>` in pairs, and stand beneath it (#763, #765). Runs
-under the venv's python, or under python3 before the venv is minted.
+tab-separated, in the file named - typed and said as one shape (#759). A row is keyed by
+what it is about (#771); its commands are columns of their own, `<command> <what it does>`
+in pairs, and stand under `remedy` beside it (#763, #777). A row `<section> graft <noun>
+<pointer>` is what that noun's own status says at that spot, loaded as the data it is
+(#777): whole in the full report, and otherwise what holds a remedy. Runs under the venv's
+python, or under python3 before the venv is minted, where no noun can be asked.
 
-usage: report.py <rows-file> <verdict> <stamp>
+usage: report.py report <rows-file> <verdict> <stamp> <show-all: 0|1>
+       report.py remedies <rows-file> ...      # each remedy the report holds: command, what it does, where
 """
 from __future__ import annotations
+import os
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,12 +27,13 @@ REPO = _root[0]
 sys.path.insert(0, str(REPO / 'src' / 'main'))
 import facts  # noqa: E402
 
+
 @dataclass
 class Report:
     """The report: each section its subjects, each subject what stands of it (#763, #771). A
     subject `a / b` stands beneath `a`, so its last part names the property the value is of,
-    or is the thing itself by its address; the commands that act on a row stand beside its
-    last part, each with what it does. No key names a kind."""
+    or is the thing itself by its address; the commands that act on a row stand under
+    `remedy` beside its last part, each with what it does. No key names a kind."""
     stamp: str
     sections: dict[str, dict]
     verdict: str
@@ -36,13 +42,61 @@ class Report:
         return {'report': self.stamp, **self.sections, 'prerequisites': self.verdict}
 
 
+def needing(node):
+    """What of a noun's facts needs acting on: each mapping that holds a remedy, whole, under
+    the keys that lead to it; None where nothing does."""
+    if not isinstance(node, dict):
+        return None
+    if 'remedy' in node:
+        return node
+    kept = {key: found for key, value in node.items() if (found := needing(value)) is not None}
+    return kept or None
+
+
+def grafted(noun: str, pointer: str, whole: bool):
+    """What the noun's own status says at the pointer: its facts, loaded. None where the
+    short report has nothing of it to show."""
+    venv = Path(os.environ.get('VENV', Path.home() / 'venvs' / 'general')) / 'bin' / 'python'
+    if not venv.is_file():
+        return 'unread - the venv is not minted' if whole else None
+    asked = subprocess.run([str(REPO / 'corpus-yoga'), noun], capture_output=True, text=True, cwd=REPO)
+    try:
+        at = facts.load(asked.stdout)
+    except ValueError as error:
+        return f'corpus-yoga {noun} is unreadable - {error}'
+    if isinstance(at, dict):
+        at.pop('usage', None)
+    for token in ([t.replace('~1', '/').replace('~0', '~') for t in pointer[1:].split('/')] if pointer else []):
+        if not isinstance(at, dict) or token not in at:
+            return f'corpus-yoga {noun} says nothing at {pointer}'
+        at = at[token]
+    return at if whole else needing(at)
+
+
+def remedies(node, where: str = '') -> list[tuple[str, str, str]]:
+    """Each remedy the report holds: its command, what it does, and where it stands."""
+    if not isinstance(node, dict):
+        return []
+    out = [(command, does, where) for command, does in node['remedy'].items()] if isinstance(node.get('remedy'), dict) else []
+    for key, value in node.items():
+        if key != 'remedy':
+            out += remedies(value, f'{where} / {key}' if where else str(key))
+    return out
+
+
 def main() -> int:
-    rows_file, verdict, stamp = sys.argv[1:4]
+    mode, rows_file, verdict, stamp, show_all = (sys.argv[1:6] + ['', '', '', ''])[:5]
+    whole = show_all == '1' or mode == 'remedies'       # sync reads every remedy, whatever the report shows
     sections: dict[str, dict] = {}
     for line in Path(rows_file).read_text().splitlines():
         if not line.strip():
             continue
-        name, _kind, subject, stands, *rest = line.split('\t')
+        name, kind, subject, stands, *rest = line.split('\t')
+        if kind == 'graft':
+            said = grafted(subject, stands, whole)
+            if said is not None:
+                sections[name] = said if isinstance(said, dict) else {subject: said}
+            continue
         at = sections.setdefault(name, {})
         *above, last = [part.strip() for part in subject.split(' / ')]
         for part in above:
@@ -53,9 +107,13 @@ def main() -> int:
         while last in at:                             # two rows of one subject: both are said
             last += ' (again)'
         at[last] = stands
-        for i in range(0, len(rest), 2):
-            if rest[i]:
-                at[rest[i]] = rest[i + 1] if i + 1 < len(rest) else ''
+        commands = {rest[i]: rest[i + 1] if i + 1 < len(rest) else '' for i in range(0, len(rest), 2) if rest[i]}
+        if commands:
+            at.setdefault('remedy', {}).update(commands)
+    if mode == 'remedies':
+        for command, does, where in remedies(sections):
+            print(f'{command}\t{does}\t{where}')
+        return 0
     facts.say(Report(stamp, sections, verdict))
     return 0
 

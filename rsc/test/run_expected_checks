@@ -101,6 +101,7 @@ reference.lineage_declared
 reference.provenance_declared
 reference.verbatim
 report.rows_are_keyed_by_subject
+report.says_what_the_nouns_say
 schema.changelog_narrative
 schema.changelog_no_todo
 schema.family_mirrors_writer
@@ -111,7 +112,6 @@ schema.valid_json_with_schema
 shell.shellcheck_clean
 stage.export_is_one_unit
 stage.states_are_told_apart
-status.hook_is_said_alike
 status.lines_load_as_yaml
 status.remedy_names_a_command
 store.export_is_held_within_a_later_one

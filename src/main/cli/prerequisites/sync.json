@@ -1,5 +1,5 @@
 {
-  "help": "make this machine satisfy what the report names — a dry run unless --apply, because it writes outside the repo (the venv, the hook)",
+  "help": "make this machine satisfy what the report names - the mint of the venv, and each remedy the report holds that is the repo's to run; a dry run unless --apply, because it writes outside the repo",
   "args": [
     {
       "name": "--apply",
@@ -30,6 +30,7 @@
   ],
   "x": [
     "corpus-yoga grammar sync",
-    "corpus-yoga agent mount --apply"
+    "corpus-yoga agent mount --apply",
+    "corpus-yoga test install-hook"
   ]
 }
