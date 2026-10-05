@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # corpus-yoga — the repo's terminal CLI: curated subcommands with zsh tab-completion.
 # The table and the machinery share src/main/cli/ — cli.py reads the declarations beside it.
-# Bare `corpus-yoga` is the machine report (the root's status, like every noun); `corpus-yoga -h` is
+# Bare `corpus-yoga` suggests what to run next and runs none of it; `corpus-yoga -h` is
 # the table; `corpus-yoga <command> --help` asks the target itself.
 #
 # Every python here runs in the venv (#478): the launcher refuses without it,

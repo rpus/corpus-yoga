@@ -47,12 +47,10 @@ parse_args() {
   done
 }
 
-missing_required=0
-
 # Failures-only by default: ✓ (satisfied) lines are withheld unless --show-all, and a
 # section header prints lazily — only when its first shown line (– or ✗) appears — so an
-# all-satisfied section vanishes entirely. The bare `corpus-yoga` invocation shows this report,
-# so its default is the short "what still needs attention" list.
+# all-satisfied section vanishes entirely: the default is the short "what still needs
+# attention" list.
 # The report's rows (#753, #763, #771): section \t kind \t subject \t what stands
 # [\t command \t what it does]..., collected as the checks run and said once, as one
 # shape, by report.py. A row is keyed by what it is about - a tool, a hook, a pipeline and
@@ -83,28 +81,27 @@ info()   { [[ $# -eq 2 ]] || { echo "prerequisites: info takes a subject and wha
 # todo is a row the reader acts on, and only it and `bad` carry commands; a command is the
 # report's data, so `sync` reads what to run from the report itself (#777), not from a tag.
 todo()   { _row todo "$@"; }
-bad()    { _row missing "$@"; missing_required=1; }
+bad()    { _row missing "$@"; }
 graft()  { _rows+=("$1"$'\t'"graft"$'\t'"$2"$'\t'"$3"); }
 
-# The rows said through report.py: the report (`report <verdict>`), or the remedies it
+# The rows said through report.py: the report (`report`), or the remedies it
 # holds as rows of their own - command \t what it does \t where it stands (`remedies`).
 # Under the venv's python where it exists, under python3 before the venv is minted, and as
 # the bare rows where neither runs (a row above says so).
 _say() {
-  local mode="$1" verdict="${2-}" python
+  local mode="$1" python
   if [[ -x "$VENV/bin/python" ]]; then python="$VENV/bin/python"
   elif command -v python3 &>/dev/null; then python="$(command -v python3)"
   else
     [[ "$mode" == report ]] || return 0
     local r
     for r in ${_rows[@]+"${_rows[@]}"}; do echo "$r"; done
-    echo "prerequisites: $verdict"
     return 0
   fi
   local rows_file
   rows_file="$(mktemp "${TMPDIR:-/tmp}/prerequisites.XXXXXX")"
   printf '%s\n' ${_rows[@]+"${_rows[@]}"} > "$rows_file"
-  VENV="$VENV" "$python" "$REPO_ROOT/src/main/cli/prerequisites/report.py" "$mode" "$rows_file" "$verdict" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
+  VENV="$VENV" "$python" "$REPO_ROOT/src/main/cli/prerequisites/report.py" "$mode" "$rows_file" "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$SHOW_ALL"
   rm -f "$rows_file"
 }
 # The sync, spelt as the reader can run it at the moment the row is read: through the
@@ -576,14 +573,7 @@ report() {
   # severity and consumability decouple by LOCATION, not by a role or a bit.
   # Ruled 2026-07-31 (#141): the old exit-1-on-✗ made a pipelines-only machine
   # scriptably blocked by a hook it will never trigger.
-  if [[ "$missing_required" -eq 1 ]]; then
-    _say report "missing item(s) above - each names what breaks and its remedy; this report only informs (exit 0)"
-  elif (( SHOW_ALL )); then
-    _say report "ready - corpus-yoga pipeline run (pipelines without input data are skipped)"
-  else
-    # Default is failures-only; if we reach here nothing above needed attention.
-    _say report "ready - corpus-yoga pipeline run; the full report is corpus-yoga prerequisites --show-all, the commands corpus-yoga -h"
-  fi
+  _say report
 }
 
 main() {

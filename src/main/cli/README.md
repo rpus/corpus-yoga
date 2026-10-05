@@ -49,7 +49,7 @@ prints, each command's `corpus-yoga <command> -h` (its summary, its generated in
 declared help lines as headed subparagraphs), what tab offers in zsh
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `corpus-yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
-`corpus-yoga` runs the machine report (`corpus-yoga prerequisites`), and a verb's own flags live one
+`corpus-yoga` suggests what to run next and runs none of it, and a verb's own flags live one
 level down at `corpus-yoga <command> <verb> -h`, answered by the target's own parser: argparse
 for a python target (or the parser `cli.py` builds for a command it handles itself),
 `parse_argv` for a bash target — sourced from `src/main/cli/parse_argv.sh` at each verb's

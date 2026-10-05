@@ -22,7 +22,7 @@ The vocabulary is parsed from the calculus document itself (calculus_terms),
 never restated.
 
 Usage:
-    corpus-yoga                       # render the table
+    corpus-yoga                       # suggest what to run next; run none of it
     corpus-yoga <command> [args...]   # exec the target
     corpus-yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
@@ -37,6 +37,7 @@ import os
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 SELF = 'src/main/cli/cli.py'
@@ -47,6 +48,7 @@ REPO_ROOT = _root[0]
 sys.path.insert(0, str(REPO_ROOT / 'src'))  # src/ — modules both tiers import
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main'))  # src/main - the main tier's shared modules
 import tier  # noqa: E402 — the tiers, one home (#702)
+import facts  # noqa: E402 - the one printer of a status's facts (#753)
 from member import members  # noqa: E402
 from provider import signature  # noqa: E402 - the Signature triad, one home (#704)
 
@@ -371,9 +373,26 @@ def render_command_help(c: dict) -> str:
     return '\n'.join(out) + '\n'
 
 
+# What bare `corpus-yoga` suggests, in the order a reader new to a checkout would type
+# them. The one place they are named; each is said with its own declared summary.
+SUGGESTED = ('prerequisites', 'walkthrough', 'pipeline')
+
+
+@dataclass
+class Top:
+    suggested: dict[str, str] = facts.named('corpus-yoga')
+
+
+def suggestions(cmds: list[dict]) -> Top:
+    """What bare `corpus-yoga` says: a few commands to type next, and the menu."""
+    summary = {c['command']: c['summary'] for c in cmds}
+    return Top({**{f'corpus-yoga {name}': summary[name] for name in SUGGESTED},
+                'corpus-yoga -h': 'every command, each with its summary'})
+
+
 def render_help(cmds: list[dict]) -> str:
     """`corpus-yoga -h` — the command menu: one line each, name and summary. Bare `corpus-yoga`
-    runs the machine report (prerequisites); `corpus-yoga <command> -h` is a command's forms."""
+    suggests what to run next; `corpus-yoga <command> -h` is a command's forms."""
     w = max(len(c['command']) for c in cmds)
     out = ['corpus-yoga', '',
            *[f"  {c['command']:<{w}}  {c['summary']}" for c in cmds],
@@ -479,11 +498,8 @@ def main() -> int:
     argv = sys.argv[1:]
     cmds = commands()
     if not argv:
-        # bare `corpus-yoga` → the machine report: what still needs attention (failures-only;
-        # `corpus-yoga prerequisites --show-all` for the full report). The root obeys the same
-        # rule as every noun — bare shows status, -h shows help — and its status IS the
-        # prerequisites report, so there is nothing to invent here.
-        return dispatch(next(c for c in cmds if c['command'] == 'prerequisites'), [])
+        facts.say(suggestions(cmds))      # the bare word runs nothing
+        return 0
     if argv[0] in ('-h', '--help'):
         print(render_help(cmds), end='')      # help is the -h/--help flag, uniformly —
         return 0                              # not a bareword `help` the table never declared

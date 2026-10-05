@@ -20,6 +20,7 @@ calculus.unenforced_names_issue
 capture.monotone_record
 checks
 cli.advertised_flags_exist
+cli.bare_suggests_and_runs_nothing
 cli.block_convergence
 cli.block_identity_stable
 cli.calculus_defined
@@ -105,6 +106,7 @@ reference.lineage_changelog
 reference.lineage_declared
 reference.provenance_declared
 reference.verbatim
+report.gives_no_verdict_on_itself
 report.rows_are_keyed_by_subject
 report.says_what_the_nouns_say
 schema.changelog_narrative

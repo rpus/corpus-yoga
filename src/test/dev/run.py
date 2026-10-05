@@ -1994,6 +1994,44 @@ def check_status_facts(run) -> None:
     run('report: the forge says the commit hook as corpus-yoga test says it', same,
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
 
+    # The machine report gives no verdict on itself (#786): it ends at its last section,
+    # and what needs doing is read from its remedies.
+    verdict = whole.get('prerequisites')
+    run('report: it gives no verdict on itself', bool(whole) and verdict is None,
+        None if whole and verdict is None else f'the report ends `prerequisites: {str(verdict)[:120]}`' if whole else 'corpus-yoga prerequisites --show-all loads as nothing',
+        check='report.gives_no_verdict_on_itself')
+
+    # The bare word suggests what to run next, and runs none of it (#786): asked in this
+    # process with nothing allowed to run, it says commands a reader can type, each with
+    # the summary its own declaration gives.
+    import contextlib
+    import io
+    ran: list = []
+    def refused(*args, **kwargs):
+        ran.append(args[0] if args else kwargs.get('args'))
+        return subprocess.CompletedProcess([], 0, '', '')
+    # both ways the CLI hands over are refused: a child, and the exec that replaces this process
+    real_run, real_exec, real_argv, heard = subprocess.run, os.execv, sys.argv, io.StringIO()
+    try:
+        subprocess.run, os.execv, sys.argv = refused, refused, ['corpus-yoga']
+        with contextlib.redirect_stdout(heard):
+            cli.main()
+    finally:
+        subprocess.run, os.execv, sys.argv = real_run, real_exec, real_argv
+    try:
+        suggested = yaml.load(heard.getvalue(), Loader=Strict)
+    except yaml.YAMLError:
+        suggested = None
+    suggested = suggested.get('corpus-yoga') if isinstance(suggested, dict) else None
+    summaries = {f"corpus-yoga {c['command']}": c['summary'] for c in cli.commands()}
+    why = (f'it runs {", ".join(str(a if isinstance(a, str) else a[0]).removeprefix(f"{REPO_ROOT}/") for a in ran)}' if ran
+           else f'it says {heard.getvalue().strip()[:120] or "nothing"}, not commands under `corpus-yoga:`' if not isinstance(suggested, dict) or not suggested
+           else next((f'`{line}` is no command a reader types' for line in suggested if line not in summaries and line != 'corpus-yoga -h'), None)
+           or next((f'`{line}` is said as {str(does)[:80]}, where its declaration says {summaries[line][:80]}'
+                    for line, does in suggested.items() if line in summaries and does != summaries[line]), None)
+           or (None if 'corpus-yoga prerequisites' in suggested else 'the machine report is not among what it suggests'))
+    run('bare: corpus-yoga suggests what to run next, and runs none of it', why is None, why, check='cli.bare_suggests_and_runs_nothing')
+
     # The machine report's rows are keyed by what each is about (#771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
     proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'prerequisites', '--show-all'], capture_output=True, text=True,
