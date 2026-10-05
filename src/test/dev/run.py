@@ -2205,7 +2205,8 @@ def check_walkthrough(run) -> None:
 def check_completions(run) -> None:
     """What tab offers is read from the declarations when tab is pressed (#784): in a
     copy of the declared surface, a zsh that has pressed tab once is offered, at its next
-    tab, a verb declared in between. And the status says whether zsh is set up for this
+    tab, a verb declared in between; and where a declaration no longer parses, tab says
+    why it offers nothing. And the status says whether zsh is set up for this
     copy (#521, #784), over a planted home: no lines, this copy's lines, another copy's,
     a copy that is gone, lines `install` would not write, and lines zsh does not load."""
     import shutil
@@ -2219,9 +2220,12 @@ def check_completions(run) -> None:
     offers = 'completions: tab offers a verb declared since the last tab'
     if zsh is None:
         run(offers, True, check='completions.offers_the_commands_as_they_are')
+        run('completions: tab says why it offers nothing where a declaration does not parse', True, check='completions.says_why_it_offers_nothing')
     elif not standin.is_file():
         run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '
             'written by a verb and out of date wherever a declaration has changed since', check='completions.offers_the_commands_as_they_are')
+        run('completions: tab says why it offers nothing where a declaration does not parse', False,
+            'src/main/cli/completions/_corpus-yoga is no file', check='completions.says_why_it_offers_nothing')
     else:
         with tempfile.TemporaryDirectory() as scratch:
             copy = Path(scratch).resolve() / 'copy'
@@ -2237,22 +2241,30 @@ autoload -Uz _corpus-yoga
 _describe() {{ local offered=$@[-1]; print -l -- "${{(@P)offered}}" }}
 compadd() {{ print -l -- "$@" }}
 _files() {{ : }}
+_message() {{ print -r -- "message: $@[-1]" }}
 cd {copy}
 words=(./corpus-yoga completions ''); CURRENT=3
 _corpus-yoga
 print -- ---
 cp {verbs}/uninstall.json {verbs}/declared-since.json
 _corpus-yoga
+print -- ---
+print -r -- '{{ "help": "cut short' > {verbs}/declared-since.json
+_corpus-yoga
 '''
             pressed = subprocess.run([zsh, '-f', '-c', presses], capture_output=True, text=True, timeout=60,
                                      env={**os.environ, 'VENV': sys.prefix})
-        first, _, second = pressed.stdout.partition('---')
+        first, second, third = (pressed.stdout.split('---') + ['', ''])[:3]
         before = [line.split(':')[0] for line in first.splitlines() if line.strip()]
         after = [line.split(':')[0] for line in second.splitlines() if line.strip()]
         why = (f'the first tab offers {before}, not the declared verbs' if 'uninstall' not in before or 'declared-since' in before
                else f'the second tab offers {after}: the verb declared since the first is not among them' if 'declared-since' not in after
                else None)
         run(offers, why is None, why and f'{why} {pressed.stderr.strip()[:200]}'.strip(), check='completions.offers_the_commands_as_they_are')
+        told = [line for line in third.splitlines() if line.startswith('message: ')]
+        run('completions: tab says why it offers nothing where a declaration does not parse', bool(told),
+            None if told else f'the third tab says {third.strip()[:120] or "nothing"}: a reader cannot tell a broken declaration from a position that takes no argument',
+            check='completions.says_why_it_offers_nothing')
 
     declared = json.loads((CLI / 'prerequisites' / 'sync.json').read_text()).get('x', [])
     install = getattr(cli_completions, 'INSTALL', '')
