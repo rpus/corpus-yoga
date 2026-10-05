@@ -1,0 +1,15 @@
+#compdef corpus-yoga
+# What tab offers is read from the declarations each time tab is pressed. No command
+# or flag is written here: a copy of them is out of date after any merge, pull, switch
+# of branch or uncommitted edit.
+#
+# The declarations read are those of the copy of corpus-yoga being typed - ./corpus-yoga
+# in a second copy offers that copy's commands - and of the copy holding this file
+# where the word typed names no copy.
+local SELF=src/main/cli/completions/_corpus-yoga
+local typed=${(Q)words[1]}
+typed=${typed/#\~/$HOME}
+[[ $typed == */* ]] || typed=${commands[$typed]-}
+local copy=${typed:A:h}
+[[ -f $copy/$SELF ]] || copy=${${${(%):-%x}:A}%/$SELF}
+eval "$("$copy/src/run_python_script.sh" "$copy/src/main/cli/completions/offer.py" 2>/dev/null)"

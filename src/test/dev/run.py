@@ -99,6 +99,7 @@ sys.path.insert(0, str(CLI / 'completions'))
 import cli  # noqa: E402 — the CLI table machinery (check_cli_surface)
 import commands as cli_commands  # noqa: E402 — `corpus-yoga commands` answers itself here
 import completions as cli_completions  # noqa: E402 — and `corpus-yoga completions` here
+import offer as cli_offer  # noqa: E402 - what zsh evaluates when tab is pressed
 import cache_io  # noqa: E402 — the declared tmp/cache/ IO registry (check_cache_io)
 sys.path.insert(0, str(REPO_ROOT / 'src' / 'main' / 'model'))
 sys.path.insert(0, str(SRC / 'main' / 'mcp'))  # the house mcp factoring (check_mcp_factoring)
@@ -882,9 +883,8 @@ def check_cli_surface(run) -> None:
                 f'{n_lines} lines — trim to the shape: name, what, usage, flags' if n_lines > 21 else None,
                 law='G8', check='cli.help_one_screen')
     # The emitted completion is a zsh PROGRAM, not prose — it must parse. A
-    # '(--a|--b)' usage can leak '--b)' through flags_of, and the installed file then
-    # fails to load: completion is lost silently, because nothing else parses what the
-    # install writes. zsh-less clones skip the parse
+    # '(--a|--b)' usage can leak '--b)' through flags_of, and what zsh evaluates then
+    # fails: completion is lost silently, because nothing else parses it. zsh-less clones skip the parse
     # invisibly (constant label, no detail) so the committed log stays
     # byte-identical; every machine runs macOS, where the check is real.
     import shutil, tempfile
@@ -892,7 +892,7 @@ def check_cli_surface(run) -> None:
     parse_ok, parse_err = True, None
     if zsh:
         with tempfile.NamedTemporaryFile('w', suffix='_yoga', delete=False) as f:
-            f.write(cli_completions.completion_script(cmds))
+            f.write(cli_offer.completion_script(cmds))
             tmp = f.name
         proc = subprocess.run([zsh, '-n', tmp], capture_output=True, text=True)
         Path(tmp).unlink()
@@ -1478,9 +1478,9 @@ def check_cli_surface(run) -> None:
 
     # G20, over a SYNTHETIC ~/.zshrc — the property is about the pure function, and the
     # gate must not read (much less converge) the machine's real shell config. The stale
-    # marker below is the exact wording an earlier version wrote; it is the case that
-    # actually escaped, so it is the case the check holds.
-    stale = '# corpus-yoga tab-completion (refresh: ./corpus-yoga completions install-latest)'
+    # marker below carries advice other than the one install writes: an earlier version's
+    # wording is the case that escaped.
+    stale = '# corpus-yoga tab-completion (advice an earlier corpus-yoga wrote)'
     block = ['fpath=(~/x $fpath)', "alias corpus-yoga='~/x/corpus-yoga'", cli_completions.COMPLETION_END]
     synthetic = ['# unrelated', '', stale, *block, '', cli_completions.COMPLETION_MARKER, *block, '',
                  'autoload -Uz compinit', 'compinit']
@@ -2200,6 +2200,98 @@ def check_walkthrough(run) -> None:
     run('walkthrough: a reader walks the room and runs a command it reaches', not failed,
         None if not failed else 'not so: ' + '; '.join(failed) + f' (exit {proc.returncode}; {proc.stderr.strip()[-120:]})',
         check='walkthrough.walks_and_runs')
+
+
+def check_completions(run) -> None:
+    """What tab offers is read from the declarations when tab is pressed (#784): in a
+    copy of the declared surface, a zsh that has pressed tab once is offered, at its next
+    tab, a verb declared in between. And the status says whether zsh is set up for this
+    copy (#521, #784), over a planted home: no lines, this copy's lines, another copy's,
+    a copy that is gone, and lines `install` would not write."""
+    import shutil
+    import subprocess
+    import tempfile
+    sys.path.insert(0, str(SRC / 'main'))
+    import importlib
+    facts = importlib.import_module('facts')
+    zsh = shutil.which('zsh')
+    standin = CLI / 'completions' / '_corpus-yoga'
+    offers = 'completions: tab offers a verb declared since the last tab'
+    if zsh is None:
+        run(offers, True, check='completions.offers_the_commands_as_they_are')
+    elif not standin.is_file():
+        run(offers, False, 'src/main/cli/completions/_corpus-yoga is no file: what zsh loads is a copy of the commands, '
+            'written by a verb and out of date wherever a declaration has changed since', check='completions.offers_the_commands_as_they_are')
+    else:
+        with tempfile.TemporaryDirectory() as scratch:
+            copy = Path(scratch).resolve() / 'copy'
+            shutil.copytree(CLI, copy / 'src' / 'main' / 'cli', ignore=shutil.ignore_patterns('__pycache__'))
+            for module in sorted((SRC / 'main').glob('*.py')):
+                shutil.copy(module, copy / 'src' / 'main' / module.name)
+            shutil.copy(SRC / 'run_python_script.sh', copy / 'src' / 'run_python_script.sh')
+            shutil.copy(REPO_ROOT / 'corpus-yoga', copy / 'corpus-yoga')
+            verbs = copy / 'src' / 'main' / 'cli' / 'completions'
+            presses = f'''
+fpath=({verbs} $fpath)
+autoload -Uz _corpus-yoga
+_describe() {{ local offered=$@[-1]; print -l -- "${{(@P)offered}}" }}
+compadd() {{ print -l -- "$@" }}
+_files() {{ : }}
+cd {copy}
+words=(./corpus-yoga completions ''); CURRENT=3
+_corpus-yoga
+print -- ---
+cp {verbs}/uninstall.json {verbs}/declared-since.json
+_corpus-yoga
+'''
+            pressed = subprocess.run([zsh, '-f', '-c', presses], capture_output=True, text=True, timeout=60,
+                                     env={**os.environ, 'VENV': sys.prefix})
+        first, _, second = pressed.stdout.partition('---')
+        before = [line.split(':')[0] for line in first.splitlines() if line.strip()]
+        after = [line.split(':')[0] for line in second.splitlines() if line.strip()]
+        why = (f'the first tab offers {before}, not the declared verbs' if 'uninstall' not in before or 'declared-since' in before
+               else f'the second tab offers {after}: the verb declared since the first is not among them' if 'declared-since' not in after
+               else None)
+        run(offers, why is None, why and f'{why} {pressed.stderr.strip()[:200]}'.strip(), check='completions.offers_the_commands_as_they_are')
+
+    declared = json.loads((CLI / 'prerequisites' / 'sync.json').read_text()).get('x', [])
+    install = getattr(cli_completions, 'INSTALL', '')
+    ran = bool(install) and install.removeprefix('./') in declared
+    run('completions: the machine\'s sync runs the remedy the status names', ran,
+        None if ran else f'{install or "the status names no one remedy"}: not among what corpus-yoga prerequisites sync runs ({", ".join(declared)}) - a reader types it by hand',
+        check='completions.sync_runs_the_install')
+
+    if zsh is None:
+        return
+    here = [f'fpath=({CLI / "completions"} $fpath)', f"alias corpus-yoga='{REPO_ROOT / 'corpus-yoga'}'"]
+    def planted(home: Path, lines: list[str] | None) -> None:
+        if lines is not None:
+            (home / '.zshrc').write_text('\n'.join(['# corpus-yoga tab-completion', *lines, '# end corpus-yoga tab-completion',
+                                                    'autoload -Uz compinit', 'compinit -u', '']))
+    cases = {
+        'no lines in ~/.zshrc': (None, 'not set up in zsh', True),
+        'the lines of this copy': (here, 'set up', False),
+        'the lines of another copy': ([here[0], "alias corpus-yoga='~/other/corpus-yoga'"], 'set up for a different copy of corpus-yoga, at ~/other', True),
+        'the lines of a copy that is gone': ([here[0], "alias corpus-yoga='~/gone/corpus-yoga'"], 'set up for a copy of corpus-yoga that is gone, at ~/gone', True),
+        'lines install would not write': (['fpath=(~/elsewhere $fpath)', here[1]], 'set up, but not as corpus-yoga completions install sets it up', True),
+    }
+    for case, (lines, expected, owed) in cases.items():
+        with tempfile.TemporaryDirectory() as scratch:
+            home = Path(scratch).resolve()
+            (home / 'other').mkdir()
+            (home / 'other' / 'corpus-yoga').write_text('')
+            planted(home, lines)
+            asked = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'completions'], capture_output=True, text=True, cwd=REPO_ROOT,
+                                   env={**os.environ, 'HOME': str(home), 'YOGA_NO_SEND': '1'}, timeout=120)
+        try:
+            said = facts.load(asked.stdout).get('completions', {})
+        except (ValueError, AttributeError):
+            said = {}
+        said = said if isinstance(said, dict) else {}
+        same = said.get('tab-completion') == expected and ('remedy' in said) == owed and len(said) == 1 + owed
+        run(f'completions: the status over {case} says one thing, and a remedy where one is owed', same,
+            None if same else f'expected tab-completion: {expected} {"with" if owed else "without"} a remedy; corpus-yoga completions says {str(said)[:200]}',
+            check='completions.status_says_one_thing')
 
 
 def check_drafters(run) -> None:
@@ -3024,6 +3116,7 @@ SUBJECTS: dict[str, list[str] | str] = {
     'check_store': ['src/main/corpus.py', 'src/main/pipeline'],
     'check_facts': ['src/main/facts.py'],
     'check_walkthrough': ['src/main/cli', 'src/main/facts.py', 'corpus-yoga'],
+    'check_completions': ['src/main', 'src/run_python_script.sh', 'corpus-yoga'],
     'check_export_atoms': ['src/main/corpus.py', 'src/main/pipeline/chat-export/atoms.py'],
     'check_status_facts': ['src/main/cli', 'src/main/facts.py', 'src/main/corpus.py', 'src/main/model/model.py', 'src/main/pipeline/chat-capture/audit.py'],
     'check_drafters': ['src/main/provider.py', 'src/main/cli/agent/drafters.py'],
@@ -3288,6 +3381,7 @@ def _run_once(allow_replay: bool) -> RunOnce:
         run_section(check_export_atoms, tier='code')
         run_section(check_status_facts, tier='code')
         run_section(check_walkthrough, tier='code')
+        run_section(check_completions, tier='code')
         run_section(check_drafters, tier='code')
         run_section(check_versioned_schema_diagnostics, tier='schema')
         run_section(check_schema_join, tier='schema')

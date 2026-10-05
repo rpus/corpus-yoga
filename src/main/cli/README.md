@@ -46,7 +46,7 @@ files are written `QUOTE_ALL` so a comma in any cell is safe.
 
 Everything a user meets is re-derived on demand — the menu `corpus-yoga -h`
 prints, each command's `corpus-yoga <command> -h` (its summary, its generated invocation forms, and the
-declared help lines as headed subparagraphs), the zsh tab-completion `corpus-yoga completions` emits
+declared help lines as headed subparagraphs), what tab offers in zsh
 — and stored nowhere, because presentation is never load-bearing (L5 of `rsc/CALCULUS.md`).
 `corpus-yoga <command> [args...]` execs the row's target with the args forwarded verbatim; a bare
 `corpus-yoga` runs the machine report (`corpus-yoga prerequisites`), and a verb's own flags live one
@@ -126,7 +126,7 @@ They are stated, followed, and reviewed by people.
   deposit, a surface outside the repo — are declared effects (#29), not senses of the
   verb; `list-<noun>` enumerates and reports that collection; `clean` destroys; `run`
   only processes what `data/input/` already holds; `present` renders, free;
-  `install` places a peer store's sessions into this machine's live session store — named from the repo's vantage (capture acquires IN from the foreign mount; install emits OUT to it, the same meaning `completions install-latest` already carries), machine-local by nature; `demerge` undoes the move.
+  `install` places a peer store's sessions into this machine's live session store — named from the repo's vantage (capture acquires IN from the foreign mount; install emits OUT to it, the same meaning `completions install` already carries), machine-local by nature; `demerge` undoes the move.
 - **G2 — Bare is status: free, local, and read-only.** `unenforced (#47, #52)` — never paid,
   never a browser. Bare is a *read-only status report* wherever the command has verbs, the
   write living in the verb (`dashboard`, `indexing`, `server`, `memories`, `summaries`,
@@ -167,7 +167,7 @@ They are stated, followed, and reviewed by people.
 - **G8 — Help is bounded: one screen, one shape.** `gated` — name, what, usage, flags, in
   ≤ 21 lines. Essays live in changelogs.
 - **G9 — The emitted completion is a program, and must parse.** `gated` — `zsh -n` over
-  what the install ritual writes.
+  what zsh evaluates when tab is pressed.
 - **G10 — A `step`-marked command is a corpus-wide operation, invoked by command and
   verb.** `gated` `from L9` — never a per-batch one. The chat-export pipeline is a map over batches
   (`run_one`) then a reduce over all of them (`run_tail`); the nouns live only in the

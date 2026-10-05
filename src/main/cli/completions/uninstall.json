@@ -1,5 +1,5 @@
 {
-  "help": "removes the completions block from ~/.zshrc",
+  "help": "removes those four lines from ~/.zshrc",
   "args": [],
   "sends": {
     "write ~/.zshrc": [

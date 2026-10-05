@@ -9,8 +9,7 @@ names each command and its target; src/main/cli/ describes the arguments.
 the tables; a subcommand one level down (`corpus-yoga <command> <subcommand> --help`) is
 answered by the target's own parser — argparse for a python target (or the parser
 cli.py builds for a command it handles itself), parse_argv for a bash target (#474),
-both wording their answer from the declaration. `corpus-yoga completions` derives static zsh tab-completion from
-the tables. Presentation is re-derived on every invocation and stored nowhere (L5);
+both wording their answer from the declaration. Presentation is re-derived on every invocation and stored nowhere (L5);
 the CLI adds no behaviour of its own.
 
 The table also speaks the calculus: each row cites the rsc/CALCULUS.md
@@ -25,7 +24,6 @@ never restated.
 Usage:
     corpus-yoga                       # render the table
     corpus-yoga <command> [args...]   # exec the target
-    corpus-yoga completions install-latest  # regenerate the zsh tab-completion and wire it
     corpus-yoga commands              # every command's syntax: a SYNOPSIS derived from the table
 
 This module is deliberately STDLIB-ONLY: the surface must never depend on
@@ -55,7 +53,6 @@ from provider import signature  # noqa: E402 - the Signature triad, one home (#7
 REPO = REPO_ROOT
 CLI = Path(__file__).resolve().parent  # the declarations live beside this machinery
 COLUMNS = ('command', 'target', 'calculus', 'summary')
-COMPLETION_OUT = tier.TMP / 'cache' / 'completions' / '_yoga'
 def _declaration(command: str) -> pathlib.Path:
     """Where a command declares itself: <command>/<command>.json, always. EVERY command is
     a directory, including one with no subcommands — so gaining a verb is adding a file
@@ -349,7 +346,7 @@ def render_command_help(c: dict) -> str:
     argrows = [r for r in command_rows(command) if r['arg-name']]
     descs = {s: next((r['help'] for r in bysub[s] if not r['arg-name']), None) for s in order}
     # A subcommand's DESCRIPTION is worth printing even when it takes no arguments:
-    # for `completions install-latest`, `test run` or `memories sync`, that line is
+    # for `completions install`, `test run` or `memories sync`, that line is
     # the only place -h says what the subcommand does. Returning early on "no arg rows"
     # dropped it silently — and dropped it for more commands each time an argument was
     # removed, which is how memories and xref lost theirs.

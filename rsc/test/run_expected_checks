@@ -38,6 +38,9 @@ cli.target_exists
 cli.target_flags_advertised
 cli.verb_accepts_command_flags
 cli.verb_help_answered
+completions.offers_the_commands_as_they_are
+completions.status_says_one_thing
+completions.sync_runs_the_install
 composition.base_not_used_directly
 composition.base_schemas_closed
 composition.discriminator_values_disjoint
