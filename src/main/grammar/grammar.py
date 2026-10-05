@@ -120,7 +120,9 @@ def status() -> int:
         source = f'rsc/rpus/grammar/{project.name}'
         if not have:
             stale += 1
-            projects_[project.name] = Project(f'{rel} ABSENT', remedy=facts.Command('corpus-yoga grammar sync', f'generates it from {source}'))
+            projects_[project.name] = Project(
+                f'no - {rel} is absent; the mcp extraction and corpus-yoga test run\'s mcp checks need it',
+                remedy=facts.Command('corpus-yoga grammar sync', f'generates it from {source}, antlr4 from the venv and java from the machine'))
             continue
         item = Project(rel.as_posix(), files=len(have))
         if not tool() or not may_send():
@@ -135,7 +137,11 @@ def status() -> int:
             else:
                 item.currency = f'current with {source} (antlr4 {TOOL_VERSION})'
         projects_[project.name] = item
-    facts.say(Status(projects_, f'{len(projects_)} project(s), {stale} absent or stale'))
+    for orphan in orphans():
+        address = orphan.relative_to(REPO).as_posix()
+        projects_[address] = Project('no - it holds no grammar, a .g4 at its top level: a leftover no sync generates from',
+                                     remedy=facts.Command(f'rm -r {address}', 'removes it'))
+    facts.say(Status(projects_, f'{len(projects())} project(s), {stale} absent or stale'))
     return 1 if stale else 0
 
 

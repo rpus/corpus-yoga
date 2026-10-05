@@ -33,7 +33,7 @@ DOES = {('settings', 'drift'): 'sets it as declared',
 class Row:
     """One probe's answer, under what it is about (#779): the answer alone where the probe is
     satisfied, the state's word first where it is not, and where a remedy stands, the answer
-    under that word with the remedy beside it."""
+    under that word with its `remedy` beside it (#777)."""
     answer: str
     state: str
     remedy: facts.Command | facts.Act | None = None
@@ -41,8 +41,7 @@ class Row:
     def facts(self) -> dict | str:
         if self.remedy is None:
             return self.answer if self.state == 'ok' else f'{self.state} - {self.answer}'
-        beside = self.remedy.facts() if isinstance(self.remedy, facts.Command) else {'remedy': self.remedy}
-        return {self.state: self.answer, **beside}
+        return {self.state: self.answer, 'remedy': self.remedy}
 
 
 @dataclass
@@ -51,7 +50,7 @@ class Section:
     remedy: facts.Command | None = None
 
     def facts(self) -> dict:
-        return {**self.rows, **(self.remedy.facts() if self.remedy is not None else {})}
+        return {**self.rows, 'remedy': self.remedy}
 
 
 @dataclass
@@ -74,6 +73,17 @@ class Status:
     forge: str = ''               # the verdict
 
 
+def _test_status():
+    """The test noun's status module, loaded by its address: the home of the hooks' state."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('test_status', REPO / 'src' / 'main' / 'cli' / 'test' / 'status.py')
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules['test_status'] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def main() -> int:
     by_section: dict[str, dict[str, Row]] = {}
     for line in sys.stdin.read().splitlines():
@@ -86,6 +96,10 @@ def main() -> int:
         by_section.setdefault(section, {})[cells[2]] = Row(cells[3], state, remedy)
     refused = any(row.state in REFUSING[section] for section, rows in by_section.items() if section in REFUSING
                   for row in rows.values())
+    # the commit hook's state is the test noun's to say (#777, #778): the gate row is its saying
+    hook = _test_status().commit_hook()
+    by_section['checkout'] = {'pre-commit': Row(hook.installed.removeprefix('yes - '), 'ok' if hook.sound else 'wrong', hook.remedy),
+                              **by_section.get('checkout', {})}
     branches, refs, checkout = by_section.get('branches'), by_section.get('refs'), by_section.get('checkout')
     out = Status(
         Settings(by_section.get('settings', {})),

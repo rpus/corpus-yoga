@@ -1889,6 +1889,7 @@ def check_status_facts(run) -> None:
                 words = words[:-1]        # the last word runs into the computed part
             if not words:
                 continue
+            words[0] = words[0].removeprefix('./')      # ./corpus-yoga names this tree's code
             why = no_command(words)
             run(f'remedy: {path.relative_to(REPO_ROOT)}:{node.lineno} names a command a reader types', why is None, why,
                 check='status.remedy_names_a_command')
@@ -1908,7 +1909,7 @@ def check_status_facts(run) -> None:
         logical.append((opened, pending + text))
         pending = ''
     for number, text in logical:
-        call = re.match(r'\s*(?:\S+\)\s+)?(todo \S+|bad) ', text)   # the call opens the statement, or a case arm
+        call = re.match(r'\s*(?:\S+\)\s+)?(todo|bad) ', text)   # the call opens the statement, or a case arm
         if call is None:
             continue
         try:
@@ -1917,7 +1918,7 @@ def check_status_facts(run) -> None:
             run(f'remedy: {report.relative_to(REPO_ROOT)}:{number} is a row a reader can parse', False,
                 'the call does not split into its arguments', check='status.remedy_names_a_command')
             continue
-        arguments = tokens[2:] if tokens[0] == 'todo' else tokens[1:]
+        arguments = tokens[1:]
         stop = next((i for i, token in enumerate(arguments) if token in (';;', ';', '&&', '||')), len(arguments))
         for command in arguments[2:stop:2]:        # after the row's subject and what stands
             words = command.split()
@@ -1960,8 +1961,8 @@ def check_status_facts(run) -> None:
         run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
             check='status.lines_load_as_yaml')
 
-    # The commit hook's state is said alike by every voice that says it (#778): the test
-    # noun, which installs it, the machine report and the forge.
+    # The machine report says what a noun's status says, taken from that status (#777):
+    # each section it grafts is, in the full report, the noun's own facts at that spot.
     def said_by(*words: str) -> dict:
         out = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=300).stdout
         try:
@@ -1973,15 +1974,25 @@ def check_status_facts(run) -> None:
         for key in keys:
             node = node.get(key) if isinstance(node, dict) else None
         return node
-    by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed') or at(said_by('test'), 'test', 'hook'))
-    by_report = str(at(said_by('prerequisites', '--show-all'), 'pre-commit hook', 'hook', 'installed'))
+    whole = said_by('prerequisites', '--show-all')
+    grafts = {'completions': ('completions', 'completions'), 'pre-commit hook': ('test', 'test', 'pre-commit hook'),
+              'signature hook': ('test', 'test', 'signature hook'), 'render assets': ('server', 'server', 'render assets')}
+    for section, (noun, *spot) in grafts.items():
+        own = at(said_by(noun), *spot)
+        same = own is not None and whole.get(section) == own
+        run(f'report: its {section} section is what corpus-yoga {noun} says', same,
+            None if same else f'the report says {str(whole.get(section))[:120]} where corpus-yoga {noun} says {str(own)[:120]}',
+            check='report.says_what_the_nouns_say')
+    own = {key: value for key, value in said_by('grammar').items() if key != 'usage'}
+    same = bool(own) and whole.get('grammar') == own
+    run('report: its grammar section is what corpus-yoga grammar says', same,
+        None if same else f'the report says {str(whole.get("grammar"))[:120]} where corpus-yoga grammar says {str(own)[:120]}',
+        check='report.says_what_the_nouns_say')
     by_forge = str(at(said_by('forge'), 'this checkout', 'pre-commit'))
-    voices = {'corpus-yoga test': by_test.startswith('yes'), 'corpus-yoga prerequisites': by_report.startswith('yes'),
-              'corpus-yoga forge': 'a copy of' in by_forge and 'not' not in by_forge.split('a copy of')[0]}
-    agree = len(set(voices.values())) == 1
-    run('hook: every voice says the commit hook\'s state alike', agree,
-        None if agree else 'installed, by ' + ', '.join(f'{voice}: {"yes" if held else "no"}' for voice, held in voices.items()),
-        check='status.hook_is_said_alike')
+    by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed'))
+    same = by_test.removeprefix('yes - ') == by_forge or by_forge.endswith(by_test)
+    run('report: the forge says the commit hook as corpus-yoga test says it', same,
+        None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
 
     # The machine report's rows are keyed by what each is about (#771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
