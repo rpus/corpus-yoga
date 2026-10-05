@@ -2091,23 +2091,48 @@ def check_walkthrough(run) -> None:
     at_noun = len(probe) + order.index('pipeline')            # the step that first stands on the pipeline noun
     arrive = at_noun + 3 + beneath.index(command)             # the step that first stands on the command
     wants = [
-        ('it starts on the machine report, its status and its help beneath', step(0).get('at') == 'the room'
+        ('it starts on the machine report, its status and its help beneath', step(0).get('at') == '/prerequisites'
          and step(0).get('key') == 'prerequisites' and step(0).get('holds') == '2 keys'),
         ('a status stands unread until m asks', step(1).get('key') == 'status' and 'unread' in str(step(1).get('holds'))),
         ('help stands beside the status', step(2).get('key') == 'help'),
         ('help says what the declaration says', step(4).get('key') == 'summary' and step(4).get('value') == declared['summary']),
-        ('b takes the walk back to where it began', step(len(probe)).get('at') == 'the room' and step(len(probe)).get('key') == 'prerequisites'),
+        ('b takes the walk back to where it began', step(len(probe)).get('at') == '/prerequisites'),
         ('n reaches the pipeline noun', step(at_noun).get('key') == 'pipeline'),
-        ('m reads a status and descends into it', step(at_noun + 3).get('at') == 'pipeline / status / pipelines'),
+        ('m reads a status and descends into it', step(at_noun + 3).get('at') == f'/pipeline/status/pipelines/{beneath[0]}'),
         ('it stands on the command', step(arrive).get('key') == command and str(step(arrive).get('runs', '')).startswith('x - ')),
         ('b goes back over the last move', step(arrive + 1).get('key') == beneath[beneath.index(command) - 1]),
         ('x runs the command and says so', any(isinstance(s, dict) and s.get('ran') == command and s.get('exit') == 0 for s in steps)),
-        ('it says where it left', step(-1).get('walkthrough') == f'left at pipeline / status / pipelines / {command}'),
+        ('it says where it left', step(-1).get('walkthrough') == f'left at /pipeline/status/pipelines/{command}'),
         ('the marks between its steps are the keys pressed, in order',
          [mark for mark in re.findall(r'^-(.)-$', proc.stdout, re.M) if mark != '-'] == keys),
         ('a step says the size of what m would give, and a value only once m asks', all(
             isinstance(s.get('holds', ''), str) for s in steps if isinstance(s, dict) and 'key' in s)
             and sum(1 for s in steps if isinstance(s, dict) and 'value' in s) == 1),
+    ]
+    # Every spot is addressed by its JSON pointer (#775): the walk starts where one names,
+    # a slash within a key is ~1, the nearest spot stands in for one that is not there, and
+    # the walk leaves with the command that continues it.
+    def walked(pointer: str, pressed: str) -> list:
+        said = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough', pointer], input=pressed, capture_output=True, text=True,
+                              env=env, cwd=REPO_ROOT, timeout=300).stdout
+        out = []
+        for document in re.split(r'\n-.-\n', said):
+            try:
+                out.append(facts.load(document))
+            except ValueError:
+                out.append({})
+        return out
+    summary = walked('/prerequisites/help/summary', 'm\nq\n')
+    slashed = walked('/stage/status/tmp~1stage', 'q\n')
+    astray = walked('/prerequisites/help/nonesuch/deeper', 'q\n')
+    wants += [
+        ('a pointer starts the walk on its spot', summary[0].get('at') == '/prerequisites/help/summary' and summary[0].get('key') == 'summary'
+         and summary[1].get('value') == declared['summary']),
+        ('a slash within a key is ~1 in its pointer', slashed[0].get('key') == 'tmp/stage' and slashed[0].get('at') == '/stage/status/tmp~1stage'),
+        ('where no spot stands the nearest does, and the walk says so', astray[0].get('at') == '/prerequisites/help'
+         and 'no spot stands at /prerequisites/help/nonesuch/deeper' in str(astray[0].get('note'))),
+        ('it leaves with the command that continues it', summary[-1].get('walkthrough') == 'left at /prerequisites/help/summary'
+         and summary[-1].get('corpus-yoga walkthrough /prerequisites/help/summary') == 'continues from there'),
     ]
     failed = [what for what, held in wants if not held]
     run('walkthrough: a reader walks the room and runs a command it reaches', not failed,
