@@ -24,6 +24,12 @@ place in its list (#775). A step says the spot's pointer; `corpus-yoga walkthrou
 with a space in a key arrives as several words, and they are read as one; and on leaving
 the walk says the command that continues from where it left, quoted for the shell.
 
+The exit says whether the walk went as asked (#782), so a caller can chain on it:
+  0  it stood where it was asked, and what x ran succeeded
+  1  a command run with x failed
+  2  the argument is no pointer: refused, and no walk
+  3  the pointer names no spot: the walk started on the longest truncation of it that stands
+
 A key is read from the terminal as it is pressed, or as a
 line on stdin, so a model or a test walks as a reader does. Each step is said as facts,
 one YAML document per step, and the mark between two steps is the key that made the
@@ -55,6 +61,7 @@ REPORT_SCRIPT = './src/main/cli/prerequisites/prerequisites.sh'
 FIRST = (REPORT, 'stage', 'store')                    # the room's state, in the order a reader meets it
 KEYS = 'n next, m more, b back, x run, q quit'
 UNREAD = object()                                     # a noun whose status the walk has not yet read
+FAILED, REFUSED, GONE = 1, 2, 3                       # the walk's exits where it did not go as asked
 
 
 def venv() -> bool:
@@ -185,6 +192,7 @@ class Walk:
     path: list[str] = field(default_factory=list)
     history: list[tuple[list[str], bool]] = field(default_factory=list)
     shown: bool = False                               # whether m has asked for the value the walk stands on
+    failed: bool = False                              # whether a command run with x has failed
 
     def __post_init__(self):
         self.tree = room()
@@ -212,12 +220,11 @@ class Walk:
         return pointer_of(tokens)
 
     def seek(self, pointer: str) -> str | None:
-        """Stand on the spot the pointer names, reading what it passes through; where no
-        such spot stands, on the nearest that does, with the note that says so."""
-        try:
-            tokens = tokens_of(pointer)
-        except ValueError as error:
-            return str(error)
+        """Stand on the spot the pointer names, reading what it passes through. Where no
+        such spot stands: on the longest truncation of the pointer that names one - its
+        leading segments, as far as each is there - with the note that says so. An
+        argument that is no pointer is the caller's to mend, and raises."""
+        tokens = tokens_of(pointer)
         path: list[str] = []
         for token in tokens:
             here = self.node(path, read=True) if path else self.tree
@@ -229,7 +236,7 @@ class Walk:
                 break
         if path:
             self.path = path
-        return None if len(path) == len(tokens) else f'no spot stands at {pointer} - the nearest is {self.address()}'
+        return None if len(path) == len(tokens) else f'no spot stands at {pointer} - the longest part of it that stands is {self.address()}'
 
     def siblings(self) -> list[str]:
         parent = self.node(self.path[:-1])
@@ -311,6 +318,7 @@ class Walk:
         self.shown = False
         while len(self.path) > 1 and not self._stands():
             self.path.pop()                           # the state moved: stand on what is left of the path
+        self.failed = self.failed or done.returncode != 0
         return Ran(' '.join(self.path[-1].split()) if command_of(self.path[-1]) else ' '.join(command[1:]), done.returncode)
 
     def _stands(self) -> bool:
@@ -365,7 +373,11 @@ def main() -> int:
     walk = Walk()
     # a pointer typed bare is split by the shell at each space within a key: its words are one pointer
     words = [argument for argument in sys.argv[1:] if not argument.startswith('-')]
-    astray = walk.seek(' '.join(words)) if words else None
+    try:
+        astray = walk.seek(' '.join(words)) if words else None
+    except ValueError as error:
+        print(f'walkthrough: NOT DONE - {error}', file=sys.stderr)
+        return REFUSED
     keys = Keys()
     try:
         facts.say(walk.step(astray, keys=True))
@@ -395,7 +407,7 @@ def main() -> int:
         facts.say(Left(walk.address()))
     finally:
         keys.restore()
-    return 0
+    return GONE if astray else FAILED if walk.failed else 0
 
 
 if __name__ == '__main__':
