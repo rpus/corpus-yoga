@@ -1,4 +1,4 @@
-run.py: code+schema 1520/1520
+run.py: code+schema 1521/1521
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -56,7 +56,7 @@ run.py: code+schema 1520/1520
   ✓ structure.cli_declaration_mirrors_the_api  (24/24)
   ✓ structure.cli_declaration_validates  (75/75)
   ✓ cli.every_form_listed  (46/46)
-  ✓ cli.flag_not_axis_value  (21/21)
+  ✓ cli.flag_not_axis_value  (22/22)
   ✓ cli.block_identity_stable  (2/2)
   ✓ cli.block_convergence
   ✓ cli.step_invokes_verb  (8/8)
@@ -233,7 +233,7 @@ check_self_paths                     109     0   code       18
 check_committed_tree                   2     0   code       21
 check_templates                        2     0   code       25
 check_xref                             2     0   code       28
-check_cli_surface                    525     0   code       32
+check_cli_surface                    526     0   code       32
 check_cli_verb_help                   23     0   code       64
 check_cli_exclusive_classes           16     0   code       67
 check_effects                          3     0   code       70
@@ -271,8 +271,8 @@ check_mcp_reproducible                 1     0   schema    222
 check_expectation                      2     0   code      225
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 138 types, 1520/1520 invocations passing
-checks[code]: 86 types, 843/843 invocations passing
+checks[code+schema]: 138 types, 1521/1521 invocations passing
+checks[code]: 86 types, 844/844 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1520/1520 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1521/1521 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
