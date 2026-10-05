@@ -1943,6 +1943,29 @@ def check_status_facts(run) -> None:
         run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
             check='status.lines_load_as_yaml')
 
+    # The commit hook's state is said alike by every voice that says it (#778): the test
+    # noun, which installs it, the machine report and the forge.
+    def said_by(*words: str) -> dict:
+        out = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), *words], capture_output=True, text=True, env=env, cwd=REPO_ROOT, timeout=300).stdout
+        try:
+            loaded = yaml.load(out, Loader=Strict)
+        except yaml.YAMLError:
+            return {}
+        return loaded if isinstance(loaded, dict) else {}
+    def at(node, *keys):
+        for key in keys:
+            node = node.get(key) if isinstance(node, dict) else None
+        return node
+    by_test = str(at(said_by('test'), 'test', 'pre-commit hook', 'installed') or at(said_by('test'), 'test', 'hook'))
+    by_report = str(at(said_by('prerequisites', '--show-all'), 'pre-commit hook', 'hook', 'installed'))
+    by_forge = str(at(said_by('forge'), 'this checkout', 'pre-commit'))
+    voices = {'corpus-yoga test': by_test.startswith('yes'), 'corpus-yoga prerequisites': by_report.startswith('yes'),
+              'corpus-yoga forge': 'a copy of' in by_forge and 'not' not in by_forge.split('a copy of')[0]}
+    agree = len(set(voices.values())) == 1
+    run('hook: every voice says the commit hook\'s state alike', agree,
+        None if agree else 'installed, by ' + ', '.join(f'{voice}: {"yes" if held else "no"}' for voice, held in voices.items()),
+        check='status.hook_is_said_alike')
+
     # The machine report's rows are keyed by what each is about (#771): in the full
     # report no key names a kind - ok, note, todo, stands, missing - and no list holds rows.
     proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'prerequisites', '--show-all'], capture_output=True, text=True,
