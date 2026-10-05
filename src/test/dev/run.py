@@ -2053,11 +2053,12 @@ def check_facts(run) -> None:
 
 
 def check_walkthrough(run) -> None:
-    """The walkthrough walks the room's state and runs a command it reaches (#766): driven
-    by lines on stdin as a reader's keys drive it, it starts on the machine report, n
-    reaches the pipeline noun, m reads its status and descends, b returns, and x on a key
-    that is a command runs it and re-reads; each step is a document the printer's reader
-    loads."""
+    """The walkthrough walks the room's state and its help, and runs a command it reaches
+    (#766, #770): driven by lines on stdin as a reader's keys drive it, it starts on the
+    machine report, whose help stands beside its status and says what its declaration
+    says; n reaches the pipeline noun, m reads its status and descends, b returns, and x
+    on a key that is a command runs it and re-reads. Each step is a document the printer's
+    reader loads, and says the head alone; the mark before a step is the key that made it."""
     import subprocess
     sys.path.insert(0, str(SRC / 'main'))
     import importlib
@@ -2068,34 +2069,45 @@ def check_walkthrough(run) -> None:
             'corpus-yoga walkthrough is no command: a status is read whole, in the printer\'s order', check='walkthrough.walks_and_runs')
         return
     env = {**os.environ, 'YOGA_NO_SEND': '1'}
-    nouns = sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command']))
-    order = [n for n in ('prerequisites', 'stage', 'store') if n in nouns] + [n for n in nouns if n not in ('prerequisites', 'stage', 'store')]
+    commands = sorted(c['command'] for c in cli.commands())
+    order = [n for n in ('prerequisites', 'stage', 'store') if n in commands] + [n for n in commands if n not in ('prerequisites', 'stage', 'store')]
     said = facts.load(subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'pipeline'], capture_output=True, text=True, env=env, cwd=REPO_ROOT).stdout)
     beneath = list(said['pipelines'])
     command = 'corpus-yoga prerequisites'
-    keys = ['n'] * order.index('pipeline') + ['m', 'm'] + ['n'] * beneath.index(command) + ['b', 'n', 'x', 'q']
+    declared = json.loads((CLI / 'prerequisites' / 'prerequisites.json').read_text())
+    # into the report's help and back; along to the pipeline noun; into its status, onto the command; back, on, run
+    probe = ['m', 'n', 'm', 'm', 'b', 'b', 'b', 'b']
+    keys = probe + ['n'] * order.index('pipeline') + ['m', 'm', 'm'] + ['n'] * beneath.index(command) + ['b', 'n', 'x', 'q']
     proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'walkthrough'], input='\n'.join(keys) + '\n', capture_output=True, text=True,
                           env=env, cwd=REPO_ROOT, timeout=300)
-    documents = proc.stdout.split('\n---\n')
     steps = []
-    for document in documents:
+    for document in re.split(r'\n-.-\n', proc.stdout):       # a mark is the key that made the step after it
         try:
             steps.append(facts.load(document))
         except ValueError:
             steps.append(None)            # what a command printed in the foreground: its own, not a step
     def step(index):
         return steps[index] if -len(steps) <= index < len(steps) and isinstance(steps[index], dict) else {}
-    arrive = len(order) - 1 - (len(order) - 1 - order.index('pipeline')) + 2 + beneath.index(command)   # the step that first stands on the command
+    at_noun = len(probe) + order.index('pipeline')            # the step that first stands on the pipeline noun
+    arrive = at_noun + 3 + beneath.index(command)             # the step that first stands on the command
     wants = [
-        ('it starts on the machine report', step(0).get('at') == 'the room' and step(0).get('key') == 'prerequisites'),
-        ('n reaches the pipeline noun', step(order.index('pipeline')).get('key') == 'pipeline'),
-        ('m reads a status and descends into it', step(order.index('pipeline') + 2).get('at') == 'pipeline / pipelines'),
+        ('it starts on the machine report, its status and its help beneath', step(0).get('at') == 'the room'
+         and step(0).get('key') == 'prerequisites' and step(0).get('holds') == '2 keys'),
+        ('a status stands unread until m asks', step(1).get('key') == 'status' and 'unread' in str(step(1).get('holds'))),
+        ('help stands beside the status', step(2).get('key') == 'help'),
+        ('help says what the declaration says', step(4).get('key') == 'summary' and step(4).get('value') == declared['summary']),
+        ('b takes the walk back to where it began', step(len(probe)).get('at') == 'the room' and step(len(probe)).get('key') == 'prerequisites'),
+        ('n reaches the pipeline noun', step(at_noun).get('key') == 'pipeline'),
+        ('m reads a status and descends into it', step(at_noun + 3).get('at') == 'pipeline / status / pipelines'),
         ('it stands on the command', step(arrive).get('key') == command and str(step(arrive).get('runs', '')).startswith('x - ')),
         ('b goes back over the last move', step(arrive + 1).get('key') == beneath[beneath.index(command) - 1]),
         ('x runs the command and says so', any(isinstance(s, dict) and s.get('ran') == command and s.get('exit') == 0 for s in steps)),
-        ('it says where it left', step(-1).get('walkthrough') == f'left at pipeline / pipelines / {command}'),
-        ('a step says the size of what m would give, never the thing', all(
-            isinstance(s.get('holds', ''), str) and 'value' not in s for s in steps if isinstance(s, dict) and 'key' in s)),
+        ('it says where it left', step(-1).get('walkthrough') == f'left at pipeline / status / pipelines / {command}'),
+        ('the marks between its steps are the keys pressed, in order',
+         [mark for mark in re.findall(r'^-(.)-$', proc.stdout, re.M) if mark != '-'] == keys),
+        ('a step says the size of what m would give, and a value only once m asks', all(
+            isinstance(s.get('holds', ''), str) for s in steps if isinstance(s, dict) and 'key' in s)
+            and sum(1 for s in steps if isinstance(s, dict) and 'value' in s) == 1),
     ]
     failed = [what for what, held in wants if not held]
     run('walkthrough: a reader walks the room and runs a command it reaches', not failed,

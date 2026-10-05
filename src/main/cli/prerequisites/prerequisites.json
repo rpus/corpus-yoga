@@ -1,5 +1,30 @@
 {
   "summary": "what this machine has and what it still needs — bare reports, sync installs what is the repos to install",
+  "explanation": {
+    "machine": "its own name for itself - never shared, never transported; the Signature names it and capture addresses the store by it",
+    "tools": {
+      "jq": "every pipeline's json work runs through it",
+      "python3": "the one python3 that survives (#478): it mints the venv, and everything else runs the venv's python",
+      "pyright": "corpus-yoga test run type-checks src/ against pyrightconfig.json with it",
+      "shellcheck": "corpus-yoga test run lints every src/**/*.sh with it",
+      "docker": "corpus-yoga test run reproduces the mcp snapshot through upstream's generator (mcp.reproducible); corpus-yoga mcp reproduce runs it alone",
+      "antlr4 and java": "corpus-yoga grammar sync generates the parsers with them, and corpus-yoga test run holds the parsers current (grammar.parser_current)",
+      "bash": "3.2 suffices; the scripts avoid 4.x features"
+    },
+    "venv": "the one interpreter every .py target runs in; VENV= names another",
+    "python requirements": "what corpus-yoga pipeline run needs, by its manifest src/requirements.txt",
+    "markdown viewer render libs": "what corpus-yoga server renders with, by its manifest src/main/model/serve_assets.txt",
+    "corpus-yoga CLI": "its tables are src/main/cli/, and the completions are generated from them",
+    "git": "the tool, and the identity a commit requires",
+    "pre-commit hook": "the repo's commit gate: until installed, nothing vets a commit",
+    "signature hook": "stamps Signature: machine/provider/session on a commit, and strips the model co-author",
+    "forge settings": "declared in src/main/cli/forge/forge.csv; server-side, so unverifiable offline",
+    "pipeline inputs": "this repo ships no data; a room supplies its own, and each pipeline reads its store under data/input",
+    "live stores": "each provider's own store of its sessions, harness-owned and expiring at the provider's will, read through a mount, ext/mnt/agent/<provider>",
+    "deploy": "ext/mnt/site, the site repo's clone, which corpus-yoga site's tree copies to; only a deploying machine needs it",
+    "stage": "tmp/stage/input: what this room has captured and not yet promoted",
+    "migration": "rsc/migration: the moves a rename owes this machine's local roots, each a guarded script run once"
+  },
   "target": "src/main/cli/prerequisites/prerequisites.sh",
   "calculus": "L8",
   "args": [

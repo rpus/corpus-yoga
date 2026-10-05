@@ -15,6 +15,27 @@
       "minLength": 1,
       "description": "The one-line description shown against the command in `corpus-yoga -h`."
     },
+    "explanation": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      },
+      "description": "What the command's things are, by topic (#770): what reads the same in every room. A status says how this room stands and this says what it is the state of - a section of a report, a tool, a pipeline - so the status carries no explanation of its own. A topic is one sentence, or the topics beneath it; `corpus-yoga walkthrough` shows them under the command's help."
+    },
     "target": {
       "type": "string",
       "minLength": 1,

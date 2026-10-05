@@ -1,5 +1,10 @@
 {
   "summary": "the pipelines, and the run over data/input/ that never acquires",
+  "explanation": {
+    "chat-capture": "validates each claude API capture and projects it to markdown; a gemini DOM capture's markdown is the terminal artifact and is not validated",
+    "chat-export": "validates, extracts, atomises and renders each bulk export",
+    "code-transport": "converts each session and validates it into tmp/cache/"
+  },
   "target": "src/main/cli/pipeline/pipeline.sh",
   "calculus": "atomise validate supersession accumulate project",
   "args": [
