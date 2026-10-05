@@ -1,4 +1,4 @@
-run.py: code+schema 1522/1522
+run.py: code+schema 1542/1542
 
 
 ── check_required_files ──────────────────────────────────────────────────────
@@ -134,8 +134,6 @@ run.py: code+schema 1522/1522
 ── check_facts ───────────────────────────────────────────────────────────────
   ✓ facts.lines_are_yaml
   ✓ facts.reads_back_what_it_prints  (2/2)
-  ✓ facts.wraps_and_reads_back
-  ✓ facts.wraps_only_for_a_terminal
 
 ── check_export_atoms ────────────────────────────────────────────────────────
   ✓ store.export_is_held_within_a_later_one
@@ -143,6 +141,7 @@ run.py: code+schema 1522/1522
 ── check_status_facts ────────────────────────────────────────────────────────
   ✓ status.remedy_names_a_command  (39/39)
   ✓ status.lines_load_as_yaml  (20/20)
+  ✓ status.value_holds_no_pair  (22/22)
   ✓ report.says_what_the_nouns_say  (6/6)
   ✓ report.gives_no_verdict_on_itself
   ✓ cli.bare_suggests_and_runs_nothing
@@ -262,29 +261,29 @@ check_verdict_record                   2     0   code      121
 check_unit_companion                   1     0   code      124
 check_unit_state                       2     0   code      127
 check_store                            2     0   code      130
-check_facts                            5     0   code      134
-check_export_atoms                     1     0   code      140
-check_status_facts                    68     0   code      143
-check_walkthrough                      1     0   code      151
-check_completions                     10     0   code      154
-check_drafters                         2     0   code      161
-check_versioned_schema_diagnostics   374     0   schema    165
-check_schema_join                      2     0   schema    192
-check_model_join_versions              1     0   schema    196
-check_model_table                      1     0   schema    199
-check_model_occurrences                3     0   schema    202
-check_model_obligations              162     0   schema    207
-check_model_identity                   1     0   schema    211
-check_grammar                          2     0   schema    214
-check_provider_registry                2     0   code      217
-check_reference                       21     0   schema    221
-check_mcp_factoring                    9     0   schema    227
-check_mcp_reproducible                 1     0   schema    233
-check_expectation                      2     0   code      236
+check_facts                            3     0   code      134
+check_export_atoms                     1     0   code      138
+check_status_facts                    90     0   code      141
+check_walkthrough                      1     0   code      150
+check_completions                     10     0   code      153
+check_drafters                         2     0   code      160
+check_versioned_schema_diagnostics   374     0   schema    164
+check_schema_join                      2     0   schema    191
+check_model_join_versions              1     0   schema    195
+check_model_table                      1     0   schema    198
+check_model_occurrences                3     0   schema    201
+check_model_obligations              162     0   schema    206
+check_model_identity                   1     0   schema    210
+check_grammar                          2     0   schema    213
+check_provider_registry                2     0   code      216
+check_reference                       21     0   schema    220
+check_mcp_factoring                    9     0   schema    226
+check_mcp_reproducible                 1     0   schema    232
+check_expectation                      2     0   code      235
   (line = where that stage begins in this report; every check is listed there, in place)
 
-checks[code+schema]: 147 types, 1522/1522 invocations passing
-checks[code]: 95 types, 845/845 invocations passing
+checks[code+schema]: 146 types, 1542/1542 invocations passing
+checks[code]: 94 types, 865/865 invocations passing
 checks[schema]: 52 types, 677/677 invocations passing
 
-dev gate: PASS — code+schema 1522/1522 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run
+dev gate: PASS — code+schema 1542/1542 match the committed expectation; nothing here vetoes a commit. What this gate cannot arbitrate — that the verbs run — is the usr gate's: corpus-yoga pipeline run

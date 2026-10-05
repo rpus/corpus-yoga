@@ -1929,6 +1929,14 @@ def check_status_facts(run) -> None:
             run(f'remedy: {report.relative_to(REPO_ROOT)}:{number} `{command[:40]}` names a command a reader types', why is None, why,
                 check='status.remedy_names_a_command')
 
+    def pair_in_a_value(node, at: str = ''):
+        """The first text value that holds a colon followed by a space, or ends on a colon: (where, the value)."""
+        if isinstance(node, dict):
+            return next((found for key, value in node.items() if (found := pair_in_a_value(value, f'{at}/{key}'))), None)
+        if isinstance(node, list):
+            return next((found for index, value in enumerate(node) if (found := pair_in_a_value(value, f'{at}/{index}'))), None)
+        return (at, node) if isinstance(node, str) and (': ' in node or node.endswith(':')) else None
+
     env = {**os.environ, 'YOGA_NO_SEND': '1'}
     for noun in sorted(c['command'] for c in cli.commands() if cli.subcommands_of(c['command'])):
         proc = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), noun], capture_output=True, text=True,
@@ -1960,6 +1968,14 @@ def check_status_facts(run) -> None:
             why = f'{getattr(error, "problem", error)}{where}: {line.strip()[:100]}'
         run(f'status: corpus-yoga {noun}: its lines load as one mapping', why is None, why,
             check='status.lines_load_as_yaml')
+        # no value holds a pair (#792): the first colon-space on a line ends its key
+        try:
+            paired = pair_in_a_value(yaml.load(proc.stdout, Loader=Strict))
+        except yaml.YAMLError:
+            paired = None                         # said above
+        run(f'status: corpus-yoga {noun}: no value holds a colon followed by a space', paired is None,
+            None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]} - a pair is a fact of its own beneath, or the sentence says it without the colon',
+            check='status.value_holds_no_pair')
 
     # The machine report says what a noun's status says, taken from that status (#777):
     # each section it grafts is, in the full report, the noun's own facts at that spot.
@@ -1993,6 +2009,17 @@ def check_status_facts(run) -> None:
     same = by_test.removeprefix('yes - ') == by_forge or by_forge.endswith(by_test)
     run('report: the forge says the commit hook as corpus-yoga test says it', same,
         None if same else f'the forge says {by_forge[:100]} where corpus-yoga test says {by_test[:100]}', check='report.says_what_the_nouns_say')
+
+    paired = pair_in_a_value(whole)
+    run('status: the full machine report: no value holds a colon followed by a space', paired is None,
+        None if paired is None else f'the value at {paired[0]} holds one: {paired[1][:120]}', check='status.value_holds_no_pair')
+    # what a measure says of a unit is a value of the stage's and the store's statuses, read here
+    # without a store: the worktree a commit is gated in holds none
+    import corpus as corpus_relations
+    worded = {name: words({'a': b'x'}, {'a': b'x'}, None) for name, (_, _, words) in corpus_relations.MEASURE.items() if name in ('mirror', 'message-uuids')}
+    paired = pair_in_a_value(worded)
+    run('status: what a measure says of a unit holds no colon followed by a space', paired is None,
+        None if paired is None else f'the {paired[0][1:]} measure says {paired[1]}', check='status.value_holds_no_pair')
 
     # The machine report gives no verdict on itself (#786): it ends at its last section,
     # and what needs doing is read from its remedies.

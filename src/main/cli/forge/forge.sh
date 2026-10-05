@@ -31,7 +31,7 @@ source "$REPO_DIR/src/main/provider.sh"   # provider_signature - the log header'
 reconcile() {
   [[ -f "$DECLARED" ]] || { echo -e "UNVERIFIED\tforge.csv\tno src/main/cli/forge/forge.csv — nothing declared\t"; return; }
   command -v gh &>/dev/null || { echo -e "UNVERIFIED\tgh\tgh not found (install: brew install gh)\t"; return; }
-  may_send || { echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses this send: gh api (live settings unread)\t"; return; }
+  may_send || { echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses the send gh api (live settings unread)\t"; return; }
   local live
   if ! live="$(cd "$REPO_DIR" && gh api "repos/{owner}/{repo}" 2>/dev/null)"; then
     echo -e "UNVERIFIED\tforge\tunreachable (offline, no GitHub remote, or: gh auth login)\t"
@@ -86,7 +86,7 @@ branches() {
     return
   fi
   if ! may_send; then
-    echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses this send: gh pr list (branch/PR state on the forge unverified)"
+    echo -e "UNVERIFIED\tforge\tYOGA_NO_SEND=1 refuses the send gh pr list (branch/PR state on the forge unverified)"
     return
   fi
   local prs
@@ -187,7 +187,7 @@ branches() {
 stale_tracking() {
   local out line ref
   if ! may_send; then
-    echo -e "UNVERIFIED\torigin\tYOGA_NO_SEND=1 refuses this send: git remote prune --dry-run (tracking refs unverified)"
+    echo -e "UNVERIFIED\torigin\tYOGA_NO_SEND=1 refuses the send git remote prune --dry-run (tracking refs unverified)"
     return
   fi
   if ! out="$(git -C "$REPO_DIR" remote prune --dry-run origin 2>/dev/null)"; then
@@ -213,7 +213,7 @@ upstream() {
     echo -e "OK\tcheckout\t$current has no upstream — nothing to compare\t"
     return
   fi
-  may_send || { echo -e "UNVERIFIED\tcheckout\tYOGA_NO_SEND=1 refuses this send: git fetch (checkout vs upstream unverified)\t"; return; }
+  may_send || { echo -e "UNVERIFIED\tcheckout\tYOGA_NO_SEND=1 refuses the send git fetch (checkout vs upstream unverified)\t"; return; }
   if ! quiet git -C "$REPO_DIR" fetch --quiet origin "$current"; then
     echo -e "UNVERIFIED\tcheckout\tunreachable — checkout vs upstream unverified\t"
     return
