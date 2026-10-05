@@ -322,8 +322,8 @@ the same operations, governed by the same laws. Code is not a second ontology.
 - **projection** — the corpus-yoga help text, the zsh completion, the `--plan` output:
   presentation re-derived on demand from durable authority and stored nowhere
   load-bearing (L5), with currency checked by CONTENT, not timestamps (the
-  completion is compared byte-wise against a regeneration — observed catching
-  its own author's drift, 2026-07-07).
+  completion is not stored at all: zsh reads it from the declarations each time
+  tab is pressed).
 - **committed derivation** — a class the corpus tables did not need:
   regenerable like anything in `tmp/cache/`, but COMMITTED as the machine-invariant
   record other clones diff against — `rsc/test/run.log`,

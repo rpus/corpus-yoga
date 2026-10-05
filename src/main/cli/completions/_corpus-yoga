@@ -1,0 +1,5 @@
+#compdef corpus-yoga
+# zsh reads this file once in a terminal and keeps what it read until the terminal
+# closes, so nothing that may change lives here: what tab does is offer.zsh's, beside
+# this file, read each time tab is pressed.
+source ${${(%):-%x}:A:h}/offer.zsh

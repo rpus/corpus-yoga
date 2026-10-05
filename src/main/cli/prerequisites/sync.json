@@ -11,6 +11,9 @@
   "sends": {
     "pip install": [
       "installs the requirements from PyPI when the venv lacks them (--apply only; refused loudly under YOGA_NO_SEND)"
+    ],
+    "write ~/.zshrc": [
+      "sets tab-completion up where the report says it is not, through corpus-yoga completions install (--apply only; refused under YOGA_NO_SEND)"
     ]
   },
   "r": [
@@ -31,6 +34,7 @@
   "x": [
     "corpus-yoga grammar sync",
     "corpus-yoga agent mount --apply",
-    "corpus-yoga test install-hook"
+    "corpus-yoga test install-hook",
+    "corpus-yoga completions install"
   ]
 }

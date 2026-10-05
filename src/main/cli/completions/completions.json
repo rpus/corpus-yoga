@@ -1,5 +1,5 @@
 {
-  "summary": "zsh tab-completion derived from the command table",
+  "summary": "says whether pressing tab after corpus-yoga offers its commands and flags in zsh",
   "target": "src/main/cli/completions/completions.py",
   "calculus": "project L5",
   "args": []

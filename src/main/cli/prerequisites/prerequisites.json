@@ -15,7 +15,7 @@
     "venv": "the one interpreter every .py target runs in; VENV= names another",
     "python requirements": "what corpus-yoga pipeline run needs, by its manifest src/requirements.txt",
     "render assets": "what corpus-yoga server renders markdown with, by its manifest src/main/model/serve_assets.txt; corpus-yoga server says them",
-    "completions": "the shell's completion of corpus-yoga, generated from the tables under src/main/cli/; corpus-yoga completions says it",
+    "completions": "whether pressing tab after corpus-yoga offers its commands and flags in zsh; corpus-yoga completions says it",
     "git": "the tool, and the identity a commit requires",
     "pre-commit hook": "the repo's commit gate: until installed, nothing vets a commit; corpus-yoga test says it",
     "signature hook": "stamps Signature: machine/provider/session on a commit, and strips the model co-author; corpus-yoga test says it",
