@@ -2304,8 +2304,12 @@ _corpus-yoga
             (home / 'other').mkdir()
             (home / 'other' / 'corpus-yoga').write_text('')
             planted(home, lines, below=case.endswith('below compinit'))
+            # the planted home replaces the reader's own in everything that is found from
+            # it: the venv the launcher runs in is named, and the directory zsh reads its
+            # rc from is left to follow HOME
+            away = {key: value for key, value in os.environ.items() if key not in ('ZDOTDIR', 'USER_ZDOTDIR')}
             asked = subprocess.run([str(REPO_ROOT / 'corpus-yoga'), 'completions'], capture_output=True, text=True, cwd=REPO_ROOT,
-                                   env={**os.environ, 'HOME': str(home), 'YOGA_NO_SEND': '1'}, timeout=120)
+                                   env={**away, 'HOME': str(home), 'VENV': sys.prefix, 'YOGA_NO_SEND': '1'}, timeout=120)
         try:
             said = facts.load(asked.stdout).get('completions', {})
         except (ValueError, AttributeError):
@@ -2313,7 +2317,8 @@ _corpus-yoga
         said = said if isinstance(said, dict) else {}
         same = said.get('tab-completion') == expected and ('remedy' in said) == owed and len(said) == 1 + owed
         run(f'completions: the status over {case} says one thing, and a remedy where one is owed', same,
-            None if same else f'expected tab-completion: {expected} {"with" if owed else "without"} a remedy; corpus-yoga completions says {str(said)[:200]}',
+            None if same else f'expected tab-completion: {expected} {"with" if owed else "without"} a remedy; corpus-yoga completions says '
+            f'{str(said)[:200] if said else "nothing readable - " + (asked.stderr.strip() or asked.stdout.strip())[:200]}',
             check='completions.status_says_one_thing')
 
 
